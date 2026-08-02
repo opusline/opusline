@@ -9,7 +9,7 @@ import { AuthCard } from "@/features/auth/components/auth-card";
 import { LoginForm } from "@/features/auth/components/login-form";
 import { serverFieldErrors } from "@/lib/validation";
 
-export const Route = createFileRoute("/login")({
+export const Route = createFileRoute("/_guest/login")({
   validateSearch: (search: Record<string, unknown>): { redirect?: string } => ({
     redirect: typeof search.redirect === "string" ? search.redirect : undefined,
   }),

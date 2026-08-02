@@ -9,7 +9,7 @@ import { AuthCard } from "@/features/auth/components/auth-card";
 import { RegisterForm } from "@/features/auth/components/register-form";
 import { serverFieldErrors } from "@/lib/validation";
 
-export const Route = createFileRoute("/register")({
+export const Route = createFileRoute("/_guest/register")({
   component: RegisterPage,
 });
 
