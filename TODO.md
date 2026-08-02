@@ -1,4 +1,6 @@
-- Lefthook
+- Vite + React
+- Storybook
+- Packages UI
 - Typescript 7
 - Laravel
   - PHPSTAN
@@ -6,7 +8,4 @@
   - Rector
   - Modules (nwidart)
   - API
-- Vite + React
-- Storybook
-- Packages UI
 - CI/CD
