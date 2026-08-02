@@ -14,7 +14,8 @@
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "~/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@opusline/ui/*": ["../../packages/ui/src/*"]
     },
     "noEmit": true
   }

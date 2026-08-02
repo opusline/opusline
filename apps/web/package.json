@@ -12,11 +12,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@opusline/ui": "workspace:*",
     "@tanstack/react-devtools": "latest",
     "@tanstack/react-router": "latest",
     "@tanstack/react-router-devtools": "latest",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "@tailwindcss/vite": "^4",
+    "@tanstack/router-plugin": "latest",
+    "lucide-react": "^1.28.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
@@ -28,7 +32,7 @@
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^6.0.1",
     "tailwindcss": "^4.3.3",
-    "typescript": "latest",
+    "typescript": "^7",
     "vite": "^8.0.0"
   }
 }
