@@ -80,6 +80,10 @@ vendor/bin/pint
 - Web: Vitest + Testing Library for components with logic; don't test trivial rendering.
 - UI package: Storybook stories double as visual documentation — every component gets a story.
 
+## Design
+
+Design references live in docs/design/ (Claude Design handoff bundles); match them visually but always implement with @opusline/ui + repo conventions.
+
 ## When unsure
 
 Prefer asking over guessing on: product decisions (features, UX flows), anything touching billing/invoice math, database schema changes, and licensing/dependency additions (AGPL compatibility matters).
