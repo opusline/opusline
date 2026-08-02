@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vendor/bin/sail up"
+    "dev": "vendor/bin/sail up",
+    "test": "php artisan config:clear --quiet && php artisan test --compact"
   },
   "devDependencies": {
     "concurrently": "^9.0.1"

@@ -13,6 +13,11 @@ pre-commit:
       run: vendor/bin/pint {staged_files}
       stage_fixed: true
 
+pre-push:
+  jobs:
+    - name: tests
+      run: pnpm exec turbo run test
+
 commit-msg:
   jobs:
     - name: commitlint

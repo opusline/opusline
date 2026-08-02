@@ -20,6 +20,9 @@
       "cache": false,
       "persistent": true,
       "with": ["api#dev"]
+    },
+    "test": {
+      "description": "Runs the package's test suite"
     }
   }
 }
