@@ -1,3 +1,5 @@
+name: opusline-api
+
 services:
     laravel.test:
         build:

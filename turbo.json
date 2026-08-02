@@ -15,6 +15,11 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "web#dev": {
+      "cache": false,
+      "persistent": true,
+      "with": ["api#dev"]
     }
   }
 }

@@ -1,7 +1,11 @@
 {
   "$schema": "https://www.schemastore.org/package.json",
+  "name": "api",
   "private": true,
   "type": "module",
+  "scripts": {
+    "dev": "vendor/bin/sail up"
+  },
   "devDependencies": {
     "concurrently": "^9.0.1"
   }
