@@ -155,6 +155,7 @@ Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c83
   stable. Kimai's adoption owes a lot to its API.
 - [ ] **i18n FR/EN** — strings are kept extractable from day one; actually wire
   i18n when the core is stable. FR-first market, EN for OSS reach.
+- [ ] **Wizard** before starting
 
 ## Explicitly out of scope (do not build)
 
