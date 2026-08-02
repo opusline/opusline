@@ -1,8 +1,6 @@
 - Laravel
   - PHPSTAN
-  - Pint
-  - Rector
   - DDD
   - API
-  - Boost
+  - Horizon
 - CI/CD
