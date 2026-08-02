@@ -14,7 +14,7 @@ return [
             'view' => 'scramble-docs',
             'theme' => 'dark',
             'hideTryIt' => false,
-            'hideSchemas' => false,
+            'hideSchemas' => true,
             'logo' => '/logo.svg',
             'tryItCredentialsPolicy' => 'include',
             'layout' => 'responsive',

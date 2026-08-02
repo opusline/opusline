@@ -21,6 +21,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@storybook/react": "^10.5.5",
     "@tailwindcss/vite": "^4",
     "@turbo/gen": "^2.9.15",
     "@types/node": "^22",

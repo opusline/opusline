@@ -5,9 +5,10 @@
     "build": {
       "description": "Bundles the application with Vite",
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**"]
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.stories.{tsx,jsx,mdx}"],
+      "outputs": ["dist/**", "storybook-static/**"]
     },
+    "build:storybook": {},
     "//#format-and-lint": {
       "description": "Repo-wide biome check; uncached because root-task hashing misses workspace files",
       "cache": false
