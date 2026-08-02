@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "sh scripts/dev.sh",
-    "test": "php artisan config:clear --quiet && php artisan test --compact",
-    "check-types": "vendor/bin/phpstan analyse --memory-limit=512M --no-progress",
-    "lint": "vendor/bin/pint --test && vendor/bin/rector process --dry-run"
+    "test": "sh scripts/php.sh sh -c 'php artisan config:clear --quiet && php artisan test --compact'",
+    "check-types": "sh scripts/php.sh php vendor/bin/phpstan analyse --memory-limit=512M --no-progress",
+    "lint": "sh scripts/php.sh sh -c 'vendor/bin/pint --test && vendor/bin/rector process --dry-run'",
+    "generate": "sh scripts/php.sh php artisan scramble:export --path=openapi.json"
   }
 }

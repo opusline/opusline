@@ -15,6 +15,13 @@
     "forceConsistentCasingInFileNames": true,
     "paths": {
       "@/*": ["./src/*"],
+      "@opusline/api-client": ["../../packages/api-client/src/index.ts"],
+      "@opusline/api-client/client": [
+        "../../packages/api-client/src/client.gen.ts"
+      ],
+      "@opusline/api-client/react-query": [
+        "../../packages/api-client/src/@tanstack/react-query.gen.ts"
+      ],
       "@opusline/ui/*": ["../../packages/ui/src/*"]
     },
     "noEmit": true

@@ -1,0 +1,22 @@
+{
+  "name": "@opusline/api-client",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.gen.ts",
+    "./react-query": "./src/@tanstack/react-query.gen.ts"
+  },
+  "scripts": {
+    "generate": "openapi-ts",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.101.4"
+  },
+  "devDependencies": {
+    "@hey-api/openapi-ts": "0.99.0",
+    "typescript": "^5.9.0"
+  }
+}

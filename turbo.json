@@ -22,7 +22,23 @@
     "web#dev": {
       "cache": false,
       "persistent": true,
-      "with": ["api#dev"]
+      "with": ["api#dev"],
+      "dependsOn": ["@opusline/api-client#generate"]
+    },
+    "web#build": {
+      "description": "Bundles the web app after regenerating the API client",
+      "dependsOn": ["^build", "@opusline/api-client#generate"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["dist/**"]
+    },
+    "api#generate": {
+      "description": "Exports the OpenAPI spec from the Laravel app",
+      "outputs": ["openapi.json"]
+    },
+    "@opusline/api-client#generate": {
+      "description": "Generates the typed client from the OpenAPI spec",
+      "dependsOn": ["api#generate"],
+      "outputs": ["src/**"]
     },
     "test": {
       "description": "Runs the package's test suite"

@@ -1,3 +1,2 @@
-- Scramble + hey-openapi-ts wired into for web/
 - CI/CD
 - Authentication things with API (Laravel + web)

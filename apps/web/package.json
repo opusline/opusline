@@ -11,15 +11,17 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@opusline/api-client": "workspace:*",
     "@opusline/ui": "workspace:*",
+    "@tailwindcss/vite": "^4",
     "@tanstack/react-devtools": "latest",
+    "@tanstack/react-query": "^5.101.4",
     "@tanstack/react-router": "latest",
     "@tanstack/react-router-devtools": "latest",
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6",
-    "@tailwindcss/vite": "^4",
     "@tanstack/router-plugin": "latest",
-    "lucide-react": "^1.28.0"
+    "lucide-react": "^1.28.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",

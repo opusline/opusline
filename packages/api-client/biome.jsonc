@@ -3,6 +3,6 @@
   "extends": "//",
   "files": {
     "ignoreUnknown": false,
-    "includes": ["**", "!boost.json", "!openapi.json"]
+    "includes": ["**", "!src"]
   }
 }
