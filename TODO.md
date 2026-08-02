@@ -1,0 +1,8 @@
+- Biome
+- Typescript
+- Laravel
+  - PHPSTAN
+- Vite + React
+- Storybook
+- Packages UI
+- Lefthook
