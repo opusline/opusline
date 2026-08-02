@@ -1,7 +1,6 @@
 packages:
   - "apps/*"
   - "packages/*"
-ignoredBuiltDependencies:
-  - esbuild
 onlyBuiltDependencies:
+  - esbuild
   - lefthook
