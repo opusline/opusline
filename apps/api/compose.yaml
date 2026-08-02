@@ -33,7 +33,7 @@ services:
         develop:
             watch:
                 - path: .
-                  target: /var/www/html
+                  target: /tmp/compose-watch-shadow
                   action: sync+exec
                   exec:
                       command: ['php', 'artisan', 'octane:reload']
@@ -66,7 +66,7 @@ services:
         develop:
             watch:
                 - path: .
-                  target: /var/www/html
+                  target: /tmp/compose-watch-shadow
                   action: sync+exec
                   exec:
                       command: ['php', 'artisan', 'horizon:terminate']
