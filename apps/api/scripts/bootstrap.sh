@@ -3,7 +3,7 @@ set -e
 
 cd "$(dirname "$0")/.."
 
-COMPOSER_IMAGE="laravelsail/php85-composer:latest"
+COMPOSER_IMAGE="laravelsail/php84-composer:latest"
 
 run_in_composer_container() {
     docker run --rm \
