@@ -1,1 +1,10 @@
 - Authentication things with API (Laravel + web)
+- Clients & Missions
+- Time entries
+- Week view
+- Live timer
+- Quelque chose pour savoir combien j'ai généré ce mois en brut / TVA / NET
+- Quelque chose pour calculer avec les factures que j'ai envoyés (Shine) combien je peux me virer sur mon compte perso
+- Calcul de ce que je dois entrer pour l'URSSAF
+- Calcul de ce que je dois entrer pour la TVA
+- Reminders de quand payer tous les trucs URSSAF + TVA etc..
