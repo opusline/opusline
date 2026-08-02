@@ -21,7 +21,7 @@ class LoginData extends Data
     {
         return [
             'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:1'],
             'remember' => ['boolean'],
         ];
     }

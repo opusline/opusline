@@ -182,7 +182,8 @@
                         "format": "email"
                     },
                     "password": {
-                        "type": "string"
+                        "type": "string",
+                        "minLength": 1
                     },
                     "remember": {
                         "type": "boolean"
@@ -199,6 +200,7 @@
                 "properties": {
                     "name": {
                         "type": "string",
+                        "minLength": 1,
                         "maxLength": 255
                     },
                     "email": {
@@ -207,10 +209,12 @@
                         "maxLength": 255
                     },
                     "password": {
-                        "type": "string"
+                        "type": "string",
+                        "minLength": 8
                     },
                     "password_confirmation": {
-                        "type": "string"
+                        "type": "string",
+                        "minLength": 8
                     }
                 },
                 "required": [

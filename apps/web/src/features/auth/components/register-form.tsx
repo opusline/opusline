@@ -1,25 +1,24 @@
+import { zRegisterUserData } from "@opusline/api-client/zod";
 import { Button } from "@opusline/ui/components/button";
 import { Field, FieldError, FieldLabel } from "@opusline/ui/components/field";
 import { Input } from "@opusline/ui/components/input";
 import { useForm } from "@tanstack/react-form";
-import * as z from "zod";
+import * as z from "zod/mini";
 
-const registerSchema = z
-  .object({
-    name: z.string().min(1, "Le nom est requis."),
-    email: z.email("Adresse e-mail invalide."),
-    password: z.string().min(8, "Au moins 8 caractères."),
-    password_confirmation: z.string(),
-  })
-  .refine((values) => values.password === values.password_confirmation, {
-    message: "Les mots de passe ne correspondent pas.",
+const registerSchema = zRegisterUserData.check(
+  z.refine((values) => values.password === values.password_confirmation, {
+    error: "Les mots de passe ne correspondent pas.",
     path: ["password_confirmation"],
-  });
-
-type RegisterValues = z.infer<typeof registerSchema>;
+  }),
+);
 
 type RegisterFormProps = {
-  onSubmit: (values: RegisterValues) => void;
+  onSubmit: (values: {
+    name: string;
+    email: string;
+    password: string;
+    password_confirmation: string;
+  }) => Promise<Record<string, { message: string }> | null | undefined> | void;
   isPending?: boolean;
   error?: string | null;
 };
@@ -47,8 +46,13 @@ export function RegisterForm({
       password: "",
       password_confirmation: "",
     },
-    validators: { onSubmit: registerSchema },
-    onSubmit: ({ value }) => onSubmit(value),
+    validators: {
+      onSubmit: registerSchema,
+      onSubmitAsync: async ({ value }) => {
+        const fieldErrors = await onSubmit(value);
+        return fieldErrors ? { fields: fieldErrors } : null;
+      },
+    },
   });
 
   return (

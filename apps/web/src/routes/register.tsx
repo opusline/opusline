@@ -7,6 +7,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
 import { AuthCard } from "@/features/auth/components/auth-card";
 import { RegisterForm } from "@/features/auth/components/register-form";
+import { serverFieldErrors } from "@/lib/validation";
 
 export const Route = createFileRoute("/register")({
   component: RegisterPage,
@@ -16,13 +17,23 @@ function RegisterPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const register = useMutation({
-    ...registerMutation(),
-    onSuccess: async (user) => {
+  const register = useMutation(registerMutation());
+
+  const handleSubmit = async (values: {
+    name: string;
+    email: string;
+    password: string;
+    password_confirmation: string;
+  }) => {
+    try {
+      const user = await register.mutateAsync({ body: values });
       queryClient.setQueryData(currentUserQueryKey(), user);
       await navigate({ to: "/dashboard" });
-    },
-  });
+      return null;
+    } catch (error) {
+      return serverFieldErrors(error);
+    }
+  };
 
   return (
     <AuthCard
@@ -38,12 +49,12 @@ function RegisterPage() {
     >
       <RegisterForm
         error={
-          register.error
-            ? "L'inscription a échoué. Vérifiez vos informations."
+          register.error && !serverFieldErrors(register.error)
+            ? "L'inscription a échoué. Réessayez."
             : null
         }
         isPending={register.isPending}
-        onSubmit={(values) => register.mutate({ body: values })}
+        onSubmit={handleSubmit}
       />
     </AuthCard>
   );

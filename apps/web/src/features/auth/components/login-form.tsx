@@ -1,20 +1,19 @@
+import { zLoginData } from "@opusline/api-client/zod";
 import { Button } from "@opusline/ui/components/button";
 import { Checkbox } from "@opusline/ui/components/checkbox";
 import { Field, FieldError, FieldLabel } from "@opusline/ui/components/field";
 import { Input } from "@opusline/ui/components/input";
 import { useForm } from "@tanstack/react-form";
-import * as z from "zod";
+import * as z from "zod/mini";
 
-const loginSchema = z.object({
-  email: z.email("Adresse e-mail invalide."),
-  password: z.string().min(1, "Le mot de passe est requis."),
-  remember: z.boolean(),
-});
-
-type LoginValues = z.infer<typeof loginSchema>;
+const loginSchema = z.extend(zLoginData, { remember: z.boolean() });
 
 type LoginFormProps = {
-  onSubmit: (values: LoginValues) => void;
+  onSubmit: (values: {
+    email: string;
+    password: string;
+    remember: boolean;
+  }) => Promise<Record<string, { message: string }> | null | undefined> | void;
   isPending?: boolean;
   error?: string | null;
 };
@@ -22,8 +21,13 @@ type LoginFormProps = {
 export function LoginForm({ onSubmit, isPending, error }: LoginFormProps) {
   const form = useForm({
     defaultValues: { email: "", password: "", remember: false },
-    validators: { onSubmit: loginSchema },
-    onSubmit: ({ value }) => onSubmit(value),
+    validators: {
+      onSubmit: loginSchema,
+      onSubmitAsync: async ({ value }) => {
+        const fieldErrors = await onSubmit(value);
+        return fieldErrors ? { fields: fieldErrors } : null;
+      },
+    },
   });
 
   return (
@@ -89,9 +93,7 @@ export function LoginForm({ onSubmit, isPending, error }: LoginFormProps) {
             <Checkbox
               checked={field.state.value}
               id={field.name}
-              onCheckedChange={(checked) =>
-                field.handleChange(checked === true)
-              }
+              onCheckedChange={(checked) => field.handleChange(checked)}
             />
             <FieldLabel
               className="font-normal text-[12.5px] text-muted-foreground"
