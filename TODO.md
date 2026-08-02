@@ -1,2 +1,1 @@
-- CI/CD
 - Authentication things with API (Laravel + web)
