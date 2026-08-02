@@ -8,7 +8,10 @@
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**"]
     },
-    "//#format-and-lint": {},
+    "//#format-and-lint": {
+      "description": "Repo-wide biome check; uncached because root-task hashing misses workspace files",
+      "cache": false
+    },
     "//#format-and-lint:fix": {
       "cache": false
     },
@@ -26,6 +29,9 @@
     },
     "check-types": {
       "description": "Type-checks the package without emitting output"
+    },
+    "lint": {
+      "description": "Non-mutating format and refactor-drift checks for the package"
     }
   }
 }

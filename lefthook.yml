@@ -29,8 +29,8 @@ pre-commit:
 
 pre-push:
   jobs:
-    - name: tests-and-types
-      run: pnpm exec turbo run test check-types --output-logs=errors-only
+    - name: quality
+      run: pnpm exec turbo run test check-types lint format-and-lint --output-logs=errors-only
 
 commit-msg:
   jobs:
