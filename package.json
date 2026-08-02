@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.6",
+    "lefthook": "^2.1.10",
     "turbo": "^2.10.8"
   },
   "packageManager": "pnpm@9.0.0",

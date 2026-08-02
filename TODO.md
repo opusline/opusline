@@ -1,5 +1,4 @@
-- Biome
-  - Remove ESLINT
+- Lefthook
 - Typescript 7
 - Laravel
   - PHPSTAN
@@ -10,4 +9,4 @@
 - Vite + React
 - Storybook
 - Packages UI
-- Lefthook
+- CI/CD
