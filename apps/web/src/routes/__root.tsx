@@ -8,21 +8,25 @@ export const Route = createRootRoute({
   component: RootComponent,
 });
 
+const showDevtools = import.meta.env.DEV && import.meta.env.MODE !== "test";
+
 function RootComponent() {
   return (
     <>
       <Outlet />
-      <TanStackDevtools
-        config={{
-          position: "bottom-right",
-        }}
-        plugins={[
-          {
-            name: "TanStack Router",
-            render: <TanStackRouterDevtoolsPanel />,
-          },
-        ]}
-      />
+      {showDevtools && (
+        <TanStackDevtools
+          config={{
+            position: "bottom-right",
+          }}
+          plugins={[
+            {
+              name: "TanStack Router",
+              render: <TanStackRouterDevtoolsPanel />,
+            },
+          ]}
+        />
+      )}
     </>
   );
 }

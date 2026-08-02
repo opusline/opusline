@@ -10,7 +10,8 @@
     "generate-routes": "tsr generate",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "check-types": "tsc --noEmit"
   },
   "dependencies": {
     "@opusline/ui": "workspace:*",

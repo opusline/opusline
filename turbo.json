@@ -23,6 +23,9 @@
     },
     "test": {
       "description": "Runs the package's test suite"
+    },
+    "check-types": {
+      "description": "Type-checks the package without emitting output"
     }
   }
 }
