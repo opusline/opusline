@@ -2,9 +2,11 @@ import type { Preview } from "@storybook/react";
 
 import "../src/preview.css";
 import { withThemeByClassName } from "@storybook/addon-themes";
+import { themes } from "storybook/theming";
 
 const preview: Preview = {
   parameters: {
+    docs: { theme: themes.dark },
     actions: { argTypesRegex: "^on[A-Z].*" },
     controls: {
       matchers: {
@@ -26,7 +28,7 @@ const preview: Preview = {
         light: "light",
         dark: "dark",
       },
-      defaultTheme: "light",
+      defaultTheme: "dark",
     }),
   ],
 };

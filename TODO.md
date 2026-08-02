@@ -11,7 +11,6 @@ Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c83
 
 ## Storybook
 
-- [ ] Storybook should be in dark mode, light mode make my eyes AAAAHHH
 - [ ] All components must have a Storybook story, put that into Claude.md (web & UI)
 
 ## Cross-cutting decisions (apply everywhere, not re-litigable)
