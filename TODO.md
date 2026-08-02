@@ -1,6 +1,12 @@
 - Biome
+  - Remove ESLINT
+- Typescript 7
 - Laravel
   - PHPSTAN
+  - Pint
+  - Rector
+  - Modules (nwidart)
+  - API
 - Vite + React
 - Storybook
 - Packages UI
