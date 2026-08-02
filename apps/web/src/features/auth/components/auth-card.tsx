@@ -1,4 +1,9 @@
-import { Card } from "@opusline/ui/components/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@opusline/ui/components/card";
 import type { ReactNode } from "react";
 
 type AuthCardProps = {
@@ -11,18 +16,18 @@ export function AuthCard({ title, children, footer }: AuthCardProps) {
   return (
     <main className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <Card className="w-full gap-0 rounded-lg p-8">
-          <div className="mb-6 flex items-center gap-2.5">
-            <img alt="" className="block size-8" src="/logo.svg" />
-            <span className="font-heading font-semibold text-xl text-card-foreground">
+        <Card className="w-full rounded-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2.5 text-xl">
+              <img alt="" className="block size-8" src="/logo.svg" />
               Opusline
-            </span>
-          </div>
-          <h1 className="sr-only">{title}</h1>
-          {children}
+            </CardTitle>
+            <h1 className="sr-only">{title}</h1>
+          </CardHeader>
+          <CardContent>{children}</CardContent>
         </Card>
         {footer ? (
-          <p className="mt-4 text-center text-sm text-muted-foreground">
+          <p className="mt-4 text-center text-muted-foreground text-sm">
             {footer}
           </p>
         ) : null}
