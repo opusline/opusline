@@ -1,10 +1,11 @@
-import { client } from "@opusline/api-client/client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
+import { setupApiClient } from "@/lib/api";
+import "@/lib/zod";
 import { getRouter } from "./router";
 
-client.setConfig({ baseUrl: "/api" });
+setupApiClient();
 
 const router = getRouter();
 

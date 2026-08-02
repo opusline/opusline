@@ -15,7 +15,17 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "preset": "recommended"
+      "preset": "recommended",
+      "style": {
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "paths": {
+              "zod": "Import from \"zod/mini\" instead - the app only ships the tree-shakable mini build."
+            }
+          }
+        }
+      }
     }
   },
   "javascript": {

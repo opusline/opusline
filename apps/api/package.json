@@ -1,6 +1,6 @@
 {
   "$schema": "https://www.schemastore.org/package.json",
-  "name": "api",
+  "name": "@opusline/api",
   "private": true,
   "type": "module",
   "scripts": {

@@ -5,9 +5,10 @@
     "build": {
       "description": "Bundles the application with Vite",
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**"]
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.stories.{tsx,jsx,mdx}"],
+      "outputs": ["dist/**", "storybook-static/**"]
     },
+    "build:storybook": {},
     "//#format-and-lint": {
       "description": "Repo-wide biome check; uncached because root-task hashing misses workspace files",
       "cache": false
@@ -19,25 +20,25 @@
       "cache": false,
       "persistent": true
     },
-    "web#dev": {
+    "@opusline/web#dev": {
       "cache": false,
       "persistent": true,
-      "with": ["api#dev"],
+      "with": ["@opusline/api#dev"],
       "dependsOn": ["@opusline/api-client#generate"]
     },
-    "web#build": {
+    "@opusline/web#build": {
       "description": "Bundles the web app after regenerating the API client",
       "dependsOn": ["^build", "@opusline/api-client#generate"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": ["dist/**"]
     },
-    "api#generate": {
+    "@opusline/api#generate": {
       "description": "Exports the OpenAPI spec from the Laravel app",
       "outputs": ["openapi.json"]
     },
     "@opusline/api-client#generate": {
       "description": "Generates the typed client from the OpenAPI spec",
-      "dependsOn": ["api#generate"],
+      "dependsOn": ["@opusline/api#generate"],
       "outputs": ["src/**"]
     },
     "test": {

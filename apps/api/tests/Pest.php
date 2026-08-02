@@ -19,3 +19,8 @@ use Tests\TestCase;
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');
+
+function fromSpa(): TestCase
+{
+    return test()->withHeader('Referer', 'http://localhost:3000');
+}
