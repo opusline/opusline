@@ -10,7 +10,8 @@
     "laravel/framework": "^13.8",
     "laravel/horizon": "^5.48",
     "laravel/octane": "^2.18",
-    "laravel/tinker": "^3.0"
+    "laravel/tinker": "^3.0",
+    "spatie/laravel-data": "^4.23"
   },
   "require-dev": {
     "driftingly/rector-laravel": "^2.5",
