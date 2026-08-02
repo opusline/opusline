@@ -1,0 +1,85 @@
+# CLAUDE.md
+
+Guidance for Claude Code when working in this repository.
+
+## What this is
+
+**Opusline** — open-source (AGPL-3.0) time tracking, notes, and mission management for freelancers. Self-hostable alternative to Kimai, freelance-first: missions, clients, CRA, TJM, notes, invoicing.
+
+## Monorepo layout
+
+pnpm workspaces + Turborepo. JS tooling via pnpm, PHP via Composer (independent).
+
+```
+apps/
+  api/        # Laravel API (PHP). Composer-managed. npm scripts wrap artisan.
+  web/        # Product SPA — Vite + React + TypeScript + TanStack Router/Query
+packages/
+  ui/         # Design system — shadcn/ui components + Storybook
+  api-types/  # TS types generated from the Laravel OpenAPI spec
+```
+
+## Commands
+
+Run from the repo root unless stated otherwise.
+
+```bash
+pnpm install              # install all JS workspaces
+turbo dev                 # start api (artisan serve) + web (vite) together
+turbo build               # build everything
+turbo test                # Pest (api) + Vitest (js packages)
+turbo lint                # Biome (js) + Pint (php)
+
+# Scoped
+pnpm --filter @opusline/web dev
+pnpm --filter @opusline/ui storybook
+
+# Laravel (from apps/api/)
+php artisan test
+vendor/bin/pint
+```
+
+## Stack decisions (do not re-litigate)
+
+- **Frontend**: Vite SPA with **TanStack Router** (file-based routes) + **TanStack Query**. NOT TanStack Start, NOT Next.js — no SSR, no second server runtime. Self-hosting simplicity is a core product value: `web` builds to static files.
+- **UI**: shadcn/ui on **Base UI** primitives (not Radix). Components live in `packages/ui`, imported as `@opusline/ui`. Icons: **Lucide** only.
+- **Styling**: Tailwind v4 (CSS-first config, `@theme` tokens, no tailwind.config.js). Design system is defined by shadcn preset `b4DLSOvBaa` (style mira, base stone, theme amber, heading font Lora, body Geist, radius default). See DESIGN.md if present.
+- **API**: Laravel. **spatie/laravel-data** for DTOs at the boundaries (validation in, serialization out); plain Eloquent in the middle. Vanilla Laravel structure with domain folders under `app/Domain/` (Tracking, Clients, Notes, Billing) — NOT nwidart/laravel-modules.
+- **API contract**: OpenAPI spec generated from the API → TypeScript types in `packages/api-types`. Regenerate types after changing API request/response shapes.
+- **Package boundary**: `packages/ui` exports raw TS source (no build step); consumers compile it. Tailwind in consumers must `@source` the ui package.
+
+## Conventions
+
+- **Commits**: Conventional Commits, enforced by commitlint via Lefthook. Types: feat, fix, refactor, perf, style, test, docs, build, ci, chore, revert. Scopes (closed list): `api`, `web`, `ui`, `website`, `types`, `deps`, `repo`. Subject: imperative, lowercase, ≤50 chars, no trailing period. Body explains the WHY.
+- **Hooks**: single `lefthook.yml` at root. Pre-commit runs Biome (staged JS/TS) and Pint (staged PHP). Don't add Turbo tasks to pre-commit.
+- **Formatting/linting JS**: Biome (root biome.json). No ESLint, no Prettier.
+- **PHP style**: Pint, Laravel preset.
+- **TypeScript**: strict. No `any` without justification. Prefer inferred types over redundant annotations.
+- **Language**: code, comments, commits, and docs in English. UI copy may have French strings (target market includes FR freelances) — keep user-facing strings ready for i18n, don't hardcode.
+
+## Code style preferences
+
+- Prefer clean, idiomatic, structural solutions over convention-dependent workarounds or clever hacks.
+- Small composable components; shadcn-style composition (CVA variants, compound components) in `packages/ui`.
+- Accessibility is not optional: proper ARIA, focus management, keyboard navigation on all interactive components.
+- On the API: thin controllers, logic in domain actions; Data classes validate explicitly on anything security-relevant (don't rely on inferred validation rules).
+- Avoid premature abstraction. This is a solo-maintained OSS project — boring, readable code beats architecture astronautics.
+
+## Things NOT to do
+
+- Don't add SSR, server functions, or a Node backend to `web`.
+- Don't swap Base UI for Radix (or vice versa) in individual components — the repo is Base UI everywhere.
+- Don't introduce localStorage-based state for anything important; server state belongs in TanStack Query, ephemeral UI state in React state.
+- Don't install alternative UI/icon/styling libraries (MUI, styled-components, react-icons, etc.).
+- Don't edit generated files: `packages/api-types/src/generated/`, TanStack Router's `routeTree.gen.ts`.
+- Don't commit directly — always leave commits to the human unless explicitly asked.
+
+## Testing
+
+- API: Pest. Feature tests for endpoints (happy path + validation errors + authorization), unit tests for domain actions.
+- Web: Vitest + Testing Library for components with logic; don't test trivial rendering.
+- UI package: Storybook stories double as visual documentation — every component gets a story.
+
+## When unsure
+
+Prefer asking over guessing on: product decisions (features, UX flows), anything touching billing/invoice math, database schema changes, and licensing/dependency additions (AGPL compatibility matters).

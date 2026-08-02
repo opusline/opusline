@@ -1,8 +1,9 @@
 - Laravel
   - PHPSTAN
-  - DDD
   - API
   - Horizon
   - Rector
   - Laravel strict mode etc...
+  - Authentication things with API
+- Scramble & api types inside packages/api-types
 - CI/CD
