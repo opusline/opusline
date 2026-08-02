@@ -64,7 +64,7 @@ export function RegisterForm({
       }}
     >
       {error ? (
-        <p className="text-[13px] text-destructive" role="alert">
+        <p className="text-sm text-destructive" role="alert">
           {error}
         </p>
       ) : null}
@@ -92,11 +92,7 @@ export function RegisterForm({
           }}
         </form.Field>
       ))}
-      <Button
-        className="mt-1 h-[38px] w-full"
-        disabled={isPending}
-        type="submit"
-      >
+      <Button className="mt-1 h-9 w-full" disabled={isPending} type="submit">
         Créer le compte
       </Button>
     </form>

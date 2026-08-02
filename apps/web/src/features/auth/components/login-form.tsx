@@ -39,7 +39,7 @@ export function LoginForm({ onSubmit, isPending, error }: LoginFormProps) {
       }}
     >
       {error ? (
-        <p className="text-[13px] text-destructive" role="alert">
+        <p className="text-sm text-destructive" role="alert">
           {error}
         </p>
       ) : null}
@@ -96,7 +96,7 @@ export function LoginForm({ onSubmit, isPending, error }: LoginFormProps) {
               onCheckedChange={(checked) => field.handleChange(checked)}
             />
             <FieldLabel
-              className="font-normal text-[12.5px] text-muted-foreground"
+              className="font-normal text-xs text-muted-foreground"
               htmlFor={field.name}
             >
               Rester connecté 30 jours
@@ -104,11 +104,7 @@ export function LoginForm({ onSubmit, isPending, error }: LoginFormProps) {
           </Field>
         )}
       </form.Field>
-      <Button
-        className="mt-1 h-[38px] w-full"
-        disabled={isPending}
-        type="submit"
-      >
+      <Button className="mt-1 h-9 w-full" disabled={isPending} type="submit">
         Se connecter
       </Button>
     </form>
