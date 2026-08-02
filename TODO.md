@@ -1,5 +1,4 @@
 - Biome
-- Typescript
 - Laravel
   - PHPSTAN
 - Vite + React
