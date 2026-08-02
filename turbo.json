@@ -3,10 +3,10 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "description": "Compiles TypeScript and bundles the application",
+      "description": "Bundles the application with Vite",
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**"]
+      "outputs": ["dist/**"]
     },
     "//#format-and-lint": {
       "description": "Repo-wide biome check; uncached because root-task hashing misses workspace files",

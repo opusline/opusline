@@ -1,4 +1,3 @@
-- Change the build of turborepo, we don't use NextJS
 - Laravel
   - What Spatie package to install ? And in general what are some nice Laravel packages to install right now to start clean ?
   - Authentication things with API
