@@ -47,9 +47,6 @@ importers:
       '@storybook/addon-docs':
         specifier: ^10.5.5
         version: 10.5.5(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(esbuild@0.28.1)(storybook@10.5.5(@types/react@19.2.18)(prettier@3.9.6)(react@19.2.8))(vite@8.2.0(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0))
-      '@storybook/addon-onboarding':
-        specifier: ^10.5.5
-        version: 10.5.5(storybook@10.5.5(@types/react@19.2.18)(prettier@3.9.6)(react@19.2.8))
       '@storybook/addon-vitest':
         specifier: ^10.5.5
         version: 10.5.5(@vitest/browser-playwright@4.1.10)(@vitest/browser@4.1.10)(@vitest/runner@4.1.10)(react@19.2.8)(storybook@10.5.5(@types/react@19.2.18)(prettier@3.9.6)(react@19.2.8))(vitest@4.1.10)
@@ -1733,11 +1730,6 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
-
-  '@storybook/addon-onboarding@10.5.5':
-    resolution: {integrity: sha512-QF8mn5QDJdY1LI/RqpxlruaETrPspVFVMRl0oFLSYOIQENIKLY+9Jy48zBkEeiy2vVY8aTNeWdkrnFpDc9G2qA==}
-    peerDependencies:
-      storybook: ^10.5.5
 
   '@storybook/addon-vitest@10.5.5':
     resolution: {integrity: sha512-Ymq9ErkSkYiIDuqpJ2+hE5GCQ5J6TCLOWhutqArvwaeAO+HAibM82XNExpJ1/kvPqk9y961GDPkv2W15I88JIw==}
@@ -5869,10 +5861,6 @@ snapshots:
       - rollup
       - vite
       - webpack
-
-  '@storybook/addon-onboarding@10.5.5(storybook@10.5.5(@types/react@19.2.18)(prettier@3.9.6)(react@19.2.8))':
-    dependencies:
-      storybook: 10.5.5(@types/react@19.2.18)(prettier@3.9.6)(react@19.2.8)
 
   '@storybook/addon-vitest@10.5.5(@vitest/browser-playwright@4.1.10)(@vitest/browser@4.1.10)(@vitest/runner@4.1.10)(react@19.2.8)(storybook@10.5.5(@types/react@19.2.18)(prettier@3.9.6)(react@19.2.8))(vitest@4.1.10)':
     dependencies:
