@@ -9,10 +9,6 @@ they are domain vocabulary, not translatable. All amounts in EUR.
 
 Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c831d?file=Opusline.dc.html
 
-## Design
-
-- [ ] Sidebar on the left, look into Finary idea for instance (https://ui.shadcn.com/docs/components/base/sidebar)
-
 ## Storybook
 
 - [ ] Fix issue with web/ stories component tailwind is not working when running inside the Storybook for those (it works for @opusline/ui)
