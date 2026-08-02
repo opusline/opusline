@@ -7,6 +7,8 @@ context for Claude Code to plan from — but always plan first, confirm, then bu
 French fiscal terms are kept in French on purpose (CRA, URSSAF, TVA, micro-BNC…) —
 they are domain vocabulary, not translatable. All amounts in EUR.
 
+Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c831d?file=Opusline.dc.html
+
 ## Cross-cutting decisions (apply everywhere, not re-litigable)
 
 - **Money**: `brick/money` value objects everywhere money is touched. Storage is
