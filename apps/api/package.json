@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "sh scripts/bootstrap.sh && vendor/bin/sail up",
+    "dev": "sh scripts/dev.sh",
     "test": "php artisan config:clear --quiet && php artisan test --compact",
     "check-types": "vendor/bin/phpstan analyse --memory-limit=512M --no-progress",
     "lint": "vendor/bin/pint --test && vendor/bin/rector process --dry-run"
