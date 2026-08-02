@@ -26,8 +26,10 @@ services:
         networks:
             - sail
         depends_on:
-            - mysql
-            - redis
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
     horizon:
         image: 'sail-8.5/app'
         extra_hosts:

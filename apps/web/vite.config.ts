@@ -11,6 +11,7 @@ const config = defineConfig({
   server: {
     proxy: {
       "/api": "http://localhost",
+      "/sanctum": "http://localhost",
     },
   },
   plugins: [
