@@ -30,6 +30,23 @@ services:
                 condition: service_healthy
             redis:
                 condition: service_healthy
+        develop:
+            watch:
+                - path: .
+                  target: /var/www/html
+                  action: sync+exec
+                  exec:
+                      command: ['php', 'artisan', 'octane:reload']
+                      user: sail
+                  ignore:
+                      - vendor
+                      - node_modules
+                      - storage
+                      - data
+                      - config/caddy
+                      - tests
+                      - scripts
+                      - openapi.json
     horizon:
         image: 'sail-8.5/app'
         extra_hosts:
@@ -46,6 +63,23 @@ services:
             - laravel.test
             - mysql
             - redis
+        develop:
+            watch:
+                - path: .
+                  target: /var/www/html
+                  action: sync+exec
+                  exec:
+                      command: ['php', 'artisan', 'horizon:terminate']
+                      user: sail
+                  ignore:
+                      - vendor
+                      - node_modules
+                      - storage
+                      - data
+                      - config/caddy
+                      - tests
+                      - scripts
+                      - openapi.json
     mysql:
         image: 'mysql:8.4'
         ports:
