@@ -11,7 +11,7 @@ Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c83
 
 ## Design
 
-- [ ] Sidebar on the left, look into Finary idea for instance
+- [ ] Sidebar on the left, look into Finary idea for instance (https://ui.shadcn.com/docs/components/base/sidebar)
 
 ## Cross-cutting decisions (apply everywhere, not re-litigable)
 
