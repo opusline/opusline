@@ -9,6 +9,11 @@
             "url": "http://localhost/api"
         }
     ],
+    "security": [
+        {
+            "apiKey": []
+        }
+    ],
     "paths": {
         "/ping": {
             "get": {
@@ -32,7 +37,8 @@
                             }
                         }
                     }
-                }
+                },
+                "security": []
             }
         },
         "/register": {
@@ -62,7 +68,8 @@
                             }
                         }
                     }
-                }
+                },
+                "security": []
             }
         },
         "/login": {
@@ -114,7 +121,8 @@
                             }
                         }
                     }
-                }
+                },
+                "security": []
             }
         },
         "/logout": {
@@ -158,6 +166,13 @@
         }
     },
     "components": {
+        "securitySchemes": {
+            "apiKey": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": "opusline-session"
+            }
+        },
         "schemas": {
             "LoginData": {
                 "type": "object",
