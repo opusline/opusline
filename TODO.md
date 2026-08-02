@@ -38,13 +38,6 @@ Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c83
 
 ## Core loop (v1 — ships when this section is done)
 
-- [ ] **Auth (Laravel + web)**
-  Sanctum SPA mode (session + CSRF, `SANCTUM_STATEFUL_DOMAINS`), login/logout,
-  `GET /api/me`, protected layout route in TanStack Router. Single-user first
-  (the freelance IS the tenant), but keep user_id on everything — self-hosters
-  may share an instance later. Treated as the walking skeleton: proves the full
-  pipe (Laravel → Data class → OpenAPI → api-types → TanStack Query → @opusline/ui).
-
 - [ ] **Clients & Missions**
   Client CRUD. Mission belongs to a client, carries: billing mode (daily TJM |
   hourly), rate (`rate_cents`), currency (EUR default), status (active/paused/done),
