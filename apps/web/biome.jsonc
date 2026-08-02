@@ -1,7 +1,58 @@
 {
+  "root": false,
   "extends": "//",
   "files": {
     "ignoreUnknown": false,
     "includes": ["**", "!src/routeTree.gen.ts"]
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["src/features/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["@/features/**"],
+                    "message": "Features must not import other features; compose them in a route. Same-feature imports use relative paths."
+                  },
+                  {
+                    "group": ["@/routes/**", "**/routes/**"],
+                    "message": "Features must not import the routes layer."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/lib/**", "src/components/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["@/features/**", "**/features/**"],
+                    "message": "lib and components sit below features and must not import them."
+                  },
+                  {
+                    "group": ["@/routes/**", "**/routes/**"],
+                    "message": "lib and components must not import the routes layer."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }
