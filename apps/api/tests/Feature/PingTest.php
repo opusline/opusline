@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('the api responds to ping with a json payload', function () {
     $response = $this->getJson('/api/ping');
 
