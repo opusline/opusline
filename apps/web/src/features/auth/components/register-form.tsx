@@ -1,8 +1,10 @@
 import { zRegisterUserData } from "@opusline/api-client/zod";
+import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
 import { Field, FieldError, FieldLabel } from "@opusline/ui/components/field";
 import { Input } from "@opusline/ui/components/input";
 import { useForm } from "@tanstack/react-form";
+import { CircleAlert } from "lucide-react";
 import * as z from "zod/mini";
 
 const registerSchema = zRegisterUserData.check(
@@ -53,9 +55,10 @@ export function RegisterForm({
       }}
     >
       {error ? (
-        <p className="text-destructive text-sm" role="alert">
-          {error}
-        </p>
+        <Alert variant="warn">
+          <CircleAlert />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : null}
       <form.Field name="name">
         {(field) => {
@@ -146,7 +149,7 @@ export function RegisterForm({
           );
         }}
       </form.Field>
-      <Button className="mt-1 h-9 w-full" disabled={isPending} type="submit">
+      <Button className="mt-1 h-10 w-full" disabled={isPending} type="submit">
         Créer le compte
       </Button>
     </form>

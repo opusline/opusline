@@ -1,9 +1,11 @@
 import { zLoginData } from "@opusline/api-client/zod";
+import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
 import { Checkbox } from "@opusline/ui/components/checkbox";
 import { Field, FieldError, FieldLabel } from "@opusline/ui/components/field";
 import { Input } from "@opusline/ui/components/input";
 import { useForm } from "@tanstack/react-form";
+import { CircleAlert } from "lucide-react";
 import * as z from "zod/mini";
 
 const loginSchema = z.extend(zLoginData, { remember: z.boolean() });
@@ -39,9 +41,10 @@ export function LoginForm({ onSubmit, isPending, error }: LoginFormProps) {
       }}
     >
       {error ? (
-        <p className="text-sm text-destructive" role="alert">
-          {error}
-        </p>
+        <Alert variant="warn">
+          <CircleAlert />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : null}
       <form.Field name="email">
         {(field) => {
@@ -95,16 +98,13 @@ export function LoginForm({ onSubmit, isPending, error }: LoginFormProps) {
               id={field.name}
               onCheckedChange={(checked) => field.handleChange(checked)}
             />
-            <FieldLabel
-              className="font-normal text-xs text-muted-foreground"
-              htmlFor={field.name}
-            >
+            <FieldLabel htmlFor={field.name}>
               Rester connecté 30 jours
             </FieldLabel>
           </Field>
         )}
       </form.Field>
-      <Button className="mt-1 h-9 w-full" disabled={isPending} type="submit">
+      <Button className="mt-1 h-10 w-full" disabled={isPending} type="submit">
         Se connecter
       </Button>
     </form>

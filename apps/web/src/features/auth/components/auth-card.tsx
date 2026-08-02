@@ -16,7 +16,7 @@ export function AuthCard({ title, children, footer }: AuthCardProps) {
   return (
     <main className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <Card className="w-full rounded-lg">
+        <Card className="w-full [--card-spacing:--spacing(8)]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2.5 text-xl">
               <img alt="" className="block size-8" src="/logo.svg" />
