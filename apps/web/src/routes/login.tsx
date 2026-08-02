@@ -3,8 +3,9 @@ import {
   loginMutation,
 } from "@opusline/api-client/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
+import { AuthCard } from "@/features/auth/components/auth-card";
 import { LoginForm } from "@/features/auth/components/login-form";
 
 export const Route = createFileRoute("/login")({
@@ -28,10 +29,22 @@ function LoginPage() {
   });
 
   return (
-    <LoginForm
-      error={login.error ? "Invalid credentials." : null}
-      isPending={login.isPending}
-      onSubmit={(values) => login.mutate({ body: values })}
-    />
+    <AuthCard
+      footer={
+        <>
+          Pas encore de compte ?{" "}
+          <Link className="text-primary hover:underline" to="/register">
+            Créer un compte
+          </Link>
+        </>
+      }
+      title="Connexion"
+    >
+      <LoginForm
+        error={login.error ? "Identifiants invalides." : null}
+        isPending={login.isPending}
+        onSubmit={(values) => login.mutate({ body: values })}
+      />
+    </AuthCard>
   );
 }

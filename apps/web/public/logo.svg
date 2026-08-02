@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <title>Opusline</title>
+  <rect width="32" height="32" rx="4" fill="#BA7517"/>
+  <circle cx="16" cy="16" r="7.5" fill="none" stroke="#1C1917" stroke-width="4"/>
+  <rect x="14" y="4" width="4" height="6" fill="#BA7517"/>
+</svg>

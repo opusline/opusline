@@ -28,15 +28,17 @@ function DashboardPage() {
 
   return (
     <div className="p-8">
-      <h1 className="font-bold text-2xl">Welcome, {user.name}</h1>
-      <p className="mt-2 text-sm">{user.email}</p>
+      <h1 className="font-heading font-semibold text-[23px] text-card-foreground">
+        Bonjour, {user.name}
+      </h1>
+      <p className="mt-2 text-[13px] text-muted-foreground">{user.email}</p>
       <button
-        className="mt-6 rounded border px-4 py-2 disabled:opacity-50"
+        className="mt-6 h-8 rounded-sm border border-border px-3 text-[13px] text-secondary-foreground transition hover:bg-secondary disabled:opacity-50"
         disabled={logout.isPending}
         onClick={() => logout.mutate({})}
         type="button"
       >
-        Log out
+        Se déconnecter
       </button>
     </div>
   );

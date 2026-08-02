@@ -3,6 +3,19 @@
 declare(strict_types=1);
 
 use App\Domain\Users\Models\User;
+use Illuminate\Support\Facades\Auth;
+
+test('login can remember the user', function (): void {
+    $user = User::factory()->create();
+
+    $response = fromSpa()->postJson('/api/login', [
+        'email' => $user->email,
+        'password' => 'password',
+        'remember' => true,
+    ]);
+
+    $response->assertOk()->assertCookie(Auth::guard('web')->getRecallerName());
+});
 
 test('a user can log in with valid credentials', function (): void {
     $user = User::factory()->create();

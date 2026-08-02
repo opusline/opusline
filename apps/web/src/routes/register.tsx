@@ -3,8 +3,9 @@ import {
   registerMutation,
 } from "@opusline/api-client/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
+import { AuthCard } from "@/features/auth/components/auth-card";
 import { RegisterForm } from "@/features/auth/components/register-form";
 
 export const Route = createFileRoute("/register")({
@@ -24,10 +25,26 @@ function RegisterPage() {
   });
 
   return (
-    <RegisterForm
-      error={register.error ? "Registration failed. Check your details." : null}
-      isPending={register.isPending}
-      onSubmit={(values) => register.mutate({ body: values })}
-    />
+    <AuthCard
+      footer={
+        <>
+          Déjà un compte ?{" "}
+          <Link className="text-primary hover:underline" to="/login">
+            Se connecter
+          </Link>
+        </>
+      }
+      title="Créer un compte"
+    >
+      <RegisterForm
+        error={
+          register.error
+            ? "L'inscription a échoué. Vérifiez vos informations."
+            : null
+        }
+        isPending={register.isPending}
+        onSubmit={(values) => register.mutate({ body: values })}
+      />
+    </AuthCard>
   );
 }

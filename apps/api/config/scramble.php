@@ -8,4 +8,17 @@ return [
     'extensions' => [
         SpatieDataToSchema::class,
     ],
+
+    'renderers' => [
+        'elements' => [
+            'view' => 'scramble-docs',
+            'theme' => 'dark',
+            'hideTryIt' => false,
+            'hideSchemas' => false,
+            'logo' => '/logo.svg',
+            'tryItCredentialsPolicy' => 'include',
+            'layout' => 'responsive',
+            'router' => 'hash',
+        ],
+    ],
 ];

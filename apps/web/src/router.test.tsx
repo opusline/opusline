@@ -15,6 +15,6 @@ it("redirects the root to the login page when unauthenticated", async () => {
   );
 
   expect(
-    await screen.findByRole("heading", { name: /log in/i }),
+    await screen.findByRole("heading", { name: /connexion/i }),
   ).toBeInTheDocument();
 });
