@@ -3,4 +3,6 @@
   - DDD
   - API
   - Horizon
+  - Rector
+  - Laravel strict mode etc...
 - CI/CD
