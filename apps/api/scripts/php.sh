@@ -12,7 +12,7 @@ export WWWUSER="${WWWUSER:-$(id -u)}"
 export WWWGROUP="${WWWGROUP:-$(id -g)}"
 
 if docker compose ps --status running laravel.test 2>/dev/null | grep -q laravel.test; then
-    exec docker compose exec -T -u sail laravel.test "$@"
+    exec docker compose exec -T -u "$WWWUSER" laravel.test "$@"
 fi
 
-exec docker compose run --rm --no-deps -T laravel.test "$@"
+exec docker compose run --rm -T laravel.test "$@"

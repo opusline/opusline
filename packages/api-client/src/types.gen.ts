@@ -4,6 +4,34 @@ export type ClientOptions = {
     baseUrl: 'http://localhost/api' | (string & {});
 };
 
+/**
+ * LoginData
+ */
+export type LoginData = {
+    email: string;
+    password: string;
+    remember?: boolean;
+};
+
+/**
+ * RegisterUserData
+ */
+export type RegisterUserData = {
+    name: string;
+    email: string;
+    password: string;
+    password_confirmation: string;
+};
+
+/**
+ * UserData
+ */
+export type UserData = {
+    id: number;
+    name: string;
+    email: string;
+};
+
 export type GetPingData = {
     body?: never;
     path?: never;
@@ -18,3 +46,100 @@ export type GetPingResponses = {
 };
 
 export type GetPingResponse = GetPingResponses[keyof GetPingResponses];
+
+export type RegisterData = {
+    body: RegisterUserData;
+    path?: never;
+    query?: never;
+    url: '/register';
+};
+
+export type RegisterResponses = {
+    201: UserData;
+};
+
+export type RegisterResponse = RegisterResponses[keyof RegisterResponses];
+
+export type LoginData2 = {
+    body: LoginData;
+    path?: never;
+    query?: never;
+    url: '/login';
+};
+
+export type LoginErrors = {
+    /**
+     * An error
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type LoginError = LoginErrors[keyof LoginErrors];
+
+export type LoginResponses = {
+    200: UserData;
+};
+
+export type LoginResponse = LoginResponses[keyof LoginResponses];
+
+export type LogoutData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/logout';
+};
+
+export type LogoutErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type LogoutError = LogoutErrors[keyof LogoutErrors];
+
+export type LogoutResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type LogoutResponse = LogoutResponses[keyof LogoutResponses];
+
+export type CurrentUserData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user';
+};
+
+export type CurrentUserErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CurrentUserError = CurrentUserErrors[keyof CurrentUserErrors];
+
+export type CurrentUserResponses = {
+    200: UserData;
+};
+
+export type CurrentUserResponse = CurrentUserResponses[keyof CurrentUserResponses];

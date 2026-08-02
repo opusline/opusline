@@ -14,6 +14,7 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - laravel/horizon (HORIZON) - v5
 - laravel/octane (OCTANE) - v2
 - laravel/prompts (PROMPTS) - v0
+- laravel/sanctum (SANCTUM) - v4
 - larastan/larastan (LARASTAN) - v3
 - laravel/boost (BOOST) - v2
 - laravel/mcp (MCP) - v0

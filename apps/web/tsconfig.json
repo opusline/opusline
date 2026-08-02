@@ -22,6 +22,7 @@
       "@opusline/api-client/react-query": [
         "../../packages/api-client/src/@tanstack/react-query.gen.ts"
       ],
+      "@opusline/api-client/zod": ["../../packages/api-client/src/zod.gen.ts"],
       "@opusline/ui/*": ["../../packages/ui/src/*"]
     },
     "noEmit": true

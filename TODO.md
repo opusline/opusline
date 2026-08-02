@@ -7,6 +7,14 @@ context for Claude Code to plan from — but always plan first, confirm, then bu
 French fiscal terms are kept in French on purpose (CRA, URSSAF, TVA, micro-BNC…) —
 they are domain vocabulary, not translatable. All amounts in EUR.
 
+Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c831d?file=Opusline.dc.html
+
+## Design
+
+- [ ] Implement the dashboard and pages with sidebar (https://ui.shadcn.com/docs/components/base/sidebar#sidebarrail), only do the 
+  structure of it, nothing really plugged to backend (but stuffs that are ready : logout, user, theme switcher, etc...), but pages 
+  should be binded and just have a little text on it to make sure we're
+
 ## Cross-cutting decisions (apply everywhere, not re-litigable)
 
 - **Money**: `brick/money` value objects everywhere money is touched. Storage is
@@ -153,6 +161,7 @@ they are domain vocabulary, not translatable. All amounts in EUR.
   stable. Kimai's adoption owes a lot to its API.
 - [ ] **i18n FR/EN** — strings are kept extractable from day one; actually wire
   i18n when the core is stable. FR-first market, EN for OSS reach.
+- [ ] **Wizard** before starting
 
 ## Explicitly out of scope (do not build)
 

@@ -7,4 +7,4 @@ sh scripts/bootstrap.sh
 
 setsid sh scripts/dev-janitor.sh $$ &
 
-exec vendor/bin/sail up
+exec vendor/bin/sail up --watch

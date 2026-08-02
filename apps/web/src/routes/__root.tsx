@@ -5,6 +5,9 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
 import "@opusline/ui/globals.css";
 
+import { ModeToggle } from "@/components/mode-toggle";
+import { ThemeProvider } from "@/components/theme-provider";
+
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
 }>()({
@@ -15,8 +18,11 @@ const showDevtools = import.meta.env.DEV && import.meta.env.MODE !== "test";
 
 function RootComponent() {
   return (
-    <>
+    <ThemeProvider>
       <Outlet />
+      <div className="fixed top-3 right-3">
+        <ModeToggle />
+      </div>
       {showDevtools && (
         <TanStackDevtools
           config={{
@@ -30,6 +36,6 @@ function RootComponent() {
           ]}
         />
       )}
-    </>
+    </ThemeProvider>
   );
 }
