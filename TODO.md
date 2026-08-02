@@ -9,6 +9,10 @@ they are domain vocabulary, not translatable. All amounts in EUR.
 
 Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c831d?file=Opusline.dc.html
 
+## Design
+
+- [ ] Sidebar on the left, look into Finary idea for instance
+
 ## Cross-cutting decisions (apply everywhere, not re-litigable)
 
 - **Money**: `brick/money` value objects everywhere money is touched. Storage is
