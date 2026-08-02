@@ -23,17 +23,6 @@ type RegisterFormProps = {
   error?: string | null;
 };
 
-const fields = [
-  { name: "name", label: "Nom", type: "text" },
-  { name: "email", label: "Adresse e-mail", type: "email" },
-  { name: "password", label: "Mot de passe", type: "password" },
-  {
-    name: "password_confirmation",
-    label: "Confirmer le mot de passe",
-    type: "password",
-  },
-] as const;
-
 export function RegisterForm({
   onSubmit,
   isPending,
@@ -64,34 +53,99 @@ export function RegisterForm({
       }}
     >
       {error ? (
-        <p className="text-sm text-destructive" role="alert">
+        <p className="text-destructive text-sm" role="alert">
           {error}
         </p>
       ) : null}
-      {fields.map(({ name, label, type }) => (
-        <form.Field key={name} name={name}>
-          {(field) => {
-            const isInvalid =
-              field.state.meta.isTouched && !field.state.meta.isValid;
-            return (
-              <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
-                <Input
-                  aria-invalid={isInvalid}
-                  id={field.name}
-                  onBlur={field.handleBlur}
-                  onChange={(event) => field.handleChange(event.target.value)}
-                  type={type}
-                  value={field.state.value}
-                />
-                {isInvalid ? (
-                  <FieldError errors={field.state.meta.errors} />
-                ) : null}
-              </Field>
-            );
-          }}
-        </form.Field>
-      ))}
+      <form.Field name="name">
+        {(field) => {
+          const isInvalid =
+            field.state.meta.isTouched && !field.state.meta.isValid;
+          return (
+            <Field data-invalid={isInvalid}>
+              <FieldLabel htmlFor={field.name}>Nom</FieldLabel>
+              <Input
+                aria-invalid={isInvalid}
+                id={field.name}
+                onBlur={field.handleBlur}
+                onChange={(event) => field.handleChange(event.target.value)}
+                value={field.state.value}
+              />
+              {isInvalid ? (
+                <FieldError errors={field.state.meta.errors} />
+              ) : null}
+            </Field>
+          );
+        }}
+      </form.Field>
+      <form.Field name="email">
+        {(field) => {
+          const isInvalid =
+            field.state.meta.isTouched && !field.state.meta.isValid;
+          return (
+            <Field data-invalid={isInvalid}>
+              <FieldLabel htmlFor={field.name}>Adresse e-mail</FieldLabel>
+              <Input
+                aria-invalid={isInvalid}
+                id={field.name}
+                onBlur={field.handleBlur}
+                onChange={(event) => field.handleChange(event.target.value)}
+                type="email"
+                value={field.state.value}
+              />
+              {isInvalid ? (
+                <FieldError errors={field.state.meta.errors} />
+              ) : null}
+            </Field>
+          );
+        }}
+      </form.Field>
+      <form.Field name="password">
+        {(field) => {
+          const isInvalid =
+            field.state.meta.isTouched && !field.state.meta.isValid;
+          return (
+            <Field data-invalid={isInvalid}>
+              <FieldLabel htmlFor={field.name}>Mot de passe</FieldLabel>
+              <Input
+                aria-invalid={isInvalid}
+                id={field.name}
+                onBlur={field.handleBlur}
+                onChange={(event) => field.handleChange(event.target.value)}
+                type="password"
+                value={field.state.value}
+              />
+              {isInvalid ? (
+                <FieldError errors={field.state.meta.errors} />
+              ) : null}
+            </Field>
+          );
+        }}
+      </form.Field>
+      <form.Field name="password_confirmation">
+        {(field) => {
+          const isInvalid =
+            field.state.meta.isTouched && !field.state.meta.isValid;
+          return (
+            <Field data-invalid={isInvalid}>
+              <FieldLabel htmlFor={field.name}>
+                Confirmer le mot de passe
+              </FieldLabel>
+              <Input
+                aria-invalid={isInvalid}
+                id={field.name}
+                onBlur={field.handleBlur}
+                onChange={(event) => field.handleChange(event.target.value)}
+                type="password"
+                value={field.state.value}
+              />
+              {isInvalid ? (
+                <FieldError errors={field.state.meta.errors} />
+              ) : null}
+            </Field>
+          );
+        }}
+      </form.Field>
       <Button className="mt-1 h-9 w-full" disabled={isPending} type="submit">
         Créer le compte
       </Button>
