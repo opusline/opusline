@@ -7,6 +7,12 @@ pre-commit:
       run: pnpm exec biome check --write --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
       stage_fixed: true
 
+    - name: pint
+      root: "apps/api/"
+      glob: "*.php"
+      run: vendor/bin/pint {staged_files}
+      stage_fixed: true
+
 commit-msg:
   jobs:
     - name: commitlint
