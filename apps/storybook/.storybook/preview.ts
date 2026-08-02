@@ -1,6 +1,6 @@
 import type { Preview } from "@storybook/react";
 
-import "@opusline/ui/globals.css";
+import "../src/preview.css";
 import { withThemeByClassName } from "@storybook/addon-themes";
 
 const preview: Preview = {
