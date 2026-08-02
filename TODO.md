@@ -1,11 +1,8 @@
-- Vite + React
-- Storybook
-- Packages UI
-- Typescript 7
 - Laravel
   - PHPSTAN
   - Pint
   - Rector
-  - Modules (nwidart)
+  - DDD
   - API
+  - Boost
 - CI/CD
