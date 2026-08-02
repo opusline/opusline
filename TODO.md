@@ -1,9 +1,7 @@
 - Laravel
-  - PHPSTAN
   - Horizon
-  - Rector
-  - Laravel strict mode etc...
   - Authentication things with API
+  - Factories should be inside Domain no?
   - What Spatie package to install ? And in general what are some nice Laravel packages to install right now to start clean ?
 - Scramble & api types inside packages/api-types
 - Have something auto generated for the API in javascript

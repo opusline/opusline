@@ -5,10 +5,5 @@
   "mcp": true,
   "nightwatch": false,
   "sail": false,
-  "skills": [
-    "laravel-best-practices",
-    "octane-development",
-    "pest-testing",
-    "tailwindcss-development"
-  ]
+  "skills": ["laravel-best-practices", "octane-development", "pest-testing"]
 }
