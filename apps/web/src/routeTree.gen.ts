@@ -13,7 +13,16 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as GuestRouteImport } from './routes/_guest'
 import { Route as HealthRouteImport } from './routes/health'
+import { Route as AuthedClientsRouteImport } from './routes/_authed/clients'
+import { Route as AuthedCraRouteImport } from './routes/_authed/cra'
 import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
+import { Route as AuthedDeclarationsRouteImport } from './routes/_authed/declarations'
+import { Route as AuthedEcheancesRouteImport } from './routes/_authed/echeances'
+import { Route as AuthedMissionsRouteImport } from './routes/_authed/missions'
+import { Route as AuthedReglagesRouteImport } from './routes/_authed/reglages'
+import { Route as AuthedRevenusRouteImport } from './routes/_authed/revenus'
+import { Route as AuthedSemaineRouteImport } from './routes/_authed/semaine'
+import { Route as AuthedVirementRouteImport } from './routes/_authed/virement'
 import { Route as GuestLoginRouteImport } from './routes/_guest/login'
 import { Route as GuestRegisterRouteImport } from './routes/_guest/register'
 
@@ -35,9 +44,54 @@ const HealthRoute = HealthRouteImport.update({
   path: '/health',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthedClientsRoute = AuthedClientsRouteImport.update({
+  id: '/clients',
+  path: '/clients',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedCraRoute = AuthedCraRouteImport.update({
+  id: '/cra',
+  path: '/cra',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedDashboardRoute = AuthedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedDeclarationsRoute = AuthedDeclarationsRouteImport.update({
+  id: '/declarations',
+  path: '/declarations',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedEcheancesRoute = AuthedEcheancesRouteImport.update({
+  id: '/echeances',
+  path: '/echeances',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedMissionsRoute = AuthedMissionsRouteImport.update({
+  id: '/missions',
+  path: '/missions',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedReglagesRoute = AuthedReglagesRouteImport.update({
+  id: '/reglages',
+  path: '/reglages',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedRevenusRoute = AuthedRevenusRouteImport.update({
+  id: '/revenus',
+  path: '/revenus',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedSemaineRoute = AuthedSemaineRouteImport.update({
+  id: '/semaine',
+  path: '/semaine',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedVirementRoute = AuthedVirementRouteImport.update({
+  id: '/virement',
+  path: '/virement',
   getParentRoute: () => AuthedRoute,
 } as any)
 const GuestLoginRoute = GuestLoginRouteImport.update({
@@ -54,14 +108,32 @@ const GuestRegisterRoute = GuestRegisterRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/health': typeof HealthRoute
+  '/clients': typeof AuthedClientsRoute
+  '/cra': typeof AuthedCraRoute
   '/dashboard': typeof AuthedDashboardRoute
+  '/declarations': typeof AuthedDeclarationsRoute
+  '/echeances': typeof AuthedEcheancesRoute
+  '/missions': typeof AuthedMissionsRoute
+  '/reglages': typeof AuthedReglagesRoute
+  '/revenus': typeof AuthedRevenusRoute
+  '/semaine': typeof AuthedSemaineRoute
+  '/virement': typeof AuthedVirementRoute
   '/login': typeof GuestLoginRoute
   '/register': typeof GuestRegisterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/health': typeof HealthRoute
+  '/clients': typeof AuthedClientsRoute
+  '/cra': typeof AuthedCraRoute
   '/dashboard': typeof AuthedDashboardRoute
+  '/declarations': typeof AuthedDeclarationsRoute
+  '/echeances': typeof AuthedEcheancesRoute
+  '/missions': typeof AuthedMissionsRoute
+  '/reglages': typeof AuthedReglagesRoute
+  '/revenus': typeof AuthedRevenusRoute
+  '/semaine': typeof AuthedSemaineRoute
+  '/virement': typeof AuthedVirementRoute
   '/login': typeof GuestLoginRoute
   '/register': typeof GuestRegisterRoute
 }
@@ -71,22 +143,68 @@ export interface FileRoutesById {
   '/_authed': typeof AuthedRouteWithChildren
   '/_guest': typeof GuestRouteWithChildren
   '/health': typeof HealthRoute
+  '/_authed/clients': typeof AuthedClientsRoute
+  '/_authed/cra': typeof AuthedCraRoute
   '/_authed/dashboard': typeof AuthedDashboardRoute
+  '/_authed/declarations': typeof AuthedDeclarationsRoute
+  '/_authed/echeances': typeof AuthedEcheancesRoute
+  '/_authed/missions': typeof AuthedMissionsRoute
+  '/_authed/reglages': typeof AuthedReglagesRoute
+  '/_authed/revenus': typeof AuthedRevenusRoute
+  '/_authed/semaine': typeof AuthedSemaineRoute
+  '/_authed/virement': typeof AuthedVirementRoute
   '/_guest/login': typeof GuestLoginRoute
   '/_guest/register': typeof GuestRegisterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/health' | '/dashboard' | '/login' | '/register'
+  fullPaths:
+    | '/'
+    | '/health'
+    | '/clients'
+    | '/cra'
+    | '/dashboard'
+    | '/declarations'
+    | '/echeances'
+    | '/missions'
+    | '/reglages'
+    | '/revenus'
+    | '/semaine'
+    | '/virement'
+    | '/login'
+    | '/register'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/health' | '/dashboard' | '/login' | '/register'
+  to:
+    | '/'
+    | '/health'
+    | '/clients'
+    | '/cra'
+    | '/dashboard'
+    | '/declarations'
+    | '/echeances'
+    | '/missions'
+    | '/reglages'
+    | '/revenus'
+    | '/semaine'
+    | '/virement'
+    | '/login'
+    | '/register'
   id:
     | '__root__'
     | '/'
     | '/_authed'
     | '/_guest'
     | '/health'
+    | '/_authed/clients'
+    | '/_authed/cra'
     | '/_authed/dashboard'
+    | '/_authed/declarations'
+    | '/_authed/echeances'
+    | '/_authed/missions'
+    | '/_authed/reglages'
+    | '/_authed/revenus'
+    | '/_authed/semaine'
+    | '/_authed/virement'
     | '/_guest/login'
     | '/_guest/register'
   fileRoutesById: FileRoutesById
@@ -128,11 +246,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HealthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authed/clients': {
+      id: '/_authed/clients'
+      path: '/clients'
+      fullPath: '/clients'
+      preLoaderRoute: typeof AuthedClientsRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/cra': {
+      id: '/_authed/cra'
+      path: '/cra'
+      fullPath: '/cra'
+      preLoaderRoute: typeof AuthedCraRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/dashboard': {
       id: '/_authed/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthedDashboardRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/declarations': {
+      id: '/_authed/declarations'
+      path: '/declarations'
+      fullPath: '/declarations'
+      preLoaderRoute: typeof AuthedDeclarationsRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/echeances': {
+      id: '/_authed/echeances'
+      path: '/echeances'
+      fullPath: '/echeances'
+      preLoaderRoute: typeof AuthedEcheancesRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/missions': {
+      id: '/_authed/missions'
+      path: '/missions'
+      fullPath: '/missions'
+      preLoaderRoute: typeof AuthedMissionsRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/reglages': {
+      id: '/_authed/reglages'
+      path: '/reglages'
+      fullPath: '/reglages'
+      preLoaderRoute: typeof AuthedReglagesRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/revenus': {
+      id: '/_authed/revenus'
+      path: '/revenus'
+      fullPath: '/revenus'
+      preLoaderRoute: typeof AuthedRevenusRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/semaine': {
+      id: '/_authed/semaine'
+      path: '/semaine'
+      fullPath: '/semaine'
+      preLoaderRoute: typeof AuthedSemaineRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/virement': {
+      id: '/_authed/virement'
+      path: '/virement'
+      fullPath: '/virement'
+      preLoaderRoute: typeof AuthedVirementRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_guest/login': {
@@ -153,11 +334,29 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthedRouteChildren {
+  AuthedClientsRoute: typeof AuthedClientsRoute
+  AuthedCraRoute: typeof AuthedCraRoute
   AuthedDashboardRoute: typeof AuthedDashboardRoute
+  AuthedDeclarationsRoute: typeof AuthedDeclarationsRoute
+  AuthedEcheancesRoute: typeof AuthedEcheancesRoute
+  AuthedMissionsRoute: typeof AuthedMissionsRoute
+  AuthedReglagesRoute: typeof AuthedReglagesRoute
+  AuthedRevenusRoute: typeof AuthedRevenusRoute
+  AuthedSemaineRoute: typeof AuthedSemaineRoute
+  AuthedVirementRoute: typeof AuthedVirementRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
+  AuthedClientsRoute: AuthedClientsRoute,
+  AuthedCraRoute: AuthedCraRoute,
   AuthedDashboardRoute: AuthedDashboardRoute,
+  AuthedDeclarationsRoute: AuthedDeclarationsRoute,
+  AuthedEcheancesRoute: AuthedEcheancesRoute,
+  AuthedMissionsRoute: AuthedMissionsRoute,
+  AuthedReglagesRoute: AuthedReglagesRoute,
+  AuthedRevenusRoute: AuthedRevenusRoute,
+  AuthedSemaineRoute: AuthedSemaineRoute,
+  AuthedVirementRoute: AuthedVirementRoute,
 }
 
 const AuthedRouteWithChildren =
