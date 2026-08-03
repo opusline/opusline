@@ -10,7 +10,6 @@ use App\Domain\Users\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -47,14 +46,6 @@ class User extends Authenticatable
     public function clients(): HasMany
     {
         return $this->hasMany(Client::class);
-    }
-
-    /**
-     * @throws ModelNotFoundException
-     */
-    public function clientById(int $clientId): Client
-    {
-        return $this->clients()->findOrFail($clientId);
     }
 
     /** @return HasMany<Mission, $this> */
