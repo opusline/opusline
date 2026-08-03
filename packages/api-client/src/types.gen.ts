@@ -5,12 +5,84 @@ export type ClientOptions = {
 };
 
 /**
+ * BillingMode
+ */
+export type BillingMode = 'daily' | 'hourly';
+
+/**
+ * ClientData
+ */
+export type ClientData = {
+    slug: string;
+    name: string;
+    notes: string | null;
+    archivedAt: string | null;
+    missions: Array<MissionData>;
+};
+
+/**
+ * ClientListData
+ */
+export type ClientListData = {
+    clients: Array<ClientData>;
+};
+
+/**
+ * CreateClientData
+ */
+export type CreateClientData = {
+    name: string;
+    notes?: string | null;
+};
+
+/**
+ * CreateMissionData
+ */
+export type CreateMissionData = {
+    clientSlug: string;
+    name: string;
+    billingMode: BillingMode;
+    rate?: Array<string> | null;
+    endClientSlug?: string | null;
+    startDate?: string | null;
+    endDate?: string | null;
+};
+
+/**
  * LoginData
  */
 export type LoginData = {
     email: string;
     password: string;
     remember?: boolean;
+};
+
+/**
+ * MissionData
+ */
+export type MissionData = {
+    id: number;
+    clientSlug: string;
+    endClientSlug: string | null;
+    name: string;
+    billingMode: BillingMode;
+    rate: MoneyData | null;
+    status: MissionStatus;
+    startDate: string | null;
+    endDate: string | null;
+};
+
+/**
+ * MissionStatus
+ */
+export type MissionStatus = 'active' | 'paused' | 'done';
+
+/**
+ * MoneyData
+ */
+export type MoneyData = {
+    amount: number;
+    currency: string;
 };
 
 /**
@@ -21,6 +93,32 @@ export type RegisterUserData = {
     email: string;
     password: string;
     password_confirmation: string;
+};
+
+/**
+ * UpdateClientData
+ *
+ * Full-replace update (PUT semantics) — no Optional fields on purpose:
+ * union types are invisible to the OpenAPI schema extension.
+ */
+export type UpdateClientData = {
+    name: string;
+    notes?: string | null;
+};
+
+/**
+ * UpdateMissionData
+ *
+ * Full-replace update. billing_mode and client_id are deliberately absent:
+ * both are immutable after creation (new contract = new mission).
+ */
+export type UpdateMissionData = {
+    name: string;
+    status: MissionStatus;
+    rate?: Array<string> | null;
+    endClientSlug?: string | null;
+    startDate?: string | null;
+    endDate?: string | null;
 };
 
 /**
@@ -144,3 +242,273 @@ export type CurrentUserResponses = {
 };
 
 export type CurrentUserResponse = CurrentUserResponses[keyof CurrentUserResponses];
+
+export type ListClientsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/clients';
+};
+
+export type ListClientsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListClientsError = ListClientsErrors[keyof ListClientsErrors];
+
+export type ListClientsResponses = {
+    200: ClientListData;
+};
+
+export type ListClientsResponse = ListClientsResponses[keyof ListClientsResponses];
+
+export type CreateClientData2 = {
+    body: CreateClientData;
+    path?: never;
+    query?: never;
+    url: '/clients';
+};
+
+export type CreateClientErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateClientError = CreateClientErrors[keyof CreateClientErrors];
+
+export type CreateClientResponses = {
+    201: ClientData;
+};
+
+export type CreateClientResponse = CreateClientResponses[keyof CreateClientResponses];
+
+export type DeleteClientData = {
+    body?: never;
+    path: {
+        clientSlug: string;
+    };
+    query?: never;
+    url: '/clients/{clientSlug}';
+};
+
+export type DeleteClientErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteClientError = DeleteClientErrors[keyof DeleteClientErrors];
+
+export type DeleteClientResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteClientResponse = DeleteClientResponses[keyof DeleteClientResponses];
+
+export type UpdateClientData2 = {
+    body: UpdateClientData;
+    path: {
+        clientSlug: string;
+    };
+    query?: never;
+    url: '/clients/{clientSlug}';
+};
+
+export type UpdateClientErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateClientError = UpdateClientErrors[keyof UpdateClientErrors];
+
+export type UpdateClientResponses = {
+    200: ClientData;
+};
+
+export type UpdateClientResponse = UpdateClientResponses[keyof UpdateClientResponses];
+
+export type ArchiveClientData = {
+    body?: never;
+    path: {
+        clientSlug: string;
+    };
+    query?: never;
+    url: '/clients/{clientSlug}/archive';
+};
+
+export type ArchiveClientErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ArchiveClientError = ArchiveClientErrors[keyof ArchiveClientErrors];
+
+export type ArchiveClientResponses = {
+    200: ClientData;
+};
+
+export type ArchiveClientResponse = ArchiveClientResponses[keyof ArchiveClientResponses];
+
+export type UnarchiveClientData = {
+    body?: never;
+    path: {
+        clientSlug: string;
+    };
+    query?: never;
+    url: '/clients/{clientSlug}/unarchive';
+};
+
+export type UnarchiveClientErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UnarchiveClientError = UnarchiveClientErrors[keyof UnarchiveClientErrors];
+
+export type UnarchiveClientResponses = {
+    200: ClientData;
+};
+
+export type UnarchiveClientResponse = UnarchiveClientResponses[keyof UnarchiveClientResponses];
+
+export type CreateMissionData2 = {
+    body: CreateMissionData;
+    path?: never;
+    query?: never;
+    url: '/missions';
+};
+
+export type CreateMissionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateMissionError = CreateMissionErrors[keyof CreateMissionErrors];
+
+export type CreateMissionResponses = {
+    201: MissionData;
+};
+
+export type CreateMissionResponse = CreateMissionResponses[keyof CreateMissionResponses];
+
+export type DeleteMissionData = {
+    body?: never;
+    path: {
+        missionId: number;
+    };
+    query?: never;
+    url: '/missions/{missionId}';
+};
+
+export type DeleteMissionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteMissionError = DeleteMissionErrors[keyof DeleteMissionErrors];
+
+export type DeleteMissionResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteMissionResponse = DeleteMissionResponses[keyof DeleteMissionResponses];
+
+export type UpdateMissionData2 = {
+    body: UpdateMissionData;
+    path: {
+        missionId: number;
+    };
+    query?: never;
+    url: '/missions/{missionId}';
+};
+
+export type UpdateMissionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateMissionError = UpdateMissionErrors[keyof UpdateMissionErrors];
+
+export type UpdateMissionResponses = {
+    200: MissionData;
+};
+
+export type UpdateMissionResponse = UpdateMissionResponses[keyof UpdateMissionResponses];

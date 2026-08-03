@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CurrentUserData, CurrentUserErrors, CurrentUserResponses, GetPingData, GetPingResponses, LoginData2, LoginErrors, LoginResponses, LogoutData, LogoutErrors, LogoutResponses, RegisterData, RegisterResponses } from './types.gen';
+import type { ArchiveClientData, ArchiveClientErrors, ArchiveClientResponses, CreateClientData2, CreateClientErrors, CreateClientResponses, CreateMissionData2, CreateMissionErrors, CreateMissionResponses, CurrentUserData, CurrentUserErrors, CurrentUserResponses, DeleteClientData, DeleteClientErrors, DeleteClientResponses, DeleteMissionData, DeleteMissionErrors, DeleteMissionResponses, GetPingData, GetPingResponses, ListClientsData, ListClientsErrors, ListClientsResponses, LoginData2, LoginErrors, LoginResponses, LogoutData, LogoutErrors, LogoutResponses, RegisterData, RegisterResponses, UnarchiveClientData, UnarchiveClientErrors, UnarchiveClientResponses, UpdateClientData2, UpdateClientErrors, UpdateClientResponses, UpdateMissionData2, UpdateMissionErrors, UpdateMissionResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -56,4 +56,110 @@ export const currentUser = <ThrowOnError extends boolean = false>(options?: Opti
         }],
     url: '/user',
     ...options
+});
+
+export const listClients = <ThrowOnError extends boolean = false>(options?: Options<ListClientsData, ThrowOnError>): RequestResult<ListClientsResponses, ListClientsErrors, ThrowOnError> => (options?.client ?? client).get<ListClientsResponses, ListClientsErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/clients',
+    ...options
+});
+
+export const createClient = <ThrowOnError extends boolean = false>(options: Options<CreateClientData2, ThrowOnError>): RequestResult<CreateClientResponses, CreateClientErrors, ThrowOnError> => (options.client ?? client).post<CreateClientResponses, CreateClientErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/clients',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const deleteClient = <ThrowOnError extends boolean = false>(options: Options<DeleteClientData, ThrowOnError>): RequestResult<DeleteClientResponses, DeleteClientErrors, ThrowOnError> => (options.client ?? client).delete<DeleteClientResponses, DeleteClientErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/clients/{clientSlug}',
+    ...options
+});
+
+export const updateClient = <ThrowOnError extends boolean = false>(options: Options<UpdateClientData2, ThrowOnError>): RequestResult<UpdateClientResponses, UpdateClientErrors, ThrowOnError> => (options.client ?? client).put<UpdateClientResponses, UpdateClientErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/clients/{clientSlug}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const archiveClient = <ThrowOnError extends boolean = false>(options: Options<ArchiveClientData, ThrowOnError>): RequestResult<ArchiveClientResponses, ArchiveClientErrors, ThrowOnError> => (options.client ?? client).post<ArchiveClientResponses, ArchiveClientErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/clients/{clientSlug}/archive',
+    ...options
+});
+
+export const unarchiveClient = <ThrowOnError extends boolean = false>(options: Options<UnarchiveClientData, ThrowOnError>): RequestResult<UnarchiveClientResponses, UnarchiveClientErrors, ThrowOnError> => (options.client ?? client).post<UnarchiveClientResponses, UnarchiveClientErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/clients/{clientSlug}/unarchive',
+    ...options
+});
+
+export const createMission = <ThrowOnError extends boolean = false>(options: Options<CreateMissionData2, ThrowOnError>): RequestResult<CreateMissionResponses, CreateMissionErrors, ThrowOnError> => (options.client ?? client).post<CreateMissionResponses, CreateMissionErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/missions',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const deleteMission = <ThrowOnError extends boolean = false>(options: Options<DeleteMissionData, ThrowOnError>): RequestResult<DeleteMissionResponses, DeleteMissionErrors, ThrowOnError> => (options.client ?? client).delete<DeleteMissionResponses, DeleteMissionErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/missions/{missionId}',
+    ...options
+});
+
+export const updateMission = <ThrowOnError extends boolean = false>(options: Options<UpdateMissionData2, ThrowOnError>): RequestResult<UpdateMissionResponses, UpdateMissionErrors, ThrowOnError> => (options.client ?? client).put<UpdateMissionResponses, UpdateMissionErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/missions/{missionId}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
 });

@@ -3,12 +3,88 @@
 import * as z from 'zod/mini';
 
 /**
+ * BillingMode
+ */
+export const zBillingMode = z.enum(['daily', 'hourly']);
+
+/**
+ * CreateClientData
+ */
+export const zCreateClientData = z.object({
+    name: z.string().check(z.minLength(1), z.maxLength(255)),
+    notes: z.nullish(z.string())
+});
+
+/**
+ * CreateMissionData
+ */
+export const zCreateMissionData = z.object({
+    clientSlug: z.string(),
+    name: z.string().check(z.minLength(1), z.maxLength(255)),
+    billingMode: zBillingMode,
+    rate: z.nullish(z.array(z.string())),
+    endClientSlug: z.nullish(z.string()),
+    startDate: z.nullish(z.iso.date()),
+    endDate: z.nullish(z.iso.date())
+});
+
+/**
  * LoginData
  */
 export const zLoginData = z.object({
     email: z.email(),
     password: z.string().check(z.minLength(1)),
     remember: z.optional(z.boolean())
+});
+
+/**
+ * MissionStatus
+ */
+export const zMissionStatus = z.enum([
+    'active',
+    'paused',
+    'done'
+]);
+
+/**
+ * MoneyData
+ */
+export const zMoneyData = z.object({
+    amount: z.int(),
+    currency: z.string()
+});
+
+/**
+ * MissionData
+ */
+export const zMissionData = z.object({
+    id: z.int(),
+    clientSlug: z.string(),
+    endClientSlug: z.nullable(z.string()),
+    name: z.string(),
+    billingMode: zBillingMode,
+    rate: z.nullable(zMoneyData),
+    status: zMissionStatus,
+    startDate: z.nullable(z.iso.datetime()),
+    endDate: z.nullable(z.iso.datetime())
+});
+
+/**
+ * ClientData
+ */
+export const zClientData = z.object({
+    slug: z.string(),
+    name: z.string(),
+    notes: z.nullable(z.string()),
+    archivedAt: z.nullable(z.iso.datetime()),
+    missions: z.array(zMissionData)
+});
+
+/**
+ * ClientListData
+ */
+export const zClientListData = z.object({
+    clients: z.array(zClientData)
 });
 
 /**
@@ -19,6 +95,32 @@ export const zRegisterUserData = z.object({
     email: z.email().check(z.maxLength(255)),
     password: z.string().check(z.minLength(8)),
     password_confirmation: z.string().check(z.minLength(8))
+});
+
+/**
+ * UpdateClientData
+ *
+ * Full-replace update (PUT semantics) — no Optional fields on purpose:
+ * union types are invisible to the OpenAPI schema extension.
+ */
+export const zUpdateClientData = z.object({
+    name: z.string().check(z.minLength(1), z.maxLength(255)),
+    notes: z.nullish(z.string())
+});
+
+/**
+ * UpdateMissionData
+ *
+ * Full-replace update. billing_mode and client_id are deliberately absent:
+ * both are immutable after creation (new contract = new mission).
+ */
+export const zUpdateMissionData = z.object({
+    name: z.string().check(z.minLength(1), z.maxLength(255)),
+    status: zMissionStatus,
+    rate: z.nullish(z.array(z.string())),
+    endClientSlug: z.nullish(z.string()),
+    startDate: z.nullish(z.iso.date()),
+    endDate: z.nullish(z.iso.date())
 });
 
 /**
@@ -49,3 +151,59 @@ export const zLoginResponse = zUserData;
 export const zLogoutResponse = z.void();
 
 export const zCurrentUserResponse = zUserData;
+
+export const zListClientsResponse = zClientListData;
+
+export const zCreateClientBody = zCreateClientData;
+
+export const zCreateClientResponse = zClientData;
+
+export const zDeleteClientPath = z.object({
+    clientSlug: z.string()
+});
+
+/**
+ * No content
+ */
+export const zDeleteClientResponse = z.void();
+
+export const zUpdateClientBody = zUpdateClientData;
+
+export const zUpdateClientPath = z.object({
+    clientSlug: z.string()
+});
+
+export const zUpdateClientResponse = zClientData;
+
+export const zArchiveClientPath = z.object({
+    clientSlug: z.string()
+});
+
+export const zArchiveClientResponse = zClientData;
+
+export const zUnarchiveClientPath = z.object({
+    clientSlug: z.string()
+});
+
+export const zUnarchiveClientResponse = zClientData;
+
+export const zCreateMissionBody = zCreateMissionData;
+
+export const zCreateMissionResponse = zMissionData;
+
+export const zDeleteMissionPath = z.object({
+    missionId: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteMissionResponse = z.void();
+
+export const zUpdateMissionBody = zUpdateMissionData;
+
+export const zUpdateMissionPath = z.object({
+    missionId: z.int()
+});
+
+export const zUpdateMissionResponse = zMissionData;

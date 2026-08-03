@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { currentUser, getPing, login, logout, type Options, register } from '../sdk.gen';
-import type { CurrentUserData, CurrentUserError, CurrentUserResponse, GetPingData, GetPingResponse, LoginData2, LoginError, LoginResponse, LogoutData, LogoutError, LogoutResponse, RegisterData, RegisterResponse } from '../types.gen';
+import { archiveClient, createClient, createMission, currentUser, deleteClient, deleteMission, getPing, listClients, login, logout, type Options, register, unarchiveClient, updateClient, updateMission } from '../sdk.gen';
+import type { ArchiveClientData, ArchiveClientError, ArchiveClientResponse, CreateClientData2, CreateClientError, CreateClientResponse, CreateMissionData2, CreateMissionError, CreateMissionResponse, CurrentUserData, CurrentUserError, CurrentUserResponse, DeleteClientData, DeleteClientError, DeleteClientResponse, DeleteMissionData, DeleteMissionError, DeleteMissionResponse, GetPingData, GetPingResponse, ListClientsData, ListClientsError, ListClientsResponse, LoginData2, LoginError, LoginResponse, LogoutData, LogoutError, LogoutResponse, RegisterData, RegisterResponse, UnarchiveClientData, UnarchiveClientError, UnarchiveClientResponse, UpdateClientData2, UpdateClientError, UpdateClientResponse, UpdateMissionData2, UpdateMissionError, UpdateMissionResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -110,3 +110,130 @@ export const currentUserOptions = (options?: Options<CurrentUserData>) => queryO
     },
     queryKey: currentUserQueryKey(options)
 });
+
+export const listClientsQueryKey = (options?: Options<ListClientsData>) => createQueryKey('listClients', options);
+
+export const listClientsOptions = (options?: Options<ListClientsData>) => queryOptions<ListClientsResponse, ListClientsError, ListClientsResponse, ReturnType<typeof listClientsQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await listClients({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: listClientsQueryKey(options)
+});
+
+export const createClientMutation = (options?: Partial<Options<CreateClientData2>>): UseMutationOptions<CreateClientResponse, CreateClientError, Options<CreateClientData2>> => {
+    const mutationOptions: UseMutationOptions<CreateClientResponse, CreateClientError, Options<CreateClientData2>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await createClient({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const deleteClientMutation = (options?: Partial<Options<DeleteClientData>>): UseMutationOptions<DeleteClientResponse, DeleteClientError, Options<DeleteClientData>> => {
+    const mutationOptions: UseMutationOptions<DeleteClientResponse, DeleteClientError, Options<DeleteClientData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteClient({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const updateClientMutation = (options?: Partial<Options<UpdateClientData2>>): UseMutationOptions<UpdateClientResponse, UpdateClientError, Options<UpdateClientData2>> => {
+    const mutationOptions: UseMutationOptions<UpdateClientResponse, UpdateClientError, Options<UpdateClientData2>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await updateClient({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const archiveClientMutation = (options?: Partial<Options<ArchiveClientData>>): UseMutationOptions<ArchiveClientResponse, ArchiveClientError, Options<ArchiveClientData>> => {
+    const mutationOptions: UseMutationOptions<ArchiveClientResponse, ArchiveClientError, Options<ArchiveClientData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await archiveClient({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const unarchiveClientMutation = (options?: Partial<Options<UnarchiveClientData>>): UseMutationOptions<UnarchiveClientResponse, UnarchiveClientError, Options<UnarchiveClientData>> => {
+    const mutationOptions: UseMutationOptions<UnarchiveClientResponse, UnarchiveClientError, Options<UnarchiveClientData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await unarchiveClient({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const createMissionMutation = (options?: Partial<Options<CreateMissionData2>>): UseMutationOptions<CreateMissionResponse, CreateMissionError, Options<CreateMissionData2>> => {
+    const mutationOptions: UseMutationOptions<CreateMissionResponse, CreateMissionError, Options<CreateMissionData2>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await createMission({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const deleteMissionMutation = (options?: Partial<Options<DeleteMissionData>>): UseMutationOptions<DeleteMissionResponse, DeleteMissionError, Options<DeleteMissionData>> => {
+    const mutationOptions: UseMutationOptions<DeleteMissionResponse, DeleteMissionError, Options<DeleteMissionData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteMission({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const updateMissionMutation = (options?: Partial<Options<UpdateMissionData2>>): UseMutationOptions<UpdateMissionResponse, UpdateMissionError, Options<UpdateMissionData2>> => {
+    const mutationOptions: UseMutationOptions<UpdateMissionResponse, UpdateMissionError, Options<UpdateMissionData2>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await updateMission({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};

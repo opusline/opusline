@@ -13,7 +13,8 @@
     "laravel/octane": "^2.18",
     "laravel/sanctum": "^4.3",
     "laravel/tinker": "^3.0",
-    "spatie/laravel-data": "^4.23"
+    "spatie/laravel-data": "^4.23",
+    "spatie/laravel-sluggable": "^4.0"
   },
   "require-dev": {
     "driftingly/rector-laravel": "^2.5",
