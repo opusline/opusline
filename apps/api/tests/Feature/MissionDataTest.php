@@ -13,7 +13,7 @@ test('maps a mission model to mission data', function (): void {
         'start_date' => '2026-08-01',
     ]);
 
-    $data = MissionData::fromModel($mission);
+    $data = MissionData::from($mission);
 
     expect($data->id)->toBe($mission->id)
         ->and($data->slug)->toBe('ogf-front')
@@ -28,7 +28,7 @@ test('maps a mission model to mission data', function (): void {
 test('maps a non billable mission with a null rate', function (): void {
     $mission = Mission::factory()->nonBillable()->create();
 
-    $data = MissionData::fromModel($mission);
+    $data = MissionData::from($mission);
 
     expect($data->rate)->toBeNull();
 });

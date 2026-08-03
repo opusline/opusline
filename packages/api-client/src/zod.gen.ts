@@ -16,21 +16,24 @@ export const zCreateClientData = z.object({
 });
 
 /**
+ * Currency
+ */
+export const zCurrency = z.enum(['EUR']);
+
+/**
  * CreateMissionData
  */
 export const zCreateMissionData = z.object({
     name: z.string().check(z.minLength(1), z.maxLength(255)),
     billingMode: zBillingMode,
-    rate: z.nullish(z.array(z.string())),
+    rate: z.nullish(z.object({
+        amount: z.int().check(z.gte(1)),
+        currency: zCurrency
+    })),
     endClientId: z.nullish(z.int()),
     startDate: z.nullish(z.iso.date()),
     endDate: z.nullish(z.iso.date())
 });
-
-/**
- * Currency
- */
-export const zCurrency = z.enum(['EUR']);
 
 /**
  * LoginData
@@ -117,7 +120,10 @@ export const zUpdateClientData = z.object({
 export const zUpdateMissionData = z.object({
     name: z.string().check(z.minLength(1), z.maxLength(255)),
     status: zMissionStatus,
-    rate: z.nullish(z.array(z.string())),
+    rate: z.nullish(z.object({
+        amount: z.int().check(z.gte(1)),
+        currency: zCurrency
+    })),
     endClientId: z.nullish(z.int()),
     startDate: z.nullish(z.iso.date()),
     endDate: z.nullish(z.iso.date())

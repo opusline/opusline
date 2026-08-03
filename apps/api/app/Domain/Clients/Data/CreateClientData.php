@@ -4,30 +4,19 @@ declare(strict_types=1);
 
 namespace App\Domain\Clients\Data;
 
-use Illuminate\Validation\Rule;
+use App\Domain\Shared\Validation\AuthenticatedUserId;
+use Spatie\LaravelData\Attributes\Validation\Max;
+use Spatie\LaravelData\Attributes\Validation\Min;
+use Spatie\LaravelData\Attributes\Validation\Unique;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Support\Validation\Constraints\WhereConstraint;
 
 class CreateClientData extends Data
 {
     public function __construct(
+        #[Min(1), Max(255)]
+        #[Unique('clients', 'name', where: new WhereConstraint('user_id', new AuthenticatedUserId))]
         public string $name,
         public ?string $notes = null,
     ) {}
-
-    /**
-     * @return array<string, list<mixed>>
-     */
-    public static function rules(): array
-    {
-        return [
-            'name' => [
-                'required',
-                'string',
-                'min:1',
-                'max:255',
-                Rule::unique('clients', 'name')->where('user_id', auth()->id()),
-            ],
-            'notes' => ['nullable', 'string'],
-        ];
-    }
 }

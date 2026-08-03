@@ -1,0 +1,15 @@
+<?php
+
+namespace Spatie\LaravelData\Concerns;
+
+trait ValidateableData
+{
+    /**
+     * Vendor declares an untyped array; the resolver actually returns Laravel
+     * validation rules keyed by input name.
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    public static function getValidationRules(array $payload): array;
+}

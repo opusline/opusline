@@ -645,12 +645,22 @@
                     },
                     "rate": {
                         "type": [
-                            "array",
+                            "object",
                             "null"
                         ],
-                        "items": {
-                            "type": "string"
-                        }
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
                     },
                     "endClientId": {
                         "type": [
@@ -869,12 +879,22 @@
                     },
                     "rate": {
                         "type": [
-                            "array",
+                            "object",
                             "null"
                         ],
-                        "items": {
-                            "type": "string"
-                        }
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
                     },
                     "endClientId": {
                         "type": [

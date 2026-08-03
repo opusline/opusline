@@ -30,7 +30,7 @@ class ClientController extends Controller
         return response()->json(new ClientListData(
             clients: array_values(
                 $clients
-                    ->map(fn (Client $client): ClientData => ClientData::fromModel($client))
+                    ->map(fn (Client $client): ClientData => ClientData::from($client))
                     ->all(),
             ),
         ));
@@ -40,28 +40,28 @@ class ClientController extends Controller
     {
         $client = $createClient->handle($request->user() ?? abort(401), $data);
 
-        return response()->json(ClientData::fromModel($client->load('missions')), 201);
+        return response()->json(ClientData::from($client->load('missions')), 201);
     }
 
     public function update(UpdateClientData $data, Client $client, UpdateClient $updateClient): JsonResponse
     {
         $updateClient->handle($client, $data);
 
-        return response()->json(ClientData::fromModel($client->load('missions')));
+        return response()->json(ClientData::from($client->load('missions')));
     }
 
     public function archive(Client $client): JsonResponse
     {
         $client->update(['archived_at' => now()]);
 
-        return response()->json(ClientData::fromModel($client->load('missions')));
+        return response()->json(ClientData::from($client->load('missions')));
     }
 
     public function unarchive(Client $client): JsonResponse
     {
         $client->update(['archived_at' => null]);
 
-        return response()->json(ClientData::fromModel($client->load('missions')));
+        return response()->json(ClientData::from($client->load('missions')));
     }
 
     public function destroy(Client $client): Response

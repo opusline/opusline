@@ -4,36 +4,25 @@ declare(strict_types=1);
 
 namespace App\Domain\Clients\Data;
 
-use App\Domain\Clients\Models\Client;
-use Illuminate\Validation\Rule;
+use App\Domain\Shared\Validation\AuthenticatedUserId;
+use Spatie\LaravelData\Attributes\Validation\Max;
+use Spatie\LaravelData\Attributes\Validation\Min;
+use Spatie\LaravelData\Attributes\Validation\Unique;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Support\Validation\Constraints\WhereConstraint;
+use Spatie\LaravelData\Support\Validation\References\RouteParameterReference;
 
 class UpdateClientData extends Data
 {
     public function __construct(
+        #[Min(1), Max(255)]
+        #[Unique(
+            'clients',
+            'name',
+            ignore: new RouteParameterReference('client', 'id', nullable: true),
+            where: new WhereConstraint('user_id', new AuthenticatedUserId),
+        )]
         public string $name,
         public ?string $notes = null,
     ) {}
-
-    /**
-     * @return array<string, list<mixed>>
-     */
-    public static function rules(): array
-    {
-        $routeClient = request()->route('client');
-        $clientId = $routeClient instanceof Client ? $routeClient->id : null;
-
-        return [
-            'name' => [
-                'required',
-                'string',
-                'min:1',
-                'max:255',
-                Rule::unique('clients', 'name')
-                    ->where('user_id', auth()->id())
-                    ->ignore($clientId),
-            ],
-            'notes' => ['nullable', 'string'],
-        ];
-    }
 }

@@ -42,7 +42,10 @@ export type CreateClientData = {
 export type CreateMissionData = {
     name: string;
     billingMode: BillingMode;
-    rate?: Array<string> | null;
+    rate?: {
+        amount: number;
+        currency: Currency;
+    } | null;
     endClientId?: number | null;
     startDate?: string | null;
     endDate?: string | null;
@@ -115,7 +118,10 @@ export type UpdateClientData = {
 export type UpdateMissionData = {
     name: string;
     status: MissionStatus;
-    rate?: Array<string> | null;
+    rate?: {
+        amount: number;
+        currency: Currency;
+    } | null;
     endClientId?: number | null;
     startDate?: string | null;
     endDate?: string | null;

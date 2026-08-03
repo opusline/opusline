@@ -6,36 +6,28 @@ namespace App\Domain\Missions\Data;
 
 use App\Domain\Missions\Enums\BillingMode;
 use App\Domain\Shared\Data\MoneyData;
-use Illuminate\Validation\Rule;
+use App\Domain\Shared\Validation\AuthenticatedUserId;
+use Spatie\LaravelData\Attributes\Validation\AfterOrEqual;
+use Spatie\LaravelData\Attributes\Validation\DateFormat;
+use Spatie\LaravelData\Attributes\Validation\Exists;
+use Spatie\LaravelData\Attributes\Validation\IntegerType;
+use Spatie\LaravelData\Attributes\Validation\Max;
+use Spatie\LaravelData\Attributes\Validation\Min;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Support\Validation\Constraints\WhereConstraint;
 
 class CreateMissionData extends Data
 {
     public function __construct(
+        #[Min(1), Max(255)]
         public string $name,
         public BillingMode $billingMode,
         public ?MoneyData $rate = null,
+        #[IntegerType, Exists('clients', 'id', where: new WhereConstraint('user_id', new AuthenticatedUserId))]
         public ?int $endClientId = null,
+        #[DateFormat('Y-m-d')]
         public ?string $startDate = null,
+        #[DateFormat('Y-m-d'), AfterOrEqual('startDate')]
         public ?string $endDate = null,
     ) {}
-
-    /**
-     * @return array<string, list<mixed>>
-     */
-    public static function rules(): array
-    {
-        return [
-            'name' => ['required', 'string', 'min:1', 'max:255'],
-            'billingMode' => ['required', Rule::enum(BillingMode::class)],
-            'rate' => ['nullable', 'array'],
-            'endClientId' => [
-                'nullable',
-                'integer',
-                Rule::exists('clients', 'id')->where('user_id', auth()->id()),
-            ],
-            'startDate' => ['nullable', 'date_format:Y-m-d'],
-            'endDate' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:startDate'],
-        ];
-    }
 }

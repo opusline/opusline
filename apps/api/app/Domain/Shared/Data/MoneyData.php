@@ -6,12 +6,14 @@ namespace App\Domain\Shared\Data;
 
 use App\Domain\Shared\Enums\Currency;
 use Cknow\Money\Money;
-use Illuminate\Validation\Rule;
+use Spatie\LaravelData\Attributes\Validation\IntegerType;
+use Spatie\LaravelData\Attributes\Validation\Min;
 use Spatie\LaravelData\Data;
 
 class MoneyData extends Data
 {
     public function __construct(
+        #[IntegerType, Min(1)]
         public int $amount,
         public Currency $currency,
     ) {}
@@ -27,16 +29,5 @@ class MoneyData extends Data
     public function toMoney(): Money
     {
         return new Money($this->amount, $this->currency->value);
-    }
-
-    /**
-     * @return array<string, list<mixed>>
-     */
-    public static function rules(): array
-    {
-        return [
-            'amount' => ['required', 'integer', 'min:1'],
-            'currency' => ['required', Rule::enum(Currency::class)],
-        ];
     }
 }

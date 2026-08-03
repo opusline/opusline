@@ -22,14 +22,14 @@ class MissionController extends Controller
     {
         $mission = $createMission->handle($request->user() ?? abort(401), $client, $data);
 
-        return response()->json(MissionData::fromModel($mission), 201);
+        return response()->json(MissionData::from($mission), 201);
     }
 
     public function update(UpdateMissionData $data, Client $client, Mission $mission, UpdateMission $updateMission): JsonResponse
     {
         $updateMission->handle($mission, $data);
 
-        return response()->json(MissionData::fromModel($mission));
+        return response()->json(MissionData::from($mission));
     }
 
     public function destroy(Client $client, Mission $mission): Response
