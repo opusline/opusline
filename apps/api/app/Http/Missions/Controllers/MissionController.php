@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Missions\Controllers;
 
+use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Actions\CreateMission;
 use App\Domain\Missions\Actions\UpdateMission;
 use App\Domain\Missions\Data\CreateMissionData;
 use App\Domain\Missions\Data\MissionData;
 use App\Domain\Missions\Data\UpdateMissionData;
+use App\Domain\Missions\Models\Mission;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,36 +18,25 @@ use Illuminate\Http\Response;
 
 class MissionController extends Controller
 {
-    public function store(CreateMissionData $data, Request $request, int $client, CreateMission $createMission): JsonResponse
+    public function store(CreateMissionData $data, Request $request, Client $client, CreateMission $createMission): JsonResponse
     {
-        $user = $request->user() ?? abort(401);
-        $billingClient = $user->clientById($client);
-
-        $mission = $createMission->handle($user, $billingClient, $data);
+        $mission = $createMission->handle($request->user() ?? abort(401), $client, $data);
 
         return response()->json(MissionData::fromModel($mission), 201);
     }
 
-    public function update(UpdateMissionData $data, Request $request, int $client, int $mission, UpdateMission $updateMission): JsonResponse
+    public function update(UpdateMissionData $data, Client $client, Mission $mission, UpdateMission $updateMission): JsonResponse
     {
-        $missionModel = ($request->user() ?? abort(401))
-            ->clientById($client)
-            ->missionById($mission);
+        $updateMission->handle($mission, $data);
 
-        $updateMission->handle($missionModel, $data);
-
-        return response()->json(MissionData::fromModel($missionModel));
+        return response()->json(MissionData::fromModel($mission));
     }
 
-    public function destroy(Request $request, int $client, int $mission): Response
+    public function destroy(Client $client, Mission $mission): Response
     {
-        $missionModel = ($request->user() ?? abort(401))
-            ->clientById($client)
-            ->missionById($mission);
-
         // TODO(time-entries): abort 409 here once missions can carry time
         // entries — deleting tracked work must fail loud, like client deletion.
-        $missionModel->delete();
+        $mission->delete();
 
         return response()->noContent();
     }

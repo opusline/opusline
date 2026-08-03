@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Http\Missions\Controllers\MissionController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->group(function (): void {
+Route::middleware('auth:sanctum')->scopeBindings()->group(function (): void {
     Route::post('/clients/{client}/missions', [MissionController::class, 'store'])
         ->whereNumber('client')
         ->name('createMission');
