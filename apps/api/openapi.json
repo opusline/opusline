@@ -233,6 +233,7 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
+                        "description": "The client ID",
                         "schema": {
                             "type": "integer"
                         }
@@ -259,6 +260,9 @@
                             }
                         }
                     },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
                     }
@@ -274,6 +278,7 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
+                        "description": "The client ID",
                         "schema": {
                             "type": "integer"
                         }
@@ -282,9 +287,6 @@
                 "responses": {
                     "204": {
                         "description": "No content"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     },
                     "409": {
                         "description": "An error",
@@ -307,6 +309,12 @@
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -322,6 +330,7 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
+                        "description": "The client ID",
                         "schema": {
                             "type": "integer"
                         }
@@ -337,6 +346,9 @@
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
@@ -355,6 +367,7 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
+                        "description": "The client ID",
                         "schema": {
                             "type": "integer"
                         }
@@ -370,6 +383,9 @@
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
@@ -388,6 +404,7 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
+                        "description": "The client ID",
                         "schema": {
                             "type": "integer"
                         }
@@ -416,6 +433,9 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -431,6 +451,7 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
+                        "description": "The client ID",
                         "schema": {
                             "type": "integer"
                         }
@@ -439,6 +460,7 @@
                         "name": "mission",
                         "in": "path",
                         "required": true,
+                        "description": "The mission ID",
                         "schema": {
                             "type": "integer"
                         }
@@ -465,6 +487,9 @@
                             }
                         }
                     },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
                     }
@@ -480,6 +505,7 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
+                        "description": "The client ID",
                         "schema": {
                             "type": "integer"
                         }
@@ -488,6 +514,7 @@
                         "name": "mission",
                         "in": "path",
                         "required": true,
+                        "description": "The mission ID",
                         "schema": {
                             "type": "integer"
                         }
@@ -496,6 +523,9 @@
                 "responses": {
                     "204": {
                         "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
@@ -897,6 +927,25 @@
         "responses": {
             "AuthenticationException": {
                 "description": "Unauthenticated",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Error overview."
+                                }
+                            },
+                            "required": [
+                                "message"
+                            ]
+                        }
+                    }
+                }
+            },
+            "ModelNotFoundException": {
+                "description": "Not found",
                 "content": {
                     "application/json": {
                         "schema": {

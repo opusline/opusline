@@ -300,6 +300,9 @@ export type CreateClientResponse = CreateClientResponses[keyof CreateClientRespo
 export type DeleteClientData = {
     body?: never;
     path: {
+        /**
+         * The client ID
+         */
         client: number;
     };
     query?: never;
@@ -311,6 +314,15 @@ export type DeleteClientErrors = {
      * Unauthenticated
      */
     401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
         /**
          * Error overview.
          */
@@ -341,6 +353,9 @@ export type DeleteClientResponse = DeleteClientResponses[keyof DeleteClientRespo
 export type UpdateClientData2 = {
     body: UpdateClientData;
     path: {
+        /**
+         * The client ID
+         */
         client: number;
     };
     query?: never;
@@ -352,6 +367,15 @@ export type UpdateClientErrors = {
      * Unauthenticated
      */
     401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
         /**
          * Error overview.
          */
@@ -370,6 +394,9 @@ export type UpdateClientResponse = UpdateClientResponses[keyof UpdateClientRespo
 export type ArchiveClientData = {
     body?: never;
     path: {
+        /**
+         * The client ID
+         */
         client: number;
     };
     query?: never;
@@ -381,6 +408,15 @@ export type ArchiveClientErrors = {
      * Unauthenticated
      */
     401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
         /**
          * Error overview.
          */
@@ -399,6 +435,9 @@ export type ArchiveClientResponse = ArchiveClientResponses[keyof ArchiveClientRe
 export type UnarchiveClientData = {
     body?: never;
     path: {
+        /**
+         * The client ID
+         */
         client: number;
     };
     query?: never;
@@ -410,6 +449,15 @@ export type UnarchiveClientErrors = {
      * Unauthenticated
      */
     401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
         /**
          * Error overview.
          */
@@ -428,6 +476,9 @@ export type UnarchiveClientResponse = UnarchiveClientResponses[keyof UnarchiveCl
 export type CreateMissionData2 = {
     body: CreateMissionData;
     path: {
+        /**
+         * The client ID
+         */
         client: number;
     };
     query?: never;
@@ -439,6 +490,15 @@ export type CreateMissionErrors = {
      * Unauthenticated
      */
     401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
         /**
          * Error overview.
          */
@@ -457,7 +517,13 @@ export type CreateMissionResponse = CreateMissionResponses[keyof CreateMissionRe
 export type DeleteMissionData = {
     body?: never;
     path: {
+        /**
+         * The client ID
+         */
         client: number;
+        /**
+         * The mission ID
+         */
         mission: number;
     };
     query?: never;
@@ -469,6 +535,15 @@ export type DeleteMissionErrors = {
      * Unauthenticated
      */
     401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
         /**
          * Error overview.
          */
@@ -490,7 +565,13 @@ export type DeleteMissionResponse = DeleteMissionResponses[keyof DeleteMissionRe
 export type UpdateMissionData2 = {
     body: UpdateMissionData;
     path: {
+        /**
+         * The client ID
+         */
         client: number;
+        /**
+         * The mission ID
+         */
         mission: number;
     };
     query?: never;
@@ -502,6 +583,15 @@ export type UpdateMissionErrors = {
      * Unauthenticated
      */
     401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
         /**
          * Error overview.
          */
