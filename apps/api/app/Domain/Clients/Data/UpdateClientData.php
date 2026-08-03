@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Clients\Data;
 
+use App\Domain\Clients\Models\Client;
 use Illuminate\Validation\Rule;
 use Spatie\LaravelData\Data;
 
@@ -20,7 +21,7 @@ class UpdateClientData extends Data
     public static function rules(): array
     {
         $routeClient = request()->route('client');
-        $clientId = is_string($routeClient) ? (int) $routeClient : null;
+        $clientId = $routeClient instanceof Client ? $routeClient->id : null;
 
         return [
             'name' => [
