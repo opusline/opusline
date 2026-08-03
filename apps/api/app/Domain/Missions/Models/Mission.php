@@ -13,6 +13,7 @@ use Carbon\CarbonImmutable;
 use Cknow\Money\Casts\MoneyIntegerCast;
 use Cknow\Money\Money;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -88,6 +89,22 @@ class Mission extends Model
             'start_date' => 'date',
             'end_date' => 'date',
         ];
+    }
+
+    /**
+     * Missions where the client is involved as billing or end client.
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    #[Scope]
+    protected function involvingClient(Builder $query, Client $client): Builder
+    {
+        return $query->where(
+            fn (Builder $subQuery): Builder => $subQuery
+                ->where('client_id', $client->id)
+                ->orWhere('end_client_id', $client->id),
+        );
     }
 
     /** @return BelongsTo<User, $this> */

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Sluggable\HasSlug;
@@ -75,5 +76,13 @@ class Client extends Model
     public function missions(): HasMany
     {
         return $this->hasMany(Mission::class);
+    }
+
+    /**
+     * @throws ModelNotFoundException
+     */
+    public function missionById(int $missionId): Mission
+    {
+        return $this->missions()->findOrFail($missionId);
     }
 }

@@ -45,7 +45,7 @@ class ClientController extends Controller
 
     public function update(UpdateClientData $data, Request $request, int $client, UpdateClient $updateClient): JsonResponse
     {
-        $clientModel = $this->clientById($request, $client);
+        $clientModel = ($request->user() ?? abort(401))->clientById($client);
 
         $updateClient->handle($clientModel, $data);
 
@@ -54,7 +54,7 @@ class ClientController extends Controller
 
     public function archive(Request $request, int $client): JsonResponse
     {
-        $clientModel = $this->clientById($request, $client);
+        $clientModel = ($request->user() ?? abort(401))->clientById($client);
 
         $clientModel->update(['archived_at' => now()]);
 
@@ -63,7 +63,7 @@ class ClientController extends Controller
 
     public function unarchive(Request $request, int $client): JsonResponse
     {
-        $clientModel = $this->clientById($request, $client);
+        $clientModel = ($request->user() ?? abort(401))->clientById($client);
 
         $clientModel->update(['archived_at' => null]);
 
@@ -72,24 +72,14 @@ class ClientController extends Controller
 
     public function destroy(Request $request, int $client): Response
     {
-        $clientModel = $this->clientById($request, $client);
+        $clientModel = ($request->user() ?? abort(401))->clientById($client);
 
-        $hasMissions = Mission::query()
-            ->where('client_id', $clientModel->id)
-            ->orWhere('end_client_id', $clientModel->id)
-            ->exists();
+        $hasMissions = Mission::query()->involvingClient($clientModel)->exists();
 
         abort_if($hasMissions, 409, __('clients.cannot_delete_with_missions'));
 
         $clientModel->delete();
 
         return response()->noContent();
-    }
-
-    private function clientById(Request $request, int $clientId): Client
-    {
-        return ($request->user() ?? abort(401))
-            ->clients()
-            ->findOrFail($clientId);
     }
 }

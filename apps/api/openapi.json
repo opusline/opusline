@@ -283,6 +283,9 @@
                     "204": {
                         "description": "No content"
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
                     "409": {
                         "description": "An error",
                         "content": {
@@ -304,9 +307,6 @@
                                 }
                             }
                         }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
