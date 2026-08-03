@@ -43,42 +43,34 @@ class ClientController extends Controller
         return response()->json(ClientData::fromModel($client->load('missions')), 201);
     }
 
-    public function update(UpdateClientData $data, Request $request, int $client, UpdateClient $updateClient): JsonResponse
+    public function update(UpdateClientData $data, Client $client, UpdateClient $updateClient): JsonResponse
     {
-        $clientModel = ($request->user() ?? abort(401))->clientById($client);
+        $updateClient->handle($client, $data);
 
-        $updateClient->handle($clientModel, $data);
-
-        return response()->json(ClientData::fromModel($clientModel->load('missions')));
+        return response()->json(ClientData::fromModel($client->load('missions')));
     }
 
-    public function archive(Request $request, int $client): JsonResponse
+    public function archive(Client $client): JsonResponse
     {
-        $clientModel = ($request->user() ?? abort(401))->clientById($client);
+        $client->update(['archived_at' => now()]);
 
-        $clientModel->update(['archived_at' => now()]);
-
-        return response()->json(ClientData::fromModel($clientModel->load('missions')));
+        return response()->json(ClientData::fromModel($client->load('missions')));
     }
 
-    public function unarchive(Request $request, int $client): JsonResponse
+    public function unarchive(Client $client): JsonResponse
     {
-        $clientModel = ($request->user() ?? abort(401))->clientById($client);
+        $client->update(['archived_at' => null]);
 
-        $clientModel->update(['archived_at' => null]);
-
-        return response()->json(ClientData::fromModel($clientModel->load('missions')));
+        return response()->json(ClientData::fromModel($client->load('missions')));
     }
 
-    public function destroy(Request $request, int $client): Response
+    public function destroy(Client $client): Response
     {
-        $clientModel = ($request->user() ?? abort(401))->clientById($client);
-
-        $hasMissions = Mission::query()->involvingClient($clientModel)->exists();
+        $hasMissions = Mission::query()->involvingClient($client)->exists();
 
         abort_if($hasMissions, 409, __('clients.cannot_delete_with_missions'));
 
-        $clientModel->delete();
+        $client->delete();
 
         return response()->noContent();
     }

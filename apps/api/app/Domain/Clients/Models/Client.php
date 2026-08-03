@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Sluggable\HasSlug;
@@ -79,10 +78,17 @@ class Client extends Model
     }
 
     /**
-     * @throws ModelNotFoundException
+     * Scope every {client} route binding to the authenticated user, so a
+     * foreign client resolves to a 404 instead of leaking across accounts.
+     *
+     * @param  mixed  $value
+     * @param  string|null  $field
      */
-    public function missionById(int $missionId): Mission
+    #[\Override]
+    public function resolveRouteBinding($value, $field = null): ?Model
     {
-        return $this->missions()->findOrFail($missionId);
+        return auth()->user()?->clients()
+            ->where($field ?? $this->getRouteKeyName(), $value)
+            ->first();
     }
 }
