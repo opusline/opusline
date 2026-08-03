@@ -15,6 +15,8 @@ return [
         SpatieDataToSchema::class,
     ],
 
+    'enum_cases_names_strategy' => 'varnames',
+
     'security_strategy' => [
         MiddlewareAuthSecurityStrategy::class,
         [

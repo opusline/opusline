@@ -222,7 +222,7 @@
                 }
             }
         },
-        "/clients/{clientSlug}": {
+        "/clients/{client}": {
             "put": {
                 "operationId": "updateClient",
                 "tags": [
@@ -230,11 +230,11 @@
                 ],
                 "parameters": [
                     {
-                        "name": "clientSlug",
+                        "name": "client",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -271,11 +271,11 @@
                 ],
                 "parameters": [
                     {
-                        "name": "clientSlug",
+                        "name": "client",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -311,7 +311,7 @@
                 }
             }
         },
-        "/clients/{clientSlug}/archive": {
+        "/clients/{client}/archive": {
             "post": {
                 "operationId": "archiveClient",
                 "tags": [
@@ -319,11 +319,11 @@
                 ],
                 "parameters": [
                     {
-                        "name": "clientSlug",
+                        "name": "client",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -344,7 +344,7 @@
                 }
             }
         },
-        "/clients/{clientSlug}/unarchive": {
+        "/clients/{client}/unarchive": {
             "post": {
                 "operationId": "unarchiveClient",
                 "tags": [
@@ -352,11 +352,11 @@
                 ],
                 "parameters": [
                     {
-                        "name": "clientSlug",
+                        "name": "client",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -377,11 +377,21 @@
                 }
             }
         },
-        "/missions": {
+        "/clients/{client}/missions": {
             "post": {
                 "operationId": "createMission",
                 "tags": [
                     "Mission"
+                ],
+                "parameters": [
+                    {
+                        "name": "client",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
                 ],
                 "requestBody": {
                     "required": true,
@@ -410,7 +420,7 @@
                 }
             }
         },
-        "/missions/{missionId}": {
+        "/clients/{client}/missions/{mission}": {
             "put": {
                 "operationId": "updateMission",
                 "tags": [
@@ -418,7 +428,15 @@
                 ],
                 "parameters": [
                     {
-                        "name": "missionId",
+                        "name": "client",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "mission",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -459,7 +477,15 @@
                 ],
                 "parameters": [
                     {
-                        "name": "missionId",
+                        "name": "client",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "mission",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -488,16 +514,23 @@
         },
         "schemas": {
             "BillingMode": {
-                "type": "string",
+                "type": "integer",
                 "enum": [
-                    "daily",
-                    "hourly"
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "Daily",
+                    "Hourly"
                 ],
                 "title": "BillingMode"
             },
             "ClientData": {
                 "type": "object",
                 "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
                     "slug": {
                         "type": "string"
                     },
@@ -525,6 +558,7 @@
                     }
                 },
                 "required": [
+                    "id",
                     "slug",
                     "name",
                     "notes",
@@ -571,9 +605,6 @@
             "CreateMissionData": {
                 "type": "object",
                 "properties": {
-                    "clientSlug": {
-                        "type": "string"
-                    },
                     "name": {
                         "type": "string",
                         "minLength": 1,
@@ -591,9 +622,9 @@
                             "type": "string"
                         }
                     },
-                    "endClientSlug": {
+                    "endClientId": {
                         "type": [
-                            "string",
+                            "integer",
                             "null"
                         ]
                     },
@@ -613,11 +644,20 @@
                     }
                 },
                 "required": [
-                    "clientSlug",
                     "name",
                     "billingMode"
                 ],
                 "title": "CreateMissionData"
+            },
+            "Currency": {
+                "type": "string",
+                "enum": [
+                    "EUR"
+                ],
+                "x-enum-varnames": [
+                    "EUR"
+                ],
+                "title": "Currency"
             },
             "LoginData": {
                 "type": "object",
@@ -646,12 +686,15 @@
                     "id": {
                         "type": "integer"
                     },
-                    "clientSlug": {
+                    "slug": {
                         "type": "string"
                     },
-                    "endClientSlug": {
+                    "clientId": {
+                        "type": "integer"
+                    },
+                    "endClientId": {
                         "type": [
-                            "string",
+                            "integer",
                             "null"
                         ]
                     },
@@ -691,8 +734,9 @@
                 },
                 "required": [
                     "id",
-                    "clientSlug",
-                    "endClientSlug",
+                    "slug",
+                    "clientId",
+                    "endClientId",
                     "name",
                     "billingMode",
                     "rate",
@@ -703,11 +747,16 @@
                 "title": "MissionData"
             },
             "MissionStatus": {
-                "type": "string",
+                "type": "integer",
                 "enum": [
-                    "active",
-                    "paused",
-                    "done"
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "Active",
+                    "Paused",
+                    "Done"
                 ],
                 "title": "MissionStatus"
             },
@@ -718,7 +767,7 @@
                         "type": "integer"
                     },
                     "currency": {
-                        "type": "string"
+                        "$ref": "#/components/schemas/Currency"
                     }
                 },
                 "required": [
@@ -759,7 +808,6 @@
             },
             "UpdateClientData": {
                 "type": "object",
-                "description": "Full-replace update (PUT semantics) \u2014 no Optional fields on purpose:\nunion types are invisible to the OpenAPI schema extension.",
                 "properties": {
                     "name": {
                         "type": "string",
@@ -780,7 +828,6 @@
             },
             "UpdateMissionData": {
                 "type": "object",
-                "description": "Full-replace update. billing_mode and client_id are deliberately absent:\nboth are immutable after creation (new contract = new mission).",
                 "properties": {
                     "name": {
                         "type": "string",
@@ -799,9 +846,9 @@
                             "type": "string"
                         }
                     },
-                    "endClientSlug": {
+                    "endClientId": {
                         "type": [
-                            "string",
+                            "integer",
                             "null"
                         ]
                     },

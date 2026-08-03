@@ -88,7 +88,7 @@ export const deleteClient = <ThrowOnError extends boolean = false>(options: Opti
             name: 'opusline-session',
             type: 'apiKey'
         }],
-    url: '/clients/{clientSlug}',
+    url: '/clients/{client}',
     ...options
 });
 
@@ -98,7 +98,7 @@ export const updateClient = <ThrowOnError extends boolean = false>(options: Opti
             name: 'opusline-session',
             type: 'apiKey'
         }],
-    url: '/clients/{clientSlug}',
+    url: '/clients/{client}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -112,7 +112,7 @@ export const archiveClient = <ThrowOnError extends boolean = false>(options: Opt
             name: 'opusline-session',
             type: 'apiKey'
         }],
-    url: '/clients/{clientSlug}/archive',
+    url: '/clients/{client}/archive',
     ...options
 });
 
@@ -122,7 +122,7 @@ export const unarchiveClient = <ThrowOnError extends boolean = false>(options: O
             name: 'opusline-session',
             type: 'apiKey'
         }],
-    url: '/clients/{clientSlug}/unarchive',
+    url: '/clients/{client}/unarchive',
     ...options
 });
 
@@ -132,7 +132,7 @@ export const createMission = <ThrowOnError extends boolean = false>(options: Opt
             name: 'opusline-session',
             type: 'apiKey'
         }],
-    url: '/missions',
+    url: '/clients/{client}/missions',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -146,7 +146,7 @@ export const deleteMission = <ThrowOnError extends boolean = false>(options: Opt
             name: 'opusline-session',
             type: 'apiKey'
         }],
-    url: '/missions/{missionId}',
+    url: '/clients/{client}/missions/{mission}',
     ...options
 });
 
@@ -156,7 +156,7 @@ export const updateMission = <ThrowOnError extends boolean = false>(options: Opt
             name: 'opusline-session',
             type: 'apiKey'
         }],
-    url: '/missions/{missionId}',
+    url: '/clients/{client}/missions/{mission}',
     ...options,
     headers: {
         'Content-Type': 'application/json',

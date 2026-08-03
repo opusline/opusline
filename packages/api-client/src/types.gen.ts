@@ -7,12 +7,13 @@ export type ClientOptions = {
 /**
  * BillingMode
  */
-export type BillingMode = 'daily' | 'hourly';
+export type BillingMode = 0 | 1;
 
 /**
  * ClientData
  */
 export type ClientData = {
+    id: number;
     slug: string;
     name: string;
     notes: string | null;
@@ -39,14 +40,18 @@ export type CreateClientData = {
  * CreateMissionData
  */
 export type CreateMissionData = {
-    clientSlug: string;
     name: string;
     billingMode: BillingMode;
     rate?: Array<string> | null;
-    endClientSlug?: string | null;
+    endClientId?: number | null;
     startDate?: string | null;
     endDate?: string | null;
 };
+
+/**
+ * Currency
+ */
+export type Currency = 'EUR';
 
 /**
  * LoginData
@@ -62,8 +67,9 @@ export type LoginData = {
  */
 export type MissionData = {
     id: number;
-    clientSlug: string;
-    endClientSlug: string | null;
+    slug: string;
+    clientId: number;
+    endClientId: number | null;
     name: string;
     billingMode: BillingMode;
     rate: MoneyData | null;
@@ -75,14 +81,14 @@ export type MissionData = {
 /**
  * MissionStatus
  */
-export type MissionStatus = 'active' | 'paused' | 'done';
+export type MissionStatus = 0 | 1 | 2;
 
 /**
  * MoneyData
  */
 export type MoneyData = {
     amount: number;
-    currency: string;
+    currency: Currency;
 };
 
 /**
@@ -97,9 +103,6 @@ export type RegisterUserData = {
 
 /**
  * UpdateClientData
- *
- * Full-replace update (PUT semantics) — no Optional fields on purpose:
- * union types are invisible to the OpenAPI schema extension.
  */
 export type UpdateClientData = {
     name: string;
@@ -108,15 +111,12 @@ export type UpdateClientData = {
 
 /**
  * UpdateMissionData
- *
- * Full-replace update. billing_mode and client_id are deliberately absent:
- * both are immutable after creation (new contract = new mission).
  */
 export type UpdateMissionData = {
     name: string;
     status: MissionStatus;
     rate?: Array<string> | null;
-    endClientSlug?: string | null;
+    endClientId?: number | null;
     startDate?: string | null;
     endDate?: string | null;
 };
@@ -300,10 +300,10 @@ export type CreateClientResponse = CreateClientResponses[keyof CreateClientRespo
 export type DeleteClientData = {
     body?: never;
     path: {
-        clientSlug: string;
+        client: number;
     };
     query?: never;
-    url: '/clients/{clientSlug}';
+    url: '/clients/{client}';
 };
 
 export type DeleteClientErrors = {
@@ -341,10 +341,10 @@ export type DeleteClientResponse = DeleteClientResponses[keyof DeleteClientRespo
 export type UpdateClientData2 = {
     body: UpdateClientData;
     path: {
-        clientSlug: string;
+        client: number;
     };
     query?: never;
-    url: '/clients/{clientSlug}';
+    url: '/clients/{client}';
 };
 
 export type UpdateClientErrors = {
@@ -370,10 +370,10 @@ export type UpdateClientResponse = UpdateClientResponses[keyof UpdateClientRespo
 export type ArchiveClientData = {
     body?: never;
     path: {
-        clientSlug: string;
+        client: number;
     };
     query?: never;
-    url: '/clients/{clientSlug}/archive';
+    url: '/clients/{client}/archive';
 };
 
 export type ArchiveClientErrors = {
@@ -399,10 +399,10 @@ export type ArchiveClientResponse = ArchiveClientResponses[keyof ArchiveClientRe
 export type UnarchiveClientData = {
     body?: never;
     path: {
-        clientSlug: string;
+        client: number;
     };
     query?: never;
-    url: '/clients/{clientSlug}/unarchive';
+    url: '/clients/{client}/unarchive';
 };
 
 export type UnarchiveClientErrors = {
@@ -427,9 +427,11 @@ export type UnarchiveClientResponse = UnarchiveClientResponses[keyof UnarchiveCl
 
 export type CreateMissionData2 = {
     body: CreateMissionData;
-    path?: never;
+    path: {
+        client: number;
+    };
     query?: never;
-    url: '/missions';
+    url: '/clients/{client}/missions';
 };
 
 export type CreateMissionErrors = {
@@ -455,10 +457,11 @@ export type CreateMissionResponse = CreateMissionResponses[keyof CreateMissionRe
 export type DeleteMissionData = {
     body?: never;
     path: {
-        missionId: number;
+        client: number;
+        mission: number;
     };
     query?: never;
-    url: '/missions/{missionId}';
+    url: '/clients/{client}/missions/{mission}';
 };
 
 export type DeleteMissionErrors = {
@@ -487,10 +490,11 @@ export type DeleteMissionResponse = DeleteMissionResponses[keyof DeleteMissionRe
 export type UpdateMissionData2 = {
     body: UpdateMissionData;
     path: {
-        missionId: number;
+        client: number;
+        mission: number;
     };
     query?: never;
-    url: '/missions/{missionId}';
+    url: '/clients/{client}/missions/{mission}';
 };
 
 export type UpdateMissionErrors = {

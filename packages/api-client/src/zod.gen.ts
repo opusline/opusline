@@ -5,7 +5,7 @@ import * as z from 'zod/mini';
 /**
  * BillingMode
  */
-export const zBillingMode = z.enum(['daily', 'hourly']);
+export const zBillingMode = z.union([z.literal(0), z.literal(1)]);
 
 /**
  * CreateClientData
@@ -19,14 +19,18 @@ export const zCreateClientData = z.object({
  * CreateMissionData
  */
 export const zCreateMissionData = z.object({
-    clientSlug: z.string(),
     name: z.string().check(z.minLength(1), z.maxLength(255)),
     billingMode: zBillingMode,
     rate: z.nullish(z.array(z.string())),
-    endClientSlug: z.nullish(z.string()),
+    endClientId: z.nullish(z.int()),
     startDate: z.nullish(z.iso.date()),
     endDate: z.nullish(z.iso.date())
 });
+
+/**
+ * Currency
+ */
+export const zCurrency = z.enum(['EUR']);
 
 /**
  * LoginData
@@ -40,10 +44,10 @@ export const zLoginData = z.object({
 /**
  * MissionStatus
  */
-export const zMissionStatus = z.enum([
-    'active',
-    'paused',
-    'done'
+export const zMissionStatus = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
 ]);
 
 /**
@@ -51,7 +55,7 @@ export const zMissionStatus = z.enum([
  */
 export const zMoneyData = z.object({
     amount: z.int(),
-    currency: z.string()
+    currency: zCurrency
 });
 
 /**
@@ -59,8 +63,9 @@ export const zMoneyData = z.object({
  */
 export const zMissionData = z.object({
     id: z.int(),
-    clientSlug: z.string(),
-    endClientSlug: z.nullable(z.string()),
+    slug: z.string(),
+    clientId: z.int(),
+    endClientId: z.nullable(z.int()),
     name: z.string(),
     billingMode: zBillingMode,
     rate: z.nullable(zMoneyData),
@@ -73,6 +78,7 @@ export const zMissionData = z.object({
  * ClientData
  */
 export const zClientData = z.object({
+    id: z.int(),
     slug: z.string(),
     name: z.string(),
     notes: z.nullable(z.string()),
@@ -99,9 +105,6 @@ export const zRegisterUserData = z.object({
 
 /**
  * UpdateClientData
- *
- * Full-replace update (PUT semantics) — no Optional fields on purpose:
- * union types are invisible to the OpenAPI schema extension.
  */
 export const zUpdateClientData = z.object({
     name: z.string().check(z.minLength(1), z.maxLength(255)),
@@ -110,15 +113,12 @@ export const zUpdateClientData = z.object({
 
 /**
  * UpdateMissionData
- *
- * Full-replace update. billing_mode and client_id are deliberately absent:
- * both are immutable after creation (new contract = new mission).
  */
 export const zUpdateMissionData = z.object({
     name: z.string().check(z.minLength(1), z.maxLength(255)),
     status: zMissionStatus,
     rate: z.nullish(z.array(z.string())),
-    endClientSlug: z.nullish(z.string()),
+    endClientId: z.nullish(z.int()),
     startDate: z.nullish(z.iso.date()),
     endDate: z.nullish(z.iso.date())
 });
@@ -159,7 +159,7 @@ export const zCreateClientBody = zCreateClientData;
 export const zCreateClientResponse = zClientData;
 
 export const zDeleteClientPath = z.object({
-    clientSlug: z.string()
+    client: z.int()
 });
 
 /**
@@ -170,29 +170,34 @@ export const zDeleteClientResponse = z.void();
 export const zUpdateClientBody = zUpdateClientData;
 
 export const zUpdateClientPath = z.object({
-    clientSlug: z.string()
+    client: z.int()
 });
 
 export const zUpdateClientResponse = zClientData;
 
 export const zArchiveClientPath = z.object({
-    clientSlug: z.string()
+    client: z.int()
 });
 
 export const zArchiveClientResponse = zClientData;
 
 export const zUnarchiveClientPath = z.object({
-    clientSlug: z.string()
+    client: z.int()
 });
 
 export const zUnarchiveClientResponse = zClientData;
 
 export const zCreateMissionBody = zCreateMissionData;
 
+export const zCreateMissionPath = z.object({
+    client: z.int()
+});
+
 export const zCreateMissionResponse = zMissionData;
 
 export const zDeleteMissionPath = z.object({
-    missionId: z.int()
+    client: z.int(),
+    mission: z.int()
 });
 
 /**
@@ -203,7 +208,8 @@ export const zDeleteMissionResponse = z.void();
 export const zUpdateMissionBody = zUpdateMissionData;
 
 export const zUpdateMissionPath = z.object({
-    missionId: z.int()
+    client: z.int(),
+    mission: z.int()
 });
 
 export const zUpdateMissionResponse = zMissionData;
