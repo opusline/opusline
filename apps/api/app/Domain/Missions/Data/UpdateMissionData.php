@@ -15,7 +15,7 @@ class UpdateMissionData extends Data
         public string $name,
         public MissionStatus $status,
         public ?MoneyData $rate = null,
-        public ?string $endClientSlug = null,
+        public ?int $endClientId = null,
         public ?string $startDate = null,
         public ?string $endDate = null,
     ) {}
@@ -29,10 +29,10 @@ class UpdateMissionData extends Data
             'name' => ['required', 'string', 'min:1', 'max:255'],
             'status' => ['required', Rule::enum(MissionStatus::class)],
             'rate' => ['nullable', 'array'],
-            'endClientSlug' => [
+            'endClientId' => [
                 'nullable',
-                'string',
-                Rule::exists('clients', 'slug')->where('user_id', auth()->id()),
+                'integer',
+                Rule::exists('clients', 'id')->where('user_id', auth()->id()),
             ],
             'startDate' => ['nullable', 'date_format:Y-m-d'],
             'endDate' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:startDate'],

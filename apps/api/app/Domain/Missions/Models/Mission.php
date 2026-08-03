@@ -10,10 +10,15 @@ use App\Domain\Missions\Enums\MissionStatus;
 use App\Domain\Missions\Factories\MissionFactory;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
+use Cknow\Money\Casts\MoneyIntegerCast;
+use Cknow\Money\Money;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * @property int $id
@@ -21,8 +26,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $client_id
  * @property ?int $end_client_id
  * @property string $name
+ * @property string $slug
  * @property BillingMode $billing_mode
- * @property ?int $rate_cents
+ * @property ?Money $rate_cents
  * @property string $currency
  * @property MissionStatus $status
  * @property ?CarbonImmutable $start_date
@@ -48,9 +54,23 @@ class Mission extends Model
     /** @use HasFactory<MissionFactory> */
     use HasFactory;
 
+    use HasSlug;
+
     protected static function newFactory(): MissionFactory
     {
         return MissionFactory::new();
+    }
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate()
+            ->extraScope(
+                /** @param Builder<self> $builder @return Builder<self> */
+                fn (Builder $builder): Builder => $builder->where('user_id', $this->user_id),
+            );
     }
 
     /**
@@ -64,7 +84,7 @@ class Mission extends Model
         return [
             'billing_mode' => BillingMode::class,
             'status' => MissionStatus::class,
-            'rate_cents' => 'integer',
+            'rate_cents' => MoneyIntegerCast::class.':currency',
             'start_date' => 'date',
             'end_date' => 'date',
         ];

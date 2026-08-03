@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Missions\Controllers;
 
+use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Actions\CreateMission;
 use App\Domain\Missions\Actions\UpdateMission;
 use App\Domain\Missions\Data\CreateMissionData;
@@ -16,31 +17,40 @@ use Illuminate\Http\Response;
 
 class MissionController extends Controller
 {
-    public function store(CreateMissionData $data, Request $request, CreateMission $createMission): JsonResponse
-    {
-        $mission = $createMission->handle($request->user() ?? abort(401), $data);
-
-        return response()->json(MissionData::fromModel($mission->load(['client', 'endClient'])), 201);
-    }
-
-    public function update(UpdateMissionData $data, Request $request, int $missionId, UpdateMission $updateMission): JsonResponse
+    public function store(CreateMissionData $data, Request $request, int $client, CreateMission $createMission): JsonResponse
     {
         $user = $request->user() ?? abort(401);
-        $mission = $user->missions()->findOrFail($missionId);
+        $billingClient = $this->clientById($request, $client);
 
-        $updateMission->handle($user, $mission, $data);
+        $mission = $createMission->handle($user, $billingClient, $data);
 
-        return response()->json(MissionData::fromModel($mission->load(['client', 'endClient'])));
+        return response()->json(MissionData::fromModel($mission), 201);
     }
 
-    public function destroy(Request $request, int $missionId): Response
+    public function update(UpdateMissionData $data, Request $request, int $client, int $mission, UpdateMission $updateMission): JsonResponse
     {
-        $mission = ($request->user() ?? abort(401))->missions()->findOrFail($missionId);
+        $missionModel = $this->clientById($request, $client)->missions()->findOrFail($mission);
+
+        $updateMission->handle($missionModel, $data);
+
+        return response()->json(MissionData::fromModel($missionModel));
+    }
+
+    public function destroy(Request $request, int $client, int $mission): Response
+    {
+        $missionModel = $this->clientById($request, $client)->missions()->findOrFail($mission);
 
         // TODO(time-entries): abort 409 here once missions can carry time
         // entries — deleting tracked work must fail loud, like client deletion.
-        $mission->delete();
+        $missionModel->delete();
 
         return response()->noContent();
+    }
+
+    private function clientById(Request $request, int $clientId): Client
+    {
+        return ($request->user() ?? abort(401))
+            ->clients()
+            ->findOrFail($clientId);
     }
 }

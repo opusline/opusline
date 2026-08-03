@@ -6,28 +6,22 @@ namespace App\Domain\Missions\Actions;
 
 use App\Domain\Missions\Data\UpdateMissionData;
 use App\Domain\Missions\Models\Mission;
-use App\Domain\Users\Models\User;
 use Illuminate\Validation\ValidationException;
 
 class UpdateMission
 {
-    public function handle(User $user, Mission $mission, UpdateMissionData $data): Mission
+    public function handle(Mission $mission, UpdateMissionData $data): Mission
     {
-        $endClient = $data->endClientSlug === null
-            ? null
-            : $user->clients()->where('slug', $data->endClientSlug)->firstOrFail();
-
-        if ($endClient !== null && $endClient->id === $mission->client_id) {
+        if ($data->endClientId !== null && $data->endClientId === $mission->client_id) {
             throw ValidationException::withMessages([
-                'endClientSlug' => __('The end client must be different from the billing client.'),
+                'endClientId' => __('missions.end_client_must_differ'),
             ]);
         }
 
         $mission->update([
-            'end_client_id' => $endClient?->id,
+            'end_client_id' => $data->endClientId,
             'name' => $data->name,
-            'rate_cents' => $data->rate?->amount,
-            'currency' => $data->rate->currency ?? 'EUR',
+            'rate_cents' => $data->rate?->toMoney(),
             'status' => $data->status,
             'start_date' => $data->startDate,
             'end_date' => $data->endDate,

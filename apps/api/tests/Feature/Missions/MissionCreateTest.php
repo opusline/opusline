@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Domain\Clients\Models\Client;
+use App\Domain\Missions\Enums\BillingMode;
+use App\Domain\Missions\Enums\MissionStatus;
 use App\Domain\Users\Models\User;
 
 test('creates a daily mission', function (): void {
@@ -10,20 +12,20 @@ test('creates a daily mission', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->postJson('/api/missions', [
-            'clientSlug' => $client->slug,
+        ->postJson("/api/clients/{$client->id}/missions", [
             'name' => 'OGF front',
-            'billingMode' => 'daily',
+            'billingMode' => BillingMode::Daily->value,
             'rate' => ['amount' => 55_000, 'currency' => 'EUR'],
             'startDate' => '2026-08-01',
         ])
         ->assertCreated()
-        ->assertJsonPath('clientSlug', $client->slug)
-        ->assertJsonPath('billingMode', 'daily')
+        ->assertJsonPath('clientId', $client->id)
+        ->assertJsonPath('slug', 'ogf-front')
+        ->assertJsonPath('billingMode', BillingMode::Daily->value)
         ->assertJsonPath('rate.amount', 55_000)
         ->assertJsonPath('rate.currency', 'EUR')
-        ->assertJsonPath('status', 'active')
-        ->assertJsonPath('endClientSlug', null);
+        ->assertJsonPath('status', MissionStatus::Active->value)
+        ->assertJsonPath('endClientId', null);
 
     $this->assertDatabaseHas('missions', [
         'user_id' => $user->id,
@@ -38,14 +40,13 @@ test('creates an hourly mission', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->postJson('/api/missions', [
-            'clientSlug' => $client->slug,
+        ->postJson("/api/clients/{$client->id}/missions", [
             'name' => 'Maintenance',
-            'billingMode' => 'hourly',
+            'billingMode' => BillingMode::Hourly->value,
             'rate' => ['amount' => 8_500, 'currency' => 'EUR'],
         ])
         ->assertCreated()
-        ->assertJsonPath('billingMode', 'hourly')
+        ->assertJsonPath('billingMode', BillingMode::Hourly->value)
         ->assertJsonPath('rate.amount', 8_500);
 });
 
@@ -54,10 +55,9 @@ test('creates a non billable mission when no rate is given', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->postJson('/api/missions', [
-            'clientSlug' => $client->slug,
+        ->postJson("/api/clients/{$client->id}/missions", [
             'name' => 'Opusline',
-            'billingMode' => 'hourly',
+            'billingMode' => BillingMode::Hourly->value,
         ])
         ->assertCreated()
         ->assertJsonPath('rate', null);
@@ -71,50 +71,57 @@ test('creates a mission billed through an esn', function (): void {
     $endClient = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->postJson('/api/missions', [
-            'clientSlug' => $esn->slug,
+        ->postJson("/api/clients/{$esn->id}/missions", [
             'name' => 'OGF front',
-            'billingMode' => 'daily',
+            'billingMode' => BillingMode::Daily->value,
             'rate' => ['amount' => 55_000, 'currency' => 'EUR'],
-            'endClientSlug' => $endClient->slug,
+            'endClientId' => $endClient->id,
         ])
         ->assertCreated()
-        ->assertJsonPath('clientSlug', $esn->slug)
-        ->assertJsonPath('endClientSlug', $endClient->slug);
+        ->assertJsonPath('clientId', $esn->id)
+        ->assertJsonPath('endClientId', $endClient->id);
 });
 
 test('rejects an invalid payload', function (array $payload, string $expectedError): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
-    $payload = array_map(
-        fn (mixed $value): mixed => $value === ':clientSlug' ? $client->slug : $value,
-        $payload,
-    );
 
     $this->actingAs($user)
-        ->postJson('/api/missions', $payload)
+        ->postJson("/api/clients/{$client->id}/missions", $payload)
         ->assertUnprocessable()
         ->assertJsonValidationErrors([$expectedError]);
 })->with([
-    'missing client' => [['name' => 'M', 'billingMode' => 'daily'], 'clientSlug'],
-    'missing name' => [['clientSlug' => ':clientSlug', 'billingMode' => 'daily'], 'name'],
-    'unknown billing mode' => [['clientSlug' => ':clientSlug', 'name' => 'M', 'billingMode' => 'weekly'], 'billingMode'],
-    'zero rate' => [['clientSlug' => ':clientSlug', 'name' => 'M', 'billingMode' => 'daily', 'rate' => ['amount' => 0, 'currency' => 'EUR']], 'rate.amount'],
-    'unsupported currency' => [['clientSlug' => ':clientSlug', 'name' => 'M', 'billingMode' => 'daily', 'rate' => ['amount' => 100, 'currency' => 'USD']], 'rate.currency'],
-    'end before start' => [['clientSlug' => ':clientSlug', 'name' => 'M', 'billingMode' => 'daily', 'startDate' => '2026-08-02', 'endDate' => '2026-08-01'], 'endDate'],
+    'missing name' => [['billingMode' => BillingMode::Daily->value], 'name'],
+    'unknown billing mode' => [['name' => 'M', 'billingMode' => 99], 'billingMode'],
+    'zero rate' => [['name' => 'M', 'billingMode' => BillingMode::Daily->value, 'rate' => ['amount' => 0, 'currency' => 'EUR']], 'rate.amount'],
+    'unsupported currency' => [['name' => 'M', 'billingMode' => BillingMode::Daily->value, 'rate' => ['amount' => 100, 'currency' => 'USD']], 'rate.currency'],
+    'end before start' => [['name' => 'M', 'billingMode' => BillingMode::Daily->value, 'startDate' => '2026-08-02', 'endDate' => '2026-08-01'], 'endDate'],
 ]);
 
 test('rejects a client belonging to another user', function (): void {
     $foreignClient = Client::factory()->create();
 
     $this->actingAs(User::factory()->create())
-        ->postJson('/api/missions', [
-            'clientSlug' => $foreignClient->slug,
+        ->postJson("/api/clients/{$foreignClient->id}/missions", [
             'name' => 'Hijack',
-            'billingMode' => 'daily',
+            'billingMode' => BillingMode::Daily->value,
+        ])
+        ->assertNotFound();
+});
+
+test('rejects an end client belonging to another user', function (): void {
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+    $foreignClient = Client::factory()->create();
+
+    $this->actingAs($user)
+        ->postJson("/api/clients/{$client->id}/missions", [
+            'name' => 'M',
+            'billingMode' => BillingMode::Daily->value,
+            'endClientId' => $foreignClient->id,
         ])
         ->assertUnprocessable()
-        ->assertJsonValidationErrors(['clientSlug']);
+        ->assertJsonValidationErrors(['endClientId']);
 });
 
 test('rejects an end client equal to the billing client', function (): void {
@@ -122,16 +129,17 @@ test('rejects an end client equal to the billing client', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->postJson('/api/missions', [
-            'clientSlug' => $client->slug,
+        ->postJson("/api/clients/{$client->id}/missions", [
             'name' => 'M',
-            'billingMode' => 'daily',
-            'endClientSlug' => $client->slug,
+            'billingMode' => BillingMode::Daily->value,
+            'endClientId' => $client->id,
         ])
         ->assertUnprocessable()
-        ->assertJsonValidationErrors(['endClientSlug']);
+        ->assertJsonValidationErrors(['endClientId']);
 });
 
 test('returns 401 for guests', function (): void {
-    $this->postJson('/api/missions', [])->assertUnauthorized();
+    $client = Client::factory()->create();
+
+    $this->postJson("/api/clients/{$client->id}/missions", [])->assertUnauthorized();
 });
