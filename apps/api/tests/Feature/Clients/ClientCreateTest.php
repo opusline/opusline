@@ -25,15 +25,26 @@ test('generates a slug from the name', function (): void {
         ->assertJsonPath('slug', 'studio-lorem');
 });
 
-test('suffixes the slug when the name is already taken', function (): void {
+test('suffixes the slug when it is already taken by a different name', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)->postJson('/api/clients', ['name' => 'Catamania'])->assertCreated();
+
+    $this->actingAs($user)
+        ->postJson('/api/clients', ['name' => 'Catamania!'])
+        ->assertCreated()
+        ->assertJsonPath('slug', 'catamania-1');
+});
+
+test('rejects a name already used by the same user', function (): void {
     $user = User::factory()->create();
 
     $this->actingAs($user)->postJson('/api/clients', ['name' => 'Catamania'])->assertCreated();
 
     $this->actingAs($user)
         ->postJson('/api/clients', ['name' => 'Catamania'])
-        ->assertCreated()
-        ->assertJsonPath('slug', 'catamania-1');
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['name']);
 });
 
 test('reuses the same slug across different users', function (): void {

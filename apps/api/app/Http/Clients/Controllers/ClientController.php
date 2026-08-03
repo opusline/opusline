@@ -19,13 +19,11 @@ use Illuminate\Http\Response;
 
 class ClientController extends Controller
 {
-    private const array MISSION_RELATIONS = ['missions.client', 'missions.endClient'];
-
     public function index(Request $request): JsonResponse
     {
         $clients = ($request->user() ?? abort(401))
             ->clients()
-            ->with(self::MISSION_RELATIONS)
+            ->with('missions')
             ->orderBy('name')
             ->get();
 
@@ -42,57 +40,56 @@ class ClientController extends Controller
     {
         $client = $createClient->handle($request->user() ?? abort(401), $data);
 
-        return response()->json(ClientData::fromModel($client->load(self::MISSION_RELATIONS)), 201);
+        return response()->json(ClientData::fromModel($client->load('missions')), 201);
     }
 
-    public function update(UpdateClientData $data, Request $request, string $clientSlug, UpdateClient $updateClient): JsonResponse
+    public function update(UpdateClientData $data, Request $request, int $client, UpdateClient $updateClient): JsonResponse
     {
-        $client = $this->clientBySlug($request, $clientSlug);
+        $clientModel = $this->clientById($request, $client);
 
-        $updateClient->handle($client, $data);
+        $updateClient->handle($clientModel, $data);
 
-        return response()->json(ClientData::fromModel($client->load(self::MISSION_RELATIONS)));
+        return response()->json(ClientData::fromModel($clientModel->load('missions')));
     }
 
-    public function archive(Request $request, string $clientSlug): JsonResponse
+    public function archive(Request $request, int $client): JsonResponse
     {
-        $client = $this->clientBySlug($request, $clientSlug);
+        $clientModel = $this->clientById($request, $client);
 
-        $client->update(['archived_at' => now()]);
+        $clientModel->update(['archived_at' => now()]);
 
-        return response()->json(ClientData::fromModel($client->load(self::MISSION_RELATIONS)));
+        return response()->json(ClientData::fromModel($clientModel->load('missions')));
     }
 
-    public function unarchive(Request $request, string $clientSlug): JsonResponse
+    public function unarchive(Request $request, int $client): JsonResponse
     {
-        $client = $this->clientBySlug($request, $clientSlug);
+        $clientModel = $this->clientById($request, $client);
 
-        $client->update(['archived_at' => null]);
+        $clientModel->update(['archived_at' => null]);
 
-        return response()->json(ClientData::fromModel($client->load(self::MISSION_RELATIONS)));
+        return response()->json(ClientData::fromModel($clientModel->load('missions')));
     }
 
-    public function destroy(Request $request, string $clientSlug): Response
+    public function destroy(Request $request, int $client): Response
     {
-        $client = $this->clientBySlug($request, $clientSlug);
+        $clientModel = $this->clientById($request, $client);
 
         $hasMissions = Mission::query()
-            ->where('client_id', $client->id)
-            ->orWhere('end_client_id', $client->id)
+            ->where('client_id', $clientModel->id)
+            ->orWhere('end_client_id', $clientModel->id)
             ->exists();
 
-        abort_if($hasMissions, 409, 'Cannot delete a client that still has missions. Archive it instead.');
+        abort_if($hasMissions, 409, __('clients.cannot_delete_with_missions'));
 
-        $client->delete();
+        $clientModel->delete();
 
         return response()->noContent();
     }
 
-    private function clientBySlug(Request $request, string $clientSlug): Client
+    private function clientById(Request $request, int $clientId): Client
     {
         return ($request->user() ?? abort(401))
             ->clients()
-            ->where('slug', $clientSlug)
-            ->firstOrFail();
+            ->findOrFail($clientId);
     }
 }

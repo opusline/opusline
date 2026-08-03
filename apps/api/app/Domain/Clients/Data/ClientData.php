@@ -17,6 +17,7 @@ class ClientData extends Data
      * @param  list<MissionData>  $missions
      */
     public function __construct(
+        public int $id,
         public string $slug,
         public string $name,
         public ?string $notes,
@@ -28,6 +29,7 @@ class ClientData extends Data
     public static function fromModel(Client $client): self
     {
         return new self(
+            id: $client->id,
             slug: $client->slug,
             name: $client->name,
             notes: $client->notes,
