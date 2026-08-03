@@ -26,24 +26,26 @@ Route::middleware('auth:sanctum')->group(function (): void {
 
     Route::get('/clients', [ClientController::class, 'index'])->name('listClients');
     Route::post('/clients', [ClientController::class, 'store'])->name('createClient');
-    Route::put('/clients/{clientSlug}', [ClientController::class, 'update'])
-        ->where('clientSlug', '[a-z0-9-]+')
+    Route::put('/clients/{client}', [ClientController::class, 'update'])
+        ->whereNumber('client')
         ->name('updateClient');
-    Route::post('/clients/{clientSlug}/archive', [ClientController::class, 'archive'])
-        ->where('clientSlug', '[a-z0-9-]+')
+    Route::post('/clients/{client}/archive', [ClientController::class, 'archive'])
+        ->whereNumber('client')
         ->name('archiveClient');
-    Route::post('/clients/{clientSlug}/unarchive', [ClientController::class, 'unarchive'])
-        ->where('clientSlug', '[a-z0-9-]+')
+    Route::post('/clients/{client}/unarchive', [ClientController::class, 'unarchive'])
+        ->whereNumber('client')
         ->name('unarchiveClient');
-    Route::delete('/clients/{clientSlug}', [ClientController::class, 'destroy'])
-        ->where('clientSlug', '[a-z0-9-]+')
+    Route::delete('/clients/{client}', [ClientController::class, 'destroy'])
+        ->whereNumber('client')
         ->name('deleteClient');
 
-    Route::post('/missions', [MissionController::class, 'store'])->name('createMission');
-    Route::put('/missions/{missionId}', [MissionController::class, 'update'])
-        ->whereNumber('missionId')
+    Route::post('/clients/{client}/missions', [MissionController::class, 'store'])
+        ->whereNumber('client')
+        ->name('createMission');
+    Route::put('/clients/{client}/missions/{mission}', [MissionController::class, 'update'])
+        ->whereNumber(['client', 'mission'])
         ->name('updateMission');
-    Route::delete('/missions/{missionId}', [MissionController::class, 'destroy'])
-        ->whereNumber('missionId')
+    Route::delete('/clients/{client}/missions/{mission}', [MissionController::class, 'destroy'])
+        ->whereNumber(['client', 'mission'])
         ->name('deleteMission');
 });
