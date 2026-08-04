@@ -3,5 +3,10 @@ export default {
   rules: {
     "body-max-line-length": [0],
     "footer-max-line-length": [0],
+    "scope-enum": [
+      2,
+      "always",
+      ["api", "web", "ui", "website", "types", "deps", "repo"],
+    ],
   },
 };

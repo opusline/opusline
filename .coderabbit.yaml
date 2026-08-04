@@ -1,0 +1,43 @@
+language: en
+
+reviews:
+  profile: chill
+  high_level_summary: true
+  path_filters:
+    - "!apps/api/openapi.json"
+    - "!packages/api-client/src/**"
+    - "!apps/web/src/routeTree.gen.ts"
+    - "!pnpm-lock.yaml"
+    - "!apps/api/composer.lock"
+  path_instructions:
+    - path: "apps/api/**"
+      instructions: |
+        Laravel API, PHPStan level max. House rules to enforce:
+        - Every controller write goes through a domain Action class (app/Domain/*/Actions),
+          even one-line state changes. Controllers stay thin; no inline mutations.
+        - Validation lives in spatie/laravel-data attribute rules on Data classes.
+          No FormRequests, no Eloquent API Resources.
+        - Enums are int-backed (unsignedTinyInteger columns); domain business rules
+          throw ValidationException::withMessages with lang keys.
+        - The domain layer (App\Domain) must never reference App\Http.
+        - Prefer forms that keep both PHPStan and PhpStorm green: pass arrays into
+          laravel-data collect()/Collection::concat() (use ->all()),
+          whereKey($id)->firstOrFail() instead of findOrFail($id), no string-literal
+          generics in @throws docblocks.
+        - File uploads must use Data classes with explicit #[File]/#[Mimes]/#[Max]
+          attributes (they drive the multipart OpenAPI spec).
+    - path: "apps/api/tests/**"
+      instructions: |
+        Pest tests. One concept per test; names describe behavior, not methods.
+        Feature tests hit real HTTP entry points. Cross-user isolation must be
+        covered for every new endpoint (foreign resources return 404, never 403).
+    - path: "{apps/web,packages/ui}/**"
+      instructions: |
+        Vite SPA + shadcn design system. House rules:
+        - Base UI primitives only (never Radix); icons from Lucide only;
+          no other UI/styling libraries.
+        - Server state belongs in TanStack Query; ephemeral UI state in React
+          state; no localStorage for anything important.
+        - Every component needs a colocated CSF3 story (*.stories.tsx).
+        - Accessibility is required: ARIA, focus management, keyboard navigation.
+        - User-facing strings stay ready for i18n; zod imports must use zod/mini.
