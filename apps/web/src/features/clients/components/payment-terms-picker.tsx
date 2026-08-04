@@ -34,7 +34,9 @@ export function PaymentTermsPicker({
             setIsCustom(true);
             const draftedDays = Number.parseInt(customDraft, 10);
 
-            if (!Number.isNaN(draftedDays)) {
+            if (Number.isNaN(draftedDays)) {
+              setCustomDraft(String(value));
+            } else {
               onChange(draftedDays);
             }
             return;
@@ -64,6 +66,11 @@ export function PaymentTermsPicker({
             className="w-13 min-w-0 border-none bg-transparent font-mono text-foreground-hi text-sm tabular-nums outline-none"
             inputMode="numeric"
             maxLength={3}
+            onBlur={() => {
+              if (customDraft === "") {
+                setCustomDraft(String(value));
+              }
+            }}
             onChange={(event) => {
               const digits = event.target.value.replace(/\D/g, "");
               setCustomDraft(digits);
