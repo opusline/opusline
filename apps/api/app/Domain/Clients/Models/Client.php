@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Clients\Models;
 
+use App\Domain\Clients\Enums\ClientType;
 use App\Domain\Clients\Factories\ClientFactory;
 use App\Domain\Missions\Models\Mission;
+use App\Domain\Shared\Enums\Color;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -22,12 +24,32 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $user_id
  * @property string $name
  * @property string $slug
+ * @property ClientType $type
  * @property ?string $notes
+ * @property ?string $siret
+ * @property ?string $vat_number
+ * @property ?string $billing_address
+ * @property ?string $billing_contact_name
+ * @property ?string $billing_email
+ * @property Color $color
+ * @property int $payment_terms_days
  * @property ?CarbonImmutable $archived_at
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  */
-#[Fillable(['name', 'notes', 'archived_at'])]
+#[Fillable([
+    'name',
+    'type',
+    'notes',
+    'siret',
+    'vat_number',
+    'billing_address',
+    'billing_contact_name',
+    'billing_email',
+    'color',
+    'payment_terms_days',
+    'archived_at',
+])]
 class Client extends Model
 {
     /** @use HasFactory<ClientFactory> */
@@ -59,6 +81,9 @@ class Client extends Model
     protected function casts(): array
     {
         return [
+            'type' => ClientType::class,
+            'color' => Color::class,
+            'payment_terms_days' => 'integer',
             'archived_at' => 'datetime',
         ];
     }
@@ -74,7 +99,7 @@ class Client extends Model
      */
     public function missions(): HasMany
     {
-        return $this->hasMany(Mission::class);
+        return $this->hasMany(Mission::class)->orderBy('name');
     }
 
     /**
