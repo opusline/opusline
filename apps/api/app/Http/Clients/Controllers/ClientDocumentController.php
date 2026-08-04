@@ -26,7 +26,8 @@ class ClientDocumentController extends Controller
         $documents = $client->media()
             ->where('collection_name', 'documents')
             ->latest()
-            ->get();
+            ->get()
+            ->all();
 
         return response()->json(new DocumentListData(
             documents: array_values(DocumentData::collect($documents, 'array')),
