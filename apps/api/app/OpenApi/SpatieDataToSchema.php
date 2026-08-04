@@ -17,6 +17,7 @@ use Dedoc\Scramble\Support\Type\Type;
 use LogicException;
 use ReflectionClass;
 use ReflectionNamedType;
+use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 
 class SpatieDataToSchema extends TypeToSchemaExtension
@@ -37,7 +38,8 @@ class SpatieDataToSchema extends TypeToSchemaExtension
         $schema = new OpenApi\ObjectType;
         $required = [];
 
-        $constructor = (new ReflectionClass($type->name))->getConstructor();
+        $reflectionClass = new ReflectionClass($type->name);
+        $constructor = $reflectionClass->getConstructor();
 
         foreach ($constructor?->getParameters() ?? [] as $parameter) {
             $parameterType = $parameter->getType();
@@ -47,6 +49,16 @@ class SpatieDataToSchema extends TypeToSchemaExtension
             }
 
             $property = $this->schemaForNamedType($parameterType);
+
+            if ($parameterType->getName() === 'array') {
+                $itemsType = $this->collectedDataItems($reflectionClass, $parameter->getName());
+
+                if ($itemsType instanceof OpenApi\Type) {
+                    $arrayType = new OpenApi\ArrayType;
+                    $arrayType->items = $itemsType;
+                    $property = $arrayType;
+                }
+            }
 
             if ($parameterType->allowsNull()) {
                 $property->nullable(true);
@@ -78,6 +90,29 @@ class SpatieDataToSchema extends TypeToSchemaExtension
         }
 
         return (new Response(200))->setContent('application/json', $schema);
+    }
+
+    /**
+     * Items schema for an array property carrying #[DataCollectionOf(SomeData::class)].
+     *
+     * The attribute targets properties, so it is read from the promoted
+     * property, not the constructor parameter.
+     *
+     * @param  ReflectionClass<Data>  $reflectionClass
+     */
+    private function collectedDataItems(ReflectionClass $reflectionClass, string $propertyName): ?OpenApi\Type
+    {
+        if (! $reflectionClass->hasProperty($propertyName)) {
+            return null;
+        }
+
+        $attribute = $reflectionClass->getProperty($propertyName)->getAttributes(DataCollectionOf::class)[0] ?? null;
+
+        if ($attribute === null) {
+            return null;
+        }
+
+        return $this->openApiTransformer->transform(new ObjectType($attribute->newInstance()->class));
     }
 
     private function schemaForNamedType(ReflectionNamedType $type): OpenApi\Type

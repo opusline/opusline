@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { currentUser, getPing, login, logout, type Options, register } from '../sdk.gen';
-import type { CurrentUserData, CurrentUserError, CurrentUserResponse, GetPingData, GetPingResponse, LoginData2, LoginError, LoginResponse, LogoutData, LogoutError, LogoutResponse, RegisterData, RegisterResponse } from '../types.gen';
+import { archiveClient, createClient, createMission, currentUser, deleteClient, deleteClientDocument, deleteClientLogo, deleteMission, deleteMissionDocument, downloadClientDocument, downloadMissionDocument, getPing, listClientDocuments, listClients, listMissionDocuments, login, logout, type Options, register, showClient, showClientLogo, showMission, unarchiveClient, updateClient, updateClientDocument, updateMission, updateMissionDocument, uploadClientDocument, uploadClientLogo, uploadMissionDocument } from '../sdk.gen';
+import type { ArchiveClientData, ArchiveClientError, ArchiveClientResponse, CreateClientData2, CreateClientError, CreateClientResponse, CreateMissionData2, CreateMissionError, CreateMissionResponse, CurrentUserData, CurrentUserError, CurrentUserResponse, DeleteClientData, DeleteClientDocumentData, DeleteClientDocumentError, DeleteClientDocumentResponse, DeleteClientError, DeleteClientLogoData, DeleteClientLogoError, DeleteClientLogoResponse, DeleteClientResponse, DeleteMissionData, DeleteMissionDocumentData, DeleteMissionDocumentError, DeleteMissionDocumentResponse, DeleteMissionError, DeleteMissionResponse, DownloadClientDocumentData, DownloadClientDocumentError, DownloadClientDocumentResponse, DownloadMissionDocumentData, DownloadMissionDocumentError, DownloadMissionDocumentResponse, GetPingData, GetPingResponse, ListClientDocumentsData, ListClientDocumentsError, ListClientDocumentsResponse, ListClientsData, ListClientsError, ListClientsResponse, ListMissionDocumentsData, ListMissionDocumentsError, ListMissionDocumentsResponse, LoginData2, LoginError, LoginResponse, LogoutData, LogoutError, LogoutResponse, RegisterData, RegisterResponse, ShowClientData, ShowClientError, ShowClientLogoData, ShowClientLogoError, ShowClientLogoResponse, ShowClientResponse, ShowMissionData, ShowMissionError, ShowMissionResponse, UnarchiveClientData, UnarchiveClientError, UnarchiveClientResponse, UpdateClientData2, UpdateClientDocumentData, UpdateClientDocumentError, UpdateClientDocumentResponse, UpdateClientError, UpdateClientResponse, UpdateMissionData2, UpdateMissionDocumentData, UpdateMissionDocumentError, UpdateMissionDocumentResponse, UpdateMissionError, UpdateMissionResponse, UploadClientDocumentData, UploadClientDocumentError, UploadClientDocumentResponse, UploadClientLogoData2, UploadClientLogoError, UploadClientLogoResponse, UploadMissionDocumentData, UploadMissionDocumentError, UploadMissionDocumentResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -109,4 +109,348 @@ export const currentUserOptions = (options?: Options<CurrentUserData>) => queryO
         return data;
     },
     queryKey: currentUserQueryKey(options)
+});
+
+export const listClientsQueryKey = (options?: Options<ListClientsData>) => createQueryKey('listClients', options);
+
+export const listClientsOptions = (options?: Options<ListClientsData>) => queryOptions<ListClientsResponse, ListClientsError, ListClientsResponse, ReturnType<typeof listClientsQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await listClients({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: listClientsQueryKey(options)
+});
+
+export const createClientMutation = (options?: Partial<Options<CreateClientData2>>): UseMutationOptions<CreateClientResponse, CreateClientError, Options<CreateClientData2>> => {
+    const mutationOptions: UseMutationOptions<CreateClientResponse, CreateClientError, Options<CreateClientData2>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await createClient({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const deleteClientMutation = (options?: Partial<Options<DeleteClientData>>): UseMutationOptions<DeleteClientResponse, DeleteClientError, Options<DeleteClientData>> => {
+    const mutationOptions: UseMutationOptions<DeleteClientResponse, DeleteClientError, Options<DeleteClientData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteClient({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const showClientQueryKey = (options: Options<ShowClientData>) => createQueryKey('showClient', options);
+
+export const showClientOptions = (options: Options<ShowClientData>) => queryOptions<ShowClientResponse, ShowClientError, ShowClientResponse, ReturnType<typeof showClientQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await showClient({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: showClientQueryKey(options)
+});
+
+export const updateClientMutation = (options?: Partial<Options<UpdateClientData2>>): UseMutationOptions<UpdateClientResponse, UpdateClientError, Options<UpdateClientData2>> => {
+    const mutationOptions: UseMutationOptions<UpdateClientResponse, UpdateClientError, Options<UpdateClientData2>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await updateClient({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const archiveClientMutation = (options?: Partial<Options<ArchiveClientData>>): UseMutationOptions<ArchiveClientResponse, ArchiveClientError, Options<ArchiveClientData>> => {
+    const mutationOptions: UseMutationOptions<ArchiveClientResponse, ArchiveClientError, Options<ArchiveClientData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await archiveClient({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const unarchiveClientMutation = (options?: Partial<Options<UnarchiveClientData>>): UseMutationOptions<UnarchiveClientResponse, UnarchiveClientError, Options<UnarchiveClientData>> => {
+    const mutationOptions: UseMutationOptions<UnarchiveClientResponse, UnarchiveClientError, Options<UnarchiveClientData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await unarchiveClient({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const listClientDocumentsQueryKey = (options: Options<ListClientDocumentsData>) => createQueryKey('listClientDocuments', options);
+
+export const listClientDocumentsOptions = (options: Options<ListClientDocumentsData>) => queryOptions<ListClientDocumentsResponse, ListClientDocumentsError, ListClientDocumentsResponse, ReturnType<typeof listClientDocumentsQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await listClientDocuments({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: listClientDocumentsQueryKey(options)
+});
+
+export const uploadClientDocumentMutation = (options?: Partial<Options<UploadClientDocumentData>>): UseMutationOptions<UploadClientDocumentResponse, UploadClientDocumentError, Options<UploadClientDocumentData>> => {
+    const mutationOptions: UseMutationOptions<UploadClientDocumentResponse, UploadClientDocumentError, Options<UploadClientDocumentData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await uploadClientDocument({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const deleteClientDocumentMutation = (options?: Partial<Options<DeleteClientDocumentData>>): UseMutationOptions<DeleteClientDocumentResponse, DeleteClientDocumentError, Options<DeleteClientDocumentData>> => {
+    const mutationOptions: UseMutationOptions<DeleteClientDocumentResponse, DeleteClientDocumentError, Options<DeleteClientDocumentData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteClientDocument({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const updateClientDocumentMutation = (options?: Partial<Options<UpdateClientDocumentData>>): UseMutationOptions<UpdateClientDocumentResponse, UpdateClientDocumentError, Options<UpdateClientDocumentData>> => {
+    const mutationOptions: UseMutationOptions<UpdateClientDocumentResponse, UpdateClientDocumentError, Options<UpdateClientDocumentData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await updateClientDocument({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const downloadClientDocumentQueryKey = (options: Options<DownloadClientDocumentData>) => createQueryKey('downloadClientDocument', options);
+
+export const downloadClientDocumentOptions = (options: Options<DownloadClientDocumentData>) => queryOptions<DownloadClientDocumentResponse, DownloadClientDocumentError, DownloadClientDocumentResponse, ReturnType<typeof downloadClientDocumentQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await downloadClientDocument({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: downloadClientDocumentQueryKey(options)
+});
+
+export const deleteClientLogoMutation = (options?: Partial<Options<DeleteClientLogoData>>): UseMutationOptions<DeleteClientLogoResponse, DeleteClientLogoError, Options<DeleteClientLogoData>> => {
+    const mutationOptions: UseMutationOptions<DeleteClientLogoResponse, DeleteClientLogoError, Options<DeleteClientLogoData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteClientLogo({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const showClientLogoQueryKey = (options: Options<ShowClientLogoData>) => createQueryKey('showClientLogo', options);
+
+export const showClientLogoOptions = (options: Options<ShowClientLogoData>) => queryOptions<ShowClientLogoResponse, ShowClientLogoError, ShowClientLogoResponse, ReturnType<typeof showClientLogoQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await showClientLogo({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: showClientLogoQueryKey(options)
+});
+
+export const uploadClientLogoMutation = (options?: Partial<Options<UploadClientLogoData2>>): UseMutationOptions<UploadClientLogoResponse, UploadClientLogoError, Options<UploadClientLogoData2>> => {
+    const mutationOptions: UseMutationOptions<UploadClientLogoResponse, UploadClientLogoError, Options<UploadClientLogoData2>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await uploadClientLogo({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const deleteMissionMutation = (options?: Partial<Options<DeleteMissionData>>): UseMutationOptions<DeleteMissionResponse, DeleteMissionError, Options<DeleteMissionData>> => {
+    const mutationOptions: UseMutationOptions<DeleteMissionResponse, DeleteMissionError, Options<DeleteMissionData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteMission({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const showMissionQueryKey = (options: Options<ShowMissionData>) => createQueryKey('showMission', options);
+
+export const showMissionOptions = (options: Options<ShowMissionData>) => queryOptions<ShowMissionResponse, ShowMissionError, ShowMissionResponse, ReturnType<typeof showMissionQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await showMission({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: showMissionQueryKey(options)
+});
+
+export const updateMissionMutation = (options?: Partial<Options<UpdateMissionData2>>): UseMutationOptions<UpdateMissionResponse, UpdateMissionError, Options<UpdateMissionData2>> => {
+    const mutationOptions: UseMutationOptions<UpdateMissionResponse, UpdateMissionError, Options<UpdateMissionData2>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await updateMission({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const createMissionMutation = (options?: Partial<Options<CreateMissionData2>>): UseMutationOptions<CreateMissionResponse, CreateMissionError, Options<CreateMissionData2>> => {
+    const mutationOptions: UseMutationOptions<CreateMissionResponse, CreateMissionError, Options<CreateMissionData2>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await createMission({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const listMissionDocumentsQueryKey = (options: Options<ListMissionDocumentsData>) => createQueryKey('listMissionDocuments', options);
+
+export const listMissionDocumentsOptions = (options: Options<ListMissionDocumentsData>) => queryOptions<ListMissionDocumentsResponse, ListMissionDocumentsError, ListMissionDocumentsResponse, ReturnType<typeof listMissionDocumentsQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await listMissionDocuments({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: listMissionDocumentsQueryKey(options)
+});
+
+export const uploadMissionDocumentMutation = (options?: Partial<Options<UploadMissionDocumentData>>): UseMutationOptions<UploadMissionDocumentResponse, UploadMissionDocumentError, Options<UploadMissionDocumentData>> => {
+    const mutationOptions: UseMutationOptions<UploadMissionDocumentResponse, UploadMissionDocumentError, Options<UploadMissionDocumentData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await uploadMissionDocument({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const deleteMissionDocumentMutation = (options?: Partial<Options<DeleteMissionDocumentData>>): UseMutationOptions<DeleteMissionDocumentResponse, DeleteMissionDocumentError, Options<DeleteMissionDocumentData>> => {
+    const mutationOptions: UseMutationOptions<DeleteMissionDocumentResponse, DeleteMissionDocumentError, Options<DeleteMissionDocumentData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteMissionDocument({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const updateMissionDocumentMutation = (options?: Partial<Options<UpdateMissionDocumentData>>): UseMutationOptions<UpdateMissionDocumentResponse, UpdateMissionDocumentError, Options<UpdateMissionDocumentData>> => {
+    const mutationOptions: UseMutationOptions<UpdateMissionDocumentResponse, UpdateMissionDocumentError, Options<UpdateMissionDocumentData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await updateMissionDocument({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const downloadMissionDocumentQueryKey = (options: Options<DownloadMissionDocumentData>) => createQueryKey('downloadMissionDocument', options);
+
+export const downloadMissionDocumentOptions = (options: Options<DownloadMissionDocumentData>) => queryOptions<DownloadMissionDocumentResponse, DownloadMissionDocumentError, DownloadMissionDocumentResponse, ReturnType<typeof downloadMissionDocumentQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await downloadMissionDocument({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: downloadMissionDocumentQueryKey(options)
 });

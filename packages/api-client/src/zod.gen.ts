@@ -3,12 +3,216 @@
 import * as z from 'zod/mini';
 
 /**
+ * BillingMode
+ */
+export const zBillingMode = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * ClientType
+ */
+export const zClientType = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * Color
+ */
+export const zColor = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4),
+    z.literal(5),
+    z.literal(6),
+    z.literal(7)
+]);
+
+/**
+ * ClientData
+ */
+export const zClientData = z.object({
+    id: z.int(),
+    slug: z.string(),
+    name: z.string(),
+    type: zClientType,
+    notes: z.nullable(z.string()),
+    siret: z.nullable(z.string()),
+    vatNumber: z.nullable(z.string()),
+    billingAddress: z.nullable(z.string()),
+    billingContactName: z.nullable(z.string()),
+    billingEmail: z.nullable(z.string()),
+    color: zColor,
+    paymentTermsDays: z.int(),
+    archivedAt: z.nullable(z.iso.datetime()),
+    createdAt: z.iso.datetime()
+});
+
+/**
+ * CreateClientData
+ */
+export const zCreateClientData = z.object({
+    name: z.string().check(z.minLength(1), z.maxLength(255)),
+    type: zClientType,
+    notes: z.nullish(z.string()),
+    siret: z.nullish(z.string().check(z.maxLength(255))),
+    vatNumber: z.nullish(z.string().check(z.maxLength(255))),
+    billingAddress: z.nullish(z.string()),
+    billingContactName: z.nullish(z.string().check(z.maxLength(255))),
+    billingEmail: z.nullish(z.email().check(z.maxLength(255))),
+    color: z.optional(zColor),
+    paymentTermsDays: z.optional(z.int().check(z.gte(0), z.lte(365)))
+});
+
+/**
+ * Currency
+ */
+export const zCurrency = z.enum(['EUR']);
+
+/**
+ * DocumentCategory
+ */
+export const zDocumentCategory = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4)
+]);
+
+/**
+ * DocumentSource
+ */
+export const zDocumentSource = z.union([z.literal(0), z.literal(1)]);
+
+/**
+ * DocumentData
+ */
+export const zDocumentData = z.object({
+    id: z.int(),
+    fileName: z.string(),
+    category: zDocumentCategory,
+    source: zDocumentSource,
+    sizeBytes: z.int(),
+    createdAt: z.iso.datetime()
+});
+
+/**
+ * DocumentListData
+ */
+export const zDocumentListData = z.object({
+    documents: z.array(zDocumentData)
+});
+
+/**
+ * EntryRounding
+ *
+ * Rounding increment for time entries, expressed as a fraction of the mission's billing unit: half or a quarter of a day/hour, or to the minute.
+ *
+ */
+export const zEntryRounding = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * CreateMissionData
+ */
+export const zCreateMissionData = z.object({
+    name: z.string().check(z.minLength(1), z.maxLength(255)),
+    billingMode: zBillingMode,
+    rate: z.nullish(z.object({
+        amount: z.int().check(z.gte(1)),
+        currency: zCurrency
+    })),
+    endClientName: z.nullish(z.string().check(z.minLength(1), z.maxLength(255))),
+    rounding: z.nullish(zEntryRounding),
+    craRequired: z.nullish(z.boolean()),
+    color: z.nullish(zColor),
+    notes: z.nullish(z.string()),
+    startDate: z.nullish(z.iso.date()),
+    endDate: z.nullish(z.iso.date())
+});
+
+/**
  * LoginData
  */
 export const zLoginData = z.object({
     email: z.email(),
     password: z.string().check(z.minLength(1)),
     remember: z.optional(z.boolean())
+});
+
+/**
+ * MissionStatus
+ */
+export const zMissionStatus = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * MoneyData
+ */
+export const zMoneyData = z.object({
+    amount: z.int(),
+    currency: zCurrency
+});
+
+/**
+ * MissionData
+ */
+export const zMissionData = z.object({
+    id: z.int(),
+    slug: z.string(),
+    clientId: z.int(),
+    name: z.string(),
+    endClientName: z.nullable(z.string()),
+    billingMode: zBillingMode,
+    rate: z.nullable(zMoneyData),
+    rounding: z.nullable(zEntryRounding),
+    status: zMissionStatus,
+    craRequired: z.boolean(),
+    color: z.nullable(zColor),
+    notes: z.nullable(z.string()),
+    startDate: z.nullable(z.iso.datetime()),
+    endDate: z.nullable(z.iso.datetime())
+});
+
+/**
+ * ClientWithMissionsData
+ */
+export const zClientWithMissionsData = z.object({
+    id: z.int(),
+    slug: z.string(),
+    name: z.string(),
+    type: zClientType,
+    notes: z.nullable(z.string()),
+    siret: z.nullable(z.string()),
+    vatNumber: z.nullable(z.string()),
+    billingAddress: z.nullable(z.string()),
+    billingContactName: z.nullable(z.string()),
+    billingEmail: z.nullable(z.string()),
+    color: zColor,
+    paymentTermsDays: z.int(),
+    archivedAt: z.nullable(z.iso.datetime()),
+    createdAt: z.iso.datetime(),
+    missions: z.array(zMissionData)
+});
+
+/**
+ * ClientListData
+ */
+export const zClientListData = z.object({
+    clients: z.array(zClientWithMissionsData)
 });
 
 /**
@@ -19,6 +223,64 @@ export const zRegisterUserData = z.object({
     email: z.email().check(z.maxLength(255)),
     password: z.string().check(z.minLength(8)),
     password_confirmation: z.string().check(z.minLength(8))
+});
+
+/**
+ * UpdateClientData
+ */
+export const zUpdateClientData = z.object({
+    name: z.string().check(z.minLength(1), z.maxLength(255)),
+    type: zClientType,
+    notes: z.nullish(z.string()),
+    siret: z.nullish(z.string().check(z.maxLength(255))),
+    vatNumber: z.nullish(z.string().check(z.maxLength(255))),
+    billingAddress: z.nullish(z.string()),
+    billingContactName: z.nullish(z.string().check(z.maxLength(255))),
+    billingEmail: z.nullish(z.email().check(z.maxLength(255))),
+    color: z.optional(zColor),
+    paymentTermsDays: z.optional(z.int().check(z.gte(0), z.lte(365)))
+});
+
+/**
+ * UpdateDocumentData
+ */
+export const zUpdateDocumentData = z.object({
+    category: zDocumentCategory
+});
+
+/**
+ * UpdateMissionData
+ */
+export const zUpdateMissionData = z.object({
+    name: z.string().check(z.minLength(1), z.maxLength(255)),
+    billingMode: zBillingMode,
+    status: zMissionStatus,
+    rate: z.nullish(z.object({
+        amount: z.int().check(z.gte(1)),
+        currency: zCurrency
+    })),
+    endClientName: z.nullish(z.string().check(z.minLength(1), z.maxLength(255))),
+    rounding: z.nullish(zEntryRounding),
+    craRequired: z.nullish(z.boolean()),
+    color: z.nullish(zColor),
+    notes: z.nullish(z.string()),
+    startDate: z.nullish(z.iso.date()),
+    endDate: z.nullish(z.iso.date())
+});
+
+/**
+ * UploadClientLogoData
+ */
+export const zUploadClientLogoData = z.object({
+    logo: z.string()
+});
+
+/**
+ * UploadDocumentData
+ */
+export const zUploadDocumentData = z.object({
+    file: z.string(),
+    category: z.nullish(zDocumentCategory)
 });
 
 /**
@@ -49,3 +311,189 @@ export const zLoginResponse = zUserData;
 export const zLogoutResponse = z.void();
 
 export const zCurrentUserResponse = zUserData;
+
+export const zListClientsResponse = zClientListData;
+
+export const zCreateClientBody = zCreateClientData;
+
+export const zCreateClientResponse = zClientData;
+
+export const zDeleteClientPath = z.object({
+    client: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteClientResponse = z.void();
+
+export const zShowClientPath = z.object({
+    client: z.int()
+});
+
+export const zShowClientResponse = zClientWithMissionsData;
+
+export const zUpdateClientBody = zUpdateClientData;
+
+export const zUpdateClientPath = z.object({
+    client: z.int()
+});
+
+export const zUpdateClientResponse = zClientData;
+
+export const zArchiveClientPath = z.object({
+    client: z.int()
+});
+
+export const zArchiveClientResponse = zClientData;
+
+export const zUnarchiveClientPath = z.object({
+    client: z.int()
+});
+
+export const zUnarchiveClientResponse = zClientData;
+
+export const zListClientDocumentsPath = z.object({
+    client: z.int()
+});
+
+export const zListClientDocumentsResponse = zDocumentListData;
+
+export const zUploadClientDocumentBody = zUploadDocumentData;
+
+export const zUploadClientDocumentPath = z.object({
+    client: z.int()
+});
+
+export const zUploadClientDocumentResponse = zDocumentData;
+
+export const zDeleteClientDocumentPath = z.object({
+    client: z.int(),
+    document: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteClientDocumentResponse = z.void();
+
+export const zUpdateClientDocumentBody = zUpdateDocumentData;
+
+export const zUpdateClientDocumentPath = z.object({
+    client: z.int(),
+    document: z.int()
+});
+
+export const zUpdateClientDocumentResponse = zDocumentData;
+
+export const zDownloadClientDocumentPath = z.object({
+    client: z.int(),
+    document: z.int()
+});
+
+export const zDownloadClientDocumentResponse = z.record(z.string(), z.unknown());
+
+export const zDeleteClientLogoPath = z.object({
+    client: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteClientLogoResponse = z.void();
+
+export const zShowClientLogoPath = z.object({
+    client: z.int()
+});
+
+export const zShowClientLogoResponse = z.record(z.string(), z.unknown());
+
+export const zUploadClientLogoBody = zUploadClientLogoData;
+
+export const zUploadClientLogoPath = z.object({
+    client: z.int()
+});
+
+/**
+ * No content
+ */
+export const zUploadClientLogoResponse = z.void();
+
+export const zDeleteMissionPath = z.object({
+    client: z.int(),
+    mission: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteMissionResponse = z.void();
+
+export const zShowMissionPath = z.object({
+    client: z.int(),
+    mission: z.int()
+});
+
+export const zShowMissionResponse = zMissionData;
+
+export const zUpdateMissionBody = zUpdateMissionData;
+
+export const zUpdateMissionPath = z.object({
+    client: z.int(),
+    mission: z.int()
+});
+
+export const zUpdateMissionResponse = zMissionData;
+
+export const zCreateMissionBody = zCreateMissionData;
+
+export const zCreateMissionPath = z.object({
+    client: z.int()
+});
+
+export const zCreateMissionResponse = zMissionData;
+
+export const zListMissionDocumentsPath = z.object({
+    client: z.int(),
+    mission: z.int()
+});
+
+export const zListMissionDocumentsResponse = zDocumentListData;
+
+export const zUploadMissionDocumentBody = zUploadDocumentData;
+
+export const zUploadMissionDocumentPath = z.object({
+    client: z.int(),
+    mission: z.int()
+});
+
+export const zUploadMissionDocumentResponse = zDocumentData;
+
+export const zDeleteMissionDocumentPath = z.object({
+    client: z.int(),
+    mission: z.int(),
+    document: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteMissionDocumentResponse = z.void();
+
+export const zUpdateMissionDocumentBody = zUpdateDocumentData;
+
+export const zUpdateMissionDocumentPath = z.object({
+    client: z.int(),
+    mission: z.int(),
+    document: z.int()
+});
+
+export const zUpdateMissionDocumentResponse = zDocumentData;
+
+export const zDownloadMissionDocumentPath = z.object({
+    client: z.int(),
+    mission: z.int(),
+    document: z.int()
+});
+
+export const zDownloadMissionDocumentResponse = z.record(z.string(), z.unknown());

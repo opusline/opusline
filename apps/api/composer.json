@@ -7,13 +7,17 @@
   "license": "MIT",
   "require": {
     "php": "^8.3",
+    "cknow/laravel-money": "^8.5",
     "dedoc/scramble": "^0.13.37",
     "laravel/framework": "^13.8",
     "laravel/horizon": "^5.48",
     "laravel/octane": "^2.18",
     "laravel/sanctum": "^4.3",
     "laravel/tinker": "^3.0",
-    "spatie/laravel-data": "^4.23"
+    "league/flysystem-aws-s3-v3": "^3.35",
+    "spatie/laravel-data": "^4.23",
+    "spatie/laravel-medialibrary": "^11.23",
+    "spatie/laravel-sluggable": "^4.0"
   },
   "require-dev": {
     "driftingly/rector-laravel": "^2.5",

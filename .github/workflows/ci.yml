@@ -144,21 +144,3 @@ jobs:
         with:
           node-version-file: .nvmrc
       - run: pnpm audit --audit-level high
-
-  pr-title:
-    name: PR title is a conventional commit
-    if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - uses: pnpm/action-setup@v6.0.9
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: echo "$PR_TITLE" | pnpm exec commitlint
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}

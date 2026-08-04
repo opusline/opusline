@@ -8,7 +8,9 @@ use App\Domain\Users\Actions\RegisterUser;
 use App\Domain\Users\Data\LoginData;
 use App\Domain\Users\Data\RegisterUserData;
 use App\Domain\Users\Data\UserData;
+use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
+use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -47,8 +49,8 @@ class AuthController extends Controller
         return response()->noContent();
     }
 
-    public function currentUser(Request $request): JsonResponse
+    public function currentUser(#[CurrentUser] User $user): JsonResponse
     {
-        return response()->json(UserData::from($request->user() ?? abort(401)));
+        return response()->json(UserData::from($user));
     }
 }

@@ -3,6 +3,9 @@ includes:
 
 parameters:
     level: max
+    stubFiles:
+        - phpstan-stubs/GeneratesParametersFromRules.stub
+        - phpstan-stubs/ValidateableData.stub
     paths:
         - app
         - bootstrap/app.php

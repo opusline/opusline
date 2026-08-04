@@ -30,6 +30,8 @@ services:
                 condition: service_healthy
             redis:
                 condition: service_healthy
+            minio.bootstrap:
+                condition: service_completed_successfully
         develop:
             watch:
                 - path: .
@@ -120,6 +122,38 @@ services:
                 - ping
             retries: 3
             timeout: 5s
+    minio:
+        image: 'minio/minio:latest'
+        ports:
+            - '${FORWARD_MINIO_PORT:-9000}:9000'
+            - '${FORWARD_MINIO_CONSOLE_PORT:-8900}:8900'
+        environment:
+            MINIO_ROOT_USER: 'sail'
+            MINIO_ROOT_PASSWORD: 'password'
+        volumes:
+            - 'sail-minio:/data'
+        networks:
+            - sail
+        command: minio server /data --console-address ":8900"
+        healthcheck:
+            test:
+                - CMD
+                - mc
+                - ready
+                - local
+            retries: 3
+            timeout: 5s
+    minio.bootstrap:
+        image: 'minio/mc:latest'
+        depends_on:
+            minio:
+                condition: service_healthy
+        networks:
+            - sail
+        entrypoint:
+            - /bin/sh
+            - '-c'
+            - 'mc alias set local http://minio:9000 sail password && mc mb --ignore-existing local/opusline'
 networks:
     sail:
         driver: bridge
@@ -127,4 +161,6 @@ volumes:
     sail-mysql:
         driver: local
     sail-redis:
+        driver: local
+    sail-minio:
         driver: local

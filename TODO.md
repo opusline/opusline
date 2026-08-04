@@ -11,7 +11,7 @@ Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c83
 
 ## Cross-cutting decisions (apply everywhere, not re-litigable)
 
-- **Money**: `brick/money` value objects everywhere money is touched. Storage is
+- **Money**: `https://github.com/cknow/laravel-money` value objects everywhere money is touched. Storage is
   **integer cents** (`*_cents` bigint columns, implied EUR) — never float, never
   DECIMAL cast to float. Every rounding is explicit (`RoundingMode::HALF_UP` unless
   a fiscal rule says otherwise). API serializes money as
@@ -20,7 +20,8 @@ Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c83
   from the API. One custom spatie/laravel-data Cast/Transformer for Money, written
   once (invoices step), reused everywhere.
 - **Rates & percentages** (TVA, URSSAF, versement libératoire…): stored as exact
-  decimals (basis points integer, or decimal string fed to brick/math) — never float.
+  decimals (basis points integer, or decimal string fed to brick/math (don't use bric/math, the package is too new, find something else)) — 
+  never float.
   User-editable settings, seeded with current defaults, never hardcoded in logic.
 - **Billing mode lives on the mission** (`daily` = TJM | `hourly`). It drives which
   time-entry column is legal, validation rules, and week-view cell UI. Entries never
@@ -70,7 +71,7 @@ Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c83
 - [ ] **Invoices (light tracking, NOT invoice generation)**
   Track invoices sent from elsewhere (Shine): number, client/mission, date,
   `amount_ht_cents`, TVA rate (20% default, from settings), `amount_ttc_cents`
-  computed via brick/money **but overridable** — rounding conventions differ between
+  computed via https://github.com/cknow/laravel-money **but overridable** — rounding conventions differ between
   tools (per-line vs per-total) and the tracked invoice must match the real document
   to the cent; the real encaissé is the fiscal truth, not our arithmetic. Status
   (draft/sent/paid). `paid_date` is **required when status=paid and fiscally

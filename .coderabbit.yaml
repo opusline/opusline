@@ -1,8 +1,82 @@
 language: en
 
 reviews:
-  profile: chill
+  profile: assertive
+  request_changes_workflow: true
   high_level_summary: true
+  pre_merge_checks:
+    title:
+      mode: error
+      requirements: |
+        Conventional Commit: <type>(<scope>): <subject>. Scope, when present,
+        must be one of exactly: api, web, ui, website, types, deps, repo.
+        Subject imperative, lowercase, at most 50 characters, no trailing
+        period. The title becomes the squash commit and the changelog line.
+    description:
+      mode: warning
+    docstrings:
+      mode: "off"
+    issue_assessment:
+      mode: "off"
+    custom_checks:
+      - name: Feature test coverage
+        mode: error
+        instructions: |
+          Every new or behavior-changed API endpoint must have Pest feature
+          tests covering the happy path, validation errors, and cross-user
+          isolation (foreign resources return 404). Every bug fix must add a
+          regression test. Tests must not be disabled to make the suite pass.
+      - name: Component stories
+        mode: error
+        instructions: |
+          Every new or substantially changed React component in packages/ui or
+          apps/web must have a colocated CSF3 story (PascalCase.stories.tsx,
+          tags ["autodocs"], title prefixed UI/ or Web/).
+      - name: Writes go through actions
+        mode: error
+        instructions: |
+          Controllers must not mutate state inline; every write operation
+          (create, update, delete, state flips) delegates to a domain Action
+          class under app/Domain/*/Actions.
+      - name: Migration immutability
+        mode: error
+        instructions: |
+          Migration files that exist on main must never be edited. Schema
+          changes to released tables arrive as new migration files. Flag any
+          diff that modifies an existing migration.
+      - name: Dependency rationale
+        mode: warning
+        instructions: |
+          Adding a composer or npm dependency requires a stated reason in the
+          PR description and an AGPL-3.0-compatible license. Flag additions to
+          composer.json or any package.json dependencies without one.
+  auto_title_placeholder: "@coderabbitai"
+  auto_title_instructions: |
+    Generate a Conventional Commit title: <type>(<scope>): <subject>.
+    type is one of feat, fix, refactor, perf, style, test, docs, build, ci,
+    chore, revert. scope, when present, MUST be one of exactly: api, web, ui,
+    website, types, deps, repo. Subject: imperative mood, all lowercase,
+    at most 50 characters, no trailing period.
+  collapse_walkthrough: true
+  sequence_diagrams: false
+  poem: false
+  suggested_labels: true
+  auto_apply_labels: true
+  labeling_instructions:
+    - label: api
+      instructions: Changes under apps/api (Laravel backend).
+    - label: web
+      instructions: Changes under apps/web, packages/ui or apps/storybook.
+    - label: ci
+      instructions: Changes under .github, release tooling or git hooks.
+    - label: dependencies
+      instructions: Dependency updates (composer.json, package.json, lockfiles).
+    - label: documentation
+      instructions: Documentation-only changes (markdown files).
+    - label: bug
+      instructions: The PR fixes broken behavior (fix commits).
+    - label: enhancement
+      instructions: The PR adds or extends a user-facing feature (feat commits).
   path_filters:
     - "!apps/api/openapi.json"
     - "!packages/api-client/src/**"
@@ -10,6 +84,14 @@ reviews:
     - "!pnpm-lock.yaml"
     - "!apps/api/composer.lock"
   path_instructions:
+    - path: "**"
+      instructions: |
+        Actively look for and flag: logic duplicated across files or methods
+        that should share a single home (this repo extracts shared guards into
+        dedicated classes and derivations into enum methods), dead code,
+        needless indirection (single-use wrappers, pass-through layers), and
+        refactoring opportunities that make the code more boring and explicit.
+        Do not suggest speculative abstractions for code used once.
     - path: "apps/api/**"
       instructions: |
         Laravel API, PHPStan level max. House rules to enforce:

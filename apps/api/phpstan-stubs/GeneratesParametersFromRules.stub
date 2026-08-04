@@ -1,0 +1,22 @@
+<?php
+
+namespace Dedoc\Scramble\Support\OperationExtensions\RulesExtractor;
+
+use Dedoc\Scramble\Support\Generator\Parameter;
+use Dedoc\Scramble\Support\Generator\TypeTransformer;
+use Dedoc\Scramble\Support\OperationExtensions\ParameterExtractor\RulesDocumentationRetriever;
+use PhpParser\Node;
+
+trait GeneratesParametersFromRules
+{
+    /**
+     * The vendor PHPDoc references a `RuleSet` type that is declared nowhere,
+     * so the parameter is unmatchable; the method actually accepts Laravel
+     * validation rules (strings, arrays, rule objects) keyed by input name.
+     *
+     * @param  array<string, mixed>  $rules
+     * @param  Node[]|RulesDocumentationRetriever  $rulesDocsRetriever
+     * @return Parameter[]
+     */
+    private function makeParameters($rules, TypeTransformer $typeTransformer, array|RulesDocumentationRetriever $rulesDocsRetriever = [], string $in = 'query'): array;
+}

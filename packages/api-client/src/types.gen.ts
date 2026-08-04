@@ -5,12 +5,185 @@ export type ClientOptions = {
 };
 
 /**
+ * BillingMode
+ */
+export type BillingMode = 0 | 1 | 2;
+
+/**
+ * ClientData
+ */
+export type ClientData = {
+    id: number;
+    slug: string;
+    name: string;
+    type: ClientType;
+    notes: string | null;
+    siret: string | null;
+    vatNumber: string | null;
+    billingAddress: string | null;
+    billingContactName: string | null;
+    billingEmail: string | null;
+    color: Color;
+    paymentTermsDays: number;
+    archivedAt: string | null;
+    createdAt: string;
+};
+
+/**
+ * ClientListData
+ */
+export type ClientListData = {
+    clients: Array<ClientWithMissionsData>;
+};
+
+/**
+ * ClientType
+ */
+export type ClientType = 0 | 1 | 2;
+
+/**
+ * ClientWithMissionsData
+ */
+export type ClientWithMissionsData = {
+    id: number;
+    slug: string;
+    name: string;
+    type: ClientType;
+    notes: string | null;
+    siret: string | null;
+    vatNumber: string | null;
+    billingAddress: string | null;
+    billingContactName: string | null;
+    billingEmail: string | null;
+    color: Color;
+    paymentTermsDays: number;
+    archivedAt: string | null;
+    createdAt: string;
+    missions: Array<MissionData>;
+};
+
+/**
+ * Color
+ */
+export type Color = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+/**
+ * CreateClientData
+ */
+export type CreateClientData = {
+    name: string;
+    type: ClientType;
+    notes?: string | null;
+    siret?: string | null;
+    vatNumber?: string | null;
+    billingAddress?: string | null;
+    billingContactName?: string | null;
+    billingEmail?: string | null;
+    color?: Color;
+    paymentTermsDays?: number;
+};
+
+/**
+ * CreateMissionData
+ */
+export type CreateMissionData = {
+    name: string;
+    billingMode: BillingMode;
+    rate?: {
+        amount: number;
+        currency: Currency;
+    } | null;
+    endClientName?: string | null;
+    rounding?: EntryRounding | null;
+    craRequired?: boolean | null;
+    color?: Color | null;
+    notes?: string | null;
+    startDate?: string | null;
+    endDate?: string | null;
+};
+
+/**
+ * Currency
+ */
+export type Currency = 'EUR';
+
+/**
+ * DocumentCategory
+ */
+export type DocumentCategory = 0 | 1 | 2 | 3 | 4;
+
+/**
+ * DocumentData
+ */
+export type DocumentData = {
+    id: number;
+    fileName: string;
+    category: DocumentCategory;
+    source: DocumentSource;
+    sizeBytes: number;
+    createdAt: string;
+};
+
+/**
+ * DocumentListData
+ */
+export type DocumentListData = {
+    documents: Array<DocumentData>;
+};
+
+/**
+ * DocumentSource
+ */
+export type DocumentSource = 0 | 1;
+
+/**
+ * EntryRounding
+ *
+ * Rounding increment for time entries, expressed as a fraction of the mission's billing unit: half or a quarter of a day/hour, or to the minute.
+ *
+ */
+export type EntryRounding = 0 | 1 | 2;
+
+/**
  * LoginData
  */
 export type LoginData = {
     email: string;
     password: string;
     remember?: boolean;
+};
+
+/**
+ * MissionData
+ */
+export type MissionData = {
+    id: number;
+    slug: string;
+    clientId: number;
+    name: string;
+    endClientName: string | null;
+    billingMode: BillingMode;
+    rate: MoneyData | null;
+    rounding: EntryRounding | null;
+    status: MissionStatus;
+    craRequired: boolean;
+    color: Color | null;
+    notes: string | null;
+    startDate: string | null;
+    endDate: string | null;
+};
+
+/**
+ * MissionStatus
+ */
+export type MissionStatus = 0 | 1 | 2;
+
+/**
+ * MoneyData
+ */
+export type MoneyData = {
+    amount: number;
+    currency: Currency;
 };
 
 /**
@@ -21,6 +194,70 @@ export type RegisterUserData = {
     email: string;
     password: string;
     password_confirmation: string;
+};
+
+/**
+ * UpdateClientData
+ */
+export type UpdateClientData = {
+    name: string;
+    type: ClientType;
+    notes?: string | null;
+    siret?: string | null;
+    vatNumber?: string | null;
+    billingAddress?: string | null;
+    billingContactName?: string | null;
+    billingEmail?: string | null;
+    color?: Color;
+    paymentTermsDays?: number;
+};
+
+/**
+ * UpdateDocumentData
+ */
+export type UpdateDocumentData = {
+    category: DocumentCategory;
+};
+
+/**
+ * UpdateMissionData
+ */
+export type UpdateMissionData = {
+    name: string;
+    billingMode: BillingMode;
+    status: MissionStatus;
+    rate?: {
+        amount: number;
+        currency: Currency;
+    } | null;
+    endClientName?: string | null;
+    rounding?: EntryRounding | null;
+    craRequired?: boolean | null;
+    color?: Color | null;
+    notes?: string | null;
+    startDate?: string | null;
+    endDate?: string | null;
+};
+
+/**
+ * UploadClientLogoData
+ */
+export type UploadClientLogoData = {
+    /**
+     * Maximum file size: 2048 kilobytes.
+     */
+    logo: Blob | File;
+};
+
+/**
+ * UploadDocumentData
+ */
+export type UploadDocumentData = {
+    /**
+     * Maximum file size: 20480 kilobytes.
+     */
+    file: Blob | File;
+    category?: DocumentCategory | null;
 };
 
 /**
@@ -144,3 +381,1030 @@ export type CurrentUserResponses = {
 };
 
 export type CurrentUserResponse = CurrentUserResponses[keyof CurrentUserResponses];
+
+export type ListClientsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/clients';
+};
+
+export type ListClientsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListClientsError = ListClientsErrors[keyof ListClientsErrors];
+
+export type ListClientsResponses = {
+    200: ClientListData;
+};
+
+export type ListClientsResponse = ListClientsResponses[keyof ListClientsResponses];
+
+export type CreateClientData2 = {
+    body: CreateClientData;
+    path?: never;
+    query?: never;
+    url: '/clients';
+};
+
+export type CreateClientErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateClientError = CreateClientErrors[keyof CreateClientErrors];
+
+export type CreateClientResponses = {
+    201: ClientData;
+};
+
+export type CreateClientResponse = CreateClientResponses[keyof CreateClientResponses];
+
+export type DeleteClientData = {
+    body?: never;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+    };
+    query?: never;
+    url: '/clients/{client}';
+};
+
+export type DeleteClientErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteClientError = DeleteClientErrors[keyof DeleteClientErrors];
+
+export type DeleteClientResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteClientResponse = DeleteClientResponses[keyof DeleteClientResponses];
+
+export type ShowClientData = {
+    body?: never;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+    };
+    query?: never;
+    url: '/clients/{client}';
+};
+
+export type ShowClientErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowClientError = ShowClientErrors[keyof ShowClientErrors];
+
+export type ShowClientResponses = {
+    200: ClientWithMissionsData;
+};
+
+export type ShowClientResponse = ShowClientResponses[keyof ShowClientResponses];
+
+export type UpdateClientData2 = {
+    body: UpdateClientData;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+    };
+    query?: never;
+    url: '/clients/{client}';
+};
+
+export type UpdateClientErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateClientError = UpdateClientErrors[keyof UpdateClientErrors];
+
+export type UpdateClientResponses = {
+    200: ClientData;
+};
+
+export type UpdateClientResponse = UpdateClientResponses[keyof UpdateClientResponses];
+
+export type ArchiveClientData = {
+    body?: never;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+    };
+    query?: never;
+    url: '/clients/{client}/archive';
+};
+
+export type ArchiveClientErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ArchiveClientError = ArchiveClientErrors[keyof ArchiveClientErrors];
+
+export type ArchiveClientResponses = {
+    200: ClientData;
+};
+
+export type ArchiveClientResponse = ArchiveClientResponses[keyof ArchiveClientResponses];
+
+export type UnarchiveClientData = {
+    body?: never;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+    };
+    query?: never;
+    url: '/clients/{client}/unarchive';
+};
+
+export type UnarchiveClientErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UnarchiveClientError = UnarchiveClientErrors[keyof UnarchiveClientErrors];
+
+export type UnarchiveClientResponses = {
+    200: ClientData;
+};
+
+export type UnarchiveClientResponse = UnarchiveClientResponses[keyof UnarchiveClientResponses];
+
+export type ListClientDocumentsData = {
+    body?: never;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+    };
+    query?: never;
+    url: '/clients/{client}/documents';
+};
+
+export type ListClientDocumentsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListClientDocumentsError = ListClientDocumentsErrors[keyof ListClientDocumentsErrors];
+
+export type ListClientDocumentsResponses = {
+    200: DocumentListData;
+};
+
+export type ListClientDocumentsResponse = ListClientDocumentsResponses[keyof ListClientDocumentsResponses];
+
+export type UploadClientDocumentData = {
+    body: UploadDocumentData;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+    };
+    query?: never;
+    url: '/clients/{client}/documents';
+};
+
+export type UploadClientDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UploadClientDocumentError = UploadClientDocumentErrors[keyof UploadClientDocumentErrors];
+
+export type UploadClientDocumentResponses = {
+    201: DocumentData;
+};
+
+export type UploadClientDocumentResponse = UploadClientDocumentResponses[keyof UploadClientDocumentResponses];
+
+export type DeleteClientDocumentData = {
+    body?: never;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+        document: number;
+    };
+    query?: never;
+    url: '/clients/{client}/documents/{document}';
+};
+
+export type DeleteClientDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteClientDocumentError = DeleteClientDocumentErrors[keyof DeleteClientDocumentErrors];
+
+export type DeleteClientDocumentResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteClientDocumentResponse = DeleteClientDocumentResponses[keyof DeleteClientDocumentResponses];
+
+export type UpdateClientDocumentData = {
+    body: UpdateDocumentData;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+        document: number;
+    };
+    query?: never;
+    url: '/clients/{client}/documents/{document}';
+};
+
+export type UpdateClientDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateClientDocumentError = UpdateClientDocumentErrors[keyof UpdateClientDocumentErrors];
+
+export type UpdateClientDocumentResponses = {
+    200: DocumentData;
+};
+
+export type UpdateClientDocumentResponse = UpdateClientDocumentResponses[keyof UpdateClientDocumentResponses];
+
+export type DownloadClientDocumentData = {
+    body?: never;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+        document: number;
+    };
+    query?: never;
+    url: '/clients/{client}/documents/{document}/download';
+};
+
+export type DownloadClientDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DownloadClientDocumentError = DownloadClientDocumentErrors[keyof DownloadClientDocumentErrors];
+
+export type DownloadClientDocumentResponses = {
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type DownloadClientDocumentResponse = DownloadClientDocumentResponses[keyof DownloadClientDocumentResponses];
+
+export type DeleteClientLogoData = {
+    body?: never;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+    };
+    query?: never;
+    url: '/clients/{client}/logo';
+};
+
+export type DeleteClientLogoErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteClientLogoError = DeleteClientLogoErrors[keyof DeleteClientLogoErrors];
+
+export type DeleteClientLogoResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteClientLogoResponse = DeleteClientLogoResponses[keyof DeleteClientLogoResponses];
+
+export type ShowClientLogoData = {
+    body?: never;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+    };
+    query?: never;
+    url: '/clients/{client}/logo';
+};
+
+export type ShowClientLogoErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowClientLogoError = ShowClientLogoErrors[keyof ShowClientLogoErrors];
+
+export type ShowClientLogoResponses = {
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type ShowClientLogoResponse = ShowClientLogoResponses[keyof ShowClientLogoResponses];
+
+export type UploadClientLogoData2 = {
+    body: UploadClientLogoData;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+    };
+    query?: never;
+    url: '/clients/{client}/logo';
+};
+
+export type UploadClientLogoErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UploadClientLogoError = UploadClientLogoErrors[keyof UploadClientLogoErrors];
+
+export type UploadClientLogoResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type UploadClientLogoResponse = UploadClientLogoResponses[keyof UploadClientLogoResponses];
+
+export type DeleteMissionData = {
+    body?: never;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+        /**
+         * The mission ID
+         */
+        mission: number;
+    };
+    query?: never;
+    url: '/clients/{client}/missions/{mission}';
+};
+
+export type DeleteMissionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteMissionError = DeleteMissionErrors[keyof DeleteMissionErrors];
+
+export type DeleteMissionResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteMissionResponse = DeleteMissionResponses[keyof DeleteMissionResponses];
+
+export type ShowMissionData = {
+    body?: never;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+        /**
+         * The mission ID
+         */
+        mission: number;
+    };
+    query?: never;
+    url: '/clients/{client}/missions/{mission}';
+};
+
+export type ShowMissionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowMissionError = ShowMissionErrors[keyof ShowMissionErrors];
+
+export type ShowMissionResponses = {
+    200: MissionData;
+};
+
+export type ShowMissionResponse = ShowMissionResponses[keyof ShowMissionResponses];
+
+export type UpdateMissionData2 = {
+    body: UpdateMissionData;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+        /**
+         * The mission ID
+         */
+        mission: number;
+    };
+    query?: never;
+    url: '/clients/{client}/missions/{mission}';
+};
+
+export type UpdateMissionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateMissionError = UpdateMissionErrors[keyof UpdateMissionErrors];
+
+export type UpdateMissionResponses = {
+    200: MissionData;
+};
+
+export type UpdateMissionResponse = UpdateMissionResponses[keyof UpdateMissionResponses];
+
+export type CreateMissionData2 = {
+    body: CreateMissionData;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+    };
+    query?: never;
+    url: '/clients/{client}/missions';
+};
+
+export type CreateMissionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateMissionError = CreateMissionErrors[keyof CreateMissionErrors];
+
+export type CreateMissionResponses = {
+    201: MissionData;
+};
+
+export type CreateMissionResponse = CreateMissionResponses[keyof CreateMissionResponses];
+
+export type ListMissionDocumentsData = {
+    body?: never;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+        /**
+         * The mission ID
+         */
+        mission: number;
+    };
+    query?: never;
+    url: '/clients/{client}/missions/{mission}/documents';
+};
+
+export type ListMissionDocumentsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListMissionDocumentsError = ListMissionDocumentsErrors[keyof ListMissionDocumentsErrors];
+
+export type ListMissionDocumentsResponses = {
+    200: DocumentListData;
+};
+
+export type ListMissionDocumentsResponse = ListMissionDocumentsResponses[keyof ListMissionDocumentsResponses];
+
+export type UploadMissionDocumentData = {
+    body: UploadDocumentData;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+        /**
+         * The mission ID
+         */
+        mission: number;
+    };
+    query?: never;
+    url: '/clients/{client}/missions/{mission}/documents';
+};
+
+export type UploadMissionDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UploadMissionDocumentError = UploadMissionDocumentErrors[keyof UploadMissionDocumentErrors];
+
+export type UploadMissionDocumentResponses = {
+    201: DocumentData;
+};
+
+export type UploadMissionDocumentResponse = UploadMissionDocumentResponses[keyof UploadMissionDocumentResponses];
+
+export type DeleteMissionDocumentData = {
+    body?: never;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+        /**
+         * The mission ID
+         */
+        mission: number;
+        document: number;
+    };
+    query?: never;
+    url: '/clients/{client}/missions/{mission}/documents/{document}';
+};
+
+export type DeleteMissionDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteMissionDocumentError = DeleteMissionDocumentErrors[keyof DeleteMissionDocumentErrors];
+
+export type DeleteMissionDocumentResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteMissionDocumentResponse = DeleteMissionDocumentResponses[keyof DeleteMissionDocumentResponses];
+
+export type UpdateMissionDocumentData = {
+    body: UpdateDocumentData;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+        /**
+         * The mission ID
+         */
+        mission: number;
+        document: number;
+    };
+    query?: never;
+    url: '/clients/{client}/missions/{mission}/documents/{document}';
+};
+
+export type UpdateMissionDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateMissionDocumentError = UpdateMissionDocumentErrors[keyof UpdateMissionDocumentErrors];
+
+export type UpdateMissionDocumentResponses = {
+    200: DocumentData;
+};
+
+export type UpdateMissionDocumentResponse = UpdateMissionDocumentResponses[keyof UpdateMissionDocumentResponses];
+
+export type DownloadMissionDocumentData = {
+    body?: never;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+        /**
+         * The mission ID
+         */
+        mission: number;
+        document: number;
+    };
+    query?: never;
+    url: '/clients/{client}/missions/{mission}/documents/{document}/download';
+};
+
+export type DownloadMissionDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DownloadMissionDocumentError = DownloadMissionDocumentErrors[keyof DownloadMissionDocumentErrors];
+
+export type DownloadMissionDocumentResponses = {
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type DownloadMissionDocumentResponse = DownloadMissionDocumentResponses[keyof DownloadMissionDocumentResponses];

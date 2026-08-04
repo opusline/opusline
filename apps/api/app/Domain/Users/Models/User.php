@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Domain\Users\Models;
 
+use App\Domain\Clients\Models\Client;
+use App\Domain\Missions\Models\Mission;
 use App\Domain\Users\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -37,5 +40,17 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /** @return HasMany<Client, $this> */
+    public function clients(): HasMany
+    {
+        return $this->hasMany(Client::class);
+    }
+
+    /** @return HasMany<Mission, $this> */
+    public function missions(): HasMany
+    {
+        return $this->hasMany(Mission::class);
     }
 }
