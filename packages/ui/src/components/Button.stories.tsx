@@ -15,3 +15,16 @@ export const Default: Story = {
     children: "Button",
   },
 };
+
+export const Sizes: Story = {
+  render: () => (
+    <div className="flex items-center gap-2">
+      <Button size="xs">Très petit</Button>
+      <Button size="sm">Petit</Button>
+      <Button size="default">Normal</Button>
+      <Button size="lg">Grand</Button>
+      <Button size="xl">Nouveau client</Button>
+      <Button size="2xl">Créer un client</Button>
+    </div>
+  ),
+};

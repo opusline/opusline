@@ -12,28 +12,28 @@ type Story = StoryObj<typeof Badge>;
 
 export const Default: Story = {
   args: {
-    children: "Active",
+    children: "Direct",
   },
 };
 
-export const Variants: Story = {
+export const Tones: Story = {
   render: () => (
     <div className="flex items-center gap-2">
-      <Badge>Active</Badge>
-      <Badge variant="secondary">Intermédiaire</Badge>
-      <Badge variant="outline">Direct</Badge>
-      <Badge variant="ghost">Interne</Badge>
-      <Badge variant="destructive">En retard</Badge>
+      <Badge variant="neutral">Direct</Badge>
+      <Badge variant="quiet">Archivé</Badge>
+      <Badge variant="brand">Active</Badge>
+      <Badge variant="success">Payée</Badge>
+      <Badge variant="warn">En retard</Badge>
     </div>
   ),
 };
 
-export const ClientTypes: Story = {
+export const ClientRow: Story = {
   render: () => (
     <div className="flex items-center gap-2">
-      <Badge variant="outline">Direct</Badge>
-      <Badge variant="secondary">ESN / intermédiaire</Badge>
-      <Badge variant="ghost">Interne / perso</Badge>
+      <Badge variant="neutral">Intermédiaire</Badge>
+      <Badge variant="brand">Nouveau</Badge>
+      <Badge variant="quiet">Perso</Badge>
     </div>
   ),
 };

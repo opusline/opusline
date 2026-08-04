@@ -33,7 +33,7 @@ export const Default: Story = {
         <TableRow>
           <TableCell>Catamania</TableCell>
           <TableCell>
-            <Badge variant="secondary">Intermédiaire</Badge>
+            <Badge variant="brand">Intermédiaire</Badge>
           </TableCell>
           <TableCell className="text-right">1</TableCell>
           <TableCell className="text-right">63 800 €</TableCell>
@@ -41,7 +41,7 @@ export const Default: Story = {
         <TableRow>
           <TableCell>HartPrint</TableCell>
           <TableCell>
-            <Badge variant="outline">Direct</Badge>
+            <Badge>Direct</Badge>
           </TableCell>
           <TableCell className="text-right">1</TableCell>
           <TableCell className="text-right">4 930 €</TableCell>
@@ -49,7 +49,7 @@ export const Default: Story = {
         <TableRow>
           <TableCell>Perso</TableCell>
           <TableCell>
-            <Badge variant="ghost">Interne</Badge>
+            <Badge>Interne</Badge>
           </TableCell>
           <TableCell className="text-right">1</TableCell>
           <TableCell className="text-right">—</TableCell>
