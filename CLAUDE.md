@@ -61,6 +61,7 @@ vendor/bin/pint
 
 - Prefer clean, idiomatic, structural solutions over convention-dependent workarounds or clever hacks.
 - Small composable components; shadcn-style composition (CVA variants, compound components) in `packages/ui`.
+- **Tailwind: never use arbitrary pixel values** (`text-[17px]`, `w-[38px]`, `rounded-[2px]`). Always use the nearest token from the Tailwind scale; when translating designs, round px specs to the closest scale step. (Generated shadcn components keep their upstream styles.)
 - Accessibility is not optional: proper ARIA, focus management, keyboard navigation on all interactive components.
 - On the API: thin controllers, logic in domain actions; Data classes validate explicitly on anything security-relevant (don't rely on inferred validation rules).
 - Avoid premature abstraction. This is a solo-maintained OSS project — boring, readable code beats architecture astronautics.
