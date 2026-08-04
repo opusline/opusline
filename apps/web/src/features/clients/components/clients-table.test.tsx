@@ -1,7 +1,13 @@
 import type { ClientWithMissionsData } from "@opusline/api-client";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it } from "vitest";
 import { ClientsTable } from "./clients-table";
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function daysAgo(days: number): string {
+  return new Date(Date.now() - days * DAY_MS).toISOString();
+}
 
 function client(
   overrides: Partial<ClientWithMissionsData>,
@@ -20,7 +26,7 @@ function client(
     color: 0,
     paymentTermsDays: 45,
     archivedAt: null,
-    createdAt: "2026-08-01T00:00:00+00:00",
+    createdAt: daysAgo(90),
     missions: [],
     ...overrides,
   };
@@ -56,11 +62,14 @@ it("shows the client with its type and missions", () => {
   );
 
   expect(screen.getByText("Catamania")).toBeInTheDocument();
-  expect(screen.getByText("ESN / intermédiaire")).toBeInTheDocument();
-  expect(screen.getByText("client final OGF")).toBeInTheDocument();
+  expect(screen.getByText("Intermédiaire")).toBeInTheDocument();
+  expect(screen.getByText("ESN · client final OGF")).toBeInTheDocument();
   expect(screen.getByText("OGF front")).toBeInTheDocument();
   expect(screen.getByText("550 €/j")).toBeInTheDocument();
   expect(screen.getByText("Active")).toBeInTheDocument();
+  expect(
+    screen.getByRole("button", { name: "Ajouter une mission" }),
+  ).toBeInTheDocument();
 });
 
 it("labels a mission without a rate as non billable", () => {
@@ -93,12 +102,15 @@ it("labels a mission without a rate as non billable", () => {
   );
 
   expect(screen.getByText("non facturable")).toBeInTheDocument();
+  expect(screen.getByText("Perso")).toBeInTheDocument();
 });
 
-it("shows a placeholder row for a client without missions", () => {
+it("offers to create the first mission of a client without missions", () => {
   render(<ClientsTable clients={[client({})]} />);
 
-  expect(screen.getByText("Aucune mission")).toBeInTheDocument();
+  expect(
+    screen.getByRole("button", { name: "Aucune mission — en créer une" }),
+  ).toBeInTheDocument();
 });
 
 it("shows the empty state when there are no clients", () => {
@@ -108,4 +120,89 @@ it("shows the empty state when there are no clients", () => {
   expect(
     screen.getByRole("button", { name: "Créer un client" }),
   ).toBeInTheDocument();
+});
+
+it("flags a recently created client as new", () => {
+  render(<ClientsTable clients={[client({ createdAt: daysAgo(2) })]} />);
+
+  expect(screen.getByText("Nouveau")).toBeInTheDocument();
+});
+
+it("does not flag an old client as new", () => {
+  render(<ClientsTable clients={[client({})]} />);
+
+  expect(screen.queryByText("Nouveau")).not.toBeInTheDocument();
+});
+
+it("marks an archived client with a badge", () => {
+  render(<ClientsTable clients={[client({ archivedAt: daysAgo(30) })]} />);
+
+  fireEvent.click(screen.getByRole("button", { name: "Archivés1" }));
+
+  expect(screen.getByText("Archivé")).toBeInTheDocument();
+});
+
+it("does not flag an archived client as new", () => {
+  render(
+    <ClientsTable
+      clients={[client({ createdAt: daysAgo(2), archivedAt: daysAgo(1) })]}
+    />,
+  );
+
+  fireEvent.click(screen.getByRole("button", { name: "Archivés1" }));
+
+  expect(screen.getByText("Archivé")).toBeInTheDocument();
+  expect(screen.queryByText("Nouveau")).not.toBeInTheDocument();
+});
+
+// Chip accessible names concatenate the label and count text nodes without a space.
+it("shows only active clients by default, with every scope count", () => {
+  render(
+    <ClientsTable
+      clients={[
+        client({}),
+        client({
+          id: 2,
+          slug: "studio-lorem",
+          name: "Studio Lorem",
+          archivedAt: daysAgo(30),
+        }),
+      ]}
+    />,
+  );
+
+  expect(screen.getByRole("button", { name: "Actifs1" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Archivés1" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Tous2" })).toBeInTheDocument();
+  expect(screen.getByText("Catamania")).toBeInTheDocument();
+  expect(screen.queryByText("Studio Lorem")).not.toBeInTheDocument();
+});
+
+it("filters the list when picking the archived scope", () => {
+  render(
+    <ClientsTable
+      clients={[
+        client({}),
+        client({
+          id: 2,
+          slug: "studio-lorem",
+          name: "Studio Lorem",
+          archivedAt: daysAgo(30),
+        }),
+      ]}
+    />,
+  );
+
+  fireEvent.click(screen.getByRole("button", { name: "Archivés1" }));
+
+  expect(screen.getByText("Studio Lorem")).toBeInTheDocument();
+  expect(screen.queryByText("Catamania")).not.toBeInTheDocument();
+});
+
+it("explains an empty scope instead of showing a bare table", () => {
+  render(<ClientsTable clients={[client({})]} />);
+
+  fireEvent.click(screen.getByRole("button", { name: "Archivés0" }));
+
+  expect(screen.getByText("Aucun client dans cette vue.")).toBeInTheDocument();
 });

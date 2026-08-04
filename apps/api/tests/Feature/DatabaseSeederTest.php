@@ -9,7 +9,7 @@ test('seeds a demo portfolio for the test user', function (): void {
 
     $user = User::query()->where('email', 'test@example.com')->firstOrFail();
 
-    expect($user->clients)->toHaveCount(4)
+    expect($user->clients)->toHaveCount(5)
         ->and($user->missions)->toHaveCount(4)
         ->and($user->clients->every(fn ($client): bool => $client->slug !== ''))->toBeTrue();
 });

@@ -23,7 +23,8 @@ export const Sizes: Story = {
       <Button size="sm">Petit</Button>
       <Button size="default">Normal</Button>
       <Button size="lg">Grand</Button>
-      <Button size="xl">Créer un client</Button>
+      <Button size="xl">Nouveau client</Button>
+      <Button size="2xl">Créer un client</Button>
     </div>
   ),
 };

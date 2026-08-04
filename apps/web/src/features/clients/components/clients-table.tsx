@@ -1,5 +1,6 @@
 import type { ClientWithMissionsData } from "@opusline/api-client";
 import { Badge } from "@opusline/ui/components/badge";
+import { Chip, ChipCount, ChipGroup } from "@opusline/ui/components/chip";
 import {
   Table,
   TableBody,
@@ -9,7 +10,8 @@ import {
   TableRow,
 } from "@opusline/ui/components/table";
 import { cn } from "@opusline/ui/lib/utils";
-import { Fragment } from "react";
+import { PlusIcon } from "lucide-react";
+import { useState } from "react";
 
 import {
   CLIENT_TYPE_BADGE_VARIANTS,
@@ -17,129 +19,226 @@ import {
   COLOR_CLASSES,
   clientSubtitle,
   formatMissionRate,
+  isNewClient,
   MISSION_STATUS_BADGE_VARIANTS,
   MISSION_STATUS_LABELS,
 } from "../lib/labels";
 import { ClientsEmptyState } from "./clients-empty-state";
+
+const HEAD_CLASSES =
+  "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
+
+const CLIENT_SCOPES = ["active", "archived", "all"] as const;
+
+type ClientScope = (typeof CLIENT_SCOPES)[number];
+
+const CLIENT_SCOPE_LABELS: Record<ClientScope, string> = {
+  all: "Tous",
+  active: "Actifs",
+  archived: "Archivés",
+};
+
+function isClientScope(value: unknown): value is ClientScope {
+  return (CLIENT_SCOPES as readonly unknown[]).includes(value);
+}
 
 type ClientsTableProps = {
   clients: ClientWithMissionsData[];
 };
 
 export function ClientsTable({ clients }: ClientsTableProps) {
+  const [scope, setScope] = useState<ClientScope>("active");
+
   if (clients.length === 0) {
     return <ClientsEmptyState />;
   }
 
-  const currentYear = new Date().getFullYear();
+  const now = new Date();
+  const currentYear = now.getFullYear();
+
+  const scopedClients: Record<ClientScope, ClientWithMissionsData[]> = {
+    all: clients,
+    active: clients.filter((client) => client.archivedAt === null),
+    archived: clients.filter((client) => client.archivedAt !== null),
+  };
+  const visibleClients = scopedClients[scope];
 
   return (
-    <div className="overflow-hidden rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Client</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Missions</TableHead>
-            <TableHead className="text-right">CA {currentYear}</TableHead>
-            <TableHead className="text-right">En attente</TableHead>
-            <TableHead className="text-right">Délai moyen</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {clients.map((client) => {
+    <div className="flex flex-col gap-3">
+      <ChipGroup
+        aria-label="Filtrer les clients"
+        value={[scope]}
+        onValueChange={(value) => {
+          const nextScope = value.find(isClientScope);
+
+          if (nextScope !== undefined) {
+            setScope(nextScope);
+          }
+        }}
+      >
+        {CLIENT_SCOPES.map((clientScope) => (
+          <Chip key={clientScope} value={clientScope} shape="pill">
+            {CLIENT_SCOPE_LABELS[clientScope]}
+            <ChipCount>{scopedClients[clientScope].length}</ChipCount>
+          </Chip>
+        ))}
+      </ChipGroup>
+      <div className="overflow-hidden rounded-md border bg-card">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className={cn(HEAD_CLASSES, "w-1/4 py-3 pl-5")}>
+                Client
+              </TableHead>
+              <TableHead className={cn(HEAD_CLASSES, "w-3/16")}>Type</TableHead>
+              <TableHead className={cn(HEAD_CLASSES, "w-1/9")}>
+                Missions
+              </TableHead>
+              <TableHead className={cn(HEAD_CLASSES, "w-1/6 text-right")}>
+                CA {currentYear}
+              </TableHead>
+              <TableHead className={cn(HEAD_CLASSES, "w-1/6 text-right")}>
+                En attente
+              </TableHead>
+              <TableHead className={cn(HEAD_CLASSES, "py-3 pr-5 text-right")}>
+                Délai moyen
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          {visibleClients.map((client) => {
             const subtitle = clientSubtitle(client);
+            const isArchived = client.archivedAt !== null;
 
             return (
-              <Fragment key={client.id}>
-                <TableRow>
-                  <TableCell>
-                    <div className="flex min-w-0 flex-col gap-0.5">
-                      <span className="flex items-center gap-2 font-medium text-card-foreground">
+              <TableBody
+                key={client.id}
+                className="group/client border-secondary border-b last:border-0"
+              >
+                <TableRow
+                  className={cn(
+                    "border-secondary hover:bg-accent",
+                    isArchived && "opacity-60",
+                  )}
+                >
+                  <TableCell className="py-4 pl-5">
+                    <div className="flex min-w-0 flex-col gap-0.75">
+                      <span className="flex min-w-0 items-center gap-2.5">
                         <span
                           aria-hidden
                           className={cn(
-                            "size-2 shrink-0 rounded-xs",
+                            "size-2.5 shrink-0 rounded-sm",
                             COLOR_CLASSES[client.color],
                           )}
                         />
-                        {client.name}
+                        <span className="truncate font-medium text-foreground-hi text-sm">
+                          {client.name}
+                        </span>
+                        {!isArchived && isNewClient(client, now) && (
+                          <Badge variant="brand">Nouveau</Badge>
+                        )}
+                        {isArchived && <Badge variant="quiet">Archivé</Badge>}
                       </span>
                       {subtitle !== "" && (
-                        <span className="pl-4 text-muted-foreground text-xs">
+                        <span className="pl-5 text-muted-foreground-2 text-xs">
                           {subtitle}
                         </span>
                       )}
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="min-w-0 py-4 pr-3">
                     <Badge variant={CLIENT_TYPE_BADGE_VARIANTS[client.type]}>
                       {CLIENT_TYPE_LABELS[client.type]}
                     </Badge>
                   </TableCell>
-                  <TableCell className="font-mono tabular-nums">
+                  <TableCell className="py-4 font-mono text-foreground-4 tabular-nums">
                     {client.missions.length}
                   </TableCell>
-                  <TableCell className="text-right font-mono tabular-nums">
+                  <TableCell className="py-4 text-right font-mono tabular-nums">
                     —
                   </TableCell>
-                  <TableCell className="text-right font-mono tabular-nums">
+                  <TableCell className="py-4 text-right font-mono text-muted-foreground tabular-nums">
                     —
                   </TableCell>
-                  <TableCell className="text-right font-mono tabular-nums">
+                  <TableCell className="py-4 pr-5 text-right font-mono text-muted-foreground-3 tabular-nums">
                     —
                   </TableCell>
                 </TableRow>
                 {client.missions.map((mission) => (
-                  <TableRow key={mission.id} className="bg-muted/30">
-                    <TableCell>
-                      <div className="flex min-w-0 items-center gap-2 pl-4">
+                  <TableRow
+                    key={mission.id}
+                    className="border-secondary bg-muted hover:bg-card-2"
+                  >
+                    <TableCell className="py-2.5 pl-5">
+                      <div className="flex min-w-0 items-center gap-2.5 pl-3.5">
                         <span
                           aria-hidden
                           className={cn(
-                            "h-3.5 w-0.5 shrink-0 rounded-full",
+                            "h-3 w-0.75 shrink-0 rounded-sm",
                             COLOR_CLASSES[mission.color ?? client.color],
                           )}
                         />
-                        <span className="truncate text-muted-foreground text-sm">
+                        <span className="truncate text-sm text-foreground-3">
                           {mission.name}
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-xs">
+                    <TableCell className="py-2.5 text-muted-foreground-2 text-xs">
                       {formatMissionRate(mission)}
                     </TableCell>
-                    <TableCell className="font-mono text-muted-foreground tabular-nums">
+                    <TableCell className="py-2.5 font-mono text-muted-foreground-3 tabular-nums">
                       —
                     </TableCell>
-                    <TableCell className="text-right font-mono tabular-nums">
+                    <TableCell className="py-2.5 text-right font-mono text-foreground-3 tabular-nums">
                       —
                     </TableCell>
                     <TableCell />
-                    <TableCell className="text-right">
-                      <Badge
-                        variant={MISSION_STATUS_BADGE_VARIANTS[mission.status]}
-                      >
-                        {MISSION_STATUS_LABELS[mission.status]}
-                      </Badge>
+                    <TableCell className="py-2.5 pr-5 text-right">
+                      {client.type === 2 ? (
+                        <Badge variant="quiet">Perso</Badge>
+                      ) : (
+                        <Badge
+                          variant={
+                            MISSION_STATUS_BADGE_VARIANTS[mission.status]
+                          }
+                        >
+                          {MISSION_STATUS_LABELS[mission.status]}
+                        </Badge>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
-                {client.missions.length === 0 && (
-                  <TableRow className="bg-muted/30">
-                    <TableCell
-                      colSpan={6}
-                      className="pl-8 text-muted-foreground text-xs"
+                <TableRow className="group/add bg-muted hover:bg-card-2">
+                  <TableCell colSpan={6} className="p-0">
+                    <button
+                      type="button"
+                      className={cn(
+                        "flex w-full items-center gap-2 pl-8.5 font-normal text-muted-foreground text-sm transition-all group-hover/add:text-primary-note focus-visible:text-primary-note",
+                        client.missions.length > 0
+                          ? "py-2 opacity-0 focus-visible:opacity-100 group-hover/client:opacity-100"
+                          : "py-3.25",
+                      )}
                     >
-                      Aucune mission
-                    </TableCell>
-                  </TableRow>
-                )}
-              </Fragment>
+                      <PlusIcon
+                        aria-hidden
+                        className="size-3.25"
+                        strokeWidth={2.2}
+                      />
+                      {client.missions.length === 0
+                        ? "Aucune mission — en créer une"
+                        : "Ajouter une mission"}
+                    </button>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
             );
           })}
-        </TableBody>
-      </Table>
+        </Table>
+        {visibleClients.length === 0 && (
+          <div className="px-5 py-6 text-center text-muted-foreground-3 text-sm">
+            Aucun client dans cette vue.
+          </div>
+        )}
+      </div>
     </div>
   );
 }

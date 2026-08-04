@@ -1,6 +1,6 @@
 import type { ClientWithMissionsData, MissionData } from "@opusline/api-client";
 import { expect, it } from "vitest";
-import { clientSubtitle, formatMissionRate } from "./labels";
+import { clientSubtitle, formatMissionRate, isNewClient } from "./labels";
 
 function mission(overrides: Partial<MissionData> = {}): MissionData {
   return {
@@ -69,23 +69,51 @@ it("labels a mission without a rate as non billable", () => {
   expect(formatMissionRate(mission({ rate: null }))).toBe("non facturable");
 });
 
-it("builds the subtitle from unique end clients", () => {
+it("builds the subtitle from the type and unique end clients", () => {
   const subject = client({
+    type: 1,
     missions: [
       mission({ endClientName: "OGF" }),
       mission({ id: 2, endClientName: "OGF" }),
     ],
   });
 
-  expect(clientSubtitle(subject)).toBe("client final OGF");
+  expect(clientSubtitle(subject)).toBe("ESN · client final OGF");
 });
 
-it("appends the archived marker to the subtitle", () => {
+it("describes an internal client in the subtitle", () => {
+  expect(clientSubtitle(client({ type: 2 }))).toBe("Projets internes");
+});
+
+it("leaves archiving out of the subtitle", () => {
   expect(
     clientSubtitle(client({ archivedAt: "2026-08-01T00:00:00+00:00" })),
-  ).toBe("archivé");
+  ).toBe("Aucune mission");
 });
 
-it("returns an empty subtitle when there is nothing to say", () => {
-  expect(clientSubtitle(client())).toBe("");
+it("falls back to the mission count when there is nothing else to say", () => {
+  expect(clientSubtitle(client({ missions: [mission()] }))).toBe("1 mission");
+  expect(
+    clientSubtitle(client({ missions: [mission(), mission({ id: 2 })] })),
+  ).toBe("2 missions");
+});
+
+it("considers a client created three days ago as new", () => {
+  const now = new Date("2026-08-04T12:00:00+00:00");
+
+  expect(
+    isNewClient(client({ createdAt: "2026-08-01T00:00:00+00:00" }), now),
+  ).toBe(true);
+});
+
+it("considers a client created two weeks ago as not new", () => {
+  const now = new Date("2026-08-04T12:00:00+00:00");
+
+  expect(
+    isNewClient(client({ createdAt: "2026-07-21T00:00:00+00:00" }), now),
+  ).toBe(false);
+});
+
+it("announces the missing missions when there is nothing else to say", () => {
+  expect(clientSubtitle(client())).toBe("Aucune mission");
 });

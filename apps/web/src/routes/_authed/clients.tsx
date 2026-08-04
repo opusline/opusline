@@ -1,8 +1,10 @@
 import { listClientsOptions } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
+import { Button } from "@opusline/ui/components/button";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { PlusIcon } from "lucide-react";
 
 import { ClientsTable } from "@/features/clients/components/clients-table";
 
@@ -15,9 +17,15 @@ function ClientsPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <h1 className="font-heading font-semibold text-2xl text-card-foreground">
-        Clients
-      </h1>
+      <div className="flex items-center justify-between">
+        <h1 className="font-heading font-semibold text-2xl text-foreground-hi">
+          Clients
+        </h1>
+        <Button size="xl">
+          <PlusIcon aria-hidden data-icon="inline-start" />
+          Nouveau client
+        </Button>
+      </div>
       {isPending && (
         <div className="flex flex-col gap-2">
           <Skeleton className="h-10 w-full" />

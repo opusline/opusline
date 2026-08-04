@@ -8,17 +8,22 @@ import type {
 
 export const CLIENT_TYPE_LABELS: Record<ClientType, string> = {
   0: "Direct",
-  1: "ESN / intermédiaire",
-  2: "Interne / perso",
+  1: "Intermédiaire",
+  2: "Interne",
 };
 
 export const CLIENT_TYPE_BADGE_VARIANTS: Record<
   ClientType,
-  "outline" | "secondary" | "ghost"
+  "brand" | "neutral"
 > = {
-  0: "outline",
-  1: "secondary",
-  2: "ghost",
+  0: "neutral",
+  1: "brand",
+  2: "neutral",
+};
+
+const CLIENT_TYPE_DESCRIPTORS: Partial<Record<ClientType, string>> = {
+  1: "ESN",
+  2: "Projets internes",
 };
 
 export const MISSION_STATUS_LABELS: Record<MissionStatus, string> = {
@@ -29,22 +34,33 @@ export const MISSION_STATUS_LABELS: Record<MissionStatus, string> = {
 
 export const MISSION_STATUS_BADGE_VARIANTS: Record<
   MissionStatus,
-  "default" | "outline" | "secondary"
+  "brand" | "neutral"
 > = {
-  0: "default",
-  1: "outline",
-  2: "secondary",
+  0: "brand",
+  1: "neutral",
+  2: "neutral",
 };
 
+const NEW_CLIENT_BADGE_DAYS = 7;
+
+export function isNewClient(
+  client: ClientWithMissionsData,
+  now: Date,
+): boolean {
+  const ageMs = now.getTime() - new Date(client.createdAt).getTime();
+
+  return ageMs <= NEW_CLIENT_BADGE_DAYS * 24 * 60 * 60 * 1000;
+}
+
 export const COLOR_CLASSES: Record<Color, string> = {
-  0: "bg-amber-500",
-  1: "bg-orange-600",
-  2: "bg-lime-700",
-  3: "bg-emerald-500",
-  4: "bg-slate-400",
-  5: "bg-indigo-400",
-  6: "bg-purple-400",
-  7: "bg-stone-400",
+  0: "bg-palette-amber",
+  1: "bg-palette-terracotta",
+  2: "bg-palette-olive",
+  3: "bg-palette-sage",
+  4: "bg-palette-slate",
+  5: "bg-palette-indigo",
+  6: "bg-palette-plum",
+  7: "bg-palette-stone",
 };
 
 const euros = new Intl.NumberFormat("fr-FR", {
@@ -75,6 +91,12 @@ export function formatMissionRate(mission: MissionData): string {
 export function clientSubtitle(client: ClientWithMissionsData): string {
   const parts: string[] = [];
 
+  const descriptor = CLIENT_TYPE_DESCRIPTORS[client.type];
+
+  if (descriptor !== undefined) {
+    parts.push(descriptor);
+  }
+
   const endClients = [
     ...new Set(
       client.missions
@@ -87,8 +109,14 @@ export function clientSubtitle(client: ClientWithMissionsData): string {
     parts.push(`client final ${endClients.join(", ")}`);
   }
 
-  if (client.archivedAt !== null) {
-    parts.push("archivé");
+  if (parts.length === 0) {
+    const missionCount = client.missions.length;
+
+    if (missionCount === 0) {
+      return "Aucune mission";
+    }
+
+    return missionCount === 1 ? "1 mission" : `${missionCount} missions`;
   }
 
   return parts.join(" · ");

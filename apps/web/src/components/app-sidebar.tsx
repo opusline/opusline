@@ -244,7 +244,7 @@ export function AppSidebar() {
                   Aide et raccourcis
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="mt-1 border-t not-focus:text-warn not-focus:*:[svg]:text-warn"
+                  className="mt-1 border-t not-focus:text-destructive not-focus:*:[svg]:text-destructive"
                   disabled={logout.isPending}
                   onClick={() => logout.mutate({})}
                 >

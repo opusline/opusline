@@ -11,6 +11,8 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof ClientsTable>;
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 const baseClient = {
   notes: null,
   siret: null,
@@ -20,7 +22,7 @@ const baseClient = {
   billingEmail: null,
   paymentTermsDays: 45,
   archivedAt: null,
-  createdAt: "2026-08-01T00:00:00+00:00",
+  createdAt: new Date(Date.now() - 90 * DAY_MS).toISOString(),
 } satisfies Partial<ClientWithMissionsData>;
 
 const baseMission = {
@@ -63,6 +65,7 @@ const clients: ClientWithMissionsData[] = [
     name: "HartPrint",
     type: 0,
     color: 4,
+    createdAt: new Date(Date.now() - 2 * DAY_MS).toISOString(),
     missions: [
       {
         ...baseMission,

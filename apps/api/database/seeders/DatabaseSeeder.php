@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             'siret' => '892 447 118 00017',
             'billing_contact_name' => 'Sophie Reix',
             'billing_email' => 'factures@catamania.fr',
+            'created_at' => now()->subMonths(17),
         ]);
 
         Mission::factory()->for($catamania, 'client')->throughEsn('OGF')->create([
@@ -50,6 +51,7 @@ class DatabaseSeeder extends Seeder
         $hartprint = Client::factory()->for($user)->create([
             'name' => 'HartPrint',
             'color' => Color::Slate,
+            'created_at' => now()->subMonths(11),
         ]);
 
         Mission::factory()->for($hartprint, 'client')->hourly()->create([
@@ -60,11 +62,19 @@ class DatabaseSeeder extends Seeder
         Client::factory()->for($user)->archived()->create([
             'name' => 'Studio Lorem',
             'color' => Color::Plum,
+            'created_at' => now()->subMonths(20),
+        ]);
+
+        Client::factory()->for($user)->create([
+            'name' => 'Ateliers Ruche',
+            'color' => Color::Sage,
+            'created_at' => now()->subDays(2),
         ]);
 
         $perso = Client::factory()->for($user)->internal()->create([
             'name' => 'Perso',
             'color' => Color::Stone,
+            'created_at' => now()->subMonths(20),
         ]);
 
         Mission::factory()->for($perso, 'client')->hourly()->nonBillable()->create([
