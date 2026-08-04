@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Domain\Missions\Data;
 
 use App\Domain\Missions\Enums\BillingMode;
+use App\Domain\Missions\Enums\EntryRounding;
 use App\Domain\Missions\Enums\MissionStatus;
 use App\Domain\Shared\Data\MoneyData;
+use App\Domain\Shared\Enums\Color;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Data;
@@ -17,12 +19,16 @@ class MissionData extends Data
         public int $id,
         public string $slug,
         public int $clientId,
-        public ?int $endClientId,
         public string $name,
+        public ?string $endClientName,
         public BillingMode $billingMode,
         #[MapInputName('rate_cents')]
         public ?MoneyData $rate,
+        public ?EntryRounding $rounding,
         public MissionStatus $status,
+        public bool $craRequired,
+        public ?Color $color,
+        public ?string $notes,
         public ?CarbonImmutable $startDate,
         public ?CarbonImmutable $endDate,
     ) {}

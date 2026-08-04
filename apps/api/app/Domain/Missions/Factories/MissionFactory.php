@@ -6,6 +6,7 @@ namespace App\Domain\Missions\Factories;
 
 use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Enums\BillingMode;
+use App\Domain\Missions\Enums\EntryRounding;
 use App\Domain\Missions\Enums\MissionStatus;
 use App\Domain\Missions\Models\Mission;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -31,13 +32,17 @@ class MissionFactory extends Factory
                 ->firstOrFail()
                 ->user_id,
             'name' => fake()->words(2, true),
+            'end_client_name' => null,
             'billing_mode' => BillingMode::Daily,
             'currency' => 'EUR',
             'rate_cents' => 55_000,
+            'rounding' => EntryRounding::Half,
             'status' => MissionStatus::Active,
+            'cra_required' => false,
+            'color' => null,
+            'notes' => null,
             'start_date' => null,
             'end_date' => null,
-            'end_client_id' => null,
         ];
     }
 
@@ -49,6 +54,18 @@ class MissionFactory extends Factory
         return $this->state(fn (array $attributes): array => [
             'billing_mode' => BillingMode::Hourly,
             'rate_cents' => 8_500,
+        ]);
+    }
+
+    /**
+     * Indicate that the mission is billed as a fixed price.
+     */
+    public function fixed(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'billing_mode' => BillingMode::Fixed,
+            'rate_cents' => 1_200_000,
+            'rounding' => null,
         ]);
     }
 
@@ -85,10 +102,10 @@ class MissionFactory extends Factory
     /**
      * Indicate that billing goes through an intermediary (ESN).
      */
-    public function throughEsn(Client $endClient): static
+    public function throughEsn(string $endClientName): static
     {
         return $this->state(fn (array $attributes): array => [
-            'end_client_id' => $endClient->id,
+            'end_client_name' => $endClientName,
         ]);
     }
 }

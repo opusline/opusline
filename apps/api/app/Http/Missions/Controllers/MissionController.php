@@ -20,6 +20,11 @@ use Illuminate\Http\Response;
 
 class MissionController extends Controller
 {
+    public function show(Client $client, Mission $mission): JsonResponse
+    {
+        return response()->json(MissionData::from($mission));
+    }
+
     public function store(CreateMissionData $data, #[CurrentUser] User $user, Client $client, CreateMission $createMission): JsonResponse
     {
         $mission = $createMission->handle($user, $client, $data);
@@ -29,7 +34,7 @@ class MissionController extends Controller
 
     public function update(UpdateMissionData $data, Client $client, Mission $mission, UpdateMission $updateMission): JsonResponse
     {
-        $updateMission->handle($mission, $data);
+        $updateMission->handle($client, $mission, $data);
 
         return response()->json(MissionData::from($mission));
     }

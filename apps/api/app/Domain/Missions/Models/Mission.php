@@ -6,14 +6,15 @@ namespace App\Domain\Missions\Models;
 
 use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Enums\BillingMode;
+use App\Domain\Missions\Enums\EntryRounding;
 use App\Domain\Missions\Enums\MissionStatus;
 use App\Domain\Missions\Factories\MissionFactory;
+use App\Domain\Shared\Enums\Color;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Casts\MoneyIntegerCast;
 use Cknow\Money\Money;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,28 +26,35 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $user_id
  * @property int $client_id
- * @property ?int $end_client_id
  * @property string $name
  * @property string $slug
+ * @property ?string $end_client_name
  * @property BillingMode $billing_mode
  * @property ?Money $rate_cents
  * @property string $currency
+ * @property ?EntryRounding $rounding
  * @property MissionStatus $status
+ * @property bool $cra_required
+ * @property ?Color $color
+ * @property ?string $notes
  * @property ?CarbonImmutable $start_date
  * @property ?CarbonImmutable $end_date
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  * @property-read Client $client
- * @property-read ?Client $endClient
  */
 #[Fillable([
     'client_id',
-    'end_client_id',
     'name',
+    'end_client_name',
     'billing_mode',
     'rate_cents',
     'currency',
+    'rounding',
     'status',
+    'cra_required',
+    'color',
+    'notes',
     'start_date',
     'end_date',
 ])]
@@ -84,27 +92,14 @@ class Mission extends Model
     {
         return [
             'billing_mode' => BillingMode::class,
+            'rounding' => EntryRounding::class,
             'status' => MissionStatus::class,
+            'cra_required' => 'boolean',
+            'color' => Color::class,
             'rate_cents' => MoneyIntegerCast::class.':currency',
             'start_date' => 'date',
             'end_date' => 'date',
         ];
-    }
-
-    /**
-     * Missions where the client is involved as billing or end client.
-     *
-     * @param  Builder<self>  $query
-     * @return Builder<self>
-     */
-    #[Scope]
-    protected function involvingClient(Builder $query, Client $client): Builder
-    {
-        return $query->where(
-            fn (Builder $subQuery): Builder => $subQuery
-                ->where('client_id', $client->id)
-                ->orWhere('end_client_id', $client->id),
-        );
     }
 
     /** @return BelongsTo<User, $this> */
@@ -121,15 +116,5 @@ class Mission extends Model
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
-    }
-
-    /**
-     * The end client when billing goes through an intermediary.
-     *
-     * @return BelongsTo<Client, $this>
-     */
-    public function endClient(): BelongsTo
-    {
-        return $this->belongsTo(Client::class, 'end_client_id');
     }
 }
