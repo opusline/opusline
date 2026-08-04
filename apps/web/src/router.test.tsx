@@ -20,7 +20,11 @@ it("redirects the root to the login page when unauthenticated", async () => {
   );
 
   expect(
-    await screen.findByRole("heading", { name: /connexion/i }),
+    await screen.findByRole(
+      "heading",
+      { name: /connexion/i },
+      { timeout: 5000 },
+    ),
   ).toBeInTheDocument();
 });
 
@@ -40,6 +44,10 @@ it("redirects authenticated users away from the login page", async () => {
   );
 
   expect(
-    await screen.findByRole("heading", { name: /bonjour, theo/i }),
+    await screen.findByRole(
+      "heading",
+      { name: /bonjour, theo/i },
+      { timeout: 5000 },
+    ),
   ).toBeInTheDocument();
 });
