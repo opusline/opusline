@@ -135,9 +135,10 @@ it("shows the empty state when there are no clients", async () => {
   expect(
     await screen.findByText("Créez votre premier client"),
   ).toBeInTheDocument();
-  expect(
-    screen.getByRole("link", { name: "Créer un client" }),
-  ).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Créer un client" })).toHaveAttribute(
+    "href",
+    "/clients/new",
+  );
 });
 
 it("flags a recently created client as new", () => {

@@ -49,12 +49,20 @@ export const COLOR_LABELS: Record<Color, string> = {
   7: "Pierre",
 };
 
+export const CLIENT_TYPES: ClientType[] = [0, 1, 2];
+
+export const COLORS: Color[] = [0, 1, 2, 3, 4, 5, 6, 7];
+
 export function paymentTermsLabel(days: number): string {
-  return days === 0 ? "réception" : `${days} jours`;
+  if (days === 0) {
+    return "réception";
+  }
+
+  return days === 1 ? "1 jour" : `${days} jours`;
 }
 
 export function randomColor(): Color {
-  return Math.floor(Math.random() * 8) as Color;
+  return COLORS[Math.floor(Math.random() * COLORS.length)] ?? 0;
 }
 
 export const MISSION_STATUS_LABELS: Record<MissionStatus, string> = {

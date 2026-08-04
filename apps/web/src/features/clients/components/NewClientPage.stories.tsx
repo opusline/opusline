@@ -42,9 +42,7 @@ export const Default: Story = {
 
 export const WithServerError: Story = {
   args: {
-    onSubmit: async () => ({
-      name: { message: "Ce nom est déjà utilisé." },
-    }),
+    onSubmit: async () => null,
     onCancel: () => {},
     error: "Impossible de créer le client. Réessayez dans un instant.",
   },

@@ -16,8 +16,10 @@ import { useState } from "react";
 import {
   CLIENT_TYPE_HINTS,
   CLIENT_TYPE_OPTION_LABELS,
+  CLIENT_TYPES,
   COLOR_CLASSES,
   COLOR_LABELS,
+  COLORS,
   paymentTermsLabel,
   randomColor,
 } from "../lib/labels";
@@ -25,8 +27,6 @@ import {
 const EYEBROW_CLASSES =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
 
-const CLIENT_TYPES: ClientType[] = [0, 1, 2];
-const COLORS: Color[] = [0, 1, 2, 3, 4, 5, 6, 7];
 const PAYMENT_TERM_PRESETS = [30, 45, 60];
 
 type ClientFormValues = {
@@ -297,23 +297,33 @@ export function NewClientPage({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <form.Field name="billingContactName">
-              {(field) => (
-                <Field>
-                  <FieldLabel
-                    className="text-foreground-3"
-                    htmlFor={field.name}
-                  >
-                    Contact facturation
-                  </FieldLabel>
-                  <Input
-                    id={field.name}
-                    onBlur={field.handleBlur}
-                    onChange={(event) => field.handleChange(event.target.value)}
-                    placeholder="Camille Dupont"
-                    value={field.state.value}
-                  />
-                </Field>
-              )}
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel
+                      className="text-foreground-3"
+                      htmlFor={field.name}
+                    >
+                      Contact facturation
+                    </FieldLabel>
+                    <Input
+                      aria-invalid={isInvalid}
+                      id={field.name}
+                      onBlur={field.handleBlur}
+                      onChange={(event) =>
+                        field.handleChange(event.target.value)
+                      }
+                      placeholder="Camille Dupont"
+                      value={field.state.value}
+                    />
+                    {isInvalid ? (
+                      <FieldError errors={field.state.meta.errors} />
+                    ) : null}
+                  </Field>
+                );
+              }}
             </form.Field>
             <form.Field name="billingEmail">
               {(field) => {
@@ -482,7 +492,13 @@ export function NewClientPage({
             <Button disabled={isPending} size="2xl" type="submit">
               Créer le client
             </Button>
-            <Button onClick={onCancel} size="2xl" type="button" variant="ghost">
+            <Button
+              disabled={isPending}
+              onClick={onCancel}
+              size="2xl"
+              type="button"
+              variant="ghost"
+            >
               Annuler
             </Button>
           </div>

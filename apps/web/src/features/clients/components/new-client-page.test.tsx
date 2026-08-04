@@ -6,8 +6,8 @@ import { afterEach, expect, it, vi } from "vitest";
 
 import { getRouter } from "@/router";
 
-function renderAuthedAt(path: string) {
-  window.history.replaceState(null, "", path);
+async function renderNewClientPage() {
+  window.history.replaceState(null, "", "/clients/new");
   const router = getRouter();
   router.options.context.queryClient.setQueryData(currentUserQueryKey(), {
     id: 1,
@@ -19,6 +19,12 @@ function renderAuthedAt(path: string) {
     <QueryClientProvider client={router.options.context.queryClient}>
       <RouterProvider router={router} />
     </QueryClientProvider>,
+  );
+
+  await screen.findByRole(
+    "heading",
+    { name: "Nouveau client" },
+    { timeout: 5000 },
   );
 }
 
@@ -35,15 +41,8 @@ afterEach(() => {
 });
 
 it("shows the client form", async () => {
-  renderAuthedAt("/clients/new");
+  await renderNewClientPage();
 
-  expect(
-    await screen.findByRole(
-      "heading",
-      { name: "Nouveau client" },
-      { timeout: 5000 },
-    ),
-  ).toBeInTheDocument();
   expect(screen.getByLabelText("Raison sociale")).toBeInTheDocument();
   expect(screen.getByLabelText("SIRET")).toBeInTheDocument();
   expect(screen.getByText("Délai de paiement")).toBeInTheDocument();
@@ -53,12 +52,7 @@ it("shows the client form", async () => {
 });
 
 it("explains the end-client rule when picking an intermediary", async () => {
-  renderAuthedAt("/clients/new");
-  await screen.findByRole(
-    "heading",
-    { name: "Nouveau client" },
-    { timeout: 5000 },
-  );
+  await renderNewClientPage();
 
   expect(
     screen.queryByText("Facturation via intermédiaire"),
@@ -72,12 +66,7 @@ it("explains the end-client rule when picking an intermediary", async () => {
 });
 
 it("focuses the custom days input when picking Autre", async () => {
-  renderAuthedAt("/clients/new");
-  await screen.findByRole(
-    "heading",
-    { name: "Nouveau client" },
-    { timeout: 5000 },
-  );
+  await renderNewClientPage();
 
   fireEvent.click(screen.getByRole("button", { name: "Autre…" }));
 
@@ -85,12 +74,7 @@ it("focuses the custom days input when picking Autre", async () => {
 });
 
 it("restores the drafted days in the preview when returning to a custom term", async () => {
-  renderAuthedAt("/clients/new");
-  await screen.findByRole(
-    "heading",
-    { name: "Nouveau client" },
-    { timeout: 5000 },
-  );
+  await renderNewClientPage();
 
   fireEvent.click(screen.getByRole("button", { name: "Autre…" }));
   fireEvent.change(screen.getByLabelText("Délai de paiement en jours"), {
@@ -106,12 +90,7 @@ it("restores the drafted days in the preview when returning to a custom term", a
 });
 
 it("only accepts digits in the custom days input", async () => {
-  renderAuthedAt("/clients/new");
-  await screen.findByRole(
-    "heading",
-    { name: "Nouveau client" },
-    { timeout: 5000 },
-  );
+  await renderNewClientPage();
 
   fireEvent.click(screen.getByRole("button", { name: "Autre…" }));
   fireEvent.change(screen.getByLabelText("Délai de paiement en jours"), {
@@ -144,12 +123,7 @@ it("creates the client and returns to the list", async () => {
     }),
   );
 
-  renderAuthedAt("/clients/new");
-  await screen.findByRole(
-    "heading",
-    { name: "Nouveau client" },
-    { timeout: 5000 },
-  );
+  await renderNewClientPage();
 
   fireEvent.change(screen.getByLabelText("Raison sociale"), {
     target: { value: "Nordlys" },
@@ -159,6 +133,7 @@ it("creates the client and returns to the list", async () => {
   expect(
     await screen.findByRole("heading", { name: "Clients" }, { timeout: 5000 }),
   ).toBeInTheDocument();
+  expect(window.location.pathname).toBe("/clients");
 
   const creation = requests.find((request) => request.method === "POST");
   expect(creation?.path.endsWith("/clients")).toBe(true);
@@ -170,7 +145,7 @@ it("creates the client and returns to the list", async () => {
   });
 });
 
-it("shows the server validation error on the field", async () => {
+it("shows the server validation error on the name field", async () => {
   vi.stubGlobal(
     "fetch",
     vi.fn(async () =>
@@ -181,12 +156,7 @@ it("shows the server validation error on the field", async () => {
     ),
   );
 
-  renderAuthedAt("/clients/new");
-  await screen.findByRole(
-    "heading",
-    { name: "Nouveau client" },
-    { timeout: 5000 },
-  );
+  await renderNewClientPage();
 
   fireEvent.change(screen.getByLabelText("Raison sociale"), {
     target: { value: "Nordlys" },
@@ -195,5 +165,37 @@ it("shows the server validation error on the field", async () => {
 
   expect(
     await screen.findByText("Ce nom est déjà utilisé."),
+  ).toBeInTheDocument();
+});
+
+it("shows the server validation error on the billing contact field", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () =>
+      jsonResponse(422, {
+        message: "Le champ contact ne peut pas dépasser 255 caractères.",
+        errors: {
+          billingContactName: [
+            "Le champ contact ne peut pas dépasser 255 caractères.",
+          ],
+        },
+      }),
+    ),
+  );
+
+  await renderNewClientPage();
+
+  fireEvent.change(screen.getByLabelText("Raison sociale"), {
+    target: { value: "Nordlys" },
+  });
+  fireEvent.change(screen.getByLabelText("Contact facturation"), {
+    target: { value: "x".repeat(300) },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Créer le client" }));
+
+  expect(
+    await screen.findByText(
+      "Le champ contact ne peut pas dépasser 255 caractères.",
+    ),
   ).toBeInTheDocument();
 });

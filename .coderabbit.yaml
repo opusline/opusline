@@ -122,4 +122,10 @@ reviews:
           state; no localStorage for anything important.
         - Every component needs a colocated CSF3 story (*.stories.tsx).
         - Accessibility is required: ARIA, focus management, keyboard navigation.
-        - User-facing strings stay ready for i18n; zod imports must use zod/mini.
+        - i18n is deliberately deferred: no i18n runtime exists yet, and French
+          strings are written inline or centralized in feature lib files (e.g.
+          labels.ts). Do NOT request message catalogs, locale keys, or a
+          localization boundary until a runtime is adopted; only flag string
+          concatenation or interpolation patterns that would break a future
+          extraction.
+        - zod imports must use zod/mini.
