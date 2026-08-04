@@ -19,6 +19,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -58,16 +60,22 @@ use Spatie\Sluggable\SlugOptions;
     'start_date',
     'end_date',
 ])]
-class Mission extends Model
+class Mission extends Model implements HasMedia
 {
     /** @use HasFactory<MissionFactory> */
     use HasFactory;
 
     use HasSlug;
+    use InteractsWithMedia;
 
     protected static function newFactory(): MissionFactory
     {
         return MissionFactory::new();
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('documents');
     }
 
     public function getSlugOptions(): SlugOptions
