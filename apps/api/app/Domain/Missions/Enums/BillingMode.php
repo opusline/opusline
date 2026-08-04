@@ -10,8 +10,12 @@ enum BillingMode: int
     case Hourly = 1;
     case Fixed = 2;
 
-    public function isTimeBased(): bool
+    public function resolveRounding(?EntryRounding $requested): ?EntryRounding
     {
-        return $this !== self::Fixed;
+        if ($this === self::Fixed) {
+            return null;
+        }
+
+        return $requested ?? EntryRounding::Half;
     }
 }

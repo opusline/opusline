@@ -9,25 +9,26 @@ use App\Domain\Missions\Data\CreateMissionData;
 use App\Domain\Missions\Enums\MissionStatus;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Users\Models\User;
-use Illuminate\Validation\ValidationException;
 
 class CreateMission
 {
+    public function __construct(private readonly ValidateMission $validateMission) {}
+
     public function handle(User $user, Client $client, CreateMissionData $data): Mission
     {
-        if ($data->endClientId !== null && $data->endClientId === $client->id) {
-            throw ValidationException::withMessages([
-                'endClientId' => __('missions.end_client_must_differ'),
-            ]);
-        }
+        $this->validateMission->handle($client, $data);
 
         return $user->missions()->create([
             'client_id' => $client->id,
-            'end_client_id' => $data->endClientId,
             'name' => $data->name,
+            'end_client_name' => $data->endClientName,
             'billing_mode' => $data->billingMode,
             'rate_cents' => $data->rate?->toMoney(),
+            'rounding' => $data->billingMode->resolveRounding($data->rounding),
             'status' => MissionStatus::Active,
+            'cra_required' => $data->craRequired ?? $client->type->requiresCraByDefault(),
+            'color' => $data->color,
+            'notes' => $data->notes,
             'start_date' => $data->startDate,
             'end_date' => $data->endDate,
         ]);
