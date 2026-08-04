@@ -8,4 +8,10 @@ enum BillingMode: int
 {
     case Daily = 0;
     case Hourly = 1;
+    case Fixed = 2;
+
+    public function isTimeBased(): bool
+    {
+        return $this !== self::Fixed;
+    }
 }
