@@ -266,23 +266,33 @@ export function ClientEditForm({
             </form.Field>
 
             <form.Field name="billingAddress">
-              {(field) => (
-                <Field>
-                  <FieldLabel
-                    className={EDIT_LABEL_CLASSES}
-                    htmlFor={field.name}
-                  >
-                    Adresse
-                  </FieldLabel>
-                  <Textarea
-                    className="min-h-18"
-                    id={field.name}
-                    onBlur={field.handleBlur}
-                    onChange={(event) => field.handleChange(event.target.value)}
-                    value={field.state.value}
-                  />
-                </Field>
-              )}
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel
+                      className={EDIT_LABEL_CLASSES}
+                      htmlFor={field.name}
+                    >
+                      Adresse
+                    </FieldLabel>
+                    <Textarea
+                      aria-invalid={isInvalid}
+                      className="min-h-18"
+                      id={field.name}
+                      onBlur={field.handleBlur}
+                      onChange={(event) =>
+                        field.handleChange(event.target.value)
+                      }
+                      value={field.state.value}
+                    />
+                    {isInvalid ? (
+                      <FieldError errors={field.state.meta.errors} />
+                    ) : null}
+                  </Field>
+                );
+              }}
             </form.Field>
           </div>
         </div>

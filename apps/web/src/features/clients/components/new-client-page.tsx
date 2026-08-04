@@ -233,20 +233,31 @@ export function NewClientPage({
           </div>
 
           <form.Field name="billingAddress">
-            {(field) => (
-              <Field>
-                <FieldLabel className="text-foreground-3" htmlFor={field.name}>
-                  Adresse de facturation
-                </FieldLabel>
-                <Textarea
-                  id={field.name}
-                  onBlur={field.handleBlur}
-                  onChange={(event) => field.handleChange(event.target.value)}
-                  placeholder={"12 rue de la Paix\n44000 Nantes"}
-                  value={field.state.value}
-                />
-              </Field>
-            )}
+            {(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && !field.state.meta.isValid;
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel
+                    className="text-foreground-3"
+                    htmlFor={field.name}
+                  >
+                    Adresse de facturation
+                  </FieldLabel>
+                  <Textarea
+                    aria-invalid={isInvalid}
+                    id={field.name}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => field.handleChange(event.target.value)}
+                    placeholder={"12 rue de la Paix\n44000 Nantes"}
+                    value={field.state.value}
+                  />
+                  {isInvalid ? (
+                    <FieldError errors={field.state.meta.errors} />
+                  ) : null}
+                </Field>
+              );
+            }}
           </form.Field>
 
           <Separator />
