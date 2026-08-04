@@ -16,7 +16,7 @@ test('shows a mission', function (): void {
     ]);
 
     $this->actingAs($user)
-        ->getJson("/api/clients/{$client->id}/missions/{$mission->id}")
+        ->getJson("/api/clients/{$client->slug}/missions/{$mission->id}")
         ->assertOk()
         ->assertJsonPath('id', $mission->id)
         ->assertJsonPath('clientId', $client->id)
@@ -32,7 +32,7 @@ test('cannot show a mission through a different client of the same user', functi
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
-        ->getJson("/api/clients/{$otherClient->id}/missions/{$mission->id}")
+        ->getJson("/api/clients/{$otherClient->slug}/missions/{$mission->id}")
         ->assertNotFound();
 });
 
@@ -40,13 +40,13 @@ test('cannot show another user mission', function (): void {
     $mission = Mission::factory()->create();
 
     $this->actingAs(User::factory()->create())
-        ->getJson("/api/clients/{$mission->client_id}/missions/{$mission->id}")
+        ->getJson("/api/clients/{$mission->client->slug}/missions/{$mission->id}")
         ->assertNotFound();
 });
 
 test('returns 401 for guests', function (): void {
     $mission = Mission::factory()->create();
 
-    $this->getJson("/api/clients/{$mission->client_id}/missions/{$mission->id}")
+    $this->getJson("/api/clients/{$mission->client->slug}/missions/{$mission->id}")
         ->assertUnauthorized();
 });

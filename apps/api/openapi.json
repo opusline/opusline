@@ -233,9 +233,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -268,9 +268,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -313,9 +313,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -362,9 +362,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -399,9 +399,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -436,9 +436,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -471,9 +471,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -518,9 +518,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {
@@ -571,9 +571,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {
@@ -609,9 +609,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {
@@ -654,9 +654,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -692,9 +692,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -727,9 +727,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -757,9 +757,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {
@@ -801,9 +801,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {
@@ -855,9 +855,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {
@@ -894,9 +894,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -941,9 +941,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {
@@ -985,9 +985,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {
@@ -1041,9 +1041,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {
@@ -1103,9 +1103,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {
@@ -1150,9 +1150,9 @@
                         "name": "client",
                         "in": "path",
                         "required": true,
-                        "description": "The client ID",
+                        "description": "The client slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {

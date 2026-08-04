@@ -18,7 +18,7 @@ test('ships the uploaded document to the media disk through the queue', function
     $client = Client::factory()->for($user)->create();
 
     $documentId = $this->actingAs($user)
-        ->post("/api/clients/{$client->id}/documents", [
+        ->post("/api/clients/{$client->slug}/documents", [
             'file' => UploadedFile::fake()->createWithContent('Contrat.pdf', '%PDF-1.4 fake contract'),
         ])
         ->assertCreated()
@@ -40,7 +40,7 @@ test('serves a document still waiting on the staging disk', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $documentId = $this->actingAs($user)
-        ->post("/api/clients/{$client->id}/documents", [
+        ->post("/api/clients/{$client->slug}/documents", [
             'file' => UploadedFile::fake()->createWithContent('Contrat.pdf', '%PDF-1.4 fake contract'),
         ])
         ->assertCreated()
@@ -52,7 +52,7 @@ test('serves a document still waiting on the staging disk', function (): void {
 
     expect($document->disk)->toBe('local');
     $this->actingAs($user)
-        ->get("/api/clients/{$client->id}/documents/{$documentId}/download")
+        ->get("/api/clients/{$client->slug}/documents/{$documentId}/download")
         ->assertOk();
 });
 
@@ -62,7 +62,7 @@ test('keeps the document in place when the media disk is the staging disk', func
     $client = Client::factory()->for($user)->create();
 
     $documentId = $this->actingAs($user)
-        ->post("/api/clients/{$client->id}/documents", [
+        ->post("/api/clients/{$client->slug}/documents", [
             'file' => UploadedFile::fake()->createWithContent('Contrat.pdf', '%PDF-1.4 fake contract'),
         ])
         ->assertCreated()

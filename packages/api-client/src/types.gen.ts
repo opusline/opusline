@@ -440,9 +440,9 @@ export type DeleteClientData = {
     body?: never;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
     };
     query?: never;
     url: '/clients/{client}';
@@ -493,9 +493,9 @@ export type ShowClientData = {
     body?: never;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
     };
     query?: never;
     url: '/clients/{client}';
@@ -534,9 +534,9 @@ export type UpdateClientData2 = {
     body: UpdateClientData;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
     };
     query?: never;
     url: '/clients/{client}';
@@ -575,9 +575,9 @@ export type ArchiveClientData = {
     body?: never;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
     };
     query?: never;
     url: '/clients/{client}/archive';
@@ -616,9 +616,9 @@ export type UnarchiveClientData = {
     body?: never;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
     };
     query?: never;
     url: '/clients/{client}/unarchive';
@@ -657,9 +657,9 @@ export type ListClientDocumentsData = {
     body?: never;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
     };
     query?: never;
     url: '/clients/{client}/documents';
@@ -698,9 +698,9 @@ export type UploadClientDocumentData = {
     body: UploadDocumentData;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
     };
     query?: never;
     url: '/clients/{client}/documents';
@@ -739,9 +739,9 @@ export type DeleteClientDocumentData = {
     body?: never;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
         document: number;
     };
     query?: never;
@@ -784,9 +784,9 @@ export type UpdateClientDocumentData = {
     body: UpdateDocumentData;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
         document: number;
     };
     query?: never;
@@ -826,9 +826,9 @@ export type DownloadClientDocumentData = {
     body?: never;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
         document: number;
     };
     query?: never;
@@ -870,9 +870,9 @@ export type DeleteClientLogoData = {
     body?: never;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
     };
     query?: never;
     url: '/clients/{client}/logo';
@@ -914,9 +914,9 @@ export type ShowClientLogoData = {
     body?: never;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
     };
     query?: never;
     url: '/clients/{client}/logo';
@@ -957,9 +957,9 @@ export type UploadClientLogoData2 = {
     body: UploadClientLogoData;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
     };
     query?: never;
     url: '/clients/{client}/logo';
@@ -1001,9 +1001,9 @@ export type DeleteMissionData = {
     body?: never;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
         /**
          * The mission ID
          */
@@ -1049,9 +1049,9 @@ export type ShowMissionData = {
     body?: never;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
         /**
          * The mission ID
          */
@@ -1094,9 +1094,9 @@ export type UpdateMissionData2 = {
     body: UpdateMissionData;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
         /**
          * The mission ID
          */
@@ -1139,9 +1139,9 @@ export type CreateMissionData2 = {
     body: CreateMissionData;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
     };
     query?: never;
     url: '/clients/{client}/missions';
@@ -1180,9 +1180,9 @@ export type ListMissionDocumentsData = {
     body?: never;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
         /**
          * The mission ID
          */
@@ -1225,9 +1225,9 @@ export type UploadMissionDocumentData = {
     body: UploadDocumentData;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
         /**
          * The mission ID
          */
@@ -1270,9 +1270,9 @@ export type DeleteMissionDocumentData = {
     body?: never;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
         /**
          * The mission ID
          */
@@ -1319,9 +1319,9 @@ export type UpdateMissionDocumentData = {
     body: UpdateDocumentData;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
         /**
          * The mission ID
          */
@@ -1365,9 +1365,9 @@ export type DownloadMissionDocumentData = {
     body?: never;
     path: {
         /**
-         * The client ID
+         * The client slug
          */
-        client: number;
+        client: string;
         /**
          * The mission ID
          */

@@ -13,7 +13,7 @@ test('uploads a png logo', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->post("/api/clients/{$client->id}/logo", ['logo' => UploadedFile::fake()->image('logo.png')])
+        ->post("/api/clients/{$client->slug}/logo", ['logo' => UploadedFile::fake()->image('logo.png')])
         ->assertNoContent();
 
     $logo = $client->getFirstMedia('logo');
@@ -29,10 +29,10 @@ test('replaces the existing logo', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->post("/api/clients/{$client->id}/logo", ['logo' => UploadedFile::fake()->image('old.png')])
+        ->post("/api/clients/{$client->slug}/logo", ['logo' => UploadedFile::fake()->image('old.png')])
         ->assertNoContent();
     $this->actingAs($user)
-        ->post("/api/clients/{$client->id}/logo", ['logo' => UploadedFile::fake()->image('new.png')])
+        ->post("/api/clients/{$client->slug}/logo", ['logo' => UploadedFile::fake()->image('new.png')])
         ->assertNoContent();
 
     expect($client->getMedia('logo'))->toHaveCount(1)
@@ -44,10 +44,10 @@ test('serves the logo inline with a restrictive csp', function (): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
     $this->actingAs($user)
-        ->post("/api/clients/{$client->id}/logo", ['logo' => UploadedFile::fake()->image('logo.png')]);
+        ->post("/api/clients/{$client->slug}/logo", ['logo' => UploadedFile::fake()->image('logo.png')]);
 
     $response = $this->actingAs($user)
-        ->get("/api/clients/{$client->id}/logo")
+        ->get("/api/clients/{$client->slug}/logo")
         ->assertOk()
         ->assertHeader('Content-Security-Policy', "default-src 'none'");
 
@@ -59,7 +59,7 @@ test('returns 404 when the client has no logo', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->getJson("/api/clients/{$client->id}/logo")
+        ->getJson("/api/clients/{$client->slug}/logo")
         ->assertNotFound();
 });
 
@@ -68,10 +68,10 @@ test('deletes the logo', function (): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
     $this->actingAs($user)
-        ->post("/api/clients/{$client->id}/logo", ['logo' => UploadedFile::fake()->image('logo.png')]);
+        ->post("/api/clients/{$client->slug}/logo", ['logo' => UploadedFile::fake()->image('logo.png')]);
 
     $this->actingAs($user)
-        ->deleteJson("/api/clients/{$client->id}/logo")
+        ->deleteJson("/api/clients/{$client->slug}/logo")
         ->assertNoContent();
 
     expect($client->getFirstMedia('logo'))->toBeNull();
@@ -82,7 +82,7 @@ test('rejects a non image logo', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->post("/api/clients/{$client->id}/logo", [
+        ->post("/api/clients/{$client->slug}/logo", [
             'logo' => UploadedFile::fake()->create('logo.pdf', 10, 'application/pdf'),
         ])
         ->assertUnprocessable()
@@ -94,7 +94,7 @@ test('rejects an oversized logo', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->post("/api/clients/{$client->id}/logo", [
+        ->post("/api/clients/{$client->slug}/logo", [
             'logo' => UploadedFile::fake()->create('logo.png', 3_000, 'image/png'),
         ])
         ->assertUnprocessable()
@@ -105,7 +105,7 @@ test('cannot upload a logo to another user client', function (): void {
     $client = Client::factory()->create();
 
     $this->actingAs(User::factory()->create())
-        ->post("/api/clients/{$client->id}/logo", ['logo' => UploadedFile::fake()->image('logo.png')])
+        ->post("/api/clients/{$client->slug}/logo", ['logo' => UploadedFile::fake()->image('logo.png')])
         ->assertNotFound();
 });
 
@@ -114,10 +114,10 @@ test('cannot view the logo of another user client', function (): void {
     $owner = User::factory()->create();
     $client = Client::factory()->for($owner)->create();
     $this->actingAs($owner)
-        ->post("/api/clients/{$client->id}/logo", ['logo' => UploadedFile::fake()->image('logo.png')]);
+        ->post("/api/clients/{$client->slug}/logo", ['logo' => UploadedFile::fake()->image('logo.png')]);
 
     $this->actingAs(User::factory()->create())
-        ->getJson("/api/clients/{$client->id}/logo")
+        ->getJson("/api/clients/{$client->slug}/logo")
         ->assertNotFound();
 });
 
@@ -126,10 +126,10 @@ test('cannot delete the logo of another user client', function (): void {
     $owner = User::factory()->create();
     $client = Client::factory()->for($owner)->create();
     $this->actingAs($owner)
-        ->post("/api/clients/{$client->id}/logo", ['logo' => UploadedFile::fake()->image('logo.png')]);
+        ->post("/api/clients/{$client->slug}/logo", ['logo' => UploadedFile::fake()->image('logo.png')]);
 
     $this->actingAs(User::factory()->create())
-        ->deleteJson("/api/clients/{$client->id}/logo")
+        ->deleteJson("/api/clients/{$client->slug}/logo")
         ->assertNotFound();
 
     expect($client->getFirstMedia('logo'))->not->toBeNull();
@@ -138,6 +138,6 @@ test('cannot delete the logo of another user client', function (): void {
 test('returns 401 for guests', function (): void {
     $client = Client::factory()->create();
 
-    $this->post("/api/clients/{$client->id}/logo", ['logo' => UploadedFile::fake()->image('logo.png')])
+    $this->post("/api/clients/{$client->slug}/logo", ['logo' => UploadedFile::fake()->image('logo.png')])
         ->assertUnauthorized();
 });

@@ -111,6 +111,12 @@ class Client extends Model implements HasMedia
         return $this->hasMany(Mission::class)->orderBy('name');
     }
 
+    #[\Override]
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     /**
      * Scope every {client} route binding to the authenticated user, so a
      * foreign client resolves to a 404 instead of leaking across accounts.

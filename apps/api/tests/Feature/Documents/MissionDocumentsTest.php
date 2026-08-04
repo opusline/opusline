@@ -17,7 +17,7 @@ test('uploads a document to a mission', function (): void {
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
-        ->post("/api/clients/{$client->id}/missions/{$mission->id}/documents", [
+        ->post("/api/clients/{$client->slug}/missions/{$mission->id}/documents", [
             'file' => UploadedFile::fake()->create('CRA-juillet.pdf', 88, 'application/pdf'),
             'category' => DocumentCategory::SignedCra->value,
         ])
@@ -36,16 +36,16 @@ test('lists mission and client documents together with their source', function (
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
 
     $this->travelTo(now()->subDay());
-    $this->actingAs($user)->post("/api/clients/{$client->id}/documents", [
+    $this->actingAs($user)->post("/api/clients/{$client->slug}/documents", [
         'file' => UploadedFile::fake()->create('Contrat-cadre.pdf', 412, 'application/pdf'),
     ]);
     $this->travelBack();
-    $this->actingAs($user)->post("/api/clients/{$client->id}/missions/{$mission->id}/documents", [
+    $this->actingAs($user)->post("/api/clients/{$client->slug}/missions/{$mission->id}/documents", [
         'file' => UploadedFile::fake()->create('CRA-juillet.pdf', 88, 'application/pdf'),
     ]);
 
     $this->actingAs($user)
-        ->getJson("/api/clients/{$client->id}/missions/{$mission->id}/documents")
+        ->getJson("/api/clients/{$client->slug}/missions/{$mission->id}/documents")
         ->assertOk()
         ->assertJsonCount(2, 'documents')
         ->assertJsonPath('documents.0.fileName', 'CRA-juillet.pdf')
@@ -59,12 +59,12 @@ test('updates the category of a mission document', function (): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
-    $documentId = $this->actingAs($user)->post("/api/clients/{$client->id}/missions/{$mission->id}/documents", [
+    $documentId = $this->actingAs($user)->post("/api/clients/{$client->slug}/missions/{$mission->id}/documents", [
         'file' => UploadedFile::fake()->create('Devis.pdf', 50, 'application/pdf'),
     ])->json('id');
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$client->id}/missions/{$mission->id}/documents/{$documentId}", [
+        ->putJson("/api/clients/{$client->slug}/missions/{$mission->id}/documents/{$documentId}", [
             'category' => DocumentCategory::Quote->value,
         ])
         ->assertOk()
@@ -76,12 +76,12 @@ test('downloads a mission document as an attachment', function (): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
-    $documentId = $this->actingAs($user)->post("/api/clients/{$client->id}/missions/{$mission->id}/documents", [
+    $documentId = $this->actingAs($user)->post("/api/clients/{$client->slug}/missions/{$mission->id}/documents", [
         'file' => UploadedFile::fake()->create('CRA-juillet.pdf', 88, 'application/pdf'),
     ])->json('id');
 
     $response = $this->actingAs($user)
-        ->get("/api/clients/{$client->id}/missions/{$mission->id}/documents/{$documentId}/download")
+        ->get("/api/clients/{$client->slug}/missions/{$mission->id}/documents/{$documentId}/download")
         ->assertOk();
 
     expect($response->headers->get('Content-Disposition'))
@@ -95,12 +95,12 @@ test('deletes a mission document', function (): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
-    $documentId = $this->actingAs($user)->post("/api/clients/{$client->id}/missions/{$mission->id}/documents", [
+    $documentId = $this->actingAs($user)->post("/api/clients/{$client->slug}/missions/{$mission->id}/documents", [
         'file' => UploadedFile::fake()->create('CRA-juillet.pdf', 88, 'application/pdf'),
     ])->json('id');
 
     $this->actingAs($user)
-        ->deleteJson("/api/clients/{$client->id}/missions/{$mission->id}/documents/{$documentId}")
+        ->deleteJson("/api/clients/{$client->slug}/missions/{$mission->id}/documents/{$documentId}")
         ->assertNoContent();
 
     $this->assertDatabaseMissing('media', ['id' => $documentId]);
@@ -111,12 +111,12 @@ test('deleting the mission removes its documents', function (): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
-    $documentId = $this->actingAs($user)->post("/api/clients/{$client->id}/missions/{$mission->id}/documents", [
+    $documentId = $this->actingAs($user)->post("/api/clients/{$client->slug}/missions/{$mission->id}/documents", [
         'file' => UploadedFile::fake()->create('CRA-juillet.pdf', 88, 'application/pdf'),
     ])->json('id');
 
     $this->actingAs($user)
-        ->deleteJson("/api/clients/{$client->id}/missions/{$mission->id}")
+        ->deleteJson("/api/clients/{$client->slug}/missions/{$mission->id}")
         ->assertNoContent();
 
     $this->assertDatabaseMissing('media', ['id' => $documentId]);
@@ -127,11 +127,11 @@ test('cannot touch a client owned document through the mission routes', function
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
-    $clientDocumentId = $this->actingAs($user)->post("/api/clients/{$client->id}/documents", [
+    $clientDocumentId = $this->actingAs($user)->post("/api/clients/{$client->slug}/documents", [
         'file' => UploadedFile::fake()->create('Contrat-cadre.pdf', 412, 'application/pdf'),
     ])->json('id');
 
-    $missionDocumentBase = "/api/clients/{$client->id}/missions/{$mission->id}/documents/{$clientDocumentId}";
+    $missionDocumentBase = "/api/clients/{$client->slug}/missions/{$mission->id}/documents/{$clientDocumentId}";
 
     $this->actingAs($user)
         ->putJson($missionDocumentBase, ['category' => DocumentCategory::Contract->value])
@@ -154,7 +154,7 @@ test('cannot reach mission documents through a sibling client of the same user',
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
-        ->getJson("/api/clients/{$siblingClient->id}/missions/{$mission->id}/documents")
+        ->getJson("/api/clients/{$siblingClient->slug}/missions/{$mission->id}/documents")
         ->assertNotFound();
 });
 
@@ -164,10 +164,10 @@ test('cannot list or upload documents of another user mission', function (): voi
     $intruder = User::factory()->create();
 
     $this->actingAs($intruder)
-        ->getJson("/api/clients/{$mission->client_id}/missions/{$mission->id}/documents")
+        ->getJson("/api/clients/{$mission->client->slug}/missions/{$mission->id}/documents")
         ->assertNotFound();
     $this->actingAs($intruder)
-        ->post("/api/clients/{$mission->client_id}/missions/{$mission->id}/documents", [
+        ->post("/api/clients/{$mission->client->slug}/missions/{$mission->id}/documents", [
             'file' => UploadedFile::fake()->create('Contrat.pdf', 100, 'application/pdf'),
         ])
         ->assertNotFound();
@@ -178,12 +178,12 @@ test('cannot update, download or delete a document of another user mission', fun
     $owner = User::factory()->create();
     $client = Client::factory()->for($owner)->create();
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $owner->id]);
-    $documentId = $this->actingAs($owner)->post("/api/clients/{$client->id}/missions/{$mission->id}/documents", [
+    $documentId = $this->actingAs($owner)->post("/api/clients/{$client->slug}/missions/{$mission->id}/documents", [
         'file' => UploadedFile::fake()->create('CRA-juillet.pdf', 88, 'application/pdf'),
     ])->json('id');
 
     $intruder = User::factory()->create();
-    $base = "/api/clients/{$client->id}/missions/{$mission->id}/documents/{$documentId}";
+    $base = "/api/clients/{$client->slug}/missions/{$mission->id}/documents/{$documentId}";
 
     $this->actingAs($intruder)
         ->putJson($base, ['category' => DocumentCategory::Contract->value])
@@ -203,7 +203,7 @@ test('cannot reach another user document through an own mission', function (): v
     $owner = User::factory()->create();
     $ownerClient = Client::factory()->for($owner)->create();
     $ownerMission = Mission::factory()->for($ownerClient, 'client')->create(['user_id' => $owner->id]);
-    $foreignDocumentId = $this->actingAs($owner)->post("/api/clients/{$ownerClient->id}/missions/{$ownerMission->id}/documents", [
+    $foreignDocumentId = $this->actingAs($owner)->post("/api/clients/{$ownerClient->slug}/missions/{$ownerMission->id}/documents", [
         'file' => UploadedFile::fake()->create('CRA-juillet.pdf', 88, 'application/pdf'),
     ])->json('id');
 
@@ -212,10 +212,10 @@ test('cannot reach another user document through an own mission', function (): v
     $intruderMission = Mission::factory()->for($intruderClient, 'client')->create(['user_id' => $intruder->id]);
 
     $this->actingAs($intruder)
-        ->getJson("/api/clients/{$intruderClient->id}/missions/{$intruderMission->id}/documents/{$foreignDocumentId}/download")
+        ->getJson("/api/clients/{$intruderClient->slug}/missions/{$intruderMission->id}/documents/{$foreignDocumentId}/download")
         ->assertNotFound();
     $this->actingAs($intruder)
-        ->deleteJson("/api/clients/{$intruderClient->id}/missions/{$intruderMission->id}/documents/{$foreignDocumentId}")
+        ->deleteJson("/api/clients/{$intruderClient->slug}/missions/{$intruderMission->id}/documents/{$foreignDocumentId}")
         ->assertNotFound();
 
     $this->assertDatabaseHas('media', ['id' => $foreignDocumentId]);
@@ -224,6 +224,6 @@ test('cannot reach another user document through an own mission', function (): v
 test('returns 401 for guests', function (): void {
     $mission = Mission::factory()->create();
 
-    $this->getJson("/api/clients/{$mission->client_id}/missions/{$mission->id}/documents")
+    $this->getJson("/api/clients/{$mission->client->slug}/missions/{$mission->id}/documents")
         ->assertUnauthorized();
 });

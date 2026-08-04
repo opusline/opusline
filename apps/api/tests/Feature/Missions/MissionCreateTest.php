@@ -14,7 +14,7 @@ test('creates a daily mission', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->postJson("/api/clients/{$client->id}/missions", [
+        ->postJson("/api/clients/{$client->slug}/missions", [
             'name' => 'Callisto front',
             'billingMode' => BillingMode::Daily->value,
             'rate' => ['amount' => 55_000, 'currency' => 'EUR'],
@@ -43,7 +43,7 @@ test('creates an hourly mission', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->postJson("/api/clients/{$client->id}/missions", [
+        ->postJson("/api/clients/{$client->slug}/missions", [
             'name' => 'Maintenance',
             'billingMode' => BillingMode::Hourly->value,
             'rate' => ['amount' => 8_500, 'currency' => 'EUR'],
@@ -58,7 +58,7 @@ test('creates a fixed price mission without rounding', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->postJson("/api/clients/{$client->id}/missions", [
+        ->postJson("/api/clients/{$client->slug}/missions", [
             'name' => 'Lunaprint site',
             'billingMode' => BillingMode::Fixed->value,
             'rate' => ['amount' => 480_000, 'currency' => 'EUR'],
@@ -76,7 +76,7 @@ test('rejects a rounding for a fixed price mission', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->postJson("/api/clients/{$client->id}/missions", [
+        ->postJson("/api/clients/{$client->slug}/missions", [
             'name' => 'Lunaprint site',
             'billingMode' => BillingMode::Fixed->value,
             'rounding' => EntryRounding::Half->value,
@@ -90,7 +90,7 @@ test('defaults the rounding to half a unit for time based missions', function ()
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->postJson("/api/clients/{$client->id}/missions", [
+        ->postJson("/api/clients/{$client->slug}/missions", [
             'name' => 'Callisto front',
             'billingMode' => BillingMode::Daily->value,
         ])
@@ -103,7 +103,7 @@ test('accepts an explicit rounding', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->postJson("/api/clients/{$client->id}/missions", [
+        ->postJson("/api/clients/{$client->slug}/missions", [
             'name' => 'Callisto front',
             'billingMode' => BillingMode::Daily->value,
             'rounding' => EntryRounding::Quarter->value,
@@ -117,7 +117,7 @@ test('creates a non billable mission when no rate is given', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->postJson("/api/clients/{$client->id}/missions", [
+        ->postJson("/api/clients/{$client->slug}/missions", [
             'name' => 'Opusline',
             'billingMode' => BillingMode::Hourly->value,
         ])
@@ -132,7 +132,7 @@ test('creates a mission with an end client name for an intermediary client', fun
     $esn = Client::factory()->for($user)->intermediary()->create();
 
     $this->actingAs($user)
-        ->postJson("/api/clients/{$esn->id}/missions", [
+        ->postJson("/api/clients/{$esn->slug}/missions", [
             'name' => 'Callisto front',
             'billingMode' => BillingMode::Daily->value,
             'rate' => ['amount' => 55_000, 'currency' => 'EUR'],
@@ -150,7 +150,7 @@ test('requires an end client name for an intermediary client', function (): void
     $esn = Client::factory()->for($user)->intermediary()->create();
 
     $this->actingAs($user)
-        ->postJson("/api/clients/{$esn->id}/missions", [
+        ->postJson("/api/clients/{$esn->slug}/missions", [
             'name' => 'Callisto front',
             'billingMode' => BillingMode::Daily->value,
         ])
@@ -163,7 +163,7 @@ test('rejects an end client name for a direct client', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->postJson("/api/clients/{$client->id}/missions", [
+        ->postJson("/api/clients/{$client->slug}/missions", [
             'name' => 'Callisto front',
             'billingMode' => BillingMode::Daily->value,
             'endClientName' => 'Callisto',
@@ -177,7 +177,7 @@ test('rejects an end client name for an internal client', function (): void {
     $client = Client::factory()->for($user)->internal()->create();
 
     $this->actingAs($user)
-        ->postJson("/api/clients/{$client->id}/missions", [
+        ->postJson("/api/clients/{$client->slug}/missions", [
             'name' => 'Opusline',
             'billingMode' => BillingMode::Hourly->value,
             'endClientName' => 'Callisto',
@@ -191,7 +191,7 @@ test('rejects a rate for an internal client', function (): void {
     $client = Client::factory()->for($user)->internal()->create();
 
     $this->actingAs($user)
-        ->postJson("/api/clients/{$client->id}/missions", [
+        ->postJson("/api/clients/{$client->slug}/missions", [
             'name' => 'Opusline',
             'billingMode' => BillingMode::Hourly->value,
             'rate' => ['amount' => 8_500, 'currency' => 'EUR'],
@@ -205,7 +205,7 @@ test('creates a non billable mission for an internal client', function (): void 
     $client = Client::factory()->for($user)->internal()->create();
 
     $this->actingAs($user)
-        ->postJson("/api/clients/{$client->id}/missions", [
+        ->postJson("/api/clients/{$client->slug}/missions", [
             'name' => 'Opusline',
             'billingMode' => BillingMode::Hourly->value,
         ])
@@ -219,7 +219,7 @@ test('defaults cra to required for intermediary clients', function (): void {
     $esn = Client::factory()->for($user)->intermediary()->create();
 
     $this->actingAs($user)
-        ->postJson("/api/clients/{$esn->id}/missions", [
+        ->postJson("/api/clients/{$esn->slug}/missions", [
             'name' => 'Callisto front',
             'billingMode' => BillingMode::Daily->value,
             'endClientName' => 'Callisto',
@@ -233,7 +233,7 @@ test('defaults cra to not required for direct clients', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->postJson("/api/clients/{$client->id}/missions", [
+        ->postJson("/api/clients/{$client->slug}/missions", [
             'name' => 'Maintenance',
             'billingMode' => BillingMode::Hourly->value,
         ])
@@ -246,7 +246,7 @@ test('accepts an explicit cra flag', function (): void {
     $esn = Client::factory()->for($user)->intermediary()->create();
 
     $this->actingAs($user)
-        ->postJson("/api/clients/{$esn->id}/missions", [
+        ->postJson("/api/clients/{$esn->slug}/missions", [
             'name' => 'Callisto front',
             'billingMode' => BillingMode::Daily->value,
             'endClientName' => 'Callisto',
@@ -261,7 +261,7 @@ test('stores a color and notes', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->postJson("/api/clients/{$client->id}/missions", [
+        ->postJson("/api/clients/{$client->slug}/missions", [
             'name' => 'Callisto front',
             'billingMode' => BillingMode::Daily->value,
             'color' => Color::Slate->value,
@@ -277,7 +277,7 @@ test('rejects an invalid payload', function (array $payload, string $expectedErr
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->postJson("/api/clients/{$client->id}/missions", $payload)
+        ->postJson("/api/clients/{$client->slug}/missions", $payload)
         ->assertUnprocessable()
         ->assertJsonValidationErrors([$expectedError]);
 })->with([
@@ -295,7 +295,7 @@ test('rejects a client belonging to another user', function (): void {
     $foreignClient = Client::factory()->create();
 
     $this->actingAs(User::factory()->create())
-        ->postJson("/api/clients/{$foreignClient->id}/missions", [
+        ->postJson("/api/clients/{$foreignClient->slug}/missions", [
             'name' => 'Hijack',
             'billingMode' => BillingMode::Daily->value,
         ])
@@ -305,5 +305,5 @@ test('rejects a client belonging to another user', function (): void {
 test('returns 401 for guests', function (): void {
     $client = Client::factory()->create();
 
-    $this->postJson("/api/clients/{$client->id}/missions", [])->assertUnauthorized();
+    $this->postJson("/api/clients/{$client->slug}/missions", [])->assertUnauthorized();
 });

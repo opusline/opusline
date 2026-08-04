@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@opusline/ui/components/table";
 import { cn } from "@opusline/ui/lib/utils";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 
@@ -47,6 +48,7 @@ type ClientsTableProps = {
 };
 
 export function ClientsTable({ clients }: ClientsTableProps) {
+  const navigate = useNavigate();
   const [scope, setScope] = useState<ClientScope>("active");
 
   if (clients.length === 0) {
@@ -123,9 +125,15 @@ export function ClientsTable({ clients }: ClientsTableProps) {
               >
                 <TableRow
                   className={cn(
-                    "border-secondary hover:bg-accent",
+                    "cursor-pointer border-secondary hover:bg-accent",
                     isArchived && "opacity-60",
                   )}
+                  onClick={() =>
+                    void navigate({
+                      to: "/clients/$clientSlug",
+                      params: { clientSlug: client.slug },
+                    })
+                  }
                 >
                   <TableCell className="py-4 pl-5">
                     <div className="flex min-w-0 flex-col gap-0.75">
@@ -137,9 +145,14 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                             COLOR_CLASSES[client.color],
                           )}
                         />
-                        <span className="truncate font-medium text-foreground-hi text-sm">
+                        <Link
+                          className="truncate font-medium text-foreground-hi text-sm"
+                          onClick={(event) => event.stopPropagation()}
+                          params={{ clientSlug: client.slug }}
+                          to="/clients/$clientSlug"
+                        >
                           {client.name}
-                        </span>
+                        </Link>
                         {!isArchived && isNewClient(client, now) && (
                           <Badge variant="brand">Nouveau</Badge>
                         )}
@@ -214,28 +227,39 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                     </TableCell>
                   </TableRow>
                 ))}
-                <TableRow className="group/add bg-muted hover:bg-card-2">
-                  <TableCell colSpan={6} className="p-0">
-                    <button
-                      type="button"
-                      className={cn(
-                        "flex w-full items-center gap-2 pl-8.5 font-normal text-muted-foreground text-sm transition-all group-hover/add:text-primary-note focus-visible:text-primary-note",
-                        client.missions.length > 0
-                          ? "py-2 opacity-0 pointer-coarse:opacity-100 focus-visible:opacity-100 group-hover/client:opacity-100"
-                          : "py-3.25",
-                      )}
+                {isArchived ? (
+                  <TableRow className="bg-muted hover:bg-muted">
+                    <TableCell
+                      colSpan={6}
+                      className="border-accent border-t py-2.5 pr-5 pl-8.5 text-muted-foreground-3 text-sm"
                     >
-                      <PlusIcon
-                        aria-hidden
-                        className="size-3.25"
-                        strokeWidth={2.2}
-                      />
-                      {client.missions.length === 0
-                        ? "Aucune mission — en créer une"
-                        : "Ajouter une mission"}
-                    </button>
-                  </TableCell>
-                </TableRow>
+                      Client archivé — réactivez-le pour ajouter une mission.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  <TableRow className="group/add bg-muted hover:bg-card-2">
+                    <TableCell colSpan={6} className="p-0">
+                      <button
+                        type="button"
+                        className={cn(
+                          "flex w-full items-center gap-2 pl-8.5 font-normal text-muted-foreground text-sm transition-all group-hover/add:text-primary-note focus-visible:text-primary-note",
+                          client.missions.length > 0
+                            ? "py-2 opacity-0 pointer-coarse:opacity-100 focus-visible:opacity-100 group-hover/client:opacity-100"
+                            : "py-3.25",
+                        )}
+                      >
+                        <PlusIcon
+                          aria-hidden
+                          className="size-3.25"
+                          strokeWidth={2.2}
+                        />
+                        {client.missions.length === 0
+                          ? "Aucune mission — en créer une"
+                          : "Ajouter une mission"}
+                      </button>
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             );
           })}

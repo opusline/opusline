@@ -65,6 +65,27 @@ export function randomColor(): Color {
   return COLORS[Math.floor(Math.random() * COLORS.length)] ?? 0;
 }
 
+export function clientInitials(name: string): string {
+  const initials = name
+    .trim()
+    .split(/\s+/)
+    .map((word) => word[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
+  return initials === "" ? "?" : initials;
+}
+
+const monthYear = new Intl.DateTimeFormat("fr-FR", {
+  month: "long",
+  year: "numeric",
+});
+
+export function clientSinceLabel(createdAt: string): string {
+  return monthYear.format(new Date(createdAt));
+}
+
 export const MISSION_STATUS_LABELS: Record<MissionStatus, string> = {
   0: "Active",
   1: "En pause",

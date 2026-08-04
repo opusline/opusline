@@ -319,7 +319,7 @@ export const zCreateClientBody = zCreateClientData;
 export const zCreateClientResponse = zClientData;
 
 export const zDeleteClientPath = z.object({
-    client: z.int()
+    client: z.string()
 });
 
 /**
@@ -328,7 +328,7 @@ export const zDeleteClientPath = z.object({
 export const zDeleteClientResponse = z.void();
 
 export const zShowClientPath = z.object({
-    client: z.int()
+    client: z.string()
 });
 
 export const zShowClientResponse = zClientWithMissionsData;
@@ -336,25 +336,25 @@ export const zShowClientResponse = zClientWithMissionsData;
 export const zUpdateClientBody = zUpdateClientData;
 
 export const zUpdateClientPath = z.object({
-    client: z.int()
+    client: z.string()
 });
 
 export const zUpdateClientResponse = zClientData;
 
 export const zArchiveClientPath = z.object({
-    client: z.int()
+    client: z.string()
 });
 
 export const zArchiveClientResponse = zClientData;
 
 export const zUnarchiveClientPath = z.object({
-    client: z.int()
+    client: z.string()
 });
 
 export const zUnarchiveClientResponse = zClientData;
 
 export const zListClientDocumentsPath = z.object({
-    client: z.int()
+    client: z.string()
 });
 
 export const zListClientDocumentsResponse = zDocumentListData;
@@ -362,13 +362,13 @@ export const zListClientDocumentsResponse = zDocumentListData;
 export const zUploadClientDocumentBody = zUploadDocumentData;
 
 export const zUploadClientDocumentPath = z.object({
-    client: z.int()
+    client: z.string()
 });
 
 export const zUploadClientDocumentResponse = zDocumentData;
 
 export const zDeleteClientDocumentPath = z.object({
-    client: z.int(),
+    client: z.string(),
     document: z.int()
 });
 
@@ -380,21 +380,21 @@ export const zDeleteClientDocumentResponse = z.void();
 export const zUpdateClientDocumentBody = zUpdateDocumentData;
 
 export const zUpdateClientDocumentPath = z.object({
-    client: z.int(),
+    client: z.string(),
     document: z.int()
 });
 
 export const zUpdateClientDocumentResponse = zDocumentData;
 
 export const zDownloadClientDocumentPath = z.object({
-    client: z.int(),
+    client: z.string(),
     document: z.int()
 });
 
 export const zDownloadClientDocumentResponse = z.record(z.string(), z.unknown());
 
 export const zDeleteClientLogoPath = z.object({
-    client: z.int()
+    client: z.string()
 });
 
 /**
@@ -403,7 +403,7 @@ export const zDeleteClientLogoPath = z.object({
 export const zDeleteClientLogoResponse = z.void();
 
 export const zShowClientLogoPath = z.object({
-    client: z.int()
+    client: z.string()
 });
 
 export const zShowClientLogoResponse = z.record(z.string(), z.unknown());
@@ -411,7 +411,7 @@ export const zShowClientLogoResponse = z.record(z.string(), z.unknown());
 export const zUploadClientLogoBody = zUploadClientLogoData;
 
 export const zUploadClientLogoPath = z.object({
-    client: z.int()
+    client: z.string()
 });
 
 /**
@@ -420,7 +420,7 @@ export const zUploadClientLogoPath = z.object({
 export const zUploadClientLogoResponse = z.void();
 
 export const zDeleteMissionPath = z.object({
-    client: z.int(),
+    client: z.string(),
     mission: z.int()
 });
 
@@ -430,7 +430,7 @@ export const zDeleteMissionPath = z.object({
 export const zDeleteMissionResponse = z.void();
 
 export const zShowMissionPath = z.object({
-    client: z.int(),
+    client: z.string(),
     mission: z.int()
 });
 
@@ -439,7 +439,7 @@ export const zShowMissionResponse = zMissionData;
 export const zUpdateMissionBody = zUpdateMissionData;
 
 export const zUpdateMissionPath = z.object({
-    client: z.int(),
+    client: z.string(),
     mission: z.int()
 });
 
@@ -448,13 +448,13 @@ export const zUpdateMissionResponse = zMissionData;
 export const zCreateMissionBody = zCreateMissionData;
 
 export const zCreateMissionPath = z.object({
-    client: z.int()
+    client: z.string()
 });
 
 export const zCreateMissionResponse = zMissionData;
 
 export const zListMissionDocumentsPath = z.object({
-    client: z.int(),
+    client: z.string(),
     mission: z.int()
 });
 
@@ -463,14 +463,14 @@ export const zListMissionDocumentsResponse = zDocumentListData;
 export const zUploadMissionDocumentBody = zUploadDocumentData;
 
 export const zUploadMissionDocumentPath = z.object({
-    client: z.int(),
+    client: z.string(),
     mission: z.int()
 });
 
 export const zUploadMissionDocumentResponse = zDocumentData;
 
 export const zDeleteMissionDocumentPath = z.object({
-    client: z.int(),
+    client: z.string(),
     mission: z.int(),
     document: z.int()
 });
@@ -483,7 +483,7 @@ export const zDeleteMissionDocumentResponse = z.void();
 export const zUpdateMissionDocumentBody = zUpdateDocumentData;
 
 export const zUpdateMissionDocumentPath = z.object({
-    client: z.int(),
+    client: z.string(),
     mission: z.int(),
     document: z.int()
 });
@@ -491,7 +491,7 @@ export const zUpdateMissionDocumentPath = z.object({
 export const zUpdateMissionDocumentResponse = zDocumentData;
 
 export const zDownloadMissionDocumentPath = z.object({
-    client: z.int(),
+    client: z.string(),
     mission: z.int(),
     document: z.int()
 });

@@ -29,6 +29,8 @@ const tabsListVariants = cva(
       variant: {
         default: "bg-muted",
         line: "gap-1 bg-transparent",
+        underline:
+          "w-full justify-start gap-0.5 rounded-none border-b bg-transparent p-0 group-data-horizontal/tabs:h-auto",
       },
     },
     defaultVariants: {
@@ -61,6 +63,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent dark:group-data-[variant=line]/tabs-list:data-active:border-transparent dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent",
         "data-active:bg-background data-active:text-foreground dark:data-active:border-input dark:data-active:bg-input/30 dark:data-active:text-foreground",
         "after:absolute after:bg-foreground after:opacity-0 after:transition-opacity group-data-horizontal/tabs:after:inset-x-0 group-data-horizontal/tabs:after:bottom-[-5px] group-data-horizontal/tabs:after:h-0.5 group-data-vertical/tabs:after:inset-y-0 group-data-vertical/tabs:after:-right-1 group-data-vertical/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
+        "group-data-[variant=underline]/tabs-list:h-9 group-data-[variant=underline]/tabs-list:flex-none group-data-[variant=underline]/tabs-list:rounded-none group-data-[variant=underline]/tabs-list:border-0 group-data-[variant=underline]/tabs-list:bg-transparent group-data-[variant=underline]/tabs-list:px-3.5 group-data-[variant=underline]/tabs-list:font-normal group-data-[variant=underline]/tabs-list:text-muted-foreground-3 group-data-[variant=underline]/tabs-list:text-sm group-data-[variant=underline]/tabs-list:hover:text-foreground-hi group-data-[variant=underline]/tabs-list:data-active:bg-transparent group-data-[variant=underline]/tabs-list:data-active:text-foreground-hi dark:group-data-[variant=underline]/tabs-list:data-active:border-transparent dark:group-data-[variant=underline]/tabs-list:data-active:bg-transparent dark:group-data-[variant=underline]/tabs-list:data-active:text-foreground-hi group-data-[variant=underline]/tabs-list:after:-bottom-px group-data-[variant=underline]/tabs-list:after:bg-primary group-data-[variant=underline]/tabs-list:data-active:after:opacity-100",
         className,
       )}
       {...props}

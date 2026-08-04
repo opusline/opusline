@@ -1,0 +1,203 @@
+import type { ClientWithMissionsData } from "@opusline/api-client";
+import { currentUserQueryKey } from "@opusline/api-client/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { RouterProvider } from "@tanstack/react-router";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, expect, it, vi } from "vitest";
+
+import { getRouter } from "@/router";
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function daysAgo(days: number): string {
+  return new Date(Date.now() - days * DAY_MS).toISOString();
+}
+
+function clientPayload(
+  overrides: Partial<ClientWithMissionsData> = {},
+): ClientWithMissionsData {
+  return {
+    id: 1,
+    slug: "nordlys",
+    name: "Nordlys",
+    type: 1,
+    notes: null,
+    siret: "123 456 789 00012",
+    vatNumber: null,
+    billingAddress: null,
+    billingContactName: null,
+    billingEmail: null,
+    color: 0,
+    paymentTermsDays: 45,
+    archivedAt: null,
+    createdAt: daysAgo(400),
+    missions: [
+      {
+        id: 1,
+        slug: "callisto-front",
+        clientId: 1,
+        name: "Callisto front",
+        endClientName: "Callisto",
+        billingMode: 0,
+        rate: { amount: 55_000, currency: "EUR" },
+        rounding: 0,
+        status: 0,
+        craRequired: true,
+        color: null,
+        notes: null,
+        startDate: null,
+        endDate: null,
+      },
+    ],
+    ...overrides,
+  };
+}
+
+function jsonResponse(status: number, body: unknown): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+type RecordedRequest = { method: string; path: string; body: unknown };
+
+function stubApi(
+  client: ClientWithMissionsData,
+  overrides?: (request: Request) => Response | null,
+): RecordedRequest[] {
+  const requests: RecordedRequest[] = [];
+
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request =
+        input instanceof Request ? input : new Request(input, init);
+      const url = new URL(request.url, "http://localhost");
+      const body =
+        request.method === "GET"
+          ? null
+          : await request
+              .clone()
+              .json()
+              .catch(() => null);
+      requests.push({ method: request.method, path: url.pathname, body });
+
+      const overridden = overrides?.(request);
+      if (overridden) {
+        return overridden;
+      }
+
+      return jsonResponse(200, client);
+    }),
+  );
+
+  return requests;
+}
+
+async function renderDetailPage() {
+  window.history.replaceState(null, "", "/clients/nordlys");
+  const router = getRouter();
+  router.options.context.queryClient.setQueryData(currentUserQueryKey(), {
+    id: 1,
+    name: "Theo",
+    email: "theo@example.com",
+  });
+
+  render(
+    <QueryClientProvider client={router.options.context.queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>,
+  );
+
+  await screen.findByRole("heading", { name: "Nordlys" }, { timeout: 5000 });
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
+it("shows the client header, stats and missions", async () => {
+  stubApi(clientPayload());
+  await renderDetailPage();
+
+  expect(screen.getByText("ESN / intermédiaire")).toBeInTheDocument();
+  expect(
+    screen.getByText(/Client depuis .+ · paiement à 45 jours/),
+  ).toBeInTheDocument();
+  expect(screen.getByText("Callisto front")).toBeInTheDocument();
+  expect(screen.getByText("550 €/j")).toBeInTheDocument();
+  expect(screen.getByRole("tab", { name: "Missions" })).toBeInTheDocument();
+});
+
+it("shows the coordinates in the dedicated tab", async () => {
+  stubApi(clientPayload({ vatNumber: "FR12 123456789" }));
+  await renderDetailPage();
+
+  fireEvent.click(screen.getByRole("tab", { name: "Coordonnées" }));
+
+  expect(await screen.findByText("123 456 789 00012")).toBeInTheDocument();
+  expect(screen.getByText("FR12 123456789")).toBeInTheDocument();
+});
+
+it("invites to fill in missing coordinates", async () => {
+  stubApi(clientPayload({ siret: null }));
+  await renderDetailPage();
+
+  fireEvent.click(screen.getByRole("tab", { name: "Coordonnées" }));
+
+  expect(
+    await screen.findByText("Coordonnées à compléter"),
+  ).toBeInTheDocument();
+});
+
+it("saves an edit and returns to reading mode", async () => {
+  const requests = stubApi(clientPayload());
+  await renderDetailPage();
+
+  fireEvent.click(screen.getByRole("button", { name: "Modifier" }));
+  fireEvent.change(await screen.findByLabelText("Raison sociale"), {
+    target: { value: "Nordlys Conseil" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+
+  expect(
+    await screen.findByRole("tab", { name: "Missions" }),
+  ).toBeInTheDocument();
+
+  const update = requests.find((request) => request.method === "PUT");
+  expect(update?.path.endsWith("/clients/nordlys")).toBe(true);
+  expect(update?.body).toMatchObject({ name: "Nordlys Conseil", type: 1 });
+});
+
+it("archives the client from the actions menu", async () => {
+  const requests = stubApi(clientPayload());
+  await renderDetailPage();
+
+  fireEvent.click(screen.getByRole("button", { name: "Plus d'actions" }));
+  fireEvent.click(
+    await screen.findByRole("menuitem", { name: "Archiver ce client" }),
+  );
+
+  await waitFor(() => {
+    const archive = requests.find(
+      (request) =>
+        request.method === "POST" &&
+        request.path.endsWith("/clients/nordlys/archive"),
+    );
+    expect(archive).toBeDefined();
+  });
+});
+
+it("offers to reactivate an archived client", async () => {
+  stubApi(clientPayload({ archivedAt: daysAgo(10) }));
+  await renderDetailPage();
+
+  expect(screen.getByText("Archivé")).toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: "Plus d'actions" }));
+
+  expect(
+    await screen.findByRole("menuitem", { name: "Réactiver ce client" }),
+  ).toBeInTheDocument();
+});

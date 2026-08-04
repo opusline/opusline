@@ -1,7 +1,7 @@
 import type { ClientType, Color, CreateClientData } from "@opusline/api-client";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
-import { Chip, ChipGroup, ChipOption } from "@opusline/ui/components/chip";
+import { ChipGroup, ChipOption } from "@opusline/ui/components/chip";
 import { Field, FieldError, FieldLabel } from "@opusline/ui/components/field";
 import { Input } from "@opusline/ui/components/input";
 import { Separator } from "@opusline/ui/components/separator";
@@ -20,14 +20,14 @@ import {
   COLOR_CLASSES,
   COLOR_LABELS,
   COLORS,
+  clientInitials,
   paymentTermsLabel,
   randomColor,
 } from "../lib/labels";
+import { PaymentTermsPicker } from "./payment-terms-picker";
 
 const EYEBROW_CLASSES =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
-
-const PAYMENT_TERM_PRESETS = [30, 45, 60];
 
 type ClientFormValues = {
   name: string;
@@ -61,18 +61,6 @@ function toCreateClientBody(values: ClientFormValues): CreateClientData {
   };
 }
 
-function clientInitials(name: string): string {
-  const initials = name
-    .trim()
-    .split(/\s+/)
-    .map((word) => word[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-
-  return initials === "" ? "?" : initials;
-}
-
 type NewClientPageProps = {
   onSubmit: (
     body: CreateClientData,
@@ -88,8 +76,6 @@ export function NewClientPage({
   isPending,
   error,
 }: NewClientPageProps) {
-  const [isCustomTerm, setIsCustomTerm] = useState(false);
-  const [customTermDraft, setCustomTermDraft] = useState("");
   const [defaultColor] = useState<Color>(randomColor);
 
   const form = useForm({
@@ -409,73 +395,11 @@ export function NewClientPage({
                   >
                     Délai de paiement
                   </FieldLabel>
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <ChipGroup
-                      aria-label="Délai de paiement"
-                      id={`${field.name}-options`}
-                      value={[
-                        isCustomTerm ? "custom" : String(field.state.value),
-                      ]}
-                      onValueChange={(value) => {
-                        const next = value[0];
-
-                        if (next === "custom") {
-                          setIsCustomTerm(true);
-                          const draftedDays = Number.parseInt(
-                            customTermDraft,
-                            10,
-                          );
-
-                          if (!Number.isNaN(draftedDays)) {
-                            field.handleChange(draftedDays);
-                          }
-                          return;
-                        }
-
-                        if (typeof next === "string") {
-                          setIsCustomTerm(false);
-                          field.handleChange(Number(next));
-                        }
-                      }}
-                    >
-                      {PAYMENT_TERM_PRESETS.map((days) => (
-                        <Chip key={days} size="lg" value={String(days)}>
-                          {days} j
-                        </Chip>
-                      ))}
-                      <Chip size="lg" value="custom">
-                        Autre…
-                      </Chip>
-                    </ChipGroup>
-                    {isCustomTerm && (
-                      <div className="flex h-9 items-center rounded-md border border-primary bg-muted px-3 ring-3 ring-primary/20">
-                        <input
-                          // biome-ignore lint/a11y/noAutofocus: the input appears because the user just picked "Autre…" — focus follows their action
-                          autoFocus
-                          aria-label="Délai de paiement en jours"
-                          className="w-13 min-w-0 border-none bg-transparent font-mono text-foreground-hi text-sm tabular-nums outline-none"
-                          inputMode="numeric"
-                          maxLength={3}
-                          onChange={(event) => {
-                            const digits = event.target.value.replace(
-                              /\D/g,
-                              "",
-                            );
-                            setCustomTermDraft(digits);
-
-                            if (digits !== "") {
-                              field.handleChange(Number.parseInt(digits, 10));
-                            }
-                          }}
-                          placeholder="90"
-                          value={customTermDraft}
-                        />
-                        <span className="shrink-0 whitespace-nowrap text-muted-foreground-2 text-sm">
-                          jours
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                  <PaymentTermsPicker
+                    id={`${field.name}-options`}
+                    onChange={field.handleChange}
+                    value={field.state.value}
+                  />
                   <p className="text-muted-foreground-3 text-xs">
                     Sert à calculer la date d'échéance et à signaler les
                     retards. Par défaut : 45 jours.
