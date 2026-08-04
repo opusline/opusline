@@ -6,5 +6,5 @@ test('the api responds to ping with a json payload', function (): void {
     $response = $this->getJson('/api/ping');
 
     $response->assertSuccessful();
-    $response->assertJson(['status' => 'ok']);
+    $response->assertJson(['status' => 'ok', 'version' => config('app.version')]);
 });

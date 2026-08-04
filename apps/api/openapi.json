@@ -2,7 +2,7 @@
     "openapi": "3.1.0",
     "info": {
         "title": "Opusline",
-        "version": "0.0.1"
+        "version": "0.0.0"
     },
     "servers": [
         {
@@ -28,10 +28,14 @@
                                         "status": {
                                             "type": "string",
                                             "const": "ok"
+                                        },
+                                        "version": {
+                                            "type": "string"
                                         }
                                     },
                                     "required": [
-                                        "status"
+                                        "status",
+                                        "version"
                                     ]
                                 }
                             }

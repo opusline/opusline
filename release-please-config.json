@@ -4,7 +4,17 @@
     ".": {
       "release-type": "simple",
       "initial-version": "0.1.0",
-      "bump-minor-pre-major": true
+      "bump-minor-pre-major": true,
+      "extra-files": [
+        "apps/api/config/app.php",
+        "apps/api/config/scramble.php",
+        "apps/web/src/lib/version.ts",
+        {
+          "type": "json",
+          "path": "apps/api/openapi.json",
+          "jsonpath": "$.info.version"
+        }
+      ]
     }
   }
 }

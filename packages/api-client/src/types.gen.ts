@@ -42,6 +42,7 @@ export type GetPingData = {
 export type GetPingResponses = {
     200: {
         status: 'ok';
+        version: string;
     };
 };
 

@@ -31,7 +31,8 @@ export const zUserData = z.object({
 });
 
 export const zGetPingResponse = z.object({
-    status: z.literal('ok')
+    status: z.literal('ok'),
+    version: z.string()
 });
 
 export const zRegisterBody = zRegisterUserData;

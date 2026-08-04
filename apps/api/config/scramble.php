@@ -7,6 +7,10 @@ use Dedoc\Scramble\SecurityDocumentation\MiddlewareAuthSecurityStrategy;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
 
 return [
+    'info' => [
+        'version' => '0.0.0', // x-release-please-version
+    ],
+
     'extensions' => [
         SpatieDataToSchema::class,
     ],
