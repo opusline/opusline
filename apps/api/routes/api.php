@@ -5,7 +5,10 @@ declare(strict_types=1);
 use App\Http\Users\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/ping', fn () => response()->json(['status' => 'ok']));
+Route::get('/ping', fn () => response()->json([
+    'status' => 'ok',
+    'version' => config()->string('app.version'),
+]));
 
 Route::post('/register', [AuthController::class, 'register'])
     ->middleware('throttle:6,1')

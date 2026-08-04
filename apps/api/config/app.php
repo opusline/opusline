@@ -19,6 +19,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Version
+    |--------------------------------------------------------------------------
+    |
+    | The released version of Opusline. The literal below is stamped by
+    | release-please on every release PR — never edit it by hand.
+    |
+    */
+
+    'version' => '0.0.0', // x-release-please-version
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |
