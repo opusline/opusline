@@ -1,18 +1,19 @@
 import type { ClientType, Color, CreateClientData } from "@opusline/api-client";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
-import { Chip, ChipGroup, ChipOption } from "@opusline/ui/components/chip";
+import { ChipGroup, ChipOption } from "@opusline/ui/components/chip";
 import { Field, FieldError, FieldLabel } from "@opusline/ui/components/field";
-import { Input } from "@opusline/ui/components/input";
 import { Separator } from "@opusline/ui/components/separator";
 import { Swatch, SwatchGroup } from "@opusline/ui/components/swatch";
-import { Textarea } from "@opusline/ui/components/textarea";
 import { cn } from "@opusline/ui/lib/utils";
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
 import { CircleAlert, InfoIcon } from "lucide-react";
 import { useState } from "react";
 
+import { initials } from "@/lib/initials";
+
+import { type ClientFormValues, toClientPayload } from "../lib/client-form";
 import {
   CLIENT_TYPE_HINTS,
   CLIENT_TYPE_OPTION_LABELS,
@@ -23,55 +24,11 @@ import {
   paymentTermsLabel,
   randomColor,
 } from "../lib/labels";
+import { ClientTextField } from "./client-text-field";
+import { PaymentTermsPicker } from "./payment-terms-picker";
 
 const EYEBROW_CLASSES =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
-
-const PAYMENT_TERM_PRESETS = [30, 45, 60];
-
-type ClientFormValues = {
-  name: string;
-  type: ClientType;
-  siret: string;
-  vatNumber: string;
-  billingAddress: string;
-  billingContactName: string;
-  billingEmail: string;
-  color: Color;
-  paymentTermsDays: number;
-};
-
-function valueOrNull(value: string): string | null {
-  const trimmed = value.trim();
-
-  return trimmed === "" ? null : trimmed;
-}
-
-function toCreateClientBody(values: ClientFormValues): CreateClientData {
-  return {
-    name: values.name.trim(),
-    type: values.type,
-    siret: valueOrNull(values.siret),
-    vatNumber: valueOrNull(values.vatNumber),
-    billingAddress: valueOrNull(values.billingAddress),
-    billingContactName: valueOrNull(values.billingContactName),
-    billingEmail: valueOrNull(values.billingEmail),
-    color: values.color,
-    paymentTermsDays: values.paymentTermsDays,
-  };
-}
-
-function clientInitials(name: string): string {
-  const initials = name
-    .trim()
-    .split(/\s+/)
-    .map((word) => word[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-
-  return initials === "" ? "?" : initials;
-}
 
 type NewClientPageProps = {
   onSubmit: (
@@ -88,8 +45,6 @@ export function NewClientPage({
   isPending,
   error,
 }: NewClientPageProps) {
-  const [isCustomTerm, setIsCustomTerm] = useState(false);
-  const [customTermDraft, setCustomTermDraft] = useState("");
   const [defaultColor] = useState<Color>(randomColor);
 
   const form = useForm({
@@ -106,7 +61,7 @@ export function NewClientPage({
     } as ClientFormValues,
     validators: {
       onSubmitAsync: async ({ value }) => {
-        const fieldErrors = await onSubmit(toCreateClientBody(value));
+        const fieldErrors = await onSubmit(toClientPayload(value));
 
         return fieldErrors ? { fields: fieldErrors } : null;
       },
@@ -148,31 +103,14 @@ export function NewClientPage({
           ) : null}
 
           <form.Field name="name">
-            {(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel
-                    className="text-foreground-3"
-                    htmlFor={field.name}
-                  >
-                    Raison sociale
-                  </FieldLabel>
-                  <Input
-                    aria-invalid={isInvalid}
-                    id={field.name}
-                    onBlur={field.handleBlur}
-                    onChange={(event) => field.handleChange(event.target.value)}
-                    placeholder="Nordlys"
-                    value={field.state.value}
-                  />
-                  {isInvalid ? (
-                    <FieldError errors={field.state.meta.errors} />
-                  ) : null}
-                </Field>
-              );
-            }}
+            {(field) => (
+              <ClientTextField
+                field={field}
+                label="Raison sociale"
+                labelClassName="text-foreground-3"
+                placeholder="Nordlys"
+              />
+            )}
           </form.Field>
 
           <form.Field name="type">
@@ -215,81 +153,38 @@ export function NewClientPage({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <form.Field name="siret">
-              {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel
-                      className="text-foreground-3"
-                      htmlFor={field.name}
-                    >
-                      SIRET
-                    </FieldLabel>
-                    <Input
-                      aria-invalid={isInvalid}
-                      font="mono"
-                      id={field.name}
-                      onBlur={field.handleBlur}
-                      onChange={(event) =>
-                        field.handleChange(event.target.value)
-                      }
-                      placeholder="123 456 789 00012"
-                      value={field.state.value}
-                    />
-                    {isInvalid ? (
-                      <FieldError errors={field.state.meta.errors} />
-                    ) : null}
-                  </Field>
-                );
-              }}
+              {(field) => (
+                <ClientTextField
+                  field={field}
+                  label="SIRET"
+                  labelClassName="text-foreground-3"
+                  font="mono"
+                  placeholder="123 456 789 00012"
+                />
+              )}
             </form.Field>
             <form.Field name="vatNumber">
-              {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel
-                      className="text-foreground-3"
-                      htmlFor={field.name}
-                    >
-                      TVA intracommunautaire
-                    </FieldLabel>
-                    <Input
-                      aria-invalid={isInvalid}
-                      font="mono"
-                      id={field.name}
-                      onBlur={field.handleBlur}
-                      onChange={(event) =>
-                        field.handleChange(event.target.value)
-                      }
-                      placeholder="FR12 123456789"
-                      value={field.state.value}
-                    />
-                    {isInvalid ? (
-                      <FieldError errors={field.state.meta.errors} />
-                    ) : null}
-                  </Field>
-                );
-              }}
+              {(field) => (
+                <ClientTextField
+                  field={field}
+                  label="TVA intracommunautaire"
+                  labelClassName="text-foreground-3"
+                  font="mono"
+                  placeholder="FR12 123456789"
+                />
+              )}
             </form.Field>
           </div>
 
           <form.Field name="billingAddress">
             {(field) => (
-              <Field>
-                <FieldLabel className="text-foreground-3" htmlFor={field.name}>
-                  Adresse de facturation
-                </FieldLabel>
-                <Textarea
-                  id={field.name}
-                  onBlur={field.handleBlur}
-                  onChange={(event) => field.handleChange(event.target.value)}
-                  placeholder={"12 rue de la Paix\n44000 Nantes"}
-                  value={field.state.value}
-                />
-              </Field>
+              <ClientTextField
+                field={field}
+                label="Adresse de facturation"
+                labelClassName="text-foreground-3"
+                multiline
+                placeholder={"12 rue de la Paix\n44000 Nantes"}
+              />
             )}
           </form.Field>
 
@@ -297,63 +192,25 @@ export function NewClientPage({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <form.Field name="billingContactName">
-              {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel
-                      className="text-foreground-3"
-                      htmlFor={field.name}
-                    >
-                      Contact facturation
-                    </FieldLabel>
-                    <Input
-                      aria-invalid={isInvalid}
-                      id={field.name}
-                      onBlur={field.handleBlur}
-                      onChange={(event) =>
-                        field.handleChange(event.target.value)
-                      }
-                      placeholder="Camille Dupont"
-                      value={field.state.value}
-                    />
-                    {isInvalid ? (
-                      <FieldError errors={field.state.meta.errors} />
-                    ) : null}
-                  </Field>
-                );
-              }}
+              {(field) => (
+                <ClientTextField
+                  field={field}
+                  label="Contact facturation"
+                  labelClassName="text-foreground-3"
+                  placeholder="Camille Dupont"
+                />
+              )}
             </form.Field>
             <form.Field name="billingEmail">
-              {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel
-                      className="text-foreground-3"
-                      htmlFor={field.name}
-                    >
-                      Email d'envoi des factures
-                    </FieldLabel>
-                    <Input
-                      aria-invalid={isInvalid}
-                      id={field.name}
-                      onBlur={field.handleBlur}
-                      onChange={(event) =>
-                        field.handleChange(event.target.value)
-                      }
-                      placeholder="factures@nordlys.example"
-                      type="email"
-                      value={field.state.value}
-                    />
-                    {isInvalid ? (
-                      <FieldError errors={field.state.meta.errors} />
-                    ) : null}
-                  </Field>
-                );
-              }}
+              {(field) => (
+                <ClientTextField
+                  field={field}
+                  label="Email d'envoi des factures"
+                  labelClassName="text-foreground-3"
+                  type="email"
+                  placeholder="factures@nordlys.example"
+                />
+              )}
             </form.Field>
           </div>
 
@@ -409,73 +266,13 @@ export function NewClientPage({
                   >
                     Délai de paiement
                   </FieldLabel>
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <ChipGroup
-                      aria-label="Délai de paiement"
-                      id={`${field.name}-options`}
-                      value={[
-                        isCustomTerm ? "custom" : String(field.state.value),
-                      ]}
-                      onValueChange={(value) => {
-                        const next = value[0];
-
-                        if (next === "custom") {
-                          setIsCustomTerm(true);
-                          const draftedDays = Number.parseInt(
-                            customTermDraft,
-                            10,
-                          );
-
-                          if (!Number.isNaN(draftedDays)) {
-                            field.handleChange(draftedDays);
-                          }
-                          return;
-                        }
-
-                        if (typeof next === "string") {
-                          setIsCustomTerm(false);
-                          field.handleChange(Number(next));
-                        }
-                      }}
-                    >
-                      {PAYMENT_TERM_PRESETS.map((days) => (
-                        <Chip key={days} size="lg" value={String(days)}>
-                          {days} j
-                        </Chip>
-                      ))}
-                      <Chip size="lg" value="custom">
-                        Autre…
-                      </Chip>
-                    </ChipGroup>
-                    {isCustomTerm && (
-                      <div className="flex h-9 items-center rounded-md border border-primary bg-muted px-3 ring-3 ring-primary/20">
-                        <input
-                          // biome-ignore lint/a11y/noAutofocus: the input appears because the user just picked "Autre…" — focus follows their action
-                          autoFocus
-                          aria-label="Délai de paiement en jours"
-                          className="w-13 min-w-0 border-none bg-transparent font-mono text-foreground-hi text-sm tabular-nums outline-none"
-                          inputMode="numeric"
-                          maxLength={3}
-                          onChange={(event) => {
-                            const digits = event.target.value.replace(
-                              /\D/g,
-                              "",
-                            );
-                            setCustomTermDraft(digits);
-
-                            if (digits !== "") {
-                              field.handleChange(Number.parseInt(digits, 10));
-                            }
-                          }}
-                          placeholder="90"
-                          value={customTermDraft}
-                        />
-                        <span className="shrink-0 whitespace-nowrap text-muted-foreground-2 text-sm">
-                          jours
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                  <PaymentTermsPicker
+                    id={`${field.name}-options`}
+                    isInvalid={isInvalid}
+                    onBlur={field.handleBlur}
+                    onChange={field.handleChange}
+                    value={field.state.value}
+                  />
                   <p className="text-muted-foreground-3 text-xs">
                     Sert à calculer la date d'échéance et à signaler les
                     retards. Par défaut : 45 jours.
@@ -514,7 +311,7 @@ export function NewClientPage({
               </div>
               <div className="flex items-center gap-3 rounded-md border bg-card px-5 py-4">
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-md border border-border-2 bg-secondary font-medium text-muted-foreground-4 text-xs">
-                  {clientInitials(values.name)}
+                  {initials(values.name)}
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">

@@ -65,6 +65,15 @@ export function randomColor(): Color {
   return COLORS[Math.floor(Math.random() * COLORS.length)] ?? 0;
 }
 
+const monthYear = new Intl.DateTimeFormat("fr-FR", {
+  month: "long",
+  year: "numeric",
+});
+
+export function clientSinceLabel(createdAt: string): string {
+  return monthYear.format(new Date(createdAt));
+}
+
 export const MISSION_STATUS_LABELS: Record<MissionStatus, string> = {
   0: "Active",
   1: "En pause",

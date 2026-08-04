@@ -73,6 +73,30 @@ it("focuses the custom days input when picking Autre", async () => {
   expect(screen.getByLabelText("Délai de paiement en jours")).toHaveFocus();
 });
 
+it("seeds the custom input with the current term when picking Autre", async () => {
+  await renderNewClientPage();
+
+  fireEvent.click(screen.getByRole("button", { name: "Autre…" }));
+
+  expect(screen.getByLabelText("Délai de paiement en jours")).toHaveValue("45");
+  expect(screen.getByText("Paiement à 45 jours")).toBeInTheDocument();
+});
+
+it("restores the current term when the custom input is left blank", async () => {
+  await renderNewClientPage();
+
+  fireEvent.click(screen.getByRole("button", { name: "Autre…" }));
+  fireEvent.change(screen.getByLabelText("Délai de paiement en jours"), {
+    target: { value: "" },
+  });
+
+  expect(screen.getByText("Paiement à 45 jours")).toBeInTheDocument();
+
+  fireEvent.blur(screen.getByLabelText("Délai de paiement en jours"));
+
+  expect(screen.getByLabelText("Délai de paiement en jours")).toHaveValue("45");
+});
+
 it("restores the drafted days in the preview when returning to a custom term", async () => {
   await renderNewClientPage();
 

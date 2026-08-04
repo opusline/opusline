@@ -11,7 +11,7 @@ test('deletes a client without missions', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->deleteJson("/api/clients/{$client->id}")
+        ->deleteJson("/api/clients/{$client->slug}")
         ->assertNoContent();
 
     $this->assertDatabaseMissing('clients', ['id' => $client->id]);
@@ -23,7 +23,7 @@ test('refuses to delete a client with missions', function (): void {
     Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
-        ->deleteJson("/api/clients/{$client->id}")
+        ->deleteJson("/api/clients/{$client->slug}")
         ->assertConflict()
         ->assertJsonPath('message', __('clients.cannot_delete_with_missions'));
 
@@ -40,7 +40,7 @@ test('returns 409 when a mission appears while the delete is running', function 
 
     try {
         $this->actingAs($user)
-            ->deleteJson("/api/clients/{$client->id}")
+            ->deleteJson("/api/clients/{$client->slug}")
             ->assertConflict()
             ->assertJsonPath('message', __('clients.cannot_delete_with_missions'));
     } finally {
@@ -55,12 +55,12 @@ test('cannot delete another user client', function (): void {
     $client = Client::factory()->create();
 
     $this->actingAs(User::factory()->create())
-        ->deleteJson("/api/clients/{$client->id}")
+        ->deleteJson("/api/clients/{$client->slug}")
         ->assertNotFound();
 });
 
 test('returns 401 for guests', function (): void {
     $client = Client::factory()->create();
 
-    $this->deleteJson("/api/clients/{$client->id}")->assertUnauthorized();
+    $this->deleteJson("/api/clients/{$client->slug}")->assertUnauthorized();
 });

@@ -10,7 +10,7 @@ test('archives a client', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $response = $this->actingAs($user)
-        ->postJson("/api/clients/{$client->id}/archive")
+        ->postJson("/api/clients/{$client->slug}/archive")
         ->assertOk();
 
     expect($response->json('archivedAt'))->not->toBeNull()
@@ -22,7 +22,7 @@ test('unarchives a client', function (): void {
     $client = Client::factory()->for($user)->archived()->create();
 
     $this->actingAs($user)
-        ->postJson("/api/clients/{$client->id}/unarchive")
+        ->postJson("/api/clients/{$client->slug}/unarchive")
         ->assertOk()
         ->assertJsonPath('archivedAt', null);
 
@@ -33,7 +33,7 @@ test('cannot archive another user client', function (): void {
     $client = Client::factory()->create();
 
     $this->actingAs(User::factory()->create())
-        ->postJson("/api/clients/{$client->id}/archive")
+        ->postJson("/api/clients/{$client->slug}/archive")
         ->assertNotFound();
 });
 
@@ -41,7 +41,7 @@ test('cannot unarchive another user client', function (): void {
     $client = Client::factory()->archived()->create();
 
     $this->actingAs(User::factory()->create())
-        ->postJson("/api/clients/{$client->id}/unarchive")
+        ->postJson("/api/clients/{$client->slug}/unarchive")
         ->assertNotFound();
 
     expect($client->refresh()->archived_at)->not->toBeNull();
@@ -50,5 +50,5 @@ test('cannot unarchive another user client', function (): void {
 test('returns 401 for guests', function (): void {
     $client = Client::factory()->create();
 
-    $this->postJson("/api/clients/{$client->id}/archive")->assertUnauthorized();
+    $this->postJson("/api/clients/{$client->slug}/archive")->assertUnauthorized();
 });

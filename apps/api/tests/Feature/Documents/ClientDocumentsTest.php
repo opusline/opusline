@@ -15,7 +15,7 @@ test('uploads a document with the default category', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $response = $this->actingAs($user)
-        ->post("/api/clients/{$client->id}/documents", [
+        ->post("/api/clients/{$client->slug}/documents", [
             'file' => UploadedFile::fake()->createWithContent('Contrat-cadre-2025.pdf', '%PDF-1.4 fake contract'),
         ])
         ->assertCreated()
@@ -34,7 +34,7 @@ test('uploads a document with an explicit category', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->post("/api/clients/{$client->id}/documents", [
+        ->post("/api/clients/{$client->slug}/documents", [
             'file' => UploadedFile::fake()->create('Contrat.pdf', 100, 'application/pdf'),
             'category' => DocumentCategory::Contract->value,
         ])
@@ -47,7 +47,7 @@ test('rejects an unsupported file type', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->post("/api/clients/{$client->id}/documents", [
+        ->post("/api/clients/{$client->slug}/documents", [
             'file' => UploadedFile::fake()->create('run.exe', 100, 'application/x-msdownload'),
         ])
         ->assertUnprocessable()
@@ -59,7 +59,7 @@ test('rejects an oversized document', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->post("/api/clients/{$client->id}/documents", [
+        ->post("/api/clients/{$client->slug}/documents", [
             'file' => UploadedFile::fake()->create('huge.pdf', 21_000, 'application/pdf'),
         ])
         ->assertUnprocessable()
@@ -71,7 +71,7 @@ test('rejects an unknown category', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->post("/api/clients/{$client->id}/documents", [
+        ->post("/api/clients/{$client->slug}/documents", [
             'file' => UploadedFile::fake()->create('Contrat.pdf', 100, 'application/pdf'),
             'category' => 99,
         ])
@@ -85,16 +85,16 @@ test('lists documents newest first', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->travelTo(now()->subDay());
-    $this->actingAs($user)->post("/api/clients/{$client->id}/documents", [
+    $this->actingAs($user)->post("/api/clients/{$client->slug}/documents", [
         'file' => UploadedFile::fake()->create('older.pdf', 100, 'application/pdf'),
     ]);
     $this->travelBack();
-    $this->actingAs($user)->post("/api/clients/{$client->id}/documents", [
+    $this->actingAs($user)->post("/api/clients/{$client->slug}/documents", [
         'file' => UploadedFile::fake()->create('newer.pdf', 100, 'application/pdf'),
     ]);
 
     $this->actingAs($user)
-        ->getJson("/api/clients/{$client->id}/documents")
+        ->getJson("/api/clients/{$client->slug}/documents")
         ->assertOk()
         ->assertJsonCount(2, 'documents')
         ->assertJsonPath('documents.0.fileName', 'newer.pdf')
@@ -105,12 +105,12 @@ test('updates the category of a document', function (): void {
     Storage::fake('local');
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
-    $documentId = $this->actingAs($user)->post("/api/clients/{$client->id}/documents", [
+    $documentId = $this->actingAs($user)->post("/api/clients/{$client->slug}/documents", [
         'file' => UploadedFile::fake()->create('Facture.pdf', 74, 'application/pdf'),
     ])->json('id');
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$client->id}/documents/{$documentId}", [
+        ->putJson("/api/clients/{$client->slug}/documents/{$documentId}", [
             'category' => DocumentCategory::ReceivedInvoice->value,
         ])
         ->assertOk()
@@ -121,12 +121,12 @@ test('downloads a document as an attachment', function (): void {
     Storage::fake('local');
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
-    $documentId = $this->actingAs($user)->post("/api/clients/{$client->id}/documents", [
+    $documentId = $this->actingAs($user)->post("/api/clients/{$client->slug}/documents", [
         'file' => UploadedFile::fake()->create('Contrat.pdf', 100, 'application/pdf'),
     ])->json('id');
 
     $response = $this->actingAs($user)
-        ->get("/api/clients/{$client->id}/documents/{$documentId}/download")
+        ->get("/api/clients/{$client->slug}/documents/{$documentId}/download")
         ->assertOk();
 
     expect($response->headers->get('Content-Disposition'))
@@ -139,12 +139,12 @@ test('deletes a document', function (): void {
     Storage::fake('local');
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
-    $documentId = $this->actingAs($user)->post("/api/clients/{$client->id}/documents", [
+    $documentId = $this->actingAs($user)->post("/api/clients/{$client->slug}/documents", [
         'file' => UploadedFile::fake()->create('Contrat.pdf', 100, 'application/pdf'),
     ])->json('id');
 
     $this->actingAs($user)
-        ->deleteJson("/api/clients/{$client->id}/documents/{$documentId}")
+        ->deleteJson("/api/clients/{$client->slug}/documents/{$documentId}")
         ->assertNoContent();
 
     $this->assertDatabaseMissing('media', ['id' => $documentId]);
@@ -154,12 +154,12 @@ test('deleting the client removes its documents', function (): void {
     Storage::fake('local');
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
-    $documentId = $this->actingAs($user)->post("/api/clients/{$client->id}/documents", [
+    $documentId = $this->actingAs($user)->post("/api/clients/{$client->slug}/documents", [
         'file' => UploadedFile::fake()->create('Contrat.pdf', 100, 'application/pdf'),
     ])->json('id');
 
     $this->actingAs($user)
-        ->deleteJson("/api/clients/{$client->id}")
+        ->deleteJson("/api/clients/{$client->slug}")
         ->assertNoContent();
 
     $this->assertDatabaseMissing('media', ['id' => $documentId]);
@@ -169,7 +169,7 @@ test('cannot list documents of another user client', function (): void {
     $client = Client::factory()->create();
 
     $this->actingAs(User::factory()->create())
-        ->getJson("/api/clients/{$client->id}/documents")
+        ->getJson("/api/clients/{$client->slug}/documents")
         ->assertNotFound();
 });
 
@@ -177,7 +177,7 @@ test('cannot upload a document to another user client', function (): void {
     $client = Client::factory()->create();
 
     $this->actingAs(User::factory()->create())
-        ->post("/api/clients/{$client->id}/documents", [
+        ->post("/api/clients/{$client->slug}/documents", [
             'file' => UploadedFile::fake()->create('Contrat.pdf', 100, 'application/pdf'),
         ])
         ->assertNotFound();
@@ -187,22 +187,22 @@ test('cannot update, download or delete a document of another user client', func
     Storage::fake('local');
     $owner = User::factory()->create();
     $client = Client::factory()->for($owner)->create();
-    $documentId = $this->actingAs($owner)->post("/api/clients/{$client->id}/documents", [
+    $documentId = $this->actingAs($owner)->post("/api/clients/{$client->slug}/documents", [
         'file' => UploadedFile::fake()->create('Contrat.pdf', 100, 'application/pdf'),
     ])->json('id');
 
     $intruder = User::factory()->create();
 
     $this->actingAs($intruder)
-        ->putJson("/api/clients/{$client->id}/documents/{$documentId}", [
+        ->putJson("/api/clients/{$client->slug}/documents/{$documentId}", [
             'category' => DocumentCategory::Contract->value,
         ])
         ->assertNotFound();
     $this->actingAs($intruder)
-        ->getJson("/api/clients/{$client->id}/documents/{$documentId}/download")
+        ->getJson("/api/clients/{$client->slug}/documents/{$documentId}/download")
         ->assertNotFound();
     $this->actingAs($intruder)
-        ->deleteJson("/api/clients/{$client->id}/documents/{$documentId}")
+        ->deleteJson("/api/clients/{$client->slug}/documents/{$documentId}")
         ->assertNotFound();
 
     $this->assertDatabaseHas('media', ['id' => $documentId]);
@@ -212,7 +212,7 @@ test('cannot reach another user document through an own client', function (): vo
     Storage::fake('local');
     $owner = User::factory()->create();
     $ownerClient = Client::factory()->for($owner)->create();
-    $foreignDocumentId = $this->actingAs($owner)->post("/api/clients/{$ownerClient->id}/documents", [
+    $foreignDocumentId = $this->actingAs($owner)->post("/api/clients/{$ownerClient->slug}/documents", [
         'file' => UploadedFile::fake()->create('Contrat.pdf', 100, 'application/pdf'),
     ])->json('id');
 
@@ -220,10 +220,10 @@ test('cannot reach another user document through an own client', function (): vo
     $intruderClient = Client::factory()->for($intruder)->create();
 
     $this->actingAs($intruder)
-        ->getJson("/api/clients/{$intruderClient->id}/documents/{$foreignDocumentId}/download")
+        ->getJson("/api/clients/{$intruderClient->slug}/documents/{$foreignDocumentId}/download")
         ->assertNotFound();
     $this->actingAs($intruder)
-        ->deleteJson("/api/clients/{$intruderClient->id}/documents/{$foreignDocumentId}")
+        ->deleteJson("/api/clients/{$intruderClient->slug}/documents/{$foreignDocumentId}")
         ->assertNotFound();
 
     $this->assertDatabaseHas('media', ['id' => $foreignDocumentId]);
@@ -234,17 +234,17 @@ test('cannot reach a document through a sibling client of the same user', functi
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
     $siblingClient = Client::factory()->for($user)->create();
-    $documentId = $this->actingAs($user)->post("/api/clients/{$client->id}/documents", [
+    $documentId = $this->actingAs($user)->post("/api/clients/{$client->slug}/documents", [
         'file' => UploadedFile::fake()->create('Contrat.pdf', 100, 'application/pdf'),
     ])->json('id');
 
     $this->actingAs($user)
-        ->getJson("/api/clients/{$siblingClient->id}/documents/{$documentId}/download")
+        ->getJson("/api/clients/{$siblingClient->slug}/documents/{$documentId}/download")
         ->assertNotFound();
 });
 
 test('returns 401 for guests', function (): void {
     $client = Client::factory()->create();
 
-    $this->getJson("/api/clients/{$client->id}/documents")->assertUnauthorized();
+    $this->getJson("/api/clients/{$client->slug}/documents")->assertUnauthorized();
 });

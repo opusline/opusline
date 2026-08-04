@@ -10,6 +10,7 @@ import type * as React from "react";
 import { expect, it } from "vitest";
 import { ClientsTable } from "./clients-table";
 
+// Rows link to the client detail route, so every render needs a router in scope.
 function renderWithRouter(ui: React.ReactNode) {
   const router = createRouter({
     routeTree: createRootRoute({ component: () => ui }),
@@ -48,8 +49,8 @@ function client(
   };
 }
 
-it("shows the client with its type and missions", () => {
-  render(
+it("shows the client with its type and missions", async () => {
+  renderWithRouter(
     <ClientsTable
       clients={[
         client({
@@ -77,7 +78,7 @@ it("shows the client with its type and missions", () => {
     />,
   );
 
-  expect(screen.getByText("Nordlys")).toBeInTheDocument();
+  expect(await screen.findByText("Nordlys")).toBeInTheDocument();
   expect(screen.getByText("Intermédiaire")).toBeInTheDocument();
   expect(screen.getByText("ESN · client final Callisto")).toBeInTheDocument();
   expect(screen.getByText("Callisto front")).toBeInTheDocument();
@@ -88,8 +89,17 @@ it("shows the client with its type and missions", () => {
   ).toBeInTheDocument();
 });
 
-it("labels a mission without a rate as non billable", () => {
-  render(
+it("links each client to its detail page", async () => {
+  renderWithRouter(<ClientsTable clients={[client({})]} />);
+
+  expect(await screen.findByRole("link", { name: "Nordlys" })).toHaveAttribute(
+    "href",
+    "/clients/nordlys",
+  );
+});
+
+it("labels a mission without a rate as non billable", async () => {
+  renderWithRouter(
     <ClientsTable
       clients={[
         client({
@@ -117,15 +127,17 @@ it("labels a mission without a rate as non billable", () => {
     />,
   );
 
-  expect(screen.getByText("non facturable")).toBeInTheDocument();
+  expect(await screen.findByText("non facturable")).toBeInTheDocument();
   expect(screen.getByText("Perso")).toBeInTheDocument();
 });
 
-it("offers to create the first mission of a client without missions", () => {
-  render(<ClientsTable clients={[client({})]} />);
+it("offers to create the first mission of a client without missions", async () => {
+  renderWithRouter(<ClientsTable clients={[client({})]} />);
 
   expect(
-    screen.getByRole("button", { name: "Aucune mission — en créer une" }),
+    await screen.findByRole("button", {
+      name: "Aucune mission — en créer une",
+    }),
   ).toBeInTheDocument();
 });
 
@@ -141,41 +153,61 @@ it("shows the empty state when there are no clients", async () => {
   );
 });
 
-it("flags a recently created client as new", () => {
-  render(<ClientsTable clients={[client({ createdAt: daysAgo(2) })]} />);
+it("flags a recently created client as new", async () => {
+  renderWithRouter(
+    <ClientsTable clients={[client({ createdAt: daysAgo(2) })]} />,
+  );
 
-  expect(screen.getByText("Nouveau")).toBeInTheDocument();
+  expect(await screen.findByText("Nouveau")).toBeInTheDocument();
 });
 
-it("does not flag an old client as new", () => {
-  render(<ClientsTable clients={[client({})]} />);
+it("does not flag an old client as new", async () => {
+  renderWithRouter(<ClientsTable clients={[client({})]} />);
 
+  await screen.findByText("Nordlys");
   expect(screen.queryByText("Nouveau")).not.toBeInTheDocument();
 });
 
-it("marks an archived client with a badge", () => {
-  render(<ClientsTable clients={[client({ archivedAt: daysAgo(30) })]} />);
+it("marks an archived client with a badge", async () => {
+  renderWithRouter(
+    <ClientsTable clients={[client({ archivedAt: daysAgo(30) })]} />,
+  );
 
-  fireEvent.click(screen.getByRole("button", { name: "Archivés (1)" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Archivés (1)" }));
 
   expect(screen.getByText("Archivé")).toBeInTheDocument();
 });
 
-it("does not flag an archived client as new", () => {
-  render(
+it("explains that an archived client cannot receive missions", async () => {
+  renderWithRouter(
+    <ClientsTable clients={[client({ archivedAt: daysAgo(30) })]} />,
+  );
+
+  fireEvent.click(await screen.findByRole("button", { name: "Archivés (1)" }));
+
+  expect(
+    screen.getByText("Client archivé — réactivez-le pour ajouter une mission."),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: "Aucune mission — en créer une" }),
+  ).not.toBeInTheDocument();
+});
+
+it("does not flag an archived client as new", async () => {
+  renderWithRouter(
     <ClientsTable
       clients={[client({ createdAt: daysAgo(2), archivedAt: daysAgo(1) })]}
     />,
   );
 
-  fireEvent.click(screen.getByRole("button", { name: "Archivés (1)" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Archivés (1)" }));
 
   expect(screen.getByText("Archivé")).toBeInTheDocument();
   expect(screen.queryByText("Nouveau")).not.toBeInTheDocument();
 });
 
-it("shows only active clients by default, with every scope count", () => {
-  render(
+it("shows only active clients by default, with every scope count", async () => {
+  renderWithRouter(
     <ClientsTable
       clients={[
         client({}),
@@ -190,7 +222,7 @@ it("shows only active clients by default, with every scope count", () => {
   );
 
   expect(
-    screen.getByRole("button", { name: "Actifs (1)" }),
+    await screen.findByRole("button", { name: "Actifs (1)" }),
   ).toBeInTheDocument();
   expect(
     screen.getByRole("button", { name: "Archivés (1)" }),
@@ -200,8 +232,8 @@ it("shows only active clients by default, with every scope count", () => {
   expect(screen.queryByText("Studio Lorem")).not.toBeInTheDocument();
 });
 
-it("filters the list when picking the archived scope", () => {
-  render(
+it("filters the list when picking the archived scope", async () => {
+  renderWithRouter(
     <ClientsTable
       clients={[
         client({}),
@@ -215,16 +247,16 @@ it("filters the list when picking the archived scope", () => {
     />,
   );
 
-  fireEvent.click(screen.getByRole("button", { name: "Archivés (1)" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Archivés (1)" }));
 
   expect(screen.getByText("Studio Lorem")).toBeInTheDocument();
   expect(screen.queryByText("Nordlys")).not.toBeInTheDocument();
 });
 
-it("explains an empty scope instead of showing a bare table", () => {
-  render(<ClientsTable clients={[client({})]} />);
+it("explains an empty scope instead of showing a bare table", async () => {
+  renderWithRouter(<ClientsTable clients={[client({})]} />);
 
-  fireEvent.click(screen.getByRole("button", { name: "Archivés (0)" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Archivés (0)" }));
 
   expect(screen.getByText("Aucun client dans cette vue.")).toBeInTheDocument();
 });

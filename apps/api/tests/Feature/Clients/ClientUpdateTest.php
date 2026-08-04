@@ -12,7 +12,7 @@ test('updates a client', function (): void {
     $client = Client::factory()->for($user)->create(['name' => 'Old name', 'notes' => 'old']);
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$client->id}", [
+        ->putJson("/api/clients/{$client->slug}", [
             'name' => 'New name',
             'type' => ClientType::Direct->value,
         ])
@@ -28,7 +28,7 @@ test('updates the client type', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$client->id}", [
+        ->putJson("/api/clients/{$client->slug}", [
             'name' => $client->name,
             'type' => ClientType::Intermediary->value,
         ])
@@ -47,7 +47,7 @@ test('resets omitted optional fields to their defaults', function (): void {
     ]);
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$client->id}", [
+        ->putJson("/api/clients/{$client->slug}", [
             'name' => $client->name,
             'type' => ClientType::Direct->value,
         ])
@@ -62,7 +62,7 @@ test('keeps the slug when the client is renamed', function (): void {
     $client = Client::factory()->for($user)->create(['name' => 'Old name']);
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$client->id}", [
+        ->putJson("/api/clients/{$client->slug}", [
             'name' => 'Completely new name',
             'type' => ClientType::Direct->value,
         ])
@@ -75,7 +75,7 @@ test('keeps its own name on update', function (): void {
     $client = Client::factory()->for($user)->create(['name' => 'Nordlys']);
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$client->id}", [
+        ->putJson("/api/clients/{$client->slug}", [
             'name' => 'Nordlys',
             'type' => ClientType::Direct->value,
             'notes' => 'updated',
@@ -91,7 +91,7 @@ test('rejects a name already used by a sibling client', function (): void {
     $client = Client::factory()->for($user)->create(['name' => 'Studio Lorem']);
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$client->id}", [
+        ->putJson("/api/clients/{$client->slug}", [
             'name' => 'Nordlys',
             'type' => ClientType::Direct->value,
         ])
@@ -106,7 +106,7 @@ test('allows a name used by another user client', function (): void {
     $client = Client::factory()->for($user)->create(['name' => 'Studio Lorem']);
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$client->id}", [
+        ->putJson("/api/clients/{$client->slug}", [
             'name' => 'Nordlys',
             'type' => ClientType::Direct->value,
         ])
@@ -119,7 +119,7 @@ test('rejects an invalid payload', function (): void {
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$client->id}", ['name' => '', 'type' => ClientType::Direct->value])
+        ->putJson("/api/clients/{$client->slug}", ['name' => '', 'type' => ClientType::Direct->value])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['name']);
 });
@@ -128,7 +128,7 @@ test('cannot update another user client', function (): void {
     $client = Client::factory()->create();
 
     $this->actingAs(User::factory()->create())
-        ->putJson("/api/clients/{$client->id}", [
+        ->putJson("/api/clients/{$client->slug}", [
             'name' => 'Hijacked',
             'type' => ClientType::Direct->value,
         ])
@@ -138,7 +138,7 @@ test('cannot update another user client', function (): void {
 test('returns 401 for guests', function (): void {
     $client = Client::factory()->create();
 
-    $this->putJson("/api/clients/{$client->id}", [
+    $this->putJson("/api/clients/{$client->slug}", [
         'name' => 'New name',
         'type' => ClientType::Direct->value,
     ])->assertUnauthorized();
