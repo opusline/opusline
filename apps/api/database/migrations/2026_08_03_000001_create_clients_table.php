@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Shared\Enums\Color;
 use App\Domain\Users\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -20,6 +21,14 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug');
             $table->text('notes')->nullable();
+            $table->unsignedTinyInteger('type');
+            $table->string('siret')->nullable();
+            $table->string('vat_number')->nullable();
+            $table->text('billing_address')->nullable();
+            $table->string('billing_contact_name')->nullable();
+            $table->string('billing_email')->nullable();
+            $table->unsignedTinyInteger('color')->default(Color::Amber->value);
+            $table->unsignedSmallInteger('payment_terms_days')->default(45);
             $table->timestamp('archived_at')->nullable();
             $table->timestamps();
             $table->unique(['user_id', 'name']);
