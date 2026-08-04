@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -50,16 +52,23 @@ use Spatie\Sluggable\SlugOptions;
     'payment_terms_days',
     'archived_at',
 ])]
-class Client extends Model
+class Client extends Model implements HasMedia
 {
     /** @use HasFactory<ClientFactory> */
     use HasFactory;
 
     use HasSlug;
+    use InteractsWithMedia;
 
     protected static function newFactory(): ClientFactory
     {
         return ClientFactory::new();
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('logo')->singleFile();
+        $this->addMediaCollection('documents');
     }
 
     public function getSlugOptions(): SlugOptions
