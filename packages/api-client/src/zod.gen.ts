@@ -76,6 +76,41 @@ export const zCreateClientData = z.object({
 export const zCurrency = z.enum(['EUR']);
 
 /**
+ * DocumentCategory
+ */
+export const zDocumentCategory = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4)
+]);
+
+/**
+ * DocumentSource
+ */
+export const zDocumentSource = z.union([z.literal(0), z.literal(1)]);
+
+/**
+ * DocumentData
+ */
+export const zDocumentData = z.object({
+    id: z.int(),
+    fileName: z.string(),
+    category: zDocumentCategory,
+    source: zDocumentSource,
+    sizeBytes: z.int(),
+    createdAt: z.iso.datetime()
+});
+
+/**
+ * DocumentListData
+ */
+export const zDocumentListData = z.object({
+    documents: z.array(zDocumentData)
+});
+
+/**
  * EntryRounding
  *
  * Rounding increment for time entries, expressed as a fraction of the mission's billing unit: half or a quarter of a day/hour, or to the minute.
@@ -207,6 +242,13 @@ export const zUpdateClientData = z.object({
 });
 
 /**
+ * UpdateDocumentData
+ */
+export const zUpdateDocumentData = z.object({
+    category: zDocumentCategory
+});
+
+/**
  * UpdateMissionData
  */
 export const zUpdateMissionData = z.object({
@@ -224,6 +266,21 @@ export const zUpdateMissionData = z.object({
     notes: z.nullish(z.string()),
     startDate: z.nullish(z.iso.date()),
     endDate: z.nullish(z.iso.date())
+});
+
+/**
+ * UploadClientLogoData
+ */
+export const zUploadClientLogoData = z.object({
+    logo: z.string()
+});
+
+/**
+ * UploadDocumentData
+ */
+export const zUploadDocumentData = z.object({
+    file: z.string(),
+    category: z.nullish(zDocumentCategory)
 });
 
 /**
@@ -296,6 +353,72 @@ export const zUnarchiveClientPath = z.object({
 
 export const zUnarchiveClientResponse = zClientData;
 
+export const zListClientDocumentsPath = z.object({
+    client: z.int()
+});
+
+export const zListClientDocumentsResponse = zDocumentListData;
+
+export const zUploadClientDocumentBody = zUploadDocumentData;
+
+export const zUploadClientDocumentPath = z.object({
+    client: z.int()
+});
+
+export const zUploadClientDocumentResponse = zDocumentData;
+
+export const zDeleteClientDocumentPath = z.object({
+    client: z.int(),
+    document: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteClientDocumentResponse = z.void();
+
+export const zUpdateClientDocumentBody = zUpdateDocumentData;
+
+export const zUpdateClientDocumentPath = z.object({
+    client: z.int(),
+    document: z.int()
+});
+
+export const zUpdateClientDocumentResponse = zDocumentData;
+
+export const zDownloadClientDocumentPath = z.object({
+    client: z.int(),
+    document: z.int()
+});
+
+export const zDownloadClientDocumentResponse = z.record(z.string(), z.unknown());
+
+export const zDeleteClientLogoPath = z.object({
+    client: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteClientLogoResponse = z.void();
+
+export const zShowClientLogoPath = z.object({
+    client: z.int()
+});
+
+export const zShowClientLogoResponse = z.record(z.string(), z.unknown());
+
+export const zUploadClientLogoBody = zUploadClientLogoData;
+
+export const zUploadClientLogoPath = z.object({
+    client: z.int()
+});
+
+/**
+ * No content
+ */
+export const zUploadClientLogoResponse = z.void();
+
 export const zDeleteMissionPath = z.object({
     client: z.int(),
     mission: z.int()
@@ -329,3 +452,48 @@ export const zCreateMissionPath = z.object({
 });
 
 export const zCreateMissionResponse = zMissionData;
+
+export const zListMissionDocumentsPath = z.object({
+    client: z.int(),
+    mission: z.int()
+});
+
+export const zListMissionDocumentsResponse = zDocumentListData;
+
+export const zUploadMissionDocumentBody = zUploadDocumentData;
+
+export const zUploadMissionDocumentPath = z.object({
+    client: z.int(),
+    mission: z.int()
+});
+
+export const zUploadMissionDocumentResponse = zDocumentData;
+
+export const zDeleteMissionDocumentPath = z.object({
+    client: z.int(),
+    mission: z.int(),
+    document: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteMissionDocumentResponse = z.void();
+
+export const zUpdateMissionDocumentBody = zUpdateDocumentData;
+
+export const zUpdateMissionDocumentPath = z.object({
+    client: z.int(),
+    mission: z.int(),
+    document: z.int()
+});
+
+export const zUpdateMissionDocumentResponse = zDocumentData;
+
+export const zDownloadMissionDocumentPath = z.object({
+    client: z.int(),
+    mission: z.int(),
+    document: z.int()
+});
+
+export const zDownloadMissionDocumentResponse = z.record(z.string(), z.unknown());
