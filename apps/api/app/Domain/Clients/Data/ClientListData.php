@@ -10,10 +10,10 @@ use Spatie\LaravelData\Data;
 class ClientListData extends Data
 {
     /**
-     * @param  list<ClientData>  $clients
+     * @param  list<ClientWithMissionsData>  $clients
      */
     public function __construct(
-        #[DataCollectionOf(ClientData::class)]
+        #[DataCollectionOf(ClientWithMissionsData::class)]
         public array $clients,
     ) {}
 }

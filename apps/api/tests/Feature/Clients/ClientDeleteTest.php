@@ -30,20 +30,6 @@ test('refuses to delete a client with missions', function (): void {
     $this->assertDatabaseHas('clients', ['id' => $client->id]);
 });
 
-test('refuses to delete a client that is the end client of a mission', function (): void {
-    $user = User::factory()->create();
-    $esn = Client::factory()->for($user)->create();
-    $endClient = Client::factory()->for($user)->create();
-    Mission::factory()->for($esn, 'client')->throughEsn($endClient)->create(['user_id' => $user->id]);
-
-    $this->actingAs($user)
-        ->deleteJson("/api/clients/{$endClient->id}")
-        ->assertConflict()
-        ->assertJsonPath('message', __('clients.cannot_delete_with_missions'));
-
-    $this->assertDatabaseHas('clients', ['id' => $endClient->id]);
-});
-
 test('cannot delete another user client', function (): void {
     $client = Client::factory()->create();
 

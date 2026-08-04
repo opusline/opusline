@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/clients', [ClientController::class, 'index'])->name('listClients');
+    Route::get('/clients/{client}', [ClientController::class, 'show'])
+        ->whereNumber('client')
+        ->name('showClient');
     Route::post('/clients', [ClientController::class, 'store'])->name('createClient');
     Route::put('/clients/{client}', [ClientController::class, 'update'])
         ->whereNumber('client')
