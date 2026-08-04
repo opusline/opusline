@@ -21,6 +21,7 @@ const chipVariants = cva(
       size: {
         sm: "h-7 px-2.5 text-xs",
         md: "h-8 px-3 text-sm",
+        lg: "h-9 px-3.5 text-sm",
       },
       shape: {
         square: "rounded-md",
@@ -49,6 +50,29 @@ function Chip({
   );
 }
 
+function ChipOption({
+  className,
+  label,
+  hint,
+  ...props
+}: TogglePrimitive.Props & { label: string; hint: string }) {
+  return (
+    <TogglePrimitive
+      data-slot="chip-option"
+      className={cn(
+        "group/chip flex flex-col items-start gap-0.5 rounded-md border border-border-2 bg-transparent px-3.5 py-2.5 text-left transition-colors outline-none hover:border-muted-foreground-6 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:opacity-50 data-pressed:border-primary/45 data-pressed:bg-primary/10",
+        className,
+      )}
+      {...props}
+    >
+      <span className="font-medium text-foreground-3 text-sm group-data-pressed/chip:text-primary-text">
+        {label}
+      </span>
+      <span className="text-muted-foreground-3 text-xs">{hint}</span>
+    </TogglePrimitive>
+  );
+}
+
 function ChipCount({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span
@@ -62,4 +86,4 @@ function ChipCount({ className, ...props }: React.ComponentProps<"span">) {
   );
 }
 
-export { Chip, ChipCount, ChipGroup, chipVariants };
+export { Chip, ChipCount, ChipGroup, ChipOption, chipVariants };

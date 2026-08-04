@@ -81,7 +81,7 @@ vendor/bin/pint
 
 - API: Pest. Feature tests for endpoints (happy path + validation errors + authorization), unit tests for domain actions.
 - Web: Vitest + Testing Library for components with logic; don't test trivial rendering.
-- Storybook (`apps/storybook`, serves both workspaces): **every component in `packages/ui` AND `apps/web` gets a story**, colocated next to the component (`PascalCase.stories.tsx`, CSF3 `satisfies Meta`, `tags: ["autodocs"]`, title prefix `UI/` or `Web/`). Stories double as visual documentation; a component without a story is not done.
+- Storybook (`apps/storybook`, serves both workspaces): **every component in `packages/ui` AND `apps/web` gets a story**, colocated next to the component (`PascalCase.stories.tsx`, CSF3 `satisfies Meta`, `tags: ["autodocs"]`, title prefix `UI/` or `Web/`). Stories double as visual documentation; a component without a story is not done. Exception: TanStack Router route files (`src/routes/**`) are thin wiring — the feature component they render carries the story.
 
 ## When unsure
 

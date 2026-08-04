@@ -7,6 +7,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@opusline/ui/components/empty";
+import { Link } from "@tanstack/react-router";
 import { UserPlusIcon } from "lucide-react";
 
 export function ClientsEmptyState() {
@@ -33,7 +34,9 @@ export function ClientsEmptyState() {
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Button size="2xl">Créer un client</Button>
+        <Button render={<Link to="/clients/new" />} size="2xl">
+          Créer un client
+        </Button>
       </EmptyContent>
     </Empty>
   );

@@ -3,7 +3,7 @@ import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 
 import { ClientsTable } from "@/features/clients/components/clients-table";
@@ -21,7 +21,7 @@ function ClientsPage() {
         <h1 className="font-heading font-semibold text-2xl text-foreground-hi">
           Clients
         </h1>
-        <Button size="xl">
+        <Button render={<Link to="/clients/new" />} size="xl">
           <PlusIcon aria-hidden data-icon="inline-start" />
           Nouveau client
         </Button>

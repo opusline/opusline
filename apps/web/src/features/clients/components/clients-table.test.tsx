@@ -1,7 +1,23 @@
 import type { ClientWithMissionsData } from "@opusline/api-client";
+import {
+  createMemoryHistory,
+  createRootRoute,
+  createRouter,
+  RouterProvider,
+} from "@tanstack/react-router";
 import { fireEvent, render, screen } from "@testing-library/react";
+import type * as React from "react";
 import { expect, it } from "vitest";
 import { ClientsTable } from "./clients-table";
+
+function renderWithRouter(ui: React.ReactNode) {
+  const router = createRouter({
+    routeTree: createRootRoute({ component: () => ui }),
+    history: createMemoryHistory({ initialEntries: ["/"] }),
+  });
+
+  return render(<RouterProvider router={router} />);
+}
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -113,13 +129,16 @@ it("offers to create the first mission of a client without missions", () => {
   ).toBeInTheDocument();
 });
 
-it("shows the empty state when there are no clients", () => {
-  render(<ClientsTable clients={[]} />);
+it("shows the empty state when there are no clients", async () => {
+  renderWithRouter(<ClientsTable clients={[]} />);
 
-  expect(screen.getByText("Créez votre premier client")).toBeInTheDocument();
   expect(
-    screen.getByRole("button", { name: "Créer un client" }),
+    await screen.findByText("Créez votre premier client"),
   ).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Créer un client" })).toHaveAttribute(
+    "href",
+    "/clients/new",
+  );
 });
 
 it("flags a recently created client as new", () => {

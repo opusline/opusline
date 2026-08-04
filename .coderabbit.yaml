@@ -31,7 +31,11 @@ reviews:
         instructions: |
           Every new or substantially changed React component in packages/ui or
           apps/web must have a colocated CSF3 story (PascalCase.stories.tsx,
-          tags ["autodocs"], title prefixed UI/ or Web/).
+          tags ["autodocs"], title prefixed UI/ or Web/). Exempt: TanStack
+          Router route files under apps/web/src/routes/** — they are thin
+          wiring (data fetching, mutations, navigation) around feature
+          components; the feature component they render must carry the story
+          instead.
       - name: Writes go through actions
         mode: error
         instructions: |
@@ -122,4 +126,10 @@ reviews:
           state; no localStorage for anything important.
         - Every component needs a colocated CSF3 story (*.stories.tsx).
         - Accessibility is required: ARIA, focus management, keyboard navigation.
-        - User-facing strings stay ready for i18n; zod imports must use zod/mini.
+        - i18n is deliberately deferred: no i18n runtime exists yet, and French
+          strings are written inline or centralized in feature lib files (e.g.
+          labels.ts). Do NOT request message catalogs, locale keys, or a
+          localization boundary until a runtime is adopted; only flag string
+          concatenation or interpolation patterns that would break a future
+          extraction.
+        - zod imports must use zod/mini.

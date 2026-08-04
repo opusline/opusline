@@ -1,6 +1,11 @@
 import type { ClientWithMissionsData, MissionData } from "@opusline/api-client";
 import { expect, it } from "vitest";
-import { clientSubtitle, formatMissionRate, isNewClient } from "./labels";
+import {
+  clientSubtitle,
+  formatMissionRate,
+  isNewClient,
+  paymentTermsLabel,
+} from "./labels";
 
 function mission(overrides: Partial<MissionData> = {}): MissionData {
   return {
@@ -67,6 +72,12 @@ it("formats a fixed price as a forfait total", () => {
 
 it("labels a mission without a rate as non billable", () => {
   expect(formatMissionRate(mission({ rate: null }))).toBe("non facturable");
+});
+
+it("formats payment terms with the right plural", () => {
+  expect(paymentTermsLabel(0)).toBe("réception");
+  expect(paymentTermsLabel(1)).toBe("1 jour");
+  expect(paymentTermsLabel(45)).toBe("45 jours");
 });
 
 it("builds the subtitle from the type and unique end clients", () => {
