@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
-import { Chip, ChipCount, ChipGroup } from "./chip";
+import { Chip, ChipCount, ChipGroup, ChipOption } from "./chip";
 
 const meta = {
   title: "UI/Chip",
@@ -55,9 +55,38 @@ export const FilterWithCounts: Story = {
   render: () => <FilterExample />,
 };
 
+export const Options: Story = {
+  render: () => (
+    <ChipGroup defaultValue={["1"]} aria-label="Type de relation">
+      <ChipOption
+        value="0"
+        label="Direct"
+        hint="Vous facturez le client directement"
+      />
+      <ChipOption
+        value="1"
+        label="Intermédiaire"
+        hint="ESN ou portage entre vous et le client final"
+      />
+      <ChipOption value="2" label="Interne" hint="Vos projets, non facturés" />
+    </ChipGroup>
+  ),
+};
+
 export const Sizes: Story = {
   render: () => (
     <div className="flex flex-col gap-4">
+      <ChipGroup defaultValue={["jour"]} aria-label="Mode de facturation">
+        <Chip value="jour" size="lg">
+          Au jour
+        </Chip>
+        <Chip value="heure" size="lg">
+          À l'heure
+        </Chip>
+        <Chip value="forfait" size="lg">
+          Forfait
+        </Chip>
+      </ChipGroup>
       <ChipGroup defaultValue={["jour"]} aria-label="Mode de facturation">
         <Chip value="jour" size="md">
           Au jour

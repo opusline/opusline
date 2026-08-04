@@ -17,6 +17,13 @@ export const Default: Story = {
   },
 };
 
+export const Mono: Story = {
+  args: {
+    font: "mono",
+    placeholder: "123 456 789 00012",
+  },
+};
+
 export const Invalid: Story = {
   args: {
     "aria-invalid": true,

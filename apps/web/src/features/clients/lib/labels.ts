@@ -26,6 +26,31 @@ const CLIENT_TYPE_DESCRIPTORS: Partial<Record<ClientType, string>> = {
   2: "Projets internes",
 };
 
+export const CLIENT_TYPE_HINTS: Record<ClientType, string> = {
+  0: "Vous facturez le client directement",
+  1: "ESN ou portage entre vous et le client final",
+  2: "Vos projets à vous, non facturés",
+};
+
+export const COLOR_LABELS: Record<Color, string> = {
+  0: "Ambre",
+  1: "Terracotta",
+  2: "Olive",
+  3: "Sauge",
+  4: "Ardoise",
+  5: "Encre",
+  6: "Prune",
+  7: "Pierre",
+};
+
+export function paymentTermsLabel(days: number): string {
+  return days === 0 ? "réception" : `${days} jours`;
+}
+
+export function randomColor(): Color {
+  return Math.floor(Math.random() * 8) as Color;
+}
+
 export const MISSION_STATUS_LABELS: Record<MissionStatus, string> = {
   0: "Active",
   1: "En pause",
