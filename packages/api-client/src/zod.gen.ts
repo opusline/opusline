@@ -5,7 +5,34 @@ import * as z from 'zod/mini';
 /**
  * BillingMode
  */
-export const zBillingMode = z.union([z.literal(0), z.literal(1)]);
+export const zBillingMode = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * ClientType
+ */
+export const zClientType = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * Color
+ */
+export const zColor = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4),
+    z.literal(5),
+    z.literal(6),
+    z.literal(7)
+]);
 
 /**
  * ClientData
@@ -14,15 +41,17 @@ export const zClientData = z.object({
     id: z.int(),
     slug: z.string(),
     name: z.string(),
+    type: zClientType,
     notes: z.nullable(z.string()),
-    archivedAt: z.nullable(z.iso.datetime())
-});
-
-/**
- * ClientListData
- */
-export const zClientListData = z.object({
-    clients: z.array(zClientData)
+    siret: z.nullable(z.string()),
+    vatNumber: z.nullable(z.string()),
+    billingAddress: z.nullable(z.string()),
+    billingContactName: z.nullable(z.string()),
+    billingEmail: z.nullable(z.string()),
+    color: zColor,
+    paymentTermsDays: z.int(),
+    archivedAt: z.nullable(z.iso.datetime()),
+    createdAt: z.iso.datetime()
 });
 
 /**
@@ -30,13 +59,33 @@ export const zClientListData = z.object({
  */
 export const zCreateClientData = z.object({
     name: z.string().check(z.minLength(1), z.maxLength(255)),
-    notes: z.nullish(z.string())
+    type: zClientType,
+    notes: z.nullish(z.string()),
+    siret: z.nullish(z.string().check(z.maxLength(255))),
+    vatNumber: z.nullish(z.string().check(z.maxLength(255))),
+    billingAddress: z.nullish(z.string()),
+    billingContactName: z.nullish(z.string().check(z.maxLength(255))),
+    billingEmail: z.nullish(z.email().check(z.maxLength(255))),
+    color: zColor,
+    paymentTermsDays: z.int().check(z.gte(0), z.lte(365))
 });
 
 /**
  * Currency
  */
 export const zCurrency = z.enum(['EUR']);
+
+/**
+ * EntryRounding
+ *
+ * Rounding increment for time entries, expressed as a fraction of the mission's billing unit: half or a quarter of a day/hour, or to the minute.
+ *
+ */
+export const zEntryRounding = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
 
 /**
  * CreateMissionData
@@ -48,7 +97,11 @@ export const zCreateMissionData = z.object({
         amount: z.int().check(z.gte(1)),
         currency: zCurrency
     })),
-    endClientId: z.nullish(z.int()),
+    endClientName: z.nullish(z.string().check(z.minLength(1), z.maxLength(255))),
+    rounding: z.nullish(zEntryRounding),
+    craRequired: z.nullish(z.boolean()),
+    color: z.nullish(zColor),
+    notes: z.nullish(z.string()),
     startDate: z.nullish(z.iso.date()),
     endDate: z.nullish(z.iso.date())
 });
@@ -86,13 +139,45 @@ export const zMissionData = z.object({
     id: z.int(),
     slug: z.string(),
     clientId: z.int(),
-    endClientId: z.nullable(z.int()),
     name: z.string(),
+    endClientName: z.nullable(z.string()),
     billingMode: zBillingMode,
     rate: z.nullable(zMoneyData),
+    rounding: z.nullable(zEntryRounding),
     status: zMissionStatus,
+    craRequired: z.boolean(),
+    color: z.nullable(zColor),
+    notes: z.nullable(z.string()),
     startDate: z.nullable(z.iso.datetime()),
     endDate: z.nullable(z.iso.datetime())
+});
+
+/**
+ * ClientWithMissionsData
+ */
+export const zClientWithMissionsData = z.object({
+    id: z.int(),
+    slug: z.string(),
+    name: z.string(),
+    type: zClientType,
+    notes: z.nullable(z.string()),
+    siret: z.nullable(z.string()),
+    vatNumber: z.nullable(z.string()),
+    billingAddress: z.nullable(z.string()),
+    billingContactName: z.nullable(z.string()),
+    billingEmail: z.nullable(z.string()),
+    color: zColor,
+    paymentTermsDays: z.int(),
+    archivedAt: z.nullable(z.iso.datetime()),
+    createdAt: z.iso.datetime(),
+    missions: z.array(zMissionData)
+});
+
+/**
+ * ClientListData
+ */
+export const zClientListData = z.object({
+    clients: z.array(zClientWithMissionsData)
 });
 
 /**
@@ -110,7 +195,15 @@ export const zRegisterUserData = z.object({
  */
 export const zUpdateClientData = z.object({
     name: z.string().check(z.minLength(1), z.maxLength(255)),
-    notes: z.nullish(z.string())
+    type: zClientType,
+    notes: z.nullish(z.string()),
+    siret: z.nullish(z.string().check(z.maxLength(255))),
+    vatNumber: z.nullish(z.string().check(z.maxLength(255))),
+    billingAddress: z.nullish(z.string()),
+    billingContactName: z.nullish(z.string().check(z.maxLength(255))),
+    billingEmail: z.nullish(z.email().check(z.maxLength(255))),
+    color: zColor,
+    paymentTermsDays: z.int().check(z.gte(0), z.lte(365))
 });
 
 /**
@@ -118,12 +211,17 @@ export const zUpdateClientData = z.object({
  */
 export const zUpdateMissionData = z.object({
     name: z.string().check(z.minLength(1), z.maxLength(255)),
+    billingMode: zBillingMode,
     status: zMissionStatus,
     rate: z.nullish(z.object({
         amount: z.int().check(z.gte(1)),
         currency: zCurrency
     })),
-    endClientId: z.nullish(z.int()),
+    endClientName: z.nullish(z.string().check(z.minLength(1), z.maxLength(255))),
+    rounding: z.nullish(zEntryRounding),
+    craRequired: z.nullish(z.boolean()),
+    color: z.nullish(zColor),
+    notes: z.nullish(z.string()),
     startDate: z.nullish(z.iso.date()),
     endDate: z.nullish(z.iso.date())
 });
@@ -172,6 +270,12 @@ export const zDeleteClientPath = z.object({
  */
 export const zDeleteClientResponse = z.void();
 
+export const zShowClientPath = z.object({
+    client: z.int()
+});
+
+export const zShowClientResponse = zClientWithMissionsData;
+
 export const zUpdateClientBody = zUpdateClientData;
 
 export const zUpdateClientPath = z.object({
@@ -192,14 +296,6 @@ export const zUnarchiveClientPath = z.object({
 
 export const zUnarchiveClientResponse = zClientData;
 
-export const zCreateMissionBody = zCreateMissionData;
-
-export const zCreateMissionPath = z.object({
-    client: z.int()
-});
-
-export const zCreateMissionResponse = zMissionData;
-
 export const zDeleteMissionPath = z.object({
     client: z.int(),
     mission: z.int()
@@ -210,6 +306,13 @@ export const zDeleteMissionPath = z.object({
  */
 export const zDeleteMissionResponse = z.void();
 
+export const zShowMissionPath = z.object({
+    client: z.int(),
+    mission: z.int()
+});
+
+export const zShowMissionResponse = zMissionData;
+
 export const zUpdateMissionBody = zUpdateMissionData;
 
 export const zUpdateMissionPath = z.object({
@@ -218,3 +321,11 @@ export const zUpdateMissionPath = z.object({
 });
 
 export const zUpdateMissionResponse = zMissionData;
+
+export const zCreateMissionBody = zCreateMissionData;
+
+export const zCreateMissionPath = z.object({
+    client: z.int()
+});
+
+export const zCreateMissionResponse = zMissionData;

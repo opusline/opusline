@@ -223,6 +223,41 @@
             }
         },
         "/clients/{client}": {
+            "get": {
+                "operationId": "showClient",
+                "tags": [
+                    "Client"
+                ],
+                "parameters": [
+                    {
+                        "name": "client",
+                        "in": "path",
+                        "required": true,
+                        "description": "The client ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClientWithMissionsData"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
             "put": {
                 "operationId": "updateClient",
                 "tags": [
@@ -393,9 +428,9 @@
                 }
             }
         },
-        "/clients/{client}/missions": {
-            "post": {
-                "operationId": "createMission",
+        "/clients/{client}/missions/{mission}": {
+            "get": {
+                "operationId": "showMission",
                 "tags": [
                     "Mission"
                 ],
@@ -408,20 +443,19 @@
                         "schema": {
                             "type": "integer"
                         }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CreateMissionData"
-                            }
+                    },
+                    {
+                        "name": "mission",
+                        "in": "path",
+                        "required": true,
+                        "description": "The mission ID",
+                        "schema": {
+                            "type": "integer"
                         }
                     }
-                },
+                ],
                 "responses": {
-                    "201": {
+                    "200": {
                         "description": "",
                         "content": {
                             "application/json": {
@@ -438,9 +472,7 @@
                         "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
-            }
-        },
-        "/clients/{client}/missions/{mission}": {
+            },
             "put": {
                 "operationId": "updateMission",
                 "tags": [
@@ -532,6 +564,53 @@
                     }
                 }
             }
+        },
+        "/clients/{client}/missions": {
+            "post": {
+                "operationId": "createMission",
+                "tags": [
+                    "Mission"
+                ],
+                "parameters": [
+                    {
+                        "name": "client",
+                        "in": "path",
+                        "required": true,
+                        "description": "The client ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateMissionData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MissionData"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -547,11 +626,13 @@
                 "type": "integer",
                 "enum": [
                     0,
-                    1
+                    1,
+                    2
                 ],
                 "x-enum-varnames": [
                     "Daily",
-                    "Hourly"
+                    "Hourly",
+                    "Fixed"
                 ],
                 "title": "BillingMode"
             },
@@ -567,11 +648,50 @@
                     "name": {
                         "type": "string"
                     },
+                    "type": {
+                        "$ref": "#/components/schemas/ClientType"
+                    },
                     "notes": {
                         "type": [
                             "string",
                             "null"
                         ]
+                    },
+                    "siret": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "vatNumber": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "billingAddress": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "billingContactName": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "billingEmail": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "color": {
+                        "$ref": "#/components/schemas/Color"
+                    },
+                    "paymentTermsDays": {
+                        "type": "integer"
                     },
                     "archivedAt": {
                         "type": [
@@ -579,14 +699,27 @@
                             "null"
                         ],
                         "format": "date-time"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
                     }
                 },
                 "required": [
                     "id",
                     "slug",
                     "name",
+                    "type",
                     "notes",
-                    "archivedAt"
+                    "siret",
+                    "vatNumber",
+                    "billingAddress",
+                    "billingContactName",
+                    "billingEmail",
+                    "color",
+                    "paymentTermsDays",
+                    "archivedAt",
+                    "createdAt"
                 ],
                 "title": "ClientData"
             },
@@ -596,7 +729,7 @@
                     "clients": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/ClientData"
+                            "$ref": "#/components/schemas/ClientWithMissionsData"
                         }
                     }
                 },
@@ -604,6 +737,138 @@
                     "clients"
                 ],
                 "title": "ClientListData"
+            },
+            "ClientType": {
+                "type": "integer",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "Direct",
+                    "Intermediary",
+                    "Internal"
+                ],
+                "title": "ClientType"
+            },
+            "ClientWithMissionsData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/ClientType"
+                    },
+                    "notes": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "siret": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "vatNumber": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "billingAddress": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "billingContactName": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "billingEmail": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "color": {
+                        "$ref": "#/components/schemas/Color"
+                    },
+                    "paymentTermsDays": {
+                        "type": "integer"
+                    },
+                    "archivedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "missions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MissionData"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "slug",
+                    "name",
+                    "type",
+                    "notes",
+                    "siret",
+                    "vatNumber",
+                    "billingAddress",
+                    "billingContactName",
+                    "billingEmail",
+                    "color",
+                    "paymentTermsDays",
+                    "archivedAt",
+                    "createdAt",
+                    "missions"
+                ],
+                "title": "ClientWithMissionsData"
+            },
+            "Color": {
+                "type": "integer",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7
+                ],
+                "x-enum-varnames": [
+                    "Amber",
+                    "Terracotta",
+                    "Olive",
+                    "Sage",
+                    "Slate",
+                    "Indigo",
+                    "Plum",
+                    "Stone"
+                ],
+                "title": "Color"
             },
             "CreateClientData": {
                 "type": "object",
@@ -613,15 +878,64 @@
                         "minLength": 1,
                         "maxLength": 255
                     },
+                    "type": {
+                        "$ref": "#/components/schemas/ClientType"
+                    },
                     "notes": {
                         "type": [
                             "string",
                             "null"
                         ]
+                    },
+                    "siret": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "vatNumber": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "billingAddress": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "billingContactName": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "billingEmail": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "email",
+                        "maxLength": 255
+                    },
+                    "color": {
+                        "$ref": "#/components/schemas/Color"
+                    },
+                    "paymentTermsDays": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 365
                     }
                 },
                 "required": [
-                    "name"
+                    "name",
+                    "type",
+                    "color",
+                    "paymentTermsDays"
                 ],
                 "title": "CreateClientData"
             },
@@ -655,9 +969,43 @@
                             "currency"
                         ]
                     },
-                    "endClientId": {
+                    "endClientName": {
                         "type": [
-                            "integer",
+                            "string",
+                            "null"
+                        ],
+                        "minLength": 1,
+                        "maxLength": 255
+                    },
+                    "rounding": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/EntryRounding"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "craRequired": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ]
+                    },
+                    "color": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Color"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "notes": {
+                        "type": [
+                            "string",
                             "null"
                         ]
                     },
@@ -692,6 +1040,21 @@
                 ],
                 "title": "Currency"
             },
+            "EntryRounding": {
+                "type": "integer",
+                "description": "Rounding increment for time entries, expressed as a fraction of the mission's billing unit: half or a quarter of a day/hour, or to the minute.\n",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "Half",
+                    "Quarter",
+                    "Minute"
+                ],
+                "title": "EntryRounding"
+            },
             "LoginData": {
                 "type": "object",
                 "properties": {
@@ -725,14 +1088,14 @@
                     "clientId": {
                         "type": "integer"
                     },
-                    "endClientId": {
-                        "type": [
-                            "integer",
-                            "null"
-                        ]
-                    },
                     "name": {
                         "type": "string"
+                    },
+                    "endClientName": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "billingMode": {
                         "$ref": "#/components/schemas/BillingMode"
@@ -747,8 +1110,37 @@
                             }
                         ]
                     },
+                    "rounding": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/EntryRounding"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "status": {
                         "$ref": "#/components/schemas/MissionStatus"
+                    },
+                    "craRequired": {
+                        "type": "boolean"
+                    },
+                    "color": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Color"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "notes": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "startDate": {
                         "type": [
@@ -769,11 +1161,15 @@
                     "id",
                     "slug",
                     "clientId",
-                    "endClientId",
                     "name",
+                    "endClientName",
                     "billingMode",
                     "rate",
+                    "rounding",
                     "status",
+                    "craRequired",
+                    "color",
+                    "notes",
                     "startDate",
                     "endDate"
                 ],
@@ -847,15 +1243,64 @@
                         "minLength": 1,
                         "maxLength": 255
                     },
+                    "type": {
+                        "$ref": "#/components/schemas/ClientType"
+                    },
                     "notes": {
                         "type": [
                             "string",
                             "null"
                         ]
+                    },
+                    "siret": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "vatNumber": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "billingAddress": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "billingContactName": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "billingEmail": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "email",
+                        "maxLength": 255
+                    },
+                    "color": {
+                        "$ref": "#/components/schemas/Color"
+                    },
+                    "paymentTermsDays": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 365
                     }
                 },
                 "required": [
-                    "name"
+                    "name",
+                    "type",
+                    "color",
+                    "paymentTermsDays"
                 ],
                 "title": "UpdateClientData"
             },
@@ -866,6 +1311,9 @@
                         "type": "string",
                         "minLength": 1,
                         "maxLength": 255
+                    },
+                    "billingMode": {
+                        "$ref": "#/components/schemas/BillingMode"
                     },
                     "status": {
                         "$ref": "#/components/schemas/MissionStatus"
@@ -889,9 +1337,43 @@
                             "currency"
                         ]
                     },
-                    "endClientId": {
+                    "endClientName": {
                         "type": [
-                            "integer",
+                            "string",
+                            "null"
+                        ],
+                        "minLength": 1,
+                        "maxLength": 255
+                    },
+                    "rounding": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/EntryRounding"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "craRequired": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ]
+                    },
+                    "color": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Color"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "notes": {
+                        "type": [
+                            "string",
                             "null"
                         ]
                     },
@@ -912,6 +1394,7 @@
                 },
                 "required": [
                     "name",
+                    "billingMode",
                     "status"
                 ],
                 "title": "UpdateMissionData"

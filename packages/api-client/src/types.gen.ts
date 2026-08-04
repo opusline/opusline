@@ -7,7 +7,7 @@ export type ClientOptions = {
 /**
  * BillingMode
  */
-export type BillingMode = 0 | 1;
+export type BillingMode = 0 | 1 | 2;
 
 /**
  * ClientData
@@ -16,23 +16,71 @@ export type ClientData = {
     id: number;
     slug: string;
     name: string;
+    type: ClientType;
     notes: string | null;
+    siret: string | null;
+    vatNumber: string | null;
+    billingAddress: string | null;
+    billingContactName: string | null;
+    billingEmail: string | null;
+    color: Color;
+    paymentTermsDays: number;
     archivedAt: string | null;
+    createdAt: string;
 };
 
 /**
  * ClientListData
  */
 export type ClientListData = {
-    clients: Array<ClientData>;
+    clients: Array<ClientWithMissionsData>;
 };
+
+/**
+ * ClientType
+ */
+export type ClientType = 0 | 1 | 2;
+
+/**
+ * ClientWithMissionsData
+ */
+export type ClientWithMissionsData = {
+    id: number;
+    slug: string;
+    name: string;
+    type: ClientType;
+    notes: string | null;
+    siret: string | null;
+    vatNumber: string | null;
+    billingAddress: string | null;
+    billingContactName: string | null;
+    billingEmail: string | null;
+    color: Color;
+    paymentTermsDays: number;
+    archivedAt: string | null;
+    createdAt: string;
+    missions: Array<MissionData>;
+};
+
+/**
+ * Color
+ */
+export type Color = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 /**
  * CreateClientData
  */
 export type CreateClientData = {
     name: string;
+    type: ClientType;
     notes?: string | null;
+    siret?: string | null;
+    vatNumber?: string | null;
+    billingAddress?: string | null;
+    billingContactName?: string | null;
+    billingEmail?: string | null;
+    color: Color;
+    paymentTermsDays: number;
 };
 
 /**
@@ -45,7 +93,11 @@ export type CreateMissionData = {
         amount: number;
         currency: Currency;
     } | null;
-    endClientId?: number | null;
+    endClientName?: string | null;
+    rounding?: EntryRounding | null;
+    craRequired?: boolean | null;
+    color?: Color | null;
+    notes?: string | null;
     startDate?: string | null;
     endDate?: string | null;
 };
@@ -54,6 +106,14 @@ export type CreateMissionData = {
  * Currency
  */
 export type Currency = 'EUR';
+
+/**
+ * EntryRounding
+ *
+ * Rounding increment for time entries, expressed as a fraction of the mission's billing unit: half or a quarter of a day/hour, or to the minute.
+ *
+ */
+export type EntryRounding = 0 | 1 | 2;
 
 /**
  * LoginData
@@ -71,11 +131,15 @@ export type MissionData = {
     id: number;
     slug: string;
     clientId: number;
-    endClientId: number | null;
     name: string;
+    endClientName: string | null;
     billingMode: BillingMode;
     rate: MoneyData | null;
+    rounding: EntryRounding | null;
     status: MissionStatus;
+    craRequired: boolean;
+    color: Color | null;
+    notes: string | null;
     startDate: string | null;
     endDate: string | null;
 };
@@ -108,7 +172,15 @@ export type RegisterUserData = {
  */
 export type UpdateClientData = {
     name: string;
+    type: ClientType;
     notes?: string | null;
+    siret?: string | null;
+    vatNumber?: string | null;
+    billingAddress?: string | null;
+    billingContactName?: string | null;
+    billingEmail?: string | null;
+    color: Color;
+    paymentTermsDays: number;
 };
 
 /**
@@ -116,12 +188,17 @@ export type UpdateClientData = {
  */
 export type UpdateMissionData = {
     name: string;
+    billingMode: BillingMode;
     status: MissionStatus;
     rate?: {
         amount: number;
         currency: Currency;
     } | null;
-    endClientId?: number | null;
+    endClientName?: string | null;
+    rounding?: EntryRounding | null;
+    craRequired?: boolean | null;
+    color?: Color | null;
+    notes?: string | null;
     startDate?: string | null;
     endDate?: string | null;
 };
@@ -355,6 +432,47 @@ export type DeleteClientResponses = {
 
 export type DeleteClientResponse = DeleteClientResponses[keyof DeleteClientResponses];
 
+export type ShowClientData = {
+    body?: never;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+    };
+    query?: never;
+    url: '/clients/{client}';
+};
+
+export type ShowClientErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowClientError = ShowClientErrors[keyof ShowClientErrors];
+
+export type ShowClientResponses = {
+    200: ClientWithMissionsData;
+};
+
+export type ShowClientResponse = ShowClientResponses[keyof ShowClientResponses];
+
 export type UpdateClientData2 = {
     body: UpdateClientData;
     path: {
@@ -478,47 +596,6 @@ export type UnarchiveClientResponses = {
 
 export type UnarchiveClientResponse = UnarchiveClientResponses[keyof UnarchiveClientResponses];
 
-export type CreateMissionData2 = {
-    body: CreateMissionData;
-    path: {
-        /**
-         * The client ID
-         */
-        client: number;
-    };
-    query?: never;
-    url: '/clients/{client}/missions';
-};
-
-export type CreateMissionErrors = {
-    /**
-     * Unauthenticated
-     */
-    401: {
-        /**
-         * Error overview.
-         */
-        message: string;
-    };
-    /**
-     * Not found
-     */
-    404: {
-        /**
-         * Error overview.
-         */
-        message: string;
-    };
-};
-
-export type CreateMissionError = CreateMissionErrors[keyof CreateMissionErrors];
-
-export type CreateMissionResponses = {
-    201: MissionData;
-};
-
-export type CreateMissionResponse = CreateMissionResponses[keyof CreateMissionResponses];
-
 export type DeleteMissionData = {
     body?: never;
     path: {
@@ -567,6 +644,51 @@ export type DeleteMissionResponses = {
 
 export type DeleteMissionResponse = DeleteMissionResponses[keyof DeleteMissionResponses];
 
+export type ShowMissionData = {
+    body?: never;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+        /**
+         * The mission ID
+         */
+        mission: number;
+    };
+    query?: never;
+    url: '/clients/{client}/missions/{mission}';
+};
+
+export type ShowMissionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowMissionError = ShowMissionErrors[keyof ShowMissionErrors];
+
+export type ShowMissionResponses = {
+    200: MissionData;
+};
+
+export type ShowMissionResponse = ShowMissionResponses[keyof ShowMissionResponses];
+
 export type UpdateMissionData2 = {
     body: UpdateMissionData;
     path: {
@@ -611,3 +733,44 @@ export type UpdateMissionResponses = {
 };
 
 export type UpdateMissionResponse = UpdateMissionResponses[keyof UpdateMissionResponses];
+
+export type CreateMissionData2 = {
+    body: CreateMissionData;
+    path: {
+        /**
+         * The client ID
+         */
+        client: number;
+    };
+    query?: never;
+    url: '/clients/{client}/missions';
+};
+
+export type CreateMissionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateMissionError = CreateMissionErrors[keyof CreateMissionErrors];
+
+export type CreateMissionResponses = {
+    201: MissionData;
+};
+
+export type CreateMissionResponse = CreateMissionResponses[keyof CreateMissionResponses];
