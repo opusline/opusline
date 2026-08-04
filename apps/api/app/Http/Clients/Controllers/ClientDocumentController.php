@@ -6,6 +6,7 @@ namespace App\Http\Clients\Controllers;
 
 use App\Domain\Clients\Models\Client;
 use App\Domain\Documents\Actions\DeleteDocument;
+use App\Domain\Documents\Actions\DownloadDocument;
 use App\Domain\Documents\Actions\UpdateDocumentCategory;
 use App\Domain\Documents\Actions\UploadDocument;
 use App\Domain\Documents\Data\DocumentData;
@@ -15,7 +16,6 @@ use App\Domain\Documents\Data\UploadDocumentData;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -48,15 +48,9 @@ class ClientDocumentController extends Controller
         return response()->json(DocumentData::from($updated));
     }
 
-    public function download(Client $client, int $document): StreamedResponse
+    public function download(Client $client, int $document, DownloadDocument $downloadDocument): StreamedResponse
     {
-        $media = $this->documentOf($client, $document);
-
-        return Storage::disk($media->disk)->download(
-            $media->getPathRelativeToRoot(),
-            $media->file_name,
-            ['Cache-Control' => 'no-store'],
-        );
+        return $downloadDocument->handle($this->documentOf($client, $document));
     }
 
     public function destroy(Client $client, int $document, DeleteDocument $deleteDocument): Response
