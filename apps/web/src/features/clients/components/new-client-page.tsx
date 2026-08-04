@@ -3,10 +3,8 @@ import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
 import { ChipGroup, ChipOption } from "@opusline/ui/components/chip";
 import { Field, FieldError, FieldLabel } from "@opusline/ui/components/field";
-import { Input } from "@opusline/ui/components/input";
 import { Separator } from "@opusline/ui/components/separator";
 import { Swatch, SwatchGroup } from "@opusline/ui/components/swatch";
-import { Textarea } from "@opusline/ui/components/textarea";
 import { cn } from "@opusline/ui/lib/utils";
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
@@ -26,6 +24,7 @@ import {
   paymentTermsLabel,
   randomColor,
 } from "../lib/labels";
+import { ClientTextField } from "./client-text-field";
 import { PaymentTermsPicker } from "./payment-terms-picker";
 
 const EYEBROW_CLASSES =
@@ -104,31 +103,14 @@ export function NewClientPage({
           ) : null}
 
           <form.Field name="name">
-            {(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel
-                    className="text-foreground-3"
-                    htmlFor={field.name}
-                  >
-                    Raison sociale
-                  </FieldLabel>
-                  <Input
-                    aria-invalid={isInvalid}
-                    id={field.name}
-                    onBlur={field.handleBlur}
-                    onChange={(event) => field.handleChange(event.target.value)}
-                    placeholder="Nordlys"
-                    value={field.state.value}
-                  />
-                  {isInvalid ? (
-                    <FieldError errors={field.state.meta.errors} />
-                  ) : null}
-                </Field>
-              );
-            }}
+            {(field) => (
+              <ClientTextField
+                field={field}
+                label="Raison sociale"
+                labelClassName="text-foreground-3"
+                placeholder="Nordlys"
+              />
+            )}
           </form.Field>
 
           <form.Field name="type">
@@ -171,156 +153,64 @@ export function NewClientPage({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <form.Field name="siret">
-              {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel
-                      className="text-foreground-3"
-                      htmlFor={field.name}
-                    >
-                      SIRET
-                    </FieldLabel>
-                    <Input
-                      aria-invalid={isInvalid}
-                      font="mono"
-                      id={field.name}
-                      onBlur={field.handleBlur}
-                      onChange={(event) =>
-                        field.handleChange(event.target.value)
-                      }
-                      placeholder="123 456 789 00012"
-                      value={field.state.value}
-                    />
-                    {isInvalid ? (
-                      <FieldError errors={field.state.meta.errors} />
-                    ) : null}
-                  </Field>
-                );
-              }}
+              {(field) => (
+                <ClientTextField
+                  field={field}
+                  label="SIRET"
+                  labelClassName="text-foreground-3"
+                  font="mono"
+                  placeholder="123 456 789 00012"
+                />
+              )}
             </form.Field>
             <form.Field name="vatNumber">
-              {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel
-                      className="text-foreground-3"
-                      htmlFor={field.name}
-                    >
-                      TVA intracommunautaire
-                    </FieldLabel>
-                    <Input
-                      aria-invalid={isInvalid}
-                      font="mono"
-                      id={field.name}
-                      onBlur={field.handleBlur}
-                      onChange={(event) =>
-                        field.handleChange(event.target.value)
-                      }
-                      placeholder="FR12 123456789"
-                      value={field.state.value}
-                    />
-                    {isInvalid ? (
-                      <FieldError errors={field.state.meta.errors} />
-                    ) : null}
-                  </Field>
-                );
-              }}
+              {(field) => (
+                <ClientTextField
+                  field={field}
+                  label="TVA intracommunautaire"
+                  labelClassName="text-foreground-3"
+                  font="mono"
+                  placeholder="FR12 123456789"
+                />
+              )}
             </form.Field>
           </div>
 
           <form.Field name="billingAddress">
-            {(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel
-                    className="text-foreground-3"
-                    htmlFor={field.name}
-                  >
-                    Adresse de facturation
-                  </FieldLabel>
-                  <Textarea
-                    aria-invalid={isInvalid}
-                    id={field.name}
-                    onBlur={field.handleBlur}
-                    onChange={(event) => field.handleChange(event.target.value)}
-                    placeholder={"12 rue de la Paix\n44000 Nantes"}
-                    value={field.state.value}
-                  />
-                  {isInvalid ? (
-                    <FieldError errors={field.state.meta.errors} />
-                  ) : null}
-                </Field>
-              );
-            }}
+            {(field) => (
+              <ClientTextField
+                field={field}
+                label="Adresse de facturation"
+                labelClassName="text-foreground-3"
+                multiline
+                placeholder={"12 rue de la Paix\n44000 Nantes"}
+              />
+            )}
           </form.Field>
 
           <Separator />
 
           <div className="grid gap-4 sm:grid-cols-2">
             <form.Field name="billingContactName">
-              {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel
-                      className="text-foreground-3"
-                      htmlFor={field.name}
-                    >
-                      Contact facturation
-                    </FieldLabel>
-                    <Input
-                      aria-invalid={isInvalid}
-                      id={field.name}
-                      onBlur={field.handleBlur}
-                      onChange={(event) =>
-                        field.handleChange(event.target.value)
-                      }
-                      placeholder="Camille Dupont"
-                      value={field.state.value}
-                    />
-                    {isInvalid ? (
-                      <FieldError errors={field.state.meta.errors} />
-                    ) : null}
-                  </Field>
-                );
-              }}
+              {(field) => (
+                <ClientTextField
+                  field={field}
+                  label="Contact facturation"
+                  labelClassName="text-foreground-3"
+                  placeholder="Camille Dupont"
+                />
+              )}
             </form.Field>
             <form.Field name="billingEmail">
-              {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel
-                      className="text-foreground-3"
-                      htmlFor={field.name}
-                    >
-                      Email d'envoi des factures
-                    </FieldLabel>
-                    <Input
-                      aria-invalid={isInvalid}
-                      id={field.name}
-                      onBlur={field.handleBlur}
-                      onChange={(event) =>
-                        field.handleChange(event.target.value)
-                      }
-                      placeholder="factures@nordlys.example"
-                      type="email"
-                      value={field.state.value}
-                    />
-                    {isInvalid ? (
-                      <FieldError errors={field.state.meta.errors} />
-                    ) : null}
-                  </Field>
-                );
-              }}
+              {(field) => (
+                <ClientTextField
+                  field={field}
+                  label="Email d'envoi des factures"
+                  labelClassName="text-foreground-3"
+                  type="email"
+                  placeholder="factures@nordlys.example"
+                />
+              )}
             </form.Field>
           </div>
 

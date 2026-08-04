@@ -8,9 +8,7 @@ import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
 import { Chip, ChipGroup } from "@opusline/ui/components/chip";
 import { Field, FieldError, FieldLabel } from "@opusline/ui/components/field";
-import { Input } from "@opusline/ui/components/input";
 import { Swatch, SwatchGroup } from "@opusline/ui/components/swatch";
-import { Textarea } from "@opusline/ui/components/textarea";
 import { useForm } from "@tanstack/react-form";
 import { CircleAlert, PencilIcon } from "lucide-react";
 
@@ -26,6 +24,7 @@ import {
   COLOR_LABELS,
   COLORS,
 } from "../lib/labels";
+import { ClientTextField } from "./client-text-field";
 import { PaymentTermsPicker } from "./payment-terms-picker";
 
 const EYEBROW_CLASSES =
@@ -102,32 +101,13 @@ export function ClientEditForm({
           <div className={`${EYEBROW_CLASSES} mb-4`}>Identité</div>
           <div className="flex flex-col gap-3.5">
             <form.Field name="name">
-              {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel
-                      className={EDIT_LABEL_CLASSES}
-                      htmlFor={field.name}
-                    >
-                      Raison sociale
-                    </FieldLabel>
-                    <Input
-                      aria-invalid={isInvalid}
-                      id={field.name}
-                      onBlur={field.handleBlur}
-                      onChange={(event) =>
-                        field.handleChange(event.target.value)
-                      }
-                      value={field.state.value}
-                    />
-                    {isInvalid ? (
-                      <FieldError errors={field.state.meta.errors} />
-                    ) : null}
-                  </Field>
-                );
-              }}
+              {(field) => (
+                <ClientTextField
+                  field={field}
+                  label="Raison sociale"
+                  labelClassName={EDIT_LABEL_CLASSES}
+                />
+              )}
             </form.Field>
 
             <form.Field name="type">
@@ -206,93 +186,37 @@ export function ClientEditForm({
             </form.Field>
 
             <form.Field name="siret">
-              {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel
-                      className={EDIT_LABEL_CLASSES}
-                      htmlFor={field.name}
-                    >
-                      SIRET
-                    </FieldLabel>
-                    <Input
-                      aria-invalid={isInvalid}
-                      font="mono"
-                      id={field.name}
-                      onBlur={field.handleBlur}
-                      onChange={(event) =>
-                        field.handleChange(event.target.value)
-                      }
-                      value={field.state.value}
-                    />
-                    {isInvalid ? (
-                      <FieldError errors={field.state.meta.errors} />
-                    ) : null}
-                  </Field>
-                );
-              }}
+              {(field) => (
+                <ClientTextField
+                  field={field}
+                  label="SIRET"
+                  labelClassName={EDIT_LABEL_CLASSES}
+                  font="mono"
+                />
+              )}
             </form.Field>
 
             <form.Field name="vatNumber">
-              {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel
-                      className={EDIT_LABEL_CLASSES}
-                      htmlFor={field.name}
-                    >
-                      TVA intracom.
-                    </FieldLabel>
-                    <Input
-                      aria-invalid={isInvalid}
-                      font="mono"
-                      id={field.name}
-                      onBlur={field.handleBlur}
-                      onChange={(event) =>
-                        field.handleChange(event.target.value)
-                      }
-                      value={field.state.value}
-                    />
-                    {isInvalid ? (
-                      <FieldError errors={field.state.meta.errors} />
-                    ) : null}
-                  </Field>
-                );
-              }}
+              {(field) => (
+                <ClientTextField
+                  field={field}
+                  label="TVA intracom."
+                  labelClassName={EDIT_LABEL_CLASSES}
+                  font="mono"
+                />
+              )}
             </form.Field>
 
             <form.Field name="billingAddress">
-              {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel
-                      className={EDIT_LABEL_CLASSES}
-                      htmlFor={field.name}
-                    >
-                      Adresse
-                    </FieldLabel>
-                    <Textarea
-                      aria-invalid={isInvalid}
-                      className="min-h-18"
-                      id={field.name}
-                      onBlur={field.handleBlur}
-                      onChange={(event) =>
-                        field.handleChange(event.target.value)
-                      }
-                      value={field.state.value}
-                    />
-                    {isInvalid ? (
-                      <FieldError errors={field.state.meta.errors} />
-                    ) : null}
-                  </Field>
-                );
-              }}
+              {(field) => (
+                <ClientTextField
+                  field={field}
+                  label="Adresse"
+                  labelClassName={EDIT_LABEL_CLASSES}
+                  multiline
+                  inputClassName="min-h-18"
+                />
+              )}
             </form.Field>
           </div>
         </div>
@@ -301,62 +225,24 @@ export function ClientEditForm({
           <div className={`${EYEBROW_CLASSES} mb-4`}>Facturation</div>
           <div className="flex flex-col gap-3.5">
             <form.Field name="billingContactName">
-              {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel
-                      className={EDIT_LABEL_CLASSES}
-                      htmlFor={field.name}
-                    >
-                      Contact
-                    </FieldLabel>
-                    <Input
-                      aria-invalid={isInvalid}
-                      id={field.name}
-                      onBlur={field.handleBlur}
-                      onChange={(event) =>
-                        field.handleChange(event.target.value)
-                      }
-                      value={field.state.value}
-                    />
-                    {isInvalid ? (
-                      <FieldError errors={field.state.meta.errors} />
-                    ) : null}
-                  </Field>
-                );
-              }}
+              {(field) => (
+                <ClientTextField
+                  field={field}
+                  label="Contact"
+                  labelClassName={EDIT_LABEL_CLASSES}
+                />
+              )}
             </form.Field>
 
             <form.Field name="billingEmail">
-              {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel
-                      className={EDIT_LABEL_CLASSES}
-                      htmlFor={field.name}
-                    >
-                      Email
-                    </FieldLabel>
-                    <Input
-                      aria-invalid={isInvalid}
-                      id={field.name}
-                      onBlur={field.handleBlur}
-                      onChange={(event) =>
-                        field.handleChange(event.target.value)
-                      }
-                      type="email"
-                      value={field.state.value}
-                    />
-                    {isInvalid ? (
-                      <FieldError errors={field.state.meta.errors} />
-                    ) : null}
-                  </Field>
-                );
-              }}
+              {(field) => (
+                <ClientTextField
+                  field={field}
+                  label="Email"
+                  labelClassName={EDIT_LABEL_CLASSES}
+                  type="email"
+                />
+              )}
             </form.Field>
 
             <form.Field name="paymentTermsDays">
