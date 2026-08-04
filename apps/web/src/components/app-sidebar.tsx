@@ -44,14 +44,7 @@ import {
   Users,
 } from "lucide-react";
 
-function initials(name: string): string {
-  return name
-    .split(" ")
-    .map((word) => word[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
+import { initials } from "@/lib/initials";
 
 export function AppSidebar() {
   const { pathname } = useLocation();

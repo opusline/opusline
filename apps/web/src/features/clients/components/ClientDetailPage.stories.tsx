@@ -90,7 +90,7 @@ type Story = StoryObj<typeof ClientDetailPage>;
 export const Default: Story = {
   args: {
     client,
-    onUpdate: async () => null,
+    onUpdate: async () => ({ status: "success" }) as const,
     onToggleArchive: () => {},
   },
 };
@@ -102,7 +102,7 @@ export const Archived: Story = {
       archivedAt: new Date(Date.now() - 30 * DAY_MS).toISOString(),
       missions: [],
     },
-    onUpdate: async () => null,
+    onUpdate: async () => ({ status: "success" }) as const,
     onToggleArchive: () => {},
   },
 };
@@ -114,9 +114,11 @@ export const WithoutCoordinates: Story = {
       siret: null,
       vatNumber: null,
       billingAddress: null,
+      billingContactName: null,
+      billingEmail: null,
       missions: [],
     },
-    onUpdate: async () => null,
+    onUpdate: async () => ({ status: "success" }) as const,
     onToggleArchive: () => {},
   },
 };

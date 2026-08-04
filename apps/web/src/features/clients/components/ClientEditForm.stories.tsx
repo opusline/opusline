@@ -32,7 +32,7 @@ type Story = StoryObj<typeof ClientEditForm>;
 export const Default: Story = {
   args: {
     client,
-    onSubmit: async () => null,
+    onSubmit: async () => ({ status: "success" }) as const,
     onCancel: () => {},
   },
 };
@@ -40,7 +40,7 @@ export const Default: Story = {
 export const WithCustomTerm: Story = {
   args: {
     client: { ...client, paymentTermsDays: 90 },
-    onSubmit: async () => null,
+    onSubmit: async () => ({ status: "success" }) as const,
     onCancel: () => {},
   },
 };

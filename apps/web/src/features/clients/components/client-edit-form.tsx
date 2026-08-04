@@ -15,6 +15,11 @@ import { useForm } from "@tanstack/react-form";
 import { CircleAlert, PencilIcon } from "lucide-react";
 
 import {
+  type ClientFormValues,
+  type ClientSubmitResult,
+  toClientPayload,
+} from "../lib/client-form";
+import {
   CLIENT_TYPE_LABELS,
   CLIENT_TYPES,
   COLOR_CLASSES,
@@ -27,43 +32,9 @@ const EYEBROW_CLASSES =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
 const EDIT_LABEL_CLASSES = "text-muted-foreground-3 text-xs";
 
-type ClientEditFormValues = {
-  name: string;
-  type: ClientType;
-  siret: string;
-  vatNumber: string;
-  billingAddress: string;
-  billingContactName: string;
-  billingEmail: string;
-  color: Color;
-  paymentTermsDays: number;
-};
-
-function valueOrNull(value: string): string | null {
-  const trimmed = value.trim();
-
-  return trimmed === "" ? null : trimmed;
-}
-
-function toUpdateClientBody(values: ClientEditFormValues): UpdateClientData {
-  return {
-    name: values.name.trim(),
-    type: values.type,
-    siret: valueOrNull(values.siret),
-    vatNumber: valueOrNull(values.vatNumber),
-    billingAddress: valueOrNull(values.billingAddress),
-    billingContactName: valueOrNull(values.billingContactName),
-    billingEmail: valueOrNull(values.billingEmail),
-    color: values.color,
-    paymentTermsDays: values.paymentTermsDays,
-  };
-}
-
 type ClientEditFormProps = {
   client: ClientWithMissionsData;
-  onSubmit: (
-    body: UpdateClientData,
-  ) => Promise<Record<string, { message: string }> | null | undefined>;
+  onSubmit: (body: UpdateClientData) => Promise<ClientSubmitResult>;
   onCancel: () => void;
   isPending?: boolean;
   error?: string | null;
@@ -87,12 +58,14 @@ export function ClientEditForm({
       billingEmail: client.billingEmail ?? "",
       color: client.color,
       paymentTermsDays: client.paymentTermsDays,
-    } as ClientEditFormValues,
+    } as ClientFormValues,
     validators: {
       onSubmitAsync: async ({ value }) => {
-        const fieldErrors = await onSubmit(toUpdateClientBody(value));
+        const result = await onSubmit(toClientPayload(value));
 
-        return fieldErrors ? { fields: fieldErrors } : null;
+        return result.status === "invalid"
+          ? { fields: result.fieldErrors }
+          : null;
       },
     },
   });
@@ -377,21 +350,28 @@ export function ClientEditForm({
             </form.Field>
 
             <form.Field name="paymentTermsDays">
-              {(field) => (
-                <Field>
-                  <FieldLabel
-                    className={EDIT_LABEL_CLASSES}
-                    htmlFor={`${field.name}-options`}
-                  >
-                    Délai de paiement
-                  </FieldLabel>
-                  <PaymentTermsPicker
-                    id={`${field.name}-options`}
-                    onChange={field.handleChange}
-                    value={field.state.value}
-                  />
-                </Field>
-              )}
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel
+                      className={EDIT_LABEL_CLASSES}
+                      htmlFor={`${field.name}-options`}
+                    >
+                      Délai de paiement
+                    </FieldLabel>
+                    <PaymentTermsPicker
+                      id={`${field.name}-options`}
+                      onChange={field.handleChange}
+                      value={field.state.value}
+                    />
+                    {isInvalid ? (
+                      <FieldError errors={field.state.meta.errors} />
+                    ) : null}
+                  </Field>
+                );
+              }}
             </form.Field>
           </div>
         </div>

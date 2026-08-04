@@ -13,6 +13,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { ClientDetailPage } from "@/features/clients/components/client-detail-page";
+import type { ClientSubmitResult } from "@/features/clients/lib/client-form";
 import { serverFieldErrors } from "@/lib/validation";
 
 export const Route = createFileRoute("/_authed/clients_/$clientSlug")({
@@ -40,13 +41,19 @@ function ClientDetailRoute() {
     ]);
   };
 
-  const handleUpdate = async (body: UpdateClientData) => {
+  const handleUpdate = async (
+    body: UpdateClientData,
+  ): Promise<ClientSubmitResult> => {
     try {
       await updateClient.mutateAsync({ body, path: { client } });
       await invalidateClient();
-      return null;
+      return { status: "success" };
     } catch (error) {
-      return serverFieldErrors(error);
+      const fieldErrors = serverFieldErrors(error);
+
+      return fieldErrors
+        ? { status: "invalid", fieldErrors }
+        : { status: "failed" };
     }
   };
 

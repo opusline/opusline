@@ -170,6 +170,67 @@ it("saves an edit and returns to reading mode", async () => {
   expect(update?.body).toMatchObject({ name: "Nordlys Conseil", type: 1 });
 });
 
+it("keeps the edit form open when the update fails without field errors", async () => {
+  stubApi(clientPayload(), (request) =>
+    request.method === "PUT"
+      ? jsonResponse(500, { message: "Server Error" })
+      : null,
+  );
+  await renderDetailPage();
+
+  fireEvent.click(screen.getByRole("button", { name: "Modifier" }));
+  fireEvent.change(await screen.findByLabelText("Raison sociale"), {
+    target: { value: "Nordlys Conseil" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+
+  expect(
+    await screen.findByText("L'action a échoué. Réessayez dans un instant."),
+  ).toBeInTheDocument();
+  expect(screen.getByLabelText("Raison sociale")).toHaveValue(
+    "Nordlys Conseil",
+  );
+  expect(
+    screen.queryByRole("tab", { name: "Missions" }),
+  ).not.toBeInTheDocument();
+});
+
+it("shows saved billing contact details even without company identifiers", async () => {
+  stubApi(
+    clientPayload({
+      siret: null,
+      vatNumber: null,
+      billingAddress: null,
+      billingEmail: "factures@nordlys.example",
+    }),
+  );
+  await renderDetailPage();
+
+  fireEvent.click(screen.getByRole("tab", { name: "Coordonnées" }));
+
+  expect(
+    await screen.findByText("factures@nordlys.example"),
+  ).toBeInTheDocument();
+  expect(screen.queryByText("Coordonnées à compléter")).not.toBeInTheDocument();
+});
+
+it("hides mission creation on an archived client", async () => {
+  stubApi(clientPayload({ archivedAt: daysAgo(10), missions: [] }));
+  await renderDetailPage();
+
+  expect(
+    screen.queryByRole("button", { name: /Nouvelle mission/ }),
+  ).not.toBeInTheDocument();
+  expect(
+    await screen.findByText(
+      "Client archivé — réactivez-le pour ajouter une mission.",
+    ),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: "Créer une mission" }),
+  ).not.toBeInTheDocument();
+});
+
 it("archives the client from the actions menu", async () => {
   const requests = stubApi(clientPayload());
   await renderDetailPage();

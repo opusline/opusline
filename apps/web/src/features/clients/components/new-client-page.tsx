@@ -13,6 +13,9 @@ import { Link } from "@tanstack/react-router";
 import { CircleAlert, InfoIcon } from "lucide-react";
 import { useState } from "react";
 
+import { initials } from "@/lib/initials";
+
+import { type ClientFormValues, toClientPayload } from "../lib/client-form";
 import {
   CLIENT_TYPE_HINTS,
   CLIENT_TYPE_OPTION_LABELS,
@@ -20,7 +23,6 @@ import {
   COLOR_CLASSES,
   COLOR_LABELS,
   COLORS,
-  clientInitials,
   paymentTermsLabel,
   randomColor,
 } from "../lib/labels";
@@ -28,38 +30,6 @@ import { PaymentTermsPicker } from "./payment-terms-picker";
 
 const EYEBROW_CLASSES =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
-
-type ClientFormValues = {
-  name: string;
-  type: ClientType;
-  siret: string;
-  vatNumber: string;
-  billingAddress: string;
-  billingContactName: string;
-  billingEmail: string;
-  color: Color;
-  paymentTermsDays: number;
-};
-
-function valueOrNull(value: string): string | null {
-  const trimmed = value.trim();
-
-  return trimmed === "" ? null : trimmed;
-}
-
-function toCreateClientBody(values: ClientFormValues): CreateClientData {
-  return {
-    name: values.name.trim(),
-    type: values.type,
-    siret: valueOrNull(values.siret),
-    vatNumber: valueOrNull(values.vatNumber),
-    billingAddress: valueOrNull(values.billingAddress),
-    billingContactName: valueOrNull(values.billingContactName),
-    billingEmail: valueOrNull(values.billingEmail),
-    color: values.color,
-    paymentTermsDays: values.paymentTermsDays,
-  };
-}
 
 type NewClientPageProps = {
   onSubmit: (
@@ -92,7 +62,7 @@ export function NewClientPage({
     } as ClientFormValues,
     validators: {
       onSubmitAsync: async ({ value }) => {
-        const fieldErrors = await onSubmit(toCreateClientBody(value));
+        const fieldErrors = await onSubmit(toClientPayload(value));
 
         return fieldErrors ? { fields: fieldErrors } : null;
       },
@@ -438,7 +408,7 @@ export function NewClientPage({
               </div>
               <div className="flex items-center gap-3 rounded-md border bg-card px-5 py-4">
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-md border border-border-2 bg-secondary font-medium text-muted-foreground-4 text-xs">
-                  {clientInitials(values.name)}
+                  {initials(values.name)}
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">

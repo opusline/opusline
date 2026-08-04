@@ -35,10 +35,12 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+import { initials } from "@/lib/initials";
+
+import type { ClientSubmitResult } from "../lib/client-form";
 import {
   CLIENT_TYPE_OPTION_LABELS,
   COLOR_CLASSES,
-  clientInitials,
   clientSinceLabel,
   formatMissionRate,
   MISSION_STATUS_BADGE_VARIANTS,
@@ -102,9 +104,7 @@ function CoordRow({
 
 type ClientDetailPageProps = {
   client: ClientWithMissionsData;
-  onUpdate: (
-    body: UpdateClientData,
-  ) => Promise<Record<string, { message: string }> | null | undefined>;
+  onUpdate: (body: UpdateClientData) => Promise<ClientSubmitResult>;
   onToggleArchive: () => void;
   isUpdatePending?: boolean;
   isArchivePending?: boolean;
@@ -126,16 +126,18 @@ export function ClientDetailPage({
   const hasCoordinates =
     client.siret !== null ||
     client.vatNumber !== null ||
-    client.billingAddress !== null;
+    client.billingAddress !== null ||
+    client.billingContactName !== null ||
+    client.billingEmail !== null;
 
   const handleUpdate = async (body: UpdateClientData) => {
-    const fieldErrors = await onUpdate(body);
+    const result = await onUpdate(body);
 
-    if (!fieldErrors) {
+    if (result.status === "success") {
       setIsEditing(false);
     }
 
-    return fieldErrors;
+    return result;
   };
 
   return (
@@ -154,7 +156,7 @@ export function ClientDetailPage({
       <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3.5">
           <span className="flex size-18 shrink-0 items-center justify-center rounded-md border border-border-2 bg-secondary font-heading font-medium text-2xl text-muted-foreground-4 tracking-wide">
-            {clientInitials(client.name)}
+            {initials(client.name)}
           </span>
           <div className="min-w-0">
             <div className="flex items-center gap-2.5">
@@ -178,10 +180,12 @@ export function ClientDetailPage({
           </div>
         </div>
         <div className="flex min-w-0 flex-wrap gap-2">
-          <Button size="xl">
-            <PlusIcon aria-hidden data-icon="inline-start" />
-            Nouvelle mission
-          </Button>
+          {!isArchived && (
+            <Button size="xl">
+              <PlusIcon aria-hidden data-icon="inline-start" />
+              Nouvelle mission
+            </Button>
+          )}
           <Button
             onClick={() => setIsEditing((editing) => !editing)}
             size="xl"
@@ -344,10 +348,11 @@ export function ClientDetailPage({
                   Aucune mission
                 </div>
                 <p className="mb-5 text-muted-foreground-3 text-sm leading-relaxed">
-                  Ce client n'a pas de mission active. Créez-en une pour pouvoir
-                  suivre du temps dessus.
+                  {isArchived
+                    ? "Client archivé — réactivez-le pour ajouter une mission."
+                    : "Ce client n'a pas de mission active. Créez-en une pour pouvoir suivre du temps dessus."}
                 </p>
-                <Button size="xl">Créer une mission</Button>
+                {!isArchived && <Button size="xl">Créer une mission</Button>}
               </div>
             )}
           </TabsContent>
