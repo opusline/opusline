@@ -37,6 +37,16 @@ test('cannot archive another user client', function (): void {
         ->assertNotFound();
 });
 
+test('cannot unarchive another user client', function (): void {
+    $client = Client::factory()->archived()->create();
+
+    $this->actingAs(User::factory()->create())
+        ->postJson("/api/clients/{$client->id}/unarchive")
+        ->assertNotFound();
+
+    expect($client->refresh()->archived_at)->not->toBeNull();
+});
+
 test('returns 401 for guests', function (): void {
     $client = Client::factory()->create();
 

@@ -1514,9 +1514,7 @@
                 },
                 "required": [
                     "name",
-                    "type",
-                    "color",
-                    "paymentTermsDays"
+                    "type"
                 ],
                 "title": "CreateClientData"
             },
@@ -1957,9 +1955,7 @@
                 },
                 "required": [
                     "name",
-                    "type",
-                    "color",
-                    "paymentTermsDays"
+                    "type"
                 ],
                 "title": "UpdateClientData"
             },

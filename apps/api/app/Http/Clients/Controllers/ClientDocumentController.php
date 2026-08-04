@@ -52,7 +52,11 @@ class ClientDocumentController extends Controller
     {
         $media = $this->documentOf($client, $document);
 
-        return Storage::disk($media->disk)->download($media->getPathRelativeToRoot(), $media->file_name);
+        return Storage::disk($media->disk)->download(
+            $media->getPathRelativeToRoot(),
+            $media->file_name,
+            ['Cache-Control' => 'no-store'],
+        );
     }
 
     public function destroy(Client $client, int $document, DeleteDocument $deleteDocument): Response

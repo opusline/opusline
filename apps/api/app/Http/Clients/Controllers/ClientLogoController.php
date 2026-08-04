@@ -32,8 +32,12 @@ class ClientLogoController extends Controller
         return Storage::disk($logo->disk)->response(
             $logo->getPathRelativeToRoot(),
             $logo->file_name,
-            // The CSP header neuters scripts in SVG logos opened directly.
-            ['Content-Security-Policy' => "default-src 'none'"],
+            [
+                // The CSP header neuters scripts in SVG logos opened directly.
+                'Content-Security-Policy' => "default-src 'none'",
+                // Private content must never be reused from a shared cache.
+                'Cache-Control' => 'no-store',
+            ],
         );
     }
 

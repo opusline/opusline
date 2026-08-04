@@ -131,7 +131,8 @@ test('downloads a document as an attachment', function (): void {
 
     expect($response->headers->get('Content-Disposition'))
         ->toContain('attachment')
-        ->toContain('Contrat.pdf');
+        ->toContain('Contrat.pdf')
+        ->and($response->headers->get('Cache-Control'))->toContain('no-store');
 });
 
 test('deletes a document', function (): void {

@@ -86,7 +86,8 @@ test('downloads a mission document as an attachment', function (): void {
 
     expect($response->headers->get('Content-Disposition'))
         ->toContain('attachment')
-        ->toContain('CRA-juillet.pdf');
+        ->toContain('CRA-juillet.pdf')
+        ->and($response->headers->get('Cache-Control'))->toContain('no-store');
 });
 
 test('deletes a mission document', function (): void {

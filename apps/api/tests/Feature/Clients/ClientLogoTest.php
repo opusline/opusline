@@ -46,10 +46,12 @@ test('serves the logo inline with a restrictive csp', function (): void {
     $this->actingAs($user)
         ->post("/api/clients/{$client->id}/logo", ['logo' => UploadedFile::fake()->image('logo.png')]);
 
-    $this->actingAs($user)
+    $response = $this->actingAs($user)
         ->get("/api/clients/{$client->id}/logo")
         ->assertOk()
         ->assertHeader('Content-Security-Policy', "default-src 'none'");
+
+    expect($response->headers->get('Cache-Control'))->toContain('no-store');
 });
 
 test('returns 404 when the client has no logo', function (): void {

@@ -79,8 +79,8 @@ export type CreateClientData = {
     billingAddress?: string | null;
     billingContactName?: string | null;
     billingEmail?: string | null;
-    color: Color;
-    paymentTermsDays: number;
+    color?: Color;
+    paymentTermsDays?: number;
 };
 
 /**
@@ -208,8 +208,8 @@ export type UpdateClientData = {
     billingAddress?: string | null;
     billingContactName?: string | null;
     billingEmail?: string | null;
-    color: Color;
-    paymentTermsDays: number;
+    color?: Color;
+    paymentTermsDays?: number;
 };
 
 /**

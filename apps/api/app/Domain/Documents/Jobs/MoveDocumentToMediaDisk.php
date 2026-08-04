@@ -38,7 +38,17 @@ class MoveDocumentToMediaDisk implements ShouldQueue
             throw new UnexpectedValueException("Staged document [{$this->document->id}] is missing at [{$path}].");
         }
 
-        Storage::disk($targetDisk)->writeStream($path, $stream);
+        try {
+            $written = Storage::disk($targetDisk)->writeStream($path, $stream);
+        } finally {
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
+        }
+
+        if ($written === false) {
+            throw new UnexpectedValueException("Failed to write document [{$this->document->id}] to disk [{$targetDisk}].");
+        }
 
         $this->document->disk = $targetDisk;
         $this->document->conversions_disk = $targetDisk;

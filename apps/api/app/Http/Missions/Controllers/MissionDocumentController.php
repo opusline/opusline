@@ -60,7 +60,11 @@ class MissionDocumentController extends Controller
     {
         $media = $this->documentOf($mission, $document);
 
-        return Storage::disk($media->disk)->download($media->getPathRelativeToRoot(), $media->file_name);
+        return Storage::disk($media->disk)->download(
+            $media->getPathRelativeToRoot(),
+            $media->file_name,
+            ['Cache-Control' => 'no-store'],
+        );
     }
 
     public function destroy(Client $client, Mission $mission, int $document, DeleteDocument $deleteDocument): Response

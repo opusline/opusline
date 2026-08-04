@@ -74,9 +74,9 @@ class SpatieDataParametersExtractor implements ParameterExtractor
     }
 
     /**
-     * Rules are resolved against a payload where nested data is always
-     * present, so Scramble's dot-path merge would mark nullable nested
-     * objects as required. Merge here and restore their real optionality.
+     * Rules are resolved against a payload where every property is present,
+     * so Scramble would mark nullable nested objects and defaulted properties
+     * as required. Merge here and restore their real optionality.
      *
      * @param  class-string<Data>  $dataClassName
      * @param  Parameter[]  $parameters
@@ -88,11 +88,6 @@ class SpatieDataParametersExtractor implements ParameterExtractor
 
         foreach ($this->dataConfig->getDataClass($dataClassName)->properties as $property) {
             $kind = $property->type->kind;
-
-            if (! $kind->isDataObject() && ! $kind->isDataCollectable()) {
-                continue;
-            }
-
             $inputName = $property->inputMappedName ?? $property->name;
 
             foreach ($parameters as $parameter) {
@@ -100,7 +95,7 @@ class SpatieDataParametersExtractor implements ParameterExtractor
                     continue;
                 }
 
-                if ($property->type->isNullable) {
+                if (($kind->isDataObject() || $kind->isDataCollectable()) && $property->type->isNullable) {
                     $parameter->schema?->type->nullable(true);
                 }
 

@@ -66,8 +66,8 @@ export const zCreateClientData = z.object({
     billingAddress: z.nullish(z.string()),
     billingContactName: z.nullish(z.string().check(z.maxLength(255))),
     billingEmail: z.nullish(z.email().check(z.maxLength(255))),
-    color: zColor,
-    paymentTermsDays: z.int().check(z.gte(0), z.lte(365))
+    color: z.optional(zColor),
+    paymentTermsDays: z.optional(z.int().check(z.gte(0), z.lte(365)))
 });
 
 /**
@@ -237,8 +237,8 @@ export const zUpdateClientData = z.object({
     billingAddress: z.nullish(z.string()),
     billingContactName: z.nullish(z.string().check(z.maxLength(255))),
     billingEmail: z.nullish(z.email().check(z.maxLength(255))),
-    color: zColor,
-    paymentTermsDays: z.int().check(z.gte(0), z.lte(365))
+    color: z.optional(zColor),
+    paymentTermsDays: z.optional(z.int().check(z.gte(0), z.lte(365)))
 });
 
 /**
