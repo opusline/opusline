@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { ClientTextField, type StringFieldApi } from "./client-text-field";
+import { FormTextField, type StringFieldApi } from "./form-text-field";
 
 function stubField(value: string, error?: string): StringFieldApi {
   return {
@@ -18,13 +18,13 @@ function stubField(value: string, error?: string): StringFieldApi {
 }
 
 const meta = {
-  title: "Web/ClientTextField",
-  component: ClientTextField,
+  title: "Web/FormTextField",
+  component: FormTextField,
   tags: ["autodocs"],
-} satisfies Meta<typeof ClientTextField>;
+} satisfies Meta<typeof FormTextField>;
 
 export default meta;
-type Story = StoryObj<typeof ClientTextField>;
+type Story = StoryObj<typeof FormTextField>;
 
 export const Default: Story = {
   args: {

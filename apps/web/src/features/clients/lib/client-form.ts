@@ -17,11 +17,6 @@ export type ClientFormValues = {
   paymentTermsDays: number;
 };
 
-export type ClientSubmitResult =
-  | { status: "success" }
-  | { status: "invalid"; fieldErrors: Record<string, { message: string }> }
-  | { status: "failed" };
-
 function valueOrNull(value: string): string | null {
   const trimmed = value.trim();
 

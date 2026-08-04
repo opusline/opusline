@@ -27,6 +27,7 @@ import { Route as GuestLoginRouteImport } from './routes/_guest/login'
 import { Route as GuestRegisterRouteImport } from './routes/_guest/register'
 import { Route as AuthedClientsClientSlugRouteImport } from './routes/_authed/clients_.$clientSlug'
 import { Route as AuthedClientsNewRouteImport } from './routes/_authed/clients_.new'
+import { Route as AuthedMissionsNewRouteImport } from './routes/_authed/missions_.new'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -116,6 +117,11 @@ const AuthedClientsNewRoute = AuthedClientsNewRouteImport.update({
   path: '/clients/new',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedMissionsNewRoute = AuthedMissionsNewRouteImport.update({
+  id: '/missions_/new',
+  path: '/missions/new',
+  getParentRoute: () => AuthedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -134,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof GuestRegisterRoute
   '/clients/$clientSlug': typeof AuthedClientsClientSlugRoute
   '/clients/new': typeof AuthedClientsNewRoute
+  '/missions/new': typeof AuthedMissionsNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -152,6 +159,7 @@ export interface FileRoutesByTo {
   '/register': typeof GuestRegisterRoute
   '/clients/$clientSlug': typeof AuthedClientsClientSlugRoute
   '/clients/new': typeof AuthedClientsNewRoute
+  '/missions/new': typeof AuthedMissionsNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   '/_guest/register': typeof GuestRegisterRoute
   '/_authed/clients_/$clientSlug': typeof AuthedClientsClientSlugRoute
   '/_authed/clients_/new': typeof AuthedClientsNewRoute
+  '/_authed/missions_/new': typeof AuthedMissionsNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -193,6 +202,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/clients/$clientSlug'
     | '/clients/new'
+    | '/missions/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -211,6 +221,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/clients/$clientSlug'
     | '/clients/new'
+    | '/missions/new'
   id:
     | '__root__'
     | '/'
@@ -231,6 +242,7 @@ export interface FileRouteTypes {
     | '/_guest/register'
     | '/_authed/clients_/$clientSlug'
     | '/_authed/clients_/new'
+    | '/_authed/missions_/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -368,6 +380,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedClientsNewRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/missions_/new': {
+      id: '/_authed/missions_/new'
+      path: '/missions/new'
+      fullPath: '/missions/new'
+      preLoaderRoute: typeof AuthedMissionsNewRouteImport
+      parentRoute: typeof AuthedRoute
+    }
   }
 }
 
@@ -384,6 +403,7 @@ interface AuthedRouteChildren {
   AuthedVirementRoute: typeof AuthedVirementRoute
   AuthedClientsClientSlugRoute: typeof AuthedClientsClientSlugRoute
   AuthedClientsNewRoute: typeof AuthedClientsNewRoute
+  AuthedMissionsNewRoute: typeof AuthedMissionsNewRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
@@ -399,6 +419,7 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedVirementRoute: AuthedVirementRoute,
   AuthedClientsClientSlugRoute: AuthedClientsClientSlugRoute,
   AuthedClientsNewRoute: AuthedClientsNewRoute,
+  AuthedMissionsNewRoute: AuthedMissionsNewRoute,
 }
 
 const AuthedRouteWithChildren =

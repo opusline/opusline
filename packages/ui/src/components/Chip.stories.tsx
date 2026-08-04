@@ -85,6 +85,17 @@ export const Sizes: Story = {
   render: () => (
     <div className="flex flex-col gap-4">
       <ChipGroup defaultValue={["jour"]} aria-label="Mode de facturation">
+        <Chip value="jour" size="xl">
+          Au jour
+        </Chip>
+        <Chip value="heure" size="xl">
+          À l'heure
+        </Chip>
+        <Chip value="forfait" size="xl">
+          Forfait
+        </Chip>
+      </ChipGroup>
+      <ChipGroup defaultValue={["jour"]} aria-label="Mode de facturation">
         <Chip value="jour" size="lg">
           Au jour
         </Chip>

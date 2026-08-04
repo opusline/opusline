@@ -13,7 +13,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { ClientDetailPage } from "@/features/clients/components/client-detail-page";
-import type { ClientSubmitResult } from "@/features/clients/lib/client-form";
+import type { FormSubmitResult } from "@/lib/form";
 import { serverFieldErrors } from "@/lib/validation";
 
 export const Route = createFileRoute("/_authed/clients_/$clientSlug")({
@@ -43,7 +43,7 @@ function ClientDetailRoute() {
 
   const handleUpdate = async (
     body: UpdateClientData,
-  ): Promise<ClientSubmitResult> => {
+  ): Promise<FormSubmitResult> => {
     try {
       await updateClient.mutateAsync({ body, path: { client } });
       await invalidateClient();
@@ -70,7 +70,7 @@ function ClientDetailRoute() {
 
   if (isPending) {
     return (
-      <div className="flex max-w-5xl flex-col gap-5">
+      <div className="flex max-w-270 flex-col gap-5">
         <Skeleton className="h-18 w-full" />
         <Skeleton className="h-22 w-full" />
         <Skeleton className="h-40 w-full" />

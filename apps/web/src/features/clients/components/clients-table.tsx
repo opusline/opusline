@@ -13,11 +13,11 @@ import { cn } from "@opusline/ui/lib/utils";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
+import { COLOR_CLASSES } from "@/lib/palette";
 
 import {
   CLIENT_TYPE_BADGE_VARIANTS,
   CLIENT_TYPE_LABELS,
-  COLOR_CLASSES,
   clientSubtitle,
   formatMissionRate,
   isNewClient,
@@ -241,6 +241,12 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                     <TableCell colSpan={6} className="p-0">
                       <button
                         type="button"
+                        onClick={() =>
+                          void navigate({
+                            to: "/missions/new",
+                            search: { client: client.slug },
+                          })
+                        }
                         className={cn(
                           "flex w-full items-center gap-2 pl-8.5 font-normal text-muted-foreground text-sm transition-all group-hover/add:text-primary-note focus-visible:text-primary-note",
                           client.missions.length > 0

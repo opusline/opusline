@@ -22,6 +22,7 @@ const chipVariants = cva(
         sm: "h-7 px-2.5 text-xs",
         md: "h-8 px-3 text-sm",
         lg: "h-9 px-3.5 text-sm",
+        xl: "h-10 px-3.5 text-sm",
       },
       shape: {
         square: "rounded-md",

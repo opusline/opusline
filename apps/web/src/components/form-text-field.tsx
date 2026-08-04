@@ -17,7 +17,7 @@ export type StringFieldApi = {
   handleBlur: () => void;
 };
 
-type ClientTextFieldProps = {
+type FormTextFieldProps = {
   field: StringFieldApi;
   label: string;
   labelClassName?: string;
@@ -28,7 +28,7 @@ type ClientTextFieldProps = {
   placeholder?: string;
 };
 
-export function ClientTextField({
+export function FormTextField({
   field,
   label,
   labelClassName,
@@ -37,7 +37,7 @@ export function ClientTextField({
   font,
   type,
   placeholder,
-}: ClientTextFieldProps) {
+}: FormTextFieldProps) {
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
   const controlProps = {

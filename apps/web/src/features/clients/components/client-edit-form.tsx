@@ -11,20 +11,12 @@ import { Field, FieldError, FieldLabel } from "@opusline/ui/components/field";
 import { Swatch, SwatchGroup } from "@opusline/ui/components/swatch";
 import { useForm } from "@tanstack/react-form";
 import { CircleAlert, PencilIcon } from "lucide-react";
+import { FormTextField } from "@/components/form-text-field";
+import type { FormSubmitResult } from "@/lib/form";
+import { COLOR_CLASSES, COLOR_LABELS, COLORS } from "@/lib/palette";
 
-import {
-  type ClientFormValues,
-  type ClientSubmitResult,
-  toClientPayload,
-} from "../lib/client-form";
-import {
-  CLIENT_TYPE_LABELS,
-  CLIENT_TYPES,
-  COLOR_CLASSES,
-  COLOR_LABELS,
-  COLORS,
-} from "../lib/labels";
-import { ClientTextField } from "./client-text-field";
+import { type ClientFormValues, toClientPayload } from "../lib/client-form";
+import { CLIENT_TYPE_LABELS, CLIENT_TYPES } from "../lib/labels";
 import { PaymentTermsPicker } from "./payment-terms-picker";
 
 const EYEBROW_CLASSES =
@@ -33,7 +25,7 @@ const EDIT_LABEL_CLASSES = "text-muted-foreground-3 text-xs";
 
 type ClientEditFormProps = {
   client: ClientWithMissionsData;
-  onSubmit: (body: UpdateClientData) => Promise<ClientSubmitResult>;
+  onSubmit: (body: UpdateClientData) => Promise<FormSubmitResult>;
   onCancel: () => void;
   isPending?: boolean;
   error?: string | null;
@@ -102,7 +94,7 @@ export function ClientEditForm({
           <div className="flex flex-col gap-3.5">
             <form.Field name="name">
               {(field) => (
-                <ClientTextField
+                <FormTextField
                   field={field}
                   label="Raison sociale"
                   labelClassName={EDIT_LABEL_CLASSES}
@@ -187,7 +179,7 @@ export function ClientEditForm({
 
             <form.Field name="siret">
               {(field) => (
-                <ClientTextField
+                <FormTextField
                   field={field}
                   label="SIRET"
                   labelClassName={EDIT_LABEL_CLASSES}
@@ -198,7 +190,7 @@ export function ClientEditForm({
 
             <form.Field name="vatNumber">
               {(field) => (
-                <ClientTextField
+                <FormTextField
                   field={field}
                   label="TVA intracom."
                   labelClassName={EDIT_LABEL_CLASSES}
@@ -209,7 +201,7 @@ export function ClientEditForm({
 
             <form.Field name="billingAddress">
               {(field) => (
-                <ClientTextField
+                <FormTextField
                   field={field}
                   label="Adresse"
                   labelClassName={EDIT_LABEL_CLASSES}
@@ -226,7 +218,7 @@ export function ClientEditForm({
           <div className="flex flex-col gap-3.5">
             <form.Field name="billingContactName">
               {(field) => (
-                <ClientTextField
+                <FormTextField
                   field={field}
                   label="Contact"
                   labelClassName={EDIT_LABEL_CLASSES}
@@ -236,7 +228,7 @@ export function ClientEditForm({
 
             <form.Field name="billingEmail">
               {(field) => (
-                <ClientTextField
+                <FormTextField
                   field={field}
                   label="Email"
                   labelClassName={EDIT_LABEL_CLASSES}

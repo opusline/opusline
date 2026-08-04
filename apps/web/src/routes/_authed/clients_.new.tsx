@@ -1,6 +1,7 @@
 import type { CreateClientData } from "@opusline/api-client";
 import {
   createClientMutation,
+  listClientsOptions,
   listClientsQueryKey,
 } from "@opusline/api-client/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -19,11 +20,26 @@ function NewClientRoute() {
 
   const createClient = useMutation(createClientMutation());
 
-  const handleSubmit = async (body: CreateClientData) => {
+  const handleSubmit = async (
+    body: CreateClientData,
+    chainToMission: boolean,
+  ) => {
     try {
-      await createClient.mutateAsync({ body });
-      await queryClient.invalidateQueries({ queryKey: listClientsQueryKey() });
-      await navigate({ to: "/clients" });
+      const created = await createClient.mutateAsync({ body });
+      await queryClient.invalidateQueries({
+        queryKey: listClientsQueryKey(),
+        refetchType: "none",
+      });
+      await queryClient.fetchQuery(listClientsOptions());
+
+      if (chainToMission) {
+        await navigate({
+          to: "/missions/new",
+          search: { client: created.slug },
+        });
+      } else {
+        await navigate({ to: "/clients" });
+      }
       return null;
     } catch (error) {
       return serverFieldErrors(error);

@@ -1,4 +1,8 @@
-import { currentUserQueryKey } from "@opusline/api-client/react-query";
+import {
+  currentUserQueryKey,
+  listClientsQueryKey,
+} from "@opusline/api-client/react-query";
+import type { QueryClient } from "@tanstack/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
 import { fireEvent, render, screen } from "@testing-library/react";
@@ -6,7 +10,9 @@ import { afterEach, expect, it, vi } from "vitest";
 
 import { getRouter } from "@/router";
 
-async function renderNewClientPage() {
+async function renderNewClientPage(
+  primeCache?: (queryClient: QueryClient) => void,
+) {
   window.history.replaceState(null, "", "/clients/new");
   const router = getRouter();
   router.options.context.queryClient.setQueryData(currentUserQueryKey(), {
@@ -14,6 +20,7 @@ async function renderNewClientPage() {
     name: "Theo",
     email: "theo@example.com",
   });
+  primeCache?.(router.options.context.queryClient);
 
   render(
     <QueryClientProvider client={router.options.context.queryClient}>
@@ -167,6 +174,68 @@ it("creates the client and returns to the list", async () => {
     color: 7,
     paymentTermsDays: 45,
   });
+});
+
+it("chains to the mission form after creating the client", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request =
+        input instanceof Request ? input : new Request(input, init);
+      const url = new URL(request.url, "http://localhost");
+
+      if (request.method === "POST" && url.pathname.endsWith("/clients")) {
+        return jsonResponse(201, { id: 1, slug: "nordlys", name: "Nordlys" });
+      }
+
+      return jsonResponse(200, {
+        clients: [
+          {
+            id: 1,
+            slug: "nordlys",
+            name: "Nordlys",
+            type: 0,
+            notes: null,
+            siret: null,
+            vatNumber: null,
+            billingAddress: null,
+            billingContactName: null,
+            billingEmail: null,
+            color: 0,
+            paymentTermsDays: 45,
+            archivedAt: null,
+            createdAt: "2025-03-01T00:00:00+00:00",
+            missions: [],
+          },
+        ],
+      });
+    }),
+  );
+
+  // A stale list without the new client must not break the preselection.
+  await renderNewClientPage((queryClient) => {
+    queryClient.setQueryData(listClientsQueryKey(), { clients: [] });
+  });
+
+  fireEvent.change(screen.getByLabelText("Raison sociale"), {
+    target: { value: "Nordlys" },
+  });
+  fireEvent.click(
+    screen.getByRole("button", { name: "Créer et enchaîner sur une mission" }),
+  );
+
+  expect(
+    await screen.findByRole(
+      "heading",
+      { name: "Nouvelle mission" },
+      { timeout: 5000 },
+    ),
+  ).toBeInTheDocument();
+  expect(window.location.pathname).toBe("/missions/new");
+  expect(screen.getByRole("button", { name: "Nordlys" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
 });
 
 it("shows the server validation error on the name field", async () => {

@@ -6,6 +6,9 @@ import type {
   MissionStatus,
 } from "@opusline/api-client";
 
+import { formatRate } from "@/lib/billing";
+import { COLORS } from "@/lib/palette";
+
 export const CLIENT_TYPE_LABELS: Record<ClientType, string> = {
   0: "Direct",
   1: "Intermédiaire",
@@ -38,20 +41,7 @@ export const CLIENT_TYPE_HINTS: Record<ClientType, string> = {
   2: "Projets non facturables, suivis pour mémoire.",
 };
 
-export const COLOR_LABELS: Record<Color, string> = {
-  0: "Ambre",
-  1: "Terracotta",
-  2: "Olive",
-  3: "Sauge",
-  4: "Ardoise",
-  5: "Encre",
-  6: "Prune",
-  7: "Pierre",
-};
-
 export const CLIENT_TYPES: ClientType[] = [0, 1, 2];
-
-export const COLORS: Color[] = [0, 1, 2, 3, 4, 5, 6, 7];
 
 export function paymentTermsLabel(days: number): string {
   if (days === 0) {
@@ -100,40 +90,12 @@ export function isNewClient(
   return ageMs <= NEW_CLIENT_BADGE_DAYS * 24 * 60 * 60 * 1000;
 }
 
-export const COLOR_CLASSES: Record<Color, string> = {
-  0: "bg-palette-amber",
-  1: "bg-palette-terracotta",
-  2: "bg-palette-olive",
-  3: "bg-palette-sage",
-  4: "bg-palette-slate",
-  5: "bg-palette-indigo",
-  6: "bg-palette-plum",
-  7: "bg-palette-stone",
-};
-
-const euros = new Intl.NumberFormat("fr-FR", {
-  maximumFractionDigits: 2,
-});
-
-function formatAmount(minorUnits: number): string {
-  return euros.format(minorUnits / 100);
-}
-
 export function formatMissionRate(mission: MissionData): string {
   if (mission.rate === null) {
     return "non facturable";
   }
 
-  const amount = formatAmount(mission.rate.amount);
-
-  switch (mission.billingMode) {
-    case 0:
-      return `${amount} €/j`;
-    case 1:
-      return `${amount} €/h`;
-    case 2:
-      return `${amount} € forfait`;
-  }
+  return formatRate(mission.rate.amount, mission.billingMode);
 }
 
 export function clientSubtitle(client: ClientWithMissionsData): string {

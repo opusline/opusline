@@ -9,22 +9,19 @@ import { cn } from "@opusline/ui/lib/utils";
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
 import { CircleAlert, InfoIcon } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { FormTextField } from "@/components/form-text-field";
 
 import { initials } from "@/lib/initials";
-
+import { COLOR_CLASSES, COLOR_LABELS, COLORS } from "@/lib/palette";
 import { type ClientFormValues, toClientPayload } from "../lib/client-form";
 import {
   CLIENT_TYPE_HINTS,
   CLIENT_TYPE_OPTION_LABELS,
   CLIENT_TYPES,
-  COLOR_CLASSES,
-  COLOR_LABELS,
-  COLORS,
   paymentTermsLabel,
   randomColor,
 } from "../lib/labels";
-import { ClientTextField } from "./client-text-field";
 import { PaymentTermsPicker } from "./payment-terms-picker";
 
 const EYEBROW_CLASSES =
@@ -33,6 +30,7 @@ const EYEBROW_CLASSES =
 type NewClientPageProps = {
   onSubmit: (
     body: CreateClientData,
+    chainToMission: boolean,
   ) => Promise<Record<string, { message: string }> | null | undefined>;
   onCancel: () => void;
   isPending?: boolean;
@@ -46,6 +44,7 @@ export function NewClientPage({
   error,
 }: NewClientPageProps) {
   const [defaultColor] = useState<Color>(randomColor);
+  const chainToMissionRef = useRef(false);
 
   const form = useForm({
     defaultValues: {
@@ -61,7 +60,10 @@ export function NewClientPage({
     } as ClientFormValues,
     validators: {
       onSubmitAsync: async ({ value }) => {
-        const fieldErrors = await onSubmit(toClientPayload(value));
+        const fieldErrors = await onSubmit(
+          toClientPayload(value),
+          chainToMissionRef.current,
+        );
 
         return fieldErrors ? { fields: fieldErrors } : null;
       },
@@ -69,7 +71,7 @@ export function NewClientPage({
   });
 
   return (
-    <div className="grid max-w-5xl items-start gap-4 md:grid-cols-2">
+    <div className="grid max-w-270 items-start gap-4 md:grid-cols-2">
       <div className="min-w-0">
         <div className="mb-2 flex items-center gap-2 text-muted-foreground-2 text-sm">
           <Link
@@ -104,7 +106,7 @@ export function NewClientPage({
 
           <form.Field name="name">
             {(field) => (
-              <ClientTextField
+              <FormTextField
                 field={field}
                 label="Raison sociale"
                 labelClassName="text-foreground-3"
@@ -154,7 +156,7 @@ export function NewClientPage({
           <div className="grid gap-4 sm:grid-cols-2">
             <form.Field name="siret">
               {(field) => (
-                <ClientTextField
+                <FormTextField
                   field={field}
                   label="SIRET"
                   labelClassName="text-foreground-3"
@@ -165,7 +167,7 @@ export function NewClientPage({
             </form.Field>
             <form.Field name="vatNumber">
               {(field) => (
-                <ClientTextField
+                <FormTextField
                   field={field}
                   label="TVA intracommunautaire"
                   labelClassName="text-foreground-3"
@@ -178,7 +180,7 @@ export function NewClientPage({
 
           <form.Field name="billingAddress">
             {(field) => (
-              <ClientTextField
+              <FormTextField
                 field={field}
                 label="Adresse de facturation"
                 labelClassName="text-foreground-3"
@@ -193,7 +195,7 @@ export function NewClientPage({
           <div className="grid gap-4 sm:grid-cols-2">
             <form.Field name="billingContactName">
               {(field) => (
-                <ClientTextField
+                <FormTextField
                   field={field}
                   label="Contact facturation"
                   labelClassName="text-foreground-3"
@@ -203,7 +205,7 @@ export function NewClientPage({
             </form.Field>
             <form.Field name="billingEmail">
               {(field) => (
-                <ClientTextField
+                <FormTextField
                   field={field}
                   label="Email d'envoi des factures"
                   labelClassName="text-foreground-3"
@@ -285,9 +287,27 @@ export function NewClientPage({
             }}
           </form.Field>
 
-          <div className="flex gap-2 pt-1">
-            <Button disabled={isPending} size="2xl" type="submit">
+          <div className="flex flex-wrap gap-2 pt-1">
+            <Button
+              disabled={isPending}
+              onClick={() => {
+                chainToMissionRef.current = false;
+              }}
+              size="2xl"
+              type="submit"
+            >
               Créer le client
+            </Button>
+            <Button
+              disabled={isPending}
+              onClick={() => {
+                chainToMissionRef.current = true;
+              }}
+              size="2xl"
+              type="submit"
+              variant="outline"
+            >
+              Créer et enchaîner sur une mission
             </Button>
             <Button
               disabled={isPending}

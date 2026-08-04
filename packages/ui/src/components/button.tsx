@@ -34,6 +34,10 @@ const buttonVariants = cva(
         "icon-xl": "size-9 [&_svg:not([class*='size-'])]:size-4",
       },
     },
+    compoundVariants: [
+      { variant: "outline", size: "2xl", class: "px-3.5" },
+      { variant: "ghost", size: "2xl", class: "px-3.5" },
+    ],
     defaultVariants: {
       variant: "default",
       size: "default",

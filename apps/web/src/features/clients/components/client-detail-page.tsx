@@ -34,13 +34,11 @@ import {
   PlusIcon,
 } from "lucide-react";
 import { useState } from "react";
-
+import type { FormSubmitResult } from "@/lib/form";
 import { initials } from "@/lib/initials";
-
-import type { ClientSubmitResult } from "../lib/client-form";
+import { COLOR_CLASSES } from "@/lib/palette";
 import {
   CLIENT_TYPE_OPTION_LABELS,
-  COLOR_CLASSES,
   clientSinceLabel,
   formatMissionRate,
   MISSION_STATUS_BADGE_VARIANTS,
@@ -104,7 +102,7 @@ function CoordRow({
 
 type ClientDetailPageProps = {
   client: ClientWithMissionsData;
-  onUpdate: (body: UpdateClientData) => Promise<ClientSubmitResult>;
+  onUpdate: (body: UpdateClientData) => Promise<FormSubmitResult>;
   onToggleArchive: () => void;
   isUpdatePending?: boolean;
   isArchivePending?: boolean;
@@ -141,7 +139,7 @@ export function ClientDetailPage({
   };
 
   return (
-    <div className="max-w-5xl">
+    <div className="max-w-270">
       <div className="mb-3 flex items-center gap-2 text-muted-foreground-2 text-sm">
         <Link
           className="text-link transition-colors hover:text-link-hover"
@@ -181,7 +179,12 @@ export function ClientDetailPage({
         </div>
         <div className="flex min-w-0 flex-wrap gap-2">
           {!isArchived && (
-            <Button size="xl">
+            <Button
+              render={
+                <Link search={{ client: client.slug }} to="/missions/new" />
+              }
+              size="xl"
+            >
               <PlusIcon aria-hidden data-icon="inline-start" />
               Nouvelle mission
             </Button>
@@ -352,7 +355,19 @@ export function ClientDetailPage({
                     ? "Client archivé — réactivez-le pour ajouter une mission."
                     : "Ce client n'a pas de mission active. Créez-en une pour pouvoir suivre du temps dessus."}
                 </p>
-                {!isArchived && <Button size="xl">Créer une mission</Button>}
+                {!isArchived && (
+                  <Button
+                    render={
+                      <Link
+                        search={{ client: client.slug }}
+                        to="/missions/new"
+                      />
+                    }
+                    size="xl"
+                  >
+                    Créer une mission
+                  </Button>
+                )}
               </div>
             )}
           </TabsContent>
