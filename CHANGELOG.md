@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/opusline/opusline/compare/v0.1.0...v0.2.0) (2026-08-04)
+
+
+### Features
+
+* **api:** expose the app version ([#27](https://github.com/opusline/opusline/issues/27)) ([a9612bf](https://github.com/opusline/opusline/commit/a9612bfaeab9c2a8f65ed37dbbc823ac7fa5caeb))
+
 ## 0.1.0 (2026-08-04)
 
 
