@@ -31,7 +31,7 @@ export const Default: Story = {
       </TableHeader>
       <TableBody>
         <TableRow>
-          <TableCell>Catamania</TableCell>
+          <TableCell>Nordlys</TableCell>
           <TableCell>
             <Badge variant="brand">Intermédiaire</Badge>
           </TableCell>
@@ -39,7 +39,7 @@ export const Default: Story = {
           <TableCell className="text-right">63 800 €</TableCell>
         </TableRow>
         <TableRow>
-          <TableCell>HartPrint</TableCell>
+          <TableCell>Lunaprint</TableCell>
           <TableCell>
             <Badge>Direct</Badge>
           </TableCell>

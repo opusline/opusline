@@ -127,25 +127,25 @@ test('makes a mission non billable when the rate is omitted', function (): void 
 test('updates the end client name for an intermediary client', function (): void {
     $user = User::factory()->create();
     $esn = Client::factory()->for($user)->intermediary()->create();
-    $mission = Mission::factory()->for($esn, 'client')->throughEsn('OGF')->create(['user_id' => $user->id]);
+    $mission = Mission::factory()->for($esn, 'client')->throughEsn('Callisto')->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
         ->putJson("/api/clients/{$esn->id}/missions/{$mission->id}", [
             'name' => $mission->name,
             'billingMode' => BillingMode::Daily->value,
             'status' => MissionStatus::Active->value,
-            'endClientName' => 'OGF Group',
+            'endClientName' => 'Callisto Group',
         ])
         ->assertOk()
-        ->assertJsonPath('endClientName', 'OGF Group');
+        ->assertJsonPath('endClientName', 'Callisto Group');
 
-    $this->assertDatabaseHas('missions', ['id' => $mission->id, 'end_client_name' => 'OGF Group']);
+    $this->assertDatabaseHas('missions', ['id' => $mission->id, 'end_client_name' => 'Callisto Group']);
 });
 
 test('requires an end client name for an intermediary client', function (): void {
     $user = User::factory()->create();
     $esn = Client::factory()->for($user)->intermediary()->create();
-    $mission = Mission::factory()->for($esn, 'client')->throughEsn('OGF')->create(['user_id' => $user->id]);
+    $mission = Mission::factory()->for($esn, 'client')->throughEsn('Callisto')->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
         ->putJson("/api/clients/{$esn->id}/missions/{$mission->id}", [
@@ -167,7 +167,7 @@ test('rejects an end client name for a direct client', function (): void {
             'name' => $mission->name,
             'billingMode' => BillingMode::Daily->value,
             'status' => MissionStatus::Active->value,
-            'endClientName' => 'OGF',
+            'endClientName' => 'Callisto',
         ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['endClientName']);
@@ -192,14 +192,14 @@ test('rejects a rate for an internal client', function (): void {
 test('updates the cra flag, color and notes', function (): void {
     $user = User::factory()->create();
     $esn = Client::factory()->for($user)->intermediary()->create();
-    $mission = Mission::factory()->for($esn, 'client')->throughEsn('OGF')->create(['user_id' => $user->id]);
+    $mission = Mission::factory()->for($esn, 'client')->throughEsn('Callisto')->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
         ->putJson("/api/clients/{$esn->id}/missions/{$mission->id}", [
             'name' => $mission->name,
             'billingMode' => BillingMode::Daily->value,
             'status' => MissionStatus::Active->value,
-            'endClientName' => 'OGF',
+            'endClientName' => 'Callisto',
             'craRequired' => false,
             'color' => Color::Plum->value,
             'notes' => 'CRA à envoyer avant le 3 du mois.',

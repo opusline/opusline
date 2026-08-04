@@ -15,14 +15,14 @@ test('creates a daily mission', function (): void {
 
     $this->actingAs($user)
         ->postJson("/api/clients/{$client->id}/missions", [
-            'name' => 'OGF front',
+            'name' => 'Callisto front',
             'billingMode' => BillingMode::Daily->value,
             'rate' => ['amount' => 55_000, 'currency' => 'EUR'],
             'startDate' => '2026-08-01',
         ])
         ->assertCreated()
         ->assertJsonPath('clientId', $client->id)
-        ->assertJsonPath('slug', 'ogf-front')
+        ->assertJsonPath('slug', 'callisto-front')
         ->assertJsonPath('billingMode', BillingMode::Daily->value)
         ->assertJsonPath('rate.amount', 55_000)
         ->assertJsonPath('rate.currency', 'EUR')
@@ -33,7 +33,7 @@ test('creates a daily mission', function (): void {
     $this->assertDatabaseHas('missions', [
         'user_id' => $user->id,
         'client_id' => $client->id,
-        'name' => 'OGF front',
+        'name' => 'Callisto front',
         'rate_cents' => 55_000,
     ]);
 });
@@ -59,7 +59,7 @@ test('creates a fixed price mission without rounding', function (): void {
 
     $this->actingAs($user)
         ->postJson("/api/clients/{$client->id}/missions", [
-            'name' => 'HartPrint site',
+            'name' => 'Lunaprint site',
             'billingMode' => BillingMode::Fixed->value,
             'rate' => ['amount' => 480_000, 'currency' => 'EUR'],
         ])
@@ -68,7 +68,7 @@ test('creates a fixed price mission without rounding', function (): void {
         ->assertJsonPath('rate.amount', 480_000)
         ->assertJsonPath('rounding', null);
 
-    $this->assertDatabaseHas('missions', ['name' => 'HartPrint site', 'rounding' => null]);
+    $this->assertDatabaseHas('missions', ['name' => 'Lunaprint site', 'rounding' => null]);
 });
 
 test('rejects a rounding for a fixed price mission', function (): void {
@@ -77,7 +77,7 @@ test('rejects a rounding for a fixed price mission', function (): void {
 
     $this->actingAs($user)
         ->postJson("/api/clients/{$client->id}/missions", [
-            'name' => 'HartPrint site',
+            'name' => 'Lunaprint site',
             'billingMode' => BillingMode::Fixed->value,
             'rounding' => EntryRounding::Half->value,
         ])
@@ -91,7 +91,7 @@ test('defaults the rounding to half a unit for time based missions', function ()
 
     $this->actingAs($user)
         ->postJson("/api/clients/{$client->id}/missions", [
-            'name' => 'OGF front',
+            'name' => 'Callisto front',
             'billingMode' => BillingMode::Daily->value,
         ])
         ->assertCreated()
@@ -104,7 +104,7 @@ test('accepts an explicit rounding', function (): void {
 
     $this->actingAs($user)
         ->postJson("/api/clients/{$client->id}/missions", [
-            'name' => 'OGF front',
+            'name' => 'Callisto front',
             'billingMode' => BillingMode::Daily->value,
             'rounding' => EntryRounding::Quarter->value,
         ])
@@ -133,16 +133,16 @@ test('creates a mission with an end client name for an intermediary client', fun
 
     $this->actingAs($user)
         ->postJson("/api/clients/{$esn->id}/missions", [
-            'name' => 'OGF front',
+            'name' => 'Callisto front',
             'billingMode' => BillingMode::Daily->value,
             'rate' => ['amount' => 55_000, 'currency' => 'EUR'],
-            'endClientName' => 'OGF',
+            'endClientName' => 'Callisto',
         ])
         ->assertCreated()
         ->assertJsonPath('clientId', $esn->id)
-        ->assertJsonPath('endClientName', 'OGF');
+        ->assertJsonPath('endClientName', 'Callisto');
 
-    $this->assertDatabaseHas('missions', ['name' => 'OGF front', 'end_client_name' => 'OGF']);
+    $this->assertDatabaseHas('missions', ['name' => 'Callisto front', 'end_client_name' => 'Callisto']);
 });
 
 test('requires an end client name for an intermediary client', function (): void {
@@ -151,7 +151,7 @@ test('requires an end client name for an intermediary client', function (): void
 
     $this->actingAs($user)
         ->postJson("/api/clients/{$esn->id}/missions", [
-            'name' => 'OGF front',
+            'name' => 'Callisto front',
             'billingMode' => BillingMode::Daily->value,
         ])
         ->assertUnprocessable()
@@ -164,9 +164,9 @@ test('rejects an end client name for a direct client', function (): void {
 
     $this->actingAs($user)
         ->postJson("/api/clients/{$client->id}/missions", [
-            'name' => 'OGF front',
+            'name' => 'Callisto front',
             'billingMode' => BillingMode::Daily->value,
-            'endClientName' => 'OGF',
+            'endClientName' => 'Callisto',
         ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['endClientName']);
@@ -180,7 +180,7 @@ test('rejects an end client name for an internal client', function (): void {
         ->postJson("/api/clients/{$client->id}/missions", [
             'name' => 'Opusline',
             'billingMode' => BillingMode::Hourly->value,
-            'endClientName' => 'OGF',
+            'endClientName' => 'Callisto',
         ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['endClientName']);
@@ -220,9 +220,9 @@ test('defaults cra to required for intermediary clients', function (): void {
 
     $this->actingAs($user)
         ->postJson("/api/clients/{$esn->id}/missions", [
-            'name' => 'OGF front',
+            'name' => 'Callisto front',
             'billingMode' => BillingMode::Daily->value,
-            'endClientName' => 'OGF',
+            'endClientName' => 'Callisto',
         ])
         ->assertCreated()
         ->assertJsonPath('craRequired', true);
@@ -247,9 +247,9 @@ test('accepts an explicit cra flag', function (): void {
 
     $this->actingAs($user)
         ->postJson("/api/clients/{$esn->id}/missions", [
-            'name' => 'OGF front',
+            'name' => 'Callisto front',
             'billingMode' => BillingMode::Daily->value,
-            'endClientName' => 'OGF',
+            'endClientName' => 'Callisto',
             'craRequired' => false,
         ])
         ->assertCreated()
@@ -262,7 +262,7 @@ test('stores a color and notes', function (): void {
 
     $this->actingAs($user)
         ->postJson("/api/clients/{$client->id}/missions", [
-            'name' => 'OGF front',
+            'name' => 'Callisto front',
             'billingMode' => BillingMode::Daily->value,
             'color' => Color::Slate->value,
             'notes' => 'Refonte du front de souscription.',

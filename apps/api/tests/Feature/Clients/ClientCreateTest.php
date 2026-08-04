@@ -11,18 +11,18 @@ test('creates a client', function (): void {
 
     $this->actingAs($user)
         ->postJson('/api/clients', [
-            'name' => 'Catamania',
+            'name' => 'Nordlys',
             'type' => ClientType::Intermediary->value,
             'notes' => 'ESN — contact Julie',
         ])
         ->assertCreated()
-        ->assertJsonPath('name', 'Catamania')
+        ->assertJsonPath('name', 'Nordlys')
         ->assertJsonPath('type', ClientType::Intermediary->value)
         ->assertJsonPath('notes', 'ESN — contact Julie')
         ->assertJsonPath('archivedAt', null);
 
     $this->assertDatabaseHas('clients', [
-        'name' => 'Catamania',
+        'name' => 'Nordlys',
         'type' => ClientType::Intermediary->value,
         'user_id' => $user->id,
     ]);
@@ -33,29 +33,29 @@ test('creates a client with billing details', function (): void {
 
     $this->actingAs($user)
         ->postJson('/api/clients', [
-            'name' => 'Catamania',
+            'name' => 'Nordlys',
             'type' => ClientType::Direct->value,
-            'siret' => '892 447 118 00017',
+            'siret' => '123 456 789 00012',
             'vatNumber' => 'FR62 892447118',
             'billingAddress' => "12 rue de la Paix\n44000 Nantes",
-            'billingContactName' => 'Sophie Reix',
-            'billingEmail' => 'factures@catamania.fr',
+            'billingContactName' => 'Camille Dupont',
+            'billingEmail' => 'factures@nordlys.example',
             'color' => Color::Sage->value,
             'paymentTermsDays' => 60,
         ])
         ->assertCreated()
-        ->assertJsonPath('siret', '892 447 118 00017')
+        ->assertJsonPath('siret', '123 456 789 00012')
         ->assertJsonPath('vatNumber', 'FR62 892447118')
         ->assertJsonPath('billingAddress', "12 rue de la Paix\n44000 Nantes")
-        ->assertJsonPath('billingContactName', 'Sophie Reix')
-        ->assertJsonPath('billingEmail', 'factures@catamania.fr')
+        ->assertJsonPath('billingContactName', 'Camille Dupont')
+        ->assertJsonPath('billingEmail', 'factures@nordlys.example')
         ->assertJsonPath('color', Color::Sage->value)
         ->assertJsonPath('paymentTermsDays', 60);
 
     $this->assertDatabaseHas('clients', [
-        'name' => 'Catamania',
-        'siret' => '892 447 118 00017',
-        'billing_email' => 'factures@catamania.fr',
+        'name' => 'Nordlys',
+        'siret' => '123 456 789 00012',
+        'billing_email' => 'factures@nordlys.example',
         'color' => Color::Sage->value,
         'payment_terms_days' => 60,
     ]);
@@ -63,7 +63,7 @@ test('creates a client with billing details', function (): void {
 
 test('defaults the color to amber and the payment terms to 45 days', function (): void {
     $response = $this->actingAs(User::factory()->create())
-        ->postJson('/api/clients', ['name' => 'Catamania', 'type' => ClientType::Direct->value])
+        ->postJson('/api/clients', ['name' => 'Nordlys', 'type' => ClientType::Direct->value])
         ->assertCreated()
         ->assertJsonPath('color', Color::Amber->value)
         ->assertJsonPath('paymentTermsDays', 45);
@@ -82,36 +82,36 @@ test('suffixes the slug when it is already taken by a different name', function 
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->postJson('/api/clients', ['name' => 'Catamania', 'type' => ClientType::Direct->value])
+        ->postJson('/api/clients', ['name' => 'Nordlys', 'type' => ClientType::Direct->value])
         ->assertCreated();
 
     $this->actingAs($user)
-        ->postJson('/api/clients', ['name' => 'Catamania!', 'type' => ClientType::Direct->value])
+        ->postJson('/api/clients', ['name' => 'Nordlys!', 'type' => ClientType::Direct->value])
         ->assertCreated()
-        ->assertJsonPath('slug', 'catamania-1');
+        ->assertJsonPath('slug', 'nordlys-1');
 });
 
 test('rejects a name already used by the same user', function (): void {
     $user = User::factory()->create();
 
     $this->actingAs($user)
-        ->postJson('/api/clients', ['name' => 'Catamania', 'type' => ClientType::Direct->value])
+        ->postJson('/api/clients', ['name' => 'Nordlys', 'type' => ClientType::Direct->value])
         ->assertCreated();
 
     $this->actingAs($user)
-        ->postJson('/api/clients', ['name' => 'Catamania', 'type' => ClientType::Direct->value])
+        ->postJson('/api/clients', ['name' => 'Nordlys', 'type' => ClientType::Direct->value])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['name']);
 });
 
 test('reuses the same slug across different users', function (): void {
     $this->actingAs(User::factory()->create())
-        ->postJson('/api/clients', ['name' => 'Catamania', 'type' => ClientType::Direct->value])
-        ->assertJsonPath('slug', 'catamania');
+        ->postJson('/api/clients', ['name' => 'Nordlys', 'type' => ClientType::Direct->value])
+        ->assertJsonPath('slug', 'nordlys');
 
     $this->actingAs(User::factory()->create())
-        ->postJson('/api/clients', ['name' => 'Catamania', 'type' => ClientType::Direct->value])
-        ->assertJsonPath('slug', 'catamania');
+        ->postJson('/api/clients', ['name' => 'Nordlys', 'type' => ClientType::Direct->value])
+        ->assertJsonPath('slug', 'nordlys');
 });
 
 test('rejects an invalid payload', function (array $payload, string $expectedError): void {
@@ -123,16 +123,16 @@ test('rejects an invalid payload', function (array $payload, string $expectedErr
     'missing name' => [['type' => ClientType::Direct->value], 'name'],
     'empty name' => [['name' => '', 'type' => ClientType::Direct->value], 'name'],
     'name too long' => [['name' => str_repeat('a', 256), 'type' => ClientType::Direct->value], 'name'],
-    'missing type' => [['name' => 'Catamania'], 'type'],
-    'unknown type' => [['name' => 'Catamania', 'type' => 99], 'type'],
-    'unknown color' => [['name' => 'Catamania', 'type' => ClientType::Direct->value, 'color' => 99], 'color'],
-    'malformed billing email' => [['name' => 'Catamania', 'type' => ClientType::Direct->value, 'billingEmail' => 'not-an-email'], 'billingEmail'],
-    'negative payment terms' => [['name' => 'Catamania', 'type' => ClientType::Direct->value, 'paymentTermsDays' => -1], 'paymentTermsDays'],
-    'payment terms above a year' => [['name' => 'Catamania', 'type' => ClientType::Direct->value, 'paymentTermsDays' => 400], 'paymentTermsDays'],
-    'non integer payment terms' => [['name' => 'Catamania', 'type' => ClientType::Direct->value, 'paymentTermsDays' => 'soon'], 'paymentTermsDays'],
+    'missing type' => [['name' => 'Nordlys'], 'type'],
+    'unknown type' => [['name' => 'Nordlys', 'type' => 99], 'type'],
+    'unknown color' => [['name' => 'Nordlys', 'type' => ClientType::Direct->value, 'color' => 99], 'color'],
+    'malformed billing email' => [['name' => 'Nordlys', 'type' => ClientType::Direct->value, 'billingEmail' => 'not-an-email'], 'billingEmail'],
+    'negative payment terms' => [['name' => 'Nordlys', 'type' => ClientType::Direct->value, 'paymentTermsDays' => -1], 'paymentTermsDays'],
+    'payment terms above a year' => [['name' => 'Nordlys', 'type' => ClientType::Direct->value, 'paymentTermsDays' => 400], 'paymentTermsDays'],
+    'non integer payment terms' => [['name' => 'Nordlys', 'type' => ClientType::Direct->value, 'paymentTermsDays' => 'soon'], 'paymentTermsDays'],
 ]);
 
 test('returns 401 for guests', function (): void {
-    $this->postJson('/api/clients', ['name' => 'Catamania', 'type' => ClientType::Direct->value])
+    $this->postJson('/api/clients', ['name' => 'Nordlys', 'type' => ClientType::Direct->value])
         ->assertUnauthorized();
 });

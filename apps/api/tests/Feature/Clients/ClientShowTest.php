@@ -8,7 +8,7 @@ use App\Domain\Users\Models\User;
 
 test('shows a client with its missions ordered by name', function (): void {
     $user = User::factory()->create();
-    $client = Client::factory()->for($user)->create(['name' => 'Catamania']);
+    $client = Client::factory()->for($user)->create(['name' => 'Nordlys']);
     Mission::factory()->for($client, 'client')->create(['user_id' => $user->id, 'name' => 'Refonte front']);
     Mission::factory()->for($client, 'client')->create(['user_id' => $user->id, 'name' => 'Audit']);
 
@@ -16,7 +16,7 @@ test('shows a client with its missions ordered by name', function (): void {
         ->getJson("/api/clients/{$client->id}")
         ->assertOk()
         ->assertJsonPath('id', $client->id)
-        ->assertJsonPath('name', 'Catamania')
+        ->assertJsonPath('name', 'Nordlys')
         ->assertJsonCount(2, 'missions')
         ->assertJsonPath('missions.0.name', 'Audit')
         ->assertJsonPath('missions.1.name', 'Refonte front');

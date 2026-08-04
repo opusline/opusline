@@ -41,7 +41,7 @@ test('updates the client type', function (): void {
 test('resets omitted optional fields to their defaults', function (): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create([
-        'siret' => '892 447 118 00017',
+        'siret' => '123 456 789 00012',
         'color' => Color::Sage,
         'payment_terms_days' => 60,
     ]);
@@ -72,27 +72,27 @@ test('keeps the slug when the client is renamed', function (): void {
 
 test('keeps its own name on update', function (): void {
     $user = User::factory()->create();
-    $client = Client::factory()->for($user)->create(['name' => 'Catamania']);
+    $client = Client::factory()->for($user)->create(['name' => 'Nordlys']);
 
     $this->actingAs($user)
         ->putJson("/api/clients/{$client->id}", [
-            'name' => 'Catamania',
+            'name' => 'Nordlys',
             'type' => ClientType::Direct->value,
             'notes' => 'updated',
         ])
         ->assertOk()
-        ->assertJsonPath('name', 'Catamania')
+        ->assertJsonPath('name', 'Nordlys')
         ->assertJsonPath('notes', 'updated');
 });
 
 test('rejects a name already used by a sibling client', function (): void {
     $user = User::factory()->create();
-    Client::factory()->for($user)->create(['name' => 'Catamania']);
+    Client::factory()->for($user)->create(['name' => 'Nordlys']);
     $client = Client::factory()->for($user)->create(['name' => 'Studio Lorem']);
 
     $this->actingAs($user)
         ->putJson("/api/clients/{$client->id}", [
-            'name' => 'Catamania',
+            'name' => 'Nordlys',
             'type' => ClientType::Direct->value,
         ])
         ->assertUnprocessable()
@@ -100,18 +100,18 @@ test('rejects a name already used by a sibling client', function (): void {
 });
 
 test('allows a name used by another user client', function (): void {
-    Client::factory()->create(['name' => 'Catamania']);
+    Client::factory()->create(['name' => 'Nordlys']);
 
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create(['name' => 'Studio Lorem']);
 
     $this->actingAs($user)
         ->putJson("/api/clients/{$client->id}", [
-            'name' => 'Catamania',
+            'name' => 'Nordlys',
             'type' => ClientType::Direct->value,
         ])
         ->assertOk()
-        ->assertJsonPath('name', 'Catamania');
+        ->assertJsonPath('name', 'Nordlys');
 });
 
 test('rejects an invalid payload', function (): void {
