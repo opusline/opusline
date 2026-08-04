@@ -210,6 +210,22 @@ test('updates the cra flag, color and notes', function (): void {
         ->assertJsonPath('notes', 'CRA à envoyer avant le 3 du mois.');
 });
 
+test('rejects a non positive rate', function (int $amount): void {
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+    $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
+
+    $this->actingAs($user)
+        ->putJson("/api/clients/{$client->id}/missions/{$mission->id}", [
+            'name' => $mission->name,
+            'billingMode' => BillingMode::Daily->value,
+            'status' => MissionStatus::Active->value,
+            'rate' => ['amount' => $amount, 'currency' => 'EUR'],
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['rate.amount']);
+})->with(['zero' => 0, 'negative' => -100]);
+
 test('does not move the mission to another client', function (): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();

@@ -286,6 +286,7 @@ test('rejects an invalid payload', function (array $payload, string $expectedErr
     'unknown rounding' => [['name' => 'M', 'billingMode' => BillingMode::Daily->value, 'rounding' => 99], 'rounding'],
     'unknown color' => [['name' => 'M', 'billingMode' => BillingMode::Daily->value, 'color' => 99], 'color'],
     'zero rate' => [['name' => 'M', 'billingMode' => BillingMode::Daily->value, 'rate' => ['amount' => 0, 'currency' => 'EUR']], 'rate.amount'],
+    'negative rate' => [['name' => 'M', 'billingMode' => BillingMode::Daily->value, 'rate' => ['amount' => -100, 'currency' => 'EUR']], 'rate.amount'],
     'unsupported currency' => [['name' => 'M', 'billingMode' => BillingMode::Daily->value, 'rate' => ['amount' => 100, 'currency' => 'USD']], 'rate.currency'],
     'end before start' => [['name' => 'M', 'billingMode' => BillingMode::Daily->value, 'startDate' => '2026-08-02', 'endDate' => '2026-08-01'], 'endDate'],
 ]);
