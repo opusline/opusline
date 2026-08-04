@@ -373,6 +373,8 @@ export function ClientEditForm({
                     </FieldLabel>
                     <PaymentTermsPicker
                       id={`${field.name}-options`}
+                      isInvalid={isInvalid}
+                      onBlur={field.handleBlur}
                       onChange={field.handleChange}
                       value={field.state.value}
                     />

@@ -7,12 +7,16 @@ type PaymentTermsPickerProps = {
   id?: string;
   value: number;
   onChange: (days: number) => void;
+  onBlur?: () => void;
+  isInvalid?: boolean;
 };
 
 export function PaymentTermsPicker({
   id,
   value,
   onChange,
+  onBlur,
+  isInvalid,
 }: PaymentTermsPickerProps) {
   const [isCustom, setIsCustom] = useState(
     () => !PAYMENT_TERM_PRESETS.includes(value),
@@ -24,6 +28,7 @@ export function PaymentTermsPicker({
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       <ChipGroup
+        aria-invalid={isInvalid || undefined}
         aria-label="Délai de paiement"
         id={id}
         value={[isCustom ? "custom" : String(value)]}
@@ -62,6 +67,7 @@ export function PaymentTermsPicker({
           <input
             // biome-ignore lint/a11y/noAutofocus: the input appears because the user just picked "Autre…" — focus follows their action
             autoFocus
+            aria-invalid={isInvalid || undefined}
             aria-label="Délai de paiement en jours"
             className="w-13 min-w-0 border-none bg-transparent font-mono text-foreground-hi text-sm tabular-nums outline-none"
             inputMode="numeric"
@@ -70,6 +76,7 @@ export function PaymentTermsPicker({
               if (customDraft === "") {
                 setCustomDraft(String(value));
               }
+              onBlur?.();
             }}
             onChange={(event) => {
               const digits = event.target.value.replace(/\D/g, "");
