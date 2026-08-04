@@ -11,6 +11,7 @@ use App\Domain\Clients\Actions\UnarchiveClient;
 use App\Domain\Clients\Actions\UpdateClient;
 use App\Domain\Clients\Data\ClientData;
 use App\Domain\Clients\Data\ClientListData;
+use App\Domain\Clients\Data\ClientWithMissionsData;
 use App\Domain\Clients\Data\CreateClientData;
 use App\Domain\Clients\Data\UpdateClientData;
 use App\Domain\Clients\Models\Client;
@@ -27,12 +28,20 @@ class ClientController extends Controller
     {
         $clients = $user
             ->clients()
+            ->with('missions')
             ->orderBy('name')
             ->get();
 
         return response()->json(new ClientListData(
-            clients: array_values(ClientData::collect($clients, 'array')),
+            clients: array_values(ClientWithMissionsData::collect($clients, 'array')),
         ));
+    }
+
+    public function show(Client $client): JsonResponse
+    {
+        $client->load('missions');
+
+        return response()->json(ClientWithMissionsData::from($client));
     }
 
     public function store(CreateClientData $data, #[CurrentUser] User $user, CreateClient $createClient): JsonResponse
