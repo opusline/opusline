@@ -8,7 +8,10 @@
       "inputs": ["$TURBO_DEFAULT$", "!**/*.stories.{tsx,jsx,mdx}"],
       "outputs": ["dist/**", "storybook-static/**"]
     },
-    "build:storybook": {},
+    "build:storybook": {
+      "description": "Builds the static Storybook",
+      "outputs": ["storybook-static/**"]
+    },
     "//#format-and-lint": {
       "description": "Repo-wide biome check; uncached because root-task hashing misses workspace files",
       "cache": false
