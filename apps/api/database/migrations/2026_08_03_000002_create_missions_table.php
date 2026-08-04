@@ -20,13 +20,17 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Client::class)->constrained()->restrictOnDelete();
-            $table->foreignIdFor(Client::class, 'end_client_id')->nullable()->constrained()->restrictOnDelete();
             $table->string('name');
             $table->string('slug');
+            $table->string('end_client_name')->nullable();
             $table->unsignedTinyInteger('billing_mode');
             $table->unsignedBigInteger('rate_cents')->nullable();
             $table->char('currency', 3)->default('EUR');
+            $table->unsignedTinyInteger('rounding')->nullable();
             $table->unsignedTinyInteger('status')->default(MissionStatus::Active->value);
+            $table->boolean('cra_required')->default(false);
+            $table->unsignedTinyInteger('color')->nullable();
+            $table->text('notes')->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->timestamps();
