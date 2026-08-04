@@ -11,17 +11,20 @@ import { UserPlusIcon } from "lucide-react";
 
 export function ClientsEmptyState() {
   return (
-    <Empty className="rounded-md border bg-card py-8">
-      <EmptyHeader>
-        <EmptyMedia>
+    <Empty className="rounded-md border border-solid bg-card px-6.5 py-7.5">
+      <EmptyHeader className="max-w-none gap-1.5">
+        <EmptyMedia className="mb-2.5">
           <div
             aria-hidden
-            className="flex h-10 w-9 items-center justify-center rounded border border-border/80 border-dashed"
+            className="flex h-10.5 w-9.5 items-center justify-center rounded border border-muted-foreground/30 border-dashed"
           >
-            <UserPlusIcon className="size-4 text-muted-foreground" />
+            <UserPlusIcon
+              className="size-4 text-muted-foreground"
+              strokeWidth={1.8}
+            />
           </div>
         </EmptyMedia>
-        <EmptyTitle className="font-heading text-base">
+        <EmptyTitle className="font-heading font-semibold text-lg">
           Créez votre premier client
         </EmptyTitle>
         <EmptyDescription>
@@ -30,7 +33,7 @@ export function ClientsEmptyState() {
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Button>Créer un client</Button>
+        <Button size="xl">Créer un client</Button>
       </EmptyContent>
     </Empty>
   );

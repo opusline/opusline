@@ -59,7 +59,7 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                         <span
                           aria-hidden
                           className={cn(
-                            "size-2 shrink-0 rounded-[2px]",
+                            "size-2 shrink-0 rounded-xs",
                             COLOR_CLASSES[client.color],
                           )}
                         />
