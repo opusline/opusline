@@ -137,7 +137,7 @@ it("does not flag an old client as new", () => {
 it("marks an archived client with a badge", () => {
   render(<ClientsTable clients={[client({ archivedAt: daysAgo(30) })]} />);
 
-  fireEvent.click(screen.getByRole("button", { name: "Archivés1" }));
+  fireEvent.click(screen.getByRole("button", { name: "Archivés (1)" }));
 
   expect(screen.getByText("Archivé")).toBeInTheDocument();
 });
@@ -149,13 +149,12 @@ it("does not flag an archived client as new", () => {
     />,
   );
 
-  fireEvent.click(screen.getByRole("button", { name: "Archivés1" }));
+  fireEvent.click(screen.getByRole("button", { name: "Archivés (1)" }));
 
   expect(screen.getByText("Archivé")).toBeInTheDocument();
   expect(screen.queryByText("Nouveau")).not.toBeInTheDocument();
 });
 
-// Chip accessible names concatenate the label and count text nodes without a space.
 it("shows only active clients by default, with every scope count", () => {
   render(
     <ClientsTable
@@ -171,9 +170,13 @@ it("shows only active clients by default, with every scope count", () => {
     />,
   );
 
-  expect(screen.getByRole("button", { name: "Actifs1" })).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "Archivés1" })).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "Tous2" })).toBeInTheDocument();
+  expect(
+    screen.getByRole("button", { name: "Actifs (1)" }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole("button", { name: "Archivés (1)" }),
+  ).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Tous (2)" })).toBeInTheDocument();
   expect(screen.getByText("Catamania")).toBeInTheDocument();
   expect(screen.queryByText("Studio Lorem")).not.toBeInTheDocument();
 });
@@ -193,7 +196,7 @@ it("filters the list when picking the archived scope", () => {
     />,
   );
 
-  fireEvent.click(screen.getByRole("button", { name: "Archivés1" }));
+  fireEvent.click(screen.getByRole("button", { name: "Archivés (1)" }));
 
   expect(screen.getByText("Studio Lorem")).toBeInTheDocument();
   expect(screen.queryByText("Catamania")).not.toBeInTheDocument();
@@ -202,7 +205,7 @@ it("filters the list when picking the archived scope", () => {
 it("explains an empty scope instead of showing a bare table", () => {
   render(<ClientsTable clients={[client({})]} />);
 
-  fireEvent.click(screen.getByRole("button", { name: "Archivés0" }));
+  fireEvent.click(screen.getByRole("button", { name: "Archivés (0)" }));
 
   expect(screen.getByText("Aucun client dans cette vue.")).toBeInTheDocument();
 });

@@ -77,9 +77,16 @@ export function ClientsTable({ clients }: ClientsTableProps) {
         }}
       >
         {CLIENT_SCOPES.map((clientScope) => (
-          <Chip key={clientScope} value={clientScope} shape="pill">
+          <Chip
+            key={clientScope}
+            value={clientScope}
+            shape="pill"
+            aria-label={`${CLIENT_SCOPE_LABELS[clientScope]} (${scopedClients[clientScope].length})`}
+          >
             {CLIENT_SCOPE_LABELS[clientScope]}
-            <ChipCount>{scopedClients[clientScope].length}</ChipCount>
+            <ChipCount aria-hidden>
+              {scopedClients[clientScope].length}
+            </ChipCount>
           </Chip>
         ))}
       </ChipGroup>
@@ -214,7 +221,7 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                       className={cn(
                         "flex w-full items-center gap-2 pl-8.5 font-normal text-muted-foreground text-sm transition-all group-hover/add:text-primary-note focus-visible:text-primary-note",
                         client.missions.length > 0
-                          ? "py-2 opacity-0 focus-visible:opacity-100 group-hover/client:opacity-100"
+                          ? "py-2 opacity-0 pointer-coarse:opacity-100 focus-visible:opacity-100 group-hover/client:opacity-100"
                           : "py-3.25",
                       )}
                     >
