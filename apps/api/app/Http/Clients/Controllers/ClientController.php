@@ -30,7 +30,8 @@ class ClientController extends Controller
             ->clients()
             ->with('missions')
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->all();
 
         return response()->json(new ClientListData(
             clients: array_values(ClientWithMissionsData::collect($clients, 'array')),
@@ -73,7 +74,7 @@ class ClientController extends Controller
     }
 
     /**
-     * @throws HttpException<409, 'Cannot delete a client that still has missions. Archive it instead.'>
+     * @throws HttpException<409>
      */
     public function destroy(Client $client, DeleteClient $deleteClient): Response
     {
