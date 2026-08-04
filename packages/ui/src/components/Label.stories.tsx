@@ -15,7 +15,7 @@ export const Default: Story = {
   render: () => (
     <div className="grid max-w-sm gap-1.5">
       <Label htmlFor="label-demo">Nom de la mission</Label>
-      <Input id="label-demo" placeholder="OGF front" />
+      <Input id="label-demo" placeholder="Callisto front" />
     </div>
   ),
 };

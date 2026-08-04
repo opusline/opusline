@@ -5,9 +5,9 @@ import { clientSubtitle, formatMissionRate, isNewClient } from "./labels";
 function mission(overrides: Partial<MissionData> = {}): MissionData {
   return {
     id: 1,
-    slug: "ogf-front",
+    slug: "callisto-front",
     clientId: 1,
-    name: "OGF front",
+    name: "Callisto front",
     endClientName: null,
     billingMode: 0,
     rate: { amount: 55_000, currency: "EUR" },
@@ -27,8 +27,8 @@ function client(
 ): ClientWithMissionsData {
   return {
     id: 1,
-    slug: "catamania",
-    name: "Catamania",
+    slug: "nordlys",
+    name: "Nordlys",
     type: 0,
     notes: null,
     siret: null,
@@ -73,12 +73,12 @@ it("builds the subtitle from the type and unique end clients", () => {
   const subject = client({
     type: 1,
     missions: [
-      mission({ endClientName: "OGF" }),
-      mission({ id: 2, endClientName: "OGF" }),
+      mission({ endClientName: "Callisto" }),
+      mission({ id: 2, endClientName: "Callisto" }),
     ],
   });
 
-  expect(clientSubtitle(subject)).toBe("ESN · client final OGF");
+  expect(clientSubtitle(subject)).toBe("ESN · client final Callisto");
 });
 
 it("describes an internal client in the subtitle", () => {

@@ -9,7 +9,7 @@ use App\Domain\Shared\Enums\Currency;
 
 test('maps a mission model to mission data', function (): void {
     $mission = Mission::factory()->create([
-        'name' => 'OGF front',
+        'name' => 'Callisto front',
         'rate_cents' => 55_000,
         'start_date' => '2026-08-01',
     ]);
@@ -17,9 +17,9 @@ test('maps a mission model to mission data', function (): void {
     $data = MissionData::from($mission);
 
     expect($data->id)->toBe($mission->id)
-        ->and($data->slug)->toBe('ogf-front')
+        ->and($data->slug)->toBe('callisto-front')
         ->and($data->clientId)->toBe($mission->client_id)
-        ->and($data->name)->toBe('OGF front')
+        ->and($data->name)->toBe('Callisto front')
         ->and($data->endClientName)->toBeNull()
         ->and($data->rate?->amount)->toBe(55_000)
         ->and($data->rate?->currency)->toBe(Currency::EUR)

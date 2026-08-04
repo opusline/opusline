@@ -28,7 +28,7 @@ export const Default: Story = {
       />
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Supprimer Catamania ?</DialogTitle>
+          <DialogTitle>Supprimer Nordlys ?</DialogTitle>
           <DialogDescription>
             Cette action est définitive. Un client qui a encore des missions ne
             peut pas être supprimé — archivez-le plutôt.

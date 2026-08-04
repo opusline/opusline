@@ -14,8 +14,8 @@ function client(
 ): ClientWithMissionsData {
   return {
     id: 1,
-    slug: "catamania",
-    name: "Catamania",
+    slug: "nordlys",
+    name: "Nordlys",
     type: 0,
     notes: null,
     siret: null,
@@ -41,10 +41,10 @@ it("shows the client with its type and missions", () => {
           missions: [
             {
               id: 1,
-              slug: "ogf-front",
+              slug: "callisto-front",
               clientId: 1,
-              name: "OGF front",
-              endClientName: "OGF",
+              name: "Callisto front",
+              endClientName: "Callisto",
               billingMode: 0,
               rate: { amount: 55_000, currency: "EUR" },
               rounding: 0,
@@ -61,10 +61,10 @@ it("shows the client with its type and missions", () => {
     />,
   );
 
-  expect(screen.getByText("Catamania")).toBeInTheDocument();
+  expect(screen.getByText("Nordlys")).toBeInTheDocument();
   expect(screen.getByText("Intermédiaire")).toBeInTheDocument();
-  expect(screen.getByText("ESN · client final OGF")).toBeInTheDocument();
-  expect(screen.getByText("OGF front")).toBeInTheDocument();
+  expect(screen.getByText("ESN · client final Callisto")).toBeInTheDocument();
+  expect(screen.getByText("Callisto front")).toBeInTheDocument();
   expect(screen.getByText("550 €/j")).toBeInTheDocument();
   expect(screen.getByText("Active")).toBeInTheDocument();
   expect(
@@ -177,7 +177,7 @@ it("shows only active clients by default, with every scope count", () => {
     screen.getByRole("button", { name: "Archivés (1)" }),
   ).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Tous (2)" })).toBeInTheDocument();
-  expect(screen.getByText("Catamania")).toBeInTheDocument();
+  expect(screen.getByText("Nordlys")).toBeInTheDocument();
   expect(screen.queryByText("Studio Lorem")).not.toBeInTheDocument();
 });
 
@@ -199,7 +199,7 @@ it("filters the list when picking the archived scope", () => {
   fireEvent.click(screen.getByRole("button", { name: "Archivés (1)" }));
 
   expect(screen.getByText("Studio Lorem")).toBeInTheDocument();
-  expect(screen.queryByText("Catamania")).not.toBeInTheDocument();
+  expect(screen.queryByText("Nordlys")).not.toBeInTheDocument();
 });
 
 it("explains an empty scope instead of showing a bare table", () => {

@@ -12,7 +12,7 @@ test('shows a mission', function (): void {
     $client = Client::factory()->for($user)->create();
     $mission = Mission::factory()->for($client, 'client')->create([
         'user_id' => $user->id,
-        'name' => 'OGF front',
+        'name' => 'Callisto front',
     ]);
 
     $this->actingAs($user)
@@ -20,7 +20,7 @@ test('shows a mission', function (): void {
         ->assertOk()
         ->assertJsonPath('id', $mission->id)
         ->assertJsonPath('clientId', $client->id)
-        ->assertJsonPath('name', 'OGF front')
+        ->assertJsonPath('name', 'Callisto front')
         ->assertJsonPath('billingMode', BillingMode::Daily->value)
         ->assertJsonPath('rate.amount', 55_000);
 });
