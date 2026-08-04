@@ -15,7 +15,7 @@ import { useState } from "react";
 
 import {
   CLIENT_TYPE_HINTS,
-  CLIENT_TYPE_LABELS,
+  CLIENT_TYPE_OPTION_LABELS,
   COLOR_CLASSES,
   COLOR_LABELS,
   paymentTermsLabel,
@@ -27,7 +27,7 @@ const EYEBROW_CLASSES =
 
 const CLIENT_TYPES: ClientType[] = [0, 1, 2];
 const COLORS: Color[] = [0, 1, 2, 3, 4, 5, 6, 7];
-const PAYMENT_TERM_PRESETS = [0, 30, 45, 60];
+const PAYMENT_TERM_PRESETS = [30, 45, 60];
 
 type ClientFormValues = {
   name: string;
@@ -70,7 +70,7 @@ function clientInitials(name: string): string {
     .join("")
     .toUpperCase();
 
-  return initials === "" ? "—" : initials;
+  return initials === "" ? "?" : initials;
 }
 
 type NewClientPageProps = {
@@ -186,6 +186,7 @@ export function NewClientPage({
                 </FieldLabel>
                 <ChipGroup
                   aria-label="Type de relation"
+                  className="items-stretch"
                   id={`${field.name}-options`}
                   value={[String(field.state.value)]}
                   onValueChange={(value) => {
@@ -198,9 +199,10 @@ export function NewClientPage({
                 >
                   {CLIENT_TYPES.map((clientType) => (
                     <ChipOption
+                      className="min-w-48 flex-1"
                       key={clientType}
                       value={String(clientType)}
-                      label={CLIENT_TYPE_LABELS[clientType]}
+                      label={CLIENT_TYPE_OPTION_LABELS[clientType]}
                       hint={CLIENT_TYPE_HINTS[clientType]}
                     />
                   ))}
@@ -409,6 +411,14 @@ export function NewClientPage({
 
                         if (next === "custom") {
                           setIsCustomTerm(true);
+                          const draftedDays = Number.parseInt(
+                            customTermDraft,
+                            10,
+                          );
+
+                          if (!Number.isNaN(draftedDays)) {
+                            field.handleChange(draftedDays);
+                          }
                           return;
                         }
 
@@ -420,27 +430,31 @@ export function NewClientPage({
                     >
                       {PAYMENT_TERM_PRESETS.map((days) => (
                         <Chip key={days} size="lg" value={String(days)}>
-                          {days === 0 ? "À réception" : `${days} jours`}
+                          {days} j
                         </Chip>
                       ))}
                       <Chip size="lg" value="custom">
-                        Personnalisé
+                        Autre…
                       </Chip>
                     </ChipGroup>
                     {isCustomTerm && (
                       <div className="flex h-9 items-center rounded-md border border-primary bg-muted px-3 ring-3 ring-primary/20">
                         <input
+                          // biome-ignore lint/a11y/noAutofocus: the input appears because the user just picked "Autre…" — focus follows their action
+                          autoFocus
                           aria-label="Délai de paiement en jours"
                           className="w-13 min-w-0 border-none bg-transparent font-mono text-foreground-hi text-sm tabular-nums outline-none"
+                          inputMode="numeric"
+                          maxLength={3}
                           onChange={(event) => {
-                            setCustomTermDraft(event.target.value);
-                            const parsed = Number.parseInt(
-                              event.target.value,
-                              10,
+                            const digits = event.target.value.replace(
+                              /\D/g,
+                              "",
                             );
+                            setCustomTermDraft(digits);
 
-                            if (!Number.isNaN(parsed)) {
-                              field.handleChange(parsed);
+                            if (digits !== "") {
+                              field.handleChange(Number.parseInt(digits, 10));
                             }
                           }}
                           placeholder="90"
@@ -454,7 +468,7 @@ export function NewClientPage({
                   </div>
                   <p className="text-muted-foreground-3 text-xs">
                     Sert à calculer la date d'échéance et à signaler les
-                    retards. 45 jours par défaut.
+                    retards. Par défaut : 45 jours.
                   </p>
                   {isInvalid ? (
                     <FieldError errors={field.state.meta.errors} />
@@ -504,7 +518,7 @@ export function NewClientPage({
                       )}
                     >
                       {values.name.trim() === ""
-                        ? "Nouveau client"
+                        ? "Nom du client"
                         : values.name}
                     </span>
                   </div>

@@ -64,11 +64,62 @@ it("explains the end-client rule when picking an intermediary", async () => {
     screen.queryByText("Facturation via intermédiaire"),
   ).not.toBeInTheDocument();
 
-  fireEvent.click(screen.getByRole("button", { name: /Intermédiaire/ }));
+  fireEvent.click(screen.getByRole("button", { name: /intermédiaire/i }));
 
   expect(
     await screen.findByText("Facturation via intermédiaire"),
   ).toBeInTheDocument();
+});
+
+it("focuses the custom days input when picking Autre", async () => {
+  renderAuthedAt("/clients/new");
+  await screen.findByRole(
+    "heading",
+    { name: "Nouveau client" },
+    { timeout: 5000 },
+  );
+
+  fireEvent.click(screen.getByRole("button", { name: "Autre…" }));
+
+  expect(screen.getByLabelText("Délai de paiement en jours")).toHaveFocus();
+});
+
+it("restores the drafted days in the preview when returning to a custom term", async () => {
+  renderAuthedAt("/clients/new");
+  await screen.findByRole(
+    "heading",
+    { name: "Nouveau client" },
+    { timeout: 5000 },
+  );
+
+  fireEvent.click(screen.getByRole("button", { name: "Autre…" }));
+  fireEvent.change(screen.getByLabelText("Délai de paiement en jours"), {
+    target: { value: "90" },
+  });
+  expect(screen.getByText("Paiement à 90 jours")).toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: "30 j" }));
+  expect(screen.getByText("Paiement à 30 jours")).toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: "Autre…" }));
+  expect(screen.getByText("Paiement à 90 jours")).toBeInTheDocument();
+});
+
+it("only accepts digits in the custom days input", async () => {
+  renderAuthedAt("/clients/new");
+  await screen.findByRole(
+    "heading",
+    { name: "Nouveau client" },
+    { timeout: 5000 },
+  );
+
+  fireEvent.click(screen.getByRole("button", { name: "Autre…" }));
+  fireEvent.change(screen.getByLabelText("Délai de paiement en jours"), {
+    target: { value: "9a b0" },
+  });
+
+  expect(screen.getByLabelText("Délai de paiement en jours")).toHaveValue("90");
+  expect(screen.getByText("Paiement à 90 jours")).toBeInTheDocument();
 });
 
 it("creates the client and returns to the list", async () => {

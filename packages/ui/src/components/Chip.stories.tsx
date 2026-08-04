@@ -57,18 +57,26 @@ export const FilterWithCounts: Story = {
 
 export const Options: Story = {
   render: () => (
-    <ChipGroup defaultValue={["1"]} aria-label="Type de relation">
+    <ChipGroup
+      className="items-stretch"
+      defaultValue={["1"]}
+      aria-label="Type de relation"
+    >
       <ChipOption
         value="0"
-        label="Direct"
-        hint="Vous facturez le client directement"
+        label="Client direct"
+        hint="Vous facturez et livrez directement."
       />
       <ChipOption
         value="1"
-        label="Intermédiaire"
-        hint="ESN ou portage entre vous et le client final"
+        label="ESN / intermédiaire"
+        hint="Vous facturez l'ESN, qui facture son client final."
       />
-      <ChipOption value="2" label="Interne" hint="Vos projets, non facturés" />
+      <ChipOption
+        value="2"
+        label="Interne / perso"
+        hint="Projets non facturables, suivis pour mémoire."
+      />
     </ChipGroup>
   ),
 };

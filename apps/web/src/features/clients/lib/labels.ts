@@ -26,10 +26,16 @@ const CLIENT_TYPE_DESCRIPTORS: Partial<Record<ClientType, string>> = {
   2: "Projets internes",
 };
 
+export const CLIENT_TYPE_OPTION_LABELS: Record<ClientType, string> = {
+  0: "Client direct",
+  1: "ESN / intermédiaire",
+  2: "Interne / perso",
+};
+
 export const CLIENT_TYPE_HINTS: Record<ClientType, string> = {
-  0: "Vous facturez le client directement",
-  1: "ESN ou portage entre vous et le client final",
-  2: "Vos projets à vous, non facturés",
+  0: "Vous facturez et livrez directement.",
+  1: "Vous facturez l'ESN, qui facture son client final.",
+  2: "Projets non facturables, suivis pour mémoire.",
 };
 
 export const COLOR_LABELS: Record<Color, string> = {
