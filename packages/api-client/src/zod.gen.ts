@@ -8,6 +8,24 @@ import * as z from 'zod/mini';
 export const zBillingMode = z.union([z.literal(0), z.literal(1)]);
 
 /**
+ * ClientData
+ */
+export const zClientData = z.object({
+    id: z.int(),
+    slug: z.string(),
+    name: z.string(),
+    notes: z.nullable(z.string()),
+    archivedAt: z.nullable(z.iso.datetime())
+});
+
+/**
+ * ClientListData
+ */
+export const zClientListData = z.object({
+    clients: z.array(zClientData)
+});
+
+/**
  * CreateClientData
  */
 export const zCreateClientData = z.object({
@@ -75,25 +93,6 @@ export const zMissionData = z.object({
     status: zMissionStatus,
     startDate: z.nullable(z.iso.datetime()),
     endDate: z.nullable(z.iso.datetime())
-});
-
-/**
- * ClientData
- */
-export const zClientData = z.object({
-    id: z.int(),
-    slug: z.string(),
-    name: z.string(),
-    notes: z.nullable(z.string()),
-    archivedAt: z.nullable(z.iso.datetime()),
-    missions: z.array(zMissionData)
-});
-
-/**
- * ClientListData
- */
-export const zClientListData = z.object({
-    clients: z.array(zClientData)
 });
 
 /**

@@ -18,7 +18,6 @@ export type ClientData = {
     name: string;
     notes: string | null;
     archivedAt: string | null;
-    missions: Array<MissionData>;
 };
 
 /**

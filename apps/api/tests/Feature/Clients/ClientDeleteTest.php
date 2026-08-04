@@ -24,7 +24,8 @@ test('refuses to delete a client with missions', function (): void {
 
     $this->actingAs($user)
         ->deleteJson("/api/clients/{$client->id}")
-        ->assertConflict();
+        ->assertConflict()
+        ->assertJsonPath('message', __('clients.cannot_delete_with_missions'));
 
     $this->assertDatabaseHas('clients', ['id' => $client->id]);
 });
@@ -37,7 +38,8 @@ test('refuses to delete a client that is the end client of a mission', function 
 
     $this->actingAs($user)
         ->deleteJson("/api/clients/{$endClient->id}")
-        ->assertConflict();
+        ->assertConflict()
+        ->assertJsonPath('message', __('clients.cannot_delete_with_missions'));
 
     $this->assertDatabaseHas('clients', ['id' => $endClient->id]);
 });

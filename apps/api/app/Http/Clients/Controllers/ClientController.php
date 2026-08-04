@@ -4,73 +4,71 @@ declare(strict_types=1);
 
 namespace App\Http\Clients\Controllers;
 
+use App\Domain\Clients\Actions\ArchiveClient;
 use App\Domain\Clients\Actions\CreateClient;
+use App\Domain\Clients\Actions\DeleteClient;
+use App\Domain\Clients\Actions\UnarchiveClient;
 use App\Domain\Clients\Actions\UpdateClient;
 use App\Domain\Clients\Data\ClientData;
 use App\Domain\Clients\Data\ClientListData;
 use App\Domain\Clients\Data\CreateClientData;
 use App\Domain\Clients\Data\UpdateClientData;
 use App\Domain\Clients\Models\Client;
-use App\Domain\Missions\Models\Mission;
+use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
+use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ClientController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function index(#[CurrentUser] User $user): JsonResponse
     {
-        $clients = ($request->user() ?? abort(401))
+        $clients = $user
             ->clients()
-            ->with('missions')
             ->orderBy('name')
             ->get();
 
         return response()->json(new ClientListData(
-            clients: array_values(
-                $clients
-                    ->map(fn (Client $client): ClientData => ClientData::from($client))
-                    ->all(),
-            ),
+            clients: array_values(ClientData::collect($clients, 'array')),
         ));
     }
 
-    public function store(CreateClientData $data, Request $request, CreateClient $createClient): JsonResponse
+    public function store(CreateClientData $data, #[CurrentUser] User $user, CreateClient $createClient): JsonResponse
     {
-        $client = $createClient->handle($request->user() ?? abort(401), $data);
+        $client = $createClient->handle($user, $data);
 
-        return response()->json(ClientData::from($client->load('missions')), 201);
+        return response()->json(ClientData::from($client), 201);
     }
 
     public function update(UpdateClientData $data, Client $client, UpdateClient $updateClient): JsonResponse
     {
         $updateClient->handle($client, $data);
 
-        return response()->json(ClientData::from($client->load('missions')));
+        return response()->json(ClientData::from($client));
     }
 
-    public function archive(Client $client): JsonResponse
+    public function archive(Client $client, ArchiveClient $archiveClient): JsonResponse
     {
-        $client->update(['archived_at' => now()]);
+        $archiveClient->handle($client);
 
-        return response()->json(ClientData::from($client->load('missions')));
+        return response()->json(ClientData::from($client));
     }
 
-    public function unarchive(Client $client): JsonResponse
+    public function unarchive(Client $client, UnarchiveClient $unarchiveClient): JsonResponse
     {
-        $client->update(['archived_at' => null]);
+        $unarchiveClient->handle($client);
 
-        return response()->json(ClientData::from($client->load('missions')));
+        return response()->json(ClientData::from($client));
     }
 
-    public function destroy(Client $client): Response
+    /**
+     * @throws HttpException<409, 'Cannot delete a client that still has missions. Archive it instead.'>
+     */
+    public function destroy(Client $client, DeleteClient $deleteClient): Response
     {
-        $hasMissions = Mission::query()->involvingClient($client)->exists();
-
-        abort_if($hasMissions, 409, __('clients.cannot_delete_with_missions'));
-
-        $client->delete();
+        $deleteClient->handle($client);
 
         return response()->noContent();
     }

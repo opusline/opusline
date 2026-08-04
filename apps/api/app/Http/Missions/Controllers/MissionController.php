@@ -6,21 +6,23 @@ namespace App\Http\Missions\Controllers;
 
 use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Actions\CreateMission;
+use App\Domain\Missions\Actions\DeleteMission;
 use App\Domain\Missions\Actions\UpdateMission;
 use App\Domain\Missions\Data\CreateMissionData;
 use App\Domain\Missions\Data\MissionData;
 use App\Domain\Missions\Data\UpdateMissionData;
 use App\Domain\Missions\Models\Mission;
+use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
+use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class MissionController extends Controller
 {
-    public function store(CreateMissionData $data, Request $request, Client $client, CreateMission $createMission): JsonResponse
+    public function store(CreateMissionData $data, #[CurrentUser] User $user, Client $client, CreateMission $createMission): JsonResponse
     {
-        $mission = $createMission->handle($request->user() ?? abort(401), $client, $data);
+        $mission = $createMission->handle($user, $client, $data);
 
         return response()->json(MissionData::from($mission), 201);
     }
@@ -32,11 +34,9 @@ class MissionController extends Controller
         return response()->json(MissionData::from($mission));
     }
 
-    public function destroy(Client $client, Mission $mission): Response
+    public function destroy(Client $client, Mission $mission, DeleteMission $deleteMission): Response
     {
-        // TODO(time-entries): abort 409 here once missions can carry time
-        // entries — deleting tracked work must fail loud, like client deletion.
-        $mission->delete();
+        $deleteMission->handle($mission);
 
         return response()->noContent();
     }

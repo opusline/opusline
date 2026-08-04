@@ -431,11 +431,11 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -579,12 +579,6 @@
                             "null"
                         ],
                         "format": "date-time"
-                    },
-                    "missions": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/MissionData"
-                        }
                     }
                 },
                 "required": [
@@ -592,8 +586,7 @@
                     "slug",
                     "name",
                     "notes",
-                    "archivedAt",
-                    "missions"
+                    "archivedAt"
                 ],
                 "title": "ClientData"
             },

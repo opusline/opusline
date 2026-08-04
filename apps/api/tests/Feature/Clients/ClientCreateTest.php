@@ -12,8 +12,7 @@ test('creates a client', function (): void {
         ->assertCreated()
         ->assertJsonPath('name', 'Catamania')
         ->assertJsonPath('notes', 'ESN — contact Julie')
-        ->assertJsonPath('archivedAt', null)
-        ->assertJsonPath('missions', []);
+        ->assertJsonPath('archivedAt', null);
 
     $this->assertDatabaseHas('clients', ['name' => 'Catamania', 'user_id' => $user->id]);
 });
