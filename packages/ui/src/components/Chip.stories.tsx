@@ -84,7 +84,7 @@ export const Options: Story = {
 export const Sizes: Story = {
   render: () => (
     <div className="flex flex-col gap-4">
-      <ChipGroup defaultValue={["jour"]} aria-label="Mode de facturation">
+      <ChipGroup defaultValue={["jour"]} aria-label="Mode de facturation (XL)">
         <Chip value="jour" size="xl">
           Au jour
         </Chip>
@@ -95,7 +95,7 @@ export const Sizes: Story = {
           Forfait
         </Chip>
       </ChipGroup>
-      <ChipGroup defaultValue={["jour"]} aria-label="Mode de facturation">
+      <ChipGroup defaultValue={["jour"]} aria-label="Mode de facturation (LG)">
         <Chip value="jour" size="lg">
           Au jour
         </Chip>
@@ -106,7 +106,7 @@ export const Sizes: Story = {
           Forfait
         </Chip>
       </ChipGroup>
-      <ChipGroup defaultValue={["jour"]} aria-label="Mode de facturation">
+      <ChipGroup defaultValue={["jour"]} aria-label="Mode de facturation (MD)">
         <Chip value="jour" size="md">
           Au jour
         </Chip>
@@ -117,7 +117,7 @@ export const Sizes: Story = {
           Forfait
         </Chip>
       </ChipGroup>
-      <ChipGroup defaultValue={["jour"]} aria-label="Mode de facturation">
+      <ChipGroup defaultValue={["jour"]} aria-label="Mode de facturation (SM)">
         <Chip value="jour" size="sm">
           Au jour
         </Chip>

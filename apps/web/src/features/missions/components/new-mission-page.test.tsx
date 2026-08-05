@@ -2,7 +2,7 @@ import type { ClientWithMissionsData } from "@opusline/api-client";
 import { currentUserQueryKey } from "@opusline/api-client/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 
 import { getRouter } from "@/router";
@@ -171,6 +171,28 @@ it("hides the rate and billing mode for an internal client", async () => {
 
   expect(screen.queryByText("Tarif HT")).not.toBeInTheDocument();
   expect(screen.queryByText("Mode de facturation")).not.toBeInTheDocument();
+});
+
+it("creates an internal mission without billing details", async () => {
+  const requests = stubApi();
+  await renderNewMissionPage();
+
+  fireEvent.click(screen.getByRole("button", { name: "Perso" }));
+  fireEvent.change(screen.getByLabelText("Nom de la mission"), {
+    target: { value: "Opusline" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Créer la mission" }));
+
+  await waitFor(() => {
+    const creation = requests.find((request) => request.method === "POST");
+    expect(creation?.path.endsWith("/clients/perso/missions")).toBe(true);
+    expect(creation?.body).toMatchObject({
+      billingMode: 0,
+      rate: null,
+      rounding: 0,
+      craRequired: null,
+    });
+  });
 });
 
 it("creates the mission and lands on the client page", async () => {

@@ -12,6 +12,7 @@ import { CircleAlert, InfoIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { FormTextField } from "@/components/form-text-field";
 
+import type { FormSubmitResult } from "@/lib/form";
 import { initials } from "@/lib/initials";
 import { COLOR_CLASSES, COLOR_LABELS, COLORS } from "@/lib/palette";
 import { type ClientFormValues, toClientPayload } from "../lib/client-form";
@@ -31,7 +32,7 @@ type NewClientPageProps = {
   onSubmit: (
     body: CreateClientData,
     chainToMission: boolean,
-  ) => Promise<Record<string, { message: string }> | null | undefined>;
+  ) => Promise<FormSubmitResult>;
   onCancel: () => void;
   isPending?: boolean;
   error?: string | null;
@@ -60,12 +61,14 @@ export function NewClientPage({
     } as ClientFormValues,
     validators: {
       onSubmitAsync: async ({ value }) => {
-        const fieldErrors = await onSubmit(
+        const result = await onSubmit(
           toClientPayload(value),
           chainToMissionRef.current,
         );
 
-        return fieldErrors ? { fields: fieldErrors } : null;
+        return result.status === "invalid"
+          ? { fields: result.fieldErrors }
+          : null;
       },
     },
   });

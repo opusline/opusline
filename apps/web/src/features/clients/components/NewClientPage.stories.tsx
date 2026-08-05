@@ -35,14 +35,14 @@ type Story = StoryObj<typeof NewClientPage>;
 
 export const Default: Story = {
   args: {
-    onSubmit: async () => null,
+    onSubmit: async () => ({ status: "success" }) as const,
     onCancel: () => {},
   },
 };
 
 export const WithServerError: Story = {
   args: {
-    onSubmit: async () => null,
+    onSubmit: async () => ({ status: "success" }) as const,
     onCancel: () => {},
     error: "Impossible de créer le client. Réessayez dans un instant.",
   },

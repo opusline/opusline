@@ -8,6 +8,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
 import { NewClientPage } from "@/features/clients/components/new-client-page";
+import type { FormSubmitResult } from "@/lib/form";
 import { serverFieldErrors } from "@/lib/validation";
 
 export const Route = createFileRoute("/_authed/clients_/new")({
@@ -23,7 +24,7 @@ function NewClientRoute() {
   const handleSubmit = async (
     body: CreateClientData,
     chainToMission: boolean,
-  ) => {
+  ): Promise<FormSubmitResult> => {
     try {
       const created = await createClient.mutateAsync({ body });
       await queryClient.invalidateQueries({
@@ -40,9 +41,13 @@ function NewClientRoute() {
       } else {
         await navigate({ to: "/clients" });
       }
-      return null;
+      return { status: "success" };
     } catch (error) {
-      return serverFieldErrors(error);
+      const fieldErrors = serverFieldErrors(error);
+
+      return fieldErrors
+        ? { status: "invalid", fieldErrors }
+        : { status: "failed" };
     }
   };
 

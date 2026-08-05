@@ -23,7 +23,7 @@ import { Link } from "@tanstack/react-router";
 import { CircleAlert, InfoIcon } from "lucide-react";
 import { useState } from "react";
 import { FormTextField } from "@/components/form-text-field";
-import { formatRate } from "@/lib/billing";
+import { formatRate, formatRateDraft, parseRateToCents } from "@/lib/billing";
 import type { FormSubmitResult } from "@/lib/form";
 import {
   COLOR_CLASSES,
@@ -39,8 +39,6 @@ import {
   entryRoundingHint,
   entryRoundingLabel,
   entryRoundingOrder,
-  formatRateDraft,
-  parseRateToCents,
 } from "../lib/labels";
 
 const EYEBROW_CLASSES =
@@ -121,7 +119,7 @@ export function NewMissionPage({
     validators: {
       onSubmitAsync: async ({ value }) => {
         if (selectedClient === undefined) {
-          return null;
+          return "Sélectionnez un client.";
         }
 
         if (!isInternal && rateCents === null) {
