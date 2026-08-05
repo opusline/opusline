@@ -1,5 +1,6 @@
 import type { ClientWithMissionsData } from "@opusline/api-client";
 import type { Meta, StoryObj } from "@storybook/react";
+import { SAMPLE_LOGO_SRC } from "@/lib/logo-fixture";
 import { ClientEditForm } from "./client-edit-form";
 
 const client: ClientWithMissionsData = {
@@ -24,6 +25,11 @@ const meta = {
   title: "Web/ClientEditForm",
   component: ClientEditForm,
   tags: ["autodocs"],
+  args: {
+    logoSrc: SAMPLE_LOGO_SRC,
+    onUploadLogo: async () => ({ status: "success" }) as const,
+    onRemoveLogo: async () => true,
+  },
 } satisfies Meta<typeof ClientEditForm>;
 
 export default meta;
@@ -40,6 +46,15 @@ export const Default: Story = {
 export const WithCustomTerm: Story = {
   args: {
     client: { ...client, paymentTermsDays: 90 },
+    onSubmit: async () => ({ status: "success" }) as const,
+    onCancel: () => {},
+  },
+};
+
+export const WithoutLogo: Story = {
+  args: {
+    client,
+    logoSrc: "/does-not-exist.png",
     onSubmit: async () => ({ status: "success" }) as const,
     onCancel: () => {},
   },

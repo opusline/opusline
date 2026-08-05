@@ -3,6 +3,7 @@ import {
   createClientMutation,
   listClientsOptions,
   listClientsQueryKey,
+  uploadClientLogoMutation,
 } from "@opusline/api-client/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -20,13 +21,29 @@ function NewClientRoute() {
   const queryClient = useQueryClient();
 
   const createClient = useMutation(createClientMutation());
+  const uploadLogo = useMutation(uploadClientLogoMutation());
 
   const handleSubmit = async (
     body: CreateClientData,
     chainToMission: boolean,
+    logo: File | null,
   ): Promise<FormSubmitResult> => {
     try {
       const created = await createClient.mutateAsync({ body });
+
+      if (logo !== null) {
+        try {
+          await uploadLogo.mutateAsync({
+            body: { logo },
+            path: { client: created.slug },
+          });
+        } catch {
+          // The client itself exists by now, so failing the whole creation
+          // would be worse than landing on the fiche with no logo — where the
+          // empty slot makes the miss obvious and retryable.
+        }
+      }
+
       await queryClient.invalidateQueries({
         queryKey: listClientsQueryKey(),
         refetchType: "none",

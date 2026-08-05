@@ -2,6 +2,7 @@ import type { UpdateClientData } from "@opusline/api-client";
 import {
   archiveClientMutation,
   deleteClientDocumentMutation,
+  deleteClientLogoMutation,
   listClientDocumentsOptions,
   listClientDocumentsQueryKey,
   listClientsQueryKey,
@@ -10,16 +11,19 @@ import {
   unarchiveClientMutation,
   updateClientMutation,
   uploadClientDocumentMutation,
+  uploadClientLogoMutation,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 
 import { DocumentsTab } from "@/components/documents-tab";
 import { ClientDetailPage } from "@/features/clients/components/client-detail-page";
 import { clientDocumentDownloadHref, documentHandlers } from "@/lib/documents";
 import type { FormSubmitResult } from "@/lib/form";
+import { clientLogoHref, logoHandlers } from "@/lib/logos";
 import { serverFieldErrors } from "@/lib/validation";
 
 export const Route = createFileRoute("/_authed/clients_/$clientSlug")({
@@ -40,6 +44,8 @@ function ClientDetailRoute() {
   const updateClient = useMutation(updateClientMutation());
   const archiveClient = useMutation(archiveClientMutation());
   const unarchiveClient = useMutation(unarchiveClientMutation());
+  const uploadLogo = useMutation(uploadClientLogoMutation());
+  const deleteLogo = useMutation(deleteClientLogoMutation());
   const uploadDocument = useMutation(uploadClientDocumentMutation());
   const deleteDocument = useMutation(deleteClientDocumentMutation());
 
@@ -89,6 +95,19 @@ function ClientDetailRoute() {
       // The mutation error is surfaced through toggle.error below.
     }
   };
+
+  const [logoVersion, setLogoVersion] = useState(0);
+
+  const { handleUpload: handleUploadLogo, handleRemove: handleRemoveLogo } =
+    logoHandlers({
+      upload: (logo) =>
+        uploadLogo.mutateAsync({ body: { logo }, path: { client } }),
+      remove: () => deleteLogo.mutateAsync({ path: { client } }),
+      invalidate: async () => {
+        setLogoVersion((version) => version + 1);
+        await invalidateClient();
+      },
+    });
 
   const {
     handleUpload: handleUploadDocument,
@@ -160,8 +179,11 @@ function ClientDetailRoute() {
       error={genericError}
       isArchivePending={archiveClient.isPending || unarchiveClient.isPending}
       isUpdatePending={updateClient.isPending}
+      logoSrc={clientLogoHref(client, logoVersion)}
+      onRemoveLogo={handleRemoveLogo}
       onToggleArchive={() => void handleToggleArchive()}
       onUpdate={handleUpdate}
+      onUploadLogo={handleUploadLogo}
     />
   );
 }

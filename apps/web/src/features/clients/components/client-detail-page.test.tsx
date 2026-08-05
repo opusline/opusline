@@ -296,6 +296,50 @@ it("uploads a confirmed document to the client", async () => {
   ).not.toBeInTheDocument();
 });
 
+it("uploads a logo picked from the edit form", async () => {
+  const requests = stubApi(clientPayload(), (request) =>
+    request.method === "POST" && new URL(request.url).pathname.endsWith("/logo")
+      ? new Response(null, { status: 204 })
+      : null,
+  );
+  await renderDetailPage();
+
+  fireEvent.click(screen.getByRole("button", { name: "Modifier" }));
+  fireEvent.change(await screen.findByLabelText("Logo du client"), {
+    target: {
+      files: [new File(["x"], "nordlys.png", { type: "image/png" })],
+    },
+  });
+
+  await waitFor(() => {
+    const upload = requests.find(
+      (request) =>
+        request.method === "POST" &&
+        request.path.endsWith("/clients/nordlys/logo"),
+    );
+    expect(upload).toBeDefined();
+  });
+});
+
+it("removes the logo from the edit form", async () => {
+  const requests = stubApi(clientPayload());
+  await renderDetailPage();
+
+  fireEvent.click(screen.getByRole("button", { name: "Modifier" }));
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Retirer logo du client" }),
+  );
+
+  await waitFor(() => {
+    const removal = requests.find(
+      (request) =>
+        request.method === "DELETE" &&
+        request.path.endsWith("/clients/nordlys/logo"),
+    );
+    expect(removal).toBeDefined();
+  });
+});
+
 it("hides mission creation on an archived client", async () => {
   stubApi(clientPayload({ archivedAt: daysAgo(10), missions: [] }));
   await renderDetailPage();
