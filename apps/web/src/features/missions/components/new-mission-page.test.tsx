@@ -81,6 +81,10 @@ function stubApi(
         return jsonResponse(200, { clients: CLIENTS });
       }
 
+      if (request.method === "GET" && url.pathname.endsWith("/documents")) {
+        return jsonResponse(200, { documents: [] });
+      }
+
       if (
         request.method === "GET" &&
         /\/clients\/[a-z0-9-]+$/.test(url.pathname)

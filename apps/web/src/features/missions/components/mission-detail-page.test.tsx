@@ -1,4 +1,8 @@
-import type { ClientWithMissionsData, MissionData } from "@opusline/api-client";
+import type {
+  ClientWithMissionsData,
+  DocumentData,
+  MissionData,
+} from "@opusline/api-client";
 import { currentUserQueryKey } from "@opusline/api-client/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
@@ -64,7 +68,10 @@ function jsonResponse(status: number, body: unknown): Response {
 
 type RecordedRequest = { method: string; path: string; body: unknown };
 
-function stubApi(mission: MissionData): RecordedRequest[] {
+function stubApi(
+  mission: MissionData,
+  documents: DocumentData[] = [],
+): RecordedRequest[] {
   const requests: RecordedRequest[] = [];
 
   vi.stubGlobal(
@@ -81,6 +88,10 @@ function stubApi(mission: MissionData): RecordedRequest[] {
               .json()
               .catch(() => null);
       requests.push({ method: request.method, path: url.pathname, body });
+
+      if (url.pathname.endsWith("/documents")) {
+        return jsonResponse(200, { documents });
+      }
 
       if (url.pathname.includes("/missions/")) {
         return jsonResponse(200, mission);
@@ -232,6 +243,10 @@ it("shows a server error on an untouched field after saving", async () => {
         });
       }
 
+      if (url.pathname.endsWith("/documents")) {
+        return jsonResponse(200, { documents: [] });
+      }
+
       if (url.pathname.includes("/missions/")) {
         return jsonResponse(200, mission);
       }
@@ -248,6 +263,38 @@ it("shows a server error on an untouched field after saving", async () => {
   expect(
     await screen.findByText("Le champ client final est obligatoire."),
   ).toBeInTheDocument();
+});
+
+it("shows inherited client documents without a delete action", async () => {
+  stubApi(missionPayload(), [
+    {
+      id: 7,
+      fileName: "contrat-cadre-nordlys.pdf",
+      category: 0,
+      source: 1,
+      sizeBytes: 1_240_000,
+      createdAt: "2025-03-05T10:00:00+00:00",
+    },
+  ]);
+  await renderMissionDetail();
+
+  fireEvent.click(screen.getByRole("tab", { name: "Documents" }));
+
+  expect(
+    await screen.findByText("contrat-cadre-nordlys.pdf"),
+  ).toBeInTheDocument();
+  expect(screen.getByText("client")).toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", {
+      name: "Supprimer contrat-cadre-nordlys.pdf",
+    }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByRole("link", { name: "Télécharger contrat-cadre-nordlys.pdf" }),
+  ).toHaveAttribute(
+    "href",
+    expect.stringContaining("/clients/nordlys/documents/7/download"),
+  );
 });
 
 it("offers to resume a finished mission", async () => {

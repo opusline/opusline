@@ -7,6 +7,8 @@ import {
   RouterProvider,
 } from "@tanstack/react-router";
 import type * as React from "react";
+import { DocumentsTab } from "@/components/documents-tab";
+import { isClientDocument } from "@/lib/documents";
 import { MissionDetailPage } from "./mission-detail-page";
 
 function StoryRouter({ children }: { children: React.ReactNode }) {
@@ -63,6 +65,35 @@ const client: ClientWithMissionsData = {
   ],
 };
 
+const documentsTab = (
+  <DocumentsTab
+    canRemove={(document) => !isClientDocument(document)}
+    documents={[
+      {
+        id: 1,
+        fileName: "contrat-cadre-nordlys-2025.pdf",
+        category: 0,
+        source: 1,
+        sizeBytes: 1_240_000,
+        createdAt: "2025-03-05T10:00:00+00:00",
+      },
+      {
+        id: 2,
+        fileName: "cra-mars-2025-signe.pdf",
+        category: 2,
+        source: 0,
+        sizeBytes: 312_000,
+        createdAt: "2025-04-02T10:00:00+00:00",
+      },
+    ]}
+    downloadHref={() => "#"}
+    emptyLabel="Aucun document pour cette mission."
+    onDelete={async () => true}
+    onUpload={async () => ({ status: "success" }) as const}
+    showSourceBadge
+  />
+);
+
 const meta = {
   title: "Web/MissionDetailPage",
   component: MissionDetailPage,
@@ -83,6 +114,7 @@ export const Default: Story = {
   args: {
     mission,
     client,
+    documentsTab,
     onUpdate: async () => ({ status: "success" }) as const,
     onSetStatus: () => {},
   },
@@ -92,6 +124,7 @@ export const NonBillable: Story = {
   args: {
     mission: { ...mission, rate: null, endClientName: null },
     client: { ...client, type: 2, name: "Perso", slug: "perso" },
+    documentsTab,
     onUpdate: async () => ({ status: "success" }) as const,
     onSetStatus: () => {},
   },
@@ -101,6 +134,7 @@ export const Done: Story = {
   args: {
     mission: { ...mission, status: 2 },
     client,
+    documentsTab,
     onUpdate: async () => ({ status: "success" }) as const,
     onSetStatus: () => {},
   },

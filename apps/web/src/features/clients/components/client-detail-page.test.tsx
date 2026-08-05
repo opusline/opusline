@@ -88,6 +88,10 @@ function stubApi(
         return overridden;
       }
 
+      if (url.pathname.endsWith("/documents")) {
+        return jsonResponse(200, { documents: [] });
+      }
+
       return jsonResponse(200, client);
     }),
   );
@@ -212,6 +216,84 @@ it("shows saved billing contact details even without company identifiers", async
     await screen.findByText("factures@nordlys.example"),
   ).toBeInTheDocument();
   expect(screen.queryByText("Coordonnées à compléter")).not.toBeInTheDocument();
+});
+
+it("shows the client documents in the documents tab", async () => {
+  stubApi(clientPayload(), (request) => {
+    const url = new URL(request.url, "http://localhost");
+
+    return request.method === "GET" && url.pathname.endsWith("/documents")
+      ? jsonResponse(200, {
+          documents: [
+            {
+              id: 7,
+              fileName: "contrat-cadre-nordlys.pdf",
+              category: 0,
+              source: 1,
+              sizeBytes: 1_240_000,
+              createdAt: "2025-03-05T10:00:00+00:00",
+            },
+          ],
+        })
+      : null;
+  });
+  await renderDetailPage();
+
+  fireEvent.click(screen.getByRole("tab", { name: "Documents" }));
+
+  expect(
+    await screen.findByText("contrat-cadre-nordlys.pdf"),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole("link", { name: "Télécharger contrat-cadre-nordlys.pdf" }),
+  ).toHaveAttribute(
+    "href",
+    expect.stringContaining("/clients/nordlys/documents/7/download"),
+  );
+});
+
+it("uploads a confirmed document to the client", async () => {
+  const requests = stubApi(clientPayload(), (request) => {
+    const url = new URL(request.url, "http://localhost");
+
+    return request.method === "POST" && url.pathname.endsWith("/documents")
+      ? jsonResponse(201, {
+          id: 8,
+          fileName: "contrat.pdf",
+          category: 0,
+          source: 1,
+          sizeBytes: 1,
+          createdAt: "2025-03-05T10:00:00+00:00",
+        })
+      : null;
+  });
+  await renderDetailPage();
+
+  fireEvent.click(screen.getByRole("tab", { name: "Documents" }));
+  fireEvent.change(screen.getByLabelText("Ajouter des documents"), {
+    target: {
+      files: [new File(["x"], "contrat.pdf", { type: "application/pdf" })],
+    },
+  });
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Envoyer 1 document" }),
+  );
+
+  await waitFor(() => {
+    const upload = requests.find(
+      (request) =>
+        request.method === "POST" &&
+        request.path.endsWith("/clients/nordlys/documents"),
+    );
+    expect(upload).toBeDefined();
+  });
+  // The row leaves the queue on success instead of turning into an error.
+  await waitFor(() => {
+    expect(screen.queryByText("Envois en cours")).not.toBeInTheDocument();
+  });
+  expect(
+    screen.queryByText("L'envoi a échoué. Réessayez dans un instant."),
+  ).not.toBeInTheDocument();
 });
 
 it("hides mission creation on an archived client", async () => {
