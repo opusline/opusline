@@ -82,3 +82,14 @@ export const UploadFails: Story = {
     }),
   },
 };
+
+export const SlowUpload: Story = {
+  args: {
+    ...Default.args,
+    documents: [],
+    onUpload: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      return { status: "success" } as const;
+    },
+  },
+};
