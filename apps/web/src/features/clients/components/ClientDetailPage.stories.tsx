@@ -7,6 +7,7 @@ import {
   RouterProvider,
 } from "@tanstack/react-router";
 import type * as React from "react";
+import { DocumentsTab } from "@/components/documents-tab";
 import { ClientDetailPage } from "./client-detail-page";
 
 function StoryRouter({ children }: { children: React.ReactNode }) {
@@ -71,6 +72,33 @@ const client: ClientWithMissionsData = {
   ],
 };
 
+const documentsTab = (
+  <DocumentsTab
+    documents={[
+      {
+        id: 1,
+        fileName: "contrat-cadre-nordlys-2025.pdf",
+        category: 0,
+        source: 1,
+        sizeBytes: 1_240_000,
+        createdAt: "2025-03-05T10:00:00+00:00",
+      },
+      {
+        id: 2,
+        fileName: "devis-callisto-front.pdf",
+        category: 1,
+        source: 1,
+        sizeBytes: 845_000,
+        createdAt: "2025-03-12T10:00:00+00:00",
+      },
+    ]}
+    downloadHref={() => "#"}
+    emptyLabel="Aucun document pour ce client."
+    onDelete={async () => true}
+    onUpload={async () => ({ status: "success" }) as const}
+  />
+);
+
 const meta = {
   title: "Web/ClientDetailPage",
   component: ClientDetailPage,
@@ -90,6 +118,7 @@ type Story = StoryObj<typeof ClientDetailPage>;
 export const Default: Story = {
   args: {
     client,
+    documentsTab,
     onUpdate: async () => ({ status: "success" }) as const,
     onToggleArchive: () => {},
   },
@@ -102,6 +131,7 @@ export const Archived: Story = {
       archivedAt: new Date(Date.now() - 30 * DAY_MS).toISOString(),
       missions: [],
     },
+    documentsTab,
     onUpdate: async () => ({ status: "success" }) as const,
     onToggleArchive: () => {},
   },
@@ -118,6 +148,7 @@ export const WithoutCoordinates: Story = {
       billingEmail: null,
       missions: [],
     },
+    documentsTab,
     onUpdate: async () => ({ status: "success" }) as const,
     onToggleArchive: () => {},
   },

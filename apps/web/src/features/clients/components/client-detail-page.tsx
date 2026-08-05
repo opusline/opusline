@@ -33,7 +33,7 @@ import {
   MoreHorizontalIcon,
   PlusIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { formatMissionRate, paymentTermsLabel } from "@/lib/billing";
 import { monthYearLabel } from "@/lib/dates";
 import type { FormSubmitResult } from "@/lib/form";
@@ -102,6 +102,7 @@ function CoordRow({
 
 type ClientDetailPageProps = {
   client: ClientWithMissionsData;
+  documentsTab: ReactNode;
   onUpdate: (body: UpdateClientData) => Promise<FormSubmitResult>;
   onToggleArchive: () => void;
   isUpdatePending?: boolean;
@@ -111,6 +112,7 @@ type ClientDetailPageProps = {
 
 export function ClientDetailPage({
   client,
+  documentsTab,
   onUpdate,
   onToggleArchive,
   isUpdatePending,
@@ -264,6 +266,7 @@ export function ClientDetailPage({
           <TabsList className="mb-5" variant="underline">
             <TabsTrigger value="missions">Missions</TabsTrigger>
             <TabsTrigger value="factures">Factures</TabsTrigger>
+            <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="coordonnees">Coordonnées</TabsTrigger>
           </TabsList>
 
@@ -400,6 +403,10 @@ export function ClientDetailPage({
                 été saisi sur une mission de ce client.
               </p>
             </div>
+          </TabsContent>
+
+          <TabsContent keepMounted value="documents">
+            {documentsTab}
           </TabsContent>
 
           <TabsContent value="coordonnees">

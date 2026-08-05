@@ -28,7 +28,7 @@ import {
   MoreHorizontalIcon,
   PlusIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { formatAmount, paymentTermsLabel } from "@/lib/billing";
 import { CLIENT_TYPE_LABELS } from "@/lib/client-types";
 import { monthYearLabel } from "@/lib/dates";
@@ -82,6 +82,7 @@ function FacturationRow({ label, value }: { label: string; value: string }) {
 type MissionDetailPageProps = {
   mission: MissionData;
   client: ClientWithMissionsData;
+  documentsTab: ReactNode;
   onUpdate: (body: UpdateMissionData) => Promise<FormSubmitResult>;
   onSetStatus: (status: MissionStatus) => void;
   isUpdatePending?: boolean;
@@ -92,6 +93,7 @@ type MissionDetailPageProps = {
 export function MissionDetailPage({
   mission,
   client,
+  documentsTab,
   onUpdate,
   onSetStatus,
   isUpdatePending,
@@ -282,6 +284,7 @@ export function MissionDetailPage({
           <TabsList className="mb-5" variant="underline">
             <TabsTrigger value="entries">Entrées</TabsTrigger>
             <TabsTrigger value="invoices">Factures</TabsTrigger>
+            <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="config">Configuration</TabsTrigger>
           </TabsList>
 
@@ -326,6 +329,11 @@ export function MissionDetailPage({
                   : "Cette mission n'est pas facturable — son temps ne produit pas de facture."}
               </p>
             </div>
+          </TabsContent>
+
+          {/* keepMounted preserves the upload queue while browsing other tabs. */}
+          <TabsContent keepMounted value="documents">
+            {documentsTab}
           </TabsContent>
 
           <TabsContent value="config">

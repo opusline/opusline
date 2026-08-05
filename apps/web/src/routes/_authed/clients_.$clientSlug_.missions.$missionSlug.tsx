@@ -1,17 +1,32 @@
-import type { MissionStatus, UpdateMissionData } from "@opusline/api-client";
+import type {
+  DocumentCategory,
+  DocumentData,
+  MissionStatus,
+  UpdateMissionData,
+} from "@opusline/api-client";
 import {
+  deleteMissionDocumentMutation,
   listClientsQueryKey,
+  listMissionDocumentsOptions,
+  listMissionDocumentsQueryKey,
   showClientOptions,
   showMissionOptions,
   showMissionQueryKey,
   updateMissionMutation,
+  uploadMissionDocumentMutation,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
+import { DocumentsTab } from "@/components/documents-tab";
 import { MissionDetailPage } from "@/features/missions/components/mission-detail-page";
+import {
+  type DocumentUploadResult,
+  missionDocumentDownloadHref,
+  uploadFailureMessage,
+} from "@/lib/documents";
 import type { FormSubmitResult } from "@/lib/form";
 import { serverFieldErrors } from "@/lib/validation";
 
@@ -30,8 +45,13 @@ function MissionDetailRoute() {
     showClientOptions({ path: { client: clientSlug } }),
   );
   const missionQuery = useQuery(showMissionOptions({ path: missionPath }));
+  const documentsQuery = useQuery(
+    listMissionDocumentsOptions({ path: missionPath }),
+  );
 
   const updateMission = useMutation(updateMissionMutation());
+  const uploadDocument = useMutation(uploadMissionDocumentMutation());
+  const deleteDocument = useMutation(deleteMissionDocumentMutation());
 
   const invalidate = async () => {
     await Promise.all([
@@ -43,6 +63,12 @@ function MissionDetailRoute() {
       }),
       queryClient.invalidateQueries({ queryKey: listClientsQueryKey() }),
     ]);
+  };
+
+  const invalidateDocuments = async () => {
+    await queryClient.invalidateQueries({
+      queryKey: listMissionDocumentsQueryKey({ path: missionPath }),
+    });
   };
 
   const handleUpdate = async (
@@ -91,6 +117,36 @@ function MissionDetailRoute() {
     }
   };
 
+  const handleUploadDocument = async (
+    file: File,
+    category: DocumentCategory,
+  ): Promise<DocumentUploadResult> => {
+    try {
+      await uploadDocument.mutateAsync({
+        body: { file, category },
+        path: missionPath,
+      });
+      await invalidateDocuments();
+      return { status: "success" };
+    } catch (error) {
+      return { status: "failed", message: uploadFailureMessage(error) };
+    }
+  };
+
+  const handleDeleteDocument = async (
+    document: DocumentData,
+  ): Promise<boolean> => {
+    try {
+      await deleteDocument.mutateAsync({
+        path: { ...missionPath, document: document.id },
+      });
+      await invalidateDocuments();
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   if (clientQuery.isPending || missionQuery.isPending) {
     return (
       <div className="flex max-w-270 flex-col gap-5">
@@ -116,9 +172,32 @@ function MissionDetailRoute() {
     );
   }
 
+  const documentsTab = documentsQuery.isPending ? (
+    <Skeleton className="h-40 w-full" />
+  ) : documentsQuery.data === undefined ? (
+    <Alert variant="destructive">
+      <AlertDescription>
+        Impossible de charger les documents. Réessayez dans un instant.
+      </AlertDescription>
+    </Alert>
+  ) : (
+    <DocumentsTab
+      canRemove={(document) => document.source === 0}
+      documents={documentsQuery.data.documents}
+      downloadHref={(document) =>
+        missionDocumentDownloadHref(clientSlug, missionSlug, document)
+      }
+      emptyLabel="Aucun document pour cette mission. Les documents du client apparaissent aussi ici."
+      onDelete={handleDeleteDocument}
+      onUpload={handleUploadDocument}
+      showSourceBadge
+    />
+  );
+
   return (
     <MissionDetailPage
       client={clientQuery.data}
+      documentsTab={documentsTab}
       error={
         updateMission.error && !serverFieldErrors(updateMission.error)
           ? "L'action a échoué. Réessayez dans un instant."
