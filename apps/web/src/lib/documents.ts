@@ -77,11 +77,56 @@ export function formatFileSize(bytes: number): string {
   return `${fileSizeFormat.format(bytes / (1024 * 1024))} Mo`;
 }
 
-export function uploadFailureMessage(error: unknown): string {
+/** Strips diacritics so a search for "cafe" also matches "café", and vice versa. */
+export function foldAccents(value: string): string {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function uploadFailureMessage(error: unknown): string {
   return (
     serverFieldErrors(error)?.file?.message ??
     "L'envoi a échoué. Réessayez dans un instant."
   );
+}
+
+type DocumentHandlerOptions = {
+  upload: (file: File, category: DocumentCategory) => Promise<unknown>;
+  remove: (document: DocumentData) => Promise<unknown>;
+  invalidate: () => Promise<void>;
+};
+
+export function documentHandlers({
+  upload,
+  remove,
+  invalidate,
+}: DocumentHandlerOptions) {
+  return {
+    handleUpload: async (
+      file: File,
+      category: DocumentCategory,
+    ): Promise<DocumentUploadResult> => {
+      try {
+        await upload(file, category);
+        await invalidate();
+        return { status: "success" };
+      } catch (error) {
+        return { status: "failed", message: uploadFailureMessage(error) };
+      }
+    },
+    handleDelete: async (document: DocumentData): Promise<boolean> => {
+      try {
+        await remove(document);
+        await invalidate();
+        return true;
+      } catch {
+        return false;
+      }
+    },
+  };
+}
+
+export function isClientDocument(document: DocumentData): boolean {
+  return document.source === 1;
 }
 
 export function clientDocumentDownloadHref(
@@ -99,7 +144,7 @@ export function missionDocumentDownloadHref(
   missionSlug: string,
   document: DocumentData,
 ): string {
-  if (document.source === 1) {
+  if (isClientDocument(document)) {
     return clientDocumentDownloadHref(clientSlug, document.id);
   }
 

@@ -1,8 +1,4 @@
-import type {
-  DocumentCategory,
-  DocumentData,
-  UpdateClientData,
-} from "@opusline/api-client";
+import type { UpdateClientData } from "@opusline/api-client";
 import {
   archiveClientMutation,
   deleteClientDocumentMutation,
@@ -22,11 +18,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { DocumentsTab } from "@/components/documents-tab";
 import { ClientDetailPage } from "@/features/clients/components/client-detail-page";
-import {
-  clientDocumentDownloadHref,
-  type DocumentUploadResult,
-  uploadFailureMessage,
-} from "@/lib/documents";
+import { clientDocumentDownloadHref, documentHandlers } from "@/lib/documents";
 import type { FormSubmitResult } from "@/lib/form";
 import { serverFieldErrors } from "@/lib/validation";
 
@@ -98,35 +90,21 @@ function ClientDetailRoute() {
     }
   };
 
-  const handleUploadDocument = async (
-    file: File,
-    category: DocumentCategory,
-  ): Promise<DocumentUploadResult> => {
-    try {
-      await uploadDocument.mutateAsync({
+  const {
+    handleUpload: handleUploadDocument,
+    handleDelete: handleDeleteDocument,
+  } = documentHandlers({
+    upload: (file, category) =>
+      uploadDocument.mutateAsync({
         body: { file, category },
         path: { client },
-      });
-      await invalidateDocuments();
-      return { status: "success" };
-    } catch (error) {
-      return { status: "failed", message: uploadFailureMessage(error) };
-    }
-  };
-
-  const handleDeleteDocument = async (
-    document: DocumentData,
-  ): Promise<boolean> => {
-    try {
-      await deleteDocument.mutateAsync({
+      }),
+    remove: (document) =>
+      deleteDocument.mutateAsync({
         path: { client, document: document.id },
-      });
-      await invalidateDocuments();
-      return true;
-    } catch {
-      return false;
-    }
-  };
+      }),
+    invalidate: invalidateDocuments,
+  });
 
   if (isPending) {
     return (

@@ -1,9 +1,4 @@
-import type {
-  DocumentCategory,
-  DocumentData,
-  MissionStatus,
-  UpdateMissionData,
-} from "@opusline/api-client";
+import type { MissionStatus, UpdateMissionData } from "@opusline/api-client";
 import {
   deleteMissionDocumentMutation,
   listClientsQueryKey,
@@ -23,9 +18,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { DocumentsTab } from "@/components/documents-tab";
 import { MissionDetailPage } from "@/features/missions/components/mission-detail-page";
 import {
-  type DocumentUploadResult,
+  documentHandlers,
+  isClientDocument,
   missionDocumentDownloadHref,
-  uploadFailureMessage,
 } from "@/lib/documents";
 import type { FormSubmitResult } from "@/lib/form";
 import { serverFieldErrors } from "@/lib/validation";
@@ -117,35 +112,21 @@ function MissionDetailRoute() {
     }
   };
 
-  const handleUploadDocument = async (
-    file: File,
-    category: DocumentCategory,
-  ): Promise<DocumentUploadResult> => {
-    try {
-      await uploadDocument.mutateAsync({
+  const {
+    handleUpload: handleUploadDocument,
+    handleDelete: handleDeleteDocument,
+  } = documentHandlers({
+    upload: (file, category) =>
+      uploadDocument.mutateAsync({
         body: { file, category },
         path: missionPath,
-      });
-      await invalidateDocuments();
-      return { status: "success" };
-    } catch (error) {
-      return { status: "failed", message: uploadFailureMessage(error) };
-    }
-  };
-
-  const handleDeleteDocument = async (
-    document: DocumentData,
-  ): Promise<boolean> => {
-    try {
-      await deleteDocument.mutateAsync({
+      }),
+    remove: (document) =>
+      deleteDocument.mutateAsync({
         path: { ...missionPath, document: document.id },
-      });
-      await invalidateDocuments();
-      return true;
-    } catch {
-      return false;
-    }
-  };
+      }),
+    invalidate: invalidateDocuments,
+  });
 
   if (clientQuery.isPending || missionQuery.isPending) {
     return (
@@ -182,7 +163,7 @@ function MissionDetailRoute() {
     </Alert>
   ) : (
     <DocumentsTab
-      canRemove={(document) => document.source === 0}
+      canRemove={(document) => !isClientDocument(document)}
       documents={documentsQuery.data.documents}
       downloadHref={(document) =>
         missionDocumentDownloadHref(clientSlug, missionSlug, document)

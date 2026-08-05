@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router";
 import type * as React from "react";
 import { DocumentsTab } from "@/components/documents-tab";
+import { isClientDocument } from "@/lib/documents";
 import { MissionDetailPage } from "./mission-detail-page";
 
 function StoryRouter({ children }: { children: React.ReactNode }) {
@@ -66,7 +67,7 @@ const client: ClientWithMissionsData = {
 
 const documentsTab = (
   <DocumentsTab
-    canRemove={(document) => document.source === 0}
+    canRemove={(document) => !isClientDocument(document)}
     documents={[
       {
         id: 1,

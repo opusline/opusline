@@ -160,6 +160,22 @@ it("keeps a failed upload in the queue and retries it", async () => {
   expect(onUpload).toHaveBeenCalledTimes(2);
 });
 
+it("turns a rejected upload promise into a retryable error row", async () => {
+  renderTab({
+    onUpload: vi.fn(async () => {
+      throw new Error("network down");
+    }),
+  });
+
+  pickFiles([new File(["x"], "piece.pdf", { type: "application/pdf" })]);
+  fireEvent.click(screen.getByRole("button", { name: "Envoyer 1 document" }));
+
+  expect(
+    await screen.findByText("L'envoi a échoué. Réessayez dans un instant."),
+  ).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Réessayer" })).toBeInTheDocument();
+});
+
 it("refuses an oversized file with an explanation", () => {
   renderTab();
   const oversized = new File(["x"], "gros-fichier.pdf", {

@@ -1,5 +1,6 @@
 import type { DocumentData } from "@opusline/api-client";
 import type { Meta, StoryObj } from "@storybook/react";
+import { isClientDocument } from "@/lib/documents";
 import { DocumentsTab } from "./documents-tab";
 
 const documents: DocumentData[] = [
@@ -61,7 +62,7 @@ export const OnAMission: Story = {
     ...Default.args,
     emptyLabel: "Aucun document pour cette mission.",
     showSourceBadge: true,
-    canRemove: (document) => document.source === 0,
+    canRemove: (document) => !isClientDocument(document),
   },
 };
 

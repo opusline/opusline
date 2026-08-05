@@ -23,8 +23,10 @@ import {
   DOCUMENT_CATEGORIES,
   DOCUMENT_CATEGORY_LABELS,
   type DocumentUploadResult,
+  foldAccents,
   formatFileSize,
   guessDocumentCategory,
+  isClientDocument,
   isDocumentCategory,
   rejectDocumentReason,
 } from "@/lib/documents";
@@ -102,7 +104,16 @@ export function DocumentsTab({
   };
 
   const startUpload = async (upload: QueuedUpload) => {
-    const result = await onUpload(upload.file, upload.category);
+    let result: DocumentUploadResult;
+
+    try {
+      result = await onUpload(upload.file, upload.category);
+    } catch {
+      result = {
+        status: "failed",
+        message: "L'envoi a échoué. Réessayez dans un instant.",
+      };
+    }
 
     if (result.status === "success") {
       setQueue((current) => current.filter((item) => item.key !== upload.key));
@@ -146,7 +157,11 @@ export function DocumentsTab({
   };
 
   const handleDelete = async (document: DocumentData) => {
-    setHasDeleteError(!(await onDelete(document)));
+    try {
+      setHasDeleteError(!(await onDelete(document)));
+    } catch {
+      setHasDeleteError(true);
+    }
   };
 
   const categoryCounts = documents.reduce(
@@ -158,12 +173,14 @@ export function DocumentsTab({
   );
   const activeFilter =
     filter !== "all" && categoryCounts[filter] === 0 ? "all" : filter;
-  const normalizedSearch = search.trim().toLowerCase();
+  const normalizedSearch = foldAccents(search.trim().toLowerCase());
   const visibleDocuments = documents.filter(
     (document) =>
       (activeFilter === "all" || document.category === activeFilter) &&
       (normalizedSearch === "" ||
-        document.fileName.toLowerCase().includes(normalizedSearch)),
+        foldAccents(document.fileName.toLowerCase()).includes(
+          normalizedSearch,
+        )),
   );
 
   return (
@@ -239,19 +256,19 @@ export function DocumentsTab({
                     <span className="min-w-0 flex-1 truncate text-foreground-3 text-sm">
                       {upload.file.name}
                     </span>
-                    <span
-                      className={cn(
-                        "shrink-0 text-xs",
-                        upload.state === "error"
-                          ? "text-destructive"
-                          : "text-muted-foreground-3",
-                      )}
-                    >
-                      {upload.state === "error"
-                        ? (upload.message ??
-                          "L'envoi a échoué. Réessayez dans un instant.")
-                        : `${formatFileSize(upload.file.size)} · envoi en cours…`}
-                    </span>
+                    {upload.state === "error" ? (
+                      <span
+                        className="shrink-0 text-destructive text-xs"
+                        role="alert"
+                      >
+                        {upload.message ??
+                          "L'envoi a échoué. Réessayez dans un instant."}
+                      </span>
+                    ) : (
+                      <span className="shrink-0 text-muted-foreground-3 text-xs">
+                        {`${formatFileSize(upload.file.size)} · envoi en cours…`}
+                      </span>
+                    )}
                   </span>
                   <span className="mt-1.5 h-0.75 w-full overflow-hidden rounded-full bg-muted">
                     <span
@@ -291,7 +308,7 @@ export function DocumentsTab({
         <div className="overflow-hidden rounded-md border border-primary/35 bg-card">
           <div className="flex items-center gap-2.5 border-b bg-primary/7 px-4 py-3.5">
             <span className="text-primary-text text-sm">
-              {pending.length} fichier{pending.length > 1 ? "s" : ""} à classer
+              {`${pending.length} fichier${pending.length > 1 ? "s" : ""} à classer`}
             </span>
             <span className="flex-1" />
             <span className="text-muted-foreground-3 text-xs">
@@ -352,7 +369,7 @@ export function DocumentsTab({
           </div>
           <div className="flex items-center gap-2 border-t bg-muted px-4 py-3.5">
             <Button onClick={confirmPending} size="xl">
-              Envoyer {pending.length} document{pending.length > 1 ? "s" : ""}
+              {`Envoyer ${pending.length} document${pending.length > 1 ? "s" : ""}`}
             </Button>
             <Button onClick={() => setPending([])} size="xl" variant="ghost">
               Annuler
@@ -445,7 +462,7 @@ export function DocumentsTab({
                       <Badge>
                         {DOCUMENT_CATEGORY_LABELS[document.category]}
                       </Badge>
-                      {showSourceBadge && document.source === 1 && (
+                      {showSourceBadge && isClientDocument(document) && (
                         <Badge variant="quiet">client</Badge>
                       )}
                     </span>

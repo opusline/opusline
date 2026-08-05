@@ -253,7 +253,20 @@ it("shows the client documents in the documents tab", async () => {
 });
 
 it("uploads a confirmed document to the client", async () => {
-  const requests = stubApi(clientPayload());
+  const requests = stubApi(clientPayload(), (request) => {
+    const url = new URL(request.url, "http://localhost");
+
+    return request.method === "POST" && url.pathname.endsWith("/documents")
+      ? jsonResponse(201, {
+          id: 8,
+          fileName: "contrat.pdf",
+          category: 0,
+          source: 1,
+          sizeBytes: 1,
+          createdAt: "2025-03-05T10:00:00+00:00",
+        })
+      : null;
+  });
   await renderDetailPage();
 
   fireEvent.click(screen.getByRole("tab", { name: "Documents" }));
@@ -274,6 +287,13 @@ it("uploads a confirmed document to the client", async () => {
     );
     expect(upload).toBeDefined();
   });
+  // The row leaves the queue on success instead of turning into an error.
+  await waitFor(() => {
+    expect(screen.queryByText("Envois en cours")).not.toBeInTheDocument();
+  });
+  expect(
+    screen.queryByText("L'envoi a échoué. Réessayez dans un instant."),
+  ).not.toBeInTheDocument();
 });
 
 it("hides mission creation on an archived client", async () => {
