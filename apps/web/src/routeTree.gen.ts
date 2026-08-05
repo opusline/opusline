@@ -28,6 +28,7 @@ import { Route as GuestRegisterRouteImport } from './routes/_guest/register'
 import { Route as AuthedClientsClientSlugRouteImport } from './routes/_authed/clients_.$clientSlug'
 import { Route as AuthedClientsNewRouteImport } from './routes/_authed/clients_.new'
 import { Route as AuthedMissionsNewRouteImport } from './routes/_authed/missions_.new'
+import { Route as AuthedClientsClientSlugMissionsMissionSlugRouteImport } from './routes/_authed/clients_.$clientSlug_.missions.$missionSlug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -122,6 +123,12 @@ const AuthedMissionsNewRoute = AuthedMissionsNewRouteImport.update({
   path: '/missions/new',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedClientsClientSlugMissionsMissionSlugRoute =
+  AuthedClientsClientSlugMissionsMissionSlugRouteImport.update({
+    id: '/clients_/$clientSlug_/missions/$missionSlug',
+    path: '/clients/$clientSlug/missions/$missionSlug',
+    getParentRoute: () => AuthedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -141,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/clients/$clientSlug': typeof AuthedClientsClientSlugRoute
   '/clients/new': typeof AuthedClientsNewRoute
   '/missions/new': typeof AuthedMissionsNewRoute
+  '/clients/$clientSlug/missions/$missionSlug': typeof AuthedClientsClientSlugMissionsMissionSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -160,6 +168,7 @@ export interface FileRoutesByTo {
   '/clients/$clientSlug': typeof AuthedClientsClientSlugRoute
   '/clients/new': typeof AuthedClientsNewRoute
   '/missions/new': typeof AuthedMissionsNewRoute
+  '/clients/$clientSlug/missions/$missionSlug': typeof AuthedClientsClientSlugMissionsMissionSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -182,6 +191,7 @@ export interface FileRoutesById {
   '/_authed/clients_/$clientSlug': typeof AuthedClientsClientSlugRoute
   '/_authed/clients_/new': typeof AuthedClientsNewRoute
   '/_authed/missions_/new': typeof AuthedMissionsNewRoute
+  '/_authed/clients_/$clientSlug_/missions/$missionSlug': typeof AuthedClientsClientSlugMissionsMissionSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -203,6 +213,7 @@ export interface FileRouteTypes {
     | '/clients/$clientSlug'
     | '/clients/new'
     | '/missions/new'
+    | '/clients/$clientSlug/missions/$missionSlug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -222,6 +233,7 @@ export interface FileRouteTypes {
     | '/clients/$clientSlug'
     | '/clients/new'
     | '/missions/new'
+    | '/clients/$clientSlug/missions/$missionSlug'
   id:
     | '__root__'
     | '/'
@@ -243,6 +255,7 @@ export interface FileRouteTypes {
     | '/_authed/clients_/$clientSlug'
     | '/_authed/clients_/new'
     | '/_authed/missions_/new'
+    | '/_authed/clients_/$clientSlug_/missions/$missionSlug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -387,6 +400,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedMissionsNewRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/clients_/$clientSlug_/missions/$missionSlug': {
+      id: '/_authed/clients_/$clientSlug_/missions/$missionSlug'
+      path: '/clients/$clientSlug/missions/$missionSlug'
+      fullPath: '/clients/$clientSlug/missions/$missionSlug'
+      preLoaderRoute: typeof AuthedClientsClientSlugMissionsMissionSlugRouteImport
+      parentRoute: typeof AuthedRoute
+    }
   }
 }
 
@@ -404,6 +424,7 @@ interface AuthedRouteChildren {
   AuthedClientsClientSlugRoute: typeof AuthedClientsClientSlugRoute
   AuthedClientsNewRoute: typeof AuthedClientsNewRoute
   AuthedMissionsNewRoute: typeof AuthedMissionsNewRoute
+  AuthedClientsClientSlugMissionsMissionSlugRoute: typeof AuthedClientsClientSlugMissionsMissionSlugRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
@@ -420,6 +441,8 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedClientsClientSlugRoute: AuthedClientsClientSlugRoute,
   AuthedClientsNewRoute: AuthedClientsNewRoute,
   AuthedMissionsNewRoute: AuthedMissionsNewRoute,
+  AuthedClientsClientSlugMissionsMissionSlugRoute:
+    AuthedClientsClientSlugMissionsMissionSlugRoute,
 }
 
 const AuthedRouteWithChildren =

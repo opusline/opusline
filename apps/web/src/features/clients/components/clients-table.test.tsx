@@ -89,6 +89,39 @@ it("shows the client with its type and missions", async () => {
   ).toBeInTheDocument();
 });
 
+it("links each mission to its detail page", async () => {
+  renderWithRouter(
+    <ClientsTable
+      clients={[
+        client({
+          missions: [
+            {
+              id: 1,
+              slug: "callisto-front",
+              clientId: 1,
+              name: "Callisto front",
+              endClientName: null,
+              billingMode: 0,
+              rate: { amount: 55_000, currency: "EUR" },
+              rounding: 0,
+              status: 0,
+              craRequired: false,
+              color: null,
+              notes: null,
+              startDate: null,
+              endDate: null,
+            },
+          ],
+        }),
+      ]}
+    />,
+  );
+
+  expect(
+    await screen.findByRole("link", { name: "Callisto front" }),
+  ).toHaveAttribute("href", "/clients/nordlys/missions/callisto-front");
+});
+
 it("links each client to its detail page", async () => {
   renderWithRouter(<ClientsTable clients={[client({})]} />);
 

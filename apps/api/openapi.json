@@ -766,9 +766,9 @@
                         "name": "mission",
                         "in": "path",
                         "required": true,
-                        "description": "The mission ID",
+                        "description": "The mission slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -810,9 +810,9 @@
                         "name": "mission",
                         "in": "path",
                         "required": true,
-                        "description": "The mission ID",
+                        "description": "The mission slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -864,9 +864,9 @@
                         "name": "mission",
                         "in": "path",
                         "required": true,
-                        "description": "The mission ID",
+                        "description": "The mission slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -950,9 +950,9 @@
                         "name": "mission",
                         "in": "path",
                         "required": true,
-                        "description": "The mission ID",
+                        "description": "The mission slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -994,9 +994,9 @@
                         "name": "mission",
                         "in": "path",
                         "required": true,
-                        "description": "The mission ID",
+                        "description": "The mission slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -1050,9 +1050,9 @@
                         "name": "mission",
                         "in": "path",
                         "required": true,
-                        "description": "The mission ID",
+                        "description": "The mission slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {
@@ -1112,9 +1112,9 @@
                         "name": "mission",
                         "in": "path",
                         "required": true,
-                        "description": "The mission ID",
+                        "description": "The mission slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {
@@ -1159,9 +1159,9 @@
                         "name": "mission",
                         "in": "path",
                         "required": true,
-                        "description": "The mission ID",
+                        "description": "The mission slug",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {

@@ -13,16 +13,18 @@ import { cn } from "@opusline/ui/lib/utils";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
+import { formatMissionRate } from "@/lib/billing";
+import { CLIENT_TYPE_LABELS } from "@/lib/client-types";
+import {
+  MISSION_STATUS_BADGE_VARIANTS,
+  MISSION_STATUS_LABELS,
+} from "@/lib/mission-status";
 import { COLOR_CLASSES } from "@/lib/palette";
 
 import {
   CLIENT_TYPE_BADGE_VARIANTS,
-  CLIENT_TYPE_LABELS,
   clientSubtitle,
-  formatMissionRate,
   isNewClient,
-  MISSION_STATUS_BADGE_VARIANTS,
-  MISSION_STATUS_LABELS,
 } from "../lib/labels";
 import { ClientsEmptyState } from "./clients-empty-state";
 
@@ -186,7 +188,16 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                 {client.missions.map((mission) => (
                   <TableRow
                     key={mission.id}
-                    className="border-secondary bg-muted hover:bg-card-2"
+                    className="cursor-pointer border-secondary bg-muted hover:bg-card-2"
+                    onClick={() =>
+                      void navigate({
+                        to: "/clients/$clientSlug/missions/$missionSlug",
+                        params: {
+                          clientSlug: client.slug,
+                          missionSlug: mission.slug,
+                        },
+                      })
+                    }
                   >
                     <TableCell className="py-2.5 pl-5">
                       <div className="flex min-w-0 items-center gap-2.5 pl-3.5">
@@ -197,9 +208,17 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                             COLOR_CLASSES[mission.color ?? client.color],
                           )}
                         />
-                        <span className="truncate text-sm text-foreground-3">
+                        <Link
+                          className="truncate text-sm text-foreground-3"
+                          onClick={(event) => event.stopPropagation()}
+                          params={{
+                            clientSlug: client.slug,
+                            missionSlug: mission.slug,
+                          }}
+                          to="/clients/$clientSlug/missions/$missionSlug"
+                        >
                           {mission.name}
-                        </span>
+                        </Link>
                       </div>
                     </TableCell>
                     <TableCell className="py-2.5 text-muted-foreground-2 text-xs">

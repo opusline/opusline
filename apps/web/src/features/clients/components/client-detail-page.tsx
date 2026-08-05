@@ -26,7 +26,7 @@ import {
   TabsTrigger,
 } from "@opusline/ui/components/tabs";
 import { cn } from "@opusline/ui/lib/utils";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArchiveIcon,
   CircleAlert,
@@ -34,17 +34,17 @@ import {
   PlusIcon,
 } from "lucide-react";
 import { useState } from "react";
+import { formatMissionRate, paymentTermsLabel } from "@/lib/billing";
+import { monthYearLabel } from "@/lib/dates";
 import type { FormSubmitResult } from "@/lib/form";
 import { initials } from "@/lib/initials";
-import { COLOR_CLASSES } from "@/lib/palette";
 import {
-  CLIENT_TYPE_OPTION_LABELS,
-  clientSinceLabel,
-  formatMissionRate,
   MISSION_STATUS_BADGE_VARIANTS,
   MISSION_STATUS_LABELS,
-  paymentTermsLabel,
-} from "../lib/labels";
+} from "@/lib/mission-status";
+import { COLOR_CLASSES } from "@/lib/palette";
+
+import { CLIENT_TYPE_OPTION_LABELS } from "../lib/labels";
 import { ClientEditForm } from "./client-edit-form";
 
 const EYEBROW_CLASSES =
@@ -117,6 +117,7 @@ export function ClientDetailPage({
   isArchivePending,
   error,
 }: ClientDetailPageProps) {
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
 
   const isArchived = client.archivedAt !== null;
@@ -172,7 +173,7 @@ export function ClientDetailPage({
               {isArchived && <Badge variant="quiet">Archivé</Badge>}
             </div>
             <p className="mt-1.5 text-muted-foreground-3 text-sm">
-              Client depuis {clientSinceLabel(client.createdAt)} · paiement à{" "}
+              Client depuis {monthYearLabel(client.createdAt)} · paiement à{" "}
               {paymentTermsLabel(client.paymentTermsDays)}
             </p>
           </div>
@@ -302,7 +303,16 @@ export function ClientDetailPage({
                     {client.missions.map((mission) => (
                       <TableRow
                         key={mission.id}
-                        className="border-accent hover:bg-accent"
+                        className="cursor-pointer border-accent hover:bg-accent"
+                        onClick={() =>
+                          void navigate({
+                            to: "/clients/$clientSlug/missions/$missionSlug",
+                            params: {
+                              clientSlug: client.slug,
+                              missionSlug: mission.slug,
+                            },
+                          })
+                        }
                       >
                         <TableCell className="py-4 pl-5">
                           <div className="flex min-w-0 items-center gap-2.5">
@@ -313,9 +323,17 @@ export function ClientDetailPage({
                                 COLOR_CLASSES[mission.color ?? client.color],
                               )}
                             />
-                            <span className="truncate text-foreground-hi text-sm">
+                            <Link
+                              className="truncate text-foreground-hi text-sm"
+                              onClick={(event) => event.stopPropagation()}
+                              params={{
+                                clientSlug: client.slug,
+                                missionSlug: mission.slug,
+                              }}
+                              to="/clients/$clientSlug/missions/$missionSlug"
+                            >
                               {mission.name}
-                            </span>
+                            </Link>
                           </div>
                         </TableCell>
                         <TableCell className="py-4 text-muted-foreground-3 text-sm">

@@ -38,7 +38,7 @@ export function FormTextField({
   type,
   placeholder,
 }: FormTextFieldProps) {
-  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+  const isInvalid = !field.state.meta.isValid;
 
   const controlProps = {
     "aria-invalid": isInvalid,

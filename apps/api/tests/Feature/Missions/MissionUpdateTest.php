@@ -16,7 +16,7 @@ test('updates a mission', function (): void {
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$client->slug}/missions/{$mission->id}", [
+        ->putJson("/api/clients/{$client->slug}/missions/{$mission->slug}", [
             'name' => 'Renamed',
             'billingMode' => BillingMode::Daily->value,
             'status' => MissionStatus::Paused->value,
@@ -43,7 +43,7 @@ test('changes the billing mode', function (): void {
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$client->slug}/missions/{$mission->id}", [
+        ->putJson("/api/clients/{$client->slug}/missions/{$mission->slug}", [
             'name' => $mission->name,
             'billingMode' => BillingMode::Hourly->value,
             'status' => MissionStatus::Active->value,
@@ -60,7 +60,7 @@ test('switches to fixed price and clears the rounding', function (): void {
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$client->slug}/missions/{$mission->id}", [
+        ->putJson("/api/clients/{$client->slug}/missions/{$mission->slug}", [
             'name' => $mission->name,
             'billingMode' => BillingMode::Fixed->value,
             'status' => MissionStatus::Active->value,
@@ -79,7 +79,7 @@ test('rejects a rounding when switching to fixed price', function (): void {
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$client->slug}/missions/{$mission->id}", [
+        ->putJson("/api/clients/{$client->slug}/missions/{$mission->slug}", [
             'name' => $mission->name,
             'billingMode' => BillingMode::Fixed->value,
             'status' => MissionStatus::Active->value,
@@ -98,7 +98,7 @@ test('resets an omitted rounding to half a unit', function (): void {
     ]);
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$client->slug}/missions/{$mission->id}", [
+        ->putJson("/api/clients/{$client->slug}/missions/{$mission->slug}", [
             'name' => $mission->name,
             'billingMode' => BillingMode::Daily->value,
             'status' => MissionStatus::Active->value,
@@ -113,7 +113,7 @@ test('makes a mission non billable when the rate is omitted', function (): void 
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$client->slug}/missions/{$mission->id}", [
+        ->putJson("/api/clients/{$client->slug}/missions/{$mission->slug}", [
             'name' => $mission->name,
             'billingMode' => BillingMode::Daily->value,
             'status' => MissionStatus::Active->value,
@@ -130,7 +130,7 @@ test('updates the end client name for an intermediary client', function (): void
     $mission = Mission::factory()->for($esn, 'client')->throughEsn('Callisto')->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$esn->slug}/missions/{$mission->id}", [
+        ->putJson("/api/clients/{$esn->slug}/missions/{$mission->slug}", [
             'name' => $mission->name,
             'billingMode' => BillingMode::Daily->value,
             'status' => MissionStatus::Active->value,
@@ -148,7 +148,7 @@ test('requires an end client name for an intermediary client', function (): void
     $mission = Mission::factory()->for($esn, 'client')->throughEsn('Callisto')->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$esn->slug}/missions/{$mission->id}", [
+        ->putJson("/api/clients/{$esn->slug}/missions/{$mission->slug}", [
             'name' => $mission->name,
             'billingMode' => BillingMode::Daily->value,
             'status' => MissionStatus::Active->value,
@@ -163,7 +163,7 @@ test('rejects an end client name for a direct client', function (): void {
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$client->slug}/missions/{$mission->id}", [
+        ->putJson("/api/clients/{$client->slug}/missions/{$mission->slug}", [
             'name' => $mission->name,
             'billingMode' => BillingMode::Daily->value,
             'status' => MissionStatus::Active->value,
@@ -179,7 +179,7 @@ test('rejects a rate for an internal client', function (): void {
     $mission = Mission::factory()->for($client, 'client')->nonBillable()->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$client->slug}/missions/{$mission->id}", [
+        ->putJson("/api/clients/{$client->slug}/missions/{$mission->slug}", [
             'name' => $mission->name,
             'billingMode' => BillingMode::Hourly->value,
             'status' => MissionStatus::Active->value,
@@ -195,7 +195,7 @@ test('updates the cra flag, color and notes', function (): void {
     $mission = Mission::factory()->for($esn, 'client')->throughEsn('Callisto')->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$esn->slug}/missions/{$mission->id}", [
+        ->putJson("/api/clients/{$esn->slug}/missions/{$mission->slug}", [
             'name' => $mission->name,
             'billingMode' => BillingMode::Daily->value,
             'status' => MissionStatus::Active->value,
@@ -216,7 +216,7 @@ test('rejects a non positive rate', function (int $amount): void {
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$client->slug}/missions/{$mission->id}", [
+        ->putJson("/api/clients/{$client->slug}/missions/{$mission->slug}", [
             'name' => $mission->name,
             'billingMode' => BillingMode::Daily->value,
             'status' => MissionStatus::Active->value,
@@ -233,7 +233,7 @@ test('does not move the mission to another client', function (): void {
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$client->slug}/missions/{$mission->id}", [
+        ->putJson("/api/clients/{$client->slug}/missions/{$mission->slug}", [
             'name' => $mission->name,
             'billingMode' => BillingMode::Daily->value,
             'status' => MissionStatus::Active->value,
@@ -250,7 +250,7 @@ test('cannot update a mission through a different client of the same user', func
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
-        ->putJson("/api/clients/{$otherClient->slug}/missions/{$mission->id}", [
+        ->putJson("/api/clients/{$otherClient->slug}/missions/{$mission->slug}", [
             'name' => 'Hijacked',
             'billingMode' => BillingMode::Daily->value,
             'status' => MissionStatus::Active->value,
@@ -262,7 +262,7 @@ test('cannot update another user mission', function (): void {
     $mission = Mission::factory()->create();
 
     $this->actingAs(User::factory()->create())
-        ->putJson("/api/clients/{$mission->client->slug}/missions/{$mission->id}", [
+        ->putJson("/api/clients/{$mission->client->slug}/missions/{$mission->slug}", [
             'name' => 'Hijacked',
             'billingMode' => BillingMode::Daily->value,
             'status' => MissionStatus::Active->value,
@@ -273,7 +273,7 @@ test('cannot update another user mission', function (): void {
 test('returns 401 for guests', function (): void {
     $mission = Mission::factory()->create();
 
-    $this->putJson("/api/clients/{$mission->client->slug}/missions/{$mission->id}", [
+    $this->putJson("/api/clients/{$mission->client->slug}/missions/{$mission->slug}", [
         'name' => 'X',
         'billingMode' => BillingMode::Daily->value,
         'status' => MissionStatus::Active->value,

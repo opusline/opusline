@@ -12,11 +12,12 @@ import { Swatch, SwatchGroup } from "@opusline/ui/components/swatch";
 import { useForm } from "@tanstack/react-form";
 import { CircleAlert, PencilIcon } from "lucide-react";
 import { FormTextField } from "@/components/form-text-field";
+import { CLIENT_TYPE_LABELS } from "@/lib/client-types";
 import type { FormSubmitResult } from "@/lib/form";
 import { COLOR_CLASSES, COLOR_LABELS, COLORS } from "@/lib/palette";
 
 import { type ClientFormValues, toClientPayload } from "../lib/client-form";
-import { CLIENT_TYPE_LABELS, CLIENT_TYPES } from "../lib/labels";
+import { CLIENT_TYPES } from "../lib/labels";
 import { PaymentTermsPicker } from "./payment-terms-picker";
 
 const EYEBROW_CLASSES =
@@ -239,8 +240,7 @@ export function ClientEditForm({
 
             <form.Field name="paymentTermsDays">
               {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
+                const isInvalid = !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel

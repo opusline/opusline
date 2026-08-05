@@ -1005,9 +1005,9 @@ export type DeleteMissionData = {
          */
         client: string;
         /**
-         * The mission ID
+         * The mission slug
          */
-        mission: number;
+        mission: string;
     };
     query?: never;
     url: '/clients/{client}/missions/{mission}';
@@ -1053,9 +1053,9 @@ export type ShowMissionData = {
          */
         client: string;
         /**
-         * The mission ID
+         * The mission slug
          */
-        mission: number;
+        mission: string;
     };
     query?: never;
     url: '/clients/{client}/missions/{mission}';
@@ -1098,9 +1098,9 @@ export type UpdateMissionData2 = {
          */
         client: string;
         /**
-         * The mission ID
+         * The mission slug
          */
-        mission: number;
+        mission: string;
     };
     query?: never;
     url: '/clients/{client}/missions/{mission}';
@@ -1184,9 +1184,9 @@ export type ListMissionDocumentsData = {
          */
         client: string;
         /**
-         * The mission ID
+         * The mission slug
          */
-        mission: number;
+        mission: string;
     };
     query?: never;
     url: '/clients/{client}/missions/{mission}/documents';
@@ -1229,9 +1229,9 @@ export type UploadMissionDocumentData = {
          */
         client: string;
         /**
-         * The mission ID
+         * The mission slug
          */
-        mission: number;
+        mission: string;
     };
     query?: never;
     url: '/clients/{client}/missions/{mission}/documents';
@@ -1274,9 +1274,9 @@ export type DeleteMissionDocumentData = {
          */
         client: string;
         /**
-         * The mission ID
+         * The mission slug
          */
-        mission: number;
+        mission: string;
         document: number;
     };
     query?: never;
@@ -1323,9 +1323,9 @@ export type UpdateMissionDocumentData = {
          */
         client: string;
         /**
-         * The mission ID
+         * The mission slug
          */
-        mission: number;
+        mission: string;
         document: number;
     };
     query?: never;
@@ -1369,9 +1369,9 @@ export type DownloadMissionDocumentData = {
          */
         client: string;
         /**
-         * The mission ID
+         * The mission slug
          */
-        mission: number;
+        mission: string;
         document: number;
     };
     query?: never;

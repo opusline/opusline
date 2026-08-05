@@ -2,18 +2,9 @@ import type {
   ClientType,
   ClientWithMissionsData,
   Color,
-  MissionData,
-  MissionStatus,
 } from "@opusline/api-client";
 
-import { formatRate } from "@/lib/billing";
 import { COLORS } from "@/lib/palette";
-
-export const CLIENT_TYPE_LABELS: Record<ClientType, string> = {
-  0: "Direct",
-  1: "Intermédiaire",
-  2: "Interne",
-};
 
 export const CLIENT_TYPE_BADGE_VARIANTS: Record<
   ClientType,
@@ -43,41 +34,9 @@ export const CLIENT_TYPE_HINTS: Record<ClientType, string> = {
 
 export const CLIENT_TYPES: ClientType[] = [0, 1, 2];
 
-export function paymentTermsLabel(days: number): string {
-  if (days === 0) {
-    return "réception";
-  }
-
-  return days === 1 ? "1 jour" : `${days} jours`;
-}
-
 export function randomColor(): Color {
   return COLORS[Math.floor(Math.random() * COLORS.length)] ?? 0;
 }
-
-const monthYear = new Intl.DateTimeFormat("fr-FR", {
-  month: "long",
-  year: "numeric",
-});
-
-export function clientSinceLabel(createdAt: string): string {
-  return monthYear.format(new Date(createdAt));
-}
-
-export const MISSION_STATUS_LABELS: Record<MissionStatus, string> = {
-  0: "Active",
-  1: "En pause",
-  2: "Terminée",
-};
-
-export const MISSION_STATUS_BADGE_VARIANTS: Record<
-  MissionStatus,
-  "brand" | "neutral"
-> = {
-  0: "brand",
-  1: "neutral",
-  2: "neutral",
-};
 
 const NEW_CLIENT_BADGE_DAYS = 7;
 
@@ -88,14 +47,6 @@ export function isNewClient(
   const ageMs = now.getTime() - new Date(client.createdAt).getTime();
 
   return ageMs <= NEW_CLIENT_BADGE_DAYS * 24 * 60 * 60 * 1000;
-}
-
-export function formatMissionRate(mission: MissionData): string {
-  if (mission.rate === null) {
-    return "non facturable";
-  }
-
-  return formatRate(mission.rate.amount, mission.billingMode);
 }
 
 export function clientSubtitle(client: ClientWithMissionsData): string {

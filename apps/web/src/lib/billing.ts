@@ -1,8 +1,12 @@
-import type { BillingMode } from "@opusline/api-client";
+import type { BillingMode, MissionData } from "@opusline/api-client";
 
 const euros = new Intl.NumberFormat("fr-FR", {
   maximumFractionDigits: 2,
 });
+
+export function formatAmount(amountCents: number): string {
+  return `${euros.format(amountCents / 100)}`;
+}
 
 export function formatRate(
   amountCents: number,
@@ -47,4 +51,20 @@ export function parseRateToCents(draft: string): number | null {
   }
 
   return Math.round(amount * 100);
+}
+
+export function formatMissionRate(mission: MissionData): string {
+  if (mission.rate === null) {
+    return "non facturable";
+  }
+
+  return formatRate(mission.rate.amount, mission.billingMode);
+}
+
+export function paymentTermsLabel(days: number): string {
+  if (days === 0) {
+    return "réception";
+  }
+
+  return days === 1 ? "1 jour" : `${days} jours`;
 }

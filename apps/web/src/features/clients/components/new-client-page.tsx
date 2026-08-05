@@ -11,7 +11,7 @@ import { Link } from "@tanstack/react-router";
 import { CircleAlert, InfoIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { FormTextField } from "@/components/form-text-field";
-
+import { paymentTermsLabel } from "@/lib/billing";
 import type { FormSubmitResult } from "@/lib/form";
 import { initials } from "@/lib/initials";
 import { COLOR_CLASSES, COLOR_LABELS, COLORS } from "@/lib/palette";
@@ -20,7 +20,6 @@ import {
   CLIENT_TYPE_HINTS,
   CLIENT_TYPE_OPTION_LABELS,
   CLIENT_TYPES,
-  paymentTermsLabel,
   randomColor,
 } from "../lib/labels";
 import { PaymentTermsPicker } from "./payment-terms-picker";
@@ -261,8 +260,7 @@ export function NewClientPage({
 
           <form.Field name="paymentTermsDays">
             {(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid;
+              const isInvalid = !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
                   <FieldLabel

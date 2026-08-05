@@ -12,6 +12,12 @@ export const BILLING_MODE_RATE_PLACEHOLDERS: Record<BillingMode, string> = {
   2: "4 800",
 };
 
+export const BILLING_MODE_UNITS_SHORT: Record<BillingMode, string> = {
+  0: "€ / j",
+  1: "€ / h",
+  2: "€",
+};
+
 export const BILLING_MODE_UNITS: Record<BillingMode, string> = {
   0: "€ / jour",
   1: "€ / heure",

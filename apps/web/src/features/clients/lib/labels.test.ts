@@ -1,11 +1,8 @@
 import type { ClientWithMissionsData, MissionData } from "@opusline/api-client";
 import { expect, it } from "vitest";
-import {
-  clientSubtitle,
-  formatMissionRate,
-  isNewClient,
-  paymentTermsLabel,
-} from "./labels";
+import { formatMissionRate, paymentTermsLabel } from "@/lib/billing";
+
+import { clientSubtitle, isNewClient } from "./labels";
 
 function mission(overrides: Partial<MissionData> = {}): MissionData {
   return {

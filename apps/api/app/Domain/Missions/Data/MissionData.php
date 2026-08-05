@@ -11,7 +11,9 @@ use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Enums\Color;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Attributes\MapInputName;
+use Spatie\LaravelData\Attributes\WithTransformer;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer;
 
 class MissionData extends Data
 {
@@ -29,7 +31,9 @@ class MissionData extends Data
         public bool $craRequired,
         public ?Color $color,
         public ?string $notes,
+        #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
         public ?CarbonImmutable $startDate,
+        #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
         public ?CarbonImmutable $endDate,
     ) {}
 }

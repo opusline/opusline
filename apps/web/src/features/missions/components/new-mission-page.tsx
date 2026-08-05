@@ -417,8 +417,7 @@ export function NewMissionPage({
           {isEsn && (
             <form.Field name="endClientName">
               {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
+                const isInvalid = !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel
@@ -463,8 +462,7 @@ export function NewMissionPage({
             </form.Field>
             <form.Field name="endDate">
               {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
+                const isInvalid = !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel
