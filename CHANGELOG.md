@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.3.0](https://github.com/opusline/opusline/compare/v0.2.0...v0.3.0) (2026-08-07)
+
+
+### Features
+
+* **api:** add clients, missions and documents ([#12](https://github.com/opusline/opusline/issues/12)) ([8e79b0f](https://github.com/opusline/opusline/commit/8e79b0fe1a6c215eacab1d665d3198b7ffb0be9b))
+* **api:** localize app with French translations ([#32](https://github.com/opusline/opusline/issues/32)) ([21a4a5c](https://github.com/opusline/opusline/commit/21a4a5c39a76b8274a1702c13d1375f16d11e8b6))
+* **ui:** add table, badge, tabs and form primitives ([#33](https://github.com/opusline/opusline/issues/33)) ([e3f9dfe](https://github.com/opusline/opusline/commit/e3f9dfe15e9a020ca77713160548c3bc1fd11e19))
+* **web:** add client logo management ([#57](https://github.com/opusline/opusline/issues/57)) ([479afcd](https://github.com/opusline/opusline/commit/479afcdf4b3faa3817b7af4dd22e91f2a2ed1f52))
+* **web:** add mission create form ([bc33ef3](https://github.com/opusline/opusline/commit/bc33ef33772fc4c8b99def86d05319aa3138b8fb))
+* **web:** add mission detail page ([2ff611e](https://github.com/opusline/opusline/commit/2ff611e10de852c3ed761d9accb9579bf1f76e71))
+* **web:** add reusable document tabs and utilities ([#55](https://github.com/opusline/opusline/issues/55)) ([21a0abf](https://github.com/opusline/opusline/commit/21a0abfeaf8720008addeccfd330c64b537e4910))
+* **web:** add slug routes and client workflows ([#39](https://github.com/opusline/opusline/issues/39)) ([24ddf1f](https://github.com/opusline/opusline/commit/24ddf1f855a63e9ba534ff91cd616546e40b77dc))
+* **web:** add web clients list ([#34](https://github.com/opusline/opusline/issues/34)) ([02ef5d3](https://github.com/opusline/opusline/commit/02ef5d3945636e4e5b04fa30cf553d1113c6e642))
+* **web:** create web client ([#38](https://github.com/opusline/opusline/issues/38)) ([7c70355](https://github.com/opusline/opusline/commit/7c70355de7836c068cee403684a8611198f2f50f))
+* **web:** enhance billing and mission workflows ([#61](https://github.com/opusline/opusline/issues/61)) ([da8ebb8](https://github.com/opusline/opusline/commit/da8ebb8181be6eee469507fa6af4051f9bd0d5f4))
+* **web:** improve client and mission form behavior ([523dc4a](https://github.com/opusline/opusline/commit/523dc4ae3c7a0d59b517ba1a44df94b844b2b4d4))
+
 ## [0.2.0](https://github.com/opusline/opusline/compare/v0.1.0...v0.2.0) (2026-08-04)
 
 
