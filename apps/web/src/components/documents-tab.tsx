@@ -327,10 +327,11 @@ export function DocumentsTab({
           </div>
           <div className="divide-y">
             {pending.map((item) => (
-              <div className="flex items-center gap-3 px-4 py-3" key={item.key}>
-                <span className="flex min-w-0 flex-1 flex-col gap-1">
+              <div className="flex flex-col gap-1.5 px-4 py-3" key={item.key}>
+                <div className="flex items-center gap-3">
                   <Input
                     aria-label={`Nom du document ${item.file.name}`}
+                    className="min-w-0 flex-1"
                     onChange={(event) =>
                       setPending((current) =>
                         current.map((candidate) =>
@@ -340,51 +341,52 @@ export function DocumentsTab({
                         ),
                       )
                     }
+                    size="sm"
                     value={item.name}
                   />
-                  <span className="text-muted-foreground-3 text-xs">
-                    {formatFileSize(item.file.size)} ·{" "}
-                    {extensionOf(item.file.name)}
-                  </span>
-                </span>
-                <NativeSelect
-                  aria-label={`Type de ${item.file.name}`}
-                  onChange={(event) => {
-                    const category = Number(event.target.value);
+                  <NativeSelect
+                    aria-label={`Type de ${item.file.name}`}
+                    onChange={(event) => {
+                      const category = Number(event.target.value);
 
-                    if (isDocumentCategory(category)) {
+                      if (isDocumentCategory(category)) {
+                        setPending((current) =>
+                          current.map((pendingItem) =>
+                            pendingItem.key === item.key
+                              ? { ...pendingItem, category }
+                              : pendingItem,
+                          ),
+                        );
+                      }
+                    }}
+                    size="sm"
+                    value={String(item.category)}
+                  >
+                    {DOCUMENT_CATEGORIES.map((category) => (
+                      <option key={category} value={String(category)}>
+                        {DOCUMENT_CATEGORY_LABELS[category]}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                  <Button
+                    aria-label={`Retirer ${item.file.name}`}
+                    onClick={() =>
                       setPending((current) =>
-                        current.map((pendingItem) =>
-                          pendingItem.key === item.key
-                            ? { ...pendingItem, category }
-                            : pendingItem,
+                        current.filter(
+                          (pendingItem) => pendingItem.key !== item.key,
                         ),
-                      );
+                      )
                     }
-                  }}
-                  size="sm"
-                  value={String(item.category)}
-                >
-                  {DOCUMENT_CATEGORIES.map((category) => (
-                    <option key={category} value={String(category)}>
-                      {DOCUMENT_CATEGORY_LABELS[category]}
-                    </option>
-                  ))}
-                </NativeSelect>
-                <Button
-                  aria-label={`Retirer ${item.file.name}`}
-                  onClick={() =>
-                    setPending((current) =>
-                      current.filter(
-                        (pendingItem) => pendingItem.key !== item.key,
-                      ),
-                    )
-                  }
-                  size="icon-lg"
-                  variant="ghost"
-                >
-                  <XIcon aria-hidden />
-                </Button>
+                    size="icon-sm"
+                    variant="ghost"
+                  >
+                    <XIcon aria-hidden />
+                  </Button>
+                </div>
+                <span className="text-muted-foreground-3 text-xs">
+                  {formatFileSize(item.file.size)} ·{" "}
+                  {extensionOf(item.file.name)}
+                </span>
               </div>
             ))}
           </div>

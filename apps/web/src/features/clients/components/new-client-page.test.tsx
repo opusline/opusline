@@ -352,3 +352,118 @@ it("shows the server validation error on the billing contact field", async () =>
     ),
   ).toBeInTheDocument();
 });
+
+it("fills the postal code, city and country from a picked address", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request =
+        input instanceof Request ? input : new Request(input, init);
+
+      if (request.url.includes("api-adresse.data.gouv.fr")) {
+        return jsonResponse(200, {
+          features: [
+            {
+              properties: {
+                id: "44109_6390_00012",
+                label: "12 Rue de la Paix 44000 Nantes",
+                name: "12 Rue de la Paix",
+                postcode: "44000",
+                city: "Nantes",
+              },
+            },
+          ],
+        });
+      }
+
+      return jsonResponse(200, { clients: [] });
+    }),
+  );
+
+  await renderNewClientPage();
+
+  fireEvent.change(screen.getByLabelText("Adresse de facturation"), {
+    target: { value: "12 rue de la paix" },
+  });
+
+  fireEvent.mouseDown(
+    await screen.findByRole(
+      "option",
+      { name: "12 Rue de la Paix 44000 Nantes" },
+      { timeout: 5000 },
+    ),
+  );
+
+  expect(screen.getByLabelText("Code postal")).toHaveValue("44000");
+  expect(screen.getByLabelText("Ville")).toHaveValue("Nantes");
+  expect(screen.getByLabelText("Pays")).toHaveValue("France");
+});
+
+it("fills the postal code from a city picked on its own", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request =
+        input instanceof Request ? input : new Request(input, init);
+
+      if (request.url.includes("api-adresse.data.gouv.fr")) {
+        return jsonResponse(200, {
+          features: [
+            {
+              properties: {
+                id: "44109",
+                label: "Nantes",
+                name: "Nantes",
+                postcode: "44000",
+                city: "Nantes",
+              },
+            },
+          ],
+        });
+      }
+
+      return jsonResponse(200, { clients: [] });
+    }),
+  );
+
+  await renderNewClientPage();
+
+  fireEvent.change(screen.getByLabelText("Ville"), {
+    target: { value: "nantes" },
+  });
+
+  fireEvent.mouseDown(
+    await screen.findByRole(
+      "option",
+      { name: "Nantes (44000)" },
+      { timeout: 5000 },
+    ),
+  );
+
+  expect(screen.getByLabelText("Ville")).toHaveValue("Nantes");
+  expect(screen.getByLabelText("Code postal")).toHaveValue("44000");
+});
+
+it("suggests countries without calling the address API", async () => {
+  const fetchMock = vi.fn(async (_input: RequestInfo | URL) =>
+    jsonResponse(200, { clients: [] }),
+  );
+  vi.stubGlobal("fetch", fetchMock);
+
+  await renderNewClientPage();
+
+  fireEvent.change(screen.getByLabelText("Pays"), {
+    target: { value: "belg" },
+  });
+
+  fireEvent.mouseDown(
+    await screen.findByRole("option", { name: "Belgique" }, { timeout: 5000 }),
+  );
+
+  expect(screen.getByLabelText("Pays")).toHaveValue("Belgique");
+  expect(
+    fetchMock.mock.calls.filter(([input]) =>
+      String(input).includes("api-adresse"),
+    ),
+  ).toHaveLength(0);
+});

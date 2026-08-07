@@ -421,3 +421,25 @@ it("offers to reactivate an archived client", async () => {
     await screen.findByRole("menuitem", { name: "Réactiver ce client" }),
   ).toBeInTheDocument();
 });
+
+it("opens the edit form without popping the address suggestions", async () => {
+  const requests = stubApi(
+    clientPayload({
+      billingAddressLine1: "12 Rue de la Paix",
+      billingPostalCode: "44000",
+      billingCity: "Nantes",
+      billingCountry: "France",
+    }),
+  );
+  await renderDetailPage();
+
+  fireEvent.click(screen.getByRole("button", { name: "Modifier" }));
+  await screen.findByLabelText("Adresse");
+
+  await waitFor(() => {
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+  });
+  expect(
+    requests.filter((request) => request.path.includes("api-adresse")),
+  ).toHaveLength(0);
+});

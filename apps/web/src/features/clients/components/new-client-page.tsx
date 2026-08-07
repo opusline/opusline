@@ -13,7 +13,10 @@ import { useEffect, useRef, useState } from "react";
 import { ClientLogo } from "@/components/client-logo";
 import { FormTextField } from "@/components/form-text-field";
 import { LogoPicker } from "@/components/logo-picker";
+import { SuggestField } from "@/components/suggest-field";
+import { searchAddresses, searchCities } from "@/lib/addresses";
 import { paymentTermsLabel } from "@/lib/billing";
+import { searchCountries } from "@/lib/countries";
 import type { FormSubmitResult } from "@/lib/form";
 import { COLOR_CLASSES, COLOR_LABELS, COLORS } from "@/lib/palette";
 import { type ClientFormValues, toClientPayload } from "../lib/client-form";
@@ -224,10 +227,20 @@ export function NewClientPage({
           <div className="flex flex-col gap-4">
             <form.Field name="billingAddressLine1">
               {(field) => (
-                <FormTextField
+                <SuggestField
                   field={field}
+                  onSearch={searchAddresses}
                   label="Adresse de facturation"
                   labelClassName="text-foreground-3"
+                  onSelect={(suggestion) => {
+                    field.handleChange(suggestion.line1);
+                    form.setFieldValue(
+                      "billingPostalCode",
+                      suggestion.postalCode,
+                    );
+                    form.setFieldValue("billingCity", suggestion.city);
+                    form.setFieldValue("billingCountry", "France");
+                  }}
                   placeholder="12 rue de la Paix"
                 />
               )}
@@ -255,10 +268,19 @@ export function NewClientPage({
               </form.Field>
               <form.Field name="billingCity">
                 {(field) => (
-                  <FormTextField
+                  <SuggestField
                     field={field}
                     label="Ville"
                     labelClassName="text-foreground-3"
+                    onSearch={searchCities}
+                    onSelect={(suggestion) => {
+                      field.handleChange(suggestion.city);
+                      form.setFieldValue(
+                        "billingPostalCode",
+                        suggestion.postalCode,
+                      );
+                      form.setFieldValue("billingCountry", "France");
+                    }}
                     placeholder="Nantes"
                   />
                 )}
@@ -266,10 +288,14 @@ export function NewClientPage({
             </div>
             <form.Field name="billingCountry">
               {(field) => (
-                <FormTextField
+                <SuggestField
                   field={field}
                   label="Pays"
                   labelClassName="text-foreground-3"
+                  onSearch={async (query) => searchCountries(query)}
+                  onSelect={(suggestion) =>
+                    field.handleChange(suggestion.label)
+                  }
                   placeholder="France"
                 />
               )}
