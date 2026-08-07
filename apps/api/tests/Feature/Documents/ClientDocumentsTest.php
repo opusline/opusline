@@ -289,7 +289,7 @@ test('clips a chosen name so the stored file name fits its column', function ():
         ])
         ->assertCreated();
 
-    expect(mb_strlen($response->json('fileName')))->toBeLessThanOrEqual(255);
+    expect($response->json('fileName'))->toBe(str_repeat('a', 251).'.pdf');
 });
 
 test('clips an overlong original file name to fit its column', function (): void {
@@ -307,8 +307,7 @@ test('clips an overlong original file name to fit its column', function (): void
         ])
         ->assertCreated();
 
-    expect(mb_strlen((string) $response->json('fileName')))->toBeLessThanOrEqual(255)
-        ->and($response->json('fileName'))->toEndWith('.pdf');
+    expect($response->json('fileName'))->toBe(str_repeat('n', 251).'.pdf');
 });
 
 test('clips an absurd extension instead of losing the whole name', function (): void {
@@ -327,8 +326,7 @@ test('clips an absurd extension instead of losing the whole name', function (): 
         ])
         ->assertCreated();
 
-    expect(mb_strlen((string) $response->json('fileName')))->toBeLessThanOrEqual(255)
-        ->and($response->json('fileName'))->toStartWith('Contrat');
+    expect($response->json('fileName'))->toBe('Contrat.'.str_repeat('e', 16));
 });
 
 test('leaves no trailing dot when the upload has no extension', function (): void {
