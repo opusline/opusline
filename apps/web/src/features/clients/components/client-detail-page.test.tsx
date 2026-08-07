@@ -99,8 +99,8 @@ function stubApi(
   return requests;
 }
 
-async function renderDetailPage() {
-  window.history.replaceState(null, "", "/clients/nordlys");
+async function renderDetailPage(path = "/clients/nordlys") {
+  window.history.replaceState(null, "", path);
   const router = getRouter();
   router.options.context.queryClient.setQueryData(currentUserQueryKey(), {
     id: 1,
@@ -319,6 +319,31 @@ it("uploads a logo picked from the edit form", async () => {
     );
     expect(upload).toBeDefined();
   });
+});
+
+it("retires the creation-time logo warning once an upload goes through", async () => {
+  stubApi(clientPayload(), (request) =>
+    request.method === "POST" && new URL(request.url).pathname.endsWith("/logo")
+      ? new Response(null, { status: 204 })
+      : null,
+  );
+  await renderDetailPage("/clients/nordlys?logoFailed=true");
+
+  expect(screen.getByText(/l'envoi du logo a échoué/)).toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: "Modifier" }));
+  fireEvent.change(await screen.findByLabelText("Logo du client"), {
+    target: {
+      files: [new File(["x"], "nordlys.png", { type: "image/png" })],
+    },
+  });
+
+  await waitFor(() => {
+    expect(
+      screen.queryByText(/l'envoi du logo a échoué/),
+    ).not.toBeInTheDocument();
+  });
+  expect(window.location.search).toBe("");
 });
 
 it("removes the logo from the edit form", async () => {

@@ -16,7 +16,7 @@ import {
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { DocumentsTab } from "@/components/documents-tab";
@@ -39,6 +39,7 @@ export const Route = createFileRoute("/_authed/clients_/$clientSlug")({
 function ClientDetailRoute() {
   const { clientSlug: client } = Route.useParams();
   const { logoFailed } = Route.useSearch();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const { data, isPending, isError } = useQuery(
@@ -112,6 +113,11 @@ function ClientDetailRoute() {
       remove: () => deleteLogo.mutateAsync({ path: { client } }),
       invalidate: async () => {
         setLogoVersion((version) => version + 1);
+
+        if (logoFailed) {
+          await navigate({ replace: true, search: {}, to: "." });
+        }
+
         await invalidateClient();
       },
     });

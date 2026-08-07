@@ -84,11 +84,15 @@ export function LogoPicker({
             isPending
               ? "cursor-not-allowed opacity-60"
               : "cursor-pointer hover:border-muted-foreground-6",
-            isDragOver && "border-primary bg-primary/7",
+            isDragOver && !isPending && "border-primary bg-primary/7",
             showLogo && "border-solid bg-card",
           )}
           onDragLeave={() => setIsDragOver(false)}
           onDragOver={(event) => {
+            if (isPending) {
+              return;
+            }
+
             event.preventDefault();
             setIsDragOver(true);
           }}

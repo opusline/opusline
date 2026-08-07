@@ -7,6 +7,7 @@ import {
 } from "@opusline/api-client/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 
 import { NewClientPage } from "@/features/clients/components/new-client-page";
 import type { FormSubmitResult } from "@/lib/form";
@@ -22,12 +23,15 @@ function NewClientRoute() {
 
   const createClient = useMutation(createClientMutation());
   const uploadLogo = useMutation(uploadClientLogoMutation());
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (
     body: CreateClientData,
     chainToMission: boolean,
     logo: File | null,
   ): Promise<FormSubmitResult> => {
+    setIsSubmitting(true);
+
     try {
       const created = await createClient.mutateAsync({ body });
       let hasLogoFailed = false;
@@ -70,6 +74,8 @@ function NewClientRoute() {
       return fieldErrors
         ? { status: "invalid", fieldErrors }
         : { status: "failed" };
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -80,7 +86,7 @@ function NewClientRoute() {
           ? "Impossible de créer le client. Réessayez dans un instant."
           : null
       }
-      isPending={createClient.isPending}
+      isPending={isSubmitting}
       onCancel={() => void navigate({ to: "/clients" })}
       onSubmit={handleSubmit}
     />

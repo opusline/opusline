@@ -127,6 +127,7 @@ export function NewClientPage({
             <div className="flex flex-col gap-2">
               <span className="text-foreground-3 text-sm">Logo</span>
               <LogoPicker
+                isPending={isPending}
                 label="Logo du client"
                 onPick={setLogo}
                 onRemove={() => setLogo(null)}
