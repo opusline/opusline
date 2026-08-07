@@ -38,7 +38,10 @@ function NewMissionRoute() {
     setIsSubmitting(true);
 
     try {
-      await createMission.mutateAsync({ body, path: { client: clientSlug } });
+      const created = await createMission.mutateAsync({
+        body,
+        path: { client: clientSlug },
+      });
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: listClientsQueryKey(),
@@ -52,7 +55,10 @@ function NewMissionRoute() {
       await queryClient.fetchQuery(
         showClientOptions({ path: { client: clientSlug } }),
       );
-      await navigate({ to: "/clients/$clientSlug", params: { clientSlug } });
+      await navigate({
+        to: "/clients/$clientSlug/missions/$missionSlug",
+        params: { clientSlug, missionSlug: created.slug },
+      });
       return { status: "success" };
     } catch (error) {
       const fieldErrors = serverFieldErrors(error);

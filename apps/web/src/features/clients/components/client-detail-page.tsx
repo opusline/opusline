@@ -42,6 +42,7 @@ import { monthYearLabel } from "@/lib/dates";
 import type { FormSubmitResult } from "@/lib/form";
 import type { LogoUploadResult } from "@/lib/logos";
 import { COLOR_CLASSES } from "@/lib/palette";
+import { formatPostalAddress } from "../lib/client-form";
 
 import { ClientEditForm } from "./client-edit-form";
 
@@ -131,7 +132,8 @@ export function ClientDetailPage({
   const hasCoordinates =
     client.siret !== null ||
     client.vatNumber !== null ||
-    client.billingAddress !== null ||
+    client.billingAddressLine1 !== null ||
+    client.billingCity !== null ||
     client.billingContactName !== null ||
     client.billingEmail !== null;
 
@@ -419,7 +421,10 @@ export function ClientDetailPage({
                       mono
                       value={client.vatNumber}
                     />
-                    <CoordRow label="Adresse" value={client.billingAddress} />
+                    <CoordRow
+                      label="Adresse"
+                      value={formatPostalAddress(client)}
+                    />
                   </div>
                 </div>
                 <div className="rounded-md border bg-card p-5">

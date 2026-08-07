@@ -36,7 +36,7 @@ export const Default: Story = {
 
 export const Mono: Story = {
   args: {
-    field: stubField("123 456 789 00012"),
+    field: stubField("443 061 841 00047"),
     label: "SIRET",
     labelClassName: "text-foreground-3",
     font: "mono",

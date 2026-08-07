@@ -30,7 +30,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property ?string $notes
  * @property ?string $siret
  * @property ?string $vat_number
- * @property ?string $billing_address
+ * @property ?string $billing_address_line1
+ * @property ?string $billing_address_line2
+ * @property ?string $billing_postal_code
+ * @property ?string $billing_city
+ * @property ?string $billing_country
  * @property ?string $billing_contact_name
  * @property ?string $billing_email
  * @property Color $color
@@ -45,7 +49,11 @@ use Spatie\Sluggable\SlugOptions;
     'notes',
     'siret',
     'vat_number',
-    'billing_address',
+    'billing_address_line1',
+    'billing_address_line2',
+    'billing_postal_code',
+    'billing_city',
+    'billing_country',
     'billing_contact_name',
     'billing_email',
     'color',

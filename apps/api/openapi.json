@@ -1250,7 +1250,31 @@
                             "null"
                         ]
                     },
-                    "billingAddress": {
+                    "billingAddressLine1": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "billingAddressLine2": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "billingPostalCode": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "billingCity": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "billingCountry": {
                         "type": [
                             "string",
                             "null"
@@ -1294,7 +1318,11 @@
                     "notes",
                     "siret",
                     "vatNumber",
-                    "billingAddress",
+                    "billingAddressLine1",
+                    "billingAddressLine2",
+                    "billingPostalCode",
+                    "billingCity",
+                    "billingCountry",
                     "billingContactName",
                     "billingEmail",
                     "color",
@@ -1366,7 +1394,31 @@
                             "null"
                         ]
                     },
-                    "billingAddress": {
+                    "billingAddressLine1": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "billingAddressLine2": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "billingPostalCode": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "billingCity": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "billingCountry": {
                         "type": [
                             "string",
                             "null"
@@ -1416,7 +1468,11 @@
                     "notes",
                     "siret",
                     "vatNumber",
-                    "billingAddress",
+                    "billingAddressLine1",
+                    "billingAddressLine2",
+                    "billingPostalCode",
+                    "billingCity",
+                    "billingCountry",
                     "billingContactName",
                     "billingEmail",
                     "color",
@@ -1482,11 +1538,40 @@
                         ],
                         "maxLength": 255
                     },
-                    "billingAddress": {
+                    "billingAddressLine1": {
                         "type": [
                             "string",
                             "null"
-                        ]
+                        ],
+                        "maxLength": 255
+                    },
+                    "billingAddressLine2": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "billingPostalCode": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 32
+                    },
+                    "billingCity": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "billingCountry": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
                     },
                     "billingContactName": {
                         "type": [
@@ -1923,11 +2008,40 @@
                         ],
                         "maxLength": 255
                     },
-                    "billingAddress": {
+                    "billingAddressLine1": {
                         "type": [
                             "string",
                             "null"
-                        ]
+                        ],
+                        "maxLength": 255
+                    },
+                    "billingAddressLine2": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "billingPostalCode": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 32
+                    },
+                    "billingCity": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "billingCountry": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
                     },
                     "billingContactName": {
                         "type": [
@@ -2099,6 +2213,13 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "fileName": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
                     }
                 },
                 "required": [

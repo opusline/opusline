@@ -392,6 +392,14 @@ export function MissionDetailPage({
                         : calendarDateLabel(mission.startDate)
                     }
                   />
+                  <FacturationRow
+                    label="Fin prévue"
+                    value={
+                      mission.endDate === null
+                        ? "—"
+                        : calendarDateLabel(mission.endDate)
+                    }
+                  />
                 </div>
                 <div className="my-4 h-px bg-border" />
                 <div className="flex items-center gap-3">

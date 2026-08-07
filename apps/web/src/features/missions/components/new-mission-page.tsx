@@ -207,14 +207,7 @@ export function NewMissionPage({
             Clients
           </Link>
           <span>/</span>
-          <Link
-            className="text-link transition-colors hover:text-link-hover"
-            to="/missions"
-          >
-            Missions
-          </Link>
-          <span>/</span>
-          <span className="text-muted-foreground">Nouvelle</span>
+          <span className="text-muted-foreground">Nouvelle mission</span>
         </div>
         <h1 className="mb-1 font-heading font-semibold text-2xl text-foreground-hi">
           Nouvelle mission

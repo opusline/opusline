@@ -20,7 +20,11 @@ export type ClientData = {
     notes: string | null;
     siret: string | null;
     vatNumber: string | null;
-    billingAddress: string | null;
+    billingAddressLine1: string | null;
+    billingAddressLine2: string | null;
+    billingPostalCode: string | null;
+    billingCity: string | null;
+    billingCountry: string | null;
     billingContactName: string | null;
     billingEmail: string | null;
     color: Color;
@@ -52,7 +56,11 @@ export type ClientWithMissionsData = {
     notes: string | null;
     siret: string | null;
     vatNumber: string | null;
-    billingAddress: string | null;
+    billingAddressLine1: string | null;
+    billingAddressLine2: string | null;
+    billingPostalCode: string | null;
+    billingCity: string | null;
+    billingCountry: string | null;
     billingContactName: string | null;
     billingEmail: string | null;
     color: Color;
@@ -76,7 +84,11 @@ export type CreateClientData = {
     notes?: string | null;
     siret?: string | null;
     vatNumber?: string | null;
-    billingAddress?: string | null;
+    billingAddressLine1?: string | null;
+    billingAddressLine2?: string | null;
+    billingPostalCode?: string | null;
+    billingCity?: string | null;
+    billingCountry?: string | null;
     billingContactName?: string | null;
     billingEmail?: string | null;
     color?: Color;
@@ -205,7 +217,11 @@ export type UpdateClientData = {
     notes?: string | null;
     siret?: string | null;
     vatNumber?: string | null;
-    billingAddress?: string | null;
+    billingAddressLine1?: string | null;
+    billingAddressLine2?: string | null;
+    billingPostalCode?: string | null;
+    billingCity?: string | null;
+    billingCountry?: string | null;
     billingContactName?: string | null;
     billingEmail?: string | null;
     color?: Color;
@@ -258,6 +274,7 @@ export type UploadDocumentData = {
      */
     file: Blob | File;
     category?: DocumentCategory | null;
+    fileName?: string | null;
 };
 
 /**

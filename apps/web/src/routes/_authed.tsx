@@ -34,7 +34,6 @@ export const Route = createFileRoute("/_authed")({
 const pageTitles: Record<string, string> = {
   "/semaine": "Suivi du temps",
   "/clients": "Portefeuille clients",
-  "/missions": "Portefeuille clients",
   "/cra": "Compte rendu d'activité",
   "/revenus": "Revenus",
   "/virement": "Trésorerie",

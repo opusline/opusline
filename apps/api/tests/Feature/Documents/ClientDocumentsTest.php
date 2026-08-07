@@ -248,3 +248,31 @@ test('returns 401 for guests', function (): void {
 
     $this->getJson("/api/clients/{$client->slug}/documents")->assertUnauthorized();
 });
+
+test('uploads a document under a chosen name', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->create('scan001.pdf', 12, 'application/pdf'),
+            'fileName' => 'Contrat Nordlys 2026',
+        ])
+        ->assertCreated()
+        ->assertJsonPath('fileName', 'Contrat-Nordlys-2026.pdf');
+});
+
+test('keeps the uploaded extension when the chosen name carries another one', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->create('scan001.pdf', 12, 'application/pdf'),
+            'fileName' => 'payload.php',
+        ])
+        ->assertCreated()
+        ->assertJsonPath('fileName', 'payload.pdf');
+});

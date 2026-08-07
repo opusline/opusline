@@ -35,18 +35,24 @@ test('creates a client with billing details', function (): void {
         ->postJson('/api/clients', [
             'name' => 'Nordlys',
             'type' => ClientType::Direct->value,
-            'siret' => '123 456 789 00012',
-            'vatNumber' => 'FR62 892447118',
-            'billingAddress' => "12 rue de la Paix\n44000 Nantes",
+            'siret' => '443 061 841 00047',
+            'vatNumber' => 'FR37 892447118',
+            'billingAddressLine1' => '12 rue de la Paix',
+            'billingPostalCode' => '44000',
+            'billingCity' => 'Nantes',
+            'billingCountry' => 'France',
             'billingContactName' => 'Camille Dupont',
             'billingEmail' => 'factures@nordlys.example',
             'color' => Color::Sage->value,
             'paymentTermsDays' => 60,
         ])
         ->assertCreated()
-        ->assertJsonPath('siret', '123 456 789 00012')
-        ->assertJsonPath('vatNumber', 'FR62 892447118')
-        ->assertJsonPath('billingAddress', "12 rue de la Paix\n44000 Nantes")
+        ->assertJsonPath('siret', '443 061 841 00047')
+        ->assertJsonPath('vatNumber', 'FR37 892447118')
+        ->assertJsonPath('billingAddressLine1', '12 rue de la Paix')
+        ->assertJsonPath('billingPostalCode', '44000')
+        ->assertJsonPath('billingCity', 'Nantes')
+        ->assertJsonPath('billingCountry', 'France')
         ->assertJsonPath('billingContactName', 'Camille Dupont')
         ->assertJsonPath('billingEmail', 'factures@nordlys.example')
         ->assertJsonPath('color', Color::Sage->value)
@@ -54,7 +60,7 @@ test('creates a client with billing details', function (): void {
 
     $this->assertDatabaseHas('clients', [
         'name' => 'Nordlys',
-        'siret' => '123 456 789 00012',
+        'siret' => '443 061 841 00047',
         'billing_email' => 'factures@nordlys.example',
         'color' => Color::Sage->value,
         'payment_terms_days' => 60,

@@ -18,7 +18,11 @@ function client(
     notes: null,
     siret: null,
     vatNumber: null,
-    billingAddress: null,
+    billingAddressLine1: null,
+    billingAddressLine2: null,
+    billingPostalCode: null,
+    billingCity: null,
+    billingCountry: null,
     billingContactName: null,
     billingEmail: null,
     color: 0,
@@ -42,6 +46,23 @@ const CLIENTS = [
     archivedAt: "2026-06-01T00:00:00+00:00",
   }),
 ];
+
+const CREATED_MISSION = {
+  id: 9,
+  slug: "callisto-front",
+  clientId: 1,
+  name: "Callisto front",
+  endClientName: "Callisto",
+  billingMode: 0,
+  rate: { amount: 55_000, currency: "EUR" },
+  rounding: 0,
+  status: 0,
+  craRequired: true,
+  color: null,
+  notes: null,
+  startDate: null,
+  endDate: null,
+};
 
 function jsonResponse(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
@@ -92,7 +113,14 @@ function stubApi(
         return jsonResponse(200, CLIENTS[0]);
       }
 
-      return jsonResponse(201, { id: 9, slug: "callisto-front" });
+      if (
+        request.method === "GET" &&
+        /\/missions\/[a-z0-9-]+$/.test(url.pathname)
+      ) {
+        return jsonResponse(200, CREATED_MISSION);
+      }
+
+      return jsonResponse(201, CREATED_MISSION);
     }),
   );
 
@@ -199,7 +227,7 @@ it("creates an internal mission without billing details", async () => {
   });
 });
 
-it("creates the mission and lands on the client page", async () => {
+it("creates the mission and lands on its own page", async () => {
   const requests = stubApi();
   await renderNewMissionPage();
 
@@ -215,9 +243,15 @@ it("creates the mission and lands on the client page", async () => {
   fireEvent.click(screen.getByRole("button", { name: "Créer la mission" }));
 
   expect(
-    await screen.findByRole("heading", { name: "Nordlys" }, { timeout: 5000 }),
+    await screen.findByRole(
+      "heading",
+      { name: "Callisto front" },
+      { timeout: 5000 },
+    ),
   ).toBeInTheDocument();
-  expect(window.location.pathname).toBe("/clients/nordlys");
+  expect(window.location.pathname).toBe(
+    "/clients/nordlys/missions/callisto-front",
+  );
 
   const creation = requests.find((request) => request.method === "POST");
   expect(creation?.path.endsWith("/clients/nordlys/missions")).toBe(true);
@@ -306,7 +340,7 @@ it("stays locked between the mission creation and the client refresh", async () 
 
       if (request.method === "POST") {
         hasCreated = true;
-        return jsonResponse(201, { id: 9, slug: "callisto-front" });
+        return jsonResponse(201, CREATED_MISSION);
       }
 
       if (url.pathname.endsWith("/clients")) {

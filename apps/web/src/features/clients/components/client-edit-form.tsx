@@ -83,7 +83,11 @@ export function ClientEditForm({
       type: client.type,
       siret: client.siret ?? "",
       vatNumber: client.vatNumber ?? "",
-      billingAddress: client.billingAddress ?? "",
+      billingAddressLine1: client.billingAddressLine1 ?? "",
+      billingAddressLine2: client.billingAddressLine2 ?? "",
+      billingPostalCode: client.billingPostalCode ?? "",
+      billingCity: client.billingCity ?? "",
+      billingCountry: client.billingCountry ?? "",
       billingContactName: client.billingContactName ?? "",
       billingEmail: client.billingEmail ?? "",
       color: client.color,
@@ -258,14 +262,53 @@ export function ClientEditForm({
               )}
             </form.Field>
 
-            <form.Field name="billingAddress">
+            <form.Field name="billingAddressLine1">
               {(field) => (
                 <FormTextField
                   field={field}
                   label="Adresse"
                   labelClassName={EDIT_LABEL_CLASSES}
-                  multiline
-                  inputClassName="min-h-18"
+                />
+              )}
+            </form.Field>
+
+            <form.Field name="billingAddressLine2">
+              {(field) => (
+                <FormTextField
+                  field={field}
+                  label="Complément"
+                  labelClassName={EDIT_LABEL_CLASSES}
+                />
+              )}
+            </form.Field>
+
+            <div className="grid gap-3.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+              <form.Field name="billingPostalCode">
+                {(field) => (
+                  <FormTextField
+                    field={field}
+                    label="Code postal"
+                    labelClassName={EDIT_LABEL_CLASSES}
+                  />
+                )}
+              </form.Field>
+              <form.Field name="billingCity">
+                {(field) => (
+                  <FormTextField
+                    field={field}
+                    label="Ville"
+                    labelClassName={EDIT_LABEL_CLASSES}
+                  />
+                )}
+              </form.Field>
+            </div>
+
+            <form.Field name="billingCountry">
+              {(field) => (
+                <FormTextField
+                  field={field}
+                  label="Pays"
+                  labelClassName={EDIT_LABEL_CLASSES}
                 />
               )}
             </form.Field>

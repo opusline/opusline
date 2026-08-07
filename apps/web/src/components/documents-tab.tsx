@@ -3,6 +3,7 @@ import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Badge } from "@opusline/ui/components/badge";
 import { Button } from "@opusline/ui/components/button";
 import { Chip, ChipCount, ChipGroup } from "@opusline/ui/components/chip";
+import { Input } from "@opusline/ui/components/input";
 import { NativeSelect } from "@opusline/ui/components/native-select";
 import { cn } from "@opusline/ui/lib/utils";
 import {
@@ -19,10 +20,12 @@ import { useRef, useState } from "react";
 
 import { fullDateLabel } from "@/lib/dates";
 import {
+  baseName,
   DOCUMENT_ACCEPT,
   DOCUMENT_CATEGORIES,
   DOCUMENT_CATEGORY_LABELS,
   type DocumentUploadResult,
+  extensionOf,
   foldAccents,
   formatFileSize,
   guessDocumentCategory,
@@ -35,12 +38,14 @@ type PendingDocument = {
   key: number;
   file: File;
   category: DocumentCategory;
+  name: string;
 };
 
 type QueuedUpload = {
   key: number;
   file: File;
   category: DocumentCategory;
+  name: string;
   state: "uploading" | "error";
   message?: string;
 };
@@ -53,6 +58,7 @@ type DocumentsTabProps = {
   onUpload: (
     file: File,
     category: DocumentCategory,
+    fileName: string,
   ) => Promise<DocumentUploadResult>;
   onDelete: (document: DocumentData) => Promise<boolean>;
   downloadHref: (document: DocumentData) => string;
@@ -93,6 +99,7 @@ export function DocumentsTab({
           key: nextKey.current,
           file,
           category: guessDocumentCategory(file.name),
+          name: baseName(file.name),
         });
       }
     }
@@ -107,7 +114,7 @@ export function DocumentsTab({
     let result: DocumentUploadResult;
 
     try {
-      result = await onUpload(upload.file, upload.category);
+      result = await onUpload(upload.file, upload.category, upload.name);
     } catch {
       result = {
         status: "failed",
@@ -322,11 +329,22 @@ export function DocumentsTab({
             {pending.map((item) => (
               <div className="flex items-center gap-3 px-4 py-3" key={item.key}>
                 <span className="flex min-w-0 flex-1 flex-col gap-1">
-                  <span className="truncate text-foreground-hi text-sm">
-                    {item.file.name}
-                  </span>
+                  <Input
+                    aria-label={`Nom du document ${item.file.name}`}
+                    onChange={(event) =>
+                      setPending((current) =>
+                        current.map((candidate) =>
+                          candidate.key === item.key
+                            ? { ...candidate, name: event.target.value }
+                            : candidate,
+                        ),
+                      )
+                    }
+                    value={item.name}
+                  />
                   <span className="text-muted-foreground-3 text-xs">
-                    {formatFileSize(item.file.size)}
+                    {formatFileSize(item.file.size)} ·{" "}
+                    {extensionOf(item.file.name)}
                   </span>
                 </span>
                 <NativeSelect

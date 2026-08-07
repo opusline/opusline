@@ -1,7 +1,7 @@
 import type { ClientWithMissionsData, MissionData } from "@opusline/api-client";
 import { expect, it } from "vitest";
 import { formatMissionRate, paymentTermsLabel } from "@/lib/billing";
-
+import { formatPostalAddress } from "./client-form";
 import { clientSubtitle, isNewClient } from "./labels";
 
 function mission(overrides: Partial<MissionData> = {}): MissionData {
@@ -35,7 +35,11 @@ function client(
     notes: null,
     siret: null,
     vatNumber: null,
-    billingAddress: null,
+    billingAddressLine1: null,
+    billingAddressLine2: null,
+    billingPostalCode: null,
+    billingCity: null,
+    billingCountry: null,
     billingContactName: null,
     billingEmail: null,
     color: 0,
@@ -124,4 +128,40 @@ it("considers a client created two weeks ago as not new", () => {
 
 it("announces the missing missions when there is nothing else to say", () => {
   expect(clientSubtitle(client())).toBe("Aucune mission");
+});
+
+it("joins the stored address parts into a readable block", () => {
+  expect(
+    formatPostalAddress({
+      billingAddressLine1: "12 rue de la Paix",
+      billingAddressLine2: "Bâtiment C",
+      billingPostalCode: "44000",
+      billingCity: "Nantes",
+      billingCountry: "France",
+    }),
+  ).toBe("12 rue de la Paix\nBâtiment C\n44000 Nantes\nFrance");
+});
+
+it("skips the parts a client never filled in", () => {
+  expect(
+    formatPostalAddress({
+      billingAddressLine1: "12 rue de la Paix",
+      billingAddressLine2: null,
+      billingPostalCode: null,
+      billingCity: "Nantes",
+      billingCountry: null,
+    }),
+  ).toBe("12 rue de la Paix\nNantes");
+});
+
+it("reports a wholly empty address as absent", () => {
+  expect(
+    formatPostalAddress({
+      billingAddressLine1: null,
+      billingAddressLine2: null,
+      billingPostalCode: null,
+      billingCity: null,
+      billingCountry: null,
+    }),
+  ).toBeNull();
 });

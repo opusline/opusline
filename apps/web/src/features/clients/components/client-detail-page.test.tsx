@@ -22,9 +22,13 @@ function clientPayload(
     name: "Nordlys",
     type: 1,
     notes: null,
-    siret: "123 456 789 00012",
+    siret: "443 061 841 00047",
     vatNumber: null,
-    billingAddress: null,
+    billingAddressLine1: null,
+    billingAddressLine2: null,
+    billingPostalCode: null,
+    billingCity: null,
+    billingCountry: null,
     billingContactName: null,
     billingEmail: null,
     color: 0,
@@ -135,13 +139,13 @@ it("shows the client header, stats and missions", async () => {
 });
 
 it("shows the coordinates in the dedicated tab", async () => {
-  stubApi(clientPayload({ vatNumber: "FR12 123456789" }));
+  stubApi(clientPayload({ vatNumber: "FR64 443061841" }));
   await renderDetailPage();
 
   fireEvent.click(screen.getByRole("tab", { name: "Coordonnées" }));
 
-  expect(await screen.findByText("123 456 789 00012")).toBeInTheDocument();
-  expect(screen.getByText("FR12 123456789")).toBeInTheDocument();
+  expect(await screen.findByText("443 061 841 00047")).toBeInTheDocument();
+  expect(screen.getByText("FR64 443061841")).toBeInTheDocument();
 });
 
 it("invites to fill in missing coordinates", async () => {
@@ -204,7 +208,11 @@ it("shows saved billing contact details even without company identifiers", async
     clientPayload({
       siret: null,
       vatNumber: null,
-      billingAddress: null,
+      billingAddressLine1: null,
+      billingAddressLine2: null,
+      billingPostalCode: null,
+      billingCity: null,
+      billingCountry: null,
       billingEmail: "factures@nordlys.example",
     }),
   );

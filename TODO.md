@@ -33,7 +33,7 @@ Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c83
 
 ## Core loop (v1 — ships when this section is done)
 
-- [ ] **Clients & Missions**
+- [x] **Clients & Missions**
   Client CRUD. Mission belongs to a client, carries: billing mode (daily TJM |
   hourly), rate (`rate_cents`), currency (EUR default), status (active/paused/done),
   optional dates, optional ESN/intermediary (billing goes through an ESN, work is

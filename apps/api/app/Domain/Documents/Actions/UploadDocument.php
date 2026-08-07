@@ -14,13 +14,33 @@ class UploadDocument
 {
     public function handle(HasMedia $model, UploadDocumentData $data): Media
     {
-        $document = $model
-            ->addMedia($data->file)
+        $adder = $model->addMedia($data->file);
+        $renamed = $this->renamedFile($data);
+
+        if ($renamed !== null) {
+            $adder->usingName(pathinfo($renamed, PATHINFO_FILENAME))->usingFileName($renamed);
+        }
+
+        $document = $adder
             ->withCustomProperties(['category' => ($data->category ?? DocumentCategory::Other)->value])
             ->toMediaCollection('documents', 'local');
 
         MoveDocumentToMediaDisk::dispatch($document);
 
         return $document;
+    }
+
+    private function renamedFile(UploadDocumentData $data): ?string
+    {
+        $chosen = trim($data->fileName ?? '');
+
+        if ($chosen === '') {
+            return null;
+        }
+
+        $base = pathinfo($chosen, PATHINFO_FILENAME);
+        $extension = $data->file->getClientOriginalExtension();
+
+        return $base === '' ? null : $base.'.'.$extension;
     }
 }

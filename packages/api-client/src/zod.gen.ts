@@ -45,7 +45,11 @@ export const zClientData = z.object({
     notes: z.nullable(z.string()),
     siret: z.nullable(z.string()),
     vatNumber: z.nullable(z.string()),
-    billingAddress: z.nullable(z.string()),
+    billingAddressLine1: z.nullable(z.string()),
+    billingAddressLine2: z.nullable(z.string()),
+    billingPostalCode: z.nullable(z.string()),
+    billingCity: z.nullable(z.string()),
+    billingCountry: z.nullable(z.string()),
     billingContactName: z.nullable(z.string()),
     billingEmail: z.nullable(z.string()),
     color: zColor,
@@ -63,7 +67,11 @@ export const zCreateClientData = z.object({
     notes: z.nullish(z.string()),
     siret: z.nullish(z.string().check(z.maxLength(255))),
     vatNumber: z.nullish(z.string().check(z.maxLength(255))),
-    billingAddress: z.nullish(z.string()),
+    billingAddressLine1: z.nullish(z.string().check(z.maxLength(255))),
+    billingAddressLine2: z.nullish(z.string().check(z.maxLength(255))),
+    billingPostalCode: z.nullish(z.string().check(z.maxLength(32))),
+    billingCity: z.nullish(z.string().check(z.maxLength(255))),
+    billingCountry: z.nullish(z.string().check(z.maxLength(255))),
     billingContactName: z.nullish(z.string().check(z.maxLength(255))),
     billingEmail: z.nullish(z.email().check(z.maxLength(255))),
     color: z.optional(zColor),
@@ -198,7 +206,11 @@ export const zClientWithMissionsData = z.object({
     notes: z.nullable(z.string()),
     siret: z.nullable(z.string()),
     vatNumber: z.nullable(z.string()),
-    billingAddress: z.nullable(z.string()),
+    billingAddressLine1: z.nullable(z.string()),
+    billingAddressLine2: z.nullable(z.string()),
+    billingPostalCode: z.nullable(z.string()),
+    billingCity: z.nullable(z.string()),
+    billingCountry: z.nullable(z.string()),
     billingContactName: z.nullable(z.string()),
     billingEmail: z.nullable(z.string()),
     color: zColor,
@@ -234,7 +246,11 @@ export const zUpdateClientData = z.object({
     notes: z.nullish(z.string()),
     siret: z.nullish(z.string().check(z.maxLength(255))),
     vatNumber: z.nullish(z.string().check(z.maxLength(255))),
-    billingAddress: z.nullish(z.string()),
+    billingAddressLine1: z.nullish(z.string().check(z.maxLength(255))),
+    billingAddressLine2: z.nullish(z.string().check(z.maxLength(255))),
+    billingPostalCode: z.nullish(z.string().check(z.maxLength(32))),
+    billingCity: z.nullish(z.string().check(z.maxLength(255))),
+    billingCountry: z.nullish(z.string().check(z.maxLength(255))),
     billingContactName: z.nullish(z.string().check(z.maxLength(255))),
     billingEmail: z.nullish(z.email().check(z.maxLength(255))),
     color: z.optional(zColor),
@@ -280,7 +296,8 @@ export const zUploadClientLogoData = z.object({
  */
 export const zUploadDocumentData = z.object({
     file: z.string(),
-    category: z.nullish(zDocumentCategory)
+    category: z.nullish(zDocumentCategory),
+    fileName: z.nullish(z.string().check(z.maxLength(255)))
 });
 
 /**

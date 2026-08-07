@@ -68,7 +68,11 @@ export function NewClientPage({
       type: 0,
       siret: "",
       vatNumber: "",
-      billingAddress: "",
+      billingAddressLine1: "",
+      billingAddressLine2: "",
+      billingPostalCode: "",
+      billingCity: "",
+      billingCountry: "",
       billingContactName: "",
       billingEmail: "",
       color: defaultColor,
@@ -200,7 +204,7 @@ export function NewClientPage({
                   label="SIRET"
                   labelClassName="text-foreground-3"
                   font="mono"
-                  placeholder="123 456 789 00012"
+                  placeholder="443 061 841 00047"
                 />
               )}
             </form.Field>
@@ -211,23 +215,66 @@ export function NewClientPage({
                   label="TVA intracommunautaire"
                   labelClassName="text-foreground-3"
                   font="mono"
-                  placeholder="FR12 123456789"
+                  placeholder="FR64 443061841"
                 />
               )}
             </form.Field>
           </div>
 
-          <form.Field name="billingAddress">
-            {(field) => (
-              <FormTextField
-                field={field}
-                label="Adresse de facturation"
-                labelClassName="text-foreground-3"
-                multiline
-                placeholder={"12 rue de la Paix\n44000 Nantes"}
-              />
-            )}
-          </form.Field>
+          <div className="flex flex-col gap-4">
+            <form.Field name="billingAddressLine1">
+              {(field) => (
+                <FormTextField
+                  field={field}
+                  label="Adresse de facturation"
+                  labelClassName="text-foreground-3"
+                  placeholder="12 rue de la Paix"
+                />
+              )}
+            </form.Field>
+            <form.Field name="billingAddressLine2">
+              {(field) => (
+                <FormTextField
+                  field={field}
+                  label="Complément d'adresse"
+                  labelClassName="text-foreground-3"
+                  placeholder="Bâtiment C, 3e étage"
+                />
+              )}
+            </form.Field>
+            <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+              <form.Field name="billingPostalCode">
+                {(field) => (
+                  <FormTextField
+                    field={field}
+                    label="Code postal"
+                    labelClassName="text-foreground-3"
+                    placeholder="44000"
+                  />
+                )}
+              </form.Field>
+              <form.Field name="billingCity">
+                {(field) => (
+                  <FormTextField
+                    field={field}
+                    label="Ville"
+                    labelClassName="text-foreground-3"
+                    placeholder="Nantes"
+                  />
+                )}
+              </form.Field>
+            </div>
+            <form.Field name="billingCountry">
+              {(field) => (
+                <FormTextField
+                  field={field}
+                  label="Pays"
+                  labelClassName="text-foreground-3"
+                  placeholder="France"
+                />
+              )}
+            </form.Field>
+          </div>
 
           <Separator />
 
