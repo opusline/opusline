@@ -876,9 +876,7 @@ export type DownloadClientDocumentErrors = {
 export type DownloadClientDocumentError = DownloadClientDocumentErrors[keyof DownloadClientDocumentErrors];
 
 export type DownloadClientDocumentResponses = {
-    200: {
-        [key: string]: unknown;
-    };
+    200: Blob | File;
 };
 
 export type DownloadClientDocumentResponse = DownloadClientDocumentResponses[keyof DownloadClientDocumentResponses];
@@ -963,9 +961,7 @@ export type ShowClientLogoErrors = {
 export type ShowClientLogoError = ShowClientLogoErrors[keyof ShowClientLogoErrors];
 
 export type ShowClientLogoResponses = {
-    200: {
-        [key: string]: unknown;
-    };
+    200: Blob | File;
 };
 
 export type ShowClientLogoResponse = ShowClientLogoResponses[keyof ShowClientLogoResponses];
@@ -1419,9 +1415,7 @@ export type DownloadMissionDocumentErrors = {
 export type DownloadMissionDocumentError = DownloadMissionDocumentErrors[keyof DownloadMissionDocumentErrors];
 
 export type DownloadMissionDocumentResponses = {
-    200: {
-        [key: string]: unknown;
-    };
+    200: Blob | File;
 };
 
 export type DownloadMissionDocumentResponse = DownloadMissionDocumentResponses[keyof DownloadMissionDocumentResponses];

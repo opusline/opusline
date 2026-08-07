@@ -408,7 +408,7 @@ export const zDownloadClientDocumentPath = z.object({
     document: z.int()
 });
 
-export const zDownloadClientDocumentResponse = z.record(z.string(), z.unknown());
+export const zDownloadClientDocumentResponse = z.string();
 
 export const zDeleteClientLogoPath = z.object({
     client: z.string()
@@ -423,7 +423,7 @@ export const zShowClientLogoPath = z.object({
     client: z.string()
 });
 
-export const zShowClientLogoResponse = z.record(z.string(), z.unknown());
+export const zShowClientLogoResponse = z.string();
 
 export const zUploadClientLogoBody = zUploadClientLogoData;
 
@@ -513,4 +513,4 @@ export const zDownloadMissionDocumentPath = z.object({
     document: z.int()
 });
 
-export const zDownloadMissionDocumentResponse = z.record(z.string(), z.unknown());
+export const zDownloadMissionDocumentResponse = z.string();

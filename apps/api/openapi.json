@@ -627,9 +627,21 @@
                     "200": {
                         "description": "",
                         "content": {
-                            "application/json": {
+                            "application/octet-stream": {
                                 "schema": {
-                                    "type": "object"
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Transfer-Encoding": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "chunked"
+                                    ]
                                 }
                             }
                         }
@@ -702,9 +714,21 @@
                     "200": {
                         "description": "",
                         "content": {
-                            "application/json": {
+                            "application/octet-stream": {
                                 "schema": {
-                                    "type": "object"
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Transfer-Encoding": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "chunked"
+                                    ]
                                 }
                             }
                         }
@@ -1177,9 +1201,21 @@
                     "200": {
                         "description": "",
                         "content": {
-                            "application/json": {
+                            "application/octet-stream": {
                                 "schema": {
-                                    "type": "object"
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Transfer-Encoding": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "chunked"
+                                    ]
                                 }
                             }
                         }
