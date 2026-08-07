@@ -20,6 +20,7 @@ class TimeEntryData extends Data
         public int $durationMinutes,
         public ?int $valuedMinutes,
         public ?float $valuedDayFraction,
+        public bool $billable,
         public ?string $note,
     ) {}
 
@@ -32,6 +33,7 @@ class TimeEntryData extends Data
             durationMinutes: $timeEntry->duration_minutes,
             valuedMinutes: $timeEntry->valuedMinutes(),
             valuedDayFraction: $timeEntry->valuedDayFraction(),
+            billable: $timeEntry->billable,
             note: $timeEntry->note,
         );
     }

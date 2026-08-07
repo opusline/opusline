@@ -38,6 +38,8 @@
   --card-2: #ffffff;
   --secondary-2: #e9e4dc;
   --muted-2: #f2efe9;
+  --stripe-1: #f4f1eb;
+  --stripe-2: #ede9e2;
   --border-2: #d8d1c7;
   --border-3: #cfc7bc;
   --border-4: #bdb4a8;
@@ -107,6 +109,8 @@
   --card-2: #221f1d;
   --secondary-2: #2a2624;
   --muted-2: #232120;
+  --stripe-1: #242120;
+  --stripe-2: #1e1b19;
   --border-2: #3a3430;
   --border-3: #3c3632;
   --border-4: #4a423b;
@@ -166,6 +170,8 @@
   --color-card-2: var(--card-2);
   --color-secondary-2: var(--secondary-2);
   --color-muted-2: var(--muted-2);
+  --color-stripe-1: var(--stripe-1);
+  --color-stripe-2: var(--stripe-2);
   --color-border-2: var(--border-2);
   --color-border-3: var(--border-3);
   --color-border-4: var(--border-4);
@@ -224,4 +230,12 @@
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+}
+
+@utility bg-stripes {
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--stripe-1) 0 6px,
+    var(--stripe-2) 6px 10px
+  );
 }

@@ -26,6 +26,7 @@ class UpdateTimeEntry
                 'mission_id' => $mission->id,
                 'date' => $data->date,
                 'duration_minutes' => $data->durationMinutes,
+                'billable' => $data->billable,
                 'note' => $data->note,
             ]);
 

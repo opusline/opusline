@@ -2209,6 +2209,9 @@
                             "null"
                         ]
                     },
+                    "billable": {
+                        "type": "boolean"
+                    },
                     "note": {
                         "type": [
                             "string",
@@ -2223,6 +2226,7 @@
                     "durationMinutes",
                     "valuedMinutes",
                     "valuedDayFraction",
+                    "billable",
                     "note"
                 ],
                 "title": "TimeEntryData"
@@ -2241,6 +2245,9 @@
                         "type": "integer",
                         "minimum": 1,
                         "maximum": 1440
+                    },
+                    "billable": {
+                        "type": "boolean"
                     },
                     "note": {
                         "type": [
@@ -2533,12 +2540,16 @@
                     },
                     "email": {
                         "type": "string"
+                    },
+                    "workdayMinutes": {
+                        "type": "integer"
                     }
                 },
                 "required": [
                     "id",
                     "name",
-                    "email"
+                    "email",
+                    "workdayMinutes"
                 ],
                 "title": "UserData"
             }

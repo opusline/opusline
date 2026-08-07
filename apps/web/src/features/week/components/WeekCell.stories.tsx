@@ -1,0 +1,126 @@
+import type { Meta, StoryObj } from "@storybook/react";
+import { useRef } from "react";
+import {
+  DEMO_CLIENTS,
+  DEMO_TIME_ENTRIES,
+  DEMO_TODAY,
+  DEMO_WEEK,
+} from "../lib/week-fixtures";
+import {
+  buildWeekGrid,
+  type WeekCell as WeekCellModel,
+  type WeekRow,
+} from "../lib/week-grid";
+import { WeekCell } from "./week-cell";
+
+const model = buildWeekGrid({
+  clients: DEMO_CLIENTS,
+  timeEntries: DEMO_TIME_ENTRIES,
+  today: DEMO_TODAY,
+  week: DEMO_WEEK,
+  weekendShown: false,
+});
+
+function rowNamed(name: string): WeekRow {
+  const row = model.rows.find((candidate) => candidate.name === name);
+
+  if (row === undefined) {
+    throw new Error(`No demo row named ${name}`);
+  }
+
+  return row;
+}
+
+const billedDayRow = rowNamed("OGF front");
+const hourlyRow = rowNamed("HartPrint maintenance");
+const nonBillableRow = rowNamed("Opusline");
+
+/** Cells only ever render inside a grid row, so the preview supplies one. */
+function CellPreview(props: {
+  row: WeekRow;
+  cell: WeekCellModel;
+  editor?: { draft: string; error: string | null };
+}) {
+  const editorRef = useRef<HTMLInputElement>(null);
+
+  return (
+    // biome-ignore lint/a11y/useSemanticElements: mirrors the ARIA grid the cell lives in.
+    <div className="w-44 rounded-md border bg-card" role="grid">
+      {/* biome-ignore lint/a11y/useSemanticElements: mirrors the ARIA grid the cell lives in. */}
+      <div role="row" tabIndex={-1}>
+        <WeekCell
+          cell={props.cell}
+          cellRef={() => undefined}
+          columnIndex={0}
+          editor={props.editor ?? null}
+          editorRef={editorRef}
+          isActive={false}
+          isFocused={false}
+          isPending={false}
+          onActivate={() => {}}
+          onCellKeyDown={() => {}}
+          onDraftBlur={() => {}}
+          onDraftChange={() => {}}
+          onDraftKeyDown={() => {}}
+          row={props.row}
+        />
+      </div>
+    </div>
+  );
+}
+
+const meta = {
+  title: "Web/Week/WeekCell",
+  component: CellPreview,
+  tags: ["autodocs"],
+} satisfies Meta<typeof CellPreview>;
+
+export default meta;
+type Story = StoryObj<typeof CellPreview>;
+
+export const BilledDay: Story = {
+  args: { cell: billedDayRow.cells[0], row: billedDayRow },
+};
+
+export const Hours: Story = {
+  args: { cell: hourlyRow.cells[2], row: hourlyRow },
+};
+
+export const NonBillable: Story = {
+  args: { cell: nonBillableRow.cells[1], row: nonBillableRow },
+};
+
+export const Empty: Story = {
+  args: { cell: hourlyRow.cells[0], row: hourlyRow },
+};
+
+export const Editing: Story = {
+  args: {
+    cell: billedDayRow.cells[0],
+    editor: { draft: "0,5", error: null },
+    row: billedDayRow,
+  },
+};
+
+export const EditingInvalid: Story = {
+  args: {
+    cell: billedDayRow.cells[0],
+    editor: { draft: "beaucoup", error: "Format : 1 · 0,5 · 2h · 1h30 · 90m" },
+    row: billedDayRow,
+  },
+};
+
+export const SeveralEntries: Story = {
+  args: {
+    cell: {
+      ...billedDayRow.cells[0],
+      billedLabel: "1 j",
+      entries: [
+        { billable: true, durationMinutes: 210, id: 1, note: "Revue PR" },
+        { billable: true, durationMinutes: 210, id: 2, note: "Cadrage" },
+      ],
+      note: null,
+    },
+    row: billedDayRow,
+  },
+};

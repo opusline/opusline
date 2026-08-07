@@ -14,6 +14,7 @@ test('the current user endpoint returns the authenticated user', function (): vo
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
+            'workdayMinutes' => config()->integer('app.workday_minutes'),
         ]);
 });
 
