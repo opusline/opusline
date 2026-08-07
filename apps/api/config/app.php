@@ -120,7 +120,7 @@ return [
     |
     */
 
-    'workday_minutes' => (int) env('APP_WORKDAY_MINUTES', 420),
+    'workday_minutes' => max(1, (int) env('APP_WORKDAY_MINUTES', 420)),
 
     /*
     |--------------------------------------------------------------------------

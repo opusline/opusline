@@ -101,7 +101,7 @@ test('rejects a day that would exceed twenty four hours on one mission', functio
         ->assertJsonValidationErrors(['durationMinutes']);
 });
 
-test('counts the cap per mission rather than across the whole day', function (): void {
+test('counts the cap across every mission on the same day', function (): void {
     $user = User::factory()->create();
     $first = missionOwnedBy($user);
     $second = missionOwnedBy($user);
@@ -116,6 +116,25 @@ test('counts the cap per mission rather than across the whole day', function ():
             'missionId' => $second->id,
             'date' => '2026-08-03',
             'durationMinutes' => 240,
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['durationMinutes']);
+});
+
+test('leaves other days untouched by the cap', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user);
+
+    TimeEntry::factory()->for($mission, 'mission')->create([
+        'date' => '2026-08-03',
+        'duration_minutes' => 1_440,
+    ]);
+
+    $this->actingAs($user)
+        ->postJson('/api/time-entries', [
+            'missionId' => $mission->id,
+            'date' => '2026-08-04',
+            'durationMinutes' => 420,
         ])
         ->assertCreated();
 });

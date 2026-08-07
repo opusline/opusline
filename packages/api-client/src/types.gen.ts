@@ -151,7 +151,7 @@ export type DocumentSource = 0 | 1;
 /**
  * EntryRounding
  *
- * Rounding increment for time entries, expressed as a fraction of the mission's billing unit: half or a quarter of a day/hour, or to the minute. Entries store the exact time worked — this is applied when valuing them, never when recording them, so changing a mission's rounding re-values its history instead of invalidating it.
+ * Rounding increment for time entries, expressed as a fraction of the mission's billing unit: half or a quarter of a day/hour, or to the minute.
  *
  */
 export type EntryRounding = 0 | 1 | 2;

@@ -16,9 +16,11 @@ class CreateTimeEntry
     public function handle(User $user, TimeEntryInputData $data): TimeEntry
     {
         return DB::transaction(function () use ($user, $data): TimeEntry {
-            $mission = $user->missions()->whereKey($data->missionId)->lockForUpdate()->firstOrFail();
+            User::query()->whereKey($user->getKey())->lockForUpdate()->firstOrFail();
 
-            $this->validateTimeEntry->handle($mission, $data);
+            $mission = $user->missions()->whereKey($data->missionId)->firstOrFail();
+
+            $this->validateTimeEntry->handle($user, $data);
 
             $timeEntry = $user->timeEntries()->create([
                 'mission_id' => $mission->id,

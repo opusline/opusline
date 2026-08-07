@@ -40,7 +40,7 @@ Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c83
   for the end-client — model both). This distinction matters for CRA and invoicing
   later.
 
-- [x] **Time entries (manual first)**
+- [ ] **Time entries (manual first)**
   Entry: date, mission, quantity in the mission's unit (day_fraction for TJM —
   TJM freelances think in days, not hours — duration_minutes for hourly), optional
   note. Schema per cross-cutting decisions above. CRUD + day view rendering each

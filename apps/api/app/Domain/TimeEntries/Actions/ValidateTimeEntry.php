@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Domain\TimeEntries\Actions;
 
-use App\Domain\Missions\Models\Mission;
 use App\Domain\TimeEntries\Data\TimeEntryInputData;
 use App\Domain\TimeEntries\Models\TimeEntry;
+use App\Domain\Users\Models\User;
 use Illuminate\Validation\ValidationException;
 
 class ValidateTimeEntry
 {
-    public function handle(Mission $mission, TimeEntryInputData $data, ?TimeEntry $current = null): void
+    public function handle(User $user, TimeEntryInputData $data, ?TimeEntry $current = null): void
     {
-        $siblings = $mission->timeEntries()->where('date', $data->date);
+        $siblings = $user->timeEntries()->where('date', $data->date);
 
         if ($current instanceof TimeEntry) {
             $siblings->whereKeyNot($current->getKey());
