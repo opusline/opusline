@@ -339,10 +339,10 @@ test('leaves no trailing dot when the upload has no extension', function (): voi
     $this->actingAs($user)
         ->post("/api/clients/{$client->slug}/documents", [
             'file' => UploadedFile::fake()->create('scan', 12, 'application/pdf'),
-            'fileName' => 'Contrat Nordlys',
+            'fileName' => 'Contrat',
         ])
         ->assertCreated()
-        ->assertJsonPath('fileName', 'Contrat-Nordlys');
+        ->assertJsonPath('fileName', 'Contrat');
 });
 
 test('collapses whitespace runs in a chosen name to one separator', function (string $chosen): void {
