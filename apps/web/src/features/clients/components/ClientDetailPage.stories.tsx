@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router";
 import type * as React from "react";
 import { DocumentsTab } from "@/components/documents-tab";
+import { SAMPLE_LOGO_SRC } from "@/lib/logo-fixture";
 import { ClientDetailPage } from "./client-detail-page";
 
 function StoryRouter({ children }: { children: React.ReactNode }) {
@@ -110,6 +111,11 @@ const meta = {
       </StoryRouter>
     ),
   ],
+  args: {
+    logoSrc: SAMPLE_LOGO_SRC,
+    onUploadLogo: async () => ({ status: "success" }) as const,
+    onRemoveLogo: async () => true,
+  },
 } satisfies Meta<typeof ClientDetailPage>;
 
 export default meta;

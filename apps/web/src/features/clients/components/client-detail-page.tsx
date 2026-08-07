@@ -34,10 +34,11 @@ import {
   PlusIcon,
 } from "lucide-react";
 import { type ReactNode, useState } from "react";
+import { ClientLogo } from "@/components/client-logo";
 import { formatMissionRate, paymentTermsLabel } from "@/lib/billing";
 import { monthYearLabel } from "@/lib/dates";
 import type { FormSubmitResult } from "@/lib/form";
-import { initials } from "@/lib/initials";
+import type { LogoUploadResult } from "@/lib/logos";
 import {
   MISSION_STATUS_BADGE_VARIANTS,
   MISSION_STATUS_LABELS,
@@ -105,6 +106,9 @@ type ClientDetailPageProps = {
   documentsTab: ReactNode;
   onUpdate: (body: UpdateClientData) => Promise<FormSubmitResult>;
   onToggleArchive: () => void;
+  logoSrc: string;
+  onUploadLogo: (logo: File) => Promise<LogoUploadResult>;
+  onRemoveLogo: () => Promise<boolean>;
   isUpdatePending?: boolean;
   isArchivePending?: boolean;
   error?: string | null;
@@ -115,6 +119,9 @@ export function ClientDetailPage({
   documentsTab,
   onUpdate,
   onToggleArchive,
+  logoSrc,
+  onUploadLogo,
+  onRemoveLogo,
   isUpdatePending,
   isArchivePending,
   error,
@@ -156,9 +163,7 @@ export function ClientDetailPage({
 
       <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3.5">
-          <span className="flex size-18 shrink-0 items-center justify-center rounded-md border border-border-2 bg-secondary font-heading font-medium text-2xl text-muted-foreground-4 tracking-wide">
-            {initials(client.name)}
-          </span>
+          <ClientLogo name={client.name} size="lg" src={logoSrc} />
           <div className="min-w-0">
             <div className="flex items-center gap-2.5">
               <span
@@ -258,8 +263,11 @@ export function ClientDetailPage({
         <ClientEditForm
           client={client}
           isPending={isUpdatePending}
+          logoSrc={logoSrc}
           onCancel={() => setIsEditing(false)}
+          onRemoveLogo={onRemoveLogo}
           onSubmit={handleUpdate}
+          onUploadLogo={onUploadLogo}
         />
       ) : (
         <Tabs defaultValue="missions">

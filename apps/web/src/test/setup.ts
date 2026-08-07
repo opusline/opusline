@@ -14,6 +14,17 @@ if (!window.matchMedia) {
   })) as unknown as typeof window.matchMedia;
 }
 
+if (!URL.createObjectURL) {
+  let objectUrlCount = 0;
+
+  URL.createObjectURL = () => {
+    objectUrlCount += 1;
+
+    return `blob:opusline/${objectUrlCount}`;
+  };
+  URL.revokeObjectURL = () => {};
+}
+
 if (!window.localStorage) {
   const store = new Map<string, string>();
   Object.defineProperty(window, "localStorage", {

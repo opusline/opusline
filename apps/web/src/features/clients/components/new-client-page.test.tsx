@@ -5,7 +5,7 @@ import {
 import type { QueryClient } from "@tanstack/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 
 import { getRouter } from "@/router";
@@ -236,6 +236,62 @@ it("chains to the mission form after creating the client", async () => {
     "aria-pressed",
     "true",
   );
+});
+
+it("stays locked between the client creation and the logo upload", async () => {
+  let releaseUpload = () => {};
+  const requests: Array<{ method: string; path: string }> = [];
+
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request =
+        input instanceof Request ? input : new Request(input, init);
+      const url = new URL(request.url, "http://localhost");
+      requests.push({ method: request.method, path: url.pathname });
+
+      if (request.method === "POST" && url.pathname.endsWith("/logo")) {
+        await new Promise<void>((resolve) => {
+          releaseUpload = resolve;
+        });
+
+        return new Response(null, { status: 204 });
+      }
+
+      if (request.method === "POST" && url.pathname.endsWith("/clients")) {
+        return jsonResponse(201, { id: 1, slug: "nordlys", name: "Nordlys" });
+      }
+
+      return jsonResponse(200, { clients: [] });
+    }),
+  );
+
+  await renderNewClientPage();
+
+  fireEvent.change(screen.getByLabelText("Raison sociale"), {
+    target: { value: "Nordlys" },
+  });
+  fireEvent.change(screen.getByLabelText("Logo du client"), {
+    target: {
+      files: [new File(["<svg/>"], "nordlys.svg", { type: "image/svg+xml" })],
+    },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Créer le client" }));
+
+  const submit = await screen.findByRole("button", { name: "Créer le client" });
+  await waitFor(() => expect(submit).toBeDisabled());
+
+  fireEvent.click(submit);
+  releaseUpload();
+
+  expect(
+    await screen.findByRole("heading", { name: "Clients" }, { timeout: 5000 }),
+  ).toBeInTheDocument();
+
+  const creations = requests.filter(
+    (request) => request.method === "POST" && request.path.endsWith("/clients"),
+  );
+  expect(creations).toHaveLength(1);
 });
 
 it("shows the server validation error on the name field", async () => {

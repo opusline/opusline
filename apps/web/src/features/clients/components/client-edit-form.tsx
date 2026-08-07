@@ -11,9 +11,12 @@ import { Field, FieldError, FieldLabel } from "@opusline/ui/components/field";
 import { Swatch, SwatchGroup } from "@opusline/ui/components/swatch";
 import { useForm } from "@tanstack/react-form";
 import { CircleAlert, PencilIcon } from "lucide-react";
+import { useState } from "react";
 import { FormTextField } from "@/components/form-text-field";
+import { LogoPicker } from "@/components/logo-picker";
 import { CLIENT_TYPE_LABELS } from "@/lib/client-types";
 import type { FormSubmitResult } from "@/lib/form";
+import type { LogoUploadResult } from "@/lib/logos";
 import { COLOR_CLASSES, COLOR_LABELS, COLORS } from "@/lib/palette";
 
 import { type ClientFormValues, toClientPayload } from "../lib/client-form";
@@ -28,6 +31,9 @@ type ClientEditFormProps = {
   client: ClientWithMissionsData;
   onSubmit: (body: UpdateClientData) => Promise<FormSubmitResult>;
   onCancel: () => void;
+  logoSrc: string;
+  onUploadLogo: (logo: File) => Promise<LogoUploadResult>;
+  onRemoveLogo: () => Promise<boolean>;
   isPending?: boolean;
   error?: string | null;
 };
@@ -36,9 +42,41 @@ export function ClientEditForm({
   client,
   onSubmit,
   onCancel,
+  logoSrc,
+  onUploadLogo,
+  onRemoveLogo,
   isPending,
   error,
 }: ClientEditFormProps) {
+  const [logoError, setLogoError] = useState<string | null>(null);
+  const [isLogoPending, setIsLogoPending] = useState(false);
+
+  const handleUploadLogo = async (logo: File) => {
+    setIsLogoPending(true);
+
+    try {
+      const result = await onUploadLogo(logo);
+
+      setLogoError(result.status === "failed" ? result.message : null);
+    } finally {
+      setIsLogoPending(false);
+    }
+  };
+
+  const handleRemoveLogo = async () => {
+    setIsLogoPending(true);
+
+    try {
+      setLogoError(
+        (await onRemoveLogo())
+          ? null
+          : "La suppression a échoué. Réessayez dans un instant.",
+      );
+    } finally {
+      setIsLogoPending(false);
+    }
+  };
+
   const form = useForm({
     defaultValues: {
       name: client.name,
@@ -137,6 +175,26 @@ export function ClientEditForm({
                 </Field>
               )}
             </form.Field>
+
+            <div className="flex flex-col gap-2">
+              <span className={EDIT_LABEL_CLASSES}>Logo</span>
+              <div className="flex items-center gap-3">
+                <LogoPicker
+                  error={logoError}
+                  isPending={isLogoPending}
+                  label="Logo du client"
+                  onPick={(logo) => void handleUploadLogo(logo)}
+                  onRemove={() => void handleRemoveLogo()}
+                  placeholder="Déposez"
+                  removeLabel="Retirer le logo du client"
+                  size="sm"
+                  src={logoSrc}
+                />
+                <span className="text-muted-foreground-3 text-xs leading-normal">
+                  PNG ou SVG, fond transparent. Apparaît sur les factures.
+                </span>
+              </div>
+            </div>
 
             <form.Field name="color">
               {(field) => (

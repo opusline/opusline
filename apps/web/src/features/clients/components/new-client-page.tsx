@@ -9,11 +9,12 @@ import { cn } from "@opusline/ui/lib/utils";
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
 import { CircleAlert, InfoIcon } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ClientLogo } from "@/components/client-logo";
 import { FormTextField } from "@/components/form-text-field";
+import { LogoPicker } from "@/components/logo-picker";
 import { paymentTermsLabel } from "@/lib/billing";
 import type { FormSubmitResult } from "@/lib/form";
-import { initials } from "@/lib/initials";
 import { COLOR_CLASSES, COLOR_LABELS, COLORS } from "@/lib/palette";
 import { type ClientFormValues, toClientPayload } from "../lib/client-form";
 import {
@@ -31,6 +32,7 @@ type NewClientPageProps = {
   onSubmit: (
     body: CreateClientData,
     chainToMission: boolean,
+    logo: File | null,
   ) => Promise<FormSubmitResult>;
   onCancel: () => void;
   isPending?: boolean;
@@ -44,7 +46,21 @@ export function NewClientPage({
   error,
 }: NewClientPageProps) {
   const [defaultColor] = useState<Color>(randomColor);
+  const [logo, setLogo] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | undefined>(undefined);
   const chainToMissionRef = useRef(false);
+
+  useEffect(() => {
+    if (logo === null) {
+      setLogoPreview(undefined);
+      return;
+    }
+
+    const url = URL.createObjectURL(logo);
+    setLogoPreview(url);
+
+    return () => URL.revokeObjectURL(url);
+  }, [logo]);
 
   const form = useForm({
     defaultValues: {
@@ -63,6 +79,7 @@ export function NewClientPage({
         const result = await onSubmit(
           toClientPayload(value),
           chainToMissionRef.current,
+          logo,
         );
 
         return result.status === "invalid"
@@ -106,16 +123,36 @@ export function NewClientPage({
             </Alert>
           ) : null}
 
-          <form.Field name="name">
-            {(field) => (
-              <FormTextField
-                field={field}
-                label="Raison sociale"
-                labelClassName="text-foreground-3"
-                placeholder="Nordlys"
+          <div className="flex flex-wrap items-start gap-5">
+            <div className="flex flex-col gap-2">
+              <span className="text-foreground-3 text-sm">Logo</span>
+              <LogoPicker
+                isPending={isPending}
+                label="Logo du client"
+                onPick={setLogo}
+                onRemove={() => setLogo(null)}
+                placeholder="Déposez le logo"
+                removeLabel="Retirer le logo du client"
+                size="lg"
+                src={logoPreview}
               />
-            )}
-          </form.Field>
+              <span className="w-49 text-muted-foreground-3 text-xs leading-normal">
+                PNG ou SVG, fond transparent.
+              </span>
+            </div>
+            <div className="min-w-60 flex-1">
+              <form.Field name="name">
+                {(field) => (
+                  <FormTextField
+                    field={field}
+                    label="Raison sociale"
+                    labelClassName="text-foreground-3"
+                    placeholder="Nordlys"
+                  />
+                )}
+              </form.Field>
+            </div>
+          </div>
 
           <form.Field name="type">
             {(field) => (
@@ -331,9 +368,7 @@ export function NewClientPage({
                 Aperçu dans la liste
               </div>
               <div className="flex items-center gap-3 rounded-md border bg-card px-5 py-4">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-md border border-border-2 bg-secondary font-medium text-muted-foreground-4 text-xs">
-                  {initials(values.name)}
-                </span>
+                <ClientLogo name={values.name} size="sm" src={logoPreview} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span

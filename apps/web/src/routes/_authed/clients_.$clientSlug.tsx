@@ -2,6 +2,7 @@ import type { UpdateClientData } from "@opusline/api-client";
 import {
   archiveClientMutation,
   deleteClientDocumentMutation,
+  deleteClientLogoMutation,
   listClientDocumentsOptions,
   listClientDocumentsQueryKey,
   listClientsQueryKey,
@@ -10,24 +11,35 @@ import {
   unarchiveClientMutation,
   updateClientMutation,
   uploadClientDocumentMutation,
+  uploadClientLogoMutation,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 
 import { DocumentsTab } from "@/components/documents-tab";
 import { ClientDetailPage } from "@/features/clients/components/client-detail-page";
 import { clientDocumentDownloadHref, documentHandlers } from "@/lib/documents";
 import type { FormSubmitResult } from "@/lib/form";
+import { clientLogoHref, logoHandlers } from "@/lib/logos";
 import { serverFieldErrors } from "@/lib/validation";
 
 export const Route = createFileRoute("/_authed/clients_/$clientSlug")({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { logoFailed?: boolean } =>
+    search.logoFailed === true || search.logoFailed === "true"
+      ? { logoFailed: true }
+      : {},
   component: ClientDetailRoute,
 });
 
 function ClientDetailRoute() {
   const { clientSlug: client } = Route.useParams();
+  const { logoFailed } = Route.useSearch();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const { data, isPending, isError } = useQuery(
@@ -40,6 +52,8 @@ function ClientDetailRoute() {
   const updateClient = useMutation(updateClientMutation());
   const archiveClient = useMutation(archiveClientMutation());
   const unarchiveClient = useMutation(unarchiveClientMutation());
+  const uploadLogo = useMutation(uploadClientLogoMutation());
+  const deleteLogo = useMutation(deleteClientLogoMutation());
   const uploadDocument = useMutation(uploadClientDocumentMutation());
   const deleteDocument = useMutation(deleteClientDocumentMutation());
 
@@ -90,6 +104,24 @@ function ClientDetailRoute() {
     }
   };
 
+  const [logoVersion, setLogoVersion] = useState(0);
+
+  const { handleUpload: handleUploadLogo, handleRemove: handleRemoveLogo } =
+    logoHandlers({
+      upload: (logo) =>
+        uploadLogo.mutateAsync({ body: { logo }, path: { client } }),
+      remove: () => deleteLogo.mutateAsync({ path: { client } }),
+      invalidate: async () => {
+        setLogoVersion((version) => version + 1);
+
+        if (logoFailed) {
+          await navigate({ replace: true, search: {}, to: "." });
+        }
+
+        await invalidateClient();
+      },
+    });
+
   const {
     handleUpload: handleUploadDocument,
     handleDelete: handleDeleteDocument,
@@ -126,11 +158,15 @@ function ClientDetailRoute() {
     );
   }
 
-  const genericError =
+  const hasActionFailed =
     (updateClient.error && !serverFieldErrors(updateClient.error)) ||
     archiveClient.error ||
-    unarchiveClient.error
-      ? "L'action a échoué. Réessayez dans un instant."
+    unarchiveClient.error;
+
+  const genericError = hasActionFailed
+    ? "L'action a échoué. Réessayez dans un instant."
+    : logoFailed
+      ? "Le client a bien été créé, mais l'envoi du logo a échoué. Reprenez-le depuis « Modifier »."
       : null;
 
   const documentsTab = documentsQuery.isPending ? (
@@ -160,8 +196,11 @@ function ClientDetailRoute() {
       error={genericError}
       isArchivePending={archiveClient.isPending || unarchiveClient.isPending}
       isUpdatePending={updateClient.isPending}
+      logoSrc={clientLogoHref(client, logoVersion)}
+      onRemoveLogo={handleRemoveLogo}
       onToggleArchive={() => void handleToggleArchive()}
       onUpdate={handleUpdate}
+      onUploadLogo={handleUploadLogo}
     />
   );
 }
