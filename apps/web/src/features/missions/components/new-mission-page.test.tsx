@@ -290,3 +290,64 @@ it("shows the server validation error on the name field", async () => {
     await screen.findByText("Le champ nom est obligatoire."),
   ).toBeInTheDocument();
 });
+
+it("stays locked between the mission creation and the client refresh", async () => {
+  let releaseClientRefresh = () => {};
+  let hasCreated = false;
+  const requests: RecordedRequest[] = [];
+
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request =
+        input instanceof Request ? input : new Request(input, init);
+      const url = new URL(request.url, "http://localhost");
+      requests.push({ method: request.method, path: url.pathname, body: null });
+
+      if (request.method === "POST") {
+        hasCreated = true;
+        return jsonResponse(201, { id: 9, slug: "callisto-front" });
+      }
+
+      if (url.pathname.endsWith("/clients")) {
+        return jsonResponse(200, { clients: CLIENTS });
+      }
+
+      if (url.pathname.endsWith("/documents")) {
+        return jsonResponse(200, { documents: [] });
+      }
+
+      if (hasCreated) {
+        await new Promise<void>((resolve) => {
+          releaseClientRefresh = resolve;
+        });
+      }
+
+      return jsonResponse(200, CLIENTS[0]);
+    }),
+  );
+
+  await renderNewMissionPage();
+
+  fireEvent.change(screen.getByLabelText("Nom de la mission"), {
+    target: { value: "Callisto front" },
+  });
+  fireEvent.change(screen.getByLabelText("Tarif HT"), {
+    target: { value: "550" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Créer la mission" }));
+
+  const submit = await screen.findByRole("button", {
+    name: "Créer la mission",
+  });
+  await waitFor(() => expect(submit).toBeDisabled());
+
+  fireEvent.click(submit);
+  releaseClientRefresh();
+
+  await waitFor(() => {
+    expect(
+      requests.filter((request) => request.method === "POST"),
+    ).toHaveLength(1);
+  });
+});

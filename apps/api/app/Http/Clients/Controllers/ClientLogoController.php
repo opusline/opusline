@@ -25,7 +25,7 @@ class ClientLogoController extends Controller
 
     public function show(Client $client): StreamedResponse
     {
-        $logo = $client->getFirstMedia('logo');
+        $logo = $client->media()->where('collection_name', 'logo')->first();
 
         abort_if(! $logo instanceof Media, 404);
 
@@ -35,8 +35,7 @@ class ClientLogoController extends Controller
             [
                 // The CSP header neuters scripts in SVG logos opened directly.
                 'Content-Security-Policy' => "default-src 'none'",
-                // Private content must never be reused from a shared cache.
-                'Cache-Control' => 'no-store',
+                'Cache-Control' => 'private, max-age=300',
             ],
         );
     }

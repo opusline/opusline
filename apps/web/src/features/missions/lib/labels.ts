@@ -65,32 +65,3 @@ export function entryRoundingHint(billingMode: BillingMode): string {
 export function entryRoundingOrder(billingMode: BillingMode): EntryRounding[] {
   return billingMode === 1 ? [1, 0, 2] : [0, 1, 2];
 }
-
-export function formatRateDraft(raw: string): string {
-  const cleaned = raw.replace(/[^0-9.,]/g, "").replace(/\./g, ",");
-  const [integerPart = "", ...decimalParts] = cleaned.split(",");
-  const digits = integerPart.replace(/\D/g, "").slice(0, 9);
-  const grouped = digits.replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f");
-
-  if (!cleaned.includes(",")) {
-    return grouped;
-  }
-
-  return `${grouped},${decimalParts.join("").slice(0, 2)}`;
-}
-
-export function parseRateToCents(draft: string): number | null {
-  const normalized = draft.replace(/[\s\u202f]/g, "").replace(",", ".");
-
-  if (normalized === "") {
-    return null;
-  }
-
-  const amount = Number.parseFloat(normalized);
-
-  if (Number.isNaN(amount) || amount <= 0) {
-    return null;
-  }
-
-  return Math.round(amount * 100);
-}

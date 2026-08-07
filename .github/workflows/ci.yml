@@ -38,7 +38,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm format-and-lint
-      - run: pnpm exec turbo run test check-types "--filter=!@opusline/api"
+      - run: pnpm exec turbo run test check-types build "--filter=!@opusline/api"
 
   api:
     name: API (pint, rector, phpstan, pest)

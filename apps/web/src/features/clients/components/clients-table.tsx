@@ -13,12 +13,9 @@ import { cn } from "@opusline/ui/lib/utils";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
+import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { formatMissionRate } from "@/lib/billing";
 import { CLIENT_TYPE_LABELS } from "@/lib/client-types";
-import {
-  MISSION_STATUS_BADGE_VARIANTS,
-  MISSION_STATUS_LABELS,
-} from "@/lib/mission-status";
 import { COLOR_CLASSES } from "@/lib/palette";
 
 import {
@@ -232,17 +229,10 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                     </TableCell>
                     <TableCell />
                     <TableCell className="py-2.5 pr-5 text-right">
-                      {client.type === 2 ? (
-                        <Badge variant="quiet">Perso</Badge>
-                      ) : (
-                        <Badge
-                          variant={
-                            MISSION_STATUS_BADGE_VARIANTS[mission.status]
-                          }
-                        >
-                          {MISSION_STATUS_LABELS[mission.status]}
-                        </Badge>
-                      )}
+                      <MissionStatusBadge
+                        clientType={client.type}
+                        status={mission.status}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}

@@ -84,6 +84,23 @@ class Mission extends Model implements HasMedia
         return 'slug';
     }
 
+    /**
+     * Scope every {mission} route binding to the authenticated user, mirroring
+     * Client. Nested routes already resolve through the parent client, but slugs
+     * repeat across users by design, so a flat route added later would otherwise
+     * hand out whichever row was inserted first.
+     *
+     * @param  mixed  $value
+     * @param  string|null  $field
+     */
+    #[\Override]
+    public function resolveRouteBinding($value, $field = null): ?Model
+    {
+        return auth()->user()?->missions()
+            ->where($field ?? $this->getRouteKeyName(), $value)
+            ->first();
+    }
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()

@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 
 import { DocumentsTab } from "@/components/documents-tab";
 import { MissionDetailPage } from "@/features/missions/components/mission-detail-page";
@@ -45,6 +46,7 @@ function MissionDetailRoute() {
   );
 
   const updateMission = useMutation(updateMissionMutation());
+  const [isMutating, setIsMutating] = useState(false);
   const uploadDocument = useMutation(uploadMissionDocumentMutation());
   const deleteDocument = useMutation(deleteMissionDocumentMutation());
 
@@ -69,6 +71,8 @@ function MissionDetailRoute() {
   const handleUpdate = async (
     body: UpdateMissionData,
   ): Promise<FormSubmitResult> => {
+    setIsMutating(true);
+
     try {
       await updateMission.mutateAsync({ body, path: missionPath });
       await invalidate();
@@ -79,6 +83,8 @@ function MissionDetailRoute() {
       return fieldErrors
         ? { status: "invalid", fieldErrors }
         : { status: "failed" };
+    } finally {
+      setIsMutating(false);
     }
   };
 
@@ -88,6 +94,8 @@ function MissionDetailRoute() {
     if (mission === undefined) {
       return;
     }
+
+    setIsMutating(true);
 
     try {
       await updateMission.mutateAsync({
@@ -109,6 +117,8 @@ function MissionDetailRoute() {
       await invalidate();
     } catch {
       // Surfaced through updateMission.error below.
+    } finally {
+      setIsMutating(false);
     }
   };
 
@@ -184,8 +194,8 @@ function MissionDetailRoute() {
           ? "L'action a échoué. Réessayez dans un instant."
           : null
       }
-      isStatusPending={updateMission.isPending}
-      isUpdatePending={updateMission.isPending}
+      isStatusPending={isMutating}
+      isUpdatePending={isMutating}
       mission={missionQuery.data}
       onSetStatus={(status) => void handleSetStatus(status)}
       onUpdate={handleUpdate}

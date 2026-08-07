@@ -53,11 +53,12 @@ function ExpandSidebarButton() {
   return (
     <button
       className="flex h-8 w-7 flex-none items-center justify-center rounded-md border text-muted-foreground transition-colors hover:border-foreground/25 hover:text-foreground"
+      aria-label="Déplier le menu"
       onClick={toggleSidebar}
       title="Déplier le menu"
       type="button"
     >
-      <Menu className="size-3.5" />
+      <Menu aria-hidden className="size-3.5" />
     </button>
   );
 }

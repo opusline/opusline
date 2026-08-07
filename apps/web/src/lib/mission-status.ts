@@ -1,4 +1,4 @@
-import type { MissionStatus } from "@opusline/api-client";
+import type { ClientType, MissionStatus } from "@opusline/api-client";
 
 export const MISSION_STATUS_LABELS: Record<MissionStatus, string> = {
   0: "Active",
@@ -14,3 +14,17 @@ export const MISSION_STATUS_BADGE_VARIANTS: Record<
   1: "neutral",
   2: "neutral",
 };
+
+export function missionStatusBadge(
+  status: MissionStatus,
+  clientType: ClientType,
+): { variant: "brand" | "neutral" | "quiet"; label: string } {
+  if (clientType === 2) {
+    return { variant: "quiet", label: "Perso" };
+  }
+
+  return {
+    variant: MISSION_STATUS_BADGE_VARIANTS[status],
+    label: MISSION_STATUS_LABELS[status],
+  };
+}

@@ -24,6 +24,7 @@ import { CircleAlert, InfoIcon } from "lucide-react";
 import { useState } from "react";
 import { FormTextField } from "@/components/form-text-field";
 import { formatRate, formatRateDraft, parseRateToCents } from "@/lib/billing";
+import { todayCalendarDate } from "@/lib/dates";
 import type { FormSubmitResult } from "@/lib/form";
 import {
   COLOR_CLASSES,
@@ -113,7 +114,7 @@ export function NewMissionPage({
     defaultValues: {
       name: "",
       endClientName: "",
-      startDate: new Date().toISOString().slice(0, 10),
+      startDate: todayCalendarDate(),
       endDate: "",
     } as MissionFormValues,
     validators: {
@@ -160,6 +161,8 @@ export function NewMissionPage({
 
     if (client?.type === 2) {
       setBillingMode(0);
+      setRateDraft("");
+      setIsRateMissing(false);
     }
   };
 

@@ -2,15 +2,16 @@ import { Button } from "@opusline/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@opusline/ui/components/dropdown-menu";
 import { Moon, Sun } from "lucide-react";
 
-import { useTheme } from "./theme-provider";
+import { type Theme, useTheme } from "./theme-provider";
 
 export function ModeToggle() {
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   return (
     <DropdownMenu>
@@ -23,15 +24,14 @@ export function ModeToggle() {
         }
       />
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
-          Clair
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
-          Sombre
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
-          Système
-        </DropdownMenuItem>
+        <DropdownMenuRadioGroup
+          onValueChange={(value) => setTheme(value as Theme)}
+          value={theme}
+        >
+          <DropdownMenuRadioItem value="light">Clair</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="dark">Sombre</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="system">Système</DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );

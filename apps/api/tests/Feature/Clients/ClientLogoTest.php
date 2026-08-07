@@ -51,7 +51,9 @@ test('serves the logo inline with a restrictive csp', function (): void {
         ->assertOk()
         ->assertHeader('Content-Security-Policy', "default-src 'none'");
 
-    expect($response->headers->get('Cache-Control'))->toContain('no-store');
+    expect($response->headers->get('Cache-Control'))
+        ->toContain('private')
+        ->not->toContain('public');
 });
 
 test('returns 404 when the client has no logo', function (): void {

@@ -71,11 +71,12 @@ export function AppSidebar() {
           </SidebarMenuButton>
           <button
             className="flex size-8 flex-none items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:hidden"
+            aria-label="Réduire le menu"
             onClick={toggleSidebar}
             title="Réduire"
             type="button"
           >
-            <PanelLeft className="size-4" />
+            <PanelLeft aria-hidden className="size-4" />
           </button>
         </div>
       </SidebarHeader>

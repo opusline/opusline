@@ -158,7 +158,12 @@ export function DocumentsTab({
 
   const handleDelete = async (document: DocumentData) => {
     try {
-      setHasDeleteError(!(await onDelete(document)));
+      const hasDeleted = await onDelete(document);
+      setHasDeleteError(!hasDeleted);
+
+      if (hasDeleted && document.category === filter) {
+        setFilter("all");
+      }
     } catch {
       setHasDeleteError(true);
     }
@@ -171,12 +176,10 @@ export function DocumentsTab({
     },
     { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0 } as Record<DocumentCategory, number>,
   );
-  const activeFilter =
-    filter !== "all" && categoryCounts[filter] === 0 ? "all" : filter;
   const normalizedSearch = foldAccents(search.trim().toLowerCase());
   const visibleDocuments = documents.filter(
     (document) =>
-      (activeFilter === "all" || document.category === activeFilter) &&
+      (filter === "all" || document.category === filter) &&
       (normalizedSearch === "" ||
         foldAccents(document.fileName.toLowerCase()).includes(
           normalizedSearch,
@@ -418,7 +421,7 @@ export function DocumentsTab({
                   setFilter(category);
                 }
               }}
-              value={[activeFilter === "all" ? "all" : String(activeFilter)]}
+              value={[filter === "all" ? "all" : String(filter)]}
             >
               <Chip
                 aria-label={`Tous (${documents.length})`}
@@ -474,7 +477,6 @@ export function DocumentsTab({
                   <span className="flex-1" />
                   <Button
                     render={
-                      // biome-ignore lint/a11y/useAnchorContent: Button injects the icon content.
                       <a
                         aria-label={`Télécharger ${document.fileName}`}
                         download

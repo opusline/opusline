@@ -125,7 +125,7 @@ it("shows the client header, stats and missions", async () => {
   stubApi(clientPayload());
   await renderDetailPage();
 
-  expect(screen.getByText("ESN / intermédiaire")).toBeInTheDocument();
+  expect(screen.getByText("Intermédiaire")).toBeInTheDocument();
   expect(
     screen.getByText(/Client depuis .+ · paiement à 45 jours/),
   ).toBeInTheDocument();

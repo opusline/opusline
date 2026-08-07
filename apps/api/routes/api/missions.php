@@ -19,6 +19,7 @@ Route::middleware('auth:sanctum')->scopeBindings()->group(function (): void {
     Route::get('/clients/{client}/missions/{mission}/documents', [MissionDocumentController::class, 'index'])
         ->name('listMissionDocuments');
     Route::post('/clients/{client}/missions/{mission}/documents', [MissionDocumentController::class, 'store'])
+        ->middleware('throttle:uploads')
         ->name('uploadMissionDocument');
     Route::put('/clients/{client}/missions/{mission}/documents/{document}', [MissionDocumentController::class, 'update'])
         ->whereNumber('document')
