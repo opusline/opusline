@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/opusline/opusline/compare/v0.3.0...v0.4.0) (2026-08-07)
+
+
+### Features
+
+* **api:** add manual time-entry support ([#63](https://github.com/opusline/opusline/issues/63)) ([aee2e67](https://github.com/opusline/opusline/commit/aee2e67d8dadeeae0f750a5581becadba5dbcdfb))
+
 ## [0.3.0](https://github.com/opusline/opusline/compare/v0.2.0...v0.3.0) (2026-08-07)
 
 
