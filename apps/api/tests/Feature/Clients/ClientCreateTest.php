@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Clients\Enums\ClientType;
+use App\Domain\Clients\Models\Client;
 use App\Domain\Shared\Enums\Color;
 use App\Domain\Users\Models\User;
 
@@ -141,4 +142,12 @@ test('rejects an invalid payload', function (array $payload, string $expectedErr
 test('returns 401 for guests', function (): void {
     $this->postJson('/api/clients', ['name' => 'Nordlys', 'type' => ClientType::Direct->value])
         ->assertUnauthorized();
+});
+
+test('the factory can fill one user with clients without colliding on name', function (): void {
+    $user = User::factory()->create();
+
+    Client::factory()->for($user)->count(200)->create();
+
+    expect(Client::query()->where('user_id', $user->id)->count())->toBe(200);
 });

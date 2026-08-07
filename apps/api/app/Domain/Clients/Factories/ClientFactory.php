@@ -26,7 +26,7 @@ class ClientFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'name' => fake()->company(),
+            'name' => fake()->unique()->company(),
             'type' => ClientType::Direct,
             'notes' => null,
             'siret' => null,
