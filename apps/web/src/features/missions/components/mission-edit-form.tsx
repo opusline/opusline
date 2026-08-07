@@ -19,6 +19,7 @@ import { CircleAlert, PencilIcon } from "lucide-react";
 import { useState } from "react";
 import { FormTextField } from "@/components/form-text-field";
 import { formatRateDraft, parseRateToCents } from "@/lib/billing";
+import { isInternalClient } from "@/lib/client-types";
 import type { FormSubmitResult } from "@/lib/form";
 import { COLOR_CLASSES, COLOR_LABELS, COLORS } from "@/lib/palette";
 
@@ -70,7 +71,7 @@ export function MissionEditForm({
   error,
 }: MissionEditFormProps) {
   const isEsn = client.type === 1;
-  const isInternal = client.type === 2;
+  const isInternal = isInternalClient(client.type);
 
   const [billingMode, setBillingMode] = useState<BillingMode>(
     mission.billingMode,

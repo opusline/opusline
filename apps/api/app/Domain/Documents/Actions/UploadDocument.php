@@ -12,6 +12,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class UploadDocument
 {
+    private const int MAX_STORED_FILE_NAME = 255;
+
     public function handle(HasMedia $model, UploadDocumentData $data): Media
     {
         $adder = $model->addMedia($data->file);
@@ -41,6 +43,12 @@ class UploadDocument
         $base = pathinfo($chosen, PATHINFO_FILENAME);
         $extension = $data->file->getClientOriginalExtension();
 
-        return $base === '' ? null : $base.'.'.$extension;
+        if ($base === '') {
+            return null;
+        }
+
+        $room = self::MAX_STORED_FILE_NAME - mb_strlen($extension) - 1;
+
+        return mb_substr($base, 0, max($room, 1)).'.'.$extension;
     }
 }

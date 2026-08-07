@@ -14,16 +14,13 @@ import { CircleAlert, PencilIcon } from "lucide-react";
 import { useState } from "react";
 import { FormTextField } from "@/components/form-text-field";
 import { LogoPicker } from "@/components/logo-picker";
-import { SuggestField } from "@/components/suggest-field";
-import { searchAddresses, searchCities } from "@/lib/addresses";
 import { CLIENT_TYPE_LABELS } from "@/lib/client-types";
-import { searchCountries } from "@/lib/countries";
 import type { FormSubmitResult } from "@/lib/form";
 import type { LogoUploadResult } from "@/lib/logos";
 import { COLOR_CLASSES, COLOR_LABELS, COLORS } from "@/lib/palette";
-
 import { type ClientFormValues, toClientPayload } from "../lib/client-form";
 import { CLIENT_TYPES } from "../lib/labels";
+import { BillingAddressFields } from "./billing-address-fields";
 import { PaymentTermsPicker } from "./payment-terms-picker";
 
 const EYEBROW_CLASSES =
@@ -265,79 +262,16 @@ export function ClientEditForm({
               )}
             </form.Field>
 
-            <form.Field name="billingAddressLine1">
-              {(field) => (
-                <SuggestField
-                  field={field}
-                  onSearch={searchAddresses}
-                  label="Adresse"
-                  labelClassName={EDIT_LABEL_CLASSES}
-                  onSelect={(suggestion) => {
-                    field.handleChange(suggestion.line1);
-                    form.setFieldValue(
-                      "billingPostalCode",
-                      suggestion.postalCode,
-                    );
-                    form.setFieldValue("billingCity", suggestion.city);
-                    form.setFieldValue("billingCountry", "France");
-                  }}
-                />
+            <BillingAddressFields
+              complementLabel="Complément"
+              gapClassName="gap-3.5"
+              labelClassName={EDIT_LABEL_CLASSES}
+              renderField={(name, render) => (
+                <form.Field name={name}>{(field) => render(field)}</form.Field>
               )}
-            </form.Field>
-
-            <form.Field name="billingAddressLine2">
-              {(field) => (
-                <FormTextField
-                  field={field}
-                  label="Complément"
-                  labelClassName={EDIT_LABEL_CLASSES}
-                />
-              )}
-            </form.Field>
-
-            <div className="grid gap-3.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-              <form.Field name="billingPostalCode">
-                {(field) => (
-                  <FormTextField
-                    field={field}
-                    label="Code postal"
-                    labelClassName={EDIT_LABEL_CLASSES}
-                  />
-                )}
-              </form.Field>
-              <form.Field name="billingCity">
-                {(field) => (
-                  <SuggestField
-                    field={field}
-                    label="Ville"
-                    labelClassName={EDIT_LABEL_CLASSES}
-                    onSearch={searchCities}
-                    onSelect={(suggestion) => {
-                      field.handleChange(suggestion.city);
-                      form.setFieldValue(
-                        "billingPostalCode",
-                        suggestion.postalCode,
-                      );
-                      form.setFieldValue("billingCountry", "France");
-                    }}
-                  />
-                )}
-              </form.Field>
-            </div>
-
-            <form.Field name="billingCountry">
-              {(field) => (
-                <SuggestField
-                  field={field}
-                  label="Pays"
-                  labelClassName={EDIT_LABEL_CLASSES}
-                  onSearch={async (query) => searchCountries(query)}
-                  onSelect={(suggestion) =>
-                    field.handleChange(suggestion.label)
-                  }
-                />
-              )}
-            </form.Field>
+              setFieldValue={(name, value) => form.setFieldValue(name, value)}
+              streetLabel="Adresse"
+            />
           </div>
         </div>
 

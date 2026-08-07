@@ -132,8 +132,7 @@ export function ClientDetailPage({
   const hasCoordinates =
     client.siret !== null ||
     client.vatNumber !== null ||
-    client.billingAddressLine1 !== null ||
-    client.billingCity !== null ||
+    formatPostalAddress(client) !== null ||
     client.billingContactName !== null ||
     client.billingEmail !== null;
 

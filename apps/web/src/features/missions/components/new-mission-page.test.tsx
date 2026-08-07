@@ -351,6 +351,10 @@ it("stays locked between the mission creation and the client refresh", async () 
         return jsonResponse(200, { documents: [] });
       }
 
+      if (/\/missions\/[a-z0-9-]+$/.test(url.pathname)) {
+        return jsonResponse(200, CREATED_MISSION);
+      }
+
       if (hasCreated) {
         await new Promise<void>((resolve) => {
           releaseClientRefresh = resolve;

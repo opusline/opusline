@@ -37,11 +37,23 @@ function NewMissionRoute() {
   ): Promise<FormSubmitResult> => {
     setIsSubmitting(true);
 
+    let created: Awaited<ReturnType<typeof createMission.mutateAsync>>;
+
     try {
-      const created = await createMission.mutateAsync({
+      created = await createMission.mutateAsync({
         body,
         path: { client: clientSlug },
       });
+    } catch (error) {
+      setIsSubmitting(false);
+      const fieldErrors = serverFieldErrors(error);
+
+      return fieldErrors
+        ? { status: "invalid", fieldErrors }
+        : { status: "failed" };
+    }
+
+    try {
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: listClientsQueryKey(),
@@ -55,20 +67,20 @@ function NewMissionRoute() {
       await queryClient.fetchQuery(
         showClientOptions({ path: { client: clientSlug } }),
       );
+    } catch {
+      // A stale list is recoverable; a duplicate mission is not.
+    }
+
+    try {
       await navigate({
         to: "/clients/$clientSlug/missions/$missionSlug",
         params: { clientSlug, missionSlug: created.slug },
       });
-      return { status: "success" };
-    } catch (error) {
-      const fieldErrors = serverFieldErrors(error);
-
-      return fieldErrors
-        ? { status: "invalid", fieldErrors }
-        : { status: "failed" };
     } finally {
       setIsSubmitting(false);
     }
+
+    return { status: "success" };
   };
 
   if (isPending) {

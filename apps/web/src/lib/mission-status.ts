@@ -1,5 +1,7 @@
 import type { ClientType, MissionStatus } from "@opusline/api-client";
 
+import { isInternalClient } from "./client-types";
+
 export const MISSION_STATUS_LABELS: Record<MissionStatus, string> = {
   0: "Active",
   1: "En pause",
@@ -19,7 +21,7 @@ export function missionStatusBadge(
   status: MissionStatus,
   clientType: ClientType,
 ): { variant: "brand" | "neutral" | "quiet"; label: string } {
-  if (clientType === 2) {
+  if (isInternalClient(clientType)) {
     return { variant: "quiet", label: "Perso" };
   }
 

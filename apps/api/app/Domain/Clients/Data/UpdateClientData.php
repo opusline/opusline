@@ -14,6 +14,7 @@ use Spatie\LaravelData\Attributes\Validation\Email;
 use Spatie\LaravelData\Attributes\Validation\IntegerType;
 use Spatie\LaravelData\Attributes\Validation\Max;
 use Spatie\LaravelData\Attributes\Validation\Min;
+use Spatie\LaravelData\Attributes\Validation\Rule;
 use Spatie\LaravelData\Attributes\Validation\Unique;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Validation\Constraints\WhereConstraint;
@@ -32,7 +33,9 @@ class UpdateClientData extends Data
         public string $name,
         public ClientType $type,
         public ?string $notes = null,
+        #[Max(255), Rule(new Siret)]
         public ?string $siret = null,
+        #[Max(255), Rule(new VatNumber)]
         public ?string $vatNumber = null,
         #[Max(255)]
         public ?string $billingAddressLine1 = null,
@@ -52,15 +55,4 @@ class UpdateClientData extends Data
         #[IntegerType, Between(0, 365)]
         public int $paymentTermsDays = 45,
     ) {}
-
-    /**
-     * @return array<string, array<int, mixed>>
-     */
-    public static function rules(): array
-    {
-        return [
-            'siret' => ['nullable', 'string', 'max:255', new Siret],
-            'vatNumber' => ['nullable', 'string', 'max:255', new VatNumber],
-        ];
-    }
 }

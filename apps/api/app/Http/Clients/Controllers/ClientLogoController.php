@@ -35,7 +35,7 @@ class ClientLogoController extends Controller
             [
                 // The CSP header neuters scripts in SVG logos opened directly.
                 'Content-Security-Policy' => "default-src 'none'",
-                'Cache-Control' => 'private, max-age=300',
+                'Cache-Control' => 'no-store',
             ],
         );
     }

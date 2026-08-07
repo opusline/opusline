@@ -13,10 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import { ClientLogo } from "@/components/client-logo";
 import { FormTextField } from "@/components/form-text-field";
 import { LogoPicker } from "@/components/logo-picker";
-import { SuggestField } from "@/components/suggest-field";
-import { searchAddresses, searchCities } from "@/lib/addresses";
 import { paymentTermsLabel } from "@/lib/billing";
-import { searchCountries } from "@/lib/countries";
 import type { FormSubmitResult } from "@/lib/form";
 import { COLOR_CLASSES, COLOR_LABELS, COLORS } from "@/lib/palette";
 import { type ClientFormValues, toClientPayload } from "../lib/client-form";
@@ -26,6 +23,7 @@ import {
   CLIENT_TYPES,
   randomColor,
 } from "../lib/labels";
+import { BillingAddressFields } from "./billing-address-fields";
 import { PaymentTermsPicker } from "./payment-terms-picker";
 
 const EYEBROW_CLASSES =
@@ -224,83 +222,17 @@ export function NewClientPage({
             </form.Field>
           </div>
 
-          <div className="flex flex-col gap-4">
-            <form.Field name="billingAddressLine1">
-              {(field) => (
-                <SuggestField
-                  field={field}
-                  onSearch={searchAddresses}
-                  label="Adresse de facturation"
-                  labelClassName="text-foreground-3"
-                  onSelect={(suggestion) => {
-                    field.handleChange(suggestion.line1);
-                    form.setFieldValue(
-                      "billingPostalCode",
-                      suggestion.postalCode,
-                    );
-                    form.setFieldValue("billingCity", suggestion.city);
-                    form.setFieldValue("billingCountry", "France");
-                  }}
-                  placeholder="12 rue de la Paix"
-                />
-              )}
-            </form.Field>
-            <form.Field name="billingAddressLine2">
-              {(field) => (
-                <FormTextField
-                  field={field}
-                  label="Complément d'adresse"
-                  labelClassName="text-foreground-3"
-                  placeholder="Bâtiment C, 3e étage"
-                />
-              )}
-            </form.Field>
-            <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-              <form.Field name="billingPostalCode">
-                {(field) => (
-                  <FormTextField
-                    field={field}
-                    label="Code postal"
-                    labelClassName="text-foreground-3"
-                    placeholder="44000"
-                  />
-                )}
-              </form.Field>
-              <form.Field name="billingCity">
-                {(field) => (
-                  <SuggestField
-                    field={field}
-                    label="Ville"
-                    labelClassName="text-foreground-3"
-                    onSearch={searchCities}
-                    onSelect={(suggestion) => {
-                      field.handleChange(suggestion.city);
-                      form.setFieldValue(
-                        "billingPostalCode",
-                        suggestion.postalCode,
-                      );
-                      form.setFieldValue("billingCountry", "France");
-                    }}
-                    placeholder="Nantes"
-                  />
-                )}
-              </form.Field>
-            </div>
-            <form.Field name="billingCountry">
-              {(field) => (
-                <SuggestField
-                  field={field}
-                  label="Pays"
-                  labelClassName="text-foreground-3"
-                  onSearch={async (query) => searchCountries(query)}
-                  onSelect={(suggestion) =>
-                    field.handleChange(suggestion.label)
-                  }
-                  placeholder="France"
-                />
-              )}
-            </form.Field>
-          </div>
+          <BillingAddressFields
+            complementLabel="Complément d'adresse"
+            gapClassName="gap-4"
+            labelClassName="text-foreground-3"
+            renderField={(name, render) => (
+              <form.Field name={name}>{(field) => render(field)}</form.Field>
+            )}
+            setFieldValue={(name, value) => form.setFieldValue(name, value)}
+            streetLabel="Adresse de facturation"
+            withPlaceholders
+          />
 
           <Separator />
 

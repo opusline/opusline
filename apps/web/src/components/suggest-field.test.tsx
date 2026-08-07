@@ -14,16 +14,16 @@ const SUGGESTION = {
 };
 
 function stubBan(features: unknown[]) {
-  vi.stubGlobal(
-    "fetch",
-    vi.fn(
-      async () =>
-        new Response(JSON.stringify({ features }), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        }),
-    ),
+  const fetchMock = vi.fn(
+    async () =>
+      new Response(JSON.stringify({ features }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
   );
+  vi.stubGlobal("fetch", fetchMock);
+
+  return fetchMock;
 }
 
 function renderField(value: string, onSelect = vi.fn()) {
@@ -100,13 +100,14 @@ it("picks the highlighted address from the keyboard", async () => {
 });
 
 it("stays a plain text field when the lookup finds nothing", async () => {
-  stubBan([]);
+  const fetchMock = stubBan([]);
   const { handleChange } = renderField("");
   type("nowhere at all");
 
-  await waitFor(() => {
-    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
-  });
+  // Assert absence only once the lookup has actually answered, otherwise the
+  // test would pass simply by outrunning the debounce.
+  await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+  expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
   // Typing still reaches the form even though nothing was suggested.
   expect(handleChange).toHaveBeenCalledWith("nowhere at all");
 });

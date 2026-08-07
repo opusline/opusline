@@ -55,11 +55,22 @@ export function SuggestField<T extends Suggestion>({
     inFlight.current = controller;
 
     timer.current = setTimeout(() => {
-      void onSearch(query, controller.signal).then((found) => {
-        setSuggestions(found);
-        setHighlighted(-1);
-        setIsOpen(found.length > 0);
-      });
+      void onSearch(query, controller.signal)
+        .then((found) => {
+          // A slower earlier lookup must not overwrite a newer one, and an
+          // aborted one must not close a list the user is already reading.
+          if (inFlight.current !== controller || controller.signal.aborted) {
+            return;
+          }
+
+          setSuggestions(found);
+          setHighlighted(-1);
+          setIsOpen(found.length > 0);
+        })
+        .catch(() => {
+          // A failed lookup leaves whatever is on screen alone; the field is
+          // free text, so there is nothing to recover.
+        });
     }, DEBOUNCE_MS);
   };
 

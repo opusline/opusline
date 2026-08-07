@@ -5,3 +5,7 @@ export const CLIENT_TYPE_LABELS: Record<ClientType, string> = {
   1: "Intermédiaire",
   2: "Interne",
 };
+
+export function isInternalClient(type: ClientType): boolean {
+  return type === 2;
+}

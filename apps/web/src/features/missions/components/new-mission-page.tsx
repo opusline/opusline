@@ -24,6 +24,7 @@ import { CircleAlert, InfoIcon } from "lucide-react";
 import { useState } from "react";
 import { FormTextField } from "@/components/form-text-field";
 import { formatRate, formatRateDraft, parseRateToCents } from "@/lib/billing";
+import { isInternalClient } from "@/lib/client-types";
 import { todayCalendarDate } from "@/lib/dates";
 import type { FormSubmitResult } from "@/lib/form";
 import {
@@ -106,7 +107,8 @@ export function NewMissionPage({
   );
 
   const isEsn = selectedClient?.type === 1;
-  const isInternal = selectedClient?.type === 2;
+  const isInternal =
+    selectedClient !== undefined && isInternalClient(selectedClient.type);
   const isForfait = billingMode === 2;
   const rateCents = isInternal ? null : parseRateToCents(rateDraft);
 
@@ -159,7 +161,7 @@ export function NewMissionPage({
     setCraRequired(client?.type === 1);
     setColor(null);
 
-    if (client?.type === 2) {
+    if (client !== undefined && isInternalClient(client.type)) {
       setBillingMode(0);
       setRateDraft("");
       setIsRateMissing(false);

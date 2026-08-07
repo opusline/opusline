@@ -50,11 +50,18 @@ class AppServiceProvider extends ServiceProvider
 
         DB::prohibitDestructiveCommands($this->app->isProduction());
 
-        RateLimiter::for('api', fn (Request $request): Limit => Limit::perMinute(120)
-            ->by($request->user()?->getAuthIdentifier() ?? $request->ip()));
+        $caller = static function (Request $request): string {
+            $identifier = $request->user()?->getAuthIdentifier();
 
-        RateLimiter::for('uploads', fn (Request $request): Limit => Limit::perMinute(20)
-            ->by($request->user()?->getAuthIdentifier() ?? $request->ip()));
+            if (is_int($identifier) || is_string($identifier)) {
+                return (string) $identifier;
+            }
+
+            return $request->ip() ?? 'unknown';
+        };
+
+        RateLimiter::for('api', fn (Request $request): Limit => Limit::perMinute(120)->by($caller($request)));
+        RateLimiter::for('uploads', fn (Request $request): Limit => Limit::perMinute(20)->by($caller($request)));
 
         Scramble::configure()->withParametersExtractors(
             fn (ParametersExtractors $extractors): ParametersExtractors => $extractors->prepend(SpatieDataParametersExtractor::class),

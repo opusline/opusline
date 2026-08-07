@@ -64,7 +64,12 @@ function jsonResponse(status: number, body: unknown): Response {
   });
 }
 
-type RecordedRequest = { method: string; path: string; body: unknown };
+type RecordedRequest = {
+  method: string;
+  path: string;
+  url: string;
+  body: unknown;
+};
 
 function stubApi(
   client: ClientWithMissionsData,
@@ -85,7 +90,12 @@ function stubApi(
               .clone()
               .json()
               .catch(() => null);
-      requests.push({ method: request.method, path: url.pathname, body });
+      requests.push({
+        method: request.method,
+        path: url.pathname,
+        url: request.url,
+        body,
+      });
 
       const overridden = overrides?.(request);
       if (overridden) {
@@ -440,6 +450,17 @@ it("opens the edit form without popping the address suggestions", async () => {
     expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
   });
   expect(
-    requests.filter((request) => request.path.includes("api-adresse")),
+    requests.filter((request) =>
+      request.url.includes("api-adresse.data.gouv.fr"),
+    ),
   ).toHaveLength(0);
+});
+
+it("opens the coordinates tab for a client whose only address part is a country", async () => {
+  stubApi(clientPayload({ siret: null, billingCountry: "France" }));
+  await renderDetailPage();
+
+  fireEvent.click(screen.getByRole("tab", { name: "Coordonnées" }));
+
+  expect(await screen.findByText("France")).toBeInTheDocument();
 });

@@ -276,3 +276,18 @@ test('keeps the uploaded extension when the chosen name carries another one', fu
         ->assertCreated()
         ->assertJsonPath('fileName', 'payload.pdf');
 });
+
+test('clips a chosen name so the stored file name fits its column', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $response = $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->create('scan.pdf', 12, 'application/pdf'),
+            'fileName' => str_repeat('a', 255),
+        ])
+        ->assertCreated();
+
+    expect(mb_strlen($response->json('fileName')))->toBeLessThanOrEqual(255);
+});

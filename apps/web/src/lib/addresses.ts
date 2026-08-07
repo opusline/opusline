@@ -42,17 +42,18 @@ function toSuggestion(feature: BanFeature): AddressSuggestion | null {
   };
 }
 
-export async function searchAddresses(
+async function fetchFeatures(
   query: string,
+  extraParams: string,
   signal?: AbortSignal,
-): Promise<AddressSuggestion[]> {
+): Promise<BanFeature[]> {
   const trimmed = query.trim();
 
   if (trimmed.length < MIN_QUERY_LENGTH) {
     return [];
   }
 
-  const url = `${SEARCH_URL}?q=${encodeURIComponent(trimmed)}&limit=5&autocomplete=1`;
+  const url = `${SEARCH_URL}?q=${encodeURIComponent(trimmed)}&limit=5&autocomplete=1${extraParams}`;
 
   try {
     const response = await fetch(url, { signal });
@@ -62,21 +63,28 @@ export async function searchAddresses(
     }
 
     const payload: unknown = await response.json();
-    const features =
-      typeof payload === "object" &&
+
+    return typeof payload === "object" &&
       payload !== null &&
       Array.isArray((payload as { features?: unknown }).features)
-        ? ((payload as { features: BanFeature[] }).features ?? [])
-        : [];
-
-    return features
-      .map(toSuggestion)
-      .filter(
-        (suggestion): suggestion is AddressSuggestion => suggestion !== null,
-      );
+      ? ((payload as { features: BanFeature[] }).features ?? [])
+      : [];
   } catch {
     return [];
   }
+}
+
+export async function searchAddresses(
+  query: string,
+  signal?: AbortSignal,
+): Promise<AddressSuggestion[]> {
+  const features = await fetchFeatures(query, "", signal);
+
+  return features
+    .map(toSuggestion)
+    .filter(
+      (suggestion): suggestion is AddressSuggestion => suggestion !== null,
+    );
 }
 
 export type CitySuggestion = {
@@ -90,50 +98,26 @@ export async function searchCities(
   query: string,
   signal?: AbortSignal,
 ): Promise<CitySuggestion[]> {
-  const trimmed = query.trim();
+  const features = await fetchFeatures(query, "&type=municipality", signal);
 
-  if (trimmed.length < MIN_QUERY_LENGTH) {
-    return [];
-  }
+  return features.flatMap((feature) => {
+    const properties = feature.properties;
 
-  const url = `${SEARCH_URL}?q=${encodeURIComponent(trimmed)}&type=municipality&limit=5&autocomplete=1`;
-
-  try {
-    const response = await fetch(url, { signal });
-
-    if (!response.ok) {
+    if (
+      typeof properties?.id !== "string" ||
+      typeof properties.city !== "string" ||
+      typeof properties.postcode !== "string"
+    ) {
       return [];
     }
 
-    const payload: unknown = await response.json();
-    const features =
-      typeof payload === "object" &&
-      payload !== null &&
-      Array.isArray((payload as { features?: unknown }).features)
-        ? ((payload as { features: BanFeature[] }).features ?? [])
-        : [];
-
-    return features.flatMap((feature) => {
-      const properties = feature.properties;
-
-      if (
-        typeof properties?.id !== "string" ||
-        typeof properties.city !== "string" ||
-        typeof properties.postcode !== "string"
-      ) {
-        return [];
-      }
-
-      return [
-        {
-          id: properties.id,
-          label: `${properties.city} (${properties.postcode})`,
-          city: properties.city,
-          postalCode: properties.postcode,
-        },
-      ];
-    });
-  } catch {
-    return [];
-  }
+    return [
+      {
+        id: properties.id,
+        label: `${properties.city} (${properties.postcode})`,
+        city: properties.city,
+        postalCode: properties.postcode,
+      },
+    ];
+  });
 }
