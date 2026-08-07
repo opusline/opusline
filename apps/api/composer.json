@@ -17,7 +17,8 @@
     "league/flysystem-aws-s3-v3": "^3.35",
     "spatie/laravel-data": "^4.23",
     "spatie/laravel-medialibrary": "^11.23",
-    "spatie/laravel-sluggable": "^4.0"
+    "spatie/laravel-sluggable": "^4.0",
+    "ext-mbstring": "*"
   },
   "require-dev": {
     "driftingly/rector-laravel": "^2.5",

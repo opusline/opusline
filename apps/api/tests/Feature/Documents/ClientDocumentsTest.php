@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Domain\Clients\Models\Client;
+use App\Domain\Documents\Actions\UploadDocument;
+use App\Domain\Documents\Data\UploadDocumentData;
 use App\Domain\Documents\Enums\DocumentCategory;
 use App\Domain\Documents\Enums\DocumentSource;
 use App\Domain\Users\Models\User;
@@ -387,4 +389,34 @@ test('falls back to a generic base when nothing yields one', function (): void {
         ])
         ->assertCreated()
         ->assertJsonPath('fileName', 'document.pdf');
+});
+
+test('falls back to the uploaded name for a rename made only of unicode spaces', function (): void {
+    Storage::fake('local');
+    $client = Client::factory()->for(User::factory())->create();
+
+    $document = app(UploadDocument::class)->handle($client, new UploadDocumentData(
+        file: UploadedFile::fake()->create('scan.pdf', 12, 'application/pdf'),
+        fileName: "\u{00A0}\u{2009}",
+    ));
+
+    expect($document->file_name)->toBe('scan.pdf');
+});
+
+test('keeps a multibyte name within the filesystem byte limit', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $response = $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->create('scan.pdf', 12, 'application/pdf'),
+            'fileName' => str_repeat('é', 255),
+        ])
+        ->assertCreated();
+
+    $stored = (string) $response->json('fileName');
+
+    expect(strlen($stored))->toBeLessThanOrEqual(255)
+        ->and($stored)->toEndWith('.pdf');
 });

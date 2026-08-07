@@ -12,7 +12,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class UploadDocument
 {
-    private const int MAX_STORED_FILE_NAME = 255;
+    private const int MAX_STORED_FILE_NAME_BYTES = 255;
 
     private const int MAX_EXTENSION = 16;
 
@@ -36,14 +36,9 @@ class UploadDocument
 
     private function storedFileName(UploadDocumentData $data): string
     {
-        $chosen = trim($data->fileName ?? '');
+        $chosen = $this->collapseWhitespace($data->fileName ?? '');
         $source = $chosen === '' ? $data->file->getClientOriginalName() : $chosen;
-
-        $base = trim((string) preg_replace(
-            '/[\p{Z}\s]+/u',
-            ' ',
-            pathinfo($source, PATHINFO_FILENAME),
-        ));
+        $base = $this->collapseWhitespace(pathinfo($source, PATHINFO_FILENAME));
 
         if ($base === '') {
             $base = self::FALLBACK_BASE;
@@ -52,6 +47,13 @@ class UploadDocument
         $extension = mb_substr($data->file->getClientOriginalExtension(), 0, self::MAX_EXTENSION);
         $suffix = $extension === '' ? '' : '.'.$extension;
 
-        return mb_substr($base, 0, max(self::MAX_STORED_FILE_NAME - mb_strlen($suffix), 1)).$suffix;
+        $room = self::MAX_STORED_FILE_NAME_BYTES - strlen($suffix);
+
+        return mb_strcut($base, 0, max($room, 1)).$suffix;
+    }
+
+    private function collapseWhitespace(string $value): string
+    {
+        return trim((string) preg_replace('/[\p{Z}\s]+/u', ' ', $value));
     }
 }
