@@ -18,9 +18,9 @@ import { CLIENT_TYPE_LABELS } from "@/lib/client-types";
 import type { FormSubmitResult } from "@/lib/form";
 import type { LogoUploadResult } from "@/lib/logos";
 import { COLOR_CLASSES, COLOR_LABELS, COLORS } from "@/lib/palette";
-
 import { type ClientFormValues, toClientPayload } from "../lib/client-form";
 import { CLIENT_TYPES } from "../lib/labels";
+import { BillingAddressFields } from "./billing-address-fields";
 import { PaymentTermsPicker } from "./payment-terms-picker";
 
 const EYEBROW_CLASSES =
@@ -83,7 +83,11 @@ export function ClientEditForm({
       type: client.type,
       siret: client.siret ?? "",
       vatNumber: client.vatNumber ?? "",
-      billingAddress: client.billingAddress ?? "",
+      billingAddressLine1: client.billingAddressLine1 ?? "",
+      billingAddressLine2: client.billingAddressLine2 ?? "",
+      billingPostalCode: client.billingPostalCode ?? "",
+      billingCity: client.billingCity ?? "",
+      billingCountry: client.billingCountry ?? "",
       billingContactName: client.billingContactName ?? "",
       billingEmail: client.billingEmail ?? "",
       color: client.color,
@@ -258,17 +262,16 @@ export function ClientEditForm({
               )}
             </form.Field>
 
-            <form.Field name="billingAddress">
-              {(field) => (
-                <FormTextField
-                  field={field}
-                  label="Adresse"
-                  labelClassName={EDIT_LABEL_CLASSES}
-                  multiline
-                  inputClassName="min-h-18"
-                />
+            <BillingAddressFields
+              complementLabel="Complément"
+              gapClassName="gap-3.5"
+              labelClassName={EDIT_LABEL_CLASSES}
+              renderField={(name, render) => (
+                <form.Field name={name}>{(field) => render(field)}</form.Field>
               )}
-            </form.Field>
+              setFieldValue={(name, value) => form.setFieldValue(name, value)}
+              streetLabel="Adresse"
+            />
           </div>
         </div>
 

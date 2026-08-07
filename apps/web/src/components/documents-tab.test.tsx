@@ -126,7 +126,7 @@ it("uploads each confirmed file with its chosen category", async () => {
   fireEvent.click(screen.getByRole("button", { name: "Envoyer 1 document" }));
 
   await waitFor(() => {
-    expect(onUpload).toHaveBeenCalledWith(file, 2);
+    expect(onUpload).toHaveBeenCalledWith(file, 2, "piece");
   });
   await waitFor(() => {
     expect(screen.queryByText("Envois en cours")).not.toBeInTheDocument();
@@ -246,4 +246,19 @@ it("warns when a deletion fails", async () => {
       "La suppression a échoué. Réessayez dans un instant.",
     ),
   ).toBeInTheDocument();
+});
+
+it("uploads under the name typed into the rename field", async () => {
+  const { onUpload } = renderTab();
+  const file = new File(["x"], "scan001.pdf", { type: "application/pdf" });
+
+  pickFiles([file]);
+  fireEvent.change(screen.getByLabelText("Nom du document scan001.pdf"), {
+    target: { value: "Contrat Nordlys" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Envoyer 1 document" }));
+
+  await waitFor(() => {
+    expect(onUpload).toHaveBeenCalledWith(file, 4, "Contrat Nordlys");
+  });
 });

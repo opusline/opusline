@@ -26,12 +26,16 @@ class ClientFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'name' => fake()->company(),
+            'name' => fake()->unique()->company(),
             'type' => ClientType::Direct,
             'notes' => null,
             'siret' => null,
             'vat_number' => null,
-            'billing_address' => null,
+            'billing_address_line1' => null,
+            'billing_address_line2' => null,
+            'billing_postal_code' => null,
+            'billing_city' => null,
+            'billing_country' => null,
             'billing_contact_name' => null,
             'billing_email' => null,
             'color' => Color::Amber,

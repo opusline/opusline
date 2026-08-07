@@ -39,9 +39,11 @@ export function FormTextField({
   placeholder,
 }: FormTextFieldProps) {
   const isInvalid = !field.state.meta.isValid;
+  const errorId = `${field.name}-error`;
 
   const controlProps = {
     "aria-invalid": isInvalid,
+    "aria-describedby": isInvalid ? errorId : undefined,
     className: inputClassName,
     id: field.name,
     onBlur: field.handleBlur,
@@ -62,7 +64,9 @@ export function FormTextField({
       ) : (
         <Input {...controlProps} font={font} type={type} />
       )}
-      {isInvalid ? <FieldError errors={field.state.meta.errors} /> : null}
+      {isInvalid ? (
+        <FieldError errors={field.state.meta.errors} id={errorId} />
+      ) : null}
     </Field>
   );
 }

@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { useRef, useState } from "react";
 
 import { DocumentsTab } from "@/components/documents-tab";
 import { MissionDetailPage } from "@/features/missions/components/mission-detail-page";
@@ -45,6 +46,27 @@ function MissionDetailRoute() {
   );
 
   const updateMission = useMutation(updateMissionMutation());
+  const [isMutating, setIsMutating] = useState(false);
+  const inFlightMutations = useRef(0);
+
+  const beginMutation = (): boolean => {
+    if (inFlightMutations.current > 0) {
+      return false;
+    }
+
+    inFlightMutations.current += 1;
+    setIsMutating(true);
+
+    return true;
+  };
+
+  const endMutation = () => {
+    inFlightMutations.current -= 1;
+
+    if (inFlightMutations.current === 0) {
+      setIsMutating(false);
+    }
+  };
   const uploadDocument = useMutation(uploadMissionDocumentMutation());
   const deleteDocument = useMutation(deleteMissionDocumentMutation());
 
@@ -69,6 +91,10 @@ function MissionDetailRoute() {
   const handleUpdate = async (
     body: UpdateMissionData,
   ): Promise<FormSubmitResult> => {
+    if (!beginMutation()) {
+      return { status: "failed" };
+    }
+
     try {
       await updateMission.mutateAsync({ body, path: missionPath });
       await invalidate();
@@ -79,13 +105,15 @@ function MissionDetailRoute() {
       return fieldErrors
         ? { status: "invalid", fieldErrors }
         : { status: "failed" };
+    } finally {
+      endMutation();
     }
   };
 
   const handleSetStatus = async (status: MissionStatus) => {
     const mission = missionQuery.data;
 
-    if (mission === undefined) {
+    if (mission === undefined || !beginMutation()) {
       return;
     }
 
@@ -109,6 +137,8 @@ function MissionDetailRoute() {
       await invalidate();
     } catch {
       // Surfaced through updateMission.error below.
+    } finally {
+      endMutation();
     }
   };
 
@@ -116,9 +146,9 @@ function MissionDetailRoute() {
     handleUpload: handleUploadDocument,
     handleDelete: handleDeleteDocument,
   } = documentHandlers({
-    upload: (file, category) =>
+    upload: (file, category, fileName) =>
       uploadDocument.mutateAsync({
-        body: { file, category },
+        body: { file, category, fileName },
         path: missionPath,
       }),
     remove: (document) =>
@@ -184,8 +214,8 @@ function MissionDetailRoute() {
           ? "L'action a échoué. Réessayez dans un instant."
           : null
       }
-      isStatusPending={updateMission.isPending}
-      isUpdatePending={updateMission.isPending}
+      isStatusPending={isMutating}
+      isUpdatePending={isMutating}
       mission={missionQuery.data}
       onSetStatus={(status) => void handleSetStatus(status)}
       onUpdate={handleUpdate}

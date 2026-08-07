@@ -6,7 +6,7 @@ import {
   useState,
 } from "react";
 
-type Theme = "dark" | "light" | "system";
+export type Theme = "dark" | "light" | "system";
 
 type ThemeProviderProps = {
   children: ReactNode;
@@ -28,9 +28,13 @@ export function ThemeProvider({
   defaultTheme = "system",
   storageKey = "opusline-theme",
 }: ThemeProviderProps) {
-  const [theme, setThemeState] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme | null) ?? defaultTheme,
-  );
+  const [theme, setThemeState] = useState<Theme>(() => {
+    const stored = localStorage.getItem(storageKey);
+
+    return stored === "dark" || stored === "light" || stored === "system"
+      ? stored
+      : defaultTheme;
+  });
 
   useEffect(() => {
     const root = document.documentElement;

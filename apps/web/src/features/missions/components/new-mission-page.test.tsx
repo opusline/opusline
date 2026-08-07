@@ -18,7 +18,11 @@ function client(
     notes: null,
     siret: null,
     vatNumber: null,
-    billingAddress: null,
+    billingAddressLine1: null,
+    billingAddressLine2: null,
+    billingPostalCode: null,
+    billingCity: null,
+    billingCountry: null,
     billingContactName: null,
     billingEmail: null,
     color: 0,
@@ -42,6 +46,23 @@ const CLIENTS = [
     archivedAt: "2026-06-01T00:00:00+00:00",
   }),
 ];
+
+const CREATED_MISSION = {
+  id: 9,
+  slug: "callisto-front",
+  clientId: 1,
+  name: "Callisto front",
+  endClientName: "Callisto",
+  billingMode: 0,
+  rate: { amount: 55_000, currency: "EUR" },
+  rounding: 0,
+  status: 0,
+  craRequired: true,
+  color: null,
+  notes: null,
+  startDate: null,
+  endDate: null,
+};
 
 function jsonResponse(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
@@ -92,7 +113,14 @@ function stubApi(
         return jsonResponse(200, CLIENTS[0]);
       }
 
-      return jsonResponse(201, { id: 9, slug: "callisto-front" });
+      if (
+        request.method === "GET" &&
+        /\/missions\/[a-z0-9-]+$/.test(url.pathname)
+      ) {
+        return jsonResponse(200, CREATED_MISSION);
+      }
+
+      return jsonResponse(201, CREATED_MISSION);
     }),
   );
 
@@ -199,7 +227,7 @@ it("creates an internal mission without billing details", async () => {
   });
 });
 
-it("creates the mission and lands on the client page", async () => {
+it("creates the mission and lands on its own page", async () => {
   const requests = stubApi();
   await renderNewMissionPage();
 
@@ -215,9 +243,15 @@ it("creates the mission and lands on the client page", async () => {
   fireEvent.click(screen.getByRole("button", { name: "Créer la mission" }));
 
   expect(
-    await screen.findByRole("heading", { name: "Nordlys" }, { timeout: 5000 }),
+    await screen.findByRole(
+      "heading",
+      { name: "Callisto front" },
+      { timeout: 5000 },
+    ),
   ).toBeInTheDocument();
-  expect(window.location.pathname).toBe("/clients/nordlys");
+  expect(window.location.pathname).toBe(
+    "/clients/nordlys/missions/callisto-front",
+  );
 
   const creation = requests.find((request) => request.method === "POST");
   expect(creation?.path.endsWith("/clients/nordlys/missions")).toBe(true);
@@ -289,4 +323,69 @@ it("shows the server validation error on the name field", async () => {
   expect(
     await screen.findByText("Le champ nom est obligatoire."),
   ).toBeInTheDocument();
+});
+
+it("stays locked between the mission creation and the client refresh", async () => {
+  let releaseClientRefresh = () => {};
+  let hasCreated = false;
+  const requests: RecordedRequest[] = [];
+
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request =
+        input instanceof Request ? input : new Request(input, init);
+      const url = new URL(request.url, "http://localhost");
+      requests.push({ method: request.method, path: url.pathname, body: null });
+
+      if (request.method === "POST") {
+        hasCreated = true;
+        return jsonResponse(201, CREATED_MISSION);
+      }
+
+      if (url.pathname.endsWith("/clients")) {
+        return jsonResponse(200, { clients: CLIENTS });
+      }
+
+      if (url.pathname.endsWith("/documents")) {
+        return jsonResponse(200, { documents: [] });
+      }
+
+      if (/\/missions\/[a-z0-9-]+$/.test(url.pathname)) {
+        return jsonResponse(200, CREATED_MISSION);
+      }
+
+      if (hasCreated) {
+        await new Promise<void>((resolve) => {
+          releaseClientRefresh = resolve;
+        });
+      }
+
+      return jsonResponse(200, CLIENTS[0]);
+    }),
+  );
+
+  await renderNewMissionPage();
+
+  fireEvent.change(screen.getByLabelText("Nom de la mission"), {
+    target: { value: "Callisto front" },
+  });
+  fireEvent.change(screen.getByLabelText("Tarif HT"), {
+    target: { value: "550" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Créer la mission" }));
+
+  const submit = await screen.findByRole("button", {
+    name: "Créer la mission",
+  });
+  await waitFor(() => expect(submit).toBeDisabled());
+
+  fireEvent.click(submit);
+  releaseClientRefresh();
+
+  await waitFor(() => {
+    expect(
+      requests.filter((request) => request.method === "POST"),
+    ).toHaveLength(1);
+  });
 });

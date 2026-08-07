@@ -3,6 +3,7 @@ import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Badge } from "@opusline/ui/components/badge";
 import { Button } from "@opusline/ui/components/button";
 import { Chip, ChipCount, ChipGroup } from "@opusline/ui/components/chip";
+import { Input } from "@opusline/ui/components/input";
 import { NativeSelect } from "@opusline/ui/components/native-select";
 import { cn } from "@opusline/ui/lib/utils";
 import {
@@ -19,10 +20,12 @@ import { useRef, useState } from "react";
 
 import { fullDateLabel } from "@/lib/dates";
 import {
+  baseName,
   DOCUMENT_ACCEPT,
   DOCUMENT_CATEGORIES,
   DOCUMENT_CATEGORY_LABELS,
   type DocumentUploadResult,
+  extensionOf,
   foldAccents,
   formatFileSize,
   guessDocumentCategory,
@@ -35,12 +38,14 @@ type PendingDocument = {
   key: number;
   file: File;
   category: DocumentCategory;
+  name: string;
 };
 
 type QueuedUpload = {
   key: number;
   file: File;
   category: DocumentCategory;
+  name: string;
   state: "uploading" | "error";
   message?: string;
 };
@@ -53,6 +58,7 @@ type DocumentsTabProps = {
   onUpload: (
     file: File,
     category: DocumentCategory,
+    fileName: string,
   ) => Promise<DocumentUploadResult>;
   onDelete: (document: DocumentData) => Promise<boolean>;
   downloadHref: (document: DocumentData) => string;
@@ -93,6 +99,7 @@ export function DocumentsTab({
           key: nextKey.current,
           file,
           category: guessDocumentCategory(file.name),
+          name: baseName(file.name),
         });
       }
     }
@@ -107,7 +114,7 @@ export function DocumentsTab({
     let result: DocumentUploadResult;
 
     try {
-      result = await onUpload(upload.file, upload.category);
+      result = await onUpload(upload.file, upload.category, upload.name);
     } catch {
       result = {
         status: "failed",
@@ -158,7 +165,12 @@ export function DocumentsTab({
 
   const handleDelete = async (document: DocumentData) => {
     try {
-      setHasDeleteError(!(await onDelete(document)));
+      const hasDeleted = await onDelete(document);
+      setHasDeleteError(!hasDeleted);
+
+      if (hasDeleted && document.category === filter) {
+        setFilter("all");
+      }
     } catch {
       setHasDeleteError(true);
     }
@@ -171,12 +183,10 @@ export function DocumentsTab({
     },
     { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0 } as Record<DocumentCategory, number>,
   );
-  const activeFilter =
-    filter !== "all" && categoryCounts[filter] === 0 ? "all" : filter;
   const normalizedSearch = foldAccents(search.trim().toLowerCase());
   const visibleDocuments = documents.filter(
     (document) =>
-      (activeFilter === "all" || document.category === activeFilter) &&
+      (filter === "all" || document.category === filter) &&
       (normalizedSearch === "" ||
         foldAccents(document.fileName.toLowerCase()).includes(
           normalizedSearch,
@@ -317,53 +327,66 @@ export function DocumentsTab({
           </div>
           <div className="divide-y">
             {pending.map((item) => (
-              <div className="flex items-center gap-3 px-4 py-3" key={item.key}>
-                <span className="flex min-w-0 flex-1 flex-col gap-1">
-                  <span className="truncate text-foreground-hi text-sm">
-                    {item.file.name}
-                  </span>
-                  <span className="text-muted-foreground-3 text-xs">
-                    {formatFileSize(item.file.size)}
-                  </span>
-                </span>
-                <NativeSelect
-                  aria-label={`Type de ${item.file.name}`}
-                  onChange={(event) => {
-                    const category = Number(event.target.value);
-
-                    if (isDocumentCategory(category)) {
+              <div className="flex flex-col gap-1.5 px-4 py-3" key={item.key}>
+                <div className="flex items-center gap-3">
+                  <Input
+                    aria-label={`Nom du document ${item.file.name}`}
+                    className="min-w-0 flex-1"
+                    onChange={(event) =>
                       setPending((current) =>
-                        current.map((pendingItem) =>
-                          pendingItem.key === item.key
-                            ? { ...pendingItem, category }
-                            : pendingItem,
+                        current.map((candidate) =>
+                          candidate.key === item.key
+                            ? { ...candidate, name: event.target.value }
+                            : candidate,
                         ),
-                      );
+                      )
                     }
-                  }}
-                  size="sm"
-                  value={String(item.category)}
-                >
-                  {DOCUMENT_CATEGORIES.map((category) => (
-                    <option key={category} value={String(category)}>
-                      {DOCUMENT_CATEGORY_LABELS[category]}
-                    </option>
-                  ))}
-                </NativeSelect>
-                <Button
-                  aria-label={`Retirer ${item.file.name}`}
-                  onClick={() =>
-                    setPending((current) =>
-                      current.filter(
-                        (pendingItem) => pendingItem.key !== item.key,
-                      ),
-                    )
-                  }
-                  size="icon-lg"
-                  variant="ghost"
-                >
-                  <XIcon aria-hidden />
-                </Button>
+                    size="sm"
+                    value={item.name}
+                  />
+                  <NativeSelect
+                    aria-label={`Type de ${item.file.name}`}
+                    onChange={(event) => {
+                      const category = Number(event.target.value);
+
+                      if (isDocumentCategory(category)) {
+                        setPending((current) =>
+                          current.map((pendingItem) =>
+                            pendingItem.key === item.key
+                              ? { ...pendingItem, category }
+                              : pendingItem,
+                          ),
+                        );
+                      }
+                    }}
+                    size="sm"
+                    value={String(item.category)}
+                  >
+                    {DOCUMENT_CATEGORIES.map((category) => (
+                      <option key={category} value={String(category)}>
+                        {DOCUMENT_CATEGORY_LABELS[category]}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                  <Button
+                    aria-label={`Retirer ${item.file.name}`}
+                    onClick={() =>
+                      setPending((current) =>
+                        current.filter(
+                          (pendingItem) => pendingItem.key !== item.key,
+                        ),
+                      )
+                    }
+                    size="icon-sm"
+                    variant="ghost"
+                  >
+                    <XIcon aria-hidden />
+                  </Button>
+                </div>
+                <span className="text-muted-foreground-3 text-xs">
+                  {formatFileSize(item.file.size)} ·{" "}
+                  {extensionOf(item.file.name)}
+                </span>
               </div>
             ))}
           </div>
@@ -418,7 +441,7 @@ export function DocumentsTab({
                   setFilter(category);
                 }
               }}
-              value={[activeFilter === "all" ? "all" : String(activeFilter)]}
+              value={[filter === "all" ? "all" : String(filter)]}
             >
               <Chip
                 aria-label={`Tous (${documents.length})`}
@@ -474,7 +497,6 @@ export function DocumentsTab({
                   <span className="flex-1" />
                   <Button
                     render={
-                      // biome-ignore lint/a11y/useAnchorContent: Button injects the icon content.
                       <a
                         aria-label={`Télécharger ${document.fileName}`}
                         download

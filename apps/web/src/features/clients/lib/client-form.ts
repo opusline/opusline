@@ -10,7 +10,11 @@ export type ClientFormValues = {
   type: ClientType;
   siret: string;
   vatNumber: string;
-  billingAddress: string;
+  billingAddressLine1: string;
+  billingAddressLine2: string;
+  billingPostalCode: string;
+  billingCity: string;
+  billingCountry: string;
   billingContactName: string;
   billingEmail: string;
   color: Color;
@@ -31,10 +35,37 @@ export function toClientPayload(
     type: values.type,
     siret: valueOrNull(values.siret),
     vatNumber: valueOrNull(values.vatNumber),
-    billingAddress: valueOrNull(values.billingAddress),
+    billingAddressLine1: valueOrNull(values.billingAddressLine1),
+    billingAddressLine2: valueOrNull(values.billingAddressLine2),
+    billingPostalCode: valueOrNull(values.billingPostalCode),
+    billingCity: valueOrNull(values.billingCity),
+    billingCountry: valueOrNull(values.billingCountry),
     billingContactName: valueOrNull(values.billingContactName),
     billingEmail: valueOrNull(values.billingEmail),
     color: values.color,
     paymentTermsDays: values.paymentTermsDays,
   };
+}
+
+type PostalAddress = {
+  billingAddressLine1: string | null;
+  billingAddressLine2: string | null;
+  billingPostalCode: string | null;
+  billingCity: string | null;
+  billingCountry: string | null;
+};
+
+export function formatPostalAddress(address: PostalAddress): string | null {
+  const cityLine = [address.billingPostalCode, address.billingCity]
+    .filter((part) => part !== null && part !== "")
+    .join(" ");
+
+  const lines = [
+    address.billingAddressLine1,
+    address.billingAddressLine2,
+    cityLine === "" ? null : cityLine,
+    address.billingCountry,
+  ].filter((line) => line !== null && line !== "");
+
+  return lines.length === 0 ? null : lines.join("\n");
 }

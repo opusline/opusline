@@ -37,3 +37,10 @@ export const Disabled: Story = {
     disabled: true,
   },
 };
+
+export const Small: Story = {
+  args: {
+    placeholder: "Contrat Nordlys",
+    size: "sm",
+  },
+};

@@ -10,6 +10,7 @@ use App\Domain\Missions\Enums\EntryRounding;
 use App\Domain\Missions\Enums\MissionStatus;
 use App\Domain\Missions\Factories\MissionFactory;
 use App\Domain\Shared\Enums\Color;
+use App\Domain\Shared\Routing\OwnedRouteBinding;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Casts\MoneyIntegerCast;
@@ -82,6 +83,23 @@ class Mission extends Model implements HasMedia
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    /**
+     * Scope every {mission} route binding to the authenticated user, so a
+     * foreign row resolves to a 404 instead of leaking across accounts.
+     *
+     * @param  mixed  $value
+     * @param  string|null  $field
+     */
+    #[\Override]
+    public function resolveRouteBinding($value, $field = null): ?Model
+    {
+        return OwnedRouteBinding::resolve(
+            auth()->user()?->missions(),
+            $field ?? $this->getRouteKeyName(),
+            $value,
+        );
     }
 
     public function getSlugOptions(): SlugOptions

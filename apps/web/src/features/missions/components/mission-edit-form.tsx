@@ -19,6 +19,7 @@ import { CircleAlert, PencilIcon } from "lucide-react";
 import { useState } from "react";
 import { FormTextField } from "@/components/form-text-field";
 import { formatRateDraft, parseRateToCents } from "@/lib/billing";
+import { isInternalClient } from "@/lib/client-types";
 import type { FormSubmitResult } from "@/lib/form";
 import { COLOR_CLASSES, COLOR_LABELS, COLORS } from "@/lib/palette";
 
@@ -40,6 +41,8 @@ const BILLING_MODES: BillingMode[] = [0, 1, 2];
 type MissionEditFormValues = {
   name: string;
   endClientName: string;
+  startDate: string;
+  endDate: string;
 };
 
 function initialRateDraft(mission: MissionData): string {
@@ -68,7 +71,7 @@ export function MissionEditForm({
   error,
 }: MissionEditFormProps) {
   const isEsn = client.type === 1;
-  const isInternal = client.type === 2;
+  const isInternal = isInternalClient(client.type);
 
   const [billingMode, setBillingMode] = useState<BillingMode>(
     mission.billingMode,
@@ -89,6 +92,8 @@ export function MissionEditForm({
     defaultValues: {
       name: mission.name,
       endClientName: mission.endClientName ?? "",
+      startDate: mission.startDate ?? "",
+      endDate: mission.endDate ?? "",
     } as MissionEditFormValues,
     validators: {
       onSubmitAsync: async ({ value }) => {
@@ -111,8 +116,8 @@ export function MissionEditForm({
               : null,
           color,
           notes: mission.notes,
-          startDate: mission.startDate,
-          endDate: mission.endDate,
+          startDate: value.startDate === "" ? null : value.startDate,
+          endDate: value.endDate === "" ? null : value.endDate,
         };
 
         const result = await onSubmit(body);
@@ -350,6 +355,31 @@ export function MissionEditForm({
                 </div>
               </>
             )}
+
+            <div className="grid gap-3.5 sm:grid-cols-2">
+              <form.Field name="startDate">
+                {(field) => (
+                  <FormTextField
+                    field={field}
+                    font="mono"
+                    label="Début"
+                    labelClassName={EDIT_LABEL_CLASSES}
+                    type="date"
+                  />
+                )}
+              </form.Field>
+              <form.Field name="endDate">
+                {(field) => (
+                  <FormTextField
+                    field={field}
+                    font="mono"
+                    label="Fin prévue"
+                    labelClassName={EDIT_LABEL_CLASSES}
+                    type="date"
+                  />
+                )}
+              </form.Field>
+            </div>
           </div>
         </div>
       </div>

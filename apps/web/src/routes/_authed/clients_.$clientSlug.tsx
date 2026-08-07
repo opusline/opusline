@@ -126,9 +126,9 @@ function ClientDetailRoute() {
     handleUpload: handleUploadDocument,
     handleDelete: handleDeleteDocument,
   } = documentHandlers({
-    upload: (file, category) =>
+    upload: (file, category, fileName) =>
       uploadDocument.mutateAsync({
-        body: { file, category },
+        body: { file, category, fileName },
         path: { client },
       }),
     remove: (document) =>

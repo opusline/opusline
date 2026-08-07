@@ -41,7 +41,7 @@ test('updates the client type', function (): void {
 test('resets omitted optional fields to their defaults', function (): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create([
-        'siret' => '123 456 789 00012',
+        'siret' => '443 061 841 00047',
         'color' => Color::Sage,
         'payment_terms_days' => 60,
     ]);

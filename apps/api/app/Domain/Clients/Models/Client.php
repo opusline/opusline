@@ -8,6 +8,7 @@ use App\Domain\Clients\Enums\ClientType;
 use App\Domain\Clients\Factories\ClientFactory;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Enums\Color;
+use App\Domain\Shared\Routing\OwnedRouteBinding;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -30,7 +31,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property ?string $notes
  * @property ?string $siret
  * @property ?string $vat_number
- * @property ?string $billing_address
+ * @property ?string $billing_address_line1
+ * @property ?string $billing_address_line2
+ * @property ?string $billing_postal_code
+ * @property ?string $billing_city
+ * @property ?string $billing_country
  * @property ?string $billing_contact_name
  * @property ?string $billing_email
  * @property Color $color
@@ -45,7 +50,11 @@ use Spatie\Sluggable\SlugOptions;
     'notes',
     'siret',
     'vat_number',
-    'billing_address',
+    'billing_address_line1',
+    'billing_address_line2',
+    'billing_postal_code',
+    'billing_city',
+    'billing_country',
     'billing_contact_name',
     'billing_email',
     'color',
@@ -119,7 +128,7 @@ class Client extends Model implements HasMedia
 
     /**
      * Scope every {client} route binding to the authenticated user, so a
-     * foreign client resolves to a 404 instead of leaking across accounts.
+     * foreign row resolves to a 404 instead of leaking across accounts.
      *
      * @param  mixed  $value
      * @param  string|null  $field
@@ -127,8 +136,10 @@ class Client extends Model implements HasMedia
     #[\Override]
     public function resolveRouteBinding($value, $field = null): ?Model
     {
-        return auth()->user()?->clients()
-            ->where($field ?? $this->getRouteKeyName(), $value)
-            ->first();
+        return OwnedRouteBinding::resolve(
+            auth()->user()?->clients(),
+            $field ?? $this->getRouteKeyName(),
+            $value,
+        );
     }
 }

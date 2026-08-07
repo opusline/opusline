@@ -1,0 +1,126 @@
+const SEARCH_URL = "https://data.geopf.fr/geocodage/search";
+
+const MIN_QUERY_LENGTH = 3;
+
+export type AddressSuggestion = {
+  id: string;
+  label: string;
+  line1: string;
+  postalCode: string;
+  city: string;
+};
+
+type BanFeature = {
+  properties?: {
+    id?: unknown;
+    label?: unknown;
+    name?: unknown;
+    postcode?: unknown;
+    city?: unknown;
+  };
+};
+
+function toSuggestion(feature: BanFeature): AddressSuggestion | null {
+  const properties = feature.properties;
+
+  if (
+    typeof properties?.id !== "string" ||
+    typeof properties.label !== "string" ||
+    typeof properties.name !== "string" ||
+    typeof properties.postcode !== "string" ||
+    typeof properties.city !== "string"
+  ) {
+    return null;
+  }
+
+  return {
+    id: properties.id,
+    label: properties.label,
+    line1: properties.name,
+    postalCode: properties.postcode,
+    city: properties.city,
+  };
+}
+
+async function fetchFeatures(
+  query: string,
+  extraParams: string,
+  signal?: AbortSignal,
+): Promise<BanFeature[]> {
+  const trimmed = query.trim();
+
+  if (trimmed.length < MIN_QUERY_LENGTH) {
+    return [];
+  }
+
+  const url = `${SEARCH_URL}?q=${encodeURIComponent(trimmed)}&limit=5&autocomplete=1${extraParams}`;
+
+  const response = await fetch(url, { signal });
+
+  if (!response.ok) {
+    throw new Error(`Address lookup failed with status ${response.status}`);
+  }
+
+  const payload: unknown = await response.json();
+
+  if (
+    typeof payload !== "object" ||
+    payload === null ||
+    !Array.isArray((payload as { features?: unknown }).features)
+  ) {
+    throw new Error("Address lookup returned an unexpected payload");
+  }
+
+  return (payload as { features: unknown[] }).features.filter(
+    (feature): feature is BanFeature =>
+      typeof feature === "object" && feature !== null,
+  );
+}
+
+export async function searchAddresses(
+  query: string,
+  signal?: AbortSignal,
+): Promise<AddressSuggestion[]> {
+  const features = await fetchFeatures(query, "", signal);
+
+  return features
+    .map(toSuggestion)
+    .filter(
+      (suggestion): suggestion is AddressSuggestion => suggestion !== null,
+    );
+}
+
+export type CitySuggestion = {
+  id: string;
+  label: string;
+  city: string;
+  postalCode: string;
+};
+
+export async function searchCities(
+  query: string,
+  signal?: AbortSignal,
+): Promise<CitySuggestion[]> {
+  const features = await fetchFeatures(query, "&type=municipality", signal);
+
+  return features.flatMap((feature) => {
+    const properties = feature.properties;
+
+    if (
+      typeof properties?.id !== "string" ||
+      typeof properties.city !== "string" ||
+      typeof properties.postcode !== "string"
+    ) {
+      return [];
+    }
+
+    return [
+      {
+        id: properties.id,
+        label: `${properties.city} (${properties.postcode})`,
+        city: properties.city,
+        postalCode: properties.postcode,
+      },
+    ];
+  });
+}

@@ -24,6 +24,8 @@ import { CircleAlert, InfoIcon } from "lucide-react";
 import { useState } from "react";
 import { FormTextField } from "@/components/form-text-field";
 import { formatRate, formatRateDraft, parseRateToCents } from "@/lib/billing";
+import { isInternalClient } from "@/lib/client-types";
+import { todayCalendarDate } from "@/lib/dates";
 import type { FormSubmitResult } from "@/lib/form";
 import {
   COLOR_CLASSES,
@@ -105,7 +107,8 @@ export function NewMissionPage({
   );
 
   const isEsn = selectedClient?.type === 1;
-  const isInternal = selectedClient?.type === 2;
+  const isInternal =
+    selectedClient !== undefined && isInternalClient(selectedClient.type);
   const isForfait = billingMode === 2;
   const rateCents = isInternal ? null : parseRateToCents(rateDraft);
 
@@ -113,7 +116,7 @@ export function NewMissionPage({
     defaultValues: {
       name: "",
       endClientName: "",
-      startDate: new Date().toISOString().slice(0, 10),
+      startDate: todayCalendarDate(),
       endDate: "",
     } as MissionFormValues,
     validators: {
@@ -158,8 +161,10 @@ export function NewMissionPage({
     setCraRequired(client?.type === 1);
     setColor(null);
 
-    if (client?.type === 2) {
+    if (client !== undefined && isInternalClient(client.type)) {
       setBillingMode(0);
+      setRateDraft("");
+      setIsRateMissing(false);
     }
   };
 
@@ -204,14 +209,7 @@ export function NewMissionPage({
             Clients
           </Link>
           <span>/</span>
-          <Link
-            className="text-link transition-colors hover:text-link-hover"
-            to="/missions"
-          >
-            Missions
-          </Link>
-          <span>/</span>
-          <span className="text-muted-foreground">Nouvelle</span>
+          <span className="text-muted-foreground">Nouvelle mission</span>
         </div>
         <h1 className="mb-1 font-heading font-semibold text-2xl text-foreground-hi">
           Nouvelle mission

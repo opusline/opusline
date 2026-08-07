@@ -90,7 +90,11 @@ function uploadFailureMessage(error: unknown): string {
 }
 
 type DocumentHandlerOptions = {
-  upload: (file: File, category: DocumentCategory) => Promise<unknown>;
+  upload: (
+    file: File,
+    category: DocumentCategory,
+    fileName: string,
+  ) => Promise<unknown>;
   remove: (document: DocumentData) => Promise<unknown>;
   invalidate: () => Promise<void>;
 };
@@ -104,9 +108,10 @@ export function documentHandlers({
     handleUpload: async (
       file: File,
       category: DocumentCategory,
+      fileName: string,
     ): Promise<DocumentUploadResult> => {
       try {
-        await upload(file, category);
+        await upload(file, category, fileName);
         await invalidate();
         return { status: "success" };
       } catch (error) {
@@ -156,4 +161,16 @@ export function missionDocumentDownloadHref(
       document: document.id,
     },
   });
+}
+
+export function baseName(fileName: string): string {
+  const lastDot = fileName.lastIndexOf(".");
+
+  return lastDot <= 0 ? fileName : fileName.slice(0, lastDot);
+}
+
+export function extensionOf(fileName: string): string {
+  const lastDot = fileName.lastIndexOf(".");
+
+  return lastDot <= 0 ? "" : fileName.slice(lastDot + 1).toLowerCase();
 }

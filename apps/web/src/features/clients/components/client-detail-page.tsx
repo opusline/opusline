@@ -35,17 +35,15 @@ import {
 } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { ClientLogo } from "@/components/client-logo";
+import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { formatMissionRate, paymentTermsLabel } from "@/lib/billing";
+import { CLIENT_TYPE_LABELS } from "@/lib/client-types";
 import { monthYearLabel } from "@/lib/dates";
 import type { FormSubmitResult } from "@/lib/form";
 import type { LogoUploadResult } from "@/lib/logos";
-import {
-  MISSION_STATUS_BADGE_VARIANTS,
-  MISSION_STATUS_LABELS,
-} from "@/lib/mission-status";
 import { COLOR_CLASSES } from "@/lib/palette";
+import { formatPostalAddress } from "../lib/client-form";
 
-import { CLIENT_TYPE_OPTION_LABELS } from "../lib/labels";
 import { ClientEditForm } from "./client-edit-form";
 
 const EYEBROW_CLASSES =
@@ -134,7 +132,7 @@ export function ClientDetailPage({
   const hasCoordinates =
     client.siret !== null ||
     client.vatNumber !== null ||
-    client.billingAddress !== null ||
+    formatPostalAddress(client) !== null ||
     client.billingContactName !== null ||
     client.billingEmail !== null;
 
@@ -176,7 +174,7 @@ export function ClientDetailPage({
               <h1 className="font-heading font-semibold text-2xl text-foreground-hi">
                 {client.name}
               </h1>
-              <Badge>{CLIENT_TYPE_OPTION_LABELS[client.type]}</Badge>
+              <Badge>{CLIENT_TYPE_LABELS[client.type]}</Badge>
               {isArchived && <Badge variant="quiet">Archivé</Badge>}
             </div>
             <p className="mt-1.5 text-muted-foreground-3 text-sm">
@@ -357,17 +355,10 @@ export function ClientDetailPage({
                           —
                         </TableCell>
                         <TableCell className="py-4 pr-5 text-right">
-                          {client.type === 2 ? (
-                            <Badge variant="quiet">Perso</Badge>
-                          ) : (
-                            <Badge
-                              variant={
-                                MISSION_STATUS_BADGE_VARIANTS[mission.status]
-                              }
-                            >
-                              {MISSION_STATUS_LABELS[mission.status]}
-                            </Badge>
-                          )}
+                          <MissionStatusBadge
+                            clientType={client.type}
+                            status={mission.status}
+                          />
                         </TableCell>
                       </TableRow>
                     ))}
@@ -429,7 +420,10 @@ export function ClientDetailPage({
                       mono
                       value={client.vatNumber}
                     />
-                    <CoordRow label="Adresse" value={client.billingAddress} />
+                    <CoordRow
+                      label="Adresse"
+                      value={formatPostalAddress(client)}
+                    />
                   </div>
                 </div>
                 <div className="rounded-md border bg-card p-5">

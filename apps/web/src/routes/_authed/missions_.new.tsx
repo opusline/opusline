@@ -3,12 +3,14 @@ import {
   createMissionMutation,
   listClientsOptions,
   listClientsQueryKey,
+  showClientOptions,
   showClientQueryKey,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import { NewMissionPage } from "@/features/missions/components/new-mission-page";
 import type { FormSubmitResult } from "@/lib/form";
 import { serverFieldErrors } from "@/lib/validation";
@@ -27,28 +29,58 @@ function NewMissionRoute() {
 
   const { data, isPending, isError } = useQuery(listClientsOptions());
   const createMission = useMutation(createMissionMutation());
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (
     clientSlug: string,
     body: CreateMissionData,
   ): Promise<FormSubmitResult> => {
+    setIsSubmitting(true);
+
+    let created: Awaited<ReturnType<typeof createMission.mutateAsync>>;
+
     try {
-      await createMission.mutateAsync({ body, path: { client: clientSlug } });
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: listClientsQueryKey() }),
-        queryClient.invalidateQueries({
-          queryKey: showClientQueryKey({ path: { client: clientSlug } }),
-        }),
-      ]);
-      await navigate({ to: "/clients/$clientSlug", params: { clientSlug } });
-      return { status: "success" };
+      created = await createMission.mutateAsync({
+        body,
+        path: { client: clientSlug },
+      });
     } catch (error) {
+      setIsSubmitting(false);
       const fieldErrors = serverFieldErrors(error);
 
       return fieldErrors
         ? { status: "invalid", fieldErrors }
         : { status: "failed" };
     }
+
+    try {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: listClientsQueryKey(),
+          refetchType: "none",
+        }),
+        queryClient.invalidateQueries({
+          queryKey: showClientQueryKey({ path: { client: clientSlug } }),
+          refetchType: "none",
+        }),
+      ]);
+      await queryClient.fetchQuery(
+        showClientOptions({ path: { client: clientSlug } }),
+      );
+    } catch {
+      // A stale list is recoverable; a duplicate mission is not.
+    }
+
+    try {
+      await navigate({
+        to: "/clients/$clientSlug/missions/$missionSlug",
+        params: { clientSlug, missionSlug: created.slug },
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+
+    return { status: "success" };
   };
 
   if (isPending) {
@@ -79,7 +111,7 @@ function NewMissionRoute() {
           : null
       }
       initialClientSlug={initialClientSlug}
-      isPending={createMission.isPending}
+      isPending={isSubmitting}
       onCancel={() => void navigate({ to: "/clients" })}
       onSubmit={handleSubmit}
     />

@@ -22,9 +22,13 @@ function clientPayload(
     name: "Nordlys",
     type: 1,
     notes: null,
-    siret: "123 456 789 00012",
+    siret: "443 061 841 00047",
     vatNumber: null,
-    billingAddress: null,
+    billingAddressLine1: null,
+    billingAddressLine2: null,
+    billingPostalCode: null,
+    billingCity: null,
+    billingCountry: null,
     billingContactName: null,
     billingEmail: null,
     color: 0,
@@ -60,7 +64,12 @@ function jsonResponse(status: number, body: unknown): Response {
   });
 }
 
-type RecordedRequest = { method: string; path: string; body: unknown };
+type RecordedRequest = {
+  method: string;
+  path: string;
+  url: string;
+  body: unknown;
+};
 
 function stubApi(
   client: ClientWithMissionsData,
@@ -81,7 +90,12 @@ function stubApi(
               .clone()
               .json()
               .catch(() => null);
-      requests.push({ method: request.method, path: url.pathname, body });
+      requests.push({
+        method: request.method,
+        path: url.pathname,
+        url: request.url,
+        body,
+      });
 
       const overridden = overrides?.(request);
       if (overridden) {
@@ -125,7 +139,7 @@ it("shows the client header, stats and missions", async () => {
   stubApi(clientPayload());
   await renderDetailPage();
 
-  expect(screen.getByText("ESN / intermédiaire")).toBeInTheDocument();
+  expect(screen.getByText("Intermédiaire")).toBeInTheDocument();
   expect(
     screen.getByText(/Client depuis .+ · paiement à 45 jours/),
   ).toBeInTheDocument();
@@ -135,13 +149,13 @@ it("shows the client header, stats and missions", async () => {
 });
 
 it("shows the coordinates in the dedicated tab", async () => {
-  stubApi(clientPayload({ vatNumber: "FR12 123456789" }));
+  stubApi(clientPayload({ vatNumber: "FR64 443061841" }));
   await renderDetailPage();
 
   fireEvent.click(screen.getByRole("tab", { name: "Coordonnées" }));
 
-  expect(await screen.findByText("123 456 789 00012")).toBeInTheDocument();
-  expect(screen.getByText("FR12 123456789")).toBeInTheDocument();
+  expect(await screen.findByText("443 061 841 00047")).toBeInTheDocument();
+  expect(screen.getByText("FR64 443061841")).toBeInTheDocument();
 });
 
 it("invites to fill in missing coordinates", async () => {
@@ -204,7 +218,11 @@ it("shows saved billing contact details even without company identifiers", async
     clientPayload({
       siret: null,
       vatNumber: null,
-      billingAddress: null,
+      billingAddressLine1: null,
+      billingAddressLine2: null,
+      billingPostalCode: null,
+      billingCity: null,
+      billingCountry: null,
       billingEmail: "factures@nordlys.example",
     }),
   );
@@ -412,4 +430,35 @@ it("offers to reactivate an archived client", async () => {
   expect(
     await screen.findByRole("menuitem", { name: "Réactiver ce client" }),
   ).toBeInTheDocument();
+});
+
+it("opens the edit form without popping the address suggestions", async () => {
+  const requests = stubApi(
+    clientPayload({
+      billingAddressLine1: "12 Rue de la Paix",
+      billingPostalCode: "44000",
+      billingCity: "Nantes",
+      billingCountry: "France",
+    }),
+  );
+  await renderDetailPage();
+
+  fireEvent.click(screen.getByRole("button", { name: "Modifier" }));
+  await screen.findByLabelText("Adresse");
+
+  await waitFor(() => {
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+  });
+  expect(
+    requests.filter((request) => request.url.includes("data.geopf.fr")),
+  ).toHaveLength(0);
+});
+
+it("opens the coordinates tab for a client whose only address part is a country", async () => {
+  stubApi(clientPayload({ siret: null, billingCountry: "France" }));
+  await renderDetailPage();
+
+  fireEvent.click(screen.getByRole("tab", { name: "Coordonnées" }));
+
+  expect(await screen.findByText("France")).toBeInTheDocument();
 });

@@ -23,6 +23,7 @@ import {
   CLIENT_TYPES,
   randomColor,
 } from "../lib/labels";
+import { BillingAddressFields } from "./billing-address-fields";
 import { PaymentTermsPicker } from "./payment-terms-picker";
 
 const EYEBROW_CLASSES =
@@ -68,7 +69,11 @@ export function NewClientPage({
       type: 0,
       siret: "",
       vatNumber: "",
-      billingAddress: "",
+      billingAddressLine1: "",
+      billingAddressLine2: "",
+      billingPostalCode: "",
+      billingCity: "",
+      billingCountry: "",
       billingContactName: "",
       billingEmail: "",
       color: defaultColor,
@@ -200,7 +205,7 @@ export function NewClientPage({
                   label="SIRET"
                   labelClassName="text-foreground-3"
                   font="mono"
-                  placeholder="123 456 789 00012"
+                  placeholder="443 061 841 00047"
                 />
               )}
             </form.Field>
@@ -211,23 +216,23 @@ export function NewClientPage({
                   label="TVA intracommunautaire"
                   labelClassName="text-foreground-3"
                   font="mono"
-                  placeholder="FR12 123456789"
+                  placeholder="FR64 443061841"
                 />
               )}
             </form.Field>
           </div>
 
-          <form.Field name="billingAddress">
-            {(field) => (
-              <FormTextField
-                field={field}
-                label="Adresse de facturation"
-                labelClassName="text-foreground-3"
-                multiline
-                placeholder={"12 rue de la Paix\n44000 Nantes"}
-              />
+          <BillingAddressFields
+            complementLabel="Complément d'adresse"
+            gapClassName="gap-4"
+            labelClassName="text-foreground-3"
+            renderField={(name, render) => (
+              <form.Field name={name}>{(field) => render(field)}</form.Field>
             )}
-          </form.Field>
+            setFieldValue={(name, value) => form.setFieldValue(name, value)}
+            streetLabel="Adresse de facturation"
+            withPlaceholders
+          />
 
           <Separator />
 

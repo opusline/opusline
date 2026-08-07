@@ -20,7 +20,11 @@ export type ClientData = {
     notes: string | null;
     siret: string | null;
     vatNumber: string | null;
-    billingAddress: string | null;
+    billingAddressLine1: string | null;
+    billingAddressLine2: string | null;
+    billingPostalCode: string | null;
+    billingCity: string | null;
+    billingCountry: string | null;
     billingContactName: string | null;
     billingEmail: string | null;
     color: Color;
@@ -52,7 +56,11 @@ export type ClientWithMissionsData = {
     notes: string | null;
     siret: string | null;
     vatNumber: string | null;
-    billingAddress: string | null;
+    billingAddressLine1: string | null;
+    billingAddressLine2: string | null;
+    billingPostalCode: string | null;
+    billingCity: string | null;
+    billingCountry: string | null;
     billingContactName: string | null;
     billingEmail: string | null;
     color: Color;
@@ -76,7 +84,11 @@ export type CreateClientData = {
     notes?: string | null;
     siret?: string | null;
     vatNumber?: string | null;
-    billingAddress?: string | null;
+    billingAddressLine1?: string | null;
+    billingAddressLine2?: string | null;
+    billingPostalCode?: string | null;
+    billingCity?: string | null;
+    billingCountry?: string | null;
     billingContactName?: string | null;
     billingEmail?: string | null;
     color?: Color;
@@ -205,7 +217,11 @@ export type UpdateClientData = {
     notes?: string | null;
     siret?: string | null;
     vatNumber?: string | null;
-    billingAddress?: string | null;
+    billingAddressLine1?: string | null;
+    billingAddressLine2?: string | null;
+    billingPostalCode?: string | null;
+    billingCity?: string | null;
+    billingCountry?: string | null;
     billingContactName?: string | null;
     billingEmail?: string | null;
     color?: Color;
@@ -258,6 +274,7 @@ export type UploadDocumentData = {
      */
     file: Blob | File;
     category?: DocumentCategory | null;
+    fileName?: string | null;
 };
 
 /**
@@ -859,9 +876,7 @@ export type DownloadClientDocumentErrors = {
 export type DownloadClientDocumentError = DownloadClientDocumentErrors[keyof DownloadClientDocumentErrors];
 
 export type DownloadClientDocumentResponses = {
-    200: {
-        [key: string]: unknown;
-    };
+    200: Blob | File;
 };
 
 export type DownloadClientDocumentResponse = DownloadClientDocumentResponses[keyof DownloadClientDocumentResponses];
@@ -946,9 +961,7 @@ export type ShowClientLogoErrors = {
 export type ShowClientLogoError = ShowClientLogoErrors[keyof ShowClientLogoErrors];
 
 export type ShowClientLogoResponses = {
-    200: {
-        [key: string]: unknown;
-    };
+    200: Blob | File;
 };
 
 export type ShowClientLogoResponse = ShowClientLogoResponses[keyof ShowClientLogoResponses];
@@ -1402,9 +1415,7 @@ export type DownloadMissionDocumentErrors = {
 export type DownloadMissionDocumentError = DownloadMissionDocumentErrors[keyof DownloadMissionDocumentErrors];
 
 export type DownloadMissionDocumentResponses = {
-    200: {
-        [key: string]: unknown;
-    };
+    200: Blob | File;
 };
 
 export type DownloadMissionDocumentResponse = DownloadMissionDocumentResponses[keyof DownloadMissionDocumentResponses];

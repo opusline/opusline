@@ -22,6 +22,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
         ->name('deleteClient');
 
     Route::post('/clients/{client}/logo', [ClientLogoController::class, 'store'])
+        ->middleware('throttle:uploads')
         ->name('uploadClientLogo');
     Route::get('/clients/{client}/logo', [ClientLogoController::class, 'show'])
         ->name('showClientLogo');
@@ -31,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/clients/{client}/documents', [ClientDocumentController::class, 'index'])
         ->name('listClientDocuments');
     Route::post('/clients/{client}/documents', [ClientDocumentController::class, 'store'])
+        ->middleware('throttle:uploads')
         ->name('uploadClientDocument');
     Route::put('/clients/{client}/documents/{document}', [ClientDocumentController::class, 'update'])
         ->whereNumber('document')

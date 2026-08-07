@@ -5,7 +5,6 @@ import type {
   UpdateMissionData,
 } from "@opusline/api-client";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
-import { Badge } from "@opusline/ui/components/badge";
 import { Button } from "@opusline/ui/components/button";
 import {
   DropdownMenu,
@@ -29,22 +28,17 @@ import {
   PlusIcon,
 } from "lucide-react";
 import { type ReactNode, useState } from "react";
+import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { formatAmount, paymentTermsLabel } from "@/lib/billing";
 import { CLIENT_TYPE_LABELS } from "@/lib/client-types";
-import { monthYearLabel } from "@/lib/dates";
+import { calendarDateLabel, calendarMonthYearLabel } from "@/lib/dates";
 import type { FormSubmitResult } from "@/lib/form";
-import {
-  MISSION_STATUS_BADGE_VARIANTS,
-  MISSION_STATUS_LABELS,
-} from "@/lib/mission-status";
 import { COLOR_CLASSES } from "@/lib/palette";
 import { BILLING_MODE_UNITS_SHORT, entryRoundingLabel } from "../lib/labels";
 import { MissionEditForm } from "./mission-edit-form";
 
 const EYEBROW_CLASSES =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
-
-const dayMonthYear = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" });
 
 function StatTile({
   label,
@@ -150,9 +144,10 @@ export function MissionDetailPage({
             <h1 className="font-heading font-semibold text-2xl text-foreground-hi">
               {mission.name}
             </h1>
-            <Badge variant={MISSION_STATUS_BADGE_VARIANTS[mission.status]}>
-              {MISSION_STATUS_LABELS[mission.status]}
-            </Badge>
+            <MissionStatusBadge
+              clientType={client.type}
+              status={mission.status}
+            />
           </div>
           <p className="mt-1.5 pl-4 text-muted-foreground-3 text-sm">
             {[
@@ -160,7 +155,7 @@ export function MissionDetailPage({
               mission.endClientName !== null &&
                 `client final ${mission.endClientName}`,
               mission.startDate !== null &&
-                `depuis ${monthYearLabel(mission.startDate)}`,
+                `depuis ${calendarMonthYearLabel(mission.startDate)}`,
             ]
               .filter(Boolean)
               .join(" · ")}
@@ -394,7 +389,15 @@ export function MissionDetailPage({
                     value={
                       mission.startDate === null
                         ? "—"
-                        : dayMonthYear.format(new Date(mission.startDate))
+                        : calendarDateLabel(mission.startDate)
+                    }
+                  />
+                  <FacturationRow
+                    label="Fin prévue"
+                    value={
+                      mission.endDate === null
+                        ? "—"
+                        : calendarDateLabel(mission.endDate)
                     }
                   />
                 </div>

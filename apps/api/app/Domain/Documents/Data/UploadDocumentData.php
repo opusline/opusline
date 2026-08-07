@@ -17,5 +17,7 @@ class UploadDocumentData extends Data
         #[File, Mimes('pdf', 'jpg', 'jpeg', 'png', 'webp', 'doc', 'docx', 'xls', 'xlsx', 'odt', 'ods', 'csv'), Max(20480)]
         public UploadedFile $file,
         public ?DocumentCategory $category = null,
+        #[Max(255)]
+        public ?string $fileName = null,
     ) {}
 }

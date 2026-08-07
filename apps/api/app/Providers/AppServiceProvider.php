@@ -12,10 +12,13 @@ use Carbon\CarbonImmutable;
 use Dedoc\Scramble\Configuration\ParametersExtractors;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\OperationExtensions\ParameterExtractor\FormRequestParametersExtractor;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Spatie\LaravelData\Data;
 
@@ -46,6 +49,19 @@ class AppServiceProvider extends ServiceProvider
         ]);
 
         DB::prohibitDestructiveCommands($this->app->isProduction());
+
+        $caller = static function (Request $request): string {
+            $identifier = $request->user()?->getAuthIdentifier();
+
+            if (is_int($identifier) || is_string($identifier)) {
+                return (string) $identifier;
+            }
+
+            return $request->ip() ?? 'unknown';
+        };
+
+        RateLimiter::for('api', fn (Request $request): Limit => Limit::perMinute(120)->by($caller($request)));
+        RateLimiter::for('uploads', fn (Request $request): Limit => Limit::perMinute(20)->by($caller($request)));
 
         Scramble::configure()->withParametersExtractors(
             fn (ParametersExtractors $extractors): ParametersExtractors => $extractors->prepend(SpatieDataParametersExtractor::class),

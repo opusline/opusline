@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Domain\Clients\Models\Client;
+use App\Domain\Documents\Actions\UploadDocument;
+use App\Domain\Documents\Data\UploadDocumentData;
 use App\Domain\Documents\Enums\DocumentCategory;
 use App\Domain\Documents\Enums\DocumentSource;
 use App\Domain\Users\Models\User;
@@ -247,4 +249,174 @@ test('returns 401 for guests', function (): void {
     $client = Client::factory()->create();
 
     $this->getJson("/api/clients/{$client->slug}/documents")->assertUnauthorized();
+});
+
+test('uploads a document under a chosen name', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->create('scan001.pdf', 12, 'application/pdf'),
+            'fileName' => 'Contrat Nordlys 2026',
+        ])
+        ->assertCreated()
+        ->assertJsonPath('fileName', 'Contrat-Nordlys-2026.pdf');
+});
+
+test('keeps the uploaded extension when the chosen name carries another one', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->create('scan001.pdf', 12, 'application/pdf'),
+            'fileName' => 'payload.php',
+        ])
+        ->assertCreated()
+        ->assertJsonPath('fileName', 'payload.pdf');
+});
+
+test('clips a chosen name so the stored file name fits its column', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $response = $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->create('scan.pdf', 12, 'application/pdf'),
+            'fileName' => str_repeat('a', 255),
+        ])
+        ->assertCreated();
+
+    expect($response->json('fileName'))->toBe(str_repeat('a', 251).'.pdf');
+});
+
+test('clips an overlong original file name to fit its column', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $response = $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->create(
+                str_repeat('n', 300).'.pdf',
+                12,
+                'application/pdf',
+            ),
+        ])
+        ->assertCreated();
+
+    expect($response->json('fileName'))->toBe(str_repeat('n', 251).'.pdf');
+});
+
+test('clips an absurd extension instead of losing the whole name', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $response = $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->create(
+                'scan.'.str_repeat('e', 300),
+                12,
+                'application/pdf',
+            ),
+            'fileName' => 'Contrat',
+        ])
+        ->assertCreated();
+
+    expect($response->json('fileName'))->toBe('Contrat.'.str_repeat('e', 16));
+});
+
+test('leaves no trailing dot when the upload has no extension', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->create('scan', 12, 'application/pdf'),
+            'fileName' => 'Contrat',
+        ])
+        ->assertCreated()
+        ->assertJsonPath('fileName', 'Contrat');
+});
+
+test('collapses whitespace runs in a chosen name to one separator', function (string $chosen): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->create('scan.pdf', 12, 'application/pdf'),
+            'fileName' => $chosen,
+        ])
+        ->assertCreated()
+        ->assertJsonPath('fileName', 'Contrat-Nordlys.pdf');
+})->with([
+    'repeated spaces' => ['Contrat   Nordlys'],
+    'tab' => ["Contrat\tNordlys"],
+    'non-breaking space' => ["Contrat\u{00A0}Nordlys"],
+    'mixed run' => ["Contrat \t Nordlys"],
+]);
+
+test('falls back to the uploaded name when the chosen name is only whitespace', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->create('scan.pdf', 12, 'application/pdf'),
+            'fileName' => "\u{00A0}\t ",
+        ])
+        ->assertCreated()
+        ->assertJsonPath('fileName', 'scan.pdf');
+});
+
+test('falls back to a generic base when nothing yields one', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->create('.pdf', 12, 'application/pdf'),
+        ])
+        ->assertCreated()
+        ->assertJsonPath('fileName', 'document.pdf');
+});
+
+test('falls back to the uploaded name for a rename made only of unicode spaces', function (): void {
+    Storage::fake('local');
+    $client = Client::factory()->for(User::factory())->create();
+
+    $document = app(UploadDocument::class)->handle($client, new UploadDocumentData(
+        file: UploadedFile::fake()->create('scan.pdf', 12, 'application/pdf'),
+        fileName: "\u{00A0}\u{2009}",
+    ));
+
+    expect($document->file_name)->toBe('scan.pdf');
+});
+
+test('keeps a multibyte name within the filesystem byte limit', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $response = $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->create('scan.pdf', 12, 'application/pdf'),
+            'fileName' => str_repeat('é', 255),
+        ])
+        ->assertCreated();
+
+    $stored = (string) $response->json('fileName');
+
+    expect(strlen($stored))->toBeLessThanOrEqual(255)
+        ->and($stored)->toEndWith('.pdf');
 });
