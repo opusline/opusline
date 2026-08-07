@@ -10,6 +10,7 @@ use App\Domain\Missions\Enums\EntryRounding;
 use App\Domain\Missions\Enums\MissionStatus;
 use App\Domain\Missions\Factories\MissionFactory;
 use App\Domain\Shared\Enums\Color;
+use App\Domain\Shared\Routing\OwnedRouteBinding;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Casts\MoneyIntegerCast;
@@ -85,10 +86,8 @@ class Mission extends Model implements HasMedia
     }
 
     /**
-     * Scope every {mission} route binding to the authenticated user, mirroring
-     * Client. Nested routes already resolve through the parent client, but slugs
-     * repeat across users by design, so a flat route added later would otherwise
-     * hand out whichever row was inserted first.
+     * Scope every {mission} route binding to the authenticated user, so a
+     * foreign row resolves to a 404 instead of leaking across accounts.
      *
      * @param  mixed  $value
      * @param  string|null  $field
@@ -96,9 +95,11 @@ class Mission extends Model implements HasMedia
     #[\Override]
     public function resolveRouteBinding($value, $field = null): ?Model
     {
-        return auth()->user()?->missions()
-            ->where($field ?? $this->getRouteKeyName(), $value)
-            ->first();
+        return OwnedRouteBinding::resolve(
+            auth()->user()?->missions(),
+            $field ?? $this->getRouteKeyName(),
+            $value,
+        );
     }
 
     public function getSlugOptions(): SlugOptions
