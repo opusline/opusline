@@ -151,7 +151,7 @@ export type DocumentSource = 0 | 1;
 /**
  * EntryRounding
  *
- * Rounding increment for time entries, expressed as a fraction of the mission's billing unit: half or a quarter of a day/hour, or to the minute.
+ * Rounding increment for time entries, expressed as a fraction of the mission's billing unit: half or a quarter of a day/hour, or to the minute. Entries store the exact time worked — this is applied when valuing them, never when recording them, so changing a mission's rounding re-values its history instead of invalidating it.
  *
  */
 export type EntryRounding = 0 | 1 | 2;
@@ -206,6 +206,36 @@ export type RegisterUserData = {
     email: string;
     password: string;
     password_confirmation: string;
+};
+
+/**
+ * TimeEntryData
+ */
+export type TimeEntryData = {
+    id: number;
+    missionId: number;
+    date: string;
+    durationMinutes: number;
+    valuedMinutes: number | null;
+    valuedDayFraction: number | null;
+    note: string | null;
+};
+
+/**
+ * TimeEntryInputData
+ */
+export type TimeEntryInputData = {
+    missionId: number;
+    date: string;
+    durationMinutes: number;
+    note?: string | null;
+};
+
+/**
+ * TimeEntryListData
+ */
+export type TimeEntryListData = {
+    timeEntries: Array<TimeEntryData>;
 };
 
 /**
@@ -1045,6 +1075,15 @@ export type DeleteMissionErrors = {
          */
         message: string;
     };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
 };
 
 export type DeleteMissionError = DeleteMissionErrors[keyof DeleteMissionErrors];
@@ -1419,3 +1458,145 @@ export type DownloadMissionDocumentResponses = {
 };
 
 export type DownloadMissionDocumentResponse = DownloadMissionDocumentResponses[keyof DownloadMissionDocumentResponses];
+
+export type ListTimeEntriesData = {
+    body?: never;
+    path?: never;
+    query: {
+        from: string;
+        to: string;
+    };
+    url: '/time-entries';
+};
+
+export type ListTimeEntriesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListTimeEntriesError = ListTimeEntriesErrors[keyof ListTimeEntriesErrors];
+
+export type ListTimeEntriesResponses = {
+    200: TimeEntryListData;
+};
+
+export type ListTimeEntriesResponse = ListTimeEntriesResponses[keyof ListTimeEntriesResponses];
+
+export type CreateTimeEntryData = {
+    body: TimeEntryInputData;
+    path?: never;
+    query?: never;
+    url: '/time-entries';
+};
+
+export type CreateTimeEntryErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateTimeEntryError = CreateTimeEntryErrors[keyof CreateTimeEntryErrors];
+
+export type CreateTimeEntryResponses = {
+    201: TimeEntryData;
+};
+
+export type CreateTimeEntryResponse = CreateTimeEntryResponses[keyof CreateTimeEntryResponses];
+
+export type DeleteTimeEntryData = {
+    body?: never;
+    path: {
+        /**
+         * The time entry ID
+         */
+        timeEntry: number;
+    };
+    query?: never;
+    url: '/time-entries/{timeEntry}';
+};
+
+export type DeleteTimeEntryErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteTimeEntryError = DeleteTimeEntryErrors[keyof DeleteTimeEntryErrors];
+
+export type DeleteTimeEntryResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteTimeEntryResponse = DeleteTimeEntryResponses[keyof DeleteTimeEntryResponses];
+
+export type UpdateTimeEntryData = {
+    body: TimeEntryInputData;
+    path: {
+        /**
+         * The time entry ID
+         */
+        timeEntry: number;
+    };
+    query?: never;
+    url: '/time-entries/{timeEntry}';
+};
+
+export type UpdateTimeEntryErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateTimeEntryError = UpdateTimeEntryErrors[keyof UpdateTimeEntryErrors];
+
+export type UpdateTimeEntryResponses = {
+    200: TimeEntryData;
+};
+
+export type UpdateTimeEntryResponse = UpdateTimeEntryResponses[keyof UpdateTimeEntryResponses];

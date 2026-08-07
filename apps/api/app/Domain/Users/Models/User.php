@@ -6,6 +6,7 @@ namespace App\Domain\Users\Models;
 
 use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Models\Mission;
+use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Users\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -52,5 +53,11 @@ class User extends Authenticatable
     public function missions(): HasMany
     {
         return $this->hasMany(Mission::class);
+    }
+
+    /** @return HasMany<TimeEntry, $this> */
+    public function timeEntries(): HasMany
+    {
+        return $this->hasMany(TimeEntry::class);
     }
 }

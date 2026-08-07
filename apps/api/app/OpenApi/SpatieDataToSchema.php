@@ -15,9 +15,11 @@ use Dedoc\Scramble\Support\Generator\Types as OpenApi;
 use Dedoc\Scramble\Support\Type\ObjectType;
 use Dedoc\Scramble\Support\Type\Type;
 use LogicException;
+use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionNamedType;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
+use Spatie\LaravelData\Attributes\WithTransformer;
 use Spatie\LaravelData\Data;
 
 class SpatieDataToSchema extends TypeToSchemaExtension
@@ -48,7 +50,7 @@ class SpatieDataToSchema extends TypeToSchemaExtension
                 continue;
             }
 
-            $property = $this->schemaForNamedType($parameterType);
+            $property = $this->schemaForNamedType($parameterType, $reflectionClass, $parameter->getName());
 
             if ($parameterType->getName() === 'array') {
                 $itemsType = $this->collectedDataItems($reflectionClass, $parameter->getName());
@@ -95,27 +97,66 @@ class SpatieDataToSchema extends TypeToSchemaExtension
     /**
      * Items schema for an array property carrying #[DataCollectionOf(SomeData::class)].
      *
-     * The attribute targets properties, so it is read from the promoted
-     * property, not the constructor parameter.
-     *
      * @param  ReflectionClass<Data>  $reflectionClass
      */
     private function collectedDataItems(ReflectionClass $reflectionClass, string $propertyName): ?OpenApi\Type
     {
-        if (! $reflectionClass->hasProperty($propertyName)) {
-            return null;
-        }
+        $attribute = $this->firstPropertyAttribute($reflectionClass, $propertyName, DataCollectionOf::class);
 
-        $attribute = $reflectionClass->getProperty($propertyName)->getAttributes(DataCollectionOf::class)[0] ?? null;
-
-        if ($attribute === null) {
+        if (! $attribute instanceof ReflectionAttribute) {
             return null;
         }
 
         return $this->openApiTransformer->transform(new ObjectType($attribute->newInstance()->class));
     }
 
-    private function schemaForNamedType(ReflectionNamedType $type): OpenApi\Type
+    /**
+     * A promoted property's first attribute of the given class, if any.
+     *
+     * These attributes target properties, so they are read from the promoted
+     * property, not the constructor parameter.
+     *
+     * @template TAttribute of object
+     *
+     * @param  ReflectionClass<Data>  $reflectionClass
+     * @param  class-string<TAttribute>  $attributeClass
+     * @return ReflectionAttribute<TAttribute>|null
+     */
+    private function firstPropertyAttribute(ReflectionClass $reflectionClass, string $propertyName, string $attributeClass): ?ReflectionAttribute
+    {
+        if (! $reflectionClass->hasProperty($propertyName)) {
+            return null;
+        }
+
+        return $reflectionClass->getProperty($propertyName)->getAttributes($attributeClass)[0] ?? null;
+    }
+
+    /**
+     * The date format a property's #[WithTransformer] pins, if any.
+     *
+     * A property rendered as a calendar day must be documented `format: date`:
+     * left as `date-time`, openapi-ts generates `z.iso.datetime()` and the zod
+     * schema rejects every response the endpoint actually returns.
+     *
+     * @param  ReflectionClass<Data>  $reflectionClass
+     */
+    private function transformerDateFormat(ReflectionClass $reflectionClass, string $propertyName): ?string
+    {
+        $attribute = $this->firstPropertyAttribute($reflectionClass, $propertyName, WithTransformer::class);
+
+        if (! $attribute instanceof ReflectionAttribute) {
+            return null;
+        }
+
+        $format = $attribute->getArguments()['format'] ?? null;
+
+        return is_string($format) ? $format : null;
+    }
+
+    /**
+     * @param  ReflectionClass<Data>  $reflectionClass
+     */
+    private function schemaForNamedType(ReflectionNamedType $type, ReflectionClass $reflectionClass, string $propertyName): OpenApi\Type
     {
         $name = $type->getName();
 
@@ -135,7 +176,9 @@ class SpatieDataToSchema extends TypeToSchemaExtension
         }
 
         if (is_a($name, DateTimeInterface::class, true)) {
-            return (new OpenApi\StringType)->format('date-time');
+            return (new OpenApi\StringType)->format(
+                $this->transformerDateFormat($reflectionClass, $propertyName) === 'Y-m-d' ? 'date' : 'date-time',
+            );
         }
 
         return new OpenApi\UnknownType;

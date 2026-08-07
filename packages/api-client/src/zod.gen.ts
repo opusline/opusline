@@ -121,7 +121,7 @@ export const zDocumentListData = z.object({
 /**
  * EntryRounding
  *
- * Rounding increment for time entries, expressed as a fraction of the mission's billing unit: half or a quarter of a day/hour, or to the minute.
+ * Rounding increment for time entries, expressed as a fraction of the mission's billing unit: half or a quarter of a day/hour, or to the minute. Entries store the exact time worked — this is applied when valuing them, never when recording them, so changing a mission's rounding re-values its history instead of invalidating it.
  *
  */
 export const zEntryRounding = z.union([
@@ -191,8 +191,8 @@ export const zMissionData = z.object({
     craRequired: z.boolean(),
     color: z.nullable(zColor),
     notes: z.nullable(z.string()),
-    startDate: z.nullable(z.iso.datetime()),
-    endDate: z.nullable(z.iso.datetime())
+    startDate: z.nullable(z.iso.date()),
+    endDate: z.nullable(z.iso.date())
 });
 
 /**
@@ -235,6 +235,36 @@ export const zRegisterUserData = z.object({
     email: z.email().check(z.maxLength(255)),
     password: z.string().check(z.minLength(8)),
     password_confirmation: z.string().check(z.minLength(8))
+});
+
+/**
+ * TimeEntryData
+ */
+export const zTimeEntryData = z.object({
+    id: z.int(),
+    missionId: z.int(),
+    date: z.iso.date(),
+    durationMinutes: z.int(),
+    valuedMinutes: z.nullable(z.int()),
+    valuedDayFraction: z.nullable(z.number()),
+    note: z.nullable(z.string())
+});
+
+/**
+ * TimeEntryInputData
+ */
+export const zTimeEntryInputData = z.object({
+    missionId: z.int(),
+    date: z.iso.date(),
+    durationMinutes: z.int().check(z.gte(1), z.lte(1440)),
+    note: z.nullish(z.string().check(z.maxLength(2000)))
+});
+
+/**
+ * TimeEntryListData
+ */
+export const zTimeEntryListData = z.object({
+    timeEntries: z.array(zTimeEntryData)
 });
 
 /**
@@ -514,3 +544,31 @@ export const zDownloadMissionDocumentPath = z.object({
 });
 
 export const zDownloadMissionDocumentResponse = z.string();
+
+export const zListTimeEntriesQuery = z.object({
+    from: z.iso.date(),
+    to: z.iso.date()
+});
+
+export const zListTimeEntriesResponse = zTimeEntryListData;
+
+export const zCreateTimeEntryBody = zTimeEntryInputData;
+
+export const zCreateTimeEntryResponse = zTimeEntryData;
+
+export const zDeleteTimeEntryPath = z.object({
+    timeEntry: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteTimeEntryResponse = z.void();
+
+export const zUpdateTimeEntryBody = zTimeEntryInputData;
+
+export const zUpdateTimeEntryPath = z.object({
+    timeEntry: z.int()
+});
+
+export const zUpdateTimeEntryResponse = zTimeEntryData;

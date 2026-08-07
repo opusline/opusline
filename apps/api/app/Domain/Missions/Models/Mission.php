@@ -11,6 +11,7 @@ use App\Domain\Missions\Enums\MissionStatus;
 use App\Domain\Missions\Factories\MissionFactory;
 use App\Domain\Shared\Enums\Color;
 use App\Domain\Shared\Routing\OwnedRouteBinding;
+use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Casts\MoneyIntegerCast;
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
@@ -148,5 +150,16 @@ class Mission extends Model implements HasMedia
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
+    }
+
+    /** @return HasMany<TimeEntry, $this> */
+    public function timeEntries(): HasMany
+    {
+        return $this->hasMany(TimeEntry::class);
+    }
+
+    public function effectiveRounding(): EntryRounding
+    {
+        return $this->rounding ?? EntryRounding::Quarter;
     }
 }

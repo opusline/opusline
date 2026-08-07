@@ -10,6 +10,11 @@ enum BillingMode: int
     case Hourly = 1;
     case Fixed = 2;
 
+    public function usesDayFraction(): bool
+    {
+        return $this !== self::Hourly;
+    }
+
     public function resolveRounding(?EntryRounding $requested): ?EntryRounding
     {
         if ($this === self::Fixed) {

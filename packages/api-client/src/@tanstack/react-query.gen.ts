@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { archiveClient, createClient, createMission, currentUser, deleteClient, deleteClientDocument, deleteClientLogo, deleteMission, deleteMissionDocument, downloadClientDocument, downloadMissionDocument, getPing, listClientDocuments, listClients, listMissionDocuments, login, logout, type Options, register, showClient, showClientLogo, showMission, unarchiveClient, updateClient, updateClientDocument, updateMission, updateMissionDocument, uploadClientDocument, uploadClientLogo, uploadMissionDocument } from '../sdk.gen';
-import type { ArchiveClientData, ArchiveClientError, ArchiveClientResponse, CreateClientData2, CreateClientError, CreateClientResponse, CreateMissionData2, CreateMissionError, CreateMissionResponse, CurrentUserData, CurrentUserError, CurrentUserResponse, DeleteClientData, DeleteClientDocumentData, DeleteClientDocumentError, DeleteClientDocumentResponse, DeleteClientError, DeleteClientLogoData, DeleteClientLogoError, DeleteClientLogoResponse, DeleteClientResponse, DeleteMissionData, DeleteMissionDocumentData, DeleteMissionDocumentError, DeleteMissionDocumentResponse, DeleteMissionError, DeleteMissionResponse, DownloadClientDocumentData, DownloadClientDocumentError, DownloadClientDocumentResponse, DownloadMissionDocumentData, DownloadMissionDocumentError, DownloadMissionDocumentResponse, GetPingData, GetPingResponse, ListClientDocumentsData, ListClientDocumentsError, ListClientDocumentsResponse, ListClientsData, ListClientsError, ListClientsResponse, ListMissionDocumentsData, ListMissionDocumentsError, ListMissionDocumentsResponse, LoginData2, LoginError, LoginResponse, LogoutData, LogoutError, LogoutResponse, RegisterData, RegisterResponse, ShowClientData, ShowClientError, ShowClientLogoData, ShowClientLogoError, ShowClientLogoResponse, ShowClientResponse, ShowMissionData, ShowMissionError, ShowMissionResponse, UnarchiveClientData, UnarchiveClientError, UnarchiveClientResponse, UpdateClientData2, UpdateClientDocumentData, UpdateClientDocumentError, UpdateClientDocumentResponse, UpdateClientError, UpdateClientResponse, UpdateMissionData2, UpdateMissionDocumentData, UpdateMissionDocumentError, UpdateMissionDocumentResponse, UpdateMissionError, UpdateMissionResponse, UploadClientDocumentData, UploadClientDocumentError, UploadClientDocumentResponse, UploadClientLogoData2, UploadClientLogoError, UploadClientLogoResponse, UploadMissionDocumentData, UploadMissionDocumentError, UploadMissionDocumentResponse } from '../types.gen';
+import { archiveClient, createClient, createMission, createTimeEntry, currentUser, deleteClient, deleteClientDocument, deleteClientLogo, deleteMission, deleteMissionDocument, deleteTimeEntry, downloadClientDocument, downloadMissionDocument, getPing, listClientDocuments, listClients, listMissionDocuments, listTimeEntries, login, logout, type Options, register, showClient, showClientLogo, showMission, unarchiveClient, updateClient, updateClientDocument, updateMission, updateMissionDocument, updateTimeEntry, uploadClientDocument, uploadClientLogo, uploadMissionDocument } from '../sdk.gen';
+import type { ArchiveClientData, ArchiveClientError, ArchiveClientResponse, CreateClientData2, CreateClientError, CreateClientResponse, CreateMissionData2, CreateMissionError, CreateMissionResponse, CreateTimeEntryData, CreateTimeEntryError, CreateTimeEntryResponse, CurrentUserData, CurrentUserError, CurrentUserResponse, DeleteClientData, DeleteClientDocumentData, DeleteClientDocumentError, DeleteClientDocumentResponse, DeleteClientError, DeleteClientLogoData, DeleteClientLogoError, DeleteClientLogoResponse, DeleteClientResponse, DeleteMissionData, DeleteMissionDocumentData, DeleteMissionDocumentError, DeleteMissionDocumentResponse, DeleteMissionError, DeleteMissionResponse, DeleteTimeEntryData, DeleteTimeEntryError, DeleteTimeEntryResponse, DownloadClientDocumentData, DownloadClientDocumentError, DownloadClientDocumentResponse, DownloadMissionDocumentData, DownloadMissionDocumentError, DownloadMissionDocumentResponse, GetPingData, GetPingResponse, ListClientDocumentsData, ListClientDocumentsError, ListClientDocumentsResponse, ListClientsData, ListClientsError, ListClientsResponse, ListMissionDocumentsData, ListMissionDocumentsError, ListMissionDocumentsResponse, ListTimeEntriesData, ListTimeEntriesError, ListTimeEntriesResponse, LoginData2, LoginError, LoginResponse, LogoutData, LogoutError, LogoutResponse, RegisterData, RegisterResponse, ShowClientData, ShowClientError, ShowClientLogoData, ShowClientLogoError, ShowClientLogoResponse, ShowClientResponse, ShowMissionData, ShowMissionError, ShowMissionResponse, UnarchiveClientData, UnarchiveClientError, UnarchiveClientResponse, UpdateClientData2, UpdateClientDocumentData, UpdateClientDocumentError, UpdateClientDocumentResponse, UpdateClientError, UpdateClientResponse, UpdateMissionData2, UpdateMissionDocumentData, UpdateMissionDocumentError, UpdateMissionDocumentResponse, UpdateMissionError, UpdateMissionResponse, UpdateTimeEntryData, UpdateTimeEntryError, UpdateTimeEntryResponse, UploadClientDocumentData, UploadClientDocumentError, UploadClientDocumentResponse, UploadClientLogoData2, UploadClientLogoError, UploadClientLogoResponse, UploadMissionDocumentData, UploadMissionDocumentError, UploadMissionDocumentResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -454,3 +454,60 @@ export const downloadMissionDocumentOptions = (options: Options<DownloadMissionD
     },
     queryKey: downloadMissionDocumentQueryKey(options)
 });
+
+export const listTimeEntriesQueryKey = (options: Options<ListTimeEntriesData>) => createQueryKey('listTimeEntries', options);
+
+export const listTimeEntriesOptions = (options: Options<ListTimeEntriesData>) => queryOptions<ListTimeEntriesResponse, ListTimeEntriesError, ListTimeEntriesResponse, ReturnType<typeof listTimeEntriesQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await listTimeEntries({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: listTimeEntriesQueryKey(options)
+});
+
+export const createTimeEntryMutation = (options?: Partial<Options<CreateTimeEntryData>>): UseMutationOptions<CreateTimeEntryResponse, CreateTimeEntryError, Options<CreateTimeEntryData>> => {
+    const mutationOptions: UseMutationOptions<CreateTimeEntryResponse, CreateTimeEntryError, Options<CreateTimeEntryData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await createTimeEntry({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const deleteTimeEntryMutation = (options?: Partial<Options<DeleteTimeEntryData>>): UseMutationOptions<DeleteTimeEntryResponse, DeleteTimeEntryError, Options<DeleteTimeEntryData>> => {
+    const mutationOptions: UseMutationOptions<DeleteTimeEntryResponse, DeleteTimeEntryError, Options<DeleteTimeEntryData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteTimeEntry({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const updateTimeEntryMutation = (options?: Partial<Options<UpdateTimeEntryData>>): UseMutationOptions<UpdateTimeEntryResponse, UpdateTimeEntryError, Options<UpdateTimeEntryData>> => {
+    const mutationOptions: UseMutationOptions<UpdateTimeEntryResponse, UpdateTimeEntryError, Options<UpdateTimeEntryData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await updateTimeEntry({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};

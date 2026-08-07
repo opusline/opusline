@@ -7,7 +7,9 @@ namespace Database\Seeders;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Enums\Color;
+use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Users\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -31,7 +33,7 @@ class DatabaseSeeder extends Seeder
             'created_at' => now()->subMonths(17),
         ]);
 
-        Mission::factory()->for($nordlys, 'client')->throughEsn('Callisto')->create([
+        $callistoFront = Mission::factory()->for($nordlys, 'client')->throughEsn('Callisto')->create([
             'user_id' => $user->id,
             'name' => 'Callisto front',
             'rate_cents' => 55_000,
@@ -54,7 +56,7 @@ class DatabaseSeeder extends Seeder
             'created_at' => now()->subMonths(11),
         ]);
 
-        Mission::factory()->for($lunaprint, 'client')->hourly()->create([
+        $lunaprintMaintenance = Mission::factory()->for($lunaprint, 'client')->hourly()->create([
             'user_id' => $user->id,
             'name' => 'Lunaprint maintenance',
         ]);
@@ -81,5 +83,40 @@ class DatabaseSeeder extends Seeder
             'user_id' => $user->id,
             'name' => 'Opusline',
         ]);
+
+        $this->seedRecentTimeEntries($user, $callistoFront, $lunaprintMaintenance);
+    }
+
+    private function seedRecentTimeEntries(User $user, Mission $daily, Mission $hourly): void
+    {
+        $workedDays = [];
+        $cursor = CarbonImmutable::today();
+
+        while (count($workedDays) < 10) {
+            if (! $cursor->isWeekend()) {
+                $workedDays[] = $cursor;
+            }
+
+            $cursor = $cursor->subDay();
+        }
+
+        foreach ($workedDays as $index => $day) {
+            TimeEntry::factory()->for($daily, 'mission')->create([
+                'user_id' => $user->id,
+                'date' => $day->toDateString(),
+                'duration_minutes' => $index % 5 === 0 ? 210 : 420,
+            ]);
+
+            if ($index % 3 !== 0) {
+                continue;
+            }
+
+            TimeEntry::factory()->for($hourly, 'mission')->create([
+                'user_id' => $user->id,
+                'date' => $day->toDateString(),
+                'duration_minutes' => 95,
+                'note' => 'Correctifs après mise en production.',
+            ]);
+        }
     }
 }

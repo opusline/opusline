@@ -5,13 +5,18 @@ declare(strict_types=1);
 namespace App\Domain\Missions\Actions;
 
 use App\Domain\Missions\Models\Mission;
+use Illuminate\Support\Facades\DB;
 
 class DeleteMission
 {
     public function handle(Mission $mission): void
     {
-        // TODO(time-entries): abort 409 here once missions can carry time
-        // entries — deleting tracked work must fail loud, like client deletion.
-        $mission->delete();
+        DB::transaction(function () use ($mission): void {
+            $locked = Mission::query()->whereKey($mission->getKey())->lockForUpdate()->firstOrFail();
+
+            abort_if($locked->timeEntries()->exists(), 409, __('missions.cannot_delete_with_time_entries'));
+
+            $locked->delete();
+        });
     }
 }
