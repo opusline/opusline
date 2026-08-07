@@ -344,3 +344,49 @@ test('leaves no trailing dot when the upload has no extension', function (): voi
         ->assertCreated()
         ->assertJsonPath('fileName', 'Contrat-Nordlys');
 });
+
+test('collapses whitespace runs in a chosen name to one separator', function (string $chosen): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->create('scan.pdf', 12, 'application/pdf'),
+            'fileName' => $chosen,
+        ])
+        ->assertCreated()
+        ->assertJsonPath('fileName', 'Contrat-Nordlys.pdf');
+})->with([
+    'repeated spaces' => ['Contrat   Nordlys'],
+    'tab' => ["Contrat\tNordlys"],
+    'non-breaking space' => ["Contrat\u{00A0}Nordlys"],
+    'mixed run' => ["Contrat \t Nordlys"],
+]);
+
+test('falls back to the uploaded name when the chosen name is only whitespace', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->create('scan.pdf', 12, 'application/pdf'),
+            'fileName' => "\u{00A0}\t ",
+        ])
+        ->assertCreated()
+        ->assertJsonPath('fileName', 'scan.pdf');
+});
+
+test('falls back to a generic base when nothing yields one', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->create('.pdf', 12, 'application/pdf'),
+        ])
+        ->assertCreated()
+        ->assertJsonPath('fileName', 'document.pdf');
+});

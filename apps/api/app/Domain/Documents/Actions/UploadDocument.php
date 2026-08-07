@@ -38,7 +38,12 @@ class UploadDocument
     {
         $chosen = trim($data->fileName ?? '');
         $source = $chosen === '' ? $data->file->getClientOriginalName() : $chosen;
-        $base = pathinfo($source, PATHINFO_FILENAME);
+
+        $base = trim((string) preg_replace(
+            '/[\p{Z}\s]+/u',
+            ' ',
+            pathinfo($source, PATHINFO_FILENAME),
+        ));
 
         if ($base === '') {
             $base = self::FALLBACK_BASE;
