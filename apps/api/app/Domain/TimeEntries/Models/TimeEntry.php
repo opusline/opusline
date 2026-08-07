@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $mission_id
  * @property CarbonImmutable $date
  * @property int $duration_minutes
+ * @property bool $billable
  * @property ?string $note
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
@@ -30,6 +31,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'mission_id',
     'date',
     'duration_minutes',
+    'billable',
     'note',
 ])]
 class TimeEntry extends Model
@@ -101,6 +103,7 @@ class TimeEntry extends Model
         return [
             'date' => CalendarDate::class,
             'duration_minutes' => 'integer',
+            'billable' => 'boolean',
         ];
     }
 

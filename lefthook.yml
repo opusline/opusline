@@ -29,6 +29,20 @@ pre-commit:
 
 pre-push:
   jobs:
+    - name: generated-artifacts
+      group:
+        piped: true
+        jobs:
+          - name: spec-and-client
+            run: pnpm exec turbo run generate --output-logs=errors-only
+
+          - name: route-tree
+            run: pnpm --filter @opusline/web generate-routes
+
+          - name: drift
+            fail_text: "Generated files are stale. The fresh output is already in your working tree — commit it, then push again."
+            run: git diff --exit-code -- apps/api/openapi.json packages/api-client/src apps/web/src/routeTree.gen.ts
+
     - name: quality
       run: pnpm exec turbo run test check-types lint format-and-lint --output-logs=errors-only
 

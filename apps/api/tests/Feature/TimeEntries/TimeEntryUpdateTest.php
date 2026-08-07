@@ -132,3 +132,43 @@ test('returns 401 for guests', function (): void {
         'durationMinutes' => 60,
     ])->assertUnauthorized();
 });
+
+test('can take an entry off the invoice without touching its duration', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user);
+    $entry = TimeEntry::factory()->for($mission, 'mission')->create([
+        'user_id' => $user->id,
+        'date' => '2026-08-03',
+        'duration_minutes' => 180,
+    ]);
+
+    $this->actingAs($user)
+        ->putJson("/api/time-entries/{$entry->id}", [
+            'missionId' => $mission->id,
+            'date' => '2026-08-03',
+            'durationMinutes' => 180,
+            'billable' => false,
+        ])
+        ->assertOk()
+        ->assertJsonPath('billable', false)
+        ->assertJsonPath('durationMinutes', 180);
+});
+
+test('puts an omitted billable flag back to billable, like every other field', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user);
+    $entry = TimeEntry::factory()->for($mission, 'mission')->nonBillable()->create([
+        'user_id' => $user->id,
+        'date' => '2026-08-03',
+        'duration_minutes' => 180,
+    ]);
+
+    $this->actingAs($user)
+        ->putJson("/api/time-entries/{$entry->id}", [
+            'missionId' => $mission->id,
+            'date' => '2026-08-03',
+            'durationMinutes' => 180,
+        ])
+        ->assertOk()
+        ->assertJsonPath('billable', true);
+});

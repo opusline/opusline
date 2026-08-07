@@ -22,10 +22,48 @@ export function fullDateLabel(instant: string): string {
  * midnight — which renders as the day before anywhere west of Greenwich.
  * Building the date from its parts keeps it on the calendar day the API meant.
  */
-function fromCalendarDate(date: string): Date {
+const CALENDAR_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * `new Date(y, m, d)` maps years 0–99 onto 1900–1999, so the year is always set
+ * explicitly — otherwise `0026-01-04` silently becomes 1926.
+ */
+export function localDate(year: number, month: number, day: number): Date {
+  const built = new Date(year, month - 1, day);
+  built.setFullYear(year);
+
+  return built;
+}
+
+export function fromCalendarDate(date: string): Date {
   const [year, month, day] = date.split("-").map(Number);
 
-  return new Date(year, month - 1, day);
+  return localDate(year, month, day);
+}
+
+/** `Y-m-d` in, `Y-m-d` out — the only place day arithmetic happens. */
+export function addCalendarDays(date: string, days: number): string {
+  const shifted = fromCalendarDate(date);
+  shifted.setDate(shifted.getDate() + days);
+
+  return toCalendarDate(shifted);
+}
+
+/** A real `Y-m-d`, not just a well-shaped one: rejects 2026-02-31. */
+export function isCalendarDate(value: unknown): value is string {
+  if (typeof value !== "string" || !CALENDAR_DATE.test(value)) {
+    return false;
+  }
+
+  return toCalendarDate(fromCalendarDate(value)) === value;
+}
+
+/** The mirror of {@link fromCalendarDate}: a local `Date` back to `Y-m-d`. */
+export function toCalendarDate(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${date.getFullYear()}-${month}-${day}`;
 }
 
 export function calendarMonthYearLabel(date: string): string {
@@ -38,9 +76,5 @@ export function calendarDateLabel(date: string): string {
 
 /** Today as the `Y-m-d` the API expects, on the user's calendar rather than UTC. */
 export function todayCalendarDate(): string {
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-
-  return `${now.getFullYear()}-${month}-${day}`;
+  return toCalendarDate(new Date());
 }

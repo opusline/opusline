@@ -181,3 +181,55 @@ test('returns 401 for guests', function (): void {
         'durationMinutes' => 60,
     ])->assertUnauthorized();
 });
+
+test('records an entry as billable unless told otherwise', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user);
+
+    $this->actingAs($user)
+        ->postJson('/api/time-entries', [
+            'missionId' => $mission->id,
+            'date' => '2026-08-03',
+            'durationMinutes' => 180,
+        ])
+        ->assertCreated()
+        ->assertJsonPath('billable', true);
+});
+
+test('records time on a paying mission that will not be invoiced', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user);
+
+    $this->actingAs($user)
+        ->postJson('/api/time-entries', [
+            'missionId' => $mission->id,
+            'date' => '2026-08-03',
+            'durationMinutes' => 120,
+            'billable' => false,
+            'note' => 'Analyse avant devis',
+        ])
+        ->assertCreated()
+        ->assertJsonPath('billable', false)
+        // Still valued: it is time worked, it just does not reach the invoice.
+        ->assertJsonPath('valuedDayFraction', 0.5);
+
+    $this->assertDatabaseHas('time_entries', [
+        'mission_id' => $mission->id,
+        'billable' => false,
+    ]);
+});
+
+test('rejects a billable flag that is not a boolean', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user);
+
+    $this->actingAs($user)
+        ->postJson('/api/time-entries', [
+            'missionId' => $mission->id,
+            'date' => '2026-08-03',
+            'durationMinutes' => 120,
+            'billable' => 'peut-être',
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('billable');
+});

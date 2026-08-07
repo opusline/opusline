@@ -17,3 +17,11 @@ test('user data maps from the user model', function (): void {
         ->and($data->name)->toBe('Test User')
         ->and($data->email)->toBe('test@example.com');
 });
+
+test('user data carries the instance workday length', function (): void {
+    config()->set('app.workday_minutes', 480);
+
+    $data = UserData::from(User::factory()->create());
+
+    expect($data->workdayMinutes)->toBe(480);
+});

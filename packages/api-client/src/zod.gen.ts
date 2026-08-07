@@ -247,6 +247,7 @@ export const zTimeEntryData = z.object({
     durationMinutes: z.int(),
     valuedMinutes: z.nullable(z.int()),
     valuedDayFraction: z.nullable(z.number()),
+    billable: z.boolean(),
     note: z.nullable(z.string())
 });
 
@@ -257,6 +258,7 @@ export const zTimeEntryInputData = z.object({
     missionId: z.int(),
     date: z.iso.date(),
     durationMinutes: z.int().check(z.gte(1), z.lte(1440)),
+    billable: z.optional(z.boolean()),
     note: z.nullish(z.string().check(z.maxLength(2000)))
 });
 
@@ -336,7 +338,8 @@ export const zUploadDocumentData = z.object({
 export const zUserData = z.object({
     id: z.int(),
     name: z.string(),
-    email: z.string()
+    email: z.string(),
+    workdayMinutes: z.int()
 });
 
 export const zGetPingResponse = z.object({
