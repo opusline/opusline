@@ -64,11 +64,18 @@ async function fetchFeatures(
 
     const payload: unknown = await response.json();
 
-    return typeof payload === "object" &&
-      payload !== null &&
-      Array.isArray((payload as { features?: unknown }).features)
-      ? ((payload as { features: BanFeature[] }).features ?? [])
-      : [];
+    if (
+      typeof payload !== "object" ||
+      payload === null ||
+      !Array.isArray((payload as { features?: unknown }).features)
+    ) {
+      return [];
+    }
+
+    return (payload as { features: unknown[] }).features.filter(
+      (feature): feature is BanFeature =>
+        typeof feature === "object" && feature !== null,
+    );
   } catch {
     return [];
   }

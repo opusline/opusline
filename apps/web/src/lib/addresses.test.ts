@@ -1,6 +1,6 @@
 import { afterEach, expect, it, vi } from "vitest";
 
-import { searchAddresses } from "./addresses";
+import { searchAddresses, searchCities } from "./addresses";
 
 function stubFetch(payload: unknown, status = 200) {
   const fetchMock = vi.fn(
@@ -75,4 +75,16 @@ it("skips features missing the parts the form fills in", async () => {
   stubFetch({ features: [{ properties: { id: "x", label: "Incomplete" } }] });
 
   await expect(searchAddresses("12 rue de la paix")).resolves.toEqual([]);
+});
+
+it("survives null entries in the feature list", async () => {
+  stubFetch({ features: [null, "nonsense", NANTES.features[0]] });
+
+  await expect(searchAddresses("12 rue de la paix")).resolves.toHaveLength(1);
+});
+
+it("survives null entries when looking up a city", async () => {
+  stubFetch({ features: [null, NANTES.features[0]] });
+
+  await expect(searchCities("nantes")).resolves.toHaveLength(1);
 });

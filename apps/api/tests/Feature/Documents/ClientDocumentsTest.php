@@ -291,3 +291,56 @@ test('clips a chosen name so the stored file name fits its column', function ():
 
     expect(mb_strlen($response->json('fileName')))->toBeLessThanOrEqual(255);
 });
+
+test('clips an overlong original file name to fit its column', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $response = $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->create(
+                str_repeat('n', 300).'.pdf',
+                12,
+                'application/pdf',
+            ),
+        ])
+        ->assertCreated();
+
+    expect(mb_strlen((string) $response->json('fileName')))->toBeLessThanOrEqual(255)
+        ->and($response->json('fileName'))->toEndWith('.pdf');
+});
+
+test('clips an absurd extension instead of losing the whole name', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $response = $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->create(
+                'scan.'.str_repeat('e', 300),
+                12,
+                'application/pdf',
+            ),
+            'fileName' => 'Contrat',
+        ])
+        ->assertCreated();
+
+    expect(mb_strlen((string) $response->json('fileName')))->toBeLessThanOrEqual(255)
+        ->and($response->json('fileName'))->toStartWith('Contrat');
+});
+
+test('leaves no trailing dot when the upload has no extension', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->create('scan', 12, 'application/pdf'),
+            'fileName' => 'Contrat Nordlys',
+        ])
+        ->assertCreated()
+        ->assertJsonPath('fileName', 'Contrat-Nordlys');
+});

@@ -14,16 +14,18 @@ class UploadDocument
 {
     private const int MAX_STORED_FILE_NAME = 255;
 
+    private const int MAX_EXTENSION = 16;
+
+    private const string FALLBACK_BASE = 'document';
+
     public function handle(HasMedia $model, UploadDocumentData $data): Media
     {
-        $adder = $model->addMedia($data->file);
-        $renamed = $this->renamedFile($data);
+        $fileName = $this->storedFileName($data);
 
-        if ($renamed !== null) {
-            $adder->usingName(pathinfo($renamed, PATHINFO_FILENAME))->usingFileName($renamed);
-        }
-
-        $document = $adder
+        $document = $model
+            ->addMedia($data->file)
+            ->usingName(pathinfo($fileName, PATHINFO_FILENAME))
+            ->usingFileName($fileName)
             ->withCustomProperties(['category' => ($data->category ?? DocumentCategory::Other)->value])
             ->toMediaCollection('documents', 'local');
 
@@ -32,23 +34,19 @@ class UploadDocument
         return $document;
     }
 
-    private function renamedFile(UploadDocumentData $data): ?string
+    private function storedFileName(UploadDocumentData $data): string
     {
         $chosen = trim($data->fileName ?? '');
-
-        if ($chosen === '') {
-            return null;
-        }
-
-        $base = pathinfo($chosen, PATHINFO_FILENAME);
-        $extension = $data->file->getClientOriginalExtension();
+        $source = $chosen === '' ? $data->file->getClientOriginalName() : $chosen;
+        $base = pathinfo($source, PATHINFO_FILENAME);
 
         if ($base === '') {
-            return null;
+            $base = self::FALLBACK_BASE;
         }
 
-        $room = self::MAX_STORED_FILE_NAME - mb_strlen($extension) - 1;
+        $extension = mb_substr($data->file->getClientOriginalExtension(), 0, self::MAX_EXTENSION);
+        $suffix = $extension === '' ? '' : '.'.$extension;
 
-        return mb_substr($base, 0, max($room, 1)).'.'.$extension;
+        return mb_substr($base, 0, max(self::MAX_STORED_FILE_NAME - mb_strlen($suffix), 1)).$suffix;
     }
 }
