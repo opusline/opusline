@@ -11,5 +11,6 @@ test('seeds a demo portfolio for the test user', function (): void {
 
     expect($user->clients)->toHaveCount(5)
         ->and($user->missions)->toHaveCount(4)
+        ->and($user->timeEntries)->toHaveCount(14)
         ->and($user->clients->every(fn ($client): bool => $client->slug !== ''))->toBeTrue();
 });

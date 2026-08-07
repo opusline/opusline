@@ -17,6 +17,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class MissionController extends Controller
 {
@@ -39,6 +40,9 @@ class MissionController extends Controller
         return response()->json(MissionData::from($mission));
     }
 
+    /**
+     * @throws HttpException<409>
+     */
     public function destroy(Client $client, Mission $mission, DeleteMission $deleteMission): Response
     {
         $deleteMission->handle($mission);

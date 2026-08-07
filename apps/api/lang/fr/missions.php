@@ -7,4 +7,5 @@ return [
     'end_client_only_for_intermediary' => 'Un client final ne peut être renseigné que lorsque le client facturé est un intermédiaire.',
     'rate_forbidden_for_internal' => 'Les missions d\'un client interne ne sont pas facturables.',
     'rounding_forbidden_for_fixed' => 'L\'arrondi ne s\'applique pas aux missions au forfait.',
+    'cannot_delete_with_time_entries' => 'Impossible de supprimer une mission qui a encore des temps saisis. Supprimez-les d\'abord.',
 ];
