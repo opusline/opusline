@@ -14,7 +14,7 @@ import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { DocumentsTab } from "@/components/documents-tab";
 import { MissionDetailPage } from "@/features/missions/components/mission-detail-page";
@@ -47,6 +47,26 @@ function MissionDetailRoute() {
 
   const updateMission = useMutation(updateMissionMutation());
   const [isMutating, setIsMutating] = useState(false);
+  const inFlightMutations = useRef(0);
+
+  const beginMutation = (): boolean => {
+    if (inFlightMutations.current > 0) {
+      return false;
+    }
+
+    inFlightMutations.current += 1;
+    setIsMutating(true);
+
+    return true;
+  };
+
+  const endMutation = () => {
+    inFlightMutations.current -= 1;
+
+    if (inFlightMutations.current === 0) {
+      setIsMutating(false);
+    }
+  };
   const uploadDocument = useMutation(uploadMissionDocumentMutation());
   const deleteDocument = useMutation(deleteMissionDocumentMutation());
 
@@ -71,7 +91,9 @@ function MissionDetailRoute() {
   const handleUpdate = async (
     body: UpdateMissionData,
   ): Promise<FormSubmitResult> => {
-    setIsMutating(true);
+    if (!beginMutation()) {
+      return { status: "failed" };
+    }
 
     try {
       await updateMission.mutateAsync({ body, path: missionPath });
@@ -84,18 +106,16 @@ function MissionDetailRoute() {
         ? { status: "invalid", fieldErrors }
         : { status: "failed" };
     } finally {
-      setIsMutating(false);
+      endMutation();
     }
   };
 
   const handleSetStatus = async (status: MissionStatus) => {
     const mission = missionQuery.data;
 
-    if (mission === undefined) {
+    if (mission === undefined || !beginMutation()) {
       return;
     }
-
-    setIsMutating(true);
 
     try {
       await updateMission.mutateAsync({
@@ -118,7 +138,7 @@ function MissionDetailRoute() {
     } catch {
       // Surfaced through updateMission.error below.
     } finally {
-      setIsMutating(false);
+      endMutation();
     }
   };
 

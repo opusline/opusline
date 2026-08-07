@@ -313,3 +313,73 @@ it("offers to resume a finished mission", async () => {
     await screen.findByRole("menuitem", { name: "Reprendre la mission" }),
   ).toBeInTheDocument();
 });
+
+it("refuses a second mutation while the first is still running", async () => {
+  let releaseStatusChange = () => {};
+  const requests: RecordedRequest[] = [];
+
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request =
+        input instanceof Request ? input : new Request(input, init);
+      const url = new URL(request.url, "http://localhost");
+      requests.push({ method: request.method, path: url.pathname, body: null });
+
+      if (request.method === "PUT") {
+        await new Promise<void>((resolve) => {
+          releaseStatusChange = resolve;
+        });
+
+        return jsonResponse(200, missionPayload());
+      }
+
+      if (url.pathname.endsWith("/documents")) {
+        return jsonResponse(200, { documents: [] });
+      }
+
+      if (url.pathname.includes("/missions/")) {
+        return jsonResponse(200, missionPayload());
+      }
+
+      return jsonResponse(200, clientPayload());
+    }),
+  );
+
+  await renderMissionDetail();
+
+  // Open the edit form, then start a status change from the header menu.
+  fireEvent.click(screen.getByRole("button", { name: "Modifier" }));
+  await screen.findByLabelText("Nom de la mission");
+
+  fireEvent.click(screen.getByRole("button", { name: "Plus d'actions" }));
+  fireEvent.click(
+    await screen.findByRole("menuitem", { name: "Marquer comme terminée" }),
+  );
+
+  await waitFor(() => {
+    expect(requests.filter((request) => request.method === "PUT")).toHaveLength(
+      1,
+    );
+  });
+
+  // Enter submits the form even though its button is disabled.
+  fireEvent.submit(
+    screen
+      .getByLabelText("Nom de la mission")
+      .closest("form") as HTMLFormElement,
+  );
+  // Let the submit pipeline run to completion while the status change is still
+  // hanging, so the second mutation genuinely overlaps the first.
+  await new Promise((resolve) => setTimeout(resolve, 50));
+
+  expect(requests.filter((request) => request.method === "PUT")).toHaveLength(
+    1,
+  );
+
+  releaseStatusChange();
+
+  await waitFor(() => {
+    expect(screen.getByRole("button", { name: "Enregistrer" })).toBeEnabled();
+  });
+});
