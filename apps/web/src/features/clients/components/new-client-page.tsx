@@ -131,6 +131,7 @@ export function NewClientPage({
                 onPick={setLogo}
                 onRemove={() => setLogo(null)}
                 placeholder="Déposez le logo"
+                removeLabel="Retirer le logo du client"
                 size="lg"
                 src={logoPreview}
               />

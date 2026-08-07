@@ -327,7 +327,7 @@ it("removes the logo from the edit form", async () => {
 
   fireEvent.click(screen.getByRole("button", { name: "Modifier" }));
   fireEvent.click(
-    await screen.findByRole("button", { name: "Retirer logo du client" }),
+    await screen.findByRole("button", { name: "Retirer le logo du client" }),
   );
 
   await waitFor(() => {

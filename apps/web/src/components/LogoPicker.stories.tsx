@@ -11,6 +11,7 @@ const meta = {
     label: "Logo du client",
     onPick: () => {},
     onRemove: () => {},
+    removeLabel: "Retirer le logo du client",
   },
 } satisfies Meta<typeof LogoPicker>;
 
@@ -40,5 +41,15 @@ export const WithError: Story = {
     placeholder: "Déposez le logo",
     size: "lg",
     error: "L'envoi a échoué. Réessayez dans un instant.",
+  },
+};
+
+/** Both actions stay locked while an upload or a removal is in flight. */
+export const Pending: Story = {
+  args: {
+    placeholder: "Déposez le logo",
+    size: "lg",
+    src: SAMPLE_LOGO_SRC,
+    isPending: true,
   },
 };

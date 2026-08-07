@@ -30,6 +30,7 @@ function NewClientRoute() {
   ): Promise<FormSubmitResult> => {
     try {
       const created = await createClient.mutateAsync({ body });
+      let hasLogoFailed = false;
 
       if (logo !== null) {
         try {
@@ -38,9 +39,7 @@ function NewClientRoute() {
             path: { client: created.slug },
           });
         } catch {
-          // The client itself exists by now, so failing the whole creation
-          // would be worse than landing on the fiche with no logo — where the
-          // empty slot makes the miss obvious and retryable.
+          hasLogoFailed = true;
         }
       }
 
@@ -50,7 +49,13 @@ function NewClientRoute() {
       });
       await queryClient.fetchQuery(listClientsOptions());
 
-      if (chainToMission) {
+      if (hasLogoFailed) {
+        await navigate({
+          to: "/clients/$clientSlug",
+          params: { clientSlug: created.slug },
+          search: { logoFailed: true },
+        });
+      } else if (chainToMission) {
         await navigate({
           to: "/missions/new",
           search: { client: created.slug },

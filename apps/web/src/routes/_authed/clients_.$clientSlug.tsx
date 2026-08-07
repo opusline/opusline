@@ -27,11 +27,18 @@ import { clientLogoHref, logoHandlers } from "@/lib/logos";
 import { serverFieldErrors } from "@/lib/validation";
 
 export const Route = createFileRoute("/_authed/clients_/$clientSlug")({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { logoFailed?: boolean } =>
+    search.logoFailed === true || search.logoFailed === "true"
+      ? { logoFailed: true }
+      : {},
   component: ClientDetailRoute,
 });
 
 function ClientDetailRoute() {
   const { clientSlug: client } = Route.useParams();
+  const { logoFailed } = Route.useSearch();
   const queryClient = useQueryClient();
 
   const { data, isPending, isError } = useQuery(
@@ -145,11 +152,15 @@ function ClientDetailRoute() {
     );
   }
 
-  const genericError =
+  const hasActionFailed =
     (updateClient.error && !serverFieldErrors(updateClient.error)) ||
     archiveClient.error ||
-    unarchiveClient.error
-      ? "L'action a échoué. Réessayez dans un instant."
+    unarchiveClient.error;
+
+  const genericError = hasActionFailed
+    ? "L'action a échoué. Réessayez dans un instant."
+    : logoFailed
+      ? "Le client a bien été créé, mais l'envoi du logo a échoué. Reprenez-le depuis « Modifier »."
       : null;
 
   const documentsTab = documentsQuery.isPending ? (

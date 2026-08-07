@@ -18,7 +18,10 @@ const SLOT_CLASSES = {
 const REMOVE_SIZES = { sm: "icon-xs", lg: "icon-sm" } as const;
 
 type LogoPickerProps = {
+  /** Accessible name of the file input. */
   label: string;
+  /** Accessible name of the remove action, which the input's label can't carry. */
+  removeLabel: string;
   /**
    * Current logo, either the stored one or a preview of the picked file. The
    * stored URL is always well-formed even when the client has no logo, so a
@@ -29,17 +32,21 @@ type LogoPickerProps = {
   size: keyof typeof BOX_CLASSES;
   onPick: (logo: File) => void;
   onRemove: () => void;
+  /** Locks both actions while an upload or a removal is in flight. */
+  isPending?: boolean;
   /** Failure coming back from the server, shown under the slot. */
   error?: string | null;
 };
 
 export function LogoPicker({
   label,
+  removeLabel,
   src,
   placeholder,
   size,
   onPick,
   onRemove,
+  isPending,
   error,
 }: LogoPickerProps) {
   const messageId = useId();
@@ -51,7 +58,7 @@ export function LogoPicker({
   const pick = (files: ArrayLike<File> | null) => {
     const file = files?.[0];
 
-    if (file === undefined) {
+    if (file === undefined || isPending) {
       return;
     }
 
@@ -71,9 +78,12 @@ export function LogoPicker({
         <label
           aria-describedby={message === null ? undefined : messageId}
           className={cn(
-            "flex size-full cursor-pointer items-center justify-center overflow-hidden border border-border-3 border-dashed bg-muted p-1.5 text-center text-muted-foreground-3 transition-colors",
-            "hover:border-muted-foreground-6 has-[input:focus-visible]:border-primary has-[input:focus-visible]:ring-3 has-[input:focus-visible]:ring-primary/20",
+            "flex size-full items-center justify-center overflow-hidden border border-border-3 border-dashed bg-muted p-1.5 text-center text-muted-foreground-3 transition-colors",
+            "has-[input:focus-visible]:border-primary has-[input:focus-visible]:ring-3 has-[input:focus-visible]:ring-primary/20",
             SLOT_CLASSES[size],
+            isPending
+              ? "cursor-not-allowed opacity-60"
+              : "cursor-pointer hover:border-muted-foreground-6",
             isDragOver && "border-primary bg-primary/7",
             showLogo && "border-solid bg-card",
           )}
@@ -92,6 +102,7 @@ export function LogoPicker({
             accept={LOGO_ACCEPT}
             aria-label={label}
             className="sr-only"
+            disabled={isPending}
             onChange={(event) => {
               pick(event.target.files);
               event.target.value = "";
@@ -111,8 +122,9 @@ export function LogoPicker({
         </label>
         {showLogo && (
           <Button
-            aria-label={`Retirer ${label.toLowerCase()}`}
+            aria-label={removeLabel}
             className="absolute top-1 right-1"
+            disabled={isPending}
             onClick={onRemove}
             size={REMOVE_SIZES[size]}
             variant="outline"

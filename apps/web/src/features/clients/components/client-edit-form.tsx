@@ -49,19 +49,32 @@ export function ClientEditForm({
   error,
 }: ClientEditFormProps) {
   const [logoError, setLogoError] = useState<string | null>(null);
+  const [isLogoPending, setIsLogoPending] = useState(false);
 
   const handleUploadLogo = async (logo: File) => {
-    const result = await onUploadLogo(logo);
+    setIsLogoPending(true);
 
-    setLogoError(result.status === "failed" ? result.message : null);
+    try {
+      const result = await onUploadLogo(logo);
+
+      setLogoError(result.status === "failed" ? result.message : null);
+    } finally {
+      setIsLogoPending(false);
+    }
   };
 
   const handleRemoveLogo = async () => {
-    setLogoError(
-      (await onRemoveLogo())
-        ? null
-        : "La suppression a échoué. Réessayez dans un instant.",
-    );
+    setIsLogoPending(true);
+
+    try {
+      setLogoError(
+        (await onRemoveLogo())
+          ? null
+          : "La suppression a échoué. Réessayez dans un instant.",
+      );
+    } finally {
+      setIsLogoPending(false);
+    }
   };
 
   const form = useForm({
@@ -168,10 +181,12 @@ export function ClientEditForm({
               <div className="flex items-center gap-3">
                 <LogoPicker
                   error={logoError}
+                  isPending={isLogoPending}
                   label="Logo du client"
                   onPick={(logo) => void handleUploadLogo(logo)}
                   onRemove={() => void handleRemoveLogo()}
                   placeholder="Déposez"
+                  removeLabel="Retirer le logo du client"
                   size="sm"
                   src={logoSrc}
                 />
