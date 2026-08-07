@@ -450,9 +450,7 @@ it("opens the edit form without popping the address suggestions", async () => {
     expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
   });
   expect(
-    requests.filter((request) =>
-      request.url.includes("api-adresse.data.gouv.fr"),
-    ),
+    requests.filter((request) => request.url.includes("data.geopf.fr")),
   ).toHaveLength(0);
 });
 

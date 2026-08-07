@@ -124,3 +124,47 @@ it("stays closed when the field opens with a value already in it", async () => {
   await waitFor(() => expect(fetchMock).not.toHaveBeenCalled());
   expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
 });
+
+it("says suggestions are unavailable when the lookup fails", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => {
+      throw new Error("offline");
+    }),
+  );
+  const { handleChange } = renderField("");
+  type("12 rue de la paix");
+
+  expect(
+    await screen.findByText(/Suggestions indisponibles/),
+  ).toBeInTheDocument();
+  expect(handleChange).toHaveBeenCalledWith("12 rue de la paix");
+});
+
+it("clears the unavailable notice once a lookup succeeds", async () => {
+  let isFirstCall = true;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => {
+      if (isFirstCall) {
+        isFirstCall = false;
+        throw new Error("offline");
+      }
+
+      return new Response(JSON.stringify({ features: [SUGGESTION] }), {
+        status: 200,
+      });
+    }),
+  );
+  renderField("");
+
+  type("12 rue de la paix");
+  await screen.findByText(/Suggestions indisponibles/);
+
+  type("12 rue de la paix 44000");
+
+  expect(await screen.findByRole("option")).toBeInTheDocument();
+  expect(
+    screen.queryByText(/Suggestions indisponibles/),
+  ).not.toBeInTheDocument();
+});

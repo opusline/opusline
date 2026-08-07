@@ -31,6 +31,7 @@ export function SuggestField<T extends Suggestion>({
   const [suggestions, setSuggestions] = useState<T[]>([]);
   const [highlighted, setHighlighted] = useState(-1);
   const [isOpen, setIsOpen] = useState(false);
+  const [hasLookupFailed, setHasLookupFailed] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const inFlight = useRef<AbortController>(undefined);
   const isInvalid = !field.state.meta.isValid;
@@ -66,10 +67,17 @@ export function SuggestField<T extends Suggestion>({
           setSuggestions(found);
           setHighlighted(-1);
           setIsOpen(found.length > 0);
+          setHasLookupFailed(false);
         })
         .catch(() => {
-          // A failed lookup leaves whatever is on screen alone; the field is
-          // free text, so there is nothing to recover.
+          // Aborts are how a newer keystroke cancels this one, not a failure.
+          if (inFlight.current !== controller || controller.signal.aborted) {
+            return;
+          }
+
+          setSuggestions([]);
+          setIsOpen(false);
+          setHasLookupFailed(true);
         });
     }, DEBOUNCE_MS);
   };
@@ -178,6 +186,11 @@ export function SuggestField<T extends Suggestion>({
           ))}
         </div>
       )}
+      {hasLookupFailed && !isInvalid ? (
+        <span className="text-muted-foreground-3 text-xs" role="status">
+          Suggestions indisponibles — saisissez l'adresse manuellement.
+        </span>
+      ) : null}
       {isInvalid ? (
         <FieldError errors={field.state.meta.errors} id={errorId} />
       ) : null}

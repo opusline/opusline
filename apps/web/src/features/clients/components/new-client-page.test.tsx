@@ -360,7 +360,7 @@ it("fills the postal code, city and country from a picked address", async () => 
       const request =
         input instanceof Request ? input : new Request(input, init);
 
-      if (request.url.includes("api-adresse.data.gouv.fr")) {
+      if (request.url.includes("data.geopf.fr")) {
         return jsonResponse(200, {
           features: [
             {
@@ -406,7 +406,7 @@ it("fills the postal code from a city picked on its own", async () => {
       const request =
         input instanceof Request ? input : new Request(input, init);
 
-      if (request.url.includes("api-adresse.data.gouv.fr")) {
+      if (request.url.includes("data.geopf.fr")) {
         return jsonResponse(200, {
           features: [
             {
@@ -463,7 +463,7 @@ it("suggests countries without calling the address API", async () => {
   expect(screen.getByLabelText("Pays")).toHaveValue("Belgique");
   expect(
     fetchMock.mock.calls.filter(([input]) =>
-      String(input).includes("api-adresse"),
+      String(input).includes("data.geopf.fr"),
     ),
   ).toHaveLength(0);
 });

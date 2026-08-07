@@ -1,4 +1,4 @@
-const SEARCH_URL = "https://api-adresse.data.gouv.fr/search/";
+const SEARCH_URL = "https://data.geopf.fr/geocodage/search";
 
 const MIN_QUERY_LENGTH = 3;
 
@@ -55,30 +55,26 @@ async function fetchFeatures(
 
   const url = `${SEARCH_URL}?q=${encodeURIComponent(trimmed)}&limit=5&autocomplete=1${extraParams}`;
 
-  try {
-    const response = await fetch(url, { signal });
+  const response = await fetch(url, { signal });
 
-    if (!response.ok) {
-      return [];
-    }
-
-    const payload: unknown = await response.json();
-
-    if (
-      typeof payload !== "object" ||
-      payload === null ||
-      !Array.isArray((payload as { features?: unknown }).features)
-    ) {
-      return [];
-    }
-
-    return (payload as { features: unknown[] }).features.filter(
-      (feature): feature is BanFeature =>
-        typeof feature === "object" && feature !== null,
-    );
-  } catch {
-    return [];
+  if (!response.ok) {
+    throw new Error(`Address lookup failed with status ${response.status}`);
   }
+
+  const payload: unknown = await response.json();
+
+  if (
+    typeof payload !== "object" ||
+    payload === null ||
+    !Array.isArray((payload as { features?: unknown }).features)
+  ) {
+    throw new Error("Address lookup returned an unexpected payload");
+  }
+
+  return (payload as { features: unknown[] }).features.filter(
+    (feature): feature is BanFeature =>
+      typeof feature === "object" && feature !== null,
+  );
 }
 
 export async function searchAddresses(

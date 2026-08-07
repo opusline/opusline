@@ -54,7 +54,7 @@ it("does not call the API for a query too short to match anything", async () => 
   expect(fetchMock).not.toHaveBeenCalled();
 });
 
-it("returns nothing rather than throwing when the lookup fails", async () => {
+it("reports a network failure instead of passing it off as no matches", async () => {
   vi.stubGlobal(
     "fetch",
     vi.fn(async () => {
@@ -62,13 +62,21 @@ it("returns nothing rather than throwing when the lookup fails", async () => {
     }),
   );
 
-  await expect(searchAddresses("12 rue de la paix")).resolves.toEqual([]);
+  await expect(searchAddresses("12 rue de la paix")).rejects.toThrow();
 });
 
-it("returns nothing when the API answers with an error status", async () => {
+it("reports an error status instead of passing it off as no matches", async () => {
   stubFetch({}, 503);
 
-  await expect(searchAddresses("12 rue de la paix")).resolves.toEqual([]);
+  await expect(searchAddresses("12 rue de la paix")).rejects.toThrow(
+    "status 503",
+  );
+});
+
+it("reports an unexpected payload rather than returning nothing", async () => {
+  stubFetch({ unexpected: true });
+
+  await expect(searchAddresses("12 rue de la paix")).rejects.toThrow();
 });
 
 it("skips features missing the parts the form fills in", async () => {
