@@ -93,7 +93,7 @@ function SemaineRoute() {
 
     try {
       await write();
-      await refreshEntries(scope);
+      await refreshEntries(scope).catch(() => undefined);
 
       return true;
     } catch (caught) {
@@ -232,17 +232,20 @@ function SemaineRoute() {
     let copied = 0;
     const failures: unknown[] = [];
 
-    for (const body of planned) {
-      try {
-        await createEntry.mutateAsync({ body });
-        copied += 1;
-      } catch (caught) {
-        failures.push(caught);
+    try {
+      for (const body of planned) {
+        try {
+          await createEntry.mutateAsync({ body });
+          copied += 1;
+        } catch (caught) {
+          failures.push(caught);
+        }
       }
-    }
 
-    await refreshEntries("all");
-    setIsRepeating(false);
+      await refreshEntries("all").catch(() => undefined);
+    } finally {
+      setIsRepeating(false);
+    }
 
     if (failures.length > 0) {
       setError(
