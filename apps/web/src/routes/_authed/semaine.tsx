@@ -93,7 +93,6 @@ function SemaineRoute() {
 
     try {
       await write();
-      await refreshEntries(scope).catch(() => undefined);
 
       return true;
     } catch (caught) {
@@ -101,6 +100,7 @@ function SemaineRoute() {
 
       return false;
     } finally {
+      await refreshEntries(scope).catch(() => undefined);
       setPendingCellKeys((current) => {
         const next = new Set(current);
         next.delete(cellKey);
@@ -212,6 +212,14 @@ function SemaineRoute() {
   };
 
   const handleRepeatPreviousWeek = async () => {
+    if (previousEntries.isError) {
+      setError(
+        "La semaine précédente n'a pas pu être chargée. Réessayez dans un instant.",
+      );
+
+      return;
+    }
+
     if (previousEntries.isPlaceholderData) {
       setError(
         "La semaine précédente est encore en cours de chargement. Réessayez dans un instant.",
