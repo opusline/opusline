@@ -4,10 +4,13 @@ const MAX_MINUTES_PER_DAY = 1440;
 
 const decimals = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
 
+/** Why a duration was rejected. Every reason needs its own hint to show. */
+export type DurationInvalidReason = "format" | "range";
+
 export type DurationParse =
   | { kind: "minutes"; minutes: number }
   | { kind: "clear" }
-  | { kind: "invalid"; reason: "format" | "range" };
+  | { kind: "invalid"; reason: DurationInvalidReason };
 
 export type DurationUnits = {
   billingMode: BillingMode;

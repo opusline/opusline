@@ -1,39 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useRef } from "react";
-import {
-  DEMO_CLIENTS,
-  DEMO_TIME_ENTRIES,
-  DEMO_TODAY,
-  DEMO_WEEK,
-} from "../lib/week-fixtures";
-import {
-  buildWeekGrid,
-  type WeekCell as WeekCellModel,
-  type WeekRow,
-} from "../lib/week-grid";
+import { demoRowNamed } from "../lib/week-fixtures";
+import type { WeekCell as WeekCellModel, WeekRow } from "../lib/week-grid";
 import { WeekCell } from "./week-cell";
 
-const model = buildWeekGrid({
-  clients: DEMO_CLIENTS,
-  timeEntries: DEMO_TIME_ENTRIES,
-  today: DEMO_TODAY,
-  week: DEMO_WEEK,
-  weekendShown: false,
-});
-
-function rowNamed(name: string): WeekRow {
-  const row = model.rows.find((candidate) => candidate.name === name);
-
-  if (row === undefined) {
-    throw new Error(`No demo row named ${name}`);
-  }
-
-  return row;
-}
-
-const billedDayRow = rowNamed("OGF front");
-const hourlyRow = rowNamed("HartPrint maintenance");
-const nonBillableRow = rowNamed("Opusline");
+const billedDayRow = demoRowNamed("OGF front");
+const hourlyRow = demoRowNamed("HartPrint maintenance");
+const nonBillableRow = demoRowNamed("Opusline");
 
 /** Cells only ever render inside a grid row, so the preview supplies one. */
 function CellPreview(props: {

@@ -28,6 +28,7 @@ export const Default: Story = {
       <PopoverContent>
         <PopoverTitle>Activité</PopoverTitle>
         <Input
+          aria-label="Activité"
           className="mt-2"
           placeholder="Revue PR, cadrage…"
           size="sm"

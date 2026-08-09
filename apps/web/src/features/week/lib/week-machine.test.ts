@@ -316,20 +316,27 @@ it("moves the tab stop one column right when Tab commits", () => {
   expect(actor.getSnapshot().context.focusedKey).toBe("1:2026-07-28");
 });
 
-it("marks a whole day in one keystroke, and unmarks it on the next", () => {
-  const empty = start([]);
+it("marks an empty day in one keystroke", () => {
+  const actor = start([]);
 
-  empty.send({ key: OGF_MONDAY, type: "TOGGLE_DAY" });
+  actor.send({ key: OGF_MONDAY, type: "TOGGLE_DAY" });
 
-  expect(writes[0]).toMatchObject({
-    durationMinutes: DEMO_WORKDAY_MINUTES,
-    kind: "create",
-  });
+  expect(writes).toEqual([
+    expect.objectContaining({
+      durationMinutes: DEMO_WORKDAY_MINUTES,
+      kind: "create",
+    }),
+  ]);
+});
 
-  const full = start();
-  full.send({ key: OGF_MONDAY, type: "TOGGLE_DAY" });
+it("unmarks a full day in one keystroke", () => {
+  const actor = start();
 
-  expect(writes[1]).toMatchObject({ entryIds: [1], kind: "clear" });
+  actor.send({ key: OGF_MONDAY, type: "TOGGLE_DAY" });
+
+  expect(writes).toEqual([
+    expect.objectContaining({ entryIds: [1], kind: "clear" }),
+  ]);
 });
 
 it("opens the editor rather than toggling on an hourly row", () => {
@@ -425,6 +432,24 @@ it("stays usable while a write is in flight", async () => {
 
   expect(snapshot.value).toBe("editing");
   expect(snapshot.context.draft).toBe("2");
+
+  await settle();
+});
+
+it("writes once when the same cell is toggled twice before the first lands", async () => {
+  const actor = start([]);
+
+  actor.send({ key: OGF_MONDAY, type: "TOGGLE_DAY" });
+  // The model still shows the cell empty, so a second toggle would re-create it.
+  actor.send({ key: OGF_MONDAY, type: "TOGGLE_DAY" });
+
+  expect(writes).toEqual([
+    expect.objectContaining({
+      cellKey: OGF_MONDAY,
+      durationMinutes: DEMO_WORKDAY_MINUTES,
+      kind: "create",
+    }),
+  ]);
 
   await settle();
 });

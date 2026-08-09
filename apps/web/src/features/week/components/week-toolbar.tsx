@@ -1,6 +1,7 @@
 import { Button } from "@opusline/ui/components/button";
 import { Kbd } from "@opusline/ui/components/kbd";
 import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "lucide-react";
+import { useId } from "react";
 
 import {
   isoWeekOf,
@@ -23,6 +24,9 @@ type WeekToolbarProps = {
   onNewEntry: () => void;
 };
 
+const WEEKEND_LOCK_REASON =
+  "Le week-end reste ouvert : il contient des entrées cette semaine.";
+
 export function WeekToolbar({
   week,
   today,
@@ -32,6 +36,8 @@ export function WeekToolbar({
   onWeekendToggle,
   onNewEntry,
 }: WeekToolbarProps) {
+  const weekendLockId = useId();
+
   return (
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div className="flex flex-wrap items-center gap-2.5">
@@ -71,19 +77,24 @@ export function WeekToolbar({
         </Button>
       </div>
       <div className="flex flex-wrap items-center gap-2">
+        {/* Locked rather than removed: a button nobody can reach is a button
+            nobody can ask about, so it stays focusable and says why. */}
         <Button
+          aria-describedby={isWeekendLocked ? weekendLockId : undefined}
           disabled={isWeekendLocked}
+          focusableWhenDisabled
           onClick={onWeekendToggle}
           size="xl"
-          title={
-            isWeekendLocked
-              ? "Le week-end reste ouvert : il contient des entrées cette semaine."
-              : undefined
-          }
+          title={isWeekendLocked ? WEEKEND_LOCK_REASON : undefined}
           variant="outline"
         >
           {weekendToggleLabel(weekendShown)}
         </Button>
+        {isWeekendLocked && (
+          <span className="sr-only" id={weekendLockId}>
+            {WEEKEND_LOCK_REASON}
+          </span>
+        )}
         <Button aria-keyshortcuts="n" onClick={onNewEntry} size="xl">
           <PlusIcon aria-hidden data-icon="inline-start" strokeWidth={2.2} />
           Nouvelle entrée

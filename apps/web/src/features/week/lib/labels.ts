@@ -1,6 +1,6 @@
 import type { BillingMode } from "@opusline/api-client";
 
-import { isHourly } from "@/lib/durations";
+import { type DurationInvalidReason, isHourly } from "@/lib/durations";
 import { weekdayDateLabel } from "@/lib/weeks";
 
 export const DURATION_FORMAT_HINT = "Format : 1 · 0,5 · 2h · 1h30 · 90m";
@@ -13,8 +13,14 @@ export function durationUnitHint(billingMode: BillingMode): string {
 
 export const DURATION_RANGE_HINT = "Une entrée va de 1 minute à 24 heures.";
 
-export function durationErrorHint(reason: "format" | "range"): string {
-  return reason === "range" ? DURATION_RANGE_HINT : DURATION_FORMAT_HINT;
+/** Exhaustive on purpose: a new parse reason must not silently read as a typo. */
+export function durationErrorHint(reason: DurationInvalidReason): string {
+  switch (reason) {
+    case "range":
+      return DURATION_RANGE_HINT;
+    case "format":
+      return DURATION_FORMAT_HINT;
+  }
 }
 
 export function cellAriaLabel(input: {

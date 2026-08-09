@@ -23,7 +23,9 @@ export function WeekEmptyBanner({
       <Button disabled={isRepeating} onClick={onRepeat} size="xl">
         {isRepeating
           ? "Reprise en cours…"
-          : `Reprendre les ${previousWeekEntryCount} entrées`}
+          : previousWeekEntryCount === 1
+            ? "Reprendre l'entrée"
+            : `Reprendre les ${previousWeekEntryCount} entrées`}
       </Button>
     </div>
   );

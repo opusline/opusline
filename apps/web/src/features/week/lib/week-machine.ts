@@ -1,4 +1,4 @@
-import { assign, fromPromise, setup } from "xstate";
+import { and, assign, fromPromise, setup } from "xstate";
 
 import {
   type DurationUnits,
@@ -258,14 +258,14 @@ const CELL_EVENTS = {
     OPEN_CELL[0],
     { guard: "isHourlyRow", target: "editing", actions: "openEditor" },
     {
-      guard: "cellIsEditable",
+      guard: and(["cellIsEditable", "cellIsNotSaving"]),
       target: "saving",
       reenter: true,
       actions: "requestWrite",
     },
   ],
   CLEAR: {
-    guard: "cellHasEntries",
+    guard: and(["cellHasEntries", "cellIsNotSaving"]),
     target: "saving",
     reenter: true,
     actions: "requestWrite",
@@ -297,6 +297,14 @@ export const weekMachine = setup({
     isHourlyRow: ({ context, event }) =>
       "key" in event &&
       isHourly(locateCell(context.model, event.key)?.row.billingMode ?? 0),
+    /*
+     * The model only learns about a write once it lands, so a second toggle on
+     * the same cell would be computed against the stale cell and create a
+     * duplicate. `request` is null everywhere but `saving`, so this only ever
+     * bites while that cell's own write is in flight.
+     */
+    cellIsNotSaving: ({ context, event }) =>
+      !("key" in event) || context.request?.cellKey !== event.key,
     // The click that reaches the cell from inside its own open editor.
     isCurrentTarget: ({ context, event }) =>
       "key" in event && event.key === context.targetKey,
@@ -426,13 +434,15 @@ export const weekMachine = setup({
         return {};
       }
 
+      const [entry] = located.cell.entries;
+      const isFullDay =
+        located.cell.entries.length === 1 &&
+        entry?.durationMinutes === context.workdayMinutes;
+
       const request =
-        event.type === "CLEAR"
+        event.type === "CLEAR" || isFullDay
           ? clearFor(located)
-          : located.cell.entries.length === 1 &&
-              located.cell.entries[0].durationMinutes === context.workdayMinutes
-            ? clearFor(located)
-            : writeFor(located, context.workdayMinutes);
+          : writeFor(located, context.workdayMinutes);
 
       return {
         focusedKey: event.key,

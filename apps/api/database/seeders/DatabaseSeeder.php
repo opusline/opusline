@@ -127,7 +127,7 @@ class DatabaseSeeder extends Seeder
             ]);
 
             if ($index % 3 === 1) {
-                TimeEntry::factory()->for($nonBillable, 'mission')->create([
+                TimeEntry::factory()->for($nonBillable, 'mission')->nonBillable()->create([
                     'user_id' => $user->id,
                     'date' => $day->toDateString(),
                     'duration_minutes' => $index % 2 === 1 ? 120 : 90,

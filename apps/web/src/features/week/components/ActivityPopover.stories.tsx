@@ -1,39 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import {
-  DEMO_CLIENTS,
-  DEMO_TIME_ENTRIES,
-  DEMO_TODAY,
-  DEMO_WEEK,
-} from "../lib/week-fixtures";
-import { buildWeekGrid, type WeekRow } from "../lib/week-grid";
+import { demoRowNamed } from "../lib/week-fixtures";
 import { ActivityPopover } from "./activity-popover";
 
-const model = buildWeekGrid({
-  clients: DEMO_CLIENTS,
-  timeEntries: DEMO_TIME_ENTRIES,
-  today: DEMO_TODAY,
-  week: DEMO_WEEK,
-  weekendShown: false,
-});
-
-function rowNamed(name: string): WeekRow {
-  const row = model.rows.find((candidate) => candidate.name === name);
-
-  if (row === undefined) {
-    throw new Error(`No demo row named ${name}`);
-  }
-
-  return row;
-}
-
-const billedDayRow = rowNamed("OGF front");
+const billedDayRow = demoRowNamed("OGF front");
 
 const meta = {
   title: "Web/Week/ActivityPopover",
   component: ActivityPopover,
   tags: ["autodocs"],
   args: {
+    canBill: true,
     cell: billedDayRow.cells[0],
     noteSuggestions: ["Calculateur virement", "Écran semaine", "Revue PR"],
     onClose: () => {},
@@ -62,6 +39,11 @@ export const JustAdded: Story = {
       note: null,
     },
   },
+};
+
+/** A mission with no rate bills nothing, so the choice is not offered at all. */
+export const WithoutRate: Story = {
+  args: { canBill: false },
 };
 
 export const SeveralEntries: Story = {

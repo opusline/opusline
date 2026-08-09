@@ -6,7 +6,9 @@ function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {
     <kbd
       data-slot="kbd"
       className={cn(
-        "inline-flex select-none items-center justify-center font-mono text-xs opacity-60",
+        // No dimming here: the shortcut sits on a primary button, where 60%
+        // opacity drops the label to 2.9:1 against the amber.
+        "inline-flex select-none items-center justify-center font-mono text-xs",
         className,
       )}
       {...props}

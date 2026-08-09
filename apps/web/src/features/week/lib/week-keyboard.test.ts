@@ -17,15 +17,15 @@ describe("nextCell", () => {
     expect(nextCell(middle, key, shape)).toEqual(expected);
   });
 
-  it.each([
-    ["ArrowLeft", { column: 0, row: 0 }],
-    ["ArrowUp", { column: 0, row: 0 }],
-  ])("clamps at the top-left corner on %s", (key) => {
-    expect(nextCell({ column: 0, row: 0 }, key, shape)).toEqual({
-      column: 0,
-      row: 0,
-    });
-  });
+  it.each(["ArrowLeft", "ArrowUp"])(
+    "clamps at the top-left corner on %s",
+    (key) => {
+      expect(nextCell({ column: 0, row: 0 }, key, shape)).toEqual({
+        column: 0,
+        row: 0,
+      });
+    },
+  );
 
   it.each(["ArrowRight", "ArrowDown"])(
     "clamps at the bottom-right corner on %s",

@@ -4,6 +4,8 @@ import type {
   TimeEntryData,
 } from "@opusline/api-client";
 
+import { buildWeekGrid, type WeekRow } from "./week-grid";
+
 export const DEMO_WEEK = "2026-W31";
 export const DEMO_TODAY = "2026-07-30";
 export const DEMO_WORKDAY_MINUTES = 420;
@@ -173,3 +175,22 @@ export const DEMO_TIME_ENTRIES: TimeEntryData[] = [
     "Calculateur virement",
   ),
 ];
+
+/** The demo week as the grid sees it — stories and tests read rows off this. */
+export const DEMO_GRID = buildWeekGrid({
+  clients: DEMO_CLIENTS,
+  timeEntries: DEMO_TIME_ENTRIES,
+  today: DEMO_TODAY,
+  week: DEMO_WEEK,
+  weekendShown: false,
+});
+
+export function demoRowNamed(name: string): WeekRow {
+  const row = DEMO_GRID.rows.find((candidate) => candidate.name === name);
+
+  if (row === undefined) {
+    throw new Error(`No demo row named ${name}`);
+  }
+
+  return row;
+}

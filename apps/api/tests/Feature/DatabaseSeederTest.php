@@ -27,5 +27,8 @@ test('seeds time on a non-billable mission so the week grid shows one', function
     expect($nonBillable->timeEntries)->not->toBeEmpty()
         ->and($nonBillable->timeEntries->every(
             fn ($entry): bool => $entry->note !== null,
+        ))->toBeTrue()
+        ->and($nonBillable->timeEntries->every(
+            fn ($entry): bool => $entry->billable === false,
         ))->toBeTrue();
 });

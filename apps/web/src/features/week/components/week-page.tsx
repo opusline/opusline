@@ -155,6 +155,9 @@ export function WeekPage({
           "transition-opacity",
           isRefreshing && "pointer-events-none opacity-60",
         )}
+        // `pointer-events-none` only stops the mouse; the grid owns keyboard
+        // handlers and a tab stop that must go quiet too while the week lands.
+        inert={isRefreshing}
       >
         <WeekGrid
           model={model}

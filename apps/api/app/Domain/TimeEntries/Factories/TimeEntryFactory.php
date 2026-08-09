@@ -17,7 +17,7 @@ class TimeEntryFactory extends Factory
 
     public function nonBillable(): static
     {
-        return $this->state(fn (array $attributes): array => [
+        return $this->state(fn (): array => [
             'billable' => false,
         ]);
     }

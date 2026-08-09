@@ -29,6 +29,7 @@ function renderWithRouter(ui: React.ReactNode) {
 
 async function renderPage(overrides: Partial<WeekPageProps> = {}) {
   const onWeekChange = vi.fn<WeekPageProps["onWeekChange"]>();
+  const onWeekendToggle = vi.fn<WeekPageProps["onWeekendToggle"]>();
   const onSubmitNewEntry = vi
     .fn<WeekPageProps["onSubmitNewEntry"]>()
     .mockResolvedValue(true);
@@ -47,7 +48,7 @@ async function renderPage(overrides: Partial<WeekPageProps> = {}) {
       onSubmitNewEntry={onSubmitNewEntry}
       onUpdate={vi.fn().mockResolvedValue(true)}
       onWeekChange={onWeekChange}
-      onWeekendToggle={vi.fn()}
+      onWeekendToggle={onWeekendToggle}
       pendingCellKeys={new Set()}
       previousWeekEntries={[]}
       timeEntries={DEMO_TIME_ENTRIES}
@@ -62,7 +63,7 @@ async function renderPage(overrides: Partial<WeekPageProps> = {}) {
   // The router mounts its route tree asynchronously.
   await screen.findByRole("heading");
 
-  return { onSubmitNewEntry, onWeekChange };
+  return { onSubmitNewEntry, onWeekChange, onWeekendToggle };
 }
 
 it("titles the week and its date range", async () => {
@@ -94,8 +95,8 @@ it("keeps Aujourd'hui usable on any other week", async () => {
   expect(screen.getByRole("button", { name: "Aujourd'hui" })).toBeEnabled();
 });
 
-it("disables the weekend toggle when the weekend has to stay open", async () => {
-  await renderPage({
+it("locks the weekend toggle when the weekend has to stay open", async () => {
+  const { onWeekendToggle } = await renderPage({
     timeEntries: [
       {
         billable: true,
@@ -110,9 +111,17 @@ it("disables the weekend toggle when the weekend has to stay open", async () => 
     ],
   });
 
-  expect(
-    screen.getByRole("button", { name: "Masquer le week-end" }),
-  ).toBeDisabled();
+  const toggle = screen.getByRole("button", { name: "Masquer le week-end" });
+
+  // Locked, not removed: a disabled button drops out of the tab order, taking
+  // the explanation with it.
+  expect(toggle).toHaveAttribute("aria-disabled", "true");
+  expect(toggle).not.toBeDisabled();
+  expect(toggle).toHaveAccessibleDescription(/contient des entrées/);
+
+  fireEvent.click(toggle);
+
+  expect(onWeekendToggle).not.toHaveBeenCalled();
 });
 
 it("keeps the weekend toggle usable when the user opened it themselves", async () => {

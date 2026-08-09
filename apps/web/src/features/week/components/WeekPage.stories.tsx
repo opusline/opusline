@@ -24,6 +24,7 @@ const meta = {
     onCreate: () => Promise.resolve(true),
     onDelete: () => Promise.resolve(true),
     onRepeatPreviousWeek: () => {},
+    onSubmitNewEntry: () => Promise.resolve(true),
     onUpdate: () => Promise.resolve(true),
     onWeekChange: () => {},
     onWeekendToggle: () => {},

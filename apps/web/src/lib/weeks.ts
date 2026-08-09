@@ -39,6 +39,17 @@ const shortWeekdayDate = new Intl.DateTimeFormat("fr-FR", {
   year: "numeric",
 });
 
+/** The two numbers behind a `2026-W31`, or a throw — never a silent fallback. */
+function parseIsoWeek(week: string): { year: number; week: number } {
+  const match = ISO_WEEK_PATTERN.exec(week);
+
+  if (match === null) {
+    throw new Error(`Not an ISO week: ${week}`);
+  }
+
+  return { week: Number(match[2]), year: Number(match[1]) };
+}
+
 /** Monday = 1 … Sunday = 7, unlike `Date#getDay` where Sunday is 0. */
 function isoDayOfWeek(date: Date): number {
   return date.getDay() === 0 ? 7 : date.getDay();
@@ -69,9 +80,7 @@ export function isoWeekOf(date: string): string {
 
 /** December 28 always falls in the last ISO week, whatever the year's shape. */
 function isoWeeksInYear(year: number): number {
-  const match = ISO_WEEK_PATTERN.exec(isoWeekOf(`${year}-12-28`));
-
-  return match === null ? 52 : Number(match[2]);
+  return parseIsoWeek(isoWeekOf(`${year}-12-28`)).week;
 }
 
 export function isIsoWeek(value: unknown): value is string {
@@ -98,17 +107,13 @@ export function isIsoWeek(value: unknown): value is string {
 
 /** The Monday of the week, as `Y-m-d`. */
 export function isoWeekStart(week: string): string {
-  const match = ISO_WEEK_PATTERN.exec(week);
-
-  if (match === null) {
-    throw new Error(`Not an ISO week: ${week}`);
-  }
+  const parsed = parseIsoWeek(week);
 
   // January 4 is in week 1 by definition, so it anchors the whole year.
-  const january4 = localDate(Number(match[1]), 1, 4);
+  const january4 = localDate(parsed.year, 1, 4);
   const firstMonday = addDays(january4, 1 - isoDayOfWeek(january4));
 
-  return toCalendarDate(addDays(firstMonday, (Number(match[2]) - 1) * 7));
+  return toCalendarDate(addDays(firstMonday, (parsed.week - 1) * 7));
 }
 
 /** The seven `Y-m-d` of the week, Monday first. */
@@ -134,13 +139,7 @@ export function shiftIsoWeek(week: string, delta: number): string {
 }
 
 export function isoWeekTitle(week: string): string {
-  const match = ISO_WEEK_PATTERN.exec(week);
-
-  if (match === null) {
-    throw new Error(`Not an ISO week: ${week}`);
-  }
-
-  return `Semaine ${Number(match[2])}`;
+  return `Semaine ${parseIsoWeek(week).week}`;
 }
 
 /**

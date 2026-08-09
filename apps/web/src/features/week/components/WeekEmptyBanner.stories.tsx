@@ -18,6 +18,10 @@ type Story = StoryObj<typeof WeekEmptyBanner>;
 
 export const Default: Story = {};
 
+export const SingleEntry: Story = {
+  args: { previousWeekEntryCount: 1 },
+};
+
 export const Repeating: Story = {
   args: { isRepeating: true },
 };
