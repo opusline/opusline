@@ -12,6 +12,7 @@ use App\Domain\Missions\Factories\MissionFactory;
 use App\Domain\Shared\Enums\Color;
 use App\Domain\Shared\Routing\OwnedRouteBinding;
 use App\Domain\TimeEntries\Models\TimeEntry;
+use App\Domain\Timers\Models\RunningTimer;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Casts\MoneyIntegerCast;
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
@@ -158,8 +160,19 @@ class Mission extends Model implements HasMedia
         return $this->hasMany(TimeEntry::class);
     }
 
+    /** @return HasOne<RunningTimer, $this> */
+    public function runningTimer(): HasOne
+    {
+        return $this->hasOne(RunningTimer::class);
+    }
+
     public function effectiveRounding(): EntryRounding
     {
         return $this->rounding ?? EntryRounding::Quarter;
+    }
+
+    public function effectiveColor(): Color
+    {
+        return $this->color ?? $this->client->color;
     }
 }

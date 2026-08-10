@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Factories\MissionFactory;
 use App\Domain\Missions\Models\Mission;
+use App\Domain\Timers\Factories\RunningTimerFactory;
+use App\Domain\Timers\Models\RunningTimer;
 use App\Domain\Users\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -41,6 +43,21 @@ function fromSpa(): TestCase
 function missionOwnedBy(User $user, ?callable $configure = null): Mission
 {
     $factory = Mission::factory()->for(Client::factory()->for($user)->create(), 'client');
+
+    return ($configure === null ? $factory : $configure($factory))->create(['user_id' => $user->id]);
+}
+
+/**
+ * The running timer of the given user, on a mission of theirs.
+ *
+ * Pass $mission when the test asserts against it, and $configure for factory
+ * states such as paused().
+ *
+ * @param  (callable(RunningTimerFactory): RunningTimerFactory)|null  $configure
+ */
+function runningTimerFor(User $user, ?Mission $mission = null, ?callable $configure = null): RunningTimer
+{
+    $factory = RunningTimer::factory()->for($mission ?? missionOwnedBy($user), 'mission');
 
     return ($configure === null ? $factory : $configure($factory))->create(['user_id' => $user->id]);
 }

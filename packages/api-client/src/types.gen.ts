@@ -209,6 +209,23 @@ export type RegisterUserData = {
 };
 
 /**
+ * StartTimerData
+ */
+export type StartTimerData = {
+    missionId: number;
+};
+
+/**
+ * StopTimerData
+ */
+export type StopTimerData = {
+    date: string;
+    durationMinutes: number;
+    note: string | null;
+    billable?: boolean;
+};
+
+/**
  * TimeEntryData
  */
 export type TimeEntryData = {
@@ -238,6 +255,40 @@ export type TimeEntryInputData = {
  */
 export type TimeEntryListData = {
     timeEntries: Array<TimeEntryData>;
+};
+
+/**
+ * TimerData
+ */
+export type TimerData = {
+    id: number;
+    missionId: number;
+    missionName: string;
+    missionColor: Color;
+    state: TimerState;
+    startedAt: string;
+    elapsedSeconds: number;
+    note: string | null;
+};
+
+/**
+ * TimerState
+ */
+export type TimerState = 0 | 1;
+
+/**
+ * TimerStateData
+ */
+export type TimerStateData = {
+    timer: TimerData | null;
+    lastMissionId: number | null;
+};
+
+/**
+ * TrimTimerData
+ */
+export type TrimTimerData = {
+    seconds: number;
 };
 
 /**
@@ -285,6 +336,13 @@ export type UpdateMissionData = {
     notes?: string | null;
     startDate?: string | null;
     endDate?: string | null;
+};
+
+/**
+ * UpdateTimerData
+ */
+export type UpdateTimerData = {
+    note: string | null;
 };
 
 /**
@@ -1603,3 +1661,285 @@ export type UpdateTimeEntryResponses = {
 };
 
 export type UpdateTimeEntryResponse = UpdateTimeEntryResponses[keyof UpdateTimeEntryResponses];
+
+export type DiscardTimerData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/timer';
+};
+
+export type DiscardTimerErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DiscardTimerError = DiscardTimerErrors[keyof DiscardTimerErrors];
+
+export type DiscardTimerResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DiscardTimerResponse = DiscardTimerResponses[keyof DiscardTimerResponses];
+
+export type ShowTimerData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/timer';
+};
+
+export type ShowTimerErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowTimerError = ShowTimerErrors[keyof ShowTimerErrors];
+
+export type ShowTimerResponses = {
+    200: TimerStateData;
+};
+
+export type ShowTimerResponse = ShowTimerResponses[keyof ShowTimerResponses];
+
+export type StartTimerData2 = {
+    body: StartTimerData;
+    path?: never;
+    query?: never;
+    url: '/timer';
+};
+
+export type StartTimerErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type StartTimerError = StartTimerErrors[keyof StartTimerErrors];
+
+export type StartTimerResponses = {
+    201: TimerData;
+};
+
+export type StartTimerResponse = StartTimerResponses[keyof StartTimerResponses];
+
+export type UpdateTimerData2 = {
+    body: UpdateTimerData;
+    path?: never;
+    query?: never;
+    url: '/timer';
+};
+
+export type UpdateTimerErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateTimerError = UpdateTimerErrors[keyof UpdateTimerErrors];
+
+export type UpdateTimerResponses = {
+    200: TimerData;
+};
+
+export type UpdateTimerResponse = UpdateTimerResponses[keyof UpdateTimerResponses];
+
+export type PauseTimerData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/timer/pause';
+};
+
+export type PauseTimerErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type PauseTimerError = PauseTimerErrors[keyof PauseTimerErrors];
+
+export type PauseTimerResponses = {
+    200: TimerData;
+};
+
+export type PauseTimerResponse = PauseTimerResponses[keyof PauseTimerResponses];
+
+export type ResumeTimerData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/timer/resume';
+};
+
+export type ResumeTimerErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ResumeTimerError = ResumeTimerErrors[keyof ResumeTimerErrors];
+
+export type ResumeTimerResponses = {
+    200: TimerData;
+};
+
+export type ResumeTimerResponse = ResumeTimerResponses[keyof ResumeTimerResponses];
+
+export type TrimTimerData2 = {
+    body: TrimTimerData;
+    path?: never;
+    query?: never;
+    url: '/timer/trim';
+};
+
+export type TrimTimerErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type TrimTimerError = TrimTimerErrors[keyof TrimTimerErrors];
+
+export type TrimTimerResponses = {
+    200: TimerData;
+};
+
+export type TrimTimerResponse = TrimTimerResponses[keyof TrimTimerResponses];
+
+export type StopTimerData2 = {
+    body: StopTimerData;
+    path?: never;
+    query?: never;
+    url: '/timer/stop';
+};
+
+export type StopTimerErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type StopTimerError = StopTimerErrors[keyof StopTimerErrors];
+
+export type StopTimerResponses = {
+    201: TimeEntryData;
+};
+
+export type StopTimerResponse = StopTimerResponses[keyof StopTimerResponses];

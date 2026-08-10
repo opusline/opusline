@@ -7,11 +7,13 @@ namespace App\Domain\Users\Models;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\TimeEntries\Models\TimeEntry;
+use App\Domain\Timers\Models\RunningTimer;
 use App\Domain\Users\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -59,5 +61,11 @@ class User extends Authenticatable
     public function timeEntries(): HasMany
     {
         return $this->hasMany(TimeEntry::class);
+    }
+
+    /** @return HasOne<RunningTimer, $this> */
+    public function runningTimer(): HasOne
+    {
+        return $this->hasOne(RunningTimer::class);
     }
 }
