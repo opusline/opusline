@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\TimeEntries\Models\TimeEntry;
+use App\Domain\Timers\Models\RunningTimer;
 use App\Domain\Users\Models\User;
 
 test('deletes a mission', function (): void {
@@ -44,6 +45,25 @@ test('cannot delete a mission through a different client of the same user', func
         ->assertNotFound();
 
     $this->assertDatabaseHas('missions', ['id' => $mission->id]);
+});
+
+test('refuses to delete a mission with a running timer', function (): void {
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+    $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
+
+    $timer = RunningTimer::factory()->for($mission, 'mission')->create(['user_id' => $user->id]);
+
+    $this->actingAs($user)
+        ->deleteJson("/api/clients/{$client->slug}/missions/{$mission->slug}")
+        ->assertConflict()
+        ->assertJsonPath('message', __('missions.cannot_delete_with_running_timer'));
+
+    $this->assertDatabaseHas('missions', ['id' => $mission->id]);
+    $this->assertDatabaseHas('running_timers', [
+        'id' => $timer->id,
+        'mission_id' => $mission->id,
+    ]);
 });
 
 test('cannot delete another user mission', function (): void {

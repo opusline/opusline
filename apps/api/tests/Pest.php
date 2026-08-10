@@ -5,7 +5,10 @@ declare(strict_types=1);
 use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Factories\MissionFactory;
 use App\Domain\Missions\Models\Mission;
+use App\Domain\Timers\Factories\RunningTimerFactory;
+use App\Domain\Timers\Models\RunningTimer;
 use App\Domain\Users\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -30,6 +33,20 @@ function fromSpa(): TestCase
 }
 
 /**
+ * Apply a test's optional factory tweak, or hand the factory back untouched.
+ *
+ * @template TFactory of Factory
+ *
+ * @param  TFactory  $factory
+ * @param  (callable(TFactory): TFactory)|null  $configure
+ * @return TFactory
+ */
+function configuredFactory(Factory $factory, ?callable $configure): Factory
+{
+    return $configure === null ? $factory : $configure($factory);
+}
+
+/**
  * A mission owned by the given user, through a client of that user.
  *
  * Ownership runs user → client → mission, so arranging one mission means
@@ -42,5 +59,20 @@ function missionOwnedBy(User $user, ?callable $configure = null): Mission
 {
     $factory = Mission::factory()->for(Client::factory()->for($user)->create(), 'client');
 
-    return ($configure === null ? $factory : $configure($factory))->create(['user_id' => $user->id]);
+    return configuredFactory($factory, $configure)->create(['user_id' => $user->id]);
+}
+
+/**
+ * The running timer of the given user, on a mission of theirs.
+ *
+ * Pass $mission when the test asserts against it, and $configure for factory
+ * states such as paused().
+ *
+ * @param  (callable(RunningTimerFactory): RunningTimerFactory)|null  $configure
+ */
+function runningTimerFor(User $user, ?Mission $mission = null, ?callable $configure = null): RunningTimer
+{
+    $factory = RunningTimer::factory()->for($mission ?? missionOwnedBy($user), 'mission');
+
+    return configuredFactory($factory, $configure)->create(['user_id' => $user->id]);
 }

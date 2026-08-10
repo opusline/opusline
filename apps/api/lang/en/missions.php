@@ -8,4 +8,5 @@ return [
     'rate_forbidden_for_internal' => 'Missions for an internal client are not billable.',
     'rounding_forbidden_for_fixed' => 'Rounding does not apply to fixed-price missions.',
     'cannot_delete_with_time_entries' => 'Cannot delete a mission that still has time entries. Delete them first.',
+    'cannot_delete_with_running_timer' => 'Cannot delete a mission with a running timer. Stop it first.',
 ];

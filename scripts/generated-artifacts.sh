@@ -10,6 +10,10 @@ set -eu
 
 cd "$(dirname "$0")/.."
 
+node -e 'const fs = require("node:fs");
+const spec = "apps/api/openapi.json";
+fs.writeFileSync(spec, JSON.stringify(JSON.parse(fs.readFileSync(spec, "utf8")), null, 4));'
+
 pnpm --filter @opusline/api-client generate
 pnpm --filter @opusline/web generate-routes
 

@@ -8,4 +8,5 @@ return [
     'rate_forbidden_for_internal' => 'Les missions d\'un client interne ne sont pas facturables.',
     'rounding_forbidden_for_fixed' => 'L\'arrondi ne s\'applique pas aux missions au forfait.',
     'cannot_delete_with_time_entries' => 'Impossible de supprimer une mission qui a encore des temps saisis. Supprimez-les d\'abord.',
+    'cannot_delete_with_running_timer' => 'Impossible de supprimer une mission dont le suivi est en cours. Arrêtez-le d\'abord.',
 ];

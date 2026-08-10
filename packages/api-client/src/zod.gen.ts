@@ -238,6 +238,23 @@ export const zRegisterUserData = z.object({
 });
 
 /**
+ * StartTimerData
+ */
+export const zStartTimerData = z.object({
+    missionId: z.int()
+});
+
+/**
+ * StopTimerData
+ */
+export const zStopTimerData = z.object({
+    date: z.iso.date(),
+    durationMinutes: z.int().check(z.gte(1), z.lte(1440)),
+    note: z.nullable(z.string().check(z.maxLength(2000))),
+    billable: z.optional(z.boolean())
+});
+
+/**
  * TimeEntryData
  */
 export const zTimeEntryData = z.object({
@@ -267,6 +284,40 @@ export const zTimeEntryInputData = z.object({
  */
 export const zTimeEntryListData = z.object({
     timeEntries: z.array(zTimeEntryData)
+});
+
+/**
+ * TimerState
+ */
+export const zTimerState = z.union([z.literal(0), z.literal(1)]);
+
+/**
+ * TimerData
+ */
+export const zTimerData = z.object({
+    id: z.int(),
+    missionId: z.int(),
+    missionName: z.string(),
+    missionColor: zColor,
+    state: zTimerState,
+    startedAt: z.iso.datetime(),
+    elapsedSeconds: z.int(),
+    note: z.nullable(z.string())
+});
+
+/**
+ * TimerStateData
+ */
+export const zTimerStateData = z.object({
+    timer: z.nullable(zTimerData),
+    lastMissionId: z.nullable(z.int())
+});
+
+/**
+ * TrimTimerData
+ */
+export const zTrimTimerData = z.object({
+    seconds: z.int().check(z.gte(1), z.lte(86400))
 });
 
 /**
@@ -314,6 +365,13 @@ export const zUpdateMissionData = z.object({
     notes: z.nullish(z.string()),
     startDate: z.nullish(z.iso.date()),
     endDate: z.nullish(z.iso.date())
+});
+
+/**
+ * UpdateTimerData
+ */
+export const zUpdateTimerData = z.object({
+    note: z.nullable(z.string().check(z.maxLength(2000)))
 });
 
 /**
@@ -575,3 +633,30 @@ export const zUpdateTimeEntryPath = z.object({
 });
 
 export const zUpdateTimeEntryResponse = zTimeEntryData;
+
+/**
+ * No content
+ */
+export const zDiscardTimerResponse = z.void();
+
+export const zShowTimerResponse = zTimerStateData;
+
+export const zStartTimerBody = zStartTimerData;
+
+export const zStartTimerResponse = zTimerData;
+
+export const zUpdateTimerBody = zUpdateTimerData;
+
+export const zUpdateTimerResponse = zTimerData;
+
+export const zPauseTimerResponse = zTimerData;
+
+export const zResumeTimerResponse = zTimerData;
+
+export const zTrimTimerBody = zTrimTimerData;
+
+export const zTrimTimerResponse = zTimerData;
+
+export const zStopTimerBody = zStopTimerData;
+
+export const zStopTimerResponse = zTimeEntryData;

@@ -8,6 +8,7 @@ use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Enums\Color;
 use App\Domain\TimeEntries\Models\TimeEntry;
+use App\Domain\Timers\Models\RunningTimer;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
@@ -85,6 +86,14 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->seedRecentTimeEntries($user, $callistoFront, $lunaprintMaintenance, $opusline);
+
+        RunningTimer::factory()
+            ->for($lunaprintMaintenance, 'mission')
+            ->startedAt(CarbonImmutable::now()->subHours(2))
+            ->create([
+                'user_id' => $user->id,
+                'note' => 'Correctif impression recto-verso',
+            ]);
     }
 
     private function seedRecentTimeEntries(

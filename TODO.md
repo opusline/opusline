@@ -54,8 +54,9 @@ Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c83
   goes here.
 
 - [ ] **Live timer**
-  Start/stop, materializes into time entries on stop. **Hourly missions only** —
-  a stopwatch against a TJM day is meaningless; TJM keeps the one-tap day marking.
+  Start/stop/pause, materializes into time entries on stop. Any mission: the stop
+  dialog asks for the activity and the rounding, offering day fractions on a TJM
+  mission and hour increments on an hourly one.
   One running timer max. Server-authoritative (timer state in DB, not localStorage —
   survives browser close).
 

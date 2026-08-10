@@ -16,3 +16,4 @@ require __DIR__.'/api/auth.php';
 require __DIR__.'/api/clients.php';
 require __DIR__.'/api/missions.php';
 require __DIR__.'/api/time-entries.php';
+require __DIR__.'/api/timers.php';

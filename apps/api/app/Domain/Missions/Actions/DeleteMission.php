@@ -17,6 +17,8 @@ class DeleteMission
 
             abort_if($mission->timeEntries()->exists(), 409, __('missions.cannot_delete_with_time_entries'));
 
+            abort_if($mission->runningTimer()->exists(), 409, __('missions.cannot_delete_with_running_timer'));
+
             $mission->delete();
         });
     }

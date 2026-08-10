@@ -2,7 +2,7 @@
 
 import { type Client, type ClientMeta, formDataBodySerializer, type Options as Options2, type RequestResult, type TDataShape } from './client';
 import { client } from './client.gen';
-import type { ArchiveClientData, ArchiveClientErrors, ArchiveClientResponses, CreateClientData2, CreateClientErrors, CreateClientResponses, CreateMissionData2, CreateMissionErrors, CreateMissionResponses, CreateTimeEntryData, CreateTimeEntryErrors, CreateTimeEntryResponses, CurrentUserData, CurrentUserErrors, CurrentUserResponses, DeleteClientData, DeleteClientDocumentData, DeleteClientDocumentErrors, DeleteClientDocumentResponses, DeleteClientErrors, DeleteClientLogoData, DeleteClientLogoErrors, DeleteClientLogoResponses, DeleteClientResponses, DeleteMissionData, DeleteMissionDocumentData, DeleteMissionDocumentErrors, DeleteMissionDocumentResponses, DeleteMissionErrors, DeleteMissionResponses, DeleteTimeEntryData, DeleteTimeEntryErrors, DeleteTimeEntryResponses, DownloadClientDocumentData, DownloadClientDocumentErrors, DownloadClientDocumentResponses, DownloadMissionDocumentData, DownloadMissionDocumentErrors, DownloadMissionDocumentResponses, GetPingData, GetPingResponses, ListClientDocumentsData, ListClientDocumentsErrors, ListClientDocumentsResponses, ListClientsData, ListClientsErrors, ListClientsResponses, ListMissionDocumentsData, ListMissionDocumentsErrors, ListMissionDocumentsResponses, ListTimeEntriesData, ListTimeEntriesErrors, ListTimeEntriesResponses, LoginData2, LoginErrors, LoginResponses, LogoutData, LogoutErrors, LogoutResponses, RegisterData, RegisterResponses, ShowClientData, ShowClientErrors, ShowClientLogoData, ShowClientLogoErrors, ShowClientLogoResponses, ShowClientResponses, ShowMissionData, ShowMissionErrors, ShowMissionResponses, UnarchiveClientData, UnarchiveClientErrors, UnarchiveClientResponses, UpdateClientData2, UpdateClientDocumentData, UpdateClientDocumentErrors, UpdateClientDocumentResponses, UpdateClientErrors, UpdateClientResponses, UpdateMissionData2, UpdateMissionDocumentData, UpdateMissionDocumentErrors, UpdateMissionDocumentResponses, UpdateMissionErrors, UpdateMissionResponses, UpdateTimeEntryData, UpdateTimeEntryErrors, UpdateTimeEntryResponses, UploadClientDocumentData, UploadClientDocumentErrors, UploadClientDocumentResponses, UploadClientLogoData2, UploadClientLogoErrors, UploadClientLogoResponses, UploadMissionDocumentData, UploadMissionDocumentErrors, UploadMissionDocumentResponses } from './types.gen';
+import type { ArchiveClientData, ArchiveClientErrors, ArchiveClientResponses, CreateClientData2, CreateClientErrors, CreateClientResponses, CreateMissionData2, CreateMissionErrors, CreateMissionResponses, CreateTimeEntryData, CreateTimeEntryErrors, CreateTimeEntryResponses, CurrentUserData, CurrentUserErrors, CurrentUserResponses, DeleteClientData, DeleteClientDocumentData, DeleteClientDocumentErrors, DeleteClientDocumentResponses, DeleteClientErrors, DeleteClientLogoData, DeleteClientLogoErrors, DeleteClientLogoResponses, DeleteClientResponses, DeleteMissionData, DeleteMissionDocumentData, DeleteMissionDocumentErrors, DeleteMissionDocumentResponses, DeleteMissionErrors, DeleteMissionResponses, DeleteTimeEntryData, DeleteTimeEntryErrors, DeleteTimeEntryResponses, DiscardTimerData, DiscardTimerErrors, DiscardTimerResponses, DownloadClientDocumentData, DownloadClientDocumentErrors, DownloadClientDocumentResponses, DownloadMissionDocumentData, DownloadMissionDocumentErrors, DownloadMissionDocumentResponses, GetPingData, GetPingResponses, ListClientDocumentsData, ListClientDocumentsErrors, ListClientDocumentsResponses, ListClientsData, ListClientsErrors, ListClientsResponses, ListMissionDocumentsData, ListMissionDocumentsErrors, ListMissionDocumentsResponses, ListTimeEntriesData, ListTimeEntriesErrors, ListTimeEntriesResponses, LoginData2, LoginErrors, LoginResponses, LogoutData, LogoutErrors, LogoutResponses, PauseTimerData, PauseTimerErrors, PauseTimerResponses, RegisterData, RegisterResponses, ResumeTimerData, ResumeTimerErrors, ResumeTimerResponses, ShowClientData, ShowClientErrors, ShowClientLogoData, ShowClientLogoErrors, ShowClientLogoResponses, ShowClientResponses, ShowMissionData, ShowMissionErrors, ShowMissionResponses, ShowTimerData, ShowTimerErrors, ShowTimerResponses, StartTimerData2, StartTimerErrors, StartTimerResponses, StopTimerData2, StopTimerErrors, StopTimerResponses, TrimTimerData2, TrimTimerErrors, TrimTimerResponses, UnarchiveClientData, UnarchiveClientErrors, UnarchiveClientResponses, UpdateClientData2, UpdateClientDocumentData, UpdateClientDocumentErrors, UpdateClientDocumentResponses, UpdateClientErrors, UpdateClientResponses, UpdateMissionData2, UpdateMissionDocumentData, UpdateMissionDocumentErrors, UpdateMissionDocumentResponses, UpdateMissionErrors, UpdateMissionResponses, UpdateTimeEntryData, UpdateTimeEntryErrors, UpdateTimeEntryResponses, UpdateTimerData2, UpdateTimerErrors, UpdateTimerResponses, UploadClientDocumentData, UploadClientDocumentErrors, UploadClientDocumentResponses, UploadClientLogoData2, UploadClientLogoErrors, UploadClientLogoResponses, UploadMissionDocumentData, UploadMissionDocumentErrors, UploadMissionDocumentResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -378,6 +378,102 @@ export const updateTimeEntry = <ThrowOnError extends boolean = false>(options: O
             type: 'apiKey'
         }],
     url: '/time-entries/{timeEntry}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const discardTimer = <ThrowOnError extends boolean = false>(options?: Options<DiscardTimerData, ThrowOnError>): RequestResult<DiscardTimerResponses, DiscardTimerErrors, ThrowOnError> => (options?.client ?? client).delete<DiscardTimerResponses, DiscardTimerErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/timer',
+    ...options
+});
+
+export const showTimer = <ThrowOnError extends boolean = false>(options?: Options<ShowTimerData, ThrowOnError>): RequestResult<ShowTimerResponses, ShowTimerErrors, ThrowOnError> => (options?.client ?? client).get<ShowTimerResponses, ShowTimerErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/timer',
+    ...options
+});
+
+export const startTimer = <ThrowOnError extends boolean = false>(options: Options<StartTimerData2, ThrowOnError>): RequestResult<StartTimerResponses, StartTimerErrors, ThrowOnError> => (options.client ?? client).post<StartTimerResponses, StartTimerErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/timer',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const updateTimer = <ThrowOnError extends boolean = false>(options: Options<UpdateTimerData2, ThrowOnError>): RequestResult<UpdateTimerResponses, UpdateTimerErrors, ThrowOnError> => (options.client ?? client).put<UpdateTimerResponses, UpdateTimerErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/timer',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const pauseTimer = <ThrowOnError extends boolean = false>(options?: Options<PauseTimerData, ThrowOnError>): RequestResult<PauseTimerResponses, PauseTimerErrors, ThrowOnError> => (options?.client ?? client).post<PauseTimerResponses, PauseTimerErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/timer/pause',
+    ...options
+});
+
+export const resumeTimer = <ThrowOnError extends boolean = false>(options?: Options<ResumeTimerData, ThrowOnError>): RequestResult<ResumeTimerResponses, ResumeTimerErrors, ThrowOnError> => (options?.client ?? client).post<ResumeTimerResponses, ResumeTimerErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/timer/resume',
+    ...options
+});
+
+export const trimTimer = <ThrowOnError extends boolean = false>(options: Options<TrimTimerData2, ThrowOnError>): RequestResult<TrimTimerResponses, TrimTimerErrors, ThrowOnError> => (options.client ?? client).post<TrimTimerResponses, TrimTimerErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/timer/trim',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const stopTimer = <ThrowOnError extends boolean = false>(options: Options<StopTimerData2, ThrowOnError>): RequestResult<StopTimerResponses, StopTimerErrors, ThrowOnError> => (options.client ?? client).post<StopTimerResponses, StopTimerErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/timer/stop',
     ...options,
     headers: {
         'Content-Type': 'application/json',

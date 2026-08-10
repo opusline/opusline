@@ -15,6 +15,17 @@ test('seeds a demo portfolio for the test user', function (): void {
         ->and($user->clients->every(fn ($client): bool => $client->slug !== ''))->toBeTrue();
 });
 
+test('seeds a running timer so the topbar chip has something to render', function (): void {
+    $this->seed();
+
+    $user = User::query()->where('email', 'test@example.com')->firstOrFail();
+    $timer = $user->runningTimer()->with('mission')->firstOrFail();
+
+    expect($timer->isPaused())->toBeFalse()
+        ->and($timer->elapsedSeconds())->toBeGreaterThanOrEqual(7_000)
+        ->and($timer->mission->name)->toBe('Lunaprint maintenance');
+});
+
 test('seeds time on a non-billable mission so the week grid shows one', function (): void {
     $this->seed();
 
