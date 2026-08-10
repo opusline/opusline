@@ -6,14 +6,10 @@ export type TimerMachineContext = {
   noteDraft: string;
   dismissedIdleAt: number | null;
   stopChoice: string | null;
-  /** The user said a long-running timer is deliberate; stop asking. */
   keptLongRun: boolean;
-  /**
-   * Minutes replacing a forgotten timer's measured duration, and the raw text
-   * behind them so a half-typed "3:" survives the next render.
-   */
-  correctedMinutes: number | null;
+  /** Kept alongside the parsed minutes so a half-typed "3:" is not discarded. */
   correctionDraft: string;
+  correctedMinutes: number | null;
 };
 
 export type TimerMachineEvent =
@@ -72,7 +68,6 @@ export const timerMachine = setup({
         ? { dismissedIdleAt: event.lastActivityAt }
         : context,
     ),
-    // A new timer inherits nothing from the one before it.
     forgetTimer: assign({
       billable: true,
       correctedMinutes: null,
@@ -83,7 +78,6 @@ export const timerMachine = setup({
       noteDraft: "",
       stopChoice: null,
     }),
-    // Every stop dialog starts from the same place, whatever the last one chose.
     forgetStopChoice: assign({
       billable: true,
       correctedMinutes: null,

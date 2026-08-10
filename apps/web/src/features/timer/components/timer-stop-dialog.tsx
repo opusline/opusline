@@ -39,7 +39,6 @@ import { quickDurationLabel } from "../lib/long-run";
 import type { StopOption } from "../lib/rounding";
 
 export type TimerStopDialogProps = {
-  /** Set when the timer ran long enough to look forgotten: the measured time. */
   measuredLabel: string | null;
   correctionDraft: string;
   quickDurations: number[];

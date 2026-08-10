@@ -26,11 +26,10 @@ import {
   toCalendarDate,
   todayCalendarDate,
 } from "@/lib/dates";
-import { parseDuration } from "@/lib/durations";
 import { serverErrorMessage } from "@/lib/validation";
 
 import { type IdleNotice, idleNotice, trimSeconds } from "../lib/idle";
-import { isLongRun, longRunHours } from "../lib/long-run";
+import { isLongRun, longRunHours, parseWorkedDuration } from "../lib/long-run";
 import type { TimerMissionOption } from "../lib/mission-options";
 import { findMissionById, trackableMissions } from "../lib/mission-options";
 import { timerMachine } from "../lib/timer-machine";
@@ -48,9 +47,7 @@ export type StopSubmission = {
 
 export type TimerContextValue = {
   billable: boolean;
-  /** Whole hours a forgotten-looking timer has run, or null while it looks normal. */
   longRunHours: string | null;
-  /** Minutes replacing the measured duration, and the text the user typed. */
   correctedMinutes: number | null;
   correctionDraft: string;
   elapsedSeconds: number;
@@ -230,11 +227,6 @@ export function TimerProvider({
           recordedSpan: idleSpan,
         });
 
-  /*
-   * "Forgotten?" is judged against the user's own workday — the only length of
-   * a working day the app knows — and stops being asked once they say it is
-   * deliberate.
-   */
   const looksForgotten =
     timer !== null &&
     !state.context.keptLongRun &&
@@ -329,23 +321,12 @@ export function TimerProvider({
 
   const value: TimerContextValue = {
     billable: state.context.billable,
-    correctDuration: (draft) => {
-      /*
-       * Read as hours even on a day-billed mission: the field asks how long was
-       * actually worked, and its hint says `h:mm`. `parseDuration` accepts
-       * "3:30", "3h30" and a bare "3" alike.
-       */
-      const parsed = parseDuration(draft, {
-        billingMode: 1,
-        workdayMinutes,
-      });
-
+    correctDuration: (draft) =>
       send({
         type: "CORRECT_DURATION",
         draft,
-        minutes: parsed.kind === "minutes" ? parsed.minutes : null,
-      });
-    },
+        minutes: parseWorkedDuration(draft, workdayMinutes),
+      }),
     correctedMinutes: state.context.correctedMinutes,
     correctionDraft: state.context.correctionDraft,
     keepLongRun: () => send({ type: "KEEP_LONG_RUN" }),
