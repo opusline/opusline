@@ -218,6 +218,7 @@ export type TimeEntryData = {
     durationMinutes: number;
     valuedMinutes: number | null;
     valuedDayFraction: number | null;
+    billable: boolean;
     note: string | null;
 };
 
@@ -228,6 +229,7 @@ export type TimeEntryInputData = {
     missionId: number;
     date: string;
     durationMinutes: number;
+    billable?: boolean;
     note?: string | null;
 };
 
@@ -314,6 +316,7 @@ export type UserData = {
     id: number;
     name: string;
     email: string;
+    workdayMinutes: number;
 };
 
 export type GetPingData = {

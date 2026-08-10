@@ -44,3 +44,11 @@ export const Small: Story = {
     size: "sm",
   },
 };
+
+export const Large: Story = {
+  args: {
+    font: "mono",
+    placeholder: "1 · 0,5 · 2h",
+    size: "lg",
+  },
+};

@@ -67,3 +67,12 @@ test('serializes the date as a calendar day', function (): void {
 
     expect(TimeEntryData::from(entryOn($mission, 210))->toArray()['date'])->toBe('2026-08-03');
 });
+
+test('carries the entry billable flag', function (): void {
+    $mission = missionOwnedBy(User::factory()->create());
+    $billable = TimeEntry::factory()->for($mission, 'mission')->create();
+    $tracked = TimeEntry::factory()->for($mission, 'mission')->nonBillable()->create();
+
+    expect(TimeEntryData::from($billable)->billable)->toBeTrue()
+        ->and(TimeEntryData::from($tracked)->billable)->toBeFalse();
+});

@@ -103,10 +103,8 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @opusline/api-client generate
-      - run: pnpm --filter @opusline/web generate-routes
-      - name: Fail when committed generated files drift from the code
-        run: git diff --exit-code -- apps/api/openapi.json packages/api-client/src apps/web/src/routeTree.gen.ts
+      - name: Regenerate the client and route tree, and fail when they drift
+        run: sh scripts/generated-artifacts.sh
 
   storybook:
     name: Storybook build

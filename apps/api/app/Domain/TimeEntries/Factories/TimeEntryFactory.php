@@ -15,6 +15,13 @@ class TimeEntryFactory extends Factory
 {
     protected $model = TimeEntry::class;
 
+    public function nonBillable(): static
+    {
+        return $this->state(fn (): array => [
+            'billable' => false,
+        ]);
+    }
+
     /**
      * Define the model's default state.
      *
@@ -30,6 +37,7 @@ class TimeEntryFactory extends Factory
                 ->user_id,
             'date' => now()->toDateString(),
             'duration_minutes' => 420,
+            'billable' => true,
             'note' => null,
         ];
     }

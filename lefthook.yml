@@ -29,6 +29,16 @@ pre-commit:
 
 pre-push:
   jobs:
+    - name: generated-artifacts
+      group:
+        piped: true
+        jobs:
+          - name: openapi-spec
+            run: pnpm exec turbo run @opusline/api#generate --output-logs=errors-only
+
+          - name: client-routes-and-drift
+            run: sh scripts/generated-artifacts.sh
+
     - name: quality
       run: pnpm exec turbo run test check-types lint format-and-lint --output-logs=errors-only
 

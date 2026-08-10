@@ -79,16 +79,20 @@ class DatabaseSeeder extends Seeder
             'created_at' => now()->subMonths(20),
         ]);
 
-        Mission::factory()->for($perso, 'client')->hourly()->nonBillable()->create([
+        $opusline = Mission::factory()->for($perso, 'client')->hourly()->nonBillable()->create([
             'user_id' => $user->id,
             'name' => 'Opusline',
         ]);
 
-        $this->seedRecentTimeEntries($user, $callistoFront, $lunaprintMaintenance);
+        $this->seedRecentTimeEntries($user, $callistoFront, $lunaprintMaintenance, $opusline);
     }
 
-    private function seedRecentTimeEntries(User $user, Mission $daily, Mission $hourly): void
-    {
+    private function seedRecentTimeEntries(
+        User $user,
+        Mission $daily,
+        Mission $hourly,
+        Mission $nonBillable,
+    ): void {
         $workedDays = [];
         $cursor = CarbonImmutable::today();
 
@@ -100,12 +104,36 @@ class DatabaseSeeder extends Seeder
             $cursor = $cursor->subDay();
         }
 
+        $missionNotes = [
+            'Sprint 24 · specs',
+            'Filtre agences',
+            'Revue PR',
+            'Cadrage V2',
+            'Rétro + backlog',
+        ];
+
+        $sideProjectNotes = [
+            'Écran semaine',
+            'Calculateur virement',
+            'Notes de version',
+        ];
+
         foreach ($workedDays as $index => $day) {
             TimeEntry::factory()->for($daily, 'mission')->create([
                 'user_id' => $user->id,
                 'date' => $day->toDateString(),
                 'duration_minutes' => $index % 5 === 0 ? 210 : 420,
+                'note' => $missionNotes[$index % count($missionNotes)],
             ]);
+
+            if ($index % 3 === 1) {
+                TimeEntry::factory()->for($nonBillable, 'mission')->nonBillable()->create([
+                    'user_id' => $user->id,
+                    'date' => $day->toDateString(),
+                    'duration_minutes' => $index % 2 === 1 ? 120 : 90,
+                    'note' => $sideProjectNotes[intdiv($index, 3) % count($sideProjectNotes)],
+                ]);
+            }
 
             if ($index % 3 !== 0) {
                 continue;

@@ -53,6 +53,10 @@ export function parseRateToCents(draft: string): number | null {
   return Math.round(amount * 100);
 }
 
+export function missionBills(mission: MissionData): boolean {
+  return mission.rate !== null;
+}
+
 export function formatMissionRate(mission: MissionData): string {
   if (mission.rate === null) {
     return "non facturable";
