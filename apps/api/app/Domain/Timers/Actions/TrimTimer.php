@@ -7,23 +7,16 @@ namespace App\Domain\Timers\Actions;
 use App\Domain\Timers\Data\TrimTimerData;
 use App\Domain\Timers\Models\RunningTimer;
 use App\Domain\Users\Models\User;
-use Illuminate\Support\Facades\DB;
 
 class TrimTimer
 {
-    public function __construct(private readonly FindRunningTimer $findRunningTimer) {}
+    public function __construct(private readonly LockUserTimer $lockUserTimer) {}
 
     public function handle(User $user, TrimTimerData $data): RunningTimer
     {
-        return DB::transaction(function () use ($user, $data): RunningTimer {
-            User::query()->whereKey($user->getKey())->lockForUpdate()->firstOrFail();
-
-            $timer = $this->findRunningTimer->handleOrFail($user, forUpdate: true);
-
-            $trimmed = max(0, $timer->elapsedSeconds() - $data->seconds);
-
+        return $this->lockUserTimer->handle($user, function (RunningTimer $timer) use ($data): RunningTimer {
             $timer->update([
-                'accumulated_seconds' => $trimmed,
+                'accumulated_seconds' => max(0, $timer->elapsedSeconds() - $data->seconds),
                 'running_since' => $timer->isPaused() ? null : now(),
             ]);
 

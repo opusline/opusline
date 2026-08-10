@@ -42,14 +42,16 @@ class RunningTimerFactory extends Factory
      */
     public function definition(): array
     {
+        $startedAt = CarbonImmutable::now();
+
         return [
             'mission_id' => Mission::factory(),
             'user_id' => fn (array $attributes): int => Mission::query()
                 ->whereKey($attributes['mission_id'])
                 ->firstOrFail()
                 ->user_id,
-            'started_at' => now(),
-            'running_since' => now(),
+            'started_at' => $startedAt,
+            'running_since' => $startedAt,
             'accumulated_seconds' => 0,
             'note' => null,
         ];

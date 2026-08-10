@@ -6,19 +6,14 @@ namespace App\Domain\Timers\Actions;
 
 use App\Domain\Timers\Models\RunningTimer;
 use App\Domain\Users\Models\User;
-use Illuminate\Support\Facades\DB;
 
 class PauseTimer
 {
-    public function __construct(private readonly FindRunningTimer $findRunningTimer) {}
+    public function __construct(private readonly LockUserTimer $lockUserTimer) {}
 
     public function handle(User $user): RunningTimer
     {
-        return DB::transaction(function () use ($user): RunningTimer {
-            User::query()->whereKey($user->getKey())->lockForUpdate()->firstOrFail();
-
-            $timer = $this->findRunningTimer->handleOrFail($user, forUpdate: true);
-
+        return $this->lockUserTimer->handle($user, function (RunningTimer $timer): RunningTimer {
             if ($timer->isPaused()) {
                 return $timer;
             }

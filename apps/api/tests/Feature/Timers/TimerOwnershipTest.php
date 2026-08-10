@@ -7,13 +7,21 @@ use App\Domain\Users\Models\User;
 
 test('another user timer is invisible to every mutation', function (string $method, string $uri, array $payload): void {
     $user = User::factory()->create();
-    $stranger = RunningTimer::factory()->create();
+    $stranger = RunningTimer::factory()->create([
+        'note' => 'Sprint 24 · specs',
+        'accumulated_seconds' => 1_800,
+    ]);
 
     $this->actingAs($user)
         ->json($method, $uri, $payload)
         ->assertNotFound();
 
-    $this->assertDatabaseHas('running_timers', ['id' => $stranger->id]);
+    $this->assertDatabaseHas('running_timers', [
+        'id' => $stranger->id,
+        'note' => 'Sprint 24 · specs',
+        'accumulated_seconds' => 1_800,
+    ]);
+    $this->assertDatabaseCount('time_entries', 0);
 })->with([
     'note' => ['PUT', '/api/timer', ['note' => 'Cadrage V2']],
     'pause' => ['POST', '/api/timer/pause', []],

@@ -1567,6 +1567,15 @@ export type CreateTimeEntryErrors = {
          */
         message: string;
     };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
 };
 
 export type CreateTimeEntryError = CreateTimeEntryErrors[keyof CreateTimeEntryErrors];

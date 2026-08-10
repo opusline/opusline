@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\TimeEntries\Controllers;
 
+use App\Domain\Missions\Models\Mission;
 use App\Domain\TimeEntries\Actions\CreateTimeEntry;
 use App\Domain\TimeEntries\Actions\DeleteTimeEntry;
 use App\Domain\TimeEntries\Actions\ListTimeEntries;
@@ -16,6 +17,7 @@ use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Container\Attributes\CurrentUser;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
@@ -30,6 +32,9 @@ class TimeEntryController extends Controller
         ));
     }
 
+    /**
+     * @throws ModelNotFoundException<Mission>
+     */
     public function store(TimeEntryInputData $data, #[CurrentUser] User $user, CreateTimeEntry $createTimeEntry): JsonResponse
     {
         $timeEntry = $createTimeEntry->handle($user, $data);
