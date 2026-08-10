@@ -49,7 +49,7 @@ class TimerController extends Controller
     {
         $timer = $startTimer->handle($user, $data);
 
-        return response()->json(TimerData::from($timer), 201);
+        return $this->timerResponse($timer, 201);
     }
 
     /**
@@ -59,7 +59,7 @@ class TimerController extends Controller
     {
         $timer = $updateTimerNote->handle($user, $data);
 
-        return response()->json(TimerData::from($timer));
+        return $this->timerResponse($timer);
     }
 
     /**
@@ -69,7 +69,7 @@ class TimerController extends Controller
     {
         $timer = $pauseTimer->handle($user);
 
-        return response()->json(TimerData::from($timer));
+        return $this->timerResponse($timer);
     }
 
     /**
@@ -79,7 +79,7 @@ class TimerController extends Controller
     {
         $timer = $resumeTimer->handle($user);
 
-        return response()->json(TimerData::from($timer));
+        return $this->timerResponse($timer);
     }
 
     /**
@@ -89,7 +89,7 @@ class TimerController extends Controller
     {
         $timer = $trimTimer->handle($user, $data);
 
-        return response()->json(TimerData::from($timer));
+        return $this->timerResponse($timer);
     }
 
     /**
@@ -110,5 +110,10 @@ class TimerController extends Controller
         $discardTimer->handle($user);
 
         return response()->noContent();
+    }
+
+    private function timerResponse(RunningTimer $timer, int $status = 200): JsonResponse
+    {
+        return response()->json(TimerData::from($timer), $status);
     }
 }
