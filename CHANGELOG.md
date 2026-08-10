@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.0](https://github.com/opusline/opusline/compare/v0.3.0...v0.4.0) (2026-08-10)
+
+
+### Features
+
+* **api:** add manual time-entry support ([#63](https://github.com/opusline/opusline/issues/63)) ([aee2e67](https://github.com/opusline/opusline/commit/aee2e67d8dadeeae0f750a5581becadba5dbcdfb))
+* **web:** add weekly time-entry interface ([#81](https://github.com/opusline/opusline/issues/81)) ([61d9b90](https://github.com/opusline/opusline/commit/61d9b908311df5c50706ef60b761b20f2cf26704))
+* **web:** add weekly time-entry interface ([#81](https://github.com/opusline/opusline/issues/81)) ([b1134a5](https://github.com/opusline/opusline/commit/b1134a5c566b787146f274a74423a78dd86dfa6b))
+
 ## [0.3.0](https://github.com/opusline/opusline/compare/v0.2.0...v0.3.0) (2026-08-07)
 
 
