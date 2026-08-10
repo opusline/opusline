@@ -52,7 +52,7 @@ test('refuses to delete a mission with a running timer', function (): void {
     $client = Client::factory()->for($user)->create();
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
 
-    RunningTimer::factory()->for($mission, 'mission')->create(['user_id' => $user->id]);
+    $timer = RunningTimer::factory()->for($mission, 'mission')->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
         ->deleteJson("/api/clients/{$client->slug}/missions/{$mission->slug}")
@@ -60,6 +60,10 @@ test('refuses to delete a mission with a running timer', function (): void {
         ->assertJsonPath('message', __('missions.cannot_delete_with_running_timer'));
 
     $this->assertDatabaseHas('missions', ['id' => $mission->id]);
+    $this->assertDatabaseHas('running_timers', [
+        'id' => $timer->id,
+        'mission_id' => $mission->id,
+    ]);
 });
 
 test('cannot delete another user mission', function (): void {
