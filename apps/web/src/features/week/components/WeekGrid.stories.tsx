@@ -30,6 +30,7 @@ const meta = {
   tags: ["autodocs"],
   parameters: { layout: "fullscreen" },
   args: {
+    live: null,
     model: model(),
     noteSuggestions: ["Revue PR", "Cadrage", "Rétro + backlog"],
     onCreate: () => Promise.resolve(true),

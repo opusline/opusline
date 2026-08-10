@@ -4,6 +4,15 @@ const euros = new Intl.NumberFormat("fr-FR", {
   maximumFractionDigits: 2,
 });
 
+const eurosWithCents = new Intl.NumberFormat("fr-FR", {
+  maximumFractionDigits: 2,
+  minimumFractionDigits: 2,
+});
+
+export function formatAmountWithCents(amountCents: number): string {
+  return `${eurosWithCents.format(amountCents / 100)} €`;
+}
+
 export function formatAmount(amountCents: number): string {
   return `${euros.format(amountCents / 100)}`;
 }

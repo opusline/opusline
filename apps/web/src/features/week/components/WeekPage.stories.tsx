@@ -15,6 +15,7 @@ const meta = {
   tags: ["autodocs"],
   parameters: { layout: "fullscreen" },
   args: {
+    live: null,
     clients: DEMO_CLIENTS,
     knownEntries: DEMO_TIME_ENTRIES,
     knownEntryRange: { from: "2026-07-20", to: "2026-08-02" },

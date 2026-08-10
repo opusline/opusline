@@ -5,14 +5,20 @@ import type { KeyboardEvent, RefCallback, RefObject } from "react";
 
 import { isHourly } from "@/lib/durations";
 
+import { liveCellLabel, STOP_TRACKING } from "../lib/labels";
 import { PILL_SKINS, type PillSkin } from "../lib/pill-skins";
-import type { WeekCell as WeekCellModel, WeekRow } from "../lib/week-grid";
+import type {
+  LiveCell,
+  WeekCell as WeekCellModel,
+  WeekRow,
+} from "../lib/week-grid";
 
 export type CellEditor = { draft: string; error: string | null };
 
 type WeekCellProps = {
   row: WeekRow;
   cell: WeekCellModel;
+  live: LiveCell | null;
   columnIndex: number;
   isFocused: boolean;
   isActive: boolean;
@@ -35,9 +41,45 @@ function skinOf(row: WeekRow, cell: WeekCellModel): PillSkin {
   return isHourly(row.billingMode) ? "hourly" : "billedDay";
 }
 
+function LivePill({ live }: { live: LiveCell }) {
+  return (
+    <button
+      aria-label={STOP_TRACKING}
+      className={cn(
+        "min-h-11 w-full rounded-sm border px-2.5 py-2 text-left transition-colors hover:bg-primary/20",
+        PILL_SKINS.live.pill,
+      )}
+      onClick={(event) => {
+        event.stopPropagation();
+        live.onStop();
+      }}
+      tabIndex={-1}
+      title={STOP_TRACKING}
+      type="button"
+    >
+      <div className="flex items-center gap-1.5">
+        <span
+          aria-hidden
+          className={cn(
+            "size-1.5 shrink-0 rounded-full bg-primary-text-strong",
+            live.isRunning && "animate-pulse",
+          )}
+        />
+        <span className="whitespace-nowrap font-mono text-sm tabular-nums">
+          {live.billedLabel}
+        </span>
+      </div>
+      <div className={cn("mt-0.5 truncate text-xs", PILL_SKINS.live.note)}>
+        {liveCellLabel(live.isRunning, live.clockLabel)}
+      </div>
+    </button>
+  );
+}
+
 export function WeekCell({
   row,
   cell,
+  live,
   columnIndex,
   isFocused,
   isActive,
@@ -69,13 +111,19 @@ export function WeekCell({
     <div
       aria-busy={isPending || undefined}
       aria-colindex={columnIndex + 2}
-      aria-label={cell.ariaLabel}
+      aria-label={
+        live === null
+          ? cell.ariaLabel
+          : `${cell.ariaLabel} — ${liveCellLabel(live.isRunning, live.clockLabel)}`
+      }
       className={cn(
         "group relative border-secondary border-b border-l border-card-2 p-2.5 outline-none focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-primary-text",
         cell.isWeekend && "bg-muted",
         cell.isToday && "bg-primary/5",
+        live !== null && "bg-primary/3",
         editor === null && "cursor-pointer",
         cell.entries.length === 0 &&
+          live === null &&
           editor === null &&
           "text-transparent hover:bg-accent hover:text-muted-foreground-2",
         // Focus has moved into the popover, so the cell says so itself.
@@ -90,30 +138,38 @@ export function WeekCell({
       tabIndex={isFocused ? 0 : -1}
     >
       {editor === null ? (
-        cell.entries.length === 0 ? (
-          <span className="flex h-full min-h-11 items-center justify-center gap-1.5 text-xs">
-            <PlusIcon aria-hidden className="size-3" strokeWidth={2.2} />
-            Ajouter
-          </span>
-        ) : (
-          <div
-            className={cn(
-              "min-h-11 rounded-sm border px-2.5 py-2 transition-colors",
-              PILL_SKINS[skin].pill,
-            )}
-          >
-            <div className="whitespace-nowrap font-mono text-sm tabular-nums">
-              {cell.billedLabel}
-            </div>
-            <div
-              className={cn("mt-0.5 truncate text-xs", PILL_SKINS[skin].note)}
+        <div className="flex flex-col gap-1.5">
+          {cell.entries.length === 0 ? (
+            <span
+              className={cn(
+                "flex h-full items-center justify-center gap-1.5 text-xs",
+                live === null ? "min-h-11" : "min-h-6 text-muted-foreground-4",
+              )}
             >
-              {cell.entries.length > 1
-                ? `${cell.entries.length} entrées`
-                : (cell.note ?? "Sans activité")}
+              <PlusIcon aria-hidden className="size-3" strokeWidth={2.2} />
+              Ajouter
+            </span>
+          ) : (
+            <div
+              className={cn(
+                "min-h-11 rounded-sm border px-2.5 py-2 transition-colors",
+                PILL_SKINS[skin].pill,
+              )}
+            >
+              <div className="whitespace-nowrap font-mono text-sm tabular-nums">
+                {cell.billedLabel}
+              </div>
+              <div
+                className={cn("mt-0.5 truncate text-xs", PILL_SKINS[skin].note)}
+              >
+                {cell.entries.length > 1
+                  ? `${cell.entries.length} entrées`
+                  : (cell.note ?? "Sans activité")}
+              </div>
             </div>
-          </div>
-        )
+          )}
+          {live !== null && <LivePill live={live} />}
+        </div>
       ) : (
         <>
           <Input

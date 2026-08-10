@@ -66,6 +66,7 @@ function entry(overrides: Partial<TimeEntryData> = {}): TimeEntryData {
     date: MONDAY,
     durationMinutes: 420,
     valuedMinutes: null,
+    rounding: null,
     valuedDayFraction: 1,
     note: null,
     ...overrides,

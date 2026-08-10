@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\TimeEntries\Data;
 
+use App\Domain\Missions\Enums\EntryRounding;
 use App\Domain\TimeEntries\Models\TimeEntry;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Attributes\WithTransformer;
@@ -18,6 +19,7 @@ class TimeEntryData extends Data
         #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
         public CarbonImmutable $date,
         public int $durationMinutes,
+        public ?EntryRounding $rounding,
         public ?int $valuedMinutes,
         public ?float $valuedDayFraction,
         public bool $billable,
@@ -31,6 +33,7 @@ class TimeEntryData extends Data
             missionId: $timeEntry->mission_id,
             date: $timeEntry->date,
             durationMinutes: $timeEntry->duration_minutes,
+            rounding: $timeEntry->rounding,
             valuedMinutes: $timeEntry->valuedMinutes(),
             valuedDayFraction: $timeEntry->valuedDayFraction(),
             billable: $timeEntry->billable,

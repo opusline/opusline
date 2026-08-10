@@ -17,7 +17,11 @@ export function ModeToggle() {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button aria-label="Changer de thème" size="icon" variant="ghost">
+          <Button
+            aria-label="Changer de thème"
+            size="icon-xl"
+            variant="outline"
+          >
             <Sun className="size-4 dark:hidden" />
             <Moon className="hidden size-4 dark:block" />
           </Button>

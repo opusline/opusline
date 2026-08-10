@@ -51,25 +51,49 @@ function Chip({
   );
 }
 
+const chipOptionVariants = cva(
+  "group/chip flex flex-col gap-0.5 rounded-md border border-border-2 bg-transparent px-3.5 py-2.5 transition-colors outline-none hover:border-muted-foreground-6 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:opacity-50 data-pressed:border-primary/45 data-pressed:bg-primary/10",
+  {
+    variants: {
+      align: {
+        start: "items-start text-left",
+        center: "items-center justify-center text-center",
+      },
+      font: {
+        sans: "",
+        mono: "font-mono tabular-nums",
+      },
+    },
+    defaultVariants: { align: "start", font: "sans" },
+  },
+);
+
 function ChipOption({
+  align,
   className,
+  font,
   label,
   hint,
   ...props
-}: TogglePrimitive.Props & { label: string; hint: string }) {
+}: TogglePrimitive.Props &
+  VariantProps<typeof chipOptionVariants> & {
+    label: string;
+    hint?: string;
+  }) {
   return (
     <TogglePrimitive
       data-slot="chip-option"
-      className={cn(
-        "group/chip flex flex-col items-start gap-0.5 rounded-md border border-border-2 bg-transparent px-3.5 py-2.5 text-left transition-colors outline-none hover:border-muted-foreground-6 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:opacity-50 data-pressed:border-primary/45 data-pressed:bg-primary/10",
-        className,
-      )}
+      className={cn(chipOptionVariants({ align, font }), className)}
       {...props}
     >
       <span className="font-medium text-foreground-3 text-sm group-data-pressed/chip:text-primary-text">
         {label}
       </span>
-      <span className="text-muted-foreground-3 text-xs">{hint}</span>
+      {hint !== undefined && (
+        <span className="font-sans text-muted-foreground-3 text-xs">
+          {hint}
+        </span>
+      )}
     </TogglePrimitive>
   );
 }
@@ -87,4 +111,11 @@ function ChipCount({ className, ...props }: React.ComponentProps<"span">) {
   );
 }
 
-export { Chip, ChipCount, ChipGroup, ChipOption, chipVariants };
+export {
+  Chip,
+  ChipCount,
+  ChipGroup,
+  ChipOption,
+  chipOptionVariants,
+  chipVariants,
+};

@@ -50,6 +50,15 @@ export type WeekCell = {
   ariaLabel: string;
 };
 
+export type LiveCell = {
+  missionId: number;
+  date: string;
+  billedLabel: string;
+  clockLabel: string;
+  isRunning: boolean;
+  onStop: () => void;
+};
+
 export type WeekRow = {
   missionId: number;
   name: string;
@@ -93,6 +102,7 @@ export function shouldShowWeekend(
   weekendOpen: boolean,
   week: string,
   timeEntries: TimeEntryData[],
+  liveDate: string | null = null,
 ): boolean {
   if (weekendOpen) {
     return true;
@@ -101,6 +111,10 @@ export function shouldShowWeekend(
   const weekend = new Set(
     isoWeekDates(week).filter((_, index) => WEEKEND_INDEXES.includes(index)),
   );
+
+  if (liveDate !== null && weekend.has(liveDate)) {
+    return true;
+  }
 
   return timeEntries.some((entry) => weekend.has(entry.date));
 }
@@ -152,6 +166,7 @@ function missionSubtitle(mission: MissionData, client: ClientWithMissionsData) {
 function selectMissions(
   clients: ClientWithMissionsData[],
   workedMissionIds: Set<number>,
+  liveMissionId: number | null,
 ): MissionWithClient[] {
   const selected: MissionWithClient[] = [];
 
@@ -159,7 +174,11 @@ function selectMissions(
     for (const mission of client.missions) {
       const isActive = mission.status === 0 && client.archivedAt === null;
 
-      if (isActive || workedMissionIds.has(mission.id)) {
+      if (
+        isActive ||
+        workedMissionIds.has(mission.id) ||
+        mission.id === liveMissionId
+      ) {
         selected.push({ mission, client });
       }
     }
@@ -186,6 +205,7 @@ export function buildWeekGrid(input: {
   week: string;
   today: string;
   weekendShown: boolean;
+  liveMissionId?: number | null;
 }): WeekGridModel {
   const columns = buildColumns(input.week, input.today, input.weekendShown);
 
@@ -208,95 +228,97 @@ export function buildWeekGrid(input: {
   const dayTotals = columns.map(() => ({ dayFraction: 0, billedMinutes: 0 }));
   const weekTotal = { dayFraction: 0, billedMinutes: 0 };
 
-  const rows = selectMissions(input.clients, workedMissionIds).map(
-    ({ mission, client }) => {
-      const dayBilled = !isHourly(mission.billingMode);
-      const hasRate = missionBills(mission);
-      const rowTotal = { dayFraction: 0, billedMinutes: 0 };
+  const rows = selectMissions(
+    input.clients,
+    workedMissionIds,
+    input.liveMissionId ?? null,
+  ).map(({ mission, client }) => {
+    const dayBilled = !isHourly(mission.billingMode);
+    const hasRate = missionBills(mission);
+    const rowTotal = { dayFraction: 0, billedMinutes: 0 };
 
-      const cells = columns.map((column, columnIndex): WeekCell => {
-        const entries =
-          column.kind === "day"
-            ? (entriesByCell.get(cellKeyFor(mission.id, column.date)) ?? [])
-            : [];
+    const cells = columns.map((column, columnIndex): WeekCell => {
+      const entries =
+        column.kind === "day"
+          ? (entriesByCell.get(cellKeyFor(mission.id, column.date)) ?? [])
+          : [];
 
-        const dayFraction = entries.reduce(
-          (total, entry) => total + (entry.valuedDayFraction ?? 0),
-          0,
-        );
-        const billedMinutes = entries.reduce(
-          (total, entry) => total + (entry.valuedMinutes ?? 0),
-          0,
-        );
+      const dayFraction = entries.reduce(
+        (total, entry) => total + (entry.valuedDayFraction ?? 0),
+        0,
+      );
+      const billedMinutes = entries.reduce(
+        (total, entry) => total + (entry.valuedMinutes ?? 0),
+        0,
+      );
 
-        rowTotal.dayFraction += dayFraction;
-        rowTotal.billedMinutes += billedMinutes;
+      rowTotal.dayFraction += dayFraction;
+      rowTotal.billedMinutes += billedMinutes;
 
-        if (hasRate) {
-          for (const entry of entries) {
-            if (!entry.billable) {
-              continue;
-            }
-
-            dayTotals[columnIndex].dayFraction += entry.valuedDayFraction ?? 0;
-            dayTotals[columnIndex].billedMinutes += entry.valuedMinutes ?? 0;
-            weekTotal.dayFraction += entry.valuedDayFraction ?? 0;
-            weekTotal.billedMinutes += entry.valuedMinutes ?? 0;
+      if (hasRate) {
+        for (const entry of entries) {
+          if (!entry.billable) {
+            continue;
           }
+
+          dayTotals[columnIndex].dayFraction += entry.valuedDayFraction ?? 0;
+          dayTotals[columnIndex].billedMinutes += entry.valuedMinutes ?? 0;
+          weekTotal.dayFraction += entry.valuedDayFraction ?? 0;
+          weekTotal.billedMinutes += entry.valuedMinutes ?? 0;
         }
+      }
 
-        const billedLabel = billedFigure(
-          { billedMinutes, dayFraction },
-          dayBilled,
-          entries.length === 0,
-        );
-        const note = entries.length === 1 ? entries[0].note : null;
-
-        return {
-          key:
-            column.kind === "day"
-              ? cellKeyFor(mission.id, column.date)
-              : `${mission.id}:weekend`,
-          date: column.kind === "day" ? column.date : null,
-          missionId: mission.id,
-          isWeekend: column.kind === "day" ? column.isWeekend : true,
-          isToday: column.kind === "day" && column.isToday,
-          isInvoiced:
-            hasRate && entries.every((entry) => entry.billable !== false),
-          entries: entries.map((entry) => ({
-            id: entry.id,
-            billable: entry.billable,
-            durationMinutes: entry.durationMinutes,
-            note: entry.note,
-          })),
-          billedLabel,
-          note,
-          ariaLabel: cellAriaLabel({
-            billedLabel,
-            date: column.kind === "day" ? column.date : null,
-            isEmpty: entries.length === 0,
-            missionName: mission.name,
-            note,
-          }),
-        };
-      });
+      const billedLabel = billedFigure(
+        { billedMinutes, dayFraction },
+        dayBilled,
+        entries.length === 0,
+      );
+      const note = entries.length === 1 ? entries[0].note : null;
 
       return {
+        key:
+          column.kind === "day"
+            ? cellKeyFor(mission.id, column.date)
+            : `${mission.id}:weekend`,
+        date: column.kind === "day" ? column.date : null,
         missionId: mission.id,
-        name: mission.name,
-        subtitle: missionSubtitle(mission, client),
-        colorClass: COLOR_CLASSES[mission.color ?? client.color],
-        billingMode: mission.billingMode,
-        hasRate,
-        cells,
-        totalLabel: billedFigure(
-          rowTotal,
-          dayBilled,
-          rowTotal.dayFraction === 0 && rowTotal.billedMinutes === 0,
-        ),
+        isWeekend: column.kind === "day" ? column.isWeekend : true,
+        isToday: column.kind === "day" && column.isToday,
+        isInvoiced:
+          hasRate && entries.every((entry) => entry.billable !== false),
+        entries: entries.map((entry) => ({
+          id: entry.id,
+          billable: entry.billable,
+          durationMinutes: entry.durationMinutes,
+          note: entry.note,
+        })),
+        billedLabel,
+        note,
+        ariaLabel: cellAriaLabel({
+          billedLabel,
+          date: column.kind === "day" ? column.date : null,
+          isEmpty: entries.length === 0,
+          missionName: mission.name,
+          note,
+        }),
       };
-    },
-  );
+    });
+
+    return {
+      missionId: mission.id,
+      name: mission.name,
+      subtitle: missionSubtitle(mission, client),
+      colorClass: COLOR_CLASSES[mission.color ?? client.color],
+      billingMode: mission.billingMode,
+      hasRate,
+      cells,
+      totalLabel: billedFigure(
+        rowTotal,
+        dayBilled,
+        rowTotal.dayFraction === 0 && rowTotal.billedMinutes === 0,
+      ),
+    };
+  });
 
   const gridMissionIds = new Set(rows.map((row) => row.missionId));
 

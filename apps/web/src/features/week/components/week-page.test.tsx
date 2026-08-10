@@ -39,6 +39,7 @@ async function renderPage(overrides: Partial<WeekPageProps> = {}) {
       clients={DEMO_CLIENTS}
       knownEntries={DEMO_TIME_ENTRIES}
       knownEntryRange={{ from: "2026-07-20", to: "2026-08-02" }}
+      live={null}
       error={null}
       isRefreshing={false}
       isRepeating={false}
@@ -105,6 +106,7 @@ it("locks the weekend toggle when the weekend has to stay open", async () => {
         id: 99,
         missionId: 1,
         note: null,
+        rounding: null,
         valuedDayFraction: 0.5,
         valuedMinutes: null,
       },
@@ -237,6 +239,7 @@ it("opens the weekend when the week carries weekend entries", async () => {
         id: 99,
         missionId: 1,
         note: null,
+        rounding: null,
         valuedDayFraction: 0.5,
         valuedMinutes: null,
       },

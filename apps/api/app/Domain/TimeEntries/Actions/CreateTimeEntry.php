@@ -26,6 +26,7 @@ class CreateTimeEntry
                 'mission_id' => $mission->id,
                 'date' => $data->date,
                 'duration_minutes' => $data->durationMinutes,
+                'rounding' => $data->rounding,
                 'billable' => $data->billable,
                 'note' => $data->note,
             ]);

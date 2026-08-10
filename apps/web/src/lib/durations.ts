@@ -1,6 +1,10 @@
-import type { BillingMode } from "@opusline/api-client";
+import type { BillingMode, EntryRounding } from "@opusline/api-client";
 
-const MAX_MINUTES_PER_DAY = 1440;
+export const MAX_MINUTES_PER_DAY = 1440;
+
+export const DEFAULT_ROUNDING: EntryRounding = 1;
+
+export const EXACT_ROUNDING: EntryRounding = 2;
 
 const decimals = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
 
@@ -156,6 +160,58 @@ export function formatBilledTotal(total: {
 /** Time actually spent, for the day and week totals. 450 → "7 h 30". */
 export function formatWorkedTime(minutes: number): string {
   return minutes < 60 ? `${minutes} min` : hoursAndMinutes(minutes);
+}
+
+const twoDecimals = new Intl.NumberFormat("fr-FR", {
+  maximumFractionDigits: 2,
+  minimumFractionDigits: 2,
+});
+
+export function formatDecimalHours(minutes: number): string {
+  return `${twoDecimals.format(minutes / 60)} h`;
+}
+
+function startedSteps(minutes: number, stepInMinutes: number): number {
+  return Math.ceil(minutes / stepInMinutes);
+}
+
+export function valueAsMinutes(
+  minutes: number,
+  rounding: EntryRounding | null,
+): number {
+  const step = { 0: 30, 1: 15, 2: 1 }[rounding ?? DEFAULT_ROUNDING];
+
+  return startedSteps(minutes, step) * step;
+}
+
+export function valueAsDayFraction(
+  minutes: number,
+  rounding: EntryRounding | null,
+  workdayMinutes: number,
+): number {
+  const effective = rounding ?? DEFAULT_ROUNDING;
+
+  if (effective === EXACT_ROUNDING) {
+    return minutes / workdayMinutes;
+  }
+
+  const fraction = effective === 0 ? 0.5 : 0.25;
+
+  return (
+    startedSteps(minutes, Math.round(fraction * workdayMinutes)) * fraction
+  );
+}
+
+export function provisionalBilledLabel(
+  minutes: number,
+  units: DurationUnits,
+  rounding: EntryRounding | null,
+): string {
+  return isHourly(units.billingMode)
+    ? formatBilledHours(valueAsMinutes(minutes, rounding))
+    : formatBilledDays(
+        valueAsDayFraction(minutes, rounding, units.workdayMinutes),
+      );
 }
 
 /**

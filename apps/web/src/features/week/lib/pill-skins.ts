@@ -1,4 +1,4 @@
-export type PillSkin = "billedDay" | "hourly" | "nonBillable";
+export type PillSkin = "billedDay" | "hourly" | "nonBillable" | "live";
 
 export const PILL_SKINS: Record<
   PillSkin,
@@ -21,5 +21,11 @@ export const PILL_SKINS: Record<
     swatch: "border-border-3 bg-stripes",
     pill: "border-border-3 bg-stripes text-muted-foreground group-hover:border-muted-foreground-6",
     note: "text-muted-foreground-4",
+  },
+  live: {
+    label: "Suivi en cours",
+    swatch: "border-primary/65 border-dashed bg-primary/9",
+    pill: "border-primary/65 border-dashed bg-primary/9 text-primary-text",
+    note: "text-primary-note",
   },
 };

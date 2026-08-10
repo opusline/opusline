@@ -250,6 +250,7 @@ export const zStartTimerData = z.object({
 export const zStopTimerData = z.object({
     date: z.iso.date(),
     durationMinutes: z.int().check(z.gte(1), z.lte(1440)),
+    rounding: z.nullish(zEntryRounding),
     note: z.nullable(z.string().check(z.maxLength(2000))),
     billable: z.optional(z.boolean())
 });
@@ -262,6 +263,7 @@ export const zTimeEntryData = z.object({
     missionId: z.int(),
     date: z.iso.date(),
     durationMinutes: z.int(),
+    rounding: z.nullable(zEntryRounding),
     valuedMinutes: z.nullable(z.int()),
     valuedDayFraction: z.nullable(z.number()),
     billable: z.boolean(),
@@ -275,6 +277,7 @@ export const zTimeEntryInputData = z.object({
     missionId: z.int(),
     date: z.iso.date(),
     durationMinutes: z.int().check(z.gte(1), z.lte(1440)),
+    rounding: z.nullish(zEntryRounding),
     billable: z.optional(z.boolean()),
     note: z.nullish(z.string().check(z.maxLength(2000)))
 });

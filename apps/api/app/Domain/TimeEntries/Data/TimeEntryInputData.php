@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Domain\TimeEntries\Data;
 
+use App\Domain\Missions\Enums\EntryRounding;
 use App\Domain\Shared\Validation\AuthenticatedUserId;
 use App\Domain\TimeEntries\Models\TimeEntry;
 use Spatie\LaravelData\Attributes\Validation\Between;
 use Spatie\LaravelData\Attributes\Validation\BooleanType;
 use Spatie\LaravelData\Attributes\Validation\DateFormat;
+use Spatie\LaravelData\Attributes\Validation\Enum;
 use Spatie\LaravelData\Attributes\Validation\Exists;
 use Spatie\LaravelData\Attributes\Validation\IntegerType;
 use Spatie\LaravelData\Attributes\Validation\Max;
@@ -25,6 +27,8 @@ class TimeEntryInputData extends Data
         public string $date,
         #[IntegerType, Between(1, TimeEntry::MINUTES_PER_DAY)]
         public int $durationMinutes,
+        #[Enum(EntryRounding::class)]
+        public ?EntryRounding $rounding = null,
         #[BooleanType]
         public bool $billable = true,
         #[Max(2000)]

@@ -11,7 +11,7 @@ import { Input } from "@opusline/ui/components/input";
 import { Label } from "@opusline/ui/components/label";
 import { cn } from "@opusline/ui/lib/utils";
 import { useEffect, useId, useState } from "react";
-
+import { matchingNotes, NoteSuggestions } from "@/components/note-suggestions";
 import { addCalendarDays, isCalendarDate } from "@/lib/dates";
 import {
   formatBilledDays,
@@ -20,11 +20,9 @@ import {
   parseDuration,
 } from "@/lib/durations";
 import { isoWeekOf, isoWeekTitle, shortDateLabel } from "@/lib/weeks";
-
 import { durationErrorHint, durationUnitHint } from "../lib/labels";
 import type { MissionOption } from "../lib/week-grid";
 import { BillableToggle } from "./billable-toggle";
-import { matchingNotes, NoteSuggestions } from "./note-suggestions";
 
 export type NewEntrySubmit = {
   missionId: number;

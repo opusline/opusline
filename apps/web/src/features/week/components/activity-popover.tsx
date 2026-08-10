@@ -4,12 +4,10 @@ import { Label } from "@opusline/ui/components/label";
 import { Trash2Icon } from "lucide-react";
 import type { KeyboardEvent } from "react";
 import { useId, useState } from "react";
-
+import { matchingNotes, NoteSuggestions } from "@/components/note-suggestions";
 import { formatWorkedTime } from "@/lib/durations";
-
 import type { WeekCell } from "../lib/week-grid";
 import { BillableToggle } from "./billable-toggle";
-import { matchingNotes, NoteSuggestions } from "./note-suggestions";
 
 export type EntryPatch = { note?: string | null; billable?: boolean };
 

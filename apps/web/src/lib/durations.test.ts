@@ -7,6 +7,9 @@ import {
   formatDurationInput,
   formatWorkedTime,
   parseDuration,
+  provisionalBilledLabel,
+  valueAsDayFraction,
+  valueAsMinutes,
 } from "./durations";
 
 const daily: DurationUnits = { billingMode: 0, workdayMinutes: 420 };
@@ -153,4 +156,49 @@ it.each([
   [45, "45 min"],
 ])("formats %i worked minutes as %s", (minutes, expected) => {
   expect(formatWorkedTime(minutes)).toBe(expected);
+});
+
+describe("provisional valuation", () => {
+  it.each([
+    [67, 0, 90],
+    [67, 1, 75],
+    [67, 2, 67],
+    [60, 1, 60],
+  ])(
+    "values %i minutes at rounding %i as %i billed minutes",
+    (minutes, rounding, expected) => {
+      expect(valueAsMinutes(minutes, rounding as 0 | 1 | 2)).toBe(expected);
+    },
+  );
+
+  it.each([
+    [180, 0, 0.5],
+    [300, 0, 1],
+    [180, 1, 0.5],
+    [120, 1, 0.5],
+    [100, 1, 0.25],
+  ])(
+    "values %i minutes at rounding %i as %d of a workday",
+    (minutes, rounding, expected) => {
+      expect(valueAsDayFraction(minutes, rounding as 0 | 1 | 2, 420)).toBe(
+        expected,
+      );
+    },
+  );
+
+  it("values a day fraction exactly at minute rounding", () => {
+    expect(valueAsDayFraction(210, 2, 420)).toBe(0.5);
+  });
+
+  it("falls back to quarter rounding when the mission sets none", () => {
+    expect(valueAsMinutes(67, null)).toBe(valueAsMinutes(67, 1));
+  });
+
+  it("labels a day-billed timer in day fractions", () => {
+    expect(provisionalBilledLabel(180, daily, 0)).toBe("0,5 j");
+  });
+
+  it("labels an hourly timer in hours", () => {
+    expect(provisionalBilledLabel(67, hourly, 1)).toBe("1 h 15");
+  });
 });

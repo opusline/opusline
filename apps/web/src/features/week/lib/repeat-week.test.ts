@@ -39,3 +39,23 @@ it("skips an entry that does not belong to the source week", () => {
 
   expect(planned).toEqual([]);
 });
+
+it("carries a per-entry rounding override onto the copy", () => {
+  const [copy] = planWeekRepeat(
+    [{ ...DEMO_TIME_ENTRIES[0], rounding: 2 }],
+    DEMO_WEEK,
+    "2026-W32",
+  );
+
+  expect(copy.rounding).toBe(2);
+});
+
+it("leaves an inheriting entry inheriting", () => {
+  const [copy] = planWeekRepeat(
+    [{ ...DEMO_TIME_ENTRIES[0], rounding: null }],
+    DEMO_WEEK,
+    "2026-W32",
+  );
+
+  expect(copy.rounding).toBeNull();
+});
