@@ -26,6 +26,11 @@ const meta = {
   tags: ["autodocs"],
   args: {
     billable: true,
+    correctionDraft: "",
+    measuredLabel: null,
+    onCorrectDuration: () => undefined,
+    quickDurations: [60, 120, 240, DEMO_WORKDAY_MINUTES],
+    workdayMinutes: DEMO_WORKDAY_MINUTES,
     clockLabel: "03:42:18",
     dateLabel: "jeudi 30 juillet",
     error: null,
@@ -60,6 +65,11 @@ export const HourlyMission: Story = {
     options: hourlyOptions,
     selectedKey: defaultStopOption(hourlyOptions).key,
   },
+};
+
+/** The measured time is offered for replacement, not silently recorded. */
+export const CorrectingAForgottenTimer: Story = {
+  args: { clockLabel: "13:05:00", measuredLabel: "13 h 05" },
 };
 
 export const NotBillable: Story = {

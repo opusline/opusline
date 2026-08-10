@@ -47,6 +47,21 @@ export function roundingDeviation(roundingLabel: string): string {
 
 export const KEEP_IDLE = "Garder";
 
+/** A timer that has been running longer than anyone works in one sitting. */
+export const LONG_RUN_BADGE = "Oublié ?";
+export const LONG_RUN_STOP = "Arrêter et corriger la durée";
+export const LONG_RUN_KEEP = "C'est normal";
+export const EXACT_DURATION_HINT = "h:mm — durée exacte";
+export const EXACT_DURATION_LABEL = "Durée réellement travaillée";
+
+export function longRunMessage(hours: string): string {
+  return `Ce suivi tourne depuis ${hours}. Il a peut-être été laissé en marche : corrigez la durée avant d'enregistrer.`;
+}
+
+export function measuredDuration(duration: string): string {
+  return `Durée mesurée : ${duration}. Remplacez-la par le temps réellement travaillé.`;
+}
+
 export function idleDetected(minutes: number): string {
   return `Inactivité détectée : ${minutes} min sans activité.`;
 }

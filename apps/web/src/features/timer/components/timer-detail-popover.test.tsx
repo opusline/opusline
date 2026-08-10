@@ -12,6 +12,7 @@ function renderPopover(overrides: Partial<TimerDetailPopoverProps> = {}) {
   const onConfirmDiscard = vi.fn();
   const onDiscard = vi.fn();
   const onDismissIdle = vi.fn();
+  const onKeepLongRun = vi.fn();
   const onTrimIdle = vi.fn();
 
   render(
@@ -21,6 +22,8 @@ function renderPopover(overrides: Partial<TimerDetailPopoverProps> = {}) {
       idle={null}
       isBusy={false}
       isConfirmingDiscard={false}
+      longRunHours={null}
+      onKeepLongRun={onKeepLongRun}
       missionName="OGF front"
       missionSubtitle="Catamania · 550 €/j"
       note=""
@@ -43,6 +46,7 @@ function renderPopover(overrides: Partial<TimerDetailPopoverProps> = {}) {
     onConfirmDiscard,
     onDiscard,
     onDismissIdle,
+    onKeepLongRun,
     onTrimIdle,
   };
 }
@@ -154,4 +158,39 @@ it("surfaces a refused write next to the controls", () => {
   expect(screen.getByRole("alert")).toHaveTextContent(
     "Aucun suivi n'est en cours.",
   );
+});
+
+it("says nothing about a forgotten timer on an ordinary session", () => {
+  renderPopover();
+
+  expect(screen.queryByText(/laissé en marche/)).not.toBeInTheDocument();
+});
+
+it("asks whether a long-running timer was forgotten", () => {
+  renderPopover({ longRunHours: "13 h" });
+
+  expect(
+    screen.getByText(
+      "Ce suivi tourne depuis 13 h. Il a peut-être été laissé en marche : corrigez la durée avant d'enregistrer.",
+    ),
+  ).toBeInTheDocument();
+});
+
+it("sends the user to the stop dialog to correct the duration", () => {
+  const onStop = vi.fn();
+
+  renderPopover({ longRunHours: "13 h", onStop });
+  fireEvent.click(
+    screen.getByRole("button", { name: "Arrêter et corriger la durée" }),
+  );
+
+  expect(onStop).toHaveBeenCalledTimes(1);
+});
+
+it("stops asking once the user says the long run is deliberate", () => {
+  const { onKeepLongRun } = renderPopover({ longRunHours: "13 h" });
+
+  fireEvent.click(screen.getByRole("button", { name: "C'est normal" }));
+
+  expect(onKeepLongRun).toHaveBeenCalledTimes(1);
 });

@@ -14,12 +14,15 @@ import { useId } from "react";
 
 import { matchingNotes, NoteSuggestions } from "@/components/note-suggestions";
 import { formatAmountWithCents } from "@/lib/billing";
-
+import { formatDurationInput } from "@/lib/durations";
 import {
   AMOUNT_LABEL,
   CANCEL,
   DEFAULT_BADGE,
   durationClamped,
+  EXACT_DURATION_HINT,
+  EXACT_DURATION_LABEL,
+  measuredDuration,
   missionRoundingHint,
   NON_BILLABLE,
   NOT_BILLABLE_VALUE,
@@ -32,9 +35,16 @@ import {
   STOP_TITLE,
   stopSummary,
 } from "../lib/labels";
+import { quickDurationLabel } from "../lib/long-run";
 import type { StopOption } from "../lib/rounding";
 
 export type TimerStopDialogProps = {
+  /** Set when the timer ran long enough to look forgotten: the measured time. */
+  measuredLabel: string | null;
+  correctionDraft: string;
+  quickDurations: number[];
+  workdayMinutes: number;
+  onCorrectDuration: (draft: string) => void;
   droppedMinutes: number;
   billable: boolean;
   clockLabel: string;
@@ -56,6 +66,11 @@ export type TimerStopDialogProps = {
 };
 
 export function TimerStopDialog({
+  measuredLabel,
+  correctionDraft,
+  quickDurations,
+  workdayMinutes,
+  onCorrectDuration,
   droppedMinutes,
   billable,
   clockLabel,
@@ -112,6 +127,47 @@ export function TimerStopDialog({
             >
               {durationClamped(droppedMinutes)}
             </p>
+          )}
+
+          {measuredLabel !== null && (
+            <div className="flex flex-col gap-3 rounded-md border border-primary/45 bg-primary/8 p-3">
+              <p className="text-foreground-2 text-sm leading-relaxed">
+                {measuredDuration(measuredLabel)}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {quickDurations.map((minutes) => (
+                  <Button
+                    key={minutes}
+                    onClick={() =>
+                      onCorrectDuration(
+                        formatDurationInput(minutes, {
+                          billingMode: 1,
+                          workdayMinutes,
+                        }),
+                      )
+                    }
+                    size="lg"
+                    variant="outline"
+                  >
+                    {quickDurationLabel(minutes)}
+                  </Button>
+                ))}
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Input
+                  aria-label={EXACT_DURATION_LABEL}
+                  className="w-24"
+                  font="mono"
+                  onChange={(event) => onCorrectDuration(event.target.value)}
+                  placeholder="3:30"
+                  size="sm"
+                  value={correctionDraft}
+                />
+                <span className="text-muted-foreground-3 text-xs">
+                  {EXACT_DURATION_HINT}
+                </span>
+              </div>
+            </div>
           )}
 
           <div className="flex flex-col gap-2">

@@ -6,6 +6,14 @@ export type TimerMachineContext = {
   noteDraft: string;
   dismissedIdleAt: number | null;
   stopChoice: string | null;
+  /** The user said a long-running timer is deliberate; stop asking. */
+  keptLongRun: boolean;
+  /**
+   * Minutes replacing a forgotten timer's measured duration, and the raw text
+   * behind them so a half-typed "3:" survives the next render.
+   */
+  correctedMinutes: number | null;
+  correctionDraft: string;
 };
 
 export type TimerMachineEvent =
@@ -16,6 +24,8 @@ export type TimerMachineEvent =
   | { type: "PICK"; missionId: number }
   | { type: "SELECT_ROUNDING"; key: string }
   | { type: "SET_BILLABLE"; billable: boolean }
+  | { type: "KEEP_LONG_RUN" }
+  | { type: "CORRECT_DURATION"; draft: string; minutes: number | null }
   | { type: "CHANGE_NOTE"; note: string }
   | { type: "SYNC_NOTE"; note: string }
   | { type: "DISCARD" }
@@ -51,27 +61,46 @@ export const timerMachine = setup({
     setBillable: assign(({ context, event }) =>
       event.type === "SET_BILLABLE" ? { billable: event.billable } : context,
     ),
+    keepLongRun: assign({ keptLongRun: true }),
+    correctDuration: assign(({ context, event }) =>
+      event.type === "CORRECT_DURATION"
+        ? { correctedMinutes: event.minutes, correctionDraft: event.draft }
+        : context,
+    ),
     dismissIdle: assign(({ context, event }) =>
       event.type === "DISMISS_IDLE"
         ? { dismissedIdleAt: event.lastActivityAt }
         : context,
     ),
+    // A new timer inherits nothing from the one before it.
     forgetTimer: assign({
       billable: true,
+      correctedMinutes: null,
+      correctionDraft: "",
       dismissedIdleAt: null,
       error: null,
+      keptLongRun: false,
       noteDraft: "",
       stopChoice: null,
     }),
-    forgetStopChoice: assign({ billable: true, stopChoice: null }),
+    // Every stop dialog starts from the same place, whatever the last one chose.
+    forgetStopChoice: assign({
+      billable: true,
+      correctedMinutes: null,
+      correctionDraft: "",
+      stopChoice: null,
+    }),
   },
 }).createMachine({
   id: "timer",
   initial: "closed",
   context: {
     billable: true,
+    correctedMinutes: null,
+    correctionDraft: "",
     dismissedIdleAt: null,
     error: null,
+    keptLongRun: false,
     noteDraft: "",
     stopChoice: null,
   },
@@ -90,6 +119,7 @@ export const timerMachine = setup({
     SYNC_NOTE: { actions: "changeNote" },
     CHANGE_NOTE: { actions: "changeNote" },
     DISMISS_IDLE: { actions: "dismissIdle" },
+    KEEP_LONG_RUN: { actions: "keepLongRun" },
   },
   states: {
     closed: {
@@ -137,6 +167,7 @@ export const timerMachine = setup({
       on: {
         SELECT_ROUNDING: { actions: "chooseRounding" },
         SET_BILLABLE: { actions: "setBillable" },
+        CORRECT_DURATION: { actions: "correctDuration" },
         SAVED: { target: "closed", actions: "forgetTimer" },
         FAILED: { actions: "showError" },
         CLOSE: "closed",

@@ -27,6 +27,11 @@ function renderDialog(overrides: Partial<TimerStopDialogProps> = {}) {
   render(
     <TimerStopDialog
       billable
+      correctionDraft=""
+      measuredLabel={null}
+      onCorrectDuration={vi.fn()}
+      quickDurations={[60, 120, 240, DEMO_WORKDAY_MINUTES]}
+      workdayMinutes={DEMO_WORKDAY_MINUTES}
       droppedMinutes={0}
       clockLabel="03:42:18"
       dateLabel="jeudi 30 juillet"
@@ -178,4 +183,47 @@ it("surfaces a refused save without closing", () => {
   expect(screen.getByRole("alert")).toHaveTextContent(
     "Le suivi n'existe plus.",
   );
+});
+
+it("offers no duration correction on an ordinary session", () => {
+  renderDialog();
+
+  expect(screen.queryByText(/Durée mesurée/)).not.toBeInTheDocument();
+});
+
+it("asks to replace the measured time when the timer looks forgotten", () => {
+  renderDialog({ measuredLabel: "13 h 05" });
+
+  expect(
+    screen.getByText(
+      "Durée mesurée : 13 h 05. Remplacez-la par le temps réellement travaillé.",
+    ),
+  ).toBeInTheDocument();
+});
+
+it("offers a full working day among the quick replacements", () => {
+  renderDialog({ measuredLabel: "13 h 05" });
+
+  expect(screen.getByRole("button", { name: "7 h" })).toBeInTheDocument();
+});
+
+it("fills the field from a quick replacement", () => {
+  const onCorrectDuration = vi.fn();
+
+  renderDialog({ measuredLabel: "13 h 05", onCorrectDuration });
+  fireEvent.click(screen.getByRole("button", { name: "2 h" }));
+
+  expect(onCorrectDuration).toHaveBeenCalledWith("2h");
+});
+
+it("reports an exact duration typed as h:mm", () => {
+  const onCorrectDuration = vi.fn();
+
+  renderDialog({ measuredLabel: "13 h 05", onCorrectDuration });
+  fireEvent.change(
+    screen.getByRole("textbox", { name: "Durée réellement travaillée" }),
+    { target: { value: "3:30" } },
+  );
+
+  expect(onCorrectDuration).toHaveBeenCalledWith("3:30");
 });

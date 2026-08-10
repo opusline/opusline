@@ -1,7 +1,7 @@
 import type { TimerState } from "@opusline/api-client";
 import { Button } from "@opusline/ui/components/button";
 import { Input } from "@opusline/ui/components/input";
-import { Clock } from "lucide-react";
+import { Clock, TriangleAlert } from "lucide-react";
 
 import { formatClock, formatStartedAt, isRunning } from "../lib/elapsed";
 import type { IdleNotice } from "../lib/idle";
@@ -11,6 +11,9 @@ import {
   DISCARD_CONFIRM,
   idleDetected,
   KEEP_IDLE,
+  LONG_RUN_KEEP,
+  LONG_RUN_STOP,
+  longRunMessage,
   NOTE_LABEL,
   NOTE_PLACEHOLDER,
   PAUSE,
@@ -26,6 +29,7 @@ export type TimerDetailPopoverProps = {
   elapsedSeconds: number;
   error: string | null;
   idle: IdleNotice | null;
+  longRunHours: string | null;
   isBusy: boolean;
   isConfirmingDiscard: boolean;
   missionName: string;
@@ -36,6 +40,7 @@ export type TimerDetailPopoverProps = {
   onConfirmDiscard: () => void;
   onDiscard: () => void;
   onDismissIdle: () => void;
+  onKeepLongRun: () => void;
   onStop: () => void;
   onTogglePause: () => void;
   onTrimIdle: () => void;
@@ -48,6 +53,7 @@ export function TimerDetailPopover({
   error,
   idle,
   isBusy,
+  longRunHours,
   isConfirmingDiscard,
   missionName,
   missionSubtitle,
@@ -57,6 +63,7 @@ export function TimerDetailPopover({
   onConfirmDiscard,
   onDiscard,
   onDismissIdle,
+  onKeepLongRun,
   onStop,
   onTogglePause,
   onTrimIdle,
@@ -83,6 +90,28 @@ export function TimerDetailPopover({
         {missionName}{" "}
         <span className="text-muted-foreground-2">· {missionSubtitle}</span>
       </p>
+
+      {longRunHours !== null && (
+        <div className="mb-3.5 flex gap-2.5 rounded-md border border-primary/45 bg-primary/8 p-3">
+          <TriangleAlert
+            aria-hidden
+            className="mt-0.5 size-3.5 shrink-0 text-primary-text"
+          />
+          <div className="min-w-0">
+            <p className="text-foreground-2 text-sm leading-relaxed">
+              {longRunMessage(longRunHours)}
+            </p>
+            <div className="mt-2.5 flex flex-wrap gap-2">
+              <Button disabled={isBusy} onClick={onStop} variant="secondary">
+                {LONG_RUN_STOP}
+              </Button>
+              <Button onClick={onKeepLongRun} variant="outline">
+                {LONG_RUN_KEEP}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {idle !== null && (
         <div className="mb-3.5 flex gap-2.5 rounded-md border border-border-2 bg-muted p-3">

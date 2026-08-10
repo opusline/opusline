@@ -13,6 +13,8 @@ const meta = {
     idle: null,
     isBusy: false,
     isConfirmingDiscard: false,
+    longRunHours: null,
+    onKeepLongRun: () => undefined,
     missionName: "OGF front",
     missionSubtitle: "Catamania · 550 €/j",
     note: "",
@@ -51,6 +53,11 @@ export const WithNote: Story = {
 
 export const IdleDetected: Story = {
   args: { idle: { idleMinutes: 25, idleSeconds: 1500, key: 1 } },
+};
+
+/** A timer running longer than a working day was probably left on overnight. */
+export const LooksForgotten: Story = {
+  args: { elapsedSeconds: 47_100, longRunHours: "13 h" },
 };
 
 export const ConfirmingDiscard: Story = {

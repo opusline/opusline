@@ -117,8 +117,11 @@ it("starts the next timer with nothing left over from the last one", () => {
 
   expect(timer.getSnapshot().context).toEqual({
     billable: true,
+    correctedMinutes: null,
+    correctionDraft: "",
     dismissedIdleAt: null,
     error: null,
+    keptLongRun: false,
     noteDraft: "",
     stopChoice: null,
   });
@@ -198,4 +201,48 @@ it("starts each stop dialog billable, whatever the last one chose", () => {
   timer.send({ type: "OPEN_STOP" });
 
   expect(timer.getSnapshot().context.billable).toBe(true);
+});
+
+it("stops asking about a long run once the user says it is deliberate", () => {
+  timer.send({ type: "KEEP_LONG_RUN" });
+
+  expect(timer.getSnapshot().context.keptLongRun).toBe(true);
+});
+
+it("keeps the corrected duration and the text behind it", () => {
+  timer.send({ type: "OPEN_STOP" });
+  timer.send({ type: "CORRECT_DURATION", draft: "3:30", minutes: 210 });
+
+  const { context } = timer.getSnapshot();
+
+  expect(context.correctedMinutes).toBe(210);
+  expect(context.correctionDraft).toBe("3:30");
+});
+
+/** A half-typed "3:" must survive rather than snapping back. */
+it("keeps unparseable text without a duration behind it", () => {
+  timer.send({ type: "OPEN_STOP" });
+  timer.send({ type: "CORRECT_DURATION", draft: "3:", minutes: null });
+
+  const { context } = timer.getSnapshot();
+
+  expect(context.correctedMinutes).toBeNull();
+  expect(context.correctionDraft).toBe("3:");
+});
+
+it("forgets the correction when the dialog is reopened", () => {
+  timer.send({ type: "OPEN_STOP" });
+  timer.send({ type: "CORRECT_DURATION", draft: "3:30", minutes: 210 });
+  timer.send({ type: "CLOSE" });
+  timer.send({ type: "OPEN_STOP" });
+
+  expect(timer.getSnapshot().context.correctedMinutes).toBeNull();
+});
+
+it("asks again about a long run once a new timer is started", () => {
+  timer.send({ type: "KEEP_LONG_RUN" });
+  timer.send({ type: "OPEN_STOP" });
+  timer.send({ type: "SAVED" });
+
+  expect(timer.getSnapshot().context.keptLongRun).toBe(false);
 });

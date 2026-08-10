@@ -2,10 +2,12 @@ import { Popover, PopoverContent } from "@opusline/ui/components/popover";
 import { useRef } from "react";
 
 import { calendarDateLabel } from "@/lib/dates";
+import { formatWorkedTime } from "@/lib/durations";
 import { entryRoundingLabel } from "@/lib/entry-rounding";
 
 import { formatClock } from "../lib/elapsed";
 import { START_TITLE } from "../lib/labels";
+import { quickDurations } from "../lib/long-run";
 import {
   defaultStopOption,
   type StopOption,
@@ -51,6 +53,7 @@ export function TimerContainer({ workdayMinutes }: { workdayMinutes: number }) {
           <TimerChip
             elapsedSeconds={timer.elapsedSeconds}
             isBusy={timer.isBusy}
+            isLongRun={timer.longRunHours !== null}
             missionName={running.missionName}
             onOpenDetails={timer.toggleDetail}
             onStop={timer.openStop}
@@ -95,6 +98,7 @@ export function TimerContainer({ workdayMinutes }: { workdayMinutes: number }) {
               error={timer.error}
               idle={timer.idle}
               isBusy={timer.isBusy}
+              longRunHours={timer.longRunHours}
               isConfirmingDiscard={timer.isConfirmingDiscard}
               missionName={running.missionName}
               missionSubtitle={
@@ -108,6 +112,7 @@ export function TimerContainer({ workdayMinutes }: { workdayMinutes: number }) {
               onConfirmDiscard={timer.confirmDiscard}
               onDiscard={timer.discard}
               onDismissIdle={timer.dismissIdle}
+              onKeepLongRun={timer.keepLongRun}
               onStop={timer.openStop}
               onTogglePause={timer.togglePause}
               onTrimIdle={timer.trimIdle}
@@ -144,8 +149,14 @@ function StopDialog({
     return null;
   }
 
+  const measuredSeconds = timer.elapsedSeconds;
+  const recordedSeconds =
+    timer.correctedMinutes === null
+      ? measuredSeconds
+      : timer.correctedMinutes * 60;
+
   const { droppedMinutes, options } = stopChoices(
-    timer.elapsedSeconds,
+    recordedSeconds,
     timer.mission,
     workdayMinutes,
   );
@@ -160,9 +171,18 @@ function StopDialog({
   return (
     <TimerStopDialog
       billable={timer.billable}
-      droppedMinutes={droppedMinutes}
-      clockLabel={formatClock(timer.elapsedSeconds)}
+      clockLabel={formatClock(measuredSeconds)}
+      correctionDraft={timer.correctionDraft}
       dateLabel={calendarDateLabel(startDate)}
+      droppedMinutes={droppedMinutes}
+      measuredLabel={
+        timer.longRunHours === null
+          ? null
+          : formatWorkedTime(Math.round(measuredSeconds / 60))
+      }
+      onCorrectDuration={timer.correctDuration}
+      quickDurations={quickDurations(workdayMinutes)}
+      workdayMinutes={workdayMinutes}
       error={timer.error}
       isSaving={timer.isSaving}
       missionName={running.missionName}

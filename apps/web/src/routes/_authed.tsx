@@ -72,7 +72,7 @@ function AuthedLayout() {
   )?.[1];
 
   return (
-    <TimerProvider>
+    <TimerProvider workdayMinutes={user.workdayMinutes}>
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>

@@ -26,9 +26,11 @@ import {
   toCalendarDate,
   todayCalendarDate,
 } from "@/lib/dates";
+import { parseDuration } from "@/lib/durations";
 import { serverErrorMessage } from "@/lib/validation";
 
 import { type IdleNotice, idleNotice, trimSeconds } from "../lib/idle";
+import { isLongRun, longRunHours } from "../lib/long-run";
 import type { TimerMissionOption } from "../lib/mission-options";
 import { findMissionById, trackableMissions } from "../lib/mission-options";
 import { timerMachine } from "../lib/timer-machine";
@@ -46,6 +48,11 @@ export type StopSubmission = {
 
 export type TimerContextValue = {
   billable: boolean;
+  /** Whole hours a forgotten-looking timer has run, or null while it looks normal. */
+  longRunHours: string | null;
+  /** Minutes replacing the measured duration, and the text the user typed. */
+  correctedMinutes: number | null;
+  correctionDraft: string;
   elapsedSeconds: number;
   error: string | null;
   idle: IdleNotice | null;
@@ -71,6 +78,8 @@ export type TimerContextValue = {
   openStart: () => void;
   openStop: () => void;
   pick: (missionId: number) => void;
+  correctDuration: (draft: string) => void;
+  keepLongRun: () => void;
   selectRounding: (key: string) => void;
   setBillable: (billable: boolean) => void;
   stop: (submission: StopSubmission) => void;
@@ -91,7 +100,13 @@ export function useTimer(): TimerContextValue {
   return value;
 }
 
-export function TimerProvider({ children }: { children: ReactNode }) {
+export function TimerProvider({
+  children,
+  workdayMinutes,
+}: {
+  children: ReactNode;
+  workdayMinutes: number;
+}) {
   const queryClient = useQueryClient();
 
   const { elapsedSeconds, isRunning, lastMissionId, now, timer } =
@@ -215,6 +230,16 @@ export function TimerProvider({ children }: { children: ReactNode }) {
           recordedSpan: idleSpan,
         });
 
+  /*
+   * "Forgotten?" is judged against the user's own workday — the only length of
+   * a working day the app knows — and stops being asked once they say it is
+   * deliberate.
+   */
+  const looksForgotten =
+    timer !== null &&
+    !state.context.keptLongRun &&
+    isLongRun(elapsedSeconds, workdayMinutes);
+
   const missionId = timer?.missionId ?? null;
   const noteSuggestions = useMemo(
     () =>
@@ -304,6 +329,27 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
   const value: TimerContextValue = {
     billable: state.context.billable,
+    correctDuration: (draft) => {
+      /*
+       * Read as hours even on a day-billed mission: the field asks how long was
+       * actually worked, and its hint says `h:mm`. `parseDuration` accepts
+       * "3:30", "3h30" and a bare "3" alike.
+       */
+      const parsed = parseDuration(draft, {
+        billingMode: 1,
+        workdayMinutes,
+      });
+
+      send({
+        type: "CORRECT_DURATION",
+        draft,
+        minutes: parsed.kind === "minutes" ? parsed.minutes : null,
+      });
+    },
+    correctedMinutes: state.context.correctedMinutes,
+    correctionDraft: state.context.correctionDraft,
+    keepLongRun: () => send({ type: "KEEP_LONG_RUN" }),
+    longRunHours: looksForgotten ? longRunHours(elapsedSeconds) : null,
     cancelDiscard: () => send({ type: "CANCEL" }),
     changeNote,
     close: () => send({ type: "CLOSE" }),

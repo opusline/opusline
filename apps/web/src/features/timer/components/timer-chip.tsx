@@ -6,6 +6,7 @@ import { formatClock, isRunning } from "../lib/elapsed";
 import {
   CHIP_PAUSED,
   DETAILS,
+  LONG_RUN_BADGE,
   PAUSE,
   RESUME,
   RUNNING_STATE,
@@ -15,6 +16,7 @@ import {
 export type TimerChipProps = {
   elapsedSeconds: number;
   isBusy: boolean;
+  isLongRun: boolean;
   missionName: string;
   onOpenDetails: () => void;
   onStop: () => void;
@@ -28,6 +30,7 @@ const CONTROL =
 export function TimerChip({
   elapsedSeconds,
   isBusy,
+  isLongRun,
   missionName,
   onOpenDetails,
   onStop,
@@ -64,6 +67,11 @@ export function TimerChip({
       {!running && (
         <span className="whitespace-nowrap font-medium text-muted-foreground-2 text-xs uppercase tracking-[0.06em]">
           {CHIP_PAUSED}
+        </span>
+      )}
+      {isLongRun && (
+        <span className="whitespace-nowrap font-medium text-primary-text text-xs uppercase tracking-[0.06em]">
+          {LONG_RUN_BADGE}
         </span>
       )}
       <span
