@@ -45,7 +45,7 @@ class RunningTimer extends Model
 
     public function isPaused(): bool
     {
-        return ! $this->running_since instanceof CarbonImmutable;
+        return $this->running_since === null;
     }
 
     public function state(): TimerState
@@ -55,7 +55,7 @@ class RunningTimer extends Model
 
     public function elapsedSeconds(?CarbonImmutable $now = null): int
     {
-        if (! $this->running_since instanceof CarbonImmutable) {
+        if ($this->running_since === null) {
             return $this->accumulated_seconds;
         }
 
