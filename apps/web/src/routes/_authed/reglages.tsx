@@ -1,6 +1,7 @@
 import type { UpdateSettingsData } from "@opusline/api-client";
 import {
   deleteUserSignatureMutation,
+  refreshSettingsRatesMutation,
   showSettingsOptions,
   showSettingsQueryKey,
   updateSettingsMutation,
@@ -34,6 +35,8 @@ export const Route = createFileRoute("/_authed/reglages")({
 
 const SIGNATURE_FAILED = "L'envoi a échoué. Réessayez dans un instant.";
 const SAVE_FAILED = "L'enregistrement a échoué. Réessayez dans un instant.";
+const RATES_FAILED =
+  "Le barème de l'URSSAF n'a pas pu être lu. Vos taux actuels sont conservés.";
 
 function ReglagesRoute() {
   const { tab } = Route.useSearch();
@@ -43,6 +46,7 @@ function ReglagesRoute() {
 
   const [signatureVersion, setSignatureVersion] = useState(0);
   const [signatureError, setSignatureError] = useState<string | null>(null);
+  const [ratesError, setRatesError] = useState<string | null>(null);
 
   const settings = useQuery(showSettingsOptions());
 
@@ -51,6 +55,15 @@ function ReglagesRoute() {
     onSuccess: (data) => {
       queryClient.setQueryData(showSettingsQueryKey(), data);
     },
+  });
+
+  const refreshRates = useMutation({
+    ...refreshSettingsRatesMutation(),
+    onSuccess: (data) => {
+      setRatesError(null);
+      queryClient.setQueryData(showSettingsQueryKey(), data);
+    },
+    onError: (error) => setRatesError(serverErrorMessage(error, RATES_FAILED)),
   });
 
   const refreshSignature = async () => {
@@ -136,6 +149,11 @@ function ReglagesRoute() {
           onSave: (file) =>
             uploadSignature.mutate({ body: { signature: file } }),
           onRemove: () => deleteSignature.mutate({}),
+        }}
+        rates={{
+          isRefreshing: refreshRates.isPending,
+          error: ratesError,
+          onRefresh: () => refreshRates.mutate({}),
         }}
         theme={theme}
       />

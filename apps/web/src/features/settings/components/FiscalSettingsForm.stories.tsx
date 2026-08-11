@@ -5,7 +5,13 @@ import { settingsFixture } from "../lib/settings-fixture";
 import { useSettingsForm } from "../lib/use-settings-form";
 import { FiscalSettingsForm } from "./fiscal-settings-form";
 
-function Example({ settings }: { settings: SettingsData }) {
+function Example({
+  settings,
+  savedAcre = settings.acre,
+}: {
+  settings: SettingsData;
+  savedAcre?: boolean;
+}) {
   const form = useSettingsForm(settings, async () => ({
     status: "success" as const,
   }));
@@ -15,7 +21,14 @@ function Example({ settings }: { settings: SettingsData }) {
       <FiscalSettingsForm
         effectiveContributionRateBp={settings.effectiveContributionRateBp}
         form={form}
+        isRefreshingRates={false}
         liberatingPaymentRateBp={settings.liberatingPaymentRateBp}
+        onRefreshRates={() => {}}
+        ratesCheckedAt={settings.ratesCheckedAt}
+        ratesError={null}
+        ratesYear={settings.ratesYear}
+        savedAcre={savedAcre}
+        savedBusinessStartedOn={settings.businessStartedOn}
       />
     </div>
   );
@@ -43,6 +56,12 @@ export const WithLiberatingPayment: Story = {
         effectiveContributionRateBp: 2820,
       }}
     />
+  ),
+};
+
+export const UnsavedSituation: Story = {
+  render: () => (
+    <Example savedAcre={!settingsFixture.acre} settings={settingsFixture} />
   ),
 };
 

@@ -228,6 +228,11 @@ export type SettingsData = {
     homePostalCode: string | null;
     homeCity: string | null;
     urssafPeriodicity: UrssafPeriodicity;
+    autoRates: boolean;
+    businessStartedOn: string | null;
+    acre: boolean;
+    ratesCheckedAt: string | null;
+    ratesYear: number | null;
     contributionRateBp: number;
     liberatingPayment: boolean;
     liberatingPaymentRateBp: number;
@@ -383,6 +388,8 @@ export type UpdateMissionData = {
  */
 export type UpdateSettingsData = {
     urssafPeriodicity: UrssafPeriodicity;
+    autoRates: boolean;
+    acre: boolean;
     contributionRateBp: number;
     liberatingPayment: boolean;
     liberatingPaymentRateBp: number;
@@ -404,6 +411,7 @@ export type UpdateSettingsData = {
     homeAddressLine2?: string | null;
     homePostalCode?: string | null;
     homeCity?: string | null;
+    businessStartedOn?: string | null;
     treasuryBuffer?: {
         amount: number;
         currency: Currency;
@@ -1718,6 +1726,58 @@ export type UpdateSettingsResponses = {
 };
 
 export type UpdateSettingsResponse = UpdateSettingsResponses[keyof UpdateSettingsResponses];
+
+export type RefreshSettingsRatesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/settings/rates/refresh';
+};
+
+export type RefreshSettingsRatesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     *
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    } | {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type RefreshSettingsRatesError = RefreshSettingsRatesErrors[keyof RefreshSettingsRatesErrors];
+
+export type RefreshSettingsRatesResponses = {
+    200: SettingsData;
+};
+
+export type RefreshSettingsRatesResponse = RefreshSettingsRatesResponses[keyof RefreshSettingsRatesResponses];
 
 export type DeleteUserSignatureData = {
     body?: never;

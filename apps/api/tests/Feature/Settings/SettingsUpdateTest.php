@@ -6,6 +6,7 @@ use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Shared\Enums\Currency;
 use App\Domain\Users\Models\User;
+use Illuminate\Support\Facades\Http;
 
 /**
  * @param  array<string, mixed>  $overrides
@@ -15,6 +16,8 @@ function settingsPayload(array $overrides = []): array
 {
     return array_merge([
         'urssafPeriodicity' => UrssafPeriodicity::Monthly->value,
+        'autoRates' => false,
+        'acre' => false,
         'contributionRateBp' => 2600,
         'liberatingPayment' => false,
         'liberatingPaymentRateBp' => 220,
@@ -169,4 +172,67 @@ test('never touches another account settings', function (): void {
 
 test('returns 401 for guests', function (): void {
     $this->putJson('/api/settings', settingsPayload())->assertUnauthorized();
+});
+
+test('re-reads the barème when the saved situation changes', function (): void {
+    fakeBareme(ratePercent: 12.8);
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['auto_rates' => true, 'contribution_rate_bp' => 2560]);
+
+    $this->actingAs($user)
+        ->putJson('/api/settings', settingsPayload([
+            'autoRates' => true,
+            'acre' => true,
+            'businessStartedOn' => now()->subMonths(2)->format('Y-m-d'),
+        ]))
+        ->assertOk()
+        ->assertJsonPath('contributionRateBp', 1280);
+});
+
+test('adopts the barème when the official source is switched on', function (): void {
+    fakeBareme();
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['auto_rates' => false, 'contribution_rate_bp' => 2000]);
+
+    $this->actingAs($user)
+        ->putJson('/api/settings', settingsPayload(['autoRates' => true]))
+        ->assertOk()
+        ->assertJsonPath('contributionRateBp', 2560);
+});
+
+test('leaves the barème alone when the situation is untouched', function (): void {
+    Http::fake();
+    $user = User::factory()->create();
+    $checkedAt = now()->subDays(3);
+    $user->settings()->sole()->update([
+        'auto_rates' => true,
+        'contribution_rate_bp' => 2560,
+        'rates_checked_at' => $checkedAt,
+    ]);
+
+    $this->actingAs($user)
+        ->putJson('/api/settings', settingsPayload([
+            'autoRates' => true,
+            'tradeName' => 'Nordlys',
+        ]))
+        ->assertOk();
+
+    Http::assertNothingSent();
+    expect($user->settings()->sole()->rates_checked_at->timestamp)->toBe($checkedAt->timestamp);
+});
+
+test('saves the settings even when the barème cannot be read', function (): void {
+    Http::fake(['*/evaluate' => Http::response(status: 500)]);
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['auto_rates' => true, 'contribution_rate_bp' => 2560]);
+
+    $this->actingAs($user)
+        ->putJson('/api/settings', settingsPayload([
+            'autoRates' => true,
+            'acre' => true,
+            'tradeName' => 'Nordlys',
+        ]))
+        ->assertOk()
+        ->assertJsonPath('tradeName', 'Nordlys')
+        ->assertJsonPath('contributionRateBp', 2560);
 });

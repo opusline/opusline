@@ -23,17 +23,32 @@ import {
 } from "@/lib/fiscality";
 import { formatRateBp, parseRateBp } from "../lib/settings-form";
 import type { SettingsForm } from "../lib/use-settings-form";
+import { RateSource } from "./rate-source";
 
 type FiscalSettingsFormProps = {
   form: SettingsForm;
   effectiveContributionRateBp: number;
   liberatingPaymentRateBp: number;
+  ratesCheckedAt: string | null;
+  ratesYear: number | null;
+  savedAcre: boolean;
+  savedBusinessStartedOn: string | null;
+  isRefreshingRates: boolean;
+  ratesError: string | null;
+  onRefreshRates: () => void;
 };
 
 export function FiscalSettingsForm({
   form,
   effectiveContributionRateBp,
   liberatingPaymentRateBp,
+  ratesCheckedAt,
+  ratesYear,
+  savedAcre,
+  savedBusinessStartedOn,
+  isRefreshingRates,
+  ratesError,
+  onRefreshRates,
 }: FiscalSettingsFormProps) {
   return (
     <div className="flex flex-col gap-5.5 rounded-md border bg-card px-7 py-6.5">
@@ -118,16 +133,23 @@ export function FiscalSettingsForm({
                   Taux de cotisations
                 </FieldLabel>
                 <div className="relative">
-                  <Input
-                    aria-invalid={isInvalid}
-                    className="pr-8"
-                    font="mono"
-                    id={field.name}
-                    inputMode="decimal"
-                    onBlur={field.handleBlur}
-                    onChange={(event) => field.handleChange(event.target.value)}
-                    value={field.state.value}
-                  />
+                  <form.Subscribe selector={(state) => state.values.autoRates}>
+                    {(autoRates) => (
+                      <Input
+                        aria-invalid={isInvalid}
+                        className="pr-8"
+                        disabled={autoRates}
+                        font="mono"
+                        id={field.name}
+                        inputMode="decimal"
+                        onBlur={field.handleBlur}
+                        onChange={(event) =>
+                          field.handleChange(event.target.value)
+                        }
+                        value={field.state.value}
+                      />
+                    )}
+                  </form.Subscribe>
                   <span className="-translate-y-1/2 pointer-events-none absolute top-1/2 right-3 text-muted-foreground-2 text-sm">
                     %
                   </span>
@@ -144,6 +166,19 @@ export function FiscalSettingsForm({
           }}
         </form.Field>
       </div>
+
+      <div className="h-px bg-secondary" />
+
+      <RateSource
+        form={form}
+        isRefreshing={isRefreshingRates}
+        onRefresh={onRefreshRates}
+        ratesCheckedAt={ratesCheckedAt}
+        ratesYear={ratesYear}
+        refreshError={ratesError}
+        savedAcre={savedAcre}
+        savedBusinessStartedOn={savedBusinessStartedOn}
+      />
 
       <div className="h-px bg-secondary" />
 

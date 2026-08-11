@@ -11,6 +11,7 @@ use App\Domain\Shared\Validation\InvoiceNumberFormat;
 use App\Domain\Shared\Validation\Siret;
 use App\Domain\Shared\Validation\VatNumber;
 use Spatie\LaravelData\Attributes\Validation\Between;
+use Spatie\LaravelData\Attributes\Validation\DateFormat;
 use Spatie\LaravelData\Attributes\Validation\Email;
 use Spatie\LaravelData\Attributes\Validation\IntegerType;
 use Spatie\LaravelData\Attributes\Validation\Max;
@@ -21,6 +22,8 @@ class UpdateSettingsData extends Data
 {
     public function __construct(
         public UrssafPeriodicity $urssafPeriodicity,
+        public bool $autoRates,
+        public bool $acre,
         #[IntegerType, Between(0, 10000)]
         public int $contributionRateBp,
         public bool $liberatingPayment,
@@ -60,6 +63,8 @@ class UpdateSettingsData extends Data
         public ?string $homePostalCode = null,
         #[Max(255)]
         public ?string $homeCity = null,
+        #[DateFormat('Y-m-d')]
+        public ?string $businessStartedOn = null,
         public ?MoneyData $treasuryBuffer = null,
     ) {}
 }

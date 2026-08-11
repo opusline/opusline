@@ -6,7 +6,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@opusline/ui/components/tabs";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 import type { FormSubmitResult } from "@/lib/form";
 import type { ThemePreference } from "@/lib/theme";
@@ -35,6 +35,12 @@ type SignatureProps = {
   onRemove: () => void;
 };
 
+type RatesProps = {
+  isRefreshing: boolean;
+  error: string | null;
+  onRefresh: () => void;
+};
+
 type SettingsPageProps = {
   settings: SettingsData;
   activeTab: SettingsTab;
@@ -43,6 +49,7 @@ type SettingsPageProps = {
   theme: ThemePreference;
   onThemeChange: (theme: ThemePreference) => void;
   signature: SignatureProps;
+  rates: RatesProps;
 };
 
 export function SettingsPage({
@@ -53,9 +60,15 @@ export function SettingsPage({
   theme,
   onThemeChange,
   signature,
+  rates,
 }: SettingsPageProps) {
   const form = useSettingsForm(settings, onSubmit);
   const savedValues = useMemo(() => toSettingsValues(settings), [settings]);
+
+  const savedContributionRate = savedValues.contributionRate;
+  useEffect(() => {
+    form.setFieldValue("contributionRate", savedContributionRate);
+  }, [form, savedContributionRate]);
 
   return (
     <div>
@@ -107,7 +120,14 @@ export function SettingsPage({
                   settings.effectiveContributionRateBp
                 }
                 form={form}
+                isRefreshingRates={rates.isRefreshing}
                 liberatingPaymentRateBp={settings.liberatingPaymentRateBp}
+                onRefreshRates={rates.onRefresh}
+                ratesCheckedAt={settings.ratesCheckedAt}
+                ratesError={rates.error}
+                ratesYear={settings.ratesYear}
+                savedAcre={settings.acre}
+                savedBusinessStartedOn={settings.businessStartedOn}
               />
             </TabsContent>
             <TabsContent keepMounted value="facturation">

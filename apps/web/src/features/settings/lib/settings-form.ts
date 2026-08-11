@@ -55,6 +55,9 @@ export type SettingsFormValues = {
   homePostalCode: string;
   homeCity: string;
   urssafPeriodicity: UrssafPeriodicity;
+  autoRates: boolean;
+  acre: boolean;
+  businessStartedOn: string;
   contributionRate: string;
   liberatingPayment: boolean;
   vatRegime: VatRegime;
@@ -105,6 +108,9 @@ export function toSettingsValues(settings: SettingsData): SettingsFormValues {
     homePostalCode: text(settings.homePostalCode),
     homeCity: text(settings.homeCity),
     urssafPeriodicity: settings.urssafPeriodicity,
+    autoRates: settings.autoRates,
+    acre: settings.acre,
+    businessStartedOn: settings.businessStartedOn ?? "",
     contributionRate: formatRateBp(settings.contributionRateBp),
     liberatingPayment: settings.liberatingPayment,
     vatRegime: settings.vatRegime,
@@ -125,6 +131,9 @@ export function toSettingsPayload(
 
   return {
     urssafPeriodicity: values.urssafPeriodicity,
+    autoRates: values.autoRates,
+    acre: values.acre,
+    businessStartedOn: valueOrNull(values.businessStartedOn),
     contributionRateBp:
       parseRateBp(values.contributionRate) ?? settings.contributionRateBp,
     liberatingPayment: values.liberatingPayment,

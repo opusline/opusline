@@ -15,7 +15,7 @@ test('returns the seeded defaults for a fresh account', function (): void {
         ->assertJsonPath('tradeName', null)
         ->assertJsonPath('homeAddressSameAsCompany', true)
         ->assertJsonPath('urssafPeriodicity', UrssafPeriodicity::Monthly->value)
-        ->assertJsonPath('contributionRateBp', 2600)
+        ->assertJsonPath('contributionRateBp', config()->integer('fiscality.contribution_rate_bp'))
         ->assertJsonPath('liberatingPayment', false)
         ->assertJsonPath('liberatingPaymentRateBp', 220)
         ->assertJsonPath('vatRegime', VatRegime::FranchiseEnBase->value)
@@ -57,7 +57,7 @@ test('leaves the effective rate alone when the versement libératoire is off', f
     $this->actingAs(User::factory()->create())
         ->getJson('/api/settings')
         ->assertOk()
-        ->assertJsonPath('effectiveContributionRateBp', 2600);
+        ->assertJsonPath('effectiveContributionRateBp', config()->integer('fiscality.contribution_rate_bp'));
 });
 
 test('reports a stored signature', function (): void {

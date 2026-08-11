@@ -23,12 +23,17 @@ function renderPage(
       onSave: vi.fn(),
       onRemove: vi.fn(),
     },
+    rates: { isRefreshing: false, error: null, onRefresh: vi.fn() },
     ...overrides,
   };
 
-  render(<SettingsPage {...props} />);
+  const { rerender } = render(<SettingsPage {...props} />);
 
-  return props;
+  return {
+    ...props,
+    rerenderWith: (settings: SettingsData) =>
+      rerender(<SettingsPage {...props} settings={settings} />),
+  };
 }
 
 function editTradeName(value: string) {
@@ -220,4 +225,96 @@ it("refuses an invoice format without a counter", () => {
   expect(
     screen.getByText("Le format doit contenir le compteur NNN."),
   ).toBeInTheDocument();
+});
+
+it("shows when the barème was last read", () => {
+  renderPage({ activeTab: "fiscalite" });
+
+  expect(
+    screen.getByText("Barème 2026 · dernière vérification le 11 août 2026"),
+  ).toBeInTheDocument();
+});
+
+it("says so when the barème has never been read", () => {
+  renderPage({
+    activeTab: "fiscalite",
+    settings: { ...settingsFixture, ratesCheckedAt: null, ratesYear: null },
+  });
+
+  expect(screen.getByText("Barème jamais lu")).toBeInTheDocument();
+});
+
+it("locks the rate while the official source owns it", () => {
+  renderPage({ activeTab: "fiscalite" });
+
+  expect(screen.getByLabelText("Taux de cotisations")).toBeDisabled();
+});
+
+it("hands the rate back when the official source is switched off", () => {
+  renderPage({ activeTab: "fiscalite" });
+
+  fireEvent.click(screen.getByRole("switch", { name: "Source des taux" }));
+
+  expect(screen.getByLabelText("Taux de cotisations")).toBeEnabled();
+  expect(screen.queryByText(/Barème/)).not.toBeInTheDocument();
+});
+
+it("asks the route to re-read the barème", () => {
+  const { rates } = renderPage({ activeTab: "fiscalite" });
+
+  fireEvent.click(screen.getByRole("button", { name: /Vérifier maintenant/ }));
+
+  expect(rates.onRefresh).toHaveBeenCalledTimes(1);
+});
+
+it("follows the barème when a refresh moves the rate", () => {
+  const { rerenderWith } = renderPage({ activeTab: "fiscalite" });
+
+  expect(screen.getByLabelText("Taux de cotisations")).toHaveValue("26,0");
+
+  rerenderWith({ ...settingsFixture, contributionRateBp: 1280 });
+
+  expect(screen.getByLabelText("Taux de cotisations")).toHaveValue("12,8");
+  expect(screen.queryByText(/modification/)).not.toBeInTheDocument();
+});
+
+it("will not re-read the barème for a situation that is not saved yet", () => {
+  const { rates } = renderPage({ activeTab: "fiscalite" });
+
+  fireEvent.click(
+    screen.getByRole("switch", { name: "Je bénéficie de l'ACRE" }),
+  );
+
+  const refresh = screen.getByRole("button", { name: /Vérifier maintenant/ });
+  expect(refresh).toBeDisabled();
+  expect(
+    screen.getByText("Enregistrez pour appliquer le barème à cette situation."),
+  ).toBeInTheDocument();
+
+  fireEvent.click(refresh);
+  expect(rates.onRefresh).not.toHaveBeenCalled();
+});
+
+it("reports a barème that could not be read, without hiding the rate", () => {
+  renderPage({
+    activeTab: "fiscalite",
+    rates: {
+      isRefreshing: false,
+      error: "Barème injoignable.",
+      onRefresh: vi.fn(),
+    },
+  });
+
+  expect(screen.getByText("Barème injoignable.")).toBeInTheDocument();
+  expect(screen.getByLabelText("Taux de cotisations")).toHaveValue("26,0");
+});
+
+it("offers the ACRE questions only while the source is on", () => {
+  renderPage({ activeTab: "fiscalite" });
+
+  expect(screen.getByLabelText("Début d'activité")).toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("switch", { name: "Source des taux" }));
+
+  expect(screen.queryByLabelText("Début d'activité")).not.toBeInTheDocument();
 });

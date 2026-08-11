@@ -36,6 +36,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property ?string $home_postal_code
  * @property ?string $home_city
  * @property UrssafPeriodicity $urssaf_periodicity
+ * @property bool $auto_rates
+ * @property ?CarbonImmutable $rates_checked_at
+ * @property ?int $rates_year
+ * @property bool $acre
+ * @property ?CarbonImmutable $business_started_on
  * @property int $contribution_rate_bp
  * @property bool $liberating_payment
  * @property int $liberating_payment_rate_bp
@@ -64,6 +69,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'home_postal_code',
     'home_city',
     'urssaf_periodicity',
+    'auto_rates',
+    'rates_checked_at',
+    'rates_year',
+    'acre',
+    'business_started_on',
     'contribution_rate_bp',
     'liberating_payment',
     'liberating_payment_rate_bp',
@@ -95,6 +105,11 @@ class UserSettings extends Model
         return [
             'home_address_same_as_company' => 'boolean',
             'urssaf_periodicity' => UrssafPeriodicity::class,
+            'auto_rates' => 'boolean',
+            'rates_checked_at' => 'datetime',
+            'rates_year' => 'integer',
+            'acre' => 'boolean',
+            'business_started_on' => 'date',
             'contribution_rate_bp' => 'integer',
             'liberating_payment' => 'boolean',
             'liberating_payment_rate_bp' => 'integer',

@@ -461,6 +461,11 @@ export const zSettingsData = z.object({
     homePostalCode: z.nullable(z.string()),
     homeCity: z.nullable(z.string()),
     urssafPeriodicity: zUrssafPeriodicity,
+    autoRates: z.boolean(),
+    businessStartedOn: z.nullable(z.iso.date()),
+    acre: z.boolean(),
+    ratesCheckedAt: z.nullable(z.string()),
+    ratesYear: z.nullable(z.int()),
     contributionRateBp: z.int(),
     liberatingPayment: z.boolean(),
     liberatingPaymentRateBp: z.int(),
@@ -478,6 +483,8 @@ export const zSettingsData = z.object({
  */
 export const zUpdateSettingsData = z.object({
     urssafPeriodicity: zUrssafPeriodicity,
+    autoRates: z.boolean(),
+    acre: z.boolean(),
     contributionRateBp: z.int().check(z.gte(0), z.lte(10000)),
     liberatingPayment: z.boolean(),
     liberatingPaymentRateBp: z.int().check(z.gte(0), z.lte(10000)),
@@ -499,6 +506,7 @@ export const zUpdateSettingsData = z.object({
     homeAddressLine2: z.nullish(z.string().check(z.maxLength(255))),
     homePostalCode: z.nullish(z.string().check(z.maxLength(32))),
     homeCity: z.nullish(z.string().check(z.maxLength(255))),
+    businessStartedOn: z.nullish(z.iso.date()),
     treasuryBuffer: z.nullish(z.object({
         amount: z.int().check(z.gte(1)),
         currency: zCurrency
@@ -720,6 +728,8 @@ export const zShowSettingsResponse = zSettingsData;
 export const zUpdateSettingsBody = zUpdateSettingsData;
 
 export const zUpdateSettingsResponse = zSettingsData;
+
+export const zRefreshSettingsRatesResponse = zSettingsData;
 
 /**
  * No content

@@ -8,7 +8,10 @@ use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Shared\Data\MoneyData;
+use Carbon\CarbonImmutable;
+use Spatie\LaravelData\Attributes\WithTransformer;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer;
 
 class SettingsData extends Data
 {
@@ -29,6 +32,12 @@ class SettingsData extends Data
         public ?string $homePostalCode,
         public ?string $homeCity,
         public UrssafPeriodicity $urssafPeriodicity,
+        public bool $autoRates,
+        #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
+        public ?CarbonImmutable $businessStartedOn,
+        public bool $acre,
+        public ?string $ratesCheckedAt,
+        public ?int $ratesYear,
         public int $contributionRateBp,
         public bool $liberatingPayment,
         public int $liberatingPaymentRateBp,
@@ -60,6 +69,11 @@ class SettingsData extends Data
             homePostalCode: $settings->home_postal_code,
             homeCity: $settings->home_city,
             urssafPeriodicity: $settings->urssaf_periodicity,
+            autoRates: $settings->auto_rates,
+            businessStartedOn: $settings->business_started_on,
+            acre: $settings->acre,
+            ratesCheckedAt: $settings->rates_checked_at?->toIso8601String(),
+            ratesYear: $settings->rates_year,
             contributionRateBp: $settings->contribution_rate_bp,
             liberatingPayment: $settings->liberating_payment,
             liberatingPaymentRateBp: $settings->liberating_payment_rate_bp,

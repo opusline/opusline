@@ -1341,6 +1341,70 @@
                 }
             }
         },
+        "/settings/rates/refresh": {
+            "post": {
+                "operationId": "refreshSettingsRates",
+                "tags": [
+                    "Settings"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SettingsData"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "An error\n\nAn error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "description": "Error overview.",
+                                                    "examples": [
+                                                        "La source officielle des taux est d\u00e9sactiv\u00e9e. R\u00e9activez-la pour lire le bar\u00e8me de l'URSSAF."
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "message"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "description": "Error overview."
+                                                }
+                                            },
+                                            "required": [
+                                                "message"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/user/signature": {
             "post": {
                 "operationId": "uploadUserSignature",
@@ -2790,6 +2854,31 @@
                     "urssafPeriodicity": {
                         "$ref": "#/components/schemas/UrssafPeriodicity"
                     },
+                    "autoRates": {
+                        "type": "boolean"
+                    },
+                    "businessStartedOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "acre": {
+                        "type": "boolean"
+                    },
+                    "ratesCheckedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "ratesYear": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
                     "contributionRateBp": {
                         "type": "integer"
                     },
@@ -2845,6 +2934,11 @@
                     "homePostalCode",
                     "homeCity",
                     "urssafPeriodicity",
+                    "autoRates",
+                    "businessStartedOn",
+                    "acre",
+                    "ratesCheckedAt",
+                    "ratesYear",
                     "contributionRateBp",
                     "liberatingPayment",
                     "liberatingPaymentRateBp",
@@ -3348,6 +3442,12 @@
                     "urssafPeriodicity": {
                         "$ref": "#/components/schemas/UrssafPeriodicity"
                     },
+                    "autoRates": {
+                        "type": "boolean"
+                    },
+                    "acre": {
+                        "type": "boolean"
+                    },
                     "contributionRateBp": {
                         "type": "integer",
                         "minimum": 0,
@@ -3475,6 +3575,13 @@
                         ],
                         "maxLength": 255
                     },
+                    "businessStartedOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
                     "treasuryBuffer": {
                         "type": [
                             "object",
@@ -3497,6 +3604,8 @@
                 },
                 "required": [
                     "urssafPeriodicity",
+                    "autoRates",
+                    "acre",
                     "contributionRateBp",
                     "liberatingPayment",
                     "liberatingPaymentRateBp",
