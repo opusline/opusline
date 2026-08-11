@@ -35,7 +35,8 @@ export function TimerContainer({ workdayMinutes }: { workdayMinutes: number }) {
       return;
     }
 
-    const { relatedTarget } = details.event as FocusEvent;
+    const relatedTarget =
+      details.event instanceof FocusEvent ? details.event.relatedTarget : null;
 
     if (isInsideChip(details.event.target) || isInsideChip(relatedTarget)) {
       return;
@@ -53,6 +54,7 @@ export function TimerContainer({ workdayMinutes }: { workdayMinutes: number }) {
           <TimerChip
             elapsedSeconds={timer.elapsedSeconds}
             isBusy={timer.isBusy}
+            isDetailsOpen={timer.overlay === "detail"}
             isLongRun={timer.longRunHours !== null}
             missionName={running.missionName}
             onOpenDetails={timer.toggleDetail}
@@ -91,7 +93,8 @@ export function TimerContainer({ workdayMinutes }: { workdayMinutes: number }) {
             align="end"
             anchor={anchorRef}
             aria-label={running.missionName}
-            className="w-84 bg-card-2 p-4"
+            className="w-84 p-4"
+            surface="raised"
           >
             <TimerDetailPopover
               elapsedSeconds={timer.elapsedSeconds}

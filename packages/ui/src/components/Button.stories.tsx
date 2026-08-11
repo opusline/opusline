@@ -28,3 +28,16 @@ export const Sizes: Story = {
     </div>
   ),
 };
+
+export const RaisedSurface: Story = {
+  render: () => (
+    <div className="flex items-center gap-2 bg-background p-4">
+      <Button size="2xl" variant="outline">
+        Sur la page
+      </Button>
+      <Button size="2xl" surface="raised" variant="outline">
+        Surélevé
+      </Button>
+    </div>
+  ),
+};

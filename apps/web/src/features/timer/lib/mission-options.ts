@@ -5,6 +5,7 @@ import type {
 } from "@opusline/api-client";
 
 import { formatMissionRate } from "@/lib/billing";
+import { isMissionCompleted } from "@/lib/mission-status";
 import { COLOR_CLASSES } from "@/lib/palette";
 
 export type TimerMissionOption = {
@@ -20,7 +21,7 @@ function isTrackable(
   mission: MissionData,
   client: ClientWithMissionsData,
 ): boolean {
-  return mission.status !== 2 && client.archivedAt === null;
+  return !isMissionCompleted(mission.status) && client.archivedAt === null;
 }
 
 export function trackableMissions(

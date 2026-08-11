@@ -26,7 +26,7 @@ export type StopOption = {
 };
 
 export type StopChoices = {
-  options: StopOption[];
+  options: [StopOption, ...StopOption[]];
   droppedMinutes: number;
 };
 
@@ -91,7 +91,9 @@ export function stopChoices(
   };
 }
 
-export function defaultStopOption(options: StopOption[]): StopOption {
+export function defaultStopOption(
+  options: [StopOption, ...StopOption[]],
+): StopOption {
   return options.find((option) => option.isDefault) ?? options[0];
 }
 

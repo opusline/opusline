@@ -1,10 +1,15 @@
 import { expect, it } from "vitest";
 
-import { IDLE_THRESHOLD_SECONDS, idleNotice, trimSeconds } from "./idle";
+import {
+  IDLE_THRESHOLD_SECONDS,
+  type IdleInput,
+  idleNotice,
+  trimSeconds,
+} from "./idle";
 
 const NOW = 1_800_000_000_000;
 
-function noticeAfter(idleSeconds: number, overrides = {}) {
+function noticeAfter(idleSeconds: number, overrides: Partial<IdleInput> = {}) {
   return idleNotice({
     dismissedIdleAt: null,
     isRunning: true,

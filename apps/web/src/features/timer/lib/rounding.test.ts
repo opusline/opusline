@@ -17,7 +17,8 @@ const stopOptionsOf = (
   elapsedSeconds: number,
   mission: MissionData | null,
   workdayMinutes: number,
-): StopOption[] => stopChoices(elapsedSeconds, mission, workdayMinutes).options;
+): [StopOption, ...StopOption[]] =>
+  stopChoices(elapsedSeconds, mission, workdayMinutes).options;
 
 const labelsOf = (options: StopOption[]) =>
   options.map((option) => option.label);

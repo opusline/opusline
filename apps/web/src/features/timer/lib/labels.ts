@@ -47,6 +47,10 @@ export function roundingDeviation(roundingLabel: string): string {
 
 export const KEEP_IDLE = "Garder";
 
+export function startedAtLabel(clock: string): string {
+  return `démarré ${clock}`;
+}
+
 export const LONG_RUN_BADGE = "Oublié ?";
 export const LONG_RUN_STOP = "Arrêter et corriger la durée";
 export const LONG_RUN_KEEP = "C'est normal";

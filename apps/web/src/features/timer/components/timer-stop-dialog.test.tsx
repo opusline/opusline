@@ -1,6 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
+import { entryRoundingLabel } from "@/lib/entry-rounding";
+
 import { defaultStopOption, stopChoices } from "../lib/rounding";
 import {
   DEMO_ELAPSED_SECONDS,
@@ -12,7 +14,11 @@ import {
   type TimerStopDialogProps,
 } from "./timer-stop-dialog";
 
-const HALF_DAY_MISSION = { ...DEMO_MISSIONS.ogf, rounding: 0 as const };
+const HALF_DAY_MISSION = DEMO_MISSIONS.ogf;
+const MISSION_ROUNDING_LABEL = entryRoundingLabel(
+  HALF_DAY_MISSION.rounding,
+  HALF_DAY_MISSION.billingMode,
+);
 const { options: OPTIONS } = stopChoices(
   DEMO_ELAPSED_SECONDS,
   HALF_DAY_MISSION,
@@ -38,7 +44,7 @@ function renderDialog(overrides: Partial<TimerStopDialogProps> = {}) {
       error={null}
       isSaving={false}
       missionName="OGF front"
-      missionRoundingLabel="0,5 j"
+      missionRoundingLabel={MISSION_ROUNDING_LABEL}
       note=""
       noteSuggestions={["Revue PR", "Cadrage V2"]}
       onChangeBillable={onChangeBillable}
@@ -74,7 +80,9 @@ it("marks that choice as the mission's default", () => {
 it("names the rounding the mission is set to", () => {
   renderDialog();
 
-  expect(screen.getByText("mission : 0,5 j")).toBeInTheDocument();
+  expect(
+    screen.getByText(`mission : ${MISSION_ROUNDING_LABEL}`),
+  ).toBeInTheDocument();
 });
 
 it("offers the exact time as the way to deviate", () => {
