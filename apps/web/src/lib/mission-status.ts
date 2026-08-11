@@ -1,4 +1,9 @@
-import type { ClientType, MissionStatus } from "@opusline/api-client";
+import type {
+  ClientType,
+  ClientWithMissionsData,
+  MissionData,
+  MissionStatus,
+} from "@opusline/api-client";
 
 import { isInternalClient } from "./client-types";
 
@@ -19,6 +24,13 @@ export const MISSION_STATUS_BADGE_VARIANTS: Record<
 
 export function isMissionCompleted(status: MissionStatus): boolean {
   return status === 2;
+}
+
+export function isMissionOpenForTime(
+  mission: MissionData,
+  client: ClientWithMissionsData,
+): boolean {
+  return !isMissionCompleted(mission.status) && client.archivedAt === null;
 }
 
 export function missionStatusBadge(

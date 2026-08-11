@@ -5,7 +5,7 @@ import type {
 } from "@opusline/api-client";
 
 import { formatMissionRate } from "@/lib/billing";
-import { isMissionCompleted } from "@/lib/mission-status";
+import { isMissionOpenForTime } from "@/lib/mission-status";
 import { COLOR_CLASSES } from "@/lib/palette";
 
 export type TimerMissionOption = {
@@ -17,13 +17,6 @@ export type TimerMissionOption = {
   subtitle: string;
 };
 
-function isTrackable(
-  mission: MissionData,
-  client: ClientWithMissionsData,
-): boolean {
-  return !isMissionCompleted(mission.status) && client.archivedAt === null;
-}
-
 export function trackableMissions(
   clients: ClientWithMissionsData[],
   lastMissionId: number | null,
@@ -31,7 +24,7 @@ export function trackableMissions(
   return clients
     .flatMap((client) =>
       client.missions
-        .filter((mission) => isTrackable(mission, client))
+        .filter((mission) => isMissionOpenForTime(mission, client))
         .map(
           (mission): TimerMissionOption => ({
             billingMode: mission.billingMode,

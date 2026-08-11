@@ -10,6 +10,7 @@ const meta = {
   args: {
     elapsedSeconds: DEMO_ELAPSED_SECONDS,
     isBusy: false,
+    isDetailsOpen: false,
     isLongRun: false,
     missionName: "OGF front",
     onOpenDetails: () => undefined,

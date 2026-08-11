@@ -12,7 +12,7 @@ import {
   formatBilledTotal,
   isHourly,
 } from "@/lib/durations";
-import { isMissionCompleted } from "@/lib/mission-status";
+import { isMissionOpenForTime } from "@/lib/mission-status";
 import { COLOR_CLASSES } from "@/lib/palette";
 import { isoWeekDates, weekdayShortLabel } from "@/lib/weeks";
 
@@ -338,10 +338,9 @@ function buildMissionOptions(
   gridMissionIds: Set<number>,
 ): MissionOption[] {
   return clients
-    .filter((client) => client.archivedAt === null)
     .flatMap((client) =>
       client.missions
-        .filter((mission) => !isMissionCompleted(mission.status))
+        .filter((mission) => isMissionOpenForTime(mission, client))
         .map((mission) => ({
           billingMode: mission.billingMode,
           colorClass: COLOR_CLASSES[mission.color ?? client.color],

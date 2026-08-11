@@ -130,6 +130,7 @@ export function TimerProvider({
   }, [timerId, send]);
 
   const noteTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const noteWrites = useRef<Promise<unknown>>(Promise.resolve());
 
   const cancelPendingNote = () => {
     if (noteTimeout.current !== null) {
@@ -260,11 +261,15 @@ export function TimerProvider({
       noteTimeout.current = null;
       const trimmed = note.trim();
 
-      void run(() =>
-        updateNote.mutateAsync({
-          body: { note: trimmed === "" ? null : trimmed },
-        }),
-      );
+      noteWrites.current = noteWrites.current
+        .catch(() => undefined)
+        .then(() =>
+          run(() =>
+            updateNote.mutateAsync({
+              body: { note: trimmed === "" ? null : trimmed },
+            }),
+          ),
+        );
     }, NOTE_DEBOUNCE_MS);
   };
 
