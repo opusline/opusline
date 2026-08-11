@@ -11,6 +11,8 @@ use App\Domain\Timers\Models\RunningTimer;
 use App\Domain\Users\Models\User;
 
 test('maps a running timer to its data shape', function (): void {
+    $this->freezeTime();
+
     $user = User::factory()->create();
     $mission = missionOwnedBy($user, fn ($factory) => $factory->state([
         'name' => 'Lunaprint maintenance',
