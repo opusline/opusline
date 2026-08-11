@@ -17,6 +17,10 @@ export const MISSION_STATUS_BADGE_VARIANTS: Record<
   2: "neutral",
 };
 
+export function isMissionCompleted(status: MissionStatus): boolean {
+  return status === 2;
+}
+
 export function missionStatusBadge(
   status: MissionStatus,
   clientType: ClientType,

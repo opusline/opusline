@@ -1,6 +1,11 @@
-import { formatWorkedTime, parseDuration } from "@/lib/durations";
+import type { BillingMode } from "@opusline/api-client";
+
+import { parseDuration } from "@/lib/durations";
 
 const QUICK_MINUTES = [60, 120, 240];
+
+/** `BillingMode::Hourly` — how the correction field reads its input. */
+export const HOURLY_BILLING: BillingMode = 1;
 
 /**
  * A full working day is the threshold because it is the longest anyone plausibly
@@ -23,10 +28,6 @@ export function quickDurations(workdayMinutes: number): number[] {
     .sort((left, right) => left - right);
 }
 
-export function quickDurationLabel(minutes: number): string {
-  return formatWorkedTime(minutes);
-}
-
 /**
  * Reads as hours ("3:30", "3h30", "3") even on a day-billed mission, where a
  * bare number would otherwise mean days — the field asks how long was actually
@@ -36,7 +37,10 @@ export function parseWorkedDuration(
   draft: string,
   workdayMinutes: number,
 ): number | null {
-  const parsed = parseDuration(draft, { billingMode: 1, workdayMinutes });
+  const parsed = parseDuration(draft, {
+    billingMode: HOURLY_BILLING,
+    workdayMinutes,
+  });
 
   return parsed.kind === "minutes" ? parsed.minutes : null;
 }

@@ -16,6 +16,7 @@ import {
 export type TimerChipProps = {
   elapsedSeconds: number;
   isBusy: boolean;
+  isDetailsOpen: boolean;
   isLongRun: boolean;
   missionName: string;
   onOpenDetails: () => void;
@@ -30,6 +31,7 @@ const CONTROL =
 export function TimerChip({
   elapsedSeconds,
   isBusy,
+  isDetailsOpen,
   isLongRun,
   missionName,
   onOpenDetails,
@@ -114,6 +116,8 @@ export function TimerChip({
         <Square aria-hidden className="size-3 fill-current" />
       </button>
       <button
+        aria-expanded={isDetailsOpen}
+        aria-haspopup="dialog"
         aria-label={DETAILS}
         className={cn(
           CONTROL,

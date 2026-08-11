@@ -34,5 +34,5 @@ const startedAtTime = new Intl.DateTimeFormat("fr-FR", {
 });
 
 export function formatStartedAt(instant: string): string {
-  return `démarré ${startedAtTime.format(new Date(instant))}`;
+  return startedAtTime.format(new Date(instant));
 }

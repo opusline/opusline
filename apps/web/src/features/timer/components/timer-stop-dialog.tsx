@@ -14,7 +14,7 @@ import { useId } from "react";
 
 import { matchingNotes, NoteSuggestions } from "@/components/note-suggestions";
 import { formatAmountWithCents } from "@/lib/billing";
-import { formatDurationInput } from "@/lib/durations";
+import { formatDurationInput, formatWorkedTime } from "@/lib/durations";
 import {
   AMOUNT_LABEL,
   CANCEL,
@@ -35,7 +35,7 @@ import {
   STOP_TITLE,
   stopSummary,
 } from "../lib/labels";
-import { quickDurationLabel } from "../lib/long-run";
+import { HOURLY_BILLING } from "../lib/long-run";
 import type { StopOption } from "../lib/rounding";
 
 export type TimerStopDialogProps = {
@@ -60,7 +60,7 @@ export type TimerStopDialogProps = {
   onSelectRounding: (key: string) => void;
   onSubmit: (option: StopOption) => void;
   open: boolean;
-  options: StopOption[];
+  options: [StopOption, ...StopOption[]];
   selectedKey: string;
 };
 
@@ -140,7 +140,7 @@ export function TimerStopDialog({
                     onClick={() =>
                       onCorrectDuration(
                         formatDurationInput(minutes, {
-                          billingMode: 1,
+                          billingMode: HOURLY_BILLING,
                           workdayMinutes,
                         }),
                       )
@@ -148,7 +148,7 @@ export function TimerStopDialog({
                     size="lg"
                     variant="outline"
                   >
-                    {quickDurationLabel(minutes)}
+                    {formatWorkedTime(minutes)}
                   </Button>
                 ))}
               </div>
@@ -185,9 +185,7 @@ export function TimerStopDialog({
               aria-label={ROUNDING_LABEL}
               className="flex-nowrap items-stretch"
               onValueChange={(value) => {
-                const picked = value.find(
-                  (candidate) => candidate !== undefined,
-                );
+                const [picked] = value;
 
                 if (picked !== undefined) {
                   onSelectRounding(picked);

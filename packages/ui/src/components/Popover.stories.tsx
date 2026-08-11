@@ -59,3 +59,17 @@ export const WithDescription: Story = {
     </Popover>
   ),
 };
+
+export const RaisedSurface: Story = {
+  render: () => (
+    <Popover open>
+      <PopoverTrigger render={<Button variant="outline">Détails</Button>} />
+      <PopoverContent surface="raised">
+        <PopoverTitle>Suivi en cours</PopoverTitle>
+        <PopoverDescription>
+          Repose sur la surface carte plutôt que sur le fond popover.
+        </PopoverDescription>
+      </PopoverContent>
+    </Popover>
+  ),
+};

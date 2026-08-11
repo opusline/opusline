@@ -506,7 +506,6 @@ it("shows the running timer as a provisional value on its own day", () => {
   expect(mondayTjmCell()).toHaveTextContent("en cours · 03:42:18");
 });
 
-/** The recorded entry stays visible: a provisional value never hides one. */
 it("shows the timer alongside the entry already on that day", () => {
   renderGrid({ live: RUNNING_ON_MONDAY });
 

@@ -94,11 +94,10 @@ const runningTimer: LiveCell = {
   clockLabel: "07:20:24",
   date: "2026-07-27",
   isRunning: true,
-  missionId: billedDayRow.missionId,
+  missionId: hourlyRow.missionId,
   onStop: () => undefined,
 };
 
-/** Nothing is recorded yet, so the pill is dashed and the dot ticks. */
 export const TimerRunning: Story = {
   args: { cell: hourlyRow.cells[0], live: runningTimer, row: hourlyRow },
 };
@@ -111,11 +110,10 @@ export const TimerPaused: Story = {
   },
 };
 
-/** A timer running on a day that already has an entry shows both. */
 export const TimerAlongsideAnEntry: Story = {
   args: {
     cell: billedDayRow.cells[0],
-    live: runningTimer,
+    live: { ...runningTimer, missionId: billedDayRow.missionId },
     row: billedDayRow,
   },
 };

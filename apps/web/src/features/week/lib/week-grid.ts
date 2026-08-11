@@ -12,6 +12,7 @@ import {
   formatBilledTotal,
   isHourly,
 } from "@/lib/durations";
+import { isMissionCompleted } from "@/lib/mission-status";
 import { COLOR_CLASSES } from "@/lib/palette";
 import { isoWeekDates, weekdayShortLabel } from "@/lib/weeks";
 
@@ -340,7 +341,7 @@ function buildMissionOptions(
     .filter((client) => client.archivedAt === null)
     .flatMap((client) =>
       client.missions
-        .filter((mission) => mission.status !== 2)
+        .filter((mission) => !isMissionCompleted(mission.status))
         .map((mission) => ({
           billingMode: mission.billingMode,
           colorClass: COLOR_CLASSES[mission.color ?? client.color],

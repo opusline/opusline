@@ -2,6 +2,7 @@ import type { TimerState } from "@opusline/api-client";
 import { Button } from "@opusline/ui/components/button";
 import { Input } from "@opusline/ui/components/input";
 import { Clock, TriangleAlert } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 import { formatClock, formatStartedAt, isRunning } from "../lib/elapsed";
 import type { IdleNotice } from "../lib/idle";
@@ -22,6 +23,7 @@ import {
   RESUME,
   RUNNING_STATE,
   STOP_AND_SAVE,
+  startedAtLabel,
   trimIdle,
 } from "../lib/labels";
 
@@ -71,6 +73,13 @@ export function TimerDetailPopover({
   state,
 }: TimerDetailPopoverProps) {
   const running = isRunning(state);
+  const confirmRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (isConfirmingDiscard) {
+      confirmRef.current?.focus();
+    }
+  }, [isConfirmingDiscard]);
 
   return (
     <div className="flex flex-col">
@@ -79,7 +88,7 @@ export function TimerDetailPopover({
           {running ? RUNNING_STATE : PAUSED_STATE}
         </span>
         <span className="font-mono text-muted-foreground-3 text-xs tabular-nums">
-          {formatStartedAt(startedAt)}
+          {startedAtLabel(formatStartedAt(startedAt))}
         </span>
       </div>
 
@@ -173,6 +182,7 @@ export function TimerDetailPopover({
             <Button
               disabled={isBusy}
               onClick={onConfirmDiscard}
+              ref={confirmRef}
               variant="destructive"
             >
               {DISCARD_CONFIRM}

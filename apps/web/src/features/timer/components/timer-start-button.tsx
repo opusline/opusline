@@ -9,12 +9,7 @@ export type TimerStartButtonProps = {
 
 export function TimerStartButton({ onClick }: TimerStartButtonProps) {
   return (
-    <Button
-      className="bg-card-2"
-      onClick={onClick}
-      size="2xl"
-      variant="outline"
-    >
+    <Button onClick={onClick} size="2xl" surface="raised" variant="outline">
       <Play aria-hidden className="size-3 fill-current" />
       {START_BUTTON}
     </Button>

@@ -19,7 +19,14 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMachine } from "@xstate/react";
 import type { ReactNode } from "react";
-import { createContext, use, useEffect, useMemo, useRef } from "react";
+import {
+  createContext,
+  use,
+  useEffect,
+  useEffectEvent,
+  useMemo,
+  useRef,
+} from "react";
 import { collectNoteSuggestions } from "@/components/note-suggestions";
 import {
   addCalendarDays,
@@ -114,13 +121,11 @@ export function TimerProvider({
   const { clearIdleSpan, idleSpan, lastActivityAt } = useActivity();
 
   const timerId = timer?.id ?? null;
-  const serverNote = timer?.note ?? "";
-  const serverNoteRef = useRef(serverNote);
-  serverNoteRef.current = serverNote;
+  const latestServerNote = useEffectEvent(() => timer?.note ?? "");
 
   useEffect(() => {
     if (timerId !== null) {
-      send({ type: "SYNC_NOTE", note: serverNoteRef.current });
+      send({ type: "SYNC_NOTE", note: latestServerNote() });
     }
   }, [timerId, send]);
 
