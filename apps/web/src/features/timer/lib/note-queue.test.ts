@@ -64,3 +64,19 @@ it("resolves only once every queued write has finished", async () => {
 
   expect(done).toHaveBeenCalledTimes(1);
 });
+
+/** A lone failure must not surface as an unhandled rejection. */
+it("settles a failed write that nothing follows or awaits", async () => {
+  const unhandled = vi.fn();
+  process.on("unhandledRejection", unhandled);
+
+  const queue = createNoteQueue();
+  queue.push(() => Promise.reject(new Error("refused")));
+
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  process.off("unhandledRejection", unhandled);
+
+  expect(unhandled).not.toHaveBeenCalled();
+});

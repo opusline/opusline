@@ -16,10 +16,13 @@ export function createNoteQueue(): NoteQueue {
 
   return {
     push: (write) => {
-      chain = chain.catch(() => undefined).then(write);
+      // The catch goes last so the stored chain is always settled: a failed
+      // write with nothing queued behind it would otherwise be reported as an
+      // unhandled rejection.
+      chain = chain.then(write).catch(() => undefined);
     },
     settle: async () => {
-      await chain.catch(() => undefined);
+      await chain;
     },
   };
 }
