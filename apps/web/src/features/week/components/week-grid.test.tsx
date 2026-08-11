@@ -14,6 +14,7 @@ function renderGrid(
   overrides: {
     live?: LiveCell | null;
     timeEntries?: typeof DEMO_TIME_ENTRIES;
+    weekendShown?: boolean;
     writesSucceed?: boolean;
   } = {},
 ) {
@@ -30,10 +31,11 @@ function renderGrid(
       live={overrides.live ?? null}
       model={buildWeekGrid({
         clients: DEMO_CLIENTS,
+        liveMissionId: overrides.live?.missionId ?? null,
         timeEntries,
         today: DEMO_TODAY,
         week: DEMO_WEEK,
-        weekendShown: false,
+        weekendShown: overrides.weekendShown ?? false,
       })}
       noteSuggestions={[]}
       pendingCellKeys={new Set()}
@@ -532,4 +534,22 @@ it("names the running timer in the cell's accessible label", () => {
   expect(
     screen.getByRole("gridcell", { name: /en cours · 03:42:18/ }),
   ).toBeInTheDocument();
+});
+
+const SATURDAY = "2026-08-01";
+
+/*
+ * The weekend column is collapsed unless something forces it open, so a Saturday
+ * timer is the case where the pill can silently have nowhere to render.
+ */
+it("renders the live pill on a weekend day", () => {
+  renderGrid({
+    live: { ...RUNNING_ON_MONDAY, date: SATURDAY },
+    timeEntries: [],
+    weekendShown: true,
+  });
+
+  expect(
+    screen.getByRole("gridcell", { name: /OGF front, samedi 1 août/ }),
+  ).toHaveTextContent("en cours · 03:42:18");
 });

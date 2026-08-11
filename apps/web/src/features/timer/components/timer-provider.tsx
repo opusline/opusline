@@ -39,6 +39,7 @@ import { type IdleNotice, idleNotice, trimSeconds } from "../lib/idle";
 import { isLongRun, longRunHours, parseWorkedDuration } from "../lib/long-run";
 import type { TimerMissionOption } from "../lib/mission-options";
 import { findMissionById, trackableMissions } from "../lib/mission-options";
+import { createNoteQueue } from "../lib/note-queue";
 import { timerMachine } from "../lib/timer-machine";
 import { useActivity } from "../lib/use-activity";
 import { useLiveTimer } from "../lib/use-live-timer";
@@ -130,13 +131,23 @@ export function TimerProvider({
   }, [timerId, send]);
 
   const noteTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const noteWrites = useRef<Promise<unknown>>(Promise.resolve());
+  const noteWrites = useRef(createNoteQueue());
 
   const cancelPendingNote = () => {
     if (noteTimeout.current !== null) {
       clearTimeout(noteTimeout.current);
       noteTimeout.current = null;
     }
+  };
+
+  /*
+   * `PUT /timer` targets whichever timer is running when it lands, so a note
+   * still in flight when this one is stopped would be written onto the next
+   * timer the user starts. Drop what has not fired and wait out what has.
+   */
+  const settlePendingNotes = async () => {
+    cancelPendingNote();
+    await noteWrites.current.settle();
   };
 
   useEffect(
@@ -261,15 +272,13 @@ export function TimerProvider({
       noteTimeout.current = null;
       const trimmed = note.trim();
 
-      noteWrites.current = noteWrites.current
-        .catch(() => undefined)
-        .then(() =>
-          run(() =>
-            updateNote.mutateAsync({
-              body: { note: trimmed === "" ? null : trimmed },
-            }),
-          ),
-        );
+      noteWrites.current.push(() =>
+        run(() =>
+          updateNote.mutateAsync({
+            body: { note: trimmed === "" ? null : trimmed },
+          }),
+        ),
+      );
     }, NOTE_DEBOUNCE_MS);
   };
 
@@ -298,7 +307,7 @@ export function TimerProvider({
       return;
     }
 
-    cancelPendingNote();
+    await settlePendingNotes();
 
     const trimmed = state.context.noteDraft.trim();
     const saved = await run(() =>
@@ -345,9 +354,10 @@ export function TimerProvider({
     changeNote,
     close: () => send({ type: "CLOSE" }),
     confirmDiscard: () => {
-      cancelPendingNote();
       send({ type: "CONFIRM_DISCARD" });
-      void run(() => discardTimer.mutateAsync({}));
+      void settlePendingNotes().then(() =>
+        run(() => discardTimer.mutateAsync({})),
+      );
     },
     discard: () => send({ type: "DISCARD" }),
     dismissIdle: () => {
