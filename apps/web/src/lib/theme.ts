@@ -1,4 +1,5 @@
 import type { Theme } from "@opusline/api-client";
+import { readCookie } from "./cookies";
 
 export type ThemePreference = "system" | "light" | "dark";
 
@@ -43,17 +44,9 @@ export function themeFromPreference(preference: ThemePreference): Theme {
 }
 
 export function readThemeCookie(): ThemePreference | null {
-  const match = document.cookie.match(
-    new RegExp(`(?:^|; )${THEME_COOKIE}=([^;]*)`),
-  );
+  const value = readCookie(THEME_COOKIE);
 
-  if (match === null) {
-    return null;
-  }
-
-  const value = decodeURIComponent(match[1]);
-
-  return isThemePreference(value) ? value : null;
+  return value !== null && isThemePreference(value) ? value : null;
 }
 
 export function writeThemeCookie(preference: ThemePreference): void {

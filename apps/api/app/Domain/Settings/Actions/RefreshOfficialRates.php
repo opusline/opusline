@@ -16,6 +16,10 @@ class RefreshOfficialRates
 {
     private const int CACHE_HOURS = 24;
 
+    private const string UNAVAILABLE_KEY = 'official-rates:unavailable';
+
+    private const int UNAVAILABLE_MINUTES = 15;
+
     public function __construct(private readonly MonEntrepriseClient $client) {}
 
     /**
@@ -45,13 +49,24 @@ class RefreshOfficialRates
 
         if ($force) {
             Cache::forget($key);
+            Cache::forget(self::UNAVAILABLE_KEY);
+        }
+
+        if (Cache::has(self::UNAVAILABLE_KEY)) {
+            throw new RatesUnavailable('The official rate source was unreachable moments ago.');
         }
 
         $cached = Cache::remember(
             $key,
             CarbonImmutable::now()->addHours(self::CACHE_HOURS),
             function () use ($situation): array {
-                $fetched = $this->client->fetch($situation);
+                try {
+                    $fetched = $this->client->fetch($situation);
+                } catch (RatesUnavailable $exception) {
+                    Cache::put(self::UNAVAILABLE_KEY, true, CarbonImmutable::now()->addMinutes(self::UNAVAILABLE_MINUTES));
+
+                    throw $exception;
+                }
 
                 return [
                     'contributionRateBp' => $fetched->contributionRateBp,

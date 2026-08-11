@@ -48,11 +48,20 @@ test('reports whether ACRE applies', function (bool $acre, string $expected): vo
 test('gives situations that differ a different cache signature', function (): void {
     $standard = new RateSituation(false, CarbonImmutable::parse('2020-01-01'));
     $withAcre = new RateSituation(true, CarbonImmutable::parse('2020-01-01'));
-    $newer = new RateSituation(false, CarbonImmutable::parse('2026-01-01'));
+    $laterAcre = new RateSituation(true, CarbonImmutable::parse('2026-01-01'));
 
     expect($standard->signature())
         ->not->toBe($withAcre->signature())
-        ->and($standard->signature())->not->toBe($newer->signature());
+        ->and($withAcre->signature())->not->toBe($laterAcre->signature());
+});
+
+test('shares one signature across start dates when no ACRE is claimed', function (): void {
+    // The engine only reads the creation date to age the ACRE exoneration, so
+    // keying on it otherwise would give every account its own call to URSSAF.
+    $standard = new RateSituation(false, CarbonImmutable::parse('2020-01-01'));
+    $newer = new RateSituation(false, CarbonImmutable::parse('2026-01-01'));
+
+    expect($standard->signature())->toBe($newer->signature());
 });
 
 test('gives identical situations the same signature, so two accounts share one call', function (): void {

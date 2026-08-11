@@ -1826,15 +1826,6 @@ export type ShowUserSignatureErrors = {
          */
         message: string;
     };
-    /**
-     * Not found
-     */
-    404: {
-        /**
-         * Error overview.
-         */
-        message: string;
-    };
 };
 
 export type ShowUserSignatureError = ShowUserSignatureErrors[keyof ShowUserSignatureErrors];

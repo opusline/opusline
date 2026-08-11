@@ -43,3 +43,18 @@ test('is scheduled, so the compose service and the command cannot drift apart', 
         ->expectsOutputToContain('rates:refresh')
         ->assertSuccessful();
 });
+
+test('stops probing a source that just refused, instead of paying the timeout per account', function (): void {
+    Http::fake(['*/evaluate' => Http::response(status: 500)]);
+
+    // Two accounts in different situations, so the rate cache cannot be what
+    // spares the second call.
+    User::factory()->create();
+    $withAcre = User::factory()->create();
+    $withAcre->settings()->sole()->update(['acre' => true, 'business_started_on' => now()->subMonth()]);
+
+    $this->artisan('rates:refresh')->run();
+
+    // One read, retried once — not one per account.
+    Http::assertSentCount(2);
+});

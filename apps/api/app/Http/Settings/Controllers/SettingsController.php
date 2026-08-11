@@ -48,6 +48,6 @@ class SettingsController extends Controller
 
     private function hasSignature(User $user): bool
     {
-        return $user->media()->where('collection_name', 'signature')->exists();
+        return $user->hasMedia('signature');
     }
 }

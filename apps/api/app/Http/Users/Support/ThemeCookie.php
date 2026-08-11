@@ -31,7 +31,7 @@ class ThemeCookie
         return Cookie::forget(self::NAME, '/');
     }
 
-    public static function value(Theme $theme): string
+    private static function value(Theme $theme): string
     {
         return match ($theme) {
             Theme::System => 'system',

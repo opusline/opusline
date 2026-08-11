@@ -1,4 +1,9 @@
-import { Field, FieldError, FieldLabel } from "@opusline/ui/components/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@opusline/ui/components/field";
 import { Input } from "@opusline/ui/components/input";
 import { Textarea } from "@opusline/ui/components/textarea";
 import type * as React from "react";
@@ -26,6 +31,13 @@ type FormTextFieldProps = {
   font?: "sans" | "mono";
   type?: string;
   placeholder?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+  disabled?: boolean;
+  /** Shown under the control while it is valid, replaced by the error when not. */
+  description?: React.ReactNode;
+  /** Unit or symbol pinned inside the trailing edge of the control. */
+  adornment?: string;
+  fieldClassName?: string;
 };
 
 export function FormTextField({
@@ -37,6 +49,11 @@ export function FormTextField({
   font,
   type,
   placeholder,
+  inputMode,
+  disabled,
+  description,
+  adornment,
+  fieldClassName,
 }: FormTextFieldProps) {
   const isInvalid = !field.state.meta.isValid;
   const errorId = `${field.name}-error`;
@@ -45,7 +62,9 @@ export function FormTextField({
     "aria-invalid": isInvalid,
     "aria-describedby": isInvalid ? errorId : undefined,
     className: inputClassName,
+    disabled,
     id: field.name,
+    inputMode,
     onBlur: field.handleBlur,
     onChange: (
       event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -54,19 +73,32 @@ export function FormTextField({
     value: field.state.value,
   };
 
+  const control = multiline ? (
+    <Textarea {...controlProps} />
+  ) : (
+    <Input {...controlProps} font={font} type={type} />
+  );
+
   return (
-    <Field data-invalid={isInvalid}>
+    <Field className={fieldClassName} data-invalid={isInvalid}>
       <FieldLabel className={labelClassName} htmlFor={field.name}>
         {label}
       </FieldLabel>
-      {multiline ? (
-        <Textarea {...controlProps} />
+      {adornment === undefined ? (
+        control
       ) : (
-        <Input {...controlProps} font={font} type={type} />
+        <div className="relative">
+          {control}
+          <span className="-translate-y-1/2 pointer-events-none absolute top-1/2 right-3 text-muted-foreground-2 text-sm">
+            {adornment}
+          </span>
+        </div>
       )}
       {isInvalid ? (
         <FieldError errors={field.state.meta.errors} id={errorId} />
-      ) : null}
+      ) : description === undefined ? null : (
+        <FieldDescription>{description}</FieldDescription>
+      )}
     </Field>
   );
 }

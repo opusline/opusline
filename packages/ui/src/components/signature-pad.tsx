@@ -25,8 +25,8 @@ export type SignaturePadHandle = {
 
 type SignaturePadProps = {
   className?: string;
-  label?: string;
-  placeholder?: string;
+  label: string;
+  placeholder: string;
   onDrawingChange?: (hasDrawing: boolean) => void;
   ref?: Ref<SignaturePadHandle>;
 };
@@ -81,8 +81,8 @@ function paint(
 
 export function SignaturePad({
   className,
-  label = "Zone de signature",
-  placeholder = "Tracez votre signature ici",
+  label,
+  placeholder,
   onDrawingChange,
   ref,
 }: SignaturePadProps) {

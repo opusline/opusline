@@ -9,14 +9,15 @@ use App\Domain\Settings\Actions\UploadSignature;
 use App\Domain\Settings\Data\UploadSignatureData;
 use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
+use App\Http\Support\StreamsMedia;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SignatureController extends Controller
 {
+    use StreamsMedia;
+
     public function store(UploadSignatureData $data, #[CurrentUser] User $user, UploadSignature $uploadSignature): Response
     {
         $uploadSignature->handle($user, $data);
@@ -26,18 +27,7 @@ class SignatureController extends Controller
 
     public function show(#[CurrentUser] User $user): StreamedResponse
     {
-        $signature = $user->media()->where('collection_name', 'signature')->first();
-
-        abort_if(! $signature instanceof Media, 404);
-
-        return Storage::disk($signature->disk)->response(
-            $signature->getPathRelativeToRoot(),
-            $signature->file_name,
-            [
-                'Content-Security-Policy' => "default-src 'none'",
-                'Cache-Control' => 'no-store',
-            ],
-        );
+        return $this->streamSingleFile($user, 'signature');
     }
 
     public function destroy(#[CurrentUser] User $user, DeleteSignature $deleteSignature): Response

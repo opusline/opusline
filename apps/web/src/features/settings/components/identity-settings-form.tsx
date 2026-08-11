@@ -8,6 +8,7 @@ import {
   HOME_ADDRESS_NAMES,
 } from "../lib/settings-form";
 import type { SettingsForm } from "../lib/use-settings-form";
+import { SettingsSection } from "./settings-section";
 
 const EYEBROW =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-[.09em]";
@@ -15,14 +16,10 @@ const LABEL = "text-muted-foreground-2 text-xs";
 
 export function IdentitySettingsForm({ form }: { form: SettingsForm }) {
   return (
-    <div className="rounded-md border bg-card px-7 py-6.5">
-      <div className="mb-1 font-heading font-semibold text-[17px] text-foreground-hi">
-        Identité et coordonnées
-      </div>
-      <p className="mb-5.5 text-muted-foreground-3 text-sm leading-relaxed">
-        Composent l'en-tête de vos CRA et de vos factures.
-      </p>
-
+    <SettingsSection
+      description="Composent l'en-tête de vos CRA et de vos factures."
+      title="Identité et coordonnées"
+    >
       <div className="mb-5 flex items-center gap-3 rounded-md border bg-muted px-3.5 py-3">
         <span className="flex size-7.5 shrink-0 items-center justify-center rounded-md bg-primary/15">
           <House aria-hidden className="size-3.75 text-primary-text" />
@@ -199,6 +196,6 @@ export function IdentitySettingsForm({ form }: { form: SettingsForm }) {
           </p>
         )}
       </form.Subscribe>
-    </div>
+    </SettingsSection>
   );
 }

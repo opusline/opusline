@@ -36,7 +36,6 @@ export function useThemeControl() {
   return {
     theme,
     resolvedTheme,
-    isPending: updateTheme.isPending,
     setTheme: (next: ThemePreference) => {
       const previous = theme;
 

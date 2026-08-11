@@ -9,13 +9,14 @@ use App\Domain\Clients\Actions\UploadClientLogo;
 use App\Domain\Clients\Data\UploadClientLogoData;
 use App\Domain\Clients\Models\Client;
 use App\Http\Controllers\Controller;
+use App\Http\Support\StreamsMedia;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ClientLogoController extends Controller
 {
+    use StreamsMedia;
+
     public function store(UploadClientLogoData $data, Client $client, UploadClientLogo $uploadClientLogo): Response
     {
         $uploadClientLogo->handle($client, $data);
@@ -25,19 +26,7 @@ class ClientLogoController extends Controller
 
     public function show(Client $client): StreamedResponse
     {
-        $logo = $client->media()->where('collection_name', 'logo')->first();
-
-        abort_if(! $logo instanceof Media, 404);
-
-        return Storage::disk($logo->disk)->response(
-            $logo->getPathRelativeToRoot(),
-            $logo->file_name,
-            [
-                // The CSP header neuters scripts in SVG logos opened directly.
-                'Content-Security-Policy' => "default-src 'none'",
-                'Cache-Control' => 'no-store',
-            ],
-        );
+        return $this->streamSingleFile($client, 'logo');
     }
 
     public function destroy(Client $client, DeleteClientLogo $deleteClientLogo): Response

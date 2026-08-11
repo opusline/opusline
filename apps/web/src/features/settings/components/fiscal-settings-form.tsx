@@ -2,19 +2,17 @@ import type { UrssafPeriodicity, VatRegime } from "@opusline/api-client";
 import {
   Field,
   FieldDescription,
-  FieldError,
   FieldLabel,
   FieldLegend,
   FieldSet,
 } from "@opusline/ui/components/field";
-import { Input } from "@opusline/ui/components/input";
 import { RadioCard, RadioGroup } from "@opusline/ui/components/radio-group";
 import {
   SegmentedControl,
   SegmentedControlItem,
 } from "@opusline/ui/components/segmented-control";
 import { Switch } from "@opusline/ui/components/switch";
-
+import { FormTextField } from "@/components/form-text-field";
 import {
   URSSAF_PERIODICITIES,
   URSSAF_PERIODICITY_LABELS,
@@ -24,6 +22,7 @@ import {
 import { formatRateBp, parseRateBp } from "../lib/settings-form";
 import type { SettingsForm } from "../lib/use-settings-form";
 import { RateSource } from "./rate-source";
+import { SettingsSection } from "./settings-section";
 
 type FiscalSettingsFormProps = {
   form: SettingsForm;
@@ -53,17 +52,11 @@ export function FiscalSettingsForm({
   onRefreshRates,
 }: FiscalSettingsFormProps) {
   return (
-    <div className="flex flex-col gap-5.5 rounded-md border bg-card px-7 py-6.5">
-      <div>
-        <div className="mb-1 font-heading font-semibold text-[17px] text-foreground-hi">
-          Fiscalité
-        </div>
-        <p className="text-muted-foreground-3 text-sm leading-relaxed">
-          Ces valeurs pilotent les provisions et les échéances calculées par
-          l'app.
-        </p>
-      </div>
-
+    <SettingsSection
+      className="flex flex-col gap-5.5"
+      description="Ces valeurs pilotent les provisions et les échéances calculées par l'app."
+      title="Fiscalité"
+    >
       <div className="flex items-center justify-between gap-4 rounded-md border bg-muted px-4 py-3.5">
         <div>
           <div className="mb-1 text-muted-foreground-2 text-xs">
@@ -123,53 +116,32 @@ export function FiscalSettingsForm({
                 : undefined,
           }}
         >
-          {(field) => {
-            const isInvalid = !field.state.meta.isValid;
-
-            return (
-              <Field data-invalid={isInvalid}>
-                <FieldLabel
-                  className="text-foreground-3 text-sm"
-                  htmlFor={field.name}
-                >
-                  Taux de cotisations
-                </FieldLabel>
-                <div className="relative">
-                  <form.Subscribe selector={(state) => state.values.autoRates}>
-                    {(autoRates) => (
-                      <Input
-                        aria-invalid={isInvalid}
-                        className="pr-8"
-                        disabled={autoRates}
-                        font="mono"
-                        id={field.name}
-                        inputMode="decimal"
-                        onBlur={field.handleBlur}
-                        onChange={(event) =>
-                          field.handleChange(event.target.value)
+          {(field) => (
+            <form.Subscribe selector={(state) => state.values.autoRates}>
+              {(autoRates) => (
+                <FormTextField
+                  adornment="%"
+                  description="Taux BNC prestations de service, repris de l'URSSAF."
+                  disabled={autoRates}
+                  field={{
+                    name: field.name,
+                    state: autoRates
+                      ? {
+                          ...field.state,
+                          value: formatRateBp(contributionRateBp),
                         }
-                        value={
-                          autoRates
-                            ? formatRateBp(contributionRateBp)
-                            : field.state.value
-                        }
-                      />
-                    )}
-                  </form.Subscribe>
-                  <span className="-translate-y-1/2 pointer-events-none absolute top-1/2 right-3 text-muted-foreground-2 text-sm">
-                    %
-                  </span>
-                </div>
-                {isInvalid ? (
-                  <FieldError errors={field.state.meta.errors} />
-                ) : (
-                  <FieldDescription>
-                    Taux BNC prestations de service, repris de l'URSSAF.
-                  </FieldDescription>
-                )}
-              </Field>
-            );
-          }}
+                      : field.state,
+                    handleBlur: field.handleBlur,
+                    handleChange: field.handleChange,
+                  }}
+                  font="mono"
+                  inputMode="decimal"
+                  label="Taux de cotisations"
+                  labelClassName="text-foreground-3 text-sm"
+                />
+              )}
+            </form.Subscribe>
+          )}
         </form.Field>
       </div>
 
@@ -239,6 +211,6 @@ export function FiscalSettingsForm({
           </FieldSet>
         )}
       </form.Field>
-    </div>
+    </SettingsSection>
   );
 }

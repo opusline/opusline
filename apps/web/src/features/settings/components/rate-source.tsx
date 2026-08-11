@@ -7,6 +7,32 @@ import { FormTextField } from "@/components/form-text-field";
 import { fullDateLabel } from "@/lib/dates";
 import type { SettingsForm } from "../lib/use-settings-form";
 
+function rateStatusLabel({
+  refreshError,
+  isSituationUnsaved,
+  ratesCheckedAt,
+  ratesYear,
+}: {
+  refreshError: string | null;
+  isSituationUnsaved: boolean;
+  ratesCheckedAt: string | null;
+  ratesYear: number | null;
+}): string {
+  if (refreshError !== null) {
+    return refreshError;
+  }
+
+  if (isSituationUnsaved) {
+    return "Enregistrez pour appliquer le barème à cette situation.";
+  }
+
+  if (ratesCheckedAt === null) {
+    return "Barème jamais lu";
+  }
+
+  return `Barème ${ratesYear} · dernière vérification le ${fullDateLabel(ratesCheckedAt)}`;
+}
+
 type RateSourceProps = {
   form: SettingsForm;
   ratesCheckedAt: string | null;
@@ -78,12 +104,12 @@ export function RateSource({
                   aria-live="polite"
                   className="min-w-40 flex-1 text-foreground-3 text-sm"
                 >
-                  {refreshError ??
-                    (isSituationUnsaved
-                      ? "Enregistrez pour appliquer le barème à cette situation."
-                      : ratesCheckedAt === null
-                        ? "Barème jamais lu"
-                        : `Barème ${ratesYear} · dernière vérification le ${fullDateLabel(ratesCheckedAt)}`)}
+                  {rateStatusLabel({
+                    refreshError,
+                    isSituationUnsaved,
+                    ratesCheckedAt,
+                    ratesYear,
+                  })}
                 </span>
                 <Button
                   disabled={isRefreshing || isSituationUnsaved}

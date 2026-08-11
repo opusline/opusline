@@ -16,7 +16,10 @@ type Story = StoryObj<typeof SignaturePad>;
 export const Default: Story = {
   render: () => (
     <div className="max-w-2xl">
-      <SignaturePad />
+      <SignaturePad
+        label="Signature area"
+        placeholder="Draw your signature here"
+      />
     </div>
   ),
 };
@@ -29,7 +32,12 @@ export const WithActions: Story = {
 
     return (
       <div className="flex max-w-2xl flex-col gap-3.5">
-        <SignaturePad onDrawingChange={setHasDrawing} ref={padRef} />
+        <SignaturePad
+          label="Signature area"
+          placeholder="Draw your signature here"
+          onDrawingChange={setHasDrawing}
+          ref={padRef}
+        />
         <div className="flex items-center gap-2">
           <Button
             disabled={!hasDrawing}

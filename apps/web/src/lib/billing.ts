@@ -46,20 +46,24 @@ export function formatRateDraft(raw: string): string {
   return `${grouped},${decimalParts.join("").slice(0, 2)}`;
 }
 
-export function parseRateToCents(draft: string): number | null {
+const DECIMAL = /^\d+(?:\.\d+)?$/;
+
+/**
+ * Refuses anything that is not a single plain decimal. `Number.parseFloat`
+ * stops at the first stray separator and hands back a silently truncated
+ * number instead — « 1,234,5 » has to be an error, not 1,23.
+ */
+export function parseDecimal(draft: string): number | null {
   const normalized = draft.replace(/[\s\u202f]/g, "").replace(",", ".");
 
-  if (normalized === "") {
-    return null;
-  }
+  return DECIMAL.test(normalized) ? Number.parseFloat(normalized) : null;
+}
 
-  const amount = Number.parseFloat(normalized);
+/** Zero is refused: a mission billed at nothing is a mistake, not a price. */
+export function parseRateToCents(draft: string): number | null {
+  const amount = parseDecimal(draft);
 
-  if (Number.isNaN(amount) || amount <= 0) {
-    return null;
-  }
-
-  return Math.round(amount * 100);
+  return amount === null || amount <= 0 ? null : Math.round(amount * 100);
 }
 
 export function missionBills(mission: MissionData): boolean {

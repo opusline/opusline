@@ -165,3 +165,16 @@ test('caches the barème as plain values, so a serialized cache cannot poison it
     ]);
     expect($cached->get('readAt'))->toBeString();
 });
+
+test('lets an explicit check retry a source that just refused', function (): void {
+    // « Vérifier maintenant » is the user saying "try again now", so it clears
+    // the short-lived unavailable marker rather than answering from it.
+    Http::fake(['*/evaluate' => Http::response(status: 500)]);
+    $user = User::factory()->create();
+
+    $this->actingAs($user)->postJson('/api/settings/rates/refresh')->assertStatus(503);
+    $this->actingAs($user)->postJson('/api/settings/rates/refresh')->assertStatus(503);
+
+    // Two reads, each retried once by the client.
+    Http::assertSentCount(4);
+});

@@ -5,7 +5,8 @@ import type {
   VatRegime,
 } from "@opusline/api-client";
 
-import { formatAmount } from "@/lib/billing";
+import { formatAmount, parseDecimal } from "@/lib/billing";
+import { valueOrNull } from "@/lib/form";
 
 export const SETTINGS_TABS = [
   "identite",
@@ -27,12 +28,6 @@ export const SETTINGS_TAB_DETAILS: Record<
   facturation: { label: "Facturation", hint: "Délais, numérotation, matelas" },
   apparence: { label: "Apparence", hint: "Thème de l'interface" },
 };
-
-export const FORM_TABS: SettingsTab[] = [
-  "identite",
-  "fiscalite",
-  "facturation",
-];
 
 export function isSettingsTab(value: unknown): value is SettingsTab {
   return SETTINGS_TABS.includes(value as SettingsTab);
@@ -82,12 +77,6 @@ export const HOME_ADDRESS_NAMES = {
 
 function text(value: string | null): string {
   return value ?? "";
-}
-
-function valueOrNull(value: string): string | null {
-  const trimmed = value.trim();
-
-  return trimmed === "" ? null : trimmed;
 }
 
 export function toSettingsValues(settings: SettingsData): SettingsFormValues {
@@ -179,16 +168,36 @@ export function countChanges(
   }).length;
 }
 
-const FIELD_TAB: Partial<Record<keyof SettingsFormValues, SettingsTab>> = {
-  contributionRate: "fiscalite",
+const FIELD_TAB: Record<keyof SettingsFormValues, SettingsTab> = {
+  tradeName: "identite",
+  siret: "identite",
+  vatNumber: "identite",
+  signatureCity: "identite",
+  contactEmail: "identite",
+  phone: "identite",
+  companyAddressLine1: "identite",
+  companyAddressLine2: "identite",
+  companyPostalCode: "identite",
+  companyCity: "identite",
+  homeAddressSameAsCompany: "identite",
+  homeAddressLine1: "identite",
+  homeAddressLine2: "identite",
+  homePostalCode: "identite",
+  homeCity: "identite",
+  urssafPeriodicity: "fiscalite",
+  autoRates: "fiscalite",
+  acre: "fiscalite",
   businessStartedOn: "fiscalite",
-  treasuryBuffer: "facturation",
-  invoiceNumberFormat: "facturation",
+  contributionRate: "fiscalite",
+  liberatingPayment: "fiscalite",
+  vatRegime: "fiscalite",
   defaultPaymentTermsDays: "facturation",
+  invoiceNumberFormat: "facturation",
+  treasuryBuffer: "facturation",
 };
 
-export function tabOwningField(field: string): SettingsTab {
-  return FIELD_TAB[field as keyof SettingsFormValues] ?? "identite";
+export function tabOwningField(field: string): SettingsTab | undefined {
+  return FIELD_TAB[field as keyof SettingsFormValues];
 }
 
 export function unsavedChangesLabel(count: number): string {
@@ -211,14 +220,6 @@ const percent = new Intl.NumberFormat("fr-FR", {
 
 export function formatRateBp(basisPoints: number): string {
   return percent.format(basisPoints / 100);
-}
-
-const DECIMAL = /^\d+(?:\.\d+)?$/;
-
-function parseDecimal(draft: string): number | null {
-  const normalized = draft.replace(/[\s ]/g, "").replace(",", ".");
-
-  return DECIMAL.test(normalized) ? Number.parseFloat(normalized) : null;
 }
 
 export function parseRateBp(draft: string): number | null {

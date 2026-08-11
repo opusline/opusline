@@ -46,7 +46,12 @@ class RateSituation
 
     public function signature(): string
     {
-        return md5(serialize($this->toArray()));
+        return md5(serialize([
+            ...$this->toArray(),
+            'entreprise . date de création' => $this->acre
+                ? $this->createdOn()->format('d/m/Y')
+                : 'sans objet',
+        ]));
     }
 
     private function createdOn(): CarbonImmutable

@@ -6,6 +6,7 @@ import {
 } from "@opusline/ui/components/signature-pad";
 import { CircleAlert, PencilLine, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
+import { SettingsSection } from "./settings-section";
 
 type SignatureSettingsProps = {
   hasSignature: boolean;
@@ -51,15 +52,10 @@ export function SignatureSettings({
   };
 
   return (
-    <div className="rounded-md border bg-card px-7 py-6.5">
-      <div className="mb-1 font-heading font-semibold text-[17px] text-foreground-hi">
-        Signature
-      </div>
-      <p className="mb-5 text-muted-foreground-3 text-sm leading-relaxed">
-        Signez une fois à la souris ou au trackpad. Opusline l'appose sur chaque
-        CRA et chaque facture générés.
-      </p>
-
+    <SettingsSection
+      description="Signez une fois à la souris ou au trackpad. Opusline l'appose sur chaque CRA et chaque facture générés."
+      title="Signature"
+    >
       {error === null ? null : (
         <Alert className="mb-3.5" variant="warn">
           <CircleAlert />
@@ -107,7 +103,12 @@ export function SignatureSettings({
         </div>
       ) : (
         <div>
-          <SignaturePad onDrawingChange={setHasDrawing} ref={padRef} />
+          <SignaturePad
+            label="Zone de signature"
+            placeholder="Tracez votre signature ici"
+            onDrawingChange={setHasDrawing}
+            ref={padRef}
+          />
           <div className="mt-3.5 flex flex-wrap items-center gap-2">
             <Button
               disabled={!hasDrawing || isPending}
@@ -135,6 +136,6 @@ export function SignatureSettings({
           </div>
         </div>
       )}
-    </div>
+    </SettingsSection>
   );
 }
