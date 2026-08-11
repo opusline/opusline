@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.0](https://github.com/opusline/opusline/compare/v0.4.0...v0.5.0) (2026-08-11)
+
+
+### Features
+
+* **api:** add persistent timers and lifecycle actions ([#82](https://github.com/opusline/opusline/issues/82)) ([e9d8106](https://github.com/opusline/opusline/commit/e9d81069e66ad636dccbdd1481f2d083795101e5))
+* **web:** add live timer tracking and rounding workflows ([#85](https://github.com/opusline/opusline/issues/85)) ([1b9bfec](https://github.com/opusline/opusline/commit/1b9bfeccc4f72e2540121210c28238a74eb2d0a8))
+
 ## [0.4.0](https://github.com/opusline/opusline/compare/v0.3.0...v0.4.0) (2026-08-10)
 
 
