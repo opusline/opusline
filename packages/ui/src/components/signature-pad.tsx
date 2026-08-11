@@ -220,6 +220,7 @@ export function SignaturePad({
     event.currentTarget.setPointerCapture(event.pointerId);
     isDrawingRef.current = true;
     strokesRef.current = [...strokesRef.current, [point]];
+    markDrawing(true);
     repaint();
   };
 
@@ -235,10 +236,6 @@ export function SignaturePad({
 
     stroke.push(point);
     repaint();
-
-    if (!hasDrawing) {
-      markDrawing(true);
-    }
   };
 
   const endStroke = () => {

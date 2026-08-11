@@ -20,6 +20,22 @@ Element.prototype.setPointerCapture = () => {};
 Element.prototype.releasePointerCapture = () => {};
 Element.prototype.hasPointerCapture = () => false;
 
+// jsdom ships no 2D context, so anything drawing on a canvas silently gives up
+// and a test can never reach what the drawing was for. Record nothing, answer
+// everything.
+HTMLCanvasElement.prototype.getContext = (() =>
+  new Proxy(
+    { canvas: null },
+    {
+      get: (target, key) =>
+        key in target ? target[key as "canvas"] : () => {},
+    },
+  )) as unknown as HTMLCanvasElement["getContext"];
+
+HTMLCanvasElement.prototype.toBlob = function toBlob(callback, type) {
+  callback(new Blob([], { type: type ?? "image/png" }));
+};
+
 if (!window.ResizeObserver) {
   window.ResizeObserver = class {
     observe() {}

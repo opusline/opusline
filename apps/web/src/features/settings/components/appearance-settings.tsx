@@ -12,6 +12,8 @@ import {
 } from "@/lib/theme";
 import { SettingsSection } from "./settings-section";
 
+const SYSTEM_HINT_ID = "appearance-theme-hint";
+
 type AppearanceSettingsProps = {
   theme: ThemePreference;
   onChange: (theme: ThemePreference) => void;
@@ -31,6 +33,7 @@ export function AppearanceSettings({
           Thème
         </FieldLabel>
         <SegmentedControl
+          aria-describedby={SYSTEM_HINT_ID}
           aria-label="Thème"
           className="max-w-96"
           id="appearance-theme"
@@ -51,7 +54,10 @@ export function AppearanceSettings({
         </SegmentedControl>
       </Field>
 
-      <p className="mt-2.5 text-muted-foreground-3 text-xs leading-relaxed">
+      <p
+        className="mt-2.5 text-muted-foreground-3 text-xs leading-relaxed"
+        id={SYSTEM_HINT_ID}
+      >
         « Système » suit le réglage clair/sombre de votre appareil.
       </p>
     </SettingsSection>

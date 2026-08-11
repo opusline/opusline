@@ -38,6 +38,8 @@ type FormTextFieldProps = {
   /** Unit or symbol pinned inside the trailing edge of the control. */
   adornment?: string;
   fieldClassName?: string;
+  /** Id of extra text describing the control, announced after the description. */
+  describedBy?: string;
 };
 
 export function FormTextField({
@@ -54,13 +56,22 @@ export function FormTextField({
   description,
   adornment,
   fieldClassName,
+  describedBy,
 }: FormTextFieldProps) {
   const isInvalid = !field.state.meta.isValid;
   const errorId = `${field.name}-error`;
+  const descriptionId = `${field.name}-description`;
+
+  const hint = isInvalid
+    ? errorId
+    : description === undefined
+      ? undefined
+      : descriptionId;
 
   const controlProps = {
     "aria-invalid": isInvalid,
-    "aria-describedby": isInvalid ? errorId : undefined,
+    "aria-describedby":
+      [hint, describedBy].filter(Boolean).join(" ") || undefined,
     className: inputClassName,
     disabled,
     id: field.name,
@@ -97,7 +108,7 @@ export function FormTextField({
       {isInvalid ? (
         <FieldError errors={field.state.meta.errors} id={errorId} />
       ) : description === undefined ? null : (
-        <FieldDescription>{description}</FieldDescription>
+        <FieldDescription id={descriptionId}>{description}</FieldDescription>
       )}
     </Field>
   );

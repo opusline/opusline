@@ -6,12 +6,13 @@ import {
   TabsList,
   TabsTrigger,
 } from "@opusline/ui/components/tabs";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 import type { FormSubmitResult } from "@/lib/form";
 import type { ThemePreference } from "@/lib/theme";
 import {
   countChanges,
+  formatRateBp,
   SETTINGS_TAB_DETAILS,
   SETTINGS_TABS,
   type SettingsTab,
@@ -65,6 +66,14 @@ export function SettingsPage({
 }: SettingsPageProps) {
   const form = useSettingsForm(settings, onSubmit);
   const savedValues = useMemo(() => toSettingsValues(settings), [settings]);
+  const savedContributionRate = formatRateBp(settings.contributionRateBp);
+
+  useEffect(() => {
+    form.setFieldValue("contributionRate", savedContributionRate, {
+      dontUpdateMeta: true,
+      dontValidate: true,
+    });
+  }, [form, savedContributionRate]);
 
   return (
     <div>

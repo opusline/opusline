@@ -57,11 +57,13 @@ class MonEntrepriseClient
             throw new RatesUnavailable("The official rate source answered {$response->status()}.");
         }
 
+        $readAt = CarbonImmutable::now();
+
         return new OfficialRates(
             contributionRateBp: $this->percentToBasisPoints($response, 0),
             liberatingPaymentRateBp: $this->amountToBasisPoints($response, 1, $probeRevenue),
-            year: CarbonImmutable::now()->year,
-            readAt: CarbonImmutable::now(),
+            year: $readAt->year,
+            readAt: $readAt,
         );
     }
 

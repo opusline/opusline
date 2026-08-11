@@ -31,6 +31,10 @@ export const Saved: Story = {
   args: { hasSignature: true },
 };
 
+/** Saving a drawn signature keeps the pad open, so the strokes are not lost. */
 export const UploadFailed: Story = {
-  args: { error: "L'envoi a échoué. Réessayez dans un instant." },
+  args: {
+    error: "L'envoi a échoué. Réessayez dans un instant.",
+    onSave: async () => false,
+  },
 };

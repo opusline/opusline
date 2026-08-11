@@ -29,6 +29,11 @@ export function SignatureSettings({
   const [isPadOpen, setIsPadOpen] = useState(!hasSignature);
   const [hasDrawing, setHasDrawing] = useState(false);
 
+  const closePad = () => {
+    setIsPadOpen(false);
+    setHasDrawing(false);
+  };
+
   const save = async () => {
     const blob = await padRef.current?.toBlob();
 
@@ -41,14 +46,8 @@ export function SignatureSettings({
     );
 
     if (saved) {
-      setIsPadOpen(false);
-      setHasDrawing(false);
+      closePad();
     }
-  };
-
-  const closePad = () => {
-    setIsPadOpen(false);
-    setHasDrawing(false);
   };
 
   return (
@@ -118,7 +117,7 @@ export function SignatureSettings({
               Enregistrer la signature
             </Button>
             <Button
-              disabled={!hasDrawing}
+              disabled={!hasDrawing || isPending}
               onClick={() => {
                 padRef.current?.clear();
                 setHasDrawing(false);
@@ -129,7 +128,12 @@ export function SignatureSettings({
               Effacer
             </Button>
             {hasSignature ? (
-              <Button onClick={closePad} size="2xl" variant="ghost">
+              <Button
+                disabled={isPending}
+                onClick={closePad}
+                size="2xl"
+                variant="ghost"
+              >
                 Annuler
               </Button>
             ) : null}

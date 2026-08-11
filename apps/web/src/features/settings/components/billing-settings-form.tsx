@@ -63,6 +63,7 @@ export function BillingSettingsForm({ form }: { form: SettingsForm }) {
         {(field) => (
           <>
             <FormTextField
+              describedBy={`${field.name}-preview`}
               description="Jetons disponibles : AAAA (année), MM (mois), NNN (compteur)."
               field={field}
               font="mono"
@@ -70,7 +71,11 @@ export function BillingSettingsForm({ form }: { form: SettingsForm }) {
               label="Numérotation des factures"
               labelClassName="text-foreground-3 text-sm"
             />
-            <span className="mt-2 block text-muted-foreground-3 text-sm">
+            <span
+              aria-live="polite"
+              className="mt-2 block text-muted-foreground-3 text-sm"
+              id={`${field.name}-preview`}
+            >
               Prochaine :{" "}
               <span className="font-mono text-foreground-3">
                 {previewInvoiceNumber(field.state.value, new Date())}

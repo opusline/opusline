@@ -24,6 +24,7 @@ const meta = {
       onSave: async () => true,
       onRemove: () => {},
     },
+    rates: { isRefreshing: false, error: null, onRefresh: () => {} },
   },
 } satisfies Meta<typeof SettingsPage>;
 

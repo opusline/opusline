@@ -8,26 +8,6 @@ use App\Domain\Shared\Enums\Currency;
 use App\Domain\Users\Models\User;
 use Illuminate\Support\Facades\Http;
 
-/**
- * @param  array<string, mixed>  $overrides
- * @return array<string, mixed>
- */
-function settingsPayload(array $overrides = []): array
-{
-    return array_merge([
-        'urssafPeriodicity' => UrssafPeriodicity::Monthly->value,
-        'autoRates' => false,
-        'acre' => false,
-        'contributionRateBp' => 2600,
-        'liberatingPayment' => false,
-        'liberatingPaymentRateBp' => 220,
-        'vatRegime' => VatRegime::FranchiseEnBase->value,
-        'defaultPaymentTermsDays' => 45,
-        'invoiceNumberFormat' => 'AAAA-NNN',
-        'homeAddressSameAsCompany' => true,
-    ], $overrides);
-}
-
 test('saves the company identity', function (): void {
     $user = User::factory()->create();
 
@@ -155,6 +135,7 @@ test('rejects an invalid payload', function (array $overrides, string $expectedE
     'negative payment terms' => [['defaultPaymentTermsDays' => -1], 'defaultPaymentTermsDays'],
     'invoice format without a counter' => [['invoiceNumberFormat' => 'AAAA-MM'], 'invoiceNumberFormat'],
     'invoice format with an unknown token' => [['invoiceNumberFormat' => 'NNN-<client>'], 'invoiceNumberFormat'],
+    'business start date in the wrong format' => [['acre' => true, 'businessStartedOn' => '01/03/2026'], 'businessStartedOn'],
     'malformed siret' => [['siret' => '123'], 'siret'],
     'malformed vat number' => [['vatNumber' => 'nope'], 'vatNumber'],
     'malformed contact email' => [['contactEmail' => 'not-an-email'], 'contactEmail'],

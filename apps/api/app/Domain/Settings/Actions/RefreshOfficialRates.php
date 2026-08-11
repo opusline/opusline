@@ -52,14 +52,14 @@ class RefreshOfficialRates
             Cache::forget(self::UNAVAILABLE_KEY);
         }
 
-        if (Cache::has(self::UNAVAILABLE_KEY)) {
-            throw new RatesUnavailable('The official rate source was unreachable moments ago.');
-        }
-
         $cached = Cache::remember(
             $key,
             CarbonImmutable::now()->addHours(self::CACHE_HOURS),
             function () use ($situation): array {
+                if (Cache::has(self::UNAVAILABLE_KEY)) {
+                    throw new RatesUnavailable('The official rate source was unreachable moments ago.');
+                }
+
                 try {
                     $fetched = $this->client->fetch($situation);
                 } catch (RatesUnavailable $exception) {

@@ -278,6 +278,26 @@ it("follows the barème when a refresh moves the rate", () => {
   expect(screen.queryByText(/modification/)).not.toBeInTheDocument();
 });
 
+it("takes on a saved value that arrived from elsewhere, while untouched", () => {
+  const { rerenderWith } = renderPage();
+
+  rerenderWith({ ...settingsFixture, tradeName: "Nordlys" });
+
+  expect(screen.getByLabelText("Nom commercial")).toHaveValue("Nordlys");
+});
+
+it("hands back the refreshed rate, not the one the page opened with", () => {
+  const { rerenderWith } = renderPage({ activeTab: "fiscalite" });
+
+  // An edit anywhere stops the draft following the server wholesale, but the
+  // barème is not the user's to keep a stale copy of.
+  editTradeName("Nordlys");
+  rerenderWith({ ...settingsFixture, contributionRateBp: 1280 });
+  fireEvent.click(screen.getByRole("switch", { name: "Source des taux" }));
+
+  expect(screen.getByLabelText("Taux de cotisations")).toHaveValue("12,8");
+});
+
 it("will not re-read the barème for a situation that is not saved yet", () => {
   const { rates } = renderPage({ activeTab: "fiscalite" });
 
@@ -362,7 +382,27 @@ it("accepts a treasury buffer of zero, the value its placeholder shows", () => {
   ).not.toBeInTheDocument();
 });
 
+it("takes a tap for a signature, since it leaves a mark on the pad", () => {
+  renderPage({
+    activeTab: "signature",
+    settings: { ...settingsFixture, hasSignature: false },
+  });
+
+  const pad = screen.getByRole("img", { name: "Zone de signature" });
+  fireEvent.pointerDown(pad, { clientX: 10, clientY: 10, pointerId: 1 });
+  fireEvent.pointerUp(pad, { pointerId: 1 });
+
+  expect(
+    screen.getByRole("button", { name: "Enregistrer la signature" }),
+  ).toBeEnabled();
+  expect(
+    screen.queryByText("Tracez votre signature ici"),
+  ).not.toBeInTheDocument();
+});
+
 it("keeps the signature pad open when the upload fails", async () => {
+  const onSave = vi.fn().mockResolvedValue(false);
+
   renderPage({
     activeTab: "signature",
     settings: { ...settingsFixture, hasSignature: false },
@@ -370,7 +410,7 @@ it("keeps the signature pad open when the upload fails", async () => {
       src: "",
       isPending: false,
       error: null,
-      onSave: vi.fn().mockResolvedValue(false),
+      onSave,
       onRemove: vi.fn(),
     },
   });
@@ -384,8 +424,10 @@ it("keeps the signature pad open when the upload fails", async () => {
     await screen.findByRole("button", { name: "Enregistrer la signature" }),
   );
 
+  await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1));
+
   // The pad holds the only copy of the strokes; closing it would lose them.
   expect(
-    await screen.findByRole("img", { name: "Zone de signature" }),
+    screen.getByRole("img", { name: "Zone de signature" }),
   ).toBeInTheDocument();
 });

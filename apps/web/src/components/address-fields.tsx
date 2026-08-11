@@ -42,13 +42,16 @@ export function AddressFields<TName extends string>({
 }: AddressFieldsProps<TName>) {
   const placeholder = (value: string) => (withPlaceholders ? value : undefined);
 
-  const fillFromSuggestion = (postalCode: string, city: string) => {
-    setFieldValue(names.postalCode, postalCode);
-    setFieldValue(names.city, city);
-
+  const setCountryToFrance = () => {
     if (names.country !== undefined) {
       setFieldValue(names.country, "France");
     }
+  };
+
+  const fillFromSuggestion = (postalCode: string, city: string) => {
+    setFieldValue(names.postalCode, postalCode);
+    setFieldValue(names.city, city);
+    setCountryToFrance();
   };
 
   return (
@@ -97,10 +100,7 @@ export function AddressFields<TName extends string>({
             onSelect={(suggestion) => {
               field.handleChange(suggestion.city);
               setFieldValue(names.postalCode, suggestion.postalCode);
-
-              if (names.country !== undefined) {
-                setFieldValue(names.country, "France");
-              }
+              setCountryToFrance();
             }}
             placeholder={placeholder("Ville")}
           />

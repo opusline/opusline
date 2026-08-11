@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 use App\Domain\Settings\Rates\RateSituation;
 use App\Domain\Users\Models\User;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Sleep;
+use Illuminate\Testing\TestResponse;
 
 test('applies the official barème', function (): void {
     fakeBareme();
@@ -169,6 +172,7 @@ test('caches the barème as plain values, so a serialized cache cannot poison it
 test('lets an explicit check retry a source that just refused', function (): void {
     // « Vérifier maintenant » is the user saying "try again now", so it clears
     // the short-lived unavailable marker rather than answering from it.
+    Sleep::fake();
     Http::fake(['*/evaluate' => Http::response(status: 500)]);
     $user = User::factory()->create();
 
@@ -178,3 +182,42 @@ test('lets an explicit check retry a source that just refused', function (): voi
     // Two reads, each retried once by the client.
     Http::assertSentCount(4);
 });
+
+test('still serves a barème held in cache while the source is refusing', function (): void {
+    // The marker exists to stop doomed calls, not to withhold a barème that was
+    // read successfully minutes ago for a situation nobody has failed on.
+    Sleep::fake();
+    Http::fake(fn (Request $request) => $request->data()['situation']['dirigeant . exonérations . ACRE'] === 'oui'
+        ? Http::response(status: 500)
+        : Http::response(['evaluate' => [['nodeValue' => 25.6], ['nodeValue' => 220]]]));
+
+    adoptOfficialRates(User::factory()->create())
+        ->assertOk()
+        ->assertJsonPath('contributionRateBp', 2560);
+
+    adoptOfficialRates(User::factory()->create(), [
+        'acre' => true,
+        'businessStartedOn' => now()->subMonths(2)->format('Y-m-d'),
+    ])->assertOk()->assertJsonPath('ratesCheckedAt', null);
+
+    adoptOfficialRates(User::factory()->create())
+        ->assertOk()
+        ->assertJsonPath('contributionRateBp', 2560)
+        ->assertJsonPath('ratesYear', now()->year);
+});
+
+/**
+ * Switch an account from its own rate to the official source, which is what
+ * makes a save re-read the barème.
+ *
+ * @param  array<string, mixed>  $overrides
+ */
+function adoptOfficialRates(User $user, array $overrides = []): TestResponse
+{
+    $user->settings()->sole()->update(['auto_rates' => false]);
+
+    return test()->actingAs($user)->putJson(
+        '/api/settings',
+        settingsPayload(['autoRates' => true, ...$overrides]),
+    );
+}
