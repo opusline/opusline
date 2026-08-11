@@ -1,6 +1,24 @@
 import { ClockIcon } from "lucide-react";
 
 const MAX_SUGGESTIONS = 3;
+const MAX_COLLECTED = 8;
+
+export function collectNoteSuggestions(
+  entries: { missionId: number; note: string | null }[],
+  missionId?: number,
+): string[] {
+  const notes = entries
+    .filter(
+      (entry) =>
+        (missionId === undefined || entry.missionId === missionId) &&
+        entry.note !== null &&
+        entry.note.trim() !== "",
+    )
+    .reverse()
+    .map((entry) => entry.note as string);
+
+  return [...new Set(notes)].slice(0, MAX_COLLECTED);
+}
 
 export function matchingNotes(notes: string[], typed: string): string[] {
   const query = typed.trim().toLowerCase();

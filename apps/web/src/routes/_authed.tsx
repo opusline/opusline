@@ -14,6 +14,8 @@ import { Menu } from "lucide-react";
 
 import { AppSidebar } from "@/components/app-sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
+import { TimerContainer } from "@/features/timer/components/timer-container";
+import { TimerProvider } from "@/features/timer/components/timer-provider";
 
 export const Route = createFileRoute("/_authed")({
   beforeLoad: async ({ context, location }) => {
@@ -63,27 +65,31 @@ function ExpandSidebarButton() {
 }
 
 function AuthedLayout() {
+  const { user } = Route.useRouteContext();
   const { pathname } = useLocation();
   const pageTitle = Object.entries(pageTitles).find(([prefix]) =>
     pathname.startsWith(prefix),
   )?.[1];
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-14 items-center gap-2 border-b px-4">
-          <ExpandSidebarButton />
-          {pageTitle ? (
-            <span className="font-medium text-sm">{pageTitle}</span>
-          ) : null}
-          <div className="flex-1" />
-          <ModeToggle />
-        </header>
-        <div className="p-6">
-          <Outlet />
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+    <TimerProvider workdayMinutes={user.workdayMinutes}>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <header className="flex h-14 items-center gap-4 border-b px-4">
+            <ExpandSidebarButton />
+            {pageTitle ? (
+              <span className="font-medium text-sm">{pageTitle}</span>
+            ) : null}
+            <div className="flex-1" />
+            <ModeToggle />
+            <TimerContainer workdayMinutes={user.workdayMinutes} />
+          </header>
+          <div className="p-6">
+            <Outlet />
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </TimerProvider>
   );
 }

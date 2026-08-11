@@ -2552,6 +2552,16 @@
                         "minimum": 1,
                         "maximum": 1440
                     },
+                    "rounding": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/EntryRounding"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "note": {
                         "type": [
                             "string",
@@ -2586,6 +2596,16 @@
                     "durationMinutes": {
                         "type": "integer"
                     },
+                    "rounding": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/EntryRounding"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "valuedMinutes": {
                         "type": [
                             "integer",
@@ -2613,6 +2633,7 @@
                     "missionId",
                     "date",
                     "durationMinutes",
+                    "rounding",
                     "valuedMinutes",
                     "valuedDayFraction",
                     "billable",
@@ -2634,6 +2655,16 @@
                         "type": "integer",
                         "minimum": 1,
                         "maximum": 1440
+                    },
+                    "rounding": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/EntryRounding"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "billable": {
                         "type": "boolean"

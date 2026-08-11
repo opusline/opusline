@@ -67,6 +67,11 @@ vendor/bin/pint
 - Accessibility is not optional: proper ARIA, focus management, keyboard navigation on all interactive components.
 - On the API: thin controllers, logic in domain actions; Data classes validate explicitly on anything security-relevant (don't rely on inferred validation rules).
 - Avoid premature abstraction. This is a solo-maintained OSS project — boring, readable code beats architecture astronautics.
+- **Comments are the exception, not the habit.** The default for a new line of code is no comment. Write code that explains itself — good names, small functions, early returns — and reach for a comment only when the code genuinely cannot carry the information.
+  - **A comment that describes _what_ the code does is a refactor waiting to happen.** Extract the block into a function whose name says it, or rename the variable, then delete the comment. `// find the mission the timer is on` above a `.find()` becomes `findMissionById(...)`.
+  - **Comment the _why_ only when it is not recoverable from the code**: a non-obvious trade-off, a workaround for an external bug, a rule that came from the product or the design, a constraint enforced somewhere else in the stack. That is information the reader cannot deduce, so it earns its lines.
+  - **Do not narrate your own work.** No comments explaining a change you just made, restating a prop's type, or labelling the obvious step of a function. If every branch of a component has a comment above it, the component is doing too much or is named badly — fix that instead.
+  - Docblocks on exported functions/components carry the same bar: skip them when the signature already says everything (`formatClock(seconds): string`). Write one when there is a real caveat, unit, or precondition to state.
 
 ## Things NOT to do
 

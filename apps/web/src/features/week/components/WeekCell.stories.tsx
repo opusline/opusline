@@ -1,7 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useRef } from "react";
 import { demoRowNamed } from "../lib/week-fixtures";
-import type { WeekCell as WeekCellModel, WeekRow } from "../lib/week-grid";
+import type {
+  LiveCell,
+  WeekCell as WeekCellModel,
+  WeekRow,
+} from "../lib/week-grid";
 import { WeekCell } from "./week-cell";
 
 const billedDayRow = demoRowNamed("OGF front");
@@ -13,6 +17,7 @@ function CellPreview(props: {
   row: WeekRow;
   cell: WeekCellModel;
   editor?: { draft: string; error: string | null };
+  live?: LiveCell;
 }) {
   const editorRef = useRef<HTMLInputElement>(null);
 
@@ -26,6 +31,7 @@ function CellPreview(props: {
           cellRef={() => undefined}
           columnIndex={0}
           editor={props.editor ?? null}
+          live={props.live ?? null}
           editorRef={editorRef}
           isActive={false}
           isFocused={false}
@@ -79,6 +85,35 @@ export const EditingInvalid: Story = {
   args: {
     cell: billedDayRow.cells[0],
     editor: { draft: "beaucoup", error: "Format : 1 · 0,5 · 2h · 1h30 · 90m" },
+    row: billedDayRow,
+  },
+};
+
+const runningTimer: LiveCell = {
+  billedLabel: "0,5 j",
+  clockLabel: "07:20:24",
+  date: "2026-07-27",
+  isRunning: true,
+  missionId: hourlyRow.missionId,
+  onStop: () => undefined,
+};
+
+export const TimerRunning: Story = {
+  args: { cell: hourlyRow.cells[0], live: runningTimer, row: hourlyRow },
+};
+
+export const TimerPaused: Story = {
+  args: {
+    cell: hourlyRow.cells[0],
+    live: { ...runningTimer, clockLabel: "07:20:38", isRunning: false },
+    row: hourlyRow,
+  },
+};
+
+export const TimerAlongsideAnEntry: Story = {
+  args: {
+    cell: billedDayRow.cells[0],
+    live: { ...runningTimer, missionId: billedDayRow.missionId },
     row: billedDayRow,
   },
 };

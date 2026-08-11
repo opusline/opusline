@@ -45,6 +45,12 @@ export function cellAriaLabel(input: {
   return `${input.missionName}, ${day} : ${input.billedLabel}${note}`;
 }
 
+export const STOP_TRACKING = "Arrêter et enregistrer le suivi";
+
+export function liveCellLabel(isRunning: boolean, clock: string): string {
+  return `${isRunning ? "en cours" : "en pause"} · ${clock}`;
+}
+
 export function weekendToggleLabel(weekendShown: boolean): string {
   return weekendShown ? "Masquer le week-end" : "Afficher le week-end";
 }

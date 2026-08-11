@@ -20,16 +20,17 @@ import { useState } from "react";
 import { FormTextField } from "@/components/form-text-field";
 import { formatRateDraft, parseRateToCents } from "@/lib/billing";
 import { isInternalClient } from "@/lib/client-types";
+import {
+  entryRoundingHint,
+  entryRoundingLabel,
+  entryRoundingOrder,
+} from "@/lib/entry-rounding";
 import type { FormSubmitResult } from "@/lib/form";
 import { COLOR_CLASSES, COLOR_LABELS, COLORS } from "@/lib/palette";
-
 import {
   BILLING_MODE_LABELS,
   BILLING_MODE_RATE_PLACEHOLDERS,
   BILLING_MODE_UNITS,
-  entryRoundingHint,
-  entryRoundingLabel,
-  entryRoundingOrder,
 } from "../lib/labels";
 
 const EYEBROW_CLASSES =

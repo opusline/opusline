@@ -9,6 +9,7 @@ import { isHourly } from "@/lib/durations";
 
 import {
   focusableColumnCount,
+  type LiveCell,
   locateCell,
   type WeekGridModel,
 } from "../lib/week-grid";
@@ -48,6 +49,7 @@ const ReadOnlyCell = (props: ComponentProps<"div">) => (
 
 export type WeekGridProps = {
   model: WeekGridModel;
+  live: LiveCell | null;
   workdayMinutes: number;
   noteSuggestions: string[];
   pendingCellKeys: ReadonlySet<string>;
@@ -101,6 +103,7 @@ async function performWrite(
 
 export function WeekGrid({
   model,
+  live,
   workdayMinutes,
   noteSuggestions,
   pendingCellKeys,
@@ -417,6 +420,13 @@ export function WeekGrid({
             {row.cells.map((cell, columnIndex) => (
               <WeekCell
                 cell={cell}
+                live={
+                  live !== null &&
+                  live.missionId === cell.missionId &&
+                  live.date === cell.date
+                    ? live
+                    : null
+                }
                 cellRef={registerCell}
                 columnIndex={columnIndex}
                 editor={

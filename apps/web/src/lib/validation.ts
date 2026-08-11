@@ -23,3 +23,27 @@ export function serverFieldErrors(error: unknown): FieldErrorMap | null {
 
   return Object.keys(fields).length > 0 ? fields : null;
 }
+
+/**
+ * The message to show for a refused write. Laravel sends `{ errors }` for a 422
+ * and a bare `{ message }` for 404/409, and both are worth surfacing verbatim —
+ * they are already localized server-side.
+ */
+export function serverErrorMessage(error: unknown, fallback: string): string {
+  const field = Object.values(serverFieldErrors(error) ?? {})[0]?.message;
+
+  if (field !== undefined) {
+    return field;
+  }
+
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof error.message === "string"
+  ) {
+    return error.message;
+  }
+
+  return fallback;
+}

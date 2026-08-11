@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\TimeEntries\Models;
 
+use App\Domain\Missions\Enums\EntryRounding;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Casts\CalendarDate;
 use App\Domain\Shared\Routing\OwnedRouteBinding;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $mission_id
  * @property CarbonImmutable $date
  * @property int $duration_minutes
+ * @property ?EntryRounding $rounding
  * @property bool $billable
  * @property ?string $note
  * @property CarbonImmutable $created_at
@@ -31,6 +33,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'mission_id',
     'date',
     'duration_minutes',
+    'rounding',
     'billable',
     'note',
 ])]
@@ -73,7 +76,7 @@ class TimeEntry extends Model
             return null;
         }
 
-        return $this->mission->effectiveRounding()->valueMinutes($this->duration_minutes);
+        return $this->effectiveRounding()->valueMinutes($this->duration_minutes);
     }
 
     /**
@@ -86,10 +89,15 @@ class TimeEntry extends Model
             return null;
         }
 
-        return $this->mission->effectiveRounding()->valueDayFraction(
+        return $this->effectiveRounding()->valueDayFraction(
             $this->duration_minutes,
             config()->integer('app.workday_minutes'),
         );
+    }
+
+    public function effectiveRounding(): EntryRounding
+    {
+        return $this->rounding ?? $this->mission->effectiveRounding();
     }
 
     /**
@@ -103,6 +111,7 @@ class TimeEntry extends Model
         return [
             'date' => CalendarDate::class,
             'duration_minutes' => 'integer',
+            'rounding' => EntryRounding::class,
             'billable' => 'boolean',
         ];
     }

@@ -131,3 +131,29 @@ export const Sizes: Story = {
     </div>
   ),
 };
+
+export const OptionsWithFigures: Story = {
+  render: () => (
+    <ChipGroup
+      aria-label="Arrondi de l'entrée"
+      className="flex-nowrap items-stretch"
+      defaultValue={["mission"]}
+    >
+      <ChipOption
+        align="center"
+        className="flex-1"
+        font="mono"
+        hint="Défaut"
+        label="0,5 j"
+        value="mission"
+      />
+      <ChipOption
+        align="center"
+        className="flex-1"
+        font="mono"
+        label="0,08 h"
+        value="exact"
+      />
+    </ChipGroup>
+  ),
+};

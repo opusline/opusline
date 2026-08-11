@@ -7,12 +7,14 @@ import {
   DEMO_WEEK,
   DEMO_WORKDAY_MINUTES,
 } from "../lib/week-fixtures";
-import { buildWeekGrid } from "../lib/week-grid";
+import { buildWeekGrid, type LiveCell } from "../lib/week-grid";
 import { WeekGrid, type WeekGridProps } from "./week-grid";
 
 function renderGrid(
   overrides: {
+    live?: LiveCell | null;
     timeEntries?: typeof DEMO_TIME_ENTRIES;
+    weekendShown?: boolean;
     writesSucceed?: boolean;
   } = {},
 ) {
@@ -26,12 +28,14 @@ function renderGrid(
 
   const gridFor = (timeEntries: typeof DEMO_TIME_ENTRIES) => (
     <WeekGrid
+      live={overrides.live ?? null}
       model={buildWeekGrid({
         clients: DEMO_CLIENTS,
+        liveMissionId: overrides.live?.missionId ?? null,
         timeEntries,
         today: DEMO_TODAY,
         week: DEMO_WEEK,
-        weekendShown: false,
+        weekendShown: overrides.weekendShown ?? false,
       })}
       noteSuggestions={[]}
       pendingCellKeys={new Set()}
@@ -59,6 +63,7 @@ const MONDAY_TJM_ENTRY = {
   id: 101,
   missionId: 1,
   note: null,
+  rounding: null,
   valuedDayFraction: 1,
   valuedMinutes: null,
 };
@@ -454,6 +459,7 @@ it("opens the detail popover rather than the inline editor when a cell holds sev
         id: 1,
         missionId: 1,
         note: "Revue PR",
+        rounding: null,
         valuedDayFraction: 0.5,
         valuedMinutes: null,
       },
@@ -464,6 +470,7 @@ it("opens the detail popover rather than the inline editor when a cell holds sev
         id: 2,
         missionId: 1,
         note: "Cadrage",
+        rounding: null,
         valuedDayFraction: 0.5,
         valuedMinutes: null,
       },
@@ -483,4 +490,66 @@ it("totals a day across both units, billable time only", () => {
   expect(
     screen.getByRole("gridcell", { name: "Total de la semaine" }),
   ).toHaveTextContent("4,5 j · 3,5 h");
+});
+
+const RUNNING_ON_MONDAY: LiveCell = {
+  billedLabel: "0,5 j",
+  clockLabel: "03:42:18",
+  date: "2026-07-27",
+  isRunning: true,
+  missionId: 1,
+  onStop: () => undefined,
+};
+
+it("shows the running timer as a provisional value on its own day", () => {
+  renderGrid({ live: RUNNING_ON_MONDAY });
+
+  expect(mondayTjmCell()).toHaveTextContent("0,5 j");
+  expect(mondayTjmCell()).toHaveTextContent("en cours · 03:42:18");
+});
+
+it("shows the timer alongside the entry already on that day", () => {
+  renderGrid({ live: RUNNING_ON_MONDAY });
+
+  expect(mondayTjmCell()).toHaveTextContent("Sprint 24 · specs");
+});
+
+it("leaves every other day of that mission alone", () => {
+  renderGrid({ live: RUNNING_ON_MONDAY });
+
+  expect(
+    screen.getByRole("gridcell", { name: /OGF front, mardi 28 juillet/ }),
+  ).not.toHaveTextContent("en cours");
+});
+
+it("says the timer is paused when it is", () => {
+  renderGrid({ live: { ...RUNNING_ON_MONDAY, isRunning: false } });
+
+  expect(mondayTjmCell()).toHaveTextContent("en pause · 03:42:18");
+});
+
+it("names the running timer in the cell's accessible label", () => {
+  renderGrid({ live: RUNNING_ON_MONDAY });
+
+  expect(
+    screen.getByRole("gridcell", { name: /en cours · 03:42:18/ }),
+  ).toBeInTheDocument();
+});
+
+const SATURDAY = "2026-08-01";
+
+/*
+ * The weekend column is collapsed unless something forces it open, so a Saturday
+ * timer is the case where the pill can silently have nowhere to render.
+ */
+it("renders the live pill on a weekend day", () => {
+  renderGrid({
+    live: { ...RUNNING_ON_MONDAY, date: SATURDAY },
+    timeEntries: [],
+    weekendShown: true,
+  });
+
+  expect(
+    screen.getByRole("gridcell", { name: /OGF front, samedi 1 août/ }),
+  ).toHaveTextContent("en cours · 03:42:18");
 });

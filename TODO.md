@@ -40,20 +40,20 @@ Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c83
   for the end-client — model both). This distinction matters for CRA and invoicing
   later.
 
-- [ ] **Time entries (manual first)**
+- [x] **Time entries (manual first)**
   Entry: date, mission, quantity in the mission's unit (day_fraction for TJM —
   TJM freelances think in days, not hours — duration_minutes for hourly), optional
   note. Schema per cross-cutting decisions above. CRUD + day view rendering each
   entry in its natural unit ("0,5 j" vs "3h30").
 
-- [ ] **Week view**
+- [x] **Week view**
   THE core screen. Week grid (days × missions), typed search params (`?week=2026-W31`),
   keyboard-friendly, fast. TJM mission rows: one-keystroke day/half-day toggles per
   cell (the dominant interaction — "mark Tuesday as worked"). Hourly rows: duration
   input. Totals per day, per mission, per week, each in its own unit. Design budget
   goes here.
 
-- [ ] **Live timer**
+- [x] **Live timer**
   Start/stop/pause, materializes into time entries on stop. Any mission: the stop
   dialog asks for the activity and the rounding, offering day fractions on a TJM
   mission and hour increments on an hourly one.

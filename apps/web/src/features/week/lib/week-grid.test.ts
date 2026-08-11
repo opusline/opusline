@@ -66,6 +66,7 @@ function entry(overrides: Partial<TimeEntryData> = {}): TimeEntryData {
     date: MONDAY,
     durationMinutes: 420,
     valuedMinutes: null,
+    rounding: null,
     valuedDayFraction: 1,
     note: null,
     ...overrides,
@@ -76,9 +77,11 @@ function build(input: {
   clients: ClientWithMissionsData[];
   timeEntries?: TimeEntryData[];
   weekendShown?: boolean;
+  liveMissionId?: number | null;
 }) {
   return buildWeekGrid({
     clients: input.clients,
+    liveMissionId: input.liveMissionId ?? null,
     timeEntries: input.timeEntries ?? [],
     week: WEEK,
     today: MONDAY,
@@ -373,5 +376,46 @@ describe("shouldShowWeekend", () => {
 
   it("stays collapsed when the weekend is empty", () => {
     expect(shouldShowWeekend(false, WEEK, [entry()])).toBe(false);
+  });
+
+  /** A Saturday timer must not be hidden behind the collapsed weekend column. */
+  it("opens itself for a timer running on a weekend day", () => {
+    expect(shouldShowWeekend(false, WEEK, [], SATURDAY)).toBe(true);
+  });
+
+  it("stays collapsed for a timer running on a weekday", () => {
+    expect(shouldShowWeekend(false, WEEK, [], MONDAY)).toBe(false);
+  });
+});
+
+describe("a timer running on a week with no entries", () => {
+  const paused = () => client({ missions: [mission({ id: 7, status: 1 })] });
+
+  /*
+   * A paused mission builds no row of its own, so without the timer's mission
+   * id the provisional pill would have nowhere to render.
+   */
+  it("builds a row for the tracked mission even when it is paused", () => {
+    const { rows } = build({ clients: [paused()], liveMissionId: 7 });
+
+    expect(rows.map((row) => row.missionId)).toContain(7);
+  });
+
+  it("builds no such row when no timer is running", () => {
+    const { rows } = build({ clients: [paused()] });
+
+    expect(rows.map((row) => row.missionId)).not.toContain(7);
+  });
+
+  it("gives that row a Saturday cell once the weekend is shown", () => {
+    const { rows } = build({
+      clients: [paused()],
+      liveMissionId: 7,
+      weekendShown: true,
+    });
+
+    const cells = rows.find((row) => row.missionId === 7)?.cells ?? [];
+
+    expect(cells.map((cell) => cell.date)).toContain(SATURDAY);
   });
 });

@@ -32,9 +32,11 @@ import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { formatAmount, paymentTermsLabel } from "@/lib/billing";
 import { CLIENT_TYPE_LABELS } from "@/lib/client-types";
 import { calendarDateLabel, calendarMonthYearLabel } from "@/lib/dates";
+import { entryRoundingLabel } from "@/lib/entry-rounding";
 import type { FormSubmitResult } from "@/lib/form";
 import { COLOR_CLASSES } from "@/lib/palette";
-import { BILLING_MODE_UNITS_SHORT, entryRoundingLabel } from "../lib/labels";
+
+import { BILLING_MODE_UNITS_SHORT } from "../lib/labels";
 import { MissionEditForm } from "./mission-edit-form";
 
 const EYEBROW_CLASSES =

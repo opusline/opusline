@@ -5,16 +5,26 @@ import type {
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { cn } from "@opusline/ui/lib/utils";
 import { useEffect, useMemo, useState } from "react";
-
-import { buildWeekGrid, shouldShowWeekend } from "../lib/week-grid";
+import { collectNoteSuggestions } from "@/components/note-suggestions";
+import { isoWeekDates } from "@/lib/weeks";
+import type { PillSkin } from "../lib/pill-skins";
+import {
+  buildWeekGrid,
+  type LiveCell,
+  shouldShowWeekend,
+} from "../lib/week-grid";
 import { NewEntryDialog, type NewEntrySubmit } from "./new-entry-dialog";
 import { WeekEmptyBanner } from "./week-empty-banner";
 import { WeekGrid, type WeekGridProps } from "./week-grid";
-import { WeekLegend } from "./week-legend";
+import { WEEK_SKINS, WeekLegend } from "./week-legend";
+
+const LIVE_SKINS: PillSkin[] = [...WEEK_SKINS, "live"];
+
 import { WeekMissionsEmptyState } from "./week-missions-empty-state";
 import { WeekToolbar } from "./week-toolbar";
 
 export type WeekPageProps = {
+  live: LiveCell | null;
   clients: ClientWithMissionsData[];
   timeEntries: TimeEntryData[];
   previousWeekEntries: TimeEntryData[];
@@ -41,17 +51,7 @@ export type WeekPageProps = {
   knownEntryRange: { from: string; to: string };
 };
 
-const MAX_NOTE_SUGGESTIONS = 8;
-
 /** The notes already used this week — enough of a vocabulary to type less. */
-function collectNoteSuggestions(timeEntries: TimeEntryData[]): string[] {
-  const notes = timeEntries
-    .map((entry) => entry.note)
-    .filter((note): note is string => note !== null && note.trim() !== "");
-
-  return [...new Set(notes)].slice(0, MAX_NOTE_SUGGESTIONS);
-}
-
 function isTypingTarget(target: EventTarget | null): boolean {
   return (
     target instanceof HTMLElement &&
@@ -66,6 +66,7 @@ export function WeekPage({
   previousWeekEntries,
   week,
   today,
+  live,
   workdayMinutes,
   weekendOpen,
   isRefreshing,
@@ -84,10 +85,26 @@ export function WeekPage({
 }: WeekPageProps) {
   const [isNewEntryOpen, setIsNewEntryOpen] = useState(false);
 
-  const weekendShown = shouldShowWeekend(weekendOpen, week, timeEntries);
+  const liveHere =
+    live !== null && isoWeekDates(week).includes(live.date) ? live : null;
+
+  const weekendShown = shouldShowWeekend(
+    weekendOpen,
+    week,
+    timeEntries,
+    liveHere?.date ?? null,
+  );
   const model = useMemo(
-    () => buildWeekGrid({ clients, timeEntries, today, week, weekendShown }),
-    [clients, timeEntries, today, week, weekendShown],
+    () =>
+      buildWeekGrid({
+        clients,
+        liveMissionId: liveHere?.missionId ?? null,
+        timeEntries,
+        today,
+        week,
+        weekendShown,
+      }),
+    [clients, liveHere?.missionId, timeEntries, today, week, weekendShown],
   );
   const noteSuggestions = useMemo(
     () => collectNoteSuggestions(timeEntries),
@@ -160,6 +177,7 @@ export function WeekPage({
         inert={isRefreshing}
       >
         <WeekGrid
+          live={liveHere}
           model={model}
           noteSuggestions={noteSuggestions}
           onCreate={onCreate}
@@ -169,7 +187,7 @@ export function WeekPage({
           workdayMinutes={workdayMinutes}
         />
       </div>
-      <WeekLegend />
+      <WeekLegend skins={liveHere === null ? WEEK_SKINS : LIVE_SKINS} />
       <NewEntryDialog
         isSaving={pendingCellKeys.size > 0}
         knownRange={knownEntryRange}

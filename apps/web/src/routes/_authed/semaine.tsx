@@ -18,12 +18,16 @@ import {
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
+import { useTimer } from "@/features/timer/components/timer-provider";
+import { formatClock } from "@/features/timer/lib/elapsed";
+import { findMissionById } from "@/features/timer/lib/mission-options";
 import type { NewEntrySubmit } from "@/features/week/components/new-entry-dialog";
 import { WeekPage } from "@/features/week/components/week-page";
 import { planWeekRepeat } from "@/features/week/lib/repeat-week";
-import { cellKeyFor } from "@/features/week/lib/week-grid";
+import { cellKeyFor, type LiveCell } from "@/features/week/lib/week-grid";
 import { todayCalendarDate } from "@/lib/dates";
-import { serverFieldErrors } from "@/lib/validation";
+import { provisionalBilledLabel } from "@/lib/durations";
+import { serverErrorMessage } from "@/lib/validation";
 import { isIsoWeek, isoWeekOf, isoWeekRange, shiftIsoWeek } from "@/lib/weeks";
 
 type SemaineSearch = { week?: string; weekend?: true };
@@ -40,9 +44,7 @@ export const Route = createFileRoute("/_authed/semaine")({
 const WRITE_FAILED = "L'enregistrement a échoué. Réessayez dans un instant.";
 
 function writeErrorMessage(error: unknown): string {
-  const fields = serverFieldErrors(error);
-
-  return Object.values(fields ?? {})[0]?.message ?? WRITE_FAILED;
+  return serverErrorMessage(error, WRITE_FAILED);
 }
 
 function SemaineRoute() {
@@ -60,6 +62,14 @@ function SemaineRoute() {
   );
   const [error, setError] = useState<string | null>(null);
   const [isRepeating, setIsRepeating] = useState(false);
+
+  const {
+    elapsedSeconds,
+    isRunning: isTimerRunning,
+    openStop,
+    startDate: timerStartDate,
+    timer,
+  } = useTimer();
 
   const clients = useQuery(listClientsOptions());
   const entries = useQuery({
@@ -271,6 +281,30 @@ function SemaineRoute() {
   const isPending = clients.isPending || entries.isPending;
   const isError = clients.isError || entries.isError;
 
+  const liveMission =
+    timer === null
+      ? null
+      : findMissionById(clients.data?.clients ?? [], timer.missionId);
+
+  const live: LiveCell | null =
+    timer === null || liveMission === null
+      ? null
+      : {
+          billedLabel: provisionalBilledLabel(
+            Math.round(elapsedSeconds / 60),
+            {
+              billingMode: liveMission.billingMode,
+              workdayMinutes: user.workdayMinutes,
+            },
+            liveMission.rounding,
+          ),
+          clockLabel: formatClock(elapsedSeconds),
+          date: timerStartDate ?? today,
+          isRunning: isTimerRunning,
+          missionId: timer.missionId,
+          onStop: openStop,
+        };
+
   return (
     <div className="flex flex-col gap-5">
       {isPending && (
@@ -297,6 +331,7 @@ function SemaineRoute() {
           onRepeatPreviousWeek={() => void handleRepeatPreviousWeek()}
           knownEntryRange={knownRange}
           knownEntries={knownEntries}
+          live={live}
           onSubmitNewEntry={handleSubmitNewEntry}
           onUpdate={handleUpdate}
           onWeekChange={(nextWeek) =>

@@ -119,6 +119,7 @@ function billedDay(
     id,
     missionId: DEMO_MISSIONS.ogf.id,
     note,
+    rounding: null,
     valuedDayFraction: dayFraction,
     valuedMinutes: null,
   };
@@ -139,6 +140,7 @@ function billedHours(
     id,
     missionId,
     note,
+    rounding: null,
     valuedDayFraction: null,
     valuedMinutes: minutes,
   };

@@ -26,6 +26,11 @@ import { FormTextField } from "@/components/form-text-field";
 import { formatRate, formatRateDraft, parseRateToCents } from "@/lib/billing";
 import { isInternalClient } from "@/lib/client-types";
 import { todayCalendarDate } from "@/lib/dates";
+import {
+  entryRoundingHint,
+  entryRoundingLabel,
+  entryRoundingOrder,
+} from "@/lib/entry-rounding";
 import type { FormSubmitResult } from "@/lib/form";
 import {
   COLOR_CLASSES,
@@ -33,14 +38,10 @@ import {
   COLOR_WASH_CLASSES,
   COLORS,
 } from "@/lib/palette";
-
 import {
   BILLING_MODE_LABELS,
   BILLING_MODE_RATE_PLACEHOLDERS,
   BILLING_MODE_UNITS,
-  entryRoundingHint,
-  entryRoundingLabel,
-  entryRoundingOrder,
 } from "../lib/labels";
 
 const EYEBROW_CLASSES =

@@ -2,14 +2,6 @@ import type { TimeEntryData, TimeEntryInputData } from "@opusline/api-client";
 
 import { isoWeekDates } from "@/lib/weeks";
 
-/**
- * Carries a week's entries onto the same weekdays of another week. Everything
- * about an entry travels except its date — including whether it was billable,
- * which is part of what made the original week worth repeating.
- *
- * Entries whose date falls outside the source week are skipped rather than
- * guessed at, so the caller can tell "nothing to copy" from "copied nothing".
- */
 export function planWeekRepeat(
   entries: TimeEntryData[],
   fromWeek: string,
@@ -32,6 +24,7 @@ export function planWeekRepeat(
         durationMinutes: entry.durationMinutes,
         missionId: entry.missionId,
         note: entry.note,
+        rounding: entry.rounding,
       },
     ];
   });

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { NoteSuggestions } from "./note-suggestions";
 
 const meta = {
-  title: "Web/Week/NoteSuggestions",
+  title: "Web/NoteSuggestions",
   component: NoteSuggestions,
   tags: ["autodocs"],
   args: {

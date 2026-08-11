@@ -25,6 +25,7 @@ class StopTimer
                 missionId: $timer->mission_id,
                 date: $data->date,
                 durationMinutes: $data->durationMinutes,
+                rounding: $data->rounding,
                 billable: $data->billable,
                 note: $data->note,
             ));

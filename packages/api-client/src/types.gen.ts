@@ -221,6 +221,7 @@ export type StartTimerData = {
 export type StopTimerData = {
     date: string;
     durationMinutes: number;
+    rounding?: EntryRounding | null;
     note: string | null;
     billable?: boolean;
 };
@@ -233,6 +234,7 @@ export type TimeEntryData = {
     missionId: number;
     date: string;
     durationMinutes: number;
+    rounding: EntryRounding | null;
     valuedMinutes: number | null;
     valuedDayFraction: number | null;
     billable: boolean;
@@ -246,6 +248,7 @@ export type TimeEntryInputData = {
     missionId: number;
     date: string;
     durationMinutes: number;
+    rounding?: EntryRounding | null;
     billable?: boolean;
     note?: string | null;
 };
