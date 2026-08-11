@@ -17,7 +17,7 @@ const meta = {
     signatureSrc: SIGNATURE_PREVIEW,
     isPending: false,
     error: null,
-    onSave: () => {},
+    onSave: async () => true,
     onRemove: () => {},
   },
 } satisfies Meta<typeof SignatureSettings>;

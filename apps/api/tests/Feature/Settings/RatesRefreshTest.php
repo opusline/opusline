@@ -91,13 +91,33 @@ test('refuses when the account follows its own rate', function (): void {
     expect($user->settings()->sole()->contribution_rate_bp)->toBe(2000);
 });
 
-test('reads the barème once for two accounts in the same situation', function (): void {
+test('re-reads the barème for an explicit check rather than repeating a cached one', function (): void {
+    // « Vérifier maintenant » promises the user a check; answering it from a
+    // cache filled by the nightly run would report a verification that never
+    // reached URSSAF.
     fakeBareme();
 
     $this->actingAs(User::factory()->create())->postJson('/api/settings/rates/refresh')->assertOk();
     $this->actingAs(User::factory()->create())->postJson('/api/settings/rates/refresh')->assertOk();
 
-    Http::assertSentCount(1);
+    Http::assertSentCount(2);
+});
+
+test('reports when the barème was actually read, not when the cache was consulted', function (): void {
+    fakeBareme();
+    $readAt = now()->subHours(6);
+
+    $this->travelTo($readAt);
+    $this->actingAs(User::factory()->create())->postJson('/api/settings/rates/refresh')->assertOk();
+    $this->travelBack();
+
+    // A save re-reads through the cache; the stamp must stay at the real read.
+    $later = User::factory()->create();
+    $later->settings()->sole()->update(['auto_rates' => false]);
+    $this->actingAs($later)
+        ->putJson('/api/settings', settingsPayload(['autoRates' => true]))
+        ->assertOk()
+        ->assertJsonPath('ratesCheckedAt', $readAt->toIso8601String());
 });
 
 test('never touches another account', function (): void {
@@ -138,9 +158,10 @@ test('caches the barème as plain values, so a serialized cache cannot poison it
         'official-rates:'.(new RateSituation(false, null))->signature(),
     ));
 
-    expect($cached->all())->toBe([
+    expect($cached->except('readAt')->all())->toBe([
         'contributionRateBp' => 2560,
         'liberatingPaymentRateBp' => 220,
         'year' => now()->year,
     ]);
+    expect($cached->get('readAt'))->toBeString();
 });

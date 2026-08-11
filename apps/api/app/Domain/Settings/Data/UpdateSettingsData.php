@@ -67,4 +67,14 @@ class UpdateSettingsData extends Data
         public ?string $businessStartedOn = null,
         public ?MoneyData $treasuryBuffer = null,
     ) {}
+
+    /**
+     * @return array<string, list<mixed>>
+     */
+    public static function rules(): array
+    {
+        return [
+            'businessStartedOn' => ['nullable', 'date_format:Y-m-d', 'required_if_accepted:acre'],
+        ];
+    }
 }

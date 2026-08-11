@@ -14,6 +14,20 @@ if (!window.matchMedia) {
   })) as unknown as typeof window.matchMedia;
 }
 
+// jsdom throws on capture for a pointer id it never tracked, which any
+// synthetic pointerdown in a test is.
+Element.prototype.setPointerCapture = () => {};
+Element.prototype.releasePointerCapture = () => {};
+Element.prototype.hasPointerCapture = () => false;
+
+if (!window.ResizeObserver) {
+  window.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
+
 if (!URL.createObjectURL) {
   let objectUrlCount = 0;
 

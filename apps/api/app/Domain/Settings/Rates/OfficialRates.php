@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Settings\Rates;
 
+use Carbon\CarbonImmutable;
+
 /**
  * The barème in force for one situation, as read from URSSAF.
  *
@@ -16,5 +18,6 @@ class OfficialRates
         public readonly int $contributionRateBp,
         public readonly int $liberatingPaymentRateBp,
         public readonly int $year,
+        public readonly CarbonImmutable $readAt,
     ) {}
 }

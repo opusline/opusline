@@ -39,11 +39,13 @@ class UpdateSettings
             'contribution_rate_bp' => $data->autoRates
                 ? $settings->contribution_rate_bp
                 : $data->contributionRateBp,
+            'liberating_payment_rate_bp' => $data->autoRates
+                ? $settings->liberating_payment_rate_bp
+                : $data->liberatingPaymentRateBp,
             'auto_rates' => $data->autoRates,
             'acre' => $data->acre,
             'business_started_on' => $data->businessStartedOn,
             'liberating_payment' => $data->liberatingPayment,
-            'liberating_payment_rate_bp' => $data->liberatingPaymentRateBp,
             'vat_regime' => $data->vatRegime,
             'default_payment_terms_days' => $data->defaultPaymentTermsDays,
             'invoice_number_format' => $data->invoiceNumberFormat,
@@ -75,6 +77,8 @@ class UpdateSettings
         try {
             $this->refreshOfficialRates->handle($settings);
         } catch (RatesUnavailable $exception) {
+            $settings->update(['rates_checked_at' => null, 'rates_year' => null]);
+
             Log::warning('Settings saved without re-reading the barème.', [
                 'user_id' => $settings->user_id,
                 'reason' => $exception->getMessage(),

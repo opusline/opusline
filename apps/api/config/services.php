@@ -45,7 +45,7 @@ return [
 
     'mon_entreprise' => [
         'url' => env('MON_ENTREPRISE_URL', 'https://mon-entreprise.urssaf.fr/api/v1'),
-        'enabled' => env('MON_ENTREPRISE_ENABLED', true),
+        'enabled' => filter_var(env('MON_ENTREPRISE_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
         'timeout' => 10,
     ],
 

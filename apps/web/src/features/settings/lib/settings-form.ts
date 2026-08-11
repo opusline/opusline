@@ -5,7 +5,7 @@ import type {
   VatRegime,
 } from "@opusline/api-client";
 
-import { formatAmount, parseRateToCents } from "@/lib/billing";
+import { formatAmount } from "@/lib/billing";
 
 export const SETTINGS_TABS = [
   "identite",
@@ -127,15 +127,16 @@ export function toSettingsPayload(
   values: SettingsFormValues,
   settings: SettingsData,
 ): UpdateSettingsData {
-  const buffer = parseRateToCents(values.treasuryBuffer);
+  const buffer = parseBufferCents(values.treasuryBuffer);
 
   return {
     urssafPeriodicity: values.urssafPeriodicity,
     autoRates: values.autoRates,
     acre: values.acre,
     businessStartedOn: valueOrNull(values.businessStartedOn),
-    contributionRateBp:
-      parseRateBp(values.contributionRate) ?? settings.contributionRateBp,
+    contributionRateBp: values.autoRates
+      ? settings.contributionRateBp
+      : (parseRateBp(values.contributionRate) ?? settings.contributionRateBp),
     liberatingPayment: values.liberatingPayment,
     liberatingPaymentRateBp: settings.liberatingPaymentRateBp,
     vatRegime: values.vatRegime,
@@ -164,12 +165,30 @@ export function toSettingsPayload(
 export function countChanges(
   saved: SettingsFormValues,
   draft: SettingsFormValues,
+  settings: SettingsData,
 ): number {
-  return Object.keys(saved).filter((key) => {
-    const name = key as keyof SettingsFormValues;
+  const savedPayload = toSettingsPayload(saved, settings);
+  const draftPayload = toSettingsPayload(draft, settings);
 
-    return saved[name] !== draft[name];
+  return Object.keys(savedPayload).filter((key) => {
+    const name = key as keyof UpdateSettingsData;
+
+    return (
+      JSON.stringify(savedPayload[name]) !== JSON.stringify(draftPayload[name])
+    );
   }).length;
+}
+
+const FIELD_TAB: Partial<Record<keyof SettingsFormValues, SettingsTab>> = {
+  contributionRate: "fiscalite",
+  businessStartedOn: "fiscalite",
+  treasuryBuffer: "facturation",
+  invoiceNumberFormat: "facturation",
+  defaultPaymentTermsDays: "facturation",
+};
+
+export function tabOwningField(field: string): SettingsTab {
+  return FIELD_TAB[field as keyof SettingsFormValues] ?? "identite";
 }
 
 export function unsavedChangesLabel(count: number): string {
@@ -194,18 +213,26 @@ export function formatRateBp(basisPoints: number): string {
   return percent.format(basisPoints / 100);
 }
 
-export function parseRateBp(draft: string): number | null {
+const DECIMAL = /^\d+(?:\.\d+)?$/;
+
+function parseDecimal(draft: string): number | null {
   const normalized = draft.replace(/[\s ]/g, "").replace(",", ".");
 
-  if (normalized === "") {
-    return null;
-  }
+  return DECIMAL.test(normalized) ? Number.parseFloat(normalized) : null;
+}
 
-  const rate = Number.parseFloat(normalized);
+export function parseRateBp(draft: string): number | null {
+  const rate = parseDecimal(draft);
 
-  if (Number.isNaN(rate) || rate < 0 || rate > 100) {
+  if (rate === null || rate > 100) {
     return null;
   }
 
   return Math.round(rate * 100);
+}
+
+export function parseBufferCents(draft: string): number | null {
+  const amount = parseDecimal(draft);
+
+  return amount === null ? null : Math.round(amount * 100);
 }

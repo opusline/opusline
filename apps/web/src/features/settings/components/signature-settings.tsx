@@ -12,7 +12,7 @@ type SignatureSettingsProps = {
   signatureSrc: string;
   isPending: boolean;
   error: string | null;
-  onSave: (signature: File) => void;
+  onSave: (signature: File) => Promise<boolean>;
   onRemove: () => void;
 };
 
@@ -35,9 +35,14 @@ export function SignatureSettings({
       return;
     }
 
-    onSave(new File([blob], "signature.png", { type: "image/png" }));
-    setIsPadOpen(false);
-    setHasDrawing(false);
+    const saved = await onSave(
+      new File([blob], "signature.png", { type: "image/png" }),
+    );
+
+    if (saved) {
+      setIsPadOpen(false);
+      setHasDrawing(false);
+    }
   };
 
   const closePad = () => {

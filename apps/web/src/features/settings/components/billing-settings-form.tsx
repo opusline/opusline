@@ -7,8 +7,8 @@ import {
 import { Input } from "@opusline/ui/components/input";
 
 import { PaymentTermsPicker } from "@/components/payment-terms-picker";
-import { formatRateDraft, parseRateToCents } from "@/lib/billing";
-import { previewInvoiceNumber } from "../lib/settings-form";
+import { formatRateDraft } from "@/lib/billing";
+import { parseBufferCents, previewInvoiceNumber } from "../lib/settings-form";
 import type { SettingsForm } from "../lib/use-settings-form";
 
 export function BillingSettingsForm({ form }: { form: SettingsForm }) {
@@ -110,7 +110,7 @@ export function BillingSettingsForm({ form }: { form: SettingsForm }) {
         name="treasuryBuffer"
         validators={{
           onChange: ({ value }: { value: string }) =>
-            value.trim() === "" || parseRateToCents(value) !== null
+            value.trim() === "" || parseBufferCents(value) !== null
               ? undefined
               : { message: "Indiquez un montant, ou laissez vide." },
         }}

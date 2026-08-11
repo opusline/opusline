@@ -6,14 +6,12 @@ namespace App\Domain\Settings\Models;
 
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
-use App\Domain\Settings\Factories\UserSettingsFactory;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Casts\MoneyIntegerCast;
 use Cknow\Money\Money;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -86,14 +84,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Table('user_settings')]
 class UserSettings extends Model
 {
-    /** @use HasFactory<UserSettingsFactory> */
-    use HasFactory;
-
-    protected static function newFactory(): UserSettingsFactory
-    {
-        return UserSettingsFactory::new();
-    }
-
     /**
      * Get the attributes that should be cast.
      *

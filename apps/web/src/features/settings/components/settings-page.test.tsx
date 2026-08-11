@@ -318,3 +318,74 @@ it("offers the ACRE questions only while the source is on", () => {
 
   expect(screen.queryByLabelText("Début d'activité")).not.toBeInTheDocument();
 });
+
+it("asks for a start date before ACRE can mean anything", () => {
+  renderPage({ activeTab: "fiscalite" });
+
+  fireEvent.change(screen.getByLabelText("Début d'activité"), {
+    target: { value: "" },
+  });
+  fireEvent.click(
+    screen.getByRole("switch", { name: "Je bénéficie de l'ACRE" }),
+  );
+
+  expect(screen.getByText("Requis pour appliquer l'ACRE.")).toBeInTheDocument();
+});
+
+it("points at the tab holding the error instead of doing nothing", () => {
+  // The panels stay mounted but hidden, so an error on another tab would
+  // otherwise stop the save with its message off-screen.
+  const { onTabChange } = renderPage({ activeTab: "identite" });
+
+  fireEvent.change(screen.getByLabelText("Numérotation des factures"), {
+    target: { value: "AAAA-MM" },
+  });
+
+  expect(
+    screen.getByText("Corrigez le champ en erreur dans l'onglet Facturation."),
+  ).toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+
+  expect(onTabChange).toHaveBeenCalledWith("facturation");
+});
+
+it("accepts a treasury buffer of zero, the value its placeholder shows", () => {
+  renderPage({ activeTab: "facturation" });
+
+  fireEvent.change(screen.getByLabelText(/Matelas de trésorerie/), {
+    target: { value: "0" },
+  });
+
+  expect(
+    screen.queryByText("Indiquez un montant, ou laissez vide."),
+  ).not.toBeInTheDocument();
+});
+
+it("keeps the signature pad open when the upload fails", async () => {
+  renderPage({
+    activeTab: "signature",
+    settings: { ...settingsFixture, hasSignature: false },
+    signature: {
+      src: "",
+      isPending: false,
+      error: null,
+      onSave: vi.fn().mockResolvedValue(false),
+      onRemove: vi.fn(),
+    },
+  });
+
+  const pad = screen.getByRole("img", { name: "Zone de signature" });
+  fireEvent.pointerDown(pad, { clientX: 10, clientY: 10, pointerId: 1 });
+  fireEvent.pointerMove(pad, { clientX: 40, clientY: 30, pointerId: 1 });
+  fireEvent.pointerUp(pad, { pointerId: 1 });
+
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Enregistrer la signature" }),
+  );
+
+  // The pad holds the only copy of the strokes; closing it would lose them.
+  expect(
+    await screen.findByRole("img", { name: "Zone de signature" }),
+  ).toBeInTheDocument();
+});

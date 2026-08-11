@@ -230,9 +230,55 @@ test('saves the settings even when the barème cannot be read', function (): voi
         ->putJson('/api/settings', settingsPayload([
             'autoRates' => true,
             'acre' => true,
+            'businessStartedOn' => now()->subMonths(2)->format('Y-m-d'),
             'tradeName' => 'Nordlys',
         ]))
         ->assertOk()
         ->assertJsonPath('tradeName', 'Nordlys')
-        ->assertJsonPath('contributionRateBp', 2560);
+        ->assertJsonPath('contributionRateBp', 2560)
+        // The rates now belong to the previous situation, so the verification
+        // stamp is cleared rather than left standing as if it still applied.
+        ->assertJsonPath('ratesCheckedAt', null)
+        ->assertJsonPath('ratesYear', null);
+});
+
+test('refuses ACRE without a start date', function (): void {
+    $this->actingAs(User::factory()->create())
+        ->putJson('/api/settings', settingsPayload(['acre' => true]))
+        ->assertJsonValidationErrors('businessStartedOn');
+});
+
+test('keeps the barème rates out of reach while the official source is on', function (): void {
+    Http::fake();
+    $user = User::factory()->create();
+    $user->settings()->sole()->update([
+        'auto_rates' => true,
+        'contribution_rate_bp' => 2560,
+        'liberating_payment_rate_bp' => 330,
+    ]);
+
+    $this->actingAs($user)
+        ->putJson('/api/settings', settingsPayload([
+            'autoRates' => true,
+            'contributionRateBp' => 100,
+            'liberatingPaymentRateBp' => 100,
+        ]))
+        ->assertOk()
+        ->assertJsonPath('contributionRateBp', 2560)
+        ->assertJsonPath('liberatingPaymentRateBp', 330);
+});
+
+test('hands both rates back when the official source is switched off', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['auto_rates' => true]);
+
+    $this->actingAs($user)
+        ->putJson('/api/settings', settingsPayload([
+            'autoRates' => false,
+            'contributionRateBp' => 2200,
+            'liberatingPaymentRateBp' => 100,
+        ]))
+        ->assertOk()
+        ->assertJsonPath('contributionRateBp', 2200)
+        ->assertJsonPath('liberatingPaymentRateBp', 100);
 });

@@ -5,6 +5,7 @@ import {
   countChanges,
   formatRateBp,
   isSettingsTab,
+  parseBufferCents,
   parseRateBp,
   previewInvoiceNumber,
   toSettingsPayload,
@@ -61,16 +62,51 @@ it("sends the treasury buffer as money, and null when left empty", () => {
 });
 
 it("counts only the fields that drifted from the saved row", () => {
-  expect(countChanges(values, values)).toBe(0);
-  expect(countChanges(values, { ...values, tradeName: "Nordlys" })).toBe(1);
+  expect(countChanges(values, values, settingsFixture)).toBe(0);
   expect(
-    countChanges(values, {
-      ...values,
-      tradeName: "Nordlys",
-      liberatingPayment: true,
-      vatRegime: 2,
-    }),
+    countChanges(values, { ...values, tradeName: "Nordlys" }, settingsFixture),
+  ).toBe(1);
+  expect(
+    countChanges(
+      values,
+      {
+        ...values,
+        tradeName: "Nordlys",
+        liberatingPayment: true,
+        vatRegime: 2,
+      },
+      settingsFixture,
+    ),
   ).toBe(3);
+});
+
+it("counts nothing when a draft only differs in formatting", () => {
+  // The server echoes « 1 500,50 » back as « 1 500,5 », so a raw string compare
+  // would leave the unsaved-changes bar up forever after a successful save.
+  expect(
+    countChanges(
+      { ...values, treasuryBuffer: "1 500,5" },
+      { ...values, treasuryBuffer: "1500,50" },
+      settingsFixture,
+    ),
+  ).toBe(0);
+  expect(
+    countChanges(
+      values,
+      { ...values, tradeName: `  ${values.tradeName}  ` },
+      settingsFixture,
+    ),
+  ).toBe(0);
+});
+
+it("ignores the read-only rate while the official source owns it", () => {
+  expect(
+    countChanges(
+      { ...values, autoRates: true },
+      { ...values, autoRates: true, contributionRate: "12,8" },
+      settingsFixture,
+    ),
+  ).toBe(0);
 });
 
 it("agrees with itself on singular and plural", () => {
@@ -111,4 +147,19 @@ it("accepts only the known settings tabs", () => {
   expect(isSettingsTab("apparence")).toBe(true);
   expect(isSettingsTab("comptabilite")).toBe(false);
   expect(isSettingsTab(undefined)).toBe(false);
+});
+
+it("refuses a rate with a stray separator instead of truncating it", () => {
+  // Number.parseFloat would return 1.234 here and save 1,23 % silently.
+  expect(parseRateBp("1,234,5")).toBeNull();
+  expect(parseRateBp("1.500,50")).toBeNull();
+  expect(parseRateBp("abc")).toBeNull();
+  expect(parseRateBp("25,6")).toBe(2560);
+  expect(parseRateBp("1 500")).toBeNull();
+});
+
+it("treats a zero treasury buffer as a real answer", () => {
+  expect(parseBufferCents("0")).toBe(0);
+  expect(parseBufferCents("1 500,50")).toBe(150_050);
+  expect(parseBufferCents("abc")).toBeNull();
 });

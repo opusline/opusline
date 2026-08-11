@@ -19,14 +19,36 @@ class RefreshOfficialRates
     public function __construct(private readonly MonEntrepriseClient $client) {}
 
     /**
+     * @param  bool  $force  Bypass the shared cache and read URSSAF again. Set
+     *                       for « Vérifier maintenant », which promises the user
+     *                       a check rather than a repeat of someone else's.
+     *
      * @throws RatesUnavailable
      */
-    public function handle(UserSettings $settings): UserSettings
+    public function handle(UserSettings $settings, bool $force = false): UserSettings
     {
-        $situation = RateSituation::fromSettings($settings);
+        $rates = $this->read(RateSituation::fromSettings($settings), $force);
+
+        $settings->update([
+            'contribution_rate_bp' => $rates->contributionRateBp,
+            'liberating_payment_rate_bp' => $rates->liberatingPaymentRateBp,
+            'rates_year' => $rates->year,
+            'rates_checked_at' => $rates->readAt,
+        ]);
+
+        return $settings;
+    }
+
+    private function read(RateSituation $situation, bool $force): OfficialRates
+    {
+        $key = "official-rates:{$situation->signature()}";
+
+        if ($force) {
+            Cache::forget($key);
+        }
 
         $cached = Cache::remember(
-            "official-rates:{$situation->signature()}",
+            $key,
             CarbonImmutable::now()->addHours(self::CACHE_HOURS),
             function () use ($situation): array {
                 $fetched = $this->client->fetch($situation);
@@ -35,23 +57,16 @@ class RefreshOfficialRates
                     'contributionRateBp' => $fetched->contributionRateBp,
                     'liberatingPaymentRateBp' => $fetched->liberatingPaymentRateBp,
                     'year' => $fetched->year,
+                    'readAt' => $fetched->readAt->toIso8601String(),
                 ];
             },
         );
 
-        $rates = new OfficialRates(
+        return new OfficialRates(
             contributionRateBp: (int) $cached['contributionRateBp'],
             liberatingPaymentRateBp: (int) $cached['liberatingPaymentRateBp'],
             year: (int) $cached['year'],
+            readAt: CarbonImmutable::parse((string) $cached['readAt']),
         );
-
-        $settings->update([
-            'contribution_rate_bp' => $rates->contributionRateBp,
-            'liberating_payment_rate_bp' => $rates->liberatingPaymentRateBp,
-            'rates_year' => $rates->year,
-            'rates_checked_at' => CarbonImmutable::now(),
-        ]);
-
-        return $settings;
     }
 }

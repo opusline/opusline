@@ -24,3 +24,7 @@ export const Default: Story = {
 export const CustomTerm: Story = {
   render: () => <ControlledExample initial={90} />,
 };
+
+export const CustomValue: Story = {
+  args: { value: 90, onChange: () => {} },
+};

@@ -21,7 +21,7 @@ const meta = {
       src: "",
       isPending: false,
       error: null,
-      onSave: () => {},
+      onSave: async () => true,
       onRemove: () => {},
     },
   },

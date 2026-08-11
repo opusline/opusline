@@ -6,7 +6,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@opusline/ui/components/tabs";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 import type { FormSubmitResult } from "@/lib/form";
 import type { ThemePreference } from "@/lib/theme";
@@ -15,6 +15,7 @@ import {
   SETTINGS_TAB_DETAILS,
   SETTINGS_TABS,
   type SettingsTab,
+  tabOwningField,
   toSettingsValues,
   unsavedChangesLabel,
 } from "../lib/settings-form";
@@ -31,7 +32,7 @@ type SignatureProps = {
   src: string;
   isPending: boolean;
   error: string | null;
-  onSave: (signature: File) => void;
+  onSave: (signature: File) => Promise<boolean>;
   onRemove: () => void;
 };
 
@@ -64,11 +65,6 @@ export function SettingsPage({
 }: SettingsPageProps) {
   const form = useSettingsForm(settings, onSubmit);
   const savedValues = useMemo(() => toSettingsValues(settings), [settings]);
-
-  const savedContributionRate = savedValues.contributionRate;
-  useEffect(() => {
-    form.setFieldValue("contributionRate", savedContributionRate);
-  }, [form, savedContributionRate]);
 
   return (
     <div>
@@ -116,6 +112,7 @@ export function SettingsPage({
             </TabsContent>
             <TabsContent keepMounted value="fiscalite">
               <FiscalSettingsForm
+                contributionRateBp={settings.contributionRateBp}
                 effectiveContributionRateBp={
                   settings.effectiveContributionRateBp
                 }
@@ -153,12 +150,21 @@ export function SettingsPage({
             selector={(state) => ({
               values: state.values,
               isSubmitting: state.isSubmitting,
+              invalidField: Object.keys(state.fieldMeta).find(
+                (field) =>
+                  !state.fieldMeta[field as keyof typeof state.fieldMeta]
+                    ?.isValid,
+              ),
             })}
           >
-            {({ values, isSubmitting }) => {
-              const changes = countChanges(savedValues, values);
+            {({ values, isSubmitting, invalidField }) => {
+              const changes = countChanges(savedValues, values, settings);
+              const invalidTab =
+                invalidField === undefined
+                  ? undefined
+                  : tabOwningField(invalidField);
 
-              if (changes === 0) {
+              if (changes === 0 && invalidTab === undefined) {
                 return null;
               }
 
@@ -168,7 +174,9 @@ export function SettingsPage({
                     aria-live="polite"
                     className="text-muted-foreground text-sm"
                   >
-                    {unsavedChangesLabel(changes)}
+                    {invalidTab === undefined
+                      ? unsavedChangesLabel(changes)
+                      : `Corrigez le champ en erreur dans l'onglet ${SETTINGS_TAB_DETAILS[invalidTab].label}.`}
                   </span>
                   <div className="flex items-center gap-2">
                     <Button
@@ -183,6 +191,14 @@ export function SettingsPage({
                     <Button
                       disabled={isSubmitting}
                       form={FORM_ID}
+                      onClick={() => {
+                        if (
+                          invalidTab !== undefined &&
+                          invalidTab !== activeTab
+                        ) {
+                          onTabChange(invalidTab);
+                        }
+                      }}
                       size="xl"
                       type="submit"
                     >

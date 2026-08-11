@@ -146,8 +146,15 @@ function ReglagesRoute() {
           src: signatureHref(signatureVersion),
           isPending: uploadSignature.isPending || deleteSignature.isPending,
           error: signatureError,
-          onSave: (file) =>
-            uploadSignature.mutate({ body: { signature: file } }),
+          onSave: async (file) => {
+            try {
+              await uploadSignature.mutateAsync({ body: { signature: file } });
+
+              return true;
+            } catch {
+              return false;
+            }
+          },
           onRemove: () => deleteSignature.mutate({}),
         }}
         rates={{

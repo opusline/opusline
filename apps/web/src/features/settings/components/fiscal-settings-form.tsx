@@ -27,6 +27,7 @@ import { RateSource } from "./rate-source";
 
 type FiscalSettingsFormProps = {
   form: SettingsForm;
+  contributionRateBp: number;
   effectiveContributionRateBp: number;
   liberatingPaymentRateBp: number;
   ratesCheckedAt: string | null;
@@ -40,6 +41,7 @@ type FiscalSettingsFormProps = {
 
 export function FiscalSettingsForm({
   form,
+  contributionRateBp,
   effectiveContributionRateBp,
   liberatingPaymentRateBp,
   ratesCheckedAt,
@@ -146,7 +148,11 @@ export function FiscalSettingsForm({
                         onChange={(event) =>
                           field.handleChange(event.target.value)
                         }
-                        value={field.state.value}
+                        value={
+                          autoRates
+                            ? formatRateBp(contributionRateBp)
+                            : field.state.value
+                        }
                       />
                     )}
                   </form.Subscribe>

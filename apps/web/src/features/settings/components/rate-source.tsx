@@ -98,7 +98,16 @@ export function RateSource({
               </div>
 
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <form.Field name="businessStartedOn">
+                <form.Field
+                  name="businessStartedOn"
+                  validators={{
+                    onChangeListenTo: ["acre"],
+                    onChange: ({ value, fieldApi }) =>
+                      fieldApi.form.getFieldValue("acre") && value === ""
+                        ? { message: "Requis pour appliquer l'ACRE." }
+                        : undefined,
+                  }}
+                >
                   {(field) => (
                     <FormTextField
                       field={field}

@@ -42,7 +42,7 @@ class SettingsController extends Controller
         abort_if(! $settings->auto_rates, 409, __('settings.rates_manual'));
 
         return response()->json(
-            SettingsData::fromModel($refreshOfficialRates->handle($settings), $this->hasSignature($user)),
+            SettingsData::fromModel($refreshOfficialRates->handle($settings, force: true), $this->hasSignature($user)),
         );
     }
 

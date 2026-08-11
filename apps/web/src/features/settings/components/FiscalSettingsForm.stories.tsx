@@ -19,6 +19,7 @@ function Example({
   return (
     <div className="max-w-160">
       <FiscalSettingsForm
+        contributionRateBp={settings.contributionRateBp}
         effectiveContributionRateBp={settings.effectiveContributionRateBp}
         form={form}
         isRefreshingRates={false}
