@@ -8,19 +8,21 @@ import { SuggestField } from "@/components/suggest-field";
 import { searchAddresses, searchCities } from "@/lib/addresses";
 import { searchCountries } from "@/lib/countries";
 
-export type BillingAddressFieldName =
-  | "billingAddressLine1"
-  | "billingAddressLine2"
-  | "billingPostalCode"
-  | "billingCity"
-  | "billingCountry";
+export type AddressFieldNames<TName extends string> = {
+  line1: TName;
+  line2: TName;
+  postalCode: TName;
+  city: TName;
+  country?: TName;
+};
 
-type BillingAddressFieldsProps = {
+type AddressFieldsProps<TName extends string> = {
+  names: AddressFieldNames<TName>;
   renderField: (
-    name: BillingAddressFieldName,
+    name: TName,
     render: (field: StringFieldApi) => ReactNode,
   ) => ReactNode;
-  setFieldValue: (name: BillingAddressFieldName, value: string) => void;
+  setFieldValue: (name: TName, value: string) => void;
   labelClassName?: string;
   streetLabel: string;
   complementLabel: string;
@@ -28,7 +30,8 @@ type BillingAddressFieldsProps = {
   gapClassName: string;
 };
 
-export function BillingAddressFields({
+export function AddressFields<TName extends string>({
+  names,
   renderField,
   setFieldValue,
   labelClassName,
@@ -36,12 +39,21 @@ export function BillingAddressFields({
   complementLabel,
   withPlaceholders = false,
   gapClassName,
-}: BillingAddressFieldsProps) {
+}: AddressFieldsProps<TName>) {
   const placeholder = (value: string) => (withPlaceholders ? value : undefined);
+
+  const fillFromSuggestion = (postalCode: string, city: string) => {
+    setFieldValue(names.postalCode, postalCode);
+    setFieldValue(names.city, city);
+
+    if (names.country !== undefined) {
+      setFieldValue(names.country, "France");
+    }
+  };
 
   return (
     <div className={`flex flex-col ${gapClassName}`}>
-      {renderField("billingAddressLine1", (field) => (
+      {renderField(names.line1, (field) => (
         <SuggestField
           field={field}
           label={streetLabel}
@@ -49,36 +61,34 @@ export function BillingAddressFields({
           onSearch={searchAddresses}
           onSelect={(suggestion) => {
             field.handleChange(suggestion.line1);
-            setFieldValue("billingPostalCode", suggestion.postalCode);
-            setFieldValue("billingCity", suggestion.city);
-            setFieldValue("billingCountry", "France");
+            fillFromSuggestion(suggestion.postalCode, suggestion.city);
           }}
-          placeholder={placeholder("12 rue de la Paix")}
+          placeholder={placeholder("12 rue de l'Exemple")}
         />
       ))}
 
-      {renderField("billingAddressLine2", (field) => (
+      {renderField(names.line2, (field) => (
         <FormTextField
           field={field}
           label={complementLabel}
           labelClassName={labelClassName}
-          placeholder={placeholder("Bâtiment C, 3e étage")}
+          placeholder={placeholder("Bâtiment, étage, boîte…")}
         />
       ))}
 
       <div
         className={`grid ${gapClassName} sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]`}
       >
-        {renderField("billingPostalCode", (field) => (
+        {renderField(names.postalCode, (field) => (
           <FormTextField
             field={field}
             label="Code postal"
             labelClassName={labelClassName}
-            placeholder={placeholder("44000")}
+            placeholder={placeholder("00000")}
           />
         ))}
 
-        {renderField("billingCity", (field) => (
+        {renderField(names.city, (field) => (
           <SuggestField
             field={field}
             label="Ville"
@@ -86,24 +96,29 @@ export function BillingAddressFields({
             onSearch={searchCities}
             onSelect={(suggestion) => {
               field.handleChange(suggestion.city);
-              setFieldValue("billingPostalCode", suggestion.postalCode);
-              setFieldValue("billingCountry", "France");
+              setFieldValue(names.postalCode, suggestion.postalCode);
+
+              if (names.country !== undefined) {
+                setFieldValue(names.country, "France");
+              }
             }}
-            placeholder={placeholder("Nantes")}
+            placeholder={placeholder("Ville")}
           />
         ))}
       </div>
 
-      {renderField("billingCountry", (field) => (
-        <SuggestField
-          field={field}
-          label="Pays"
-          labelClassName={labelClassName}
-          onSearch={async (query) => searchCountries(query)}
-          onSelect={(suggestion) => field.handleChange(suggestion.label)}
-          placeholder={placeholder("France")}
-        />
-      ))}
+      {names.country === undefined
+        ? null
+        : renderField(names.country, (field) => (
+            <SuggestField
+              field={field}
+              label="Pays"
+              labelClassName={labelClassName}
+              onSearch={async (query) => searchCountries(query)}
+              onSelect={(suggestion) => field.handleChange(suggestion.label)}
+              placeholder={placeholder("France")}
+            />
+          ))}
     </div>
   );
 }

@@ -209,6 +209,38 @@ export type RegisterUserData = {
 };
 
 /**
+ * SettingsData
+ */
+export type SettingsData = {
+    tradeName: string | null;
+    siret: string | null;
+    vatNumber: string | null;
+    signatureCity: string | null;
+    contactEmail: string | null;
+    phone: string | null;
+    companyAddressLine1: string | null;
+    companyAddressLine2: string | null;
+    companyPostalCode: string | null;
+    companyCity: string | null;
+    homeAddressSameAsCompany: boolean;
+    homeAddressLine1: string | null;
+    homeAddressLine2: string | null;
+    homePostalCode: string | null;
+    homeCity: string | null;
+    urssafPeriodicity: UrssafPeriodicity;
+    contributionRateBp: number;
+    liberatingPayment: boolean;
+    liberatingPaymentRateBp: number;
+    vatRegime: VatRegime;
+    vatLiable: boolean;
+    effectiveContributionRateBp: number;
+    defaultPaymentTermsDays: number;
+    invoiceNumberFormat: string;
+    treasuryBuffer: MoneyData | null;
+    hasSignature: boolean;
+};
+
+/**
  * StartTimerData
  */
 export type StartTimerData = {
@@ -225,6 +257,11 @@ export type StopTimerData = {
     note: string | null;
     billable?: boolean;
 };
+
+/**
+ * Theme
+ */
+export type Theme = 0 | 1 | 2;
 
 /**
  * TimeEntryData
@@ -342,10 +379,49 @@ export type UpdateMissionData = {
 };
 
 /**
+ * UpdateSettingsData
+ */
+export type UpdateSettingsData = {
+    urssafPeriodicity: UrssafPeriodicity;
+    contributionRateBp: number;
+    liberatingPayment: boolean;
+    liberatingPaymentRateBp: number;
+    vatRegime: VatRegime;
+    defaultPaymentTermsDays: number;
+    invoiceNumberFormat: string;
+    homeAddressSameAsCompany: boolean;
+    tradeName?: string | null;
+    siret?: string | null;
+    vatNumber?: string | null;
+    signatureCity?: string | null;
+    contactEmail?: string | null;
+    phone?: string | null;
+    companyAddressLine1?: string | null;
+    companyAddressLine2?: string | null;
+    companyPostalCode?: string | null;
+    companyCity?: string | null;
+    homeAddressLine1?: string | null;
+    homeAddressLine2?: string | null;
+    homePostalCode?: string | null;
+    homeCity?: string | null;
+    treasuryBuffer?: {
+        amount: number;
+        currency: Currency;
+    } | null;
+};
+
+/**
  * UpdateTimerData
  */
 export type UpdateTimerData = {
     note: string | null;
+};
+
+/**
+ * UpdateUserThemeData
+ */
+export type UpdateUserThemeData = {
+    theme: Theme;
 };
 
 /**
@@ -371,14 +447,35 @@ export type UploadDocumentData = {
 };
 
 /**
+ * UploadSignatureData
+ */
+export type UploadSignatureData = {
+    /**
+     * Maximum file size: 1024 kilobytes.
+     */
+    signature: Blob | File;
+};
+
+/**
+ * UrssafPeriodicity
+ */
+export type UrssafPeriodicity = 0 | 1;
+
+/**
  * UserData
  */
 export type UserData = {
     id: number;
     name: string;
     email: string;
+    theme: Theme;
     workdayMinutes: number;
 };
+
+/**
+ * VatRegime
+ */
+export type VatRegime = 0 | 1 | 2;
 
 export type GetPingData = {
     body?: never;
@@ -492,6 +589,33 @@ export type CurrentUserResponses = {
 };
 
 export type CurrentUserResponse = CurrentUserResponses[keyof CurrentUserResponses];
+
+export type UpdateUserThemeData2 = {
+    body: UpdateUserThemeData;
+    path?: never;
+    query?: never;
+    url: '/user/theme';
+};
+
+export type UpdateUserThemeErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateUserThemeError = UpdateUserThemeErrors[keyof UpdateUserThemeErrors];
+
+export type UpdateUserThemeResponses = {
+    200: UserData;
+};
+
+export type UpdateUserThemeResponse = UpdateUserThemeResponses[keyof UpdateUserThemeResponses];
 
 export type ListClientsData = {
     body?: never;
@@ -1522,6 +1646,174 @@ export type DownloadMissionDocumentResponses = {
 };
 
 export type DownloadMissionDocumentResponse = DownloadMissionDocumentResponses[keyof DownloadMissionDocumentResponses];
+
+export type ShowSettingsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/settings';
+};
+
+export type ShowSettingsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowSettingsError = ShowSettingsErrors[keyof ShowSettingsErrors];
+
+export type ShowSettingsResponses = {
+    200: SettingsData;
+};
+
+export type ShowSettingsResponse = ShowSettingsResponses[keyof ShowSettingsResponses];
+
+export type UpdateSettingsData2 = {
+    body: UpdateSettingsData;
+    path?: never;
+    query?: never;
+    url: '/settings';
+};
+
+export type UpdateSettingsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateSettingsError = UpdateSettingsErrors[keyof UpdateSettingsErrors];
+
+export type UpdateSettingsResponses = {
+    200: SettingsData;
+};
+
+export type UpdateSettingsResponse = UpdateSettingsResponses[keyof UpdateSettingsResponses];
+
+export type DeleteUserSignatureData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/signature';
+};
+
+export type DeleteUserSignatureErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteUserSignatureError = DeleteUserSignatureErrors[keyof DeleteUserSignatureErrors];
+
+export type DeleteUserSignatureResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteUserSignatureResponse = DeleteUserSignatureResponses[keyof DeleteUserSignatureResponses];
+
+export type ShowUserSignatureData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/signature';
+};
+
+export type ShowUserSignatureErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowUserSignatureError = ShowUserSignatureErrors[keyof ShowUserSignatureErrors];
+
+export type ShowUserSignatureResponses = {
+    200: Blob | File;
+};
+
+export type ShowUserSignatureResponse = ShowUserSignatureResponses[keyof ShowUserSignatureResponses];
+
+export type UploadUserSignatureData = {
+    body: UploadSignatureData;
+    path?: never;
+    query?: never;
+    url: '/user/signature';
+};
+
+export type UploadUserSignatureErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UploadUserSignatureError = UploadUserSignatureErrors[keyof UploadUserSignatureErrors];
+
+export type UploadUserSignatureResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type UploadUserSignatureResponse = UploadUserSignatureResponses[keyof UploadUserSignatureResponses];
 
 export type ListTimeEntriesData = {
     body?: never;

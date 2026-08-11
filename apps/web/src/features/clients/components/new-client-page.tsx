@@ -10,21 +10,25 @@ import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
 import { CircleAlert, InfoIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { AddressFields } from "@/components/address-fields";
 import { ClientLogo } from "@/components/client-logo";
 import { FormTextField } from "@/components/form-text-field";
 import { LogoPicker } from "@/components/logo-picker";
+import { PaymentTermsPicker } from "@/components/payment-terms-picker";
 import { paymentTermsLabel } from "@/lib/billing";
 import type { FormSubmitResult } from "@/lib/form";
 import { COLOR_CLASSES, COLOR_LABELS, COLORS } from "@/lib/palette";
-import { type ClientFormValues, toClientPayload } from "../lib/client-form";
+import {
+  BILLING_ADDRESS_NAMES,
+  type ClientFormValues,
+  toClientPayload,
+} from "../lib/client-form";
 import {
   CLIENT_TYPE_HINTS,
   CLIENT_TYPE_OPTION_LABELS,
   CLIENT_TYPES,
   randomColor,
 } from "../lib/labels";
-import { BillingAddressFields } from "./billing-address-fields";
-import { PaymentTermsPicker } from "./payment-terms-picker";
 
 const EYEBROW_CLASSES =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
@@ -222,7 +226,8 @@ export function NewClientPage({
             </form.Field>
           </div>
 
-          <BillingAddressFields
+          <AddressFields
+            names={BILLING_ADDRESS_NAMES}
             complementLabel="Complément d'adresse"
             gapClassName="gap-4"
             labelClassName="text-foreground-3"

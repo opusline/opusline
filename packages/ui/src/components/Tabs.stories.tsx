@@ -59,3 +59,58 @@ export const Default: Story = {
     </Tabs>
   ),
 };
+
+export const Sidebar: Story = {
+  render: () => (
+    <Tabs
+      className="items-start gap-8"
+      defaultValue="identite"
+      orientation="vertical"
+    >
+      <TabsList className="w-55 shrink-0" variant="sidebar">
+        <TabsTrigger value="identite">
+          <span className="flex flex-col gap-0.75">
+            <span className="text-sm">Identité</span>
+            <span className="text-muted-foreground-3 text-xs">
+              Coordonnées, adresse
+            </span>
+          </span>
+        </TabsTrigger>
+        <TabsTrigger value="fiscalite">
+          <span className="flex flex-col gap-0.75">
+            <span className="text-sm">Fiscalité</span>
+            <span className="text-muted-foreground-3 text-xs">
+              URSSAF, TVA, provisions
+            </span>
+          </span>
+        </TabsTrigger>
+        <TabsTrigger value="facturation">
+          <span className="flex flex-col gap-0.75">
+            <span className="text-sm">Facturation</span>
+            <span className="text-muted-foreground-3 text-xs">
+              Délais, numérotation, matelas
+            </span>
+          </span>
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent
+        className="rounded-md border bg-card p-6 text-sm"
+        value="identite"
+      >
+        Nom commercial, SIRET, adresses.
+      </TabsContent>
+      <TabsContent
+        className="rounded-md border bg-card p-6 text-sm"
+        value="fiscalite"
+      >
+        Périodicité URSSAF, taux de cotisations, régime de TVA.
+      </TabsContent>
+      <TabsContent
+        className="rounded-md border bg-card p-6 text-sm"
+        value="facturation"
+      >
+        Délai de paiement, numérotation, matelas de trésorerie.
+      </TabsContent>
+    </Tabs>
+  ),
+};

@@ -168,6 +168,39 @@
                 }
             }
         },
+        "/user/theme": {
+            "put": {
+                "operationId": "updateUserTheme",
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateUserThemeData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/clients": {
             "get": {
                 "operationId": "listClients",
@@ -250,11 +283,11 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             },
@@ -295,11 +328,11 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             },
@@ -323,12 +356,6 @@
                     "204": {
                         "description": "No content"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "409": {
                         "description": "An error",
                         "content": {
@@ -347,6 +374,12 @@
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -379,11 +412,11 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -416,11 +449,11 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -453,11 +486,11 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             },
@@ -498,11 +531,11 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -553,11 +586,11 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             },
@@ -589,11 +622,11 @@
                     "204": {
                         "description": "No content"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -646,11 +679,11 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -686,11 +719,11 @@
                     "204": {
                         "description": "No content"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             },
@@ -733,11 +766,11 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             },
@@ -761,11 +794,11 @@
                     "204": {
                         "description": "No content"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -807,11 +840,11 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             },
@@ -861,11 +894,11 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             },
@@ -898,12 +931,6 @@
                     "204": {
                         "description": "No content"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "409": {
                         "description": "An error",
                         "content": {
@@ -922,6 +949,12 @@
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -964,11 +997,11 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -1010,11 +1043,11 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             },
@@ -1064,11 +1097,11 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -1128,11 +1161,11 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             },
@@ -1173,11 +1206,11 @@
                     "204": {
                         "description": "No content"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -1239,11 +1272,147 @@
                             }
                         }
                     },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/settings": {
+            "get": {
+                "operationId": "showSettings",
+                "tags": [
+                    "Settings"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SettingsData"
+                                }
+                            }
+                        }
                     },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "updateSettings",
+                "tags": [
+                    "Settings"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateSettingsData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SettingsData"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/user/signature": {
+            "post": {
+                "operationId": "uploadUserSignature",
+                "tags": [
+                    "Signature"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UploadSignatureData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "get": {
+                "operationId": "showUserSignature",
+                "tags": [
+                    "Signature"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Transfer-Encoding": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "chunked"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteUserSignature",
+                "tags": [
+                    "Signature"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -1316,11 +1485,11 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -1363,11 +1532,11 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             },
@@ -1391,11 +1560,11 @@
                     "204": {
                         "description": "No content"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -1448,9 +1617,6 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "409": {
                         "description": "An error",
                         "content": {
@@ -1469,6 +1635,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             },
@@ -1498,9 +1667,6 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "description": "An error",
                         "content": {
@@ -1519,6 +1685,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             },
@@ -1531,9 +1700,6 @@
                     "204": {
                         "description": "No content"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "description": "An error",
                         "content": {
@@ -1552,6 +1718,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -1573,9 +1742,6 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "description": "An error",
                         "content": {
@@ -1594,6 +1760,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -1615,9 +1784,6 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "description": "An error",
                         "content": {
@@ -1636,6 +1802,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -1667,9 +1836,6 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "description": "An error",
                         "content": {
@@ -1688,6 +1854,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -1719,9 +1888,6 @@
                             }
                         }
                     },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    },
                     "404": {
                         "description": "An error",
                         "content": {
@@ -1740,6 +1906,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -2528,6 +2697,167 @@
                 ],
                 "title": "RegisterUserData"
             },
+            "SettingsData": {
+                "type": "object",
+                "properties": {
+                    "tradeName": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "siret": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "vatNumber": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "signatureCity": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "contactEmail": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "phone": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "companyAddressLine1": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "companyAddressLine2": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "companyPostalCode": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "companyCity": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "homeAddressSameAsCompany": {
+                        "type": "boolean"
+                    },
+                    "homeAddressLine1": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "homeAddressLine2": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "homePostalCode": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "homeCity": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "urssafPeriodicity": {
+                        "$ref": "#/components/schemas/UrssafPeriodicity"
+                    },
+                    "contributionRateBp": {
+                        "type": "integer"
+                    },
+                    "liberatingPayment": {
+                        "type": "boolean"
+                    },
+                    "liberatingPaymentRateBp": {
+                        "type": "integer"
+                    },
+                    "vatRegime": {
+                        "$ref": "#/components/schemas/VatRegime"
+                    },
+                    "vatLiable": {
+                        "type": "boolean"
+                    },
+                    "effectiveContributionRateBp": {
+                        "type": "integer"
+                    },
+                    "defaultPaymentTermsDays": {
+                        "type": "integer"
+                    },
+                    "invoiceNumberFormat": {
+                        "type": "string"
+                    },
+                    "treasuryBuffer": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "hasSignature": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "tradeName",
+                    "siret",
+                    "vatNumber",
+                    "signatureCity",
+                    "contactEmail",
+                    "phone",
+                    "companyAddressLine1",
+                    "companyAddressLine2",
+                    "companyPostalCode",
+                    "companyCity",
+                    "homeAddressSameAsCompany",
+                    "homeAddressLine1",
+                    "homeAddressLine2",
+                    "homePostalCode",
+                    "homeCity",
+                    "urssafPeriodicity",
+                    "contributionRateBp",
+                    "liberatingPayment",
+                    "liberatingPaymentRateBp",
+                    "vatRegime",
+                    "vatLiable",
+                    "effectiveContributionRateBp",
+                    "defaultPaymentTermsDays",
+                    "invoiceNumberFormat",
+                    "treasuryBuffer",
+                    "hasSignature"
+                ],
+                "title": "SettingsData"
+            },
             "StartTimerData": {
                 "type": "object",
                 "properties": {
@@ -2579,6 +2909,20 @@
                     "note"
                 ],
                 "title": "StopTimerData"
+            },
+            "Theme": {
+                "type": "integer",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "System",
+                    "Light",
+                    "Dark"
+                ],
+                "title": "Theme"
             },
             "TimeEntryData": {
                 "type": "object",
@@ -2998,6 +3342,171 @@
                 ],
                 "title": "UpdateMissionData"
             },
+            "UpdateSettingsData": {
+                "type": "object",
+                "properties": {
+                    "urssafPeriodicity": {
+                        "$ref": "#/components/schemas/UrssafPeriodicity"
+                    },
+                    "contributionRateBp": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 10000
+                    },
+                    "liberatingPayment": {
+                        "type": "boolean"
+                    },
+                    "liberatingPaymentRateBp": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 10000
+                    },
+                    "vatRegime": {
+                        "$ref": "#/components/schemas/VatRegime"
+                    },
+                    "defaultPaymentTermsDays": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 365
+                    },
+                    "invoiceNumberFormat": {
+                        "type": "string",
+                        "maxLength": 64
+                    },
+                    "homeAddressSameAsCompany": {
+                        "type": "boolean"
+                    },
+                    "tradeName": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "siret": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "vatNumber": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "signatureCity": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "contactEmail": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "email",
+                        "maxLength": 255
+                    },
+                    "phone": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 64
+                    },
+                    "companyAddressLine1": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "companyAddressLine2": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "companyPostalCode": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 32
+                    },
+                    "companyCity": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "homeAddressLine1": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "homeAddressLine2": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "homePostalCode": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 32
+                    },
+                    "homeCity": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "treasuryBuffer": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    }
+                },
+                "required": [
+                    "urssafPeriodicity",
+                    "contributionRateBp",
+                    "liberatingPayment",
+                    "liberatingPaymentRateBp",
+                    "vatRegime",
+                    "defaultPaymentTermsDays",
+                    "invoiceNumberFormat",
+                    "homeAddressSameAsCompany"
+                ],
+                "title": "UpdateSettingsData"
+            },
             "UpdateTimerData": {
                 "type": "object",
                 "properties": {
@@ -3013,6 +3522,18 @@
                     "note"
                 ],
                 "title": "UpdateTimerData"
+            },
+            "UpdateUserThemeData": {
+                "type": "object",
+                "properties": {
+                    "theme": {
+                        "$ref": "#/components/schemas/Theme"
+                    }
+                },
+                "required": [
+                    "theme"
+                ],
+                "title": "UpdateUserThemeData"
             },
             "UploadClientLogoData": {
                 "type": "object",
@@ -3061,6 +3582,33 @@
                 ],
                 "title": "UploadDocumentData"
             },
+            "UploadSignatureData": {
+                "type": "object",
+                "properties": {
+                    "signature": {
+                        "type": "string",
+                        "format": "binary",
+                        "contentMediaType": "application/octet-stream",
+                        "description": "Maximum file size: 1024 kilobytes."
+                    }
+                },
+                "required": [
+                    "signature"
+                ],
+                "title": "UploadSignatureData"
+            },
+            "UrssafPeriodicity": {
+                "type": "integer",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "Monthly",
+                    "Quarterly"
+                ],
+                "title": "UrssafPeriodicity"
+            },
             "UserData": {
                 "type": "object",
                 "properties": {
@@ -3073,6 +3621,9 @@
                     "email": {
                         "type": "string"
                     },
+                    "theme": {
+                        "$ref": "#/components/schemas/Theme"
+                    },
                     "workdayMinutes": {
                         "type": "integer"
                     }
@@ -3081,9 +3632,24 @@
                     "id",
                     "name",
                     "email",
+                    "theme",
                     "workdayMinutes"
                 ],
                 "title": "UserData"
+            },
+            "VatRegime": {
+                "type": "integer",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "FranchiseEnBase",
+                    "ReelSimplifie",
+                    "ReelNormal"
+                ],
+                "title": "VatRegime"
             }
         },
         "responses": {

@@ -13,7 +13,11 @@ import {
 import { Menu } from "lucide-react";
 
 import { AppSidebar } from "@/components/app-sidebar";
-import { ModeToggle } from "@/components/mode-toggle";
+import { ModeToggle } from "@/features/theme/components/mode-toggle";
+import {
+  useThemeControl,
+  useThemeSync,
+} from "@/features/theme/lib/use-theme-preference";
 import { TimerContainer } from "@/features/timer/components/timer-container";
 import { TimerProvider } from "@/features/timer/components/timer-provider";
 
@@ -67,6 +71,11 @@ function ExpandSidebarButton() {
 function AuthedLayout() {
   const { user } = Route.useRouteContext();
   const { pathname } = useLocation();
+
+  useThemeSync(user);
+
+  const { resolvedTheme, setTheme } = useThemeControl();
+
   const pageTitle = Object.entries(pageTitles).find(([prefix]) =>
     pathname.startsWith(prefix),
   )?.[1];
@@ -82,7 +91,7 @@ function AuthedLayout() {
               <span className="font-medium text-sm">{pageTitle}</span>
             ) : null}
             <div className="flex-1" />
-            <ModeToggle />
+            <ModeToggle onChange={setTheme} resolvedTheme={resolvedTheme} />
             <TimerContainer workdayMinutes={user.workdayMinutes} />
           </header>
           <div className="p-6">

@@ -5,6 +5,14 @@ import type {
   UpdateClientData,
 } from "@opusline/api-client";
 
+export const BILLING_ADDRESS_NAMES = {
+  line1: "billingAddressLine1",
+  line2: "billingAddressLine2",
+  postalCode: "billingPostalCode",
+  city: "billingCity",
+  country: "billingCountry",
+} as const;
+
 export type ClientFormValues = {
   name: string;
   type: ClientType;

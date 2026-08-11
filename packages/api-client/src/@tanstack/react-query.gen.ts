@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { archiveClient, createClient, createMission, createTimeEntry, currentUser, deleteClient, deleteClientDocument, deleteClientLogo, deleteMission, deleteMissionDocument, deleteTimeEntry, discardTimer, downloadClientDocument, downloadMissionDocument, getPing, listClientDocuments, listClients, listMissionDocuments, listTimeEntries, login, logout, type Options, pauseTimer, register, resumeTimer, showClient, showClientLogo, showMission, showTimer, startTimer, stopTimer, trimTimer, unarchiveClient, updateClient, updateClientDocument, updateMission, updateMissionDocument, updateTimeEntry, updateTimer, uploadClientDocument, uploadClientLogo, uploadMissionDocument } from '../sdk.gen';
-import type { ArchiveClientData, ArchiveClientError, ArchiveClientResponse, CreateClientData2, CreateClientError, CreateClientResponse, CreateMissionData2, CreateMissionError, CreateMissionResponse, CreateTimeEntryData, CreateTimeEntryError, CreateTimeEntryResponse, CurrentUserData, CurrentUserError, CurrentUserResponse, DeleteClientData, DeleteClientDocumentData, DeleteClientDocumentError, DeleteClientDocumentResponse, DeleteClientError, DeleteClientLogoData, DeleteClientLogoError, DeleteClientLogoResponse, DeleteClientResponse, DeleteMissionData, DeleteMissionDocumentData, DeleteMissionDocumentError, DeleteMissionDocumentResponse, DeleteMissionError, DeleteMissionResponse, DeleteTimeEntryData, DeleteTimeEntryError, DeleteTimeEntryResponse, DiscardTimerData, DiscardTimerError, DiscardTimerResponse, DownloadClientDocumentData, DownloadClientDocumentError, DownloadClientDocumentResponse, DownloadMissionDocumentData, DownloadMissionDocumentError, DownloadMissionDocumentResponse, GetPingData, GetPingResponse, ListClientDocumentsData, ListClientDocumentsError, ListClientDocumentsResponse, ListClientsData, ListClientsError, ListClientsResponse, ListMissionDocumentsData, ListMissionDocumentsError, ListMissionDocumentsResponse, ListTimeEntriesData, ListTimeEntriesError, ListTimeEntriesResponse, LoginData2, LoginError, LoginResponse, LogoutData, LogoutError, LogoutResponse, PauseTimerData, PauseTimerError, PauseTimerResponse, RegisterData, RegisterResponse, ResumeTimerData, ResumeTimerError, ResumeTimerResponse, ShowClientData, ShowClientError, ShowClientLogoData, ShowClientLogoError, ShowClientLogoResponse, ShowClientResponse, ShowMissionData, ShowMissionError, ShowMissionResponse, ShowTimerData, ShowTimerError, ShowTimerResponse, StartTimerData2, StartTimerError, StartTimerResponse, StopTimerData2, StopTimerError, StopTimerResponse, TrimTimerData2, TrimTimerError, TrimTimerResponse, UnarchiveClientData, UnarchiveClientError, UnarchiveClientResponse, UpdateClientData2, UpdateClientDocumentData, UpdateClientDocumentError, UpdateClientDocumentResponse, UpdateClientError, UpdateClientResponse, UpdateMissionData2, UpdateMissionDocumentData, UpdateMissionDocumentError, UpdateMissionDocumentResponse, UpdateMissionError, UpdateMissionResponse, UpdateTimeEntryData, UpdateTimeEntryError, UpdateTimeEntryResponse, UpdateTimerData2, UpdateTimerError, UpdateTimerResponse, UploadClientDocumentData, UploadClientDocumentError, UploadClientDocumentResponse, UploadClientLogoData2, UploadClientLogoError, UploadClientLogoResponse, UploadMissionDocumentData, UploadMissionDocumentError, UploadMissionDocumentResponse } from '../types.gen';
+import { archiveClient, createClient, createMission, createTimeEntry, currentUser, deleteClient, deleteClientDocument, deleteClientLogo, deleteMission, deleteMissionDocument, deleteTimeEntry, deleteUserSignature, discardTimer, downloadClientDocument, downloadMissionDocument, getPing, listClientDocuments, listClients, listMissionDocuments, listTimeEntries, login, logout, type Options, pauseTimer, register, resumeTimer, showClient, showClientLogo, showMission, showSettings, showTimer, showUserSignature, startTimer, stopTimer, trimTimer, unarchiveClient, updateClient, updateClientDocument, updateMission, updateMissionDocument, updateSettings, updateTimeEntry, updateTimer, updateUserTheme, uploadClientDocument, uploadClientLogo, uploadMissionDocument, uploadUserSignature } from '../sdk.gen';
+import type { ArchiveClientData, ArchiveClientError, ArchiveClientResponse, CreateClientData2, CreateClientError, CreateClientResponse, CreateMissionData2, CreateMissionError, CreateMissionResponse, CreateTimeEntryData, CreateTimeEntryError, CreateTimeEntryResponse, CurrentUserData, CurrentUserError, CurrentUserResponse, DeleteClientData, DeleteClientDocumentData, DeleteClientDocumentError, DeleteClientDocumentResponse, DeleteClientError, DeleteClientLogoData, DeleteClientLogoError, DeleteClientLogoResponse, DeleteClientResponse, DeleteMissionData, DeleteMissionDocumentData, DeleteMissionDocumentError, DeleteMissionDocumentResponse, DeleteMissionError, DeleteMissionResponse, DeleteTimeEntryData, DeleteTimeEntryError, DeleteTimeEntryResponse, DeleteUserSignatureData, DeleteUserSignatureError, DeleteUserSignatureResponse, DiscardTimerData, DiscardTimerError, DiscardTimerResponse, DownloadClientDocumentData, DownloadClientDocumentError, DownloadClientDocumentResponse, DownloadMissionDocumentData, DownloadMissionDocumentError, DownloadMissionDocumentResponse, GetPingData, GetPingResponse, ListClientDocumentsData, ListClientDocumentsError, ListClientDocumentsResponse, ListClientsData, ListClientsError, ListClientsResponse, ListMissionDocumentsData, ListMissionDocumentsError, ListMissionDocumentsResponse, ListTimeEntriesData, ListTimeEntriesError, ListTimeEntriesResponse, LoginData2, LoginError, LoginResponse, LogoutData, LogoutError, LogoutResponse, PauseTimerData, PauseTimerError, PauseTimerResponse, RegisterData, RegisterResponse, ResumeTimerData, ResumeTimerError, ResumeTimerResponse, ShowClientData, ShowClientError, ShowClientLogoData, ShowClientLogoError, ShowClientLogoResponse, ShowClientResponse, ShowMissionData, ShowMissionError, ShowMissionResponse, ShowSettingsData, ShowSettingsError, ShowSettingsResponse, ShowTimerData, ShowTimerError, ShowTimerResponse, ShowUserSignatureData, ShowUserSignatureError, ShowUserSignatureResponse, StartTimerData2, StartTimerError, StartTimerResponse, StopTimerData2, StopTimerError, StopTimerResponse, TrimTimerData2, TrimTimerError, TrimTimerResponse, UnarchiveClientData, UnarchiveClientError, UnarchiveClientResponse, UpdateClientData2, UpdateClientDocumentData, UpdateClientDocumentError, UpdateClientDocumentResponse, UpdateClientError, UpdateClientResponse, UpdateMissionData2, UpdateMissionDocumentData, UpdateMissionDocumentError, UpdateMissionDocumentResponse, UpdateMissionError, UpdateMissionResponse, UpdateSettingsData2, UpdateSettingsError, UpdateSettingsResponse, UpdateTimeEntryData, UpdateTimeEntryError, UpdateTimeEntryResponse, UpdateTimerData2, UpdateTimerError, UpdateTimerResponse, UpdateUserThemeData2, UpdateUserThemeError, UpdateUserThemeResponse, UploadClientDocumentData, UploadClientDocumentError, UploadClientDocumentResponse, UploadClientLogoData2, UploadClientLogoError, UploadClientLogoResponse, UploadMissionDocumentData, UploadMissionDocumentError, UploadMissionDocumentResponse, UploadUserSignatureData, UploadUserSignatureError, UploadUserSignatureResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -110,6 +110,20 @@ export const currentUserOptions = (options?: Options<CurrentUserData>) => queryO
     },
     queryKey: currentUserQueryKey(options)
 });
+
+export const updateUserThemeMutation = (options?: Partial<Options<UpdateUserThemeData2>>): UseMutationOptions<UpdateUserThemeResponse, UpdateUserThemeError, Options<UpdateUserThemeData2>> => {
+    const mutationOptions: UseMutationOptions<UpdateUserThemeResponse, UpdateUserThemeError, Options<UpdateUserThemeData2>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await updateUserTheme({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const listClientsQueryKey = (options?: Options<ListClientsData>) => createQueryKey('listClients', options);
 
@@ -454,6 +468,78 @@ export const downloadMissionDocumentOptions = (options: Options<DownloadMissionD
     },
     queryKey: downloadMissionDocumentQueryKey(options)
 });
+
+export const showSettingsQueryKey = (options?: Options<ShowSettingsData>) => createQueryKey('showSettings', options);
+
+export const showSettingsOptions = (options?: Options<ShowSettingsData>) => queryOptions<ShowSettingsResponse, ShowSettingsError, ShowSettingsResponse, ReturnType<typeof showSettingsQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await showSettings({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: showSettingsQueryKey(options)
+});
+
+export const updateSettingsMutation = (options?: Partial<Options<UpdateSettingsData2>>): UseMutationOptions<UpdateSettingsResponse, UpdateSettingsError, Options<UpdateSettingsData2>> => {
+    const mutationOptions: UseMutationOptions<UpdateSettingsResponse, UpdateSettingsError, Options<UpdateSettingsData2>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await updateSettings({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const deleteUserSignatureMutation = (options?: Partial<Options<DeleteUserSignatureData>>): UseMutationOptions<DeleteUserSignatureResponse, DeleteUserSignatureError, Options<DeleteUserSignatureData>> => {
+    const mutationOptions: UseMutationOptions<DeleteUserSignatureResponse, DeleteUserSignatureError, Options<DeleteUserSignatureData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteUserSignature({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const showUserSignatureQueryKey = (options?: Options<ShowUserSignatureData>) => createQueryKey('showUserSignature', options);
+
+export const showUserSignatureOptions = (options?: Options<ShowUserSignatureData>) => queryOptions<ShowUserSignatureResponse, ShowUserSignatureError, ShowUserSignatureResponse, ReturnType<typeof showUserSignatureQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await showUserSignature({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: showUserSignatureQueryKey(options)
+});
+
+export const uploadUserSignatureMutation = (options?: Partial<Options<UploadUserSignatureData>>): UseMutationOptions<UploadUserSignatureResponse, UploadUserSignatureError, Options<UploadUserSignatureData>> => {
+    const mutationOptions: UseMutationOptions<UploadUserSignatureResponse, UploadUserSignatureError, Options<UploadUserSignatureData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await uploadUserSignature({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const listTimeEntriesQueryKey = (options: Options<ListTimeEntriesData>) => createQueryKey('listTimeEntries', options);
 
