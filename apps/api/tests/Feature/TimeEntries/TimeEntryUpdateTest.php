@@ -175,7 +175,7 @@ test('puts an omitted billable flag back to billable, like every other field', f
 });
 
 /**
- * @param  callable(TimeEntry, Mission): array<string, mixed>  $change
+ * @param  callable(TimeEntry, Mission): array{missionId?: int, date?: string, durationMinutes?: int, rounding?: int, billable?: bool}  $change
  */
 test('refuses to change what an invoice already bills', function (callable $change): void {
     $user = User::factory()->create();
