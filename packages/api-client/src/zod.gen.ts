@@ -150,6 +150,61 @@ export const zCreateMissionData = z.object({
 });
 
 /**
+ * InvoiceEventKind
+ */
+export const zInvoiceEventKind = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4)
+]);
+
+/**
+ * InvoiceEventData
+ */
+export const zInvoiceEventData = z.object({
+    id: z.int(),
+    kind: zInvoiceEventKind,
+    occurredOn: z.iso.date(),
+    note: z.nullable(z.string())
+});
+
+/**
+ * InvoiceStatus
+ */
+export const zInvoiceStatus = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * CreateInvoiceData
+ */
+export const zCreateInvoiceData = z.object({
+    clientId: z.int(),
+    amountHt: z.object({
+        amount: z.int().check(z.gte(1)),
+        currency: zCurrency
+    }),
+    missionId: z.nullish(z.int()),
+    number: z.nullish(z.string().check(z.minLength(1), z.maxLength(255))),
+    status: z.nullish(zInvoiceStatus),
+    issuedOn: z.nullish(z.iso.date()),
+    dueOn: z.nullish(z.iso.date()),
+    paidOn: z.nullish(z.iso.date()),
+    periodStart: z.nullish(z.iso.date()),
+    periodEnd: z.nullish(z.iso.date()),
+    amountTtc: z.nullish(z.object({
+        amount: z.int().check(z.gte(1)),
+        currency: zCurrency
+    })),
+    vatRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
+    notes: z.nullish(z.string().check(z.maxLength(2000)))
+});
+
+/**
  * LoginData
  */
 export const zLoginData = z.object({
@@ -173,6 +228,29 @@ export const zMissionStatus = z.union([
 export const zMoneyData = z.object({
     amount: z.int(),
     currency: zCurrency
+});
+
+/**
+ * InvoiceData
+ */
+export const zInvoiceData = z.object({
+    id: z.int(),
+    clientId: z.int(),
+    missionId: z.nullable(z.int()),
+    number: z.nullable(z.string()),
+    status: zInvoiceStatus,
+    isLate: z.boolean(),
+    issuedOn: z.iso.date(),
+    dueOn: z.iso.date(),
+    paidOn: z.nullable(z.iso.date()),
+    periodStart: z.nullable(z.iso.date()),
+    periodEnd: z.nullable(z.iso.date()),
+    amountHt: zMoneyData,
+    amountVat: zMoneyData,
+    amountTtc: zMoneyData,
+    ttcOverridden: z.boolean(),
+    vatRateBp: z.int(),
+    notes: z.nullable(z.string())
 });
 
 /**
@@ -228,6 +306,47 @@ export const zClientListData = z.object({
 });
 
 /**
+ * InvoiceDetailData
+ */
+export const zInvoiceDetailData = z.object({
+    invoice: zInvoiceData,
+    client: zClientData,
+    mission: z.nullable(zMissionData),
+    history: z.array(zInvoiceEventData)
+});
+
+/**
+ * InvoiceListItemData
+ */
+export const zInvoiceListItemData = z.object({
+    invoice: zInvoiceData,
+    client: zClientData,
+    mission: z.nullable(zMissionData)
+});
+
+/**
+ * InvoiceListData
+ */
+export const zInvoiceListData = z.object({
+    invoices: z.array(zInvoiceListItemData)
+});
+
+/**
+ * NextInvoiceNumberData
+ */
+export const zNextInvoiceNumberData = z.object({
+    number: z.string(),
+    format: z.string()
+});
+
+/**
+ * PayInvoiceData
+ */
+export const zPayInvoiceData = z.object({
+    paidOn: z.iso.date()
+});
+
+/**
  * RegisterUserData
  */
 export const zRegisterUserData = z.object({
@@ -235,6 +354,14 @@ export const zRegisterUserData = z.object({
     email: z.email().check(z.maxLength(255)),
     password: z.string().check(z.minLength(8)),
     password_confirmation: z.string().check(z.minLength(8))
+});
+
+/**
+ * RemindInvoiceData
+ */
+export const zRemindInvoiceData = z.object({
+    occurredOn: z.nullish(z.iso.date()),
+    note: z.nullish(z.string().check(z.maxLength(2000)))
 });
 
 /**
@@ -360,6 +487,30 @@ export const zUpdateDocumentData = z.object({
 });
 
 /**
+ * UpdateInvoiceData
+ */
+export const zUpdateInvoiceData = z.object({
+    clientId: z.int(),
+    amountHt: z.object({
+        amount: z.int().check(z.gte(1)),
+        currency: zCurrency
+    }),
+    missionId: z.nullish(z.int()),
+    number: z.nullish(z.string().check(z.minLength(1), z.maxLength(255))),
+    issuedOn: z.nullish(z.iso.date()),
+    dueOn: z.nullish(z.iso.date()),
+    paidOn: z.nullish(z.iso.date()),
+    periodStart: z.nullish(z.iso.date()),
+    periodEnd: z.nullish(z.iso.date()),
+    amountTtc: z.nullish(z.object({
+        amount: z.int().check(z.gte(1)),
+        currency: zCurrency
+    })),
+    vatRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
+    notes: z.nullish(z.string().check(z.maxLength(2000)))
+});
+
+/**
  * UpdateMissionData
  */
 export const zUpdateMissionData = z.object({
@@ -471,6 +622,8 @@ export const zSettingsData = z.object({
     liberatingPaymentRateBp: z.int(),
     vatRegime: zVatRegime,
     vatLiable: z.boolean(),
+    defaultVatRateBp: z.int(),
+    effectiveVatRateBp: z.int(),
     effectiveContributionRateBp: z.int(),
     defaultPaymentTermsDays: z.int(),
     invoiceNumberFormat: z.string(),
@@ -489,6 +642,7 @@ export const zUpdateSettingsData = z.object({
     liberatingPayment: z.boolean(),
     liberatingPaymentRateBp: z.int().check(z.gte(0), z.lte(10000)),
     vatRegime: zVatRegime,
+    defaultVatRateBp: z.int().check(z.gte(0), z.lte(10000)),
     defaultPaymentTermsDays: z.int().check(z.gte(0), z.lte(365)),
     invoiceNumberFormat: z.string().check(z.maxLength(64)),
     homeAddressSameAsCompany: z.boolean(),
@@ -643,6 +797,68 @@ export const zUploadClientLogoPath = z.object({
  * No content
  */
 export const zUploadClientLogoResponse = z.void();
+
+export const zListInvoicesQuery = z.object({
+    status: z.nullish(zInvoiceStatus),
+    clientId: z.nullish(z.int()),
+    missionId: z.nullish(z.int()),
+    late: z.nullish(z.boolean()),
+    from: z.nullish(z.iso.date()),
+    to: z.nullish(z.iso.date())
+});
+
+export const zListInvoicesResponse = zInvoiceListData;
+
+export const zCreateInvoiceBody = zCreateInvoiceData;
+
+export const zCreateInvoiceResponse = zInvoiceDetailData;
+
+export const zShowNextInvoiceNumberResponse = zNextInvoiceNumberData;
+
+export const zDeleteInvoicePath = z.object({
+    invoice: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteInvoiceResponse = z.void();
+
+export const zShowInvoicePath = z.object({
+    invoice: z.int()
+});
+
+export const zShowInvoiceResponse = zInvoiceDetailData;
+
+export const zUpdateInvoiceBody = zUpdateInvoiceData;
+
+export const zUpdateInvoicePath = z.object({
+    invoice: z.int()
+});
+
+export const zUpdateInvoiceResponse = zInvoiceDetailData;
+
+export const zSendInvoicePath = z.object({
+    invoice: z.int()
+});
+
+export const zSendInvoiceResponse = zInvoiceDetailData;
+
+export const zPayInvoiceBody = zPayInvoiceData;
+
+export const zPayInvoicePath = z.object({
+    invoice: z.int()
+});
+
+export const zPayInvoiceResponse = zInvoiceDetailData;
+
+export const zRemindInvoiceBody = zRemindInvoiceData;
+
+export const zRemindInvoicePath = z.object({
+    invoice: z.int()
+});
+
+export const zRemindInvoiceResponse = zInvoiceDetailData;
 
 export const zDeleteMissionPath = z.object({
     client: z.string(),

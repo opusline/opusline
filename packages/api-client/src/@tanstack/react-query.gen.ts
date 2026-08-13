@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { archiveClient, createClient, createMission, createTimeEntry, currentUser, deleteClient, deleteClientDocument, deleteClientLogo, deleteMission, deleteMissionDocument, deleteTimeEntry, deleteUserSignature, discardTimer, downloadClientDocument, downloadMissionDocument, getPing, listClientDocuments, listClients, listMissionDocuments, listTimeEntries, login, logout, type Options, pauseTimer, refreshSettingsRates, register, resumeTimer, showClient, showClientLogo, showMission, showSettings, showTimer, showUserSignature, startTimer, stopTimer, trimTimer, unarchiveClient, updateClient, updateClientDocument, updateMission, updateMissionDocument, updateSettings, updateTimeEntry, updateTimer, updateUserTheme, uploadClientDocument, uploadClientLogo, uploadMissionDocument, uploadUserSignature } from '../sdk.gen';
-import type { ArchiveClientData, ArchiveClientError, ArchiveClientResponse, CreateClientData2, CreateClientError, CreateClientResponse, CreateMissionData2, CreateMissionError, CreateMissionResponse, CreateTimeEntryData, CreateTimeEntryError, CreateTimeEntryResponse, CurrentUserData, CurrentUserError, CurrentUserResponse, DeleteClientData, DeleteClientDocumentData, DeleteClientDocumentError, DeleteClientDocumentResponse, DeleteClientError, DeleteClientLogoData, DeleteClientLogoError, DeleteClientLogoResponse, DeleteClientResponse, DeleteMissionData, DeleteMissionDocumentData, DeleteMissionDocumentError, DeleteMissionDocumentResponse, DeleteMissionError, DeleteMissionResponse, DeleteTimeEntryData, DeleteTimeEntryError, DeleteTimeEntryResponse, DeleteUserSignatureData, DeleteUserSignatureError, DeleteUserSignatureResponse, DiscardTimerData, DiscardTimerError, DiscardTimerResponse, DownloadClientDocumentData, DownloadClientDocumentError, DownloadClientDocumentResponse, DownloadMissionDocumentData, DownloadMissionDocumentError, DownloadMissionDocumentResponse, GetPingData, GetPingResponse, ListClientDocumentsData, ListClientDocumentsError, ListClientDocumentsResponse, ListClientsData, ListClientsError, ListClientsResponse, ListMissionDocumentsData, ListMissionDocumentsError, ListMissionDocumentsResponse, ListTimeEntriesData, ListTimeEntriesError, ListTimeEntriesResponse, LoginData2, LoginError, LoginResponse, LogoutData, LogoutError, LogoutResponse, PauseTimerData, PauseTimerError, PauseTimerResponse, RefreshSettingsRatesData, RefreshSettingsRatesError, RefreshSettingsRatesResponse, RegisterData, RegisterResponse, ResumeTimerData, ResumeTimerError, ResumeTimerResponse, ShowClientData, ShowClientError, ShowClientLogoData, ShowClientLogoError, ShowClientLogoResponse, ShowClientResponse, ShowMissionData, ShowMissionError, ShowMissionResponse, ShowSettingsData, ShowSettingsError, ShowSettingsResponse, ShowTimerData, ShowTimerError, ShowTimerResponse, ShowUserSignatureData, ShowUserSignatureError, ShowUserSignatureResponse, StartTimerData2, StartTimerError, StartTimerResponse, StopTimerData2, StopTimerError, StopTimerResponse, TrimTimerData2, TrimTimerError, TrimTimerResponse, UnarchiveClientData, UnarchiveClientError, UnarchiveClientResponse, UpdateClientData2, UpdateClientDocumentData, UpdateClientDocumentError, UpdateClientDocumentResponse, UpdateClientError, UpdateClientResponse, UpdateMissionData2, UpdateMissionDocumentData, UpdateMissionDocumentError, UpdateMissionDocumentResponse, UpdateMissionError, UpdateMissionResponse, UpdateSettingsData2, UpdateSettingsError, UpdateSettingsResponse, UpdateTimeEntryData, UpdateTimeEntryError, UpdateTimeEntryResponse, UpdateTimerData2, UpdateTimerError, UpdateTimerResponse, UpdateUserThemeData2, UpdateUserThemeError, UpdateUserThemeResponse, UploadClientDocumentData, UploadClientDocumentError, UploadClientDocumentResponse, UploadClientLogoData2, UploadClientLogoError, UploadClientLogoResponse, UploadMissionDocumentData, UploadMissionDocumentError, UploadMissionDocumentResponse, UploadUserSignatureData, UploadUserSignatureError, UploadUserSignatureResponse } from '../types.gen';
+import { archiveClient, createClient, createInvoice, createMission, createTimeEntry, currentUser, deleteClient, deleteClientDocument, deleteClientLogo, deleteInvoice, deleteMission, deleteMissionDocument, deleteTimeEntry, deleteUserSignature, discardTimer, downloadClientDocument, downloadMissionDocument, getPing, listClientDocuments, listClients, listInvoices, listMissionDocuments, listTimeEntries, login, logout, type Options, pauseTimer, payInvoice, refreshSettingsRates, register, remindInvoice, resumeTimer, sendInvoice, showClient, showClientLogo, showInvoice, showMission, showNextInvoiceNumber, showSettings, showTimer, showUserSignature, startTimer, stopTimer, trimTimer, unarchiveClient, updateClient, updateClientDocument, updateInvoice, updateMission, updateMissionDocument, updateSettings, updateTimeEntry, updateTimer, updateUserTheme, uploadClientDocument, uploadClientLogo, uploadMissionDocument, uploadUserSignature } from '../sdk.gen';
+import type { ArchiveClientData, ArchiveClientError, ArchiveClientResponse, CreateClientData2, CreateClientError, CreateClientResponse, CreateInvoiceData2, CreateInvoiceError, CreateInvoiceResponse, CreateMissionData2, CreateMissionError, CreateMissionResponse, CreateTimeEntryData, CreateTimeEntryError, CreateTimeEntryResponse, CurrentUserData, CurrentUserError, CurrentUserResponse, DeleteClientData, DeleteClientDocumentData, DeleteClientDocumentError, DeleteClientDocumentResponse, DeleteClientError, DeleteClientLogoData, DeleteClientLogoError, DeleteClientLogoResponse, DeleteClientResponse, DeleteInvoiceData, DeleteInvoiceError, DeleteInvoiceResponse, DeleteMissionData, DeleteMissionDocumentData, DeleteMissionDocumentError, DeleteMissionDocumentResponse, DeleteMissionError, DeleteMissionResponse, DeleteTimeEntryData, DeleteTimeEntryError, DeleteTimeEntryResponse, DeleteUserSignatureData, DeleteUserSignatureError, DeleteUserSignatureResponse, DiscardTimerData, DiscardTimerError, DiscardTimerResponse, DownloadClientDocumentData, DownloadClientDocumentError, DownloadClientDocumentResponse, DownloadMissionDocumentData, DownloadMissionDocumentError, DownloadMissionDocumentResponse, GetPingData, GetPingResponse, ListClientDocumentsData, ListClientDocumentsError, ListClientDocumentsResponse, ListClientsData, ListClientsError, ListClientsResponse, ListInvoicesData, ListInvoicesError, ListInvoicesResponse, ListMissionDocumentsData, ListMissionDocumentsError, ListMissionDocumentsResponse, ListTimeEntriesData, ListTimeEntriesError, ListTimeEntriesResponse, LoginData2, LoginError, LoginResponse, LogoutData, LogoutError, LogoutResponse, PauseTimerData, PauseTimerError, PauseTimerResponse, PayInvoiceData2, PayInvoiceError, PayInvoiceResponse, RefreshSettingsRatesData, RefreshSettingsRatesError, RefreshSettingsRatesResponse, RegisterData, RegisterResponse, RemindInvoiceData2, RemindInvoiceError, RemindInvoiceResponse, ResumeTimerData, ResumeTimerError, ResumeTimerResponse, SendInvoiceData, SendInvoiceError, SendInvoiceResponse, ShowClientData, ShowClientError, ShowClientLogoData, ShowClientLogoError, ShowClientLogoResponse, ShowClientResponse, ShowInvoiceData, ShowInvoiceError, ShowInvoiceResponse, ShowMissionData, ShowMissionError, ShowMissionResponse, ShowNextInvoiceNumberData, ShowNextInvoiceNumberError, ShowNextInvoiceNumberResponse, ShowSettingsData, ShowSettingsError, ShowSettingsResponse, ShowTimerData, ShowTimerError, ShowTimerResponse, ShowUserSignatureData, ShowUserSignatureError, ShowUserSignatureResponse, StartTimerData2, StartTimerError, StartTimerResponse, StopTimerData2, StopTimerError, StopTimerResponse, TrimTimerData2, TrimTimerError, TrimTimerResponse, UnarchiveClientData, UnarchiveClientError, UnarchiveClientResponse, UpdateClientData2, UpdateClientDocumentData, UpdateClientDocumentError, UpdateClientDocumentResponse, UpdateClientError, UpdateClientResponse, UpdateInvoiceData2, UpdateInvoiceError, UpdateInvoiceResponse, UpdateMissionData2, UpdateMissionDocumentData, UpdateMissionDocumentError, UpdateMissionDocumentResponse, UpdateMissionError, UpdateMissionResponse, UpdateSettingsData2, UpdateSettingsError, UpdateSettingsResponse, UpdateTimeEntryData, UpdateTimeEntryError, UpdateTimeEntryResponse, UpdateTimerData2, UpdateTimerError, UpdateTimerResponse, UpdateUserThemeData2, UpdateUserThemeError, UpdateUserThemeResponse, UploadClientDocumentData, UploadClientDocumentError, UploadClientDocumentResponse, UploadClientLogoData2, UploadClientLogoError, UploadClientLogoResponse, UploadMissionDocumentData, UploadMissionDocumentError, UploadMissionDocumentResponse, UploadUserSignatureData, UploadUserSignatureError, UploadUserSignatureResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -330,6 +330,135 @@ export const uploadClientLogoMutation = (options?: Partial<Options<UploadClientL
     const mutationOptions: UseMutationOptions<UploadClientLogoResponse, UploadClientLogoError, Options<UploadClientLogoData2>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await uploadClientLogo({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const listInvoicesQueryKey = (options?: Options<ListInvoicesData>) => createQueryKey('listInvoices', options);
+
+export const listInvoicesOptions = (options?: Options<ListInvoicesData>) => queryOptions<ListInvoicesResponse, ListInvoicesError, ListInvoicesResponse, ReturnType<typeof listInvoicesQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await listInvoices({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: listInvoicesQueryKey(options)
+});
+
+export const createInvoiceMutation = (options?: Partial<Options<CreateInvoiceData2>>): UseMutationOptions<CreateInvoiceResponse, CreateInvoiceError, Options<CreateInvoiceData2>> => {
+    const mutationOptions: UseMutationOptions<CreateInvoiceResponse, CreateInvoiceError, Options<CreateInvoiceData2>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await createInvoice({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const showNextInvoiceNumberQueryKey = (options?: Options<ShowNextInvoiceNumberData>) => createQueryKey('showNextInvoiceNumber', options);
+
+export const showNextInvoiceNumberOptions = (options?: Options<ShowNextInvoiceNumberData>) => queryOptions<ShowNextInvoiceNumberResponse, ShowNextInvoiceNumberError, ShowNextInvoiceNumberResponse, ReturnType<typeof showNextInvoiceNumberQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await showNextInvoiceNumber({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: showNextInvoiceNumberQueryKey(options)
+});
+
+export const deleteInvoiceMutation = (options?: Partial<Options<DeleteInvoiceData>>): UseMutationOptions<DeleteInvoiceResponse, DeleteInvoiceError, Options<DeleteInvoiceData>> => {
+    const mutationOptions: UseMutationOptions<DeleteInvoiceResponse, DeleteInvoiceError, Options<DeleteInvoiceData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteInvoice({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const showInvoiceQueryKey = (options: Options<ShowInvoiceData>) => createQueryKey('showInvoice', options);
+
+export const showInvoiceOptions = (options: Options<ShowInvoiceData>) => queryOptions<ShowInvoiceResponse, ShowInvoiceError, ShowInvoiceResponse, ReturnType<typeof showInvoiceQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await showInvoice({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: showInvoiceQueryKey(options)
+});
+
+export const updateInvoiceMutation = (options?: Partial<Options<UpdateInvoiceData2>>): UseMutationOptions<UpdateInvoiceResponse, UpdateInvoiceError, Options<UpdateInvoiceData2>> => {
+    const mutationOptions: UseMutationOptions<UpdateInvoiceResponse, UpdateInvoiceError, Options<UpdateInvoiceData2>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await updateInvoice({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const sendInvoiceMutation = (options?: Partial<Options<SendInvoiceData>>): UseMutationOptions<SendInvoiceResponse, SendInvoiceError, Options<SendInvoiceData>> => {
+    const mutationOptions: UseMutationOptions<SendInvoiceResponse, SendInvoiceError, Options<SendInvoiceData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await sendInvoice({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const payInvoiceMutation = (options?: Partial<Options<PayInvoiceData2>>): UseMutationOptions<PayInvoiceResponse, PayInvoiceError, Options<PayInvoiceData2>> => {
+    const mutationOptions: UseMutationOptions<PayInvoiceResponse, PayInvoiceError, Options<PayInvoiceData2>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await payInvoice({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const remindInvoiceMutation = (options?: Partial<Options<RemindInvoiceData2>>): UseMutationOptions<RemindInvoiceResponse, RemindInvoiceError, Options<RemindInvoiceData2>> => {
+    const mutationOptions: UseMutationOptions<RemindInvoiceResponse, RemindInvoiceError, Options<RemindInvoiceData2>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await remindInvoice({
                 ...options,
                 ...fnOptions,
                 throwOnError: true

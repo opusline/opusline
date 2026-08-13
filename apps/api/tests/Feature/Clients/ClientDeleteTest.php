@@ -17,6 +17,19 @@ test('deletes a client without missions', function (): void {
     $this->assertDatabaseMissing('clients', ['id' => $client->id]);
 });
 
+test('refuses to delete a client with invoices', function (): void {
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+    invoiceOwnedBy($user, $client);
+
+    $this->actingAs($user)
+        ->deleteJson("/api/clients/{$client->slug}")
+        ->assertConflict()
+        ->assertJsonPath('message', __('invoices.cannot_delete_client_with_invoices'));
+
+    $this->assertDatabaseHas('clients', ['id' => $client->id]);
+});
+
 test('refuses to delete a client with missions', function (): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();

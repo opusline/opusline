@@ -2,7 +2,7 @@
 
 import { type Client, type ClientMeta, formDataBodySerializer, type Options as Options2, type RequestResult, type TDataShape } from './client';
 import { client } from './client.gen';
-import type { ArchiveClientData, ArchiveClientErrors, ArchiveClientResponses, CreateClientData2, CreateClientErrors, CreateClientResponses, CreateMissionData2, CreateMissionErrors, CreateMissionResponses, CreateTimeEntryData, CreateTimeEntryErrors, CreateTimeEntryResponses, CurrentUserData, CurrentUserErrors, CurrentUserResponses, DeleteClientData, DeleteClientDocumentData, DeleteClientDocumentErrors, DeleteClientDocumentResponses, DeleteClientErrors, DeleteClientLogoData, DeleteClientLogoErrors, DeleteClientLogoResponses, DeleteClientResponses, DeleteMissionData, DeleteMissionDocumentData, DeleteMissionDocumentErrors, DeleteMissionDocumentResponses, DeleteMissionErrors, DeleteMissionResponses, DeleteTimeEntryData, DeleteTimeEntryErrors, DeleteTimeEntryResponses, DeleteUserSignatureData, DeleteUserSignatureErrors, DeleteUserSignatureResponses, DiscardTimerData, DiscardTimerErrors, DiscardTimerResponses, DownloadClientDocumentData, DownloadClientDocumentErrors, DownloadClientDocumentResponses, DownloadMissionDocumentData, DownloadMissionDocumentErrors, DownloadMissionDocumentResponses, GetPingData, GetPingResponses, ListClientDocumentsData, ListClientDocumentsErrors, ListClientDocumentsResponses, ListClientsData, ListClientsErrors, ListClientsResponses, ListMissionDocumentsData, ListMissionDocumentsErrors, ListMissionDocumentsResponses, ListTimeEntriesData, ListTimeEntriesErrors, ListTimeEntriesResponses, LoginData2, LoginErrors, LoginResponses, LogoutData, LogoutErrors, LogoutResponses, PauseTimerData, PauseTimerErrors, PauseTimerResponses, RefreshSettingsRatesData, RefreshSettingsRatesErrors, RefreshSettingsRatesResponses, RegisterData, RegisterResponses, ResumeTimerData, ResumeTimerErrors, ResumeTimerResponses, ShowClientData, ShowClientErrors, ShowClientLogoData, ShowClientLogoErrors, ShowClientLogoResponses, ShowClientResponses, ShowMissionData, ShowMissionErrors, ShowMissionResponses, ShowSettingsData, ShowSettingsErrors, ShowSettingsResponses, ShowTimerData, ShowTimerErrors, ShowTimerResponses, ShowUserSignatureData, ShowUserSignatureErrors, ShowUserSignatureResponses, StartTimerData2, StartTimerErrors, StartTimerResponses, StopTimerData2, StopTimerErrors, StopTimerResponses, TrimTimerData2, TrimTimerErrors, TrimTimerResponses, UnarchiveClientData, UnarchiveClientErrors, UnarchiveClientResponses, UpdateClientData2, UpdateClientDocumentData, UpdateClientDocumentErrors, UpdateClientDocumentResponses, UpdateClientErrors, UpdateClientResponses, UpdateMissionData2, UpdateMissionDocumentData, UpdateMissionDocumentErrors, UpdateMissionDocumentResponses, UpdateMissionErrors, UpdateMissionResponses, UpdateSettingsData2, UpdateSettingsErrors, UpdateSettingsResponses, UpdateTimeEntryData, UpdateTimeEntryErrors, UpdateTimeEntryResponses, UpdateTimerData2, UpdateTimerErrors, UpdateTimerResponses, UpdateUserThemeData2, UpdateUserThemeErrors, UpdateUserThemeResponses, UploadClientDocumentData, UploadClientDocumentErrors, UploadClientDocumentResponses, UploadClientLogoData2, UploadClientLogoErrors, UploadClientLogoResponses, UploadMissionDocumentData, UploadMissionDocumentErrors, UploadMissionDocumentResponses, UploadUserSignatureData, UploadUserSignatureErrors, UploadUserSignatureResponses } from './types.gen';
+import type { ArchiveClientData, ArchiveClientErrors, ArchiveClientResponses, CreateClientData2, CreateClientErrors, CreateClientResponses, CreateInvoiceData2, CreateInvoiceErrors, CreateInvoiceResponses, CreateMissionData2, CreateMissionErrors, CreateMissionResponses, CreateTimeEntryData, CreateTimeEntryErrors, CreateTimeEntryResponses, CurrentUserData, CurrentUserErrors, CurrentUserResponses, DeleteClientData, DeleteClientDocumentData, DeleteClientDocumentErrors, DeleteClientDocumentResponses, DeleteClientErrors, DeleteClientLogoData, DeleteClientLogoErrors, DeleteClientLogoResponses, DeleteClientResponses, DeleteInvoiceData, DeleteInvoiceErrors, DeleteInvoiceResponses, DeleteMissionData, DeleteMissionDocumentData, DeleteMissionDocumentErrors, DeleteMissionDocumentResponses, DeleteMissionErrors, DeleteMissionResponses, DeleteTimeEntryData, DeleteTimeEntryErrors, DeleteTimeEntryResponses, DeleteUserSignatureData, DeleteUserSignatureErrors, DeleteUserSignatureResponses, DiscardTimerData, DiscardTimerErrors, DiscardTimerResponses, DownloadClientDocumentData, DownloadClientDocumentErrors, DownloadClientDocumentResponses, DownloadMissionDocumentData, DownloadMissionDocumentErrors, DownloadMissionDocumentResponses, GetPingData, GetPingResponses, ListClientDocumentsData, ListClientDocumentsErrors, ListClientDocumentsResponses, ListClientsData, ListClientsErrors, ListClientsResponses, ListInvoicesData, ListInvoicesErrors, ListInvoicesResponses, ListMissionDocumentsData, ListMissionDocumentsErrors, ListMissionDocumentsResponses, ListTimeEntriesData, ListTimeEntriesErrors, ListTimeEntriesResponses, LoginData2, LoginErrors, LoginResponses, LogoutData, LogoutErrors, LogoutResponses, PauseTimerData, PauseTimerErrors, PauseTimerResponses, PayInvoiceData2, PayInvoiceErrors, PayInvoiceResponses, RefreshSettingsRatesData, RefreshSettingsRatesErrors, RefreshSettingsRatesResponses, RegisterData, RegisterResponses, RemindInvoiceData2, RemindInvoiceErrors, RemindInvoiceResponses, ResumeTimerData, ResumeTimerErrors, ResumeTimerResponses, SendInvoiceData, SendInvoiceErrors, SendInvoiceResponses, ShowClientData, ShowClientErrors, ShowClientLogoData, ShowClientLogoErrors, ShowClientLogoResponses, ShowClientResponses, ShowInvoiceData, ShowInvoiceErrors, ShowInvoiceResponses, ShowMissionData, ShowMissionErrors, ShowMissionResponses, ShowNextInvoiceNumberData, ShowNextInvoiceNumberErrors, ShowNextInvoiceNumberResponses, ShowSettingsData, ShowSettingsErrors, ShowSettingsResponses, ShowTimerData, ShowTimerErrors, ShowTimerResponses, ShowUserSignatureData, ShowUserSignatureErrors, ShowUserSignatureResponses, StartTimerData2, StartTimerErrors, StartTimerResponses, StopTimerData2, StopTimerErrors, StopTimerResponses, TrimTimerData2, TrimTimerErrors, TrimTimerResponses, UnarchiveClientData, UnarchiveClientErrors, UnarchiveClientResponses, UpdateClientData2, UpdateClientDocumentData, UpdateClientDocumentErrors, UpdateClientDocumentResponses, UpdateClientErrors, UpdateClientResponses, UpdateInvoiceData2, UpdateInvoiceErrors, UpdateInvoiceResponses, UpdateMissionData2, UpdateMissionDocumentData, UpdateMissionDocumentErrors, UpdateMissionDocumentResponses, UpdateMissionErrors, UpdateMissionResponses, UpdateSettingsData2, UpdateSettingsErrors, UpdateSettingsResponses, UpdateTimeEntryData, UpdateTimeEntryErrors, UpdateTimeEntryResponses, UpdateTimerData2, UpdateTimerErrors, UpdateTimerResponses, UpdateUserThemeData2, UpdateUserThemeErrors, UpdateUserThemeResponses, UploadClientDocumentData, UploadClientDocumentErrors, UploadClientDocumentResponses, UploadClientLogoData2, UploadClientLogoErrors, UploadClientLogoResponses, UploadMissionDocumentData, UploadMissionDocumentErrors, UploadMissionDocumentResponses, UploadUserSignatureData, UploadUserSignatureErrors, UploadUserSignatureResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -240,6 +240,112 @@ export const uploadClientLogo = <ThrowOnError extends boolean = false>(options: 
     ...options,
     headers: {
         'Content-Type': null,
+        ...options.headers
+    }
+});
+
+export const listInvoices = <ThrowOnError extends boolean = false>(options?: Options<ListInvoicesData, ThrowOnError>): RequestResult<ListInvoicesResponses, ListInvoicesErrors, ThrowOnError> => (options?.client ?? client).get<ListInvoicesResponses, ListInvoicesErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/invoices',
+    ...options
+});
+
+export const createInvoice = <ThrowOnError extends boolean = false>(options: Options<CreateInvoiceData2, ThrowOnError>): RequestResult<CreateInvoiceResponses, CreateInvoiceErrors, ThrowOnError> => (options.client ?? client).post<CreateInvoiceResponses, CreateInvoiceErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/invoices',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const showNextInvoiceNumber = <ThrowOnError extends boolean = false>(options?: Options<ShowNextInvoiceNumberData, ThrowOnError>): RequestResult<ShowNextInvoiceNumberResponses, ShowNextInvoiceNumberErrors, ThrowOnError> => (options?.client ?? client).get<ShowNextInvoiceNumberResponses, ShowNextInvoiceNumberErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/invoices/next-number',
+    ...options
+});
+
+export const deleteInvoice = <ThrowOnError extends boolean = false>(options: Options<DeleteInvoiceData, ThrowOnError>): RequestResult<DeleteInvoiceResponses, DeleteInvoiceErrors, ThrowOnError> => (options.client ?? client).delete<DeleteInvoiceResponses, DeleteInvoiceErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/invoices/{invoice}',
+    ...options
+});
+
+export const showInvoice = <ThrowOnError extends boolean = false>(options: Options<ShowInvoiceData, ThrowOnError>): RequestResult<ShowInvoiceResponses, ShowInvoiceErrors, ThrowOnError> => (options.client ?? client).get<ShowInvoiceResponses, ShowInvoiceErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/invoices/{invoice}',
+    ...options
+});
+
+export const updateInvoice = <ThrowOnError extends boolean = false>(options: Options<UpdateInvoiceData2, ThrowOnError>): RequestResult<UpdateInvoiceResponses, UpdateInvoiceErrors, ThrowOnError> => (options.client ?? client).put<UpdateInvoiceResponses, UpdateInvoiceErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/invoices/{invoice}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const sendInvoice = <ThrowOnError extends boolean = false>(options: Options<SendInvoiceData, ThrowOnError>): RequestResult<SendInvoiceResponses, SendInvoiceErrors, ThrowOnError> => (options.client ?? client).post<SendInvoiceResponses, SendInvoiceErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/invoices/{invoice}/send',
+    ...options
+});
+
+export const payInvoice = <ThrowOnError extends boolean = false>(options: Options<PayInvoiceData2, ThrowOnError>): RequestResult<PayInvoiceResponses, PayInvoiceErrors, ThrowOnError> => (options.client ?? client).post<PayInvoiceResponses, PayInvoiceErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/invoices/{invoice}/pay',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const remindInvoice = <ThrowOnError extends boolean = false>(options: Options<RemindInvoiceData2, ThrowOnError>): RequestResult<RemindInvoiceResponses, RemindInvoiceErrors, ThrowOnError> => (options.client ?? client).post<RemindInvoiceResponses, RemindInvoiceErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/invoices/{invoice}/reminders',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
         ...options.headers
     }
 });

@@ -3,10 +3,13 @@
 declare(strict_types=1);
 
 use App\Domain\Clients\Models\Client;
+use App\Domain\Invoices\Factories\InvoiceFactory;
+use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Factories\MissionFactory;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
+use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Timers\Factories\RunningTimerFactory;
 use App\Domain\Timers\Models\RunningTimer;
 use App\Domain\Users\Models\User;
@@ -60,6 +63,7 @@ function settingsPayload(array $overrides = []): array
         'liberatingPayment' => false,
         'liberatingPaymentRateBp' => 220,
         'vatRegime' => VatRegime::FranchiseEnBase->value,
+        'defaultVatRateBp' => 2000,
         'defaultPaymentTermsDays' => 45,
         'invoiceNumberFormat' => 'AAAA-NNN',
         'homeAddressSameAsCompany' => true,
@@ -99,6 +103,59 @@ function missionOwnedBy(User $user, ?callable $configure = null): Mission
     $factory = Mission::factory()->for(Client::factory()->for($user)->create(), 'client');
 
     return configuredFactory($factory, $configure)->create(['user_id' => $user->id]);
+}
+
+/**
+ * Put the account on a TVA-liable regime. Settings default to the franchise en
+ * base, where the effective rate is 0 and every invoice is net-equals-gross.
+ */
+function vatLiable(User $user, int $rateBp = 2000): void
+{
+    $user->settings()->sole()->update([
+        'vat_regime' => VatRegime::ReelNormal,
+        'default_vat_rate_bp' => $rateBp,
+    ]);
+}
+
+/**
+ * An invoice owned by the given user, filed under a client of theirs.
+ *
+ * Ownership runs user → client → invoice. Pass $client when the test asserts
+ * against it, and $configure for factory states such as sent() or overdue().
+ *
+ * @param  (callable(InvoiceFactory): InvoiceFactory)|null  $configure
+ */
+function invoiceOwnedBy(User $user, ?Client $client = null, ?callable $configure = null): Invoice
+{
+    $factory = Invoice::factory()->for($client ?? Client::factory()->for($user)->create(), 'client');
+
+    return configuredFactory($factory, $configure)->create(['user_id' => $user->id]);
+}
+
+/**
+ * An invoice of the given user, filed under the client of the given mission and
+ * billing that mission.
+ *
+ * @param  (callable(InvoiceFactory): InvoiceFactory)|null  $configure
+ */
+function invoiceForMission(User $user, Mission $mission, ?callable $configure = null): Invoice
+{
+    return invoiceOwnedBy($user, $mission->client, function (InvoiceFactory $factory) use ($mission, $configure): InvoiceFactory {
+        $factory = $factory->state(['mission_id' => $mission->id]);
+
+        return configuredFactory($factory, $configure);
+    });
+}
+
+/**
+ * A time entry on the given mission that the given invoice bills.
+ */
+function invoicedTimeEntry(User $user, Mission $mission, Invoice $invoice): TimeEntry
+{
+    return TimeEntry::factory()->for($mission, 'mission')->create([
+        'user_id' => $user->id,
+        'invoice_id' => $invoice->id,
+    ]);
 }
 
 /**

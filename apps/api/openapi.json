@@ -803,6 +803,467 @@
                 }
             }
         },
+        "/invoices": {
+            "get": {
+                "operationId": "listInvoices",
+                "tags": [
+                    "Invoice"
+                ],
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/InvoiceStatus"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "clientId",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "missionId",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "late",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "boolean",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceListData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "createInvoice",
+                "tags": [
+                    "Invoice"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateInvoiceData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/invoices/next-number": {
+            "get": {
+                "operationId": "showNextInvoiceNumber",
+                "tags": [
+                    "Invoice"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NextInvoiceNumberData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/invoices/{invoice}": {
+            "get": {
+                "operationId": "showInvoice",
+                "tags": [
+                    "Invoice"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "updateInvoice",
+                "tags": [
+                    "Invoice"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateInvoiceData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteInvoice",
+                "tags": [
+                    "Invoice"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/invoices/{invoice}/send": {
+            "post": {
+                "operationId": "sendInvoice",
+                "tags": [
+                    "Invoice"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/invoices/{invoice}/pay": {
+            "post": {
+                "operationId": "payInvoice",
+                "tags": [
+                    "Invoice"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PayInvoiceData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/invoices/{invoice}/reminders": {
+            "post": {
+                "operationId": "remindInvoice",
+                "tags": [
+                    "Invoice"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RemindInvoiceData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/clients/{client}/missions/{mission}": {
             "get": {
                 "operationId": "showMission",
@@ -2384,6 +2845,128 @@
                 ],
                 "title": "CreateClientData"
             },
+            "CreateInvoiceData": {
+                "type": "object",
+                "properties": {
+                    "clientId": {
+                        "type": "integer"
+                    },
+                    "amountHt": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "missionId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "number": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "minLength": 1,
+                        "maxLength": 255
+                    },
+                    "status": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/InvoiceStatus"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "issuedOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "dueOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "paidOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "periodStart": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "periodEnd": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "amountTtc": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "vatRateBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 10000
+                    },
+                    "notes": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 2000
+                    }
+                },
+                "required": [
+                    "clientId",
+                    "amountHt"
+                ],
+                "title": "CreateInvoiceData"
+            },
             "CreateMissionData": {
                 "type": "object",
                 "properties": {
@@ -2578,6 +3161,241 @@
                 ],
                 "title": "EntryRounding"
             },
+            "InvoiceData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "clientId": {
+                        "type": "integer"
+                    },
+                    "missionId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "number": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/InvoiceStatus"
+                    },
+                    "isLate": {
+                        "type": "boolean"
+                    },
+                    "issuedOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "dueOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "paidOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "periodStart": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "periodEnd": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "amountHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "amountVat": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "amountTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "ttcOverridden": {
+                        "type": "boolean"
+                    },
+                    "vatRateBp": {
+                        "type": "integer"
+                    },
+                    "notes": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "clientId",
+                    "missionId",
+                    "number",
+                    "status",
+                    "isLate",
+                    "issuedOn",
+                    "dueOn",
+                    "paidOn",
+                    "periodStart",
+                    "periodEnd",
+                    "amountHt",
+                    "amountVat",
+                    "amountTtc",
+                    "ttcOverridden",
+                    "vatRateBp",
+                    "notes"
+                ],
+                "title": "InvoiceData"
+            },
+            "InvoiceDetailData": {
+                "type": "object",
+                "properties": {
+                    "invoice": {
+                        "$ref": "#/components/schemas/InvoiceData"
+                    },
+                    "client": {
+                        "$ref": "#/components/schemas/ClientData"
+                    },
+                    "mission": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MissionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "history": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoiceEventData"
+                        }
+                    }
+                },
+                "required": [
+                    "invoice",
+                    "client",
+                    "mission",
+                    "history"
+                ],
+                "title": "InvoiceDetailData"
+            },
+            "InvoiceEventData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "kind": {
+                        "$ref": "#/components/schemas/InvoiceEventKind"
+                    },
+                    "occurredOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "note": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "kind",
+                    "occurredOn",
+                    "note"
+                ],
+                "title": "InvoiceEventData"
+            },
+            "InvoiceEventKind": {
+                "type": "integer",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4
+                ],
+                "x-enum-varnames": [
+                    "Created",
+                    "Sent",
+                    "Reminded",
+                    "Paid",
+                    "Updated"
+                ],
+                "title": "InvoiceEventKind"
+            },
+            "InvoiceListData": {
+                "type": "object",
+                "properties": {
+                    "invoices": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoiceListItemData"
+                        }
+                    }
+                },
+                "required": [
+                    "invoices"
+                ],
+                "title": "InvoiceListData"
+            },
+            "InvoiceListItemData": {
+                "type": "object",
+                "properties": {
+                    "invoice": {
+                        "$ref": "#/components/schemas/InvoiceData"
+                    },
+                    "client": {
+                        "$ref": "#/components/schemas/ClientData"
+                    },
+                    "mission": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MissionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "invoice",
+                    "client",
+                    "mission"
+                ],
+                "title": "InvoiceListItemData"
+            },
+            "InvoiceStatus": {
+                "type": "integer",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "Draft",
+                    "Sent",
+                    "Paid"
+                ],
+                "title": "InvoiceStatus"
+            },
             "LoginData": {
                 "type": "object",
                 "properties": {
@@ -2728,6 +3546,35 @@
                 ],
                 "title": "MoneyData"
             },
+            "NextInvoiceNumberData": {
+                "type": "object",
+                "properties": {
+                    "number": {
+                        "type": "string"
+                    },
+                    "format": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "number",
+                    "format"
+                ],
+                "title": "NextInvoiceNumberData"
+            },
+            "PayInvoiceData": {
+                "type": "object",
+                "properties": {
+                    "paidOn": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "paidOn"
+                ],
+                "title": "PayInvoiceData"
+            },
             "RegisterUserData": {
                 "type": "object",
                 "properties": {
@@ -2757,6 +3604,26 @@
                     "password_confirmation"
                 ],
                 "title": "RegisterUserData"
+            },
+            "RemindInvoiceData": {
+                "type": "object",
+                "properties": {
+                    "occurredOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "note": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 2000
+                    }
+                },
+                "title": "RemindInvoiceData"
             },
             "SettingsData": {
                 "type": "object",
@@ -2891,6 +3758,12 @@
                     "vatLiable": {
                         "type": "boolean"
                     },
+                    "defaultVatRateBp": {
+                        "type": "integer"
+                    },
+                    "effectiveVatRateBp": {
+                        "type": "integer"
+                    },
                     "effectiveContributionRateBp": {
                         "type": "integer"
                     },
@@ -2941,6 +3814,8 @@
                     "liberatingPaymentRateBp",
                     "vatRegime",
                     "vatLiable",
+                    "defaultVatRateBp",
+                    "effectiveVatRateBp",
                     "effectiveContributionRateBp",
                     "defaultPaymentTermsDays",
                     "invoiceNumberFormat",
@@ -3338,6 +4213,118 @@
                 ],
                 "title": "UpdateDocumentData"
             },
+            "UpdateInvoiceData": {
+                "type": "object",
+                "properties": {
+                    "clientId": {
+                        "type": "integer"
+                    },
+                    "amountHt": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "missionId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "number": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "minLength": 1,
+                        "maxLength": 255
+                    },
+                    "issuedOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "dueOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "paidOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "periodStart": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "periodEnd": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "amountTtc": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "vatRateBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 10000
+                    },
+                    "notes": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 2000
+                    }
+                },
+                "required": [
+                    "clientId",
+                    "amountHt"
+                ],
+                "title": "UpdateInvoiceData"
+            },
             "UpdateMissionData": {
                 "type": "object",
                 "properties": {
@@ -3460,6 +4447,11 @@
                     },
                     "vatRegime": {
                         "$ref": "#/components/schemas/VatRegime"
+                    },
+                    "defaultVatRateBp": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 10000
                     },
                     "defaultPaymentTermsDays": {
                         "type": "integer",
@@ -3607,6 +4599,7 @@
                     "liberatingPayment",
                     "liberatingPaymentRateBp",
                     "vatRegime",
+                    "defaultVatRateBp",
                     "defaultPaymentTermsDays",
                     "invoiceNumberFormat",
                     "homeAddressSameAsCompany"

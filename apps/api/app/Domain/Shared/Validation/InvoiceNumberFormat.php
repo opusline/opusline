@@ -9,25 +9,54 @@ use Illuminate\Contracts\Validation\ValidationRule;
 
 class InvoiceNumberFormat implements ValidationRule
 {
-    private const string COUNTER_TOKEN = 'NNN';
+    public const string COUNTER_TOKEN = 'NNN';
 
-    /** @var list<string> */
-    private const array TOKENS = ['AAAA', 'MM', self::COUNTER_TOKEN];
+    public const string YEAR_TOKEN = 'AAAA';
+
+    public const string MONTH_TOKEN = 'MM';
+
+    /**
+     * A run of one or more tokens, bounded by anything that is not a letter or digit.
+     *
+     * Tokens may sit against each other — "AAAAMM-NNN" is a run of two and renders
+     * "202608-001" — but a token welded to literal text is not a token at all, so the
+     * MM inside "COMMANDE" stays literal. Whoever renders a format must split it with
+     * this pattern, or the preview and the issued number disagree.
+     */
+    public const string TOKEN_RUN_PATTERN = '/(?<![A-Za-z0-9])((?:AAAA|MM|NNN)+)(?![A-Za-z0-9])/';
+
+    /** Splits a run into its individual tokens. */
+    public const string TOKEN_PATTERN = '/AAAA|MM|NNN/';
 
     private const string MESSAGE = 'Le format doit contenir NNN et n\'accepter que les jetons AAAA, MM et NNN.';
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (! is_string($value) || ! str_contains($value, self::COUNTER_TOKEN)) {
+        if (! is_string($value) || ! $this->hasCounter($value)) {
             $fail(self::MESSAGE);
 
             return;
         }
 
-        $literals = str_replace(self::TOKENS, '', $value);
+        $literals = preg_replace(self::TOKEN_RUN_PATTERN, '', $value) ?? '';
 
         if (preg_match('/^[A-Za-z0-9\-\/_. ]*$/', $literals) !== 1) {
             $fail(self::MESSAGE);
         }
+    }
+
+    private function hasCounter(string $format): bool
+    {
+        preg_match_all(self::TOKEN_RUN_PATTERN, $format, $runs);
+
+        foreach ($runs[1] as $run) {
+            preg_match_all(self::TOKEN_PATTERN, $run, $tokens);
+
+            if (in_array(self::COUNTER_TOKEN, $tokens[0], strict: true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

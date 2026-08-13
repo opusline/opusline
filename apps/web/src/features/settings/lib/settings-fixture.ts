@@ -27,6 +27,8 @@ export const settingsFixture: SettingsData = {
   liberatingPaymentRateBp: 220,
   vatRegime: 0,
   vatLiable: false,
+  defaultVatRateBp: 2000,
+  effectiveVatRateBp: 0,
   effectiveContributionRateBp: 2600,
   defaultPaymentTermsDays: 45,
   invoiceNumberFormat: "AAAA-NNN",

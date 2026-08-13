@@ -96,6 +96,31 @@ export type CreateClientData = {
 };
 
 /**
+ * CreateInvoiceData
+ */
+export type CreateInvoiceData = {
+    clientId: number;
+    amountHt: {
+        amount: number;
+        currency: Currency;
+    };
+    missionId?: number | null;
+    number?: string | null;
+    status?: InvoiceStatus | null;
+    issuedOn?: string | null;
+    dueOn?: string | null;
+    paidOn?: string | null;
+    periodStart?: string | null;
+    periodEnd?: string | null;
+    amountTtc?: {
+        amount: number;
+        currency: Currency;
+    } | null;
+    vatRateBp?: number | null;
+    notes?: string | null;
+};
+
+/**
  * CreateMissionData
  */
 export type CreateMissionData = {
@@ -157,6 +182,75 @@ export type DocumentSource = 0 | 1;
 export type EntryRounding = 0 | 1 | 2;
 
 /**
+ * InvoiceData
+ */
+export type InvoiceData = {
+    id: number;
+    clientId: number;
+    missionId: number | null;
+    number: string | null;
+    status: InvoiceStatus;
+    isLate: boolean;
+    issuedOn: string;
+    dueOn: string;
+    paidOn: string | null;
+    periodStart: string | null;
+    periodEnd: string | null;
+    amountHt: MoneyData;
+    amountVat: MoneyData;
+    amountTtc: MoneyData;
+    ttcOverridden: boolean;
+    vatRateBp: number;
+    notes: string | null;
+};
+
+/**
+ * InvoiceDetailData
+ */
+export type InvoiceDetailData = {
+    invoice: InvoiceData;
+    client: ClientData;
+    mission: MissionData | null;
+    history: Array<InvoiceEventData>;
+};
+
+/**
+ * InvoiceEventData
+ */
+export type InvoiceEventData = {
+    id: number;
+    kind: InvoiceEventKind;
+    occurredOn: string;
+    note: string | null;
+};
+
+/**
+ * InvoiceEventKind
+ */
+export type InvoiceEventKind = 0 | 1 | 2 | 3 | 4;
+
+/**
+ * InvoiceListData
+ */
+export type InvoiceListData = {
+    invoices: Array<InvoiceListItemData>;
+};
+
+/**
+ * InvoiceListItemData
+ */
+export type InvoiceListItemData = {
+    invoice: InvoiceData;
+    client: ClientData;
+    mission: MissionData | null;
+};
+
+/**
+ * InvoiceStatus
+ */
+export type InvoiceStatus = 0 | 1 | 2;
+
+/**
  * LoginData
  */
 export type LoginData = {
@@ -199,6 +293,21 @@ export type MoneyData = {
 };
 
 /**
+ * NextInvoiceNumberData
+ */
+export type NextInvoiceNumberData = {
+    number: string;
+    format: string;
+};
+
+/**
+ * PayInvoiceData
+ */
+export type PayInvoiceData = {
+    paidOn: string;
+};
+
+/**
  * RegisterUserData
  */
 export type RegisterUserData = {
@@ -206,6 +315,14 @@ export type RegisterUserData = {
     email: string;
     password: string;
     password_confirmation: string;
+};
+
+/**
+ * RemindInvoiceData
+ */
+export type RemindInvoiceData = {
+    occurredOn?: string | null;
+    note?: string | null;
 };
 
 /**
@@ -238,6 +355,8 @@ export type SettingsData = {
     liberatingPaymentRateBp: number;
     vatRegime: VatRegime;
     vatLiable: boolean;
+    defaultVatRateBp: number;
+    effectiveVatRateBp: number;
     effectiveContributionRateBp: number;
     defaultPaymentTermsDays: number;
     invoiceNumberFormat: string;
@@ -364,6 +483,30 @@ export type UpdateDocumentData = {
 };
 
 /**
+ * UpdateInvoiceData
+ */
+export type UpdateInvoiceData = {
+    clientId: number;
+    amountHt: {
+        amount: number;
+        currency: Currency;
+    };
+    missionId?: number | null;
+    number?: string | null;
+    issuedOn?: string | null;
+    dueOn?: string | null;
+    paidOn?: string | null;
+    periodStart?: string | null;
+    periodEnd?: string | null;
+    amountTtc?: {
+        amount: number;
+        currency: Currency;
+    } | null;
+    vatRateBp?: number | null;
+    notes?: string | null;
+};
+
+/**
  * UpdateMissionData
  */
 export type UpdateMissionData = {
@@ -394,6 +537,7 @@ export type UpdateSettingsData = {
     liberatingPayment: boolean;
     liberatingPaymentRateBp: number;
     vatRegime: VatRegime;
+    defaultVatRateBp: number;
     defaultPaymentTermsDays: number;
     invoiceNumberFormat: string;
     homeAddressSameAsCompany: boolean;
@@ -1235,6 +1379,379 @@ export type UploadClientLogoResponses = {
 };
 
 export type UploadClientLogoResponse = UploadClientLogoResponses[keyof UploadClientLogoResponses];
+
+export type ListInvoicesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        status?: InvoiceStatus | null;
+        clientId?: number | null;
+        missionId?: number | null;
+        late?: boolean | null;
+        from?: string | null;
+        to?: string | null;
+    };
+    url: '/invoices';
+};
+
+export type ListInvoicesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListInvoicesError = ListInvoicesErrors[keyof ListInvoicesErrors];
+
+export type ListInvoicesResponses = {
+    200: InvoiceListData;
+};
+
+export type ListInvoicesResponse = ListInvoicesResponses[keyof ListInvoicesResponses];
+
+export type CreateInvoiceData2 = {
+    body: CreateInvoiceData;
+    path?: never;
+    query?: never;
+    url: '/invoices';
+};
+
+export type CreateInvoiceErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateInvoiceError = CreateInvoiceErrors[keyof CreateInvoiceErrors];
+
+export type CreateInvoiceResponses = {
+    201: InvoiceDetailData;
+};
+
+export type CreateInvoiceResponse = CreateInvoiceResponses[keyof CreateInvoiceResponses];
+
+export type ShowNextInvoiceNumberData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/invoices/next-number';
+};
+
+export type ShowNextInvoiceNumberErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowNextInvoiceNumberError = ShowNextInvoiceNumberErrors[keyof ShowNextInvoiceNumberErrors];
+
+export type ShowNextInvoiceNumberResponses = {
+    200: NextInvoiceNumberData;
+};
+
+export type ShowNextInvoiceNumberResponse = ShowNextInvoiceNumberResponses[keyof ShowNextInvoiceNumberResponses];
+
+export type DeleteInvoiceData = {
+    body?: never;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoices/{invoice}';
+};
+
+export type DeleteInvoiceErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteInvoiceError = DeleteInvoiceErrors[keyof DeleteInvoiceErrors];
+
+export type DeleteInvoiceResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteInvoiceResponse = DeleteInvoiceResponses[keyof DeleteInvoiceResponses];
+
+export type ShowInvoiceData = {
+    body?: never;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoices/{invoice}';
+};
+
+export type ShowInvoiceErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowInvoiceError = ShowInvoiceErrors[keyof ShowInvoiceErrors];
+
+export type ShowInvoiceResponses = {
+    200: InvoiceDetailData;
+};
+
+export type ShowInvoiceResponse = ShowInvoiceResponses[keyof ShowInvoiceResponses];
+
+export type UpdateInvoiceData2 = {
+    body: UpdateInvoiceData;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoices/{invoice}';
+};
+
+export type UpdateInvoiceErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateInvoiceError = UpdateInvoiceErrors[keyof UpdateInvoiceErrors];
+
+export type UpdateInvoiceResponses = {
+    200: InvoiceDetailData;
+};
+
+export type UpdateInvoiceResponse = UpdateInvoiceResponses[keyof UpdateInvoiceResponses];
+
+export type SendInvoiceData = {
+    body?: never;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoices/{invoice}/send';
+};
+
+export type SendInvoiceErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type SendInvoiceError = SendInvoiceErrors[keyof SendInvoiceErrors];
+
+export type SendInvoiceResponses = {
+    200: InvoiceDetailData;
+};
+
+export type SendInvoiceResponse = SendInvoiceResponses[keyof SendInvoiceResponses];
+
+export type PayInvoiceData2 = {
+    body: PayInvoiceData;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoices/{invoice}/pay';
+};
+
+export type PayInvoiceErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type PayInvoiceError = PayInvoiceErrors[keyof PayInvoiceErrors];
+
+export type PayInvoiceResponses = {
+    200: InvoiceDetailData;
+};
+
+export type PayInvoiceResponse = PayInvoiceResponses[keyof PayInvoiceResponses];
+
+export type RemindInvoiceData2 = {
+    body?: RemindInvoiceData;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoices/{invoice}/reminders';
+};
+
+export type RemindInvoiceErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type RemindInvoiceError = RemindInvoiceErrors[keyof RemindInvoiceErrors];
+
+export type RemindInvoiceResponses = {
+    201: InvoiceDetailData;
+};
+
+export type RemindInvoiceResponse = RemindInvoiceResponses[keyof RemindInvoiceResponses];
 
 export type DeleteMissionData = {
     body?: never;

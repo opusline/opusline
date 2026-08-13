@@ -35,4 +35,13 @@ return [
 
     'liberating_payment_probe_revenue' => 10_000,
 
+    /*
+    | The TVA rate a new invoice defaults to, for an account that is liable
+    | for it. An account under the franchise en base defaults to 0 instead —
+    | see UserSettings::effectiveVatRateBp(). The rate is snapshotted on each
+    | invoice, so crossing the threshold mid-year never rewrites past ones.
+    */
+
+    'vat_rate_bp' => 2000,
+
 ];

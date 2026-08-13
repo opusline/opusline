@@ -29,6 +29,8 @@ class UpdateSettingsData extends Data
         #[IntegerType, Between(0, 10000)]
         public int $liberatingPaymentRateBp,
         public VatRegime $vatRegime,
+        #[IntegerType, Between(0, 10000)]
+        public int $defaultVatRateBp,
         #[IntegerType, Between(0, 365)]
         public int $defaultPaymentTermsDays,
         #[Max(64), Rule(new InvoiceNumberFormat)]

@@ -47,6 +47,7 @@ class UpdateSettings
             'business_started_on' => $data->businessStartedOn,
             'liberating_payment' => $data->liberatingPayment,
             'vat_regime' => $data->vatRegime,
+            'default_vat_rate_bp' => $data->defaultVatRateBp,
             'default_payment_terms_days' => $data->defaultPaymentTermsDays,
             'invoice_number_format' => $data->invoiceNumberFormat,
             'treasury_buffer_cents' => $data->treasuryBuffer?->toMoney(),

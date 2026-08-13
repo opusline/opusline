@@ -172,3 +172,39 @@ test('puts an omitted billable flag back to billable, like every other field', f
         ->assertOk()
         ->assertJsonPath('billable', true);
 });
+
+test('refuses to move tracked time that an invoice bills', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user);
+    $otherMission = missionOwnedBy($user);
+    $timeEntry = invoicedTimeEntry($user, $mission, invoiceForMission($user, $mission));
+
+    $this->actingAs($user)
+        ->putJson("/api/time-entries/{$timeEntry->id}", [
+            'missionId' => $otherMission->id,
+            'date' => $timeEntry->date->toDateString(),
+            'durationMinutes' => 420,
+        ])
+        ->assertConflict()
+        ->assertJsonPath('message', __('invoices.cannot_move_invoiced_time_entry'));
+
+    $this->assertDatabaseHas('time_entries', [
+        'id' => $timeEntry->id,
+        'mission_id' => $mission->id,
+    ]);
+});
+
+test('still moves tracked time that no invoice bills', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user);
+    $otherMission = missionOwnedBy($user);
+    $timeEntry = TimeEntry::factory()->for($mission, 'mission')->create(['user_id' => $user->id]);
+
+    $this->actingAs($user)
+        ->putJson("/api/time-entries/{$timeEntry->id}", [
+            'missionId' => $otherMission->id,
+            'date' => $timeEntry->date->toDateString(),
+            'durationMinutes' => 420,
+        ])
+        ->assertOk();
+});

@@ -43,6 +43,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property bool $liberating_payment
  * @property int $liberating_payment_rate_bp
  * @property VatRegime $vat_regime
+ * @property int $default_vat_rate_bp
  * @property int $default_payment_terms_days
  * @property string $invoice_number_format
  * @property ?Money $treasury_buffer_cents
@@ -76,6 +77,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'liberating_payment',
     'liberating_payment_rate_bp',
     'vat_regime',
+    'default_vat_rate_bp',
     'default_payment_terms_days',
     'invoice_number_format',
     'treasury_buffer_cents',
@@ -104,6 +106,7 @@ class UserSettings extends Model
             'liberating_payment' => 'boolean',
             'liberating_payment_rate_bp' => 'integer',
             'vat_regime' => VatRegime::class,
+            'default_vat_rate_bp' => 'integer',
             'default_payment_terms_days' => 'integer',
             'treasury_buffer_cents' => MoneyIntegerCast::class.':currency',
         ];
@@ -119,5 +122,11 @@ class UserSettings extends Model
     {
         return $this->contribution_rate_bp
             + ($this->liberating_payment ? $this->liberating_payment_rate_bp : 0);
+    }
+
+    /** The TVA rate a new invoice starts on; see config/fiscality.php. */
+    public function effectiveVatRateBp(): int
+    {
+        return $this->vat_regime->isLiable() ? $this->default_vat_rate_bp : 0;
     }
 }

@@ -20,6 +20,12 @@ class UpdateTimeEntry
 
             $mission = $user->missions()->whereKey($data->missionId)->firstOrFail();
 
+            abort_if(
+                $timeEntry->isInvoiced() && $mission->id !== $timeEntry->mission_id,
+                409,
+                __('invoices.cannot_move_invoiced_time_entry'),
+            );
+
             $this->validateTimeEntry->handle($user, $data, $timeEntry);
 
             $timeEntry->update([

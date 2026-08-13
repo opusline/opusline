@@ -31,6 +31,7 @@ class TimeEntryFactory extends Factory
     {
         return [
             'mission_id' => Mission::factory(),
+            'invoice_id' => null,
             'user_id' => fn (array $attributes): int => Mission::query()
                 ->whereKey($attributes['mission_id'])
                 ->firstOrFail()

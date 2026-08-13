@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\TimeEntries\Models;
 
+use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Enums\EntryRounding;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Casts\CalendarDate;
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $user_id
  * @property int $mission_id
+ * @property ?int $invoice_id
  * @property CarbonImmutable $date
  * @property int $duration_minutes
  * @property ?EntryRounding $rounding
@@ -31,6 +33,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 #[Fillable([
     'mission_id',
+    'invoice_id',
     'date',
     'duration_minutes',
     'rounding',
@@ -95,6 +98,11 @@ class TimeEntry extends Model
         );
     }
 
+    public function isInvoiced(): bool
+    {
+        return $this->invoice_id !== null;
+    }
+
     public function effectiveRounding(): EntryRounding
     {
         return $this->rounding ?? $this->mission->effectiveRounding();
@@ -126,5 +134,15 @@ class TimeEntry extends Model
     public function mission(): BelongsTo
     {
         return $this->belongsTo(Mission::class);
+    }
+
+    /**
+     * Null is what "reste à facturer" means.
+     *
+     * @return BelongsTo<Invoice, $this>
+     */
+    public function invoice(): BelongsTo
+    {
+        return $this->belongsTo(Invoice::class);
     }
 }
