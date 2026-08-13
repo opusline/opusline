@@ -10,6 +10,8 @@ class DeleteTimeEntry
 {
     public function handle(TimeEntry $timeEntry): void
     {
+        abort_if($timeEntry->isInvoiced(), 409, __('invoices.cannot_delete_invoiced_time_entry'));
+
         $timeEntry->delete();
     }
 }

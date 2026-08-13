@@ -129,6 +129,8 @@ export function toSettingsPayload(
     liberatingPayment: values.liberatingPayment,
     liberatingPaymentRateBp: settings.liberatingPaymentRateBp,
     vatRegime: values.vatRegime,
+    // Not editable in this form yet; passed through so a full-replace PUT keeps it.
+    defaultVatRateBp: settings.defaultVatRateBp,
     defaultPaymentTermsDays: values.defaultPaymentTermsDays,
     invoiceNumberFormat: values.invoiceNumberFormat.trim(),
     homeAddressSameAsCompany: values.homeAddressSameAsCompany,
@@ -206,11 +208,45 @@ export function unsavedChangesLabel(count: number): string {
     : `${count} modifications non enregistrées`;
 }
 
+/**
+ * Mirrors InvoiceNumberFormat::TOKEN_RUN_PATTERN on the API. Tokens may sit against
+ * each other ("AAAAMM-NNN" renders "202608-001"), but a token welded to literal text
+ * is not a token, so the MM inside "COMMANDE" stays literal. Diverging from the API
+ * here means the preview shows a reference the server would never issue.
+ */
+const INVOICE_NUMBER_TOKEN_RUN =
+  /(?<![A-Za-z0-9])((?:AAAA|MM|NNN)+)(?![A-Za-z0-9])/g;
+
+const INVOICE_NUMBER_TOKEN = /AAAA|MM|NNN/g;
+
+/**
+ * Exactly one, not at least one: a second counter has nowhere to go. Mirrors
+ * InvoiceNumberFormat::hasSingleCounter on the API.
+ */
+export function hasInvoiceNumberCounter(format: string): boolean {
+  const counters = Array.from(
+    format.matchAll(INVOICE_NUMBER_TOKEN_RUN),
+  ).flatMap(([run]) =>
+    Array.from(run.matchAll(INVOICE_NUMBER_TOKEN)).filter(
+      ([token]) => token === "NNN",
+    ),
+  );
+
+  return counters.length === 1;
+}
+
 export function previewInvoiceNumber(format: string, on: Date): string {
-  return format
-    .replaceAll("AAAA", String(on.getFullYear()))
-    .replaceAll("MM", String(on.getMonth() + 1).padStart(2, "0"))
-    .replaceAll("NNN", "001");
+  return format.replaceAll(INVOICE_NUMBER_TOKEN_RUN, (run) =>
+    run.replaceAll(INVOICE_NUMBER_TOKEN, (token) => {
+      if (token === "AAAA") {
+        return String(on.getFullYear());
+      }
+
+      return token === "MM"
+        ? String(on.getMonth() + 1).padStart(2, "0")
+        : "001";
+    }),
+  );
 }
 
 const percent = new Intl.NumberFormat("fr-FR", {

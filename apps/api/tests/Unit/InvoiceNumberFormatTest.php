@@ -13,9 +13,12 @@ test('accepts a format built from the documented tokens', function (string $form
     'literal prefix' => ['FACT/AAAA/NNN'],
 ]);
 
-test('rejects a format without a counter', function (): void {
-    expect(rejects(new InvoiceNumberFormat, 'AAAA-MM'))->toBeTrue();
-});
+test('rejects a format without a counter', function (string $format): void {
+    expect(rejects(new InvoiceNumberFormat, $format))->toBeTrue();
+})->with([
+    'no counter token' => ['AAAA-MM'],
+    'counter welded to a literal' => ['COMMANDENNN'],
+]);
 
 test('rejects a format carrying an unknown token', function (mixed $format): void {
     expect(rejects(new InvoiceNumberFormat, $format))->toBeTrue();
@@ -24,4 +27,11 @@ test('rejects a format carrying an unknown token', function (mixed $format): voi
     'percent placeholder' => ['%Y-NNN'],
     'braces' => ['{year}-NNN'],
     'not a string' => [42],
+]);
+
+test('rejects a format with more than one counter', function (string $format): void {
+    expect(rejects(new InvoiceNumberFormat, $format))->toBeTrue();
+})->with([
+    'two counters apart' => ['NNN-NNN'],
+    'two counters welded' => ['NNNNNN'],
 ]);

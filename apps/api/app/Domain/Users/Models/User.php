@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Users\Models;
 
 use App\Domain\Clients\Models\Client;
+use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\TimeEntries\Models\TimeEntry;
@@ -90,6 +91,12 @@ class User extends Authenticatable implements HasMedia
     public function timeEntries(): HasMany
     {
         return $this->hasMany(TimeEntry::class);
+    }
+
+    /** @return HasMany<Invoice, $this> */
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
     }
 
     /** @return HasOne<RunningTimer, $this> */

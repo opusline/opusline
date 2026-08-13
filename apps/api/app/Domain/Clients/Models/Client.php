@@ -6,6 +6,7 @@ namespace App\Domain\Clients\Models;
 
 use App\Domain\Clients\Enums\ClientType;
 use App\Domain\Clients\Factories\ClientFactory;
+use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Enums\Color;
 use App\Domain\Shared\Routing\OwnedRouteBinding;
@@ -118,6 +119,12 @@ class Client extends Model implements HasMedia
     public function missions(): HasMany
     {
         return $this->hasMany(Mission::class)->orderBy('name');
+    }
+
+    /** @return HasMany<Invoice, $this> */
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
     }
 
     #[\Override]

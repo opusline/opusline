@@ -15,6 +15,8 @@ class DeleteMission
         DB::transaction(function () use ($mission): void {
             User::query()->whereKey($mission->user_id)->lockForUpdate()->firstOrFail();
 
+            abort_if($mission->invoices()->exists(), 409, __('invoices.cannot_delete_mission_with_invoices'));
+
             abort_if($mission->timeEntries()->exists(), 409, __('missions.cannot_delete_with_time_entries'));
 
             abort_if($mission->runningTimer()->exists(), 409, __('missions.cannot_delete_with_running_timer'));

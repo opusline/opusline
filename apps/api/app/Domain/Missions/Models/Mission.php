@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Missions\Models;
 
 use App\Domain\Clients\Models\Client;
+use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Enums\BillingMode;
 use App\Domain\Missions\Enums\EntryRounding;
 use App\Domain\Missions\Enums\MissionStatus;
@@ -158,6 +159,12 @@ class Mission extends Model implements HasMedia
     public function timeEntries(): HasMany
     {
         return $this->hasMany(TimeEntry::class);
+    }
+
+    /** @return HasMany<Invoice, $this> */
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
     }
 
     /** @return HasOne<RunningTimer, $this> */

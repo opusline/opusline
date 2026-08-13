@@ -8,7 +8,11 @@ import {
 import { FormTextField } from "@/components/form-text-field";
 import { PaymentTermsPicker } from "@/components/payment-terms-picker";
 import { formatRateDraft } from "@/lib/billing";
-import { parseBufferCents, previewInvoiceNumber } from "../lib/settings-form";
+import {
+  hasInvoiceNumberCounter,
+  parseBufferCents,
+  previewInvoiceNumber,
+} from "../lib/settings-form";
 import type { SettingsForm } from "../lib/use-settings-form";
 import { SettingsSection } from "./settings-section";
 
@@ -55,9 +59,9 @@ export function BillingSettingsForm({ form }: { form: SettingsForm }) {
         name="invoiceNumberFormat"
         validators={{
           onChange: ({ value }: { value: string }) =>
-            value.includes("NNN")
+            hasInvoiceNumberCounter(value)
               ? undefined
-              : { message: "Le format doit contenir le compteur NNN." },
+              : { message: "Le format doit contenir un seul compteur NNN." },
         }}
       >
         {(field) => (

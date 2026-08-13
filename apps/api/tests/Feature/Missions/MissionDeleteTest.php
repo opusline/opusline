@@ -66,6 +66,22 @@ test('refuses to delete a mission with a running timer', function (): void {
     ]);
 });
 
+test('refuses to delete a mission that still carries invoices', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user);
+
+    invoiceOwnedBy($user, $mission->client, fn ($factory) => $factory->state([
+        'mission_id' => $mission->id,
+    ]));
+
+    $this->actingAs($user)
+        ->deleteJson("/api/clients/{$mission->client->slug}/missions/{$mission->slug}")
+        ->assertConflict()
+        ->assertJsonPath('message', __('invoices.cannot_delete_mission_with_invoices'));
+
+    $this->assertDatabaseHas('missions', ['id' => $mission->id]);
+});
+
 test('cannot delete another user mission', function (): void {
     $mission = Mission::factory()->create();
 

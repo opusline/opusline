@@ -43,3 +43,16 @@ test('returns 401 for guests', function (): void {
 
     $this->deleteJson("/api/time-entries/{$entry->id}")->assertUnauthorized();
 });
+
+test('refuses to delete tracked time that an invoice bills', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user);
+    $timeEntry = invoicedTimeEntry($user, $mission, invoiceForMission($user, $mission));
+
+    $this->actingAs($user)
+        ->deleteJson("/api/time-entries/{$timeEntry->id}")
+        ->assertConflict()
+        ->assertJsonPath('message', __('invoices.cannot_delete_invoiced_time_entry'));
+
+    $this->assertDatabaseHas('time_entries', ['id' => $timeEntry->id]);
+});

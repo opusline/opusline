@@ -230,17 +230,20 @@ it("refuses a contribution rate outside 0 to 100", () => {
   ).toBeInTheDocument();
 });
 
-it("refuses an invoice format without a counter", () => {
-  renderPage({ activeTab: "facturation" });
+it.each([["AAAA-MM"], ["NNN-NNN"]])(
+  "refuses the invoice format %s",
+  (format) => {
+    renderPage({ activeTab: "facturation" });
 
-  fireEvent.change(screen.getByLabelText("Numérotation des factures"), {
-    target: { value: "AAAA-MM" },
-  });
+    fireEvent.change(screen.getByLabelText("Numérotation des factures"), {
+      target: { value: format },
+    });
 
-  expect(
-    screen.getByText("Le format doit contenir le compteur NNN."),
-  ).toBeInTheDocument();
-});
+    expect(
+      screen.getByText("Le format doit contenir un seul compteur NNN."),
+    ).toBeInTheDocument();
+  },
+);
 
 it("shows when the barème was last read", () => {
   renderPage({ activeTab: "fiscalite" });
