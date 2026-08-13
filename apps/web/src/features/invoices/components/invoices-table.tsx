@@ -5,6 +5,7 @@ import { cn } from "@opusline/ui/lib/utils";
 import { useState } from "react";
 
 import { formatAmountWithCents, paymentTermsLabel } from "@/lib/billing";
+import { calendarDateLabel } from "@/lib/dates";
 import { invoiceStatusBadge } from "@/lib/invoice-status";
 import { COLOR_CLASSES } from "@/lib/palette";
 
@@ -109,7 +110,7 @@ export function InvoicesTable({ invoices }: InvoicesTableProps) {
                           {mission?.name ?? "Sans mission"}
                         </span>
                         <span className="mt-0.75 block text-muted-foreground-3 text-xs">
-                          Échéance {invoice.dueOn}
+                          Échéance {calendarDateLabel(invoice.dueOn)}
                         </span>
                       </span>
                       <span className="w-32 text-right font-mono text-foreground-hi text-sm tabular-nums">
