@@ -29,6 +29,7 @@ class InvoiceTodoData extends Data
     public function __construct(
         public InvoiceTodoKind $kind,
         public MoneyData $amount,
+        public int $clientId,
         public string $clientName,
         public ?int $invoiceId,
         public ?string $number,

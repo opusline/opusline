@@ -3586,6 +3586,9 @@
                     "amount": {
                         "$ref": "#/components/schemas/MoneyData"
                     },
+                    "clientId": {
+                        "type": "integer"
+                    },
                     "clientName": {
                         "type": "string"
                     },
@@ -3668,6 +3671,7 @@
                 "required": [
                     "kind",
                     "amount",
+                    "clientId",
                     "clientName",
                     "invoiceId",
                     "number",

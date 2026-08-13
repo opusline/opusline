@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@opusline/ui/components/dropdown-menu";
+import { StatTile, StatTileRow } from "@opusline/ui/components/stat-tile";
 import { Switch } from "@opusline/ui/components/switch";
 import {
   Tabs,
@@ -41,30 +42,6 @@ import { MissionEditForm } from "./mission-edit-form";
 
 const EYEBROW_CLASSES =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
-
-function StatTile({
-  label,
-  value,
-  valueClassName,
-}: {
-  label: string;
-  value: string;
-  valueClassName: string;
-}) {
-  return (
-    <div className="bg-card p-4">
-      <div className={EYEBROW_CLASSES}>{label}</div>
-      <div
-        className={cn(
-          "mt-2 whitespace-nowrap font-mono text-xl tabular-nums",
-          valueClassName,
-        )}
-      >
-        {value}
-      </div>
-    </div>
-  );
-}
 
 function FacturationRow({ label, value }: { label: string; value: string }) {
   return (
@@ -245,28 +222,12 @@ export function MissionDetailPage({
         </Alert>
       ) : null}
 
-      <div className="mb-5 grid grid-cols-2 gap-px overflow-hidden rounded-md border bg-border md:grid-cols-4">
-        <StatTile
-          label="Ce mois"
-          value="—"
-          valueClassName="text-foreground-hi"
-        />
-        <StatTile
-          label="CA ce mois"
-          value="—"
-          valueClassName="text-primary-text"
-        />
-        <StatTile
-          label="CA cumulé"
-          value="—"
-          valueClassName="text-foreground-2"
-        />
-        <StatTile
-          label="Moyenne / mois"
-          value="—"
-          valueClassName="text-foreground-2"
-        />
-      </div>
+      <StatTileRow className="mb-5 grid-cols-2 md:grid-cols-4">
+        <StatTile label="Ce mois" value="—" tone="strong" />
+        <StatTile label="CA ce mois" value="—" tone="brand" />
+        <StatTile label="CA cumulé" value="—" />
+        <StatTile label="Moyenne / mois" value="—" />
+      </StatTileRow>
 
       {isEditing ? (
         <MissionEditForm

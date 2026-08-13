@@ -309,6 +309,7 @@ export type InvoiceSummaryData = {
 export type InvoiceTodoData = {
     kind: InvoiceTodoKind;
     amount: MoneyData;
+    clientId: number;
     clientName: string;
     invoiceId: number | null;
     number: string | null;

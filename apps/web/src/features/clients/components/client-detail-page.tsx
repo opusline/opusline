@@ -11,6 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@opusline/ui/components/dropdown-menu";
+import { StatTile, StatTileRow } from "@opusline/ui/components/stat-tile";
 import {
   Table,
   TableBody,
@@ -50,30 +51,6 @@ const EYEBROW_CLASSES =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
 const HEAD_CLASSES =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
-
-function StatTile({
-  label,
-  value,
-  valueClassName,
-}: {
-  label: string;
-  value: string;
-  valueClassName: string;
-}) {
-  return (
-    <div className="bg-card p-4">
-      <div className={EYEBROW_CLASSES}>{label}</div>
-      <div
-        className={cn(
-          "mt-2 whitespace-nowrap font-mono text-xl tabular-nums",
-          valueClassName,
-        )}
-      >
-        {value}
-      </div>
-    </div>
-  );
-}
 
 function CoordRow({
   label,
@@ -234,28 +211,12 @@ export function ClientDetailPage({
         </Alert>
       ) : null}
 
-      <div className="mb-5 grid grid-cols-2 gap-px overflow-hidden rounded-md border bg-border md:grid-cols-4">
-        <StatTile
-          label={`CA ${currentYear}`}
-          value="—"
-          valueClassName="text-primary-text"
-        />
-        <StatTile
-          label="En attente"
-          value="—"
-          valueClassName="text-foreground-hi"
-        />
-        <StatTile
-          label="Délai moyen"
-          value="—"
-          valueClassName="text-foreground-2"
-        />
-        <StatTile
-          label="Missions"
-          value={String(client.missions.length)}
-          valueClassName="text-foreground-2"
-        />
-      </div>
+      <StatTileRow className="mb-5 grid-cols-2 md:grid-cols-4">
+        <StatTile label={`CA ${currentYear}`} value="—" tone="brand" />
+        <StatTile label="En attente" value="—" tone="strong" />
+        <StatTile label="Délai moyen" value="—" />
+        <StatTile label="Missions" value={String(client.missions.length)} />
+      </StatTileRow>
 
       {isEditing ? (
         <ClientEditForm

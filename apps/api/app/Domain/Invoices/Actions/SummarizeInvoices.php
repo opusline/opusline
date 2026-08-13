@@ -277,6 +277,7 @@ class SummarizeInvoices
             $items[] = new InvoiceTodoData(
                 kind: InvoiceTodoKind::Overdue,
                 amount: MoneyData::fromMoney($invoice->amount_ttc_cents),
+                clientId: $invoice->client_id,
                 clientName: $invoice->client->name,
                 invoiceId: $invoice->id,
                 number: $invoice->number,
@@ -299,6 +300,7 @@ class SummarizeInvoices
             $items[] = new InvoiceTodoData(
                 kind: InvoiceTodoKind::UnbilledWork,
                 amount: MoneyData::fromMoney($row['amount']),
+                clientId: $row['mission']->client_id,
                 clientName: $row['mission']->client->name,
                 invoiceId: null,
                 number: null,

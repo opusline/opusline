@@ -309,6 +309,7 @@ export const zInvoiceOverdueData = z.object({
 export const zInvoiceTodoData = z.object({
     kind: zInvoiceTodoKind,
     amount: zMoneyData,
+    clientId: z.int(),
     clientName: z.string(),
     invoiceId: z.nullable(z.int()),
     number: z.nullable(z.string()),
