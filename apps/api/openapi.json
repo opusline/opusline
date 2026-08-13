@@ -2994,6 +2994,12 @@
                             "null"
                         ],
                         "maxLength": 2000
+                    },
+                    "timeEntryIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
                     }
                 },
                 "required": [
@@ -3480,6 +3486,26 @@
                 ],
                 "title": "InvoiceListItemData"
             },
+            "InvoiceOverdueData": {
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "count": {
+                        "type": "integer"
+                    },
+                    "maxDaysLate": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "amount",
+                    "count",
+                    "maxDaysLate"
+                ],
+                "title": "InvoiceOverdueData"
+            },
             "InvoiceStatus": {
                 "type": "integer",
                 "enum": [
@@ -3500,20 +3526,30 @@
                     "month": {
                         "type": "string"
                     },
-                    "invoiced": {
+                    "toCollect": {
                         "$ref": "#/components/schemas/InvoiceTotalData"
                     },
-                    "toInvoice": {
-                        "$ref": "#/components/schemas/InvoiceTotalData"
+                    "overdue": {
+                        "$ref": "#/components/schemas/InvoiceOverdueData"
                     },
-                    "collected": {
-                        "$ref": "#/components/schemas/InvoiceTotalData"
+                    "proAccountBalance": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "forecast": {
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/InvoiceForecastData"
                         }
+                    },
+                    "monthUnbilled": {
+                        "$ref": "#/components/schemas/InvoiceTotalData"
                     },
                     "counts": {
                         "$ref": "#/components/schemas/InvoiceCountsData"
@@ -3530,10 +3566,11 @@
                 },
                 "required": [
                     "month",
-                    "invoiced",
-                    "toInvoice",
-                    "collected",
+                    "toCollect",
+                    "overdue",
+                    "proAccountBalance",
                     "forecast",
+                    "monthUnbilled",
                     "counts",
                     "todo",
                     "todoTotal"
@@ -3546,7 +3583,32 @@
                     "kind": {
                         "$ref": "#/components/schemas/InvoiceTodoKind"
                     },
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "clientName": {
+                        "type": "string"
+                    },
                     "invoiceId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "number": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "dueOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "daysLate": {
                         "type": [
                             "integer",
                             "null"
@@ -3558,40 +3620,78 @@
                             "null"
                         ]
                     },
-                    "amount": {
-                        "$ref": "#/components/schemas/MoneyData"
+                    "missionName": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
-                    "dueOn": {
+                    "entryCount": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "firstEntryOn": {
                         "type": [
                             "string",
                             "null"
                         ],
                         "format": "date"
                     },
-                    "count": {
-                        "type": "integer"
+                    "lastEntryOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "valuedDays": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "valuedMinutes": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "timeEntryIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
                     }
                 },
                 "required": [
                     "kind",
-                    "invoiceId",
-                    "missionId",
                     "amount",
+                    "clientName",
+                    "invoiceId",
+                    "number",
                     "dueOn",
-                    "count"
+                    "daysLate",
+                    "missionId",
+                    "missionName",
+                    "entryCount",
+                    "firstEntryOn",
+                    "lastEntryOn",
+                    "valuedDays",
+                    "valuedMinutes",
+                    "timeEntryIds"
                 ],
                 "title": "InvoiceTodoData"
             },
             "InvoiceTodoKind": {
                 "type": "integer",
-                "description": "What the \"À traiter\" list can put in front of you. Labels live on the frontend, like every other enum here.\n",
+                "description": "What the \"À traiter\" list can put in front of you: money that was billed and has not come in, and money that was worked and has not been billed. Drafts are not here — an unsent draft is a note to self, not a debt. Labels live on the frontend, like every other enum here.\n",
                 "enum": [
                     0,
-                    1,
-                    2
+                    1
                 ],
                 "x-enum-varnames": [
-                    "DraftToSend",
                     "Overdue",
                     "UnbilledWork"
                 ],

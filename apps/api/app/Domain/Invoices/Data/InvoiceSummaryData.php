@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Data;
 
+use App\Domain\Shared\Data\MoneyData;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 
 /**
  * Everything above the invoice list on the Factures screen.
- *
- * The three totals are the page's own subtitle, in order: what is invoiced, what is
- * still to invoice, and what has been collected.
  */
 class InvoiceSummaryData extends Data
 {
@@ -21,14 +19,18 @@ class InvoiceSummaryData extends Data
      */
     public function __construct(
         public string $month,
-        /** Invoiced in the month, net of TVA — this is the figure that gets declared. */
-        public InvoiceTotalData $invoiced,
-        /** Billable tracked time that appears on no invoice yet, at mission rates. */
-        public InvoiceTotalData $toInvoice,
-        /** Collected in the month, gross, by payment date — the cash-basis figure. */
-        public InvoiceTotalData $collected,
+        /** Issued and unpaid, gross — what is still owed to you. */
+        public InvoiceTotalData $toCollect,
+        public InvoiceOverdueData $overdue,
+        /**
+         * Entered by hand or read off a statement. Null until either has happened —
+         * there is no other source for it.
+         */
+        public ?MoneyData $proAccountBalance,
         #[DataCollectionOf(InvoiceForecastData::class)]
         public array $forecast,
+        /** Billable time tracked in the month that no invoice covers yet, net. */
+        public InvoiceTotalData $monthUnbilled,
         public InvoiceCountsData $counts,
         #[DataCollectionOf(InvoiceTodoData::class)]
         public array $todo,

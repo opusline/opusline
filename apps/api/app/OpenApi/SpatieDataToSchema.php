@@ -53,7 +53,8 @@ class SpatieDataToSchema extends TypeToSchemaExtension
             $property = $this->schemaForNamedType($parameterType, $reflectionClass, $parameter->getName());
 
             if ($parameterType->getName() === 'array') {
-                $itemsType = $this->collectedDataItems($reflectionClass, $parameter->getName());
+                $itemsType = $this->collectedDataItems($reflectionClass, $parameter->getName())
+                    ?? $this->documentedItems($constructor?->getDocComment(), $parameter->getName());
 
                 if ($itemsType instanceof OpenApi\Type) {
                     $arrayType = new OpenApi\ArrayType;
@@ -108,6 +109,37 @@ class SpatieDataToSchema extends TypeToSchemaExtension
         }
 
         return $this->openApiTransformer->transform(new ObjectType($attribute->newInstance()->class));
+    }
+
+    /**
+     * Items schema for an array of scalars, read off the constructor's `@param`.
+     *
+     * A list of ids has no Data class to point #[DataCollectionOf] at, and PHP's own
+     * `array` type says nothing about what is in it, so the docblock is the only
+     * declaration of the item type — without it the generated client sees unknown[].
+     */
+    private function documentedItems(string|false|null $docComment, string $propertyName): ?OpenApi\Type
+    {
+        if ($docComment === false || $docComment === null) {
+            return null;
+        }
+
+        $pattern = sprintf(
+            '/@param\s+(?:list<(\w+)>|array<(?:\w+,\s*)?(\w+)>|(\w+)\[])\s+\$%s\b/',
+            preg_quote($propertyName, '/'),
+        );
+
+        if (preg_match($pattern, $docComment, $matches) !== 1) {
+            return null;
+        }
+
+        return match (array_values(array_filter(array_slice($matches, 1)))[0] ?? null) {
+            'int' => new OpenApi\IntegerType,
+            'string' => new OpenApi\StringType,
+            'float' => new OpenApi\NumberType,
+            'bool' => new OpenApi\BooleanType,
+            default => null,
+        };
     }
 
     /**

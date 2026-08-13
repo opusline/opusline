@@ -118,6 +118,7 @@ export type CreateInvoiceData = {
     } | null;
     vatRateBp?: number | null;
     notes?: string | null;
+    timeEntryIds?: Array<number>;
 };
 
 /**
@@ -274,6 +275,15 @@ export type InvoiceListItemData = {
 };
 
 /**
+ * InvoiceOverdueData
+ */
+export type InvoiceOverdueData = {
+    amount: MoneyData;
+    count: number;
+    maxDaysLate: number;
+};
+
+/**
  * InvoiceStatus
  */
 export type InvoiceStatus = 0 | 1 | 2;
@@ -283,10 +293,11 @@ export type InvoiceStatus = 0 | 1 | 2;
  */
 export type InvoiceSummaryData = {
     month: string;
-    invoiced: InvoiceTotalData;
-    toInvoice: InvoiceTotalData;
-    collected: InvoiceTotalData;
+    toCollect: InvoiceTotalData;
+    overdue: InvoiceOverdueData;
+    proAccountBalance: MoneyData | null;
     forecast: Array<InvoiceForecastData>;
+    monthUnbilled: InvoiceTotalData;
     counts: InvoiceCountsData;
     todo: Array<InvoiceTodoData>;
     todoTotal: number;
@@ -297,20 +308,29 @@ export type InvoiceSummaryData = {
  */
 export type InvoiceTodoData = {
     kind: InvoiceTodoKind;
-    invoiceId: number | null;
-    missionId: number | null;
     amount: MoneyData;
+    clientName: string;
+    invoiceId: number | null;
+    number: string | null;
     dueOn: string | null;
-    count: number;
+    daysLate: number | null;
+    missionId: number | null;
+    missionName: string | null;
+    entryCount: number | null;
+    firstEntryOn: string | null;
+    lastEntryOn: string | null;
+    valuedDays: number | null;
+    valuedMinutes: number | null;
+    timeEntryIds: Array<number>;
 };
 
 /**
  * InvoiceTodoKind
  *
- * What the "À traiter" list can put in front of you. Labels live on the frontend, like every other enum here.
+ * What the "À traiter" list can put in front of you: money that was billed and has not come in, and money that was worked and has not been billed. Drafts are not here — an unsent draft is a note to self, not a debt. Labels live on the frontend, like every other enum here.
  *
  */
-export type InvoiceTodoKind = 0 | 1 | 2;
+export type InvoiceTodoKind = 0 | 1;
 
 /**
  * InvoiceTotalData

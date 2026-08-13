@@ -7,6 +7,7 @@ namespace App\Domain\Invoices\Actions;
 use App\Domain\Clients\Enums\ClientType;
 use App\Domain\Invoices\Data\InvoiceCountsData;
 use App\Domain\Invoices\Data\InvoiceForecastData;
+use App\Domain\Invoices\Data\InvoiceOverdueData;
 use App\Domain\Invoices\Data\InvoiceSummaryData;
 use App\Domain\Invoices\Data\InvoiceTodoData;
 use App\Domain\Invoices\Data\InvoiceTotalData;
@@ -15,6 +16,7 @@ use App\Domain\Invoices\Enums\InvoiceForecastBucket;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Enums\InvoiceTodoKind;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Missions\Enums\BillingMode;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\TimeEntries\Models\TimeEntry;
@@ -23,6 +25,9 @@ use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
 use Illuminate\Support\Collection;
 
+/**
+ * @phpstan-type UnbilledWork array{mission: Mission, entries: non-empty-list<TimeEntry>, amount: Money, days: ?float, minutes: ?int}
+ */
 class SummarizeInvoices
 {
     /** Long enough to be worth acting on, short enough to stay a list. */
@@ -37,45 +42,21 @@ class SummarizeInvoices
         $month = CarbonImmutable::parse(($data->month ?? CarbonImmutable::today()->format('Y-m')).'-01');
         $today = CarbonImmutable::today();
 
-        $unbilled = $this->unbilledByMission($user);
         $outstanding = $this->outstanding($user);
-        $overdue = $outstanding->filter(fn (Invoice $invoice): bool => $invoice->due_on->isBefore($today));
-        $drafts = $user->invoices()->where('status', InvoiceStatus::Draft)->orderBy('issued_on')->get();
+        $overdue = $outstanding->filter(fn (Invoice $invoice): bool => $invoice->due_on->isBefore($today))->values();
+        $unbilled = $this->unbilledByMission($user);
 
         return new InvoiceSummaryData(
             month: $month->format('Y-m'),
-            invoiced: $this->invoicedIn($user, $month),
-            toInvoice: $this->totalUnbilled($unbilled),
-            collected: $this->collectedIn($user, $month),
+            toCollect: $this->totalOf($outstanding),
+            overdue: $this->overdue($overdue, $today),
+            proAccountBalance: null,
             forecast: $this->forecast($outstanding, $today),
+            monthUnbilled: $this->unbilledIn($unbilled, $month),
             counts: $this->counts($user, $today),
-            todo: $this->todo($overdue, $unbilled, $drafts),
-            todoTotal: $overdue->count() + count($unbilled) + $drafts->count(),
+            todo: $this->todo($overdue, $unbilled, $today),
+            todoTotal: $overdue->count() + count($unbilled),
         );
-    }
-
-    private function invoicedIn(User $user, CarbonImmutable $month): InvoiceTotalData
-    {
-        $invoices = $user->invoices()
-            ->where('status', '!=', InvoiceStatus::Draft)
-            ->whereBetween('issued_on', [$month->toDateString(), $month->endOfMonth()->toDateString()])
-            ->get();
-
-        return $this->totalOf($invoices, fn (Invoice $invoice): Money => $invoice->amount_ht_cents);
-    }
-
-    /**
-     * Bucketed on the payment date, never the issue date: URSSAF and TVA for a
-     * micro-BNC are cash-basis, so this is the figure that gets declared.
-     */
-    private function collectedIn(User $user, CarbonImmutable $month): InvoiceTotalData
-    {
-        $invoices = $user->invoices()
-            ->where('status', InvoiceStatus::Paid)
-            ->whereBetween('paid_on', [$month->toDateString(), $month->endOfMonth()->toDateString()])
-            ->get();
-
-        return $this->totalOf($invoices, fn (Invoice $invoice): Money => $invoice->amount_ttc_cents);
     }
 
     /**
@@ -86,9 +67,30 @@ class SummarizeInvoices
     private function outstanding(User $user): Collection
     {
         return $user->invoices()
+            ->with('client')
             ->where('status', InvoiceStatus::Sent)
             ->orderBy('due_on')
             ->get();
+    }
+
+    /**
+     * @param  Collection<int, Invoice>  $overdue
+     */
+    private function overdue(Collection $overdue, CarbonImmutable $today): InvoiceOverdueData
+    {
+        $total = $this->totalOf($overdue);
+        $worst = $overdue->first();
+
+        return new InvoiceOverdueData(
+            amount: $total->amount,
+            count: $total->count,
+            maxDaysLate: $worst instanceof Invoice ? $this->daysLate($worst, $today) : 0,
+        );
+    }
+
+    private function daysLate(Invoice $invoice, CarbonImmutable $today): int
+    {
+        return (int) $invoice->due_on->diffInDays($today);
     }
 
     /**
@@ -99,7 +101,7 @@ class SummarizeInvoices
      * measures effort and margin, not an amount to bill — as are internal clients,
      * which are not billable at all.
      *
-     * @return list<array{mission: Mission, amount: Money, count: int}>
+     * @return list<UnbilledWork>
      */
     private function unbilledByMission(User $user): array
     {
@@ -107,9 +109,10 @@ class SummarizeInvoices
             ->with('mission.client')
             ->whereNull('invoice_id')
             ->where('billable', true)
+            ->orderBy('date')
             ->get();
 
-        /** @var array<int, array{mission: Mission, entries: list<TimeEntry>}> $grouped */
+        /** @var array<int, array{mission: Mission, entries: non-empty-list<TimeEntry>}> $grouped */
         $grouped = [];
 
         foreach ($entries as $entry) {
@@ -127,15 +130,10 @@ class SummarizeInvoices
             $grouped[$mission->id]['entries'][] = $entry;
         }
 
-        $rows = [];
-
-        foreach ($grouped as $group) {
-            $rows[] = [
-                'mission' => $group['mission'],
-                'amount' => $this->valueTrackedTime->handle($group['mission'], $group['entries']),
-                'count' => count($group['entries']),
-            ];
-        }
+        $rows = array_map(
+            fn (array $group): array => $this->work($group['mission'], $group['entries']),
+            array_values($grouped),
+        );
 
         usort($rows, static fn (array $a, array $b): int => (int) $b['amount']->getAmount() <=> (int) $a['amount']->getAmount());
 
@@ -143,19 +141,49 @@ class SummarizeInvoices
     }
 
     /**
-     * @param  list<array{mission: Mission, amount: Money, count: int}>  $unbilled
+     * @param  non-empty-list<TimeEntry>  $entries
+     * @return UnbilledWork
      */
-    private function totalUnbilled(array $unbilled): InvoiceTotalData
+    private function work(Mission $mission, array $entries): array
+    {
+        $isHourly = $mission->billing_mode === BillingMode::Hourly;
+
+        return [
+            'mission' => $mission,
+            'entries' => $entries,
+            'amount' => $this->valueTrackedTime->handle($mission, $entries),
+            'days' => $isHourly ? null : $this->valueTrackedTime->billedDays($mission, $entries),
+            'minutes' => $isHourly ? $this->valueTrackedTime->billedMinutes($mission, $entries) : null,
+        ];
+    }
+
+    /**
+     * The month card: what was worked in the month on show and still is not on any
+     * invoice. Counted in periods, not entries — one mission's month is one invoice
+     * waiting to be written, however many days went into it.
+     *
+     * @param  list<UnbilledWork>  $unbilled
+     */
+    private function unbilledIn(array $unbilled, CarbonImmutable $month): InvoiceTotalData
     {
         $total = new Money(0, config()->string('app.currency'));
-        $count = 0;
+        $periods = 0;
 
         foreach ($unbilled as $row) {
-            $total = $total->add($row['amount']);
-            $count += $row['count'];
+            $entries = array_values(array_filter(
+                $row['entries'],
+                static fn (TimeEntry $entry): bool => $entry->date->isSameMonth($month),
+            ));
+
+            if ($entries === []) {
+                continue;
+            }
+
+            $total = $total->add($this->valueTrackedTime->handle($row['mission'], $entries));
+            $periods++;
         }
 
-        return new InvoiceTotalData(amount: MoneyData::fromMoney($total), count: $count);
+        return new InvoiceTotalData(amount: MoneyData::fromMoney($total), count: $periods);
     }
 
     /**
@@ -234,62 +262,71 @@ class SummarizeInvoices
     }
 
     /**
-     * Overdue first, then time that should have been invoiced, then drafts waiting to
-     * go out — roughly the order in which each costs money to ignore.
+     * Overdue first, then time that should have been invoiced — the order in which
+     * each costs money to ignore.
      *
      * @param  Collection<int, Invoice>  $overdue
-     * @param  list<array{mission: Mission, amount: Money, count: int}>  $unbilled
-     * @param  Collection<int, Invoice>  $drafts
+     * @param  list<UnbilledWork>  $unbilled
      * @return list<InvoiceTodoData>
      */
-    private function todo(Collection $overdue, array $unbilled, Collection $drafts): array
+    private function todo(Collection $overdue, array $unbilled, CarbonImmutable $today): array
     {
         $items = [];
 
         foreach ($overdue as $invoice) {
-            $items[] = $this->fromInvoice($invoice, InvoiceTodoKind::Overdue);
-        }
-
-        foreach ($unbilled as $row) {
             $items[] = new InvoiceTodoData(
-                kind: InvoiceTodoKind::UnbilledWork,
-                invoiceId: null,
-                missionId: $row['mission']->id,
-                amount: MoneyData::fromMoney($row['amount']),
-                dueOn: null,
-                count: $row['count'],
+                kind: InvoiceTodoKind::Overdue,
+                amount: MoneyData::fromMoney($invoice->amount_ttc_cents),
+                clientName: $invoice->client->name,
+                invoiceId: $invoice->id,
+                number: $invoice->number,
+                dueOn: $invoice->due_on,
+                daysLate: $this->daysLate($invoice, $today),
+                missionId: $invoice->mission_id,
+                missionName: null,
+                entryCount: null,
+                firstEntryOn: null,
+                lastEntryOn: null,
+                valuedDays: null,
+                valuedMinutes: null,
+                timeEntryIds: [],
             );
         }
 
-        foreach ($drafts as $invoice) {
-            $items[] = $this->fromInvoice($invoice, InvoiceTodoKind::DraftToSend);
+        foreach ($unbilled as $row) {
+            $entries = $row['entries'];
+
+            $items[] = new InvoiceTodoData(
+                kind: InvoiceTodoKind::UnbilledWork,
+                amount: MoneyData::fromMoney($row['amount']),
+                clientName: $row['mission']->client->name,
+                invoiceId: null,
+                number: null,
+                dueOn: null,
+                daysLate: null,
+                missionId: $row['mission']->id,
+                missionName: $row['mission']->name,
+                entryCount: count($entries),
+                firstEntryOn: $entries[0]->date,
+                lastEntryOn: $entries[count($entries) - 1]->date,
+                valuedDays: $row['days'],
+                valuedMinutes: $row['minutes'],
+                timeEntryIds: array_map(static fn (TimeEntry $entry): int => $entry->id, $entries),
+            );
         }
 
         return array_slice($items, 0, self::TODO_LIMIT);
     }
 
-    private function fromInvoice(Invoice $invoice, InvoiceTodoKind $kind): InvoiceTodoData
-    {
-        return new InvoiceTodoData(
-            kind: $kind,
-            invoiceId: $invoice->id,
-            missionId: $invoice->mission_id,
-            amount: MoneyData::fromMoney($invoice->amount_ttc_cents),
-            dueOn: $invoice->due_on,
-            count: 1,
-        );
-    }
-
     /**
      * @param  Collection<int, Invoice>  $invoices
-     * @param  callable(Invoice): Money  $amount
      */
-    private function totalOf(Collection $invoices, callable $amount): InvoiceTotalData
+    private function totalOf(Collection $invoices): InvoiceTotalData
     {
         $total = new Money(0, config()->string('app.currency'));
 
         foreach ($invoices as $invoice) {
-            $total = $total->add($amount($invoice));
+            $total = $total->add($invoice->amount_ttc_cents);
         }
 
         return new InvoiceTotalData(

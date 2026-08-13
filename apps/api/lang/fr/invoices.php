@@ -19,6 +19,11 @@ return [
     'cannot_remind' => 'Une relance ne se note que sur une facture envoyée et non encore payée.',
     'cannot_change_invoiced_time_entry' => 'Ce temps est facturé : sa mission, sa date, sa durée, son arrondi et son caractère facturable ne peuvent plus changer.',
     'cannot_delete_invoiced_time_entry' => 'Ce temps est rattaché à une facture. Détachez-le de la facture avant de le supprimer.',
+    'link_requires_mission' => 'Rattachez la facture à une mission avant d\'y rattacher des temps.',
+    'time_entry_not_found' => 'Un des temps sélectionnés est introuvable.',
+    'time_entry_not_on_mission' => 'Un des temps sélectionnés ne relève pas de la mission facturée.',
+    'time_entry_not_billable' => 'Un des temps sélectionnés n\'est pas facturable.',
+    'time_entry_already_invoiced' => 'Un des temps sélectionnés figure déjà sur une autre facture.',
     'cannot_delete_client_with_invoices' => 'Impossible de supprimer un client qui a encore des factures. Supprimez-les d\'abord.',
     'cannot_delete_mission_with_invoices' => 'Impossible de supprimer une mission qui a encore des factures. Supprimez-les d\'abord.',
 ];

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Invoices\Actions;
 
 use App\Domain\Missions\Enums\BillingMode;
+use App\Domain\Missions\Enums\EntryRounding;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\TimeEntries\Models\TimeEntry;
 use Cknow\Money\Money;
@@ -45,6 +46,44 @@ class ValueTrackedTime
             && $mission->billing_mode !== BillingMode::Fixed;
     }
 
+    /**
+     * How much time those entries bill for, in the mission's own unit: minutes on an
+     * hourly mission, days on a daily one. Rounded the way each entry is billed, so
+     * "3 j" beside an amount means the same three days the amount was priced from.
+     *
+     * Display only — the amount above never goes through these, it is computed from
+     * exact fractions.
+     *
+     * @param  iterable<TimeEntry>  $entries
+     */
+    public function billedMinutes(Mission $mission, iterable $entries): int
+    {
+        $total = 0;
+
+        foreach ($entries as $entry) {
+            $total += $this->roundingFor($mission, $entry)->valueMinutes($entry->duration_minutes);
+        }
+
+        return $total;
+    }
+
+    /**
+     * @param  iterable<TimeEntry>  $entries
+     */
+    public function billedDays(Mission $mission, iterable $entries): float
+    {
+        $total = 0.0;
+
+        foreach ($entries as $entry) {
+            $total += $this->roundingFor($mission, $entry)->valueDayFraction(
+                $entry->duration_minutes,
+                config()->integer('app.workday_minutes'),
+            );
+        }
+
+        return $total;
+    }
+
     private function valueEntry(Mission $mission, TimeEntry $entry): Money
     {
         $rate = $mission->rate_cents;
@@ -53,9 +92,7 @@ class ValueTrackedTime
             return new Money(0, $mission->currency);
         }
 
-        // Not $entry->effectiveRounding(): that reaches back through the mission
-        // relation, which is not loaded on entries fetched through the mission.
-        $rounding = $entry->rounding ?? $mission->effectiveRounding();
+        $rounding = $this->roundingFor($mission, $entry);
 
         if ($mission->billing_mode === BillingMode::Hourly) {
             return $rate
@@ -69,5 +106,14 @@ class ValueTrackedTime
         );
 
         return $rate->multiply($numerator)->divide($denominator, MoneyPhp::ROUND_HALF_UP);
+    }
+
+    /**
+     * Not $entry->effectiveRounding(): that reaches back through the mission relation,
+     * which is not loaded on entries fetched through the mission.
+     */
+    private function roundingFor(Mission $mission, TimeEntry $entry): EntryRounding
+    {
+        return $entry->rounding ?? $mission->effectiveRounding();
     }
 }

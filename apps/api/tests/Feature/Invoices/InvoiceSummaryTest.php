@@ -13,68 +13,77 @@ beforeEach(function (): void {
     $this->travelTo(CarbonImmutable::parse('2026-08-13'));
 });
 
-test('totals what was invoiced in the month, net of TVA', function (): void {
+test('totals what is still owed, gross', function (): void {
     $user = User::factory()->create();
     invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
-        'issued_on' => '2026-08-02',
-        'amount_ht_cents' => 100_000,
+        'due_on' => '2026-09-30',
+        'amount_ttc_cents' => 100_000,
     ]));
     invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
-        'issued_on' => '2026-07-31',
-        'amount_ht_cents' => 500_000,
+        'due_on' => '2026-09-30',
+        'amount_ttc_cents' => 44_800,
     ]));
 
     $this->actingAs($user)
         ->getJson('/api/invoices/summary')
         ->assertOk()
         ->assertJsonPath('month', '2026-08')
-        ->assertJsonPath('invoiced.amount.amount', 100_000)
-        ->assertJsonPath('invoiced.count', 1);
+        ->assertJsonPath('toCollect.amount.amount', 144_800)
+        ->assertJsonPath('toCollect.count', 2);
 });
 
-test('leaves drafts out of what was invoiced', function (): void {
+test('leaves drafts and paid invoices out of what is still owed', function (callable $configure): void {
     $user = User::factory()->create();
-    invoiceOwnedBy($user, configure: fn ($factory) => $factory->state([
-        'issued_on' => '2026-08-02',
-        'amount_ht_cents' => 100_000,
-    ]));
+    invoiceOwnedBy($user, configure: $configure);
 
     $this->actingAs($user)
         ->getJson('/api/invoices/summary')
         ->assertOk()
-        ->assertJsonPath('invoiced.amount.amount', 0);
-});
+        ->assertJsonPath('toCollect.amount.amount', 0);
+})->with([
+    'a draft' => [fn ($factory) => $factory],
+    'a paid invoice' => [fn ($factory) => $factory->paid()],
+]);
 
-test('buckets what was collected on the payment date, not the issue date', function (): void {
-    $user = User::factory()->create();
-    invoiceOwnedBy($user, configure: fn ($factory) => $factory->paid()->state([
-        'issued_on' => '2026-06-01',
-        'paid_on' => '2026-08-05',
-        'amount_ttc_cents' => 240_000,
-    ]));
-
-    $this->actingAs($user)
-        ->getJson('/api/invoices/summary')
-        ->assertOk()
-        ->assertJsonPath('collected.amount.amount', 240_000)
-        ->assertJsonPath('invoiced.amount.amount', 0);
-});
-
-test('reads the month from the query', function (): void {
+test('carves the overdue slice out of what is owed, worst first', function (): void {
     $user = User::factory()->create();
     invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
-        'issued_on' => '2026-07-10',
-        'amount_ht_cents' => 700_000,
+        'due_on' => '2026-08-01',
+        'amount_ttc_cents' => 100_000,
+    ]));
+    invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
+        'due_on' => '2026-03-19',
+        'amount_ttc_cents' => 50_000,
+    ]));
+    invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
+        'due_on' => '2026-09-30',
+        'amount_ttc_cents' => 900_000,
     ]));
 
     $this->actingAs($user)
-        ->getJson('/api/invoices/summary?month=2026-07')
+        ->getJson('/api/invoices/summary')
         ->assertOk()
-        ->assertJsonPath('month', '2026-07')
-        ->assertJsonPath('invoiced.amount.amount', 700_000);
+        ->assertJsonPath('overdue.amount.amount', 150_000)
+        ->assertJsonPath('overdue.count', 2)
+        ->assertJsonPath('overdue.maxDaysLate', 147);
 });
 
-test('values tracked time that no invoice covers', function (): void {
+test('reports no days late when nothing is overdue', function (): void {
+    $this->actingAs(User::factory()->create())
+        ->getJson('/api/invoices/summary')
+        ->assertOk()
+        ->assertJsonPath('overdue.count', 0)
+        ->assertJsonPath('overdue.maxDaysLate', 0);
+});
+
+test('has no figure for the pro account until one is captured', function (): void {
+    $this->actingAs(User::factory()->create())
+        ->getJson('/api/invoices/summary')
+        ->assertOk()
+        ->assertJsonPath('proAccountBalance', null);
+});
+
+test('values tracked time that no invoice covers, month by month', function (): void {
     $user = User::factory()->create();
     $mission = missionOwnedBy($user, fn ($factory) => $factory->state([
         'rate_cents' => 55_000,
@@ -84,18 +93,43 @@ test('values tracked time that no invoice covers', function (): void {
     // A full day and a started morning: 1 + 0.5 days at 550 €.
     TimeEntry::factory()->for($mission, 'mission')->create([
         'user_id' => $user->id,
+        'date' => '2026-08-03',
         'duration_minutes' => 420,
     ]);
     TimeEntry::factory()->for($mission, 'mission')->create([
         'user_id' => $user->id,
+        'date' => '2026-08-07',
         'duration_minutes' => 120,
+    ]);
+    TimeEntry::factory()->for($mission, 'mission')->create([
+        'user_id' => $user->id,
+        'date' => '2026-07-20',
+        'duration_minutes' => 420,
     ]);
 
     $this->actingAs($user)
         ->getJson('/api/invoices/summary')
         ->assertOk()
-        ->assertJsonPath('toInvoice.amount.amount', 82_500)
-        ->assertJsonPath('toInvoice.count', 2);
+        ->assertJsonPath('monthUnbilled.amount.amount', 82_500)
+        ->assertJsonPath('monthUnbilled.count', 1);
+});
+
+test('counts one period per mission, not per entry', function (): void {
+    $user = User::factory()->create();
+
+    foreach (range(1, 2) as $index) {
+        $mission = missionOwnedBy($user, fn ($factory) => $factory->state(['rate_cents' => 55_000]));
+
+        TimeEntry::factory()->for($mission, 'mission')->count(3)->create([
+            'user_id' => $user->id,
+            'date' => '2026-08-0'.$index,
+        ]);
+    }
+
+    $this->actingAs($user)
+        ->getJson('/api/invoices/summary')
+        ->assertOk()
+        ->assertJsonPath('monthUnbilled.count', 2);
 });
 
 test('stops counting time once an invoice covers it', function (): void {
@@ -108,8 +142,8 @@ test('stops counting time once an invoice covers it', function (): void {
     $this->actingAs($user)
         ->getJson('/api/invoices/summary')
         ->assertOk()
-        ->assertJsonPath('toInvoice.amount.amount', 0)
-        ->assertJsonPath('toInvoice.count', 0);
+        ->assertJsonPath('monthUnbilled.amount.amount', 0)
+        ->assertJsonPath('monthUnbilled.count', 0);
 });
 
 test('leaves fixed-price and non-billable time out of what is still to invoice', function (callable $arrange): void {
@@ -119,7 +153,8 @@ test('leaves fixed-price and non-billable time out of what is still to invoice',
     $this->actingAs($user)
         ->getJson('/api/invoices/summary')
         ->assertOk()
-        ->assertJsonPath('toInvoice.amount.amount', 0);
+        ->assertJsonPath('monthUnbilled.amount.amount', 0)
+        ->assertJsonPath('todoTotal', 0);
 })->with([
     'a fixed-price mission' => [function (User $user): void {
         $mission = missionOwnedBy($user, fn ($factory) => $factory->fixed());
@@ -137,6 +172,25 @@ test('leaves fixed-price and non-billable time out of what is still to invoice',
         ]);
     }],
 ]);
+
+test('reads the month from the query', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user, fn ($factory) => $factory->state([
+        'rate_cents' => 55_000,
+        'rounding' => EntryRounding::Half,
+    ]));
+    TimeEntry::factory()->for($mission, 'mission')->create([
+        'user_id' => $user->id,
+        'date' => '2026-07-20',
+        'duration_minutes' => 420,
+    ]);
+
+    $this->actingAs($user)
+        ->getJson('/api/invoices/summary?month=2026-07')
+        ->assertOk()
+        ->assertJsonPath('month', '2026-07')
+        ->assertJsonPath('monthUnbilled.amount.amount', 55_000);
+});
 
 test('splits what is expected across the three forecast bars', function (): void {
     $user = User::factory()->create();
@@ -194,39 +248,95 @@ test('counts each filter chip', function (): void {
         ->assertJsonPath('counts.paid', 1);
 });
 
-test('lists what needs attention, most costly first', function (): void {
+test('lists what needs attention, money already late first', function (): void {
     $user = User::factory()->create();
-    $overdue = invoiceOwnedBy($user, configure: fn ($factory) => $factory->overdue());
-    $draft = invoiceOwnedBy($user);
+    $overdue = invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
+        'number' => 'F-2026-036',
+        'due_on' => '2026-06-30',
+    ]));
+    invoiceOwnedBy($user);
     $mission = missionOwnedBy($user, fn ($factory) => $factory->state(['rate_cents' => 55_000]));
-    TimeEntry::factory()->for($mission, 'mission')->create(['user_id' => $user->id]);
+    TimeEntry::factory()->for($mission, 'mission')->create([
+        'user_id' => $user->id,
+        'date' => '2026-08-03',
+    ]);
 
     $todo = $this->actingAs($user)
         ->getJson('/api/invoices/summary')
         ->assertOk()
-        ->assertJsonPath('todoTotal', 3)
+        ->assertJsonPath('todoTotal', 2)
         ->json('todo');
 
     expect(array_column($todo, 'kind'))->toBe([
         InvoiceTodoKind::Overdue->value,
         InvoiceTodoKind::UnbilledWork->value,
-        InvoiceTodoKind::DraftToSend->value,
     ]);
     expect($todo[0]['invoiceId'])->toBe($overdue->id)
+        ->and($todo[0]['number'])->toBe('F-2026-036')
+        ->and($todo[0]['dueOn'])->toBe('2026-06-30')
+        ->and($todo[0]['daysLate'])->toBe(44)
         ->and($todo[1]['missionId'])->toBe($mission->id)
-        ->and($todo[2]['invoiceId'])->toBe($draft->id);
+        ->and($todo[1]['missionName'])->toBe($mission->name);
+});
+
+test('dates unbilled work by the entries behind it', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user, fn ($factory) => $factory->state([
+        'rate_cents' => 55_000,
+        'rounding' => EntryRounding::Half,
+    ]));
+
+    foreach (['2026-08-05', '2026-08-03', '2026-08-07'] as $date) {
+        TimeEntry::factory()->for($mission, 'mission')->create([
+            'user_id' => $user->id,
+            'date' => $date,
+            'duration_minutes' => 420,
+        ]);
+    }
+
+    $todo = $this->actingAs($user)
+        ->getJson('/api/invoices/summary')
+        ->assertOk()
+        ->json('todo.0');
+
+    expect($todo['firstEntryOn'])->toBe('2026-08-03')
+        ->and($todo['lastEntryOn'])->toBe('2026-08-07')
+        ->and($todo['entryCount'])->toBe(3)
+        ->and($todo['valuedDays'])->toEqual(3.0)
+        ->and($todo['valuedMinutes'])->toBeNull();
+});
+
+test('measures unbilled work in hours when the mission bills by the hour', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user, fn ($factory) => $factory->hourly()->state([
+        'rate_cents' => 8_000,
+        'rounding' => EntryRounding::Quarter,
+    ]));
+    TimeEntry::factory()->for($mission, 'mission')->create([
+        'user_id' => $user->id,
+        'date' => '2026-08-03',
+        'duration_minutes' => 67,
+    ]);
+
+    $todo = $this->actingAs($user)
+        ->getJson('/api/invoices/summary')
+        ->assertOk()
+        ->json('todo.0');
+
+    // A started quarter is a billed quarter: 1 h 07 bills as 1 h 15.
+    expect($todo['valuedMinutes'])->toBe(75)
+        ->and($todo['valuedDays'])->toBeNull()
+        ->and($todo['amount']['amount'])->toBe(10_000);
 });
 
 test('never counts another user invoices', function (): void {
     $user = User::factory()->create();
-    invoiceOwnedBy(User::factory()->create(), configure: fn ($factory) => $factory->sent()->state([
-        'issued_on' => '2026-08-02',
-    ]));
+    invoiceOwnedBy(User::factory()->create(), configure: fn ($factory) => $factory->overdue());
 
     $this->actingAs($user)
         ->getJson('/api/invoices/summary')
         ->assertOk()
-        ->assertJsonPath('invoiced.amount.amount', 0)
+        ->assertJsonPath('toCollect.amount.amount', 0)
         ->assertJsonPath('counts.all', 0)
         ->assertJsonPath('todoTotal', 0);
 });
