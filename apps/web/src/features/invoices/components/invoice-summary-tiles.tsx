@@ -10,7 +10,7 @@ export function InvoiceSummaryTiles({
 }: {
   summary: InvoiceSummaryData;
 }) {
-  const { toCollect, overdue, proAccountBalance } = summary;
+  const { toCollect, overdue } = summary;
 
   return (
     <StatTileRow className="grid-cols-1 sm:grid-cols-3">
@@ -27,18 +27,13 @@ export function InvoiceSummaryTiles({
         tone={overdue.count === 0 ? "quiet" : "warn"}
       />
       {/*
-        Nothing in the app knows this figure yet — there is no bank import and no
-        field to type it into — so the tile keeps its place in the row and says where
-        the number would come from rather than showing a zero that reads as an empty
-        account.
+        Nothing in the app knows this figure yet — there is no bank import and no field
+        to type it into — so the tile holds its place in the row and says where the
+        number would come from. It gains a value in the same change that produces one.
       */}
       <StatTile
         label="Solde compte pro"
-        value={
-          proAccountBalance === null
-            ? "—"
-            : formatEuros(proAccountBalance.amount)
-        }
+        value="—"
         sub="saisi à la main · importer un relevé"
         tone="quiet"
       />

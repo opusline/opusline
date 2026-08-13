@@ -233,6 +233,30 @@ export const zCreateInvoiceData = z.object({
 export const zInvoiceTodoKind = z.union([z.literal(0), z.literal(1)]);
 
 /**
+ * InvoiceTodoOverdueData
+ */
+export const zInvoiceTodoOverdueData = z.object({
+    invoiceId: z.int(),
+    number: z.nullable(z.string()),
+    dueOn: z.iso.date(),
+    daysLate: z.int()
+});
+
+/**
+ * InvoiceTodoWorkData
+ */
+export const zInvoiceTodoWorkData = z.object({
+    missionId: z.int(),
+    missionName: z.string(),
+    entryCount: z.int(),
+    firstEntryOn: z.iso.date(),
+    lastEntryOn: z.iso.date(),
+    valuedDays: z.nullable(z.number()),
+    valuedMinutes: z.nullable(z.int()),
+    timeEntryIds: z.array(z.int())
+});
+
+/**
  * LoginData
  */
 export const zLoginData = z.object({
@@ -307,18 +331,8 @@ export const zInvoiceTodoData = z.object({
     amount: zMoneyData,
     clientId: z.int(),
     clientName: z.string(),
-    invoiceId: z.nullable(z.int()),
-    number: z.nullable(z.string()),
-    dueOn: z.nullable(z.iso.date()),
-    daysLate: z.nullable(z.int()),
-    missionId: z.nullable(z.int()),
-    missionName: z.nullable(z.string()),
-    entryCount: z.nullable(z.int()),
-    firstEntryOn: z.nullable(z.iso.date()),
-    lastEntryOn: z.nullable(z.iso.date()),
-    valuedDays: z.nullable(z.number()),
-    valuedMinutes: z.nullable(z.int()),
-    timeEntryIds: z.array(z.int())
+    overdue: z.nullish(zInvoiceTodoOverdueData),
+    work: z.nullish(zInvoiceTodoWorkData)
 });
 
 /**
@@ -336,7 +350,6 @@ export const zInvoiceSummaryData = z.object({
     month: z.string(),
     toCollect: zInvoiceTotalData,
     overdue: zInvoiceOverdueData,
-    proAccountBalance: z.nullable(zMoneyData),
     forecast: z.array(zInvoiceForecastData),
     monthUnbilled: zInvoiceTotalData,
     counts: zInvoiceCountsData,

@@ -9,6 +9,7 @@ import { invoiceStatusBadge } from "@/lib/invoice-status";
 import { COLOR_CLASSES } from "@/lib/palette";
 
 import {
+  countByScope,
   groupByClient,
   INVOICE_SCOPE_LABELS,
   INVOICE_SCOPES,
@@ -27,22 +28,12 @@ type InvoicesTableProps = {
 export function InvoicesTable({ invoices, onOpen }: InvoicesTableProps) {
   const [scope, setScope] = useState<InvoiceScope>("all");
 
-  // Every chip carries its own count, so all five scopes are filtered whatever is on
-  // screen. The page around this table re-renders on each of its other queries, and
-  // none of that work depends on them.
-  const scopedInvoices = useMemo(
-    () =>
-      Object.fromEntries(
-        INVOICE_SCOPES.map((invoiceScope) => [
-          invoiceScope,
-          invoices.filter((item) => matchesScope(item, invoiceScope)),
-        ]),
-      ) as Record<InvoiceScope, InvoiceListItemData[]>,
-    [invoices],
-  );
+  // Every chip carries its own count, but only the selected scope needs its rows —
+  // one pass counts all five, and one filter builds the list actually shown.
+  const counts = useMemo(() => countByScope(invoices), [invoices]);
   const groups = useMemo(
-    () => groupByClient(scopedInvoices[scope]),
-    [scopedInvoices, scope],
+    () => groupByClient(invoices.filter((item) => matchesScope(item, scope))),
+    [invoices, scope],
   );
 
   return (
@@ -63,12 +54,10 @@ export function InvoicesTable({ invoices, onOpen }: InvoicesTableProps) {
             key={invoiceScope}
             value={invoiceScope}
             shape="pill"
-            aria-label={`${INVOICE_SCOPE_LABELS[invoiceScope]} (${scopedInvoices[invoiceScope].length})`}
+            aria-label={`${INVOICE_SCOPE_LABELS[invoiceScope]} (${counts[invoiceScope]})`}
           >
             {INVOICE_SCOPE_LABELS[invoiceScope]}
-            <ChipCount aria-hidden>
-              {scopedInvoices[invoiceScope].length}
-            </ChipCount>
+            <ChipCount aria-hidden>{counts[invoiceScope]}</ChipCount>
           </Chip>
         ))}
       </ChipGroup>

@@ -12,22 +12,13 @@ import { formatAmountWithCents, formatPercentFromBp } from "@/lib/billing";
 import { calendarDateNumericLabel, calendarRangeLabel } from "@/lib/dates";
 import { INVOICE_EVENT_LABELS, invoiceStatusBadge } from "@/lib/invoice-status";
 
+import { Fact } from "./invoice-fact";
+
 type InvoiceDrawerProps = {
   detail: InvoiceDetailData | undefined;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
-
-function Fact({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt className="text-muted-foreground-3 text-xs">{label}</dt>
-      <dd className="mt-1 font-mono text-foreground-hi text-sm tabular-nums">
-        {value}
-      </dd>
-    </div>
-  );
-}
 
 function SectionTitle({ children }: { children: string }) {
   return (
@@ -78,8 +69,12 @@ function InvoiceDrawerBody({ detail }: { detail: InvoiceDetailData }) {
       </SheetHeader>
 
       <dl className="grid grid-cols-2 gap-x-5 gap-y-4 border-t px-4 py-5">
-        <Fact label="Client" value={client.name} />
-        <Fact label="Mission" value={mission?.name ?? "Sans mission"} />
+        <Fact label="Client" value={client.name} tone="text" />
+        <Fact
+          label="Mission"
+          value={mission?.name ?? "Sans mission"}
+          tone="text"
+        />
         <Fact
           label="Période"
           value={

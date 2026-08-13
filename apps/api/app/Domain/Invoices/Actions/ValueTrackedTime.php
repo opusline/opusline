@@ -5,35 +5,29 @@ declare(strict_types=1);
 namespace App\Domain\Invoices\Actions;
 
 use App\Domain\Missions\Enums\BillingMode;
-use App\Domain\Missions\Enums\EntryRounding;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\TimeEntries\Models\TimeEntry;
 use Cknow\Money\Money;
 use Money\Money as MoneyPhp;
 
 /**
- * What tracked time is worth at its mission's rate.
+ * What one tracked entry is worth at its mission's rate, and how much time it bills
+ * for.
  *
  * Each entry is priced on its own, matching how TimeEntryData already reports
  * valuedMinutes/valuedDayFraction per entry — an invoice bills lines, not a single
- * rounded total.
+ * rounded total. Callers total the lines themselves, which is also what lets them
+ * total several subsets in one pass.
  */
 class ValueTrackedTime
 {
     private const int MINUTES_PER_HOUR = 60;
 
-    /**
-     * @param  iterable<TimeEntry>  $entries
-     */
-    public function handle(Mission $mission, iterable $entries): Money
+    private readonly int $workdayMinutes;
+
+    public function __construct()
     {
-        $total = new Money(0, $mission->currency);
-
-        foreach ($entries as $entry) {
-            $total = $total->add($this->valueEntry($mission, $entry));
-        }
-
-        return $total;
+        $this->workdayMinutes = config()->integer('app.workday_minutes');
     }
 
     /**
@@ -47,73 +41,42 @@ class ValueTrackedTime
     }
 
     /**
-     * How much time those entries bill for, in the mission's own unit: minutes on an
-     * hourly mission, days on a daily one. Rounded the way each entry is billed, so
-     * "3 j" beside an amount means the same three days the amount was priced from.
+     * What the entry bills: its value, and the quantity behind it in the mission's own
+     * unit — days on a day-billed mission, minutes on an hourly one.
      *
-     * Display only — the amount above never goes through these, it is computed from
-     * exact fractions.
+     * The quantities are for display. The value never goes through them: it is derived
+     * from an exact fraction, because 1/3 of a day has no float to round from.
      *
-     * @param  iterable<TimeEntry>  $entries
+     * @return array{value: Money, days: float, minutes: int}
      */
-    public function billedMinutes(Mission $mission, iterable $entries): int
+    public function measure(Mission $mission, TimeEntry $entry): array
     {
-        $total = 0;
-
-        foreach ($entries as $entry) {
-            $total += $this->roundingFor($mission, $entry)->valueMinutes($entry->duration_minutes);
-        }
-
-        return $total;
-    }
-
-    /**
-     * @param  iterable<TimeEntry>  $entries
-     */
-    public function billedDays(Mission $mission, iterable $entries): float
-    {
-        $total = 0.0;
-
-        foreach ($entries as $entry) {
-            $total += $this->roundingFor($mission, $entry)->valueDayFraction(
-                $entry->duration_minutes,
-                config()->integer('app.workday_minutes'),
-            );
-        }
-
-        return $total;
-    }
-
-    private function valueEntry(Mission $mission, TimeEntry $entry): Money
-    {
+        // Not $entry->effectiveRounding(): that reaches back through the mission
+        // relation, which is not loaded on entries fetched through the mission.
+        $rounding = $entry->rounding ?? $mission->effectiveRounding();
         $rate = $mission->rate_cents;
+        $isHourly = $mission->billing_mode === BillingMode::Hourly;
 
         if (! $this->pricesTime($mission) || ! $rate instanceof Money) {
-            return new Money(0, $mission->currency);
+            return ['value' => new Money(0, $mission->currency), 'days' => 0.0, 'minutes' => 0];
         }
 
-        $rounding = $this->roundingFor($mission, $entry);
+        if ($isHourly) {
+            $minutes = $rounding->valueMinutes($entry->duration_minutes);
 
-        if ($mission->billing_mode === BillingMode::Hourly) {
-            return $rate
-                ->multiply($rounding->valueMinutes($entry->duration_minutes))
-                ->divide(self::MINUTES_PER_HOUR, MoneyPhp::ROUND_HALF_UP);
+            return [
+                'value' => $rate->multiply($minutes)->divide(self::MINUTES_PER_HOUR, MoneyPhp::ROUND_HALF_UP),
+                'days' => 0.0,
+                'minutes' => $minutes,
+            ];
         }
 
-        [$numerator, $denominator] = $rounding->billedDayFraction(
-            $entry->duration_minutes,
-            config()->integer('app.workday_minutes'),
-        );
+        [$numerator, $denominator] = $rounding->billedDayFraction($entry->duration_minutes, $this->workdayMinutes);
 
-        return $rate->multiply($numerator)->divide($denominator, MoneyPhp::ROUND_HALF_UP);
-    }
-
-    /**
-     * Not $entry->effectiveRounding(): that reaches back through the mission relation,
-     * which is not loaded on entries fetched through the mission.
-     */
-    private function roundingFor(Mission $mission, TimeEntry $entry): EntryRounding
-    {
-        return $entry->rounding ?? $mission->effectiveRounding();
+        return [
+            'value' => $rate->multiply($numerator)->divide($denominator, MoneyPhp::ROUND_HALF_UP),
+            'days' => $numerator / $denominator,
+            'minutes' => 0,
+        ];
     }
 }

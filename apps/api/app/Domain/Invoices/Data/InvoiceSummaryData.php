@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Data;
 
-use App\Domain\Shared\Data\MoneyData;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 
@@ -22,11 +21,6 @@ class InvoiceSummaryData extends Data
         /** Issued and unpaid, gross — what is still owed to you. */
         public InvoiceTotalData $toCollect,
         public InvoiceOverdueData $overdue,
-        /**
-         * Entered by hand or read off a statement. Null until either has happened —
-         * there is no other source for it.
-         */
-        public ?MoneyData $proAccountBalance,
         #[DataCollectionOf(InvoiceForecastData::class)]
         public array $forecast,
         /** Billable time tracked in the month that no invoice covers yet, net. */

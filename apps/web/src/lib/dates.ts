@@ -78,6 +78,13 @@ export function calendarMonthYearLabel(date: string): string {
   return monthYear.format(fromCalendarDate(date));
 }
 
+/** "Août 2026" — a month used as a heading rather than inside a sentence. */
+export function capitalizedMonthLabel(date: string): string {
+  const label = calendarMonthYearLabel(date);
+
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
 export function calendarDateNumericLabel(date: string): string {
   return numericDate.format(fromCalendarDate(date));
 }

@@ -189,7 +189,6 @@ function FacturesPage() {
 
       <CreateInvoiceDialog
         todo={creatingFor}
-        clientId={creatingFor?.clientId ?? null}
         suggestedNumber={nextNumber.data?.number ?? null}
         isSaving={create.isPending}
         error={createError}

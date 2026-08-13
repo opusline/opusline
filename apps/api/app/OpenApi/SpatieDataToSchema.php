@@ -7,11 +7,13 @@ namespace App\OpenApi;
 use BackedEnum;
 use DateTimeInterface;
 use Dedoc\Scramble\Extensions\TypeToSchemaExtension;
+use Dedoc\Scramble\PhpDoc\PhpDocTypeHelper;
 use Dedoc\Scramble\Support\Generator\ClassBasedReference;
 use Dedoc\Scramble\Support\Generator\Reference;
 use Dedoc\Scramble\Support\Generator\Response;
 use Dedoc\Scramble\Support\Generator\Schema;
 use Dedoc\Scramble\Support\Generator\Types as OpenApi;
+use Dedoc\Scramble\Support\PhpDoc;
 use Dedoc\Scramble\Support\Type\ObjectType;
 use Dedoc\Scramble\Support\Type\Type;
 use LogicException;
@@ -53,13 +55,15 @@ class SpatieDataToSchema extends TypeToSchemaExtension
             $property = $this->schemaForNamedType($parameterType, $reflectionClass, $parameter->getName());
 
             if ($parameterType->getName() === 'array') {
-                $itemsType = $this->collectedDataItems($reflectionClass, $parameter->getName())
-                    ?? $this->documentedItems($constructor?->getDocComment(), $parameter->getName());
+                $itemsType = $this->collectedDataItems($reflectionClass, $parameter->getName());
 
                 if ($itemsType instanceof OpenApi\Type) {
                     $arrayType = new OpenApi\ArrayType;
                     $arrayType->items = $itemsType;
                     $property = $arrayType;
+                } else {
+                    $property = $this->documentedArray($constructor?->getDocComment(), $parameter->getName())
+                        ?? $property;
                 }
             }
 
@@ -112,34 +116,28 @@ class SpatieDataToSchema extends TypeToSchemaExtension
     }
 
     /**
-     * Items schema for an array of scalars, read off the constructor's `@param`.
+     * Items schema for an array typed only by the constructor's `@param`.
      *
      * A list of ids has no Data class to point #[DataCollectionOf] at, and PHP's own
      * `array` type says nothing about what is in it, so the docblock is the only
      * declaration of the item type — without it the generated client sees unknown[].
+     *
+     * Scramble's own phpDoc parser reads it, so every shape the codebase writes is
+     * understood rather than the handful a local pattern would recognise.
      */
-    private function documentedItems(string|false|null $docComment, string $propertyName): ?OpenApi\Type
+    private function documentedArray(string|false|null $docComment, string $propertyName): ?OpenApi\Type
     {
         if ($docComment === false || $docComment === null) {
             return null;
         }
 
-        $pattern = sprintf(
-            '/@param\s+(?:list<(\w+)>|array<(?:\w+,\s*)?(\w+)>|(\w+)\[])\s+\$%s\b/',
-            preg_quote($propertyName, '/'),
-        );
-
-        if (preg_match($pattern, $docComment, $matches) !== 1) {
-            return null;
+        foreach (PhpDoc::parse($docComment)->getParamTagValues() as $tag) {
+            if ($tag->parameterName === '$'.$propertyName) {
+                return $this->openApiTransformer->transform(PhpDocTypeHelper::toType($tag->type));
+            }
         }
 
-        return match (array_values(array_filter(array_slice($matches, 1)))[0] ?? null) {
-            'int' => new OpenApi\IntegerType,
-            'string' => new OpenApi\StringType,
-            'float' => new OpenApi\NumberType,
-            'bool' => new OpenApi\BooleanType,
-            default => null,
-        };
+        return null;
     }
 
     /**

@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
-import { invoiceSummary, invoiceTodo } from "../lib/fixtures";
+import { invoiceSummary, unbilledTodoRow } from "../lib/fixtures";
 import { InvoiceTodoPanel } from "./invoice-todo-panel";
 
 const summary = invoiceSummary();
@@ -43,7 +43,9 @@ it("offers an invoice on work that has not been billed", () => {
   fireEvent.click(screen.getByRole("button", { name: "Créer la facture" }));
 
   expect(onCreateInvoice).toHaveBeenCalledWith(
-    expect.objectContaining({ missionId: 20 }),
+    expect.objectContaining({
+      work: expect.objectContaining({ missionId: 20 }),
+    }),
   );
 });
 
@@ -56,7 +58,7 @@ it("says how late an overdue invoice is, not just that it is", () => {
 });
 
 it("measures unbilled work in the mission's own unit", () => {
-  renderPanel({ todo: [invoiceTodo({ kind: 1 })], todoTotal: 1 });
+  renderPanel({ todo: [unbilledTodoRow()], todoTotal: 1 });
 
   expect(screen.getByText("3 j sur OGF front")).toBeInTheDocument();
 });
@@ -64,8 +66,7 @@ it("measures unbilled work in the mission's own unit", () => {
 it("bills hourly missions in hours", () => {
   renderPanel({
     todo: [
-      invoiceTodo({
-        kind: 1,
+      unbilledTodoRow({
         valuedDays: null,
         valuedMinutes: 210,
         missionName: "HartPrint maintenance",
@@ -80,7 +81,7 @@ it("bills hourly missions in hours", () => {
 });
 
 it("marks unbilled amounts as net, since they are not on a document yet", () => {
-  renderPanel({ todo: [invoiceTodo({ kind: 1 })], todoTotal: 1 });
+  renderPanel({ todo: [unbilledTodoRow()], todoTotal: 1 });
 
   expect(screen.getByText("1 650 € HT")).toBeInTheDocument();
 });
@@ -88,8 +89,7 @@ it("marks unbilled amounts as net, since they are not on a document yet", () => 
 it("names both months when the work spans two", () => {
   renderPanel({
     todo: [
-      invoiceTodo({
-        kind: 1,
+      unbilledTodoRow({
         firstEntryOn: "2026-07-31",
         lastEntryOn: "2026-08-13",
       }),
@@ -105,8 +105,7 @@ it("names both months when the work spans two", () => {
 it("collapses a single day into one date", () => {
   renderPanel({
     todo: [
-      invoiceTodo({
-        kind: 1,
+      unbilledTodoRow({
         firstEntryOn: "2026-08-03",
         lastEntryOn: "2026-08-03",
       }),

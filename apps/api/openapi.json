@@ -3530,16 +3530,6 @@
                     "overdue": {
                         "$ref": "#/components/schemas/InvoiceOverdueData"
                     },
-                    "proAccountBalance": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/components/schemas/MoneyData"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
                     "forecast": {
                         "type": "array",
                         "items": {
@@ -3566,7 +3556,6 @@
                     "month",
                     "toCollect",
                     "overdue",
-                    "proAccountBalance",
                     "forecast",
                     "monthUnbilled",
                     "counts",
@@ -3590,11 +3579,53 @@
                     "clientName": {
                         "type": "string"
                     },
-                    "invoiceId": {
-                        "type": [
-                            "integer",
-                            "null"
+                    "overdue": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/InvoiceTodoOverdueData"
+                            },
+                            {
+                                "type": "null"
+                            }
                         ]
+                    },
+                    "work": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/InvoiceTodoWorkData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "kind",
+                    "amount",
+                    "clientId",
+                    "clientName"
+                ],
+                "title": "InvoiceTodoData"
+            },
+            "InvoiceTodoKind": {
+                "type": "integer",
+                "description": "What the \"À traiter\" list can put in front of you: money that was billed and has not come in, and money that was worked and has not been billed. Drafts are not here — an unsent draft is a note to self, not a debt. Labels live on the frontend, like every other enum here.\n",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "Overdue",
+                    "UnbilledWork"
+                ],
+                "title": "InvoiceTodoKind"
+            },
+            "InvoiceTodoOverdueData": {
+                "type": "object",
+                "properties": {
+                    "invoiceId": {
+                        "type": "integer"
                     },
                     "number": {
                         "type": [
@@ -3603,48 +3634,39 @@
                         ]
                     },
                     "dueOn": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "format": "date"
                     },
                     "daysLate": {
-                        "type": [
-                            "integer",
-                            "null"
-                        ]
-                    },
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "invoiceId",
+                    "number",
+                    "dueOn",
+                    "daysLate"
+                ],
+                "title": "InvoiceTodoOverdueData"
+            },
+            "InvoiceTodoWorkData": {
+                "type": "object",
+                "properties": {
                     "missionId": {
-                        "type": [
-                            "integer",
-                            "null"
-                        ]
+                        "type": "integer"
                     },
                     "missionName": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
+                        "type": "string"
                     },
                     "entryCount": {
-                        "type": [
-                            "integer",
-                            "null"
-                        ]
+                        "type": "integer"
                     },
                     "firstEntryOn": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "format": "date"
                     },
                     "lastEntryOn": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
+                        "type": "string",
                         "format": "date"
                     },
                     "valuedDays": {
@@ -3667,14 +3689,6 @@
                     }
                 },
                 "required": [
-                    "kind",
-                    "amount",
-                    "clientId",
-                    "clientName",
-                    "invoiceId",
-                    "number",
-                    "dueOn",
-                    "daysLate",
                     "missionId",
                     "missionName",
                     "entryCount",
@@ -3684,20 +3698,7 @@
                     "valuedMinutes",
                     "timeEntryIds"
                 ],
-                "title": "InvoiceTodoData"
-            },
-            "InvoiceTodoKind": {
-                "type": "integer",
-                "description": "What the \"À traiter\" list can put in front of you: money that was billed and has not come in, and money that was worked and has not been billed. Drafts are not here — an unsent draft is a note to self, not a debt. Labels live on the frontend, like every other enum here.\n",
-                "enum": [
-                    0,
-                    1
-                ],
-                "x-enum-varnames": [
-                    "Overdue",
-                    "UnbilledWork"
-                ],
-                "title": "InvoiceTodoKind"
+                "title": "InvoiceTodoWorkData"
             },
             "InvoiceTotalData": {
                 "type": "object",

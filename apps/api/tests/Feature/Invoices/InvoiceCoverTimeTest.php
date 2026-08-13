@@ -127,5 +127,5 @@ test('offers the summary the entries a row would bill', function (): void {
     $this->actingAs($user)
         ->getJson('/api/invoices/summary')
         ->assertOk()
-        ->assertJsonPath('todo.0.timeEntryIds', $entries->modelKeys());
+        ->assertJsonPath('todo.0.work.timeEntryIds', $entries->modelKeys());
 });

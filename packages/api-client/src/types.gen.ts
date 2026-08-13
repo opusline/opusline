@@ -295,7 +295,6 @@ export type InvoiceSummaryData = {
     month: string;
     toCollect: InvoiceTotalData;
     overdue: InvoiceOverdueData;
-    proAccountBalance: MoneyData | null;
     forecast: Array<InvoiceForecastData>;
     monthUnbilled: InvoiceTotalData;
     counts: InvoiceCountsData;
@@ -311,18 +310,8 @@ export type InvoiceTodoData = {
     amount: MoneyData;
     clientId: number;
     clientName: string;
-    invoiceId: number | null;
-    number: string | null;
-    dueOn: string | null;
-    daysLate: number | null;
-    missionId: number | null;
-    missionName: string | null;
-    entryCount: number | null;
-    firstEntryOn: string | null;
-    lastEntryOn: string | null;
-    valuedDays: number | null;
-    valuedMinutes: number | null;
-    timeEntryIds: Array<number>;
+    overdue?: InvoiceTodoOverdueData | null;
+    work?: InvoiceTodoWorkData | null;
 };
 
 /**
@@ -332,6 +321,30 @@ export type InvoiceTodoData = {
  *
  */
 export type InvoiceTodoKind = 0 | 1;
+
+/**
+ * InvoiceTodoOverdueData
+ */
+export type InvoiceTodoOverdueData = {
+    invoiceId: number;
+    number: string | null;
+    dueOn: string;
+    daysLate: number;
+};
+
+/**
+ * InvoiceTodoWorkData
+ */
+export type InvoiceTodoWorkData = {
+    missionId: number;
+    missionName: string;
+    entryCount: number;
+    firstEntryOn: string;
+    lastEntryOn: string;
+    valuedDays: number | null;
+    valuedMinutes: number | null;
+    timeEntryIds: Array<number>;
+};
 
 /**
  * InvoiceTotalData

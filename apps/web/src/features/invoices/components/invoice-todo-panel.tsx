@@ -1,4 +1,8 @@
-import type { InvoiceTodoData } from "@opusline/api-client";
+import type {
+  InvoiceTodoData,
+  InvoiceTodoOverdueData,
+  InvoiceTodoWorkData,
+} from "@opusline/api-client";
 import { Badge } from "@opusline/ui/components/badge";
 import { Button } from "@opusline/ui/components/button";
 
@@ -42,15 +46,18 @@ export function InvoiceTodoPanel({
         <ul>
           {todo.map((item) => (
             <li key={todoKey(item)}>
-              {item.kind === 0 ? (
+              {item.overdue != null && (
                 <OverdueRow
                   todo={item}
-                  isPending={pendingInvoiceId === item.invoiceId}
+                  overdue={item.overdue}
+                  isPending={pendingInvoiceId === item.overdue.invoiceId}
                   onRemind={onRemind}
                 />
-              ) : (
+              )}
+              {item.work != null && (
                 <UnbilledWorkRow
                   todo={item}
+                  work={item.work}
                   onCreateInvoice={onCreateInvoice}
                 />
               )}
@@ -70,7 +77,7 @@ export function InvoiceTodoPanel({
 
 /** Two kinds share the list and neither id is unique across it on its own. */
 function todoKey(todo: InvoiceTodoData): string {
-  return `${todo.kind}-${todo.invoiceId ?? todo.missionId}`;
+  return `${todo.kind}-${todo.overdue?.invoiceId ?? todo.work?.missionId}`;
 }
 
 function Row({
@@ -82,7 +89,7 @@ function Row({
 }: {
   badge: React.ReactNode;
   title: string;
-  detail: string | null;
+  detail: string;
   amount: string;
   action: React.ReactNode;
 }) {
@@ -91,11 +98,9 @@ function Row({
       {badge}
       <div className="min-w-0">
         <p className="truncate text-foreground-2 text-sm">{title}</p>
-        {detail !== null && (
-          <p className="mt-0.75 truncate text-muted-foreground-3 text-xs">
-            {detail}
-          </p>
-        )}
+        <p className="mt-0.75 truncate text-muted-foreground-3 text-xs">
+          {detail}
+        </p>
       </div>
       <span className="w-28 text-right font-mono text-foreground-hi text-sm tabular-nums">
         {amount}
@@ -107,31 +112,27 @@ function Row({
 
 function OverdueRow({
   todo,
+  overdue,
   isPending,
   onRemind,
 }: {
   todo: InvoiceTodoData;
+  overdue: InvoiceTodoOverdueData;
   isPending: boolean;
   onRemind: (invoiceId: number) => void;
 }) {
-  const invoiceId = todo.invoiceId;
-
   return (
     <Row
       badge={<Badge variant="warn">En retard</Badge>}
-      title={`${todo.number ?? "Sans référence"} · ${todo.clientName}`}
-      detail={overdueDetail(todo)}
+      title={`${overdue.number ?? "Sans référence"} · ${todo.clientName}`}
+      detail={overdueDetail(overdue)}
       amount={formatEuros(todo.amount.amount)}
       action={
         <Button
           variant="outline"
           size="sm"
-          disabled={invoiceId === null || isPending}
-          onClick={() => {
-            if (invoiceId !== null) {
-              onRemind(invoiceId);
-            }
-          }}
+          disabled={isPending}
+          onClick={() => onRemind(overdue.invoiceId)}
         >
           Noter une relance
         </Button>
@@ -142,16 +143,18 @@ function OverdueRow({
 
 function UnbilledWorkRow({
   todo,
+  work,
   onCreateInvoice,
 }: {
   todo: InvoiceTodoData;
+  work: InvoiceTodoWorkData;
   onCreateInvoice: (todo: InvoiceTodoData) => void;
 }) {
   return (
     <Row
       badge={<Badge variant="brand">À facturer</Badge>}
-      title={unbilledWorkTitle(todo)}
-      detail={unbilledWorkDetail(todo)}
+      title={unbilledWorkTitle(work)}
+      detail={unbilledWorkDetail(work)}
       amount={`${formatEuros(todo.amount.amount)} HT`}
       action={
         <Button size="sm" onClick={() => onCreateInvoice(todo)}>

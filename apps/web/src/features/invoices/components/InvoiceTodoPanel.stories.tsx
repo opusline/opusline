@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { invoiceSummary, invoiceTodo } from "../lib/fixtures";
+import { invoiceSummary, unbilledTodoRow } from "../lib/fixtures";
 import { InvoiceTodoPanel } from "./invoice-todo-panel";
 
 const summary = invoiceSummary();
@@ -25,8 +25,7 @@ export const Default: Story = {};
 export const HourlyMission: Story = {
   args: {
     todo: [
-      invoiceTodo({
-        kind: 1,
+      unbilledTodoRow({
         missionName: "HartPrint maintenance",
         valuedDays: null,
         valuedMinutes: 210,

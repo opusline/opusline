@@ -5,7 +5,7 @@ import type {
   VatRegime,
 } from "@opusline/api-client";
 
-import { formatAmount, parseDecimal } from "@/lib/billing";
+import { formatAmount, formatPercentFromBp, parseDecimal } from "@/lib/billing";
 import { valueOrNull } from "@/lib/form";
 
 export const SETTINGS_TABS = [
@@ -249,13 +249,8 @@ export function previewInvoiceNumber(format: string, on: Date): string {
   );
 }
 
-const percent = new Intl.NumberFormat("fr-FR", {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 2,
-});
-
 export function formatRateBp(basisPoints: number): string {
-  return percent.format(basisPoints / 100);
+  return formatPercentFromBp(basisPoints, 1);
 }
 
 export function parseRateBp(draft: string): number | null {

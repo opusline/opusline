@@ -5,6 +5,8 @@ import type {
   InvoiceListItemData,
   InvoiceSummaryData,
   InvoiceTodoData,
+  InvoiceTodoOverdueData,
+  InvoiceTodoWorkData,
   MissionData,
 } from "@opusline/api-client";
 
@@ -112,18 +114,12 @@ const overdueTodo = {
   amount: { amount: 375_600, currency: "EUR" },
   clientId: 1,
   clientName: "HartPrint",
-  invoiceId: 36,
-  number: "F-2026-036",
-  dueOn: "2026-06-30",
-  daysLate: 41,
-  missionId: 10,
-  missionName: null,
-  entryCount: null,
-  firstEntryOn: null,
-  lastEntryOn: null,
-  valuedDays: null,
-  valuedMinutes: null,
-  timeEntryIds: [],
+  overdue: {
+    invoiceId: 36,
+    number: "F-2026-036",
+    dueOn: "2026-06-30",
+    daysLate: 41,
+  },
 } satisfies InvoiceTodoData;
 
 const unbilledTodo = {
@@ -131,26 +127,29 @@ const unbilledTodo = {
   amount: { amount: 165_000, currency: "EUR" },
   clientId: 2,
   clientName: "OGF",
-  invoiceId: null,
-  number: null,
-  dueOn: null,
-  daysLate: null,
-  missionId: 20,
-  missionName: "OGF front",
-  entryCount: 3,
-  firstEntryOn: "2026-08-03",
-  lastEntryOn: "2026-08-07",
-  valuedDays: 3,
-  valuedMinutes: null,
-  timeEntryIds: [101, 102, 103],
+  work: {
+    missionId: 20,
+    missionName: "OGF front",
+    entryCount: 3,
+    firstEntryOn: "2026-08-03",
+    lastEntryOn: "2026-08-07",
+    valuedDays: 3,
+    valuedMinutes: null,
+    timeEntryIds: [101, 102, 103],
+  },
 } satisfies InvoiceTodoData;
 
-export function invoiceTodo(
-  overrides: Partial<InvoiceTodoData> = {},
+/** An overdue row, or — with `work` overrides — a row of work waiting to be billed. */
+export function overdueTodoRow(
+  overrides: Partial<InvoiceTodoOverdueData> = {},
 ): InvoiceTodoData {
-  const base = overrides.kind === 1 ? unbilledTodo : overdueTodo;
+  return { ...overdueTodo, overdue: { ...overdueTodo.overdue, ...overrides } };
+}
 
-  return { ...base, ...overrides };
+export function unbilledTodoRow(
+  overrides: Partial<InvoiceTodoWorkData> = {},
+): InvoiceTodoData {
+  return { ...unbilledTodo, work: { ...unbilledTodo.work, ...overrides } };
 }
 
 export function invoiceSummary(
@@ -164,7 +163,6 @@ export function invoiceSummary(
       count: 3,
       maxDaysLate: 147,
     },
-    proAccountBalance: null,
     forecast: [
       {
         bucket: 1,

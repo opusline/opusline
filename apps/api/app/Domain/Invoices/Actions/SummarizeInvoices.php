@@ -10,6 +10,8 @@ use App\Domain\Invoices\Data\InvoiceForecastData;
 use App\Domain\Invoices\Data\InvoiceOverdueData;
 use App\Domain\Invoices\Data\InvoiceSummaryData;
 use App\Domain\Invoices\Data\InvoiceTodoData;
+use App\Domain\Invoices\Data\InvoiceTodoOverdueData;
+use App\Domain\Invoices\Data\InvoiceTodoWorkData;
 use App\Domain\Invoices\Data\InvoiceTotalData;
 use App\Domain\Invoices\Data\SummarizeInvoicesData;
 use App\Domain\Invoices\Enums\InvoiceForecastBucket;
@@ -50,7 +52,6 @@ class SummarizeInvoices
             month: $month->format('Y-m'),
             toCollect: $this->totalOf($outstanding),
             overdue: $this->overdue($overdue, $today),
-            proAccountBalance: null,
             forecast: $this->forecast($outstanding, $today),
             monthUnbilled: $this->unbilledIn($unbilled),
             counts: $this->counts($user, $today),
@@ -141,24 +142,39 @@ class SummarizeInvoices
     }
 
     /**
+     * One pass per mission: the total, the slice of it worked in the month on show,
+     * and the billed quantity all fall out of the same per-entry measurement.
+     *
      * @param  non-empty-list<TimeEntry>  $entries
      * @return UnbilledWork
      */
     private function work(Mission $mission, array $entries, CarbonImmutable $month): array
     {
         $isHourly = $mission->billing_mode === BillingMode::Hourly;
-        $inMonth = array_filter(
-            $entries,
-            static fn (TimeEntry $entry): bool => $entry->date->isSameMonth($month),
-        );
+        $amount = new Money(0, $mission->currency);
+        $inMonth = new Money(0, $mission->currency);
+        $days = 0.0;
+        $minutes = 0;
+
+        foreach ($entries as $entry) {
+            $measured = $this->valueTrackedTime->measure($mission, $entry);
+
+            $amount = $amount->add($measured['value']);
+            $days += $measured['days'];
+            $minutes += $measured['minutes'];
+
+            if ($entry->date->isSameMonth($month)) {
+                $inMonth = $inMonth->add($measured['value']);
+            }
+        }
 
         return [
             'mission' => $mission,
             'entries' => $entries,
-            'amount' => $this->valueTrackedTime->handle($mission, $entries),
-            'inMonth' => $this->valueTrackedTime->handle($mission, $inMonth),
-            'days' => $isHourly ? null : $this->valueTrackedTime->billedDays($mission, $entries),
-            'minutes' => $isHourly ? $this->valueTrackedTime->billedMinutes($mission, $entries) : null,
+            'amount' => $amount,
+            'inMonth' => $inMonth,
+            'days' => $isHourly ? null : $days,
+            'minutes' => $isHourly ? $minutes : null,
         ];
     }
 
@@ -287,18 +303,12 @@ class SummarizeInvoices
                 amount: MoneyData::fromMoney($invoice->amount_ttc_cents),
                 clientId: $invoice->client_id,
                 clientName: $invoice->client->name,
-                invoiceId: $invoice->id,
-                number: $invoice->number,
-                dueOn: $invoice->due_on,
-                daysLate: $this->daysLate($invoice, $today),
-                missionId: $invoice->mission_id,
-                missionName: null,
-                entryCount: null,
-                firstEntryOn: null,
-                lastEntryOn: null,
-                valuedDays: null,
-                valuedMinutes: null,
-                timeEntryIds: [],
+                overdue: new InvoiceTodoOverdueData(
+                    invoiceId: $invoice->id,
+                    number: $invoice->number,
+                    dueOn: $invoice->due_on,
+                    daysLate: $this->daysLate($invoice, $today),
+                ),
             );
         }
 
@@ -310,18 +320,16 @@ class SummarizeInvoices
                 amount: MoneyData::fromMoney($row['amount']),
                 clientId: $row['mission']->client_id,
                 clientName: $row['mission']->client->name,
-                invoiceId: null,
-                number: null,
-                dueOn: null,
-                daysLate: null,
-                missionId: $row['mission']->id,
-                missionName: $row['mission']->name,
-                entryCount: count($entries),
-                firstEntryOn: $entries[0]->date,
-                lastEntryOn: $entries[count($entries) - 1]->date,
-                valuedDays: $row['days'],
-                valuedMinutes: $row['minutes'],
-                timeEntryIds: array_map(static fn (TimeEntry $entry): int => $entry->id, $entries),
+                work: new InvoiceTodoWorkData(
+                    missionId: $row['mission']->id,
+                    missionName: $row['mission']->name,
+                    entryCount: count($entries),
+                    firstEntryOn: $entries[0]->date,
+                    lastEntryOn: $entries[count($entries) - 1]->date,
+                    valuedDays: $row['days'],
+                    valuedMinutes: $row['minutes'],
+                    timeEntryIds: array_map(static fn (TimeEntry $entry): int => $entry->id, $entries),
+                ),
             );
         }
 

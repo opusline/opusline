@@ -76,13 +76,6 @@ test('reports no days late when nothing is overdue', function (): void {
         ->assertJsonPath('overdue.maxDaysLate', 0);
 });
 
-test('has no figure for the pro account until one is captured', function (): void {
-    $this->actingAs(User::factory()->create())
-        ->getJson('/api/invoices/summary')
-        ->assertOk()
-        ->assertJsonPath('proAccountBalance', null);
-});
-
 test('values tracked time that no invoice covers, month by month', function (): void {
     $user = User::factory()->create();
     $mission = missionOwnedBy($user, fn ($factory) => $factory->state([
@@ -309,12 +302,14 @@ test('lists what needs attention, money already late first', function (): void {
         InvoiceTodoKind::Overdue->value,
         InvoiceTodoKind::UnbilledWork->value,
     ]);
-    expect($todo[0]['invoiceId'])->toBe($overdue->id)
-        ->and($todo[0]['number'])->toBe('F-2026-036')
-        ->and($todo[0]['dueOn'])->toBe('2026-06-30')
-        ->and($todo[0]['daysLate'])->toBe(44)
-        ->and($todo[1]['missionId'])->toBe($mission->id)
-        ->and($todo[1]['missionName'])->toBe($mission->name);
+    expect($todo[0]['overdue']['invoiceId'])->toBe($overdue->id)
+        ->and($todo[0]['overdue']['number'])->toBe('F-2026-036')
+        ->and($todo[0]['overdue']['dueOn'])->toBe('2026-06-30')
+        ->and($todo[0]['overdue']['daysLate'])->toBe(44)
+        ->and($todo[0]['work'])->toBeNull()
+        ->and($todo[1]['work']['missionId'])->toBe($mission->id)
+        ->and($todo[1]['work']['missionName'])->toBe($mission->name)
+        ->and($todo[1]['overdue'])->toBeNull();
 });
 
 test('dates unbilled work by the entries behind it', function (): void {
@@ -335,7 +330,7 @@ test('dates unbilled work by the entries behind it', function (): void {
     $todo = $this->actingAs($user)
         ->getJson('/api/invoices/summary')
         ->assertOk()
-        ->json('todo.0');
+        ->json('todo.0.work');
 
     expect($todo['firstEntryOn'])->toBe('2026-08-03')
         ->and($todo['lastEntryOn'])->toBe('2026-08-07')
@@ -362,8 +357,8 @@ test('measures unbilled work in hours when the mission bills by the hour', funct
         ->json('todo.0');
 
     // A started quarter is a billed quarter: 1 h 07 bills as 1 h 15.
-    expect($todo['valuedMinutes'])->toBe(75)
-        ->and($todo['valuedDays'])->toBeNull()
+    expect($todo['work']['valuedMinutes'])->toBe(75)
+        ->and($todo['work']['valuedDays'])->toBeNull()
         ->and($todo['amount']['amount'])->toBe(10_000);
 });
 

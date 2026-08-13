@@ -50,6 +50,28 @@ export function matchesScope(
   return item.invoice.status === SCOPE_STATUS[scope];
 }
 
+/**
+ * How many invoices each chip stands for. The scopes overlap — an overdue invoice is
+ * counted by "À encaisser" and by "En retard" — so this is one pass, not a partition.
+ */
+export function countByScope(
+  items: InvoiceListItemData[],
+): Record<InvoiceScope, number> {
+  const counts = Object.fromEntries(
+    INVOICE_SCOPES.map((scope) => [scope, 0]),
+  ) as Record<InvoiceScope, number>;
+
+  for (const item of items) {
+    for (const scope of INVOICE_SCOPES) {
+      if (matchesScope(item, scope)) {
+        counts[scope] += 1;
+      }
+    }
+  }
+
+  return counts;
+}
+
 export type InvoiceGroup = {
   client: InvoiceListItemData["client"];
   items: InvoiceListItemData[];
@@ -62,14 +84,13 @@ export type InvoiceGroup = {
  * are gross: what is owed, not what gets declared.
  */
 export function groupByClient(items: InvoiceListItemData[]): InvoiceGroup[] {
-  const groups = new Map<number, InvoiceGroup>();
+  const groups = new Map<number, Omit<InvoiceGroup, "averageDaysToPay">>();
 
   for (const item of items) {
     const group = groups.get(item.client.id) ?? {
       client: item.client,
       items: [],
       total: 0,
-      averageDaysToPay: null,
     };
 
     group.items.push(item);

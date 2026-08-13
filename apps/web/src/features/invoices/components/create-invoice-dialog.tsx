@@ -1,4 +1,7 @@
-import type { InvoiceTodoData } from "@opusline/api-client";
+import type {
+  InvoiceTodoData,
+  InvoiceTodoWorkData,
+} from "@opusline/api-client";
 import { Button } from "@opusline/ui/components/button";
 import {
   Dialog,
@@ -19,6 +22,7 @@ import {
 import { calendarRangeLabel } from "@/lib/dates";
 
 import { unbilledWorkTitle } from "../lib/summary-labels";
+import { Fact } from "./invoice-fact";
 
 export type CreateInvoiceSubmit = {
   clientId: number;
@@ -32,7 +36,6 @@ export type CreateInvoiceSubmit = {
 
 type CreateInvoiceDialogProps = {
   todo: InvoiceTodoData | null;
-  clientId: number | null;
   suggestedNumber: string | null;
   isSaving: boolean;
   error: string | null;
@@ -48,7 +51,6 @@ type CreateInvoiceDialogProps = {
  */
 export function CreateInvoiceDialog({
   todo,
-  clientId,
   suggestedNumber,
   isSaving,
   error,
@@ -58,10 +60,10 @@ export function CreateInvoiceDialog({
   return (
     <Dialog open={todo !== null} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
-        {todo === null ? null : (
+        {todo?.work == null ? null : (
           <CreateInvoiceForm
             todo={todo}
-            clientId={clientId}
+            work={todo.work}
             suggestedNumber={suggestedNumber}
             isSaving={isSaving}
             error={error}
@@ -75,14 +77,14 @@ export function CreateInvoiceDialog({
 
 function CreateInvoiceForm({
   todo,
-  clientId,
+  work,
   suggestedNumber,
   isSaving,
   error,
   onSubmit,
 }: {
   todo: InvoiceTodoData;
-  clientId: number | null;
+  work: InvoiceTodoWorkData;
   suggestedNumber: string | null;
   isSaving: boolean;
   error: string | null;
@@ -103,44 +105,39 @@ function CreateInvoiceForm({
   }, [suggestedNumber]);
 
   const amountHtCents = parseRateToCents(amountDraft);
-  const missionId = todo.missionId;
-  const canSubmit =
-    amountHtCents !== null &&
-    missionId !== null &&
-    clientId !== null &&
-    !isSaving;
+  const canSubmit = amountHtCents !== null && !isSaving;
 
   return (
     <form
       onSubmit={(event) => {
         event.preventDefault();
 
-        if (amountHtCents === null || missionId === null || clientId === null) {
+        if (amountHtCents === null) {
           return;
         }
 
         onSubmit({
-          clientId,
-          missionId,
+          clientId: todo.clientId,
+          missionId: work.missionId,
           number: number.trim() === "" ? null : number.trim(),
           amountHtCents,
-          periodStart: todo.firstEntryOn,
-          periodEnd: todo.lastEntryOn,
-          timeEntryIds: todo.timeEntryIds,
+          periodStart: work.firstEntryOn,
+          periodEnd: work.lastEntryOn,
+          timeEntryIds: work.timeEntryIds,
         });
       }}
     >
       <DialogHeader>
         <DialogTitle>Créer la facture</DialogTitle>
-        <DialogDescription>{unbilledWorkTitle(todo)}</DialogDescription>
+        <DialogDescription>{unbilledWorkTitle(work)}</DialogDescription>
       </DialogHeader>
 
       <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-3 border-t pt-4">
-        <Fact label="Client" value={todo.clientName} />
-        <Fact label="Mission" value={todo.missionName ?? "—"} />
+        <Fact label="Client" value={todo.clientName} tone="text" />
+        <Fact label="Mission" value={work.missionName} tone="text" />
         <Fact
           label="Période"
-          value={calendarRangeLabel(todo.firstEntryOn, todo.lastEntryOn) ?? "—"}
+          value={calendarRangeLabel(work.firstEntryOn, work.lastEntryOn) ?? "—"}
         />
         <Fact
           label="Valeur du temps"
@@ -184,7 +181,7 @@ function CreateInvoiceForm({
       )}
 
       <p className="mt-4 text-muted-foreground-3 text-xs text-pretty">
-        {coveredTimeLabel(todo.entryCount)}
+        {coveredTimeLabel(work.entryCount)}
       </p>
 
       <div className="mt-5 flex justify-end">
@@ -196,17 +193,8 @@ function CreateInvoiceForm({
   );
 }
 
-function Fact({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt className="text-muted-foreground-3 text-xs">{label}</dt>
-      <dd className="mt-0.5 text-foreground-2 text-sm">{value}</dd>
-    </div>
-  );
-}
-
-function coveredTimeLabel(entryCount: number | null): string {
-  if (entryCount === null || entryCount === 0) {
+function coveredTimeLabel(entryCount: number): string {
+  if (entryCount === 0) {
     return "Aucun temps ne sera rattaché à cette facture.";
   }
 

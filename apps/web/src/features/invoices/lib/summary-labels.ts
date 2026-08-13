@@ -1,15 +1,12 @@
 import type {
   InvoiceForecastBucket,
   InvoiceOverdueData,
-  InvoiceTodoData,
+  InvoiceTodoOverdueData,
+  InvoiceTodoWorkData,
   InvoiceTotalData,
 } from "@opusline/api-client";
 
-import {
-  calendarDateNumericLabel,
-  calendarMonthYearLabel,
-  fromCalendarDate,
-} from "@/lib/dates";
+import { calendarDateNumericLabel, fromCalendarDate } from "@/lib/dates";
 import { formatBilledDays, formatBilledHours } from "@/lib/durations";
 
 export function openInvoicesLabel(toCollect: InvoiceTotalData): string {
@@ -41,13 +38,6 @@ export const INVOICE_FORECAST_BUCKET_LABELS: Record<
   2: "31 – 60 j",
 };
 
-/** "Août 2026", capitalised — a card title, not a sentence fragment. */
-export function summaryMonthLabel(month: string): string {
-  const label = calendarMonthYearLabel(`${month}-01`);
-
-  return label.charAt(0).toUpperCase() + label.slice(1);
-}
-
 export function periodsLabel(monthUnbilled: InvoiceTotalData): string {
   if (monthUnbilled.count === 0) {
     return "rien en attente de facture";
@@ -59,26 +49,26 @@ export function periodsLabel(monthUnbilled: InvoiceTotalData): string {
 }
 
 /**
- * How much work a row would bill, in the mission's own unit. The API sends whichever
- * of the two applies; a row that reports neither is a mission that prices nothing,
- * which never reaches this list.
+ * How much work a row would bill, in the mission's own unit. Exactly one of the two
+ * quantities is set, decided by how the mission bills.
  */
-export function todoQuantityLabel(todo: InvoiceTodoData): string | null {
-  if (todo.valuedDays !== null) {
-    return formatBilledDays(todo.valuedDays);
+function quantityLabel(work: InvoiceTodoWorkData): string | null {
+  if (work.valuedDays !== null) {
+    return formatBilledDays(work.valuedDays);
   }
 
-  return todo.valuedMinutes === null
+  return work.valuedMinutes === null
     ? null
-    : formatBilledHours(todo.valuedMinutes);
+    : formatBilledHours(work.valuedMinutes);
 }
 
 /** "3 j sur OGF front" — what would be billed, and on what. */
-export function unbilledWorkTitle(todo: InvoiceTodoData): string {
-  const quantity = todoQuantityLabel(todo);
-  const mission = todo.missionName ?? todo.clientName;
+export function unbilledWorkTitle(work: InvoiceTodoWorkData): string {
+  const quantity = quantityLabel(work);
 
-  return quantity === null ? mission : `${quantity} sur ${mission}`;
+  return quantity === null
+    ? work.missionName
+    : `${quantity} sur ${work.missionName}`;
 }
 
 const dayAndMonth = new Intl.DateTimeFormat("fr-FR", {
@@ -91,16 +81,12 @@ const dayAndMonth = new Intl.DateTimeFormat("fr-FR", {
  * so rather than repeating itself, and a span that crosses months names both:
  * "du 31 au 13 août" reads as a typo.
  */
-export function unbilledWorkDetail(todo: InvoiceTodoData): string | null {
-  if (todo.firstEntryOn === null || todo.lastEntryOn === null) {
-    return null;
-  }
-
-  const first = fromCalendarDate(todo.firstEntryOn);
-  const last = fromCalendarDate(todo.lastEntryOn);
+export function unbilledWorkDetail(work: InvoiceTodoWorkData): string {
+  const first = fromCalendarDate(work.firstEntryOn);
+  const last = fromCalendarDate(work.lastEntryOn);
   const lastLabel = dayAndMonth.format(last);
 
-  if (todo.firstEntryOn === todo.lastEntryOn) {
+  if (work.firstEntryOn === work.lastEntryOn) {
     return `Entrées du ${lastLabel}`;
   }
 
@@ -113,10 +99,6 @@ export function unbilledWorkDetail(todo: InvoiceTodoData): string | null {
 }
 
 /** "Échue le 30/06/2026 · 41 j de retard". */
-export function overdueDetail(todo: InvoiceTodoData): string | null {
-  if (todo.dueOn === null || todo.daysLate === null) {
-    return null;
-  }
-
-  return `Échue le ${calendarDateNumericLabel(todo.dueOn)} · ${todo.daysLate} j de retard`;
+export function overdueDetail(overdue: InvoiceTodoOverdueData): string {
+  return `Échue le ${calendarDateNumericLabel(overdue.dueOn)} · ${overdue.daysLate} j de retard`;
 }

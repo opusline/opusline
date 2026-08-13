@@ -2,7 +2,9 @@ import type { InvoiceSummaryData } from "@opusline/api-client";
 
 import { formatEuros } from "@/lib/billing";
 
-import { periodsLabel, summaryMonthLabel } from "../lib/summary-labels";
+import { capitalizedMonthLabel } from "@/lib/dates";
+
+import { periodsLabel } from "../lib/summary-labels";
 
 /**
  * The month's own figure is not revenue — that lands on the payment date, not this
@@ -16,7 +18,7 @@ export function InvoiceMonthCard({ summary }: { summary: InvoiceSummaryData }) {
   return (
     <section className="rounded-md border bg-card px-5 py-4">
       <h2 className="font-medium text-muted-foreground-2 text-xs uppercase tracking-widest">
-        {summaryMonthLabel(summary.month)}
+        {capitalizedMonthLabel(`${summary.month}-01`)}
       </h2>
 
       {hasUnbilledWork ? (

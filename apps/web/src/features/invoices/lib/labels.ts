@@ -3,47 +3,53 @@ import type { InvoiceData } from "@opusline/api-client";
 import {
   calendarDateNumericLabel,
   calendarDaysBetween,
-  calendarMonthYearLabel,
+  capitalizedMonthLabel,
   todayCalendarDate,
 } from "@/lib/dates";
 
 /** "Juin 2026" — the period an invoice covers, capitalised as a label. */
 function periodLabel(invoice: InvoiceData): string | null {
-  if (invoice.periodStart === null) {
-    return null;
-  }
-
-  const month = calendarMonthYearLabel(invoice.periodStart);
-
-  return month.charAt(0).toUpperCase() + month.slice(1);
+  return invoice.periodStart === null
+    ? null
+    : capitalizedMonthLabel(invoice.periodStart);
 }
 
-export function daysToPay(invoice: InvoiceData): number | null {
+function daysToPay(invoice: InvoiceData): number | null {
   return invoice.paidOn === null
     ? null
     : calendarDaysBetween(invoice.issuedOn, invoice.paidOn);
 }
 
-export function daysLate(invoice: InvoiceData): number {
+function daysLate(invoice: InvoiceData): number {
   return calendarDaysBetween(invoice.dueOn, todayCalendarDate());
 }
 
 /**
- * The row's second line. It answers the question the status badge raises: paid —
- * how fast? late — by how much? Otherwise, when is it due.
+ * It answers the question the status badge raises: paid — how fast? late — by how
+ * much? Otherwise, when is it due.
  */
-export function invoiceRowDetail(invoice: InvoiceData): string {
-  const period = periodLabel(invoice);
+function invoiceState(invoice: InvoiceData): string {
   const paidIn = daysToPay(invoice);
 
-  const state =
-    paidIn !== null
-      ? `payée en ${paidIn} j`
-      : invoice.isLate
-        ? `${daysLate(invoice)} j de retard`
-        : invoice.status === 0
-          ? "brouillon"
-          : `échéance ${calendarDateNumericLabel(invoice.dueOn)}`;
+  if (paidIn !== null) {
+    return `payée en ${paidIn} j`;
+  }
+
+  if (invoice.isLate) {
+    return `${daysLate(invoice)} j de retard`;
+  }
+
+  if (invoice.status === 0) {
+    return "brouillon";
+  }
+
+  return `échéance ${calendarDateNumericLabel(invoice.dueOn)}`;
+}
+
+/** The row's second line: which period, and where the invoice stands. */
+export function invoiceRowDetail(invoice: InvoiceData): string {
+  const period = periodLabel(invoice);
+  const state = invoiceState(invoice);
 
   return period === null ? state : `${period} · ${state}`;
 }

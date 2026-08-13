@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { invoiceTodo } from "../lib/fixtures";
+import { unbilledTodoRow } from "../lib/fixtures";
 import { CreateInvoiceDialog } from "./create-invoice-dialog";
 
 const meta = {
@@ -8,8 +8,7 @@ const meta = {
   component: CreateInvoiceDialog,
   tags: ["autodocs"],
   args: {
-    todo: invoiceTodo({ kind: 1 }),
-    clientId: 2,
+    todo: unbilledTodoRow(),
     suggestedNumber: "2026-021",
     isSaving: false,
     error: null,
