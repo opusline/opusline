@@ -76,6 +76,87 @@ export type ClientWithMissionsData = {
 export type Color = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 /**
+ * CraCountsData
+ */
+export type CraCountsData = {
+    toProduce: number;
+    sent: number;
+    signed: number;
+};
+
+/**
+ * CraData
+ */
+export type CraData = {
+    id: number;
+    missionId: number;
+    month: string;
+    status: CraStatus;
+    sentOn: string | null;
+    signedOn: string | null;
+    totalDays: number;
+    trackedDays: number;
+    differenceDays: number;
+    estimatedAmount: MoneyData | null;
+    dirty: boolean;
+    editable: boolean;
+    notes: string | null;
+    days: Array<CraDayData>;
+};
+
+/**
+ * CraDayData
+ */
+export type CraDayData = {
+    date: string;
+    dayFractionBp: number;
+    trackedDayFractionBp: number;
+    isWeekend: boolean;
+    isHoliday: boolean;
+    holidayName: string | null;
+};
+
+/**
+ * CraDetailData
+ */
+export type CraDetailData = {
+    cra: CraData;
+    client: ClientData;
+    mission: MissionData;
+    recipientName: string;
+};
+
+/**
+ * CraListData
+ */
+export type CraListData = {
+    cras: Array<CraListItemData>;
+    counts: CraCountsData;
+};
+
+/**
+ * CraListItemData
+ */
+export type CraListItemData = {
+    id: number | null;
+    missionId: number;
+    missionSlug: string;
+    missionName: string;
+    clientSlug: string;
+    clientName: string;
+    color: Color;
+    month: string;
+    status: CraStatus;
+    totalDays: number;
+    trackedDays: number;
+};
+
+/**
+ * CraStatus
+ */
+export type CraStatus = 0 | 1 | 2;
+
+/**
  * CreateClientData
  */
 export type CreateClientData = {
@@ -93,6 +174,14 @@ export type CreateClientData = {
     billingEmail?: string | null;
     color?: Color;
     paymentTermsDays?: number;
+};
+
+/**
+ * CreateCraData
+ */
+export type CreateCraData = {
+    missionId: number;
+    month: string;
 };
 
 /**
@@ -147,8 +236,17 @@ export type Currency = 'EUR';
 
 /**
  * DocumentCategory
+ *
+ * | |
+ * |---|
+ * | `0` <br/>  |
+ * | `1` <br/>  |
+ * | `2` <br/>  |
+ * | `3` <br/>  |
+ * | `4` <br/>  |
+ * | `5` <br/> The CRA Opusline generated, filed next to the signed return it comes back as. |
  */
-export type DocumentCategory = 0 | 1 | 2 | 3 | 4;
+export type DocumentCategory = 0 | 1 | 2 | 3 | 4 | 5;
 
 /**
  * DocumentData
@@ -577,6 +675,13 @@ export type UpdateClientData = {
     billingEmail?: string | null;
     color?: Color;
     paymentTermsDays?: number;
+};
+
+/**
+ * UpdateCraDaysData
+ */
+export type UpdateCraDaysData = {
+    days: Array<string>;
 };
 
 /**
@@ -1483,6 +1588,256 @@ export type UploadClientLogoResponses = {
 };
 
 export type UploadClientLogoResponse = UploadClientLogoResponses[keyof UploadClientLogoResponses];
+
+export type ListCrasData = {
+    body?: never;
+    path?: never;
+    query?: {
+        month?: string | null;
+    };
+    url: '/cras';
+};
+
+export type ListCrasErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListCrasError = ListCrasErrors[keyof ListCrasErrors];
+
+export type ListCrasResponses = {
+    200: CraListData;
+};
+
+export type ListCrasResponse = ListCrasResponses[keyof ListCrasResponses];
+
+export type CreateCraData2 = {
+    body: CreateCraData;
+    path?: never;
+    query?: never;
+    url: '/cras';
+};
+
+export type CreateCraErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateCraError = CreateCraErrors[keyof CreateCraErrors];
+
+export type CreateCraResponses = {
+    201: CraDetailData;
+};
+
+export type CreateCraResponse = CreateCraResponses[keyof CreateCraResponses];
+
+export type DeleteCraData = {
+    body?: never;
+    path: {
+        /**
+         * The cra ID
+         */
+        cra: number;
+    };
+    query?: never;
+    url: '/cras/{cra}';
+};
+
+export type DeleteCraErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteCraError = DeleteCraErrors[keyof DeleteCraErrors];
+
+export type DeleteCraResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteCraResponse = DeleteCraResponses[keyof DeleteCraResponses];
+
+export type ShowCraData = {
+    body?: never;
+    path: {
+        /**
+         * The cra ID
+         */
+        cra: number;
+    };
+    query?: never;
+    url: '/cras/{cra}';
+};
+
+export type ShowCraErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowCraError = ShowCraErrors[keyof ShowCraErrors];
+
+export type ShowCraResponses = {
+    200: CraDetailData;
+};
+
+export type ShowCraResponse = ShowCraResponses[keyof ShowCraResponses];
+
+export type UpdateCraDaysData2 = {
+    body: UpdateCraDaysData;
+    path: {
+        /**
+         * The cra ID
+         */
+        cra: number;
+    };
+    query?: never;
+    url: '/cras/{cra}/days';
+};
+
+export type UpdateCraDaysErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateCraDaysError = UpdateCraDaysErrors[keyof UpdateCraDaysErrors];
+
+export type UpdateCraDaysResponses = {
+    200: CraDetailData;
+};
+
+export type UpdateCraDaysResponse = UpdateCraDaysResponses[keyof UpdateCraDaysResponses];
+
+export type ResetCraData = {
+    body?: never;
+    path: {
+        /**
+         * The cra ID
+         */
+        cra: number;
+    };
+    query?: never;
+    url: '/cras/{cra}/reset';
+};
+
+export type ResetCraErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ResetCraError = ResetCraErrors[keyof ResetCraErrors];
+
+export type ResetCraResponses = {
+    200: CraDetailData;
+};
+
+export type ResetCraResponse = ResetCraResponses[keyof ResetCraResponses];
 
 export type ListInvoicesData = {
     body?: never;

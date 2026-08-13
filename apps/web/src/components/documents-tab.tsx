@@ -20,6 +20,7 @@ import { useRef, useState } from "react";
 
 import { fullDateLabel } from "@/lib/dates";
 import {
+  ASSIGNABLE_DOCUMENT_CATEGORIES,
   baseName,
   DOCUMENT_ACCEPT,
   DOCUMENT_CATEGORIES,
@@ -181,7 +182,7 @@ export function DocumentsTab({
       counts[document.category] += 1;
       return counts;
     },
-    { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0 } as Record<DocumentCategory, number>,
+    { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } as Record<DocumentCategory, number>,
   );
   const normalizedSearch = foldAccents(search.trim().toLowerCase());
   const visibleDocuments = documents.filter(
@@ -362,7 +363,7 @@ export function DocumentsTab({
                     size="sm"
                     value={String(item.category)}
                   >
-                    {DOCUMENT_CATEGORIES.map((category) => (
+                    {ASSIGNABLE_DOCUMENT_CATEGORIES.map((category) => (
                       <option key={category} value={String(category)}>
                         {DOCUMENT_CATEGORY_LABELS[category]}
                       </option>

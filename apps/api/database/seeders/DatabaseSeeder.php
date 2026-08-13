@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Domain\Clients\Models\Client;
+use App\Domain\Cra\Actions\MaterializeCraDays;
+use App\Domain\Cra\Actions\WriteCraDays;
+use App\Domain\Cra\Calendar\FrenchHolidays;
+use App\Domain\Cra\Enums\CraStatus;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Enums\Color;
 use App\Domain\TimeEntries\Models\TimeEntry;
@@ -85,7 +89,16 @@ class DatabaseSeeder extends Seeder
             'name' => 'Opusline',
         ]);
 
-        $this->seedRecentTimeEntries($user, $callistoFront, $lunaprintMaintenance, $opusline);
+        // Last month belongs to the CRA below, so the recent-entries walk stops at the
+        // month boundary rather than writing days the CRA already reports.
+        $this->seedRecentTimeEntries(
+            $user,
+            $callistoFront,
+            $lunaprintMaintenance,
+            $opusline,
+            notBefore: CarbonImmutable::today()->startOfMonth(),
+        );
+        $this->seedPreviousMonthCra($user, $callistoFront);
 
         RunningTimer::factory()
             ->for($lunaprintMaintenance, 'mission')
@@ -101,11 +114,12 @@ class DatabaseSeeder extends Seeder
         Mission $daily,
         Mission $hourly,
         Mission $nonBillable,
+        CarbonImmutable $notBefore,
     ): void {
         $workedDays = [];
         $cursor = CarbonImmutable::today();
 
-        while (count($workedDays) < 10) {
+        while (count($workedDays) < 10 && $cursor->greaterThanOrEqualTo($notBefore)) {
             if (! $cursor->isWeekend()) {
                 $workedDays[] = $cursor;
             }
@@ -155,5 +169,46 @@ class DatabaseSeeder extends Seeder
                 'note' => 'Correctifs après mise en production.',
             ]);
         }
+    }
+
+    /**
+     * A full month of work on the ESN mission, already reported and sent. The CRA screen
+     * needs both piles to be worth looking at: one month to produce, one already gone.
+     */
+    private function seedPreviousMonthCra(User $user, Mission $mission): void
+    {
+        $month = CarbonImmutable::today()->subMonth()->startOfMonth();
+        $holidays = FrenchHolidays::forYear($month->year);
+
+        for ($day = $month; $day->month === $month->month; $day = $day->addDay()) {
+            if ($day->isWeekend()) {
+                continue;
+            }
+            if (isset($holidays[$day->toDateString()])) {
+                continue;
+            }
+
+            TimeEntry::factory()->for($mission, 'mission')->create([
+                'user_id' => $user->id,
+                'date' => $day->toDateString(),
+                'duration_minutes' => $day->dayOfWeek === CarbonImmutable::FRIDAY ? 210 : 420,
+                'note' => 'Sprint 23 · développement',
+            ]);
+        }
+
+        $cra = $mission->cras()->create([
+            'user_id' => $user->id,
+            'month' => $month,
+            'status' => CraStatus::Sent,
+            'sent_on' => $month->endOfMonth()->addDay(),
+        ]);
+
+        // Built by the actions the app itself uses, so the demo CRA agrees with its own
+        // tracked time by construction rather than because two copies of the rounding
+        // rule were kept in step by hand.
+        app(WriteCraDays::class)->handle(
+            $cra,
+            app(MaterializeCraDays::class)->handle($mission, $month),
+        );
     }
 }

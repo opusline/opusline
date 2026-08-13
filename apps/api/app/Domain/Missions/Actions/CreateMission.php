@@ -26,7 +26,10 @@ class CreateMission
             'rate_cents' => $data->rate?->toMoney(),
             'rounding' => $data->billingMode->resolveRounding($data->rounding),
             'status' => MissionStatus::Active,
-            'cra_required' => $data->craRequired ?? $client->type->requiresCraByDefault(),
+            'cra_required' => $data->billingMode->resolveCraRequired(
+                $data->craRequired,
+                $client->type->requiresCraByDefault(),
+            ),
             'color' => $data->color,
             'notes' => $data->notes,
             'start_date' => $data->startDate,

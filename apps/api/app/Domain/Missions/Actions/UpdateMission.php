@@ -14,7 +14,7 @@ class UpdateMission
 
     public function handle(Client $client, Mission $mission, UpdateMissionData $data): Mission
     {
-        $this->validateMission->handle($client, $data);
+        $this->validateMission->handle($client, $data, $mission);
 
         $mission->update([
             'name' => $data->name,
@@ -23,7 +23,10 @@ class UpdateMission
             'rate_cents' => $data->rate?->toMoney(),
             'rounding' => $data->billingMode->resolveRounding($data->rounding),
             'status' => $data->status,
-            'cra_required' => $data->craRequired ?? $client->type->requiresCraByDefault(),
+            'cra_required' => $data->billingMode->resolveCraRequired(
+                $data->craRequired,
+                $client->type->requiresCraByDefault(),
+            ),
             'color' => $data->color,
             'notes' => $data->notes,
             'start_date' => $data->startDate,
