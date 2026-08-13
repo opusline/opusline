@@ -165,7 +165,7 @@ class Invoice extends Model
     public function isTtcOverridden(): bool
     {
         return ! $this->amount_ttc_cents->equals(
-            new ComputeInvoiceAmounts()->ttcFor($this->amount_ht_cents, $this->vat_rate_bp),
+            (new ComputeInvoiceAmounts)->ttcFor($this->amount_ht_cents, $this->vat_rate_bp),
         );
     }
 

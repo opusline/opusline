@@ -103,10 +103,15 @@ class SuggestInvoiceNumber
     {
         $pattern = '/^'.preg_quote($prefix, '/').'(\d+)'.preg_quote($suffix, '/').'$/';
 
+        // The prefix goes into LIKE unescaped on purpose. The format's literals are
+        // limited to [A-Za-z0-9-/_. ], so the only wildcard it can contain is "_",
+        // which over-matches — and over-matching is free here because the regex below
+        // is the real filter. Escaping it instead would need an ESCAPE clause, which
+        // sqlite and MySQL disagree about by default.
         /** @var list<string> $numbers */
         $numbers = $user->invoices()
             ->whereNotNull('number')
-            ->where('number', 'like', addcslashes($prefix, '%_\\').'%')
+            ->where('number', 'like', $prefix.'%')
             ->pluck('number')
             ->all();
 

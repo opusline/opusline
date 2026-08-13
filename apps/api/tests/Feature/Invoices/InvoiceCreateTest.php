@@ -112,6 +112,12 @@ test('rejects an invalid payload', function (array $payload, string $expectedErr
         'paidOn' => '2099-01-01',
     ], 'paidOn'],
     'payment date on an unpaid invoice' => [['paidOn' => '2026-01-01'], 'paidOn'],
+    'payment date before the issue date' => [[
+        'number' => '2026-092',
+        'status' => InvoiceStatus::Paid->value,
+        'issuedOn' => '2026-06-01',
+        'paidOn' => '2026-05-20',
+    ], 'paidOn'],
     'due date before the issue date' => [['issuedOn' => '2026-08-13', 'dueOn' => '2026-08-12'], 'dueOn'],
 ]);
 

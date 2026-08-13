@@ -10,7 +10,7 @@ use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
-use Illuminate\Database\QueryException;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -58,11 +58,11 @@ class CreateInvoice
 
             try {
                 $invoice = $user->invoices()->create($attributes);
-            } catch (QueryException $exception) {
-                if ((string) $exception->getCode() !== '23000') {
-                    throw $exception;
-                }
-
+            } catch (UniqueConstraintViolationException) {
+                // Two creates that both took the same suggestion from /next-number pass
+                // the #[Unique] check and then race to the index. (user_id, number) is
+                // the table's only unique index, so this can only be that one; a
+                // foreign-key violation is a different bug and must not be masked.
                 throw ValidationException::withMessages([
                     'number' => __('invoices.number_taken'),
                 ]);

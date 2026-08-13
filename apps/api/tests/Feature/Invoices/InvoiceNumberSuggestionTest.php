@@ -32,7 +32,21 @@ test('suggests the next number for the current period', function (array $existin
     'leaves a literal containing MM alone' => [[], 'COMMANDE-NNN', 'COMMANDE-001'],
     'leaves a literal containing NNN alone' => [[], 'ANNNA-NNN', 'ANNNA-001'],
     'renders tokens written back to back' => [[], 'AAAAMM-NNN', '202608-001'],
+    'keeps a literal underscore in the prefix' => [['F_2026-007'], 'F_AAAA-NNN', 'F_2026-008'],
 ]);
+
+test('counts only the authenticated user invoices', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2026-08-13'));
+
+    $user = User::factory()->create();
+    invoiceOwnedBy($user, configure: fn ($factory) => $factory->state(['number' => '2026-002']));
+    invoiceOwnedBy(User::factory()->create(), configure: fn ($factory) => $factory->state(['number' => '2026-900']));
+
+    $this->actingAs($user)
+        ->getJson('/api/invoices/next-number')
+        ->assertOk()
+        ->assertJsonPath('number', '2026-003');
+});
 
 test('returns the format the suggestion was built from', function (): void {
     $this->actingAs(User::factory()->create())

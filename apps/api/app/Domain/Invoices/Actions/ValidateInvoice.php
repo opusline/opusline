@@ -29,7 +29,7 @@ class ValidateInvoice
         $this->assertMissionBelongsToClient($user, $data->clientId, $data->missionId);
         $this->assertAmountsAgree($data->amountHt, $data->amountTtc);
         $this->assertDatesAgree($issuedOn, $data->dueOn, $data->periodStart, $data->periodEnd);
-        $this->assertPaymentMatchesStatus($status, $data->paidOn);
+        $this->assertPaymentMatchesStatus($status, $data->paidOn, $issuedOn);
         $this->assertNumberPresentOnceIssued($status, $data->number);
     }
 
@@ -38,7 +38,7 @@ class ValidateInvoice
         $this->assertMissionBelongsToClient($user, $data->clientId, $data->missionId);
         $this->assertAmountsAgree($data->amountHt, $data->amountTtc);
         $this->assertDatesAgree($issuedOn, $data->dueOn, $data->periodStart, $data->periodEnd);
-        $this->assertPaymentMatchesStatus($current->status, $data->paidOn);
+        $this->assertPaymentMatchesStatus($current->status, $data->paidOn, $issuedOn);
         $this->assertNumberIsFree($user, $data->number, $current);
         $this->assertLinkedTimeEntriesStay($data, $current);
         $this->assertNumberPresentOnceIssued($current->status, $data->number);
@@ -110,7 +110,7 @@ class ValidateInvoice
      * A payment date is exactly as load-bearing as the Paid status: cash-basis
      * declarations read one through the other, so neither is allowed without the other.
      */
-    private function assertPaymentMatchesStatus(InvoiceStatus $status, ?string $paidOn): void
+    private function assertPaymentMatchesStatus(InvoiceStatus $status, ?string $paidOn, CarbonImmutable $issuedOn): void
     {
         if ($status === InvoiceStatus::Paid && $paidOn === null) {
             throw ValidationException::withMessages([
@@ -118,9 +118,19 @@ class ValidateInvoice
             ]);
         }
 
-        if ($status !== InvoiceStatus::Paid && $paidOn !== null) {
+        if ($paidOn === null) {
+            return;
+        }
+
+        if ($status !== InvoiceStatus::Paid) {
             throw ValidationException::withMessages([
                 'paidOn' => __('invoices.paid_on_without_payment'),
+            ]);
+        }
+
+        if (CarbonImmutable::parse($paidOn)->isBefore($issuedOn)) {
+            throw ValidationException::withMessages([
+                'paidOn' => __('invoices.paid_on_before_issued'),
             ]);
         }
     }

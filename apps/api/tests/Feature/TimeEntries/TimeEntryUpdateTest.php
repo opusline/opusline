@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Missions\Enums\EntryRounding;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Users\Models\User;
@@ -173,7 +174,10 @@ test('puts an omitted billable flag back to billable, like every other field', f
         ->assertJsonPath('billable', true);
 });
 
-test('refuses to move tracked time that an invoice bills', function (): void {
+/**
+ * @param  callable(TimeEntry, Mission): array<string, mixed>  $change
+ */
+test('refuses to change what an invoice already bills', function (callable $change): void {
     $user = User::factory()->create();
     $mission = missionOwnedBy($user);
     $otherMission = missionOwnedBy($user);
@@ -181,17 +185,42 @@ test('refuses to move tracked time that an invoice bills', function (): void {
 
     $this->actingAs($user)
         ->putJson("/api/time-entries/{$timeEntry->id}", [
-            'missionId' => $otherMission->id,
+            'missionId' => $mission->id,
             'date' => $timeEntry->date->toDateString(),
-            'durationMinutes' => 420,
+            'durationMinutes' => $timeEntry->duration_minutes,
+            'billable' => $timeEntry->billable,
+            ...$change($timeEntry, $otherMission),
         ])
         ->assertConflict()
-        ->assertJsonPath('message', __('invoices.cannot_move_invoiced_time_entry'));
+        ->assertJsonPath('message', __('invoices.cannot_change_invoiced_time_entry'));
 
     $this->assertDatabaseHas('time_entries', [
         'id' => $timeEntry->id,
         'mission_id' => $mission->id,
+        'duration_minutes' => $timeEntry->duration_minutes,
     ]);
+})->with([
+    'the mission' => [fn (TimeEntry $entry, Mission $other): array => ['missionId' => $other->id]],
+    'the date' => [fn (TimeEntry $entry): array => ['date' => $entry->date->subDay()->toDateString()]],
+    'the duration' => [fn (TimeEntry $entry): array => ['durationMinutes' => $entry->duration_minutes + 30]],
+    'the rounding' => [fn (): array => ['rounding' => EntryRounding::Minute->value]],
+    'the billable flag' => [fn (TimeEntry $entry): array => ['billable' => ! $entry->billable]],
+]);
+
+test('still annotates tracked time that an invoice bills', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user);
+    $timeEntry = invoicedTimeEntry($user, $mission, invoiceForMission($user, $mission));
+
+    $this->actingAs($user)
+        ->putJson("/api/time-entries/{$timeEntry->id}", [
+            'missionId' => $mission->id,
+            'date' => $timeEntry->date->toDateString(),
+            'durationMinutes' => $timeEntry->duration_minutes,
+            'billable' => $timeEntry->billable,
+            'note' => 'Rapproché de la facture 2026-014',
+        ])
+        ->assertOk();
 });
 
 test('still moves tracked time that no invoice bills', function (): void {

@@ -43,11 +43,13 @@ test('marks a sent invoice as paid', function (): void {
     $user = User::factory()->create();
     $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent());
 
+    $paidOn = CarbonImmutable::today()->toDateString();
+
     $this->actingAs($user)
-        ->postJson("/api/invoices/{$invoice->id}/pay", ['paidOn' => '2026-08-10'])
+        ->postJson("/api/invoices/{$invoice->id}/pay", ['paidOn' => $paidOn])
         ->assertOk()
         ->assertJsonPath('invoice.status', InvoiceStatus::Paid->value)
-        ->assertJsonPath('invoice.paidOn', '2026-08-10');
+        ->assertJsonPath('invoice.paidOn', $paidOn);
 });
 
 test('requires a payment date to mark an invoice paid', function (): void {
@@ -77,7 +79,7 @@ test('refuses to pay a draft', function (): void {
     $invoice = invoiceOwnedBy($user);
 
     $this->actingAs($user)
-        ->postJson("/api/invoices/{$invoice->id}/pay", ['paidOn' => '2026-08-10'])
+        ->postJson("/api/invoices/{$invoice->id}/pay", ['paidOn' => CarbonImmutable::today()->toDateString()])
         ->assertConflict()
         ->assertJsonPath('message', __('invoices.cannot_pay_unless_sent'));
 });
@@ -129,9 +131,15 @@ test('records one event per transition', function (): void {
         ->json('invoice.id');
 
     $this->postJson("/api/invoices/{$invoice}/send")->assertOk();
-    $this->postJson("/api/invoices/{$invoice}/pay", ['paidOn' => '2026-08-12'])
+    $history = $this->postJson("/api/invoices/{$invoice}/pay", ['paidOn' => CarbonImmutable::today()->toDateString()])
         ->assertOk()
-        ->assertJsonCount(3, 'history');
+        ->json('history');
+
+    expect(array_column($history, 'kind'))->toBe([
+        InvoiceEventKind::Created->value,
+        InvoiceEventKind::Sent->value,
+        InvoiceEventKind::Paid->value,
+    ]);
 });
 
 test('returns the history in chronological order', function (): void {

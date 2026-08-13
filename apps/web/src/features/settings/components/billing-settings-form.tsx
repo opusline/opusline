@@ -61,7 +61,7 @@ export function BillingSettingsForm({ form }: { form: SettingsForm }) {
           onChange: ({ value }: { value: string }) =>
             hasInvoiceNumberCounter(value)
               ? undefined
-              : { message: "Le format doit contenir le compteur NNN." },
+              : { message: "Le format doit contenir un seul compteur NNN." },
         }}
       >
         {(field) => (

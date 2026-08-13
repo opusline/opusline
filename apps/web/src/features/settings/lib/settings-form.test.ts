@@ -4,6 +4,7 @@ import { settingsFixture } from "./settings-fixture";
 import {
   countChanges,
   formatRateBp,
+  hasInvoiceNumberCounter,
   isSettingsTab,
   parseBufferCents,
   parseRateBp,
@@ -140,6 +141,17 @@ it("expands the numbering tokens for the preview", () => {
   expect(previewInvoiceNumber("AAAA-NNN", on)).toBe("2026-001");
   expect(previewInvoiceNumber("AAAAMM-NNN", on)).toBe("202608-001");
   expect(previewInvoiceNumber("FACT/AAAA/MM/NNN", on)).toBe("FACT/2026/08/001");
+  // A token welded to literal text is not a token — mirrors the API.
+  expect(previewInvoiceNumber("COMMANDE-NNN", on)).toBe("COMMANDE-001");
+});
+
+it("requires exactly one counter token", () => {
+  expect(hasInvoiceNumberCounter("AAAA-NNN")).toBe(true);
+  expect(hasInvoiceNumberCounter("AAAAMM-NNN")).toBe(true);
+  expect(hasInvoiceNumberCounter("AAAA-001")).toBe(false);
+  // A second counter has nowhere to go.
+  expect(hasInvoiceNumberCounter("NNN-NNN")).toBe(false);
+  expect(hasInvoiceNumberCounter("NNNNNN")).toBe(false);
 });
 
 it("accepts only the known settings tabs", () => {

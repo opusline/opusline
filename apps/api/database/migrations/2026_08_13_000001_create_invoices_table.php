@@ -40,6 +40,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(['user_id', 'number']);
+            $table->index(['user_id', 'issued_on']);
             $table->index(['user_id', 'status', 'due_on']);
             $table->index(['user_id', 'paid_on']);
         });

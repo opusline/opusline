@@ -76,7 +76,7 @@ test('does not record a correction when only the note changes', function (): voi
     $this->actingAs($user)
         ->putJson("/api/invoices/{$invoice->id}", [
             'clientId' => $invoice->client_id,
-            'amountHt' => ['amount' => 165_000, 'currency' => 'EUR'],
+            'amountHt' => ['amount' => (int) $invoice->amount_ht_cents->getAmount(), 'currency' => 'EUR'],
             'notes' => 'Payée par virement',
         ])
         ->assertOk();
@@ -133,6 +133,38 @@ test('refuses to move an invoice that still bills tracked time', function (): vo
         ->putJson("/api/invoices/{$invoice->id}", [
             'clientId' => $invoice->client_id,
             'missionId' => null,
+            'amountHt' => ['amount' => 165_000, 'currency' => 'EUR'],
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('missionId');
+});
+
+test('refuses a payment date before the issue date', function (): void {
+    $user = User::factory()->create();
+    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->paid()->state([
+        'issued_on' => '2026-06-01',
+    ]));
+
+    $this->actingAs($user)
+        ->putJson("/api/invoices/{$invoice->id}", [
+            'clientId' => $invoice->client_id,
+            'number' => $invoice->number,
+            'paidOn' => '2026-05-20',
+            'amountHt' => ['amount' => 165_000, 'currency' => 'EUR'],
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('paidOn');
+});
+
+test('refuses a mission belonging to another user', function (): void {
+    $user = User::factory()->create();
+    $invoice = invoiceOwnedBy($user);
+    $foreignMission = missionOwnedBy(User::factory()->create());
+
+    $this->actingAs($user)
+        ->putJson("/api/invoices/{$invoice->id}", [
+            'clientId' => $invoice->client_id,
+            'missionId' => $foreignMission->id,
             'amountHt' => ['amount' => 165_000, 'currency' => 'EUR'],
         ])
         ->assertUnprocessable()

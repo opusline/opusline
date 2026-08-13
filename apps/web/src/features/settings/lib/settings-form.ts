@@ -219,12 +219,20 @@ const INVOICE_NUMBER_TOKEN_RUN =
 
 const INVOICE_NUMBER_TOKEN = /AAAA|MM|NNN/g;
 
+/**
+ * Exactly one, not at least one: a second counter has nowhere to go. Mirrors
+ * InvoiceNumberFormat::hasSingleCounter on the API.
+ */
 export function hasInvoiceNumberCounter(format: string): boolean {
-  return Array.from(format.matchAll(INVOICE_NUMBER_TOKEN_RUN)).some(([run]) =>
-    Array.from(run.matchAll(INVOICE_NUMBER_TOKEN)).some(
+  const counters = Array.from(
+    format.matchAll(INVOICE_NUMBER_TOKEN_RUN),
+  ).flatMap(([run]) =>
+    Array.from(run.matchAll(INVOICE_NUMBER_TOKEN)).filter(
       ([token]) => token === "NNN",
     ),
   );
+
+  return counters.length === 1;
 }
 
 export function previewInvoiceNumber(format: string, on: Date): string {

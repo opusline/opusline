@@ -26,6 +26,8 @@ class PayInvoice
 
             $paidOn = CarbonImmutable::parse($data->paidOn);
 
+            abort_if($paidOn->isBefore($locked->issued_on), 409, __('invoices.paid_on_before_issued'));
+
             $locked->update([
                 'status' => InvoiceStatus::Paid,
                 'paid_on' => $paidOn,

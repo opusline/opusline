@@ -25,3 +25,10 @@ test('rejects a format carrying an unknown token', function (mixed $format): voi
     'braces' => ['{year}-NNN'],
     'not a string' => [42],
 ]);
+
+test('rejects a format with more than one counter', function (string $format): void {
+    expect(rejects(new InvoiceNumberFormat, $format))->toBeTrue();
+})->with([
+    'two counters apart' => ['NNN-NNN'],
+    'two counters welded' => ['NNNNNN'],
+]);
