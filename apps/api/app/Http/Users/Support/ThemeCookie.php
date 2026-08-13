@@ -18,7 +18,7 @@ class ThemeCookie
     {
         return Cookie::make(
             name: self::NAME,
-            value: self::value($theme),
+            value: $theme->preference(),
             minutes: self::LIFETIME_MINUTES,
             path: '/',
             httpOnly: false,
@@ -29,14 +29,5 @@ class ThemeCookie
     public static function forget(): HttpCookie
     {
         return Cookie::forget(self::NAME, '/');
-    }
-
-    private static function value(Theme $theme): string
-    {
-        return match ($theme) {
-            Theme::System => 'system',
-            Theme::Light => 'light',
-            Theme::Dark => 'dark',
-        };
     }
 }

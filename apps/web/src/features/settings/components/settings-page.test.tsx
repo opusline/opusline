@@ -36,6 +36,21 @@ function renderPage(
   };
 }
 
+function signaturePad(): HTMLElement {
+  return screen.getByRole("figure", { name: "Zone de signature" });
+}
+
+/** The canvas is hidden from assistive technology, so reach it through the pad. */
+function signatureSurface(): HTMLCanvasElement {
+  const surface = signaturePad().querySelector("canvas");
+
+  if (surface === null) {
+    throw new Error("The signature pad rendered no drawing surface.");
+  }
+
+  return surface;
+}
+
 function editTradeName(value: string) {
   fireEvent.change(screen.getByLabelText("Nom commercial"), {
     target: { value },
@@ -388,9 +403,9 @@ it("takes a tap for a signature, since it leaves a mark on the pad", () => {
     settings: { ...settingsFixture, hasSignature: false },
   });
 
-  const pad = screen.getByRole("img", { name: "Zone de signature" });
-  fireEvent.pointerDown(pad, { clientX: 10, clientY: 10, pointerId: 1 });
-  fireEvent.pointerUp(pad, { pointerId: 1 });
+  const surface = signatureSurface();
+  fireEvent.pointerDown(surface, { clientX: 10, clientY: 10, pointerId: 1 });
+  fireEvent.pointerUp(surface, { pointerId: 1 });
 
   expect(
     screen.getByRole("button", { name: "Enregistrer la signature" }),
@@ -398,6 +413,21 @@ it("takes a tap for a signature, since it leaves a mark on the pad", () => {
   expect(
     screen.queryByText("Tracez votre signature ici"),
   ).not.toBeInTheDocument();
+});
+
+it("announces the signature, since the canvas shows it to sighted users only", () => {
+  renderPage({
+    activeTab: "signature",
+    settings: { ...settingsFixture, hasSignature: false },
+  });
+
+  expect(screen.getByRole("status")).toBeEmptyDOMElement();
+
+  const surface = signatureSurface();
+  fireEvent.pointerDown(surface, { clientX: 10, clientY: 10, pointerId: 1 });
+  fireEvent.pointerUp(surface, { pointerId: 1 });
+
+  expect(screen.getByRole("status")).toHaveTextContent("Signature tracée");
 });
 
 it("keeps the signature pad open when the upload fails", async () => {
@@ -415,10 +445,10 @@ it("keeps the signature pad open when the upload fails", async () => {
     },
   });
 
-  const pad = screen.getByRole("img", { name: "Zone de signature" });
-  fireEvent.pointerDown(pad, { clientX: 10, clientY: 10, pointerId: 1 });
-  fireEvent.pointerMove(pad, { clientX: 40, clientY: 30, pointerId: 1 });
-  fireEvent.pointerUp(pad, { pointerId: 1 });
+  const surface = signatureSurface();
+  fireEvent.pointerDown(surface, { clientX: 10, clientY: 10, pointerId: 1 });
+  fireEvent.pointerMove(surface, { clientX: 40, clientY: 30, pointerId: 1 });
+  fireEvent.pointerUp(surface, { pointerId: 1 });
 
   fireEvent.click(
     await screen.findByRole("button", { name: "Enregistrer la signature" }),
@@ -427,7 +457,5 @@ it("keeps the signature pad open when the upload fails", async () => {
   await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1));
 
   // The pad holds the only copy of the strokes; closing it would lose them.
-  expect(
-    screen.getByRole("img", { name: "Zone de signature" }),
-  ).toBeInTheDocument();
+  expect(signaturePad()).toBeInTheDocument();
 });

@@ -2,7 +2,7 @@ import type { SettingsData } from "@opusline/api-client";
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { settingsFixture } from "../lib/settings-fixture";
-import { useSettingsForm } from "../lib/use-settings-form";
+import { SettingsFormStory } from "../lib/settings-form-story";
 import { FiscalSettingsForm } from "./fiscal-settings-form";
 
 function Example({
@@ -12,26 +12,24 @@ function Example({
   settings: SettingsData;
   savedAcre?: boolean;
 }) {
-  const form = useSettingsForm(settings, async () => ({
-    status: "success" as const,
-  }));
-
   return (
-    <div className="max-w-160">
-      <FiscalSettingsForm
-        contributionRateBp={settings.contributionRateBp}
-        effectiveContributionRateBp={settings.effectiveContributionRateBp}
-        form={form}
-        isRefreshingRates={false}
-        liberatingPaymentRateBp={settings.liberatingPaymentRateBp}
-        onRefreshRates={() => {}}
-        ratesCheckedAt={settings.ratesCheckedAt}
-        ratesError={null}
-        ratesYear={settings.ratesYear}
-        savedAcre={savedAcre}
-        savedBusinessStartedOn={settings.businessStartedOn}
-      />
-    </div>
+    <SettingsFormStory settings={settings}>
+      {(form) => (
+        <FiscalSettingsForm
+          contributionRateBp={settings.contributionRateBp}
+          effectiveContributionRateBp={settings.effectiveContributionRateBp}
+          form={form}
+          isRefreshingRates={false}
+          liberatingPaymentRateBp={settings.liberatingPaymentRateBp}
+          onRefreshRates={() => {}}
+          ratesCheckedAt={settings.ratesCheckedAt}
+          ratesError={null}
+          ratesYear={settings.ratesYear}
+          savedAcre={savedAcre}
+          savedBusinessStartedOn={settings.businessStartedOn}
+        />
+      )}
+    </SettingsFormStory>
   );
 }
 

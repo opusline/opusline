@@ -4,6 +4,12 @@ import { useState } from "react";
 import type { ThemePreference } from "@/lib/theme";
 import { AppearanceSettings } from "./appearance-settings";
 
+function AppearanceSettingsExample({ theme }: { theme: ThemePreference }) {
+  const [chosen, setChosen] = useState(theme);
+
+  return <AppearanceSettings onChange={setChosen} theme={chosen} />;
+}
+
 const meta = {
   title: "Web/AppearanceSettings",
   component: AppearanceSettings,
@@ -21,9 +27,5 @@ export const Light: Story = {
 };
 
 export const Interactive: Story = {
-  render: (args) => {
-    const [theme, setTheme] = useState<ThemePreference>(args.theme);
-
-    return <AppearanceSettings onChange={setTheme} theme={theme} />;
-  },
+  render: (args) => <AppearanceSettingsExample theme={args.theme} />,
 };

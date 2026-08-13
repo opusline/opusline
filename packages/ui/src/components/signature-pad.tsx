@@ -25,8 +25,11 @@ export type SignaturePadHandle = {
 
 type SignaturePadProps = {
   className?: string;
+  /** Names the pad as a whole; the canvas itself carries nothing to read. */
   label: string;
   placeholder: string;
+  /** Announced once strokes exist, since the canvas cannot report them. */
+  drawnLabel: string;
   onDrawingChange?: (hasDrawing: boolean) => void;
   ref?: Ref<SignaturePadHandle>;
 };
@@ -83,6 +86,7 @@ export function SignaturePad({
   className,
   label,
   placeholder,
+  drawnLabel,
   onDrawingChange,
   ref,
 }: SignaturePadProps) {
@@ -243,7 +247,8 @@ export function SignaturePad({
   };
 
   return (
-    <div
+    <figure
+      aria-label={label}
       className={cn(
         "relative overflow-hidden rounded-md border border-border-3 border-dashed bg-muted",
         className,
@@ -259,7 +264,7 @@ export function SignaturePad({
         className="pointer-events-none absolute inset-x-6.5 bottom-8.5 h-px bg-border"
       />
       <canvas
-        aria-label={label}
+        aria-hidden
         className="block h-47.5 w-full cursor-crosshair touch-none text-foreground"
         onPointerCancel={endStroke}
         onPointerDown={startStroke}
@@ -267,8 +272,10 @@ export function SignaturePad({
         onPointerMove={extendStroke}
         onPointerUp={endStroke}
         ref={canvasRef}
-        role="img"
       />
-    </div>
+      <p className="sr-only" role="status">
+        {hasDrawing ? drawnLabel : null}
+      </p>
+    </figure>
   );
 }

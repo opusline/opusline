@@ -103,6 +103,7 @@ export function SignatureSettings({
       ) : (
         <div>
           <SignaturePad
+            drawnLabel="Signature tracée"
             label="Zone de signature"
             placeholder="Tracez votre signature ici"
             onDrawingChange={setHasDrawing}

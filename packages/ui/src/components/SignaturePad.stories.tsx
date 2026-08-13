@@ -17,6 +17,7 @@ export const Default: Story = {
   render: () => (
     <div className="max-w-2xl">
       <SignaturePad
+        drawnLabel="Signature drawn"
         label="Signature area"
         placeholder="Draw your signature here"
       />
@@ -33,6 +34,7 @@ export const WithActions: Story = {
     return (
       <div className="flex max-w-2xl flex-col gap-3.5">
         <SignaturePad
+          drawnLabel="Signature drawn"
           label="Signature area"
           placeholder="Draw your signature here"
           onDrawingChange={setHasDrawing}

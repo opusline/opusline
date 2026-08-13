@@ -2,18 +2,14 @@ import type { SettingsData } from "@opusline/api-client";
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { settingsFixture } from "../lib/settings-fixture";
-import { useSettingsForm } from "../lib/use-settings-form";
+import { SettingsFormStory } from "../lib/settings-form-story";
 import { IdentitySettingsForm } from "./identity-settings-form";
 
 function Example({ settings }: { settings: SettingsData }) {
-  const form = useSettingsForm(settings, async () => ({
-    status: "success" as const,
-  }));
-
   return (
-    <div className="max-w-160">
-      <IdentitySettingsForm form={form} />
-    </div>
+    <SettingsFormStory settings={settings}>
+      {(form) => <IdentitySettingsForm form={form} />}
+    </SettingsFormStory>
   );
 }
 

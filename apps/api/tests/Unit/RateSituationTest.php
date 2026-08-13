@@ -5,6 +5,9 @@ declare(strict_types=1);
 use App\Domain\Settings\Rates\RateSituation;
 use Carbon\CarbonImmutable;
 
+/**
+ * @return array<string, string>
+ */
 function situation(bool $acre = false, ?string $startedOn = null): array
 {
     return (new RateSituation(
