@@ -37,7 +37,6 @@ export const INVOICE_FORECAST_BUCKET_LABELS: Record<
   InvoiceForecastBucket,
   string
 > = {
-  0: "Déjà échu",
   1: "0 – 30 j",
   2: "31 – 60 j",
 };

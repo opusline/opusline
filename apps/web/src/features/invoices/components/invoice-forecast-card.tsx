@@ -7,15 +7,14 @@ import { INVOICE_FORECAST_BUCKET_LABELS } from "../lib/summary-labels";
 /**
  * What is expected to land in the next 60 days, bar per bucket.
  *
- * Money already overdue is not one of the bars: it is not expected, it is missing.
- * It sits under them as a note so the bars stay a forecast.
+ * Money already overdue is not one of the bars — the API leaves it out for that
+ * reason — so it sits underneath as a note and the bars stay a forecast.
  */
 export function InvoiceForecastCard({
   summary,
 }: {
   summary: InvoiceSummaryData;
 }) {
-  const upcoming = summary.forecast.filter((bar) => bar.bucket !== 0);
   const overdue = summary.overdue;
 
   return (
@@ -25,7 +24,7 @@ export function InvoiceForecastCard({
       </h2>
 
       <ul className="mt-3.5 flex flex-col gap-3">
-        {upcoming.map((bar) => (
+        {summary.forecast.map((bar) => (
           <li key={bar.bucket}>
             <div className="flex items-baseline justify-between gap-3">
               <span className="text-muted-foreground-3 text-xs">

@@ -100,3 +100,22 @@ export function calendarDateLabel(date: string): string {
 export function todayCalendarDate(): string {
   return toCalendarDate(new Date());
 }
+
+/**
+ * "01/06/2026 – 30/06/2026" for a span, the single date when both ends match, and
+ * null when there is no period to show.
+ */
+export function calendarRangeLabel(
+  from: string | null,
+  to: string | null,
+): string | null {
+  if (from === null) {
+    return to === null ? null : calendarDateNumericLabel(to);
+  }
+
+  if (to === null || from === to) {
+    return calendarDateNumericLabel(from);
+  }
+
+  return `${calendarDateNumericLabel(from)} – ${calendarDateNumericLabel(to)}`;
+}

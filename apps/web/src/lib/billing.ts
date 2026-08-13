@@ -30,6 +30,18 @@ export function formatEuros(amountCents: number): string {
   return `${wholeEuros.format(amountCents / 100)} €`;
 }
 
+const percentFigure = new Intl.NumberFormat("fr-FR", {
+  maximumFractionDigits: 2,
+});
+
+/**
+ * A basis-point rate as the figure beside a "%": 2000 -> "20", 550 -> "5,5". Trailing
+ * zeros are dropped — an invoice reads "TVA 20 %", not "TVA 20,00 %".
+ */
+export function formatPercentFromBp(basisPoints: number): string {
+  return percentFigure.format(basisPoints / 100);
+}
+
 export function formatRate(
   amountCents: number,
   billingMode: BillingMode,

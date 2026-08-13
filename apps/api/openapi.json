@@ -3411,14 +3411,12 @@
             },
             "InvoiceForecastBucket": {
                 "type": "integer",
-                "description": "The three bars of \"Attendu sur 60 jours\". Money already late leads, because it is the number that needs acting on rather than waiting for.\n",
+                "description": "The bars of \"Attendu sur 60 jours\". Money already late is not one of them: it is not expected, it is missing, and it is reported on its own as `overdue`. Keeping it here would both duplicate that figure and scale the bars against a bar nobody draws.\n",
                 "enum": [
-                    0,
                     1,
                     2
                 ],
                 "x-enum-varnames": [
-                    "Late",
                     "Next30",
                     "Next60"
                 ],

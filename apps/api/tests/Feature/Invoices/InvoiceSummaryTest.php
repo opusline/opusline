@@ -192,7 +192,7 @@ test('reads the month from the query', function (): void {
         ->assertJsonPath('monthUnbilled.amount.amount', 55_000);
 });
 
-test('splits what is expected across the three forecast bars', function (): void {
+test('splits what is still expected across the forecast bars', function (): void {
     $user = User::factory()->create();
     invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
         'due_on' => '2026-08-01', 'amount_ttc_cents' => 100_000,
@@ -213,15 +213,53 @@ test('splits what is expected across the three forecast bars', function (): void
         ->assertOk()
         ->json('forecast');
 
+    // The 100 000 € already due is reported as `overdue`, never as a bar.
     expect(array_column($forecast, 'bucket'))->toBe([
-        InvoiceForecastBucket::Late->value,
         InvoiceForecastBucket::Next30->value,
         InvoiceForecastBucket::Next60->value,
     ]);
     expect(array_map(fn (array $bar): int => $bar['amount']['amount'], $forecast))
-        ->toBe([100_000, 200_000, 50_000]);
-    // Shares are relative to the largest bar, so it reads 100 %.
-    expect(array_column($forecast, 'shareBp'))->toBe([5_000, 10_000, 2_500]);
+        ->toBe([200_000, 50_000]);
+    // Shares are relative to the largest bar drawn, so it reads 100 %.
+    expect(array_column($forecast, 'shareBp'))->toBe([10_000, 2_500]);
+});
+
+test('scales the bars against the largest bar, not against overdue money', function (): void {
+    $user = User::factory()->create();
+    invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
+        'due_on' => '2026-03-01', 'amount_ttc_cents' => 900_000,
+    ]));
+    invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
+        'due_on' => '2026-08-20', 'amount_ttc_cents' => 100_000,
+    ]));
+
+    $this->actingAs($user)
+        ->getJson('/api/invoices/summary')
+        ->assertOk()
+        ->assertJsonPath('forecast.0.shareBp', 10_000);
+});
+
+test('keeps invoices waiting to be written when the overdue backlog is long', function (): void {
+    $user = User::factory()->create();
+
+    foreach (range(1, 25) as $index) {
+        invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
+            'due_on' => '2026-06-'.str_pad((string) (($index % 28) + 1), 2, '0', STR_PAD_LEFT),
+        ]));
+    }
+
+    $mission = missionOwnedBy($user, fn ($factory) => $factory->state(['rate_cents' => 55_000]));
+    TimeEntry::factory()->for($mission, 'mission')->create([
+        'user_id' => $user->id,
+        'date' => '2026-08-03',
+    ]);
+
+    $todo = $this->actingAs($user)
+        ->getJson('/api/invoices/summary')
+        ->assertOk()
+        ->json('todo');
+
+    expect(array_column($todo, 'kind'))->toContain(InvoiceTodoKind::UnbilledWork->value);
 });
 
 test('reports zero shares when nothing is outstanding', function (): void {

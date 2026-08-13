@@ -244,10 +244,10 @@ export type InvoiceEventKind = 0 | 1 | 2 | 3 | 4;
 /**
  * InvoiceForecastBucket
  *
- * The three bars of "Attendu sur 60 jours". Money already late leads, because it is the number that needs acting on rather than waiting for.
+ * The bars of "Attendu sur 60 jours". Money already late is not one of them: it is not expected, it is missing, and it is reported on its own as `overdue`. Keeping it here would both duplicate that figure and scale the bars against a bar nobody draws.
  *
  */
-export type InvoiceForecastBucket = 0 | 1 | 2;
+export type InvoiceForecastBucket = 1 | 2;
 
 /**
  * InvoiceForecastData

@@ -167,11 +167,6 @@ export function invoiceSummary(
     proAccountBalance: null,
     forecast: [
       {
-        bucket: 0,
-        amount: { amount: 375_600, currency: "EUR" },
-        shareBp: 2_744,
-      },
-      {
         bucket: 1,
         amount: { amount: 1_369_200, currency: "EUR" },
         shareBp: 10_000,

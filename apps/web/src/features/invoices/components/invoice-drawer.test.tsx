@@ -41,6 +41,33 @@ it("labels the TVA line with the rate the invoice was issued at", () => {
   expect(fact("TVA 20 %")).toBe("102,00 €");
 });
 
+it("dates the period across its whole span, not just its first day", () => {
+  render(
+    <InvoiceDrawer
+      detail={invoiceDetail({
+        periodStart: "2026-06-01",
+        periodEnd: "2026-06-30",
+      })}
+      open
+      onOpenChange={() => {}}
+    />,
+  );
+
+  expect(fact("Période")).toBe("01/06/2026 – 30/06/2026");
+});
+
+it("labels a fractional TVA rate the way the rest of the UI reads numbers", () => {
+  render(
+    <InvoiceDrawer
+      detail={invoiceDetail({ vatRateBp: 550 })}
+      open
+      onOpenChange={() => {}}
+    />,
+  );
+
+  expect(screen.getByText("TVA 5,5 %")).toBeInTheDocument();
+});
+
 it("omits the payment date until there is one", () => {
   render(
     <InvoiceDrawer

@@ -8,6 +8,7 @@ import {
   showInvoiceSummaryOptions,
   showInvoiceSummaryQueryKey,
   showNextInvoiceNumberOptions,
+  showNextInvoiceNumberQueryKey,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
@@ -26,6 +27,7 @@ import { InvoiceSummaryTiles } from "@/features/invoices/components/invoice-summ
 import { InvoiceTodoPanel } from "@/features/invoices/components/invoice-todo-panel";
 import { InvoicesTable } from "@/features/invoices/components/invoices-table";
 import { todayCalendarDate } from "@/lib/dates";
+import { serverErrorMessage } from "@/lib/validation";
 
 export const Route = createFileRoute("/_authed/factures")({
   component: FacturesPage,
@@ -39,6 +41,7 @@ function FacturesPage() {
   const [openInvoiceId, setOpenInvoiceId] = useState<number | null>(null);
   const [creatingFor, setCreatingFor] = useState<InvoiceTodoData | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [remindError, setRemindError] = useState<string | null>(null);
 
   const detail = useQuery({
     ...showInvoiceOptions({ path: { invoice: openInvoiceId ?? 0 } }),
@@ -50,16 +53,28 @@ function FacturesPage() {
     enabled: creatingFor !== null,
   });
 
+  // The next free reference is derived from the numbers already taken, so creating an
+  // invoice invalidates it — otherwise the following one is prefilled with a reference
+  // that was just used and the save is refused as a duplicate.
   const refreshInvoices = async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: listInvoicesQueryKey() }),
       queryClient.invalidateQueries({ queryKey: showInvoiceSummaryQueryKey() }),
+      queryClient.invalidateQueries({
+        queryKey: showNextInvoiceNumberQueryKey(),
+      }),
     ]);
   };
 
   const remind = useMutation({
     ...remindInvoiceMutation(),
+    onMutate: () => setRemindError(null),
     onSuccess: refreshInvoices,
+    onError: (error) => {
+      setRemindError(
+        serverErrorMessage(error, "La relance n'a pas pu être notée."),
+      );
+    },
   });
 
   const create = useMutation({
@@ -69,9 +84,9 @@ function FacturesPage() {
       setCreateError(null);
       await refreshInvoices();
     },
-    onError: () => {
+    onError: (error) => {
       setCreateError(
-        "La facture n'a pas pu être créée. Vérifiez la référence et le montant.",
+        serverErrorMessage(error, "La facture n'a pas pu être créée."),
       );
     },
   });
@@ -83,6 +98,10 @@ function FacturesPage() {
         clientId: input.clientId,
         missionId: input.missionId,
         number: input.number,
+        // A reference means the document exists somewhere: the invoice is issued, and
+        // only an issued invoice counts towards what is still to be collected. Without
+        // one it stays a draft, which is what the dialog says it will do.
+        status: input.number === null ? 0 : 1,
         amountHt: { amount: input.amountHtCents, currency: "EUR" },
         periodStart: input.periodStart,
         periodEnd: input.periodEnd,
@@ -118,6 +137,12 @@ function FacturesPage() {
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
         <div className="flex flex-col gap-5">
+          {remindError !== null && (
+            <Alert variant="destructive">
+              <AlertDescription>{remindError}</AlertDescription>
+            </Alert>
+          )}
+
           {summary.data !== undefined && (
             <InvoiceTodoPanel
               todo={summary.data.todo}

@@ -8,8 +8,8 @@ import {
   SheetTitle,
 } from "@opusline/ui/components/sheet";
 
-import { formatAmountWithCents } from "@/lib/billing";
-import { calendarDateNumericLabel } from "@/lib/dates";
+import { formatAmountWithCents, formatPercentFromBp } from "@/lib/billing";
+import { calendarDateNumericLabel, calendarRangeLabel } from "@/lib/dates";
 import { INVOICE_EVENT_LABELS, invoiceStatusBadge } from "@/lib/invoice-status";
 
 type InvoiceDrawerProps = {
@@ -83,9 +83,7 @@ function InvoiceDrawerBody({ detail }: { detail: InvoiceDetailData }) {
         <Fact
           label="Période"
           value={
-            invoice.periodStart === null
-              ? "—"
-              : calendarDateNumericLabel(invoice.periodStart)
+            calendarRangeLabel(invoice.periodStart, invoice.periodEnd) ?? "—"
           }
         />
         <Fact
@@ -101,7 +99,7 @@ function InvoiceDrawerBody({ detail }: { detail: InvoiceDetailData }) {
           value={formatAmountWithCents(invoice.amountHt.amount)}
         />
         <Fact
-          label={`TVA ${invoice.vatRateBp / 100} %`}
+          label={`TVA ${formatPercentFromBp(invoice.vatRateBp)} %`}
           value={formatAmountWithCents(invoice.amountVat.amount)}
         />
         <Fact

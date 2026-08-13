@@ -184,14 +184,10 @@ export const zInvoiceEventData = z.object({
 /**
  * InvoiceForecastBucket
  *
- * The three bars of "Attendu sur 60 jours". Money already late leads, because it is the number that needs acting on rather than waiting for.
+ * The bars of "Attendu sur 60 jours". Money already late is not one of them: it is not expected, it is missing, and it is reported on its own as `overdue`. Keeping it here would both duplicate that figure and scale the bars against a bar nobody draws.
  *
  */
-export const zInvoiceForecastBucket = z.union([
-    z.literal(0),
-    z.literal(1),
-    z.literal(2)
-]);
+export const zInvoiceForecastBucket = z.union([z.literal(1), z.literal(2)]);
 
 /**
  * InvoiceStatus

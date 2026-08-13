@@ -16,7 +16,7 @@ import {
   formatAmountWithCents,
   parseRateToCents,
 } from "@/lib/billing";
-import { calendarDateNumericLabel } from "@/lib/dates";
+import { calendarRangeLabel } from "@/lib/dates";
 
 import { unbilledWorkTitle } from "../lib/summary-labels";
 
@@ -138,7 +138,10 @@ function CreateInvoiceForm({
       <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-3 border-t pt-4">
         <Fact label="Client" value={todo.clientName} />
         <Fact label="Mission" value={todo.missionName ?? "—"} />
-        <Fact label="Période" value={periodValue(todo)} />
+        <Fact
+          label="Période"
+          value={calendarRangeLabel(todo.firstEntryOn, todo.lastEntryOn) ?? "—"}
+        />
         <Fact
           label="Valeur du temps"
           value={formatAmountWithCents(todo.amount.amount)}
@@ -200,18 +203,6 @@ function Fact({ label, value }: { label: string; value: string }) {
       <dd className="mt-0.5 text-foreground-2 text-sm">{value}</dd>
     </div>
   );
-}
-
-function periodValue(todo: InvoiceTodoData): string {
-  if (todo.firstEntryOn === null || todo.lastEntryOn === null) {
-    return "—";
-  }
-
-  if (todo.firstEntryOn === todo.lastEntryOn) {
-    return calendarDateNumericLabel(todo.firstEntryOn);
-  }
-
-  return `${calendarDateNumericLabel(todo.firstEntryOn)} – ${calendarDateNumericLabel(todo.lastEntryOn)}`;
 }
 
 function coveredTimeLabel(entryCount: number | null): string {

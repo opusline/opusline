@@ -2,7 +2,7 @@ import type { InvoiceListItemData } from "@opusline/api-client";
 import { Badge } from "@opusline/ui/components/badge";
 import { Chip, ChipCount, ChipGroup } from "@opusline/ui/components/chip";
 import { cn } from "@opusline/ui/lib/utils";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { formatEuros } from "@/lib/billing";
 import { invoiceStatusBadge } from "@/lib/invoice-status";
@@ -27,13 +27,23 @@ type InvoicesTableProps = {
 export function InvoicesTable({ invoices, onOpen }: InvoicesTableProps) {
   const [scope, setScope] = useState<InvoiceScope>("all");
 
-  const scopedInvoices = Object.fromEntries(
-    INVOICE_SCOPES.map((invoiceScope) => [
-      invoiceScope,
-      invoices.filter((item) => matchesScope(item, invoiceScope)),
-    ]),
-  ) as Record<InvoiceScope, InvoiceListItemData[]>;
-  const groups = groupByClient(scopedInvoices[scope]);
+  // Every chip carries its own count, so all five scopes are filtered whatever is on
+  // screen. The page around this table re-renders on each of its other queries, and
+  // none of that work depends on them.
+  const scopedInvoices = useMemo(
+    () =>
+      Object.fromEntries(
+        INVOICE_SCOPES.map((invoiceScope) => [
+          invoiceScope,
+          invoices.filter((item) => matchesScope(item, invoiceScope)),
+        ]),
+      ) as Record<InvoiceScope, InvoiceListItemData[]>,
+    [invoices],
+  );
+  const groups = useMemo(
+    () => groupByClient(scopedInvoices[scope]),
+    [scopedInvoices, scope],
+  );
 
   return (
     <div className="flex flex-col gap-3">
