@@ -99,6 +99,11 @@ export function calendarDaysBetween(from: string, to: string): number {
   );
 }
 
+/** Monday = 1 … Sunday = 7, unlike `Date#getDay` where Sunday is 0. */
+export function isoDayOfWeek(date: Date): number {
+  return date.getDay() === 0 ? 7 : date.getDay();
+}
+
 export function calendarDateLabel(date: string): string {
   return fullDate.format(fromCalendarDate(date));
 }

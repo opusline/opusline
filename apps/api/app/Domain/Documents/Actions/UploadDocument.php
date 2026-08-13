@@ -18,7 +18,12 @@ class UploadDocument
 
     private const string FALLBACK_BASE = 'document';
 
-    public function handle(HasMedia $model, UploadDocumentData $data): Media
+    /**
+     * @param  array<string, scalar>  $customProperties  Extra properties the calling domain
+     *                                                   needs to find this document again.
+     *                                                   Server-side only: never request input.
+     */
+    public function handle(HasMedia $model, UploadDocumentData $data, array $customProperties = []): Media
     {
         $fileName = $this->storedFileName($data);
 
@@ -26,7 +31,7 @@ class UploadDocument
             ->addMedia($data->file)
             ->usingName(pathinfo($fileName, PATHINFO_FILENAME))
             ->usingFileName($fileName)
-            ->withCustomProperties(['category' => ($data->category ?? DocumentCategory::Other)->value])
+            ->withCustomProperties(['category' => ($data->category ?? DocumentCategory::Other)->value, ...$customProperties])
             ->toMediaCollection('documents', 'local');
 
         MoveDocumentToMediaDisk::dispatch($document);

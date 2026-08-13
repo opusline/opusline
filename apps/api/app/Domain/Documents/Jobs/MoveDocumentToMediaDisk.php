@@ -5,12 +5,22 @@ declare(strict_types=1);
 namespace App\Domain\Documents\Jobs;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use UnexpectedValueException;
 
-class MoveDocumentToMediaDisk implements ShouldQueue
+/**
+ * Moves a freshly written Media row's file onto the media disk.
+ *
+ * ShouldQueueAfterCommit, not just ShouldQueue: every connection is configured
+ * after_commit => false, and the CRA lifecycle files its documents from inside
+ * LockCra's transaction. A worker that popped the job before the COMMIT would find no
+ * Media row and, under deleteWhenMissingModels, drop it without a failure record —
+ * leaving the document stranded on the staging disk with nothing logged.
+ */
+class MoveDocumentToMediaDisk implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
 

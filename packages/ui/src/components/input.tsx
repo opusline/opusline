@@ -16,10 +16,20 @@ const inputVariants = cva(
         default: "h-10 px-3",
         lg: "h-11 px-3",
       },
+      /**
+       * `bare` drops the field's own chrome so a wrapper can own it — a search box that
+       * sits inside a bordered row with an icon. The wrapper must then carry the focus
+       * treatment (`focus-within:`), because the input no longer draws one.
+       */
+      surface: {
+        default: "",
+        bare: "border-none bg-transparent px-0 focus-visible:ring-0",
+      },
     },
     defaultVariants: {
       font: "sans",
       size: "default",
+      surface: "default",
     },
   },
 );
@@ -29,6 +39,7 @@ function Input({
   type,
   font,
   size,
+  surface,
   ...props
 }: Omit<React.ComponentProps<"input">, "size"> &
   VariantProps<typeof inputVariants>) {
@@ -36,7 +47,7 @@ function Input({
     <InputPrimitive
       type={type}
       data-slot="input"
-      className={cn(inputVariants({ font, size }), className)}
+      className={cn(inputVariants({ font, size, surface }), className)}
       {...props}
     />
   );

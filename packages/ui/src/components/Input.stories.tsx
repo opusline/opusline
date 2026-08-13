@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { SearchIcon } from "lucide-react";
+
 import { Input } from "./input";
 
 const meta = {
@@ -51,4 +53,27 @@ export const Large: Story = {
     placeholder: "1 · 0,5 · 2h",
     size: "lg",
   },
+};
+
+/**
+ * Chrome-less, for a field that sits inside a wrapper owning the border and the focus
+ * ring — the shape a search box with a leading icon takes.
+ */
+export const Bare: Story = {
+  args: {
+    placeholder: "Client, mission, mois",
+    size: "sm",
+    surface: "bare",
+  },
+  decorators: [
+    (Story) => (
+      <div className="flex items-center gap-2.5 rounded-md border px-3 focus-within:border-primary focus-within:ring-3 focus-within:ring-primary/20">
+        <SearchIcon
+          aria-hidden
+          className="size-3.5 shrink-0 text-muted-foreground-3"
+        />
+        <Story />
+      </div>
+    ),
+  ],
 };

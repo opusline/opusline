@@ -6,6 +6,7 @@ namespace App\Domain\Cra\Models;
 
 use App\Domain\Cra\Enums\CraStatus;
 use App\Domain\Cra\Factories\CraFactory;
+use App\Domain\Documents\Enums\DocumentCategory;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Casts\CalendarDate;
 use App\Domain\Shared\Routing\OwnedRouteBinding;
@@ -17,6 +18,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * A month of days worked on one mission, as reported to the client.
@@ -32,6 +35,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  * @property-read Mission $mission
+ * @property-read User $user
  * @property-read ?int $reported_bp Sum of the day grid, when loaded via withSum.
  */
 #[Fillable([
@@ -45,8 +49,40 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Table('cras')]
 class Cra extends Model
 {
+    /**
+     * A mission accumulates one filed document per month, all under the same category, so
+     * the month is what tells them apart. Without it, "the mission's latest CRA document"
+     * answers a question nobody asked.
+     */
+    public const string DOCUMENT_MONTH_PROPERTY = 'craMonth';
+
     /** @use HasFactory<CraFactory> */
     use HasFactory;
+
+    /**
+     * The custom properties every document filed for this CRA carries.
+     *
+     * @return array<string, string>
+     */
+    public function documentProperties(): array
+    {
+        return [self::DOCUMENT_MONTH_PROPERTY => $this->month->format('Y-m')];
+    }
+
+    /**
+     * The documents filed for this CRA in one category — the read side of
+     * documentProperties(), so the composite identity is written down once.
+     *
+     * @return MorphMany<Media, Mission>
+     */
+    public function documents(DocumentCategory $category): MorphMany
+    {
+        return $this->mission
+            ->media()
+            ->where('collection_name', 'documents')
+            ->where('custom_properties->category', $category->value)
+            ->where('custom_properties->'.self::DOCUMENT_MONTH_PROPERTY, $this->month->format('Y-m'));
+    }
 
     protected static function newFactory(): CraFactory
     {

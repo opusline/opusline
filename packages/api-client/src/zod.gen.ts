@@ -572,6 +572,14 @@ export const zRemindInvoiceData = z.object({
 });
 
 /**
+ * SendCraData
+ */
+export const zSendCraData = z.object({
+    applySignature: z.optional(z.boolean()),
+    sentOn: z.nullish(z.iso.date())
+});
+
+/**
  * StartTimerData
  */
 export const zStartTimerData = z.object({
@@ -690,7 +698,10 @@ export const zUpdateClientData = z.object({
  * UpdateCraDaysData
  */
 export const zUpdateCraDaysData = z.object({
-    days: z.array(z.string())
+    days: z.array(z.object({
+        date: z.iso.date(),
+        dayFractionBp: z.int().check(z.gte(1), z.lte(10000))
+    }))
 });
 
 /**
@@ -779,6 +790,14 @@ export const zUploadDocumentData = z.object({
  */
 export const zUploadSignatureData = z.object({
     signature: z.string()
+});
+
+/**
+ * UploadSignedCraData
+ */
+export const zUploadSignedCraData = z.object({
+    file: z.string(),
+    signedOn: z.nullish(z.iso.date())
 });
 
 /**
@@ -1050,6 +1069,38 @@ export const zResetCraPath = z.object({
 });
 
 export const zResetCraResponse = zCraDetailData;
+
+export const zSendCraBody = zSendCraData;
+
+export const zSendCraPath = z.object({
+    cra: z.int()
+});
+
+export const zSendCraResponse = zCraDetailData;
+
+export const zReopenCraPath = z.object({
+    cra: z.int()
+});
+
+export const zReopenCraResponse = zCraDetailData;
+
+export const zUploadSignedCraBody = zUploadSignedCraData;
+
+export const zUploadSignedCraPath = z.object({
+    cra: z.int()
+});
+
+export const zUploadSignedCraResponse = zCraDetailData;
+
+export const zDownloadCraPdfPath = z.object({
+    cra: z.int()
+});
+
+export const zDownloadCraPdfQuery = z.object({
+    applySignature: z.optional(z.boolean())
+});
+
+export const zDownloadCraPdfResponse = z.string();
 
 export const zListInvoicesQuery = z.object({
     status: z.nullish(zInvoiceStatus),

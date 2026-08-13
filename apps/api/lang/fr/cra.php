@@ -10,4 +10,8 @@ return [
     'already_issued' => 'Ce CRA est déjà transmis au client : ses journées ne peuvent plus changer.',
     'day_outside_month' => 'Cette journée ne fait pas partie du mois du CRA.',
     'day_listed_twice' => 'Cette journée figure deux fois dans la grille.',
+    'nothing_to_send' => 'Ce CRA ne comporte aucune journée : renseignez la grille avant de l\'envoyer.',
+    'only_a_sent_cra_reopens' => 'Seul un CRA envoyé peut être rouvert.',
+    'signed_return_filed' => 'Le retour signé est déjà archivé : ce CRA ne peut plus être rouvert.',
+    'only_a_sent_cra_is_returned' => 'Le retour signé ne s\'enregistre que sur un CRA envoyé.',
 ];

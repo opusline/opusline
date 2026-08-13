@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Cra\Data;
 
+use App\Domain\Cra\Models\CraDay;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 
@@ -20,8 +21,13 @@ class UpdateCraDaysData extends Data
     ) {}
 
     /**
-     * Inference makes a non-nullable array `required`, and an empty array does not
-     * satisfy `required` — clearing every day is a legitimate edit.
+     * `present` rather than the inferred `required`, because an empty array does not
+     * satisfy `required` and clearing every day is a legitimate edit.
+     *
+     * The nested keys are spelled out because a rules() entry replaces every rule for
+     * its property, and the request body's OpenAPI schema is built from the resolved
+     * rules — leaving them out generated `days: string[]` and made the endpoint
+     * untypeable from the client. Same reason CreateInvoiceData declares timeEntryIds.*.
      *
      * @return array<string, list<string>>
      */
@@ -29,6 +35,8 @@ class UpdateCraDaysData extends Data
     {
         return [
             'days' => ['present', 'array'],
+            'days.*.date' => ['required', 'date_format:Y-m-d'],
+            'days.*.dayFractionBp' => ['required', 'integer', 'between:1,'.CraDay::FULL_DAY_BP],
         ];
     }
 }

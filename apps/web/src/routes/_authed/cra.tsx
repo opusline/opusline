@@ -1,18 +1,281 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { client as apiClient } from "@opusline/api-client/client";
+import {
+  createCraMutation,
+  listCrasOptions,
+  listCrasQueryKey,
+  reopenCraMutation,
+  resetCraMutation,
+  sendCraMutation,
+  showCraOptions,
+  showCraQueryKey,
+  showSettingsOptions,
+  updateCraDaysMutation,
+  uploadSignedCraMutation,
+} from "@opusline/api-client/react-query";
+import { Alert, AlertDescription } from "@opusline/ui/components/alert";
+import { Skeleton } from "@opusline/ui/components/skeleton";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+
+import { CraPage } from "@/features/cra/components/cra-page";
+import { type CraStep, isCraStep } from "@/features/cra/lib/cra-steps";
+import { signatureHref } from "@/features/settings/lib/signature";
+import { serverErrorMessage } from "@/lib/validation";
+
+type CraSearch = { cra?: number; step?: CraStep };
 
 export const Route = createFileRoute("/_authed/cra")({
-  component: CraPage,
+  validateSearch: (search: Record<string, unknown>): CraSearch => ({
+    cra: typeof search.cra === "number" ? search.cra : undefined,
+    step: isCraStep(search.step) ? search.step : undefined,
+  }),
+  component: CraRoute,
 });
 
-function CraPage() {
+const WRITE_FAILED = "L'enregistrement a échoué. Réessayez dans un instant.";
+
+function CraRoute() {
+  const search = Route.useSearch();
+  const { user } = Route.useRouteContext();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const [error, setError] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [pendingDates, setPendingDates] = useState<Set<string>>(new Set());
+  // Owned here rather than in the page: the upload that closes it is a mutation, and
+  // the mutation is what knows whether it succeeded.
+  const [isSignedReturnOpen, setIsSignedReturnOpen] = useState(false);
+
+  const cras = useQuery(listCrasOptions());
+  const settings = useQuery(showSettingsOptions());
+  const detail = useQuery({
+    ...showCraOptions({ path: { cra: search.cra ?? 0 } }),
+    enabled: search.cra !== undefined,
+  });
+
+  const step = search.step ?? "days";
+
+  /**
+   * The list carries the counters and the open CRA carries the grid, so a write that
+   * touches either has to refresh both.
+   */
+  const refreshCras = async () => {
+    const refreshing = [
+      queryClient.invalidateQueries({ queryKey: listCrasQueryKey() }),
+    ];
+
+    if (search.cra !== undefined) {
+      refreshing.push(
+        queryClient.invalidateQueries({
+          queryKey: showCraQueryKey({ path: { cra: search.cra } }),
+        }),
+      );
+    }
+
+    await Promise.all(refreshing);
+  };
+
+  /** Every write reports through one message, wherever it was triggered. */
+  const reportFailure = (fallback: string) => (caught: unknown) => {
+    setError(serverErrorMessage(caught, fallback));
+  };
+
+  /** The dialog keeps its own channel, so a failed upload is shown where it happened. */
+  const reportUploadFailure = (caught: unknown) => {
+    setUploadError(
+      serverErrorMessage(caught, "Le retour signé n'a pas pu être enregistré."),
+    );
+  };
+
+  const create = useMutation({
+    ...createCraMutation(),
+    onMutate: () => setError(null),
+    onError: reportFailure("Le CRA n'a pas pu être ouvert."),
+  });
+  const updateDays = useMutation({
+    ...updateCraDaysMutation(),
+    onMutate: () => setError(null),
+    onSuccess: refreshCras,
+    onError: reportFailure(WRITE_FAILED),
+  });
+  const reset = useMutation({
+    ...resetCraMutation(),
+    onMutate: () => setError(null),
+    onSuccess: refreshCras,
+    onError: reportFailure("Les entrées n'ont pas pu être rétablies."),
+  });
+  const send = useMutation({
+    ...sendCraMutation(),
+    onMutate: () => setError(null),
+    onSuccess: refreshCras,
+    onError: reportFailure("Le CRA n'a pas pu être marqué envoyé."),
+  });
+  const reopen = useMutation({
+    ...reopenCraMutation(),
+    onMutate: () => setError(null),
+    onSuccess: refreshCras,
+    onError: reportFailure("Le CRA n'a pas pu être rouvert."),
+  });
+  const uploadSignedReturn = useMutation({
+    ...uploadSignedCraMutation(),
+    onMutate: () => setUploadError(null),
+    onSuccess: async () => {
+      setIsSignedReturnOpen(false);
+      await refreshCras();
+    },
+    onError: reportUploadFailure,
+  });
+
+  const openCra = search.cra;
+
+  const writeDays = async (
+    days: { date: string; dayFractionBp: number }[],
+    touched: string[] = [],
+  ) => {
+    if (openCra === undefined) {
+      return;
+    }
+
+    setPendingDates(new Set(touched));
+
+    try {
+      await updateDays.mutateAsync({ path: { cra: openCra }, body: { days } });
+    } catch {
+      // reportFailure has already put the message on screen.
+    } finally {
+      setPendingDates(new Set());
+    }
+  };
+
+  /**
+   * A month still owed has no row behind it, so opening it creates one first and then
+   * follows it. Listing never writes; only opening does.
+   */
+  const pick: React.ComponentProps<typeof CraPage>["onPick"] = async (item) => {
+    if (item.id !== null) {
+      void navigate({
+        search: { ...search, cra: item.id, step: undefined },
+        to: "/cra",
+      });
+
+      return;
+    }
+
+    try {
+      const created = await create.mutateAsync({
+        body: { missionId: item.missionId, month: item.month },
+      });
+
+      await refreshCras();
+      void navigate({
+        search: { ...search, cra: created.cra.id, step: undefined },
+        to: "/cra",
+      });
+    } catch {
+      // reportFailure has already put the message on screen.
+    }
+  };
+
+  /** Let the generated client serialize the flag rather than spelling its wire form here. */
+  const downloadHref = (cra: number, applySignature: boolean) =>
+    apiClient.buildUrl({
+      url: "/cras/{cra}/pdf",
+      path: { cra },
+      query: { applySignature },
+    });
+
+  const isPending = cras.isPending || settings.isPending;
+  const isBusy =
+    updateDays.isPending ||
+    reset.isPending ||
+    send.isPending ||
+    reopen.isPending ||
+    uploadSignedReturn.isPending ||
+    create.isPending;
+
+  if (isPending) {
+    return (
+      <div className="flex flex-col gap-4">
+        <Skeleton className="h-10 w-72" />
+        <Skeleton className="h-96 w-full" />
+      </div>
+    );
+  }
+
+  if (cras.isError || settings.isError || settings.data === undefined) {
+    return (
+      <Alert variant="destructive">
+        <AlertDescription>
+          Impossible de charger les comptes rendus. Réessayez dans un instant.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   return (
-    <div>
-      <h1 className="font-heading font-semibold text-2xl text-card-foreground">
-        Compte rendu d'activité
-      </h1>
-      <p className="mt-2 text-muted-foreground text-sm">
-        Le CRA mensuel arrive ici — grille des jours travaillés, export PDF.
-      </p>
-    </div>
+    <CraPage
+      counts={cras.data?.counts ?? { toProduce: 0, sent: 0, signed: 0 }}
+      detail={detail.data ?? null}
+      // A CRA that will not load has to say so: the column it fills is otherwise just
+      // empty, and the URL keeps pointing at it.
+      error={
+        error ??
+        (detail.isError ? "Ce compte rendu n'a pas pu être chargé." : null)
+      }
+      isSignedReturnOpen={isSignedReturnOpen}
+      onSignedReturnOpenChange={setIsSignedReturnOpen}
+      isBusy={isBusy}
+      isDetailPending={detail.isPending && search.cra !== undefined}
+      issuerFallbackName={user.name}
+      items={cras.data?.cras ?? []}
+      onDaysChange={(days, touched) => void writeDays(days, touched)}
+      onDownload={(applySignature) => {
+        if (openCra !== undefined) {
+          window.open(
+            downloadHref(openCra, applySignature),
+            "_blank",
+            "noopener",
+          );
+        }
+      }}
+      onGoToClients={() => void navigate({ to: "/clients" })}
+      onOpenSignatureSettings={() =>
+        void navigate({ search: { tab: "signature" }, to: "/reglages" })
+      }
+      onPick={pick}
+      onReopen={() => {
+        if (openCra !== undefined) {
+          reopen.mutate({ path: { cra: openCra } });
+        }
+      }}
+      onReset={() => {
+        if (openCra !== undefined) {
+          reset.mutate({ path: { cra: openCra } });
+        }
+      }}
+      onSend={(applySignature) => {
+        if (openCra !== undefined) {
+          send.mutate({ path: { cra: openCra }, body: { applySignature } });
+        }
+      }}
+      onStepChange={(next) =>
+        void navigate({ search: { ...search, step: next }, to: "/cra" })
+      }
+      onUploadSignedReturn={(file) => {
+        if (openCra !== undefined) {
+          uploadSignedReturn.mutate({
+            path: { cra: openCra },
+            body: { file },
+          });
+        }
+      }}
+      pendingDates={pendingDates}
+      settings={settings.data}
+      signatureSrc={signatureHref()}
+      step={step}
+      uploadError={uploadError}
+    />
   );
 }

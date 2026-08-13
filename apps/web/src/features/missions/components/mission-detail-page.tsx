@@ -58,6 +58,7 @@ type MissionDetailPageProps = {
   documentsTab: ReactNode;
   onUpdate: (body: UpdateMissionData) => Promise<FormSubmitResult>;
   onSetStatus: (status: MissionStatus) => void;
+  onOpenCra: () => void;
   isUpdatePending?: boolean;
   isStatusPending?: boolean;
   error?: string | null;
@@ -69,6 +70,7 @@ export function MissionDetailPage({
   documentsTab,
   onUpdate,
   onSetStatus,
+  onOpenCra,
   isUpdatePending,
   isStatusPending,
   error,
@@ -242,6 +244,7 @@ export function MissionDetailPage({
           <TabsList className="mb-5" variant="underline">
             <TabsTrigger value="entries">Entrées</TabsTrigger>
             <TabsTrigger value="invoices">Factures</TabsTrigger>
+            {mission.craRequired && <TabsTrigger value="cra">CRA</TabsTrigger>}
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="config">Configuration</TabsTrigger>
           </TabsList>
@@ -288,6 +291,22 @@ export function MissionDetailPage({
               </p>
             </div>
           </TabsContent>
+
+          {mission.craRequired && (
+            <TabsContent value="cra">
+              <div className="rounded-md border bg-card px-7 py-9 text-center">
+                <div className="mb-2 font-heading font-semibold text-base text-foreground-hi">
+                  Comptes rendus d'activité
+                </div>
+                <p className="mx-auto mb-4.5 max-w-md text-pretty text-muted-foreground-3 text-sm leading-relaxed">
+                  Ce client attend un CRA mensuel. Les mois de cette mission
+                  s'empilent sur l'écran dédié, avec leur grille et leur
+                  document.
+                </p>
+                <Button onClick={onOpenCra}>Ouvrir les comptes rendus</Button>
+              </div>
+            </TabsContent>
+          )}
 
           {/* keepMounted preserves the upload queue while browsing other tabs. */}
           <TabsContent keepMounted value="documents">

@@ -13,7 +13,7 @@ import {
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 
 import { DocumentsTab } from "@/components/documents-tab";
@@ -35,6 +35,7 @@ export const Route = createFileRoute(
 function MissionDetailRoute() {
   const { clientSlug, missionSlug } = Route.useParams();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const missionPath = { client: clientSlug, mission: missionSlug };
   const clientQuery = useQuery(
@@ -217,6 +218,7 @@ function MissionDetailRoute() {
       isStatusPending={isMutating}
       isUpdatePending={isMutating}
       mission={missionQuery.data}
+      onOpenCra={() => void navigate({ to: "/cra" })}
       onSetStatus={(status) => void handleSetStatus(status)}
       onUpdate={handleUpdate}
     />
