@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.0](https://github.com/opusline/opusline/compare/v0.7.0...v0.8.0) (2026-08-13)
+
+
+### Features
+
+* **api:** add cra workflow support ([#100](https://github.com/opusline/opusline/issues/100)) ([a482097](https://github.com/opusline/opusline/commit/a482097f000c4e207a3f4d1c8144ec043ef17a62))
+* **ui:** update CRA UI ([#102](https://github.com/opusline/opusline/issues/102)) ([d13f22a](https://github.com/opusline/opusline/commit/d13f22a4a9cc0fc53234900500ce769e1c3bd50b))
+
 ## [0.7.0](https://github.com/opusline/opusline/compare/v0.6.0...v0.7.0) (2026-08-13)
 
 
