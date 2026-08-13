@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/opusline/opusline/compare/v0.5.0...v0.6.0) (2026-08-13)
+
+
+### Features
+
+* **ui:** add settings, themes, and rate management ([#89](https://github.com/opusline/opusline/issues/89)) ([8df4b16](https://github.com/opusline/opusline/commit/8df4b1615c61ed695f700cc2d8312af55df51c9c))
+
 ## [0.5.0](https://github.com/opusline/opusline/compare/v0.4.0...v0.5.0) (2026-08-11)
 
 
