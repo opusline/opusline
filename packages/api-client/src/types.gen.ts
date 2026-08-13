@@ -182,6 +182,17 @@ export type DocumentSource = 0 | 1;
 export type EntryRounding = 0 | 1 | 2;
 
 /**
+ * InvoiceCountsData
+ */
+export type InvoiceCountsData = {
+    all: number;
+    draft: number;
+    sent: number;
+    late: number;
+    paid: number;
+};
+
+/**
  * InvoiceData
  */
 export type InvoiceData = {
@@ -230,6 +241,23 @@ export type InvoiceEventData = {
 export type InvoiceEventKind = 0 | 1 | 2 | 3 | 4;
 
 /**
+ * InvoiceForecastBucket
+ *
+ * The three bars of "Attendu sur 60 jours". Money already late leads, because it is the number that needs acting on rather than waiting for.
+ *
+ */
+export type InvoiceForecastBucket = 0 | 1 | 2;
+
+/**
+ * InvoiceForecastData
+ */
+export type InvoiceForecastData = {
+    bucket: InvoiceForecastBucket;
+    amount: MoneyData;
+    shareBp: number;
+};
+
+/**
  * InvoiceListData
  */
 export type InvoiceListData = {
@@ -249,6 +277,48 @@ export type InvoiceListItemData = {
  * InvoiceStatus
  */
 export type InvoiceStatus = 0 | 1 | 2;
+
+/**
+ * InvoiceSummaryData
+ */
+export type InvoiceSummaryData = {
+    month: string;
+    invoiced: InvoiceTotalData;
+    toInvoice: InvoiceTotalData;
+    collected: InvoiceTotalData;
+    forecast: Array<InvoiceForecastData>;
+    counts: InvoiceCountsData;
+    todo: Array<InvoiceTodoData>;
+    todoTotal: number;
+};
+
+/**
+ * InvoiceTodoData
+ */
+export type InvoiceTodoData = {
+    kind: InvoiceTodoKind;
+    invoiceId: number | null;
+    missionId: number | null;
+    amount: MoneyData;
+    dueOn: string | null;
+    count: number;
+};
+
+/**
+ * InvoiceTodoKind
+ *
+ * What the "À traiter" list can put in front of you. Labels live on the frontend, like every other enum here.
+ *
+ */
+export type InvoiceTodoKind = 0 | 1 | 2;
+
+/**
+ * InvoiceTotalData
+ */
+export type InvoiceTotalData = {
+    amount: MoneyData;
+    count: number;
+};
 
 /**
  * LoginData
@@ -1440,6 +1510,35 @@ export type CreateInvoiceResponses = {
 };
 
 export type CreateInvoiceResponse = CreateInvoiceResponses[keyof CreateInvoiceResponses];
+
+export type ShowInvoiceSummaryData = {
+    body?: never;
+    path?: never;
+    query?: {
+        month?: string | null;
+    };
+    url: '/invoices/summary';
+};
+
+export type ShowInvoiceSummaryErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowInvoiceSummaryError = ShowInvoiceSummaryErrors[keyof ShowInvoiceSummaryErrors];
+
+export type ShowInvoiceSummaryResponses = {
+    200: InvoiceSummaryData;
+};
+
+export type ShowInvoiceSummaryResponse = ShowInvoiceSummaryResponses[keyof ShowInvoiceSummaryResponses];
 
 export type ShowNextInvoiceNumberData = {
     body?: never;

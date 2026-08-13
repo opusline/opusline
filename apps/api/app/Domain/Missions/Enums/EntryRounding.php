@@ -36,17 +36,36 @@ enum EntryRounding: int
      */
     public function valueDayFraction(int $minutes, int $workdayMinutes): float
     {
-        $step = match ($this) {
-            self::Half => 0.5,
-            self::Quarter => 0.25,
+        [$numerator, $denominator] = $this->billedDayFraction($minutes, $workdayMinutes);
+
+        return $numerator / $denominator;
+    }
+
+    /**
+     * The same quantity as an exact fraction, as [numerator, denominator].
+     *
+     * A float is fine for display but cannot multiply a rate: money here is integer
+     * minor units with one explicit rounding step, and 1/3 of a day has no float
+     * representation to round from. Callers pricing tracked time use this instead.
+     *
+     * @return array{int, int}
+     */
+    public function billedDayFraction(int $minutes, int $workdayMinutes): array
+    {
+        $stepsPerDay = match ($this) {
+            self::Half => 2,
+            self::Quarter => 4,
             self::Minute => null,
         };
 
-        if ($step === null) {
-            return $minutes / $workdayMinutes;
+        if ($stepsPerDay === null) {
+            return [$minutes, $workdayMinutes];
         }
 
-        return $this->startedSteps($minutes, (int) round($step * $workdayMinutes)) * $step;
+        return [
+            $this->startedSteps($minutes, (int) round($workdayMinutes / $stepsPerDay)),
+            $stepsPerDay,
+        ];
     }
 
     private function startedSteps(int $minutes, int $stepInMinutes): int

@@ -13,6 +13,8 @@ Route::middleware('auth:sanctum')->group(function (): void {
 
     // Declared before the {invoice} routes only for readability — what actually keeps
     // them apart is the whereNumber constraint below.
+    Route::get('/invoices/summary', [InvoiceController::class, 'summary'])
+        ->name('showInvoiceSummary');
     Route::get('/invoices/next-number', [InvoiceController::class, 'nextNumber'])
         ->name('showNextInvoiceNumber');
 
