@@ -174,11 +174,15 @@ test('never shows another user CRA', function (): void {
     $stranger = User::factory()->create();
     $mission = craMissionOwnedBy($stranger);
     trackedDay($stranger, $mission, '2026-07-06');
+    // A stored CRA as well as tracked time: the two reach the list by different
+    // queries, and only a persisted row exercises the cras lookup.
+    craOwnedBy($stranger, $mission, fn ($factory) => $factory->sent()->forMonth('2026-07'));
 
     $this->actingAs($user)
         ->getJson('/api/cras')
         ->assertOk()
-        ->assertJsonCount(0, 'cras');
+        ->assertJsonCount(0, 'cras')
+        ->assertJsonPath('counts.sent', 0);
 });
 
 test('returns 401 for guests', function (): void {

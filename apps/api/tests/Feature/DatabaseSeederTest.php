@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Cra\Actions\DescribeCra;
+use App\Domain\Cra\Calendar\FrenchHolidays;
 use App\Domain\Cra\Enums\CraStatus;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
@@ -24,12 +25,17 @@ test('seeds a sent CRA so the comptes rendus screen has both piles', function ()
     $user = User::query()->where('email', 'test@example.com')->firstOrFail();
     $cra = $user->cras()->with(['days', 'mission'])->firstOrFail();
 
+    $holidays = FrenchHolidays::between($cra->month->startOfMonth(), $cra->month->endOfMonth());
+
     expect($cra->status)->toBe(CraStatus::Sent)
         ->and($cra->mission->name)->toBe('Callisto front')
         ->and($cra->month->toDateString())->toBe(CarbonImmutable::today()->subMonth()->startOfMonth()->toDateString())
         ->and($cra->days)->not->toBeEmpty()
         ->and($cra->days->every(
             fn ($day): bool => ! $day->date->isWeekend(),
+        ))->toBeTrue()
+        ->and($cra->days->every(
+            fn ($day): bool => ! isset($holidays[$day->date->toDateString()]),
         ))->toBeTrue()
         // The two seeders write to the same mission, and the recent-entries walk must
         // stop at the month boundary — otherwise it double-books days the CRA already

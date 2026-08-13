@@ -46,17 +46,12 @@ class ValidateMission
             ]);
         }
 
-        // A CRA reports days worked. An hourly mission has no day fraction to report,
-        // and converting hours to days would invent a figure the client never agreed to.
         if ($data->craRequired === true && ! $data->billingMode->usesDayFraction()) {
             throw ValidationException::withMessages([
                 'craRequired' => __('missions.cra_forbidden_for_hourly'),
             ]);
         }
 
-        // Leaving day billing would force cra_required off, and the CRAs already
-        // produced would drop out of every list that filters on it — including ones
-        // the client has signed. Refuse loudly instead of orphaning them.
         if ($mission instanceof Mission && ! $data->billingMode->usesDayFraction() && $mission->cras()->exists()) {
             throw ValidationException::withMessages([
                 'billingMode' => __('missions.cannot_leave_daily_billing_with_cras'),

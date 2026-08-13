@@ -252,6 +252,33 @@ test('refuses to leave day billing while comptes rendus exist', function (): voi
     ]);
 });
 
+test('refuses to leave day billing even for a CRA still in draft', function (): void {
+    $user = User::factory()->create();
+    $esn = Client::factory()->for($user)->intermediary()->create();
+    $mission = Mission::factory()->for($esn, 'client')->throughEsn('Callisto')->requiringCra()->create([
+        'user_id' => $user->id,
+    ]);
+    // The guard is about the CRA existing at all, not about it having been sent: a
+    // draft would be orphaned by the switch just the same.
+    craOwnedBy($user, $mission);
+
+    $this->actingAs($user)
+        ->putJson("/api/clients/{$esn->slug}/missions/{$mission->slug}", [
+            'name' => $mission->name,
+            'billingMode' => BillingMode::Hourly->value,
+            'status' => MissionStatus::Active->value,
+            'endClientName' => 'Callisto',
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['billingMode']);
+
+    $this->assertDatabaseHas('missions', [
+        'id' => $mission->id,
+        'billing_mode' => BillingMode::Daily->value,
+        'cra_required' => true,
+    ]);
+});
+
 test('rejects a non positive rate', function (int $amount): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
