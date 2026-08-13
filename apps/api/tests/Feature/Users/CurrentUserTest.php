@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Users\Enums\Theme;
 use App\Domain\Users\Models\User;
 
 test('the current user endpoint returns the authenticated user', function (): void {
@@ -14,6 +15,7 @@ test('the current user endpoint returns the authenticated user', function (): vo
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
+            'theme' => Theme::System->value,
             'workdayMinutes' => config()->integer('app.workday_minutes'),
         ]);
 });

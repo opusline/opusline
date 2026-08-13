@@ -12,16 +12,20 @@ import { Swatch, SwatchGroup } from "@opusline/ui/components/swatch";
 import { useForm } from "@tanstack/react-form";
 import { CircleAlert, PencilIcon } from "lucide-react";
 import { useState } from "react";
+import { AddressFields } from "@/components/address-fields";
 import { FormTextField } from "@/components/form-text-field";
 import { LogoPicker } from "@/components/logo-picker";
+import { PaymentTermsPicker } from "@/components/payment-terms-picker";
 import { CLIENT_TYPE_LABELS } from "@/lib/client-types";
 import type { FormSubmitResult } from "@/lib/form";
 import type { LogoUploadResult } from "@/lib/logos";
 import { COLOR_CLASSES, COLOR_LABELS, COLORS } from "@/lib/palette";
-import { type ClientFormValues, toClientPayload } from "../lib/client-form";
+import {
+  BILLING_ADDRESS_NAMES,
+  type ClientFormValues,
+  toClientPayload,
+} from "../lib/client-form";
 import { CLIENT_TYPES } from "../lib/labels";
-import { BillingAddressFields } from "./billing-address-fields";
-import { PaymentTermsPicker } from "./payment-terms-picker";
 
 const EYEBROW_CLASSES =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
@@ -262,7 +266,8 @@ export function ClientEditForm({
               )}
             </form.Field>
 
-            <BillingAddressFields
+            <AddressFields
+              names={BILLING_ADDRESS_NAMES}
               complementLabel="Complément"
               gapClassName="gap-3.5"
               labelClassName={EDIT_LABEL_CLASSES}

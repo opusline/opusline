@@ -6,10 +6,11 @@
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <title>Opusline</title>
     <script>
-      const storedTheme = localStorage.getItem("opusline-theme");
+      const match = document.cookie.match(/(?:^|; )opusline_theme=([^;]*)/);
+      const storedTheme = match ? match[1] : null;
       const prefersDark =
         storedTheme === "dark" ||
-        ((storedTheme === null || storedTheme === "system") &&
+        (storedTheme !== "light" &&
           matchMedia("(prefers-color-scheme: dark)").matches);
       document.documentElement.classList.add(prefersDark ? "dark" : "light");
       document.documentElement.style.colorScheme = prefersDark

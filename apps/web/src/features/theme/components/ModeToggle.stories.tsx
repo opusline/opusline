@@ -1,21 +1,21 @@
 import type { Meta, StoryObj } from "@storybook/react";
+
 import { ModeToggle } from "./mode-toggle";
-import { ThemeProvider } from "./theme-provider";
 
 const meta = {
   title: "Web/ModeToggle",
   component: ModeToggle,
   tags: ["autodocs"],
-  decorators: [
-    (Story) => (
-      <ThemeProvider storageKey="storybook-theme">
-        <Story />
-      </ThemeProvider>
-    ),
-  ],
+  args: { onChange: () => {} },
 } satisfies Meta<typeof ModeToggle>;
 
 export default meta;
 type Story = StoryObj<typeof ModeToggle>;
 
-export const Default: Story = {};
+export const Dark: Story = {
+  args: { resolvedTheme: "dark" },
+};
+
+export const Light: Story = {
+  args: { resolvedTheme: "light" },
+};

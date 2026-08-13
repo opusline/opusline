@@ -5,6 +5,16 @@ import type {
   UpdateClientData,
 } from "@opusline/api-client";
 
+import { valueOrNull } from "@/lib/form";
+
+export const BILLING_ADDRESS_NAMES = {
+  line1: "billingAddressLine1",
+  line2: "billingAddressLine2",
+  postalCode: "billingPostalCode",
+  city: "billingCity",
+  country: "billingCountry",
+} as const;
+
 export type ClientFormValues = {
   name: string;
   type: ClientType;
@@ -20,12 +30,6 @@ export type ClientFormValues = {
   color: Color;
   paymentTermsDays: number;
 };
-
-function valueOrNull(value: string): string | null {
-  const trimmed = value.trim();
-
-  return trimmed === "" ? null : trimmed;
-}
 
 export function toClientPayload(
   values: ClientFormValues,

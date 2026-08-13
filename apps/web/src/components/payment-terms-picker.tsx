@@ -1,5 +1,5 @@
 import { Chip, ChipGroup } from "@opusline/ui/components/chip";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 const PAYMENT_TERM_PRESETS = [30, 45, 60];
 
@@ -24,6 +24,22 @@ export function PaymentTermsPicker({
   const [customDraft, setCustomDraft] = useState(() =>
     PAYMENT_TERM_PRESETS.includes(value) ? "" : String(value),
   );
+  const [lastValue, setLastValue] = useState(value);
+  const emittedRef = useRef<number | null>(null);
+
+  if (value !== lastValue) {
+    setLastValue(value);
+
+    if (emittedRef.current !== value) {
+      setIsCustom(!PAYMENT_TERM_PRESETS.includes(value));
+      setCustomDraft(PAYMENT_TERM_PRESETS.includes(value) ? "" : String(value));
+    }
+  }
+
+  const emit = (days: number) => {
+    emittedRef.current = days;
+    onChange(days);
+  };
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">
@@ -42,14 +58,14 @@ export function PaymentTermsPicker({
             if (Number.isNaN(draftedDays)) {
               setCustomDraft(String(value));
             } else {
-              onChange(draftedDays);
+              emit(draftedDays);
             }
             return;
           }
 
           if (typeof next === "string") {
             setIsCustom(false);
-            onChange(Number(next));
+            emit(Number(next));
           }
         }}
       >
@@ -83,7 +99,7 @@ export function PaymentTermsPicker({
               setCustomDraft(digits);
 
               if (digits !== "") {
-                onChange(Number.parseInt(digits, 10));
+                emit(Number.parseInt(digits, 10));
               }
             }}
             placeholder="90"

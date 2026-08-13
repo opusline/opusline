@@ -16,4 +16,5 @@ Route::post('/login', [AuthController::class, 'login'])
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/user', [AuthController::class, 'currentUser'])->name('currentUser');
+    Route::put('/user/theme', [AuthController::class, 'updateTheme'])->name('updateUserTheme');
 });

@@ -1,22 +1,25 @@
 import {
   createContext,
   type ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useState,
 } from "react";
 
-export type Theme = "dark" | "light" | "system";
-
-type ThemeProviderProps = {
-  children: ReactNode;
-  defaultTheme?: Theme;
-  storageKey?: string;
-};
+import {
+  DARK_MEDIA_QUERY,
+  type ResolvedTheme,
+  readThemeCookie,
+  resolveTheme,
+  type ThemePreference,
+  writeThemeCookie,
+} from "@/lib/theme";
 
 type ThemeProviderState = {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
+  theme: ThemePreference;
+  resolvedTheme: ResolvedTheme;
+  setTheme: (theme: ThemePreference) => void;
 };
 
 const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
@@ -26,23 +29,25 @@ const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
 export function ThemeProvider({
   children,
   defaultTheme = "system",
-  storageKey = "opusline-theme",
-}: ThemeProviderProps) {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    const stored = localStorage.getItem(storageKey);
-
-    return stored === "dark" || stored === "light" || stored === "system"
-      ? stored
-      : defaultTheme;
-  });
+}: {
+  children: ReactNode;
+  defaultTheme?: ThemePreference;
+}) {
+  const [theme, setThemeState] = useState<ThemePreference>(
+    () => readThemeCookie() ?? defaultTheme,
+  );
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() =>
+    resolveTheme(theme, window.matchMedia(DARK_MEDIA_QUERY).matches),
+  );
 
   useEffect(() => {
     const root = document.documentElement;
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const media = window.matchMedia(DARK_MEDIA_QUERY);
 
     const apply = () => {
-      const resolved =
-        theme === "system" ? (media.matches ? "dark" : "light") : theme;
+      const resolved = resolveTheme(theme, media.matches);
+
+      setResolvedTheme(resolved);
       root.classList.remove("light", "dark");
       root.classList.add(resolved);
       root.style.colorScheme = resolved;
@@ -58,13 +63,13 @@ export function ThemeProvider({
     return () => media.removeEventListener("change", apply);
   }, [theme]);
 
-  const setTheme = (next: Theme) => {
-    localStorage.setItem(storageKey, next);
+  const setTheme = useCallback((next: ThemePreference) => {
+    writeThemeCookie(next);
     setThemeState(next);
-  };
+  }, []);
 
   return (
-    <ThemeProviderContext.Provider value={{ theme, setTheme }}>
+    <ThemeProviderContext.Provider value={{ theme, resolvedTheme, setTheme }}>
       {children}
     </ThemeProviderContext.Provider>
   );

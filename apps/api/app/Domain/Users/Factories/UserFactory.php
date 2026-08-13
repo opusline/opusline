@@ -37,6 +37,14 @@ class UserFactory extends Factory
         ];
     }
 
+    #[\Override]
+    public function configure(): static
+    {
+        return $this->afterCreating(function (User $user): void {
+            $user->settings()->create();
+        });
+    }
+
     /**
      * Indicate that the model's email address should be unverified.
      */

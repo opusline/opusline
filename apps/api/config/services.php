@@ -37,4 +37,16 @@ return [
         ],
     ],
 
+    /*
+    | mon-entreprise is the URSSAF-operated simulator behind the official
+    | barèmes. Its rules engine is public and unauthenticated. Set `enabled`
+    | to false on an air-gapped install: rates then stay on whatever is stored.
+    */
+
+    'mon_entreprise' => [
+        'url' => env('MON_ENTREPRISE_URL', 'https://mon-entreprise.urssaf.fr/api/v1'),
+        'enabled' => filter_var(env('MON_ENTREPRISE_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
+        'timeout' => 10,
+    ],
+
 ];

@@ -5,11 +5,14 @@ declare(strict_types=1);
 use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Factories\MissionFactory;
 use App\Domain\Missions\Models\Mission;
+use App\Domain\Settings\Enums\UrssafPeriodicity;
+use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Timers\Factories\RunningTimerFactory;
 use App\Domain\Timers\Models\RunningTimer;
 use App\Domain\Users\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 /*
@@ -26,6 +29,42 @@ use Tests\TestCase;
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');
+
+/**
+ * The shape mon-entreprise really returns: a rate as a percentage, and the
+ * versement libératoire as an amount for the probe revenue (220 € on 10 000 €).
+ */
+function fakeBareme(float $ratePercent = 25.6, float $liberatingAmount = 220): void
+{
+    Http::fake([
+        '*/evaluate' => Http::response([
+            'evaluate' => [
+                ['nodeValue' => $ratePercent, 'unit' => ['numerators' => ['%']]],
+                ['nodeValue' => $liberatingAmount, 'unit' => ['numerators' => ['€'], 'denominators' => ['an']]],
+            ],
+        ]),
+    ]);
+}
+
+/**
+ * @param  array<string, mixed>  $overrides
+ * @return array<string, mixed>
+ */
+function settingsPayload(array $overrides = []): array
+{
+    return array_merge([
+        'urssafPeriodicity' => UrssafPeriodicity::Monthly->value,
+        'autoRates' => false,
+        'acre' => false,
+        'contributionRateBp' => 2600,
+        'liberatingPayment' => false,
+        'liberatingPaymentRateBp' => 220,
+        'vatRegime' => VatRegime::FranchiseEnBase->value,
+        'defaultPaymentTermsDays' => 45,
+        'invoiceNumberFormat' => 'AAAA-NNN',
+        'homeAddressSameAsCompany' => true,
+    ], $overrides);
+}
 
 function fromSpa(): TestCase
 {

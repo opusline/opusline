@@ -256,6 +256,15 @@ export const zStopTimerData = z.object({
 });
 
 /**
+ * Theme
+ */
+export const zTheme = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
  * TimeEntryData
  */
 export const zTimeEntryData = z.object({
@@ -378,6 +387,13 @@ export const zUpdateTimerData = z.object({
 });
 
 /**
+ * UpdateUserThemeData
+ */
+export const zUpdateUserThemeData = z.object({
+    theme: zTheme
+});
+
+/**
  * UploadClientLogoData
  */
 export const zUploadClientLogoData = z.object({
@@ -394,13 +410,107 @@ export const zUploadDocumentData = z.object({
 });
 
 /**
+ * UploadSignatureData
+ */
+export const zUploadSignatureData = z.object({
+    signature: z.string()
+});
+
+/**
+ * UrssafPeriodicity
+ */
+export const zUrssafPeriodicity = z.union([z.literal(0), z.literal(1)]);
+
+/**
  * UserData
  */
 export const zUserData = z.object({
     id: z.int(),
     name: z.string(),
     email: z.string(),
+    theme: zTheme,
     workdayMinutes: z.int()
+});
+
+/**
+ * VatRegime
+ */
+export const zVatRegime = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * SettingsData
+ */
+export const zSettingsData = z.object({
+    tradeName: z.nullable(z.string()),
+    siret: z.nullable(z.string()),
+    vatNumber: z.nullable(z.string()),
+    signatureCity: z.nullable(z.string()),
+    contactEmail: z.nullable(z.string()),
+    phone: z.nullable(z.string()),
+    companyAddressLine1: z.nullable(z.string()),
+    companyAddressLine2: z.nullable(z.string()),
+    companyPostalCode: z.nullable(z.string()),
+    companyCity: z.nullable(z.string()),
+    homeAddressSameAsCompany: z.boolean(),
+    homeAddressLine1: z.nullable(z.string()),
+    homeAddressLine2: z.nullable(z.string()),
+    homePostalCode: z.nullable(z.string()),
+    homeCity: z.nullable(z.string()),
+    urssafPeriodicity: zUrssafPeriodicity,
+    autoRates: z.boolean(),
+    businessStartedOn: z.nullable(z.iso.date()),
+    acre: z.boolean(),
+    ratesCheckedAt: z.nullable(z.string()),
+    ratesYear: z.nullable(z.int()),
+    contributionRateBp: z.int(),
+    liberatingPayment: z.boolean(),
+    liberatingPaymentRateBp: z.int(),
+    vatRegime: zVatRegime,
+    vatLiable: z.boolean(),
+    effectiveContributionRateBp: z.int(),
+    defaultPaymentTermsDays: z.int(),
+    invoiceNumberFormat: z.string(),
+    treasuryBuffer: z.nullable(zMoneyData),
+    hasSignature: z.boolean()
+});
+
+/**
+ * UpdateSettingsData
+ */
+export const zUpdateSettingsData = z.object({
+    urssafPeriodicity: zUrssafPeriodicity,
+    autoRates: z.boolean(),
+    acre: z.boolean(),
+    contributionRateBp: z.int().check(z.gte(0), z.lte(10000)),
+    liberatingPayment: z.boolean(),
+    liberatingPaymentRateBp: z.int().check(z.gte(0), z.lte(10000)),
+    vatRegime: zVatRegime,
+    defaultPaymentTermsDays: z.int().check(z.gte(0), z.lte(365)),
+    invoiceNumberFormat: z.string().check(z.maxLength(64)),
+    homeAddressSameAsCompany: z.boolean(),
+    tradeName: z.nullish(z.string().check(z.maxLength(255))),
+    siret: z.nullish(z.string().check(z.maxLength(255))),
+    vatNumber: z.nullish(z.string().check(z.maxLength(255))),
+    signatureCity: z.nullish(z.string().check(z.maxLength(255))),
+    contactEmail: z.nullish(z.email().check(z.maxLength(255))),
+    phone: z.nullish(z.string().check(z.maxLength(64))),
+    companyAddressLine1: z.nullish(z.string().check(z.maxLength(255))),
+    companyAddressLine2: z.nullish(z.string().check(z.maxLength(255))),
+    companyPostalCode: z.nullish(z.string().check(z.maxLength(32))),
+    companyCity: z.nullish(z.string().check(z.maxLength(255))),
+    homeAddressLine1: z.nullish(z.string().check(z.maxLength(255))),
+    homeAddressLine2: z.nullish(z.string().check(z.maxLength(255))),
+    homePostalCode: z.nullish(z.string().check(z.maxLength(32))),
+    homeCity: z.nullish(z.string().check(z.maxLength(255))),
+    businessStartedOn: z.nullish(z.iso.date()),
+    treasuryBuffer: z.nullish(z.object({
+        amount: z.int().check(z.gte(1)),
+        currency: zCurrency
+    }))
 });
 
 export const zGetPingResponse = z.object({
@@ -422,6 +532,10 @@ export const zLoginResponse = zUserData;
 export const zLogoutResponse = z.void();
 
 export const zCurrentUserResponse = zUserData;
+
+export const zUpdateUserThemeBody = zUpdateUserThemeData;
+
+export const zUpdateUserThemeResponse = zUserData;
 
 export const zListClientsResponse = zClientListData;
 
@@ -608,6 +722,28 @@ export const zDownloadMissionDocumentPath = z.object({
 });
 
 export const zDownloadMissionDocumentResponse = z.string();
+
+export const zShowSettingsResponse = zSettingsData;
+
+export const zUpdateSettingsBody = zUpdateSettingsData;
+
+export const zUpdateSettingsResponse = zSettingsData;
+
+export const zRefreshSettingsRatesResponse = zSettingsData;
+
+/**
+ * No content
+ */
+export const zDeleteUserSignatureResponse = z.void();
+
+export const zShowUserSignatureResponse = z.string();
+
+export const zUploadUserSignatureBody = zUploadSignatureData;
+
+/**
+ * No content
+ */
+export const zUploadUserSignatureResponse = z.void();
 
 export const zListTimeEntriesQuery = z.object({
     from: z.iso.date(),

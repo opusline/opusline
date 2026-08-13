@@ -1,11 +1,8 @@
 import { client } from "@opusline/api-client/client";
 
-const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+import { readCookie } from "./cookies";
 
-function readCookie(name: string): string | null {
-  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
-  return match ? decodeURIComponent(match[1]) : null;
-}
+const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
 export function setupApiClient() {
   client.setConfig({ baseUrl: "/api" });
