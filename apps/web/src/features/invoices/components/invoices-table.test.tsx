@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 
 import { invoiceItem, secondClient } from "../lib/fixtures";
 import { InvoicesTable } from "./invoices-table";
@@ -31,7 +31,7 @@ it("totals each client group on the gross amount", () => {
     />,
   );
 
-  expect(screen.getByText("1 500,50 €")).toBeInTheDocument();
+  expect(screen.getByText("1 501 €")).toBeInTheDocument();
 });
 
 it("counts an overdue invoice under both Envoyées and En retard", () => {
@@ -39,7 +39,7 @@ it("counts an overdue invoice under both Envoyées and En retard", () => {
 
   // Lateness is derived from the due date, not a fourth status.
   expect(
-    screen.getByRole("button", { name: "Envoyées (2)" }),
+    screen.getByRole("button", { name: "À encaisser (2)" }),
   ).toBeInTheDocument();
   expect(
     screen.getByRole("button", { name: "En retard (1)" }),
@@ -68,4 +68,61 @@ it("explains an empty filter differently from an empty account", () => {
   expect(
     screen.getByText(/Ajoutez-en une pour suivre ce qui est facturé/),
   ).toBeInTheDocument();
+});
+
+it("says how long a client actually takes to pay, from its paid invoices", () => {
+  render(
+    <InvoicesTable
+      invoices={[
+        invoiceItem({
+          id: 1,
+          status: 2,
+          issuedOn: "2026-06-01",
+          paidOn: "2026-06-21",
+        }),
+        invoiceItem({
+          id: 2,
+          status: 2,
+          issuedOn: "2026-05-01",
+          paidOn: "2026-05-29",
+        }),
+      ]}
+    />,
+  );
+
+  // 20 and 28 days → 24 on average.
+  expect(screen.getByText("24 j en moyenne pour payer")).toBeInTheDocument();
+});
+
+it("leaves the average out until something has been paid", () => {
+  render(<InvoicesTable invoices={[invoiceItem({ id: 1, status: 1 })]} />);
+
+  expect(screen.queryByText(/en moyenne pour payer/)).not.toBeInTheDocument();
+});
+
+it("tells each row why its status matters", () => {
+  render(
+    <InvoicesTable
+      invoices={[
+        invoiceItem({
+          id: 1,
+          status: 2,
+          periodStart: "2026-06-01",
+          issuedOn: "2026-06-30",
+          paidOn: "2026-07-24",
+        }),
+      ]}
+    />,
+  );
+
+  expect(screen.getByText("Juin 2026 · payée en 24 j")).toBeInTheDocument();
+});
+
+it("opens the invoice it was asked to open", () => {
+  const onOpen = vi.fn();
+  render(<InvoicesTable invoices={[invoiceItem({ id: 7 })]} onOpen={onOpen} />);
+
+  fireEvent.click(screen.getByRole("button", { name: /Refonte catalogue/ }));
+
+  expect(onOpen).toHaveBeenCalledWith(7);
 });

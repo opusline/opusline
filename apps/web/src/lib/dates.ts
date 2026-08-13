@@ -3,6 +3,14 @@ const monthYear = new Intl.DateTimeFormat("fr-FR", {
   year: "numeric",
 });
 
+// Invoice screens date everything numerically: an amount and a date sit on the
+// same dense row, and "30 juin 2026" pushes the row wider than the column.
+const numericDate = new Intl.DateTimeFormat("fr-FR", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
 const fullDate = new Intl.DateTimeFormat("fr-FR", {
   day: "numeric",
   month: "long",
@@ -68,6 +76,20 @@ export function toCalendarDate(date: Date): string {
 
 export function calendarMonthYearLabel(date: string): string {
   return monthYear.format(fromCalendarDate(date));
+}
+
+export function calendarDateNumericLabel(date: string): string {
+  return numericDate.format(fromCalendarDate(date));
+}
+
+/** Whole days between two `Y-m-d`, ignoring clocks and timezones. */
+export function calendarDaysBetween(from: string, to: string): number {
+  const DAY_MS = 24 * 60 * 60 * 1000;
+
+  return Math.round(
+    (fromCalendarDate(to).getTime() - fromCalendarDate(from).getTime()) /
+      DAY_MS,
+  );
 }
 
 export function calendarDateLabel(date: string): string {

@@ -4,8 +4,7 @@ import { Chip, ChipCount, ChipGroup } from "@opusline/ui/components/chip";
 import { cn } from "@opusline/ui/lib/utils";
 import { useState } from "react";
 
-import { formatAmountWithCents, paymentTermsLabel } from "@/lib/billing";
-import { calendarDateLabel } from "@/lib/dates";
+import { formatEuros } from "@/lib/billing";
 import { invoiceStatusBadge } from "@/lib/invoice-status";
 import { COLOR_CLASSES } from "@/lib/palette";
 
@@ -17,22 +16,23 @@ import {
   isInvoiceScope,
   matchesScope,
 } from "../lib/grouping";
+import { invoiceCountLabel, invoiceRowDetail } from "../lib/labels";
 import { InvoicesEmptyState } from "./invoices-empty-state";
 
 type InvoicesTableProps = {
   invoices: InvoiceListItemData[];
+  onOpen?: (invoiceId: number) => void;
 };
 
-export function InvoicesTable({ invoices }: InvoicesTableProps) {
+export function InvoicesTable({ invoices, onOpen }: InvoicesTableProps) {
   const [scope, setScope] = useState<InvoiceScope>("all");
 
-  const scopedInvoices: Record<InvoiceScope, InvoiceListItemData[]> = {
-    all: invoices,
-    draft: invoices.filter((item) => matchesScope(item, "draft")),
-    sent: invoices.filter((item) => matchesScope(item, "sent")),
-    late: invoices.filter((item) => matchesScope(item, "late")),
-    paid: invoices.filter((item) => matchesScope(item, "paid")),
-  };
+  const scopedInvoices = Object.fromEntries(
+    INVOICE_SCOPES.map((invoiceScope) => [
+      invoiceScope,
+      invoices.filter((item) => matchesScope(item, invoiceScope)),
+    ]),
+  ) as Record<InvoiceScope, InvoiceListItemData[]>;
   const groups = groupByClient(scopedInvoices[scope]);
 
   return (
@@ -74,22 +74,24 @@ export function InvoicesTable({ invoices }: InvoicesTableProps) {
                   <span
                     aria-hidden
                     className={cn(
-                      "size-2 shrink-0 rounded-full",
+                      "size-2.5 shrink-0 rounded-sm",
                       COLOR_CLASSES[group.client.color],
                     )}
                   />
                   <span className="truncate font-medium text-foreground-hi text-sm">
                     {group.client.name}
                   </span>
-                  <span className="text-muted-foreground-3 text-xs">
-                    {group.items.length}
+                  <span className="whitespace-nowrap text-muted-foreground-3 text-xs">
+                    {invoiceCountLabel(group.items.length)}
                   </span>
                 </span>
                 <span className="ml-auto whitespace-nowrap text-muted-foreground-3 text-xs">
-                  {paymentTermsLabel(group.client.paymentTermsDays)}
+                  {group.averageDaysToPay === null
+                    ? null
+                    : `${group.averageDaysToPay} j en moyenne pour payer`}
                 </span>
                 <span className="w-32 text-right font-mono text-foreground-hi text-sm tabular-nums">
-                  {formatAmountWithCents(group.total)}
+                  {formatEuros(group.total)}
                 </span>
               </div>
 
@@ -98,27 +100,30 @@ export function InvoicesTable({ invoices }: InvoicesTableProps) {
                   const badge = invoiceStatusBadge(invoice);
 
                   return (
-                    <li
-                      key={invoice.id}
-                      className="grid grid-cols-[7rem_minmax(0,1fr)_auto_auto] items-center gap-4 border-b px-5 py-3 last:border-b-0"
-                    >
-                      <span className="font-mono text-foreground-2 text-sm tabular-nums">
-                        {invoice.number ?? "—"}
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block truncate text-foreground-2 text-sm">
-                          {mission?.name ?? "Sans mission"}
+                    <li key={invoice.id}>
+                      <button
+                        type="button"
+                        onClick={() => onOpen?.(invoice.id)}
+                        className="grid w-full grid-cols-[7rem_minmax(0,1fr)_auto_auto] items-center gap-4 border-b px-5 py-3 text-left transition-colors last:border-b-0 hover:bg-accent focus-visible:bg-accent focus-visible:outline-none"
+                      >
+                        <span className="font-mono text-foreground-2 text-sm tabular-nums">
+                          {invoice.number ?? "—"}
                         </span>
-                        <span className="mt-0.75 block text-muted-foreground-3 text-xs">
-                          Échéance {calendarDateLabel(invoice.dueOn)}
+                        <span className="min-w-0">
+                          <span className="block truncate text-foreground-2 text-sm">
+                            {mission?.name ?? "Sans mission"}
+                          </span>
+                          <span className="mt-0.75 block text-muted-foreground-3 text-xs">
+                            {invoiceRowDetail(invoice)}
+                          </span>
                         </span>
-                      </span>
-                      <span className="w-32 text-right font-mono text-foreground-hi text-sm tabular-nums">
-                        {formatAmountWithCents(invoice.amountTtc.amount)}
-                      </span>
-                      <span className="flex justify-end">
-                        <Badge variant={badge.variant}>{badge.label}</Badge>
-                      </span>
+                        <span className="w-32 text-right font-mono text-foreground-hi text-sm tabular-nums">
+                          {formatEuros(invoice.amountTtc.amount)}
+                        </span>
+                        <span className="flex justify-end">
+                          <Badge variant={badge.variant}>{badge.label}</Badge>
+                        </span>
+                      </button>
                     </li>
                   );
                 })}

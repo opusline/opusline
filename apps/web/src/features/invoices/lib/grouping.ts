@@ -1,6 +1,8 @@
 import type { InvoiceListItemData, InvoiceStatus } from "@opusline/api-client";
 
-export const INVOICE_SCOPES = ["all", "draft", "sent", "late", "paid"] as const;
+import { averageDaysToPay } from "./labels";
+
+export const INVOICE_SCOPES = ["all", "open", "late", "paid", "draft"] as const;
 
 export type InvoiceScope = (typeof INVOICE_SCOPES)[number];
 
@@ -10,10 +12,10 @@ export type InvoiceScope = (typeof INVOICE_SCOPES)[number];
  */
 export const INVOICE_SCOPE_LABELS: Record<InvoiceScope, string> = {
   all: "Toutes",
-  draft: "Brouillons",
-  sent: "Envoyées",
+  open: "À encaisser",
   late: "En retard",
   paid: "Payées",
+  draft: "Brouillons",
 };
 
 export function isInvoiceScope(value: unknown): value is InvoiceScope {
@@ -25,13 +27,13 @@ const SCOPE_STATUS: Record<
   InvoiceStatus
 > = {
   draft: 0,
-  sent: 1,
+  open: 1,
   paid: 2,
 };
 
 /**
- * "En retard" overlaps "Envoyées" rather than excluding it — lateness is derived
- * from the due date, not a fourth status, so an overdue invoice is counted by both.
+ * "En retard" overlaps "À encaisser" rather than excluding it — lateness is derived
+ * from the due date, not a separate status, so an overdue invoice is counted by both.
  */
 export function matchesScope(
   item: InvoiceListItemData,
@@ -52,6 +54,7 @@ export type InvoiceGroup = {
   client: InvoiceListItemData["client"];
   items: InvoiceListItemData[];
   total: number;
+  averageDaysToPay: number | null;
 };
 
 /**
@@ -66,6 +69,7 @@ export function groupByClient(items: InvoiceListItemData[]): InvoiceGroup[] {
       client: item.client,
       items: [],
       total: 0,
+      averageDaysToPay: null,
     };
 
     group.items.push(item);
@@ -73,7 +77,12 @@ export function groupByClient(items: InvoiceListItemData[]): InvoiceGroup[] {
     groups.set(item.client.id, group);
   }
 
-  return [...groups.values()].sort((a, b) =>
-    a.client.name.localeCompare(b.client.name, "fr"),
-  );
+  return [...groups.values()]
+    .map((group) => ({
+      ...group,
+      averageDaysToPay: averageDaysToPay(
+        group.items.map((item) => item.invoice),
+      ),
+    }))
+    .sort((a, b) => a.client.name.localeCompare(b.client.name, "fr"));
 }

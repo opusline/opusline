@@ -1,6 +1,7 @@
 import type {
   ClientData,
   InvoiceData,
+  InvoiceDetailData,
   InvoiceListItemData,
   MissionData,
 } from "@opusline/api-client";
@@ -86,3 +87,20 @@ export const secondClient = {
   color: 4,
   paymentTermsDays: 30,
 } satisfies ClientData;
+
+export function invoiceDetail(
+  overrides: Partial<InvoiceData> = {},
+): InvoiceDetailData {
+  const item = invoiceItem(overrides);
+
+  return {
+    invoice: item.invoice,
+    client: item.client,
+    mission: item.mission,
+    history: [
+      { id: 1, kind: 0, occurredOn: "2026-06-30", note: null },
+      { id: 2, kind: 1, occurredOn: "2026-06-30", note: null },
+      { id: 3, kind: 3, occurredOn: "2026-07-24", note: null },
+    ],
+  };
+}

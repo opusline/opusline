@@ -17,6 +17,19 @@ export function formatAmount(amountCents: number): string {
   return `${euros.format(amountCents / 100)}`;
 }
 
+const wholeEuros = new Intl.NumberFormat("fr-FR", {
+  maximumFractionDigits: 0,
+});
+
+/**
+ * Whole euros, the way invoice lists show them: "1 224 €". Rounded on purpose —
+ * the list is scanned, not reconciled, and the exact figure to the cent is on the
+ * invoice's own panel.
+ */
+export function formatEuros(amountCents: number): string {
+  return `${wholeEuros.format(amountCents / 100)} €`;
+}
+
 export function formatRate(
   amountCents: number,
   billingMode: BillingMode,

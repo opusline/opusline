@@ -1,9 +1,14 @@
-import { listInvoicesOptions } from "@opusline/api-client/react-query";
+import {
+  listInvoicesOptions,
+  showInvoiceOptions,
+} from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 
+import { InvoiceDrawer } from "@/features/invoices/components/invoice-drawer";
 import { InvoicesTable } from "@/features/invoices/components/invoices-table";
 
 export const Route = createFileRoute("/_authed/factures")({
@@ -12,6 +17,12 @@ export const Route = createFileRoute("/_authed/factures")({
 
 function FacturesPage() {
   const { data, isPending, isError } = useQuery(listInvoicesOptions());
+  const [openInvoiceId, setOpenInvoiceId] = useState<number | null>(null);
+
+  const detail = useQuery({
+    ...showInvoiceOptions({ path: { invoice: openInvoiceId ?? 0 } }),
+    enabled: openInvoiceId !== null,
+  });
 
   return (
     <div className="flex flex-col gap-5">
@@ -39,7 +50,18 @@ function FacturesPage() {
           </AlertDescription>
         </Alert>
       )}
-      {data !== undefined && <InvoicesTable invoices={data.invoices} />}
+      {data !== undefined && (
+        <InvoicesTable invoices={data.invoices} onOpen={setOpenInvoiceId} />
+      )}
+      <InvoiceDrawer
+        detail={detail.data}
+        open={openInvoiceId !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setOpenInvoiceId(null);
+          }
+        }}
+      />
     </div>
   );
 }
