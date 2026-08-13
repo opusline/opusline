@@ -45,12 +45,21 @@ test('prints the rate of a fixed-price mission rather than a dash', function ():
         'billing_mode' => BillingMode::Fixed,
         'rate_cents' => 1_500_00,
     ]));
-    $cra = craDays(
-        craOwnedBy($user, $mission, fn ($factory) => $factory->forMonth('2026-07')),
-        ['2026-07-06' => 10_000],
-    );
+    $cra = craOwnedBy($user, $mission, fn ($factory) => $factory->forMonth('2026-07'));
 
-    expect(app(RenderCraPdf::class)->handle($cra))->not->toContain('—');
+    expect(app(RenderCraPdf::class)->viewData($cra)['rateLabel'])->toBe('1 500 € forfait');
+});
+
+test('keeps the cents of a rate that is not a whole number of euros', function (): void {
+    $user = User::factory()->create();
+    $mission = craMissionOwnedBy($user, fn ($factory) => $factory->state([
+        'billing_mode' => BillingMode::Daily,
+        'rate_cents' => 550_50,
+    ]));
+    $cra = craOwnedBy($user, $mission, fn ($factory) => $factory->forMonth('2026-07'));
+
+    // Rounding to whole euros printed 551 on paper while the screen showed 550,5.
+    expect(app(RenderCraPdf::class)->viewData($cra)['rateLabel'])->toBe('550,5 € / jour');
 });
 
 test('names the file after the mission and the month', function (): void {

@@ -1,3 +1,4 @@
+import type { CraDetailData } from "@opusline/api-client";
 import { client as apiClient } from "@opusline/api-client/client";
 import {
   createCraMutation,
@@ -14,6 +15,7 @@ import {
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
+import type { QueryClient } from "@tanstack/react-query";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
@@ -34,6 +36,38 @@ export const Route = createFileRoute("/_authed/cra")({
 });
 
 const WRITE_FAILED = "L'enregistrement a échoué. Réessayez dans un instant.";
+
+/**
+ * Fold a sparse day payload back onto the cached CRA, which carries every day of the
+ * month. Days the payload leaves out were cleared, so they go to zero.
+ *
+ * The totals are deliberately left to the refetch: the API owns the money, and the
+ * screen has never claimed to recompute it.
+ */
+function applyDaysToCache(
+  queryClient: QueryClient,
+  cra: number,
+  days: { date: string; dayFractionBp: number }[],
+) {
+  const written = new Map(days.map((day) => [day.date, day.dayFractionBp]));
+
+  queryClient.setQueryData<CraDetailData>(
+    showCraQueryKey({ path: { cra } }),
+    (current) =>
+      current === undefined
+        ? current
+        : {
+            ...current,
+            cra: {
+              ...current.cra,
+              days: current.cra.days.map((day) => ({
+                ...day,
+                dayFractionBp: written.get(day.date) ?? 0,
+              })),
+            },
+          },
+  );
+}
 
 function CraRoute() {
   const search = Route.useSearch();
@@ -94,9 +128,18 @@ function CraRoute() {
     onMutate: () => setError(null),
     onError: reportFailure("Le CRA n'a pas pu être ouvert."),
   });
+  /**
+   * The grid writes a whole snapshot, and the snapshot is derived from the cached CRA.
+   * Without applying the write to that cache straight away, a second click lands before
+   * the refetch and rebuilds its snapshot from data that predates the first — silently
+   * dropping the day the user just entered.
+   */
   const updateDays = useMutation({
     ...updateCraDaysMutation(),
-    onMutate: () => setError(null),
+    onMutate: ({ path, body }) => {
+      setError(null);
+      applyDaysToCache(queryClient, path.cra, body.days);
+    },
     onSuccess: refreshCras,
     onError: reportFailure(WRITE_FAILED),
   });
@@ -154,6 +197,8 @@ function CraRoute() {
    * follows it. Listing never writes; only opening does.
    */
   const pick: React.ComponentProps<typeof CraPage>["onPick"] = async (item) => {
+    setError(null);
+
     if (item.id !== null) {
       void navigate({
         search: { ...search, cra: item.id, step: undefined },

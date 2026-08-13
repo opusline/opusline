@@ -30,12 +30,22 @@ class MoveDocumentToMediaDisk implements ShouldQueue, ShouldQueueAfterCommit
 
     public bool $deleteWhenMissingModels = true;
 
-    public function __construct(public Media $document) {}
+    /**
+     * The staging disk is captured now rather than read back off the model on each try:
+     * a retry after the save but before the delete would see the row already pointing at
+     * the target disk, take the early return, and leave the staged file behind for good.
+     */
+    public readonly string $stagingDisk;
+
+    public function __construct(public Media $document)
+    {
+        $this->stagingDisk = $document->disk;
+    }
 
     public function handle(): void
     {
         $targetDisk = config()->string('media-library.disk_name');
-        $stagingDisk = $this->document->disk;
+        $stagingDisk = $this->stagingDisk;
 
         if ($stagingDisk === $targetDisk) {
             return;

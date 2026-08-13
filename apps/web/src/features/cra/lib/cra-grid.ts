@@ -2,6 +2,7 @@ import type { CraDayData } from "@opusline/api-client";
 
 import { monthGridDates } from "@/lib/months";
 
+import { FULL_DAY_BP, HALF_DAY_BP } from "./day-fraction";
 import { cellAriaLabel } from "./labels";
 
 /**
@@ -11,10 +12,6 @@ import { cellAriaLabel } from "./labels";
  * builder never has to know a thing about the French calendar — it only lays the days
  * out and pads the weeks either side.
  */
-
-/** A full workday, in basis points. The API's unit, mirrored here. */
-export const FULL_DAY_BP = 10_000;
-export const HALF_DAY_BP = 5_000;
 
 export type CraCell = {
   key: string;
@@ -186,6 +183,15 @@ export function cycleDayFraction(basisPoints: number): number {
   return basisPoints > HALF_DAY_BP ? HALF_DAY_BP : 0;
 }
 
+/** The month's own days, narrowed so `date` is a string rather than a cast. */
+type DatedCell = CraCell & { date: string };
+
+function datedCells(model: CraGridModel): DatedCell[] {
+  return model.weeks
+    .flatMap((week) => week.cells)
+    .filter((cell): cell is DatedCell => cell.date !== null);
+}
+
 /**
  * The grid as the API wants it written back: worked days only, in calendar order.
  *
@@ -194,13 +200,9 @@ export function cycleDayFraction(basisPoints: number): number {
 export function toDayPayload(
   model: CraGridModel,
 ): { date: string; dayFractionBp: number }[] {
-  return model.weeks
-    .flatMap((week) => week.cells)
-    .filter((cell) => cell.date !== null && cell.dayFractionBp > 0)
-    .map((cell) => ({
-      date: cell.date as string,
-      dayFractionBp: cell.dayFractionBp,
-    }));
+  return datedCells(model)
+    .filter((cell) => cell.dayFractionBp > 0)
+    .map((cell) => ({ date: cell.date, dayFractionBp: cell.dayFractionBp }));
 }
 
 /**
@@ -211,11 +213,9 @@ export function toDayPayload(
 export function fillWeekdays(
   model: CraGridModel,
 ): { date: string; dayFractionBp: number }[] {
-  return model.weeks
-    .flatMap((week) => week.cells)
-    .filter((cell) => cell.date !== null)
+  return datedCells(model)
     .map((cell) => ({
-      date: cell.date as string,
+      date: cell.date,
       dayFractionBp:
         cell.isWeekend || cell.isHoliday
           ? cell.dayFractionBp

@@ -1,5 +1,7 @@
 Copyright 2011 The Lora Project Authors (https://github.com/cyrealtype/Lora-Cyrillic), with Reserved Font Name "Lora".
 
+Copyright (c) 2023 Vercel, in collaboration with basement.studio (https://github.com/vercel/geist-font).
+
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:
 https://scripts.sil.org/OFL

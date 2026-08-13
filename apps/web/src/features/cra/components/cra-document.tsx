@@ -72,14 +72,14 @@ export function CraDocument({
       <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
         <span className={EYEBROW}>Aperçu du document</span>
         {settings.hasSignature ? (
-          <span className="flex items-center gap-2 text-muted-foreground-3 text-sm">
+          // biome-ignore lint/a11y/noLabelWithoutControl: Base UI's Switch renders a hidden input beside its span, so the wrapping label is its control
+          <label className="flex cursor-pointer items-center gap-2 text-muted-foreground-3 text-sm">
             <Switch
-              aria-label={SIGNATURE_ON}
               checked={applySignature}
               onCheckedChange={onApplySignatureChange}
             />
             {SIGNATURE_ON}
-          </span>
+          </label>
         ) : (
           <Button onClick={onOpenSignatureSettings} size="xl" variant="outline">
             <PenLineIcon aria-hidden data-icon="inline-start" />

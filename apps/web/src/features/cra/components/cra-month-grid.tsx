@@ -31,6 +31,9 @@ import {
   reportedAgainstTrackedLabel,
 } from "../lib/labels";
 
+/** The worked cell's own look, so its legend swatch cannot drift from it. */
+const WORKED_CELL_CLASSES = "border border-primary/40 bg-primary/14";
+
 const GridRow = (props: ComponentProps<"div">) => (
   // biome-ignore lint/a11y/useSemanticElements: an ARIA grid, not a table.
   <div role="row" tabIndex={-1} {...props} />
@@ -69,7 +72,12 @@ export function CraMonthGrid({
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const [focusRequest, setFocusRequest] = useState(0);
 
-  const tabStop = focusedKey ?? defaultCellKey(model);
+  // Checked against the model rather than trusted: switching CRA swaps in another
+  // month, and a key retained from the old one matches no cell — which would leave the
+  // grid with no tab stop at all.
+  const tabStop =
+    (locateCell(model, focusedKey) === null ? null : focusedKey) ??
+    defaultCellKey(model);
 
   /*
    * One stable callback that recovers its cell from `data-cell`, rather than a new
@@ -221,10 +229,7 @@ export function CraMonthGrid({
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-4.5 border-secondary border-t pt-3.5 text-muted-foreground-3 text-sm">
-        <Legend
-          className="border border-primary/45 bg-primary/16"
-          label={LEGEND_WORKED}
-        />
+        <Legend className={WORKED_CELL_CLASSES} label={LEGEND_WORKED} />
         <Legend
           className="border border-border-3 border-dashed"
           label={LEGEND_IDLE}
@@ -285,7 +290,7 @@ function DayCell({
         cell.isOffDayWorked
           ? "border border-primary/50 bg-primary/25"
           : isWorked
-            ? "border border-primary/40 bg-primary/14"
+            ? WORKED_CELL_CLASSES
             : // A weekend carries no chrome at all: nothing is expected of it, so the
               // grid should not draw a box asking to be filled. A holiday falling on a
               // working day still gets one — the reader needs to see why the week is short.

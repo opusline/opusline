@@ -26,6 +26,8 @@ import {
 
 const ACCEPT = ".pdf,.jpg,.jpeg,.png";
 const ACCEPTED_EXTENSIONS = new Set(["pdf", "jpg", "jpeg", "png"]);
+/** Mirrors UploadSignedCraData's Max(20480) KB — refused here rather than after the upload. */
+const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
 
 type CraSignedReturnDialogProps = {
   detail: CraDetailData;
@@ -57,6 +59,13 @@ export function CraSignedReturnDialog({
 
     if (!ACCEPTED_EXTENSIONS.has(extension)) {
       setRejected(`${candidate.name} — un CRA signé est un PDF ou une image`);
+      setFile(null);
+
+      return;
+    }
+
+    if (candidate.size > MAX_UPLOAD_BYTES) {
+      setRejected(`${candidate.name} — 20 Mo maximum`);
       setFile(null);
 
       return;

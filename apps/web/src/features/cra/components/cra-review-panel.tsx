@@ -1,7 +1,20 @@
 import type { CraDetailData, SettingsData } from "@opusline/api-client";
 import { cn } from "@opusline/ui/lib/utils";
 
-import { daysLabel, differenceLabel, REVIEW_TITLE } from "../lib/labels";
+import {
+  CHECK_DAYS,
+  CHECK_DAYS_MATCHING,
+  CHECK_RECIPIENT,
+  CHECK_RECIPIENT_DETAIL,
+  CHECK_SIGNATURE,
+  CHECK_SIGNATURE_MISSING,
+  CHECK_SIGNATURE_OFF,
+  CHECK_SIGNATURE_ON,
+  CHECK_SIGNATURE_READY,
+  checkDaysDrift,
+  daysLabel,
+  REVIEW_TITLE,
+} from "../lib/labels";
 
 type Check = {
   key: string;
@@ -21,28 +34,28 @@ function checksFor(detail: CraDetailData, settings: SettingsData): Check[] {
   return [
     {
       key: "days",
-      title: "Jours saisis",
+      title: CHECK_DAYS,
       detail:
         cra.differenceDays === 0
-          ? "conforme au temps suivi ce mois"
-          : `${differenceLabel(cra.differenceDays)} par rapport au temps suivi`,
+          ? CHECK_DAYS_MATCHING
+          : checkDaysDrift(cra.differenceDays),
       value: daysLabel(cra.totalDays),
       tone: cra.differenceDays === 0 ? "ok" : "attention",
     },
     {
       key: "recipient",
-      title: "Destinataire",
-      detail: "signera le bon pour accord",
+      title: CHECK_RECIPIENT,
+      detail: CHECK_RECIPIENT_DETAIL,
       value: recipientName,
       tone: "ok",
     },
     {
       key: "signature",
-      title: "Signature",
+      title: CHECK_SIGNATURE,
       detail: settings.hasSignature
-        ? "prête à être apposée sur le document"
-        : "aucune signature enregistrée dans vos réglages",
-      value: settings.hasSignature ? "Enregistrée" : "Absente",
+        ? CHECK_SIGNATURE_READY
+        : CHECK_SIGNATURE_MISSING,
+      value: settings.hasSignature ? CHECK_SIGNATURE_ON : CHECK_SIGNATURE_OFF,
       tone: settings.hasSignature ? "ok" : "attention",
     },
   ];
@@ -63,7 +76,7 @@ export function CraReviewPanel({ detail, settings }: CraReviewPanelProps) {
       <dl>
         {checksFor(detail, settings).map((check) => (
           <div
-            className="flex items-start gap-2.5 border-secondary border-b py-2.75 last:border-b-0"
+            className="flex flex-wrap items-start gap-x-2.5 gap-y-0.5 border-secondary border-b py-2.75 last:border-b-0"
             key={check.key}
           >
             <span
@@ -73,15 +86,15 @@ export function CraReviewPanel({ detail, settings }: CraReviewPanelProps) {
                 check.tone === "ok" ? "bg-success" : "bg-primary",
               )}
             />
-            <div className="min-w-0">
-              <dt className="text-foreground-hi text-sm">{check.title}</dt>
-              <dd className="mt-0.5 text-muted-foreground-3 text-xs">
-                {check.detail}
-              </dd>
-            </div>
-            <span className="ml-auto whitespace-nowrap font-mono text-foreground-2 text-sm tabular-nums">
+            <dt className="min-w-0 text-foreground-hi text-sm">
+              {check.title}
+            </dt>
+            <dd className="ml-auto order-3 whitespace-nowrap font-mono text-foreground-2 text-sm tabular-nums">
               {check.value}
-            </span>
+            </dd>
+            <dd className="order-4 w-full pl-4.5 text-muted-foreground-3 text-xs">
+              {check.detail}
+            </dd>
           </div>
         ))}
       </dl>

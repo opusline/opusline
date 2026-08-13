@@ -74,8 +74,11 @@ class RenderCraPdf
     {
         $path = storage_path('app/dompdf-fonts');
 
-        if (! is_dir($path)) {
-            mkdir($path, 0775, true);
+        // Two Octane workers can clear is_dir() at the same time, so the loser's mkdir
+        // fails on a directory that now exists. Only that race is silenced; the recheck
+        // is what tells it apart from a real failure.
+        if (! is_dir($path) && ! @mkdir($path, 0775, true) && ! is_dir($path)) {
+            throw new RuntimeException("Could not create the dompdf font cache at [{$path}].");
         }
 
         return $path;
@@ -88,9 +91,14 @@ class RenderCraPdf
     }
 
     /**
+     * Everything the template prints, resolved.
+     *
+     * Public because it is the only seam a test can read: dompdf Flate-compresses the
+     * text stream, so asserting on the PDF bytes proves nothing about the wording.
+     *
      * @return array<string, mixed>
      */
-    private function viewData(Cra $cra, bool $applySignature): array
+    public function viewData(Cra $cra, bool $applySignature = false): array
     {
         $data = $this->describeCra->handle($cra);
         // RegisterUser gives every account its settings row; without one there is no
@@ -243,7 +251,9 @@ class RenderCraPdf
             return 'non facturable';
         }
 
-        $amount = number_format((int) $rate->getAmount() / 100, 0, ',', ' ');
+        // Cents kept, trailing zeros dropped — the same shape as the screen's
+        // Intl maximumFractionDigits: 2, so a 550,50 €/j mission does not print 551.
+        $amount = rtrim(rtrim(number_format((int) $rate->getAmount() / 100, 2, ',', ' '), '0'), ',');
 
         return $mission->billing_mode === BillingMode::Fixed
             ? $amount.' € forfait'

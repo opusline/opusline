@@ -97,10 +97,14 @@ it("drops a day cleared to nothing", () => {
 });
 
 it("fills every working day and leaves the weekend alone", () => {
-  const filled = fillWeekdays(grid({}));
+  // Monday 6 July starts empty, so the count alone cannot hide a no-op.
+  const filled = fillWeekdays(grid({ "2026-07-06": 0 }));
 
   // 23 weekdays in July 2026, less Bastille Day.
   expect(filled).toHaveLength(22);
+  expect(filled.find((day) => day.date === "2026-07-06")?.dayFractionBp).toBe(
+    10_000,
+  );
   expect(filled.every((day) => day.dayFractionBp === 10_000)).toBe(true);
   expect(filled.some((day) => day.date === "2026-07-14")).toBe(false);
   expect(filled.some((day) => day.date === "2026-07-04")).toBe(false);

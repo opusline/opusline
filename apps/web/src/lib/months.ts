@@ -27,7 +27,14 @@ function parseMonth(month: string): { year: number; month: number } {
     throw new Error(`Not a month: ${month}`);
   }
 
-  return { month: Number(match[2]), year: Number(match[1]) };
+  const parsed = { month: Number(match[2]), year: Number(match[1]) };
+
+  // The pattern accepts "2026-13", which localDate would roll into 2027 without a word.
+  if (parsed.month < 1 || parsed.month > 12) {
+    throw new Error(`Not a month: ${month}`);
+  }
+
+  return parsed;
 }
 
 /** The first day of the month, as `Y-m-d`. */

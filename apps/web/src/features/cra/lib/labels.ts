@@ -3,6 +3,8 @@ import type { CraDayData } from "@opusline/api-client";
 import { formatBilledDays } from "@/lib/durations";
 import { weekdayDateLabel } from "@/lib/weeks";
 
+import { FULL_DAY_BP } from "./day-fraction";
+
 /**
  * Every French string the CRA screen says, in one place. "CRA" itself stays as it is:
  * it is French fiscal vocabulary, not a word to translate.
@@ -19,6 +21,16 @@ export const NO_MATCH = "Aucun CRA ne correspond";
 export const FILL_WEEKDAYS = "Remplir les jours ouvrés";
 export const RESET_DAYS = "Rétablir mes entrées";
 export const REVIEW_TITLE = "Avant l'envoi";
+export const CHECK_DAYS = "Jours saisis";
+export const CHECK_DAYS_MATCHING = "conforme au temps suivi ce mois";
+export const CHECK_RECIPIENT = "Destinataire";
+export const CHECK_RECIPIENT_DETAIL = "signera le bon pour accord";
+export const CHECK_SIGNATURE = "Signature";
+export const CHECK_SIGNATURE_READY = "prête à être apposée sur le document";
+export const CHECK_SIGNATURE_MISSING =
+  "aucune signature enregistrée dans vos réglages";
+export const CHECK_SIGNATURE_ON = "Enregistrée";
+export const CHECK_SIGNATURE_OFF = "Absente";
 
 export const LEGEND_WORKED = "Journée saisie";
 export const LEGEND_IDLE = "Non saisi";
@@ -56,6 +68,11 @@ export function craCountLabel(count: number): string {
 
 /** "2,5 j" — a day count, in the unit the whole app uses for days. */
 export const daysLabel = formatBilledDays;
+
+/** "−0,5 j par rapport au temps suivi" — why the day count is being questioned. */
+export function checkDaysDrift(days: number): string {
+  return `${differenceLabel(days)} par rapport au temps suivi`;
+}
 
 /** The écart, signed, so a shortfall and a surplus do not read alike. */
 export function differenceLabel(days: number): string {
@@ -117,7 +134,7 @@ export function cellAriaLabel(day: CraDayData): string {
   const date = weekdayDateLabel(day.date);
   const worked =
     day.dayFractionBp > 0
-      ? daysLabel(day.dayFractionBp / 10_000)
+      ? daysLabel(day.dayFractionBp / FULL_DAY_BP)
       : "aucune journée";
 
   if (day.isHoliday) {

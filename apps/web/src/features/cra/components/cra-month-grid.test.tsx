@@ -5,6 +5,22 @@ import { buildCraGrid } from "../lib/cra-grid";
 import { craDays, DEMO_MONTH } from "../lib/fixtures";
 import { CraMonthGrid } from "./cra-month-grid";
 
+function grid(overrides: Partial<React.ComponentProps<typeof CraMonthGrid>>) {
+  return (
+    <CraMonthGrid
+      editable
+      isDirty={false}
+      model={buildCraGrid({ month: DEMO_MONTH, days: craDays() })}
+      onChange={vi.fn()}
+      onFillWeekdays={vi.fn()}
+      onReset={vi.fn()}
+      reportedDays={21}
+      trackedDays={21}
+      {...overrides}
+    />
+  );
+}
+
 function renderGrid(
   overrides: Partial<React.ComponentProps<typeof CraMonthGrid>> = {},
 ) {
@@ -12,21 +28,21 @@ function renderGrid(
   const onFillWeekdays = vi.fn();
   const onReset = vi.fn();
 
-  render(
-    <CraMonthGrid
-      editable
-      isDirty={false}
-      model={buildCraGrid({ month: DEMO_MONTH, days: craDays() })}
-      onChange={onChange}
-      onFillWeekdays={onFillWeekdays}
-      onReset={onReset}
-      reportedDays={21}
-      trackedDays={21}
-      {...overrides}
-    />,
+  const { rerender } = render(
+    grid({ onChange, onFillWeekdays, onReset, ...overrides }),
   );
 
-  return { onChange, onFillWeekdays, onReset };
+  return { onChange, onFillWeekdays, onReset, rerender };
+}
+
+/** August 2026 — a different month, so July's keys match none of its cells. */
+function august() {
+  return grid({
+    model: buildCraGrid({
+      month: "2026-08",
+      days: craDays({}, "2026-08"),
+    }),
+  });
 }
 
 /** Monday 6 July 2026 — a full day on the seeded grid. */
@@ -164,7 +180,7 @@ it("still lets a frozen grid be walked with the keyboard", () => {
   ).toHaveFocus();
 });
 
-it("offers to fill the working days only while editable", () => {
+it("offers to fill the working days while editable", () => {
   const { onFillWeekdays } = renderGrid();
 
   fireEvent.click(
@@ -172,6 +188,28 @@ it("offers to fill the working days only while editable", () => {
   );
 
   expect(onFillWeekdays).toHaveBeenCalled();
+});
+
+it("withholds the fill button once the grid is frozen", () => {
+  renderGrid({ editable: false });
+
+  expect(
+    screen.queryByRole("button", { name: "Remplir les jours ouvrés" }),
+  ).not.toBeInTheDocument();
+});
+
+it("keeps one tab stop when another month replaces the model", () => {
+  const { rerender } = renderGrid();
+  const start = monday();
+  start.focus();
+
+  fireEvent.keyDown(start, { key: "ArrowRight" });
+  // Picking another CRA swaps the month underneath a key retained from this one.
+  rerender(august());
+
+  expect(
+    screen.getAllByRole("gridcell").filter((cell) => cell.tabIndex === 0),
+  ).toHaveLength(1);
 });
 
 it("offers to restore the tracked entries only once the grid has been changed", () => {

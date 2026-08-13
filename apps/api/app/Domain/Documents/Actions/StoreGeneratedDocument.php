@@ -33,7 +33,13 @@ class StoreGeneratedDocument
             throw new \RuntimeException('Could not open a temporary file for the generated document.');
         }
 
-        file_put_contents($source, $contents);
+        // A short write files a truncated PDF as the archived document, which nothing
+        // downstream would ever notice — the media row looks perfectly healthy.
+        if (file_put_contents($source, $contents) !== strlen($contents)) {
+            unlink($source);
+
+            throw new \RuntimeException('Could not write the generated document to a temporary file.');
+        }
 
         $document = $model
             ->addMedia($source)
