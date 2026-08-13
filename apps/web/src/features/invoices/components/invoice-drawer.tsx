@@ -7,6 +7,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@opusline/ui/components/sheet";
+import type { ReactNode } from "react";
 
 import { formatAmountWithCents, formatPercentFromBp } from "@/lib/billing";
 import { calendarDateNumericLabel, calendarRangeLabel } from "@/lib/dates";
@@ -18,6 +19,8 @@ type InvoiceDrawerProps = {
   detail: InvoiceDetailData | undefined;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** What can be done to this invoice next — composed by the page that owns the writes. */
+  actions?: ReactNode;
 };
 
 function SectionTitle({ children }: { children: string }) {
@@ -32,6 +35,7 @@ export function InvoiceDrawer({
   detail,
   open,
   onOpenChange,
+  actions,
 }: InvoiceDrawerProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -45,14 +49,20 @@ export function InvoiceDrawer({
             <SheetDescription>Chargement…</SheetDescription>
           </SheetHeader>
         ) : (
-          <InvoiceDrawerBody detail={detail} />
+          <InvoiceDrawerBody actions={actions} detail={detail} />
         )}
       </SheetContent>
     </Sheet>
   );
 }
 
-function InvoiceDrawerBody({ detail }: { detail: InvoiceDetailData }) {
+function InvoiceDrawerBody({
+  detail,
+  actions,
+}: {
+  detail: InvoiceDetailData;
+  actions?: ReactNode;
+}) {
   const { invoice, client, mission, history } = detail;
   const badge = invoiceStatusBadge(invoice);
 
@@ -108,6 +118,8 @@ function InvoiceDrawerBody({ detail }: { detail: InvoiceDetailData }) {
           />
         )}
       </dl>
+
+      {actions}
 
       <section className="border-t px-4 py-5">
         <SectionTitle>Historique</SectionTitle>

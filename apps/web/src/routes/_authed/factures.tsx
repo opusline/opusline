@@ -3,12 +3,16 @@ import {
   createInvoiceMutation,
   listInvoicesOptions,
   listInvoicesQueryKey,
+  payInvoiceMutation,
   remindInvoiceMutation,
+  sendInvoiceMutation,
   showInvoiceOptions,
+  showInvoiceQueryKey,
   showInvoiceSummaryOptions,
   showInvoiceSummaryQueryKey,
   showNextInvoiceNumberOptions,
   showNextInvoiceNumberQueryKey,
+  updateInvoiceMutation,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
@@ -22,6 +26,7 @@ import {
 } from "@/features/invoices/components/create-invoice-dialog";
 import { InvoiceDrawer } from "@/features/invoices/components/invoice-drawer";
 import { InvoiceForecastCard } from "@/features/invoices/components/invoice-forecast-card";
+import { InvoiceLifecycleActions } from "@/features/invoices/components/invoice-lifecycle-actions";
 import { InvoiceMonthCard } from "@/features/invoices/components/invoice-month-card";
 import { InvoiceSummaryTiles } from "@/features/invoices/components/invoice-summary-tiles";
 import { InvoiceTodoPanel } from "@/features/invoices/components/invoice-todo-panel";
@@ -41,7 +46,7 @@ function FacturesPage() {
   const [openInvoiceId, setOpenInvoiceId] = useState<number | null>(null);
   const [creatingFor, setCreatingFor] = useState<InvoiceTodoData | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
-  const [remindError, setRemindError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const detail = useQuery({
     ...showInvoiceOptions({ path: { invoice: openInvoiceId ?? 0 } }),
@@ -63,18 +68,47 @@ function FacturesPage() {
       queryClient.invalidateQueries({
         queryKey: showNextInvoiceNumberQueryKey(),
       }),
+      ...(openInvoiceId === null
+        ? []
+        : [
+            queryClient.invalidateQueries({
+              queryKey: showInvoiceQueryKey({
+                path: { invoice: openInvoiceId },
+              }),
+            }),
+          ]),
     ]);
+  };
+
+  /** Every lifecycle write reports through one message, wherever it was triggered. */
+  const reportFailure = (fallback: string) => (error: unknown) => {
+    setActionError(serverErrorMessage(error, fallback));
   };
 
   const remind = useMutation({
     ...remindInvoiceMutation(),
-    onMutate: () => setRemindError(null),
+    onMutate: () => setActionError(null),
     onSuccess: refreshInvoices,
-    onError: (error) => {
-      setRemindError(
-        serverErrorMessage(error, "La relance n'a pas pu être notée."),
-      );
-    },
+    onError: reportFailure("La relance n'a pas pu être notée."),
+  });
+
+  const send = useMutation({
+    ...sendInvoiceMutation(),
+    onMutate: () => setActionError(null),
+    onSuccess: refreshInvoices,
+    onError: reportFailure("La facture n'a pas pu être marquée envoyée."),
+  });
+
+  const setReference = useMutation({
+    ...updateInvoiceMutation(),
+    onError: reportFailure("La référence n'a pas pu être enregistrée."),
+  });
+
+  const pay = useMutation({
+    ...payInvoiceMutation(),
+    onMutate: () => setActionError(null),
+    onSuccess: refreshInvoices,
+    onError: reportFailure("L'encaissement n'a pas pu être enregistré."),
   });
 
   const create = useMutation({
@@ -110,6 +144,48 @@ function FacturesPage() {
     });
   };
 
+  const noteReminder = (invoiceId: number) => {
+    remind.mutate({
+      path: { invoice: invoiceId },
+      body: { occurredOn: todayCalendarDate(), note: null },
+    });
+  };
+
+  /**
+   * A draft with no reference cannot be sent — the API refuses an issued invoice
+   * without one — so the reference is written first and the transition follows.
+   */
+  const markSent = async (invoiceId: number, reference: string | null) => {
+    setActionError(null);
+
+    const invoice = detail.data?.invoice;
+
+    if (reference !== null && invoice !== undefined) {
+      try {
+        await setReference.mutateAsync({
+          path: { invoice: invoiceId },
+          body: {
+            clientId: invoice.clientId,
+            missionId: invoice.missionId,
+            number: reference,
+            issuedOn: invoice.issuedOn,
+            dueOn: invoice.dueOn,
+            periodStart: invoice.periodStart,
+            periodEnd: invoice.periodEnd,
+            amountHt: invoice.amountHt,
+            amountTtc: invoice.ttcOverridden ? invoice.amountTtc : null,
+            vatRateBp: invoice.vatRateBp,
+            notes: invoice.notes,
+          },
+        });
+      } catch {
+        return;
+      }
+    }
+
+    send.mutate({ path: { invoice: invoiceId } });
+  };
+
   return (
     <div className="flex flex-col gap-5">
       <div>
@@ -137,9 +213,9 @@ function FacturesPage() {
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
         <div className="flex flex-col gap-5">
-          {remindError !== null && (
+          {actionError !== null && openInvoiceId === null && (
             <Alert variant="destructive">
-              <AlertDescription>{remindError}</AlertDescription>
+              <AlertDescription>{actionError}</AlertDescription>
             </Alert>
           )}
 
@@ -150,12 +226,7 @@ function FacturesPage() {
               pendingInvoiceId={
                 remind.isPending ? remind.variables?.path.invoice : null
               }
-              onRemind={(invoiceId) => {
-                remind.mutate({
-                  path: { invoice: invoiceId },
-                  body: { occurredOn: todayCalendarDate(), note: null },
-                });
-              }}
+              onRemind={noteReminder}
               onCreateInvoice={(todo) => {
                 setCreateError(null);
                 setCreatingFor(todo);
@@ -203,6 +274,27 @@ function FacturesPage() {
 
       <InvoiceDrawer
         detail={detail.data}
+        actions={
+          detail.data === undefined ? null : (
+            <InvoiceLifecycleActions
+              invoice={detail.data.invoice}
+              isPending={
+                send.isPending || setReference.isPending || pay.isPending
+              }
+              error={actionError}
+              onSend={(reference) =>
+                markSent(detail.data.invoice.id, reference)
+              }
+              onPay={(paidOn) =>
+                pay.mutate({
+                  path: { invoice: detail.data.invoice.id },
+                  body: { paidOn },
+                })
+              }
+              onRemind={() => noteReminder(detail.data.invoice.id)}
+            />
+          )
+        }
         open={openInvoiceId !== null}
         onOpenChange={(open) => {
           if (!open) {

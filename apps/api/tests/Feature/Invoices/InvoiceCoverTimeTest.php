@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Missions\Enums\EntryRounding;
+use App\Domain\Missions\Models\Mission;
 use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Users\Models\User;
 
@@ -65,7 +66,7 @@ test('creates nothing when one of the entries cannot be covered', function (call
 
     expect($user->invoices()->count())->toBe($before);
 })->with([
-    'time on another mission' => [function (User $user, $mission): array {
+    'time on another mission' => [function (User $user, Mission $mission): array {
         $other = missionOwnedBy($user, fn ($factory) => $factory->state(['rate_cents' => 55_000]));
 
         return [
@@ -73,18 +74,18 @@ test('creates nothing when one of the entries cannot be covered', function (call
             TimeEntry::factory()->for($other, 'mission')->create(['user_id' => $user->id])->id,
         ];
     }],
-    'time marked non-billable' => [fn (User $user, $mission): array => [
+    'time marked non-billable' => [fn (User $user, Mission $mission): array => [
         TimeEntry::factory()->for($mission, 'mission')->create([
             'user_id' => $user->id,
             'billable' => false,
         ])->id,
     ]],
-    'time already on another invoice' => [function (User $user, $mission): array {
+    'time already on another invoice' => [function (User $user, Mission $mission): array {
         $invoice = invoiceForMission($user, $mission);
 
         return [invoicedTimeEntry($user, $mission, $invoice)->id];
     }],
-    'another user time' => [function (User $user, $mission): array {
+    'another user time' => [function (User $user, Mission $mission): array {
         $stranger = User::factory()->create();
         $strangerMission = missionOwnedBy($stranger, fn ($factory) => $factory->state(['rate_cents' => 55_000]));
 
