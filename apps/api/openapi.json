@@ -1075,6 +1075,266 @@
                 }
             }
         },
+        "/cras/{cra}/send": {
+            "post": {
+                "operationId": "sendCra",
+                "tags": [
+                    "Cra"
+                ],
+                "parameters": [
+                    {
+                        "name": "cra",
+                        "in": "path",
+                        "required": true,
+                        "description": "The cra ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SendCraData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CraDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cras/{cra}/reopen": {
+            "post": {
+                "operationId": "reopenCra",
+                "tags": [
+                    "Cra"
+                ],
+                "parameters": [
+                    {
+                        "name": "cra",
+                        "in": "path",
+                        "required": true,
+                        "description": "The cra ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CraDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cras/{cra}/signed-document": {
+            "post": {
+                "operationId": "uploadSignedCra",
+                "tags": [
+                    "Cra"
+                ],
+                "parameters": [
+                    {
+                        "name": "cra",
+                        "in": "path",
+                        "required": true,
+                        "description": "The cra ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UploadSignedCraData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CraDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cras/{cra}/pdf": {
+            "get": {
+                "operationId": "downloadCraPdf",
+                "description": "A draft renders on the fly, so the preview always reflects the grid as it stands. Once\nthe CRA is issued the stored file is streamed instead: a re-download has to be the\ndocument the client received, not a re-render against settings that may have moved.",
+                "summary": "The document itself",
+                "tags": [
+                    "Cra"
+                ],
+                "parameters": [
+                    {
+                        "name": "applySignature",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "cra",
+                        "in": "path",
+                        "required": true,
+                        "description": "The cra ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Content-Disposition": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store"
+                                }
+                            },
+                            "Transfer-Encoding": {
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "chunked"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/invoices": {
             "get": {
                 "operationId": "listInvoices",
@@ -4489,6 +4749,22 @@
                 },
                 "title": "RemindInvoiceData"
             },
+            "SendCraData": {
+                "type": "object",
+                "properties": {
+                    "applySignature": {
+                        "type": "boolean"
+                    },
+                    "sentOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    }
+                },
+                "title": "SendCraData"
+            },
             "SettingsData": {
                 "type": "object",
                 "properties": {
@@ -5071,7 +5347,22 @@
                     "days": {
                         "type": "array",
                         "items": {
-                            "type": "string"
+                            "type": "object",
+                            "properties": {
+                                "date": {
+                                    "type": "string",
+                                    "format": "date"
+                                },
+                                "dayFractionBp": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 10000
+                                }
+                            },
+                            "required": [
+                                "date",
+                                "dayFractionBp"
+                            ]
                         }
                     }
                 },
@@ -5574,6 +5865,28 @@
                     "signature"
                 ],
                 "title": "UploadSignatureData"
+            },
+            "UploadSignedCraData": {
+                "type": "object",
+                "properties": {
+                    "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "contentMediaType": "application/octet-stream",
+                        "description": "Maximum file size: 20480 kilobytes."
+                    },
+                    "signedOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "file"
+                ],
+                "title": "UploadSignedCraData"
             },
             "UrssafPeriodicity": {
                 "type": "integer",

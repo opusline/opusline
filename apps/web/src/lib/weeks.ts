@@ -1,6 +1,7 @@
 import {
   addCalendarDays,
   fromCalendarDate,
+  isoDayOfWeek,
   localDate,
   toCalendarDate,
 } from "./dates";
@@ -48,11 +49,6 @@ function parseIsoWeek(week: string): { year: number; week: number } {
   }
 
   return { week: Number(match[2]), year: Number(match[1]) };
-}
-
-/** Monday = 1 … Sunday = 7, unlike `Date#getDay` where Sunday is 0. */
-function isoDayOfWeek(date: Date): number {
-  return date.getDay() === 0 ? 7 : date.getDay();
 }
 
 function addDays(date: Date, days: number): Date {

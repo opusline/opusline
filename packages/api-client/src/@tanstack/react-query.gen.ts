@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { archiveClient, createClient, createCra, createInvoice, createMission, createTimeEntry, currentUser, deleteClient, deleteClientDocument, deleteClientLogo, deleteCra, deleteInvoice, deleteMission, deleteMissionDocument, deleteTimeEntry, deleteUserSignature, discardTimer, downloadClientDocument, downloadMissionDocument, getPing, listClientDocuments, listClients, listCras, listInvoices, listMissionDocuments, listTimeEntries, login, logout, type Options, pauseTimer, payInvoice, refreshSettingsRates, register, remindInvoice, resetCra, resumeTimer, sendInvoice, showClient, showClientLogo, showCra, showInvoice, showInvoiceSummary, showMission, showNextInvoiceNumber, showSettings, showTimer, showUserSignature, startTimer, stopTimer, trimTimer, unarchiveClient, updateClient, updateClientDocument, updateCraDays, updateInvoice, updateMission, updateMissionDocument, updateSettings, updateTimeEntry, updateTimer, updateUserTheme, uploadClientDocument, uploadClientLogo, uploadMissionDocument, uploadUserSignature } from '../sdk.gen';
-import type { ArchiveClientData, ArchiveClientError, ArchiveClientResponse, CreateClientData2, CreateClientError, CreateClientResponse, CreateCraData2, CreateCraError, CreateCraResponse, CreateInvoiceData2, CreateInvoiceError, CreateInvoiceResponse, CreateMissionData2, CreateMissionError, CreateMissionResponse, CreateTimeEntryData, CreateTimeEntryError, CreateTimeEntryResponse, CurrentUserData, CurrentUserError, CurrentUserResponse, DeleteClientData, DeleteClientDocumentData, DeleteClientDocumentError, DeleteClientDocumentResponse, DeleteClientError, DeleteClientLogoData, DeleteClientLogoError, DeleteClientLogoResponse, DeleteClientResponse, DeleteCraData, DeleteCraError, DeleteCraResponse, DeleteInvoiceData, DeleteInvoiceError, DeleteInvoiceResponse, DeleteMissionData, DeleteMissionDocumentData, DeleteMissionDocumentError, DeleteMissionDocumentResponse, DeleteMissionError, DeleteMissionResponse, DeleteTimeEntryData, DeleteTimeEntryError, DeleteTimeEntryResponse, DeleteUserSignatureData, DeleteUserSignatureError, DeleteUserSignatureResponse, DiscardTimerData, DiscardTimerError, DiscardTimerResponse, DownloadClientDocumentData, DownloadClientDocumentError, DownloadClientDocumentResponse, DownloadMissionDocumentData, DownloadMissionDocumentError, DownloadMissionDocumentResponse, GetPingData, GetPingResponse, ListClientDocumentsData, ListClientDocumentsError, ListClientDocumentsResponse, ListClientsData, ListClientsError, ListClientsResponse, ListCrasData, ListCrasError, ListCrasResponse, ListInvoicesData, ListInvoicesError, ListInvoicesResponse, ListMissionDocumentsData, ListMissionDocumentsError, ListMissionDocumentsResponse, ListTimeEntriesData, ListTimeEntriesError, ListTimeEntriesResponse, LoginData2, LoginError, LoginResponse, LogoutData, LogoutError, LogoutResponse, PauseTimerData, PauseTimerError, PauseTimerResponse, PayInvoiceData2, PayInvoiceError, PayInvoiceResponse, RefreshSettingsRatesData, RefreshSettingsRatesError, RefreshSettingsRatesResponse, RegisterData, RegisterResponse, RemindInvoiceData2, RemindInvoiceError, RemindInvoiceResponse, ResetCraData, ResetCraError, ResetCraResponse, ResumeTimerData, ResumeTimerError, ResumeTimerResponse, SendInvoiceData, SendInvoiceError, SendInvoiceResponse, ShowClientData, ShowClientError, ShowClientLogoData, ShowClientLogoError, ShowClientLogoResponse, ShowClientResponse, ShowCraData, ShowCraError, ShowCraResponse, ShowInvoiceData, ShowInvoiceError, ShowInvoiceResponse, ShowInvoiceSummaryData, ShowInvoiceSummaryError, ShowInvoiceSummaryResponse, ShowMissionData, ShowMissionError, ShowMissionResponse, ShowNextInvoiceNumberData, ShowNextInvoiceNumberError, ShowNextInvoiceNumberResponse, ShowSettingsData, ShowSettingsError, ShowSettingsResponse, ShowTimerData, ShowTimerError, ShowTimerResponse, ShowUserSignatureData, ShowUserSignatureError, ShowUserSignatureResponse, StartTimerData2, StartTimerError, StartTimerResponse, StopTimerData2, StopTimerError, StopTimerResponse, TrimTimerData2, TrimTimerError, TrimTimerResponse, UnarchiveClientData, UnarchiveClientError, UnarchiveClientResponse, UpdateClientData2, UpdateClientDocumentData, UpdateClientDocumentError, UpdateClientDocumentResponse, UpdateClientError, UpdateClientResponse, UpdateCraDaysData2, UpdateCraDaysError, UpdateCraDaysResponse, UpdateInvoiceData2, UpdateInvoiceError, UpdateInvoiceResponse, UpdateMissionData2, UpdateMissionDocumentData, UpdateMissionDocumentError, UpdateMissionDocumentResponse, UpdateMissionError, UpdateMissionResponse, UpdateSettingsData2, UpdateSettingsError, UpdateSettingsResponse, UpdateTimeEntryData, UpdateTimeEntryError, UpdateTimeEntryResponse, UpdateTimerData2, UpdateTimerError, UpdateTimerResponse, UpdateUserThemeData2, UpdateUserThemeError, UpdateUserThemeResponse, UploadClientDocumentData, UploadClientDocumentError, UploadClientDocumentResponse, UploadClientLogoData2, UploadClientLogoError, UploadClientLogoResponse, UploadMissionDocumentData, UploadMissionDocumentError, UploadMissionDocumentResponse, UploadUserSignatureData, UploadUserSignatureError, UploadUserSignatureResponse } from '../types.gen';
+import { archiveClient, createClient, createCra, createInvoice, createMission, createTimeEntry, currentUser, deleteClient, deleteClientDocument, deleteClientLogo, deleteCra, deleteInvoice, deleteMission, deleteMissionDocument, deleteTimeEntry, deleteUserSignature, discardTimer, downloadClientDocument, downloadCraPdf, downloadMissionDocument, getPing, listClientDocuments, listClients, listCras, listInvoices, listMissionDocuments, listTimeEntries, login, logout, type Options, pauseTimer, payInvoice, refreshSettingsRates, register, remindInvoice, reopenCra, resetCra, resumeTimer, sendCra, sendInvoice, showClient, showClientLogo, showCra, showInvoice, showInvoiceSummary, showMission, showNextInvoiceNumber, showSettings, showTimer, showUserSignature, startTimer, stopTimer, trimTimer, unarchiveClient, updateClient, updateClientDocument, updateCraDays, updateInvoice, updateMission, updateMissionDocument, updateSettings, updateTimeEntry, updateTimer, updateUserTheme, uploadClientDocument, uploadClientLogo, uploadMissionDocument, uploadSignedCra, uploadUserSignature } from '../sdk.gen';
+import type { ArchiveClientData, ArchiveClientError, ArchiveClientResponse, CreateClientData2, CreateClientError, CreateClientResponse, CreateCraData2, CreateCraError, CreateCraResponse, CreateInvoiceData2, CreateInvoiceError, CreateInvoiceResponse, CreateMissionData2, CreateMissionError, CreateMissionResponse, CreateTimeEntryData, CreateTimeEntryError, CreateTimeEntryResponse, CurrentUserData, CurrentUserError, CurrentUserResponse, DeleteClientData, DeleteClientDocumentData, DeleteClientDocumentError, DeleteClientDocumentResponse, DeleteClientError, DeleteClientLogoData, DeleteClientLogoError, DeleteClientLogoResponse, DeleteClientResponse, DeleteCraData, DeleteCraError, DeleteCraResponse, DeleteInvoiceData, DeleteInvoiceError, DeleteInvoiceResponse, DeleteMissionData, DeleteMissionDocumentData, DeleteMissionDocumentError, DeleteMissionDocumentResponse, DeleteMissionError, DeleteMissionResponse, DeleteTimeEntryData, DeleteTimeEntryError, DeleteTimeEntryResponse, DeleteUserSignatureData, DeleteUserSignatureError, DeleteUserSignatureResponse, DiscardTimerData, DiscardTimerError, DiscardTimerResponse, DownloadClientDocumentData, DownloadClientDocumentError, DownloadClientDocumentResponse, DownloadCraPdfData, DownloadCraPdfError, DownloadCraPdfResponse, DownloadMissionDocumentData, DownloadMissionDocumentError, DownloadMissionDocumentResponse, GetPingData, GetPingResponse, ListClientDocumentsData, ListClientDocumentsError, ListClientDocumentsResponse, ListClientsData, ListClientsError, ListClientsResponse, ListCrasData, ListCrasError, ListCrasResponse, ListInvoicesData, ListInvoicesError, ListInvoicesResponse, ListMissionDocumentsData, ListMissionDocumentsError, ListMissionDocumentsResponse, ListTimeEntriesData, ListTimeEntriesError, ListTimeEntriesResponse, LoginData2, LoginError, LoginResponse, LogoutData, LogoutError, LogoutResponse, PauseTimerData, PauseTimerError, PauseTimerResponse, PayInvoiceData2, PayInvoiceError, PayInvoiceResponse, RefreshSettingsRatesData, RefreshSettingsRatesError, RefreshSettingsRatesResponse, RegisterData, RegisterResponse, RemindInvoiceData2, RemindInvoiceError, RemindInvoiceResponse, ReopenCraData, ReopenCraError, ReopenCraResponse, ResetCraData, ResetCraError, ResetCraResponse, ResumeTimerData, ResumeTimerError, ResumeTimerResponse, SendCraData2, SendCraError, SendCraResponse, SendInvoiceData, SendInvoiceError, SendInvoiceResponse, ShowClientData, ShowClientError, ShowClientLogoData, ShowClientLogoError, ShowClientLogoResponse, ShowClientResponse, ShowCraData, ShowCraError, ShowCraResponse, ShowInvoiceData, ShowInvoiceError, ShowInvoiceResponse, ShowInvoiceSummaryData, ShowInvoiceSummaryError, ShowInvoiceSummaryResponse, ShowMissionData, ShowMissionError, ShowMissionResponse, ShowNextInvoiceNumberData, ShowNextInvoiceNumberError, ShowNextInvoiceNumberResponse, ShowSettingsData, ShowSettingsError, ShowSettingsResponse, ShowTimerData, ShowTimerError, ShowTimerResponse, ShowUserSignatureData, ShowUserSignatureError, ShowUserSignatureResponse, StartTimerData2, StartTimerError, StartTimerResponse, StopTimerData2, StopTimerError, StopTimerResponse, TrimTimerData2, TrimTimerError, TrimTimerResponse, UnarchiveClientData, UnarchiveClientError, UnarchiveClientResponse, UpdateClientData2, UpdateClientDocumentData, UpdateClientDocumentError, UpdateClientDocumentResponse, UpdateClientError, UpdateClientResponse, UpdateCraDaysData2, UpdateCraDaysError, UpdateCraDaysResponse, UpdateInvoiceData2, UpdateInvoiceError, UpdateInvoiceResponse, UpdateMissionData2, UpdateMissionDocumentData, UpdateMissionDocumentError, UpdateMissionDocumentResponse, UpdateMissionError, UpdateMissionResponse, UpdateSettingsData2, UpdateSettingsError, UpdateSettingsResponse, UpdateTimeEntryData, UpdateTimeEntryError, UpdateTimeEntryResponse, UpdateTimerData2, UpdateTimerError, UpdateTimerResponse, UpdateUserThemeData2, UpdateUserThemeError, UpdateUserThemeResponse, UploadClientDocumentData, UploadClientDocumentError, UploadClientDocumentResponse, UploadClientLogoData2, UploadClientLogoError, UploadClientLogoResponse, UploadMissionDocumentData, UploadMissionDocumentError, UploadMissionDocumentResponse, UploadSignedCraData2, UploadSignedCraError, UploadSignedCraResponse, UploadUserSignatureData, UploadUserSignatureError, UploadUserSignatureResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -425,6 +425,70 @@ export const resetCraMutation = (options?: Partial<Options<ResetCraData>>): UseM
     };
     return mutationOptions;
 };
+
+export const sendCraMutation = (options?: Partial<Options<SendCraData2>>): UseMutationOptions<SendCraResponse, SendCraError, Options<SendCraData2>> => {
+    const mutationOptions: UseMutationOptions<SendCraResponse, SendCraError, Options<SendCraData2>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await sendCra({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const reopenCraMutation = (options?: Partial<Options<ReopenCraData>>): UseMutationOptions<ReopenCraResponse, ReopenCraError, Options<ReopenCraData>> => {
+    const mutationOptions: UseMutationOptions<ReopenCraResponse, ReopenCraError, Options<ReopenCraData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await reopenCra({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const uploadSignedCraMutation = (options?: Partial<Options<UploadSignedCraData2>>): UseMutationOptions<UploadSignedCraResponse, UploadSignedCraError, Options<UploadSignedCraData2>> => {
+    const mutationOptions: UseMutationOptions<UploadSignedCraResponse, UploadSignedCraError, Options<UploadSignedCraData2>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await uploadSignedCra({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const downloadCraPdfQueryKey = (options: Options<DownloadCraPdfData>) => createQueryKey('downloadCraPdf', options);
+
+/**
+ * The document itself
+ *
+ * A draft renders on the fly, so the preview always reflects the grid as it stands. Once
+ * the CRA is issued the stored file is streamed instead: a re-download has to be the
+ * document the client received, not a re-render against settings that may have moved.
+ */
+export const downloadCraPdfOptions = (options: Options<DownloadCraPdfData>) => queryOptions<DownloadCraPdfResponse, DownloadCraPdfError, DownloadCraPdfResponse, ReturnType<typeof downloadCraPdfQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await downloadCraPdf({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: downloadCraPdfQueryKey(options)
+});
 
 export const listInvoicesQueryKey = (options?: Options<ListInvoicesData>) => createQueryKey('listInvoices', options);
 

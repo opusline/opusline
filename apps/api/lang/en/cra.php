@@ -10,4 +10,8 @@ return [
     'already_issued' => 'This CRA is already with the client: its days can no longer change.',
     'day_outside_month' => 'That day is not part of the CRA\'s month.',
     'day_listed_twice' => 'That day appears twice in the grid.',
+    'nothing_to_send' => 'This CRA reports no day at all: fill the grid before sending it.',
+    'only_a_sent_cra_reopens' => 'Only a sent CRA can be reopened.',
+    'signed_return_filed' => 'The signed return is already filed: this CRA can no longer be reopened.',
+    'only_a_sent_cra_is_returned' => 'A signed return belongs only on a sent CRA.',
 ];

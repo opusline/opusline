@@ -528,6 +528,14 @@ export type RemindInvoiceData = {
 };
 
 /**
+ * SendCraData
+ */
+export type SendCraData = {
+    applySignature?: boolean;
+    sentOn?: string | null;
+};
+
+/**
  * SettingsData
  */
 export type SettingsData = {
@@ -681,7 +689,10 @@ export type UpdateClientData = {
  * UpdateCraDaysData
  */
 export type UpdateCraDaysData = {
-    days: Array<string>;
+    days: Array<{
+        date: string;
+        dayFractionBp: number;
+    }>;
 };
 
 /**
@@ -815,6 +826,17 @@ export type UploadSignatureData = {
      * Maximum file size: 1024 kilobytes.
      */
     signature: Blob | File;
+};
+
+/**
+ * UploadSignedCraData
+ */
+export type UploadSignedCraData = {
+    /**
+     * Maximum file size: 20480 kilobytes.
+     */
+    file: Blob | File;
+    signedOn?: string | null;
 };
 
 /**
@@ -1838,6 +1860,199 @@ export type ResetCraResponses = {
 };
 
 export type ResetCraResponse = ResetCraResponses[keyof ResetCraResponses];
+
+export type SendCraData2 = {
+    body?: SendCraData;
+    path: {
+        /**
+         * The cra ID
+         */
+        cra: number;
+    };
+    query?: never;
+    url: '/cras/{cra}/send';
+};
+
+export type SendCraErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type SendCraError = SendCraErrors[keyof SendCraErrors];
+
+export type SendCraResponses = {
+    200: CraDetailData;
+};
+
+export type SendCraResponse = SendCraResponses[keyof SendCraResponses];
+
+export type ReopenCraData = {
+    body?: never;
+    path: {
+        /**
+         * The cra ID
+         */
+        cra: number;
+    };
+    query?: never;
+    url: '/cras/{cra}/reopen';
+};
+
+export type ReopenCraErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ReopenCraError = ReopenCraErrors[keyof ReopenCraErrors];
+
+export type ReopenCraResponses = {
+    200: CraDetailData;
+};
+
+export type ReopenCraResponse = ReopenCraResponses[keyof ReopenCraResponses];
+
+export type UploadSignedCraData2 = {
+    body: UploadSignedCraData;
+    path: {
+        /**
+         * The cra ID
+         */
+        cra: number;
+    };
+    query?: never;
+    url: '/cras/{cra}/signed-document';
+};
+
+export type UploadSignedCraErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UploadSignedCraError = UploadSignedCraErrors[keyof UploadSignedCraErrors];
+
+export type UploadSignedCraResponses = {
+    201: CraDetailData;
+};
+
+export type UploadSignedCraResponse = UploadSignedCraResponses[keyof UploadSignedCraResponses];
+
+export type DownloadCraPdfData = {
+    body?: never;
+    path: {
+        /**
+         * The cra ID
+         */
+        cra: number;
+    };
+    query?: {
+        applySignature?: boolean;
+    };
+    url: '/cras/{cra}/pdf';
+};
+
+export type DownloadCraPdfErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DownloadCraPdfError = DownloadCraPdfErrors[keyof DownloadCraPdfErrors];
+
+export type DownloadCraPdfResponses = {
+    200: Blob | File;
+};
+
+export type DownloadCraPdfResponse = DownloadCraPdfResponses[keyof DownloadCraPdfResponses];
 
 export type ListInvoicesData = {
     body?: never;
