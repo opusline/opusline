@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.7.0](https://github.com/opusline/opusline/compare/v0.6.0...v0.7.0) (2026-08-13)
+
+
+### Features
+
+* **api:** add invoice management across API ([#95](https://github.com/opusline/opusline/issues/95)) ([e09ed12](https://github.com/opusline/opusline/commit/e09ed12747f1335a6a499035b89645abbb717a05))
+* **api:** add invoice persistence and lifecycle routes ([#94](https://github.com/opusline/opusline/issues/94)) ([6585166](https://github.com/opusline/opusline/commit/65851667ff2456b5ab244268c1436ce6460c5169))
+* **web:** add invoice functionality ([#96](https://github.com/opusline/opusline/issues/96)) ([3386b00](https://github.com/opusline/opusline/commit/3386b00178ca859a6e77671237fe7356b0e9b0ff))
+
 ## [0.6.0](https://github.com/opusline/opusline/compare/v0.5.0...v0.6.0) (2026-08-13)
 
 
