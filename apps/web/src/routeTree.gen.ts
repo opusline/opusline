@@ -18,6 +18,7 @@ import { Route as AuthedCraRouteImport } from './routes/_authed/cra'
 import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
 import { Route as AuthedDeclarationsRouteImport } from './routes/_authed/declarations'
 import { Route as AuthedEcheancesRouteImport } from './routes/_authed/echeances'
+import { Route as AuthedFacturesRouteImport } from './routes/_authed/factures'
 import { Route as AuthedReglagesRouteImport } from './routes/_authed/reglages'
 import { Route as AuthedRevenusRouteImport } from './routes/_authed/revenus'
 import { Route as AuthedSemaineRouteImport } from './routes/_authed/semaine'
@@ -70,6 +71,11 @@ const AuthedDeclarationsRoute = AuthedDeclarationsRouteImport.update({
 const AuthedEcheancesRoute = AuthedEcheancesRouteImport.update({
   id: '/echeances',
   path: '/echeances',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedFacturesRoute = AuthedFacturesRouteImport.update({
+  id: '/factures',
+  path: '/factures',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedReglagesRoute = AuthedReglagesRouteImport.update({
@@ -132,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthedDashboardRoute
   '/declarations': typeof AuthedDeclarationsRoute
   '/echeances': typeof AuthedEcheancesRoute
+  '/factures': typeof AuthedFacturesRoute
   '/reglages': typeof AuthedReglagesRoute
   '/revenus': typeof AuthedRevenusRoute
   '/semaine': typeof AuthedSemaineRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthedDashboardRoute
   '/declarations': typeof AuthedDeclarationsRoute
   '/echeances': typeof AuthedEcheancesRoute
+  '/factures': typeof AuthedFacturesRoute
   '/reglages': typeof AuthedReglagesRoute
   '/revenus': typeof AuthedRevenusRoute
   '/semaine': typeof AuthedSemaineRoute
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   '/_authed/dashboard': typeof AuthedDashboardRoute
   '/_authed/declarations': typeof AuthedDeclarationsRoute
   '/_authed/echeances': typeof AuthedEcheancesRoute
+  '/_authed/factures': typeof AuthedFacturesRoute
   '/_authed/reglages': typeof AuthedReglagesRoute
   '/_authed/revenus': typeof AuthedRevenusRoute
   '/_authed/semaine': typeof AuthedSemaineRoute
@@ -194,6 +203,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/declarations'
     | '/echeances'
+    | '/factures'
     | '/reglages'
     | '/revenus'
     | '/semaine'
@@ -213,6 +223,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/declarations'
     | '/echeances'
+    | '/factures'
     | '/reglages'
     | '/revenus'
     | '/semaine'
@@ -234,6 +245,7 @@ export interface FileRouteTypes {
     | '/_authed/dashboard'
     | '/_authed/declarations'
     | '/_authed/echeances'
+    | '/_authed/factures'
     | '/_authed/reglages'
     | '/_authed/revenus'
     | '/_authed/semaine'
@@ -318,6 +330,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedEcheancesRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/factures': {
+      id: '/_authed/factures'
+      path: '/factures'
+      fullPath: '/factures'
+      preLoaderRoute: typeof AuthedFacturesRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/reglages': {
       id: '/_authed/reglages'
       path: '/reglages'
@@ -397,6 +416,7 @@ interface AuthedRouteChildren {
   AuthedDashboardRoute: typeof AuthedDashboardRoute
   AuthedDeclarationsRoute: typeof AuthedDeclarationsRoute
   AuthedEcheancesRoute: typeof AuthedEcheancesRoute
+  AuthedFacturesRoute: typeof AuthedFacturesRoute
   AuthedReglagesRoute: typeof AuthedReglagesRoute
   AuthedRevenusRoute: typeof AuthedRevenusRoute
   AuthedSemaineRoute: typeof AuthedSemaineRoute
@@ -413,6 +433,7 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedDashboardRoute: AuthedDashboardRoute,
   AuthedDeclarationsRoute: AuthedDeclarationsRoute,
   AuthedEcheancesRoute: AuthedEcheancesRoute,
+  AuthedFacturesRoute: AuthedFacturesRoute,
   AuthedReglagesRoute: AuthedReglagesRoute,
   AuthedRevenusRoute: AuthedRevenusRoute,
   AuthedSemaineRoute: AuthedSemaineRoute,

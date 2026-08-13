@@ -184,14 +184,10 @@ export const zInvoiceEventData = z.object({
 /**
  * InvoiceForecastBucket
  *
- * The three bars of "Attendu sur 60 jours". Money already late leads, because it is the number that needs acting on rather than waiting for.
+ * The bars of "Attendu sur 60 jours". Money already late is not one of them: it is not expected, it is missing, and it is reported on its own as `overdue`. Keeping it here would both duplicate that figure and scale the bars against a bar nobody draws.
  *
  */
-export const zInvoiceForecastBucket = z.union([
-    z.literal(0),
-    z.literal(1),
-    z.literal(2)
-]);
+export const zInvoiceForecastBucket = z.union([z.literal(1), z.literal(2)]);
 
 /**
  * InvoiceStatus
@@ -224,20 +220,41 @@ export const zCreateInvoiceData = z.object({
         currency: zCurrency
     })),
     vatRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
-    notes: z.nullish(z.string().check(z.maxLength(2000)))
+    notes: z.nullish(z.string().check(z.maxLength(2000))),
+    timeEntryIds: z.optional(z.array(z.int()))
 });
 
 /**
  * InvoiceTodoKind
  *
- * What the "À traiter" list can put in front of you. Labels live on the frontend, like every other enum here.
+ * What the "À traiter" list can put in front of you: money that was billed and has not come in, and money that was worked and has not been billed. Drafts are not here — an unsent draft is a note to self, not a debt. Labels live on the frontend, like every other enum here.
  *
  */
-export const zInvoiceTodoKind = z.union([
-    z.literal(0),
-    z.literal(1),
-    z.literal(2)
-]);
+export const zInvoiceTodoKind = z.union([z.literal(0), z.literal(1)]);
+
+/**
+ * InvoiceTodoOverdueData
+ */
+export const zInvoiceTodoOverdueData = z.object({
+    invoiceId: z.int(),
+    number: z.nullable(z.string()),
+    dueOn: z.iso.date(),
+    daysLate: z.int()
+});
+
+/**
+ * InvoiceTodoWorkData
+ */
+export const zInvoiceTodoWorkData = z.object({
+    missionId: z.int(),
+    missionName: z.string(),
+    entryCount: z.int(),
+    firstEntryOn: z.iso.date(),
+    lastEntryOn: z.iso.date(),
+    valuedDays: z.nullable(z.number()),
+    valuedMinutes: z.nullable(z.int()),
+    timeEntryIds: z.array(z.int())
+});
 
 /**
  * LoginData
@@ -298,15 +315,24 @@ export const zInvoiceForecastData = z.object({
 });
 
 /**
+ * InvoiceOverdueData
+ */
+export const zInvoiceOverdueData = z.object({
+    amount: zMoneyData,
+    count: z.int(),
+    maxDaysLate: z.int()
+});
+
+/**
  * InvoiceTodoData
  */
 export const zInvoiceTodoData = z.object({
     kind: zInvoiceTodoKind,
-    invoiceId: z.nullable(z.int()),
-    missionId: z.nullable(z.int()),
     amount: zMoneyData,
-    dueOn: z.nullable(z.iso.date()),
-    count: z.int()
+    clientId: z.int(),
+    clientName: z.string(),
+    overdue: z.nullish(zInvoiceTodoOverdueData),
+    work: z.nullish(zInvoiceTodoWorkData)
 });
 
 /**
@@ -322,10 +348,10 @@ export const zInvoiceTotalData = z.object({
  */
 export const zInvoiceSummaryData = z.object({
     month: z.string(),
-    invoiced: zInvoiceTotalData,
-    toInvoice: zInvoiceTotalData,
-    collected: zInvoiceTotalData,
+    toCollect: zInvoiceTotalData,
+    overdue: zInvoiceOverdueData,
     forecast: z.array(zInvoiceForecastData),
+    monthUnbilled: zInvoiceTotalData,
     counts: zInvoiceCountsData,
     todo: z.array(zInvoiceTodoData),
     todoTotal: z.int()

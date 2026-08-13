@@ -2994,6 +2994,12 @@
                             "null"
                         ],
                         "maxLength": 2000
+                    },
+                    "timeEntryIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
                     }
                 },
                 "required": [
@@ -3405,14 +3411,12 @@
             },
             "InvoiceForecastBucket": {
                 "type": "integer",
-                "description": "The three bars of \"Attendu sur 60 jours\". Money already late leads, because it is the number that needs acting on rather than waiting for.\n",
+                "description": "The bars of \"Attendu sur 60 jours\". Money already late is not one of them: it is not expected, it is missing, and it is reported on its own as `overdue`. Keeping it here would both duplicate that figure and scale the bars against a bar nobody draws.\n",
                 "enum": [
-                    0,
                     1,
                     2
                 ],
                 "x-enum-varnames": [
-                    "Late",
                     "Next30",
                     "Next60"
                 ],
@@ -3480,6 +3484,26 @@
                 ],
                 "title": "InvoiceListItemData"
             },
+            "InvoiceOverdueData": {
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "count": {
+                        "type": "integer"
+                    },
+                    "maxDaysLate": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "amount",
+                    "count",
+                    "maxDaysLate"
+                ],
+                "title": "InvoiceOverdueData"
+            },
             "InvoiceStatus": {
                 "type": "integer",
                 "enum": [
@@ -3500,20 +3524,20 @@
                     "month": {
                         "type": "string"
                     },
-                    "invoiced": {
+                    "toCollect": {
                         "$ref": "#/components/schemas/InvoiceTotalData"
                     },
-                    "toInvoice": {
-                        "$ref": "#/components/schemas/InvoiceTotalData"
-                    },
-                    "collected": {
-                        "$ref": "#/components/schemas/InvoiceTotalData"
+                    "overdue": {
+                        "$ref": "#/components/schemas/InvoiceOverdueData"
                     },
                     "forecast": {
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/InvoiceForecastData"
                         }
+                    },
+                    "monthUnbilled": {
+                        "$ref": "#/components/schemas/InvoiceTotalData"
                     },
                     "counts": {
                         "$ref": "#/components/schemas/InvoiceCountsData"
@@ -3530,10 +3554,10 @@
                 },
                 "required": [
                     "month",
-                    "invoiced",
-                    "toInvoice",
-                    "collected",
+                    "toCollect",
+                    "overdue",
                     "forecast",
+                    "monthUnbilled",
                     "counts",
                     "todo",
                     "todoTotal"
@@ -3546,56 +3570,135 @@
                     "kind": {
                         "$ref": "#/components/schemas/InvoiceTodoKind"
                     },
-                    "invoiceId": {
-                        "type": [
-                            "integer",
-                            "null"
-                        ]
-                    },
-                    "missionId": {
-                        "type": [
-                            "integer",
-                            "null"
-                        ]
-                    },
                     "amount": {
                         "$ref": "#/components/schemas/MoneyData"
                     },
-                    "dueOn": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date"
-                    },
-                    "count": {
+                    "clientId": {
                         "type": "integer"
+                    },
+                    "clientName": {
+                        "type": "string"
+                    },
+                    "overdue": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/InvoiceTodoOverdueData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "work": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/InvoiceTodoWorkData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
                     "kind",
-                    "invoiceId",
-                    "missionId",
                     "amount",
-                    "dueOn",
-                    "count"
+                    "clientId",
+                    "clientName"
                 ],
                 "title": "InvoiceTodoData"
             },
             "InvoiceTodoKind": {
                 "type": "integer",
-                "description": "What the \"À traiter\" list can put in front of you. Labels live on the frontend, like every other enum here.\n",
+                "description": "What the \"À traiter\" list can put in front of you: money that was billed and has not come in, and money that was worked and has not been billed. Drafts are not here — an unsent draft is a note to self, not a debt. Labels live on the frontend, like every other enum here.\n",
                 "enum": [
                     0,
-                    1,
-                    2
+                    1
                 ],
                 "x-enum-varnames": [
-                    "DraftToSend",
                     "Overdue",
                     "UnbilledWork"
                 ],
                 "title": "InvoiceTodoKind"
+            },
+            "InvoiceTodoOverdueData": {
+                "type": "object",
+                "properties": {
+                    "invoiceId": {
+                        "type": "integer"
+                    },
+                    "number": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "dueOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "daysLate": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "invoiceId",
+                    "number",
+                    "dueOn",
+                    "daysLate"
+                ],
+                "title": "InvoiceTodoOverdueData"
+            },
+            "InvoiceTodoWorkData": {
+                "type": "object",
+                "properties": {
+                    "missionId": {
+                        "type": "integer"
+                    },
+                    "missionName": {
+                        "type": "string"
+                    },
+                    "entryCount": {
+                        "type": "integer"
+                    },
+                    "firstEntryOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "lastEntryOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "valuedDays": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "valuedMinutes": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "timeEntryIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "required": [
+                    "missionId",
+                    "missionName",
+                    "entryCount",
+                    "firstEntryOn",
+                    "lastEntryOn",
+                    "valuedDays",
+                    "valuedMinutes",
+                    "timeEntryIds"
+                ],
+                "title": "InvoiceTodoWorkData"
             },
             "InvoiceTotalData": {
                 "type": "object",

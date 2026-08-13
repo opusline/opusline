@@ -21,6 +21,10 @@ use Spatie\LaravelData\Support\Validation\Constraints\WhereConstraint;
 
 class CreateInvoiceData extends Data
 {
+    /**
+     * @param  list<int>  $timeEntryIds  Tracked time this invoice covers, marked as
+     *                                   billed so it stops counting as work to invoice.
+     */
     public function __construct(
         #[IntegerType]
         #[Exists('clients', 'id', where: new WhereConstraint('user_id', new AuthenticatedUserId))]
@@ -49,5 +53,20 @@ class CreateInvoiceData extends Data
         public ?int $vatRateBp = null,
         #[Max(2000)]
         public ?string $notes = null,
+        public array $timeEntryIds = [],
     ) {}
+
+    /**
+     * Inference would make this required, and an empty array does not satisfy
+     * `required` — covering no time is the normal case for an invoice typed by hand.
+     *
+     * @return array<string, list<string>>
+     */
+    public static function rules(): array
+    {
+        return [
+            'timeEntryIds' => ['array'],
+            'timeEntryIds.*' => ['integer'],
+        ];
+    }
 }

@@ -3,6 +3,14 @@ const monthYear = new Intl.DateTimeFormat("fr-FR", {
   year: "numeric",
 });
 
+// Invoice screens date everything numerically: an amount and a date sit on the
+// same dense row, and "30 juin 2026" pushes the row wider than the column.
+const numericDate = new Intl.DateTimeFormat("fr-FR", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
 const fullDate = new Intl.DateTimeFormat("fr-FR", {
   day: "numeric",
   month: "long",
@@ -70,6 +78,27 @@ export function calendarMonthYearLabel(date: string): string {
   return monthYear.format(fromCalendarDate(date));
 }
 
+/** "Août 2026" — a month used as a heading rather than inside a sentence. */
+export function capitalizedMonthLabel(date: string): string {
+  const label = calendarMonthYearLabel(date);
+
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+export function calendarDateNumericLabel(date: string): string {
+  return numericDate.format(fromCalendarDate(date));
+}
+
+/** Whole days between two `Y-m-d`, ignoring clocks and timezones. */
+export function calendarDaysBetween(from: string, to: string): number {
+  const DAY_MS = 24 * 60 * 60 * 1000;
+
+  return Math.round(
+    (fromCalendarDate(to).getTime() - fromCalendarDate(from).getTime()) /
+      DAY_MS,
+  );
+}
+
 export function calendarDateLabel(date: string): string {
   return fullDate.format(fromCalendarDate(date));
 }
@@ -77,4 +106,23 @@ export function calendarDateLabel(date: string): string {
 /** Today as the `Y-m-d` the API expects, on the user's calendar rather than UTC. */
 export function todayCalendarDate(): string {
   return toCalendarDate(new Date());
+}
+
+/**
+ * "01/06/2026 – 30/06/2026" for a span, the single date when both ends match, and
+ * null when there is no period to show.
+ */
+export function calendarRangeLabel(
+  from: string | null,
+  to: string | null,
+): string | null {
+  if (from === null) {
+    return to === null ? null : calendarDateNumericLabel(to);
+  }
+
+  if (to === null || from === to) {
+    return calendarDateNumericLabel(from);
+  }
+
+  return `${calendarDateNumericLabel(from)} – ${calendarDateNumericLabel(to)}`;
 }

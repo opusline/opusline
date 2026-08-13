@@ -40,6 +40,7 @@ import {
   FileCheck,
   LogOut,
   PanelLeft,
+  ReceiptText,
   SlidersHorizontal,
   Users,
 } from "lucide-react";
@@ -112,6 +113,16 @@ export function AppSidebar() {
                 >
                   <FileCheck />
                   <span>CRA</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={pathname.startsWith("/factures")}
+                  render={<Link to="/factures" />}
+                  tooltip="Factures"
+                >
+                  <ReceiptText />
+                  <span>Factures</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>

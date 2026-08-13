@@ -20,6 +20,7 @@ class CreateInvoice
         private readonly ValidateInvoice $validateInvoice,
         private readonly ComputeInvoiceAmounts $computeInvoiceAmounts,
         private readonly RecordInvoiceEvent $recordInvoiceEvent,
+        private readonly LinkInvoiceTimeEntries $linkInvoiceTimeEntries,
     ) {}
 
     public function handle(User $user, CreateInvoiceData $data): Invoice
@@ -53,7 +54,7 @@ class CreateInvoice
             'notes' => $data->notes,
         ];
 
-        return DB::transaction(function () use ($user, $attributes, $status, $issuedOn): Invoice {
+        return DB::transaction(function () use ($user, $data, $attributes, $status, $issuedOn): Invoice {
             User::query()->whereKey($user->getKey())->lockForUpdate()->firstOrFail();
 
             try {
@@ -68,6 +69,7 @@ class CreateInvoice
                 ]);
             }
 
+            $this->linkInvoiceTimeEntries->handle($invoice, $data->timeEntryIds);
             $this->recordHistory($invoice, $status, $issuedOn);
 
             return $invoice;

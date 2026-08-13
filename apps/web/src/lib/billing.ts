@@ -17,6 +17,35 @@ export function formatAmount(amountCents: number): string {
   return `${euros.format(amountCents / 100)}`;
 }
 
+const wholeEuros = new Intl.NumberFormat("fr-FR", {
+  maximumFractionDigits: 0,
+});
+
+/**
+ * Whole euros, the way invoice lists show them: "1 224 €". Rounded on purpose —
+ * the list is scanned, not reconciled, and the exact figure to the cent is on the
+ * invoice's own panel.
+ */
+export function formatEuros(amountCents: number): string {
+  return `${wholeEuros.format(amountCents / 100)} €`;
+}
+
+/**
+ * A basis-point rate as the figure beside a "%": 2000 -> "20", 550 -> "5,5".
+ *
+ * `minimumFractionDigits` is the caller's call: an invoice reads "TVA 20 %", while
+ * the settings form pins one decimal so the figure does not jump as it is typed.
+ */
+export function formatPercentFromBp(
+  basisPoints: number,
+  minimumFractionDigits = 0,
+): string {
+  return new Intl.NumberFormat("fr-FR", {
+    minimumFractionDigits,
+    maximumFractionDigits: 2,
+  }).format(basisPoints / 100);
+}
+
 export function formatRate(
   amountCents: number,
   billingMode: BillingMode,

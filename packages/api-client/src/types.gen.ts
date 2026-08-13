@@ -118,6 +118,7 @@ export type CreateInvoiceData = {
     } | null;
     vatRateBp?: number | null;
     notes?: string | null;
+    timeEntryIds?: Array<number>;
 };
 
 /**
@@ -243,10 +244,10 @@ export type InvoiceEventKind = 0 | 1 | 2 | 3 | 4;
 /**
  * InvoiceForecastBucket
  *
- * The three bars of "Attendu sur 60 jours". Money already late leads, because it is the number that needs acting on rather than waiting for.
+ * The bars of "Attendu sur 60 jours". Money already late is not one of them: it is not expected, it is missing, and it is reported on its own as `overdue`. Keeping it here would both duplicate that figure and scale the bars against a bar nobody draws.
  *
  */
-export type InvoiceForecastBucket = 0 | 1 | 2;
+export type InvoiceForecastBucket = 1 | 2;
 
 /**
  * InvoiceForecastData
@@ -274,6 +275,15 @@ export type InvoiceListItemData = {
 };
 
 /**
+ * InvoiceOverdueData
+ */
+export type InvoiceOverdueData = {
+    amount: MoneyData;
+    count: number;
+    maxDaysLate: number;
+};
+
+/**
  * InvoiceStatus
  */
 export type InvoiceStatus = 0 | 1 | 2;
@@ -283,10 +293,10 @@ export type InvoiceStatus = 0 | 1 | 2;
  */
 export type InvoiceSummaryData = {
     month: string;
-    invoiced: InvoiceTotalData;
-    toInvoice: InvoiceTotalData;
-    collected: InvoiceTotalData;
+    toCollect: InvoiceTotalData;
+    overdue: InvoiceOverdueData;
     forecast: Array<InvoiceForecastData>;
+    monthUnbilled: InvoiceTotalData;
     counts: InvoiceCountsData;
     todo: Array<InvoiceTodoData>;
     todoTotal: number;
@@ -297,20 +307,44 @@ export type InvoiceSummaryData = {
  */
 export type InvoiceTodoData = {
     kind: InvoiceTodoKind;
-    invoiceId: number | null;
-    missionId: number | null;
     amount: MoneyData;
-    dueOn: string | null;
-    count: number;
+    clientId: number;
+    clientName: string;
+    overdue?: InvoiceTodoOverdueData | null;
+    work?: InvoiceTodoWorkData | null;
 };
 
 /**
  * InvoiceTodoKind
  *
- * What the "À traiter" list can put in front of you. Labels live on the frontend, like every other enum here.
+ * What the "À traiter" list can put in front of you: money that was billed and has not come in, and money that was worked and has not been billed. Drafts are not here — an unsent draft is a note to self, not a debt. Labels live on the frontend, like every other enum here.
  *
  */
-export type InvoiceTodoKind = 0 | 1 | 2;
+export type InvoiceTodoKind = 0 | 1;
+
+/**
+ * InvoiceTodoOverdueData
+ */
+export type InvoiceTodoOverdueData = {
+    invoiceId: number;
+    number: string | null;
+    dueOn: string;
+    daysLate: number;
+};
+
+/**
+ * InvoiceTodoWorkData
+ */
+export type InvoiceTodoWorkData = {
+    missionId: number;
+    missionName: string;
+    entryCount: number;
+    firstEntryOn: string;
+    lastEntryOn: string;
+    valuedDays: number | null;
+    valuedMinutes: number | null;
+    timeEntryIds: Array<number>;
+};
 
 /**
  * InvoiceTotalData

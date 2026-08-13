@@ -19,6 +19,11 @@ return [
     'cannot_remind' => 'A reminder can only be logged on a sent, unpaid invoice.',
     'cannot_change_invoiced_time_entry' => 'This time is billed: its mission, date, duration, rounding and billable flag can no longer change.',
     'cannot_delete_invoiced_time_entry' => 'This time is billed by an invoice. Detach it from the invoice before deleting it.',
+    'link_requires_mission' => 'Attach the invoice to a mission before covering tracked time with it.',
+    'time_entry_not_found' => 'One of the selected time entries could not be found.',
+    'time_entry_not_on_mission' => 'One of the selected time entries is not on the invoiced mission.',
+    'time_entry_not_billable' => 'One of the selected time entries is not billable.',
+    'time_entry_already_invoiced' => 'One of the selected time entries is already on another invoice.',
     'cannot_delete_client_with_invoices' => 'A client that still has invoices cannot be deleted. Delete them first.',
     'cannot_delete_mission_with_invoices' => 'A mission that still has invoices cannot be deleted. Delete them first.',
 ];
