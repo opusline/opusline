@@ -59,6 +59,61 @@ export const zClientData = z.object({
 });
 
 /**
+ * CraCountsData
+ */
+export const zCraCountsData = z.object({
+    toProduce: z.int(),
+    sent: z.int(),
+    signed: z.int()
+});
+
+/**
+ * CraDayData
+ */
+export const zCraDayData = z.object({
+    date: z.iso.date(),
+    dayFractionBp: z.int(),
+    trackedDayFractionBp: z.int(),
+    isWeekend: z.boolean(),
+    isHoliday: z.boolean(),
+    holidayName: z.nullable(z.string())
+});
+
+/**
+ * CraStatus
+ */
+export const zCraStatus = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * CraListItemData
+ */
+export const zCraListItemData = z.object({
+    id: z.nullable(z.int()),
+    missionId: z.int(),
+    missionSlug: z.string(),
+    missionName: z.string(),
+    clientSlug: z.string(),
+    clientName: z.string(),
+    color: zColor,
+    month: z.string(),
+    status: zCraStatus,
+    totalDays: z.number(),
+    trackedDays: z.number()
+});
+
+/**
+ * CraListData
+ */
+export const zCraListData = z.object({
+    cras: z.array(zCraListItemData),
+    counts: zCraCountsData
+});
+
+/**
  * CreateClientData
  */
 export const zCreateClientData = z.object({
@@ -79,19 +134,37 @@ export const zCreateClientData = z.object({
 });
 
 /**
+ * CreateCraData
+ */
+export const zCreateCraData = z.object({
+    missionId: z.int(),
+    month: z.string()
+});
+
+/**
  * Currency
  */
 export const zCurrency = z.enum(['EUR']);
 
 /**
  * DocumentCategory
+ *
+ * | |
+ * |---|
+ * | `0` <br/>  |
+ * | `1` <br/>  |
+ * | `2` <br/>  |
+ * | `3` <br/>  |
+ * | `4` <br/>  |
+ * | `5` <br/> The CRA Opusline generated, filed next to the signed return it comes back as. |
  */
 export const zDocumentCategory = z.union([
     z.literal(0),
     z.literal(1),
     z.literal(2),
     z.literal(3),
-    z.literal(4)
+    z.literal(4),
+    z.literal(5)
 ]);
 
 /**
@@ -283,6 +356,26 @@ export const zMoneyData = z.object({
 });
 
 /**
+ * CraData
+ */
+export const zCraData = z.object({
+    id: z.int(),
+    missionId: z.int(),
+    month: z.string(),
+    status: zCraStatus,
+    sentOn: z.nullable(z.iso.date()),
+    signedOn: z.nullable(z.iso.date()),
+    totalDays: z.number(),
+    trackedDays: z.number(),
+    differenceDays: z.number(),
+    estimatedAmount: z.nullable(zMoneyData),
+    dirty: z.boolean(),
+    editable: z.boolean(),
+    notes: z.nullable(z.string()),
+    days: z.array(zCraDayData)
+});
+
+/**
  * InvoiceData
  */
 export const zInvoiceData = z.object({
@@ -407,6 +500,16 @@ export const zClientWithMissionsData = z.object({
  */
 export const zClientListData = z.object({
     clients: z.array(zClientWithMissionsData)
+});
+
+/**
+ * CraDetailData
+ */
+export const zCraDetailData = z.object({
+    cra: zCraData,
+    client: zClientData,
+    mission: zMissionData,
+    recipientName: z.string()
 });
 
 /**
@@ -581,6 +684,13 @@ export const zUpdateClientData = z.object({
     billingEmail: z.nullish(z.email().check(z.maxLength(255))),
     color: z.optional(zColor),
     paymentTermsDays: z.optional(z.int().check(z.gte(0), z.lte(365)))
+});
+
+/**
+ * UpdateCraDaysData
+ */
+export const zUpdateCraDaysData = z.object({
+    days: z.array(z.string())
 });
 
 /**
@@ -901,6 +1011,45 @@ export const zUploadClientLogoPath = z.object({
  * No content
  */
 export const zUploadClientLogoResponse = z.void();
+
+export const zListCrasQuery = z.object({
+    month: z.nullish(z.string())
+});
+
+export const zListCrasResponse = zCraListData;
+
+export const zCreateCraBody = zCreateCraData;
+
+export const zCreateCraResponse = zCraDetailData;
+
+export const zDeleteCraPath = z.object({
+    cra: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteCraResponse = z.void();
+
+export const zShowCraPath = z.object({
+    cra: z.int()
+});
+
+export const zShowCraResponse = zCraDetailData;
+
+export const zUpdateCraDaysBody = zUpdateCraDaysData;
+
+export const zUpdateCraDaysPath = z.object({
+    cra: z.int()
+});
+
+export const zUpdateCraDaysResponse = zCraDetailData;
+
+export const zResetCraPath = z.object({
+    cra: z.int()
+});
+
+export const zResetCraResponse = zCraDetailData;
 
 export const zListInvoicesQuery = z.object({
     status: z.nullish(zInvoiceStatus),

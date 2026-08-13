@@ -21,6 +21,8 @@ class DeleteMission
 
             abort_if($mission->runningTimer()->exists(), 409, __('missions.cannot_delete_with_running_timer'));
 
+            abort_if($mission->cras()->exists(), 409, __('missions.cannot_delete_with_cras'));
+
             $mission->delete();
         });
     }

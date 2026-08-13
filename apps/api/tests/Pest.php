@@ -3,12 +3,15 @@
 declare(strict_types=1);
 
 use App\Domain\Clients\Models\Client;
+use App\Domain\Cra\Factories\CraFactory;
+use App\Domain\Cra\Models\Cra;
 use App\Domain\Invoices\Factories\InvoiceFactory;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Factories\MissionFactory;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
+use App\Domain\TimeEntries\Factories\TimeEntryFactory;
 use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Timers\Factories\RunningTimerFactory;
 use App\Domain\Timers\Models\RunningTimer;
@@ -155,6 +158,65 @@ function invoicedTimeEntry(User $user, Mission $mission, Invoice $invoice): Time
     return TimeEntry::factory()->for($mission, 'mission')->create([
         'user_id' => $user->id,
         'invoice_id' => $invoice->id,
+    ]);
+}
+
+/**
+ * A CRA of the given user, on a mission of theirs.
+ *
+ * Pass $mission when the test asserts against it, and $configure for factory states
+ * such as sent() or forMonth().
+ *
+ * @param  (callable(CraFactory): CraFactory)|null  $configure
+ */
+function craOwnedBy(User $user, ?Mission $mission = null, ?callable $configure = null): Cra
+{
+    $factory = Cra::factory()->for($mission ?? craMissionOwnedBy($user), 'mission');
+
+    return configuredFactory($factory, $configure)->create(['user_id' => $user->id]);
+}
+
+/**
+ * A mission of the given user whose client expects a monthly CRA — the arrangement
+ * every CRA test starts from.
+ *
+ * @param  (callable(MissionFactory): MissionFactory)|null  $configure
+ */
+function craMissionOwnedBy(User $user, ?callable $configure = null): Mission
+{
+    return missionOwnedBy(
+        $user,
+        fn (MissionFactory $factory): MissionFactory => configuredFactory($factory->requiringCra(), $configure),
+    );
+}
+
+/**
+ * Days worked on a CRA, given as `Y-m-d` => basis points of a workday.
+ *
+ * @param  array<string, int>  $days
+ */
+function craDays(Cra $cra, array $days): Cra
+{
+    foreach ($days as $date => $basisPoints) {
+        $cra->days()->create(['date' => $date, 'day_fraction_bp' => $basisPoints]);
+    }
+
+    return $cra->load('days');
+}
+
+/**
+ * A day of tracked time on a mission, defaulting to a full workday.
+ *
+ * @param  (callable(TimeEntryFactory): TimeEntryFactory)|null  $configure
+ */
+function trackedDay(User $user, Mission $mission, string $date, int $minutes = 420, ?callable $configure = null): TimeEntry
+{
+    $factory = TimeEntry::factory()->for($mission, 'mission');
+
+    return configuredFactory($factory, $configure)->create([
+        'user_id' => $user->id,
+        'date' => $date,
+        'duration_minutes' => $minutes,
     ]);
 }
 

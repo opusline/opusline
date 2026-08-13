@@ -82,6 +82,20 @@ test('refuses to delete a mission that still carries invoices', function (): voi
     $this->assertDatabaseHas('missions', ['id' => $mission->id]);
 });
 
+test('refuses to delete a mission that still carries comptes rendus', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user, fn ($factory) => $factory->requiringCra());
+
+    craOwnedBy($user, $mission);
+
+    $this->actingAs($user)
+        ->deleteJson("/api/clients/{$mission->client->slug}/missions/{$mission->slug}")
+        ->assertConflict()
+        ->assertJsonPath('message', __('missions.cannot_delete_with_cras'));
+
+    $this->assertDatabaseHas('missions', ['id' => $mission->id]);
+});
+
 test('cannot delete another user mission', function (): void {
     $mission = Mission::factory()->create();
 

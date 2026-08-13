@@ -3,7 +3,19 @@ import { client as apiClient } from "@opusline/api-client/client";
 
 import { serverFieldErrors } from "@/lib/validation";
 
-export const DOCUMENT_CATEGORIES: readonly DocumentCategory[] = [0, 1, 2, 3, 4];
+/** Every category a document can carry, including the ones only the server assigns. */
+export const DOCUMENT_CATEGORIES: readonly DocumentCategory[] = [
+  0, 1, 2, 3, 4, 5,
+];
+
+/**
+ * The subset a user may pick when uploading. "CRA" is absent: Opusline files the CRA
+ * it generates itself, and offering it would only invite confusion with "CRA signé",
+ * which is the one people upload.
+ */
+export const ASSIGNABLE_DOCUMENT_CATEGORIES: readonly DocumentCategory[] = [
+  0, 1, 2, 3, 4,
+];
 
 export const DOCUMENT_CATEGORY_LABELS: Record<DocumentCategory, string> = {
   0: "Contrat",
@@ -11,6 +23,7 @@ export const DOCUMENT_CATEGORY_LABELS: Record<DocumentCategory, string> = {
   2: "CRA signé",
   3: "Facture reçue",
   4: "Autre",
+  5: "CRA",
 };
 
 export function isDocumentCategory(value: number): value is DocumentCategory {

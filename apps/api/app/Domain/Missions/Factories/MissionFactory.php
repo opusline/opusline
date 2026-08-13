@@ -100,6 +100,16 @@ class MissionFactory extends Factory
     }
 
     /**
+     * Indicate that the client expects a monthly CRA for this mission.
+     */
+    public function requiringCra(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'cra_required' => true,
+        ]);
+    }
+
+    /**
      * Indicate that billing goes through an intermediary (ESN).
      */
     public function throughEsn(string $endClientName): static

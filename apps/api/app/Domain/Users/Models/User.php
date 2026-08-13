@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Users\Models;
 
 use App\Domain\Clients\Models\Client;
+use App\Domain\Cra\Models\Cra;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Settings\Models\UserSettings;
@@ -97,6 +98,12 @@ class User extends Authenticatable implements HasMedia
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    /** @return HasMany<Cra, $this> */
+    public function cras(): HasMany
+    {
+        return $this->hasMany(Cra::class);
     }
 
     /** @return HasOne<RunningTimer, $this> */

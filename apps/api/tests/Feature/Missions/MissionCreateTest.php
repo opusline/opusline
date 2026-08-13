@@ -256,6 +256,35 @@ test('accepts an explicit cra flag', function (): void {
         ->assertJsonPath('craRequired', false);
 });
 
+test('refuses a cra on an hourly mission, since a CRA counts days', function (): void {
+    $user = User::factory()->create();
+    $esn = Client::factory()->for($user)->intermediary()->create();
+
+    $this->actingAs($user)
+        ->postJson("/api/clients/{$esn->slug}/missions", [
+            'name' => 'Callisto run',
+            'billingMode' => BillingMode::Hourly->value,
+            'endClientName' => 'Callisto',
+            'craRequired' => true,
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['craRequired']);
+});
+
+test('does not let the intermediary default put a cra on an hourly mission', function (): void {
+    $user = User::factory()->create();
+    $esn = Client::factory()->for($user)->intermediary()->create();
+
+    $this->actingAs($user)
+        ->postJson("/api/clients/{$esn->slug}/missions", [
+            'name' => 'Callisto run',
+            'billingMode' => BillingMode::Hourly->value,
+            'endClientName' => 'Callisto',
+        ])
+        ->assertCreated()
+        ->assertJsonPath('craRequired', false);
+});
+
 test('stores a color and notes', function (): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();

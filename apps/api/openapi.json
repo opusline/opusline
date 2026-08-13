@@ -803,6 +803,278 @@
                 }
             }
         },
+        "/cras": {
+            "get": {
+                "operationId": "listCras",
+                "tags": [
+                    "Cra"
+                ],
+                "parameters": [
+                    {
+                        "name": "month",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CraListData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "createCra",
+                "tags": [
+                    "Cra"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateCraData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CraDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/cras/{cra}": {
+            "get": {
+                "operationId": "showCra",
+                "tags": [
+                    "Cra"
+                ],
+                "parameters": [
+                    {
+                        "name": "cra",
+                        "in": "path",
+                        "required": true,
+                        "description": "The cra ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CraDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteCra",
+                "tags": [
+                    "Cra"
+                ],
+                "parameters": [
+                    {
+                        "name": "cra",
+                        "in": "path",
+                        "required": true,
+                        "description": "The cra ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cras/{cra}/days": {
+            "put": {
+                "operationId": "updateCraDays",
+                "tags": [
+                    "Cra"
+                ],
+                "parameters": [
+                    {
+                        "name": "cra",
+                        "in": "path",
+                        "required": true,
+                        "description": "The cra ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateCraDaysData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CraDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cras/{cra}/reset": {
+            "post": {
+                "operationId": "resetCra",
+                "tags": [
+                    "Cra"
+                ],
+                "parameters": [
+                    {
+                        "name": "cra",
+                        "in": "path",
+                        "required": true,
+                        "description": "The cra ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CraDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/invoices": {
             "get": {
                 "operationId": "listInvoices",
@@ -2784,6 +3056,259 @@
                 ],
                 "title": "Color"
             },
+            "CraCountsData": {
+                "type": "object",
+                "properties": {
+                    "toProduce": {
+                        "type": "integer"
+                    },
+                    "sent": {
+                        "type": "integer"
+                    },
+                    "signed": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "toProduce",
+                    "sent",
+                    "signed"
+                ],
+                "title": "CraCountsData"
+            },
+            "CraData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "missionId": {
+                        "type": "integer"
+                    },
+                    "month": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/CraStatus"
+                    },
+                    "sentOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "signedOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "totalDays": {
+                        "type": "number"
+                    },
+                    "trackedDays": {
+                        "type": "number"
+                    },
+                    "differenceDays": {
+                        "type": "number"
+                    },
+                    "estimatedAmount": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "dirty": {
+                        "type": "boolean"
+                    },
+                    "editable": {
+                        "type": "boolean"
+                    },
+                    "notes": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "days": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CraDayData"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "missionId",
+                    "month",
+                    "status",
+                    "sentOn",
+                    "signedOn",
+                    "totalDays",
+                    "trackedDays",
+                    "differenceDays",
+                    "estimatedAmount",
+                    "dirty",
+                    "editable",
+                    "notes",
+                    "days"
+                ],
+                "title": "CraData"
+            },
+            "CraDayData": {
+                "type": "object",
+                "properties": {
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "dayFractionBp": {
+                        "type": "integer"
+                    },
+                    "trackedDayFractionBp": {
+                        "type": "integer"
+                    },
+                    "isWeekend": {
+                        "type": "boolean"
+                    },
+                    "isHoliday": {
+                        "type": "boolean"
+                    },
+                    "holidayName": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "date",
+                    "dayFractionBp",
+                    "trackedDayFractionBp",
+                    "isWeekend",
+                    "isHoliday",
+                    "holidayName"
+                ],
+                "title": "CraDayData"
+            },
+            "CraDetailData": {
+                "type": "object",
+                "properties": {
+                    "cra": {
+                        "$ref": "#/components/schemas/CraData"
+                    },
+                    "client": {
+                        "$ref": "#/components/schemas/ClientData"
+                    },
+                    "mission": {
+                        "$ref": "#/components/schemas/MissionData"
+                    },
+                    "recipientName": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "cra",
+                    "client",
+                    "mission",
+                    "recipientName"
+                ],
+                "title": "CraDetailData"
+            },
+            "CraListData": {
+                "type": "object",
+                "properties": {
+                    "cras": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CraListItemData"
+                        }
+                    },
+                    "counts": {
+                        "$ref": "#/components/schemas/CraCountsData"
+                    }
+                },
+                "required": [
+                    "cras",
+                    "counts"
+                ],
+                "title": "CraListData"
+            },
+            "CraListItemData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "missionId": {
+                        "type": "integer"
+                    },
+                    "missionSlug": {
+                        "type": "string"
+                    },
+                    "missionName": {
+                        "type": "string"
+                    },
+                    "clientSlug": {
+                        "type": "string"
+                    },
+                    "clientName": {
+                        "type": "string"
+                    },
+                    "color": {
+                        "$ref": "#/components/schemas/Color"
+                    },
+                    "month": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/CraStatus"
+                    },
+                    "totalDays": {
+                        "type": "number"
+                    },
+                    "trackedDays": {
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "id",
+                    "missionId",
+                    "missionSlug",
+                    "missionName",
+                    "clientSlug",
+                    "clientName",
+                    "color",
+                    "month",
+                    "status",
+                    "totalDays",
+                    "trackedDays"
+                ],
+                "title": "CraListItemData"
+            },
+            "CraStatus": {
+                "type": "integer",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "Draft",
+                    "Sent",
+                    "Signed"
+                ],
+                "title": "CraStatus"
+            },
             "CreateClientData": {
                 "type": "object",
                 "properties": {
@@ -2879,6 +3404,22 @@
                     "type"
                 ],
                 "title": "CreateClientData"
+            },
+            "CreateCraData": {
+                "type": "object",
+                "properties": {
+                    "missionId": {
+                        "type": "integer"
+                    },
+                    "month": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "missionId",
+                    "month"
+                ],
+                "title": "CreateCraData"
             },
             "CreateInvoiceData": {
                 "type": "object",
@@ -3111,19 +3652,22 @@
             },
             "DocumentCategory": {
                 "type": "integer",
+                "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/>  |\n| `3` <br/>  |\n| `4` <br/>  |\n| `5` <br/> The CRA Opusline generated, filed next to the signed return it comes back as. |",
                 "enum": [
                     0,
                     1,
                     2,
                     3,
-                    4
+                    4,
+                    5
                 ],
                 "x-enum-varnames": [
                     "Contract",
                     "Quote",
                     "SignedCra",
                     "ReceivedInvoice",
-                    "Other"
+                    "Other",
+                    "Cra"
                 ],
                 "title": "DocumentCategory"
             },
@@ -4520,6 +5064,21 @@
                     "type"
                 ],
                 "title": "UpdateClientData"
+            },
+            "UpdateCraDaysData": {
+                "type": "object",
+                "properties": {
+                    "days": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "days"
+                ],
+                "title": "UpdateCraDaysData"
             },
             "UpdateDocumentData": {
                 "type": "object",

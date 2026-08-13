@@ -210,6 +210,48 @@ test('updates the cra flag, color and notes', function (): void {
         ->assertJsonPath('notes', 'CRA à envoyer avant le 3 du mois.');
 });
 
+test('refuses a cra on an hourly mission, since a CRA counts days', function (): void {
+    $user = User::factory()->create();
+    $esn = Client::factory()->for($user)->intermediary()->create();
+    $mission = Mission::factory()->for($esn, 'client')->throughEsn('Callisto')->create(['user_id' => $user->id]);
+
+    $this->actingAs($user)
+        ->putJson("/api/clients/{$esn->slug}/missions/{$mission->slug}", [
+            'name' => $mission->name,
+            'billingMode' => BillingMode::Hourly->value,
+            'status' => MissionStatus::Active->value,
+            'endClientName' => 'Callisto',
+            'craRequired' => true,
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['craRequired']);
+});
+
+test('refuses to leave day billing while comptes rendus exist', function (): void {
+    $user = User::factory()->create();
+    $esn = Client::factory()->for($user)->intermediary()->create();
+    $mission = Mission::factory()->for($esn, 'client')->throughEsn('Callisto')->requiringCra()->create([
+        'user_id' => $user->id,
+    ]);
+    craOwnedBy($user, $mission, fn ($factory) => $factory->sent());
+
+    $this->actingAs($user)
+        ->putJson("/api/clients/{$esn->slug}/missions/{$mission->slug}", [
+            'name' => $mission->name,
+            'billingMode' => BillingMode::Hourly->value,
+            'status' => MissionStatus::Active->value,
+            'endClientName' => 'Callisto',
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['billingMode']);
+
+    $this->assertDatabaseHas('missions', [
+        'id' => $mission->id,
+        'billing_mode' => BillingMode::Daily->value,
+        'cra_required' => true,
+    ]);
+});
+
 test('rejects a non positive rate', function (int $amount): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Missions\Models;
 
 use App\Domain\Clients\Models\Client;
+use App\Domain\Cra\Models\Cra;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Enums\BillingMode;
 use App\Domain\Missions\Enums\EntryRounding;
@@ -167,6 +168,12 @@ class Mission extends Model implements HasMedia
         return $this->hasMany(Invoice::class);
     }
 
+    /** @return HasMany<Cra, $this> */
+    public function cras(): HasMany
+    {
+        return $this->hasMany(Cra::class);
+    }
+
     /** @return HasOne<RunningTimer, $this> */
     public function runningTimer(): HasOne
     {
@@ -181,5 +188,24 @@ class Mission extends Model implements HasMedia
     public function effectiveColor(): Color
     {
         return $this->color ?? $this->client->color;
+    }
+
+    /**
+     * Who a document about this mission is addressed to: the end client when the work
+     * runs through an ESN, the billing client otherwise.
+     */
+    public function recipientName(): string
+    {
+        return $this->end_client_name ?? $this->client->name;
+    }
+
+    /**
+     * The rate to multiply a number of days by, or null when days are not what this
+     * mission bills. Fixed-price and hourly missions both have a rate that means
+     * something else entirely.
+     */
+    public function dailyRate(): ?Money
+    {
+        return $this->billing_mode === BillingMode::Daily ? $this->rate_cents : null;
     }
 }
