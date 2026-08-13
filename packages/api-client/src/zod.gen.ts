@@ -150,6 +150,17 @@ export const zCreateMissionData = z.object({
 });
 
 /**
+ * InvoiceCountsData
+ */
+export const zInvoiceCountsData = z.object({
+    all: z.int(),
+    draft: z.int(),
+    sent: z.int(),
+    late: z.int(),
+    paid: z.int()
+});
+
+/**
  * InvoiceEventKind
  */
 export const zInvoiceEventKind = z.union([
@@ -169,6 +180,18 @@ export const zInvoiceEventData = z.object({
     occurredOn: z.iso.date(),
     note: z.nullable(z.string())
 });
+
+/**
+ * InvoiceForecastBucket
+ *
+ * The three bars of "Attendu sur 60 jours". Money already late leads, because it is the number that needs acting on rather than waiting for.
+ *
+ */
+export const zInvoiceForecastBucket = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
 
 /**
  * InvoiceStatus
@@ -203,6 +226,18 @@ export const zCreateInvoiceData = z.object({
     vatRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
     notes: z.nullish(z.string().check(z.maxLength(2000)))
 });
+
+/**
+ * InvoiceTodoKind
+ *
+ * What the "À traiter" list can put in front of you. Labels live on the frontend, like every other enum here.
+ *
+ */
+export const zInvoiceTodoKind = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
 
 /**
  * LoginData
@@ -251,6 +286,49 @@ export const zInvoiceData = z.object({
     ttcOverridden: z.boolean(),
     vatRateBp: z.int(),
     notes: z.nullable(z.string())
+});
+
+/**
+ * InvoiceForecastData
+ */
+export const zInvoiceForecastData = z.object({
+    bucket: zInvoiceForecastBucket,
+    amount: zMoneyData,
+    shareBp: z.int()
+});
+
+/**
+ * InvoiceTodoData
+ */
+export const zInvoiceTodoData = z.object({
+    kind: zInvoiceTodoKind,
+    invoiceId: z.nullable(z.int()),
+    missionId: z.nullable(z.int()),
+    amount: zMoneyData,
+    dueOn: z.nullable(z.iso.date()),
+    count: z.int()
+});
+
+/**
+ * InvoiceTotalData
+ */
+export const zInvoiceTotalData = z.object({
+    amount: zMoneyData,
+    count: z.int()
+});
+
+/**
+ * InvoiceSummaryData
+ */
+export const zInvoiceSummaryData = z.object({
+    month: z.string(),
+    invoiced: zInvoiceTotalData,
+    toInvoice: zInvoiceTotalData,
+    collected: zInvoiceTotalData,
+    forecast: z.array(zInvoiceForecastData),
+    counts: zInvoiceCountsData,
+    todo: z.array(zInvoiceTodoData),
+    todoTotal: z.int()
 });
 
 /**
@@ -812,6 +890,12 @@ export const zListInvoicesResponse = zInvoiceListData;
 export const zCreateInvoiceBody = zCreateInvoiceData;
 
 export const zCreateInvoiceResponse = zInvoiceDetailData;
+
+export const zShowInvoiceSummaryQuery = z.object({
+    month: z.nullish(z.string())
+});
+
+export const zShowInvoiceSummaryResponse = zInvoiceSummaryData;
 
 export const zShowNextInvoiceNumberResponse = zNextInvoiceNumberData;
 

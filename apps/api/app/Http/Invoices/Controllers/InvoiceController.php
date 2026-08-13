@@ -11,6 +11,7 @@ use App\Domain\Invoices\Actions\PayInvoice;
 use App\Domain\Invoices\Actions\RemindInvoice;
 use App\Domain\Invoices\Actions\SendInvoice;
 use App\Domain\Invoices\Actions\SuggestInvoiceNumber;
+use App\Domain\Invoices\Actions\SummarizeInvoices;
 use App\Domain\Invoices\Actions\UpdateInvoice;
 use App\Domain\Invoices\Data\CreateInvoiceData;
 use App\Domain\Invoices\Data\InvoiceDetailData;
@@ -19,6 +20,7 @@ use App\Domain\Invoices\Data\InvoiceListItemData;
 use App\Domain\Invoices\Data\ListInvoicesData;
 use App\Domain\Invoices\Data\PayInvoiceData;
 use App\Domain\Invoices\Data\RemindInvoiceData;
+use App\Domain\Invoices\Data\SummarizeInvoicesData;
 use App\Domain\Invoices\Data\UpdateInvoiceData;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Users\Models\User;
@@ -96,6 +98,11 @@ class InvoiceController extends Controller
         $remindInvoice->handle($invoice, $data);
 
         return response()->json($this->detail($invoice), 201);
+    }
+
+    public function summary(SummarizeInvoicesData $data, #[CurrentUser] User $user, SummarizeInvoices $summarizeInvoices): JsonResponse
+    {
+        return response()->json($summarizeInvoices->handle($user, $data));
     }
 
     public function nextNumber(#[CurrentUser] User $user, SuggestInvoiceNumber $suggestInvoiceNumber): JsonResponse
