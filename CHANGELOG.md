@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.1](https://github.com/opusline/opusline/compare/v0.9.0...v0.9.1) (2026-08-14)
+
+
+### Bug Fixes
+
+* **repo:** address audit findings ([#112](https://github.com/opusline/opusline/issues/112)) ([ea647b8](https://github.com/opusline/opusline/commit/ea647b8ec13c82570abf88aad72e90408c24b131))
+
 ## [0.9.0](https://github.com/opusline/opusline/compare/v0.8.0...v0.9.0) (2026-08-14)
 
 
