@@ -1,3 +1,4 @@
+import type { Locale } from "@opusline/api-client";
 import { and, assign, fromPromise, setup } from "xstate";
 
 import {
@@ -209,12 +210,17 @@ function commitFocusKey(
   );
 }
 
-function draftFor(located: LocatedCell, workdayMinutes: number): string {
+function draftFor(
+  locale: Locale,
+  located: LocatedCell,
+  workdayMinutes: number,
+): string {
   const entry = located.cell.entries[0];
 
   return entry === undefined
     ? ""
     : formatDurationInput(
+        locale,
         entry.durationMinutes,
         unitsOf(located, workdayMinutes),
       );
@@ -389,7 +395,9 @@ export const weekMachine = setup({
 
       return {
         caret: seed === undefined ? ("select" as const) : ("end" as const),
-        draft: seed ?? draftFor(located, context.workdayMinutes),
+        draft:
+          seed ??
+          draftFor(context.model.locale, located, context.workdayMinutes),
         error: null,
         focusedKey: event.key,
         labelAfterWrite: false,

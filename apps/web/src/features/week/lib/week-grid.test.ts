@@ -5,6 +5,8 @@ import type {
 } from "@opusline/api-client";
 import { describe, expect, it } from "vitest";
 
+import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
+
 import { buildWeekGrid, shouldShowWeekend } from "./week-grid";
 
 const WEEK = "2026-W31";
@@ -80,6 +82,7 @@ function build(input: {
   liveMissionId?: number | null;
 }) {
   return buildWeekGrid({
+    format: DEFAULT_MONEY_FORMAT,
     clients: input.clients,
     liveMissionId: input.liveMissionId ?? null,
     timeEntries: input.timeEntries ?? [],
@@ -164,7 +167,7 @@ describe("rows", () => {
   it("describes the mission by client type and rate", () => {
     const { rows } = build({ clients: [client()] });
 
-    expect(rows[0].subtitle).toBe("Client direct · 550 €/j");
+    expect(rows[0].subtitle).toBe("Client direct · 550 €/j");
   });
 
   it("marks a mission with no rate as non-billable", () => {

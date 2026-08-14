@@ -13,9 +13,14 @@ export default meta;
 type Story = StoryObj<typeof ModeToggle>;
 
 export const Dark: Story = {
-  args: { resolvedTheme: "dark" },
+  args: { resolvedTheme: "dark", theme: "dark" },
 };
 
 export const Light: Story = {
-  args: { resolvedTheme: "light" },
+  args: { resolvedTheme: "light", theme: "light" },
+};
+
+/** The default preference: follows the device, resolved here to dark. */
+export const System: Story = {
+  args: { resolvedTheme: "dark", theme: "system" },
 };

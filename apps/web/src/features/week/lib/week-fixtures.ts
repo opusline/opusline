@@ -4,6 +4,8 @@ import type {
   TimeEntryData,
 } from "@opusline/api-client";
 
+import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
+
 import { buildWeekGrid, type WeekRow } from "./week-grid";
 
 export const DEMO_WEEK = "2026-W31";
@@ -181,6 +183,7 @@ export const DEMO_TIME_ENTRIES: TimeEntryData[] = [
 /** The demo week as the grid sees it — stories and tests read rows off this. */
 export const DEMO_GRID = buildWeekGrid({
   clients: DEMO_CLIENTS,
+  format: DEFAULT_MONEY_FORMAT,
   timeEntries: DEMO_TIME_ENTRIES,
   today: DEMO_TODAY,
   week: DEMO_WEEK,

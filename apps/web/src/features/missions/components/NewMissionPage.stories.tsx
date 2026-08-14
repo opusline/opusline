@@ -67,6 +67,17 @@ type Story = StoryObj<typeof NewMissionPage>;
 export const Default: Story = {
   args: {
     clients,
+    hasFrenchFiscality: true,
+    onSubmit: async () => ({ status: "success" }) as const,
+    onCancel: () => {},
+  },
+};
+
+/** A business abroad: same form, projection without the URSSAF rows. */
+export const EstablishedAbroad: Story = {
+  args: {
+    clients,
+    hasFrenchFiscality: false,
     onSubmit: async () => ({ status: "success" }) as const,
     onCancel: () => {},
   },
@@ -75,6 +86,7 @@ export const Default: Story = {
 export const DirectClient: Story = {
   args: {
     clients,
+    hasFrenchFiscality: true,
     initialClientSlug: "lunaprint",
     onSubmit: async () => ({ status: "success" }) as const,
     onCancel: () => {},
@@ -84,6 +96,7 @@ export const DirectClient: Story = {
 export const WithoutClients: Story = {
   args: {
     clients: [],
+    hasFrenchFiscality: true,
     onSubmit: async () => ({ status: "success" }) as const,
     onCancel: () => {},
   },

@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { requireFrenchFiscality } from "@/lib/fiscality";
+
 export const Route = createFileRoute("/_authed/virement")({
+  beforeLoad: ({ context }) => requireFrenchFiscality(context.user),
   component: VirementPage,
 });
 

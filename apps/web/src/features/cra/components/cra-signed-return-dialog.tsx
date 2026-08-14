@@ -12,10 +12,9 @@ import {
 import { cn } from "@opusline/ui/lib/utils";
 import { UploadIcon } from "lucide-react";
 import { useState } from "react";
-
+import { useLocale } from "@/components/money-format-provider";
 import { formatFileSize } from "@/lib/documents";
 import { monthTitle } from "@/lib/months";
-
 import {
   CANCEL,
   SIGNED_RETURN_DROP,
@@ -46,6 +45,7 @@ export function CraSignedReturnDialog({
   onUpload,
   onOpenChange,
 }: CraSignedReturnDialogProps) {
+  const locale = useLocale();
   const [file, setFile] = useState<File | null>(null);
   const [rejected, setRejected] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -148,7 +148,7 @@ export function CraSignedReturnDialog({
                 {file.name}
               </span>
               <span className="mt-0.75 block text-muted-foreground-3 text-xs">
-                {formatFileSize(file.size)}
+                {formatFileSize(locale, file.size)}
               </span>
             </span>
             <Button

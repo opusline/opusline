@@ -19,7 +19,7 @@ import { Skeleton } from "@opusline/ui/components/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-
+import { useMoneyFormat } from "@/components/money-format-provider";
 import {
   CreateInvoiceDialog,
   type CreateInvoiceSubmit,
@@ -39,6 +39,7 @@ export const Route = createFileRoute("/_authed/factures")({
 });
 
 function FacturesPage() {
+  const format = useMoneyFormat();
   const queryClient = useQueryClient();
   const invoices = useQuery(listInvoicesOptions());
   const summary = useQuery(showInvoiceSummaryOptions());
@@ -136,7 +137,7 @@ function FacturesPage() {
         // only an issued invoice counts towards what is still to be collected. Without
         // one it stays a draft, which is what the dialog says it will do.
         status: input.number === null ? 0 : 1,
-        amountHt: { amount: input.amountHtCents, currency: "EUR" },
+        amountHt: { amount: input.amountHtCents, currency: format.currency },
         periodStart: input.periodStart,
         periodEnd: input.periodEnd,
         timeEntryIds: input.timeEntryIds,

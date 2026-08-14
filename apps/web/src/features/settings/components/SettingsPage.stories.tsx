@@ -1,8 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 
-import type { ThemePreference } from "@/lib/theme";
-import { settingsFixture } from "../lib/settings-fixture";
+import {
+  abroadSettingsFixture,
+  nonEuSettingsFixture,
+  settingsFixture,
+} from "../lib/settings-fixture";
 import type { SettingsTab } from "../lib/settings-form";
 import { SettingsPage } from "./settings-page";
 
@@ -15,8 +18,6 @@ const meta = {
     activeTab: "identite",
     onTabChange: () => {},
     onSubmit: async () => ({ status: "success" }) as const,
-    theme: "system",
-    onThemeChange: () => {},
     signature: {
       src: "",
       isPending: false,
@@ -25,6 +26,18 @@ const meta = {
       onRemove: () => {},
     },
     rates: { isRefreshing: false, error: null, onRefresh: () => {} },
+    localisation: {
+      saved: {
+        businessCountry: "FR",
+        currency: "EUR",
+        locale: "fr-FR",
+        dateFormat: 0,
+      },
+      isSaving: false,
+      error: null,
+      onSave: () => {},
+      onCancel: () => {},
+    },
   },
 } satisfies Meta<typeof SettingsPage>;
 
@@ -48,20 +61,62 @@ export const Billing: Story = {
   args: { activeTab: "facturation" },
 };
 
+export const Localisation: Story = {
+  args: { activeTab: "regional" },
+};
+
+export const CurrencyLocked: Story = {
+  args: {
+    activeTab: "regional",
+    settings: { ...settingsFixture, currencyLocked: true },
+  },
+};
+
+/** A business abroad: the Fiscalité tab explains instead of computing. */
+export const EstablishedAbroad: Story = {
+  args: {
+    activeTab: "fiscalite",
+    settings: abroadSettingsFixture,
+    localisation: {
+      saved: {
+        businessCountry: "DE",
+        currency: "EUR",
+        locale: "fr-FR",
+        dateFormat: 0,
+      },
+      isSaving: false,
+      error: null,
+      onSave: () => {},
+      onCancel: () => {},
+    },
+  },
+};
+
+/** Outside the EU the tax loses its TVA name on the Fiscalité tab. */
+export const EstablishedOutsideEu: Story = {
+  args: {
+    activeTab: "fiscalite",
+    settings: nonEuSettingsFixture,
+    localisation: {
+      saved: {
+        businessCountry: "CA",
+        currency: "EUR",
+        locale: "fr-FR",
+        dateFormat: 0,
+      },
+      isSaving: false,
+      error: null,
+      onSave: () => {},
+      onCancel: () => {},
+    },
+  },
+};
+
 /** Edit any field to raise the unsaved-changes bar. */
 export const Browsable: Story = {
   render: (args) => {
     const [tab, setTab] = useState<SettingsTab>(args.activeTab);
-    const [theme, setTheme] = useState<ThemePreference>(args.theme);
 
-    return (
-      <SettingsPage
-        {...args}
-        activeTab={tab}
-        onTabChange={setTab}
-        onThemeChange={setTheme}
-        theme={theme}
-      />
-    );
+    return <SettingsPage {...args} activeTab={tab} onTabChange={setTab} />;
   },
 };

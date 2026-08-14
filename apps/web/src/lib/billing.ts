@@ -1,33 +1,101 @@
-import type { BillingMode, MissionData } from "@opusline/api-client";
+import type {
+  BillingMode,
+  Currency,
+  Locale,
+  MissionData,
+} from "@opusline/api-client";
 
-const euros = new Intl.NumberFormat("fr-FR", {
-  maximumFractionDigits: 2,
-});
+export type MoneyFormat = {
+  locale: Locale;
+  currency: Currency;
+};
 
-const eurosWithCents = new Intl.NumberFormat("fr-FR", {
-  maximumFractionDigits: 2,
-  minimumFractionDigits: 2,
-});
+/** What a fresh account formats with, and what the API seeds new accounts on. */
+export const DEFAULT_MONEY_FORMAT: MoneyFormat = {
+  locale: "fr-FR",
+  currency: "EUR",
+};
 
-export function formatAmountWithCents(amountCents: number): string {
-  return `${eurosWithCents.format(amountCents / 100)} €`;
+const formatters = new Map<string, Intl.NumberFormat>();
+
+export function cachedFormatter(
+  locale: Locale,
+  options: Intl.NumberFormatOptions,
+): Intl.NumberFormat {
+  const key = `${locale}|${JSON.stringify(options)}`;
+  let formatter = formatters.get(key);
+
+  if (formatter === undefined) {
+    formatter = new Intl.NumberFormat(locale, options);
+    formatters.set(key, formatter);
+  }
+
+  return formatter;
 }
 
-export function formatAmount(amountCents: number): string {
-  return `${euros.format(amountCents / 100)}`;
+function currencyFormatter(
+  format: MoneyFormat,
+  options: Intl.NumberFormatOptions = {},
+): Intl.NumberFormat {
+  return cachedFormatter(format.locale, {
+    style: "currency",
+    currency: format.currency,
+    ...options,
+  });
 }
 
-const wholeEuros = new Intl.NumberFormat("fr-FR", {
-  maximumFractionDigits: 0,
-});
+export function formatAmountWithCents(
+  format: MoneyFormat,
+  amountCents: number,
+): string {
+  return currencyFormatter(format, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amountCents / 100);
+}
+
+/** The bare figure, no symbol — what an editable amount input is seeded with. */
+export function formatAmount(format: MoneyFormat, amountCents: number): string {
+  return cachedFormatter(format.locale, { maximumFractionDigits: 2 }).format(
+    amountCents / 100,
+  );
+}
 
 /**
- * Whole euros, the way invoice lists show them: "1 224 €". Rounded on purpose —
+ * Whole units, the way invoice lists show them: "1 224 €". Rounded on purpose —
  * the list is scanned, not reconciled, and the exact figure to the cent is on the
  * invoice's own panel.
  */
-export function formatEuros(amountCents: number): string {
-  return `${wholeEuros.format(amountCents / 100)} €`;
+export function formatWholeAmount(
+  format: MoneyFormat,
+  amountCents: number,
+): string {
+  return currencyFormatter(format, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amountCents / 100);
+}
+
+const symbols = new Map<string, string>();
+
+/**
+ * The bare symbol for input adornments and unit labels — "€", "$", or whatever
+ * the locale calls the account currency ("$US" in French for USD). Cached like
+ * the separators: call sites sit on per-keystroke render paths.
+ */
+export function currencySymbol(format: MoneyFormat): string {
+  const key = `${format.locale}|${format.currency}`;
+  let symbol = symbols.get(key);
+
+  if (symbol === undefined) {
+    symbol =
+      currencyFormatter(format)
+        .formatToParts(0)
+        .find((part) => part.type === "currency")?.value ?? format.currency;
+    symbols.set(key, symbol);
+  }
+
+  return symbol;
 }
 
 /**
@@ -37,60 +105,153 @@ export function formatEuros(amountCents: number): string {
  * the settings form pins one decimal so the figure does not jump as it is typed.
  */
 export function formatPercentFromBp(
+  locale: Locale,
   basisPoints: number,
   minimumFractionDigits = 0,
 ): string {
-  return new Intl.NumberFormat("fr-FR", {
+  return cachedFormatter(locale, {
     minimumFractionDigits,
     maximumFractionDigits: 2,
   }).format(basisPoints / 100);
 }
 
 export function formatRate(
+  format: MoneyFormat,
   amountCents: number,
   billingMode: BillingMode,
 ): string {
-  const amount = euros.format(amountCents / 100);
+  const amount = currencyFormatter(format, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amountCents / 100);
 
   switch (billingMode) {
     case 0:
-      return `${amount} €/j`;
+      return `${amount}/j`;
     case 1:
-      return `${amount} €/h`;
+      return `${amount}/h`;
     case 2:
-      return `${amount} € forfait`;
+      return `${amount} forfait`;
   }
 }
 
-export function formatRateDraft(raw: string): string {
-  const cleaned = raw.replace(/[^0-9.,]/g, "").replace(/\./g, ",");
-  const [integerPart = "", ...decimalParts] = cleaned.split(",");
-  const digits = integerPart.replace(/\D/g, "").slice(0, 9);
-  const grouped = digits.replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f");
+type NumberSeparators = {
+  group: string;
+  decimal: string;
+};
 
-  if (!cleaned.includes(",")) {
+const separators = new Map<Locale, NumberSeparators>();
+
+function numberSeparators(locale: Locale): NumberSeparators {
+  let found = separators.get(locale);
+
+  if (found === undefined) {
+    const parts = cachedFormatter(locale, {}).formatToParts(11111.1);
+
+    found = {
+      group: parts.find((part) => part.type === "group")?.value ?? " ",
+      decimal: parts.find((part) => part.type === "decimal")?.value ?? ",",
+    };
+    separators.set(locale, found);
+  }
+
+  return found;
+}
+
+export function formatRateDraft(locale: Locale, raw: string): string {
+  const { group, decimal } = numberSeparators(locale);
+  const typed = raw.replace(/[^0-9.,]/g, "");
+
+  let cleaned: string;
+
+  if (decimal === ",") {
+    // A numpad dot means the decimal comma.
+    cleaned = typed.replace(/\./g, ",");
+  } else {
+    // Commas are grouping here, and two invalid layouts must part ways: a
+    // group grown past three digits is this field's own comma with more digits
+    // typed around it ("4,800" + "0"), so it regroups from the raw digits —
+    // while a short fragment like "1,5" may be a decimal comma typed by habit,
+    // and normalizing it to "15" would hand the parser fifteen when the typist
+    // meant one and a half, so it stays in the draft for the parse to reject.
+    const [typedInteger = ""] = typed.split(".");
+
+    if (
+      !hasValidGrouping(typedInteger, ",") &&
+      !hasOvergrownGroup(typedInteger)
+    ) {
+      return typed;
+    }
+
+    cleaned = typed.replace(/,/g, "");
+  }
+
+  const [integerPart = "", ...decimalParts] = cleaned.split(decimal);
+  const digits = integerPart.replace(/\D/g, "").slice(0, 9);
+  const grouped = digits.replace(/\B(?=(\d{3})+(?!\d))/g, group);
+
+  if (!cleaned.includes(decimal)) {
     return grouped;
   }
 
-  return `${grouped},${decimalParts.join("").slice(0, 2)}`;
+  return `${grouped}${decimal}${decimalParts.join("").slice(0, 2)}`;
 }
 
 const DECIMAL = /^\d+(?:\.\d+)?$/;
 
 /**
- * Refuses anything that is not a single plain decimal. `Number.parseFloat`
- * stops at the first stray separator and hands back a silently truncated
- * number instead — « 1,234,5 » has to be an error, not 1,23.
+ * Refuses anything that is not a single plain decimal in the locale's notation.
+ * `Number.parseFloat` stops at the first stray separator and hands back a
+ * silently truncated number instead — « 1,234,5 » has to be an error, not 1,23.
  */
-export function parseDecimal(draft: string): number | null {
-  const normalized = draft.replace(/[\s\u202f]/g, "").replace(",", ".");
+export function parseDecimal(locale: Locale, draft: string): number | null {
+  const { group, decimal } = numberSeparators(locale);
+  // \s covers the no-break spaces Intl groups with (U+00A0, U+202F).
+  let normalized = draft.replace(/\s/g, "");
+
+  // A digit-like group separator ("1,234.56") could silently change the amount
+  // when misplaced — "1,5" must be an error, not 15 — so grouping is validated
+  // before it is stripped. Space-like groups are already gone.
+  if (group === "," || group === ".") {
+    const [integerPart = "", ...decimalPart] = normalized.split(decimal);
+
+    if (!hasValidGrouping(integerPart, group)) {
+      return null;
+    }
+
+    normalized = [integerPart.replaceAll(group, ""), ...decimalPart].join(
+      decimal,
+    );
+  }
+
+  normalized = normalized.replace(decimal, ".");
 
   return DECIMAL.test(normalized) ? Number.parseFloat(normalized) : null;
 }
 
+function hasOvergrownGroup(integerPart: string): boolean {
+  return integerPart
+    .split(",")
+    .some((segment, index) => index > 0 && segment.length > 3);
+}
+
+function hasValidGrouping(integerPart: string, group: string): boolean {
+  const segments = integerPart.split(group);
+
+  if (segments.length === 1) {
+    return true;
+  }
+
+  return segments.every((segment, index) =>
+    index === 0
+      ? segment.length >= 1 && segment.length <= 3
+      : segment.length === 3,
+  );
+}
+
 /** Zero is refused: a mission billed at nothing is a mistake, not a price. */
-export function parseRateToCents(draft: string): number | null {
-  const amount = parseDecimal(draft);
+export function parseRateToCents(locale: Locale, draft: string): number | null {
+  const amount = parseDecimal(locale, draft);
 
   return amount === null || amount <= 0 ? null : Math.round(amount * 100);
 }
@@ -99,12 +260,15 @@ export function missionBills(mission: MissionData): boolean {
   return mission.rate !== null;
 }
 
-export function formatMissionRate(mission: MissionData): string {
+export function formatMissionRate(
+  format: MoneyFormat,
+  mission: MissionData,
+): string {
   if (mission.rate === null) {
     return "non facturable";
   }
 
-  return formatRate(mission.rate.amount, mission.billingMode);
+  return formatRate(format, mission.rate.amount, mission.billingMode);
 }
 
 export function paymentTermsLabel(days: number): string {

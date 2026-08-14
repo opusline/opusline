@@ -17,7 +17,7 @@ import {
   XIcon,
 } from "lucide-react";
 import { useRef, useState } from "react";
-
+import { useLocale } from "@/components/money-format-provider";
 import { fullDateLabel } from "@/lib/dates";
 import {
   ASSIGNABLE_DOCUMENT_CATEGORIES,
@@ -76,6 +76,7 @@ export function DocumentsTab({
   canRemove,
   showSourceBadge,
 }: DocumentsTabProps) {
+  const locale = useLocale();
   const nextKey = useRef(0);
   const [pending, setPending] = useState<PendingDocument[]>([]);
   const [queue, setQueue] = useState<QueuedUpload[]>([]);
@@ -277,7 +278,7 @@ export function DocumentsTab({
                       </span>
                     ) : (
                       <span className="shrink-0 text-muted-foreground-3 text-xs">
-                        {`${formatFileSize(upload.file.size)} · envoi en cours…`}
+                        {`${formatFileSize(locale, upload.file.size)} · envoi en cours…`}
                       </span>
                     )}
                   </span>
@@ -385,7 +386,7 @@ export function DocumentsTab({
                   </Button>
                 </div>
                 <span className="text-muted-foreground-3 text-xs">
-                  {formatFileSize(item.file.size)} ·{" "}
+                  {formatFileSize(locale, item.file.size)} ·{" "}
                   {extensionOf(item.file.name)}
                 </span>
               </div>
@@ -491,7 +492,7 @@ export function DocumentsTab({
                       )}
                     </span>
                     <span className="text-muted-foreground-3 text-xs">
-                      {formatFileSize(document.sizeBytes)} · ajouté le{" "}
+                      {formatFileSize(locale, document.sizeBytes)} · ajouté le{" "}
                       {fullDateLabel(document.createdAt)}
                     </span>
                   </span>

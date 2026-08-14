@@ -1,4 +1,4 @@
-import type { InvoiceData } from "@opusline/api-client";
+import type { DateFormat, InvoiceData } from "@opusline/api-client";
 
 import {
   calendarDateNumericLabel,
@@ -28,7 +28,7 @@ function daysLate(invoice: InvoiceData): number {
  * It answers the question the status badge raises: paid — how fast? late — by how
  * much? Otherwise, when is it due.
  */
-function invoiceState(invoice: InvoiceData): string {
+function invoiceState(dateFormat: DateFormat, invoice: InvoiceData): string {
   const paidIn = daysToPay(invoice);
 
   if (paidIn !== null) {
@@ -43,13 +43,16 @@ function invoiceState(invoice: InvoiceData): string {
     return "brouillon";
   }
 
-  return `échéance ${calendarDateNumericLabel(invoice.dueOn)}`;
+  return `échéance ${calendarDateNumericLabel(dateFormat, invoice.dueOn)}`;
 }
 
 /** The row's second line: which period, and where the invoice stands. */
-export function invoiceRowDetail(invoice: InvoiceData): string {
+export function invoiceRowDetail(
+  dateFormat: DateFormat,
+  invoice: InvoiceData,
+): string {
   const period = periodLabel(invoice);
-  const state = invoiceState(invoice);
+  const state = invoiceState(dateFormat, invoice);
 
   return period === null ? state : `${period} · ${state}`;
 }

@@ -6,8 +6,9 @@ import {
 } from "@opusline/ui/components/field";
 
 import { FormTextField } from "@/components/form-text-field";
+import { useMoneyFormat } from "@/components/money-format-provider";
 import { PaymentTermsPicker } from "@/components/payment-terms-picker";
-import { formatRateDraft } from "@/lib/billing";
+import { currencySymbol, formatRateDraft } from "@/lib/billing";
 import {
   hasInvoiceNumberCounter,
   parseBufferCents,
@@ -17,6 +18,8 @@ import type { SettingsForm } from "../lib/use-settings-form";
 import { SettingsSection } from "./settings-section";
 
 export function BillingSettingsForm({ form }: { form: SettingsForm }) {
+  const format = useMoneyFormat();
+
   return (
     <SettingsSection
       description="Valeurs proposées à la création d'un client, et seuil utilisé par la page Trésorerie."
@@ -40,6 +43,7 @@ export function BillingSettingsForm({ form }: { form: SettingsForm }) {
                 onBlur={field.handleBlur}
                 onChange={field.handleChange}
                 value={field.state.value}
+                variant="inline"
               />
               {isInvalid ? (
                 <FieldError errors={field.state.meta.errors} />
@@ -65,27 +69,27 @@ export function BillingSettingsForm({ form }: { form: SettingsForm }) {
         }}
       >
         {(field) => (
-          <>
-            <FormTextField
-              describedBy={`${field.name}-preview`}
-              description="Jetons disponibles : AAAA (année), MM (mois), NNN (compteur)."
-              field={field}
-              font="mono"
-              inputClassName="min-w-45 flex-1"
-              label="Numérotation des factures"
-              labelClassName="text-foreground-3 text-sm"
-            />
-            <span
-              aria-live="polite"
-              className="mt-2 block text-muted-foreground-3 text-sm"
-              id={`${field.name}-preview`}
-            >
-              Prochaine :{" "}
-              <span className="font-mono text-foreground-3">
-                {previewInvoiceNumber(field.state.value, new Date())}
+          <FormTextField
+            beside={
+              <span
+                aria-live="polite"
+                className="text-muted-foreground-3 text-sm"
+                id={`${field.name}-preview`}
+              >
+                Prochaine :{" "}
+                <span className="font-mono text-foreground-3">
+                  {previewInvoiceNumber(field.state.value, new Date())}
+                </span>
               </span>
-            </span>
-          </>
+            }
+            describedBy={`${field.name}-preview`}
+            description="Jetons disponibles : AAAA (année), MM (mois), NNN (compteur)."
+            field={field}
+            font="mono"
+            inputClassName="min-w-45 flex-1"
+            label="Numérotation des factures"
+            labelClassName="text-foreground-3 text-sm"
+          />
         )}
       </form.Field>
 
@@ -95,23 +99,33 @@ export function BillingSettingsForm({ form }: { form: SettingsForm }) {
         name="treasuryBuffer"
         validators={{
           onChange: ({ value }: { value: string }) =>
-            value.trim() === "" || parseBufferCents(value) !== null
+            value.trim() === "" ||
+            parseBufferCents(format.locale, value) !== null
               ? undefined
               : { message: "Indiquez un montant, ou laissez vide." },
         }}
       >
         {(field) => (
           <FormTextField
-            adornment="€"
-            description="Retenu en plus des provisions fiscales dans « Combien je peux me virer ? ». Laissez vide pour aucun matelas."
+            adornment={currencySymbol(format)}
+            beside={
+              <span
+                className="min-w-50 flex-1 text-muted-foreground-3 text-xs"
+                id={`${field.name}-hint`}
+              >
+                Somme gardée sur le compte pro avant tout virement vers votre
+                compte personnel.
+              </span>
+            }
+            controlClassName="w-37.5 shrink-0"
+            describedBy={`${field.name}-hint`}
             field={{
               name: field.name,
               state: field.state,
               handleBlur: field.handleBlur,
               handleChange: (value: string) =>
-                field.handleChange(formatRateDraft(value)),
+                field.handleChange(formatRateDraft(format.locale, value)),
             }}
-            fieldClassName="max-w-45"
             font="mono"
             inputMode="decimal"
             label="Matelas de trésorerie"

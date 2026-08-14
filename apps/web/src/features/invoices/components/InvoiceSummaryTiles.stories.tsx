@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
+import { MoneyFormatProvider } from "@/components/money-format-provider";
 import { invoiceSummary } from "../lib/fixtures";
 import { InvoiceSummaryTiles } from "./invoice-summary-tiles";
 
@@ -14,6 +15,18 @@ type Story = StoryObj<typeof InvoiceSummaryTiles>;
 
 export const Default: Story = {
   args: { summary: invoiceSummary() },
+};
+
+/** A US-hosted account: same tiles, dollar amounts formatted the US way. */
+export const UsAccount: Story = {
+  args: { summary: invoiceSummary() },
+  decorators: [
+    (Story) => (
+      <MoneyFormatProvider currency="USD" locale="en-US">
+        <Story />
+      </MoneyFormatProvider>
+    ),
+  ],
 };
 
 export const NothingLate: Story = {

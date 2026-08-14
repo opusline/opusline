@@ -1,6 +1,7 @@
 import type { InvoiceSummaryData } from "@opusline/api-client";
 
-import { formatEuros } from "@/lib/billing";
+import { useMoneyFormat } from "@/components/money-format-provider";
+import { formatWholeAmount } from "@/lib/billing";
 
 import { capitalizedMonthLabel } from "@/lib/dates";
 
@@ -12,6 +13,7 @@ import { periodsLabel } from "../lib/summary-labels";
  * monthly number on this screen that asks for something to be done.
  */
 export function InvoiceMonthCard({ summary }: { summary: InvoiceSummaryData }) {
+  const format = useMoneyFormat();
   const { monthUnbilled } = summary;
   const hasUnbilledWork = monthUnbilled.count > 0;
 
@@ -24,7 +26,7 @@ export function InvoiceMonthCard({ summary }: { summary: InvoiceSummaryData }) {
       {hasUnbilledWork ? (
         <p className="mt-3 text-foreground-2 text-sm text-pretty">
           <span className="font-mono text-foreground-hi tabular-nums">
-            {formatEuros(monthUnbilled.amount.amount)}
+            {formatWholeAmount(format, monthUnbilled.amount.amount)}
           </span>{" "}
           saisis ce mois-ci, pas encore facturés.
         </p>

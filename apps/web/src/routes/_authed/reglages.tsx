@@ -1,26 +1,36 @@
-import type { UpdateSettingsData } from "@opusline/api-client";
+import type { SettingsData, UpdateSettingsData } from "@opusline/api-client";
 import {
+  currentUserQueryKey,
   deleteUserSignatureMutation,
   refreshSettingsRatesMutation,
   showSettingsOptions,
   showSettingsQueryKey,
+  updateSettingsCurrencyMutation,
   updateSettingsMutation,
   uploadUserSignatureMutation,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  type QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CircleAlert } from "lucide-react";
 import { useState } from "react";
 
+import { useMoneyFormat } from "@/components/money-format-provider";
+import type { LocalisationDraft } from "@/features/settings/components/localisation-settings";
 import { SettingsPage } from "@/features/settings/components/settings-page";
 import {
   isSettingsTab,
   type SettingsTab,
+  toSettingsPayload,
+  toSettingsValues,
 } from "@/features/settings/lib/settings-form";
 import { signatureHref } from "@/features/settings/lib/signature";
-import { useThemeControl } from "@/features/theme/lib/use-theme-preference";
 import type { FormSubmitResult } from "@/lib/form";
 import { serverErrorMessage, serverFieldErrors } from "@/lib/validation";
 
@@ -38,23 +48,66 @@ const SAVE_FAILED = "L'enregistrement a échoué. Réessayez dans un instant.";
 const RATES_FAILED =
   "Le barème de l'URSSAF n'a pas pu être lu. Vos taux actuels sont conservés.";
 
+/**
+ * The formatting context and the fiscal gates read the current user; a save
+ * that moves the country or currency must reach them without a reload — and
+ * the PUT response already carries both, so patch the cache instead of paying
+ * a refetch round trip on every save.
+ *
+ * This is a hand-kept mirror of UserData's settings-derived fields: a new one
+ * on the API side must be added here too, or it goes stale after every save.
+ */
+function patchCurrentUser(queryClient: QueryClient, settings: SettingsData) {
+  queryClient.setQueryData(
+    currentUserQueryKey(),
+    (user) =>
+      user && {
+        ...user,
+        currency: settings.currency,
+        businessCountry: settings.businessCountry,
+        hasFrenchFiscality: settings.hasFrenchFiscality,
+        locale: settings.locale,
+        dateFormat: settings.dateFormat,
+      },
+  );
+}
+
 function ReglagesRoute() {
   const { tab } = Route.useSearch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { theme, setTheme } = useThemeControl();
+  const format = useMoneyFormat();
 
   const [signatureVersion, setSignatureVersion] = useState(0);
   const [signatureError, setSignatureError] = useState<string | null>(null);
   const [ratesError, setRatesError] = useState<string | null>(null);
+  const [localisationError, setLocalisationError] = useState<string | null>(
+    null,
+  );
 
   const settings = useQuery(showSettingsOptions());
 
+  const applySettingsResponse = (data: SettingsData) => {
+    queryClient.setQueryData(showSettingsQueryKey(), data);
+    patchCurrentUser(queryClient, data);
+  };
+
   const updateSettings = useMutation({
     ...updateSettingsMutation(),
-    onSuccess: (data) => {
-      queryClient.setQueryData(showSettingsQueryKey(), data);
-    },
+    onSuccess: applySettingsResponse,
+  });
+
+  // The Localisation card saves through its own instance so its failures land
+  // in the card alone — sharing updateSettings would also raise the page-top
+  // alert and show the same error twice.
+  const saveLocalisationSettings = useMutation({
+    ...updateSettingsMutation(),
+    onSuccess: applySettingsResponse,
+  });
+
+  const updateCurrency = useMutation({
+    ...updateSettingsCurrencyMutation(),
+    onSuccess: applySettingsResponse,
   });
 
   const refreshRates = useMutation({
@@ -89,6 +142,9 @@ function ReglagesRoute() {
     onError: () => setSignatureError(SIGNATURE_FAILED),
   });
 
+  const isSavingLocalisation =
+    saveLocalisationSettings.isPending || updateCurrency.isPending;
+
   if (settings.isPending) {
     return <Skeleton className="h-96 w-full max-w-4xl" />;
   }
@@ -107,6 +163,14 @@ function ReglagesRoute() {
     );
   }
 
+  const savedSettings = settings.data;
+  const savedLocalisation: LocalisationDraft = {
+    businessCountry: savedSettings.businessCountry,
+    currency: savedSettings.currency,
+    locale: savedSettings.locale,
+    dateFormat: savedSettings.dateFormat,
+  };
+
   const submit = async (
     body: UpdateSettingsData,
   ): Promise<FormSubmitResult> => {
@@ -120,6 +184,60 @@ function ReglagesRoute() {
       return fieldErrors === null
         ? { status: "failed" }
         : { status: "invalid", fieldErrors };
+    }
+  };
+
+  /**
+   * One draft, two endpoints: the guarded currency change first (its 422 is
+   * the one worth stopping on), then a single settings save carrying the
+   * country, locale and date format together.
+   */
+  const saveLocalisation = async (draft: LocalisationDraft) => {
+    setLocalisationError(null);
+
+    try {
+      // The currency PUT clears the treasury buffer and re-denominates the
+      // account, so the follow-up payload must build on its response — the
+      // render-time snapshot would re-send the buffer in the old currency.
+      let baseSettings = savedSettings;
+
+      if (draft.currency !== savedLocalisation.currency) {
+        baseSettings = await updateCurrency.mutateAsync({
+          body: { currency: draft.currency },
+        });
+      }
+
+      if (
+        draft.businessCountry !== savedLocalisation.businessCountry ||
+        draft.locale !== savedLocalisation.locale ||
+        draft.dateFormat !== savedLocalisation.dateFormat
+      ) {
+        await saveLocalisationSettings.mutateAsync({
+          body: toSettingsPayload(
+            format,
+            toSettingsValues(format, baseSettings),
+            baseSettings,
+            draft,
+          ),
+        });
+      }
+
+      if (draft.businessCountry !== savedLocalisation.businessCountry) {
+        // Holiday greying, fiscal screens and anything else the server derives
+        // from the country is cached under many keys; a country move is rare
+        // enough to just mark everything stale.
+        void queryClient.invalidateQueries();
+      }
+    } catch (error) {
+      const fieldErrors = serverFieldErrors(error);
+      const firstFieldError =
+        fieldErrors === null
+          ? null
+          : (Object.values(fieldErrors)[0]?.message ?? null);
+
+      setLocalisationError(
+        firstFieldError ?? serverErrorMessage(error, SAVE_FAILED),
+      );
     }
   };
 
@@ -140,8 +258,7 @@ function ReglagesRoute() {
         onTabChange={(nextTab) =>
           void navigate({ to: "/reglages", search: { tab: nextTab } })
         }
-        onThemeChange={setTheme}
-        settings={settings.data}
+        settings={savedSettings}
         signature={{
           src: signatureHref(signatureVersion),
           isPending: uploadSignature.isPending || deleteSignature.isPending,
@@ -162,7 +279,13 @@ function ReglagesRoute() {
           error: ratesError,
           onRefresh: () => refreshRates.mutate({}),
         }}
-        theme={theme}
+        localisation={{
+          saved: savedLocalisation,
+          isSaving: isSavingLocalisation,
+          error: localisationError,
+          onSave: (draft) => void saveLocalisation(draft),
+          onCancel: () => setLocalisationError(null),
+        }}
       />
     </>
   );

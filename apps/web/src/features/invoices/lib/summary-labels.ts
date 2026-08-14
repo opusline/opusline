@@ -1,11 +1,12 @@
 import type {
+  DateFormat,
   InvoiceForecastBucket,
   InvoiceOverdueData,
   InvoiceTodoOverdueData,
   InvoiceTodoWorkData,
   InvoiceTotalData,
+  Locale,
 } from "@opusline/api-client";
-
 import { calendarDateNumericLabel, fromCalendarDate } from "@/lib/dates";
 import { formatBilledDays, formatBilledHours } from "@/lib/durations";
 
@@ -52,19 +53,25 @@ export function periodsLabel(monthUnbilled: InvoiceTotalData): string {
  * How much work a row would bill, in the mission's own unit. Exactly one of the two
  * quantities is set, decided by how the mission bills.
  */
-function quantityLabel(work: InvoiceTodoWorkData): string | null {
+function quantityLabel(
+  locale: Locale,
+  work: InvoiceTodoWorkData,
+): string | null {
   if (work.valuedDays !== null) {
-    return formatBilledDays(work.valuedDays);
+    return formatBilledDays(locale, work.valuedDays);
   }
 
   return work.valuedMinutes === null
     ? null
-    : formatBilledHours(work.valuedMinutes);
+    : formatBilledHours(locale, work.valuedMinutes);
 }
 
 /** "3 j sur OGF front" — what would be billed, and on what. */
-export function unbilledWorkTitle(work: InvoiceTodoWorkData): string {
-  const quantity = quantityLabel(work);
+export function unbilledWorkTitle(
+  locale: Locale,
+  work: InvoiceTodoWorkData,
+): string {
+  const quantity = quantityLabel(locale, work);
 
   return quantity === null
     ? work.missionName
@@ -99,6 +106,9 @@ export function unbilledWorkDetail(work: InvoiceTodoWorkData): string {
 }
 
 /** "Échue le 30/06/2026 · 41 j de retard". */
-export function overdueDetail(overdue: InvoiceTodoOverdueData): string {
-  return `Échue le ${calendarDateNumericLabel(overdue.dueOn)} · ${overdue.daysLate} j de retard`;
+export function overdueDetail(
+  dateFormat: DateFormat,
+  overdue: InvoiceTodoOverdueData,
+): string {
+  return `Échue le ${calendarDateNumericLabel(dateFormat, overdue.dueOn)} · ${overdue.daysLate} j de retard`;
 }

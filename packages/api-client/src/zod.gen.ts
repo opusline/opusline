@@ -143,8 +143,43 @@ export const zCreateCraData = z.object({
 
 /**
  * Currency
+ *
+ * The currencies an account can be denominated in. Backed by the ISO 4217 code rather than an int — unlike every other enum here — because the code *is* the identifier the rest of the stack speaks: moneyphp, `Intl.NumberFormat`, and the `char(3)` columns all round-trip it verbatim.  Every case must have an ISO minor unit of 2, because storage is `*_cents` columns and the whole codebase reads them as hundredths. CurrencyTest enforces it, so adding JPY (0 decimals) or TND (3) fails the suite rather than quietly mis-stating amounts by two orders of magnitude.
+ *
  */
-export const zCurrency = z.enum(['EUR']);
+export const zCurrency = z.enum([
+    'EUR',
+    'USD',
+    'GBP',
+    'CHF',
+    'CAD',
+    'AUD',
+    'NZD',
+    'SEK',
+    'NOK',
+    'DKK',
+    'PLN',
+    'CZK',
+    'RON',
+    'BGN',
+    'SGD',
+    'HKD',
+    'AED',
+    'ILS',
+    'INR',
+    'BRL',
+    'MXN',
+    'ZAR',
+    'MAD'
+]);
+
+/**
+ * DateFormat
+ *
+ * The numeric layout calendar dates are displayed in — 31/08/2026 or 2026-08-31. Weekday and month names stay French until i18n lands; only digit-only dates follow this preference.
+ *
+ */
+export const zDateFormat = z.union([z.literal(0), z.literal(1)]);
 
 /**
  * DocumentCategory
@@ -328,6 +363,14 @@ export const zInvoiceTodoWorkData = z.object({
     valuedMinutes: z.nullable(z.int()),
     timeEntryIds: z.array(z.int())
 });
+
+/**
+ * Locale
+ *
+ * The locale amounts and dates are formatted in — not the UI language, which stays French until i18n lands (TODO.md). FR and EN only for now; a new case is a one-line addition. Case names follow the standard locale identifiers (fr_FR); values are the BCP-47 tags because that is what `Intl.NumberFormat` consumes verbatim.
+ *
+ */
+export const zLocale = z.enum(['fr-FR', 'en-US']);
 
 /**
  * LoginData
@@ -756,6 +799,13 @@ export const zUpdateMissionData = z.object({
 });
 
 /**
+ * UpdateSettingsCurrencyData
+ */
+export const zUpdateSettingsCurrencyData = z.object({
+    currency: zCurrency
+});
+
+/**
  * UpdateTimerData
  */
 export const zUpdateTimerData = z.object({
@@ -813,6 +863,11 @@ export const zUserData = z.object({
     name: z.string(),
     email: z.string(),
     theme: zTheme,
+    locale: zLocale,
+    dateFormat: zDateFormat,
+    currency: zCurrency,
+    businessCountry: z.string(),
+    hasFrenchFiscality: z.boolean(),
     workdayMinutes: z.int()
 });
 
@@ -844,6 +899,8 @@ export const zSettingsData = z.object({
     homeAddressLine2: z.nullable(z.string()),
     homePostalCode: z.nullable(z.string()),
     homeCity: z.nullable(z.string()),
+    businessCountry: z.string(),
+    hasFrenchFiscality: z.boolean(),
     urssafPeriodicity: zUrssafPeriodicity,
     autoRates: z.boolean(),
     businessStartedOn: z.nullable(z.iso.date()),
@@ -861,6 +918,10 @@ export const zSettingsData = z.object({
     defaultPaymentTermsDays: z.int(),
     invoiceNumberFormat: z.string(),
     treasuryBuffer: z.nullable(zMoneyData),
+    currency: zCurrency,
+    currencyLocked: z.boolean(),
+    locale: zLocale,
+    dateFormat: zDateFormat,
     hasSignature: z.boolean()
 });
 
@@ -868,6 +929,9 @@ export const zSettingsData = z.object({
  * UpdateSettingsData
  */
 export const zUpdateSettingsData = z.object({
+    businessCountry: z.string().check(z.regex(/^[A-Z]{2}$/)),
+    locale: zLocale,
+    dateFormat: zDateFormat,
     urssafPeriodicity: zUrssafPeriodicity,
     autoRates: z.boolean(),
     acre: z.boolean(),
@@ -1254,6 +1318,10 @@ export const zShowSettingsResponse = zSettingsData;
 export const zUpdateSettingsBody = zUpdateSettingsData;
 
 export const zUpdateSettingsResponse = zSettingsData;
+
+export const zUpdateSettingsCurrencyBody = zUpdateSettingsCurrencyData;
+
+export const zUpdateSettingsCurrencyResponse = zSettingsData;
 
 export const zRefreshSettingsRatesResponse = zSettingsData;
 

@@ -9,16 +9,20 @@ import type {
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
 import { Chip, ChipGroup } from "@opusline/ui/components/chip";
-import { Field, FieldError, FieldLabel } from "@opusline/ui/components/field";
+import { Field, FieldLabel } from "@opusline/ui/components/field";
 import { HelpTip } from "@opusline/ui/components/help-tip";
 import { Swatch, SwatchGroup } from "@opusline/ui/components/swatch";
 import { Switch } from "@opusline/ui/components/switch";
-import { cn } from "@opusline/ui/lib/utils";
 import { useForm } from "@tanstack/react-form";
 import { CircleAlert, PencilIcon } from "lucide-react";
 import { useState } from "react";
 import { FormTextField } from "@/components/form-text-field";
-import { formatRateDraft, parseRateToCents } from "@/lib/billing";
+import { useMoneyFormat } from "@/components/money-format-provider";
+import {
+  formatAmount,
+  type MoneyFormat,
+  parseRateToCents,
+} from "@/lib/billing";
 import { isInternalClient } from "@/lib/client-types";
 import {
   entryRoundingHint,
@@ -27,11 +31,8 @@ import {
 } from "@/lib/entry-rounding";
 import type { FormSubmitResult } from "@/lib/form";
 import { COLOR_CLASSES, COLOR_LABELS, COLORS } from "@/lib/palette";
-import {
-  BILLING_MODE_LABELS,
-  BILLING_MODE_RATE_PLACEHOLDERS,
-  BILLING_MODE_UNITS,
-} from "../lib/labels";
+import { BILLING_MODE_LABELS } from "../lib/labels";
+import { MissionRateField } from "./mission-rate-field";
 
 const EYEBROW_CLASSES =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
@@ -46,12 +47,12 @@ type MissionEditFormValues = {
   endDate: string;
 };
 
-function initialRateDraft(mission: MissionData): string {
+function initialRateDraft(format: MoneyFormat, mission: MissionData): string {
   if (mission.rate === null) {
     return "";
   }
 
-  return formatRateDraft(String(mission.rate.amount / 100).replace(".", ","));
+  return formatAmount(format, mission.rate.amount);
 }
 
 type MissionEditFormProps = {
@@ -71,13 +72,16 @@ export function MissionEditForm({
   isPending,
   error,
 }: MissionEditFormProps) {
+  const format = useMoneyFormat();
   const isEsn = client.type === 1;
   const isInternal = isInternalClient(client.type);
 
   const [billingMode, setBillingMode] = useState<BillingMode>(
     mission.billingMode,
   );
-  const [rateDraft, setRateDraft] = useState(() => initialRateDraft(mission));
+  const [rateDraft, setRateDraft] = useState(() =>
+    initialRateDraft(format, mission),
+  );
   const [isRateMissing, setIsRateMissing] = useState(false);
   const [rounding, setRounding] = useState<EntryRounding>(
     mission.rounding ?? 0,
@@ -86,7 +90,9 @@ export function MissionEditForm({
   const [craRequired, setCraRequired] = useState(mission.craRequired);
 
   const isForfait = billingMode === 2;
-  const rateCents = isInternal ? null : parseRateToCents(rateDraft);
+  const rateCents = isInternal
+    ? null
+    : parseRateToCents(format.locale, rateDraft);
   const displayedColor = color ?? client.color;
 
   const form = useForm({
@@ -108,7 +114,9 @@ export function MissionEditForm({
           billingMode,
           status: mission.status,
           rate:
-            rateCents === null ? null : { amount: rateCents, currency: "EUR" },
+            rateCents === null
+              ? null
+              : { amount: rateCents, currency: format.currency },
           rounding: isForfait ? null : rounding,
           craRequired: isEsn ? craRequired : null,
           endClientName:
@@ -239,45 +247,17 @@ export function MissionEditForm({
                   </ChipGroup>
                 </Field>
 
-                <Field data-invalid={isRateMissing}>
-                  <FieldLabel
-                    className={EDIT_LABEL_CLASSES}
-                    htmlFor="mission-edit-rate"
-                  >
-                    Tarif HT
-                  </FieldLabel>
-                  <div
-                    className={cn(
-                      "flex h-10 items-center rounded-md border border-input bg-muted px-3 transition-colors focus-within:border-primary focus-within:ring-3 focus-within:ring-primary/20",
-                      isRateMissing &&
-                        "border-destructive focus-within:border-destructive focus-within:ring-destructive/20",
-                    )}
-                  >
-                    <input
-                      aria-invalid={isRateMissing}
-                      aria-label="Tarif HT"
-                      className="min-w-0 flex-1 border-none bg-transparent font-mono text-base text-foreground-hi tabular-nums outline-none"
-                      id="mission-edit-rate"
-                      inputMode="decimal"
-                      onChange={(event) => {
-                        setRateDraft(formatRateDraft(event.target.value));
-                        setIsRateMissing(false);
-                      }}
-                      placeholder={BILLING_MODE_RATE_PLACEHOLDERS[billingMode]}
-                      value={rateDraft}
-                    />
-                    <span className="shrink-0 whitespace-nowrap pl-2 text-muted-foreground-2 text-sm">
-                      {BILLING_MODE_UNITS[billingMode]}
-                    </span>
-                  </div>
-                  {isRateMissing ? (
-                    <FieldError
-                      errors={[
-                        { message: "Indiquez un tarif pour cette mission." },
-                      ]}
-                    />
-                  ) : null}
-                </Field>
+                <MissionRateField
+                  billingMode={billingMode}
+                  id="mission-edit-rate"
+                  isRateMissing={isRateMissing}
+                  labelClassName={EDIT_LABEL_CLASSES}
+                  onDraftChange={(draft) => {
+                    setRateDraft(draft);
+                    setIsRateMissing(false);
+                  }}
+                  rateDraft={rateDraft}
+                />
 
                 {!isForfait && (
                   <Field>

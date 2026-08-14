@@ -20,6 +20,7 @@ const MISSION_ROUNDING_LABEL = entryRoundingLabel(
   HALF_DAY_MISSION.billingMode,
 );
 const { options: OPTIONS } = stopChoices(
+  "fr-FR",
   DEMO_ELAPSED_SECONDS,
   HALF_DAY_MISSION,
   DEMO_WORKDAY_MINUTES,

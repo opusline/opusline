@@ -1,7 +1,7 @@
 import type { CraData } from "@opusline/api-client";
 import { cn } from "@opusline/ui/lib/utils";
 import { CheckIcon } from "lucide-react";
-
+import { useLocale } from "@/components/money-format-provider";
 import {
   CRA_STEP_LABELS,
   CRA_STEPS,
@@ -16,6 +16,7 @@ type CraStepTrackerProps = {
 };
 
 export function CraStepTracker({ cra, current, onGo }: CraStepTrackerProps) {
+  const locale = useLocale();
   const currentIndex = CRA_STEPS.indexOf(current);
 
   return (
@@ -64,7 +65,7 @@ export function CraStepTracker({ cra, current, onGo }: CraStepTrackerProps) {
                   {CRA_STEP_LABELS[step]}
                 </span>
                 <span className="block truncate text-muted-foreground-3 text-xs">
-                  {craStepState(step, cra)}
+                  {craStepState(locale, step, cra)}
                 </span>
               </span>
             </button>

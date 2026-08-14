@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { MissionStatusBadge } from "@/components/mission-status-badge";
+import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatAmount, paymentTermsLabel } from "@/lib/billing";
 import { CLIENT_TYPE_LABELS } from "@/lib/client-types";
 import { calendarDateLabel, calendarMonthYearLabel } from "@/lib/dates";
@@ -37,7 +38,7 @@ import { entryRoundingLabel } from "@/lib/entry-rounding";
 import type { FormSubmitResult } from "@/lib/form";
 import { COLOR_CLASSES } from "@/lib/palette";
 
-import { BILLING_MODE_UNITS_SHORT } from "../lib/labels";
+import { billingModeUnitShort } from "../lib/labels";
 import { MissionEditForm } from "./mission-edit-form";
 
 const EYEBROW_CLASSES =
@@ -75,6 +76,7 @@ export function MissionDetailPage({
   isStatusPending,
   error,
 }: MissionDetailPageProps) {
+  const format = useMoneyFormat();
   const [isEditing, setIsEditing] = useState(false);
 
   const barColor = mission.color ?? client.color;
@@ -324,10 +326,10 @@ export function MissionDetailPage({
                     </div>
                     <div className="inline-flex items-baseline gap-2">
                       <span className="font-mono text-foreground-hi text-xl tabular-nums">
-                        {formatAmount(mission.rate.amount)}
+                        {formatAmount(format, mission.rate.amount)}
                       </span>
                       <span className="text-muted-foreground-2 text-sm">
-                        {BILLING_MODE_UNITS_SHORT[mission.billingMode]}
+                        {billingModeUnitShort(format, mission.billingMode)}
                       </span>
                     </div>
                     {mission.billingMode !== 2 && (

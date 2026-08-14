@@ -124,3 +124,35 @@ export async function searchCities(
     ];
   });
 }
+
+/**
+ * One country's address lookup: street and city suggestions, plus the country
+ * label a picked suggestion implies for the form's Pays field.
+ */
+export type AddressAutocomplete = {
+  searchAddresses: (
+    query: string,
+    signal?: AbortSignal,
+  ) => Promise<AddressSuggestion[]>;
+  searchCities: (
+    query: string,
+    signal?: AbortSignal,
+  ) => Promise<CitySuggestion[]>;
+  countryLabel: string;
+};
+
+const banAddressAutocomplete: AddressAutocomplete = {
+  searchAddresses,
+  searchCities,
+  countryLabel: "France",
+};
+
+/**
+ * The one place a business country turns into an address lookup. Countries
+ * without one get null, and address fields degrade to plain inputs.
+ */
+export function addressAutocompleteFor(
+  businessCountry: string,
+): AddressAutocomplete | null {
+  return businessCountry === "FR" ? banAddressAutocomplete : null;
+}

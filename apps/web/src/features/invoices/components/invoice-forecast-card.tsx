@@ -1,6 +1,7 @@
 import type { InvoiceSummaryData } from "@opusline/api-client";
 
-import { formatEuros } from "@/lib/billing";
+import { useMoneyFormat } from "@/components/money-format-provider";
+import { formatWholeAmount } from "@/lib/billing";
 
 import { INVOICE_FORECAST_BUCKET_LABELS } from "../lib/summary-labels";
 
@@ -15,6 +16,7 @@ export function InvoiceForecastCard({
 }: {
   summary: InvoiceSummaryData;
 }) {
+  const format = useMoneyFormat();
   const overdue = summary.overdue;
 
   return (
@@ -31,7 +33,7 @@ export function InvoiceForecastCard({
                 {INVOICE_FORECAST_BUCKET_LABELS[bar.bucket]}
               </span>
               <span className="font-mono text-foreground-hi text-sm tabular-nums">
-                {formatEuros(bar.amount.amount)}
+                {formatWholeAmount(format, bar.amount.amount)}
               </span>
             </div>
             <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted-2">
@@ -47,7 +49,7 @@ export function InvoiceForecastCard({
       {overdue.count > 0 && (
         <p className="mt-4 border-t pt-3 text-muted-foreground-3 text-xs">
           <span className="font-mono text-destructive tabular-nums">
-            {formatEuros(overdue.amount.amount)}
+            {formatWholeAmount(format, overdue.amount.amount)}
           </span>{" "}
           déjà échus
         </p>

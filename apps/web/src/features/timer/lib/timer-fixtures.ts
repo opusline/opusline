@@ -4,6 +4,8 @@ import type {
   TimerData,
 } from "@opusline/api-client";
 
+import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
+
 import { trackableMissions } from "./mission-options";
 
 export const DEMO_WORKDAY_MINUTES = 420;
@@ -82,6 +84,7 @@ export const DEMO_CLIENTS: ClientWithMissionsData[] = [
 ];
 
 export const DEMO_MISSION_OPTIONS = trackableMissions(
+  DEFAULT_MONEY_FORMAT,
   DEMO_CLIENTS,
   DEMO_MISSIONS.ogf.id,
 );

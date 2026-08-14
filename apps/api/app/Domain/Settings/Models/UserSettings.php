@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Settings\Models;
 
+use App\Domain\Settings\Enums\DateFormat;
+use App\Domain\Settings\Enums\Locale;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
+use App\Domain\Shared\Enums\Currency;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Casts\MoneyIntegerCast;
@@ -33,6 +36,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property ?string $home_address_line2
  * @property ?string $home_postal_code
  * @property ?string $home_city
+ * @property string $business_country
  * @property UrssafPeriodicity $urssaf_periodicity
  * @property bool $auto_rates
  * @property ?CarbonImmutable $rates_checked_at
@@ -47,7 +51,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $default_payment_terms_days
  * @property string $invoice_number_format
  * @property ?Money $treasury_buffer_cents
- * @property string $currency
+ * @property Currency $currency
+ * @property Locale $locale
+ * @property DateFormat $date_format
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  */
@@ -67,6 +73,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'home_address_line2',
     'home_postal_code',
     'home_city',
+    'business_country',
     'urssaf_periodicity',
     'auto_rates',
     'rates_checked_at',
@@ -82,10 +89,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'invoice_number_format',
     'treasury_buffer_cents',
     'currency',
+    'locale',
+    'date_format',
 ])]
 #[Table('user_settings')]
 class UserSettings extends Model
 {
+    /**
+     * The one country whose fiscal machinery (URSSAF, TVA CA3, plafond) the
+     * app implements. Every "is this account French?" check reads it here.
+     */
+    public const string FRENCH_FISCALITY_COUNTRY = 'FR';
+
     /**
      * Get the attributes that should be cast.
      *
@@ -109,6 +124,9 @@ class UserSettings extends Model
             'default_vat_rate_bp' => 'integer',
             'default_payment_terms_days' => 'integer',
             'treasury_buffer_cents' => MoneyIntegerCast::class.':currency',
+            'currency' => Currency::class,
+            'locale' => Locale::class,
+            'date_format' => DateFormat::class,
         ];
     }
 
@@ -128,5 +146,18 @@ class UserSettings extends Model
     public function effectiveVatRateBp(): int
     {
         return $this->vat_regime->isLiable() ? $this->default_vat_rate_bp : 0;
+    }
+
+    /**
+     * Whether the French fiscal helpers (URSSAF, TVA CA3, plafond micro-BNC,
+     * « combien je peux me virer ») apply to this account.
+     *
+     * Keyed on where the business is registered, never on the currency — a
+     * freelance in Germany invoices euros without URSSAF existing for them.
+     * Every gate that hides the fiscal module reads this one predicate.
+     */
+    public function hasFrenchFiscality(): bool
+    {
+        return $this->business_country === self::FRENCH_FISCALITY_COUNTRY;
     }
 }

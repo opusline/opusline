@@ -1,7 +1,8 @@
 import type { InvoiceSummaryData } from "@opusline/api-client";
 import { StatTile, StatTileRow } from "@opusline/ui/components/stat-tile";
 
-import { formatEuros } from "@/lib/billing";
+import { useMoneyFormat } from "@/components/money-format-provider";
+import { formatWholeAmount } from "@/lib/billing";
 
 import { openInvoicesLabel, overdueLabel } from "../lib/summary-labels";
 
@@ -10,19 +11,20 @@ export function InvoiceSummaryTiles({
 }: {
   summary: InvoiceSummaryData;
 }) {
+  const format = useMoneyFormat();
   const { toCollect, overdue } = summary;
 
   return (
     <StatTileRow className="grid-cols-1 sm:grid-cols-3">
       <StatTile
         label="À encaisser"
-        value={formatEuros(toCollect.amount.amount)}
+        value={formatWholeAmount(format, toCollect.amount.amount)}
         sub={openInvoicesLabel(toCollect)}
         tone="strong"
       />
       <StatTile
         label="Dont en retard"
-        value={formatEuros(overdue.amount.amount)}
+        value={formatWholeAmount(format, overdue.amount.amount)}
         sub={overdueLabel(overdue)}
         tone={overdue.count === 0 ? "quiet" : "warn"}
       />

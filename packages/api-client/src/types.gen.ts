@@ -231,8 +231,19 @@ export type CreateMissionData = {
 
 /**
  * Currency
+ *
+ * The currencies an account can be denominated in. Backed by the ISO 4217 code rather than an int — unlike every other enum here — because the code *is* the identifier the rest of the stack speaks: moneyphp, `Intl.NumberFormat`, and the `char(3)` columns all round-trip it verbatim.  Every case must have an ISO minor unit of 2, because storage is `*_cents` columns and the whole codebase reads them as hundredths. CurrencyTest enforces it, so adding JPY (0 decimals) or TND (3) fails the suite rather than quietly mis-stating amounts by two orders of magnitude.
+ *
  */
-export type Currency = 'EUR';
+export type Currency = 'EUR' | 'USD' | 'GBP' | 'CHF' | 'CAD' | 'AUD' | 'NZD' | 'SEK' | 'NOK' | 'DKK' | 'PLN' | 'CZK' | 'RON' | 'BGN' | 'SGD' | 'HKD' | 'AED' | 'ILS' | 'INR' | 'BRL' | 'MXN' | 'ZAR' | 'MAD';
+
+/**
+ * DateFormat
+ *
+ * The numeric layout calendar dates are displayed in — 31/08/2026 or 2026-08-31. Weekday and month names stay French until i18n lands; only digit-only dates follow this preference.
+ *
+ */
+export type DateFormat = 0 | 1;
 
 /**
  * DocumentCategory
@@ -453,6 +464,14 @@ export type InvoiceTotalData = {
 };
 
 /**
+ * Locale
+ *
+ * The locale amounts and dates are formatted in — not the UI language, which stays French until i18n lands (TODO.md). FR and EN only for now; a new case is a one-line addition. Case names follow the standard locale identifiers (fr_FR); values are the BCP-47 tags because that is what `Intl.NumberFormat` consumes verbatim.
+ *
+ */
+export type Locale = 'fr-FR' | 'en-US';
+
+/**
  * LoginData
  */
 export type LoginData = {
@@ -554,6 +573,8 @@ export type SettingsData = {
     homeAddressLine2: string | null;
     homePostalCode: string | null;
     homeCity: string | null;
+    businessCountry: string;
+    hasFrenchFiscality: boolean;
     urssafPeriodicity: UrssafPeriodicity;
     autoRates: boolean;
     businessStartedOn: string | null;
@@ -571,6 +592,10 @@ export type SettingsData = {
     defaultPaymentTermsDays: number;
     invoiceNumberFormat: string;
     treasuryBuffer: MoneyData | null;
+    currency: Currency;
+    currencyLocked: boolean;
+    locale: Locale;
+    dateFormat: DateFormat;
     hasSignature: boolean;
 };
 
@@ -747,9 +772,19 @@ export type UpdateMissionData = {
 };
 
 /**
+ * UpdateSettingsCurrencyData
+ */
+export type UpdateSettingsCurrencyData = {
+    currency: Currency;
+};
+
+/**
  * UpdateSettingsData
  */
 export type UpdateSettingsData = {
+    businessCountry: string;
+    locale: Locale;
+    dateFormat: DateFormat;
     urssafPeriodicity: UrssafPeriodicity;
     autoRates: boolean;
     acre: boolean;
@@ -852,6 +887,11 @@ export type UserData = {
     name: string;
     email: string;
     theme: Theme;
+    locale: Locale;
+    dateFormat: DateFormat;
+    currency: Currency;
+    businessCountry: string;
+    hasFrenchFiscality: boolean;
     workdayMinutes: number;
 };
 
@@ -989,6 +1029,21 @@ export type UpdateUserThemeErrors = {
          * Error overview.
          */
         message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
     };
 };
 
@@ -2947,6 +3002,57 @@ export type UpdateSettingsResponses = {
 
 export type UpdateSettingsResponse = UpdateSettingsResponses[keyof UpdateSettingsResponses];
 
+export type UpdateSettingsCurrencyData2 = {
+    body: UpdateSettingsCurrencyData;
+    path?: never;
+    query?: never;
+    url: '/settings/currency';
+};
+
+export type UpdateSettingsCurrencyErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type UpdateSettingsCurrencyError = UpdateSettingsCurrencyErrors[keyof UpdateSettingsCurrencyErrors];
+
+export type UpdateSettingsCurrencyResponses = {
+    200: SettingsData;
+};
+
+export type UpdateSettingsCurrencyResponse = UpdateSettingsCurrencyResponses[keyof UpdateSettingsCurrencyResponses];
+
 export type RefreshSettingsRatesData = {
     body?: never;
     path?: never;
@@ -2977,8 +3083,15 @@ export type RefreshSettingsRatesErrors = {
      * An error
      *
      * An error
+     *
+     * An error
      */
     409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    } | {
         /**
          * Error overview.
          */

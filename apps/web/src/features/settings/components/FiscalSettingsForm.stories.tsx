@@ -1,9 +1,13 @@
 import type { SettingsData } from "@opusline/api-client";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { settingsFixture } from "../lib/settings-fixture";
+import {
+  abroadSettingsFixture,
+  nonEuSettingsFixture,
+  settingsFixture,
+} from "../lib/settings-fixture";
 import { SettingsFormStory } from "../lib/settings-form-story";
-import { FiscalSettingsForm } from "./fiscal-settings-form";
+import { FiscalAbroadPanel, FiscalSettingsForm } from "./fiscal-settings-form";
 
 function Example({
   settings,
@@ -74,5 +78,23 @@ export const QuarterlyAndVatLiable: Story = {
         vatLiable: true,
       }}
     />
+  ),
+};
+
+/** Abroad the tab explains itself and keeps only the tax rate — TVA in the EU. */
+export const AbroadInsideEu: Story = {
+  render: () => (
+    <SettingsFormStory settings={abroadSettingsFixture}>
+      {(form) => <FiscalAbroadPanel form={form} isEuVat={true} />}
+    </SettingsFormStory>
+  ),
+};
+
+/** Outside the EU the same panel names the rate a sales tax. */
+export const AbroadOutsideEu: Story = {
+  render: () => (
+    <SettingsFormStory settings={nonEuSettingsFixture}>
+      {(form) => <FiscalAbroadPanel form={form} isEuVat={false} />}
+    </SettingsFormStory>
   ),
 };

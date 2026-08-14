@@ -112,9 +112,34 @@ class User extends Authenticatable implements HasMedia
         return $this->hasOne(RunningTimer::class);
     }
 
+    /**
+     * The settings row every account owns. Reads the loaded relation when
+     * available and queries once otherwise; reach for settings()->sole() only
+     * under lockForUpdate, where the fresh read is the point.
+     */
+    public function settingsOrFail(): UserSettings
+    {
+        return $this->settings ?? $this->settings()->sole();
+    }
+
     /** @return HasOne<UserSettings, $this> */
     public function settings(): HasOne
     {
         return $this->hasOne(UserSettings::class);
+    }
+
+    /**
+     * Whether the account currency can still change. It is fixed the moment any
+     * amount is stored in it — a priced mission or an invoice — so every stored
+     * amount provably shares one currency and aggregations never have to guard
+     * against a mix.
+     */
+    public function hasLockedCurrency(): bool
+    {
+        if ($this->missions()->whereNotNull('rate_cents')->exists()) {
+            return true;
+        }
+
+        return $this->invoices()->exists();
     }
 }

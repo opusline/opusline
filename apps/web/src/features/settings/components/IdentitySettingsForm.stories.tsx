@@ -1,14 +1,26 @@
 import type { SettingsData } from "@opusline/api-client";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { settingsFixture } from "../lib/settings-fixture";
+import { hasEuVat } from "@/lib/countries";
+
+import {
+  abroadSettingsFixture,
+  nonEuSettingsFixture,
+  settingsFixture,
+} from "../lib/settings-fixture";
 import { SettingsFormStory } from "../lib/settings-form-story";
 import { IdentitySettingsForm } from "./identity-settings-form";
 
 function Example({ settings }: { settings: SettingsData }) {
   return (
     <SettingsFormStory settings={settings}>
-      {(form) => <IdentitySettingsForm form={form} />}
+      {(form) => (
+        <IdentitySettingsForm
+          form={form}
+          hasFrenchFiscality={settings.hasFrenchFiscality}
+          showEuVatNumber={hasEuVat(settings.businessCountry)}
+        />
+      )}
     </SettingsFormStory>
   );
 }
@@ -55,6 +67,16 @@ export const VatLiable: Story = {
       }}
     />
   ),
+};
+
+/** Abroad, the auto-entrepreneur status and the SIRET disappear. */
+export const EstablishedAbroad: Story = {
+  render: () => <Example settings={abroadSettingsFixture} />,
+};
+
+/** Outside the EU, the intra-community VAT number disappears too. */
+export const EstablishedOutsideEu: Story = {
+  render: () => <Example settings={nonEuSettingsFixture} />,
 };
 
 export const SeparateHomeAddress: Story = {

@@ -197,6 +197,9 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     }
                 }
             }
@@ -2369,6 +2372,45 @@
                 }
             }
         },
+        "/settings/currency": {
+            "put": {
+                "operationId": "updateSettingsCurrency",
+                "tags": [
+                    "Settings"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateSettingsCurrencyData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SettingsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/settings/rates/refresh": {
             "post": {
                 "operationId": "refreshSettingsRates",
@@ -2393,11 +2435,26 @@
                         "$ref": "#/components/responses/ModelNotFoundException"
                     },
                     "409": {
-                        "description": "An error\n\nAn error",
+                        "description": "An error\n\nAn error\n\nAn error",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "description": "Error overview.",
+                                                    "examples": [
+                                                        "Le barème de l'URSSAF ne s'applique qu'aux entreprises établies en France."
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "message"
+                                            ]
+                                        },
                                         {
                                             "type": "object",
                                             "properties": {
@@ -3902,13 +3959,71 @@
             },
             "Currency": {
                 "type": "string",
+                "description": "The currencies an account can be denominated in. Backed by the ISO 4217 code rather than an int — unlike every other enum here — because the code *is* the identifier the rest of the stack speaks: moneyphp, `Intl.NumberFormat`, and the `char(3)` columns all round-trip it verbatim.  Every case must have an ISO minor unit of 2, because storage is `*_cents` columns and the whole codebase reads them as hundredths. CurrencyTest enforces it, so adding JPY (0 decimals) or TND (3) fails the suite rather than quietly mis-stating amounts by two orders of magnitude.\n",
                 "enum": [
-                    "EUR"
+                    "EUR",
+                    "USD",
+                    "GBP",
+                    "CHF",
+                    "CAD",
+                    "AUD",
+                    "NZD",
+                    "SEK",
+                    "NOK",
+                    "DKK",
+                    "PLN",
+                    "CZK",
+                    "RON",
+                    "BGN",
+                    "SGD",
+                    "HKD",
+                    "AED",
+                    "ILS",
+                    "INR",
+                    "BRL",
+                    "MXN",
+                    "ZAR",
+                    "MAD"
                 ],
                 "x-enum-varnames": [
-                    "EUR"
+                    "EUR",
+                    "USD",
+                    "GBP",
+                    "CHF",
+                    "CAD",
+                    "AUD",
+                    "NZD",
+                    "SEK",
+                    "NOK",
+                    "DKK",
+                    "PLN",
+                    "CZK",
+                    "RON",
+                    "BGN",
+                    "SGD",
+                    "HKD",
+                    "AED",
+                    "ILS",
+                    "INR",
+                    "BRL",
+                    "MXN",
+                    "ZAR",
+                    "MAD"
                 ],
                 "title": "Currency"
+            },
+            "DateFormat": {
+                "type": "integer",
+                "description": "The numeric layout calendar dates are displayed in — 31/08/2026 or 2026-08-31. Weekday and month names stay French until i18n lands; only digit-only dates follow this preference.\n",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "DayMonthYear",
+                    "YearMonthDay"
+                ],
+                "title": "DateFormat"
             },
             "DocumentCategory": {
                 "type": "integer",
@@ -4520,6 +4635,19 @@
                 ],
                 "title": "InvoiceTotalData"
             },
+            "Locale": {
+                "type": "string",
+                "description": "The locale amounts and dates are formatted in — not the UI language, which stays French until i18n lands (TODO.md). FR and EN only for now; a new case is a one-line addition. Case names follow the standard locale identifiers (fr_FR); values are the BCP-47 tags because that is what `Intl.NumberFormat` consumes verbatim.\n",
+                "enum": [
+                    "fr-FR",
+                    "en-US"
+                ],
+                "x-enum-varnames": [
+                    "fr_FR",
+                    "en_US"
+                ],
+                "title": "Locale"
+            },
             "LoginData": {
                 "type": "object",
                 "properties": {
@@ -4855,6 +4983,12 @@
                             "null"
                         ]
                     },
+                    "businessCountry": {
+                        "type": "string"
+                    },
+                    "hasFrenchFiscality": {
+                        "type": "boolean"
+                    },
                     "urssafPeriodicity": {
                         "$ref": "#/components/schemas/UrssafPeriodicity"
                     },
@@ -4923,6 +5057,18 @@
                             }
                         ]
                     },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currency"
+                    },
+                    "currencyLocked": {
+                        "type": "boolean"
+                    },
+                    "locale": {
+                        "$ref": "#/components/schemas/Locale"
+                    },
+                    "dateFormat": {
+                        "$ref": "#/components/schemas/DateFormat"
+                    },
                     "hasSignature": {
                         "type": "boolean"
                     }
@@ -4943,6 +5089,8 @@
                     "homeAddressLine2",
                     "homePostalCode",
                     "homeCity",
+                    "businessCountry",
+                    "hasFrenchFiscality",
                     "urssafPeriodicity",
                     "autoRates",
                     "businessStartedOn",
@@ -4960,6 +5108,10 @@
                     "defaultPaymentTermsDays",
                     "invoiceNumberFormat",
                     "treasuryBuffer",
+                    "currency",
+                    "currencyLocked",
+                    "locale",
+                    "dateFormat",
                     "hasSignature"
                 ],
                 "title": "SettingsData"
@@ -5590,9 +5742,31 @@
                 ],
                 "title": "UpdateMissionData"
             },
+            "UpdateSettingsCurrencyData": {
+                "type": "object",
+                "properties": {
+                    "currency": {
+                        "$ref": "#/components/schemas/Currency"
+                    }
+                },
+                "required": [
+                    "currency"
+                ],
+                "title": "UpdateSettingsCurrencyData"
+            },
             "UpdateSettingsData": {
                 "type": "object",
                 "properties": {
+                    "businessCountry": {
+                        "type": "string",
+                        "pattern": "^[A-Z]{2}$"
+                    },
+                    "locale": {
+                        "$ref": "#/components/schemas/Locale"
+                    },
+                    "dateFormat": {
+                        "$ref": "#/components/schemas/DateFormat"
+                    },
                     "urssafPeriodicity": {
                         "$ref": "#/components/schemas/UrssafPeriodicity"
                     },
@@ -5762,6 +5936,9 @@
                     }
                 },
                 "required": [
+                    "businessCountry",
+                    "locale",
+                    "dateFormat",
                     "urssafPeriodicity",
                     "autoRates",
                     "acre",
@@ -5915,6 +6092,21 @@
                     "theme": {
                         "$ref": "#/components/schemas/Theme"
                     },
+                    "locale": {
+                        "$ref": "#/components/schemas/Locale"
+                    },
+                    "dateFormat": {
+                        "$ref": "#/components/schemas/DateFormat"
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currency"
+                    },
+                    "businessCountry": {
+                        "type": "string"
+                    },
+                    "hasFrenchFiscality": {
+                        "type": "boolean"
+                    },
                     "workdayMinutes": {
                         "type": "integer"
                     }
@@ -5924,6 +6116,11 @@
                     "name",
                     "email",
                     "theme",
+                    "locale",
+                    "dateFormat",
+                    "currency",
+                    "businessCountry",
+                    "hasFrenchFiscality",
                     "workdayMinutes"
                 ],
                 "title": "UserData"
@@ -5958,6 +6155,36 @@
                             },
                             "required": [
                                 "message"
+                            ]
+                        }
+                    }
+                }
+            },
+            "ValidationException": {
+                "description": "Validation error",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Errors overview."
+                                },
+                                "errors": {
+                                    "type": "object",
+                                    "description": "A detailed description of each field that failed validation.",
+                                    "additionalProperties": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "required": [
+                                "message",
+                                "errors"
                             ]
                         }
                     }

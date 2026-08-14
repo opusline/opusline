@@ -178,7 +178,7 @@ class DatabaseSeeder extends Seeder
     private function seedPreviousMonthCra(User $user, Mission $mission): void
     {
         $month = CarbonImmutable::today()->subMonth()->startOfMonth();
-        $holidays = FrenchHolidays::forYear($month->year);
+        $holidays = new FrenchHolidays()->forYear($month->year);
 
         for ($day = $month; $day->month === $month->month; $day = $day->addDay()) {
             if ($day->isWeekend()) {

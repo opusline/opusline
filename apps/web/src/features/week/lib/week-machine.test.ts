@@ -1,5 +1,6 @@
 import { beforeEach, expect, it } from "vitest";
 import { type Actor, createActor, fromPromise } from "xstate";
+import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
 
 import {
   DEMO_CLIENTS,
@@ -17,6 +18,7 @@ const HARTPRINT_MONDAY = "2:2026-07-27";
 
 function modelWith(timeEntries = DEMO_TIME_ENTRIES, week = DEMO_WEEK) {
   return buildWeekGrid({
+    format: DEFAULT_MONEY_FORMAT,
     clients: DEMO_CLIENTS,
     timeEntries,
     today: DEMO_TODAY,

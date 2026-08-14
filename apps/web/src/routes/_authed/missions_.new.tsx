@@ -23,6 +23,7 @@ export const Route = createFileRoute("/_authed/missions_/new")({
 });
 
 function NewMissionRoute() {
+  const { user } = Route.useRouteContext();
   const navigate = useNavigate();
   const { client: initialClientSlug } = Route.useSearch();
   const queryClient = useQueryClient();
@@ -105,6 +106,7 @@ function NewMissionRoute() {
   return (
     <NewMissionPage
       clients={data.clients}
+      hasFrenchFiscality={user.hasFrenchFiscality}
       error={
         createMission.error && !serverFieldErrors(createMission.error)
           ? "Impossible de créer la mission. Réessayez dans un instant."

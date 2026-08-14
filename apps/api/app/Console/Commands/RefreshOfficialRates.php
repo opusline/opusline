@@ -24,6 +24,7 @@ class RefreshOfficialRates extends Command
 
         UserSettings::query()
             ->where('auto_rates', true)
+            ->where('business_country', UserSettings::FRENCH_FISCALITY_COUNTRY)
             ->chunkById(100, function (Collection $batch) use ($refreshOfficialRates, &$refreshed, &$failed): void {
                 foreach ($batch as $settings) {
                     try {

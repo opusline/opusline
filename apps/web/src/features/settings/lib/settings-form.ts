@@ -1,11 +1,19 @@
 import type {
+  DateFormat,
+  Locale,
   SettingsData,
   UpdateSettingsData,
   UrssafPeriodicity,
   VatRegime,
 } from "@opusline/api-client";
 
-import { formatAmount, formatPercentFromBp, parseDecimal } from "@/lib/billing";
+import {
+  formatAmount,
+  formatPercentFromBp,
+  type MoneyFormat,
+  parseDecimal,
+} from "@/lib/billing";
+import { isFrenchFiscalityCountry } from "@/lib/fiscality";
 import { valueOrNull } from "@/lib/form";
 
 export const SETTINGS_TABS = [
@@ -13,7 +21,7 @@ export const SETTINGS_TABS = [
   "signature",
   "fiscalite",
   "facturation",
-  "apparence",
+  "regional",
 ] as const;
 
 export type SettingsTab = (typeof SETTINGS_TABS)[number];
@@ -26,7 +34,7 @@ export const SETTINGS_TAB_DETAILS: Record<
   signature: { label: "Signature", hint: "Tracé apposé aux documents" },
   fiscalite: { label: "Fiscalité", hint: "URSSAF, TVA, provisions" },
   facturation: { label: "Facturation", hint: "Délais, numérotation, matelas" },
-  apparence: { label: "Apparence", hint: "Thème de l'interface" },
+  regional: { label: "Localisation", hint: "Pays, devise, langue" },
 };
 
 export function isSettingsTab(value: unknown): value is SettingsTab {
@@ -56,6 +64,7 @@ export type SettingsFormValues = {
   contributionRate: string;
   liberatingPayment: boolean;
   vatRegime: VatRegime;
+  defaultVatRate: string;
   defaultPaymentTermsDays: number;
   invoiceNumberFormat: string;
   treasuryBuffer: string;
@@ -79,7 +88,10 @@ function text(value: string | null): string {
   return value ?? "";
 }
 
-export function toSettingsValues(settings: SettingsData): SettingsFormValues {
+export function toSettingsValues(
+  format: MoneyFormat,
+  settings: SettingsData,
+): SettingsFormValues {
   return {
     tradeName: text(settings.tradeName),
     siret: text(settings.siret),
@@ -100,37 +112,59 @@ export function toSettingsValues(settings: SettingsData): SettingsFormValues {
     autoRates: settings.autoRates,
     acre: settings.acre,
     businessStartedOn: settings.businessStartedOn ?? "",
-    contributionRate: formatRateBp(settings.contributionRateBp),
+    contributionRate: formatRateBp(format.locale, settings.contributionRateBp),
     liberatingPayment: settings.liberatingPayment,
     vatRegime: settings.vatRegime,
+    defaultVatRate: formatRateBp(format.locale, settings.defaultVatRateBp),
     defaultPaymentTermsDays: settings.defaultPaymentTermsDays,
     invoiceNumberFormat: settings.invoiceNumberFormat,
     treasuryBuffer:
       settings.treasuryBuffer === null
         ? ""
-        : formatAmount(settings.treasuryBuffer.amount),
+        : formatAmount(format, settings.treasuryBuffer.amount),
   };
 }
 
+/** The fields the Localisation tab owns; everything else rides the bulk form. */
+export type RegionalOverrides = {
+  businessCountry?: string;
+  locale?: Locale;
+  dateFormat?: DateFormat;
+};
+
 export function toSettingsPayload(
+  format: MoneyFormat,
   values: SettingsFormValues,
   settings: SettingsData,
+  // Edited from the Localisation tab, not this form — the defaults pass the
+  // stored values through so a bulk save never moves them.
+  regional: RegionalOverrides = {},
 ): UpdateSettingsData {
-  const buffer = parseBufferCents(values.treasuryBuffer);
+  const businessCountry = regional.businessCountry ?? settings.businessCountry;
+  const buffer = parseBufferCents(format.locale, values.treasuryBuffer);
+  // Mirrors the API's gate: outside France the French flags are forced off and
+  // the régime pinned. Sending the already-normalized values keeps the saved
+  // echo identical to the draft, so the unsaved-changes bar settles at zero.
+  const isFrench = isFrenchFiscalityCountry(businessCountry);
 
   return {
+    businessCountry,
+    locale: regional.locale ?? settings.locale,
+    dateFormat: regional.dateFormat ?? settings.dateFormat,
     urssafPeriodicity: values.urssafPeriodicity,
-    autoRates: values.autoRates,
-    acre: values.acre,
+    autoRates: isFrench && values.autoRates,
+    acre: isFrench && values.acre,
     businessStartedOn: valueOrNull(values.businessStartedOn),
     contributionRateBp: values.autoRates
       ? settings.contributionRateBp
-      : (parseRateBp(values.contributionRate) ?? settings.contributionRateBp),
-    liberatingPayment: values.liberatingPayment,
+      : (parseRateBp(format.locale, values.contributionRate) ??
+        settings.contributionRateBp),
+    liberatingPayment: isFrench && values.liberatingPayment,
     liberatingPaymentRateBp: settings.liberatingPaymentRateBp,
-    vatRegime: values.vatRegime,
-    // Not editable in this form yet; passed through so a full-replace PUT keeps it.
-    defaultVatRateBp: settings.defaultVatRateBp,
+    vatRegime: isFrench ? values.vatRegime : 2,
+    defaultVatRateBp:
+      parseRateBp(format.locale, values.defaultVatRate) ??
+      settings.defaultVatRateBp,
     defaultPaymentTermsDays: values.defaultPaymentTermsDays,
     invoiceNumberFormat: values.invoiceNumberFormat.trim(),
     homeAddressSameAsCompany: values.homeAddressSameAsCompany,
@@ -149,17 +183,25 @@ export function toSettingsPayload(
     homePostalCode: valueOrNull(values.homePostalCode),
     homeCity: valueOrNull(values.homeCity),
     treasuryBuffer:
-      buffer === null ? null : { amount: buffer, currency: "EUR" as const },
+      // settings.currency, not format.currency: the payload must be denominated
+      // in the same snapshot it is built from, while the format context is a
+      // render-time copy that can lag one render behind a currency change and
+      // 422 on a field the user never touched.
+      // A zero matelas means no matelas — the API's Min(1) says the same.
+      buffer === null || buffer === 0
+        ? null
+        : { amount: buffer, currency: settings.currency },
   };
 }
 
 export function countChanges(
+  format: MoneyFormat,
   saved: SettingsFormValues,
   draft: SettingsFormValues,
   settings: SettingsData,
 ): number {
-  const savedPayload = toSettingsPayload(saved, settings);
-  const draftPayload = toSettingsPayload(draft, settings);
+  const savedPayload = toSettingsPayload(format, saved, settings);
+  const draftPayload = toSettingsPayload(format, draft, settings);
 
   return Object.keys(savedPayload).filter((key) => {
     const name = key as keyof UpdateSettingsData;
@@ -193,10 +235,19 @@ const FIELD_TAB: Record<keyof SettingsFormValues, SettingsTab> = {
   contributionRate: "fiscalite",
   liberatingPayment: "fiscalite",
   vatRegime: "fiscalite",
+  defaultVatRate: "fiscalite",
   defaultPaymentTermsDays: "facturation",
   invoiceNumberFormat: "facturation",
   treasuryBuffer: "facturation",
 };
+
+/** The onChange validator every percent-rate draft field shares. */
+export function ratePercentValidator(locale: Locale) {
+  return ({ value }: { value: string }): { message: string } | undefined =>
+    parseRateBp(locale, value) === null
+      ? { message: "Indiquez un taux entre 0 et 100." }
+      : undefined;
+}
 
 export function tabOwningField(field: string): SettingsTab | undefined {
   return FIELD_TAB[field as keyof SettingsFormValues];
@@ -249,12 +300,12 @@ export function previewInvoiceNumber(format: string, on: Date): string {
   );
 }
 
-export function formatRateBp(basisPoints: number): string {
-  return formatPercentFromBp(basisPoints, 1);
+export function formatRateBp(locale: Locale, basisPoints: number): string {
+  return formatPercentFromBp(locale, basisPoints, 1);
 }
 
-export function parseRateBp(draft: string): number | null {
-  const rate = parseDecimal(draft);
+export function parseRateBp(locale: Locale, draft: string): number | null {
+  const rate = parseDecimal(locale, draft);
 
   if (rate === null || rate > 100) {
     return null;
@@ -263,8 +314,8 @@ export function parseRateBp(draft: string): number | null {
   return Math.round(rate * 100);
 }
 
-export function parseBufferCents(draft: string): number | null {
-  const amount = parseDecimal(draft);
+export function parseBufferCents(locale: Locale, draft: string): number | null {
+  const amount = parseDecimal(locale, draft);
 
   return amount === null ? null : Math.round(amount * 100);
 }

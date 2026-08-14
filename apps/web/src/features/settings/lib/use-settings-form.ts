@@ -1,6 +1,7 @@
 import type { SettingsData, UpdateSettingsData } from "@opusline/api-client";
 import { useForm } from "@tanstack/react-form";
 
+import { useMoneyFormat } from "@/components/money-format-provider";
 import type { FormSubmitResult } from "@/lib/form";
 import {
   type SettingsFormValues,
@@ -12,11 +13,15 @@ export function useSettingsForm(
   settings: SettingsData,
   onSubmit: (body: UpdateSettingsData) => Promise<FormSubmitResult>,
 ) {
+  const format = useMoneyFormat();
+
   return useForm({
-    defaultValues: toSettingsValues(settings) as SettingsFormValues,
+    defaultValues: toSettingsValues(format, settings) as SettingsFormValues,
     validators: {
       onSubmitAsync: async ({ value }) => {
-        const result = await onSubmit(toSettingsPayload(value, settings));
+        const result = await onSubmit(
+          toSettingsPayload(format, value, settings),
+        );
 
         return result.status === "invalid"
           ? { fields: result.fieldErrors }

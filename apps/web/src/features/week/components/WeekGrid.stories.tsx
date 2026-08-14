@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
 import {
   DEMO_CLIENTS,
   DEMO_TIME_ENTRIES,
@@ -17,6 +18,7 @@ function model(
 ) {
   return buildWeekGrid({
     clients: DEMO_CLIENTS,
+    format: DEFAULT_MONEY_FORMAT,
     timeEntries: overrides.entries ?? DEMO_TIME_ENTRIES,
     today: DEMO_TODAY,
     week: DEMO_WEEK,

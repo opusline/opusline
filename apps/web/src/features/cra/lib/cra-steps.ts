@@ -1,4 +1,4 @@
-import type { CraData } from "@opusline/api-client";
+import type { CraData, Locale } from "@opusline/api-client";
 
 import { calendarDateLabel } from "@/lib/dates";
 
@@ -35,9 +35,13 @@ export function isCraStep(value: unknown): value is CraStep {
  * What the step chip says underneath its name — where this CRA stands on that step
  * rather than a repeat of the step's own title.
  */
-export function craStepState(step: CraStep, cra: CraData): string {
+export function craStepState(
+  locale: Locale,
+  step: CraStep,
+  cra: CraData,
+): string {
   if (step === "days") {
-    return `${daysLabel(cra.totalDays)} reportés`;
+    return `${daysLabel(locale, cra.totalDays)} reportés`;
   }
 
   if (step === "review") {

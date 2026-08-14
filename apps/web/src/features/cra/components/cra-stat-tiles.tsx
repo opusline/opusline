@@ -1,7 +1,8 @@
 import type { CraData } from "@opusline/api-client";
 import { StatTile, StatTileRow } from "@opusline/ui/components/stat-tile";
 
-import { formatEuros } from "@/lib/billing";
+import { useMoneyFormat } from "@/components/money-format-provider";
+import { formatWholeAmount } from "@/lib/billing";
 
 import {
   daysLabel,
@@ -27,25 +28,27 @@ export function CraStatTiles({
   cra: CraData;
   offDaysWorked: number;
 }) {
+  const format = useMoneyFormat();
+
   return (
     <StatTileRow className="grid-cols-2 lg:grid-cols-4">
       <StatTile
         label={STAT_REPORTED}
         tone="strong"
-        value={daysLabel(cra.totalDays)}
+        value={daysLabel(format.locale, cra.totalDays)}
       />
       <StatTile
         label={STAT_AMOUNT}
         value={
           cra.estimatedAmount === null
             ? "—"
-            : formatEuros(cra.estimatedAmount.amount)
+            : formatWholeAmount(format, cra.estimatedAmount.amount)
         }
       />
       <StatTile
         label={STAT_DIFFERENCE}
         tone={cra.differenceDays === 0 ? "quiet" : "brand"}
-        value={differenceLabel(cra.differenceDays)}
+        value={differenceLabel(format.locale, cra.differenceDays)}
       />
       <StatTile
         label={STAT_OFF_DAYS}

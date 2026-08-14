@@ -62,6 +62,20 @@ test('keeps the cents of a rate that is not a whole number of euros', function (
     expect(app(RenderCraPdf::class)->viewData($cra)['rateLabel'])->toBe('550,5 € / jour');
 });
 
+test('prints the symbol of the mission currency, French layout kept', function (): void {
+    $user = User::factory()->create();
+    $mission = craMissionOwnedBy($user, fn ($factory) => $factory->state([
+        // Currency must precede rate_cents: MoneyIntegerCast reads it when
+        // writing the amount.
+        'currency' => 'USD',
+        'billing_mode' => BillingMode::Daily,
+        'rate_cents' => 550_00,
+    ]));
+    $cra = craOwnedBy($user, $mission, fn ($factory) => $factory->forMonth('2026-07'));
+
+    expect(app(RenderCraPdf::class)->viewData($cra)['rateLabel'])->toBe('550 $US / jour');
+});
+
 test('names the file after the mission and the month', function (): void {
     $user = User::factory()->create();
     $mission = craMissionOwnedBy($user);

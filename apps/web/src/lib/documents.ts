@@ -1,5 +1,11 @@
-import type { DocumentCategory, DocumentData } from "@opusline/api-client";
+import type {
+  DocumentCategory,
+  DocumentData,
+  Locale,
+} from "@opusline/api-client";
 import { client as apiClient } from "@opusline/api-client/client";
+
+import { cachedFormatter } from "@/lib/billing";
 
 import { serverFieldErrors } from "@/lib/validation";
 
@@ -75,11 +81,7 @@ export function guessDocumentCategory(fileName: string): DocumentCategory {
   return 4;
 }
 
-const fileSizeFormat = new Intl.NumberFormat("fr-FR", {
-  maximumFractionDigits: 1,
-});
-
-export function formatFileSize(bytes: number): string {
+export function formatFileSize(locale: Locale, bytes: number): string {
   if (bytes < 1024) {
     return `${bytes} o`;
   }
@@ -87,7 +89,7 @@ export function formatFileSize(bytes: number): string {
     return `${Math.round(bytes / 1024)} Ko`;
   }
 
-  return `${fileSizeFormat.format(bytes / (1024 * 1024))} Mo`;
+  return `${cachedFormatter(locale, { maximumFractionDigits: 1 }).format(bytes / (1024 * 1024))} Mo`;
 }
 
 /** Strips diacritics so a search for "cafe" also matches "café", and vice versa. */

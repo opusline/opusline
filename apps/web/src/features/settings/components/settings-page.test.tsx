@@ -3,7 +3,11 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ComponentProps } from "react";
 import { expect, it, vi } from "vitest";
 
-import { settingsFixture } from "../lib/settings-fixture";
+import {
+  abroadSettingsFixture,
+  nonEuSettingsFixture,
+  settingsFixture,
+} from "../lib/settings-fixture";
 import { SettingsPage } from "./settings-page";
 
 function renderPage(
@@ -14,8 +18,6 @@ function renderPage(
     activeTab: "identite",
     onTabChange: vi.fn(),
     onSubmit: vi.fn().mockResolvedValue({ status: "success" }),
-    theme: "system",
-    onThemeChange: vi.fn(),
     signature: {
       src: "",
       isPending: false,
@@ -24,6 +26,18 @@ function renderPage(
       onRemove: vi.fn(),
     },
     rates: { isRefreshing: false, error: null, onRefresh: vi.fn() },
+    localisation: {
+      saved: {
+        businessCountry: "FR",
+        currency: "EUR",
+        locale: "fr-FR",
+        dateFormat: 0,
+      },
+      isSaving: false,
+      error: null,
+      onSave: vi.fn(),
+      onCancel: () => {},
+    },
     ...overrides,
   };
 
@@ -67,8 +81,142 @@ it("lists every section as a vertical tab", () => {
     "SignatureTracé apposé aux documents",
     "FiscalitéURSSAF, TVA, provisions",
     "FacturationDélais, numérotation, matelas",
-    "ApparenceThème de l'interface",
+    "LocalisationPays, devise, langue",
   ]);
+});
+
+it("explains instead of computing on the fiscal tab for a business abroad", () => {
+  renderPage({
+    activeTab: "fiscalite",
+    settings: abroadSettingsFixture,
+  });
+
+  expect(screen.getByText("Fiscalité limitée à la France")).toBeInTheDocument();
+  expect(screen.queryByText("Charges provisionnées")).not.toBeInTheDocument();
+});
+
+it("offers the default VAT rate on the fiscal tab of a business abroad", () => {
+  renderPage({ activeTab: "fiscalite" });
+  expect(screen.queryByLabelText("TVA par défaut")).not.toBeInTheDocument();
+
+  renderPage({
+    activeTab: "fiscalite",
+    settings: abroadSettingsFixture,
+  });
+  expect(screen.getByLabelText("TVA par défaut")).toBeInTheDocument();
+});
+
+it("presents the auto-entrepreneur status and the SIRET to a French account", () => {
+  renderPage({ activeTab: "identite" });
+
+  expect(screen.getByText("Auto-entrepreneur")).toBeInTheDocument();
+  expect(screen.getByLabelText("SIRET")).toBeInTheDocument();
+});
+
+it("hides the auto-entrepreneur status and the SIRET for a business abroad", () => {
+  renderPage({
+    activeTab: "identite",
+    settings: abroadSettingsFixture,
+  });
+
+  expect(screen.queryByText("Auto-entrepreneur")).not.toBeInTheDocument();
+  expect(screen.queryByLabelText("SIRET")).not.toBeInTheDocument();
+});
+
+it("keeps the intra-community VAT number for a business in the EU", () => {
+  renderPage({
+    activeTab: "identite",
+    settings: abroadSettingsFixture,
+  });
+
+  expect(screen.getByLabelText("TVA intracommunautaire")).toBeInTheDocument();
+});
+
+it("hides the intra-community VAT number outside the EU", () => {
+  renderPage({
+    activeTab: "identite",
+    settings: nonEuSettingsFixture,
+  });
+
+  expect(screen.queryByText("TVA intracommunautaire")).not.toBeInTheDocument();
+});
+
+it("names the default rate a sales tax outside the EU", () => {
+  renderPage({
+    activeTab: "fiscalite",
+    settings: nonEuSettingsFixture,
+  });
+
+  expect(screen.getByLabelText("Taux de taxe par défaut")).toBeInTheDocument();
+  expect(screen.queryByLabelText("TVA par défaut")).not.toBeInTheDocument();
+  expect(screen.getAllByText("Taxe sur les ventes").length).toBeGreaterThan(0);
+});
+
+it("locks the currency picker once the account holds money", () => {
+  renderPage({
+    activeTab: "regional",
+    settings: { ...settingsFixture, currencyLocked: true },
+  });
+
+  expect(
+    screen.getByLabelText("Devise de l'activité", { selector: "select" }),
+  ).toBeDisabled();
+  expect(
+    screen.getByText(/une mission tarifée ou une facture existe déjà/),
+  ).toBeInTheDocument();
+});
+
+it("batches the localisation changes into one save", () => {
+  const { localisation } = renderPage({ activeTab: "regional" });
+
+  fireEvent.change(
+    screen.getByLabelText("Devise de l'activité", { selector: "select" }),
+    { target: { value: "USD" } },
+  );
+  fireEvent.change(
+    screen.getByLabelText("Langue de l'interface", { selector: "select" }),
+    { target: { value: "en-US" } },
+  );
+
+  expect(
+    screen.getByText("2 modifications non enregistrées"),
+  ).toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+
+  expect(localisation.onSave).toHaveBeenCalledWith({
+    businessCountry: "FR",
+    currency: "USD",
+    locale: "en-US",
+    dateFormat: 0,
+  });
+});
+
+it("puts the localisation draft back when cancelled", () => {
+  renderPage({ activeTab: "regional" });
+
+  fireEvent.change(
+    screen.getByLabelText("Pays d'exercice", { selector: "select" }),
+    { target: { value: "DE" } },
+  );
+
+  expect(
+    screen.getByText(/règles fiscales de ce pays ne sont pas encore/),
+  ).toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: "Annuler" }));
+
+  expect(
+    screen.getByLabelText("Pays d'exercice", { selector: "select" }),
+  ).toHaveValue("FR");
+  expect(screen.queryByText(/modification/)).not.toBeInTheDocument();
+});
+
+it("offers both date layouts and previews them as dates", () => {
+  renderPage({ activeTab: "regional" });
+
+  expect(screen.getByText("31/08/2026")).toBeInTheDocument();
+  expect(screen.getByText("2026-08-31")).toBeInTheDocument();
 });
 
 it("reports the chosen tab to the route", () => {

@@ -4,6 +4,7 @@ import {
   type DurationUnits,
   formatBilledDays,
   formatBilledHours,
+  formatDecimalHours,
   formatDurationInput,
   formatWorkedTime,
   parseDuration,
@@ -96,11 +97,11 @@ describe("formatDurationInput", () => {
     [105, "0,25"],
     [630, "1,5"],
   ])("shows %i minutes as %s on a day-billed mission", (minutes, expected) => {
-    expect(formatDurationInput(minutes, daily)).toBe(expected);
+    expect(formatDurationInput("fr-FR", minutes, daily)).toBe(expected);
   });
 
   it("falls back to the hour form when the duration is not a round quarter-day", () => {
-    expect(formatDurationInput(90, daily)).toBe("1h30");
+    expect(formatDurationInput("fr-FR", 90, daily)).toBe("1h30");
   });
 
   it.each([
@@ -108,24 +109,24 @@ describe("formatDurationInput", () => {
     [90, "1h30"],
     [45, "45m"],
   ])("shows %i minutes as %s on an hourly mission", (minutes, expected) => {
-    expect(formatDurationInput(minutes, hourly)).toBe(expected);
+    expect(formatDurationInput("fr-FR", minutes, hourly)).toBe(expected);
   });
 
   it("round-trips every day-billed value it produces", () => {
     for (const minutes of [105, 210, 420, 630, 90, 45]) {
-      expect(parseDuration(formatDurationInput(minutes, daily), daily)).toEqual(
-        {
-          kind: "minutes",
-          minutes,
-        },
-      );
+      expect(
+        parseDuration(formatDurationInput("fr-FR", minutes, daily), daily),
+      ).toEqual({
+        kind: "minutes",
+        minutes,
+      });
     }
   });
 
   it("round-trips every hourly value it produces", () => {
     for (const minutes of [30, 45, 90, 120, 222]) {
       expect(
-        parseDuration(formatDurationInput(minutes, hourly), hourly),
+        parseDuration(formatDurationInput("fr-FR", minutes, hourly), hourly),
       ).toEqual({ kind: "minutes", minutes });
     }
   });
@@ -137,7 +138,7 @@ it.each([
   [1.25, "1,25 j"],
   [4.5, "4,5 j"],
 ])("formats the day fraction %s as %s", (fraction, expected) => {
-  expect(formatBilledDays(fraction)).toBe(expected);
+  expect(formatBilledDays("fr-FR", fraction)).toBe(expected);
 });
 
 it.each([
@@ -147,7 +148,7 @@ it.each([
   [222, "3 h 42"],
   [75, "1 h 15"],
 ])("formats %i billed minutes as %s", (minutes, expected) => {
-  expect(formatBilledHours(minutes)).toBe(expected);
+  expect(formatBilledHours("fr-FR", minutes)).toBe(expected);
 });
 
 it.each([
@@ -195,10 +196,22 @@ describe("provisional valuation", () => {
   });
 
   it("labels a day-billed timer in day fractions", () => {
-    expect(provisionalBilledLabel(180, daily, 0)).toBe("0,5 j");
+    expect(provisionalBilledLabel("fr-FR", 180, daily, 0)).toBe("0,5 j");
   });
 
   it("labels an hourly timer in hours", () => {
-    expect(provisionalBilledLabel(67, hourly, 1)).toBe("1 h 15");
+    expect(provisionalBilledLabel("fr-FR", 67, hourly, 1)).toBe("1 h 15");
+  });
+});
+
+describe("locale threading", () => {
+  it("formats billed days in the account locale's notation", () => {
+    expect(formatBilledDays("fr-FR", 2.5)).toBe("2,5 j");
+    expect(formatBilledDays("en-US", 2.5)).toBe("2.5 j");
+  });
+
+  it("formats decimal hours in the account locale's notation", () => {
+    expect(formatDecimalHours("fr-FR", 90)).toBe("1,50 h");
+    expect(formatDecimalHours("en-US", 90)).toBe("1.50 h");
   });
 });

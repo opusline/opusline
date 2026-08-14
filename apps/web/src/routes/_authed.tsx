@@ -4,6 +4,7 @@ import {
   SidebarProvider,
   useSidebar,
 } from "@opusline/ui/components/sidebar";
+import { useQuery } from "@tanstack/react-query";
 import {
   createFileRoute,
   Outlet,
@@ -11,8 +12,9 @@ import {
   useLocation,
 } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
-
+import { AddressAutocompleteProvider } from "@/components/address-autocomplete-provider";
 import { AppSidebar } from "@/components/app-sidebar";
+import { MoneyFormatProvider } from "@/components/money-format-provider";
 import { ModeToggle } from "@/features/theme/components/mode-toggle";
 import {
   useThemeControl,
@@ -69,36 +71,49 @@ function ExpandSidebarButton() {
 }
 
 function AuthedLayout() {
-  const { user } = Route.useRouteContext();
+  const { user: loadedUser } = Route.useRouteContext();
+  const { data: user = loadedUser } = useQuery(currentUserOptions());
   const { pathname } = useLocation();
 
   useThemeSync(user);
 
-  const { resolvedTheme, setTheme } = useThemeControl();
+  const { theme, resolvedTheme, setTheme } = useThemeControl();
 
   const pageTitle = Object.entries(pageTitles).find(([prefix]) =>
     pathname.startsWith(prefix),
   )?.[1];
 
   return (
-    <TimerProvider workdayMinutes={user.workdayMinutes}>
-      <SidebarProvider>
-        <AppSidebar />
-        <SidebarInset>
-          <header className="flex h-14 items-center gap-4 border-b px-4">
-            <ExpandSidebarButton />
-            {pageTitle ? (
-              <span className="font-medium text-sm">{pageTitle}</span>
-            ) : null}
-            <div className="flex-1" />
-            <ModeToggle onChange={setTheme} resolvedTheme={resolvedTheme} />
-            <TimerContainer workdayMinutes={user.workdayMinutes} />
-          </header>
-          <div className="p-6">
-            <Outlet />
-          </div>
-        </SidebarInset>
-      </SidebarProvider>
-    </TimerProvider>
+    <MoneyFormatProvider
+      currency={user.currency}
+      dateFormat={user.dateFormat}
+      locale={user.locale}
+    >
+      <AddressAutocompleteProvider businessCountry={user.businessCountry}>
+        <TimerProvider workdayMinutes={user.workdayMinutes}>
+          <SidebarProvider>
+            <AppSidebar />
+            <SidebarInset>
+              <header className="flex h-14 items-center gap-4 border-b px-4">
+                <ExpandSidebarButton />
+                {pageTitle ? (
+                  <span className="font-medium text-sm">{pageTitle}</span>
+                ) : null}
+                <div className="flex-1" />
+                <ModeToggle
+                  onChange={setTheme}
+                  resolvedTheme={resolvedTheme}
+                  theme={theme}
+                />
+                <TimerContainer workdayMinutes={user.workdayMinutes} />
+              </header>
+              <div className="p-6">
+                <Outlet />
+              </div>
+            </SidebarInset>
+          </SidebarProvider>
+        </TimerProvider>
+      </AddressAutocompleteProvider>
+    </MoneyFormatProvider>
   );
 }

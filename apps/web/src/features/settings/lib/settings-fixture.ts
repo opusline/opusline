@@ -33,5 +33,26 @@ export const settingsFixture: SettingsData = {
   defaultPaymentTermsDays: 45,
   invoiceNumberFormat: "AAAA-NNN",
   treasuryBuffer: null,
+  businessCountry: "FR",
+  hasFrenchFiscality: true,
+  currency: "EUR",
+  currencyLocked: false,
+  locale: "fr-FR",
+  dateFormat: 0,
   hasSignature: false,
+};
+
+/** The same account established abroad — the two flags always move together. */
+export const abroadSettingsFixture: SettingsData = {
+  ...settingsFixture,
+  businessCountry: "DE",
+  hasFrenchFiscality: false,
+  vatRegime: 2,
+  vatLiable: true,
+};
+
+/** Established outside the EU: no intra-community VAT, taxes lose the TVA name. */
+export const nonEuSettingsFixture: SettingsData = {
+  ...abroadSettingsFixture,
+  businessCountry: "CA",
 };

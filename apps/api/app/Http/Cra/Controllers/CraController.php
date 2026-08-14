@@ -144,7 +144,7 @@ class CraController extends Controller
      */
     private function detail(Cra $cra): CraDetailData
     {
-        $cra->loadMissing(['days', 'mission.client']);
+        $cra->loadMissing(['days', 'mission.client', 'user.settings']);
 
         return new CraDetailData(
             cra: $this->describeCra->handle($cra),

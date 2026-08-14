@@ -5,6 +5,7 @@ import type {
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { cn } from "@opusline/ui/lib/utils";
 import { useEffect, useMemo, useState } from "react";
+import { useMoneyFormat } from "@/components/money-format-provider";
 import { collectNoteSuggestions } from "@/components/note-suggestions";
 import { isoWeekDates } from "@/lib/weeks";
 import type { PillSkin } from "../lib/pill-skins";
@@ -83,6 +84,7 @@ export function WeekPage({
   knownEntries,
   knownEntryRange,
 }: WeekPageProps) {
+  const format = useMoneyFormat();
   const [isNewEntryOpen, setIsNewEntryOpen] = useState(false);
 
   const liveHere =
@@ -98,13 +100,22 @@ export function WeekPage({
     () =>
       buildWeekGrid({
         clients,
+        format,
         liveMissionId: liveHere?.missionId ?? null,
         timeEntries,
         today,
         week,
         weekendShown,
       }),
-    [clients, liveHere?.missionId, timeEntries, today, week, weekendShown],
+    [
+      clients,
+      format,
+      liveHere?.missionId,
+      timeEntries,
+      today,
+      week,
+      weekendShown,
+    ],
   );
   const noteSuggestions = useMemo(
     () => collectNoteSuggestions(timeEntries),

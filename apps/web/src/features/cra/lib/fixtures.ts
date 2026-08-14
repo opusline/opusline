@@ -129,7 +129,11 @@ export function craDetail(
 
 /** The grid model a detail fixture produces, for components that take it as a prop. */
 export function craGrid(detail: CraDetailData = craDetail()): CraGridModel {
-  return buildCraGrid({ month: detail.cra.month, days: detail.cra.days });
+  return buildCraGrid({
+    locale: "fr-FR",
+    month: detail.cra.month,
+    days: detail.cra.days,
+  });
 }
 
 export function craItem(
@@ -188,5 +192,11 @@ export const DEMO_SETTINGS = {
   defaultPaymentTermsDays: 45,
   invoiceNumberFormat: "AAAA-NNN",
   treasuryBuffer: null,
+  businessCountry: "FR",
+  hasFrenchFiscality: true,
+  currency: "EUR",
+  currencyLocked: false,
+  locale: "fr-FR",
+  dateFormat: 0,
   hasSignature: true,
 } satisfies SettingsData;

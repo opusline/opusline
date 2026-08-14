@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Settings\Controllers;
 
+use App\Domain\Settings\Actions\ChangeAccountCurrency;
 use App\Domain\Settings\Actions\RefreshOfficialRates;
 use App\Domain\Settings\Actions\UpdateSettings;
 use App\Domain\Settings\Data\SettingsData;
+use App\Domain\Settings\Data\UpdateSettingsCurrencyData;
 use App\Domain\Settings\Data\UpdateSettingsData;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Users\Models\User;
@@ -27,6 +29,11 @@ class SettingsController extends Controller
         return $this->respond($updateSettings->handle($user->settings()->sole(), $data), $user);
     }
 
+    public function updateCurrency(UpdateSettingsCurrencyData $data, #[CurrentUser] User $user, ChangeAccountCurrency $changeAccountCurrency): JsonResponse
+    {
+        return $this->respond($changeAccountCurrency->handle($user->settings()->sole(), $data), $user);
+    }
+
     /**
      * @throws HttpException<409>
      */
@@ -34,6 +41,7 @@ class SettingsController extends Controller
     {
         $settings = $user->settings()->sole();
 
+        abort_if(! $settings->hasFrenchFiscality(), 409, __('settings.rates_foreign_country'));
         abort_if(! $settings->auto_rates, 409, __('settings.rates_manual'));
 
         return $this->respond($refreshOfficialRates->handle($settings, force: true), $user);
@@ -42,7 +50,7 @@ class SettingsController extends Controller
     private function respond(UserSettings $settings, User $user): JsonResponse
     {
         return response()->json(
-            SettingsData::fromModel($settings, $user->hasMedia('signature')),
+            SettingsData::fromModel($settings, $user->hasMedia('signature'), $user->hasLockedCurrency()),
         );
     }
 }

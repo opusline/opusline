@@ -14,6 +14,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { MissionStatusBadge } from "@/components/mission-status-badge";
+import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatMissionRate } from "@/lib/billing";
 import { CLIENT_TYPE_LABELS } from "@/lib/client-types";
 import { COLOR_CLASSES } from "@/lib/palette";
@@ -47,6 +48,7 @@ type ClientsTableProps = {
 };
 
 export function ClientsTable({ clients }: ClientsTableProps) {
+  const format = useMoneyFormat();
   const navigate = useNavigate();
   const [scope, setScope] = useState<ClientScope>("active");
 
@@ -219,7 +221,7 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                       </div>
                     </TableCell>
                     <TableCell className="py-2.5 text-muted-foreground-2 text-xs">
-                      {formatMissionRate(mission)}
+                      {formatMissionRate(format, mission)}
                     </TableCell>
                     <TableCell className="py-2.5 font-mono text-muted-foreground-3 tabular-nums">
                       —
