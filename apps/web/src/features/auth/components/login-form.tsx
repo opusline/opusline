@@ -15,7 +15,9 @@ type LoginFormProps = {
     email: string;
     password: string;
     remember: boolean;
-  }) => Promise<Record<string, { message: string }> | null | undefined> | void;
+  }) =>
+    | Promise<Record<string, { message: string }> | null | undefined>
+    | undefined;
   isPending?: boolean;
   error?: string | null;
 };

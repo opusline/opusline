@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-
+import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
 import {
   DEMO_CLIENTS,
   DEMO_TIME_ENTRIES,
@@ -12,6 +12,7 @@ import { NewEntryDialog } from "./new-entry-dialog";
 
 const { missionOptions } = buildWeekGrid({
   clients: DEMO_CLIENTS,
+  format: DEFAULT_MONEY_FORMAT,
   timeEntries: DEMO_TIME_ENTRIES,
   today: DEMO_TODAY,
   week: DEMO_WEEK,

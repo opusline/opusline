@@ -1,6 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
+import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
+
 import {
   DEMO_CLIENTS,
   DEMO_TIME_ENTRIES,
@@ -11,6 +13,7 @@ import { buildWeekGrid, type WeekCell } from "../lib/week-grid";
 import { ActivityPopover } from "./activity-popover";
 
 const { rows } = buildWeekGrid({
+  format: DEFAULT_MONEY_FORMAT,
   clients: DEMO_CLIENTS,
   timeEntries: DEMO_TIME_ENTRIES,
   today: DEMO_TODAY,

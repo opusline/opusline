@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Domain\Settings\Enums\DateFormat;
+use App\Domain\Settings\Enums\Locale;
+use App\Domain\Shared\Enums\Currency;
 use App\Domain\Users\Enums\Theme;
 use App\Domain\Users\Models\User;
 
@@ -16,6 +19,11 @@ test('the current user endpoint returns the authenticated user', function (): vo
             'name' => $user->name,
             'email' => $user->email,
             'theme' => Theme::System->value,
+            'locale' => Locale::fr_FR->value,
+            'dateFormat' => DateFormat::DayMonthYear->value,
+            'currency' => Currency::EUR->value,
+            'businessCountry' => 'FR',
+            'hasFrenchFiscality' => true,
             'workdayMinutes' => config()->integer('app.workday_minutes'),
         ]);
 });

@@ -1,4 +1,4 @@
-import type { CraDayData } from "@opusline/api-client";
+import type { CraDayData, Locale } from "@opusline/api-client";
 
 import { formatBilledDays } from "@/lib/durations";
 import { weekdayDateLabel } from "@/lib/weeks";
@@ -70,17 +70,17 @@ export function craCountLabel(count: number): string {
 export const daysLabel = formatBilledDays;
 
 /** "−0,5 j par rapport au temps suivi" — why the day count is being questioned. */
-export function checkDaysDrift(days: number): string {
-  return `${differenceLabel(days)} par rapport au temps suivi`;
+export function checkDaysDrift(locale: Locale, days: number): string {
+  return `${differenceLabel(locale, days)} par rapport au temps suivi`;
 }
 
 /** The écart, signed, so a shortfall and a surplus do not read alike. */
-export function differenceLabel(days: number): string {
+export function differenceLabel(locale: Locale, days: number): string {
   if (days === 0) {
     return NOTHING;
   }
 
-  const formatted = daysLabel(Math.abs(days));
+  const formatted = daysLabel(locale, Math.abs(days));
 
   return days > 0 ? `+${formatted}` : `−${formatted}`;
 }
@@ -114,27 +114,28 @@ export function craSubtitle(
 
 /** What the calendar's header says the grid currently reports. */
 export function reportedAgainstTrackedLabel(
+  locale: Locale,
   reported: number,
   tracked: number,
 ): string {
   if (reported === tracked) {
-    return `${daysLabel(reported)} — conforme au temps suivi`;
+    return `${daysLabel(locale, reported)} — conforme au temps suivi`;
   }
 
-  return `${daysLabel(reported)} saisis · ${daysLabel(tracked)} suivis`;
+  return `${daysLabel(locale, reported)} saisis · ${daysLabel(locale, tracked)} suivis`;
 }
 
 /**
  * What a screen reader hears on a day cell: the date, then what it reports, then why
  * it is greyed when it is.
  */
-export function cellAriaLabel(day: CraDayData): string {
+export function cellAriaLabel(locale: Locale, day: CraDayData): string {
   // The weekday, not just the date: in a calendar grid it is what tells you which
   // column you have landed in.
   const date = weekdayDateLabel(day.date);
   const worked =
     day.dayFractionBp > 0
-      ? daysLabel(day.dayFractionBp / FULL_DAY_BP)
+      ? daysLabel(locale, day.dayFractionBp / FULL_DAY_BP)
       : "aucune journée";
 
   if (day.isHoliday) {

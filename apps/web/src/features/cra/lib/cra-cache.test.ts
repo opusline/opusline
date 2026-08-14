@@ -28,7 +28,7 @@ function fold(
 }
 
 const gridOf = (detail: CraDetailData) =>
-  buildCraGrid({ month: DEMO_MONTH, days: detail.cra.days });
+  buildCraGrid({ locale: "fr-FR", month: DEMO_MONTH, days: detail.cra.days });
 
 it("keeps both edits when a second lands before the first has refetched", () => {
   // Both days start clear, so each edit is visible in the payload it produces.

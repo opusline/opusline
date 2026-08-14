@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 
-import { searchCountries } from "./countries";
+import { hasEuVat, searchCountries } from "./countries";
 
 it("matches a country by its French name", () => {
   expect(searchCountries("Belg")).toEqual([{ id: "BE", label: "Belgique" }]);
@@ -19,4 +19,16 @@ it("offers nothing until something is typed", () => {
 
 it("returns nothing for a country outside the list", () => {
   expect(searchCountries("Wakanda")).toEqual([]);
+});
+
+it("recognizes the EU VAT area by ISO code, Greece included", () => {
+  expect(hasEuVat("FR")).toBe(true);
+  expect(hasEuVat("DE")).toBe(true);
+  expect(hasEuVat("GR")).toBe(true);
+});
+
+it("leaves non-EU countries out of the VAT area", () => {
+  expect(hasEuVat("CA")).toBe(false);
+  expect(hasEuVat("CH")).toBe(false);
+  expect(hasEuVat("GB")).toBe(false);
 });

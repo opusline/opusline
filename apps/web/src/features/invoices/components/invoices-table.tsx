@@ -4,7 +4,11 @@ import { Chip, ChipCount, ChipGroup } from "@opusline/ui/components/chip";
 import { cn } from "@opusline/ui/lib/utils";
 import { useMemo, useState } from "react";
 
-import { formatEuros } from "@/lib/billing";
+import {
+  useDateFormat,
+  useMoneyFormat,
+} from "@/components/money-format-provider";
+import { formatWholeAmount } from "@/lib/billing";
 import { invoiceStatusBadge } from "@/lib/invoice-status";
 import { COLOR_CLASSES } from "@/lib/palette";
 
@@ -26,6 +30,8 @@ type InvoicesTableProps = {
 };
 
 export function InvoicesTable({ invoices, onOpen }: InvoicesTableProps) {
+  const format = useMoneyFormat();
+  const dateFormat = useDateFormat();
   const [scope, setScope] = useState<InvoiceScope>("all");
 
   // Every chip carries its own count, but only the selected scope needs its rows —
@@ -90,7 +96,7 @@ export function InvoicesTable({ invoices, onOpen }: InvoicesTableProps) {
                     : `${group.averageDaysToPay} j en moyenne pour payer`}
                 </span>
                 <span className="w-32 text-right font-mono text-foreground-hi text-sm tabular-nums">
-                  {formatEuros(group.total)}
+                  {formatWholeAmount(format, group.total)}
                 </span>
               </div>
 
@@ -113,11 +119,11 @@ export function InvoicesTable({ invoices, onOpen }: InvoicesTableProps) {
                             {mission?.name ?? "Sans mission"}
                           </span>
                           <span className="mt-0.75 block text-muted-foreground-3 text-xs">
-                            {invoiceRowDetail(invoice)}
+                            {invoiceRowDetail(dateFormat, invoice)}
                           </span>
                         </span>
                         <span className="w-32 text-right font-mono text-foreground-hi text-sm tabular-nums">
-                          {formatEuros(invoice.amountTtc.amount)}
+                          {formatWholeAmount(format, invoice.amountTtc.amount)}
                         </span>
                         <span className="flex justify-end">
                           <Badge variant={badge.variant}>{badge.label}</Badge>

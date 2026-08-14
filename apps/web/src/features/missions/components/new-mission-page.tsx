@@ -23,7 +23,8 @@ import { Link } from "@tanstack/react-router";
 import { CircleAlert, InfoIcon } from "lucide-react";
 import { useState } from "react";
 import { FormTextField } from "@/components/form-text-field";
-import { formatRate, formatRateDraft, parseRateToCents } from "@/lib/billing";
+import { useMoneyFormat } from "@/components/money-format-provider";
+import { formatRate, formatWholeAmount, parseRateToCents } from "@/lib/billing";
 import { isInternalClient } from "@/lib/client-types";
 import { todayCalendarDate } from "@/lib/dates";
 import {
@@ -38,11 +39,8 @@ import {
   COLOR_WASH_CLASSES,
   COLORS,
 } from "@/lib/palette";
-import {
-  BILLING_MODE_LABELS,
-  BILLING_MODE_RATE_PLACEHOLDERS,
-  BILLING_MODE_UNITS,
-} from "../lib/labels";
+import { BILLING_MODE_LABELS } from "../lib/labels";
+import { MissionRateField } from "./mission-rate-field";
 
 const EYEBROW_CLASSES =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
@@ -53,12 +51,6 @@ const MONTHLY_BILLABLE_DAYS = 20;
 const MONTHLY_BILLABLE_HOURS = 140;
 const URSSAF_PROVISION_RATE = 0.26;
 
-const euros = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 });
-
-function formatCents(cents: number): string {
-  return `${euros.format(cents / 100)} €`;
-}
-
 type MissionFormValues = {
   name: string;
   endClientName: string;
@@ -68,6 +60,7 @@ type MissionFormValues = {
 
 type NewMissionPageProps = {
   clients: ClientWithMissionsData[];
+  hasFrenchFiscality: boolean;
   initialClientSlug?: string;
   onSubmit: (
     clientSlug: string,
@@ -80,12 +73,14 @@ type NewMissionPageProps = {
 
 export function NewMissionPage({
   clients,
+  hasFrenchFiscality,
   initialClientSlug,
   onSubmit,
   onCancel,
   isPending,
   error,
 }: NewMissionPageProps) {
+  const format = useMoneyFormat();
   const activeClients = clients.filter((client) => client.archivedAt === null);
 
   const [selectedSlug, setSelectedSlug] = useState(
@@ -111,7 +106,9 @@ export function NewMissionPage({
   const isInternal =
     selectedClient !== undefined && isInternalClient(selectedClient.type);
   const isForfait = billingMode === 2;
-  const rateCents = isInternal ? null : parseRateToCents(rateDraft);
+  const rateCents = isInternal
+    ? null
+    : parseRateToCents(format.locale, rateDraft);
 
   const form = useForm({
     defaultValues: {
@@ -135,7 +132,9 @@ export function NewMissionPage({
           name: value.name.trim(),
           billingMode,
           rate:
-            rateCents === null ? null : { amount: rateCents, currency: "EUR" },
+            rateCents === null
+              ? null
+              : { amount: rateCents, currency: format.currency },
           rounding: isForfait ? null : rounding,
           craRequired: isEsn ? craRequired : null,
           endClientName:
@@ -315,48 +314,18 @@ export function NewMissionPage({
 
           {!isInternal && (
             <div className="grid items-start gap-4 sm:grid-cols-[minmax(0,1fr)_auto]">
-              <Field
+              <MissionRateField
+                billingMode={billingMode}
                 className={cn("min-w-0", isForfait && "sm:col-span-2")}
-                data-invalid={isRateMissing}
-              >
-                <FieldLabel
-                  className="text-foreground-3"
-                  htmlFor="mission-rate"
-                >
-                  Tarif HT
-                </FieldLabel>
-                <div
-                  className={cn(
-                    "flex h-10 items-center rounded-md border border-input bg-muted px-3 transition-colors focus-within:border-primary focus-within:ring-3 focus-within:ring-primary/20",
-                    isRateMissing &&
-                      "border-destructive focus-within:border-destructive focus-within:ring-destructive/20",
-                  )}
-                >
-                  <input
-                    aria-invalid={isRateMissing}
-                    aria-label="Tarif HT"
-                    className="min-w-0 flex-1 border-none bg-transparent font-mono text-base text-foreground-hi tabular-nums outline-none"
-                    id="mission-rate"
-                    inputMode="decimal"
-                    onChange={(event) => {
-                      setRateDraft(formatRateDraft(event.target.value));
-                      setIsRateMissing(false);
-                    }}
-                    placeholder={BILLING_MODE_RATE_PLACEHOLDERS[billingMode]}
-                    value={rateDraft}
-                  />
-                  <span className="shrink-0 whitespace-nowrap pl-2 text-muted-foreground-2 text-sm">
-                    {BILLING_MODE_UNITS[billingMode]}
-                  </span>
-                </div>
-                {isRateMissing ? (
-                  <FieldError
-                    errors={[
-                      { message: "Indiquez un tarif pour cette mission." },
-                    ]}
-                  />
-                ) : null}
-              </Field>
+                id="mission-rate"
+                isRateMissing={isRateMissing}
+                labelClassName="text-foreground-3"
+                onDraftChange={(draft) => {
+                  setRateDraft(draft);
+                  setIsRateMissing(false);
+                }}
+                rateDraft={rateDraft}
+              />
               {!isForfait && (
                 <Field className="min-w-0">
                   <div className="flex items-center gap-1.5">
@@ -628,7 +597,7 @@ export function NewMissionPage({
                     <span className="truncate pl-3 text-muted-foreground-2 text-xs">
                       {selectedClient?.name}
                       {rateCents !== null &&
-                        ` · ${formatRate(rateCents, billingMode)}`}
+                        ` · ${formatRate(format, rateCents, billingMode)}`}
                     </span>
                   </div>
                   <div className="border-l p-2.5">
@@ -653,7 +622,9 @@ export function NewMissionPage({
                 {isForfait ? "Montant de la mission" : "Projection mensuelle"}
               </div>
               <div className="whitespace-nowrap font-mono text-2xl text-primary-text tabular-nums leading-none">
-                {monthlyCents === null ? "—" : formatCents(monthlyCents)}
+                {monthlyCents === null
+                  ? "—"
+                  : formatWholeAmount(format, monthlyCents)}
                 <span className="ml-1.5 text-muted-foreground-3 text-sm">
                   HT
                 </span>
@@ -665,27 +636,40 @@ export function NewMissionPage({
                     ? `sur ${MONTHLY_BILLABLE_DAYS} jours facturés · hypothèse d'un mois plein`
                     : `sur ${MONTHLY_BILLABLE_HOURS} h facturées · hypothèse d'un mois plein`}
               </div>
-              <div className="mt-3 flex justify-between gap-3 border-t pt-3 text-sm">
-                <span className="text-muted-foreground-3">
-                  Provision URSSAF · 26 %
-                </span>
-                <span className="whitespace-nowrap font-mono text-foreground-2 tabular-nums">
-                  {provisionCents === null ? "—" : formatCents(provisionCents)}
-                </span>
-              </div>
-              <div className="mt-2 flex justify-between gap-3 text-sm">
-                <span className="text-muted-foreground-3">
-                  Net estimé{" "}
-                  <span className="text-muted-foreground-5">
-                    · TVA en sus, à reverser
-                  </span>
-                </span>
-                <span className="whitespace-nowrap font-mono text-foreground-hi tabular-nums">
-                  {monthlyCents === null || provisionCents === null
-                    ? "—"
-                    : formatCents(monthlyCents - provisionCents)}
-                </span>
-              </div>
+              {/*
+                URSSAF provisions only exist for a business established in
+                France — abroad the projection stops at the gross figure.
+              */}
+              {hasFrenchFiscality && (
+                <>
+                  <div className="mt-3 flex justify-between gap-3 border-t pt-3 text-sm">
+                    <span className="text-muted-foreground-3">
+                      Provision URSSAF · 26 %
+                    </span>
+                    <span className="whitespace-nowrap font-mono text-foreground-2 tabular-nums">
+                      {provisionCents === null
+                        ? "—"
+                        : formatWholeAmount(format, provisionCents)}
+                    </span>
+                  </div>
+                  <div className="mt-2 flex justify-between gap-3 text-sm">
+                    <span className="text-muted-foreground-3">
+                      Net estimé{" "}
+                      <span className="text-muted-foreground-5">
+                        · TVA en sus, à reverser
+                      </span>
+                    </span>
+                    <span className="whitespace-nowrap font-mono text-foreground-hi tabular-nums">
+                      {monthlyCents === null || provisionCents === null
+                        ? "—"
+                        : formatWholeAmount(
+                            format,
+                            monthlyCents - provisionCents,
+                          )}
+                    </span>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="rounded-md border bg-card px-5 py-4">

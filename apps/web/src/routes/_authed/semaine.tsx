@@ -291,6 +291,7 @@ function SemaineRoute() {
       ? null
       : {
           billedLabel: provisionalBilledLabel(
+            user.locale,
             Math.round(elapsedSeconds / 60),
             {
               billingMode: liveMission.billingMode,

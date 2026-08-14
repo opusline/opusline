@@ -5,7 +5,11 @@ import { craDays, DEMO_MONTH } from "../lib/fixtures";
 import { CraMonthGrid } from "./cra-month-grid";
 
 function model(overrides: Record<string, number> = {}, month = DEMO_MONTH) {
-  return buildCraGrid({ month, days: craDays(overrides, month) });
+  return buildCraGrid({
+    locale: "fr-FR",
+    month,
+    days: craDays(overrides, month),
+  });
 }
 
 const meta = {

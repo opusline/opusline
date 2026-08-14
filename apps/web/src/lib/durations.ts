@@ -1,4 +1,6 @@
-import type { BillingMode, EntryRounding } from "@opusline/api-client";
+import type { BillingMode, EntryRounding, Locale } from "@opusline/api-client";
+
+import { cachedFormatter } from "@/lib/billing";
 
 export const MAX_MINUTES_PER_DAY = 1440;
 
@@ -6,7 +8,9 @@ export const DEFAULT_ROUNDING: EntryRounding = 1;
 
 export const EXACT_ROUNDING: EntryRounding = 2;
 
-const decimals = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
+function decimals(locale: Locale): Intl.NumberFormat {
+  return cachedFormatter(locale, { maximumFractionDigits: 2 });
+}
 
 /** Why a duration was rejected. Every reason needs its own hint to show. */
 export type DurationInvalidReason = "format" | "range";
@@ -110,8 +114,8 @@ function toMinutes(input: string, units: DurationUnits): number | null {
 }
 
 /** The billed value of a day-counted entry: `1` → "1 j", `0.5` → "0,5 j". */
-export function formatBilledDays(dayFraction: number): string {
-  return `${decimals.format(dayFraction)} j`;
+export function formatBilledDays(locale: Locale, dayFraction: number): string {
+  return `${decimals(locale).format(dayFraction)} j`;
 }
 
 /**
@@ -119,9 +123,9 @@ export function formatBilledDays(dayFraction: number): string {
  * design writes them ("1,5 h"); anything else keeps its minutes ("3 h 42"),
  * because "3,7 h" is not a number anyone bills.
  */
-export function formatBilledHours(minutes: number): string {
+export function formatBilledHours(locale: Locale, minutes: number): string {
   return minutes % 60 === 30
-    ? `${decimals.format(Math.floor(minutes / 60) + 0.5)} h`
+    ? `${decimals(locale).format(Math.floor(minutes / 60) + 0.5)} h`
     : hoursAndMinutes(minutes);
 }
 
@@ -140,18 +144,18 @@ function hoursAndMinutes(minutes: number): string {
  * ones contribute hours. Converting between them would invent a day-equivalence
  * nobody invoices, so the two are shown side by side.
  */
-export function formatBilledTotal(total: {
-  dayFraction: number;
-  billedMinutes: number;
-}): string {
+export function formatBilledTotal(
+  locale: Locale,
+  total: { dayFraction: number; billedMinutes: number },
+): string {
   const parts: string[] = [];
 
   if (total.dayFraction > 0) {
-    parts.push(formatBilledDays(total.dayFraction));
+    parts.push(formatBilledDays(locale, total.dayFraction));
   }
 
   if (total.billedMinutes > 0) {
-    parts.push(formatBilledHours(total.billedMinutes));
+    parts.push(formatBilledHours(locale, total.billedMinutes));
   }
 
   return parts.join(" · ");
@@ -162,13 +166,15 @@ export function formatWorkedTime(minutes: number): string {
   return minutes < 60 ? `${minutes} min` : hoursAndMinutes(minutes);
 }
 
-const twoDecimals = new Intl.NumberFormat("fr-FR", {
-  maximumFractionDigits: 2,
-  minimumFractionDigits: 2,
-});
+function twoDecimals(locale: Locale): Intl.NumberFormat {
+  return cachedFormatter(locale, {
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 2,
+  });
+}
 
-export function formatDecimalHours(minutes: number): string {
-  return `${twoDecimals.format(minutes / 60)} h`;
+export function formatDecimalHours(locale: Locale, minutes: number): string {
+  return `${twoDecimals(locale).format(minutes / 60)} h`;
 }
 
 function startedSteps(minutes: number, stepInMinutes: number): number {
@@ -203,13 +209,15 @@ export function valueAsDayFraction(
 }
 
 export function provisionalBilledLabel(
+  locale: Locale,
   minutes: number,
   units: DurationUnits,
   rounding: EntryRounding | null,
 ): string {
   return isHourly(units.billingMode)
-    ? formatBilledHours(valueAsMinutes(minutes, rounding))
+    ? formatBilledHours(locale, valueAsMinutes(minutes, rounding))
     : formatBilledDays(
+        locale,
         valueAsDayFraction(minutes, rounding, units.workdayMinutes),
       );
 }
@@ -221,6 +229,7 @@ export function provisionalBilledLabel(
  * Enter. Round day counts get the short form a TJM user expects to see.
  */
 export function formatDurationInput(
+  locale: Locale,
   minutes: number,
   units: DurationUnits,
 ): string {
@@ -228,7 +237,7 @@ export function formatDurationInput(
     const quarters = (minutes * 4) / units.workdayMinutes;
 
     if (Number.isInteger(quarters)) {
-      return decimals.format(quarters / 4);
+      return decimals(locale).format(quarters / 4);
     }
   }
 

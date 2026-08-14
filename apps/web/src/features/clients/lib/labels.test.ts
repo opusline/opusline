@@ -1,6 +1,10 @@
 import type { ClientWithMissionsData, MissionData } from "@opusline/api-client";
 import { expect, it } from "vitest";
-import { formatMissionRate, paymentTermsLabel } from "@/lib/billing";
+import {
+  DEFAULT_MONEY_FORMAT,
+  formatMissionRate,
+  paymentTermsLabel,
+} from "@/lib/billing";
 import { formatPostalAddress } from "./client-form";
 import { clientSubtitle, isNewClient } from "./labels";
 
@@ -52,27 +56,31 @@ function client(
 }
 
 it("formats a daily rate in euros per day", () => {
-  expect(formatMissionRate(mission())).toBe("550 €/j");
+  expect(formatMissionRate(DEFAULT_MONEY_FORMAT, mission())).toBe("550 €/j");
 });
 
 it("formats an hourly rate with cents when needed", () => {
   expect(
     formatMissionRate(
+      DEFAULT_MONEY_FORMAT,
       mission({ billingMode: 1, rate: { amount: 8_550, currency: "EUR" } }),
     ),
-  ).toBe("85,5 €/h");
+  ).toBe("85,5 €/h");
 });
 
 it("formats a fixed price as a forfait total", () => {
   expect(
     formatMissionRate(
+      DEFAULT_MONEY_FORMAT,
       mission({ billingMode: 2, rate: { amount: 480_000, currency: "EUR" } }),
     ),
-  ).toBe("4 800 € forfait");
+  ).toBe("4 800 € forfait");
 });
 
 it("labels a mission without a rate as non billable", () => {
-  expect(formatMissionRate(mission({ rate: null }))).toBe("non facturable");
+  expect(formatMissionRate(DEFAULT_MONEY_FORMAT, mission({ rate: null }))).toBe(
+    "non facturable",
+  );
 });
 
 it("formats payment terms with the right plural", () => {

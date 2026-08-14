@@ -6,11 +6,11 @@ use App\Domain\Cra\Calendar\FrenchHolidays;
 use Carbon\CarbonImmutable;
 
 test('a year has the eleven public holidays', function (int $year): void {
-    expect(FrenchHolidays::forYear($year))->toHaveCount(11);
+    expect(new FrenchHolidays()->forYear($year))->toHaveCount(11);
 })->with([2024, 2025, 2026, 2027, 2028]);
 
 test('places the fixed holidays', function (): void {
-    $holidays = FrenchHolidays::forYear(2026);
+    $holidays = new FrenchHolidays()->forYear(2026);
 
     expect($holidays)
         ->toHaveKey('2026-01-01', 'Jour de l\'an')
@@ -24,7 +24,7 @@ test('places the fixed holidays', function (): void {
 });
 
 test('derives the moveable holidays from Easter', function (int $year, string $easterMonday, string $ascension, string $pentecostMonday): void {
-    $holidays = FrenchHolidays::forYear($year);
+    $holidays = new FrenchHolidays()->forYear($year);
 
     expect($holidays)
         ->toHaveKey($easterMonday, 'Lundi de Pâques')
@@ -38,7 +38,7 @@ test('derives the moveable holidays from Easter', function (int $year, string $e
 ]);
 
 test('keeps only the holidays inside a range', function (): void {
-    $holidays = FrenchHolidays::between(
+    $holidays = new FrenchHolidays()->between(
         CarbonImmutable::parse('2026-05-01'),
         CarbonImmutable::parse('2026-05-31'),
     );
@@ -47,7 +47,7 @@ test('keeps only the holidays inside a range', function (): void {
 });
 
 test('spans a range crossing a year boundary', function (): void {
-    $holidays = FrenchHolidays::between(
+    $holidays = new FrenchHolidays()->between(
         CarbonImmutable::parse('2026-12-20'),
         CarbonImmutable::parse('2027-01-05'),
     );

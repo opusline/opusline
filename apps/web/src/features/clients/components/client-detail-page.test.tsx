@@ -1,11 +1,11 @@
 import type { ClientWithMissionsData } from "@opusline/api-client";
-import { currentUserQueryKey } from "@opusline/api-client/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 
 import { getRouter } from "@/router";
+import { seedCurrentUser } from "@/test/current-user";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -116,11 +116,7 @@ function stubApi(
 async function renderDetailPage(path = "/clients/nordlys") {
   window.history.replaceState(null, "", path);
   const router = getRouter();
-  router.options.context.queryClient.setQueryData(currentUserQueryKey(), {
-    id: 1,
-    name: "Theo",
-    email: "theo@example.com",
-  });
+  seedCurrentUser(router.options.context.queryClient);
 
   render(
     <QueryClientProvider client={router.options.context.queryClient}>

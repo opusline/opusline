@@ -4,7 +4,7 @@ import type {
   MissionData,
 } from "@opusline/api-client";
 
-import { formatMissionRate } from "@/lib/billing";
+import { formatMissionRate, type MoneyFormat } from "@/lib/billing";
 import { isMissionOpenForTime } from "@/lib/mission-status";
 import { COLOR_CLASSES } from "@/lib/palette";
 
@@ -18,6 +18,7 @@ export type TimerMissionOption = {
 };
 
 export function trackableMissions(
+  format: MoneyFormat,
   clients: ClientWithMissionsData[],
   lastMissionId: number | null,
 ): TimerMissionOption[] {
@@ -32,7 +33,7 @@ export function trackableMissions(
             isLast: mission.id === lastMissionId,
             missionId: mission.id,
             name: mission.name,
-            subtitle: `${client.name} · ${formatMissionRate(mission)}`,
+            subtitle: `${client.name} · ${formatMissionRate(format, mission)}`,
           }),
         ),
     )

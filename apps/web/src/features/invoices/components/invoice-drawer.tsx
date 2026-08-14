@@ -9,6 +9,10 @@ import {
 } from "@opusline/ui/components/sheet";
 import type { ReactNode } from "react";
 
+import {
+  useDateFormat,
+  useMoneyFormat,
+} from "@/components/money-format-provider";
 import { formatAmountWithCents, formatPercentFromBp } from "@/lib/billing";
 import { calendarDateNumericLabel, calendarRangeLabel } from "@/lib/dates";
 import { INVOICE_EVENT_LABELS, invoiceStatusBadge } from "@/lib/invoice-status";
@@ -63,6 +67,8 @@ function InvoiceDrawerBody({
   detail: InvoiceDetailData;
   actions?: ReactNode;
 }) {
+  const format = useMoneyFormat();
+  const dateFormat = useDateFormat();
   const { invoice, client, mission, history } = detail;
   const badge = invoiceStatusBadge(invoice);
 
@@ -88,33 +94,37 @@ function InvoiceDrawerBody({
         <Fact
           label="Période"
           value={
-            calendarRangeLabel(invoice.periodStart, invoice.periodEnd) ?? "—"
+            calendarRangeLabel(
+              dateFormat,
+              invoice.periodStart,
+              invoice.periodEnd,
+            ) ?? "—"
           }
         />
         <Fact
           label="Émise le"
-          value={calendarDateNumericLabel(invoice.issuedOn)}
+          value={calendarDateNumericLabel(dateFormat, invoice.issuedOn)}
         />
         <Fact
           label="Échéance"
-          value={calendarDateNumericLabel(invoice.dueOn)}
+          value={calendarDateNumericLabel(dateFormat, invoice.dueOn)}
         />
         <Fact
           label="Montant HT"
-          value={formatAmountWithCents(invoice.amountHt.amount)}
+          value={formatAmountWithCents(format, invoice.amountHt.amount)}
         />
         <Fact
-          label={`TVA ${formatPercentFromBp(invoice.vatRateBp)} %`}
-          value={formatAmountWithCents(invoice.amountVat.amount)}
+          label={`TVA ${formatPercentFromBp(format.locale, invoice.vatRateBp)} %`}
+          value={formatAmountWithCents(format, invoice.amountVat.amount)}
         />
         <Fact
           label="Total TTC"
-          value={formatAmountWithCents(invoice.amountTtc.amount)}
+          value={formatAmountWithCents(format, invoice.amountTtc.amount)}
         />
         {invoice.paidOn !== null && (
           <Fact
             label="Encaissée le"
-            value={calendarDateNumericLabel(invoice.paidOn)}
+            value={calendarDateNumericLabel(dateFormat, invoice.paidOn)}
           />
         )}
       </dl>
@@ -136,7 +146,7 @@ function InvoiceDrawerBody({
                   {INVOICE_EVENT_LABELS[event.kind]}
                 </p>
                 <p className="mt-0.5 font-mono text-muted-foreground-3 text-xs tabular-nums">
-                  {calendarDateNumericLabel(event.occurredOn)}
+                  {calendarDateNumericLabel(dateFormat, event.occurredOn)}
                 </p>
                 {event.note !== null && (
                   <p className="mt-1 text-muted-foreground-3 text-xs">

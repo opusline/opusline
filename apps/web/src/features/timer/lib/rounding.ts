@@ -1,4 +1,4 @@
-import type { EntryRounding, MissionData } from "@opusline/api-client";
+import type { EntryRounding, Locale, MissionData } from "@opusline/api-client";
 
 import {
   EXACT_ROUNDING,
@@ -38,6 +38,7 @@ function clamp(minutes: number): number {
 }
 
 export function stopChoices(
+  locale: Locale,
   elapsedSeconds: number,
   mission: MissionData | null,
   workdayMinutes: number,
@@ -55,7 +56,7 @@ export function stopChoices(
     ),
     isDefault: mission === null,
     key: "exact",
-    label: formatDecimalHours(minutes),
+    label: formatDecimalHours(locale, minutes),
     minutes,
     rounding: EXACT_ROUNDING,
   };
@@ -74,6 +75,7 @@ export function stopChoices(
     isDefault: true,
     key: "mission",
     label: provisionalBilledLabel(
+      locale,
       minutes,
       { billingMode: mission.billingMode, workdayMinutes },
       mission.rounding,

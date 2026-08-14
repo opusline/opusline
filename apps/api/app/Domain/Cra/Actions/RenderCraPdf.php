@@ -10,6 +10,7 @@ use App\Domain\Cra\Models\CraDay;
 use App\Domain\Missions\Enums\BillingMode;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Settings\Models\UserSettings;
+use App\Domain\Shared\Enums\Currency;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
 use Dompdf\Dompdf;
@@ -239,9 +240,10 @@ class RenderCraPdf
     }
 
     /**
-     * Mirrors formatMissionRate() in the web preview, which claims to show this document:
-     * a Fixed mission can require a CRA, and dailyRate() is null for one, so reading the
+     * A Fixed mission can require a CRA, and dailyRate() is null for one, so reading the
      * rate off that alone printed "—" on paper while the screen showed the real figure.
+     * The layout stays French whatever the account locale — this document is a French
+     * artifact — while formatMissionRate() on screen follows the user's own format.
      */
     private function rateLabel(Mission $mission): string
     {
@@ -254,10 +256,11 @@ class RenderCraPdf
         // Cents kept, trailing zeros dropped — the same shape as the screen's
         // Intl maximumFractionDigits: 2, so a 550,50 €/j mission does not print 551.
         $amount = rtrim(rtrim(number_format((int) $rate->getAmount() / 100, 2, ',', ' '), '0'), ',');
+        $symbol = Currency::from($rate->getCurrency()->getCode())->symbol();
 
         return $mission->billing_mode === BillingMode::Fixed
-            ? $amount.' € forfait'
-            : $amount.' € / jour';
+            ? $amount.' '.$symbol.' forfait'
+            : $amount.' '.$symbol.' / jour';
     }
 
     private function signatureDataUri(Cra $cra): ?string

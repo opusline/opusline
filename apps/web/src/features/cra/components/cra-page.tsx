@@ -7,7 +7,7 @@ import type {
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { useMemo, useState } from "react";
-
+import { useLocale } from "@/components/money-format-provider";
 import { buildCraGrid, fillWeekdays, withDay } from "../lib/cra-grid";
 import { craItemKey } from "../lib/cra-picker";
 import { CRA_STEPS, type CraStep, panelsFor } from "../lib/cra-steps";
@@ -205,11 +205,12 @@ function CraDetail({
   onOpenSignatureSettings,
 }: CraDetailProps) {
   const { cra } = detail;
+  const locale = useLocale();
   // One derivation for the grid, the tiles and the document — and memoized, so typing in
   // the picker's search box does not rebuild the month.
   const model = useMemo(
-    () => buildCraGrid({ month: cra.month, days: cra.days }),
-    [cra.month, cra.days],
+    () => buildCraGrid({ locale, month: cra.month, days: cra.days }),
+    [locale, cra.month, cra.days],
   );
   const panels = panelsFor(step, cra);
 

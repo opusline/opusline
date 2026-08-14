@@ -6,7 +6,11 @@ import type {
 import { Badge } from "@opusline/ui/components/badge";
 import { Button } from "@opusline/ui/components/button";
 
-import { formatEuros } from "@/lib/billing";
+import {
+  useDateFormat,
+  useMoneyFormat,
+} from "@/components/money-format-provider";
+import { formatWholeAmount } from "@/lib/billing";
 
 import {
   overdueDetail,
@@ -121,12 +125,15 @@ function OverdueRow({
   isPending: boolean;
   onRemind: (invoiceId: number) => void;
 }) {
+  const format = useMoneyFormat();
+  const dateFormat = useDateFormat();
+
   return (
     <Row
       badge={<Badge variant="warn">En retard</Badge>}
       title={`${overdue.number ?? "Sans référence"} · ${todo.clientName}`}
-      detail={overdueDetail(overdue)}
-      amount={formatEuros(todo.amount.amount)}
+      detail={overdueDetail(dateFormat, overdue)}
+      amount={formatWholeAmount(format, todo.amount.amount)}
       action={
         <Button
           variant="outline"
@@ -150,12 +157,14 @@ function UnbilledWorkRow({
   work: InvoiceTodoWorkData;
   onCreateInvoice: (todo: InvoiceTodoData) => void;
 }) {
+  const format = useMoneyFormat();
+
   return (
     <Row
       badge={<Badge variant="brand">À facturer</Badge>}
-      title={unbilledWorkTitle(work)}
+      title={unbilledWorkTitle(format.locale, work)}
       detail={unbilledWorkDetail(work)}
-      amount={`${formatEuros(todo.amount.amount)} HT`}
+      amount={`${formatWholeAmount(format, todo.amount.amount)} HT`}
       action={
         <Button size="sm" onClick={() => onCreateInvoice(todo)}>
           Créer la facture

@@ -1,5 +1,11 @@
 import type { UrssafPeriodicity, VatRegime } from "@opusline/api-client";
 import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@opusline/ui/components/empty";
+import {
   Field,
   FieldDescription,
   FieldLabel,
@@ -13,13 +19,15 @@ import {
 } from "@opusline/ui/components/segmented-control";
 import { Switch } from "@opusline/ui/components/switch";
 import { FormTextField } from "@/components/form-text-field";
+import { useMoneyFormat } from "@/components/money-format-provider";
 import {
+  abroadTaxTerms,
   URSSAF_PERIODICITIES,
   URSSAF_PERIODICITY_LABELS,
   VAT_REGIME_DETAILS,
   VAT_REGIMES,
 } from "@/lib/fiscality";
-import { formatRateBp, parseRateBp } from "../lib/settings-form";
+import { formatRateBp, ratePercentValidator } from "../lib/settings-form";
 import type { SettingsForm } from "../lib/use-settings-form";
 import { RateSource } from "./rate-source";
 import { SettingsSection } from "./settings-section";
@@ -51,166 +59,226 @@ export function FiscalSettingsForm({
   ratesError,
   onRefreshRates,
 }: FiscalSettingsFormProps) {
+  const format = useMoneyFormat();
+
   return (
     <SettingsSection
-      className="flex flex-col gap-5.5"
       description="Ces valeurs pilotent les provisions et les échéances calculées par l'app."
       title="Fiscalité"
     >
-      <div className="flex items-center justify-between gap-4 rounded-md border bg-muted px-4 py-3.5">
-        <div>
-          <div className="mb-1 text-muted-foreground-2 text-xs">
-            Charges provisionnées
+      <div className="flex flex-col gap-5.5">
+        <div className="flex items-center justify-between gap-4 rounded-md border bg-muted px-4 py-3.5">
+          <div>
+            <div className="mb-1 text-muted-foreground-2 text-xs">
+              Charges provisionnées
+            </div>
+            <div className="font-mono text-primary-text text-xl leading-none tabular-nums">
+              {formatRateBp(format.locale, effectiveContributionRateBp)} %
+            </div>
           </div>
-          <div className="font-mono text-[22px] text-primary-text leading-none tabular-nums">
-            {formatRateBp(effectiveContributionRateBp)} %
+          <div className="max-w-58 text-right text-muted-foreground-3 text-xs leading-relaxed">
+            Cotisations sociales seules. L'impôt sur le revenu reste dû
+            annuellement.
           </div>
         </div>
-        <div className="max-w-58 text-right text-muted-foreground-3 text-xs leading-relaxed">
-          Cotisations sociales seules. L'impôt sur le revenu reste dû
-          annuellement.
-        </div>
-      </div>
 
-      <div className="grid gap-5 sm:grid-cols-2">
-        <form.Field name="urssafPeriodicity">
+        <div className="grid gap-5 sm:grid-cols-2">
+          <form.Field name="urssafPeriodicity">
+            {(field) => (
+              <Field>
+                <FieldLabel
+                  className="text-foreground-3 text-sm"
+                  htmlFor={field.name}
+                >
+                  Périodicité URSSAF
+                </FieldLabel>
+                <SegmentedControl
+                  aria-label="Périodicité URSSAF"
+                  id={field.name}
+                  onValueChange={(value) => {
+                    const next = value[0];
+
+                    if (typeof next === "string") {
+                      field.handleChange(Number(next) as UrssafPeriodicity);
+                    }
+                  }}
+                  value={[String(field.state.value)]}
+                >
+                  {URSSAF_PERIODICITIES.map((periodicity) => (
+                    <SegmentedControlItem
+                      key={periodicity}
+                      value={String(periodicity)}
+                    >
+                      {URSSAF_PERIODICITY_LABELS[periodicity]}
+                    </SegmentedControlItem>
+                  ))}
+                </SegmentedControl>
+              </Field>
+            )}
+          </form.Field>
+
+          <form.Field
+            name="contributionRate"
+            validators={{ onChange: ratePercentValidator(format.locale) }}
+          >
+            {(field) => (
+              <form.Subscribe selector={(state) => state.values.autoRates}>
+                {(autoRates) => (
+                  <FormTextField
+                    adornment="%"
+                    description="Taux BNC prestations de service, repris de l'URSSAF."
+                    disabled={autoRates}
+                    field={{
+                      name: field.name,
+                      state: autoRates
+                        ? {
+                            ...field.state,
+                            value: formatRateBp(
+                              format.locale,
+                              contributionRateBp,
+                            ),
+                          }
+                        : field.state,
+                      handleBlur: field.handleBlur,
+                      handleChange: field.handleChange,
+                    }}
+                    font="mono"
+                    inputMode="decimal"
+                    label="Taux de cotisations"
+                    labelClassName="text-foreground-3 text-sm"
+                  />
+                )}
+              </form.Subscribe>
+            )}
+          </form.Field>
+        </div>
+
+        <div className="h-px bg-secondary" />
+
+        <RateSource
+          form={form}
+          isRefreshing={isRefreshingRates}
+          onRefresh={onRefreshRates}
+          ratesCheckedAt={ratesCheckedAt}
+          ratesYear={ratesYear}
+          refreshError={ratesError}
+          savedAcre={savedAcre}
+          savedBusinessStartedOn={savedBusinessStartedOn}
+        />
+
+        <div className="h-px bg-secondary" />
+
+        <form.Field name="liberatingPayment">
           {(field) => (
-            <Field>
-              <FieldLabel
-                className="text-foreground-3 text-sm"
-                htmlFor={field.name}
-              >
-                Périodicité URSSAF
-              </FieldLabel>
-              <SegmentedControl
-                aria-label="Périodicité URSSAF"
-                id={field.name}
-                onValueChange={(value) => {
-                  const next = value[0];
-
-                  if (typeof next === "string") {
-                    field.handleChange(Number(next) as UrssafPeriodicity);
-                  }
-                }}
-                value={[String(field.state.value)]}
-              >
-                {URSSAF_PERIODICITIES.map((periodicity) => (
-                  <SegmentedControlItem
-                    key={periodicity}
-                    value={String(periodicity)}
-                  >
-                    {URSSAF_PERIODICITY_LABELS[periodicity]}
-                  </SegmentedControlItem>
-                ))}
-              </SegmentedControl>
-            </Field>
+            <div className="flex items-start justify-between gap-5">
+              <div>
+                <div className="mb-1 text-foreground-3 text-sm">
+                  Versement libératoire de l'impôt
+                </div>
+                <div className="text-muted-foreground-2 text-xs">
+                  Ajoute {formatRateBp(format.locale, liberatingPaymentRateBp)}{" "}
+                  % aux cotisations et supprime l'IR annuel.
+                </div>
+              </div>
+              <Switch
+                aria-label="Versement libératoire de l'impôt"
+                checked={field.state.value}
+                onCheckedChange={field.handleChange}
+              />
+            </div>
           )}
         </form.Field>
 
+        <div className="h-px bg-secondary" />
+
+        <form.Field name="vatRegime">
+          {(field) => (
+            <FieldSet>
+              <FieldLegend className="text-foreground-3 text-sm">
+                Régime de TVA
+              </FieldLegend>
+              <RadioGroup
+                name={field.name}
+                onValueChange={(value) =>
+                  field.handleChange(Number(value) as VatRegime)
+                }
+                value={String(field.state.value)}
+              >
+                {VAT_REGIMES.map((regime) => (
+                  <RadioCard
+                    description={VAT_REGIME_DETAILS[regime].hint}
+                    key={regime}
+                    title={VAT_REGIME_DETAILS[regime].label}
+                    value={String(regime)}
+                  />
+                ))}
+              </RadioGroup>
+              <FieldDescription>
+                {VAT_REGIME_DETAILS[field.state.value].note}
+              </FieldDescription>
+            </FieldSet>
+          )}
+        </form.Field>
+      </div>
+    </SettingsSection>
+  );
+}
+
+/**
+ * The Fiscalité tab for a business established outside France: the French
+ * machinery is explained away, and the pinned régime leaves the default rate
+ * as the only tax control — named TVA inside the EU, where that is exactly
+ * what it is.
+ */
+export function FiscalAbroadPanel({
+  form,
+  isEuVat,
+}: {
+  form: SettingsForm;
+  isEuVat: boolean;
+}) {
+  const format = useMoneyFormat();
+  const terms = abroadTaxTerms(isEuVat);
+
+  return (
+    <>
+      <Empty className="rounded-md border border-solid bg-card px-7 py-9">
+        <EmptyHeader>
+          <EmptyTitle className="font-semibold text-base text-foreground-hi">
+            Fiscalité limitée à la France
+          </EmptyTitle>
+          <EmptyDescription className="text-muted-foreground-3 text-sm">
+            Les cotisations URSSAF, la franchise en base et le versement
+            libératoire sont propres au régime français. Les règles du pays
+            choisi ne sont pas encore implémentées : provisions et déclarations
+            sont à calculer hors de l'application.
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+
+      <SettingsSection
+        className="mt-4"
+        description="Taux appliqué par défaut aux nouvelles factures."
+        title={terms.name}
+      >
         <form.Field
-          name="contributionRate"
-          validators={{
-            onChange: ({ value }: { value: string }) =>
-              parseRateBp(value) === null
-                ? { message: "Indiquez un taux entre 0 et 100." }
-                : undefined,
-          }}
+          name="defaultVatRate"
+          validators={{ onChange: ratePercentValidator(format.locale) }}
         >
           {(field) => (
-            <form.Subscribe selector={(state) => state.values.autoRates}>
-              {(autoRates) => (
-                <FormTextField
-                  adornment="%"
-                  description="Taux BNC prestations de service, repris de l'URSSAF."
-                  disabled={autoRates}
-                  field={{
-                    name: field.name,
-                    state: autoRates
-                      ? {
-                          ...field.state,
-                          value: formatRateBp(contributionRateBp),
-                        }
-                      : field.state,
-                    handleBlur: field.handleBlur,
-                    handleChange: field.handleChange,
-                  }}
-                  font="mono"
-                  inputMode="decimal"
-                  label="Taux de cotisations"
-                  labelClassName="text-foreground-3 text-sm"
-                />
-              )}
-            </form.Subscribe>
+            <FormTextField
+              adornment="%"
+              description={terms.zeroHint}
+              field={field}
+              fieldClassName="max-w-45"
+              font="mono"
+              inputMode="decimal"
+              label={terms.rateLabel}
+              labelClassName="text-foreground-3 text-sm"
+            />
           )}
         </form.Field>
-      </div>
-
-      <div className="h-px bg-secondary" />
-
-      <RateSource
-        form={form}
-        isRefreshing={isRefreshingRates}
-        onRefresh={onRefreshRates}
-        ratesCheckedAt={ratesCheckedAt}
-        ratesYear={ratesYear}
-        refreshError={ratesError}
-        savedAcre={savedAcre}
-        savedBusinessStartedOn={savedBusinessStartedOn}
-      />
-
-      <div className="h-px bg-secondary" />
-
-      <form.Field name="liberatingPayment">
-        {(field) => (
-          <div className="flex items-start justify-between gap-5">
-            <div>
-              <div className="mb-1 text-foreground-3 text-sm">
-                Versement libératoire de l'impôt
-              </div>
-              <div className="text-muted-foreground-2 text-xs">
-                Ajoute {formatRateBp(liberatingPaymentRateBp)} % aux cotisations
-                et supprime l'IR annuel.
-              </div>
-            </div>
-            <Switch
-              aria-label="Versement libératoire de l'impôt"
-              checked={field.state.value}
-              onCheckedChange={field.handleChange}
-            />
-          </div>
-        )}
-      </form.Field>
-
-      <div className="h-px bg-secondary" />
-
-      <form.Field name="vatRegime">
-        {(field) => (
-          <FieldSet>
-            <FieldLegend className="text-foreground-3 text-sm">
-              Régime de TVA
-            </FieldLegend>
-            <RadioGroup
-              name={field.name}
-              onValueChange={(value) =>
-                field.handleChange(Number(value) as VatRegime)
-              }
-              value={String(field.state.value)}
-            >
-              {VAT_REGIMES.map((regime) => (
-                <RadioCard
-                  description={VAT_REGIME_DETAILS[regime].hint}
-                  key={regime}
-                  title={VAT_REGIME_DETAILS[regime].label}
-                  value={String(regime)}
-                />
-              ))}
-            </RadioGroup>
-            <FieldDescription>
-              {VAT_REGIME_DETAILS[field.state.value].note}
-            </FieldDescription>
-          </FieldSet>
-        )}
-      </form.Field>
-    </SettingsSection>
+      </SettingsSection>
+    </>
   );
 }

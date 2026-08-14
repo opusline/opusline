@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useForm } from "@tanstack/react-form";
 
+import { AddressAutocompleteProvider } from "./address-autocomplete-provider";
 import { AddressFields } from "./address-fields";
 
 const meta = {
@@ -82,6 +83,38 @@ export const WithoutCountry: Story = {
           withPlaceholders
         />
       </div>
+    );
+  },
+};
+
+/** A business abroad has no address lookup: every field is a plain input. */
+export const WithoutAutocomplete: Story = {
+  render: () => {
+    const form = useForm({
+      defaultValues: {
+        companyAddressLine1: "",
+        companyAddressLine2: "",
+        companyPostalCode: "",
+        companyCity: "",
+      },
+    });
+
+    return (
+      <AddressAutocompleteProvider businessCountry="CA">
+        <div className="max-w-lg">
+          <AddressFields
+            complementLabel="Complément d'adresse"
+            gapClassName="gap-4"
+            names={COMPANY_NAMES}
+            renderField={(name, render) => (
+              <form.Field name={name}>{(field) => render(field)}</form.Field>
+            )}
+            setFieldValue={(name, value) => form.setFieldValue(name, value)}
+            streetLabel="Adresse"
+            withPlaceholders
+          />
+        </div>
+      </AddressAutocompleteProvider>
     );
   },
 };

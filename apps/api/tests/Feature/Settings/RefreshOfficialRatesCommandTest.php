@@ -25,6 +25,28 @@ test('refreshes every account that follows the official barème', function (): v
         ->and($manual->settings()->sole()->contribution_rate_bp)->toBe(2000);
 });
 
+test('never applies the French barème to a business established abroad', function (): void {
+    Http::fake(['*/evaluate' => Http::response([
+        'evaluate' => [
+            ['nodeValue' => 25.6],
+            ['nodeValue' => 220],
+        ],
+    ])]);
+
+    // Unreachable through UpdateSettings, which forces auto_rates off abroad —
+    // but legacy rows and direct DB edits can hold this state.
+    $abroad = User::factory()->create();
+    $abroad->settings()->sole()->update([
+        'business_country' => 'DE',
+        'auto_rates' => true,
+        'contribution_rate_bp' => 2000,
+    ]);
+
+    $this->artisan('rates:refresh')->assertSuccessful();
+
+    expect($abroad->settings()->sole()->contribution_rate_bp)->toBe(2000);
+});
+
 test('leaves every stored rate alone when the barème is unreachable', function (): void {
     Http::fake(['*/evaluate' => Http::response(status: 503)]);
 

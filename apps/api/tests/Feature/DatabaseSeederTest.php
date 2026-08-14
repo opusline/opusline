@@ -25,7 +25,7 @@ test('seeds a sent CRA so the comptes rendus screen has both piles', function ()
     $user = User::query()->where('email', 'test@example.com')->firstOrFail();
     $cra = $user->cras()->with(['days', 'mission'])->firstOrFail();
 
-    $holidays = FrenchHolidays::between($cra->month->startOfMonth(), $cra->month->endOfMonth());
+    $holidays = new FrenchHolidays()->between($cra->month->startOfMonth(), $cra->month->endOfMonth());
 
     expect($cra->status)->toBe(CraStatus::Sent)
         ->and($cra->mission->name)->toBe('Callisto front')

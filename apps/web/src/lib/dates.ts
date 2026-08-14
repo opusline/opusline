@@ -1,3 +1,5 @@
+import type { DateFormat } from "@opusline/api-client";
+
 const monthYear = new Intl.DateTimeFormat("fr-FR", {
   month: "long",
   year: "numeric",
@@ -85,8 +87,16 @@ export function capitalizedMonthLabel(date: string): string {
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
-export function calendarDateNumericLabel(date: string): string {
-  return numericDate.format(fromCalendarDate(date));
+/**
+ * The user's chosen numeric layout: 0 → "31/08/2026", 1 → "2026-08-31" (the
+ * calendar-date payload IS the ISO layout, so it passes through verbatim).
+ * Only digit-only dates follow the preference — month names stay French.
+ */
+export function calendarDateNumericLabel(
+  dateFormat: DateFormat,
+  date: string,
+): string {
+  return dateFormat === 1 ? date : numericDate.format(fromCalendarDate(date));
 }
 
 /** Whole days between two `Y-m-d`, ignoring clocks and timezones. */
@@ -118,16 +128,17 @@ export function todayCalendarDate(): string {
  * null when there is no period to show.
  */
 export function calendarRangeLabel(
+  dateFormat: DateFormat,
   from: string | null,
   to: string | null,
 ): string | null {
   if (from === null) {
-    return to === null ? null : calendarDateNumericLabel(to);
+    return to === null ? null : calendarDateNumericLabel(dateFormat, to);
   }
 
   if (to === null || from === to) {
-    return calendarDateNumericLabel(from);
+    return calendarDateNumericLabel(dateFormat, from);
   }
 
-  return `${calendarDateNumericLabel(from)} – ${calendarDateNumericLabel(to)}`;
+  return `${calendarDateNumericLabel(dateFormat, from)} – ${calendarDateNumericLabel(dateFormat, to)}`;
 }

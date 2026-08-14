@@ -1,6 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
+import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
+
 import {
   DEMO_CLIENTS,
   DEMO_TIME_ENTRIES,
@@ -12,6 +14,7 @@ import { buildWeekGrid } from "../lib/week-grid";
 import { NewEntryDialog, type NewEntryDialogProps } from "./new-entry-dialog";
 
 const { missionOptions } = buildWeekGrid({
+  format: DEFAULT_MONEY_FORMAT,
   clients: DEMO_CLIENTS,
   timeEntries: DEMO_TIME_ENTRIES,
   today: DEMO_TODAY,

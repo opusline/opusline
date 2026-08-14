@@ -60,6 +60,20 @@ test('marks weekends and public holidays so the grid needs no calendar of its ow
     expect($days['2026-07-06'])->toMatchArray(['isWeekend' => false, 'isHoliday' => false]);
 });
 
+test('greys no French holidays for a business established abroad', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['business_country' => 'CA']);
+    $mission = craMissionOwnedBy($user);
+
+    $days = collect($this->actingAs($user)
+        ->postJson('/api/cras', ['missionId' => $mission->id, 'month' => '2026-07'])
+        ->assertCreated()
+        ->json('cra.days'))
+        ->keyBy('date');
+
+    expect($days['2026-07-14'])->toMatchArray(['isHoliday' => false, 'holidayName' => null]);
+});
+
 test('prices the month at the mission rate', function (): void {
     $user = User::factory()->create();
     $mission = craMissionOwnedBy($user);

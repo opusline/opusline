@@ -27,6 +27,7 @@ import {
   useMemo,
   useRef,
 } from "react";
+import { useMoneyFormat } from "@/components/money-format-provider";
 import { collectNoteSuggestions } from "@/components/note-suggestions";
 import {
   addCalendarDays,
@@ -112,6 +113,7 @@ export function TimerProvider({
   children: ReactNode;
   workdayMinutes: number;
 }) {
+  const format = useMoneyFormat();
   const queryClient = useQueryClient();
 
   const { elapsedSeconds, isRunning, lastMissionId, now, timer } =
@@ -227,8 +229,8 @@ export function TimerProvider({
 
   const clients = clientsQuery.data?.clients ?? [];
   const missions = useMemo(
-    () => trackableMissions(clients, lastMissionId),
-    [clients, lastMissionId],
+    () => trackableMissions(format, clients, lastMissionId),
+    [clients, format, lastMissionId],
   );
   const mission =
     timer === null ? null : findMissionById(clients, timer.missionId);

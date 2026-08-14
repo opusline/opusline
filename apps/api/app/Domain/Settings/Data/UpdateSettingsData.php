@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Settings\Data;
 
+use App\Domain\Settings\Enums\DateFormat;
+use App\Domain\Settings\Enums\Locale;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Shared\Data\MoneyData;
@@ -14,12 +16,17 @@ use Spatie\LaravelData\Attributes\Validation\Between;
 use Spatie\LaravelData\Attributes\Validation\Email;
 use Spatie\LaravelData\Attributes\Validation\IntegerType;
 use Spatie\LaravelData\Attributes\Validation\Max;
+use Spatie\LaravelData\Attributes\Validation\Regex;
 use Spatie\LaravelData\Attributes\Validation\Rule;
 use Spatie\LaravelData\Data;
 
 class UpdateSettingsData extends Data
 {
     public function __construct(
+        #[Regex('/^[A-Z]{2}$/')]
+        public string $businessCountry,
+        public Locale $locale,
+        public DateFormat $dateFormat,
         public UrssafPeriodicity $urssafPeriodicity,
         public bool $autoRates,
         public bool $acre,

@@ -1,10 +1,15 @@
 import type {
   BillingMode,
   ClientWithMissionsData,
+  Locale,
   MissionData,
   TimeEntryData,
 } from "@opusline/api-client";
-import { formatMissionRate, missionBills } from "@/lib/billing";
+import {
+  formatMissionRate,
+  type MoneyFormat,
+  missionBills,
+} from "@/lib/billing";
 import { CLIENT_TYPE_SHORT_LABELS } from "@/lib/client-types";
 import {
   formatBilledDays,
@@ -82,6 +87,7 @@ export type MissionOption = {
 };
 
 export type WeekGridModel = {
+  locale: Locale;
   columns: WeekColumn[];
   rows: WeekRow[];
   missionOptions: MissionOption[];
@@ -147,6 +153,7 @@ function buildColumns(
 }
 
 function billedFigure(
+  locale: Locale,
   total: { dayFraction: number; billedMinutes: number },
   dayBilled: boolean,
   isEmpty: boolean,
@@ -156,12 +163,16 @@ function billedFigure(
   }
 
   return dayBilled
-    ? formatBilledDays(total.dayFraction)
-    : formatBilledHours(total.billedMinutes);
+    ? formatBilledDays(locale, total.dayFraction)
+    : formatBilledHours(locale, total.billedMinutes);
 }
 
-function missionSubtitle(mission: MissionData, client: ClientWithMissionsData) {
-  return `${CLIENT_TYPE_SHORT_LABELS[client.type]} · ${formatMissionRate(mission)}`;
+function missionSubtitle(
+  format: MoneyFormat,
+  mission: MissionData,
+  client: ClientWithMissionsData,
+) {
+  return `${CLIENT_TYPE_SHORT_LABELS[client.type]} · ${formatMissionRate(format, mission)}`;
 }
 
 function selectMissions(
@@ -206,6 +217,7 @@ export function buildWeekGrid(input: {
   week: string;
   today: string;
   weekendShown: boolean;
+  format: MoneyFormat;
   liveMissionId?: number | null;
 }): WeekGridModel {
   const columns = buildColumns(input.week, input.today, input.weekendShown);
@@ -270,6 +282,7 @@ export function buildWeekGrid(input: {
       }
 
       const billedLabel = billedFigure(
+        input.format.locale,
         { billedMinutes, dayFraction },
         dayBilled,
         entries.length === 0,
@@ -308,12 +321,13 @@ export function buildWeekGrid(input: {
     return {
       missionId: mission.id,
       name: mission.name,
-      subtitle: missionSubtitle(mission, client),
+      subtitle: missionSubtitle(input.format, mission, client),
       colorClass: COLOR_CLASSES[mission.color ?? client.color],
       billingMode: mission.billingMode,
       hasRate,
       cells,
       totalLabel: billedFigure(
+        input.format.locale,
         rowTotal,
         dayBilled,
         rowTotal.dayFraction === 0 && rowTotal.billedMinutes === 0,
@@ -324,16 +338,24 @@ export function buildWeekGrid(input: {
   const gridMissionIds = new Set(rows.map((row) => row.missionId));
 
   return {
+    locale: input.format.locale,
     columns,
     rows,
-    missionOptions: buildMissionOptions(input.clients, gridMissionIds),
-    dayTotals: dayTotals.map(formatBilledTotal),
-    weekTotal: formatBilledTotal(weekTotal),
+    missionOptions: buildMissionOptions(
+      input.format,
+      input.clients,
+      gridMissionIds,
+    ),
+    dayTotals: dayTotals.map((total) =>
+      formatBilledTotal(input.format.locale, total),
+    ),
+    weekTotal: formatBilledTotal(input.format.locale, weekTotal),
     hasEntries: input.timeEntries.length > 0,
   };
 }
 
 function buildMissionOptions(
+  format: MoneyFormat,
   clients: ClientWithMissionsData[],
   gridMissionIds: Set<number>,
 ): MissionOption[] {
@@ -348,7 +370,7 @@ function buildMissionOptions(
           isInGrid: gridMissionIds.has(mission.id),
           missionId: mission.id,
           name: mission.name,
-          subtitle: missionSubtitle(mission, client),
+          subtitle: missionSubtitle(format, mission, client),
         })),
     )
     .sort(

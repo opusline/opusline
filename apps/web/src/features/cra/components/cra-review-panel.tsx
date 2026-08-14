@@ -1,6 +1,6 @@
-import type { CraDetailData, SettingsData } from "@opusline/api-client";
+import type { CraDetailData, Locale, SettingsData } from "@opusline/api-client";
 import { cn } from "@opusline/ui/lib/utils";
-
+import { useLocale } from "@/components/money-format-provider";
 import {
   CHECK_DAYS,
   CHECK_DAYS_MATCHING,
@@ -28,7 +28,11 @@ type Check = {
  * The last look before the month goes out: what it reports, who it is for, and
  * whether it will carry a signature.
  */
-function checksFor(detail: CraDetailData, settings: SettingsData): Check[] {
+function checksFor(
+  locale: Locale,
+  detail: CraDetailData,
+  settings: SettingsData,
+): Check[] {
   const { cra, recipientName } = detail;
 
   return [
@@ -38,8 +42,8 @@ function checksFor(detail: CraDetailData, settings: SettingsData): Check[] {
       detail:
         cra.differenceDays === 0
           ? CHECK_DAYS_MATCHING
-          : checkDaysDrift(cra.differenceDays),
-      value: daysLabel(cra.totalDays),
+          : checkDaysDrift(locale, cra.differenceDays),
+      value: daysLabel(locale, cra.totalDays),
       tone: cra.differenceDays === 0 ? "ok" : "attention",
     },
     {
@@ -67,6 +71,7 @@ type CraReviewPanelProps = {
 };
 
 export function CraReviewPanel({ detail, settings }: CraReviewPanelProps) {
+  const locale = useLocale();
   return (
     <section className="min-w-0 flex-1 rounded-md border bg-card p-5.5">
       <h2 className="mb-3.5 font-heading font-semibold text-foreground-hi text-lg">
@@ -74,7 +79,7 @@ export function CraReviewPanel({ detail, settings }: CraReviewPanelProps) {
       </h2>
 
       <dl>
-        {checksFor(detail, settings).map((check) => (
+        {checksFor(locale, detail, settings).map((check) => (
           <div
             className="flex flex-wrap items-start gap-x-2.5 gap-y-0.5 border-secondary border-b py-2.75 last:border-b-0"
             key={check.key}

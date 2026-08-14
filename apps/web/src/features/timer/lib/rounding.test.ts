@@ -18,7 +18,7 @@ const stopOptionsOf = (
   mission: MissionData | null,
   workdayMinutes: number,
 ): [StopOption, ...StopOption[]] =>
-  stopChoices(elapsedSeconds, mission, workdayMinutes).options;
+  stopChoices("fr-FR", elapsedSeconds, mission, workdayMinutes).options;
 
 const labelsOf = (options: StopOption[]) =>
   options.map((option) => option.label);
@@ -181,6 +181,7 @@ it("stores the exact time when the mission cannot be resolved", () => {
 
 it("reports the minutes the 24 h ceiling will drop", () => {
   const { droppedMinutes } = stopChoices(
+    "fr-FR",
     26 * 3600,
     missionWith({ rounding: 0 }),
     DEMO_WORKDAY_MINUTES,
@@ -191,6 +192,7 @@ it("reports the minutes the 24 h ceiling will drop", () => {
 
 it("drops nothing on a session that fits in a day", () => {
   const { droppedMinutes } = stopChoices(
+    "fr-FR",
     DEMO_ELAPSED_SECONDS,
     missionWith({ rounding: 0 }),
     DEMO_WORKDAY_MINUTES,

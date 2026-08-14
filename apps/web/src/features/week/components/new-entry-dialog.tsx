@@ -11,6 +11,7 @@ import { Input } from "@opusline/ui/components/input";
 import { Label } from "@opusline/ui/components/label";
 import { cn } from "@opusline/ui/lib/utils";
 import { useEffect, useId, useState } from "react";
+import { useLocale } from "@/components/money-format-provider";
 import { matchingNotes, NoteSuggestions } from "@/components/note-suggestions";
 import { addCalendarDays, isCalendarDate } from "@/lib/dates";
 import {
@@ -188,6 +189,7 @@ function EntryStep({
   onBack,
   onSubmit,
 }: EntryStepProps) {
+  const locale = useLocale();
   const dateId = useId();
   const durationId = useId();
   const noteId = useId();
@@ -216,8 +218,8 @@ function EntryStep({
   const existingLabel = existing
     .map((entry) =>
       entry.valuedDayFraction === null
-        ? formatBilledHours(entry.valuedMinutes ?? 0)
-        : formatBilledDays(entry.valuedDayFraction),
+        ? formatBilledHours(locale, entry.valuedMinutes ?? 0)
+        : formatBilledDays(locale, entry.valuedDayFraction),
     )
     .join(" + ");
 

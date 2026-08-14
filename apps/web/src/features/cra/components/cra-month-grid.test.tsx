@@ -10,7 +10,11 @@ function grid(overrides: Partial<React.ComponentProps<typeof CraMonthGrid>>) {
     <CraMonthGrid
       editable
       isDirty={false}
-      model={buildCraGrid({ month: DEMO_MONTH, days: craDays() })}
+      model={buildCraGrid({
+        locale: "fr-FR",
+        month: DEMO_MONTH,
+        days: craDays(),
+      })}
       onChange={vi.fn()}
       onFillWeekdays={vi.fn()}
       onReset={vi.fn()}
@@ -39,6 +43,7 @@ function renderGrid(
 function august() {
   return grid({
     model: buildCraGrid({
+      locale: "fr-FR",
       month: "2026-08",
       days: craDays({}, "2026-08"),
     }),

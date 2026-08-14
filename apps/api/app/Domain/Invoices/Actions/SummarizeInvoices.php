@@ -21,6 +21,7 @@ use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Enums\BillingMode;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Data\MoneyData;
+use App\Domain\Shared\Enums\Currency;
 use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
@@ -43,6 +44,7 @@ class SummarizeInvoices
     {
         $month = CarbonImmutable::parse(($data->month ?? CarbonImmutable::today()->format('Y-m')).'-01');
         $today = CarbonImmutable::today();
+        $currency = $user->settingsOrFail()->currency;
 
         $outstanding = $this->outstanding($user);
         $overdue = $outstanding->filter(fn (Invoice $invoice): bool => $invoice->due_on->isBefore($today))->values();
@@ -50,10 +52,10 @@ class SummarizeInvoices
 
         return new InvoiceSummaryData(
             month: $month->format('Y-m'),
-            toCollect: $this->totalOf($outstanding),
-            overdue: $this->overdue($overdue, $today),
-            forecast: $this->forecast($outstanding, $today),
-            monthUnbilled: $this->unbilledIn($unbilled),
+            toCollect: $this->totalOf($outstanding, $currency),
+            overdue: $this->overdue($overdue, $today, $currency),
+            forecast: $this->forecast($outstanding, $today, $currency),
+            monthUnbilled: $this->unbilledIn($unbilled, $currency),
             counts: $this->counts($user, $today),
             todo: $this->todo($overdue, $unbilled, $today),
             todoTotal: $overdue->count() + count($unbilled),
@@ -77,9 +79,9 @@ class SummarizeInvoices
     /**
      * @param  Collection<int, Invoice>  $overdue
      */
-    private function overdue(Collection $overdue, CarbonImmutable $today): InvoiceOverdueData
+    private function overdue(Collection $overdue, CarbonImmutable $today, Currency $currency): InvoiceOverdueData
     {
-        $total = $this->totalOf($overdue);
+        $total = $this->totalOf($overdue, $currency);
         $worst = $overdue->first();
 
         return new InvoiceOverdueData(
@@ -185,9 +187,9 @@ class SummarizeInvoices
      *
      * @param  list<UnbilledWork>  $unbilled
      */
-    private function unbilledIn(array $unbilled): InvoiceTotalData
+    private function unbilledIn(array $unbilled, Currency $currency): InvoiceTotalData
     {
-        $total = new Money(0, config()->string('app.currency'));
+        $total = new Money(0, $currency->value);
         $periods = 0;
 
         foreach ($unbilled as $row) {
@@ -206,15 +208,13 @@ class SummarizeInvoices
      * @param  Collection<int, Invoice>  $outstanding
      * @return list<InvoiceForecastData>
      */
-    private function forecast(Collection $outstanding, CarbonImmutable $today): array
+    private function forecast(Collection $outstanding, CarbonImmutable $today, Currency $currency): array
     {
-        $currency = config()->string('app.currency');
-
         /** @var array<int, Money> $totals */
         $totals = [];
 
         foreach (InvoiceForecastBucket::cases() as $bucket) {
-            $totals[$bucket->value] = new Money(0, $currency);
+            $totals[$bucket->value] = new Money(0, $currency->value);
         }
 
         foreach ($outstanding as $invoice) {
@@ -339,9 +339,9 @@ class SummarizeInvoices
     /**
      * @param  Collection<int, Invoice>  $invoices
      */
-    private function totalOf(Collection $invoices): InvoiceTotalData
+    private function totalOf(Collection $invoices, Currency $currency): InvoiceTotalData
     {
-        $total = new Money(0, config()->string('app.currency'));
+        $total = new Money(0, $currency->value);
 
         foreach ($invoices as $invoice) {
             $total = $total->add($invoice->amount_ttc_cents);

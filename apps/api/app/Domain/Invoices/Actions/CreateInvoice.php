@@ -8,6 +8,7 @@ use App\Domain\Invoices\Data\CreateInvoiceData;
 use App\Domain\Invoices\Enums\InvoiceEventKind;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Shared\Validation\AccountCurrency;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -55,7 +56,9 @@ class CreateInvoice
         ];
 
         return DB::transaction(function () use ($user, $data, $attributes, $status, $issuedOn): Invoice {
-            User::query()->whereKey($user->getKey())->lockForUpdate()->firstOrFail();
+            // The user-row lock doubles as the invoice-number serializer: two
+            // creates that took the same /next-number suggestion queue here.
+            AccountCurrency::assertMatchesAccountUnderLock($user->id, $data->amountHt);
 
             try {
                 $invoice = $user->invoices()->create($attributes);

@@ -7,6 +7,9 @@ namespace App\Domain\Missions\Actions;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Data\UpdateMissionData;
 use App\Domain\Missions\Models\Mission;
+use App\Domain\Shared\Data\MoneyData;
+use App\Domain\Shared\Validation\AccountCurrency;
+use Illuminate\Support\Facades\DB;
 
 class UpdateMission
 {
@@ -16,23 +19,29 @@ class UpdateMission
     {
         $this->validateMission->handle($client, $data, $mission);
 
-        $mission->update([
-            'name' => $data->name,
-            'end_client_name' => $data->endClientName,
-            'billing_mode' => $data->billingMode,
-            'rate_cents' => $data->rate?->toMoney(),
-            'rounding' => $data->billingMode->resolveRounding($data->rounding),
-            'status' => $data->status,
-            'cra_required' => $data->billingMode->resolveCraRequired(
-                $data->craRequired,
-                $client->type->requiresCraByDefault(),
-            ),
-            'color' => $data->color,
-            'notes' => $data->notes,
-            'start_date' => $data->startDate,
-            'end_date' => $data->endDate,
-        ]);
+        return DB::transaction(function () use ($client, $mission, $data): Mission {
+            if ($data->rate instanceof MoneyData) {
+                AccountCurrency::assertMatchesAccountUnderLock($mission->user_id, $data->rate);
+            }
 
-        return $mission;
+            $mission->update([
+                'name' => $data->name,
+                'end_client_name' => $data->endClientName,
+                'billing_mode' => $data->billingMode,
+                'rate_cents' => $data->rate?->toMoney(),
+                'rounding' => $data->billingMode->resolveRounding($data->rounding),
+                'status' => $data->status,
+                'cra_required' => $data->billingMode->resolveCraRequired(
+                    $data->craRequired,
+                    $client->type->requiresCraByDefault(),
+                ),
+                'color' => $data->color,
+                'notes' => $data->notes,
+                'start_date' => $data->startDate,
+                'end_date' => $data->endDate,
+            ]);
+
+            return $mission;
+        });
     }
 }

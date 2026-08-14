@@ -1,10 +1,9 @@
 import { Popover, PopoverContent } from "@opusline/ui/components/popover";
 import { useRef } from "react";
-
+import { useMoneyFormat } from "@/components/money-format-provider";
 import { calendarDateLabel } from "@/lib/dates";
 import { formatWorkedTime } from "@/lib/durations";
 import { entryRoundingLabel } from "@/lib/entry-rounding";
-
 import { formatClock } from "../lib/elapsed";
 import { START_TITLE } from "../lib/labels";
 import { quickDurations } from "../lib/long-run";
@@ -146,6 +145,7 @@ function StopDialog({
   timer: ReturnType<typeof useTimer>;
   workdayMinutes: number;
 }) {
+  const format = useMoneyFormat();
   const running = timer.timer;
 
   if (running === null) {
@@ -159,6 +159,7 @@ function StopDialog({
       : timer.correctedMinutes * 60;
 
   const { droppedMinutes, options } = stopChoices(
+    format.locale,
     recordedSeconds,
     timer.mission,
     workdayMinutes,

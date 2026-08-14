@@ -9,6 +9,8 @@ use App\Domain\Invoices\Factories\InvoiceFactory;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Factories\MissionFactory;
 use App\Domain\Missions\Models\Mission;
+use App\Domain\Settings\Enums\DateFormat;
+use App\Domain\Settings\Enums\Locale;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\TimeEntries\Factories\TimeEntryFactory;
@@ -59,6 +61,9 @@ function fakeBareme(float $ratePercent = 25.6, float $liberatingAmount = 220): v
 function settingsPayload(array $overrides = []): array
 {
     return array_merge([
+        'businessCountry' => 'FR',
+        'locale' => Locale::fr_FR->value,
+        'dateFormat' => DateFormat::DayMonthYear->value,
         'urssafPeriodicity' => UrssafPeriodicity::Monthly->value,
         'autoRates' => false,
         'acre' => false,

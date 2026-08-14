@@ -1,5 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
+
+import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
 import {
   DEMO_CLIENTS,
   DEMO_TIME_ENTRIES,
@@ -30,6 +32,7 @@ function renderGrid(
     <WeekGrid
       live={overrides.live ?? null}
       model={buildWeekGrid({
+        format: DEFAULT_MONEY_FORMAT,
         clients: DEMO_CLIENTS,
         liveMissionId: overrides.live?.missionId ?? null,
         timeEntries,

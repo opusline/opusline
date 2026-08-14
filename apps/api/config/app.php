@@ -103,8 +103,10 @@ return [
     | Application Currency
     |--------------------------------------------------------------------------
     |
-    | Default currency for cknow/laravel-money (money.defaultCurrency reads
-    | this key).
+    | The application has no currency of its own — every account carries one
+    | in user_settings.currency, chosen in Réglages. This key only feeds
+    | cknow/laravel-money's fallback (money.defaultCurrency reads it) and the
+    | value a brand-new settings row starts on before its first save.
     |
     */
 

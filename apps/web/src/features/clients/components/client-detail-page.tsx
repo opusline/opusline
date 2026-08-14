@@ -37,6 +37,7 @@ import {
 import { type ReactNode, useState } from "react";
 import { ClientLogo } from "@/components/client-logo";
 import { MissionStatusBadge } from "@/components/mission-status-badge";
+import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatMissionRate, paymentTermsLabel } from "@/lib/billing";
 import { CLIENT_TYPE_LABELS } from "@/lib/client-types";
 import { monthYearLabel } from "@/lib/dates";
@@ -101,6 +102,7 @@ export function ClientDetailPage({
   isArchivePending,
   error,
 }: ClientDetailPageProps) {
+  const format = useMoneyFormat();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
 
@@ -307,7 +309,7 @@ export function ClientDetailPage({
                           </div>
                         </TableCell>
                         <TableCell className="py-4 text-muted-foreground-3 text-sm">
-                          {formatMissionRate(mission)}
+                          {formatMissionRate(format, mission)}
                         </TableCell>
                         <TableCell className="py-4 font-mono text-foreground-2 tabular-nums">
                           —

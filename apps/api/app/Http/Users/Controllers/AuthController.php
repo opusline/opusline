@@ -62,6 +62,9 @@ class AuthController extends Controller
         return response()->json(UserData::from($user));
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function updateTheme(UpdateUserThemeData $data, #[CurrentUser] User $user, UpdateUserTheme $updateUserTheme): JsonResponse
     {
         $updateUserTheme->handle($user, $data);

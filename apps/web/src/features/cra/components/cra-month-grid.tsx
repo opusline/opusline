@@ -9,7 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
-
+import { useLocale } from "@/components/money-format-provider";
 import {
   type CraCell,
   type CraGridModel,
@@ -68,6 +68,7 @@ export function CraMonthGrid({
   onFillWeekdays,
   onReset,
 }: CraMonthGridProps) {
+  const locale = useLocale();
   const cellRefs = useRef(new Map<string, HTMLElement>());
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const [focusRequest, setFocusRequest] = useState(0);
@@ -158,7 +159,7 @@ export function CraMonthGrid({
     <div className="flex min-w-0 flex-1 flex-col rounded-md border bg-card p-5.5">
       <div className="mb-3.5 flex flex-wrap items-center justify-between gap-3">
         <span className="text-muted-foreground-3 text-sm">
-          {reportedAgainstTrackedLabel(reportedDays, trackedDays)}
+          {reportedAgainstTrackedLabel(locale, reportedDays, trackedDays)}
         </span>
         {editable && (
           <div className="flex flex-wrap gap-1.5">

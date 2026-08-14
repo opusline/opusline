@@ -1,4 +1,4 @@
-import type { CraDayData } from "@opusline/api-client";
+import type { CraDayData, Locale } from "@opusline/api-client";
 
 import { monthGridDates } from "@/lib/months";
 
@@ -58,6 +58,7 @@ export function formatDayFraction(basisPoints: number): string {
 }
 
 export function buildCraGrid(input: {
+  locale: Locale;
   month: string;
   days: CraDayData[];
 }): CraGridModel {
@@ -94,7 +95,7 @@ export function buildCraGrid(input: {
         holidayName: day.holidayName,
         isOffDayWorked,
         valueLabel: formatDayFraction(day.dayFractionBp),
-        ariaLabel: cellAriaLabel(day),
+        ariaLabel: cellAriaLabel(input.locale, day),
       };
     });
 

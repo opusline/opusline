@@ -11,10 +11,18 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof PaymentTermsPicker>;
 
-function ControlledExample({ initial }: { initial: number }) {
+function ControlledExample({
+  initial,
+  variant,
+}: {
+  initial: number;
+  variant?: "default" | "inline";
+}) {
   const [days, setDays] = useState(initial);
 
-  return <PaymentTermsPicker onChange={setDays} value={days} />;
+  return (
+    <PaymentTermsPicker onChange={setDays} value={days} variant={variant} />
+  );
 }
 
 export const Default: Story = {
@@ -27,4 +35,12 @@ export const CustomTerm: Story = {
 
 export const CustomValue: Story = {
   args: { value: 90, onChange: () => {} },
+};
+
+export const Inline: Story = {
+  render: () => <ControlledExample initial={45} variant="inline" />,
+};
+
+export const InlineCustomTerm: Story = {
+  render: () => <ControlledExample initial={90} variant="inline" />,
 };

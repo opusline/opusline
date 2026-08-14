@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Cra\Actions;
 
-use App\Domain\Cra\Calendar\FrenchHolidays;
+use App\Domain\Cra\Calendar\Holidays;
 use App\Domain\Cra\Data\CraData;
 use App\Domain\Cra\Data\CraDayData;
 use App\Domain\Cra\Models\Cra;
@@ -29,7 +29,8 @@ class DescribeCra
 
         $reported = $this->keyedByDate($cra);
         $tracked = $this->materializeCraDays->handle($mission, $start);
-        $holidays = FrenchHolidays::between($start, $end);
+        $businessCountry = $cra->user->settingsOrFail()->business_country;
+        $holidays = Holidays::for($businessCountry)->between($start, $end);
 
         $days = [];
 

@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Domain\Settings\Data;
 
+use App\Domain\Settings\Enums\DateFormat;
+use App\Domain\Settings\Enums\Locale;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Shared\Data\MoneyData;
+use App\Domain\Shared\Enums\Currency;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Attributes\WithTransformer;
 use Spatie\LaravelData\Data;
@@ -31,6 +34,8 @@ class SettingsData extends Data
         public ?string $homeAddressLine2,
         public ?string $homePostalCode,
         public ?string $homeCity,
+        public string $businessCountry,
+        public bool $hasFrenchFiscality,
         public UrssafPeriodicity $urssafPeriodicity,
         public bool $autoRates,
         #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
@@ -49,10 +54,14 @@ class SettingsData extends Data
         public int $defaultPaymentTermsDays,
         public string $invoiceNumberFormat,
         public ?MoneyData $treasuryBuffer,
+        public Currency $currency,
+        public bool $currencyLocked,
+        public Locale $locale,
+        public DateFormat $dateFormat,
         public bool $hasSignature,
     ) {}
 
-    public static function fromModel(UserSettings $settings, bool $hasSignature): self
+    public static function fromModel(UserSettings $settings, bool $hasSignature, bool $currencyLocked): self
     {
         return new self(
             tradeName: $settings->trade_name,
@@ -70,6 +79,8 @@ class SettingsData extends Data
             homeAddressLine2: $settings->home_address_line2,
             homePostalCode: $settings->home_postal_code,
             homeCity: $settings->home_city,
+            businessCountry: $settings->business_country,
+            hasFrenchFiscality: $settings->hasFrenchFiscality(),
             urssafPeriodicity: $settings->urssaf_periodicity,
             autoRates: $settings->auto_rates,
             businessStartedOn: $settings->business_started_on,
@@ -89,6 +100,10 @@ class SettingsData extends Data
             treasuryBuffer: $settings->treasury_buffer_cents === null
                 ? null
                 : MoneyData::fromMoney($settings->treasury_buffer_cents),
+            currency: $settings->currency,
+            currencyLocked: $currencyLocked,
+            locale: $settings->locale,
+            dateFormat: $settings->date_format,
             hasSignature: $hasSignature,
         );
     }

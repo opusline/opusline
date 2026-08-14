@@ -1,11 +1,11 @@
 import type { ClientWithMissionsData } from "@opusline/api-client";
-import { currentUserQueryKey } from "@opusline/api-client/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 
 import { getRouter } from "@/router";
+import { seedCurrentUser } from "@/test/current-user";
 
 function client(
   overrides: Partial<ClientWithMissionsData>,
@@ -127,13 +127,14 @@ function stubApi(
   return requests;
 }
 
-async function renderNewMissionPage(path = "/missions/new") {
+async function renderNewMissionPage(
+  path = "/missions/new",
+  { hasFrenchFiscality = true } = {},
+) {
   window.history.replaceState(null, "", path);
   const router = getRouter();
-  router.options.context.queryClient.setQueryData(currentUserQueryKey(), {
-    id: 1,
-    name: "Theo",
-    email: "theo@example.com",
+  seedCurrentUser(router.options.context.queryClient, {
+    hasFrenchFiscality,
   });
 
   render(
@@ -275,6 +276,21 @@ it("formats the rate with French thousands grouping", async () => {
 
   expect(screen.getByLabelText("Tarif HT")).toHaveValue("4\u202f800");
   expect(screen.getByText(/4 800 €\/j/)).toBeInTheDocument();
+});
+
+it("keeps the URSSAF projection rows for a French business", async () => {
+  stubApi();
+  await renderNewMissionPage();
+
+  expect(screen.getByText(/Provision URSSAF/)).toBeInTheDocument();
+});
+
+it("stops the projection at the gross figure for a business abroad", async () => {
+  stubApi();
+  await renderNewMissionPage("/missions/new", { hasFrenchFiscality: false });
+
+  expect(screen.queryByText(/Provision URSSAF/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/Net estimé/)).not.toBeInTheDocument();
 });
 
 it("clears the rate when switching billing mode", async () => {

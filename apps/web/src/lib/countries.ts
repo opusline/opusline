@@ -51,10 +51,12 @@ const regionNames = new Intl.DisplayNames(["fr"], { type: "region" });
 
 export type CountrySuggestion = { id: string; label: string };
 
-const COUNTRIES: CountrySuggestion[] = REGION_CODES.map((code) => ({
-  id: code,
-  label: regionNames.of(code) ?? code,
-})).sort((left, right) => left.label.localeCompare(right.label, "fr"));
+export const COUNTRY_OPTIONS: CountrySuggestion[] = REGION_CODES.map(
+  (code) => ({
+    id: code,
+    label: regionNames.of(code) ?? code,
+  }),
+).sort((left, right) => left.label.localeCompare(right.label, "fr"));
 
 function fold(value: string): string {
   return value
@@ -70,7 +72,46 @@ export function searchCountries(query: string): CountrySuggestion[] {
     return [];
   }
 
-  return COUNTRIES.filter((country) =>
+  return COUNTRY_OPTIONS.filter((country) =>
     fold(country.label).startsWith(needle),
   ).slice(0, 8);
+}
+
+/**
+ * ISO codes, not VAT prefixes — Greece is GR here even though its VAT numbers
+ * start with EL. Gates the « TVA intracommunautaire » field and the TVA naming
+ * for businesses established abroad.
+ */
+const EU_VAT_COUNTRIES = new Set([
+  "AT",
+  "BE",
+  "BG",
+  "HR",
+  "CY",
+  "CZ",
+  "DK",
+  "EE",
+  "FI",
+  "FR",
+  "DE",
+  "GR",
+  "HU",
+  "IE",
+  "IT",
+  "LV",
+  "LT",
+  "LU",
+  "MT",
+  "NL",
+  "PL",
+  "PT",
+  "RO",
+  "SK",
+  "SI",
+  "ES",
+  "SE",
+]);
+
+export function hasEuVat(countryCode: string): boolean {
+  return EU_VAT_COUNTRIES.has(countryCode);
 }

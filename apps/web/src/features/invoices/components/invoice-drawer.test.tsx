@@ -31,14 +31,14 @@ it("dates the facts numerically", () => {
 it("shows amounts to the cent, unlike the list", () => {
   render(<InvoiceDrawer detail={detail} open onOpenChange={() => {}} />);
 
-  expect(fact("Montant HT")).toBe("510,00 €");
-  expect(fact("Total TTC")).toBe("612,00 €");
+  expect(fact("Montant HT")).toBe("510,00 €");
+  expect(fact("Total TTC")).toBe("612,00 €");
 });
 
 it("labels the TVA line with the rate the invoice was issued at", () => {
   render(<InvoiceDrawer detail={detail} open onOpenChange={() => {}} />);
 
-  expect(fact("TVA 20 %")).toBe("102,00 €");
+  expect(fact("TVA 20 %")).toBe("102,00 €");
 });
 
 it("dates the period across its whole span, not just its first day", () => {

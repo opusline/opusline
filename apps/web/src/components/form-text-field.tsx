@@ -6,6 +6,7 @@ import {
 } from "@opusline/ui/components/field";
 import { Input } from "@opusline/ui/components/input";
 import { Textarea } from "@opusline/ui/components/textarea";
+import { cn } from "@opusline/ui/lib/utils";
 import type * as React from "react";
 
 export type StringFieldApi = {
@@ -40,6 +41,10 @@ type FormTextFieldProps = {
   fieldClassName?: string;
   /** Id of extra text describing the control, announced after the description. */
   describedBy?: string;
+  /** Sizes the control (or its adorned wrapper) when something sits beside it. */
+  controlClassName?: string;
+  /** Rendered on the control's row, wrapping under it when space runs out. */
+  beside?: React.ReactNode;
 };
 
 export function FormTextField({
@@ -57,6 +62,8 @@ export function FormTextField({
   adornment,
   fieldClassName,
   describedBy,
+  controlClassName,
+  beside,
 }: FormTextFieldProps) {
   const isInvalid = !field.state.meta.isValid;
   const errorId = `${field.name}-error`;
@@ -72,7 +79,7 @@ export function FormTextField({
     "aria-invalid": isInvalid,
     "aria-describedby":
       [hint, describedBy].filter(Boolean).join(" ") || undefined,
-    className: inputClassName,
+    className: cn(inputClassName, adornment === undefined && controlClassName),
     disabled,
     id: field.name,
     inputMode,
@@ -90,19 +97,29 @@ export function FormTextField({
     <Input {...controlProps} font={font} type={type} />
   );
 
+  const adorned =
+    adornment === undefined ? (
+      control
+    ) : (
+      <div className={cn("relative", controlClassName)}>
+        {control}
+        <span className="-translate-y-1/2 pointer-events-none absolute top-1/2 right-3 text-muted-foreground-2 text-sm">
+          {adornment}
+        </span>
+      </div>
+    );
+
   return (
     <Field className={fieldClassName} data-invalid={isInvalid}>
       <FieldLabel className={labelClassName} htmlFor={field.name}>
         {label}
       </FieldLabel>
-      {adornment === undefined ? (
-        control
+      {beside === undefined ? (
+        adorned
       ) : (
-        <div className="relative">
-          {control}
-          <span className="-translate-y-1/2 pointer-events-none absolute top-1/2 right-3 text-muted-foreground-2 text-sm">
-            {adornment}
-          </span>
+        <div className="flex flex-wrap items-center gap-2.5">
+          {adorned}
+          {beside}
         </div>
       )}
       {isInvalid ? (

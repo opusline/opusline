@@ -125,46 +125,55 @@ export function AppSidebar() {
                   <span>Factures</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  isActive={pathname.startsWith("/revenus")}
-                  render={<Link to="/revenus" />}
-                  tooltip="Revenus"
-                >
-                  <ChartLine />
-                  <span>Revenus</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  isActive={pathname.startsWith("/virement")}
-                  render={<Link to="/virement" />}
-                  tooltip="Virement"
-                >
-                  <CreditCard />
-                  <span>Virement</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  isActive={pathname.startsWith("/echeances")}
-                  render={<Link to="/echeances" />}
-                  tooltip="Échéances"
-                >
-                  <Bell />
-                  <span>Échéances</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  isActive={pathname.startsWith("/declarations")}
-                  render={<Link to="/declarations" />}
-                  tooltip="Déclarations"
-                >
-                  <ClipboardList />
-                  <span>Déclarations</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {/*
+                The revenue/treasury/deadlines/declarations screens compute
+                URSSAF and TVA figures that only exist for a business
+                established in France; elsewhere they would just be wrong.
+              */}
+              {user.hasFrenchFiscality && (
+                <>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      isActive={pathname.startsWith("/revenus")}
+                      render={<Link to="/revenus" />}
+                      tooltip="Revenus"
+                    >
+                      <ChartLine />
+                      <span>Revenus</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      isActive={pathname.startsWith("/virement")}
+                      render={<Link to="/virement" />}
+                      tooltip="Virement"
+                    >
+                      <CreditCard />
+                      <span>Virement</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      isActive={pathname.startsWith("/echeances")}
+                      render={<Link to="/echeances" />}
+                      tooltip="Échéances"
+                    >
+                      <Bell />
+                      <span>Échéances</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      isActive={pathname.startsWith("/declarations")}
+                      render={<Link to="/declarations" />}
+                      tooltip="Déclarations"
+                    >
+                      <ClipboardList />
+                      <span>Déclarations</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </>
+              )}
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={pathname.startsWith("/reglages")}
@@ -178,24 +187,30 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <SidebarGroup className="mt-auto pb-3 group-data-[collapsible=icon]:hidden">
-          <SidebarGroupContent>
-            <Link
-              className="block rounded-lg border border-primary/30 bg-primary/10 px-3.5 py-3 transition-colors hover:bg-primary/15"
-              to="/virement"
-            >
-              <div className="font-medium text-ring/70 text-xs uppercase tracking-[.09em]">
-                Virable en sécurité
-              </div>
-              <div className="mt-2 font-mono text-2xl text-ring leading-none tabular-nums">
-                8 513 €
-              </div>
-              <div className="mt-1.5 text-muted-foreground text-xs">
-                provisions déduites
-              </div>
-            </Link>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {user.hasFrenchFiscality && (
+          <SidebarGroup className="mt-auto pb-3 group-data-[collapsible=icon]:hidden">
+            <SidebarGroupContent>
+              <Link
+                className="block rounded-lg border border-primary/30 bg-primary/10 px-3.5 py-3 transition-colors hover:bg-primary/15"
+                to="/virement"
+              >
+                {/*
+                No treasury endpoint exists yet — the figure arrives with the
+                Trésorerie screen. A dash keeps the tile honest until then.
+              */}
+                <div className="font-medium text-ring/70 text-xs uppercase tracking-[.09em]">
+                  Virable en sécurité
+                </div>
+                <div className="mt-2 font-mono text-2xl text-ring leading-none tabular-nums">
+                  —
+                </div>
+                <div className="mt-1.5 text-muted-foreground text-xs">
+                  provisions déduites
+                </div>
+              </Link>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
       <SidebarFooter className="border-sidebar-border border-t p-0 group-data-[collapsible=icon]:p-2">
         <SidebarMenu>

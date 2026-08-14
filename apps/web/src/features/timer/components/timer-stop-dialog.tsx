@@ -11,7 +11,7 @@ import { Input } from "@opusline/ui/components/input";
 import { Kbd } from "@opusline/ui/components/kbd";
 import { Label } from "@opusline/ui/components/label";
 import { useId } from "react";
-
+import { useMoneyFormat } from "@/components/money-format-provider";
 import { matchingNotes, NoteSuggestions } from "@/components/note-suggestions";
 import { formatAmountWithCents } from "@/lib/billing";
 import { formatDurationInput, formatWorkedTime } from "@/lib/durations";
@@ -89,6 +89,7 @@ export function TimerStopDialog({
   options,
   selectedKey,
 }: TimerStopDialogProps) {
+  const format = useMoneyFormat();
   const billableId = useId();
   const noteId = useId();
 
@@ -139,7 +140,7 @@ export function TimerStopDialog({
                     key={minutes}
                     onClick={() =>
                       onCorrectDuration(
-                        formatDurationInput(minutes, {
+                        formatDurationInput(format.locale, minutes, {
                           billingMode: HOURLY_BILLING,
                           workdayMinutes,
                         }),
@@ -250,7 +251,7 @@ export function TimerStopDialog({
             <span className="font-mono text-primary-text text-sm tabular-nums">
               {selected.amountCents === null || !billable
                 ? NOT_BILLABLE_VALUE
-                : formatAmountWithCents(selected.amountCents)}
+                : formatAmountWithCents(format, selected.amountCents)}
             </span>
           </div>
 

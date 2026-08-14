@@ -3,6 +3,7 @@ import { Button } from "@opusline/ui/components/button";
 import { Switch } from "@opusline/ui/components/switch";
 import { PenLineIcon } from "lucide-react";
 
+import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatMissionRate } from "@/lib/billing";
 import { calendarDateLabel, todayCalendarDate } from "@/lib/dates";
 import { monthTitle } from "@/lib/months";
@@ -64,6 +65,7 @@ export function CraDocument({
   onApplySignatureChange,
   onOpenSignatureSettings,
 }: CraDocumentProps) {
+  const format = useMoneyFormat();
   const { cra, client, mission, recipientName } = detail;
   const issuerName = settings.tradeName ?? issuerFallbackName;
 
@@ -125,7 +127,7 @@ export function CraDocument({
           </span>
           <span>
             <span style={{ color: PAPER.faint }}>TJM :</span>{" "}
-            {formatMissionRate(mission)}
+            {formatMissionRate(format, mission)}
           </span>
         </div>
 

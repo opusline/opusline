@@ -15,6 +15,10 @@ import { Label } from "@opusline/ui/components/label";
 import { useEffect, useId, useState } from "react";
 
 import {
+  useDateFormat,
+  useMoneyFormat,
+} from "@/components/money-format-provider";
+import {
   formatAmount,
   formatAmountWithCents,
   parseRateToCents,
@@ -90,11 +94,13 @@ function CreateInvoiceForm({
   error: string | null;
   onSubmit: (input: CreateInvoiceSubmit) => void;
 }) {
+  const format = useMoneyFormat();
+  const dateFormat = useDateFormat();
   const numberFieldId = useId();
   const amountFieldId = useId();
   const [number, setNumber] = useState("");
   const [amountDraft, setAmountDraft] = useState(() =>
-    formatAmount(todo.amount.amount),
+    formatAmount(format, todo.amount.amount),
   );
 
   // The suggestion arrives after the dialog opens, and must not overwrite typing.
@@ -104,7 +110,7 @@ function CreateInvoiceForm({
     }
   }, [suggestedNumber]);
 
-  const amountHtCents = parseRateToCents(amountDraft);
+  const amountHtCents = parseRateToCents(format.locale, amountDraft);
   const canSubmit = amountHtCents !== null && !isSaving;
 
   return (
@@ -129,7 +135,9 @@ function CreateInvoiceForm({
     >
       <DialogHeader>
         <DialogTitle>Créer la facture</DialogTitle>
-        <DialogDescription>{unbilledWorkTitle(work)}</DialogDescription>
+        <DialogDescription>
+          {unbilledWorkTitle(format.locale, work)}
+        </DialogDescription>
       </DialogHeader>
 
       <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-3 border-t pt-4">
@@ -137,11 +145,17 @@ function CreateInvoiceForm({
         <Fact label="Mission" value={work.missionName} tone="text" />
         <Fact
           label="Période"
-          value={calendarRangeLabel(work.firstEntryOn, work.lastEntryOn) ?? "—"}
+          value={
+            calendarRangeLabel(
+              dateFormat,
+              work.firstEntryOn,
+              work.lastEntryOn,
+            ) ?? "—"
+          }
         />
         <Fact
           label="Valeur du temps"
-          value={formatAmountWithCents(todo.amount.amount)}
+          value={formatAmountWithCents(format, todo.amount.amount)}
         />
       </dl>
 

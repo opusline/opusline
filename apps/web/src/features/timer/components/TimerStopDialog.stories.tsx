@@ -10,11 +10,13 @@ import { TimerStopDialog } from "./timer-stop-dialog";
 
 const halfDayMission = { ...DEMO_MISSIONS.ogf, rounding: 0 as const };
 const { options: dailyOptions } = stopChoices(
+  "fr-FR",
   DEMO_ELAPSED_SECONDS,
   halfDayMission,
   DEMO_WORKDAY_MINUTES,
 );
 const { options: hourlyOptions } = stopChoices(
+  "fr-FR",
   DEMO_ELAPSED_SECONDS,
   DEMO_MISSIONS.hartprint,
   DEMO_WORKDAY_MINUTES,

@@ -13,7 +13,7 @@ use Carbon\CarbonImmutable;
  * out: nothing we store says where the user works, and non-working days on a CRA are
  * contractual anyway — the grid stays clickable either way.
  */
-class FrenchHolidays
+class FrenchHolidays implements HolidayProvider
 {
     /** @var array<int, array<string, string>> */
     private static array $byYear = [];
@@ -23,9 +23,9 @@ class FrenchHolidays
      *
      * @return array<string, string>
      */
-    public static function forYear(int $year): array
+    public function forYear(int $year): array
     {
-        return self::$byYear[$year] ??= self::compute($year);
+        return self::$byYear[$year] ??= $this->compute($year);
     }
 
     /**
@@ -33,12 +33,12 @@ class FrenchHolidays
      *
      * @return array<string, string>
      */
-    public static function between(CarbonImmutable $from, CarbonImmutable $to): array
+    public function between(CarbonImmutable $from, CarbonImmutable $to): array
     {
         $holidays = [];
 
         foreach (range($from->year, $to->year) as $year) {
-            $holidays += self::forYear($year);
+            $holidays += $this->forYear($year);
         }
 
         return array_filter(
@@ -51,9 +51,9 @@ class FrenchHolidays
     /**
      * @return array<string, string>
      */
-    private static function compute(int $year): array
+    private function compute(int $year): array
     {
-        $easter = self::easter($year);
+        $easter = $this->easter($year);
 
         $holidays = [
             sprintf('%d-01-01', $year) => 'Jour de l\'an',
@@ -81,7 +81,7 @@ class FrenchHolidays
      * the FrankenPHP binary this app runs under bundles, so it would fail at request
      * time rather than at boot.
      */
-    private static function easter(int $year): CarbonImmutable
+    private function easter(int $year): CarbonImmutable
     {
         $a = $year % 19;
         $b = intdiv($year, 100);
