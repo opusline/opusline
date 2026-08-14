@@ -16,6 +16,29 @@ export function isFrenchFiscalityCountry(countryCode: string): boolean {
   return countryCode === FRENCH_FISCALITY_COUNTRY;
 }
 
+/**
+ * What the default rate is called for a business abroad: the exact « TVA »
+ * inside the EU, a neutral term outside it. One derivation so the tab hint,
+ * the section title and the field never drift apart.
+ */
+export function abroadTaxTerms(isEuVat: boolean): {
+  name: string;
+  rateLabel: string;
+  zeroHint: string;
+} {
+  return isEuVat
+    ? {
+        name: "TVA",
+        rateLabel: "TVA par défaut",
+        zeroHint: "Mettez 0 si vous ne facturez pas de TVA.",
+      }
+    : {
+        name: "Taxe sur les ventes",
+        rateLabel: "Taux de taxe par défaut",
+        zeroHint: "Mettez 0 si vous ne facturez pas de taxe.",
+      };
+}
+
 export const URSSAF_PERIODICITIES: UrssafPeriodicity[] = [0, 1];
 
 export const URSSAF_PERIODICITY_LABELS: Record<UrssafPeriodicity, string> = {

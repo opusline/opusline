@@ -79,7 +79,7 @@ export function FormTextField({
     "aria-invalid": isInvalid,
     "aria-describedby":
       [hint, describedBy].filter(Boolean).join(" ") || undefined,
-    className: inputClassName,
+    className: cn(inputClassName, adornment === undefined && controlClassName),
     disabled,
     id: field.name,
     inputMode,

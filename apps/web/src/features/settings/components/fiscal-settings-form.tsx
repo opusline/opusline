@@ -21,6 +21,7 @@ import { Switch } from "@opusline/ui/components/switch";
 import { FormTextField } from "@/components/form-text-field";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import {
+  abroadTaxTerms,
   URSSAF_PERIODICITIES,
   URSSAF_PERIODICITY_LABELS,
   VAT_REGIME_DETAILS,
@@ -71,7 +72,7 @@ export function FiscalSettingsForm({
             <div className="mb-1 text-muted-foreground-2 text-xs">
               Charges provisionnées
             </div>
-            <div className="font-mono text-[22px] text-primary-text leading-none tabular-nums">
+            <div className="font-mono text-primary-text text-xl leading-none tabular-nums">
               {formatRateBp(format.locale, effectiveContributionRateBp)} %
             </div>
           </div>
@@ -237,6 +238,7 @@ export function FiscalAbroadPanel({
   isEuVat: boolean;
 }) {
   const format = useMoneyFormat();
+  const terms = abroadTaxTerms(isEuVat);
 
   return (
     <>
@@ -257,7 +259,7 @@ export function FiscalAbroadPanel({
       <SettingsSection
         className="mt-4"
         description="Taux appliqué par défaut aux nouvelles factures."
-        title={isEuVat ? "TVA" : "Taxe sur les ventes"}
+        title={terms.name}
       >
         <form.Field
           name="defaultVatRate"
@@ -266,16 +268,12 @@ export function FiscalAbroadPanel({
           {(field) => (
             <FormTextField
               adornment="%"
-              description={
-                isEuVat
-                  ? "Mettez 0 si vous ne facturez pas de TVA."
-                  : "Mettez 0 si vous ne facturez pas de taxe."
-              }
+              description={terms.zeroHint}
               field={field}
               fieldClassName="max-w-45"
               font="mono"
               inputMode="decimal"
-              label={isEuVat ? "TVA par défaut" : "Taux de taxe par défaut"}
+              label={terms.rateLabel}
               labelClassName="text-foreground-3 text-sm"
             />
           )}

@@ -10,6 +10,7 @@ import { useEffect, useMemo } from "react";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { hasEuVat } from "@/lib/countries";
+import { abroadTaxTerms } from "@/lib/fiscality";
 import type { FormSubmitResult } from "@/lib/form";
 import {
   countChanges,
@@ -108,9 +109,7 @@ export function SettingsPage({
   const isEuVat = hasEuVat(settings.businessCountry);
   const fiscaliteHint = settings.hasFrenchFiscality
     ? SETTINGS_TAB_DETAILS.fiscalite.hint
-    : isEuVat
-      ? "TVA"
-      : "Taxe sur les ventes";
+    : abroadTaxTerms(isEuVat).name;
 
   return (
     <div>

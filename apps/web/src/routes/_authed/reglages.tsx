@@ -222,10 +222,13 @@ function ReglagesRoute() {
         });
       }
 
-      if (draft.businessCountry !== savedLocalisation.businessCountry) {
-        // Holiday greying, fiscal screens and anything else the server derives
-        // from the country is cached under many keys; a country move is rare
-        // enough to just mark everything stale.
+      if (
+        draft.businessCountry !== savedLocalisation.businessCountry ||
+        draft.currency !== savedLocalisation.currency
+      ) {
+        // Holiday greying, fiscal screens and every server-denominated amount
+        // hang off the country or the currency, cached under many keys; both
+        // moves are rare enough to just mark everything stale.
         void queryClient.invalidateQueries();
       }
     } catch (error) {
