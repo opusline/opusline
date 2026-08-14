@@ -19,10 +19,16 @@ import {
 import type { SettingsForm } from "../lib/use-settings-form";
 import { SettingsSection } from "./settings-section";
 
-// Half-hour steps from 5 h to 10 h; an off-list saved value is offered too.
+const WORKDAY_MIN_MINUTES = 300;
+const WORKDAY_MAX_MINUTES = 600;
+const WORKDAY_STEP_MINUTES = 30;
+
 const WORKDAY_OPTIONS = Array.from(
-  { length: 11 },
-  (_, step) => 300 + step * 30,
+  {
+    length:
+      (WORKDAY_MAX_MINUTES - WORKDAY_MIN_MINUTES) / WORKDAY_STEP_MINUTES + 1,
+  },
+  (_, step) => WORKDAY_MIN_MINUTES + step * WORKDAY_STEP_MINUTES,
 );
 
 function workdayOptions(saved: number): number[] {

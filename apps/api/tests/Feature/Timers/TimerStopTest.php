@@ -133,16 +133,19 @@ test('rejects a duration beyond what the timer measured', function (): void {
     $user = User::factory()->create();
     $mission = missionOwnedBy($user, fn ($factory) => $factory->hourly());
     // Banked exactly one hour: the coarsest offered increment leaves 90 minutes out of reach.
-    RunningTimer::factory()->for($mission, 'mission')->paused()->create(['user_id' => $user->id]);
+    $timer = RunningTimer::factory()->for($mission, 'mission')->paused()->create(['user_id' => $user->id]);
 
     $this->actingAs($user)
         ->postJson('/api/timer/stop', ['date' => '2026-08-03', 'durationMinutes' => 90, 'note' => null])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['durationMinutes']);
 
-    // Nothing tracked may be lost: the refused stop has to leave the timer behind.
+    // Nothing tracked may be lost: the refused stop has to leave the timer
+    // behind, untouched — still paused, with the banked hour intact.
     $this->assertDatabaseCount('running_timers', 1);
     $this->assertDatabaseCount('time_entries', 0);
+    expect($timer->refresh()->accumulated_seconds)->toBe(3_600)
+        ->and($timer->isPaused())->toBeTrue();
 });
 
 test('allows rounding the duration up to the next billing increment', function (): void {

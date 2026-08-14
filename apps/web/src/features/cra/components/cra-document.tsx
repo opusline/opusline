@@ -5,7 +5,7 @@ import { PenLineIcon } from "lucide-react";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatMissionRate } from "@/lib/billing";
-import { browserTodayCalendarDate, calendarDateLabel } from "@/lib/dates";
+import { accountTodayCalendarDate, calendarDateLabel } from "@/lib/dates";
 import { monthTitle } from "@/lib/months";
 import { PAPER } from "@/lib/paper";
 
@@ -29,8 +29,8 @@ type CraDocumentProps = {
  * Mirrors RenderCraPdf::placeAndDate() — the signature block on paper carries the date
  * as well as the city, and still carries the date when no city is set.
  */
-function placeAndDate(city: string | null): string {
-  const today = calendarDateLabel(browserTodayCalendarDate());
+function placeAndDate(city: string | null, timezone: string): string {
+  const today = calendarDateLabel(accountTodayCalendarDate(timezone));
 
   return city === null ? ` · le ${today}` : ` · fait à ${city}, le ${today}`;
 }
@@ -228,7 +228,7 @@ export function CraDocument({
             <div className="font-semibold">Le prestataire</div>
             <div className="mt-0.5" style={{ color: PAPER.faint }}>
               {issuerName}
-              {placeAndDate(settings.signatureCity)}
+              {placeAndDate(settings.signatureCity, settings.timezone)}
             </div>
             <div
               className="mt-1.5 flex h-13 items-end"

@@ -123,8 +123,20 @@ export const Running: Story = {
   render: () => <Example timerState={runningTimer} />,
 };
 
-/*
- * No Paused story yet: the paused chip renders the mission name in
- * muted-foreground-3 on card-2 (4.33:1), which fails the a11y suite.
- * Story it once the paused chip color clears WCAG AA.
- */
+const pausedTimer: TimerStateData = {
+  timer: {
+    id: 2,
+    missionId: 1,
+    missionName: "Callisto front",
+    missionColor: 0,
+    state: 1,
+    startedAt: new Date(Date.now() - 42 * 60_000).toISOString(),
+    elapsedSeconds: 25 * 60,
+    note: null,
+  },
+  lastMissionId: 1,
+};
+
+export const Paused: Story = {
+  render: () => <Example timerState={pausedTimer} />,
+};

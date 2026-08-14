@@ -6,7 +6,8 @@ context for Claude Code to plan from — but always plan first, confirm, then bu
 
 French fiscal terms are kept in French on purpose (CRA, URSSAF, TVA, micro-BNC…) —
 they are domain vocabulary, not translatable. Amounts are stored in the account's
-currency (EUR default).
+single currency (`user_settings.currency`; mission and invoice rows persist the
+same code, enforced by the AccountCurrency rule).
 
 Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c831d?file=Opusline.dc.html
 
@@ -23,8 +24,10 @@ Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c83
   come from the API. One custom spatie/laravel-data Cast/Transformer for Money,
   written once (invoices step), reused everywhere.
 - **Rates & percentages** (TVA, URSSAF, versement libératoire…): stored as exact
-  decimals (basis points integer, or decimal string fed to brick/math (don't use bric/math, the package is too new, find something else)) — 
-  never float.
+  integers in basis points (`*_bp` columns) — never float. No decimal-math
+  package is needed for this; should one ever be, brick/math is already in the
+  tree transitively and would first need declaring as a direct dependency in
+  `apps/api/composer.json`.
   User-editable settings, seeded with current defaults, never hardcoded in logic.
 - **Billing mode lives on the mission** (`daily` = TJM | `hourly`). It drives
   validation rules, how entries are valued, and week-view cell UI. Entries never
@@ -45,10 +48,11 @@ Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c83
   later.
 
 - [x] **Time entries (manual first)**
-  Entry: date, mission, quantity in the mission's unit (day_fraction for TJM —
-  TJM freelances think in days, not hours — duration_minutes for hourly), optional
-  note. Schema per cross-cutting decisions above. CRUD + day view rendering each
-  entry in its natural unit ("0,5 j" vs "3h30").
+  Entry: date, mission, `duration_minutes` (the one stored field for both modes),
+  optional note. TJM entries display a day fraction derived from
+  `workday_minutes` and the rounding — TJM freelances think in days, not hours —
+  hourly entries display hours. Schema per cross-cutting decisions above. CRUD +
+  day view rendering each entry in its natural unit ("0,5 j" vs "3h30").
 
 - [x] **Week view**
   THE core screen. Week grid (days × missions), typed search params (`?week=2026-W31`),

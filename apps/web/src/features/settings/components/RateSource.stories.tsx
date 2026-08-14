@@ -65,8 +65,7 @@ export const RefreshError: Story = {
   ),
 };
 
-/** The situation changed but is not saved yet — the refresh is held back. */
-export const UnsavedSituation: Story = {
+export const RefreshHeldWhileUnsaved: Story = {
   render: () => <Example savedAcre={!settingsFixture.acre} />,
 };
 

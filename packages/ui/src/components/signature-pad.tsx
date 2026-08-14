@@ -42,11 +42,11 @@ type SignaturePadProps = {
   drawnLabel: string;
   /** Which input method the pad opens on; the toggle can always switch. */
   defaultMode?: SignatureMode;
-  modeToggleLabel?: string;
-  drawModeLabel?: string;
-  typeModeLabel?: string;
-  typedLabel?: string;
-  typedPlaceholder?: string;
+  modeToggleLabel: string;
+  drawModeLabel: string;
+  typeModeLabel: string;
+  typedLabel: string;
+  typedPlaceholder: string;
   onDrawingChange?: (hasDrawing: boolean) => void;
   ref?: Ref<SignaturePadHandle>;
 };
@@ -134,11 +134,11 @@ export function SignaturePad({
   placeholder,
   drawnLabel,
   defaultMode = "draw",
-  modeToggleLabel = "Méthode de signature",
-  drawModeLabel = "Dessiner",
-  typeModeLabel = "Saisir au clavier",
-  typedLabel = "Nom apposé comme signature",
-  typedPlaceholder = "Votre nom",
+  modeToggleLabel,
+  drawModeLabel,
+  typeModeLabel,
+  typedLabel,
+  typedPlaceholder,
   onDrawingChange,
   ref,
 }: SignaturePadProps) {
@@ -202,9 +202,10 @@ export function SignaturePad({
   }, [repaint]);
 
   useEffect(() => {
-    // The canvas does not reflow when Lora finishes loading, so the first
-    // typed paint may land in the fallback serif; repaint once fonts settle.
-    void document.fonts?.ready.then(() => repaintRef.current());
+    // fonts.ready alone is not enough: it resolves without fetching a face
+    // nothing has used yet, and the first typed paint would keep the fallback
+    // serif. Loading the face explicitly makes the repaint land in Lora.
+    void document.fonts?.load(typedFont(16)).then(() => repaintRef.current());
 
     const observer = new MutationObserver(() => repaintRef.current());
 
@@ -254,8 +255,11 @@ export function SignaturePad({
         repaint();
         markDrawing(false);
       },
-      toBlob: () =>
-        new Promise<Blob | null>((resolve) => {
+      toBlob: async () => {
+        // The export re-rasterizes; make sure the typed face is loaded first.
+        await document.fonts?.load(typedFont(16)).catch(() => undefined);
+
+        return new Promise<Blob | null>((resolve) => {
           const canvas = canvasRef.current;
 
           if (canvas === null) {
@@ -300,7 +304,8 @@ export function SignaturePad({
           }
 
           printable.toBlob(resolve, "image/png");
-        }),
+        });
+      },
     }),
     [markDrawing, repaint, mode, typedName],
   );

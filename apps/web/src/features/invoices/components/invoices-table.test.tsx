@@ -34,7 +34,9 @@ it("shows the API's per-client total for the shown scope, verbatim", () => {
     <InvoicesTable
       accountToday="2026-08-14"
       clientTotals={[
-        clientTotals(1, { all: { amount: 150_050, currency: "EUR" } }),
+        // Deliberately not the sum of the rows below: the rendered figure must
+        // be the API's, not a re-addition.
+        clientTotals(1, { all: { amount: 160_000, currency: "EUR" } }),
       ]}
       invoices={[
         invoiceItem({ id: 1, amountTtc: { amount: 100_000, currency: "EUR" } }),
@@ -43,8 +45,8 @@ it("shows the API's per-client total for the shown scope, verbatim", () => {
     />,
   );
 
-  // The screen never adds the rows itself: money arithmetic stays on the API.
-  expect(screen.getByText("1 501 €")).toBeInTheDocument();
+  expect(screen.getByText("1 600 €")).toBeInTheDocument();
+  expect(screen.queryByText("1 501 €")).not.toBeInTheDocument();
 });
 
 it("counts an overdue invoice under both Envoyées and En retard", () => {

@@ -17,9 +17,14 @@ export const Default: Story = {
   render: () => (
     <div className="max-w-2xl">
       <SignaturePad
+        drawModeLabel="Draw"
         drawnLabel="Signature drawn"
         label="Signature area"
+        modeToggleLabel="Signature method"
         placeholder="Draw your signature here"
+        typedLabel="Name used as signature"
+        typeModeLabel="Type instead"
+        typedPlaceholder="Your name"
       />
     </div>
   ),
@@ -35,9 +40,14 @@ export const TypedMode: Story = {
     <div className="max-w-2xl">
       <SignaturePad
         defaultMode="type"
+        drawModeLabel="Draw"
         drawnLabel="Signature drawn"
         label="Signature area"
+        modeToggleLabel="Signature method"
         placeholder="Draw your signature here"
+        typedLabel="Name used as signature"
+        typeModeLabel="Type instead"
+        typedPlaceholder="Your name"
       />
     </div>
   ),
@@ -52,9 +62,14 @@ export const WithActions: Story = {
     return (
       <div className="flex max-w-2xl flex-col gap-3.5">
         <SignaturePad
+          drawModeLabel="Draw"
           drawnLabel="Signature drawn"
           label="Signature area"
+          modeToggleLabel="Signature method"
           placeholder="Draw your signature here"
+          typedLabel="Name used as signature"
+          typeModeLabel="Type instead"
+          typedPlaceholder="Your name"
           onDrawingChange={setHasDrawing}
           ref={padRef}
         />

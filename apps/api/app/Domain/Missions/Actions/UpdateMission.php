@@ -9,6 +9,7 @@ use App\Domain\Missions\Data\UpdateMissionData;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Validation\AccountCurrency;
+use App\Domain\Users\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class UpdateMission
@@ -17,9 +18,14 @@ class UpdateMission
 
     public function handle(Client $client, Mission $mission, UpdateMissionData $data): Mission
     {
-        $this->validateMission->handle($client, $data, $mission);
-
         return DB::transaction(function () use ($client, $mission, $data): Mission {
+            // Same user-row lock as CreateTimeEntry, taken before validating:
+            // otherwise a concurrent first entry could land between the
+            // billing-mode immutability check and the write.
+            User::query()->whereKey($mission->user_id)->lockForUpdate()->firstOrFail();
+
+            $this->validateMission->handle($client, $data, $mission);
+
             if ($data->rate instanceof MoneyData) {
                 AccountCurrency::assertMatchesAccountUnderLock($mission->user_id, $data->rate);
             }

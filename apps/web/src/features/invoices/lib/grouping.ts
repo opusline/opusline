@@ -84,7 +84,6 @@ export type InvoiceGroup = {
 };
 
 /**
- * The screen reads by client, so the rows are grouped the way they are read.
  * Totals come from the API's clientTotals verbatim — the frontend never does
  * money arithmetic — and are gross: what is owed, not what gets declared.
  */

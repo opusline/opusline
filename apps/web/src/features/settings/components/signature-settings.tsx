@@ -107,9 +107,14 @@ export function SignatureSettings({
       ) : (
         <div>
           <SignaturePad
+            drawModeLabel="Dessiner"
             drawnLabel="Signature tracée"
             label="Zone de signature"
+            modeToggleLabel="Méthode de signature"
             placeholder="Tracez votre signature ici"
+            typedLabel="Nom apposé comme signature"
+            typeModeLabel="Saisir au clavier"
+            typedPlaceholder="Votre nom"
             onDrawingChange={setHasDrawing}
             ref={padRef}
           />

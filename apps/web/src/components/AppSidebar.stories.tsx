@@ -44,7 +44,6 @@ export const Default: Story = {
   render: () => <Example />,
 };
 
-/** Without French fiscality the revenue screens and the treasury tile disappear. */
-export const WithoutFrenchFiscality: Story = {
+export const FiscalNavigationHidden: Story = {
   render: () => <Example user={{ hasFrenchFiscality: false }} />,
 };
