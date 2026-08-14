@@ -108,7 +108,7 @@ function ActivityField({
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between gap-2">
-        <Label className="text-muted-foreground-3 text-xs" htmlFor={fieldId}>
+        <Label tone="quiet" htmlFor={fieldId}>
           Activité
         </Label>
         {durationLabel !== null && (

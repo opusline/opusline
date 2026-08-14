@@ -22,7 +22,7 @@ export function TimerStartPopover({
 }: TimerStartPopoverProps) {
   return (
     <div className="flex flex-col">
-      <p className="px-2.5 pt-2.5 pb-3 font-medium text-muted-foreground-3 text-xs uppercase tracking-[0.09em]">
+      <p className="px-2.5 pt-2.5 pb-3 font-medium text-muted-foreground-3 text-xs uppercase tracking-wider-2">
         {START_TITLE}
       </p>
 

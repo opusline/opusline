@@ -77,11 +77,12 @@ it("never produces a quarter, which only tracked time can", () => {
 });
 
 it("shows a quarter faithfully when tracked time reports one", () => {
-  expect(formatDayFraction(2_500)).toBe("0,25");
+  expect(formatDayFraction("fr-FR", 2_500)).toBe("0,25");
+  expect(formatDayFraction("en-US", 2_500)).toBe("0.25");
 });
 
 it("says nothing at all on a day not worked", () => {
-  expect(formatDayFraction(0)).toBe("");
+  expect(formatDayFraction("fr-FR", 0)).toBe("");
 });
 
 it("replaces a single day without disturbing the rest", () => {

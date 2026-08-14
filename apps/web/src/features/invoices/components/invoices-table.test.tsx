@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
-import { invoiceItem, secondClient } from "../lib/fixtures";
+import { clientTotals, invoiceItem, secondClient } from "../lib/fixtures";
 import { InvoicesTable } from "./invoices-table";
 
 const invoices = [
@@ -14,16 +14,30 @@ const invoices = [
   ),
 ];
 
+const totals = [clientTotals(1), clientTotals(2)];
+
 it("groups rows under the client they are filed against", () => {
-  render(<InvoicesTable invoices={invoices} />);
+  render(
+    <InvoicesTable
+      accountToday="2026-08-14"
+      clientTotals={totals}
+      invoices={invoices}
+    />,
+  );
 
   expect(screen.getByText("HartPrint")).toBeInTheDocument();
   expect(screen.getByText("OGF")).toBeInTheDocument();
 });
 
-it("totals each client group on the gross amount", () => {
+it("shows the API's per-client total for the shown scope, verbatim", () => {
   render(
     <InvoicesTable
+      accountToday="2026-08-14"
+      clientTotals={[
+        // Deliberately not the sum of the rows below: the rendered figure must
+        // be the API's, not a re-addition.
+        clientTotals(1, { all: { amount: 160_000, currency: "EUR" } }),
+      ]}
       invoices={[
         invoiceItem({ id: 1, amountTtc: { amount: 100_000, currency: "EUR" } }),
         invoiceItem({ id: 2, amountTtc: { amount: 50_050, currency: "EUR" } }),
@@ -31,11 +45,18 @@ it("totals each client group on the gross amount", () => {
     />,
   );
 
-  expect(screen.getByText("1 501 €")).toBeInTheDocument();
+  expect(screen.getByText("1 600 €")).toBeInTheDocument();
+  expect(screen.queryByText("1 501 €")).not.toBeInTheDocument();
 });
 
 it("counts an overdue invoice under both Envoyées and En retard", () => {
-  render(<InvoicesTable invoices={invoices} />);
+  render(
+    <InvoicesTable
+      accountToday="2026-08-14"
+      clientTotals={totals}
+      invoices={invoices}
+    />,
+  );
 
   // Lateness is derived from the due date, not a fourth status.
   expect(
@@ -47,7 +68,13 @@ it("counts an overdue invoice under both Envoyées and En retard", () => {
 });
 
 it("narrows the rows to the chosen filter", () => {
-  render(<InvoicesTable invoices={invoices} />);
+  render(
+    <InvoicesTable
+      accountToday="2026-08-14"
+      clientTotals={totals}
+      invoices={invoices}
+    />,
+  );
 
   fireEvent.click(screen.getByRole("button", { name: "Brouillons (1)" }));
 
@@ -56,7 +83,13 @@ it("narrows the rows to the chosen filter", () => {
 });
 
 it("explains an empty filter differently from an empty account", () => {
-  render(<InvoicesTable invoices={invoices} />);
+  render(
+    <InvoicesTable
+      accountToday="2026-08-14"
+      clientTotals={totals}
+      invoices={invoices}
+    />,
+  );
 
   fireEvent.click(screen.getByRole("button", { name: "Payées (1)" }));
   const paid = screen.getByText("OGF");
@@ -64,7 +97,9 @@ it("explains an empty filter differently from an empty account", () => {
     within(paid.closest("section") as HTMLElement).getByText("2026-009"),
   ).toBeInTheDocument();
 
-  render(<InvoicesTable invoices={[]} />);
+  render(
+    <InvoicesTable accountToday="2026-08-14" clientTotals={[]} invoices={[]} />,
+  );
   expect(
     screen.getByText(/Ajoutez-en une pour suivre ce qui est facturé/),
   ).toBeInTheDocument();
@@ -73,6 +108,8 @@ it("explains an empty filter differently from an empty account", () => {
 it("says how long a client actually takes to pay, from its paid invoices", () => {
   render(
     <InvoicesTable
+      accountToday="2026-08-14"
+      clientTotals={totals}
       invoices={[
         invoiceItem({
           id: 1,
@@ -95,7 +132,13 @@ it("says how long a client actually takes to pay, from its paid invoices", () =>
 });
 
 it("leaves the average out until something has been paid", () => {
-  render(<InvoicesTable invoices={[invoiceItem({ id: 1, status: 1 })]} />);
+  render(
+    <InvoicesTable
+      accountToday="2026-08-14"
+      clientTotals={totals}
+      invoices={[invoiceItem({ id: 1, status: 1 })]}
+    />,
+  );
 
   expect(screen.queryByText(/en moyenne pour payer/)).not.toBeInTheDocument();
 });
@@ -103,6 +146,8 @@ it("leaves the average out until something has been paid", () => {
 it("tells each row why its status matters", () => {
   render(
     <InvoicesTable
+      accountToday="2026-08-14"
+      clientTotals={totals}
       invoices={[
         invoiceItem({
           id: 1,
@@ -120,7 +165,14 @@ it("tells each row why its status matters", () => {
 
 it("opens the invoice it was asked to open", () => {
   const onOpen = vi.fn();
-  render(<InvoicesTable invoices={[invoiceItem({ id: 7 })]} onOpen={onOpen} />);
+  render(
+    <InvoicesTable
+      accountToday="2026-08-14"
+      clientTotals={totals}
+      invoices={[invoiceItem({ id: 7 })]}
+      onOpen={onOpen}
+    />,
+  );
 
   fireEvent.click(screen.getByRole("button", { name: /Refonte catalogue/ }));
 

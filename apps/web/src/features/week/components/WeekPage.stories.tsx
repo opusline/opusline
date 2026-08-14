@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-
+import { StoryRouter } from "@/test/story-router";
 import {
   DEMO_CLIENTS,
   DEMO_TIME_ENTRIES,
@@ -39,9 +39,11 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <div className="p-6">
-        <Story />
-      </div>
+      <StoryRouter>
+        <div className="p-6">
+          <Story />
+        </div>
+      </StoryRouter>
     ),
   ],
 } satisfies Meta<typeof WeekPage>;

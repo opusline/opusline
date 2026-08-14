@@ -42,13 +42,14 @@ class SummarizeInvoices
 
     public function handle(User $user, SummarizeInvoicesData $data): InvoiceSummaryData
     {
-        $month = CarbonImmutable::parse(($data->month ?? CarbonImmutable::today()->format('Y-m')).'-01');
-        $today = CarbonImmutable::today();
-        $currency = $user->settingsOrFail()->currency;
+        $settings = $user->settingsOrFail();
+        $today = $settings->today();
+        $month = CarbonImmutable::parse(($data->month ?? $today->format('Y-m')).'-01');
+        $currency = $settings->currency;
 
         $outstanding = $this->outstanding($user);
         $overdue = $outstanding->filter(fn (Invoice $invoice): bool => $invoice->due_on->isBefore($today))->values();
-        $unbilled = $this->unbilledByMission($user, $month);
+        $unbilled = $this->unbilledByMission($user, $month, $settings->workday_minutes);
 
         return new InvoiceSummaryData(
             month: $month->format('Y-m'),
@@ -106,7 +107,7 @@ class SummarizeInvoices
      *
      * @return list<UnbilledWork>
      */
-    private function unbilledByMission(User $user, CarbonImmutable $month): array
+    private function unbilledByMission(User $user, CarbonImmutable $month, int $workdayMinutes): array
     {
         $entries = $user->timeEntries()
             ->with('mission.client')
@@ -134,7 +135,7 @@ class SummarizeInvoices
         }
 
         $rows = array_map(
-            fn (array $group): array => $this->work($group['mission'], $group['entries'], $month),
+            fn (array $group): array => $this->work($group['mission'], $group['entries'], $month, $workdayMinutes),
             array_values($grouped),
         );
 
@@ -150,7 +151,7 @@ class SummarizeInvoices
      * @param  non-empty-list<TimeEntry>  $entries
      * @return UnbilledWork
      */
-    private function work(Mission $mission, array $entries, CarbonImmutable $month): array
+    private function work(Mission $mission, array $entries, CarbonImmutable $month, int $workdayMinutes): array
     {
         $isHourly = $mission->billing_mode === BillingMode::Hourly;
         $amount = new Money(0, $mission->currency);
@@ -159,7 +160,7 @@ class SummarizeInvoices
         $minutes = 0;
 
         foreach ($entries as $entry) {
-            $measured = $this->valueTrackedTime->measure($mission, $entry);
+            $measured = $this->valueTrackedTime->measure($mission, $entry, $workdayMinutes);
 
             $amount = $amount->add($measured['value']);
             $days += $measured['days'];

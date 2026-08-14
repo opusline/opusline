@@ -106,7 +106,12 @@ export function LoginForm({ onSubmit, isPending, error }: LoginFormProps) {
           </Field>
         )}
       </form.Field>
-      <Button className="mt-1 h-10 w-full" disabled={isPending} type="submit">
+      <Button
+        className="mt-1 w-full"
+        disabled={isPending}
+        size="2xl"
+        type="submit"
+      >
         Se connecter
       </Button>
     </form>

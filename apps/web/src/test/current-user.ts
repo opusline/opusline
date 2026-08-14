@@ -12,6 +12,7 @@ export const CURRENT_USER_FIXTURE: UserData = {
   currency: "EUR",
   businessCountry: "FR",
   hasFrenchFiscality: true,
+  timezone: "Europe/Paris",
   workdayMinutes: 420,
 };
 

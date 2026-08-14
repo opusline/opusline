@@ -52,7 +52,9 @@ class SendCra
 
             $locked->update([
                 'status' => CraStatus::Sent,
-                'sent_on' => $data->sentOn === null ? CarbonImmutable::today() : CarbonImmutable::parse($data->sentOn),
+                'sent_on' => $data->sentOn === null
+                    ? $locked->user->settingsOrFail()->today()
+                    : CarbonImmutable::parse($data->sentOn),
             ]);
 
             return $locked;

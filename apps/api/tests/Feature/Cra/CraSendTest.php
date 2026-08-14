@@ -6,6 +6,7 @@ use App\Domain\Cra\Enums\CraStatus;
 use App\Domain\Documents\Enums\DocumentCategory;
 use App\Domain\Users\Models\User;
 
+beforeEach(fn () => freezeTodayAtUtcNoon());
 test('hands the month to the client and files the document it produced', function (): void {
     $user = User::factory()->create();
     $mission = craMissionOwnedBy($user);

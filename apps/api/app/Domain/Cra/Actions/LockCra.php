@@ -26,7 +26,7 @@ class LockCra
     public function handle(Cra $cra, callable $mutate): mixed
     {
         return DB::transaction(function () use ($cra, $mutate) {
-            User::query()->whereKey($cra->user_id)->lockForUpdate()->firstOrFail();
+            User::lockRow($cra->user_id);
 
             $cra->refresh();
 

@@ -19,3 +19,14 @@ export const Default: Story = {
     </div>
   ),
 };
+
+export const Quiet: Story = {
+  render: () => (
+    <div className="grid max-w-sm gap-1.5">
+      <Label htmlFor="label-quiet-demo" tone="quiet">
+        Note
+      </Label>
+      <Input id="label-quiet-demo" placeholder="Point d'étape avec Nordlys" />
+    </div>
+  ),
+};

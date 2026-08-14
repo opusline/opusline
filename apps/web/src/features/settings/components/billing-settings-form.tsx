@@ -4,11 +4,13 @@ import {
   FieldError,
   FieldLabel,
 } from "@opusline/ui/components/field";
+import { NativeSelect } from "@opusline/ui/components/native-select";
 
 import { FormTextField } from "@/components/form-text-field";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { PaymentTermsPicker } from "@/components/payment-terms-picker";
 import { currencySymbol, formatRateDraft } from "@/lib/billing";
+import { formatWorkedTime } from "@/lib/durations";
 import {
   hasInvoiceNumberCounter,
   parseBufferCents,
@@ -17,7 +19,31 @@ import {
 import type { SettingsForm } from "../lib/use-settings-form";
 import { SettingsSection } from "./settings-section";
 
-export function BillingSettingsForm({ form }: { form: SettingsForm }) {
+const WORKDAY_MIN_MINUTES = 300;
+const WORKDAY_MAX_MINUTES = 600;
+const WORKDAY_STEP_MINUTES = 30;
+
+const WORKDAY_OPTIONS = Array.from(
+  {
+    length:
+      (WORKDAY_MAX_MINUTES - WORKDAY_MIN_MINUTES) / WORKDAY_STEP_MINUTES + 1,
+  },
+  (_, step) => WORKDAY_MIN_MINUTES + step * WORKDAY_STEP_MINUTES,
+);
+
+function workdayOptions(saved: number): number[] {
+  return WORKDAY_OPTIONS.includes(saved)
+    ? WORKDAY_OPTIONS
+    : [saved, ...WORKDAY_OPTIONS].sort((left, right) => left - right);
+}
+
+export function BillingSettingsForm({
+  form,
+  savedWorkdayMinutes,
+}: {
+  form: SettingsForm;
+  savedWorkdayMinutes: number;
+}) {
   const format = useMoneyFormat();
 
   return (
@@ -132,6 +158,40 @@ export function BillingSettingsForm({ form }: { form: SettingsForm }) {
             labelClassName="text-foreground-3 text-sm"
             placeholder="0"
           />
+        )}
+      </form.Field>
+
+      <div className="my-5.5 h-px bg-secondary" />
+
+      <form.Field name="workdayMinutes">
+        {(field) => (
+          <Field>
+            <FieldLabel
+              className="text-foreground-3 text-sm"
+              htmlFor={field.name}
+            >
+              Durée d'une journée de travail
+            </FieldLabel>
+            <NativeSelect
+              className="w-70"
+              id={field.name}
+              onBlur={field.handleBlur}
+              onChange={(event) =>
+                field.handleChange(Number(event.target.value))
+              }
+              value={String(field.state.value)}
+            >
+              {workdayOptions(savedWorkdayMinutes).map((minutes) => (
+                <option key={minutes} value={String(minutes)}>
+                  {formatWorkedTime(minutes)}
+                </option>
+              ))}
+            </NativeSelect>
+            <FieldDescription>
+              Convertit le temps suivi en fractions de journée sur les missions
+              au TJM. Le changement s'applique aussi à l'historique déjà saisi.
+            </FieldDescription>
+          </Field>
         )}
       </form.Field>
     </SettingsSection>

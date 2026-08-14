@@ -2,14 +2,19 @@
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
   "tasks": {
+    "transit": {
+      "description": "Graph-only node: ui and api-client ship raw source with no build script, so dependents hash their files through this edge",
+      "dependsOn": ["^transit"]
+    },
     "build": {
       "description": "Bundles the application with Vite",
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.stories.{tsx,jsx,mdx}"],
-      "outputs": ["dist/**", "storybook-static/**"]
+      "dependsOn": ["^build", "transit"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "!**/*.stories.{tsx,jsx,mdx}"],
+      "outputs": ["dist/**"]
     },
     "build:storybook": {
       "description": "Builds the static Storybook",
+      "dependsOn": ["transit"],
       "outputs": ["storybook-static/**"]
     },
     "//#format-and-lint": {
@@ -30,28 +35,31 @@
       "dependsOn": ["@opusline/api-client#generate"]
     },
     "@opusline/web#build": {
-      "description": "Bundles the web app after regenerating the API client",
-      "dependsOn": ["^build", "@opusline/api-client#generate"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "description": "Bundles the web app from the committed API client; no generate edge so CI's JS lane never needs PHP — pre-push and the spec-drift CI job guard freshness",
+      "dependsOn": ["^build", "transit"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "!**/*.stories.{tsx,jsx,mdx}"],
       "outputs": ["dist/**"]
     },
     "@opusline/api#generate": {
-      "description": "Exports the OpenAPI spec from the Laravel app",
-      "outputs": ["openapi.json"]
+      "description": "Exports the OpenAPI spec from the Laravel app; uncached because openapi.json is committed source a cache restore must never overwrite",
+      "cache": false
     },
     "@opusline/api-client#generate": {
-      "description": "Generates the typed client from the OpenAPI spec",
+      "description": "Generates the typed client from the OpenAPI spec; uncached because src/ is committed source a cache restore must never overwrite",
       "dependsOn": ["@opusline/api#generate"],
-      "outputs": ["src/**"]
+      "cache": false
     },
     "test": {
-      "description": "Runs the package's test suite"
+      "description": "Runs the package's test suite",
+      "dependsOn": ["transit"]
     },
     "check-types": {
-      "description": "Type-checks the package without emitting output"
+      "description": "Type-checks the package without emitting output",
+      "dependsOn": ["transit"]
     },
     "lint": {
-      "description": "Non-mutating format and refactor-drift checks for the package"
+      "description": "Non-mutating format and refactor-drift checks for the package",
+      "dependsOn": ["transit"]
     }
   }
 }

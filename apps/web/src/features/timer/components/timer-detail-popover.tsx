@@ -84,7 +84,7 @@ export function TimerDetailPopover({
   return (
     <div className="flex flex-col">
       <div className="mb-3 flex items-baseline justify-between gap-3">
-        <span className="font-medium text-muted-foreground-3 text-xs uppercase tracking-[0.09em]">
+        <span className="font-medium text-muted-foreground-3 text-xs uppercase tracking-wider-2">
           {running ? RUNNING_STATE : PAUSED_STATE}
         </span>
         <span className="font-mono text-muted-foreground-3 text-xs tabular-nums">

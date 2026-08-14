@@ -39,6 +39,8 @@ export const settingsFixture: SettingsData = {
   currencyLocked: false,
   locale: "fr-FR",
   dateFormat: 0,
+  timezone: "Europe/Paris",
+  workdayMinutes: 420,
   hasSignature: false,
 };
 

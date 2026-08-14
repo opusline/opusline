@@ -1,24 +1,9 @@
 import type { ClientWithMissionsData } from "@opusline/api-client";
 import type { Meta, StoryObj } from "@storybook/react";
-import {
-  createMemoryHistory,
-  createRootRoute,
-  createRouter,
-  RouterProvider,
-} from "@tanstack/react-router";
-import type * as React from "react";
 import { DocumentsTab } from "@/components/documents-tab";
 import { SAMPLE_LOGO_SRC } from "@/lib/logo-fixture";
+import { StoryRouter } from "@/test/story-router";
 import { ClientDetailPage } from "./client-detail-page";
-
-function StoryRouter({ children }: { children: React.ReactNode }) {
-  const router = createRouter({
-    routeTree: createRootRoute({ component: () => children }),
-    history: createMemoryHistory({ initialEntries: ["/"] }),
-  });
-
-  return <RouterProvider router={router} />;
-}
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 

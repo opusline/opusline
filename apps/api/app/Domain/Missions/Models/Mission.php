@@ -51,6 +51,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  * @property-read Client $client
+ * @property-read User $user
  */
 #[Fillable([
     'client_id',

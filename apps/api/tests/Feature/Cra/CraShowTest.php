@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Cra\Enums\CraStatus;
 use App\Domain\Users\Models\User;
 
+beforeEach(fn () => freezeTodayAtUtcNoon());
 test('returns the grid alongside the mission and client it reports on', function (): void {
     $user = User::factory()->create();
     $mission = craMissionOwnedBy($user, fn ($factory) => $factory->throughEsn('Callisto'));

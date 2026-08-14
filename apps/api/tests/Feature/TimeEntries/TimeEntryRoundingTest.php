@@ -51,7 +51,10 @@ test('carries the override through when a timer is stopped', function (): void {
         'billing_mode' => BillingMode::Daily,
         'rounding' => EntryRounding::Half,
     ]));
-    RunningTimer::factory()->for($mission, 'mission')->create(['user_id' => $user->id]);
+    RunningTimer::factory()->for($mission, 'mission')->create([
+        'user_id' => $user->id,
+        'accumulated_seconds' => 222 * 60,
+    ]);
 
     $this->actingAs($user)
         ->postJson('/api/timer/stop', [
@@ -75,7 +78,10 @@ test('inherits the mission rounding when the timer stops without an override', f
         'billing_mode' => BillingMode::Daily,
         'rounding' => EntryRounding::Half,
     ]));
-    RunningTimer::factory()->for($mission, 'mission')->create(['user_id' => $user->id]);
+    RunningTimer::factory()->for($mission, 'mission')->create([
+        'user_id' => $user->id,
+        'accumulated_seconds' => 222 * 60,
+    ]);
 
     $this->actingAs($user)
         ->postJson('/api/timer/stop', [

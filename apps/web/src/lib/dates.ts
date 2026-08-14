@@ -118,9 +118,41 @@ export function calendarDateLabel(date: string): string {
   return fullDate.format(fromCalendarDate(date));
 }
 
-/** Today as the `Y-m-d` the API expects, on the user's calendar rather than UTC. */
-export function todayCalendarDate(): string {
+/**
+ * Tracking surfaces date against the browser's calendar — where the user
+ * physically is. Anything the API's fiscal rules judge (payments, reminders,
+ * dates shown beside `isLate`) uses accountTodayCalendarDate instead.
+ */
+export function browserTodayCalendarDate(): string {
   return toCalendarDate(new Date());
+}
+
+const accountTodayFormatters = new Map<string, Intl.DateTimeFormat>();
+
+/**
+ * Today in the account's timezone — the date the API's fiscal rules judge
+ * against. Payment and reminder dates must use this, not the browser's
+ * calendar: a browser east of the account would otherwise offer a date the
+ * API refuses as "in the future" for part of every day.
+ */
+export function accountTodayCalendarDate(timezone: string): string {
+  let formatter = accountTodayFormatters.get(timezone);
+
+  if (formatter === undefined) {
+    formatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone: timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    accountTodayFormatters.set(timezone, formatter);
+  }
+
+  const parts = new Map(
+    formatter.formatToParts(new Date()).map((part) => [part.type, part.value]),
+  );
+
+  return `${parts.get("year")}-${parts.get("month")}-${parts.get("day")}`;
 }
 
 /**

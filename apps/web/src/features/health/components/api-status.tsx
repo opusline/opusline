@@ -6,7 +6,7 @@ export function ApiStatus({ status }: ApiStatusProps) {
   const isHealthy = status === "ok";
 
   return (
-    <p className={isHealthy ? "text-green-600" : "text-red-600"}>
+    <p className={isHealthy ? "text-success" : "text-destructive"}>
       API status: {status}
     </p>
   );

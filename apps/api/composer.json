@@ -1,10 +1,10 @@
 {
   "$schema": "https://getcomposer.org/schema.json",
-  "name": "laravel/laravel",
+  "name": "opusline/api",
   "type": "project",
-  "description": "The skeleton application for the Laravel framework.",
-  "keywords": ["laravel", "framework"],
-  "license": "MIT",
+  "description": "Laravel API for Opusline — time tracking, CRA, and invoicing for freelancers.",
+  "keywords": ["laravel", "freelance", "time-tracking", "cra"],
+  "license": "AGPL-3.0-only",
   "require": {
     "php": "^8.3",
     "ext-mbstring": "*",

@@ -1,4 +1,8 @@
-import type { InvoiceListItemData, InvoiceStatus } from "@opusline/api-client";
+import type {
+  InvoiceClientTotalsData,
+  InvoiceListItemData,
+  InvoiceStatus,
+} from "@opusline/api-client";
 
 import { averageDaysToPay } from "./labels";
 
@@ -80,21 +84,27 @@ export type InvoiceGroup = {
 };
 
 /**
- * The screen reads by client, so the rows are grouped the way they are read. Totals
- * are gross: what is owed, not what gets declared.
+ * Totals come from the API's clientTotals verbatim — the frontend never does
+ * money arithmetic — and are gross: what is owed, not what gets declared.
  */
-export function groupByClient(items: InvoiceListItemData[]): InvoiceGroup[] {
+export function groupByClient(
+  items: InvoiceListItemData[],
+  clientTotals: InvoiceClientTotalsData[],
+  scope: InvoiceScope,
+): InvoiceGroup[] {
+  const totalsByClient = new Map(
+    clientTotals.map((totals) => [totals.clientId, totals]),
+  );
   const groups = new Map<number, Omit<InvoiceGroup, "averageDaysToPay">>();
 
   for (const item of items) {
     const group = groups.get(item.client.id) ?? {
       client: item.client,
       items: [],
-      total: 0,
+      total: totalsByClient.get(item.client.id)?.[scope].amount ?? 0,
     };
 
     group.items.push(item);
-    group.total += item.invoice.amountTtc.amount;
     groups.set(item.client.id, group);
   }
 

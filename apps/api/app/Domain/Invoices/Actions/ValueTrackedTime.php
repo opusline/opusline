@@ -23,13 +23,6 @@ class ValueTrackedTime
 {
     private const int MINUTES_PER_HOUR = 60;
 
-    private readonly int $workdayMinutes;
-
-    public function __construct()
-    {
-        $this->workdayMinutes = config()->integer('app.workday_minutes');
-    }
-
     /**
      * A mission with no rate, or one billed as a fixed price, has no per-entry value:
      * its time is tracked for effort and margin, not to be multiplied by anything.
@@ -49,7 +42,7 @@ class ValueTrackedTime
      *
      * @return array{value: Money, days: float, minutes: int}
      */
-    public function measure(Mission $mission, TimeEntry $entry): array
+    public function measure(Mission $mission, TimeEntry $entry, int $workdayMinutes): array
     {
         // Not $entry->effectiveRounding(): that reaches back through the mission
         // relation, which is not loaded on entries fetched through the mission.
@@ -71,7 +64,7 @@ class ValueTrackedTime
             ];
         }
 
-        [$numerator, $denominator] = $rounding->billedDayFraction($entry->duration_minutes, $this->workdayMinutes);
+        [$numerator, $denominator] = $rounding->billedDayFraction($entry->duration_minutes, $workdayMinutes);
 
         return [
             'value' => $rate->multiply($numerator)->divide($denominator, MoneyPhp::ROUND_HALF_UP),

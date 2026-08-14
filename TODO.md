@@ -5,31 +5,38 @@ context for Claude Code to plan from — but always plan first, confirm, then bu
 (see CLAUDE.md).
 
 French fiscal terms are kept in French on purpose (CRA, URSSAF, TVA, micro-BNC…) —
-they are domain vocabulary, not translatable. All amounts in EUR.
+they are domain vocabulary, not translatable. Amounts are stored in the account's
+single currency (`user_settings.currency`; mission and invoice rows persist the
+same code, enforced by the AccountCurrency rule).
 
 Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c831d?file=Opusline.dc.html
 
 ## Cross-cutting decisions (apply everywhere, not re-litigable)
 
 - **Money**: `https://github.com/cknow/laravel-money` value objects everywhere money is touched. Storage is
-  **integer cents** (`*_cents` bigint columns, implied EUR) — never float, never
+  **integer minor units** (`*_cents` bigint columns) — never float, never
   DECIMAL cast to float. Every rounding is explicit (`RoundingMode::HALF_UP` unless
-  a fiscal rule says otherwise). API serializes money as
-  `{ amount: <int minor units>, currency: "EUR" }`; the frontend formats with
-  `Intl.NumberFormat('fr-FR')` and NEVER does money arithmetic — totals always come
-  from the API. One custom spatie/laravel-data Cast/Transformer for Money, written
-  once (invoices step), reused everywhere.
+  a fiscal rule says otherwise). Each account carries exactly one currency
+  (`user_settings.currency`, string-backed `Currency` enum, EUR default), locked
+  once any amount exists. API serializes money as
+  `{ amount: <int minor units>, currency: "<account currency>" }`; the frontend
+  formats with `Intl.NumberFormat` and NEVER does money arithmetic — totals always
+  come from the API. One custom spatie/laravel-data Cast/Transformer for Money,
+  written once (invoices step), reused everywhere.
 - **Rates & percentages** (TVA, URSSAF, versement libératoire…): stored as exact
-  decimals (basis points integer, or decimal string fed to brick/math (don't use bric/math, the package is too new, find something else)) — 
-  never float.
+  integers in basis points (`*_bp` columns) — never float. No decimal-math
+  package is needed for this; should one ever be, brick/math is already in the
+  tree transitively and would first need declaring as a direct dependency in
+  `apps/api/composer.json`.
   User-editable settings, seeded with current defaults, never hardcoded in logic.
-- **Billing mode lives on the mission** (`daily` = TJM | `hourly`). It drives which
-  time-entry column is legal, validation rules, and week-view cell UI. Entries never
+- **Billing mode lives on the mission** (`daily` = TJM | `hourly`). It drives
+  validation rules, how entries are valued, and week-view cell UI. Entries never
   choose their own mode. Mode is immutable once the mission has entries (new contract
-  = new mission).
-- **Time entry schema**: `duration_minutes` (int, nullable) XOR `day_fraction`
-  (nullable, values 0.25/0.5/1.0) — exactly one set, enforced by a DB check
-  constraint, matching the mission's mode.
+  = new mission) — enforced in code: mission validation rejects a mode change on a
+  mission that already has time entries.
+- **Time entry schema**: one `duration_minutes` column (int, minutes) for both
+  modes. Day-billed missions derive the day fraction from `workday_minutes` and the
+  entry's rounding — there is no `day_fraction` column on time entries.
 
 ## Core loop (v1 — ships when this section is done)
 
@@ -41,10 +48,11 @@ Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c83
   later.
 
 - [x] **Time entries (manual first)**
-  Entry: date, mission, quantity in the mission's unit (day_fraction for TJM —
-  TJM freelances think in days, not hours — duration_minutes for hourly), optional
-  note. Schema per cross-cutting decisions above. CRUD + day view rendering each
-  entry in its natural unit ("0,5 j" vs "3h30").
+  Entry: date, mission, `duration_minutes` (the one stored field for both modes),
+  optional note. TJM entries display a day fraction derived from
+  `workday_minutes` and the rounding — TJM freelances think in days, not hours —
+  hourly entries display hours. Schema per cross-cutting decisions above. CRUD +
+  day view rendering each entry in its natural unit ("0,5 j" vs "3h30").
 
 - [x] **Week view**
   THE core screen. Week grid (days × missions), typed search params (`?week=2026-W31`),

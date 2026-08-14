@@ -191,6 +191,17 @@ describe("provisional valuation", () => {
     expect(valueAsDayFraction(210, 2, 420)).toBe(0.5);
   });
 
+  it.each([
+    [480, 0],
+    [480, 1],
+    [480, 2],
+  ])(
+    "clamps %i minutes at rounding %i to one day, like the API",
+    (minutes, rounding) => {
+      expect(valueAsDayFraction(minutes, rounding as 0 | 1 | 2, 420)).toBe(1);
+    },
+  );
+
   it("falls back to quarter rounding when the mission sets none", () => {
     expect(valueAsMinutes(67, null)).toBe(valueAsMinutes(67, 1));
   });

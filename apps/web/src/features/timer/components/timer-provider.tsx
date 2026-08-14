@@ -31,9 +31,10 @@ import { useMoneyFormat } from "@/components/money-format-provider";
 import { collectNoteSuggestions } from "@/components/note-suggestions";
 import {
   addCalendarDays,
+  browserTodayCalendarDate,
   toCalendarDate,
-  todayCalendarDate,
 } from "@/lib/dates";
+import { operationFilter } from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 
 import { type IdleNotice, idleNotice, trimSeconds } from "../lib/idle";
@@ -216,7 +217,7 @@ export function TimerProvider({
   };
 
   const isStopping = state.matches("stopping");
-  const today = todayCalendarDate();
+  const today = browserTodayCalendarDate();
   const recentEntries = useQuery({
     ...listTimeEntriesOptions({
       query: {
@@ -326,9 +327,7 @@ export function TimerProvider({
 
     if (saved) {
       send({ type: "SAVED" });
-      await queryClient.invalidateQueries({
-        queryKey: [{ _id: "listTimeEntries" }],
-      });
+      await queryClient.invalidateQueries(operationFilter("listTimeEntries"));
     }
   };
 

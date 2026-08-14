@@ -4,7 +4,6 @@ import {
   calendarDateNumericLabel,
   calendarDaysBetween,
   capitalizedMonthLabel,
-  todayCalendarDate,
 } from "@/lib/dates";
 
 /** "Juin 2026" — the period an invoice covers, capitalised as a label. */
@@ -20,15 +19,21 @@ function daysToPay(invoice: InvoiceData): number | null {
     : calendarDaysBetween(invoice.issuedOn, invoice.paidOn);
 }
 
-function daysLate(invoice: InvoiceData): number {
-  return calendarDaysBetween(invoice.dueOn, todayCalendarDate());
+// Counted against the account's today, the same date the API derived isLate
+// from — the browser's calendar can disagree with the badge for hours a day.
+function daysLate(invoice: InvoiceData, accountToday: string): number {
+  return calendarDaysBetween(invoice.dueOn, accountToday);
 }
 
 /**
  * It answers the question the status badge raises: paid — how fast? late — by how
  * much? Otherwise, when is it due.
  */
-function invoiceState(dateFormat: DateFormat, invoice: InvoiceData): string {
+function invoiceState(
+  dateFormat: DateFormat,
+  invoice: InvoiceData,
+  accountToday: string,
+): string {
   const paidIn = daysToPay(invoice);
 
   if (paidIn !== null) {
@@ -36,7 +41,7 @@ function invoiceState(dateFormat: DateFormat, invoice: InvoiceData): string {
   }
 
   if (invoice.isLate) {
-    return `${daysLate(invoice)} j de retard`;
+    return `${daysLate(invoice, accountToday)} j de retard`;
   }
 
   if (invoice.status === 0) {
@@ -50,9 +55,10 @@ function invoiceState(dateFormat: DateFormat, invoice: InvoiceData): string {
 export function invoiceRowDetail(
   dateFormat: DateFormat,
   invoice: InvoiceData,
+  accountToday: string,
 ): string {
   const period = periodLabel(invoice);
-  const state = invoiceState(dateFormat, invoice);
+  const state = invoiceState(dateFormat, invoice, accountToday);
 
   return period === null ? state : `${period} · ${state}`;
 }

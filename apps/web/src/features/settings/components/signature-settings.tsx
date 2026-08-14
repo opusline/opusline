@@ -6,6 +6,7 @@ import {
 } from "@opusline/ui/components/signature-pad";
 import { CircleAlert, PencilLine, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
+import { PAPER } from "@/lib/paper";
 import { SettingsSection } from "./settings-section";
 
 type SignatureSettingsProps = {
@@ -52,7 +53,7 @@ export function SignatureSettings({
 
   return (
     <SettingsSection
-      description="Signez une fois à la souris ou au trackpad. Opusline l'appose sur chaque CRA et chaque facture générés."
+      description="Signez une fois — à la souris, au trackpad ou au clavier en saisissant votre nom. Opusline l'appose sur chaque CRA et chaque facture générés."
       title="Signature"
     >
       {error === null ? null : (
@@ -64,7 +65,10 @@ export function SignatureSettings({
 
       {hasSignature && !isPadOpen ? (
         <div className="flex flex-wrap items-center gap-4 rounded-md border bg-muted px-4 py-3.5">
-          <span className="flex h-15 w-40 shrink-0 items-center justify-center rounded-md border border-border-3 bg-[#FBFAF7] px-2">
+          <span
+            className="flex h-15 w-40 shrink-0 items-center justify-center rounded-md border border-border-3 px-2"
+            style={{ background: PAPER.sheet }}
+          >
             <img
               alt="Signature enregistrée"
               className="max-h-11 max-w-full object-contain"
@@ -103,9 +107,14 @@ export function SignatureSettings({
       ) : (
         <div>
           <SignaturePad
+            drawModeLabel="Dessiner"
             drawnLabel="Signature tracée"
             label="Zone de signature"
+            modeToggleLabel="Méthode de signature"
             placeholder="Tracez votre signature ici"
+            typedLabel="Nom apposé comme signature"
+            typeModeLabel="Saisir au clavier"
+            typedPlaceholder="Votre nom"
             onDrawingChange={setHasDrawing}
             ref={padRef}
           />

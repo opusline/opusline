@@ -18,6 +18,7 @@ use Spatie\LaravelData\Attributes\Validation\IntegerType;
 use Spatie\LaravelData\Attributes\Validation\Max;
 use Spatie\LaravelData\Attributes\Validation\Regex;
 use Spatie\LaravelData\Attributes\Validation\Rule;
+use Spatie\LaravelData\Attributes\Validation\Timezone;
 use Spatie\LaravelData\Data;
 
 class UpdateSettingsData extends Data
@@ -27,6 +28,15 @@ class UpdateSettingsData extends Data
         public string $businessCountry,
         public Locale $locale,
         public DateFormat $dateFormat,
+        #[Timezone]
+        public string $timezone,
+        /**
+         * Applies to all history: tracked minutes are the source of truth and day
+         * fractions are derived at read time, so changing it re-values every past
+         * entry — including écarts against CRAs the client already holds.
+         */
+        #[IntegerType, Between(60, 1440)]
+        public int $workdayMinutes,
         public UrssafPeriodicity $urssafPeriodicity,
         public bool $autoRates,
         public bool $acre,

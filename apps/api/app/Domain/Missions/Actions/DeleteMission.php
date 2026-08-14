@@ -13,7 +13,7 @@ class DeleteMission
     public function handle(Mission $mission): void
     {
         DB::transaction(function () use ($mission): void {
-            User::query()->whereKey($mission->user_id)->lockForUpdate()->firstOrFail();
+            User::lockRow($mission->user_id);
 
             abort_if($mission->invoices()->exists(), 409, __('invoices.cannot_delete_mission_with_invoices'));
 

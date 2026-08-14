@@ -37,7 +37,7 @@ test('updates a mission', function (): void {
     ]);
 });
 
-test('changes the billing mode', function (): void {
+test('changes the billing mode while no time has been tracked', function (): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
@@ -52,6 +52,52 @@ test('changes the billing mode', function (): void {
         ->assertJsonPath('billingMode', BillingMode::Hourly->value);
 
     expect($mission->refresh()->billing_mode)->toBe(BillingMode::Hourly);
+});
+
+test('refuses to change the billing mode once time entries exist', function (BillingMode $from, BillingMode $to): void {
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+    $mission = Mission::factory()->for($client, 'client')->create([
+        'user_id' => $user->id,
+        'billing_mode' => $from,
+        'rounding' => $from === BillingMode::Fixed ? null : EntryRounding::Half,
+    ]);
+    trackedDay($user, $mission, '2026-08-03');
+
+    $this->actingAs($user)
+        ->putJson("/api/clients/{$client->slug}/missions/{$mission->slug}", [
+            'name' => $mission->name,
+            'billingMode' => $to->value,
+            'status' => MissionStatus::Active->value,
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['billingMode']);
+
+    $this->assertDatabaseHas('missions', [
+        'id' => $mission->id,
+        'billing_mode' => $from->value,
+    ]);
+})->with([
+    'daily to hourly reinterprets the rate per hour' => [BillingMode::Daily, BillingMode::Hourly],
+    'hourly to daily reinterprets the rate per day' => [BillingMode::Hourly, BillingMode::Daily],
+    'hourly to fixed drops the per-entry value' => [BillingMode::Hourly, BillingMode::Fixed],
+    'fixed to daily gives entries a value they never had' => [BillingMode::Fixed, BillingMode::Daily],
+]);
+
+test('still updates a mission with time entries when the billing mode is unchanged', function (): void {
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+    $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
+    trackedDay($user, $mission, '2026-08-03');
+
+    $this->actingAs($user)
+        ->putJson("/api/clients/{$client->slug}/missions/{$mission->slug}", [
+            'name' => 'Renamed',
+            'billingMode' => $mission->billing_mode->value,
+            'status' => MissionStatus::Active->value,
+        ])
+        ->assertOk()
+        ->assertJsonPath('name', 'Renamed');
 });
 
 test('switches to fixed price and clears the rounding', function (): void {

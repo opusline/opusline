@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "storybook dev -p 6006",
-    "build:storybook": "storybook build"
+    "build:storybook": "storybook build",
+    "check-types": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@opusline/ui": "workspace:*",
@@ -31,8 +33,9 @@
     "playwright": "^1.62.1",
     "storybook": "^10.5.5",
     "tailwindcss": "^4.3.3",
-    "typescript": "~6.0.2",
+    "typescript": "^7",
     "vite": "^8.2.0",
     "vitest": "^4.1.10"
-  }
+  },
+  "license": "AGPL-3.0-only"
 }

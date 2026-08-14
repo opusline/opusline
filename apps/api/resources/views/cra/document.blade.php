@@ -49,9 +49,9 @@
         .issuer-quiet { color: #555; }
 
         .facts { font-size: 12px; color: #333; padding: 16px 0; }
-        .facts-label { color: #777; }
+        .facts-label { color: #666; }
 
-        .dow { text-align: center; font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase; color: #777; padding-bottom: 3px; }
+        .dow { text-align: center; font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase; color: #666; padding-bottom: 3px; }
 
         .cal { border-collapse: separate; border-spacing: 2px; }
         .cal td { width: 14.2%; height: 34px; vertical-align: top; padding: 3px 4px; }
@@ -65,7 +65,7 @@
         .closed { background-color: #F2F2F2; }
         .outside { border: none; }
 
-        .legend { font-size: 10px; color: #777; padding-bottom: 18px; }
+        .legend { font-size: 10px; color: #666; padding-bottom: 18px; }
         .legend span { padding-right: 14px; }
 
         .recap th { text-align: left; border-bottom: 1px solid #111; padding: 6px 4px; font-weight: 600; }
@@ -76,7 +76,7 @@
         .signatures { padding-top: 32px; font-size: 11px; color: #333; }
         .signatures td { width: 50%; vertical-align: top; }
         .sig-title { font-weight: 600; color: #111; }
-        .sig-sub { padding-top: 2px; color: #777; }
+        .sig-sub { padding-top: 2px; color: #666; }
         .sig-line { height: 52px; border-bottom: 1px solid #BBB; margin-top: 6px; }
         .sig-image { max-height: 46px; }
     </style>

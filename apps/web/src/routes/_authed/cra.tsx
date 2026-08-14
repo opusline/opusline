@@ -140,7 +140,10 @@ function CraRoute() {
       setError(null);
       applyDaysToCache(queryClient, path.cra, body.days);
     },
-    onSuccess: refreshCras,
+    // onSettled, not onSuccess: after a refused write the optimistic cache is a
+    // lie, and the grid must not keep showing the day the server rejected next
+    // to the error banner. The refetch restores the server's truth either way.
+    onSettled: refreshCras,
     onError: reportFailure(WRITE_FAILED),
   });
   const reset = useMutation({

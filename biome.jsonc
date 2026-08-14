@@ -23,7 +23,27 @@
           "options": {
             "paths": {
               "zod": "Import from \"zod/mini\" instead - the app only ships the tree-shakable mini build."
-            }
+            },
+            "patterns": [
+              {
+                "group": ["@radix-ui/**"],
+                "message": "The design system is Base UI everywhere - do not add Radix primitives."
+              },
+              {
+                "group": [
+                  "react-icons",
+                  "react-icons/**",
+                  "@heroicons/**",
+                  "@fortawesome/**",
+                  "@tabler/icons-react",
+                  "@tabler/icons-react/**",
+                  "@phosphor-icons/**",
+                  "@mui/icons-material",
+                  "@mui/icons-material/**"
+                ],
+                "message": "Lucide (lucide-react) is the only icon library."
+              }
+            ]
           }
         }
       }
@@ -46,5 +66,53 @@
     "parser": {
       "tailwindDirectives": true
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["packages/ui/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "zod": "Import from \"zod/mini\" instead - the app only ships the tree-shakable mini build."
+                },
+                "patterns": [
+                  {
+                    "group": ["@radix-ui/**"],
+                    "message": "The design system is Base UI everywhere - do not add Radix primitives."
+                  },
+                  {
+                    "group": [
+                      "react-icons",
+                      "react-icons/**",
+                      "@heroicons/**",
+                      "@fortawesome/**",
+                      "@tabler/icons-react",
+                      "@tabler/icons-react/**",
+                      "@phosphor-icons/**",
+                      "@mui/icons-material",
+                      "@mui/icons-material/**"
+                    ],
+                    "message": "Lucide (lucide-react) is the only icon library."
+                  },
+                  {
+                    "group": [
+                      "@opusline/web",
+                      "@opusline/web/**",
+                      "@opusline/api-client",
+                      "@opusline/api-client/**"
+                    ],
+                    "message": "The design system must stay standalone - ui cannot import the app or the API client."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

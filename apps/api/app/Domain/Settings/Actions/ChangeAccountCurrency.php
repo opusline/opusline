@@ -26,7 +26,7 @@ class ChangeAccountCurrency
             // lock before asserting the account currency: without it a priced
             // mission could commit between this check and the update, leaving
             // mixed-currency rows no aggregation could ever sum.
-            $user = User::query()->whereKey($settings->user_id)->lockForUpdate()->firstOrFail();
+            $user = User::lockRow($settings->user_id);
 
             if ($user->hasLockedCurrency()) {
                 throw ValidationException::withMessages([

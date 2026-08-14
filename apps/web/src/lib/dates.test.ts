@@ -1,9 +1,9 @@
 import { expect, it } from "vitest";
 
 import {
+  browserTodayCalendarDate,
   calendarDateLabel,
   calendarMonthYearLabel,
-  todayCalendarDate,
 } from "./dates";
 
 it("keeps a calendar date on the day the API sent, not the UTC instant", () => {
@@ -26,5 +26,5 @@ it("builds today from the local calendar rather than the UTC clock", () => {
     String(now.getDate()).padStart(2, "0"),
   ].join("-");
 
-  expect(todayCalendarDate()).toBe(expected);
+  expect(browserTodayCalendarDate()).toBe(expected);
 });

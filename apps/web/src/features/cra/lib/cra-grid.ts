@@ -47,12 +47,12 @@ export type LocatedCell = {
 const WEEKDAY_LABELS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
 /** "0,5" — French decimals, and nothing at all on a day not worked. */
-export function formatDayFraction(basisPoints: number): string {
+export function formatDayFraction(locale: Locale, basisPoints: number): string {
   if (basisPoints <= 0) {
     return "";
   }
 
-  return (basisPoints / FULL_DAY_BP).toLocaleString("fr-FR", {
+  return (basisPoints / FULL_DAY_BP).toLocaleString(locale, {
     maximumFractionDigits: 2,
   });
 }
@@ -94,7 +94,7 @@ export function buildCraGrid(input: {
         isHoliday: day.isHoliday,
         holidayName: day.holidayName,
         isOffDayWorked,
-        valueLabel: formatDayFraction(day.dayFractionBp),
+        valueLabel: formatDayFraction(input.locale, day.dayFractionBp),
         ariaLabel: cellAriaLabel(input.locale, day),
       };
     });

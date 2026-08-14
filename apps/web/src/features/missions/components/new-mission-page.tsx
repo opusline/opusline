@@ -26,7 +26,7 @@ import { FormTextField } from "@/components/form-text-field";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatRate, formatWholeAmount, parseRateToCents } from "@/lib/billing";
 import { isInternalClient } from "@/lib/client-types";
-import { todayCalendarDate } from "@/lib/dates";
+import { browserTodayCalendarDate } from "@/lib/dates";
 import {
   entryRoundingHint,
   entryRoundingLabel,
@@ -114,7 +114,7 @@ export function NewMissionPage({
     defaultValues: {
       name: "",
       endClientName: "",
-      startDate: todayCalendarDate(),
+      startDate: browserTodayCalendarDate(),
       endDate: "",
     } as MissionFormValues,
     validators: {
@@ -134,7 +134,9 @@ export function NewMissionPage({
           rate:
             rateCents === null
               ? null
-              : { amount: rateCents, currency: format.currency },
+              : // A stale render-context currency is refused by the API (422);
+                // see settings-form.ts for the one case needing the snapshot.
+                { amount: rateCents, currency: format.currency },
           rounding: isForfait ? null : rounding,
           craRequired: isEsn ? craRequired : null,
           endClientName:

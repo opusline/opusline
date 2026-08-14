@@ -6,7 +6,7 @@ export default {
     "scope-enum": [
       2,
       "always",
-      ["api", "web", "ui", "website", "types", "deps", "repo"],
+      ["api", "web", "ui", "storybook", "deps", "repo"],
     ],
   },
 };

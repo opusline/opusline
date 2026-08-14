@@ -68,6 +68,7 @@ export type SettingsFormValues = {
   defaultPaymentTermsDays: number;
   invoiceNumberFormat: string;
   treasuryBuffer: string;
+  workdayMinutes: number;
 };
 
 export const COMPANY_ADDRESS_NAMES = {
@@ -122,6 +123,7 @@ export function toSettingsValues(
       settings.treasuryBuffer === null
         ? ""
         : formatAmount(format, settings.treasuryBuffer.amount),
+    workdayMinutes: settings.workdayMinutes,
   };
 }
 
@@ -130,6 +132,7 @@ export type RegionalOverrides = {
   businessCountry?: string;
   locale?: Locale;
   dateFormat?: DateFormat;
+  timezone?: string;
 };
 
 export function toSettingsPayload(
@@ -151,6 +154,8 @@ export function toSettingsPayload(
     businessCountry,
     locale: regional.locale ?? settings.locale,
     dateFormat: regional.dateFormat ?? settings.dateFormat,
+    timezone: regional.timezone ?? settings.timezone,
+    workdayMinutes: values.workdayMinutes,
     urssafPeriodicity: values.urssafPeriodicity,
     autoRates: isFrench && values.autoRates,
     acre: isFrench && values.acre,
@@ -239,6 +244,7 @@ const FIELD_TAB: Record<keyof SettingsFormValues, SettingsTab> = {
   defaultPaymentTermsDays: "facturation",
   invoiceNumberFormat: "facturation",
   treasuryBuffer: "facturation",
+  workdayMinutes: "facturation",
 };
 
 /** The onChange validator every percent-rate draft field shares. */

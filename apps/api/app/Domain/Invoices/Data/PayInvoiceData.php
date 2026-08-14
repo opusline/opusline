@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Data;
 
-use Spatie\LaravelData\Attributes\Validation\BeforeOrEqual;
+use App\Domain\Shared\Validation\BeforeOrEqualAccountToday;
 use Spatie\LaravelData\Attributes\Validation\DateFormat;
+use Spatie\LaravelData\Attributes\Validation\Rule;
 use Spatie\LaravelData\Data;
 
 class PayInvoiceData extends Data
@@ -16,7 +17,7 @@ class PayInvoiceData extends Data
          * TVA declarations bucket revenue on this, so a future date would book income
          * into a period that has not happened.
          */
-        #[DateFormat('Y-m-d'), BeforeOrEqual('today')]
+        #[DateFormat('Y-m-d'), Rule(new BeforeOrEqualAccountToday)]
         public string $paidOn,
     ) {}
 }

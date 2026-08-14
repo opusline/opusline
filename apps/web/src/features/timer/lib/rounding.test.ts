@@ -114,60 +114,6 @@ it("defaults to the mission's own rounding", () => {
   expect(defaultStopOption(options).key).toBe("mission");
 });
 
-describe("the billable amount", () => {
-  const mission = missionWith({
-    billingMode: 0,
-    rate: { amount: 55_000, currency: "EUR" },
-    rounding: 0,
-  });
-
-  it("bills a full day when the mission rounds up to one", () => {
-    const [asMissionRounds] = stopOptionsOf(
-      DEMO_ELAPSED_SECONDS,
-      mission,
-      DEMO_WORKDAY_MINUTES,
-    );
-
-    expect(asMissionRounds.amountCents).toBe(55_000);
-  });
-
-  it("bills the time actually spent when the entry deviates", () => {
-    const [, exact] = stopOptionsOf(
-      DEMO_ELAPSED_SECONDS,
-      mission,
-      DEMO_WORKDAY_MINUTES,
-    );
-
-    expect(exact.amountCents).toBe(29_071);
-  });
-
-  it("bills nothing on a mission that carries no rate", () => {
-    const free = missionWith({ rate: null });
-    const [option] = stopOptionsOf(
-      DEMO_ELAPSED_SECONDS,
-      free,
-      DEMO_WORKDAY_MINUTES,
-    );
-
-    expect(option.amountCents).toBeNull();
-  });
-});
-
-it("shows no per-session amount on a fixed-fee mission", () => {
-  const forfait = missionWith({
-    billingMode: 2,
-    rate: { amount: 1_200_000, currency: "EUR" },
-    rounding: 0,
-  });
-  const [option] = stopOptionsOf(
-    DEMO_ELAPSED_SECONDS,
-    forfait,
-    DEMO_WORKDAY_MINUTES,
-  );
-
-  expect(option.amountCents).toBeNull();
-});
-
 it("stores the exact time when the mission cannot be resolved", () => {
   const [option] = stopOptionsOf(
     DEMO_ELAPSED_SECONDS,

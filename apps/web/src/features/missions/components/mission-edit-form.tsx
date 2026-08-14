@@ -116,7 +116,9 @@ export function MissionEditForm({
           rate:
             rateCents === null
               ? null
-              : { amount: rateCents, currency: format.currency },
+              : // A stale render-context currency is refused by the API (422);
+                // see settings-form.ts for the one case needing the snapshot.
+                { amount: rateCents, currency: format.currency },
           rounding: isForfait ? null : rounding,
           craRequired: isEsn ? craRequired : null,
           endClientName:

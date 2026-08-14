@@ -11,7 +11,7 @@ import type { SettingsForm } from "../lib/use-settings-form";
 import { SettingsSection } from "./settings-section";
 
 const EYEBROW =
-  "font-medium text-muted-foreground-2 text-xs uppercase tracking-[.09em]";
+  "font-medium text-muted-foreground-2 text-xs uppercase tracking-wider-2";
 const LABEL = "text-muted-foreground-2 text-xs";
 
 export function IdentitySettingsForm({

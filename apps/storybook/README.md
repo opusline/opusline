@@ -1,32 +1,11 @@
-# React + TypeScript + Vite
+# @opusline/storybook
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Storybook host for the whole repo: it serves the stories colocated with the
+components of `packages/ui` (title prefix `UI/`) and `apps/web` (`Web/`).
+Its only own story is the design-token reference page
+(`src/stories/Tokens.stories.tsx`); everything else lives with its component.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+pnpm --filter @opusline/storybook dev              # Storybook on :6006
+pnpm --filter @opusline/storybook build:storybook  # static build in storybook-static/
 ```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.

@@ -19,7 +19,7 @@ class RecordInvoiceEvent
     ): InvoiceEvent {
         return $invoice->events()->create([
             'kind' => $kind,
-            'occurred_on' => $occurredOn ?? CarbonImmutable::today(),
+            'occurred_on' => $occurredOn ?? $invoice->user->settingsOrFail()->today(),
             'note' => $note,
         ]);
     }

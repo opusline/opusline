@@ -23,6 +23,7 @@ class UserData extends Data
         public Currency $currency,
         public string $businessCountry,
         public bool $hasFrenchFiscality,
+        public string $timezone,
         public int $workdayMinutes,
     ) {}
 
@@ -40,7 +41,8 @@ class UserData extends Data
             currency: $settings->currency,
             businessCountry: $settings->business_country,
             hasFrenchFiscality: $settings->hasFrenchFiscality(),
-            workdayMinutes: config()->integer('app.workday_minutes'),
+            timezone: $settings->timezone,
+            workdayMinutes: $settings->workday_minutes,
         );
     }
 }

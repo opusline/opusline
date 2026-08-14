@@ -27,7 +27,7 @@ class CreateInvoice
     public function handle(User $user, CreateInvoiceData $data): Invoice
     {
         $issuedOn = $data->issuedOn === null
-            ? CarbonImmutable::today()
+            ? $user->settingsOrFail()->today()
             : CarbonImmutable::parse($data->issuedOn);
 
         $this->validateInvoice->forCreate($user, $data, $issuedOn);

@@ -35,6 +35,7 @@
   --link: #9a6412;
   --link-hover: #7a4a0e;
   --success: #3f7a44;
+  --overlay: #1f1b18cc;
   --card-2: #ffffff;
   --secondary-2: #e9e4dc;
   --muted-2: #f2efe9;
@@ -106,6 +107,7 @@
   --link: #d69039;
   --link-hover: #e9b265;
   --success: #8fbf8f;
+  --overlay: #0c0a09cc;
   --card-2: #221f1d;
   --secondary-2: #2a2624;
   --muted-2: #232120;
@@ -119,10 +121,10 @@
   --foreground-2: #dcd5cd;
   --foreground-3: #c4bab0;
   --foreground-4: #b8afa6;
-  --muted-foreground-2: #948b82;
-  --muted-foreground-3: #8a827a;
-  --muted-foreground-4: #7e756d;
-  --muted-foreground-5: #6b615a;
+  --muted-foreground-2: #9d948b;
+  --muted-foreground-3: #928a81;
+  --muted-foreground-4: #93887f;
+  --muted-foreground-5: #8d8076;
   --muted-foreground-6: #5a5049;
   --muted-foreground-7: #5e564f;
   --chart-1: #ba7517; /* Ambre */
@@ -138,6 +140,15 @@
   --sidebar-accent-foreground: #efeae4;
   --sidebar-border: #302b27;
   --sidebar-ring: #f0b762;
+
+  --palette-amber: #e2a34c;
+  --palette-terracotta: #d0937d;
+  --palette-olive: #b0bc6a;
+  --palette-sage: #93bfa4;
+  --palette-slate: #8db0cd;
+  --palette-indigo: #9fa4c8;
+  --palette-plum: #c493b1;
+  --palette-stone: #b3a89e;
 }
 
 @theme inline {
@@ -167,6 +178,7 @@
   --color-link: var(--link);
   --color-link-hover: var(--link-hover);
   --color-success: var(--success);
+  --color-overlay: var(--overlay);
   --color-card-2: var(--card-2);
   --color-secondary-2: var(--secondary-2);
   --color-muted-2: var(--muted-2);
@@ -214,6 +226,8 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --text-2xs: 0.625rem;
+  --tracking-wider-2: 0.09em;
   --font-sans: "Geist Variable", sans-serif;
   --font-heading: "Lora Variable", serif;
   --font-mono: "Geist Mono Variable", monospace;

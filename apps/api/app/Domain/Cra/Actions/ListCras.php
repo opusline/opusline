@@ -15,7 +15,6 @@ use App\Domain\Missions\Enums\BillingMode;
 use App\Domain\Missions\Enums\MissionStatus;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Users\Models\User;
-use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
@@ -30,6 +29,7 @@ class ListCras
 
     public function handle(User $user, ListCrasData $data): CraListData
     {
+        $currentMonth = $user->settingsOrFail()->today()->format('Y-m');
         $missions = $this->eligibleMissions($user);
         $tracked = $this->materializeCraDays->monthlyTotals($user, $missions);
 
@@ -53,7 +53,7 @@ class ListCras
             $missionTracked = $tracked[$mission->id] ?? [];
             $missionCras = $existing[$mission->id] ?? [];
 
-            foreach ($this->monthsFor($mission, $missionTracked, $missionCras) as $month) {
+            foreach ($this->monthsFor($mission, $missionTracked, $missionCras, $currentMonth) as $month) {
                 $cra = $missionCras[$month] ?? null;
 
                 $items[] = new CraListItemData(
@@ -115,10 +115,8 @@ class ListCras
      * @param  array<string, Cra>  $cras
      * @return list<string>
      */
-    private function monthsFor(Mission $mission, array $tracked, array $cras): array
+    private function monthsFor(Mission $mission, array $tracked, array $cras, string $currentMonth): array
     {
-        $currentMonth = CarbonImmutable::today()->format('Y-m');
-
         // Months with tracked time, whatever the mission's status: a finished mission
         // still owes the CRAs of the months it ran. Time logged ahead of today is not
         // reportable yet, and CreateCra refuses it — listing it would offer a row that

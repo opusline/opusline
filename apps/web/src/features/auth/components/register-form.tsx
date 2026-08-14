@@ -151,7 +151,12 @@ export function RegisterForm({
           );
         }}
       </form.Field>
-      <Button className="mt-1 h-10 w-full" disabled={isPending} type="submit">
+      <Button
+        className="mt-1 w-full"
+        disabled={isPending}
+        size="2xl"
+        type="submit"
+      >
         Créer le compte
       </Button>
     </form>

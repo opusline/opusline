@@ -292,6 +292,18 @@ export type DocumentSource = 0 | 1;
 export type EntryRounding = 0 | 1 | 2;
 
 /**
+ * InvoiceClientTotalsData
+ */
+export type InvoiceClientTotalsData = {
+    clientId: number;
+    all: MoneyData;
+    open: MoneyData;
+    late: MoneyData;
+    paid: MoneyData;
+    draft: MoneyData;
+};
+
+/**
  * InvoiceCountsData
  */
 export type InvoiceCountsData = {
@@ -372,6 +384,7 @@ export type InvoiceForecastData = {
  */
 export type InvoiceListData = {
     invoices: Array<InvoiceListItemData>;
+    clientTotals: Array<InvoiceClientTotalsData>;
 };
 
 /**
@@ -596,6 +609,8 @@ export type SettingsData = {
     currencyLocked: boolean;
     locale: Locale;
     dateFormat: DateFormat;
+    timezone: string;
+    workdayMinutes: number;
     hasSignature: boolean;
 };
 
@@ -785,6 +800,8 @@ export type UpdateSettingsData = {
     businessCountry: string;
     locale: Locale;
     dateFormat: DateFormat;
+    timezone: string;
+    workdayMinutes: number;
     urssafPeriodicity: UrssafPeriodicity;
     autoRates: boolean;
     acre: boolean;
@@ -892,6 +909,7 @@ export type UserData = {
     currency: Currency;
     businessCountry: string;
     hasFrenchFiscality: boolean;
+    timezone: string;
     workdayMinutes: number;
 };
 

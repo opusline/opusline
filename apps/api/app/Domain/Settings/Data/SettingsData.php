@@ -58,6 +58,8 @@ class SettingsData extends Data
         public bool $currencyLocked,
         public Locale $locale,
         public DateFormat $dateFormat,
+        public string $timezone,
+        public int $workdayMinutes,
         public bool $hasSignature,
     ) {}
 
@@ -104,6 +106,8 @@ class SettingsData extends Data
             currencyLocked: $currencyLocked,
             locale: $settings->locale,
             dateFormat: $settings->date_format,
+            timezone: $settings->timezone,
+            workdayMinutes: $settings->workday_minutes,
             hasSignature: $hasSignature,
         );
     }

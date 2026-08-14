@@ -12,4 +12,5 @@ return [
     'cannot_delete_with_running_timer' => 'Cannot delete a mission with a running timer. Stop it first.',
     'cannot_delete_with_cras' => 'Cannot delete a mission that has activity reports. Delete them first.',
     'cannot_leave_daily_billing_with_cras' => 'This mission has activity reports: it can no longer move to hourly billing.',
+    'billing_mode_immutable_with_entries' => 'This mission has tracked time: its billing mode can no longer change. A new contract is a new mission.',
 ];

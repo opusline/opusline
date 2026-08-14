@@ -16,7 +16,7 @@ type Story = StoryObj<typeof BillingSettingsForm>;
 export const Default: Story = {
   render: () => (
     <SettingsFormStory settings={settingsFixture}>
-      {(form) => <BillingSettingsForm form={form} />}
+      {(form) => <BillingSettingsForm form={form} savedWorkdayMinutes={420} />}
     </SettingsFormStory>
   ),
 };
@@ -31,7 +31,7 @@ export const WithBuffer: Story = {
         treasuryBuffer: { amount: 150_000, currency: "EUR" },
       }}
     >
-      {(form) => <BillingSettingsForm form={form} />}
+      {(form) => <BillingSettingsForm form={form} savedWorkdayMinutes={420} />}
     </SettingsFormStory>
   ),
 };

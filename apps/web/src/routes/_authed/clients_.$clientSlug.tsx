@@ -24,6 +24,7 @@ import { ClientDetailPage } from "@/features/clients/components/client-detail-pa
 import { clientDocumentDownloadHref, documentHandlers } from "@/lib/documents";
 import type { FormSubmitResult } from "@/lib/form";
 import { clientLogoHref, logoHandlers } from "@/lib/logos";
+import { operationFilter } from "@/lib/query-invalidation";
 import { serverFieldErrors } from "@/lib/validation";
 
 export const Route = createFileRoute("/_authed/clients_/$clientSlug")({
@@ -71,9 +72,7 @@ function ClientDetailRoute() {
       queryClient.invalidateQueries({
         queryKey: listClientDocumentsQueryKey({ path: { client } }),
       }),
-      queryClient.invalidateQueries({
-        queryKey: [{ _id: "listMissionDocuments" }],
-      }),
+      queryClient.invalidateQueries(operationFilter("listMissionDocuments")),
     ]);
   };
 

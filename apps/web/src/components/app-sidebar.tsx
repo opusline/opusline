@@ -198,7 +198,7 @@ export function AppSidebar() {
                 No treasury endpoint exists yet — the figure arrives with the
                 Trésorerie screen. A dash keeps the tile honest until then.
               */}
-                <div className="font-medium text-ring/70 text-xs uppercase tracking-[.09em]">
+                <div className="font-medium text-ring/70 text-xs uppercase tracking-wider-2">
                   Virable en sécurité
                 </div>
                 <div className="mt-2 font-mono text-2xl text-ring leading-none tabular-nums">

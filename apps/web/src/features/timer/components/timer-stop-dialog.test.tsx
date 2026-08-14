@@ -154,22 +154,12 @@ it("says so in the summary when the entry will not be billed", () => {
   ).toBeInTheDocument();
 });
 
-it("previews what the entry will be worth", () => {
+it("never previews an amount — money comes from the API alone", () => {
   renderDialog();
 
-  expect(screen.getByText("550,00 €")).toBeInTheDocument();
-});
-
-it("previews the smaller amount once the entry deviates", () => {
-  renderDialog({ selectedKey: "exact" });
-
-  expect(screen.getByText("290,71 €")).toBeInTheDocument();
-});
-
-it("shows no amount for an entry taken off the invoice", () => {
-  renderDialog({ billable: false });
-
-  expect(screen.getAllByText("non facturable").length).toBeGreaterThan(0);
+  // The billed quantity ("1 j") is shown; a euro figure would be a promise the
+  // server has not made. See docs/audits/audit-2026-08-14.md, P1-3.
+  expect(screen.queryByText(/€/)).not.toBeInTheDocument();
 });
 
 it("takes the entry off the invoice", () => {
