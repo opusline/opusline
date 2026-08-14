@@ -1,3 +1,8 @@
+import { Input } from "@opusline/ui/components/input";
+import {
+  SegmentedControl,
+  SegmentedControlItem,
+} from "@opusline/ui/components/segmented-control";
 import { cn } from "@opusline/ui/lib/utils";
 import {
   type PointerEvent as ReactPointerEvent,
@@ -16,7 +21,12 @@ const PRINT_FALLBACK_HEIGHT = 260;
 
 const PRINT_INK = "#1f1b18";
 
+const TYPED_MAX_WIDTH_RATIO = 0.85;
+const TYPED_FONT_HEIGHT_RATIO = 0.32;
+
 type Point = { x: number; y: number };
+
+type SignatureMode = "draw" | "type";
 
 export type SignaturePadHandle = {
   clear: () => void;
@@ -30,6 +40,13 @@ type SignaturePadProps = {
   placeholder: string;
   /** Announced once strokes exist, since the canvas cannot report them. */
   drawnLabel: string;
+  /** Which input method the pad opens on; the toggle can always switch. */
+  defaultMode?: SignatureMode;
+  modeToggleLabel?: string;
+  drawModeLabel?: string;
+  typeModeLabel?: string;
+  typedLabel?: string;
+  typedPlaceholder?: string;
   onDrawingChange?: (hasDrawing: boolean) => void;
   ref?: Ref<SignaturePadHandle>;
 };
@@ -46,7 +63,7 @@ function canvasPoint(
   };
 }
 
-function paint(
+function paintStrokes(
   ctx: CanvasRenderingContext2D,
   strokes: Point[][],
   ink: string,
@@ -82,17 +99,54 @@ function paint(
   }
 }
 
+function typedFont(size: number): string {
+  return `italic ${size}px "Lora Variable", serif`;
+}
+
+function paintTypedName(
+  ctx: CanvasRenderingContext2D,
+  name: string,
+  ink: string,
+  width: number,
+  height: number,
+): void {
+  const maxWidth = width * TYPED_MAX_WIDTH_RATIO;
+  let fontSize = height * TYPED_FONT_HEIGHT_RATIO;
+
+  ctx.font = typedFont(fontSize);
+
+  const measuredWidth = ctx.measureText(name).width;
+
+  if (measuredWidth > maxWidth) {
+    fontSize *= maxWidth / measuredWidth;
+    ctx.font = typedFont(fontSize);
+  }
+
+  ctx.fillStyle = ink;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(name, width / 2, height / 2);
+}
+
 export function SignaturePad({
   className,
   label,
   placeholder,
   drawnLabel,
+  defaultMode = "draw",
+  modeToggleLabel = "Méthode de signature",
+  drawModeLabel = "Dessiner",
+  typeModeLabel = "Saisir au clavier",
+  typedLabel = "Nom apposé comme signature",
+  typedPlaceholder = "Votre nom",
   onDrawingChange,
   ref,
 }: SignaturePadProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const strokesRef = useRef<Point[][]>([]);
   const isDrawingRef = useRef(false);
+  const [mode, setMode] = useState<SignatureMode>(defaultMode);
+  const [typedName, setTypedName] = useState("");
   const [hasDrawing, setHasDrawing] = useState(false);
 
   const markDrawing = useCallback(
@@ -102,6 +156,11 @@ export function SignaturePad({
     },
     [onDrawingChange],
   );
+
+  const hasInk = (nextMode: SignatureMode, name: string): boolean =>
+    nextMode === "draw"
+      ? strokesRef.current.length > 0
+      : name.trim().length > 0;
 
   const repaint = useCallback(() => {
     const canvas = canvasRef.current;
@@ -113,27 +172,48 @@ export function SignaturePad({
 
     const bounds = canvas.getBoundingClientRect();
     const scale = bounds.width > 0 ? canvas.width / bounds.width : 1;
+    const ink = getComputedStyle(canvas).color;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    paint(
-      ctx,
-      strokesRef.current,
-      getComputedStyle(canvas).color,
-      canvas.width,
-      canvas.height,
-      STROKE_WIDTH * scale,
-    );
-  }, []);
+
+    if (mode === "draw") {
+      paintStrokes(
+        ctx,
+        strokesRef.current,
+        ink,
+        canvas.width,
+        canvas.height,
+        STROKE_WIDTH * scale,
+      );
+    } else if (typedName.trim() !== "") {
+      paintTypedName(ctx, typedName.trim(), ink, canvas.width, canvas.height);
+    }
+  }, [mode, typedName]);
+
+  // The observers below live for the component's lifetime; they reach the
+  // latest repaint through this ref so a keystroke in the name field does not
+  // tear them down and rebuild them (the ResizeObserver's setup clears the
+  // canvas and forces a layout).
+  const repaintRef = useRef(repaint);
 
   useEffect(() => {
-    const observer = new MutationObserver(repaint);
+    repaintRef.current = repaint;
+    repaint();
+  }, [repaint]);
+
+  useEffect(() => {
+    // The canvas does not reflow when Lora finishes loading, so the first
+    // typed paint may land in the fallback serif; repaint once fonts settle.
+    void document.fonts?.ready.then(() => repaintRef.current());
+
+    const observer = new MutationObserver(() => repaintRef.current());
 
     observer.observe(document.documentElement, {
       attributeFilter: ["class"],
     });
 
     return () => observer.disconnect();
-  }, [repaint]);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -153,7 +233,7 @@ export function SignaturePad({
 
       canvas.width = Math.round(width * ratio);
       canvas.height = Math.round(height * ratio);
-      repaint();
+      repaintRef.current();
     };
 
     resize();
@@ -163,13 +243,14 @@ export function SignaturePad({
     observer.observe(canvas);
 
     return () => observer.disconnect();
-  }, [repaint]);
+  }, []);
 
   useImperativeHandle(
     ref,
     () => ({
       clear: () => {
         strokesRef.current = [];
+        setTypedName("");
         repaint();
         markDrawing(false);
       },
@@ -198,24 +279,50 @@ export function SignaturePad({
             return;
           }
 
-          paint(
-            ctx,
-            strokesRef.current,
-            PRINT_INK,
-            printable.width,
-            printable.height,
-            STROKE_WIDTH * (bounds.width > 0 ? PRINT_WIDTH / bounds.width : 1),
-          );
+          if (mode === "draw") {
+            paintStrokes(
+              ctx,
+              strokesRef.current,
+              PRINT_INK,
+              printable.width,
+              printable.height,
+              STROKE_WIDTH *
+                (bounds.width > 0 ? PRINT_WIDTH / bounds.width : 1),
+            );
+          } else if (typedName.trim() !== "") {
+            paintTypedName(
+              ctx,
+              typedName.trim(),
+              PRINT_INK,
+              printable.width,
+              printable.height,
+            );
+          }
+
           printable.toBlob(resolve, "image/png");
         }),
     }),
-    [markDrawing, repaint],
+    [markDrawing, repaint, mode, typedName],
   );
+
+  const changeMode = (value: unknown[]) => {
+    const next = value[0];
+
+    if (next === "draw" || next === "type") {
+      setMode(next);
+      markDrawing(hasInk(next, typedName));
+    }
+  };
+
+  const changeTypedName = (name: string) => {
+    setTypedName(name);
+    markDrawing(hasInk("type", name));
+  };
 
   const startStroke = (event: ReactPointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
 
-    if (canvas === null) {
+    if (canvas === null || mode !== "draw") {
       return;
     }
 
@@ -247,35 +354,57 @@ export function SignaturePad({
   };
 
   return (
-    <figure
-      aria-label={label}
-      className={cn(
-        "relative overflow-hidden rounded-md border border-border-3 border-dashed bg-muted",
-        className,
+    <div className={cn("flex flex-col gap-2.5", className)}>
+      <SegmentedControl
+        aria-label={modeToggleLabel}
+        className="self-start"
+        onValueChange={changeMode}
+        value={[mode]}
+      >
+        <SegmentedControlItem value="draw">
+          {drawModeLabel}
+        </SegmentedControlItem>
+        <SegmentedControlItem value="type">
+          {typeModeLabel}
+        </SegmentedControlItem>
+      </SegmentedControl>
+      {mode === "type" && (
+        <Input
+          aria-label={typedLabel}
+          onChange={(event) => changeTypedName(event.target.value)}
+          placeholder={typedPlaceholder}
+          value={typedName}
+        />
       )}
-    >
-      {hasDrawing ? null : (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-muted-foreground-5 text-sm">
-          {placeholder}
-        </div>
-      )}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-6.5 bottom-8.5 h-px bg-border"
-      />
-      <canvas
-        aria-hidden
-        className="block h-47.5 w-full cursor-crosshair touch-none text-foreground"
-        onPointerCancel={endStroke}
-        onPointerDown={startStroke}
-        onPointerLeave={endStroke}
-        onPointerMove={extendStroke}
-        onPointerUp={endStroke}
-        ref={canvasRef}
-      />
+      <figure
+        aria-label={label}
+        className="relative overflow-hidden rounded-md border border-border-3 border-dashed bg-muted"
+      >
+        {mode === "draw" && !hasDrawing ? (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-muted-foreground-5 text-sm">
+            {placeholder}
+          </div>
+        ) : null}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-6.5 bottom-8.5 h-px bg-border"
+        />
+        <canvas
+          aria-hidden
+          className={cn(
+            "block h-47.5 w-full touch-none text-foreground",
+            mode === "draw" ? "cursor-crosshair" : "pointer-events-none",
+          )}
+          onPointerCancel={endStroke}
+          onPointerDown={startStroke}
+          onPointerMove={extendStroke}
+          onPointerUp={endStroke}
+          ref={canvasRef}
+        />
+      </figure>
       <p className="sr-only" role="status">
-        {hasDrawing ? drawnLabel : null}
+        {mode === "draw" && hasDrawing ? drawnLabel : null}
       </p>
-    </figure>
+    </div>
   );
 }

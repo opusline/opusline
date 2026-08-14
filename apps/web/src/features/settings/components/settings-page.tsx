@@ -183,7 +183,10 @@ export function SettingsPage({
               )}
             </TabsContent>
             <TabsContent keepMounted value="facturation">
-              <BillingSettingsForm form={form} />
+              <BillingSettingsForm
+                form={form}
+                savedWorkdayMinutes={settings.workdayMinutes}
+              />
             </TabsContent>
           </form>
 

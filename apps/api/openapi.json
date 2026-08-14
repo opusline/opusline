@@ -4121,6 +4121,38 @@
                 ],
                 "title": "EntryRounding"
             },
+            "InvoiceClientTotalsData": {
+                "type": "object",
+                "properties": {
+                    "clientId": {
+                        "type": "integer"
+                    },
+                    "all": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "open": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "late": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "paid": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "draft": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "clientId",
+                    "all",
+                    "open",
+                    "late",
+                    "paid",
+                    "draft"
+                ],
+                "title": "InvoiceClientTotalsData"
+            },
             "InvoiceCountsData": {
                 "type": "object",
                 "properties": {
@@ -4369,10 +4401,17 @@
                         "items": {
                             "$ref": "#/components/schemas/InvoiceListItemData"
                         }
+                    },
+                    "clientTotals": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoiceClientTotalsData"
+                        }
                     }
                 },
                 "required": [
-                    "invoices"
+                    "invoices",
+                    "clientTotals"
                 ],
                 "title": "InvoiceListData"
             },
@@ -5069,6 +5108,12 @@
                     "dateFormat": {
                         "$ref": "#/components/schemas/DateFormat"
                     },
+                    "timezone": {
+                        "type": "string"
+                    },
+                    "workdayMinutes": {
+                        "type": "integer"
+                    },
                     "hasSignature": {
                         "type": "boolean"
                     }
@@ -5112,6 +5157,8 @@
                     "currencyLocked",
                     "locale",
                     "dateFormat",
+                    "timezone",
+                    "workdayMinutes",
                     "hasSignature"
                 ],
                 "title": "SettingsData"
@@ -5767,6 +5814,14 @@
                     "dateFormat": {
                         "$ref": "#/components/schemas/DateFormat"
                     },
+                    "timezone": {
+                        "type": "string"
+                    },
+                    "workdayMinutes": {
+                        "type": "integer",
+                        "minimum": 60,
+                        "maximum": 1440
+                    },
                     "urssafPeriodicity": {
                         "$ref": "#/components/schemas/UrssafPeriodicity"
                     },
@@ -5939,6 +5994,8 @@
                     "businessCountry",
                     "locale",
                     "dateFormat",
+                    "timezone",
+                    "workdayMinutes",
                     "urssafPeriodicity",
                     "autoRates",
                     "acre",
@@ -6107,6 +6164,9 @@
                     "hasFrenchFiscality": {
                         "type": "boolean"
                     },
+                    "timezone": {
+                        "type": "string"
+                    },
                     "workdayMinutes": {
                         "type": "integer"
                     }
@@ -6121,6 +6181,7 @@
                     "currency",
                     "businessCountry",
                     "hasFrenchFiscality",
+                    "timezone",
                     "workdayMinutes"
                 ],
                 "title": "UserData"

@@ -29,6 +29,51 @@ test('returns a null mission for a client-wide invoice', function (): void {
         ->assertJsonPath('invoices.0.mission', null);
 });
 
+test('totals each client per scope so the screen never sums money', function (): void {
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    invoiceOwnedBy($user, $client, fn ($factory) => $factory->state(['amount_ttc_cents' => 10_000]));
+    invoiceOwnedBy($user, $client, fn ($factory) => $factory->sent()->state([
+        'amount_ttc_cents' => 20_000,
+        'due_on' => '2030-01-01',
+    ]));
+    invoiceOwnedBy($user, $client, fn ($factory) => $factory->overdue()->state(['amount_ttc_cents' => 40_000]));
+    invoiceOwnedBy($user, $client, fn ($factory) => $factory->paid()->state(['amount_ttc_cents' => 80_000]));
+
+    $otherClient = Client::factory()->for($user)->create();
+    invoiceOwnedBy($user, $otherClient, fn ($factory) => $factory->paid()->state(['amount_ttc_cents' => 100_000]));
+
+    $response = $this->actingAs($user)
+        ->getJson('/api/invoices')
+        ->assertOk()
+        ->assertJsonCount(2, 'clientTotals');
+
+    $totals = collect($response->json('clientTotals'))->keyBy('clientId');
+
+    expect($totals[$client->id]['all']['amount'])->toBe(150_000)
+        ->and($totals[$client->id]['open']['amount'])->toBe(60_000)
+        ->and($totals[$client->id]['late']['amount'])->toBe(40_000)
+        ->and($totals[$client->id]['paid']['amount'])->toBe(80_000)
+        ->and($totals[$client->id]['draft']['amount'])->toBe(10_000)
+        ->and($totals[$otherClient->id]['all']['amount'])->toBe(100_000);
+});
+
+test('keeps the client totals whole when the list itself is filtered', function (): void {
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+    invoiceOwnedBy($user, $client, fn ($factory) => $factory->state(['amount_ttc_cents' => 10_000]));
+    invoiceOwnedBy($user, $client, fn ($factory) => $factory->paid()->state(['amount_ttc_cents' => 80_000]));
+
+    $this->actingAs($user)
+        ->getJson('/api/invoices?status='.InvoiceStatus::Paid->value)
+        ->assertOk()
+        ->assertJsonCount(1, 'invoices')
+        ->assertJsonPath('clientTotals.0.all.amount', 90_000)
+        ->assertJsonPath('clientTotals.0.draft.amount', 10_000)
+        ->assertJsonPath('clientTotals.0.paid.amount', 80_000);
+});
+
 test('filters by status', function (): void {
     $user = User::factory()->create();
     invoiceOwnedBy($user);

@@ -2,7 +2,6 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "storybook",
   "compilerOptions": {
-    "plugins": [{ "name": "next" }],
     "allowJs": true,
     "declaration": false,
     "declarationMap": false,
@@ -22,7 +21,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
     "paths": {
       "@opusline/ui/*": ["../../packages/ui/src/*"]
     }

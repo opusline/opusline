@@ -31,7 +31,7 @@ import { InvoiceMonthCard } from "@/features/invoices/components/invoice-month-c
 import { InvoiceSummaryTiles } from "@/features/invoices/components/invoice-summary-tiles";
 import { InvoiceTodoPanel } from "@/features/invoices/components/invoice-todo-panel";
 import { InvoicesTable } from "@/features/invoices/components/invoices-table";
-import { todayCalendarDate } from "@/lib/dates";
+import { accountTodayCalendarDate } from "@/lib/dates";
 import { serverErrorMessage } from "@/lib/validation";
 
 export const Route = createFileRoute("/_authed/factures")({
@@ -39,6 +39,7 @@ export const Route = createFileRoute("/_authed/factures")({
 });
 
 function FacturesPage() {
+  const { user } = Route.useRouteContext();
   const format = useMoneyFormat();
   const queryClient = useQueryClient();
   const invoices = useQuery(listInvoicesOptions());
@@ -137,6 +138,8 @@ function FacturesPage() {
         // only an issued invoice counts towards what is still to be collected. Without
         // one it stays a draft, which is what the dialog says it will do.
         status: input.number === null ? 0 : 1,
+        // A stale render-context currency is refused by the API (422);
+        // see settings-form.ts for the one case needing the snapshot.
         amountHt: { amount: input.amountHtCents, currency: format.currency },
         periodStart: input.periodStart,
         periodEnd: input.periodEnd,
@@ -148,7 +151,7 @@ function FacturesPage() {
   const noteReminder = (invoiceId: number) => {
     remind.mutate({
       path: { invoice: invoiceId },
-      body: { occurredOn: todayCalendarDate(), note: null },
+      body: { occurredOn: accountTodayCalendarDate(user.timezone), note: null },
     });
   };
 
@@ -245,6 +248,8 @@ function FacturesPage() {
           )}
           {invoices.data !== undefined && (
             <InvoicesTable
+              accountToday={accountTodayCalendarDate(user.timezone)}
+              clientTotals={invoices.data.clientTotals}
               invoices={invoices.data.invoices}
               onOpen={setOpenInvoiceId}
             />
@@ -278,6 +283,7 @@ function FacturesPage() {
         actions={
           detail.data === undefined ? null : (
             <InvoiceLifecycleActions
+              accountToday={accountTodayCalendarDate(user.timezone)}
               invoice={detail.data.invoice}
               isPending={
                 send.isPending || setReference.isPending || pay.isPending

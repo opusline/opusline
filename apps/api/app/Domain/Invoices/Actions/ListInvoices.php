@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Actions;
 
+use App\Domain\Invoices\Data\InvoiceClientTotalsData;
 use App\Domain\Invoices\Data\ListInvoicesData;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Users\Models\User;
-use Carbon\CarbonImmutable;
+use Cknow\Money\Money;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 class ListInvoices
 {
@@ -41,12 +44,13 @@ class ListInvoices
         }
 
         if ($data->late !== null) {
+            $accountToday = $user->settingsOrFail()->today()->toDateString();
             $overdue =
                 /** @param Builder<Invoice> $builder */
-                function (Builder $builder): void {
+                function (Builder $builder) use ($accountToday): void {
                     $builder
                         ->where('status', InvoiceStatus::Sent)
-                        ->where('due_on', '<', CarbonImmutable::today()->toDateString());
+                        ->where('due_on', '<', $accountToday);
                 };
 
             $data->late ? $query->where($overdue) : $query->whereNot($overdue);
@@ -57,5 +61,58 @@ class ListInvoices
             ->orderByDesc('id')
             ->get()
             ->all();
+    }
+
+    /**
+     * The gross total each client's rows add up to, per scope chip, so the screen
+     * only groups and orders — it never sums money itself.
+     *
+     * Summed over every invoice of the account, not the rows the list request
+     * returned: the list accepts status/late/date filters, and totals derived
+     * from a filtered page would quietly change meaning per request.
+     *
+     * @return list<InvoiceClientTotalsData>
+     */
+    public function clientTotals(User $user): array
+    {
+        $settings = $user->settingsOrFail();
+        $currency = $settings->currency;
+
+        /** @var Collection<int, object{client_id: int, all_cents: int|numeric-string, open_cents: int|numeric-string, late_cents: int|numeric-string, paid_cents: int|numeric-string, draft_cents: int|numeric-string}> $rows */
+        $rows = $user->invoices()
+            ->toBase()
+            ->selectRaw(
+                'client_id,
+                SUM(amount_ttc_cents) as all_cents,
+                SUM(CASE WHEN status = ? THEN amount_ttc_cents ELSE 0 END) as open_cents,
+                SUM(CASE WHEN status = ? AND due_on < ? THEN amount_ttc_cents ELSE 0 END) as late_cents,
+                SUM(CASE WHEN status = ? THEN amount_ttc_cents ELSE 0 END) as paid_cents,
+                SUM(CASE WHEN status = ? THEN amount_ttc_cents ELSE 0 END) as draft_cents',
+                [
+                    InvoiceStatus::Sent->value,
+                    InvoiceStatus::Sent->value,
+                    $settings->today()->toDateString(),
+                    InvoiceStatus::Paid->value,
+                    InvoiceStatus::Draft->value,
+                ],
+            )
+            ->groupBy('client_id')
+            ->orderBy('client_id')
+            ->get();
+
+        $totals = [];
+
+        foreach ($rows as $row) {
+            $totals[] = new InvoiceClientTotalsData(
+                clientId: (int) $row->client_id,
+                all: new MoneyData((int) $row->all_cents, $currency),
+                open: new MoneyData((int) $row->open_cents, $currency),
+                late: new MoneyData((int) $row->late_cents, $currency),
+                paid: new MoneyData((int) $row->paid_cents, $currency),
+                draft: new MoneyData((int) $row->draft_cents, $currency),
+            );
+        }
+
+        return $totals;
     }
 }

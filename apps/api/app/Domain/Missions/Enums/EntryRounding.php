@@ -48,6 +48,12 @@ enum EntryRounding: int
      * minor units with one explicit rounding step, and 1/3 of a day has no float
      * representation to round from. Callers pricing tracked time use this instead.
      *
+     * Capped at one day: a client is billed days, not overtime, so nine hours on a
+     * seven-hour workday is still one day. The cap applies to whatever quantity the
+     * caller measures — a single entry here, the day's summed minutes on the CRA —
+     * so a day split across entries can still bill more than the CRA reports; see
+     * MaterializeCraDays::grid() for why the two aggregate differently.
+     *
      * @return array{int, int}
      */
     public function billedDayFraction(int $minutes, int $workdayMinutes): array
@@ -59,11 +65,11 @@ enum EntryRounding: int
         };
 
         if ($stepsPerDay === null) {
-            return [$minutes, $workdayMinutes];
+            return [min($minutes, $workdayMinutes), $workdayMinutes];
         }
 
         return [
-            $this->startedSteps($minutes, (int) round($workdayMinutes / $stepsPerDay)),
+            min($this->startedSteps($minutes, (int) round($workdayMinutes / $stepsPerDay)), $stepsPerDay),
             $stepsPerDay,
         ];
     }

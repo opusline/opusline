@@ -23,8 +23,9 @@ class SuggestInvoiceNumber
 
     public function handle(User $user): NextInvoiceNumberData
     {
-        $format = $user->settings()->sole()->invoice_number_format;
-        $today = CarbonImmutable::today();
+        $settings = $user->settingsOrFail();
+        $format = $settings->invoice_number_format;
+        $today = $settings->today();
 
         [$prefix, $suffix] = $this->renderAroundCounter($format, $today);
 

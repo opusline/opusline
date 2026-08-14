@@ -38,6 +38,7 @@ class InvoiceController extends Controller
 
         return response()->json(new InvoiceListData(
             invoices: array_values(InvoiceListItemData::collect($invoices, 'array')),
+            clientTotals: $listInvoices->clientTotals($user),
         ));
     }
 

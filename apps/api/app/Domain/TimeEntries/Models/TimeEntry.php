@@ -8,6 +8,7 @@ use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Enums\EntryRounding;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Casts\CalendarDate;
+use App\Domain\Shared\Concerns\ResolvesAccountSettings;
 use App\Domain\Shared\Routing\OwnedRouteBinding;
 use App\Domain\TimeEntries\Factories\TimeEntryFactory;
 use App\Domain\Users\Models\User;
@@ -30,6 +31,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  * @property-read Mission $mission
+ * @property-read User $user
  */
 #[Fillable([
     'mission_id',
@@ -46,6 +48,8 @@ class TimeEntry extends Model
 
     /** @use HasFactory<TimeEntryFactory> */
     use HasFactory;
+
+    use ResolvesAccountSettings;
 
     protected static function newFactory(): TimeEntryFactory
     {
@@ -94,7 +98,7 @@ class TimeEntry extends Model
 
         return $this->effectiveRounding()->valueDayFraction(
             $this->duration_minutes,
-            config()->integer('app.workday_minutes'),
+            $this->accountSettings()->workday_minutes,
         );
     }
 

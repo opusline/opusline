@@ -14,6 +14,7 @@ function renderActions(
   render(
     <InvoiceLifecycleActions
       invoice={invoiceDetail({ status: 1 }).invoice}
+      accountToday="2026-08-14"
       isPending={false}
       error={null}
       onSend={onSend}

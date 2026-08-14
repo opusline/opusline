@@ -28,7 +28,10 @@ class ValidateCra
             ]);
         }
 
-        if ($month->startOfMonth()->isAfter(CarbonImmutable::today()->startOfMonth())) {
+        // Compared as Y-m strings: the month is a UTC-midnight instant while the
+        // account's today lives in its own timezone, and comparing instants across
+        // zones misreads the calendar around midnight.
+        if ($month->format('Y-m') > $mission->user->settingsOrFail()->today()->format('Y-m')) {
             throw ValidationException::withMessages([
                 'month' => __('cra.month_is_in_the_future'),
             ]);

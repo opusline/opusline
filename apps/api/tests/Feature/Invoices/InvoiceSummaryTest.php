@@ -107,6 +107,27 @@ test('values tracked time that no invoice covers, month by month', function (): 
         ->assertJsonPath('monthUnbilled.count', 1);
 });
 
+test('bills overtime as one day, matching the CRA figure', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user, fn ($factory) => $factory->state([
+        'rate_cents' => 55_000,
+        'rounding' => EntryRounding::Half,
+    ]));
+
+    // Eight hours on a seven-hour workday: the CRA reports one day, so the
+    // amount to invoice is one day too — never 1.5 × TJM.
+    TimeEntry::factory()->for($mission, 'mission')->create([
+        'user_id' => $user->id,
+        'date' => '2026-08-03',
+        'duration_minutes' => 480,
+    ]);
+
+    $this->actingAs($user)
+        ->getJson('/api/invoices/summary')
+        ->assertOk()
+        ->assertJsonPath('monthUnbilled.amount.amount', 55_000);
+});
+
 test('counts one period per mission, not per entry', function (): void {
     $user = User::factory()->create();
 

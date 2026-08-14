@@ -18,6 +18,7 @@ use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Timers\Factories\RunningTimerFactory;
 use App\Domain\Timers\Models\RunningTimer;
 use App\Domain\Users\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -64,6 +65,8 @@ function settingsPayload(array $overrides = []): array
         'businessCountry' => 'FR',
         'locale' => Locale::fr_FR->value,
         'dateFormat' => DateFormat::DayMonthYear->value,
+        'timezone' => 'Europe/Paris',
+        'workdayMinutes' => 420,
         'urssafPeriodicity' => UrssafPeriodicity::Monthly->value,
         'autoRates' => false,
         'acre' => false,
@@ -76,6 +79,16 @@ function settingsPayload(array $overrides = []): array
         'invoiceNumberFormat' => 'AAAA-NNN',
         'homeAddressSameAsCompany' => true,
     ], $overrides);
+}
+
+/**
+ * Freeze the clock at noon UTC, where the account's date (Europe/Paris by
+ * default) and UTC's agree: near midnight they differ, and "today" assertions
+ * would flip depending on the hour the suite runs.
+ */
+function freezeTodayAtUtcNoon(): void
+{
+    test()->travelTo(CarbonImmutable::parse('2026-08-13 12:00:00', 'UTC'));
 }
 
 function fromSpa(): TestCase

@@ -24,7 +24,7 @@ const COLUMN_TEMPLATES = {
 } as const;
 
 const HEAD_CLASSES =
-  "font-medium text-muted-foreground-2 text-xs uppercase tracking-[0.09em]";
+  "font-medium text-muted-foreground-2 text-xs uppercase tracking-wider-2";
 
 const GridRow = (props: ComponentProps<"div">) => (
   // biome-ignore lint/a11y/useSemanticElements: see above — ARIA grid, not a table.

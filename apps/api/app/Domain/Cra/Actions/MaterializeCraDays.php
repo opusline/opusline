@@ -21,18 +21,12 @@ use Illuminate\Support\Collection as SupportCollection;
  */
 class MaterializeCraDays
 {
-    private readonly int $workdayMinutes;
-
-    public function __construct()
-    {
-        $this->workdayMinutes = config()->integer('app.workday_minutes');
-    }
-
     /**
      * @return array<string, int>
      */
     public function handle(Mission $mission, CarbonImmutable $month): array
     {
+        $workdayMinutes = $mission->user->settingsOrFail()->workday_minutes;
         /** @var SupportCollection<int, object{date: string, minutes: int|numeric-string}> $rows */
         $rows = $mission->timeEntries()
             ->where('billable', true)
@@ -51,7 +45,7 @@ class MaterializeCraDays
             $minutesPerDay[$row->date] = (int) $row->minutes;
         }
 
-        $grid = $this->grid($minutesPerDay, $mission->effectiveRounding());
+        $grid = $this->grid($minutesPerDay, $mission->effectiveRounding(), $workdayMinutes);
 
         // Sorted here rather than in grid(): DescribeCra compares this against a stored
         // grid with a strict !==, which is key-order sensitive. The monthly totals path
@@ -73,6 +67,8 @@ class MaterializeCraDays
         if ($missions->isEmpty()) {
             return [];
         }
+
+        $workdayMinutes = $user->settingsOrFail()->workday_minutes;
 
         // Aggregated in SQL rather than hydrated: this runs on every list, and an
         // account with years of tracking would otherwise pull every entry it ever
@@ -96,7 +92,7 @@ class MaterializeCraDays
         $totals = [];
 
         foreach ($missions as $mission) {
-            $grid = $this->grid($byMission[$mission->id] ?? [], $mission->effectiveRounding());
+            $grid = $this->grid($byMission[$mission->id] ?? [], $mission->effectiveRounding(), $workdayMinutes);
 
             $byMonth = [];
 
@@ -127,19 +123,16 @@ class MaterializeCraDays
      * @param  array<string, int>  $minutesPerDay
      * @return array<string, int>
      */
-    private function grid(array $minutesPerDay, EntryRounding $missionRounding): array
+    private function grid(array $minutesPerDay, EntryRounding $missionRounding, int $workdayMinutes): array
     {
         $grid = [];
 
         foreach ($minutesPerDay as $date => $minutes) {
-            [$numerator, $denominator] = $missionRounding->billedDayFraction($minutes, $this->workdayMinutes);
+            // billedDayFraction() caps the day at one workday — a client is billed
+            // days, not overtime — so the grid never exceeds FULL_DAY_BP.
+            [$numerator, $denominator] = $missionRounding->billedDayFraction($minutes, $workdayMinutes);
 
-            // A client is billed days, not overtime: nine hours on a seven-hour workday
-            // is still one day. The clamp shows up as an écart against tracked time.
-            $grid[$date] = min(
-                (int) round($numerator * CraDay::FULL_DAY_BP / $denominator),
-                CraDay::FULL_DAY_BP,
-            );
+            $grid[$date] = (int) round($numerator * CraDay::FULL_DAY_BP / $denominator);
         }
 
         return $grid;

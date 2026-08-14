@@ -25,8 +25,9 @@ import type { NewEntrySubmit } from "@/features/week/components/new-entry-dialog
 import { WeekPage } from "@/features/week/components/week-page";
 import { planWeekRepeat } from "@/features/week/lib/repeat-week";
 import { cellKeyFor, type LiveCell } from "@/features/week/lib/week-grid";
-import { todayCalendarDate } from "@/lib/dates";
+import { browserTodayCalendarDate } from "@/lib/dates";
 import { provisionalBilledLabel } from "@/lib/durations";
+import { operationFilter } from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { isIsoWeek, isoWeekOf, isoWeekRange, shiftIsoWeek } from "@/lib/weeks";
 
@@ -53,7 +54,7 @@ function SemaineRoute() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const today = todayCalendarDate();
+  const today = browserTodayCalendarDate();
   const week = search.week ?? isoWeekOf(today);
   const previousWeek = shiftIsoWeek(week, -1);
 
@@ -86,12 +87,11 @@ function SemaineRoute() {
   const deleteEntry = useMutation(deleteTimeEntryMutation());
 
   const refreshEntries = (scope: "week" | "all" = "week") =>
-    queryClient.invalidateQueries({
-      queryKey:
-        scope === "all"
-          ? [{ _id: "listTimeEntries" }]
-          : listTimeEntriesQueryKey({ query: isoWeekRange(week) }),
-    });
+    queryClient.invalidateQueries(
+      scope === "all"
+        ? operationFilter("listTimeEntries")
+        : { queryKey: listTimeEntriesQueryKey({ query: isoWeekRange(week) }) },
+    );
 
   const runWrite = async (
     cellKey: string,

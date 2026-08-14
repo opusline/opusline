@@ -10,6 +10,7 @@ use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Factories\InvoiceFactory;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Casts\CalendarDate;
+use App\Domain\Shared\Concerns\ResolvesAccountSettings;
 use App\Domain\Shared\Routing\OwnedRouteBinding;
 use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Users\Models\User;
@@ -42,6 +43,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  * @property-read Client $client
+ * @property-read User $user
  * @property-read ?Mission $mission
  */
 #[Fillable([
@@ -64,6 +66,8 @@ class Invoice extends Model
 {
     /** @use HasFactory<InvoiceFactory> */
     use HasFactory;
+
+    use ResolvesAccountSettings;
 
     protected static function newFactory(): InvoiceFactory
     {
@@ -176,6 +180,6 @@ class Invoice extends Model
     public function isLate(): bool
     {
         return $this->status === InvoiceStatus::Sent
-            && $this->due_on->isBefore(CarbonImmutable::today());
+            && $this->due_on->isBefore($this->accountSettings()->today());
     }
 }

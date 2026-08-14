@@ -24,7 +24,8 @@ test('the current user endpoint returns the authenticated user', function (): vo
             'currency' => Currency::EUR->value,
             'businessCountry' => 'FR',
             'hasFrenchFiscality' => true,
-            'workdayMinutes' => config()->integer('app.workday_minutes'),
+            'timezone' => 'Europe/Paris',
+            'workdayMinutes' => 420,
         ]);
 });
 

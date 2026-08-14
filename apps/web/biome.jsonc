@@ -25,6 +25,24 @@
                   {
                     "group": ["@/routes/**", "**/routes/**"],
                     "message": "Features must not import the routes layer."
+                  },
+                  {
+                    "group": ["@radix-ui/**"],
+                    "message": "The design system is Base UI everywhere - do not add Radix primitives."
+                  },
+                  {
+                    "group": [
+                      "react-icons",
+                      "react-icons/**",
+                      "@heroicons/**",
+                      "@fortawesome/**",
+                      "@tabler/icons-react",
+                      "@tabler/icons-react/**",
+                      "@phosphor-icons/**",
+                      "@mui/icons-material",
+                      "@mui/icons-material/**"
+                    ],
+                    "message": "Lucide (lucide-react) is the only icon library."
                   }
                 ]
               }
@@ -52,6 +70,24 @@
                   {
                     "group": ["@/routes/**", "**/routes/**"],
                     "message": "lib and components must not import the routes layer."
+                  },
+                  {
+                    "group": ["@radix-ui/**"],
+                    "message": "The design system is Base UI everywhere - do not add Radix primitives."
+                  },
+                  {
+                    "group": [
+                      "react-icons",
+                      "react-icons/**",
+                      "@heroicons/**",
+                      "@fortawesome/**",
+                      "@tabler/icons-react",
+                      "@tabler/icons-react/**",
+                      "@phosphor-icons/**",
+                      "@mui/icons-material",
+                      "@mui/icons-material/**"
+                    ],
+                    "message": "Lucide (lucide-react) is the only icon library."
                   }
                 ]
               }

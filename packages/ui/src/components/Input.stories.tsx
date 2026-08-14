@@ -29,12 +29,14 @@ export const Mono: Story = {
 export const Invalid: Story = {
   args: {
     "aria-invalid": true,
+    "aria-label": "Adresse e-mail",
     defaultValue: "pas-un-email",
   },
 };
 
 export const Disabled: Story = {
   args: {
+    "aria-label": "Champ verrouillé",
     defaultValue: "Champ verrouillé",
     disabled: true,
   },

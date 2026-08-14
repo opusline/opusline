@@ -17,7 +17,7 @@ export function BillableToggle({ billable, onChange }: BillableToggleProps) {
         id={id}
         onCheckedChange={(checked) => onChange(!checked)}
       />
-      <Label className="text-muted-foreground-3 text-xs" htmlFor={id}>
+      <Label tone="quiet" htmlFor={id}>
         Non facturable
       </Label>
     </div>

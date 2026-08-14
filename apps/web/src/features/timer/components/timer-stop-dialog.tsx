@@ -13,10 +13,8 @@ import { Label } from "@opusline/ui/components/label";
 import { useId } from "react";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { matchingNotes, NoteSuggestions } from "@/components/note-suggestions";
-import { formatAmountWithCents } from "@/lib/billing";
 import { formatDurationInput, formatWorkedTime } from "@/lib/durations";
 import {
-  AMOUNT_LABEL,
   CANCEL,
   DEFAULT_BADGE,
   durationClamped,
@@ -25,7 +23,6 @@ import {
   measuredDuration,
   missionRoundingHint,
   NON_BILLABLE,
-  NOT_BILLABLE_VALUE,
   NOTE_LABEL,
   ROUNDING_LABEL,
   roundingDeviation,
@@ -215,7 +212,7 @@ export function TimerStopDialog({
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label className="text-muted-foreground-3 text-xs" htmlFor={noteId}>
+            <Label tone="quiet" htmlFor={noteId}>
               {NOTE_LABEL}
             </Label>
             <Input
@@ -236,23 +233,9 @@ export function TimerStopDialog({
               id={billableId}
               onCheckedChange={(checked) => onChangeBillable(!checked)}
             />
-            <Label
-              className="text-muted-foreground-3 text-xs"
-              htmlFor={billableId}
-            >
+            <Label tone="quiet" htmlFor={billableId}>
               {NON_BILLABLE}
             </Label>
-          </div>
-
-          <div className="flex items-center justify-between gap-3 border-border border-t pt-4">
-            <span className="text-muted-foreground-3 text-sm">
-              {AMOUNT_LABEL}
-            </span>
-            <span className="font-mono text-primary-text text-sm tabular-nums">
-              {selected.amountCents === null || !billable
-                ? NOT_BILLABLE_VALUE
-                : formatAmountWithCents(format, selected.amountCents)}
-            </span>
           </div>
 
           {error !== null && (

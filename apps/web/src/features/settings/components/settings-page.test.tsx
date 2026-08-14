@@ -32,6 +32,7 @@ function renderPage(
         currency: "EUR",
         locale: "fr-FR",
         dateFormat: 0,
+        timezone: "Europe/Paris",
       },
       isSaving: false,
       error: null,
@@ -189,6 +190,7 @@ it("batches the localisation changes into one save", () => {
     currency: "USD",
     locale: "en-US",
     dateFormat: 0,
+    timezone: "Europe/Paris",
   });
 });
 

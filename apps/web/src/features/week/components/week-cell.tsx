@@ -128,7 +128,7 @@ export function WeekCell({
           "text-transparent hover:bg-accent hover:text-muted-foreground-2",
         // Focus has moved into the popover, so the cell says so itself.
         isActive && "outline-2 -outline-offset-2 outline-primary-text",
-        isPending && "opacity-60",
+        isPending && "opacity-80",
       )}
       data-cell={cell.key}
       onClick={editor === null ? () => onActivate(cell.key) : undefined}
@@ -143,7 +143,7 @@ export function WeekCell({
             <span
               className={cn(
                 "flex h-full items-center justify-center gap-1.5 text-xs",
-                live === null ? "min-h-11" : "min-h-6 text-muted-foreground-4",
+                live === null ? "min-h-11" : "min-h-6 text-muted-foreground-2",
               )}
             >
               <PlusIcon aria-hidden className="size-3" strokeWidth={2.2} />

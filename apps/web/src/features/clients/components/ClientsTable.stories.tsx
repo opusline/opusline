@@ -1,11 +1,19 @@
 import type { ClientWithMissionsData } from "@opusline/api-client";
 import type { Meta, StoryObj } from "@storybook/react";
+import { StoryRouter } from "@/test/story-router";
 import { ClientsTable } from "./clients-table";
 
 const meta = {
   title: "Web/ClientsTable",
   component: ClientsTable,
   tags: ["autodocs"],
+  decorators: [
+    (Story) => (
+      <StoryRouter>
+        <Story />
+      </StoryRouter>
+    ),
+  ],
 } satisfies Meta<typeof ClientsTable>;
 
 export default meta;

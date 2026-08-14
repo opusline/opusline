@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Invoices\Actions;
 
 use Cknow\Money\Money;
+use Money\Money as MoneyPhp;
 
 class ComputeInvoiceAmounts
 {
@@ -14,7 +15,7 @@ class ComputeInvoiceAmounts
     {
         return $amountHt
             ->multiply($vatRateBp)
-            ->divide(self::BASIS_POINTS);
+            ->divide(self::BASIS_POINTS, MoneyPhp::ROUND_HALF_UP);
     }
 
     public function ttcFor(Money $amountHt, int $vatRateBp): Money

@@ -198,5 +198,7 @@ export const DEMO_SETTINGS = {
   currencyLocked: false,
   locale: "fr-FR",
   dateFormat: 0,
+  timezone: "Europe/Paris",
+  workdayMinutes: 420,
   hasSignature: true,
 } satisfies SettingsData;

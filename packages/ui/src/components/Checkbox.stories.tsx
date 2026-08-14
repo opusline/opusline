@@ -23,11 +23,13 @@ export const Default: Story = {
 export const Checked: Story = {
   args: {
     defaultChecked: true,
+    "aria-label": "Rester connecté 30 jours",
   },
 };
 
 export const Disabled: Story = {
   args: {
     disabled: true,
+    "aria-label": "Rester connecté 30 jours",
   },
 };

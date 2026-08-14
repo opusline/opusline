@@ -1,4 +1,7 @@
-import type { InvoiceListItemData } from "@opusline/api-client";
+import type {
+  InvoiceClientTotalsData,
+  InvoiceListItemData,
+} from "@opusline/api-client";
 import { Badge } from "@opusline/ui/components/badge";
 import { Chip, ChipCount, ChipGroup } from "@opusline/ui/components/chip";
 import { cn } from "@opusline/ui/lib/utils";
@@ -26,10 +29,18 @@ import { InvoicesEmptyState } from "./invoices-empty-state";
 
 type InvoicesTableProps = {
   invoices: InvoiceListItemData[];
+  clientTotals: InvoiceClientTotalsData[];
+  /** Today in the account's timezone — the date isLate was derived from. */
+  accountToday: string;
   onOpen?: (invoiceId: number) => void;
 };
 
-export function InvoicesTable({ invoices, onOpen }: InvoicesTableProps) {
+export function InvoicesTable({
+  invoices,
+  clientTotals,
+  accountToday,
+  onOpen,
+}: InvoicesTableProps) {
   const format = useMoneyFormat();
   const dateFormat = useDateFormat();
   const [scope, setScope] = useState<InvoiceScope>("all");
@@ -38,8 +49,13 @@ export function InvoicesTable({ invoices, onOpen }: InvoicesTableProps) {
   // one pass counts all five, and one filter builds the list actually shown.
   const counts = useMemo(() => countByScope(invoices), [invoices]);
   const groups = useMemo(
-    () => groupByClient(invoices.filter((item) => matchesScope(item, scope))),
-    [invoices, scope],
+    () =>
+      groupByClient(
+        invoices.filter((item) => matchesScope(item, scope)),
+        clientTotals,
+        scope,
+      ),
+    [invoices, clientTotals, scope],
   );
 
   return (
@@ -119,7 +135,11 @@ export function InvoicesTable({ invoices, onOpen }: InvoicesTableProps) {
                             {mission?.name ?? "Sans mission"}
                           </span>
                           <span className="mt-0.75 block text-muted-foreground-3 text-xs">
-                            {invoiceRowDetail(dateFormat, invoice)}
+                            {invoiceRowDetail(
+                              dateFormat,
+                              invoice,
+                              accountToday,
+                            )}
                           </span>
                         </span>
                         <span className="w-32 text-right font-mono text-foreground-hi text-sm tabular-nums">

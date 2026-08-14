@@ -41,7 +41,9 @@ class AttachSignedCra
 
             $locked->update([
                 'status' => CraStatus::Signed,
-                'signed_on' => $data->signedOn === null ? CarbonImmutable::today() : CarbonImmutable::parse($data->signedOn),
+                'signed_on' => $data->signedOn === null
+                    ? $locked->user->settingsOrFail()->today()
+                    : CarbonImmutable::parse($data->signedOn),
             ]);
 
             return $locked;

@@ -114,18 +114,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Workday Length
-    |--------------------------------------------------------------------------
-    |
-    | Time entries store the exact minutes worked. Missions billed by the day
-    | value that duration as a fraction of a workday.
-    |
-    */
-
-    'workday_minutes' => max(1, (int) env('APP_WORKDAY_MINUTES', 420)),
-
-    /*
-    |--------------------------------------------------------------------------
     | Encryption Key
     |--------------------------------------------------------------------------
     |

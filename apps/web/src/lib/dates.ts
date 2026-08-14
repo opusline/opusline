@@ -118,9 +118,35 @@ export function calendarDateLabel(date: string): string {
   return fullDate.format(fromCalendarDate(date));
 }
 
-/** Today as the `Y-m-d` the API expects, on the user's calendar rather than UTC. */
-export function todayCalendarDate(): string {
+/**
+ * Today on the browser's calendar, as `Y-m-d`. Right for tracking surfaces —
+ * highlighting the current day, dating a new entry where the user physically
+ * is. For anything the API's fiscal rules judge (payments, reminders, dates
+ * shown beside `isLate`), use accountTodayCalendarDate instead.
+ */
+export function browserTodayCalendarDate(): string {
   return toCalendarDate(new Date());
+}
+
+const accountTodayFormatters = new Map<string, Intl.DateTimeFormat>();
+
+/**
+ * Today in the account's timezone — the date the API's fiscal rules judge
+ * against. Payment and reminder dates must use this, not the browser's
+ * calendar: a browser east of the account would otherwise offer a date the
+ * API refuses as "in the future" for part of every day.
+ *
+ * en-CA is a locale whose default date format is already `Y-m-d`.
+ */
+export function accountTodayCalendarDate(timezone: string): string {
+  let formatter = accountTodayFormatters.get(timezone);
+
+  if (formatter === undefined) {
+    formatter = new Intl.DateTimeFormat("en-CA", { timeZone: timezone });
+    accountTodayFormatters.set(timezone, formatter);
+  }
+
+  return formatter.format(new Date());
 }
 
 /**

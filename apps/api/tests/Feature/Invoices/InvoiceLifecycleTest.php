@@ -8,6 +8,7 @@ use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 
+beforeEach(fn () => freezeTodayAtUtcNoon());
 test('marks a draft as sent', function (): void {
     $user = User::factory()->create();
     $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->state(['number' => '2026-007']));

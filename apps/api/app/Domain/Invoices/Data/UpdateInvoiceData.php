@@ -6,13 +6,14 @@ namespace App\Domain\Invoices\Data;
 
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Validation\AuthenticatedUserId;
-use Spatie\LaravelData\Attributes\Validation\BeforeOrEqual;
+use App\Domain\Shared\Validation\BeforeOrEqualAccountToday;
 use Spatie\LaravelData\Attributes\Validation\Between;
 use Spatie\LaravelData\Attributes\Validation\DateFormat;
 use Spatie\LaravelData\Attributes\Validation\Exists;
 use Spatie\LaravelData\Attributes\Validation\IntegerType;
 use Spatie\LaravelData\Attributes\Validation\Max;
 use Spatie\LaravelData\Attributes\Validation\Min;
+use Spatie\LaravelData\Attributes\Validation\Rule;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Validation\Constraints\WhereConstraint;
 
@@ -45,7 +46,7 @@ class UpdateInvoiceData extends Data
          * Moving this shifts revenue between declaration periods: URSSAF and TVA are
          * cash-basis. Editable on purpose, because corrections happen.
          */
-        #[DateFormat('Y-m-d'), BeforeOrEqual('today')]
+        #[DateFormat('Y-m-d'), Rule(new BeforeOrEqualAccountToday)]
         public ?string $paidOn = null,
         #[DateFormat('Y-m-d')]
         public ?string $periodStart = null,

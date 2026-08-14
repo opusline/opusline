@@ -197,14 +197,18 @@ export function valueAsDayFraction(
 ): number {
   const effective = rounding ?? DEFAULT_ROUNDING;
 
+  // Capped at one day, mirroring EntryRounding::billedDayFraction on the API: a
+  // client is billed days, not overtime, and a provisional label must not
+  // promise a quantity the server will refuse to bill.
   if (effective === EXACT_ROUNDING) {
-    return minutes / workdayMinutes;
+    return Math.min(minutes / workdayMinutes, 1);
   }
 
   const fraction = effective === 0 ? 0.5 : 0.25;
 
-  return (
-    startedSteps(minutes, Math.round(fraction * workdayMinutes)) * fraction
+  return Math.min(
+    startedSteps(minutes, Math.round(fraction * workdayMinutes)) * fraction,
+    1,
   );
 }
 

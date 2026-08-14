@@ -12,11 +12,12 @@ pnpm workspaces + Turborepo. JS tooling via pnpm, PHP via Composer (independent)
 
 ```
 apps/
-  api/        # Laravel API (PHP). Composer-managed. npm scripts wrap artisan.
+  api/        # Laravel API (PHP). Composer-managed; PHP runs ONLY in Docker via scripts/php.sh.
   web/        # Product SPA — Vite + React + TypeScript + TanStack Router/Query
+  storybook/  # Storybook host — serves the stories of packages/ui AND apps/web
 packages/
-  ui/         # Design system — shadcn/ui components + Storybook
-  api-types/  # TS types generated from the Laravel OpenAPI spec
+  ui/         # Design system — shadcn/ui components (raw TS source, no build step)
+  api-client/ # TS client generated from the Laravel OpenAPI spec (flat into src/, incl. index.ts)
 ```
 
 ## Commands
@@ -24,36 +25,40 @@ packages/
 Run from the repo root unless stated otherwise.
 
 ```bash
-pnpm install              # install all JS workspaces
-turbo dev                 # start api (artisan serve) + web (vite) together
+pnpm install              # install all JS workspaces (also installs the git hooks)
+turbo dev                 # api (Sail stack + Octane/FrankenPHP via apps/api/scripts/dev.sh)
+                          #   + web (Vite on :3000, proxying /api and /sanctum to the container)
+                          #   + storybook (:6006)
 turbo build               # build everything
-turbo test                # Pest (api) + Vitest (js packages)
-turbo lint                # Biome (js) + Pint (php)
+turbo test                # Pest (api, inside Docker) + Vitest (web, storybook story tests)
+turbo lint                # PHP only: Pint --test + Rector --dry-run (inside Docker)
+pnpm format-and-lint      # Biome across the repo (root //#format-and-lint task; :fix writes)
+pnpm generate-api         # export OpenAPI spec + regenerate packages/api-client
 
 # Scoped
 pnpm --filter @opusline/web dev
-pnpm --filter @opusline/ui storybook
+pnpm --filter @opusline/storybook dev
 
-# Laravel (from apps/api/)
-php artisan test
-vendor/bin/pint
+# PHP — never on the host. The single door is the Docker wrapper (from apps/api/):
+sh scripts/php.sh php artisan test
+sh scripts/php.sh php vendor/bin/pint
 ```
 
 ## Stack decisions (do not re-litigate)
 
 - **Frontend**: Vite SPA with **TanStack Router** (file-based routes) + **TanStack Query**. NOT TanStack Start, NOT Next.js — no SSR, no second server runtime. Self-hosting simplicity is a core product value: `web` builds to static files.
 - **UI**: shadcn/ui on **Base UI** primitives (not Radix). Components live in `packages/ui`, imported as `@opusline/ui`. Icons: **Lucide** only.
-- **Styling**: Tailwind v4 (CSS-first config, `@theme` tokens, no tailwind.config.js). Design system is defined by shadcn preset `b4DLSOvBaa` (style mira, base stone, theme amber, heading font Lora, body Geist, radius default). See DESIGN.md if present.
+- **Styling**: Tailwind v4 (CSS-first config, `@theme` tokens, no tailwind.config.js). Design system is defined by shadcn preset `b4DLSOvBaa` (style mira, base stone, theme amber, heading font Lora, body Geist, radius default).
 - **API**: Laravel. **spatie/laravel-data** for DTOs at the boundaries (validation in, serialization out); plain Eloquent in the middle. Vanilla Laravel structure with domain folders under `app/Domain/` (Tracking, Clients, Notes, Billing) — NOT nwidart/laravel-modules.
-- **API contract**: OpenAPI spec generated from the API → TypeScript types in `packages/api-types`. Regenerate types after changing API request/response shapes.
+- **API contract**: OpenAPI spec generated from the API (`apps/api/openapi.json`) → typed client in `packages/api-client` (hey-api, generated flat into `src/` including `index.ts`). Regenerate after changing API request/response shapes (`pnpm generate-api`). The generated TypeScript types ARE the contract: runtime zod validation (`@opusline/api-client/zod`) is used only for form *input* validation, never at API response boundaries — deliberate decision, do not add response parsing/validation.
 - **Package boundary**: `packages/ui` exports raw TS source (no build step); consumers compile it. Tailwind in consumers must `@source` the ui package.
 
 ## Conventions
 
-- **Commits**: Conventional Commits, enforced by commitlint via Lefthook. Types: feat, fix, refactor, perf, style, test, docs, build, ci, chore, revert. Scopes (closed list): `api`, `web`, `ui`, `website`, `types`, `deps`, `repo`. Subject: imperative, lowercase, ≤50 chars, no trailing period. Body explains the WHY.
-- **Hooks**: single `lefthook.yml` at root. Pre-commit runs Biome (staged JS/TS) and Pint (staged PHP). Don't add Turbo tasks to pre-commit.
-- **Formatting/linting JS**: Biome (root biome.json). No ESLint, no Prettier.
-- **PHP style**: Pint, Laravel preset.
+- **Commits**: Conventional Commits, enforced by commitlint via Lefthook. Types: feat, fix, refactor, perf, style, test, docs, build, ci, chore, revert. Scopes (closed list): `api`, `web`, `ui`, `storybook`, `deps`, `repo`. Subject: imperative, lowercase, ≤50 chars, no trailing period. Body explains the WHY.
+- **Hooks**: single `lefthook.yml` at root. Pre-commit runs Biome (staged JS/TS/JSON/CSS) and, on staged PHP, Rector then Pint — all auto-fix and re-stage. Commit-msg runs commitlint. Pre-push regenerates the OpenAPI spec, API client, and route tree and fails on drift (`scripts/generated-artifacts.sh`), then runs `turbo test check-types lint format-and-lint`. Don't add Turbo tasks to pre-commit.
+- **Formatting/linting JS**: Biome (`biome.jsonc` at the root, extended by `apps/web`, `apps/api`, `packages/api-client`). No ESLint, no Prettier.
+- **PHP style**: Pint (Laravel preset) + Rector; both run through the Docker wrapper.
 - **TypeScript**: strict. No `any` without justification. Prefer inferred types over redundant annotations.
 - **Language**: code, comments, commits, and docs in English. UI copy may have French strings (target market includes FR freelances) — keep user-facing strings ready for i18n, don't hardcode.
 
@@ -79,14 +84,14 @@ vendor/bin/pint
 - Don't swap Base UI for Radix (or vice versa) in individual components — the repo is Base UI everywhere.
 - Don't introduce localStorage-based state for anything important; server state belongs in TanStack Query, ephemeral UI state in React state.
 - Don't install alternative UI/icon/styling libraries (MUI, styled-components, react-icons, etc.).
-- Don't edit generated files: `packages/api-types/src/generated/`, TanStack Router's `routeTree.gen.ts`.
+- Don't edit generated files: `apps/api/openapi.json`, `packages/api-client/src/` (the whole directory — regenerated flat, including `index.ts`), `apps/web/src/routeTree.gen.ts`. Canonical list: `scripts/generated-artifacts.sh`.
 - Don't commit directly — always leave commits to the human unless explicitly asked.
 
 ## Testing
 
 - API: Pest. Feature tests for endpoints (happy path + validation errors + authorization), unit tests for domain actions.
 - Web: Vitest + Testing Library for components with logic; don't test trivial rendering.
-- Storybook (`apps/storybook`, serves both workspaces): **every component in `packages/ui` AND `apps/web` gets a story**, colocated next to the component (`PascalCase.stories.tsx`, CSF3 `satisfies Meta`, `tags: ["autodocs"]`, title prefix `UI/` or `Web/`). Stories double as visual documentation; a component without a story is not done. Exception: TanStack Router route files (`src/routes/**`) are thin wiring — the feature component they render carries the story.
+- Storybook (`apps/storybook`, serves both workspaces): **every component in `packages/ui` AND `apps/web` gets a story**, colocated next to the component (`PascalCase.stories.tsx`, CSF3 `satisfies Meta`, `tags: ["autodocs"]`, title prefix `UI/` or `Web/`). Stories double as visual documentation; a component without a story is not done. Exceptions: TanStack Router route files (`src/routes/**`) are thin wiring — the feature component they render carries the story; context-provider components and story-only helpers have no visual surface of their own and need no story.
 
 ## When unsure
 

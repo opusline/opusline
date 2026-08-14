@@ -33,7 +33,7 @@ test('materialises the timer into a time entry and clears it', function (): void
 
 test('stores the duration the user confirmed, whichever rounding they picked', function (int $durationMinutes): void {
     $user = User::factory()->create();
-    runningTimerFor($user);
+    runningTimerFor($user, configure: fn ($factory) => $factory->state(['accumulated_seconds' => 425 * 60]));
 
     $this->actingAs($user)
         ->postJson('/api/timer/stop', [
@@ -92,7 +92,10 @@ test('saves an entry with no activity when the user cleared it', function (): vo
 test('values the entry against the mission rounding', function (): void {
     $user = User::factory()->create();
     $mission = missionOwnedBy($user, fn ($factory) => $factory->hourly());
-    RunningTimer::factory()->for($mission, 'mission')->create(['user_id' => $user->id]);
+    RunningTimer::factory()->for($mission, 'mission')->create([
+        'user_id' => $user->id,
+        'accumulated_seconds' => 67 * 60,
+    ]);
 
     $this->actingAs($user)
         ->postJson('/api/timer/stop', ['date' => '2026-08-03', 'durationMinutes' => 67, 'note' => null])
@@ -124,6 +127,36 @@ test('honours a non-billable stop', function (): void {
         ])
         ->assertCreated()
         ->assertJsonPath('billable', false);
+});
+
+test('rejects a duration beyond what the timer measured', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user, fn ($factory) => $factory->hourly());
+    // Banked exactly one hour: the coarsest offered increment leaves 90 minutes out of reach.
+    RunningTimer::factory()->for($mission, 'mission')->paused()->create(['user_id' => $user->id]);
+
+    $this->actingAs($user)
+        ->postJson('/api/timer/stop', ['date' => '2026-08-03', 'durationMinutes' => 90, 'note' => null])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['durationMinutes']);
+
+    // Nothing tracked may be lost: the refused stop has to leave the timer behind.
+    $this->assertDatabaseCount('running_timers', 1);
+    $this->assertDatabaseCount('time_entries', 0);
+});
+
+test('allows rounding the duration up to the next billing increment', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user, fn ($factory) => $factory->hourly());
+    RunningTimer::factory()->for($mission, 'mission')->create([
+        'user_id' => $user->id,
+        'accumulated_seconds' => 67 * 60,
+    ]);
+
+    $this->actingAs($user)
+        ->postJson('/api/timer/stop', ['date' => '2026-08-03', 'durationMinutes' => 90, 'note' => null])
+        ->assertCreated()
+        ->assertJsonPath('durationMinutes', 90);
 });
 
 test('keeps the timer running when the stop would breach the daily cap', function (): void {

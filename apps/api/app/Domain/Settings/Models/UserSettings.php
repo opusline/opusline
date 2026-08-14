@@ -54,6 +54,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property Currency $currency
  * @property Locale $locale
  * @property DateFormat $date_format
+ * @property string $timezone
+ * @property int $workday_minutes
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  */
@@ -91,10 +93,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'currency',
     'locale',
     'date_format',
+    'timezone',
+    'workday_minutes',
 ])]
 #[Table('user_settings')]
 class UserSettings extends Model
 {
+    private ?CarbonImmutable $resolvedToday = null;
+
     /**
      * The one country whose fiscal machinery (URSSAF, TVA CA3, plafond) the
      * app implements. Every "is this account French?" check reads it here.
@@ -127,7 +133,24 @@ class UserSettings extends Model
             'currency' => Currency::class,
             'locale' => Locale::class,
             'date_format' => DateFormat::class,
+            'workday_minutes' => 'integer',
         ];
+    }
+
+    /**
+     * The account's current calendar date. Every fiscally load-bearing "today"
+     * — paid_on, sent_on, issued_on defaults and their not-in-the-future rules —
+     * resolves here, so a payment recorded at 00:30 in Paris lands on the Paris
+     * date, not the previous UTC one.
+     *
+     * Returned at UTC midnight: the timezone only decides which date it is, and
+     * every stored date column is a UTC-midnight instant, so the result compares
+     * and stores without cross-timezone off-by-ones.
+     */
+    public function today(): CarbonImmutable
+    {
+        // Memoized: isLate() asks per invoice row, and the instance lives one request.
+        return $this->resolvedToday ??= CarbonImmutable::parse(CarbonImmutable::today($this->timezone)->toDateString());
     }
 
     /** @return BelongsTo<User, $this> */

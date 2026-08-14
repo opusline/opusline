@@ -31,4 +31,7 @@ test('values a duration as a fraction of a workday', function (EntryRounding $ro
     'two minutes past half a day bills a full day' => [EntryRounding::Half, 212, 1.0],
     'exactly a quarter day stays a quarter' => [EntryRounding::Quarter, 105, 0.25],
     'one minute past a quarter day bills a half' => [EntryRounding::Quarter, 106, 0.5],
+    'eight hours on a seven-hour workday still bill one day' => [EntryRounding::Half, 480, 1.0],
+    'overtime clamps to a day at quarter rounding too' => [EntryRounding::Quarter, 480, 1.0],
+    'overtime clamps to a day even at minute rounding' => [EntryRounding::Minute, 480, 1.0],
 ]);

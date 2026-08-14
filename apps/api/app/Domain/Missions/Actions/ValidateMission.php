@@ -57,5 +57,14 @@ class ValidateMission
                 'billingMode' => __('missions.cannot_leave_daily_billing_with_cras'),
             ]);
         }
+
+        // The billing mode gives duration_minutes and rate_cents their meaning: flipping
+        // it would silently reinterpret every entry already tracked (550 €/day becomes
+        // 550 €/hour). Once time exists, a new contract is a new mission.
+        if ($mission instanceof Mission && $data->billingMode !== $mission->billing_mode && $mission->timeEntries()->exists()) {
+            throw ValidationException::withMessages([
+                'billingMode' => __('missions.billing_mode_immutable_with_entries'),
+            ]);
+        }
     }
 }

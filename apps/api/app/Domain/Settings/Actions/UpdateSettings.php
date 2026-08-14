@@ -42,6 +42,8 @@ class UpdateSettings
                 'business_country' => $data->businessCountry,
                 'locale' => $data->locale,
                 'date_format' => $data->dateFormat,
+                'timezone' => $data->timezone,
+                'workday_minutes' => $data->workdayMinutes,
                 'trade_name' => $data->tradeName,
                 'siret' => $data->siret,
                 'vat_number' => $data->vatNumber,

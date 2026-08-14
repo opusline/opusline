@@ -300,7 +300,7 @@ function DayCell({
               : cell.isHoliday
                 ? "bg-muted"
                 : "border border-border-3 border-dashed",
-        isPending && "opacity-60",
+        isPending && "opacity-80",
       )}
       data-cell={cell.key}
       onClick={onActivate}
@@ -314,9 +314,11 @@ function DayCell({
         aria-hidden
         className={cn(
           "text-xs",
-          cell.isWeekend || cell.isHoliday
-            ? "text-muted-foreground-5"
-            : "text-muted-foreground-4",
+          cell.isOffDayWorked
+            ? "text-foreground-4"
+            : cell.isWeekend || cell.isHoliday
+              ? "text-muted-foreground-5"
+              : "text-muted-foreground-2",
         )}
       >
         {cell.dayOfMonth}

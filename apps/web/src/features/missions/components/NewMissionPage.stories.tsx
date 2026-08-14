@@ -1,22 +1,7 @@
 import type { ClientWithMissionsData } from "@opusline/api-client";
 import type { Meta, StoryObj } from "@storybook/react";
-import {
-  createMemoryHistory,
-  createRootRoute,
-  createRouter,
-  RouterProvider,
-} from "@tanstack/react-router";
-import type * as React from "react";
+import { StoryRouter } from "@/test/story-router";
 import { NewMissionPage } from "./new-mission-page";
-
-function StoryRouter({ children }: { children: React.ReactNode }) {
-  const router = createRouter({
-    routeTree: createRootRoute({ component: () => children }),
-    history: createMemoryHistory({ initialEntries: ["/"] }),
-  });
-
-  return <RouterProvider router={router} />;
-}
 
 const baseClient = {
   notes: null,

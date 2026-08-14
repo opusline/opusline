@@ -25,6 +25,24 @@ export const Default: Story = {
   ),
 };
 
+/**
+ * La bascule « Saisir au clavier » est l'alternative accessible au tracé : le
+ * nom saisi est peint sur le canevas en Lora italique, et l'export PNG reste
+ * identique au mode dessin.
+ */
+export const TypedMode: Story = {
+  render: () => (
+    <div className="max-w-2xl">
+      <SignaturePad
+        defaultMode="type"
+        drawnLabel="Signature drawn"
+        label="Signature area"
+        placeholder="Draw your signature here"
+      />
+    </div>
+  ),
+};
+
 export const WithActions: Story = {
   render: () => {
     const padRef = useRef<SignaturePadHandle>(null);

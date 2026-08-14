@@ -1,5 +1,6 @@
 import type {
   ClientData,
+  InvoiceClientTotalsData,
   InvoiceData,
   InvoiceDetailData,
   InvoiceListItemData,
@@ -8,6 +9,7 @@ import type {
   InvoiceTodoOverdueData,
   InvoiceTodoWorkData,
   MissionData,
+  MoneyData,
 } from "@opusline/api-client";
 
 const client = {
@@ -91,6 +93,24 @@ export const secondClient = {
   color: 4,
   paymentTermsDays: 30,
 } satisfies ClientData;
+
+const ZERO_EUR = { amount: 0, currency: "EUR" } satisfies MoneyData;
+
+/** The per-scope totals the API sends beside the list; scopes default to zero. */
+export function clientTotals(
+  clientId: number,
+  overrides: Partial<Omit<InvoiceClientTotalsData, "clientId">> = {},
+): InvoiceClientTotalsData {
+  return {
+    clientId,
+    all: ZERO_EUR,
+    open: ZERO_EUR,
+    late: ZERO_EUR,
+    paid: ZERO_EUR,
+    draft: ZERO_EUR,
+    ...overrides,
+  };
+}
 
 export function invoiceDetail(
   overrides: Partial<InvoiceData> = {},

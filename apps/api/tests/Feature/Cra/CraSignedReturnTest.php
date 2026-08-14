@@ -7,6 +7,7 @@ use App\Domain\Documents\Enums\DocumentCategory;
 use App\Domain\Users\Models\User;
 use Illuminate\Http\UploadedFile;
 
+beforeEach(fn () => freezeTodayAtUtcNoon());
 test('files the signed copy next to the original it answers', function (): void {
     $user = User::factory()->create();
     $mission = craMissionOwnedBy($user);

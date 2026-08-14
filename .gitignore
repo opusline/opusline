@@ -42,3 +42,4 @@ yarn-error.log*
 
 # Claude Code (machine-written per-user permissions)
 .claude/settings.local.json
+*.tsbuildinfo

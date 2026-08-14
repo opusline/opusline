@@ -11,9 +11,12 @@ class InvoiceListData extends Data
 {
     /**
      * @param  list<InvoiceListItemData>  $invoices
+     * @param  list<InvoiceClientTotalsData>  $clientTotals
      */
     public function __construct(
         #[DataCollectionOf(InvoiceListItemData::class)]
         public array $invoices,
+        #[DataCollectionOf(InvoiceClientTotalsData::class)]
+        public array $clientTotals,
     ) {}
 }

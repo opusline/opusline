@@ -419,6 +419,18 @@ export const zCraData = z.object({
 });
 
 /**
+ * InvoiceClientTotalsData
+ */
+export const zInvoiceClientTotalsData = z.object({
+    clientId: z.int(),
+    all: zMoneyData,
+    open: zMoneyData,
+    late: zMoneyData,
+    paid: zMoneyData,
+    draft: zMoneyData
+});
+
+/**
  * InvoiceData
  */
 export const zInvoiceData = z.object({
@@ -578,7 +590,8 @@ export const zInvoiceListItemData = z.object({
  * InvoiceListData
  */
 export const zInvoiceListData = z.object({
-    invoices: z.array(zInvoiceListItemData)
+    invoices: z.array(zInvoiceListItemData),
+    clientTotals: z.array(zInvoiceClientTotalsData)
 });
 
 /**
@@ -868,6 +881,7 @@ export const zUserData = z.object({
     currency: zCurrency,
     businessCountry: z.string(),
     hasFrenchFiscality: z.boolean(),
+    timezone: z.string(),
     workdayMinutes: z.int()
 });
 
@@ -922,6 +936,8 @@ export const zSettingsData = z.object({
     currencyLocked: z.boolean(),
     locale: zLocale,
     dateFormat: zDateFormat,
+    timezone: z.string(),
+    workdayMinutes: z.int(),
     hasSignature: z.boolean()
 });
 
@@ -932,6 +948,8 @@ export const zUpdateSettingsData = z.object({
     businessCountry: z.string().check(z.regex(/^[A-Z]{2}$/)),
     locale: zLocale,
     dateFormat: zDateFormat,
+    timezone: z.string(),
+    workdayMinutes: z.int().check(z.gte(60), z.lte(1440)),
     urssafPeriodicity: zUrssafPeriodicity,
     autoRates: z.boolean(),
     acre: z.boolean(),

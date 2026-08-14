@@ -5,33 +5,13 @@ import { PenLineIcon } from "lucide-react";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatMissionRate } from "@/lib/billing";
-import { calendarDateLabel, todayCalendarDate } from "@/lib/dates";
+import { browserTodayCalendarDate, calendarDateLabel } from "@/lib/dates";
 import { monthTitle } from "@/lib/months";
+import { PAPER } from "@/lib/paper";
 
 import type { CraGridModel } from "../lib/cra-grid";
 import { formatDayFraction } from "../lib/cra-grid";
 import { EYEBROW, SIGNATURE_MISSING, SIGNATURE_ON } from "../lib/labels";
-
-/**
- * The document as the client will receive it.
- *
- * This is the one surface in the app that paints on paper rather than in the theme, so
- * its palette is written out in hex instead of reaching for tokens that follow the
- * user's dark mode. Its twin is apps/api/resources/views/cra/document.blade.php; both
- * are fed by the same payload, so only the styling lives in two places.
- */
-
-const PAPER = {
-  ink: "#111111",
-  quiet: "#555555",
-  faint: "#777777",
-  rule: "#E4E4E4",
-  closed: "#F2F2F2",
-  worked: "#FBF2E4",
-  workedBorder: "#E4CDA6",
-  offDay: "#F6E4C6",
-  offDayBorder: "#D4AE72",
-} as const;
 
 type CraDocumentProps = {
   detail: CraDetailData;
@@ -50,11 +30,12 @@ type CraDocumentProps = {
  * as well as the city, and still carries the date when no city is set.
  */
 function placeAndDate(city: string | null): string {
-  const today = calendarDateLabel(todayCalendarDate());
+  const today = calendarDateLabel(browserTodayCalendarDate());
 
   return city === null ? ` · le ${today}` : ` · fait à ${city}, le ${today}`;
 }
 
+/** The document as the client will receive it. */
 export function CraDocument({
   detail,
   model,
@@ -99,9 +80,9 @@ export function CraDocument({
           style={{ borderBottom: `2px solid ${PAPER.ink}` }}
         >
           <div>
-            <h3 className="font-heading font-semibold text-xl">
+            <h2 className="font-heading font-semibold text-xl">
               Compte rendu d'activité
-            </h3>
+            </h2>
             <p className="mt-0.75 text-xs" style={{ color: "#444444" }}>
               {monthTitle(cra.month)}
             </p>
@@ -154,7 +135,7 @@ export function CraDocument({
                       {cell.dayOfMonth}
                     </span>
                     <span className="mt-auto text-center font-semibold text-xs">
-                      {formatDayFraction(cell.dayFractionBp)}
+                      {formatDayFraction(format.locale, cell.dayFractionBp)}
                     </span>
                   </>
                 )}
@@ -213,7 +194,7 @@ export function CraDocument({
                     className="py-1.5 pl-1 text-right tabular-nums"
                     style={{ borderBottom: `1px solid ${PAPER.rule}` }}
                   >
-                    {formatDayFraction(total)}
+                    {formatDayFraction(format.locale, total)}
                   </td>
                 </tr>
               );
@@ -231,7 +212,7 @@ export function CraDocument({
                 className="py-2.5 pl-1 text-right font-semibold tabular-nums"
                 style={{ borderTop: `2px solid ${PAPER.ink}` }}
               >
-                {cra.totalDays.toLocaleString("fr-FR", {
+                {cra.totalDays.toLocaleString(format.locale, {
                   maximumFractionDigits: 2,
                 })}
               </td>

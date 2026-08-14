@@ -27,7 +27,6 @@ export const STOP_TITLE = "Enregistrer l'entrée";
 export const ROUNDING_LABEL = "Arrondi";
 export const DEFAULT_BADGE = "Défaut";
 export const NON_BILLABLE = "Non facturable";
-export const AMOUNT_LABEL = "Montant facturable";
 export const NOT_BILLABLE_VALUE = "non facturable";
 export const STOP_NOTE_PLACEHOLDER = "Revue PR, cadrage…";
 export const SAVE = "Enregistrer";

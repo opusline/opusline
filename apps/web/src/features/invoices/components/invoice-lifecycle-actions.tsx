@@ -4,12 +4,12 @@ import { Input } from "@opusline/ui/components/input";
 import { Label } from "@opusline/ui/components/label";
 import { useId, useState } from "react";
 
-import { todayCalendarDate } from "@/lib/dates";
-
 type InvoiceLifecycleActionsProps = {
   invoice: InvoiceData;
   isPending: boolean;
   error: string | null;
+  /** Today in the account's timezone — the date the API's fiscal rules accept. */
+  accountToday: string;
   /** The reference is only supplied when the draft does not carry one yet. */
   onSend: (reference: string | null) => void;
   onPay: (paidOn: string) => void;
@@ -28,6 +28,7 @@ export function InvoiceLifecycleActions({
   invoice,
   isPending,
   error,
+  accountToday,
   onSend,
   onPay,
   onRemind,
@@ -42,6 +43,7 @@ export function InvoiceLifecycleActions({
         <SendStep invoice={invoice} isPending={isPending} onSend={onSend} />
       ) : (
         <CollectStep
+          accountToday={accountToday}
           invoice={invoice}
           isPending={isPending}
           onPay={onPay}
@@ -107,18 +109,20 @@ function SendStep({
 }
 
 function CollectStep({
+  accountToday,
   invoice,
   isPending,
   onPay,
   onRemind,
 }: {
+  accountToday: string;
   invoice: InvoiceData;
   isPending: boolean;
   onPay: (paidOn: string) => void;
   onRemind: () => void;
 }) {
   const paidOnFieldId = useId();
-  const [paidOn, setPaidOn] = useState(todayCalendarDate);
+  const [paidOn, setPaidOn] = useState(accountToday);
 
   return (
     <form
@@ -135,7 +139,7 @@ function CollectStep({
           type="date"
           value={paidOn}
           min={invoice.issuedOn}
-          max={todayCalendarDate()}
+          max={accountToday}
           onChange={(event) => setPaidOn(event.target.value)}
         />
         <p className="text-muted-foreground-3 text-xs">

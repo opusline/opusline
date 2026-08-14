@@ -68,6 +68,8 @@ function patchCurrentUser(queryClient: QueryClient, settings: SettingsData) {
         hasFrenchFiscality: settings.hasFrenchFiscality,
         locale: settings.locale,
         dateFormat: settings.dateFormat,
+        timezone: settings.timezone,
+        workdayMinutes: settings.workdayMinutes,
       },
   );
 }
@@ -169,6 +171,7 @@ function ReglagesRoute() {
     currency: savedSettings.currency,
     locale: savedSettings.locale,
     dateFormat: savedSettings.dateFormat,
+    timezone: savedSettings.timezone,
   };
 
   const submit = async (
@@ -210,7 +213,8 @@ function ReglagesRoute() {
       if (
         draft.businessCountry !== savedLocalisation.businessCountry ||
         draft.locale !== savedLocalisation.locale ||
-        draft.dateFormat !== savedLocalisation.dateFormat
+        draft.dateFormat !== savedLocalisation.dateFormat ||
+        draft.timezone !== savedLocalisation.timezone
       ) {
         await saveLocalisationSettings.mutateAsync({
           body: toSettingsPayload(

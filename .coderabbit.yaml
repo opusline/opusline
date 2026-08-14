@@ -9,7 +9,7 @@ reviews:
       mode: error
       requirements: |
         Conventional Commit: <type>(<scope>): <subject>. Scope, when present,
-        must be one of exactly: api, web, ui, website, types, deps, repo.
+        must be one of exactly: api, web, ui, storybook, deps, repo.
         Subject imperative, lowercase, at most 50 characters, no trailing
         period. The title becomes the squash commit and the changelog line.
     description:
@@ -59,7 +59,7 @@ reviews:
     Generate a Conventional Commit title: <type>(<scope>): <subject>.
     type is one of feat, fix, refactor, perf, style, test, docs, build, ci,
     chore, revert. scope, when present, MUST be one of exactly: api, web, ui,
-    website, types, deps, repo. Subject: imperative mood, all lowercase,
+    storybook, deps, repo. Subject: imperative mood, all lowercase,
     at most 50 characters, no trailing period.
   collapse_walkthrough: true
   sequence_diagrams: false

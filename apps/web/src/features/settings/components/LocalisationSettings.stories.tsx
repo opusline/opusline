@@ -12,6 +12,7 @@ const meta = {
       currency: "EUR",
       locale: "fr-FR",
       dateFormat: 0,
+      timezone: "Europe/Paris",
     },
     currencyLocked: false,
     isSaving: false,
@@ -37,6 +38,7 @@ export const EstablishedAbroad: Story = {
       currency: "EUR",
       locale: "fr-FR",
       dateFormat: 0,
+      timezone: "Europe/Paris",
     },
   },
 };
@@ -48,6 +50,7 @@ export const UsAccount: Story = {
       currency: "USD",
       locale: "en-US",
       dateFormat: 1,
+      timezone: "America/New_York",
     },
   },
 };

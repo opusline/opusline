@@ -154,7 +154,7 @@ class RenderCraPdf
 
     private function placeAndDate(UserSettings $settings): string
     {
-        $now = CarbonImmutable::today();
+        $now = $settings->today();
         $today = sprintf('%d %s %d', $now->day, self::MONTHS[$now->month], $now->year);
         $city = $settings->signature_city;
 
@@ -255,7 +255,13 @@ class RenderCraPdf
 
         // Cents kept, trailing zeros dropped — the same shape as the screen's
         // Intl maximumFractionDigits: 2, so a 550,50 €/j mission does not print 551.
-        $amount = rtrim(rtrim(number_format((int) $rate->getAmount() / 100, 2, ',', ' '), '0'), ',');
+        // Built from integers: money never passes through a float, even for display.
+        $cents = (int) $rate->getAmount();
+        $amount = number_format(intdiv($cents, 100), 0, ',', ' ');
+
+        if ($cents % 100 !== 0) {
+            $amount .= ','.rtrim(sprintf('%02d', $cents % 100), '0');
+        }
         $symbol = Currency::from($rate->getCurrency()->getCode())->symbol();
 
         return $mission->billing_mode === BillingMode::Fixed

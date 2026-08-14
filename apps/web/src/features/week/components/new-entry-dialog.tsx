@@ -272,7 +272,7 @@ function EntryStep({
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label className="text-muted-foreground-3 text-xs" htmlFor={dateId}>
+          <Label tone="quiet" htmlFor={dateId}>
             Date
           </Label>
           <ChipGroup
@@ -333,10 +333,7 @@ function EntryStep({
         )}
 
         <div className="flex flex-col gap-2">
-          <Label
-            className="text-muted-foreground-3 text-xs"
-            htmlFor={durationId}
-          >
+          <Label tone="quiet" htmlFor={durationId}>
             Durée
           </Label>
           <Input
@@ -367,7 +364,7 @@ function EntryStep({
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label className="text-muted-foreground-3 text-xs" htmlFor={noteId}>
+          <Label tone="quiet" htmlFor={noteId}>
             Activité
           </Label>
           <Input

@@ -4,7 +4,7 @@ import { Button } from "@opusline/ui/components/button";
 import { Chip, ChipGroup } from "@opusline/ui/components/chip";
 import { Field, FieldLabel } from "@opusline/ui/components/field";
 import { NativeSelect } from "@opusline/ui/components/native-select";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { formatAmountWithCents } from "@/lib/billing";
 import { COUNTRY_OPTIONS } from "@/lib/countries";
@@ -36,7 +36,14 @@ export type LocalisationDraft = {
   currency: Currency;
   locale: Locale;
   dateFormat: DateFormat;
+  timezone: string;
 };
+
+const TIMEZONES = Intl.supportedValuesOf("timeZone");
+
+function timezoneOptions(saved: string): string[] {
+  return TIMEZONES.includes(saved) ? TIMEZONES : [saved, ...TIMEZONES];
+}
 
 type LocalisationSettingsProps = {
   saved: LocalisationDraft;
@@ -67,7 +74,8 @@ export function LocalisationSettings({
   onCancel,
 }: LocalisationSettingsProps) {
   const [draft, setDraft] = useState<LocalisationDraft>(saved);
-  const { businessCountry, currency, locale, dateFormat } = saved;
+  const { businessCountry, currency, locale, dateFormat, timezone } = saved;
+  const zones = useMemo(() => timezoneOptions(timezone), [timezone]);
 
   // Re-seed field by field on value-stable deps: a save echo or an outside
   // change resets the draft, while an unrelated refetch leaves typing alone.
@@ -83,6 +91,9 @@ export function LocalisationSettings({
   useEffect(() => {
     setDraft((current) => ({ ...current, dateFormat }));
   }, [dateFormat]);
+  useEffect(() => {
+    setDraft((current) => ({ ...current, timezone }));
+  }, [timezone]);
 
   const changes = (Object.keys(draft) as (keyof LocalisationDraft)[]).filter(
     (key) => draft[key] !== saved[key],
@@ -187,6 +198,36 @@ export function LocalisationSettings({
             Détermine le format des montants et des nombres. La traduction
             complète de l'interface et des CRA arrivera plus tard — les libellés
             restent en français.
+          </p>
+        </Field>
+
+        <div className="my-5.5 h-px bg-secondary" />
+
+        <Field>
+          <FieldLabel className={LABEL} htmlFor="localisation-timezone">
+            Fuseau horaire
+          </FieldLabel>
+          <NativeSelect
+            className="w-70"
+            id="localisation-timezone"
+            onChange={(event) =>
+              setDraft((current) => ({
+                ...current,
+                timezone: event.target.value,
+              }))
+            }
+            value={draft.timezone}
+          >
+            {zones.map((zone) => (
+              <option key={zone} value={zone}>
+                {zone}
+              </option>
+            ))}
+          </NativeSelect>
+          <p className={NOTE}>
+            Détermine la date du jour pour les paiements, envois de CRA et
+            factures — un règlement saisi à 0 h 30 tombe sur votre date, pas sur
+            celle du serveur.
           </p>
         </Field>
 
