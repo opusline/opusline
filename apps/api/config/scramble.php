@@ -8,7 +8,7 @@ use Dedoc\Scramble\Support\Generator\SecurityScheme;
 
 return [
     'info' => [
-        'version' => '0.8.0', // x-release-please-version
+        'version' => '0.9.0', // x-release-please-version
     ],
 
     'extensions' => [

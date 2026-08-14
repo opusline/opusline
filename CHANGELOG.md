@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/opusline/opusline/compare/v0.8.0...v0.9.0) (2026-08-14)
+
+
+### Features
+
+* add multi-currency support ([#106](https://github.com/opusline/opusline/issues/106)) ([a93d5fe](https://github.com/opusline/opusline/commit/a93d5fe77fab16a0c9d7e3c02c73696c5bc6c5b5))
+
 ## [0.8.0](https://github.com/opusline/opusline/compare/v0.7.0...v0.8.0) (2026-08-13)
 
 
