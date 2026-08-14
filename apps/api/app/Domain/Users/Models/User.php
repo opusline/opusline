@@ -113,6 +113,17 @@ class User extends Authenticatable implements HasMedia
     }
 
     /**
+     * Serialize an account-level invariant on the user row. Every write that
+     * checks-then-writes across an account's rows — one timer per user, the
+     * currency lock, invoice numbering, billing-mode immutability — takes this
+     * same lock first, inside its transaction, so the checks cannot race.
+     */
+    public static function lockRow(int $userId): self
+    {
+        return self::query()->whereKey($userId)->lockForUpdate()->firstOrFail();
+    }
+
+    /**
      * The settings row every account owns. Reads the loaded relation when
      * available and queries once otherwise; reach for settings()->sole() only
      * under lockForUpdate, where the fresh read is the point.

@@ -57,7 +57,7 @@ class AccountCurrency implements ValidationRule
      */
     public static function assertMatchesAccountUnderLock(int $userId, MoneyData $money): void
     {
-        $user = User::query()->whereKey($userId)->lockForUpdate()->firstOrFail();
+        $user = User::lockRow($userId);
 
         self::assertMatchesAccount($user, $money);
     }

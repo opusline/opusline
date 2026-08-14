@@ -21,7 +21,7 @@ class LockUserTimer
     public function handle(User $user, callable $mutate): mixed
     {
         return DB::transaction(function () use ($user, $mutate) {
-            User::query()->whereKey($user->getKey())->lockForUpdate()->firstOrFail();
+            User::lockRow($user->id);
 
             return $mutate($this->findRunningTimer->handleOrFail($user, forUpdate: true));
         });

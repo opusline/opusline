@@ -27,7 +27,7 @@ class CreateCra
     public function handle(User $user, CreateCraData $data): Cra
     {
         return DB::transaction(function () use ($user, $data): Cra {
-            User::query()->whereKey($user->getKey())->lockForUpdate()->firstOrFail();
+            User::lockRow($user->id);
 
             $mission = $user->missions()->whereKey($data->missionId)->firstOrFail();
             $month = CarbonImmutable::parse($data->month.'-01')->startOfMonth();

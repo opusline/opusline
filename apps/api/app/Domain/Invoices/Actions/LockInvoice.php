@@ -26,7 +26,7 @@ class LockInvoice
     public function handle(Invoice $invoice, callable $mutate): mixed
     {
         return DB::transaction(function () use ($invoice, $mutate) {
-            User::query()->whereKey($invoice->user_id)->lockForUpdate()->firstOrFail();
+            User::lockRow($invoice->user_id);
 
             $invoice->refresh();
 

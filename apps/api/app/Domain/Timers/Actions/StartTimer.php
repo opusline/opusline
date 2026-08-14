@@ -15,7 +15,7 @@ class StartTimer
     public function handle(User $user, StartTimerData $data): RunningTimer
     {
         return DB::transaction(function () use ($user, $data): RunningTimer {
-            User::query()->whereKey($user->getKey())->lockForUpdate()->firstOrFail();
+            User::lockRow($user->id);
 
             abort_if($user->runningTimer()->exists(), 409, __('timers.already_running'));
 

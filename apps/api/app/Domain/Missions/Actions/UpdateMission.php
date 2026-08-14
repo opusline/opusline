@@ -22,7 +22,7 @@ class UpdateMission
             // Same user-row lock as CreateTimeEntry, taken before validating:
             // otherwise a concurrent first entry could land between the
             // billing-mode immutability check and the write.
-            User::query()->whereKey($mission->user_id)->lockForUpdate()->firstOrFail();
+            User::lockRow($mission->user_id);
 
             $this->validateMission->handle($client, $data, $mission);
 
