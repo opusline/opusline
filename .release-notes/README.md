@@ -1,15 +1,17 @@
 # Release-note fragments
 
 Every user-facing PR ships the line users will read about it, changesets-style.
-Fragments accumulate here between releases; when release-please opens its
-release PR, run `node scripts/assemble-release-notes.mjs <version>` to fold
-them into the in-app release notes
-(`apps/web/src/lib/releases.ts`) and delete them.
+Fragments accumulate here between releases. When release-please opens its
+release PR, the `Assemble Release Notes` workflow folds them into the in-app
+release notes (`apps/web/src/lib/releases.ts`), deletes them, and opens an
+assembly PR against `main` — review it, optionally add a headline, and merge;
+the bot then refreshes the release PR and its release-notes guard goes green.
 
-Commit the assembled entry to `main` through its own PR — never to the
-release-please branch, which the bot force-pushes on every push to `main`,
-wiping anything committed there. Once the assembly lands on `main`, the bot
-refreshes the release PR and the guard goes green.
+The same fold can be run by hand with
+`node scripts/assemble-release-notes.mjs <version>`. Either way the assembled
+entry lands on `main` through its own PR — never on the release-please branch,
+which the bot force-pushes on every push to `main`, wiping anything committed
+there.
 
 One JSON file per note, named with a short descriptive slug:
 

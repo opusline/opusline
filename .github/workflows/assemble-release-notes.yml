@@ -1,0 +1,60 @@
+name: Assemble Release Notes
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: assemble-release-notes-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  assemble:
+    name: Open an assembly PR for the pending fragments
+    if: startsWith(github.head_ref, 'release-please--')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+      - name: Assemble the pending fragments and open the PR
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          version=$(printf '%s' "$PR_TITLE" | grep -oE '[0-9]+(\.[0-9]+){2}$') || {
+            echo "::error::Could not read a version from the release PR title: $PR_TITLE"
+            exit 1
+          }
+          if grep -q "version: \"$version\"" apps/web/src/lib/releases.ts; then
+            echo "Release $version is already assembled."
+            exit 0
+          fi
+          if ! ls .release-notes/*.json > /dev/null 2>&1; then
+            echo "::warning::No pending fragments to assemble for $version — write the entry by hand (see .release-notes/README.md). The release-notes guard keeps the release PR red until it exists."
+            exit 0
+          fi
+          node scripts/assemble-release-notes.mjs "$version"
+          branch="assemble-release-notes/$version"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add apps/web/src/lib/releases.ts .release-notes
+          git commit -m "docs(web): assemble release notes for $version"
+          git push -f origin "$branch"
+          if [ -z "$(gh pr list --head "$branch" --state open --json number --jq '.[].number')" ]; then
+            gh pr create \
+              --base "$BASE_REF" \
+              --head "$branch" \
+              --title "docs(web): assemble release notes for $version" \
+              --body "Folds the pending .release-notes/ fragments into the in-app release notes for $version. Review, optionally add a headline, and merge; release-please then refreshes the release PR and its release-notes guard goes green."
+          fi
