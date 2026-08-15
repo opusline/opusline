@@ -1,0 +1,45 @@
+name: Release Note Fragment
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-note-fragment-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-note-fragment:
+    name: feat/fix PRs carry a release-note fragment
+    if: >-
+      github.actor != 'dependabot[bot]'
+      && !(startsWith(github.head_ref, 'release-please--')
+      && github.event.pull_request.user.login == 'github-actions[bot]')
+      && !contains(github.event.pull_request.labels.*.name, 'no-release-note')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Require a fragment under .release-notes/
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          case "$PR_TITLE" in
+            "feat("*|"feat:"*|"feat!"*|"fix("*|"fix:"*|"fix!"*) ;;
+            *)
+              echo "PR type does not require a release-note fragment."
+              exit 0
+              ;;
+          esac
+          if git diff --name-only "$BASE_SHA"...HEAD -- .release-notes/ | grep -q '\.json$'; then
+            echo "Release-note fragment found."
+          else
+            echo "::error::This feat/fix PR ships no release-note fragment. Add a JSON file under .release-notes/ (see .release-notes/README.md), or apply the 'no-release-note' label if nothing is user-visible."
+            exit 1
+          fi
