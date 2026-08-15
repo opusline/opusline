@@ -8,6 +8,7 @@ import {
 import { useLocale } from "@/components/money-format-provider";
 import { SuggestField } from "@/components/suggest-field";
 import { searchCountries } from "@/lib/countries";
+import { m } from "@/paraglide/messages.js";
 
 export type AddressFieldNames<TName extends string> = {
   line1: TName;
@@ -65,7 +66,7 @@ export function AddressFields<TName extends string>({
             field={field}
             label={streetLabel}
             labelClassName={labelClassName}
-            placeholder={placeholder("12 rue de l'Exemple")}
+            placeholder={placeholder(m.address_street_placeholder())}
           />
         ) : (
           <SuggestField
@@ -77,7 +78,7 @@ export function AddressFields<TName extends string>({
               field.handleChange(suggestion.line1);
               fillFromSuggestion(suggestion.postalCode, suggestion.city);
             }}
-            placeholder={placeholder("12 rue de l'Exemple")}
+            placeholder={placeholder(m.address_street_placeholder())}
           />
         ),
       )}
@@ -87,7 +88,7 @@ export function AddressFields<TName extends string>({
           field={field}
           label={complementLabel}
           labelClassName={labelClassName}
-          placeholder={placeholder("Bâtiment, étage, boîte…")}
+          placeholder={placeholder(m.address_complement_placeholder())}
         />
       ))}
 
@@ -97,7 +98,7 @@ export function AddressFields<TName extends string>({
         {renderField(names.postalCode, (field) => (
           <FormTextField
             field={field}
-            label="Code postal"
+            label={m.address_postal_code()}
             labelClassName={labelClassName}
             placeholder={placeholder("00000")}
           />
@@ -107,14 +108,14 @@ export function AddressFields<TName extends string>({
           autocomplete === null ? (
             <FormTextField
               field={field}
-              label="Ville"
+              label={m.address_city()}
               labelClassName={labelClassName}
-              placeholder={placeholder("Ville")}
+              placeholder={placeholder(m.address_city())}
             />
           ) : (
             <SuggestField
               field={field}
-              label="Ville"
+              label={m.address_city()}
               labelClassName={labelClassName}
               onSearch={autocomplete.searchCities}
               onSelect={(suggestion) => {
@@ -122,7 +123,7 @@ export function AddressFields<TName extends string>({
                 setFieldValue(names.postalCode, suggestion.postalCode);
                 setCountryFromSuggestion();
               }}
-              placeholder={placeholder("Ville")}
+              placeholder={placeholder(m.address_city())}
             />
           ),
         )}
@@ -133,7 +134,7 @@ export function AddressFields<TName extends string>({
         : renderField(names.country, (field) => (
             <SuggestField
               field={field}
-              label="Pays"
+              label={m.address_country()}
               labelClassName={labelClassName}
               onSearch={async (query) => searchCountries(locale, query)}
               onSelect={(suggestion) => field.handleChange(suggestion.label)}

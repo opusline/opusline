@@ -20,6 +20,7 @@ import { clientTypeLabel } from "@/lib/client-types";
 import type { FormSubmitResult } from "@/lib/form";
 import type { LogoUploadResult } from "@/lib/logos";
 import { COLOR_CLASSES, COLORS, colorLabel } from "@/lib/palette";
+import { m } from "@/paraglide/messages.js";
 import {
   BILLING_ADDRESS_NAMES,
   type ClientFormValues,
@@ -71,11 +72,7 @@ export function ClientEditForm({
     setIsLogoPending(true);
 
     try {
-      setLogoError(
-        (await onRemoveLogo())
-          ? null
-          : "La suppression a échoué. Réessayez dans un instant.",
-      );
+      setLogoError((await onRemoveLogo()) ? null : m.documents_delete_failed());
     } finally {
       setIsLogoPending(false);
     }
@@ -121,10 +118,12 @@ export function ClientEditForm({
           className="size-3.75 shrink-0 text-muted-foreground-2"
           strokeWidth={1.8}
         />
-        <span className="text-foreground-hi text-sm">Modifier le client</span>
+        <span className="text-foreground-hi text-sm">
+          {m.clients_edit_title()}
+        </span>
         <span className="flex-1" />
         <span className="text-muted-foreground-3 text-xs">
-          Les factures émises gardent les anciennes coordonnées
+          {m.clients_edit_note()}
         </span>
       </div>
 
@@ -137,13 +136,15 @@ export function ClientEditForm({
 
       <div className="grid items-start gap-3.5 md:grid-cols-2">
         <div className="rounded-md border bg-card p-5">
-          <div className={`${EYEBROW_CLASSES} mb-4`}>Identité</div>
+          <div className={`${EYEBROW_CLASSES} mb-4`}>
+            {m.clients_identity_title()}
+          </div>
           <div className="flex flex-col gap-3.5">
             <form.Field name="name">
               {(field) => (
                 <FormTextField
                   field={field}
-                  label="Raison sociale"
+                  label={m.clients_name_label()}
                   labelClassName={EDIT_LABEL_CLASSES}
                 />
               )}
@@ -156,10 +157,10 @@ export function ClientEditForm({
                     className={EDIT_LABEL_CLASSES}
                     htmlFor={`${field.name}-options`}
                   >
-                    Type de relation
+                    {m.clients_type_label()}
                   </FieldLabel>
                   <ChipGroup
-                    aria-label="Type de relation"
+                    aria-label={m.clients_type_label()}
                     id={`${field.name}-options`}
                     value={[String(field.state.value)]}
                     onValueChange={(value) => {
@@ -190,16 +191,16 @@ export function ClientEditForm({
                 <LogoPicker
                   error={logoError}
                   isPending={isLogoPending}
-                  label="Logo du client"
+                  label={m.clients_logo_aria()}
                   onPick={(logo) => void handleUploadLogo(logo)}
                   onRemove={() => void handleRemoveLogo()}
-                  placeholder="Déposez"
-                  removeLabel="Retirer le logo du client"
+                  placeholder={m.clients_logo_drop_short()}
+                  removeLabel={m.clients_logo_remove()}
                   size="sm"
                   src={logoSrc}
                 />
                 <span className="text-muted-foreground-3 text-xs leading-normal">
-                  PNG ou SVG, fond transparent. Apparaît sur les factures.
+                  {m.clients_logo_hint_invoices()}
                 </span>
               </div>
             </div>
@@ -212,14 +213,14 @@ export function ClientEditForm({
                       className={EDIT_LABEL_CLASSES}
                       htmlFor={`${field.name}-swatches`}
                     >
-                      Couleur
+                      {m.clients_color_label()}
                     </FieldLabel>
                     <span className="text-muted-foreground-5 text-xs">
                       {colorLabel(field.state.value)}
                     </span>
                   </div>
                   <SwatchGroup
-                    aria-label="Couleur"
+                    aria-label={m.clients_color_label()}
                     id={`${field.name}-swatches`}
                     value={[String(field.state.value)]}
                     onValueChange={(value) => {
@@ -259,7 +260,7 @@ export function ClientEditForm({
               {(field) => (
                 <FormTextField
                   field={field}
-                  label="TVA intracom."
+                  label={m.clients_vat_short_label()}
                   labelClassName={EDIT_LABEL_CLASSES}
                   font="mono"
                 />
@@ -268,20 +269,22 @@ export function ClientEditForm({
 
             <AddressFields
               names={BILLING_ADDRESS_NAMES}
-              complementLabel="Complément"
+              complementLabel={m.address_complement_short()}
               gapClassName="gap-3.5"
               labelClassName={EDIT_LABEL_CLASSES}
               renderField={(name, render) => (
                 <form.Field name={name}>{(field) => render(field)}</form.Field>
               )}
               setFieldValue={(name, value) => form.setFieldValue(name, value)}
-              streetLabel="Adresse"
+              streetLabel={m.address_label()}
             />
           </div>
         </div>
 
         <div className="rounded-md border bg-card p-5">
-          <div className={`${EYEBROW_CLASSES} mb-4`}>Facturation</div>
+          <div className={`${EYEBROW_CLASSES} mb-4`}>
+            {m.common_billing_title()}
+          </div>
           <div className="flex flex-col gap-3.5">
             <form.Field name="billingContactName">
               {(field) => (
@@ -313,7 +316,7 @@ export function ClientEditForm({
                       className={EDIT_LABEL_CLASSES}
                       htmlFor={`${field.name}-options`}
                     >
-                      Délai de paiement
+                      {m.clients_payment_terms_label()}
                     </FieldLabel>
                     <PaymentTermsPicker
                       id={`${field.name}-options`}
@@ -335,7 +338,7 @@ export function ClientEditForm({
 
       <div className="mt-4 flex items-center gap-2 border-t pt-4">
         <Button disabled={isPending} size="xl" type="submit">
-          Enregistrer
+          {m.settings_save()}
         </Button>
         <Button
           disabled={isPending}
@@ -344,7 +347,7 @@ export function ClientEditForm({
           type="button"
           variant="ghost"
         >
-          Annuler
+          {m.timer_cancel()}
         </Button>
       </div>
     </form>

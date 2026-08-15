@@ -24,8 +24,8 @@ import {
   baseName,
   DOCUMENT_ACCEPT,
   DOCUMENT_CATEGORIES,
-  DOCUMENT_CATEGORY_LABELS,
   type DocumentUploadResult,
+  documentCategoryLabel,
   extensionOf,
   foldAccents,
   formatFileSize,
@@ -34,6 +34,7 @@ import {
   isDocumentCategory,
   rejectDocumentReason,
 } from "@/lib/documents";
+import { m } from "@/paraglide/messages.js";
 
 type PendingDocument = {
   key: number;
@@ -120,7 +121,7 @@ export function DocumentsTab({
     } catch {
       result = {
         status: "failed",
-        message: "L'envoi a échoué. Réessayez dans un instant.",
+        message: m.documents_upload_failed(),
       };
     }
 
@@ -216,7 +217,7 @@ export function DocumentsTab({
       >
         <input
           accept={DOCUMENT_ACCEPT}
-          aria-label="Ajouter des documents"
+          aria-label={m.documents_add_aria()}
           className="sr-only"
           multiple
           onChange={(event) => {
@@ -231,10 +232,10 @@ export function DocumentsTab({
         />
         <span className="flex min-w-0 flex-col gap-0.75">
           <span className="text-foreground-3 text-sm">
-            Glissez des fichiers ici ou cliquez pour parcourir
+            {m.documents_drop_hint()}
           </span>
           <span className="text-muted-foreground-3 text-xs">
-            PDF, images ou documents Office — 20 Mo max
+            {m.documents_drop_formats()}
           </span>
         </span>
       </label>
@@ -243,7 +244,7 @@ export function DocumentsTab({
         <Alert variant="warn">
           <CircleAlert />
           <AlertDescription>
-            Fichiers ignorés : {rejectedFiles.join(", ")}.
+            {m.documents_rejected_list({ files: rejectedFiles.join(", ") })}
           </AlertDescription>
         </Alert>
       )}
@@ -255,7 +256,9 @@ export function DocumentsTab({
               aria-hidden
               className="size-3.5 shrink-0 text-muted-foreground-2"
             />
-            <span className="text-foreground-3 text-sm">Envois en cours</span>
+            <span className="text-foreground-3 text-sm">
+              {m.documents_uploading_title()}
+            </span>
           </div>
           <div className="divide-y">
             {queue.map((upload) => (
@@ -273,12 +276,13 @@ export function DocumentsTab({
                         className="shrink-0 text-destructive text-xs"
                         role="alert"
                       >
-                        {upload.message ??
-                          "L'envoi a échoué. Réessayez dans un instant."}
+                        {upload.message ?? m.documents_upload_failed()}
                       </span>
                     ) : (
                       <span className="shrink-0 text-muted-foreground-3 text-xs">
-                        {`${formatFileSize(locale, upload.file.size)} · envoi en cours…`}
+                        {m.documents_uploading_status({
+                          size: formatFileSize(locale, upload.file.size),
+                        })}
                       </span>
                     )}
                   </span>
@@ -295,11 +299,13 @@ export function DocumentsTab({
                 </span>
                 {upload.state === "error" && (
                   <Button onClick={() => retryUpload(upload)} variant="outline">
-                    Réessayer
+                    {m.documents_retry()}
                   </Button>
                 )}
                 <Button
-                  aria-label={`Retirer ${upload.file.name} de la file`}
+                  aria-label={m.documents_remove_from_queue({
+                    name: upload.file.name,
+                  })}
                   onClick={() =>
                     setQueue((current) =>
                       current.filter((item) => item.key !== upload.key),
@@ -320,11 +326,11 @@ export function DocumentsTab({
         <div className="overflow-hidden rounded-md border border-primary/35 bg-card">
           <div className="flex items-center gap-2.5 border-b bg-primary/7 px-4 py-3.5">
             <span className="text-primary-text text-sm">
-              {`${pending.length} fichier${pending.length > 1 ? "s" : ""} à classer`}
+              {m.documents_pending_count({ count: pending.length })}
             </span>
             <span className="flex-1" />
             <span className="text-muted-foreground-3 text-xs">
-              Vérifiez le type, puis confirmez
+              {m.documents_check_confirm()}
             </span>
           </div>
           <div className="divide-y">
@@ -332,7 +338,7 @@ export function DocumentsTab({
               <div className="flex flex-col gap-1.5 px-4 py-3" key={item.key}>
                 <div className="flex items-center gap-3">
                   <Input
-                    aria-label={`Nom du document ${item.file.name}`}
+                    aria-label={m.documents_name_aria({ name: item.file.name })}
                     className="min-w-0 flex-1"
                     onChange={(event) =>
                       setPending((current) =>
@@ -347,7 +353,7 @@ export function DocumentsTab({
                     value={item.name}
                   />
                   <NativeSelect
-                    aria-label={`Type de ${item.file.name}`}
+                    aria-label={m.documents_type_aria({ name: item.file.name })}
                     onChange={(event) => {
                       const category = Number(event.target.value);
 
@@ -366,12 +372,14 @@ export function DocumentsTab({
                   >
                     {ASSIGNABLE_DOCUMENT_CATEGORIES.map((category) => (
                       <option key={category} value={String(category)}>
-                        {DOCUMENT_CATEGORY_LABELS[category]}
+                        {documentCategoryLabel(category)}
                       </option>
                     ))}
                   </NativeSelect>
                   <Button
-                    aria-label={`Retirer ${item.file.name}`}
+                    aria-label={m.documents_remove_aria({
+                      name: item.file.name,
+                    })}
                     onClick={() =>
                       setPending((current) =>
                         current.filter(
@@ -394,10 +402,10 @@ export function DocumentsTab({
           </div>
           <div className="flex items-center gap-2 border-t bg-muted px-4 py-3.5">
             <Button onClick={confirmPending} size="xl">
-              {`Envoyer ${pending.length} document${pending.length > 1 ? "s" : ""}`}
+              {m.documents_send_count({ count: pending.length })}
             </Button>
             <Button onClick={() => setPending([])} size="xl" variant="ghost">
-              Annuler
+              {m.timer_cancel()}
             </Button>
           </div>
         </div>
@@ -406,9 +414,7 @@ export function DocumentsTab({
       {hasDeleteError && (
         <Alert variant="warn">
           <CircleAlert />
-          <AlertDescription>
-            La suppression a échoué. Réessayez dans un instant.
-          </AlertDescription>
+          <AlertDescription>{m.documents_delete_failed()}</AlertDescription>
         </Alert>
       )}
 
@@ -421,15 +427,15 @@ export function DocumentsTab({
                 className="size-3.25 shrink-0 text-muted-foreground-5"
               />
               <input
-                aria-label="Rechercher un document"
+                aria-label={m.documents_search_aria()}
                 className="min-w-0 flex-1 bg-transparent text-foreground-hi text-sm outline-none placeholder:text-muted-foreground-5"
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Rechercher"
+                placeholder={m.documents_search_placeholder()}
                 value={search}
               />
             </span>
             <ChipGroup
-              aria-label="Filtrer par type de document"
+              aria-label={m.documents_filter_aria()}
               onValueChange={(value) => {
                 const [nextFilter] = value;
 
@@ -446,23 +452,23 @@ export function DocumentsTab({
               value={[filter === "all" ? "all" : String(filter)]}
             >
               <Chip
-                aria-label={`Tous (${documents.length})`}
+                aria-label={`${m.clients_scope_all()} (${documents.length})`}
                 shape="pill"
                 value="all"
               >
-                Tous
+                {m.clients_scope_all()}
                 <ChipCount aria-hidden>{documents.length}</ChipCount>
               </Chip>
               {DOCUMENT_CATEGORIES.filter(
                 (category) => categoryCounts[category] > 0,
               ).map((category) => (
                 <Chip
-                  aria-label={`${DOCUMENT_CATEGORY_LABELS[category]} (${categoryCounts[category]})`}
+                  aria-label={`${documentCategoryLabel(category)} (${categoryCounts[category]})`}
                   key={category}
                   shape="pill"
                   value={String(category)}
                 >
-                  {DOCUMENT_CATEGORY_LABELS[category]}
+                  {documentCategoryLabel(category)}
                   <ChipCount aria-hidden>{categoryCounts[category]}</ChipCount>
                 </Chip>
               ))}
@@ -484,23 +490,25 @@ export function DocumentsTab({
                       <span className="min-w-0 truncate text-foreground-hi text-sm">
                         {document.fileName}
                       </span>
-                      <Badge>
-                        {DOCUMENT_CATEGORY_LABELS[document.category]}
-                      </Badge>
+                      <Badge>{documentCategoryLabel(document.category)}</Badge>
                       {showSourceBadge && isClientDocument(document) && (
                         <Badge variant="quiet">client</Badge>
                       )}
                     </span>
                     <span className="text-muted-foreground-3 text-xs">
-                      {formatFileSize(locale, document.sizeBytes)} · ajouté le{" "}
-                      {fullDateLabel(locale, document.createdAt)}
+                      {m.documents_added_on({
+                        size: formatFileSize(locale, document.sizeBytes),
+                        date: fullDateLabel(locale, document.createdAt),
+                      })}
                     </span>
                   </span>
                   <span className="flex-1" />
                   <Button
                     render={
                       <a
-                        aria-label={`Télécharger ${document.fileName}`}
+                        aria-label={m.documents_download_aria({
+                          name: document.fileName,
+                        })}
                         download
                         href={downloadHref(document)}
                       />
@@ -512,7 +520,9 @@ export function DocumentsTab({
                   </Button>
                   {(canRemove?.(document) ?? true) && (
                     <Button
-                      aria-label={`Supprimer ${document.fileName}`}
+                      aria-label={m.documents_delete_aria({
+                        name: document.fileName,
+                      })}
                       onClick={() => void handleDelete(document)}
                       size="icon-lg"
                       variant="ghost"
@@ -525,7 +535,7 @@ export function DocumentsTab({
             </div>
           ) : (
             <div className="rounded-md border bg-card px-5 py-7 text-center text-muted-foreground-3 text-sm">
-              Aucun document ne correspond à la recherche.
+              {m.documents_no_match()}
             </div>
           )}
         </>

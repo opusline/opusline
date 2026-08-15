@@ -14,6 +14,7 @@ import { useState } from "react";
 import { NewMissionPage } from "@/features/missions/components/new-mission-page";
 import type { FormSubmitResult } from "@/lib/form";
 import { serverFieldErrors } from "@/lib/validation";
+import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute("/_authed/missions_/new")({
   validateSearch: (search: Record<string, unknown>): { client?: string } => ({
@@ -96,9 +97,7 @@ function NewMissionRoute() {
   if (isError || data === undefined) {
     return (
       <Alert variant="destructive">
-        <AlertDescription>
-          Impossible de charger vos clients. Réessayez dans un instant.
-        </AlertDescription>
+        <AlertDescription>{m.missions_load_clients_failed()}</AlertDescription>
       </Alert>
     );
   }
@@ -109,7 +108,7 @@ function NewMissionRoute() {
       hasFrenchFiscality={user.hasFrenchFiscality}
       error={
         createMission.error && !serverFieldErrors(createMission.error)
-          ? "Impossible de créer la mission. Réessayez dans un instant."
+          ? m.missions_create_failed()
           : null
       }
       initialClientSlug={initialClientSlug}

@@ -31,7 +31,8 @@ import {
 } from "@/lib/entry-rounding";
 import type { FormSubmitResult } from "@/lib/form";
 import { COLOR_CLASSES, COLORS, colorLabel } from "@/lib/palette";
-import { BILLING_MODE_LABELS } from "../lib/labels";
+import { m } from "@/paraglide/messages.js";
+import { billingModeLabel } from "../lib/labels";
 import { MissionRateField } from "./mission-rate-field";
 
 const EYEBROW_CLASSES =
@@ -106,7 +107,7 @@ export function MissionEditForm({
       onSubmitAsync: async ({ value }) => {
         if (!isInternal && rateCents === null) {
           setIsRateMissing(true);
-          return "Le tarif est manquant ou invalide.";
+          return m.missions_rate_missing();
         }
 
         const body: UpdateMissionData = {
@@ -153,10 +154,12 @@ export function MissionEditForm({
           className="size-3.75 shrink-0 text-muted-foreground-2"
           strokeWidth={1.8}
         />
-        <span className="text-foreground-hi text-sm">Modifier la mission</span>
+        <span className="text-foreground-hi text-sm">
+          {m.missions_edit_title()}
+        </span>
         <span className="flex-1" />
         <span className="text-muted-foreground-3 text-xs">
-          Les entrées passées ne sont pas affectées
+          {m.missions_edit_note()}
         </span>
       </div>
 
@@ -175,7 +178,7 @@ export function MissionEditForm({
               {(field) => (
                 <FormTextField
                   field={field}
-                  label="Nom de la mission"
+                  label={m.missions_name_label()}
                   labelClassName={EDIT_LABEL_CLASSES}
                 />
               )}
@@ -187,15 +190,16 @@ export function MissionEditForm({
                   className={EDIT_LABEL_CLASSES}
                   htmlFor="mission-edit-swatches"
                 >
-                  Couleur de la ligne
+                  {m.missions_color_label()}
                 </FieldLabel>
                 <span className="text-muted-foreground-5 text-xs">
                   {colorLabel(displayedColor)}
-                  {color === null && ` · héritée de ${client.name}`}
+                  {color === null &&
+                    ` · ${m.missions_color_inherited_from({ client: client.name })}`}
                 </span>
               </div>
               <SwatchGroup
-                aria-label="Couleur de la ligne"
+                aria-label={m.missions_color_label()}
                 id="mission-edit-swatches"
                 value={[String(displayedColor)]}
                 onValueChange={(value) => {
@@ -225,10 +229,10 @@ export function MissionEditForm({
                     className={EDIT_LABEL_CLASSES}
                     htmlFor="mission-edit-billing-mode"
                   >
-                    Mode de facturation
+                    {m.missions_billing_mode_label()}
                   </FieldLabel>
                   <ChipGroup
-                    aria-label="Mode de facturation"
+                    aria-label={m.missions_billing_mode_label()}
                     id="mission-edit-billing-mode"
                     value={[String(billingMode)]}
                     onValueChange={(value) => {
@@ -243,7 +247,7 @@ export function MissionEditForm({
                   >
                     {BILLING_MODES.map((mode) => (
                       <Chip key={mode} size="lg" value={String(mode)}>
-                        {BILLING_MODE_LABELS[mode]}
+                        {billingModeLabel(mode)}
                       </Chip>
                     ))}
                   </ChipGroup>
@@ -268,14 +272,14 @@ export function MissionEditForm({
                         className={EDIT_LABEL_CLASSES}
                         htmlFor="mission-edit-rounding"
                       >
-                        Arrondi des entrées
+                        {m.missions_rounding_label()}
                       </FieldLabel>
-                      <HelpTip label="Qu'est-ce que l'arrondi ?">
+                      <HelpTip label={m.missions_rounding_help()}>
                         {entryRoundingHint(billingMode)}
                       </HelpTip>
                     </div>
                     <ChipGroup
-                      aria-label="Arrondi des entrées"
+                      aria-label={m.missions_rounding_label()}
                       id="mission-edit-rounding"
                       value={[String(rounding)]}
                       onValueChange={(value) => {
@@ -304,10 +308,14 @@ export function MissionEditForm({
         </div>
 
         <div className="rounded-md border bg-card p-5">
-          <div className={`${EYEBROW_CLASSES} mb-4`}>Facturation</div>
+          <div className={`${EYEBROW_CLASSES} mb-4`}>
+            {m.common_billing_title()}
+          </div>
           <div className="flex flex-col gap-3.5">
             <div className="flex items-baseline justify-between gap-3">
-              <span className="text-muted-foreground-3 text-sm">Facturé à</span>
+              <span className="text-muted-foreground-3 text-sm">
+                {m.missions_billed_to()}
+              </span>
               <span className="text-foreground-2 text-sm">{client.name}</span>
             </div>
             {isEsn && (
@@ -316,7 +324,7 @@ export function MissionEditForm({
                   {(field) => (
                     <FormTextField
                       field={field}
-                      label="Client final"
+                      label={m.missions_end_client_label()}
                       labelClassName={EDIT_LABEL_CLASSES}
                       placeholder="Callisto"
                     />
@@ -324,7 +332,7 @@ export function MissionEditForm({
                 </form.Field>
                 <div className="flex items-center gap-3">
                   <Switch
-                    aria-label="CRA mensuel requis"
+                    aria-label={m.missions_cra_required()}
                     checked={craRequired}
                     id="mission-edit-cra"
                     onCheckedChange={(checked) => setCraRequired(checked)}
@@ -333,7 +341,7 @@ export function MissionEditForm({
                     className="text-foreground-3 text-sm"
                     htmlFor="mission-edit-cra"
                   >
-                    CRA mensuel requis
+                    {m.missions_cra_required()}
                   </label>
                 </div>
               </>
@@ -345,7 +353,7 @@ export function MissionEditForm({
                   <FormTextField
                     field={field}
                     font="mono"
-                    label="Début"
+                    label={m.missions_start_label()}
                     labelClassName={EDIT_LABEL_CLASSES}
                     type="date"
                   />
@@ -356,7 +364,7 @@ export function MissionEditForm({
                   <FormTextField
                     field={field}
                     font="mono"
-                    label="Fin prévue"
+                    label={m.missions_end_label()}
                     labelClassName={EDIT_LABEL_CLASSES}
                     type="date"
                   />
@@ -369,7 +377,7 @@ export function MissionEditForm({
 
       <div className="mt-4 flex items-center gap-2 border-t pt-4">
         <Button disabled={isPending} size="xl" type="submit">
-          Enregistrer
+          {m.settings_save()}
         </Button>
         <Button
           disabled={isPending}
@@ -378,7 +386,7 @@ export function MissionEditForm({
           type="button"
           variant="ghost"
         >
-          Annuler
+          {m.timer_cancel()}
         </Button>
       </div>
     </form>

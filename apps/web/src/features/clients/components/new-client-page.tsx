@@ -18,15 +18,16 @@ import { PaymentTermsPicker } from "@/components/payment-terms-picker";
 import { paymentTermsLabel } from "@/lib/billing";
 import type { FormSubmitResult } from "@/lib/form";
 import { COLOR_CLASSES, COLORS, colorLabel } from "@/lib/palette";
+import { m } from "@/paraglide/messages.js";
 import {
   BILLING_ADDRESS_NAMES,
   type ClientFormValues,
   toClientPayload,
 } from "../lib/client-form";
 import {
-  CLIENT_TYPE_HINTS,
-  CLIENT_TYPE_OPTION_LABELS,
   CLIENT_TYPES,
+  clientTypeHint,
+  clientTypeOptionLabel,
   randomColor,
 } from "../lib/labels";
 
@@ -106,16 +107,18 @@ export function NewClientPage({
             className="text-link transition-colors hover:text-link-hover"
             to="/clients"
           >
-            Clients
+            {m.nav_clients()}
           </Link>
           <span>/</span>
-          <span className="text-muted-foreground">Nouveau</span>
+          <span className="text-muted-foreground">
+            {m.clients_breadcrumb_new()}
+          </span>
         </div>
         <h1 className="mb-1 font-heading font-semibold text-2xl text-foreground-hi">
-          Nouveau client
+          {m.clients_new_title()}
         </h1>
         <p className="mb-5 text-muted-foreground-3 text-sm">
-          Le type détermine qui figure sur la facture et si un CRA est attendu.
+          {m.clients_new_subtitle()}
         </p>
 
         <form
@@ -137,16 +140,16 @@ export function NewClientPage({
               <span className="text-foreground-3 text-sm">Logo</span>
               <LogoPicker
                 isPending={isPending}
-                label="Logo du client"
+                label={m.clients_logo_aria()}
                 onPick={setLogo}
                 onRemove={() => setLogo(null)}
-                placeholder="Déposez le logo"
-                removeLabel="Retirer le logo du client"
+                placeholder={m.clients_logo_drop()}
+                removeLabel={m.clients_logo_remove()}
                 size="lg"
                 src={logoPreview}
               />
               <span className="w-49 text-muted-foreground-3 text-xs leading-normal">
-                PNG ou SVG, fond transparent.
+                {m.clients_logo_hint()}
               </span>
             </div>
             <div className="min-w-60 flex-1">
@@ -154,7 +157,7 @@ export function NewClientPage({
                 {(field) => (
                   <FormTextField
                     field={field}
-                    label="Raison sociale"
+                    label={m.clients_name_label()}
                     labelClassName="text-foreground-3"
                     placeholder="Nordlys"
                   />
@@ -170,10 +173,10 @@ export function NewClientPage({
                   className="text-foreground-3"
                   htmlFor={`${field.name}-options`}
                 >
-                  Type de relation
+                  {m.clients_type_label()}
                 </FieldLabel>
                 <ChipGroup
-                  aria-label="Type de relation"
+                  aria-label={m.clients_type_label()}
                   className="items-stretch"
                   id={`${field.name}-options`}
                   value={[String(field.state.value)]}
@@ -190,8 +193,8 @@ export function NewClientPage({
                       className="min-w-48 flex-1"
                       key={clientType}
                       value={String(clientType)}
-                      label={CLIENT_TYPE_OPTION_LABELS[clientType]}
-                      hint={CLIENT_TYPE_HINTS[clientType]}
+                      label={clientTypeOptionLabel(clientType)}
+                      hint={clientTypeHint(clientType)}
                     />
                   ))}
                 </ChipGroup>
@@ -217,7 +220,7 @@ export function NewClientPage({
               {(field) => (
                 <FormTextField
                   field={field}
-                  label="TVA intracommunautaire"
+                  label={m.clients_vat_label()}
                   labelClassName="text-foreground-3"
                   font="mono"
                   placeholder="FR64 443061841"
@@ -228,14 +231,14 @@ export function NewClientPage({
 
           <AddressFields
             names={BILLING_ADDRESS_NAMES}
-            complementLabel="Complément d'adresse"
+            complementLabel={m.address_complement_label()}
             gapClassName="gap-4"
             labelClassName="text-foreground-3"
             renderField={(name, render) => (
               <form.Field name={name}>{(field) => render(field)}</form.Field>
             )}
             setFieldValue={(name, value) => form.setFieldValue(name, value)}
-            streetLabel="Adresse de facturation"
+            streetLabel={m.clients_billing_address_label()}
             withPlaceholders
           />
 
@@ -246,7 +249,7 @@ export function NewClientPage({
               {(field) => (
                 <FormTextField
                   field={field}
-                  label="Contact facturation"
+                  label={m.clients_contact_label()}
                   labelClassName="text-foreground-3"
                   placeholder="Camille Dupont"
                 />
@@ -256,7 +259,7 @@ export function NewClientPage({
               {(field) => (
                 <FormTextField
                   field={field}
-                  label="Email d'envoi des factures"
+                  label={m.clients_billing_email_label()}
                   labelClassName="text-foreground-3"
                   type="email"
                   placeholder="factures@nordlys.example"
@@ -273,14 +276,15 @@ export function NewClientPage({
                     className="text-foreground-3"
                     htmlFor={`${field.name}-swatches`}
                   >
-                    Couleur par défaut
+                    {m.clients_default_color_label()}
                   </FieldLabel>
                   <span className="text-muted-foreground-3 text-xs">
-                    {colorLabel(field.state.value)} · héritée par ses missions
+                    {colorLabel(field.state.value)} ·{" "}
+                    {m.clients_color_inherited()}
                   </span>
                 </div>
                 <SwatchGroup
-                  aria-label="Couleur par défaut"
+                  aria-label={m.clients_default_color_label()}
                   id={`${field.name}-swatches`}
                   value={[String(field.state.value)]}
                   onValueChange={(value) => {
@@ -314,7 +318,7 @@ export function NewClientPage({
                     className="text-foreground-3"
                     htmlFor={`${field.name}-options`}
                   >
-                    Délai de paiement
+                    {m.clients_payment_terms_label()}
                   </FieldLabel>
                   <PaymentTermsPicker
                     id={`${field.name}-options`}
@@ -324,8 +328,7 @@ export function NewClientPage({
                     value={field.state.value}
                   />
                   <p className="text-muted-foreground-3 text-xs">
-                    Sert à calculer la date d'échéance et à signaler les
-                    retards. Par défaut : 45 jours.
+                    {m.clients_payment_terms_hint()}
                   </p>
                   {isInvalid ? (
                     <FieldError errors={field.state.meta.errors} />
@@ -344,7 +347,7 @@ export function NewClientPage({
               size="2xl"
               type="submit"
             >
-              Créer le client
+              {m.clients_create_submit()}
             </Button>
             <Button
               disabled={isPending}
@@ -355,7 +358,7 @@ export function NewClientPage({
               type="submit"
               variant="outline"
             >
-              Créer et enchaîner sur une mission
+              {m.clients_create_and_chain()}
             </Button>
             <Button
               disabled={isPending}
@@ -364,7 +367,7 @@ export function NewClientPage({
               type="button"
               variant="ghost"
             >
-              Annuler
+              {m.timer_cancel()}
             </Button>
           </div>
         </form>
@@ -375,7 +378,7 @@ export function NewClientPage({
           <div className="flex min-w-0 flex-col gap-3.5">
             <div>
               <div className={cn(EYEBROW_CLASSES, "mb-2.5")}>
-                Aperçu dans la liste
+                {m.clients_preview_title()}
               </div>
               <div className="flex items-center gap-3 rounded-md border bg-card px-5 py-4">
                 <ClientLogo name={values.name} size="sm" src={logoPreview} />
@@ -397,12 +400,14 @@ export function NewClientPage({
                       )}
                     >
                       {values.name.trim() === ""
-                        ? "Nom du client"
+                        ? m.clients_preview_name_placeholder()
                         : values.name}
                     </span>
                   </div>
                   <div className="mt-0.75 text-muted-foreground-3 text-xs">
-                    Paiement à {paymentTermsLabel(values.paymentTermsDays)}
+                    {m.clients_payment_at({
+                      terms: paymentTermsLabel(values.paymentTermsDays),
+                    })}
                   </div>
                 </div>
               </div>
@@ -418,14 +423,14 @@ export function NewClientPage({
                   />
                   <div>
                     <div className="mb-1.5 font-medium text-primary-text text-sm">
-                      Facturation via intermédiaire
+                      {m.clients_esn_card_title()}
                     </div>
                     <div className="text-foreground-4 text-sm leading-relaxed">
-                      Les missions de ce client demanderont un{" "}
+                      {m.clients_esn_card_before()}{" "}
                       <strong className="font-medium text-foreground-2">
-                        client final
+                        {m.clients_esn_card_strong()}
                       </strong>
-                      , et activeront le CRA mensuel par défaut.
+                      {m.clients_esn_card_after()}
                     </div>
                   </div>
                 </div>
@@ -434,13 +439,13 @@ export function NewClientPage({
 
             <div className="rounded-md border bg-card px-5 py-4">
               <div className={cn(EYEBROW_CLASSES, "mb-3")}>
-                Ce qui reste à faire
+                {m.clients_todo_title()}
               </div>
               <div className="flex flex-col gap-3">
                 {[
-                  "Créer le client",
-                  "Lui associer une mission et son tarif",
-                  "La mission apparaît en ligne dans la semaine",
+                  m.clients_create_submit(),
+                  m.clients_todo_step_mission(),
+                  m.clients_todo_step_grid(),
                 ].map((step, index) => (
                   <div className="flex items-start gap-2.5" key={step}>
                     <span

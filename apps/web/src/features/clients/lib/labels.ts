@@ -5,6 +5,7 @@ import type {
 } from "@opusline/api-client";
 
 import { COLORS } from "@/lib/palette";
+import { m } from "@/paraglide/messages.js";
 
 export const CLIENT_TYPE_BADGE_VARIANTS: Record<
   ClientType,
@@ -15,22 +16,32 @@ export const CLIENT_TYPE_BADGE_VARIANTS: Record<
   2: "neutral",
 };
 
-const CLIENT_TYPE_DESCRIPTORS: Partial<Record<ClientType, string>> = {
-  1: "ESN",
-  2: "Projets internes",
+const CLIENT_TYPE_DESCRIPTOR_MESSAGES: Partial<
+  Record<ClientType, () => string>
+> = {
+  1: () => "ESN",
+  2: m.clients_descriptor_internal,
 };
 
-export const CLIENT_TYPE_OPTION_LABELS: Record<ClientType, string> = {
-  0: "Client direct",
-  1: "ESN / intermédiaire",
-  2: "Interne / perso",
+const CLIENT_TYPE_OPTION_MESSAGES: Record<ClientType, () => string> = {
+  0: m.client_type_short_direct,
+  1: m.clients_type_option_esn,
+  2: m.clients_type_option_internal,
 };
 
-export const CLIENT_TYPE_HINTS: Record<ClientType, string> = {
-  0: "Vous facturez et livrez directement.",
-  1: "Vous facturez l'ESN, qui facture son client final.",
-  2: "Projets non facturables, suivis pour mémoire.",
+export function clientTypeOptionLabel(type: ClientType): string {
+  return CLIENT_TYPE_OPTION_MESSAGES[type]();
+}
+
+const CLIENT_TYPE_HINT_MESSAGES: Record<ClientType, () => string> = {
+  0: m.clients_type_hint_direct,
+  1: m.clients_type_hint_esn,
+  2: m.clients_type_hint_internal,
 };
+
+export function clientTypeHint(type: ClientType): string {
+  return CLIENT_TYPE_HINT_MESSAGES[type]();
+}
 
 export const CLIENT_TYPES: ClientType[] = [0, 1, 2];
 
@@ -52,10 +63,10 @@ export function isNewClient(
 export function clientSubtitle(client: ClientWithMissionsData): string {
   const parts: string[] = [];
 
-  const descriptor = CLIENT_TYPE_DESCRIPTORS[client.type];
+  const descriptor = CLIENT_TYPE_DESCRIPTOR_MESSAGES[client.type];
 
   if (descriptor !== undefined) {
-    parts.push(descriptor);
+    parts.push(descriptor());
   }
 
   const endClients = [
@@ -67,17 +78,17 @@ export function clientSubtitle(client: ClientWithMissionsData): string {
   ];
 
   if (endClients.length > 0) {
-    parts.push(`client final ${endClients.join(", ")}`);
+    parts.push(m.missions_detail_end_client({ name: endClients.join(", ") }));
   }
 
   if (parts.length === 0) {
     const missionCount = client.missions.length;
 
     if (missionCount === 0) {
-      return "Aucune mission";
+      return m.clients_no_missions();
     }
 
-    return missionCount === 1 ? "1 mission" : `${missionCount} missions`;
+    return m.clients_mission_count({ count: missionCount });
   }
 
   return parts.join(" · ");

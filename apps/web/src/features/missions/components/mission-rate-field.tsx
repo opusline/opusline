@@ -8,7 +8,8 @@ import {
 
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatRateDraft } from "@/lib/billing";
-import { BILLING_MODE_RATE_PLACEHOLDERS, billingModeUnit } from "../lib/labels";
+import { m } from "@/paraglide/messages.js";
+import { billingModeRatePlaceholder, billingModeUnit } from "../lib/labels";
 
 type MissionRateFieldProps = {
   id: string;
@@ -35,19 +36,19 @@ export function MissionRateField({
   return (
     <Field className={className} data-invalid={isRateMissing}>
       <FieldLabel className={labelClassName} htmlFor={id}>
-        Tarif HT
+        {m.missions_rate_ht()}
       </FieldLabel>
       <InputGroup>
         <InputGroupInput
           aria-invalid={isRateMissing}
-          aria-label="Tarif HT"
+          aria-label={m.missions_rate_ht()}
           className="flex-1 text-base"
           id={id}
           inputMode="decimal"
           onChange={(event) =>
             onDraftChange(formatRateDraft(format.locale, event.target.value))
           }
-          placeholder={BILLING_MODE_RATE_PLACEHOLDERS[billingMode]}
+          placeholder={billingModeRatePlaceholder(billingMode)}
           value={rateDraft}
         />
         <InputGroupSuffix className="pl-2">
@@ -55,9 +56,7 @@ export function MissionRateField({
         </InputGroupSuffix>
       </InputGroup>
       {isRateMissing ? (
-        <FieldError
-          errors={[{ message: "Indiquez un tarif pour cette mission." }]}
-        />
+        <FieldError errors={[{ message: m.missions_rate_required() }]} />
       ) : null}
     </Field>
   );

@@ -25,6 +25,7 @@ import {
 } from "@/lib/documents";
 import type { FormSubmitResult } from "@/lib/form";
 import { serverFieldErrors } from "@/lib/validation";
+import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute(
   "/_authed/clients_/$clientSlug_/missions/$missionSlug",
@@ -177,9 +178,7 @@ function MissionDetailRoute() {
   ) {
     return (
       <Alert variant="destructive">
-        <AlertDescription>
-          Impossible de charger cette mission. Réessayez dans un instant.
-        </AlertDescription>
+        <AlertDescription>{m.missions_load_one_failed()}</AlertDescription>
       </Alert>
     );
   }
@@ -188,9 +187,7 @@ function MissionDetailRoute() {
     <Skeleton className="h-40 w-full" />
   ) : documentsQuery.data === undefined ? (
     <Alert variant="destructive">
-      <AlertDescription>
-        Impossible de charger les documents. Réessayez dans un instant.
-      </AlertDescription>
+      <AlertDescription>{m.documents_load_failed()}</AlertDescription>
     </Alert>
   ) : (
     <DocumentsTab
@@ -199,7 +196,7 @@ function MissionDetailRoute() {
       downloadHref={(document) =>
         missionDocumentDownloadHref(clientSlug, missionSlug, document)
       }
-      emptyLabel="Aucun document pour cette mission. Les documents du client apparaissent aussi ici."
+      emptyLabel={m.missions_documents_empty()}
       onDelete={handleDeleteDocument}
       onUpload={handleUploadDocument}
       showSourceBadge
@@ -212,7 +209,7 @@ function MissionDetailRoute() {
       documentsTab={documentsTab}
       error={
         updateMission.error && !serverFieldErrors(updateMission.error)
-          ? "L'action a échoué. Réessayez dans un instant."
+          ? m.common_action_failed()
           : null
       }
       isStatusPending={isMutating}

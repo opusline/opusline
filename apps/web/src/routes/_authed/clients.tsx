@@ -7,6 +7,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 
 import { ClientsTable } from "@/features/clients/components/clients-table";
+import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute("/_authed/clients")({
   component: ClientsPage,
@@ -19,11 +20,11 @@ function ClientsPage() {
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <h1 className="font-heading font-semibold text-2xl text-foreground-hi">
-          Clients
+          {m.nav_clients()}
         </h1>
         <Button render={<Link to="/clients/new" />} size="xl">
           <PlusIcon aria-hidden data-icon="inline-start" />
-          Nouveau client
+          {m.clients_new_title()}
         </Button>
       </div>
       {isPending && (
@@ -36,9 +37,7 @@ function ClientsPage() {
       )}
       {isError && (
         <Alert variant="destructive">
-          <AlertDescription>
-            Impossible de charger les clients. Réessayez dans un instant.
-          </AlertDescription>
+          <AlertDescription>{m.clients_load_failed()}</AlertDescription>
         </Alert>
       )}
       {data !== undefined && <ClientsTable clients={data.clients} />}

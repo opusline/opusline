@@ -5,6 +5,7 @@ import {
   InputGroupSuffix,
 } from "@opusline/ui/components/input-group";
 import { useRef, useState } from "react";
+import { m } from "@/paraglide/messages.js";
 
 const PAYMENT_TERM_PRESETS = [30, 45, 60];
 
@@ -71,7 +72,7 @@ function DaysInput({
       <InputGroupInput
         autoFocus={autoFocus}
         aria-invalid={isInvalid || undefined}
-        aria-label="Délai de paiement en jours"
+        aria-label={m.payment_terms_days_aria()}
         className="w-13 text-sm"
         inputMode="numeric"
         maxLength={3}
@@ -92,7 +93,7 @@ function DaysInput({
         placeholder={placeholder}
         value={draft}
       />
-      <InputGroupSuffix>jours</InputGroupSuffix>
+      <InputGroupSuffix>{m.payment_terms_days_suffix()}</InputGroupSuffix>
     </InputGroup>
   );
 }
@@ -116,7 +117,7 @@ function InlinePaymentTermsPicker({
     <div className="flex flex-wrap items-center gap-1.5">
       <ChipGroup
         aria-invalid={isInvalid || undefined}
-        aria-label="Délai de paiement"
+        aria-label={m.clients_payment_terms_label()}
         id={id}
         value={[String(value)]}
         onValueChange={(nextValue) => {
@@ -129,11 +130,13 @@ function InlinePaymentTermsPicker({
       >
         {PAYMENT_TERM_PRESETS.map((days) => (
           <Chip key={days} size="lg" value={String(days)}>
-            {days} j
+            {m.payment_terms_preset({ days })}
           </Chip>
         ))}
       </ChipGroup>
-      <span className="px-1 text-muted-foreground-3 text-sm">ou</span>
+      <span className="px-1 text-muted-foreground-3 text-sm">
+        {m.payment_terms_or()}
+      </span>
       <DaysInput
         draft={draft}
         isInvalid={isInvalid}
@@ -180,7 +183,7 @@ function RevealingPaymentTermsPicker({
     <div className="flex flex-wrap items-center gap-1.5">
       <ChipGroup
         aria-invalid={isInvalid || undefined}
-        aria-label="Délai de paiement"
+        aria-label={m.clients_payment_terms_label()}
         id={id}
         value={[isCustom ? "custom" : String(value)]}
         onValueChange={(nextValue) => {
@@ -206,11 +209,11 @@ function RevealingPaymentTermsPicker({
       >
         {PAYMENT_TERM_PRESETS.map((days) => (
           <Chip key={days} size="lg" value={String(days)}>
-            {days} j
+            {m.payment_terms_preset({ days })}
           </Chip>
         ))}
         <Chip size="lg" value="custom">
-          Autre…
+          {m.payment_terms_other()}
         </Chip>
       </ChipGroup>
       {isCustom && (

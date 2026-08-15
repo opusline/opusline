@@ -12,6 +12,7 @@ import { useState } from "react";
 import { NewClientPage } from "@/features/clients/components/new-client-page";
 import type { FormSubmitResult } from "@/lib/form";
 import { serverFieldErrors } from "@/lib/validation";
+import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute("/_authed/clients_/new")({
   component: NewClientRoute,
@@ -83,7 +84,7 @@ function NewClientRoute() {
     <NewClientPage
       error={
         createClient.error && !serverFieldErrors(createClient.error)
-          ? "Impossible de créer le client. Réessayez dans un instant."
+          ? m.clients_create_failed()
           : null
       }
       isPending={isSubmitting}

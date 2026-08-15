@@ -5,6 +5,8 @@ import type {
   MissionData,
 } from "@opusline/api-client";
 
+import { m } from "@/paraglide/messages.js";
+
 export type MoneyFormat = {
   locale: Locale;
   currency: Currency;
@@ -265,7 +267,7 @@ export function formatMissionRate(
   mission: MissionData,
 ): string {
   if (mission.rate === null) {
-    return "non facturable";
+    return m.missions_rate_not_billable();
   }
 
   return formatRate(format, mission.rate.amount, mission.billingMode);
@@ -273,8 +275,8 @@ export function formatMissionRate(
 
 export function paymentTermsLabel(days: number): string {
   if (days === 0) {
-    return "réception";
+    return m.clients_payment_terms_receipt();
   }
 
-  return days === 1 ? "1 jour" : `${days} jours`;
+  return m.clients_payment_terms_days({ days });
 }
