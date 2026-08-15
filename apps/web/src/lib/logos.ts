@@ -1,6 +1,6 @@
 import { client as apiClient } from "@opusline/api-client/client";
-
 import { serverFieldErrors } from "@/lib/validation";
+import { m } from "@/paraglide/messages.js";
 
 export const LOGO_ACCEPT = ".png,.svg";
 export const MAX_LOGO_BYTES = 2048 * 1024;
@@ -37,10 +37,7 @@ export function clientLogoHref(clientSlug: string, version = 0): string {
 }
 
 function uploadFailureMessage(error: unknown): string {
-  return (
-    serverFieldErrors(error)?.logo?.message ??
-    "L'envoi a échoué. Réessayez dans un instant."
-  );
+  return serverFieldErrors(error)?.logo?.message ?? m.documents_upload_failed();
 }
 
 type LogoHandlerOptions = {

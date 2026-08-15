@@ -26,6 +26,7 @@ import type { FormSubmitResult } from "@/lib/form";
 import { clientLogoHref, logoHandlers } from "@/lib/logos";
 import { operationFilter } from "@/lib/query-invalidation";
 import { serverFieldErrors } from "@/lib/validation";
+import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute("/_authed/clients_/$clientSlug")({
   validateSearch: (
@@ -150,9 +151,7 @@ function ClientDetailRoute() {
   if (isError || data === undefined) {
     return (
       <Alert variant="destructive">
-        <AlertDescription>
-          Impossible de charger ce client. Réessayez dans un instant.
-        </AlertDescription>
+        <AlertDescription>{m.clients_load_one_failed()}</AlertDescription>
       </Alert>
     );
   }
@@ -163,18 +162,16 @@ function ClientDetailRoute() {
     unarchiveClient.error;
 
   const genericError = hasActionFailed
-    ? "L'action a échoué. Réessayez dans un instant."
+    ? m.common_action_failed()
     : logoFailed
-      ? "Le client a bien été créé, mais l'envoi du logo a échoué. Reprenez-le depuis « Modifier »."
+      ? m.clients_logo_failed_note()
       : null;
 
   const documentsTab = documentsQuery.isPending ? (
     <Skeleton className="h-40 w-full" />
   ) : documentsQuery.data === undefined ? (
     <Alert variant="destructive">
-      <AlertDescription>
-        Impossible de charger les documents. Réessayez dans un instant.
-      </AlertDescription>
+      <AlertDescription>{m.documents_load_failed()}</AlertDescription>
     </Alert>
   ) : (
     <DocumentsTab
@@ -182,7 +179,7 @@ function ClientDetailRoute() {
       downloadHref={(document) =>
         clientDocumentDownloadHref(client, document.id)
       }
-      emptyLabel="Aucun document pour ce client. Contrats, devis et CRA signés viendront ici."
+      emptyLabel={m.clients_documents_empty()}
       onDelete={handleDeleteDocument}
       onUpload={handleUploadDocument}
     />

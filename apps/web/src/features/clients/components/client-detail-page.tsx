@@ -44,6 +44,7 @@ import { monthYearLabel } from "@/lib/dates";
 import type { FormSubmitResult } from "@/lib/form";
 import type { LogoUploadResult } from "@/lib/logos";
 import { COLOR_CLASSES } from "@/lib/palette";
+import { m } from "@/paraglide/messages.js";
 import { formatPostalAddress } from "../lib/client-form";
 
 import { ClientEditForm } from "./client-edit-form";
@@ -132,7 +133,7 @@ export function ClientDetailPage({
           className="text-link transition-colors hover:text-link-hover"
           to="/clients"
         >
-          Clients
+          {m.nav_clients()}
         </Link>
         <span>/</span>
         <span className="text-muted-foreground">{client.name}</span>
@@ -154,11 +155,15 @@ export function ClientDetailPage({
                 {client.name}
               </h1>
               <Badge>{clientTypeLabel(client.type)}</Badge>
-              {isArchived && <Badge variant="quiet">Archivé</Badge>}
+              {isArchived && (
+                <Badge variant="quiet">{m.clients_badge_archived()}</Badge>
+              )}
             </div>
             <p className="mt-1.5 text-muted-foreground-3 text-sm">
-              Client depuis {monthYearLabel(format.locale, client.createdAt)} ·
-              paiement à {paymentTermsLabel(client.paymentTermsDays)}
+              {m.clients_since_subtitle({
+                month: monthYearLabel(format.locale, client.createdAt),
+                terms: paymentTermsLabel(client.paymentTermsDays),
+              })}
             </p>
           </div>
         </div>
@@ -171,7 +176,7 @@ export function ClientDetailPage({
               size="xl"
             >
               <PlusIcon aria-hidden data-icon="inline-start" />
-              Nouvelle mission
+              {m.missions_new_title()}
             </Button>
           )}
           <Button
@@ -179,13 +184,13 @@ export function ClientDetailPage({
             size="xl"
             variant="outline"
           >
-            {isEditing ? "Fermer" : "Modifier"}
+            {isEditing ? m.common_close() : m.common_edit()}
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
                 <Button
-                  aria-label="Plus d'actions"
+                  aria-label={m.common_more_actions()}
                   size="icon-xl"
                   variant="outline"
                 />
@@ -199,7 +204,7 @@ export function ClientDetailPage({
                 onClick={onToggleArchive}
               >
                 <ArchiveIcon aria-hidden />
-                {isArchived ? "Réactiver ce client" : "Archiver ce client"}
+                {isArchived ? m.clients_reactivate() : m.clients_archive()}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -214,9 +219,13 @@ export function ClientDetailPage({
       ) : null}
 
       <StatTileRow className="mb-5 grid-cols-2 md:grid-cols-4">
-        <StatTile label={`CA ${currentYear}`} value="—" tone="brand" />
-        <StatTile label="En attente" value="—" tone="strong" />
-        <StatTile label="Délai moyen" value="—" />
+        <StatTile
+          label={m.clients_head_revenue({ year: currentYear })}
+          value="—"
+          tone="brand"
+        />
+        <StatTile label={m.clients_head_pending()} value="—" tone="strong" />
+        <StatTile label={m.clients_head_average_delay()} value="—" />
         <StatTile label="Missions" value={String(client.missions.length)} />
       </StatTileRow>
 
@@ -234,9 +243,11 @@ export function ClientDetailPage({
         <Tabs defaultValue="missions">
           <TabsList className="mb-5" variant="underline">
             <TabsTrigger value="missions">Missions</TabsTrigger>
-            <TabsTrigger value="factures">Factures</TabsTrigger>
+            <TabsTrigger value="factures">{m.nav_invoices()}</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
-            <TabsTrigger value="coordonnees">Coordonnées</TabsTrigger>
+            <TabsTrigger value="coordonnees">
+              {m.clients_tab_details()}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="missions">
@@ -251,15 +262,15 @@ export function ClientDetailPage({
                         Mission
                       </TableHead>
                       <TableHead className={cn(HEAD_CLASSES, "w-1/6")}>
-                        Tarif
+                        {m.clients_head_rate()}
                       </TableHead>
                       <TableHead className={cn(HEAD_CLASSES, "w-1/6")}>
-                        Ce mois
+                        {m.missions_stat_this_month()}
                       </TableHead>
                       <TableHead
                         className={cn(HEAD_CLASSES, "w-1/6 text-right")}
                       >
-                        CA
+                        {m.clients_head_revenue_short()}
                       </TableHead>
                       <TableHead
                         className={cn(
@@ -267,7 +278,7 @@ export function ClientDetailPage({
                           "w-28 py-3 pr-5 text-right",
                         )}
                       >
-                        Statut
+                        {m.missions_status_head()}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -331,12 +342,12 @@ export function ClientDetailPage({
             ) : (
               <div className="rounded-md border bg-card px-7 py-9 text-center">
                 <div className="mb-2 font-heading font-semibold text-base text-foreground-hi">
-                  Aucune mission
+                  {m.clients_no_missions()}
                 </div>
                 <p className="mb-5 text-muted-foreground-3 text-sm leading-relaxed">
                   {isArchived
-                    ? "Client archivé — réactivez-le pour ajouter une mission."
-                    : "Ce client n'a pas de mission active. Créez-en une pour pouvoir suivre du temps dessus."}
+                    ? m.clients_archived_row_note()
+                    : m.clients_missions_empty_hint()}
                 </p>
                 {!isArchived && (
                   <Button
@@ -348,7 +359,7 @@ export function ClientDetailPage({
                     }
                     size="xl"
                   >
-                    Créer une mission
+                    {m.clients_create_mission()}
                   </Button>
                 )}
               </div>
@@ -358,11 +369,10 @@ export function ClientDetailPage({
           <TabsContent value="factures">
             <div className="rounded-md border bg-card px-7 py-9 text-center">
               <div className="mb-2 font-heading font-semibold text-base text-foreground-hi">
-                Aucune facture
+                {m.common_no_invoices_title()}
               </div>
               <p className="mx-auto max-w-md text-pretty text-muted-foreground-3 text-sm leading-relaxed">
-                Les factures apparaîtront ici dès que du temps facturable aura
-                été saisi sur une mission de ce client.
+                {m.clients_invoices_empty_hint()}
               </p>
             </div>
           </TabsContent>
@@ -375,22 +385,26 @@ export function ClientDetailPage({
             {hasCoordinates ? (
               <div className="grid items-start gap-3.5 md:grid-cols-2">
                 <div className="rounded-md border bg-card p-5">
-                  <div className={`${EYEBROW_CLASSES} mb-4`}>Identité</div>
+                  <div className={`${EYEBROW_CLASSES} mb-4`}>
+                    {m.clients_identity_title()}
+                  </div>
                   <div className="flex flex-col gap-3.5">
                     <CoordRow label="SIRET" mono value={client.siret} />
                     <CoordRow
-                      label="TVA intracom."
+                      label={m.clients_vat_short_label()}
                       mono
                       value={client.vatNumber}
                     />
                     <CoordRow
-                      label="Adresse"
+                      label={m.address_label()}
                       value={formatPostalAddress(client)}
                     />
                   </div>
                 </div>
                 <div className="rounded-md border bg-card p-5">
-                  <div className={`${EYEBROW_CLASSES} mb-4`}>Facturation</div>
+                  <div className={`${EYEBROW_CLASSES} mb-4`}>
+                    {m.common_billing_title()}
+                  </div>
                   <div className="flex flex-col gap-3.5">
                     <CoordRow
                       label="Contact"
@@ -398,7 +412,7 @@ export function ClientDetailPage({
                     />
                     <CoordRow label="Email" value={client.billingEmail} />
                     <CoordRow
-                      label="Délai de paiement"
+                      label={m.clients_payment_terms_label()}
                       value={paymentTermsLabel(client.paymentTermsDays)}
                     />
                   </div>
@@ -407,14 +421,13 @@ export function ClientDetailPage({
             ) : (
               <div className="rounded-md border bg-card px-7 py-9 text-center">
                 <div className="mb-2 font-heading font-semibold text-base text-foreground-hi">
-                  Coordonnées à compléter
+                  {m.clients_details_empty_title()}
                 </div>
                 <p className="mx-auto mb-5 max-w-md text-pretty text-muted-foreground-3 text-sm leading-relaxed">
-                  SIRET, TVA et adresse sont nécessaires pour émettre une
-                  facture à ce client.
+                  {m.clients_details_empty_hint()}
                 </p>
                 <Button onClick={() => setIsEditing(true)} size="xl">
-                  Renseigner les coordonnées
+                  {m.clients_details_fill()}
                 </Button>
               </div>
             )}

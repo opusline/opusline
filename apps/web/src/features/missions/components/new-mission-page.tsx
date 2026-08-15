@@ -39,7 +39,8 @@ import {
   COLORS,
   colorLabel,
 } from "@/lib/palette";
-import { BILLING_MODE_LABELS } from "../lib/labels";
+import { m } from "@/paraglide/messages.js";
+import { billingModeLabel } from "../lib/labels";
 import { MissionRateField } from "./mission-rate-field";
 
 const EYEBROW_CLASSES =
@@ -120,12 +121,12 @@ export function NewMissionPage({
     validators: {
       onSubmitAsync: async ({ value }) => {
         if (selectedClient === undefined) {
-          return "Sélectionnez un client.";
+          return m.missions_select_client();
         }
 
         if (!isInternal && rateCents === null) {
           setIsRateMissing(true);
-          return "Le tarif est manquant ou invalide.";
+          return m.missions_rate_missing();
         }
 
         const body: CreateMissionData = {
@@ -174,13 +175,13 @@ export function NewMissionPage({
     return (
       <div className="max-w-lg">
         <h1 className="mb-1 font-heading font-semibold text-2xl text-foreground-hi">
-          Nouvelle mission
+          {m.missions_new_title()}
         </h1>
         <p className="mb-5 text-muted-foreground-3 text-sm">
-          Une mission appartient à un client. Créez d'abord un client actif.
+          {m.missions_new_no_client_hint()}
         </p>
         <Button render={<Link to="/clients/new" />} size="2xl">
-          Créer un client
+          {m.clients_create_short()}
         </Button>
       </div>
     );
@@ -208,17 +209,18 @@ export function NewMissionPage({
             className="text-link transition-colors hover:text-link-hover"
             to="/clients"
           >
-            Clients
+            {m.nav_clients()}
           </Link>
           <span>/</span>
-          <span className="text-muted-foreground">Nouvelle mission</span>
+          <span className="text-muted-foreground">
+            {m.missions_new_title()}
+          </span>
         </div>
         <h1 className="mb-1 font-heading font-semibold text-2xl text-foreground-hi">
-          Nouvelle mission
+          {m.missions_new_title()}
         </h1>
         <p className="mb-5 text-muted-foreground-3 text-sm">
-          Une mission = une ligne dans la grille de la semaine, et un tarif qui
-          la valorise.
+          {m.missions_new_subtitle()}
         </p>
 
         <form
@@ -239,7 +241,7 @@ export function NewMissionPage({
             {(field) => (
               <FormTextField
                 field={field}
-                label="Nom de la mission"
+                label={m.missions_name_label()}
                 labelClassName="text-foreground-3"
                 placeholder="Callisto front"
               />
@@ -258,7 +260,7 @@ export function NewMissionPage({
                 className="text-link text-xs transition-colors hover:text-link-hover"
                 to="/clients/new"
               >
-                + Nouveau client
+                {m.missions_new_client_link()}
               </Link>
             </div>
             <ChipGroup
@@ -289,10 +291,10 @@ export function NewMissionPage({
                 className="text-foreground-3"
                 htmlFor="mission-billing-mode"
               >
-                Mode de facturation
+                {m.missions_billing_mode_label()}
               </FieldLabel>
               <SegmentedControl
-                aria-label="Mode de facturation"
+                aria-label={m.missions_billing_mode_label()}
                 id="mission-billing-mode"
                 value={[String(billingMode)]}
                 onValueChange={(value) => {
@@ -307,7 +309,7 @@ export function NewMissionPage({
               >
                 {BILLING_MODES.map((mode) => (
                   <SegmentedControlItem key={mode} value={String(mode)}>
-                    {BILLING_MODE_LABELS[mode]}
+                    {billingModeLabel(mode)}
                   </SegmentedControlItem>
                 ))}
               </SegmentedControl>
@@ -335,14 +337,14 @@ export function NewMissionPage({
                       className="text-foreground-3"
                       htmlFor="mission-rounding"
                     >
-                      Arrondi des entrées
+                      {m.missions_rounding_label()}
                     </FieldLabel>
-                    <HelpTip label="Qu'est-ce que l'arrondi ?">
+                    <HelpTip label={m.missions_rounding_help()}>
                       {entryRoundingHint(billingMode)}
                     </HelpTip>
                   </div>
                   <ChipGroup
-                    aria-label="Arrondi des entrées"
+                    aria-label={m.missions_rounding_label()}
                     id="mission-rounding"
                     value={[String(rounding)]}
                     onValueChange={(value) => {
@@ -376,8 +378,7 @@ export function NewMissionPage({
                 strokeWidth={1.9}
               />
               <div className="text-muted-foreground text-sm leading-relaxed">
-                Au forfait, le temps est suivi pour votre marge mais n'entre pas
-                dans le montant facturé.
+                {m.missions_forfait_note()}
               </div>
             </div>
           )}
@@ -394,9 +395,11 @@ export function NewMissionPage({
                       className="text-foreground-3"
                       htmlFor={field.name}
                     >
-                      Client final{" "}
+                      {m.missions_end_client_label()}{" "}
                       <span className="text-muted-foreground-5">
-                        (facturé par {selectedClient?.name})
+                        {m.missions_end_client_billed_via({
+                          client: selectedClient?.name ?? "",
+                        })}
                       </span>
                     </FieldLabel>
                     <Input
@@ -424,7 +427,7 @@ export function NewMissionPage({
                 <FormTextField
                   field={field}
                   font="mono"
-                  label="Début"
+                  label={m.missions_start_label()}
                   labelClassName="text-foreground-3"
                   type="date"
                 />
@@ -439,9 +442,9 @@ export function NewMissionPage({
                       className="text-foreground-3"
                       htmlFor={field.name}
                     >
-                      Fin prévue{" "}
+                      {m.missions_end_label()}{" "}
                       <span className="text-muted-foreground-5">
-                        (optionnel)
+                        {m.missions_optional_hint()}
                       </span>
                     </FieldLabel>
                     <Input
@@ -470,17 +473,19 @@ export function NewMissionPage({
                 className="text-foreground-3"
                 htmlFor="mission-color-swatches"
               >
-                Couleur de la ligne
+                {m.missions_color_label()}
               </FieldLabel>
               <span className="text-muted-foreground-3 text-xs">
                 {colorLabel(barColor)} ·{" "}
                 {color === null
-                  ? `héritée de ${selectedClient?.name}`
-                  : "propre à la mission"}
+                  ? m.missions_color_inherited_from({
+                      client: selectedClient?.name ?? "",
+                    })
+                  : m.missions_color_own()}
               </span>
             </div>
             <SwatchGroup
-              aria-label="Couleur de la ligne"
+              aria-label={m.missions_color_label()}
               id="mission-color-swatches"
               value={[String(barColor)]}
               onValueChange={(value) => {
@@ -508,7 +513,7 @@ export function NewMissionPage({
               <div className="h-px bg-border" />
               <div className="flex items-center gap-3">
                 <Switch
-                  aria-label="CRA mensuel requis"
+                  aria-label={m.missions_cra_required()}
                   checked={craRequired}
                   id="mission-cra"
                   onCheckedChange={(checked) => setCraRequired(checked)}
@@ -518,11 +523,12 @@ export function NewMissionPage({
                     className="text-foreground-3 text-sm"
                     htmlFor="mission-cra"
                   >
-                    CRA mensuel requis
+                    {m.missions_cra_required()}
                   </label>
                   <div className="mt-0.5 text-muted-foreground-3 text-xs">
-                    Exigé par {selectedClient?.name} en fin de mois · export PDF
-                    pré-rempli.
+                    {m.missions_cra_required_hint({
+                      client: selectedClient?.name ?? "",
+                    })}
                   </div>
                 </div>
               </div>
@@ -531,7 +537,7 @@ export function NewMissionPage({
 
           <div className="flex gap-2 pt-1">
             <Button disabled={isPending} size="2xl" type="submit">
-              Créer la mission
+              {m.missions_create_submit()}
             </Button>
             <Button
               disabled={isPending}
@@ -540,7 +546,7 @@ export function NewMissionPage({
               type="button"
               variant="ghost"
             >
-              Annuler
+              {m.timer_cancel()}
             </Button>
           </div>
         </form>
@@ -551,7 +557,7 @@ export function NewMissionPage({
           <div className="flex min-w-0 flex-col gap-3.5">
             <div>
               <div className={cn(EYEBROW_CLASSES, "mb-2.5")}>
-                Aperçu dans la semaine
+                {m.missions_preview_week_title()}
               </div>
               <div className="overflow-hidden rounded-md border bg-card">
                 <div className="grid grid-cols-[1fr_6rem_6rem]">
@@ -564,7 +570,7 @@ export function NewMissionPage({
                       "border-b border-l px-2.5 py-3.5",
                     )}
                   >
-                    Lun
+                    {m.missions_preview_monday()}
                   </div>
                   <div
                     className={cn(
@@ -572,7 +578,7 @@ export function NewMissionPage({
                       "border-b border-l px-2.5 py-3.5",
                     )}
                   >
-                    Mar
+                    {m.missions_preview_tuesday()}
                   </div>
                   <div className="flex min-w-0 flex-col gap-0.75 px-4 py-3.5">
                     <div className="flex items-center gap-2.5">
@@ -592,7 +598,7 @@ export function NewMissionPage({
                         )}
                       >
                         {missionName.trim() === ""
-                          ? "Nom de la mission"
+                          ? m.missions_name_label()
                           : missionName}
                       </span>
                     </div>
@@ -621,7 +627,9 @@ export function NewMissionPage({
 
             <div className="rounded-md border bg-card p-5">
               <div className={cn(EYEBROW_CLASSES, "mb-3")}>
-                {isForfait ? "Montant de la mission" : "Projection mensuelle"}
+                {isForfait
+                  ? m.missions_preview_amount_title()
+                  : m.missions_preview_monthly_title()}
               </div>
               <div className="whitespace-nowrap font-mono text-2xl text-primary-text tabular-nums leading-none">
                 {monthlyCents === null
@@ -633,10 +641,14 @@ export function NewMissionPage({
               </div>
               <div className="mt-2.5 text-muted-foreground-3 text-sm">
                 {isForfait
-                  ? "montant du forfait, facturé en une fois"
+                  ? m.missions_preview_forfait_hint()
                   : billingMode === 0
-                    ? `sur ${MONTHLY_BILLABLE_DAYS} jours facturés · hypothèse d'un mois plein`
-                    : `sur ${MONTHLY_BILLABLE_HOURS} h facturées · hypothèse d'un mois plein`}
+                    ? m.missions_preview_days_hint({
+                        days: MONTHLY_BILLABLE_DAYS,
+                      })
+                    : m.missions_preview_hours_hint({
+                        hours: MONTHLY_BILLABLE_HOURS,
+                      })}
               </div>
               {/*
                 URSSAF provisions only exist for a business established in
@@ -646,7 +658,7 @@ export function NewMissionPage({
                 <>
                   <div className="mt-3 flex justify-between gap-3 border-t pt-3 text-sm">
                     <span className="text-muted-foreground-3">
-                      Provision URSSAF · 26 %
+                      {m.missions_preview_urssaf_provision()}
                     </span>
                     <span className="whitespace-nowrap font-mono text-foreground-2 tabular-nums">
                       {provisionCents === null
@@ -656,9 +668,9 @@ export function NewMissionPage({
                   </div>
                   <div className="mt-2 flex justify-between gap-3 text-sm">
                     <span className="text-muted-foreground-3">
-                      Net estimé{" "}
+                      {m.missions_preview_net_estimate()}{" "}
                       <span className="text-muted-foreground-5">
-                        · TVA en sus, à reverser
+                        {m.missions_preview_vat_note()}
                       </span>
                     </span>
                     <span className="whitespace-nowrap font-mono text-foreground-hi tabular-nums">
@@ -676,14 +688,15 @@ export function NewMissionPage({
 
             <div className="rounded-md border bg-card px-5 py-4">
               <div className="text-muted-foreground text-sm leading-relaxed">
-                Le mode de facturation fixe l'unité de saisie :{" "}
-                <strong className="font-medium text-foreground-2">jours</strong>{" "}
-                pour un TJM,{" "}
+                {m.missions_billing_unit_note_before()}{" "}
                 <strong className="font-medium text-foreground-2">
-                  heures
+                  {m.missions_billing_unit_note_days()}
                 </strong>{" "}
-                sinon. Il reste modifiable plus tard sans toucher aux entrées
-                passées.
+                {m.missions_billing_unit_note_middle()}{" "}
+                <strong className="font-medium text-foreground-2">
+                  {m.missions_billing_unit_note_hours()}
+                </strong>{" "}
+                {m.missions_billing_unit_note_after()}
               </div>
             </div>
           </div>

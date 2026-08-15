@@ -10,6 +10,8 @@ import {
 import { Link } from "@tanstack/react-router";
 import { UserPlusIcon } from "lucide-react";
 
+import { m } from "@/paraglide/messages.js";
+
 export function ClientsEmptyState() {
   return (
     <Empty className="rounded-md border border-solid bg-card px-7 py-8">
@@ -26,16 +28,15 @@ export function ClientsEmptyState() {
           </div>
         </EmptyMedia>
         <EmptyTitle className="font-heading font-semibold text-base text-foreground-hi">
-          Créez votre premier client
+          {m.clients_empty_title()}
         </EmptyTitle>
         <EmptyDescription className="text-muted-foreground-3">
-          Il porte les coordonnées de facturation et le délai de paiement. Ses
-          missions viennent ensuite.
+          {m.clients_empty_hint()}
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
         <Button render={<Link to="/clients/new" />} size="2xl">
-          Créer un client
+          {m.clients_create_short()}
         </Button>
       </EmptyContent>
     </Empty>

@@ -4,10 +4,9 @@ import type {
   Locale,
 } from "@opusline/api-client";
 import { client as apiClient } from "@opusline/api-client/client";
-
 import { cachedFormatter } from "@/lib/billing";
-
 import { serverFieldErrors } from "@/lib/validation";
+import { m } from "@/paraglide/messages.js";
 
 /** Every category a document can carry, including the ones only the server assigns. */
 export const DOCUMENT_CATEGORIES: readonly DocumentCategory[] = [
@@ -23,14 +22,18 @@ export const ASSIGNABLE_DOCUMENT_CATEGORIES: readonly DocumentCategory[] = [
   0, 1, 2, 3, 4,
 ];
 
-export const DOCUMENT_CATEGORY_LABELS: Record<DocumentCategory, string> = {
-  0: "Contrat",
-  1: "Devis",
-  2: "CRA signé",
-  3: "Facture reçue",
-  4: "Autre",
-  5: "CRA",
+const DOCUMENT_CATEGORY_MESSAGES: Record<DocumentCategory, () => string> = {
+  0: m.documents_category_contract,
+  1: m.documents_category_quote,
+  2: m.documents_category_signed_cra,
+  3: m.documents_category_received_invoice,
+  4: m.documents_category_other,
+  5: m.documents_category_cra,
 };
+
+export function documentCategoryLabel(category: DocumentCategory): string {
+  return DOCUMENT_CATEGORY_MESSAGES[category]();
+}
 
 export function isDocumentCategory(value: number): value is DocumentCategory {
   return (DOCUMENT_CATEGORIES as readonly number[]).includes(value);
@@ -52,11 +55,11 @@ export function rejectDocumentReason(file: File): string | null {
   const extension = file.name.toLowerCase().split(".").pop() ?? "";
 
   if (!ACCEPTED_EXTENSIONS.has(extension)) {
-    return "type de fichier non pris en charge";
+    return m.documents_reject_type();
   }
 
   if (file.size > MAX_DOCUMENT_BYTES) {
-    return "trop lourd (max 20 Mo)";
+    return m.documents_reject_size();
   }
 
   return null;
@@ -98,10 +101,7 @@ export function foldAccents(value: string): string {
 }
 
 function uploadFailureMessage(error: unknown): string {
-  return (
-    serverFieldErrors(error)?.file?.message ??
-    "L'envoi a échoué. Réessayez dans un instant."
-  );
+  return serverFieldErrors(error)?.file?.message ?? m.documents_upload_failed();
 }
 
 type DocumentHandlerOptions = {

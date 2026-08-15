@@ -19,6 +19,8 @@ import { formatMissionRate } from "@/lib/billing";
 import { clientTypeLabel } from "@/lib/client-types";
 import { COLOR_CLASSES } from "@/lib/palette";
 
+import { m } from "@/paraglide/messages.js";
+
 import {
   CLIENT_TYPE_BADGE_VARIANTS,
   clientSubtitle,
@@ -33,10 +35,10 @@ const CLIENT_SCOPES = ["active", "archived", "all"] as const;
 
 type ClientScope = (typeof CLIENT_SCOPES)[number];
 
-const CLIENT_SCOPE_LABELS: Record<ClientScope, string> = {
-  all: "Tous",
-  active: "Actifs",
-  archived: "Archivés",
+const CLIENT_SCOPE_MESSAGES: Record<ClientScope, () => string> = {
+  all: m.clients_scope_all,
+  active: m.clients_scope_active,
+  archived: m.clients_scope_archived,
 };
 
 function isClientScope(value: unknown): value is ClientScope {
@@ -69,7 +71,7 @@ export function ClientsTable({ clients }: ClientsTableProps) {
   return (
     <div className="flex flex-col gap-3">
       <ChipGroup
-        aria-label="Filtrer les clients"
+        aria-label={m.clients_filter_aria()}
         value={[scope]}
         onValueChange={(value) => {
           const nextScope = value.find(isClientScope);
@@ -84,9 +86,9 @@ export function ClientsTable({ clients }: ClientsTableProps) {
             key={clientScope}
             value={clientScope}
             shape="pill"
-            aria-label={`${CLIENT_SCOPE_LABELS[clientScope]} (${scopedClients[clientScope].length})`}
+            aria-label={`${CLIENT_SCOPE_MESSAGES[clientScope]()} (${scopedClients[clientScope].length})`}
           >
-            {CLIENT_SCOPE_LABELS[clientScope]}
+            {CLIENT_SCOPE_MESSAGES[clientScope]()}
             <ChipCount aria-hidden>
               {scopedClients[clientScope].length}
             </ChipCount>
@@ -105,13 +107,13 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                 Missions
               </TableHead>
               <TableHead className={cn(HEAD_CLASSES, "w-1/6 text-right")}>
-                CA {currentYear}
+                {m.clients_head_revenue({ year: currentYear })}
               </TableHead>
               <TableHead className={cn(HEAD_CLASSES, "w-1/6 text-right")}>
-                En attente
+                {m.clients_head_pending()}
               </TableHead>
               <TableHead className={cn(HEAD_CLASSES, "py-3 pr-5 text-right")}>
-                Délai moyen
+                {m.clients_head_average_delay()}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -155,9 +157,13 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                           {client.name}
                         </Link>
                         {!isArchived && isNewClient(client, now) && (
-                          <Badge variant="brand">Nouveau</Badge>
+                          <Badge variant="brand">{m.clients_badge_new()}</Badge>
                         )}
-                        {isArchived && <Badge variant="quiet">Archivé</Badge>}
+                        {isArchived && (
+                          <Badge variant="quiet">
+                            {m.clients_badge_archived()}
+                          </Badge>
+                        )}
                       </span>
                       {subtitle !== "" && (
                         <span className="pl-5 text-muted-foreground-2 text-xs">
@@ -244,7 +250,7 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                       colSpan={6}
                       className="border-accent border-t py-2.5 pr-5 pl-8.5 text-muted-foreground-3 text-sm"
                     >
-                      Client archivé — réactivez-le pour ajouter une mission.
+                      {m.clients_archived_row_note()}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -271,8 +277,8 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                           strokeWidth={2.2}
                         />
                         {client.missions.length === 0
-                          ? "Aucune mission — en créer une"
-                          : "Ajouter une mission"}
+                          ? m.clients_no_mission_create()
+                          : m.clients_add_mission()}
                       </button>
                     </TableCell>
                   </TableRow>
@@ -283,7 +289,7 @@ export function ClientsTable({ clients }: ClientsTableProps) {
         </Table>
         {visibleClients.length === 0 && (
           <div className="px-5 py-6 text-center text-muted-foreground-3 text-sm">
-            Aucun client dans cette vue.
+            {m.clients_empty_scope()}
           </div>
         )}
       </div>

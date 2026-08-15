@@ -38,6 +38,8 @@ import { entryRoundingLabel } from "@/lib/entry-rounding";
 import type { FormSubmitResult } from "@/lib/form";
 import { COLOR_CLASSES } from "@/lib/palette";
 
+import { m } from "@/paraglide/messages.js";
+
 import { billingModeUnitShort } from "../lib/labels";
 import { MissionEditForm } from "./mission-edit-form";
 
@@ -100,7 +102,7 @@ export function MissionDetailPage({
           className="text-link transition-colors hover:text-link-hover"
           to="/clients"
         >
-          Clients
+          {m.nav_clients()}
         </Link>
         <span>/</span>
         <Link
@@ -136,9 +138,14 @@ export function MissionDetailPage({
             {[
               `${clientTypeLabel(client.type)} ${client.name}`,
               mission.endClientName !== null &&
-                `client final ${mission.endClientName}`,
+                m.missions_detail_end_client({ name: mission.endClientName }),
               mission.startDate !== null &&
-                `depuis ${calendarMonthYearLabel(format.locale, mission.startDate)}`,
+                m.missions_detail_since({
+                  month: calendarMonthYearLabel(
+                    format.locale,
+                    mission.startDate,
+                  ),
+                }),
             ]
               .filter(Boolean)
               .join(" · ")}
@@ -150,13 +157,13 @@ export function MissionDetailPage({
             size="xl"
             variant="outline"
           >
-            {isEditing ? "Fermer" : "Modifier"}
+            {isEditing ? m.common_close() : m.common_edit()}
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
                 <Button
-                  aria-label="Plus d'actions"
+                  aria-label={m.common_more_actions()}
                   size="icon-xl"
                   variant="outline"
                 />
@@ -170,7 +177,7 @@ export function MissionDetailPage({
                 onClick={() => onSetStatus(isDone ? 0 : 2)}
               >
                 <CheckIcon aria-hidden />
-                {isDone ? "Reprendre la mission" : "Marquer comme terminée"}
+                {isDone ? m.missions_resume() : m.missions_mark_done()}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -180,7 +187,7 @@ export function MissionDetailPage({
       {client.missions.length > 0 && (
         <div className="mb-5 flex flex-wrap items-center gap-2">
           <span className="shrink-0 text-muted-foreground-2 text-xs">
-            Missions chez {client.name} :
+            {m.missions_siblings_at({ client: client.name })}
           </span>
           {client.missions.map((sibling) => {
             const isCurrent = sibling.id === mission.id;
@@ -209,7 +216,7 @@ export function MissionDetailPage({
             );
           })}
           <Link
-            aria-label="Nouvelle mission"
+            aria-label={m.missions_new_title()}
             className="flex size-8 shrink-0 items-center justify-center rounded-md border border-border-2 border-dashed text-muted-foreground-3 transition-colors hover:border-primary hover:text-primary-text"
             search={{ client: client.slug }}
             to="/missions/new"
@@ -227,10 +234,18 @@ export function MissionDetailPage({
       ) : null}
 
       <StatTileRow className="mb-5 grid-cols-2 md:grid-cols-4">
-        <StatTile label="Ce mois" value="—" tone="strong" />
-        <StatTile label="CA ce mois" value="—" tone="brand" />
-        <StatTile label="CA cumulé" value="—" />
-        <StatTile label="Moyenne / mois" value="—" />
+        <StatTile
+          label={m.missions_stat_this_month()}
+          value="—"
+          tone="strong"
+        />
+        <StatTile
+          label={m.missions_stat_revenue_month()}
+          value="—"
+          tone="brand"
+        />
+        <StatTile label={m.missions_stat_revenue_total()} value="—" />
+        <StatTile label={m.missions_stat_monthly_average()} value="—" />
       </StatTileRow>
 
       {isEditing ? (
@@ -244,9 +259,13 @@ export function MissionDetailPage({
       ) : (
         <Tabs defaultValue="entries">
           <TabsList className="mb-5" variant="underline">
-            <TabsTrigger value="entries">Entrées</TabsTrigger>
-            <TabsTrigger value="invoices">Factures</TabsTrigger>
-            {mission.craRequired && <TabsTrigger value="cra">CRA</TabsTrigger>}
+            <TabsTrigger value="entries">
+              {m.missions_tab_entries()}
+            </TabsTrigger>
+            <TabsTrigger value="invoices">{m.nav_invoices()}</TabsTrigger>
+            {mission.craRequired && (
+              <TabsTrigger value="cra">{m.nav_cra()}</TabsTrigger>
+            )}
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="config">Configuration</TabsTrigger>
           </TabsList>
@@ -260,22 +279,24 @@ export function MissionDetailPage({
                 )}
               >
                 <div>Date</div>
-                <div>Durée</div>
+                <div>{m.missions_entries_header_duration()}</div>
                 <div>Note</div>
-                <div className="text-right">État</div>
+                <div className="text-right">
+                  {m.missions_entries_header_state()}
+                </div>
               </div>
               <div className="px-5 py-6 text-center text-muted-foreground-3 text-sm">
-                Aucune entrée pour le moment.
+                {m.missions_entries_empty()}
               </div>
               <div className="flex items-center justify-between bg-muted px-5 py-3.5">
                 <span className="text-muted-foreground-3 text-sm">
-                  Les entrées se créent depuis la grille de la semaine.
+                  {m.missions_entries_from_week()}
                 </span>
                 <Link
                   className="text-link text-sm transition-colors hover:text-link-hover"
                   to="/week"
                 >
-                  Ouvrir la semaine →
+                  {m.missions_open_week()}
                 </Link>
               </div>
             </div>
@@ -284,12 +305,12 @@ export function MissionDetailPage({
           <TabsContent value="invoices">
             <div className="rounded-md border bg-card px-7 py-9 text-center">
               <div className="mb-2 font-heading font-semibold text-base text-foreground-hi">
-                Aucune facture
+                {m.common_no_invoices_title()}
               </div>
               <p className="mx-auto max-w-md text-pretty text-muted-foreground-3 text-sm leading-relaxed">
                 {isBillable
-                  ? "Les factures apparaîtront ici dès que du temps facturable aura été saisi sur cette mission."
-                  : "Cette mission n'est pas facturable — son temps ne produit pas de facture."}
+                  ? m.missions_no_invoices_billable_hint()
+                  : m.missions_no_invoices_unbillable_hint()}
               </p>
             </div>
           </TabsContent>
@@ -298,14 +319,12 @@ export function MissionDetailPage({
             <TabsContent value="cra">
               <div className="rounded-md border bg-card px-7 py-9 text-center">
                 <div className="mb-2 font-heading font-semibold text-base text-foreground-hi">
-                  Comptes rendus d'activité
+                  {m.missions_cra_title()}
                 </div>
                 <p className="mx-auto mb-4.5 max-w-md text-pretty text-muted-foreground-3 text-sm leading-relaxed">
-                  Ce client attend un CRA mensuel. Les mois de cette mission
-                  s'empilent sur l'écran dédié, avec leur grille et leur
-                  document.
+                  {m.missions_cra_hint()}
                 </p>
-                <Button onClick={onOpenCra}>Ouvrir les comptes rendus</Button>
+                <Button onClick={onOpenCra}>{m.missions_open_cras()}</Button>
               </div>
             </TabsContent>
           )}
@@ -318,11 +337,13 @@ export function MissionDetailPage({
           <TabsContent value="config">
             <div className="grid items-start gap-3.5 md:grid-cols-2">
               <div className="rounded-md border bg-card p-5">
-                <div className={`${EYEBROW_CLASSES} mb-4`}>Tarification</div>
+                <div className={`${EYEBROW_CLASSES} mb-4`}>
+                  {m.missions_config_pricing()}
+                </div>
                 {isBillable && mission.rate !== null ? (
                   <div>
                     <div className="mb-1.5 text-muted-foreground-3 text-sm">
-                      Tarif HT
+                      {m.missions_rate_ht()}
                     </div>
                     <div className="inline-flex items-baseline gap-2">
                       <span className="font-mono text-foreground-hi text-xl tabular-nums">
@@ -335,7 +356,7 @@ export function MissionDetailPage({
                     {mission.billingMode !== 2 && (
                       <>
                         <div className="mt-3.5 mb-1.5 text-muted-foreground-3 text-sm">
-                          Arrondi des entrées
+                          {m.missions_rounding_label()}
                         </div>
                         <div className="inline-flex h-9 items-center rounded-md border border-border-4 bg-secondary px-3 font-mono text-foreground-hi text-sm">
                           {entryRoundingLabel(
@@ -346,7 +367,7 @@ export function MissionDetailPage({
                       </>
                     )}
                     <div className="mt-3.5 mb-1.5 text-muted-foreground-3 text-sm">
-                      Délai de paiement
+                      {m.clients_payment_terms_label()}
                     </div>
                     <div className="font-mono text-foreground-2 text-sm">
                       {paymentTermsLabel(client.paymentTermsDays)}
@@ -354,22 +375,26 @@ export function MissionDetailPage({
                   </div>
                 ) : (
                   <div className="text-muted-foreground text-sm leading-relaxed">
-                    Mission non facturable : le temps est suivi pour mesurer
-                    l'effort, sans tarif ni facture.
+                    {m.missions_unbillable_note()}
                   </div>
                 )}
               </div>
 
               <div className="rounded-md border bg-card p-5">
-                <div className={`${EYEBROW_CLASSES} mb-4`}>Facturation</div>
+                <div className={`${EYEBROW_CLASSES} mb-4`}>
+                  {m.common_billing_title()}
+                </div>
                 <div className="flex flex-col gap-3.5">
-                  <FacturationRow label="Facturé à" value={client.name} />
                   <FacturationRow
-                    label="Client final"
+                    label={m.missions_billed_to()}
+                    value={client.name}
+                  />
+                  <FacturationRow
+                    label={m.missions_end_client_label()}
                     value={mission.endClientName ?? "—"}
                   />
                   <FacturationRow
-                    label="Depuis"
+                    label={m.missions_since_label()}
                     value={
                       mission.startDate === null
                         ? "—"
@@ -377,7 +402,7 @@ export function MissionDetailPage({
                     }
                   />
                   <FacturationRow
-                    label="Fin prévue"
+                    label={m.missions_end_label()}
                     value={
                       mission.endDate === null
                         ? "—"
@@ -388,14 +413,14 @@ export function MissionDetailPage({
                 <div className="my-4 h-px bg-border" />
                 <div className="flex items-center gap-3">
                   <Switch
-                    aria-label="CRA mensuel requis"
+                    aria-label={m.missions_cra_required()}
                     checked={mission.craRequired}
                     disabled
                   />
                   <span className="text-foreground-3 text-sm">
                     {mission.craRequired
-                      ? "CRA mensuel requis"
-                      : "CRA non requis"}
+                      ? m.missions_cra_required()
+                      : m.missions_cra_not_required()}
                   </span>
                 </div>
               </div>
