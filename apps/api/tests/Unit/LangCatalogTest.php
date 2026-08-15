@@ -23,19 +23,37 @@ function langCatalogKeys(string $locale): array
 }
 
 /**
- * Constructor property names of every request-bound Data class — the ones
- * validation runs against, recognized by their imperative class names.
+ * Constructor property names of every request-bound Data class. Every class
+ * under app/Domain/*\/Data is included by default; a class must opt out by
+ * joining the response-only list below. The inversion is deliberate: a new
+ * request DTO can only over-cover (a visible test failure asking for display
+ * names), never silently fall outside the guard the way a name heuristic
+ * would let it.
  *
  * @return list<string>
  */
 function requestDataFields(): array
 {
+    $responseOnly = [
+        'ClientData', 'ClientListData', 'ClientWithMissionsData',
+        'CraCountsData', 'CraData', 'CraDayData', 'CraDetailData',
+        'CraListData', 'CraListItemData', 'DocumentData', 'DocumentListData',
+        'InvoiceClientTotalsData', 'InvoiceCountsData', 'InvoiceData',
+        'InvoiceDetailData', 'InvoiceEventData', 'InvoiceForecastData',
+        'InvoiceListItemData', 'InvoiceOverdueData', 'InvoiceSummaryData',
+        'InvoiceTodoData', 'InvoiceTodoOverdueData', 'InvoiceTodoWorkData',
+        'InvoiceTotalData', 'MissionData', 'MoneyData',
+        'NextInvoiceNumberData', 'SettingsData', 'TimeEntryData',
+        'TimeEntryListData', 'TimerData', 'TimerStateData', 'UserData',
+        'InvoiceListData',
+    ];
+
     $fields = [];
 
     foreach (glob(dirname(__DIR__, 2).'/app/Domain/*/Data/*.php') ?: [] as $path) {
         $class = basename($path, '.php');
 
-        if (preg_match('/^(Create|Update|Upload|List|Pay|Remind|Send|Download|Summarize|Start|Stop|Trim|Register|Login)|InputData$/', $class) !== 1) {
+        if (in_array($class, $responseOnly, strict: true)) {
             continue;
         }
 

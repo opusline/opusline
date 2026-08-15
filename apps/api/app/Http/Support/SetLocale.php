@@ -30,7 +30,12 @@ class SetLocale
             return $user->loadMissing('settings')->settingsOrFail()->locale->languageTag();
         }
 
-        return $request->getPreferredLanguage(Locale::languageTags())
-            ?? config()->string('app.locale');
+        // getPreferredLanguage() falls back to the first candidate, so the
+        // configured default must lead the list — enum case order must not
+        // decide the guest default.
+        $default = Locale::fromLanguageTag(config()->string('app.locale'))->languageTag();
+        $candidates = array_values(array_unique([$default, ...Locale::languageTags()]));
+
+        return $request->getPreferredLanguage($candidates) ?? $default;
     }
 }

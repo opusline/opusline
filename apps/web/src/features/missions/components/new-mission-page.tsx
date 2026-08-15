@@ -24,9 +24,10 @@ import { CircleAlert, InfoIcon } from "lucide-react";
 import { useState } from "react";
 import { FormTextField } from "@/components/form-text-field";
 import { useMoneyFormat } from "@/components/money-format-provider";
+import { RichMessage } from "@/components/rich-message";
 import { formatRate, formatWholeAmount, parseRateToCents } from "@/lib/billing";
 import { isInternalClient } from "@/lib/client-types";
-import { browserTodayCalendarDate } from "@/lib/dates";
+import { browserTodayCalendarDate, capitalizeFirst } from "@/lib/dates";
 import {
   entryRoundingHint,
   entryRoundingLabel,
@@ -39,6 +40,7 @@ import {
   COLORS,
   colorLabel,
 } from "@/lib/palette";
+import { weekdayShortLabel } from "@/lib/weeks";
 import { m } from "@/paraglide/messages.js";
 import { billingModeLabel } from "../lib/labels";
 import { MissionRateField } from "./mission-rate-field";
@@ -546,7 +548,7 @@ export function NewMissionPage({
               type="button"
               variant="ghost"
             >
-              {m.timer_cancel()}
+              {m.common_cancel()}
             </Button>
           </div>
         </form>
@@ -570,7 +572,9 @@ export function NewMissionPage({
                       "border-b border-l px-2.5 py-3.5",
                     )}
                   >
-                    {m.missions_preview_monday()}
+                    {capitalizeFirst(
+                      weekdayShortLabel(format.locale, "2024-01-01"),
+                    )}
                   </div>
                   <div
                     className={cn(
@@ -578,7 +582,9 @@ export function NewMissionPage({
                       "border-b border-l px-2.5 py-3.5",
                     )}
                   >
-                    {m.missions_preview_tuesday()}
+                    {capitalizeFirst(
+                      weekdayShortLabel(format.locale, "2024-01-02"),
+                    )}
                   </div>
                   <div className="flex min-w-0 flex-col gap-0.75 px-4 py-3.5">
                     <div className="flex items-center gap-2.5">
@@ -688,15 +694,10 @@ export function NewMissionPage({
 
             <div className="rounded-md border bg-card px-5 py-4">
               <div className="text-muted-foreground text-sm leading-relaxed">
-                {m.missions_billing_unit_note_before()}{" "}
-                <strong className="font-medium text-foreground-2">
-                  {m.missions_billing_unit_note_days()}
-                </strong>{" "}
-                {m.missions_billing_unit_note_middle()}{" "}
-                <strong className="font-medium text-foreground-2">
-                  {m.missions_billing_unit_note_hours()}
-                </strong>{" "}
-                {m.missions_billing_unit_note_after()}
+                <RichMessage
+                  message={m.missions_billing_unit_note()}
+                  strongClassName="font-medium text-foreground-2"
+                />
               </div>
             </div>
           </div>

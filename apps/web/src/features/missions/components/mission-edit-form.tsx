@@ -377,7 +377,7 @@ export function MissionEditForm({
 
       <div className="mt-4 flex items-center gap-2 border-t pt-4">
         <Button disabled={isPending} size="xl" type="submit">
-          {m.settings_save()}
+          {m.common_save()}
         </Button>
         <Button
           disabled={isPending}
@@ -386,7 +386,7 @@ export function MissionEditForm({
           type="button"
           variant="ghost"
         >
-          {m.timer_cancel()}
+          {m.common_cancel()}
         </Button>
       </div>
     </form>

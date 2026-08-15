@@ -4,6 +4,7 @@ import { m } from "@/paraglide/messages.js";
 import {
   addCalendarDays,
   cachedDateFormatter,
+  capitalizeFirst,
   fromCalendarDate,
   isoDayOfWeek,
   localDate,
@@ -180,5 +181,5 @@ export function shortDateLabel(locale: Locale, date: string): string {
     // Only the weekday's abbreviation period; the month keeps its own.
     .replace(".", "");
 
-  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  return capitalizeFirst(formatted);
 }

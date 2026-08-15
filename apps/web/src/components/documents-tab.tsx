@@ -121,7 +121,7 @@ export function DocumentsTab({
     } catch {
       result = {
         status: "failed",
-        message: m.documents_upload_failed(),
+        message: m.common_upload_failed(),
       };
     }
 
@@ -276,7 +276,7 @@ export function DocumentsTab({
                         className="shrink-0 text-destructive text-xs"
                         role="alert"
                       >
-                        {upload.message ?? m.documents_upload_failed()}
+                        {upload.message ?? m.common_upload_failed()}
                       </span>
                     ) : (
                       <span className="shrink-0 text-muted-foreground-3 text-xs">
@@ -405,7 +405,7 @@ export function DocumentsTab({
               {m.documents_send_count({ count: pending.length })}
             </Button>
             <Button onClick={() => setPending([])} size="xl" variant="ghost">
-              {m.timer_cancel()}
+              {m.common_cancel()}
             </Button>
           </div>
         </div>
@@ -414,7 +414,7 @@ export function DocumentsTab({
       {hasDeleteError && (
         <Alert variant="warn">
           <CircleAlert />
-          <AlertDescription>{m.documents_delete_failed()}</AlertDescription>
+          <AlertDescription>{m.common_delete_failed()}</AlertDescription>
         </Alert>
       )}
 
@@ -452,11 +452,11 @@ export function DocumentsTab({
               value={[filter === "all" ? "all" : String(filter)]}
             >
               <Chip
-                aria-label={`${m.clients_scope_all()} (${documents.length})`}
+                aria-label={`${m.common_all()} (${documents.length})`}
                 shape="pill"
                 value="all"
               >
-                {m.clients_scope_all()}
+                {m.common_all()}
                 <ChipCount aria-hidden>{documents.length}</ChipCount>
               </Chip>
               {DOCUMENT_CATEGORIES.filter(
@@ -492,7 +492,9 @@ export function DocumentsTab({
                       </span>
                       <Badge>{documentCategoryLabel(document.category)}</Badge>
                       {showSourceBadge && isClientDocument(document) && (
-                        <Badge variant="quiet">client</Badge>
+                        <Badge variant="quiet">
+                          {m.documents_source_client_badge()}
+                        </Badge>
                       )}
                     </span>
                     <span className="text-muted-foreground-3 text-xs">

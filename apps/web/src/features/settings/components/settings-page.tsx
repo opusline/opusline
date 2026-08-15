@@ -264,7 +264,7 @@ export function SettingsPage({
                     size="xl"
                     type="submit"
                   >
-                    {m.settings_save()}
+                    {m.common_save()}
                   </Button>
                 </SaveBar>
               );

@@ -25,7 +25,7 @@ import {
   isInvoiceScope,
   matchesScope,
 } from "../lib/grouping";
-import { invoiceCountLabel, invoiceRowDetail } from "../lib/labels";
+import { invoiceRowDetail } from "../lib/labels";
 import { InvoicesEmptyState } from "./invoices-empty-state";
 
 type InvoicesTableProps = {
@@ -105,7 +105,7 @@ export function InvoicesTable({
                     {group.client.name}
                   </span>
                   <span className="whitespace-nowrap text-muted-foreground-3 text-xs">
-                    {invoiceCountLabel(group.items.length)}
+                    {m.invoices_count({ count: group.items.length })}
                   </span>
                 </span>
                 <span className="ml-auto whitespace-nowrap text-muted-foreground-3 text-xs">

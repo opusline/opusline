@@ -44,3 +44,9 @@ test('defaults to English when the browser sends no language', function (): void
     // Accept-Language default — a truly absent header only exists in production.
     expect(loginFailureMessage(''))->toBe(__('auth.failed', locale: 'en'));
 });
+
+test('the configured app locale drives the guest default', function (): void {
+    config(['app.locale' => 'fr']);
+
+    expect(loginFailureMessage('de-DE,de;q=0.9'))->toBe(__('auth.failed', locale: 'fr'));
+});

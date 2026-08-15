@@ -24,8 +24,8 @@ import {
   abroadTaxTerms,
   URSSAF_PERIODICITIES,
   urssafPeriodicityLabel,
+  VAT_REGIME_MESSAGES,
   VAT_REGIMES,
-  vatRegimeDetails,
 } from "@/lib/fiscality";
 import { m } from "@/paraglide/messages.js";
 import { formatRateBp, ratePercentValidator } from "../lib/settings-form";
@@ -207,15 +207,15 @@ export function FiscalSettingsForm({
               >
                 {VAT_REGIMES.map((regime) => (
                   <RadioCard
-                    description={vatRegimeDetails(regime).hint}
+                    description={VAT_REGIME_MESSAGES[regime].hint()}
                     key={regime}
-                    title={vatRegimeDetails(regime).label}
+                    title={VAT_REGIME_MESSAGES[regime].label()}
                     value={String(regime)}
                   />
                 ))}
               </RadioGroup>
               <FieldDescription>
-                {vatRegimeDetails(field.state.value).note}
+                {VAT_REGIME_MESSAGES[field.state.value].note()}
               </FieldDescription>
             </FieldSet>
           )}

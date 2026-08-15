@@ -15,6 +15,7 @@ import { ClientLogo } from "@/components/client-logo";
 import { FormTextField } from "@/components/form-text-field";
 import { LogoPicker } from "@/components/logo-picker";
 import { PaymentTermsPicker } from "@/components/payment-terms-picker";
+import { RichMessage } from "@/components/rich-message";
 import { paymentTermsLabel } from "@/lib/billing";
 import type { FormSubmitResult } from "@/lib/form";
 import { COLOR_CLASSES, COLORS, colorLabel } from "@/lib/palette";
@@ -110,9 +111,7 @@ export function NewClientPage({
             {m.nav_clients()}
           </Link>
           <span>/</span>
-          <span className="text-muted-foreground">
-            {m.clients_breadcrumb_new()}
-          </span>
+          <span className="text-muted-foreground">{m.clients_badge_new()}</span>
         </div>
         <h1 className="mb-1 font-heading font-semibold text-2xl text-foreground-hi">
           {m.clients_new_title()}
@@ -137,7 +136,9 @@ export function NewClientPage({
 
           <div className="flex flex-wrap items-start gap-5">
             <div className="flex flex-col gap-2">
-              <span className="text-foreground-3 text-sm">Logo</span>
+              <span className="text-foreground-3 text-sm">
+                {m.clients_logo_label()}
+              </span>
               <LogoPicker
                 isPending={isPending}
                 label={m.clients_logo_aria()}
@@ -367,7 +368,7 @@ export function NewClientPage({
               type="button"
               variant="ghost"
             >
-              {m.timer_cancel()}
+              {m.common_cancel()}
             </Button>
           </div>
         </form>
@@ -426,11 +427,10 @@ export function NewClientPage({
                       {m.clients_esn_card_title()}
                     </div>
                     <div className="text-foreground-4 text-sm leading-relaxed">
-                      {m.clients_esn_card_before()}{" "}
-                      <strong className="font-medium text-foreground-2">
-                        {m.clients_esn_card_strong()}
-                      </strong>
-                      {m.clients_esn_card_after()}
+                      <RichMessage
+                        message={m.clients_esn_card_note()}
+                        strongClassName="font-medium text-foreground-2"
+                      />
                     </div>
                   </div>
                 </div>

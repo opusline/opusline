@@ -54,7 +54,7 @@ export function urssafPeriodicityLabel(periodicity: UrssafPeriodicity): string {
 
 export const VAT_REGIMES: VatRegime[] = [0, 1, 2];
 
-const VAT_REGIME_MESSAGES: Record<
+export const VAT_REGIME_MESSAGES: Record<
   VatRegime,
   { label: () => string; hint: () => string; note: () => string }
 > = {
@@ -74,20 +74,6 @@ const VAT_REGIME_MESSAGES: Record<
     note: m.vat_regime_normal_note,
   },
 };
-
-export function vatRegimeDetails(regime: VatRegime): {
-  label: string;
-  hint: string;
-  note: string;
-} {
-  const messages = VAT_REGIME_MESSAGES[regime];
-
-  return {
-    label: messages.label(),
-    hint: messages.hint(),
-    note: messages.note(),
-  };
-}
 
 /**
  * Route guard for the screens that only make sense for a business established

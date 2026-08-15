@@ -106,8 +106,10 @@ export function unbilledWorkDetail(
     return m.invoices_entries_on({ date: lastLabel });
   }
 
+  // The bare-day contraction ("du 03 au 07 août") is a day-first idiom;
+  // other locales spell both ends out.
   const firstLabel =
-    first.getMonth() === last.getMonth()
+    locale === "fr-FR" && first.getMonth() === last.getMonth()
       ? String(first.getDate()).padStart(2, "0")
       : dayAndMonth.format(first);
 

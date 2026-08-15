@@ -44,7 +44,7 @@ export const SETTINGS_TAB_DETAILS: Record<
     hint: m.settings_tab_fiscality_hint,
   },
   facturation: {
-    label: m.settings_tab_billing_label,
+    label: m.common_billing_title,
     hint: m.settings_tab_billing_hint,
   },
   regional: {

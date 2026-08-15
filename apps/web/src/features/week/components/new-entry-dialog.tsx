@@ -337,7 +337,7 @@ function EntryStep({
 
         <div className="flex flex-col gap-2">
           <Label tone="quiet" htmlFor={durationId}>
-            {m.week_duration_label()}
+            {m.common_duration()}
           </Label>
           <Input
             aria-describedby={`${durationId}-hint`}
@@ -391,10 +391,10 @@ function EntryStep({
         )}
         <div className="flex items-center gap-2">
           <Button onClick={onBack} variant="ghost">
-            {m.week_back()}
+            {m.common_back()}
           </Button>
           <Button disabled={isSaving} onClick={submit} size="2xl">
-            {isSaving ? m.timer_saving() : m.timer_save()}
+            {isSaving ? m.common_saving() : m.common_save()}
           </Button>
         </div>
       </div>

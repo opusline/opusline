@@ -130,7 +130,7 @@ function ReglagesRoute() {
     onError: (error) => {
       setSignatureError(
         serverFieldErrors(error)?.signature?.message ??
-          serverErrorMessage(error, m.settings_signature_failed()),
+          serverErrorMessage(error, m.common_upload_failed()),
       );
     },
   });
@@ -138,7 +138,7 @@ function ReglagesRoute() {
   const deleteSignature = useMutation({
     ...deleteUserSignatureMutation(),
     onSuccess: refreshSignature,
-    onError: () => setSignatureError(m.settings_signature_failed()),
+    onError: () => setSignatureError(m.common_upload_failed()),
   });
 
   const isSavingLocalisation =
@@ -237,7 +237,7 @@ function ReglagesRoute() {
           : (Object.values(fieldErrors)[0]?.message ?? null);
 
       setLocalisationError(
-        firstFieldError ?? serverErrorMessage(error, m.settings_save_failed()),
+        firstFieldError ?? serverErrorMessage(error, m.common_save_failed()),
       );
     }
   };
@@ -249,7 +249,7 @@ function ReglagesRoute() {
         <Alert className="mb-3.5" variant="warn">
           <CircleAlert />
           <AlertDescription>
-            {serverErrorMessage(updateSettings.error, m.settings_save_failed())}
+            {serverErrorMessage(updateSettings.error, m.common_save_failed())}
           </AlertDescription>
         </Alert>
       ) : null}

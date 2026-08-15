@@ -8,12 +8,6 @@ import { useLocale } from "@/components/money-format-provider";
 import { m } from "@/paraglide/messages.js";
 import { formatClock, formatStartedAt, isRunning } from "../lib/elapsed";
 import type { IdleNotice } from "../lib/idle";
-import {
-  idleDetected,
-  longRunMessage,
-  startedAtLabel,
-  trimIdle,
-} from "../lib/labels";
 
 export type TimerDetailPopoverProps = {
   elapsedSeconds: number;
@@ -77,7 +71,7 @@ export function TimerDetailPopover({
           {running ? m.timer_running_state() : m.timer_paused_state()}
         </span>
         <span className="font-mono text-muted-foreground-3 text-xs tabular-nums">
-          {startedAtLabel(formatStartedAt(locale, startedAt))}
+          {m.timer_started_at({ clock: formatStartedAt(locale, startedAt) })}
         </span>
       </div>
 
@@ -97,7 +91,7 @@ export function TimerDetailPopover({
           />
           <div className="min-w-0">
             <p className="text-foreground-2 text-sm leading-relaxed">
-              {longRunMessage(longRunHours)}
+              {m.timer_long_run_message({ hours: longRunHours })}
             </p>
             <div className="mt-2.5 flex flex-wrap gap-2">
               <Button disabled={isBusy} onClick={onStop} variant="secondary">
@@ -119,7 +113,7 @@ export function TimerDetailPopover({
           />
           <div className="min-w-0">
             <p className="text-foreground-2 text-sm leading-relaxed">
-              {idleDetected(idle.idleMinutes)}
+              {m.timer_idle_detected({ minutes: idle.idleMinutes })}
             </p>
             <div className="mt-2.5 flex gap-2">
               <Button
@@ -127,7 +121,7 @@ export function TimerDetailPopover({
                 onClick={onTrimIdle}
                 variant="secondary"
               >
-                {trimIdle(idle.idleMinutes)}
+                {m.timer_trim_idle({ minutes: idle.idleMinutes })}
               </Button>
               <Button onClick={onDismissIdle} variant="ghost">
                 {m.timer_keep_idle()}
@@ -177,7 +171,7 @@ export function TimerDetailPopover({
               {m.timer_discard_confirm()}
             </Button>
             <Button onClick={onCancelDiscard} variant="ghost">
-              {m.timer_cancel()}
+              {m.common_cancel()}
             </Button>
           </>
         ) : (

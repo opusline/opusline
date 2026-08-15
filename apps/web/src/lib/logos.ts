@@ -37,7 +37,7 @@ export function clientLogoHref(clientSlug: string, version = 0): string {
 }
 
 function uploadFailureMessage(error: unknown): string {
-  return serverFieldErrors(error)?.logo?.message ?? m.documents_upload_failed();
+  return serverFieldErrors(error)?.logo?.message ?? m.common_upload_failed();
 }
 
 type LogoHandlerOptions = {

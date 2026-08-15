@@ -172,7 +172,7 @@ export function CraSignedReturnDialog({
 
         <DialogFooter>
           <Button onClick={() => close(false)} size="2xl" variant="ghost">
-            {m.timer_cancel()}
+            {m.common_cancel()}
           </Button>
           <Button
             disabled={file === null || isPending}
