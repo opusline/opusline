@@ -9,9 +9,11 @@ import { accountTodayCalendarDate, calendarDateLabel } from "@/lib/dates";
 import { monthTitle } from "@/lib/months";
 import { PAPER } from "@/lib/paper";
 
+import { m } from "@/paraglide/messages.js";
+
 import type { CraGridModel } from "../lib/cra-grid";
 import { formatDayFraction } from "../lib/cra-grid";
-import { EYEBROW, SIGNATURE_MISSING, SIGNATURE_ON } from "../lib/labels";
+import { EYEBROW } from "../lib/labels";
 
 type CraDocumentProps = {
   detail: CraDetailData;
@@ -35,7 +37,12 @@ function placeAndDate(city: string | null, timezone: string): string {
   return city === null ? ` · le ${today}` : ` · fait à ${city}, le ${today}`;
 }
 
-/** The document as the client will receive it. */
+/**
+ * The document as the client will receive it. Everything inside the <article>
+ * mirrors the printed PDF — a French artifact by decision — so its copy stays
+ * literal French whatever language the interface speaks; only the controls
+ * around the preview are translated.
+ */
 export function CraDocument({
   detail,
   model,
@@ -53,7 +60,7 @@ export function CraDocument({
   return (
     <section className="min-w-0 flex-1">
       <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
-        <span className={EYEBROW}>Aperçu du document</span>
+        <span className={EYEBROW}>{m.cra_document_preview()}</span>
         {settings.hasSignature ? (
           // biome-ignore lint/a11y/noLabelWithoutControl: Base UI's Switch renders a hidden input beside its span, so the wrapping label is its control
           <label className="flex cursor-pointer items-center gap-2 text-muted-foreground-3 text-sm">
@@ -61,12 +68,12 @@ export function CraDocument({
               checked={applySignature}
               onCheckedChange={onApplySignatureChange}
             />
-            {SIGNATURE_ON}
+            {m.cra_apply_signature()}
           </label>
         ) : (
           <Button onClick={onOpenSignatureSettings} size="xl" variant="outline">
             <PenLineIcon aria-hidden data-icon="inline-start" />
-            {SIGNATURE_MISSING}
+            {m.cra_save_signature()}
           </Button>
         )}
       </div>

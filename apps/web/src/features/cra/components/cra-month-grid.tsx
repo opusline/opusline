@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 import { useLocale } from "@/components/money-format-provider";
+import { m } from "@/paraglide/messages.js";
 import {
   type CraCell,
   type CraGridModel,
@@ -19,17 +20,8 @@ import {
   locateCell,
 } from "../lib/cra-grid";
 import { nextCell } from "../lib/cra-keyboard";
-import {
-  EYEBROW,
-  FILL_WEEKDAYS,
-  GRID_HINT,
-  HOLIDAY_SHORT,
-  LEGEND_CLOSED,
-  LEGEND_IDLE,
-  LEGEND_WORKED,
-  RESET_DAYS,
-  reportedAgainstTrackedLabel,
-} from "../lib/labels";
+
+import { EYEBROW, reportedAgainstTrackedLabel } from "../lib/labels";
 
 /** The worked cell's own look, so its legend swatch cannot drift from it. */
 const WORKED_CELL_CLASSES = "border border-primary/40 bg-primary/14";
@@ -164,11 +156,11 @@ export function CraMonthGrid({
         {editable && (
           <div className="flex flex-wrap gap-1.5">
             <Button onClick={onFillWeekdays} size="xl" variant="outline">
-              {FILL_WEEKDAYS}
+              {m.cra_fill_weekdays()}
             </Button>
             {isDirty && (
               <Button onClick={onReset} size="xl" variant="ghost">
-                {RESET_DAYS}
+                {m.cra_reset_days()}
               </Button>
             )}
           </div>
@@ -178,7 +170,7 @@ export function CraMonthGrid({
       {/* biome-ignore lint/a11y/useSemanticElements: the WAI-ARIA grid pattern. */}
       <div
         aria-colcount={7}
-        aria-label="Jours du mois"
+        aria-label={m.cra_grid_aria()}
         aria-rowcount={model.weeks.length + 1}
         className="grid grid-cols-7 gap-1.5"
         role="grid"
@@ -230,13 +222,13 @@ export function CraMonthGrid({
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-4.5 border-secondary border-t pt-3.5 text-muted-foreground-3 text-sm">
-        <Legend className={WORKED_CELL_CLASSES} label={LEGEND_WORKED} />
+        <Legend className={WORKED_CELL_CLASSES} label={m.cra_legend_worked()} />
         <Legend
           className="border border-border-3 border-dashed"
-          label={LEGEND_IDLE}
+          label={m.cra_legend_idle()}
         />
-        <Legend className="bg-muted" label={LEGEND_CLOSED} />
-        <span className="ml-auto">{GRID_HINT}</span>
+        <Legend className="bg-muted" label={m.cra_legend_closed()} />
+        <span className="ml-auto">{m.cra_grid_hint()}</span>
       </div>
     </div>
   );
@@ -333,7 +325,11 @@ function DayCell({
             : EYEBROW,
         )}
       >
-        {isWorked ? cell.valueLabel : cell.isHoliday ? HOLIDAY_SHORT : ""}
+        {isWorked
+          ? cell.valueLabel
+          : cell.isHoliday
+            ? m.cra_holiday_short()
+            : ""}
       </span>
     </div>
   );

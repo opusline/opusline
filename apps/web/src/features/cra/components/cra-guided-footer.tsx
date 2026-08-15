@@ -1,8 +1,9 @@
 import { Button } from "@opusline/ui/components/button";
 import { DownloadIcon } from "lucide-react";
 
+import { m } from "@/paraglide/messages.js";
+
 import { CRA_STEP_ACTIONS, CRA_STEPS, type CraStep } from "../lib/cra-steps";
-import { GRID_FOOTER_HINT } from "../lib/labels";
 
 type CraGuidedFooterProps = {
   step: CraStep;
@@ -12,10 +13,10 @@ type CraGuidedFooterProps = {
   onDownload: () => void;
 };
 
-const STEP_HINTS: Record<CraStep, string> = {
-  days: GRID_FOOTER_HINT,
-  review: "Vérifiez avant d'envoyer",
-  document: "Le document part tel quel",
+const STEP_HINTS: Record<CraStep, () => string> = {
+  days: m.cra_grid_footer_hint,
+  review: m.cra_hint_review,
+  document: m.cra_hint_document,
 };
 
 /**
@@ -38,12 +39,12 @@ export function CraGuidedFooter({
     <div className="flex flex-wrap items-center gap-2.5">
       {index > 0 && (
         <Button disabled={isBusy} onClick={onBack} size="2xl" variant="outline">
-          Retour
+          {m.week_back()}
         </Button>
       )}
 
       <span className="text-muted-foreground-3 text-sm">
-        {STEP_HINTS[step]}
+        {STEP_HINTS[step]()}
       </span>
 
       <div className="ml-auto flex flex-wrap items-center gap-2">
@@ -55,11 +56,11 @@ export function CraGuidedFooter({
             variant="outline"
           >
             <DownloadIcon aria-hidden data-icon="inline-start" />
-            Télécharger le PDF
+            {m.cra_download_pdf()}
           </Button>
         )}
         <Button disabled={isBusy} onClick={onAdvance} size="2xl">
-          {CRA_STEP_ACTIONS[step]}
+          {CRA_STEP_ACTIONS[step]()}
         </Button>
       </div>
     </div>

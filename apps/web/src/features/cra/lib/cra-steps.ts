@@ -1,6 +1,7 @@
 import type { CraData, Locale } from "@opusline/api-client";
 
 import { calendarDateLabel } from "@/lib/dates";
+import { m } from "@/paraglide/messages.js";
 
 import { daysLabel } from "./labels";
 
@@ -14,17 +15,17 @@ import { daysLabel } from "./labels";
 export const CRA_STEPS = ["days", "review", "document"] as const;
 export type CraStep = (typeof CRA_STEPS)[number];
 
-export const CRA_STEP_LABELS: Record<CraStep, string> = {
-  days: "Saisir les jours",
-  review: "Vérifier",
-  document: "Envoyer",
+export const CRA_STEP_LABELS: Record<CraStep, () => string> = {
+  days: m.cra_step_days,
+  review: m.cra_step_review,
+  document: m.cra_step_document,
 };
 
 /** What the footer's primary button does next, per step. */
-export const CRA_STEP_ACTIONS: Record<CraStep, string> = {
-  days: "Vérifier",
-  review: "Voir le document",
-  document: "Marquer envoyé",
+export const CRA_STEP_ACTIONS: Record<CraStep, () => string> = {
+  days: m.cra_step_review,
+  review: m.cra_action_view_document,
+  document: m.cra_action_mark_sent,
 };
 
 export function isCraStep(value: unknown): value is CraStep {
@@ -41,16 +42,20 @@ export function craStepState(
   cra: CraData,
 ): string {
   if (step === "days") {
-    return `${daysLabel(locale, cra.totalDays)} reportés`;
+    return m.cra_state_days_reported({
+      days: daysLabel(locale, cra.totalDays),
+    });
   }
 
   if (step === "review") {
-    return cra.differenceDays === 0 ? "Rien à signaler" : "Un écart à vérifier";
+    return cra.differenceDays === 0
+      ? m.cra_state_nothing_to_report()
+      : m.cra_state_drift_to_check();
   }
 
   return cra.sentOn === null
-    ? "PDF prêt"
-    : `Envoyé le ${calendarDateLabel(locale, cra.sentOn)}`;
+    ? m.cra_state_pdf_ready()
+    : m.cra_state_sent_on({ date: calendarDateLabel(locale, cra.sentOn) });
 }
 
 /**

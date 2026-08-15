@@ -4,15 +4,9 @@ import { StatTile, StatTileRow } from "@opusline/ui/components/stat-tile";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatWholeAmount } from "@/lib/billing";
 
-import {
-  daysLabel,
-  differenceLabel,
-  offDaysWorkedLabel,
-  STAT_AMOUNT,
-  STAT_DIFFERENCE,
-  STAT_OFF_DAYS,
-  STAT_REPORTED,
-} from "../lib/labels";
+import { m } from "@/paraglide/messages.js";
+
+import { daysLabel, differenceLabel, offDaysWorkedLabel } from "../lib/labels";
 
 /**
  * The four figures the month comes down to: what it reports, what it is worth, and the
@@ -33,12 +27,12 @@ export function CraStatTiles({
   return (
     <StatTileRow className="grid-cols-2 lg:grid-cols-4">
       <StatTile
-        label={STAT_REPORTED}
+        label={m.cra_stat_reported()}
         tone="strong"
         value={daysLabel(format.locale, cra.totalDays)}
       />
       <StatTile
-        label={STAT_AMOUNT}
+        label={m.cra_stat_amount()}
         value={
           cra.estimatedAmount === null
             ? "—"
@@ -46,12 +40,12 @@ export function CraStatTiles({
         }
       />
       <StatTile
-        label={STAT_DIFFERENCE}
+        label={m.cra_stat_difference()}
         tone={cra.differenceDays === 0 ? "quiet" : "brand"}
         value={differenceLabel(format.locale, cra.differenceDays)}
       />
       <StatTile
-        label={STAT_OFF_DAYS}
+        label={m.cra_stat_off_days()}
         tone={offDaysWorked === 0 ? "quiet" : "brand"}
         value={offDaysWorkedLabel(offDaysWorked)}
       />

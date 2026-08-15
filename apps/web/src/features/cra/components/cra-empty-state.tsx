@@ -9,6 +9,8 @@ import {
 } from "@opusline/ui/components/empty";
 import { FileCheckIcon } from "lucide-react";
 
+import { m } from "@/paraglide/messages.js";
+
 /**
  * Shown when the list comes back empty, which can only mean one thing: no mission asks
  * for a CRA.
@@ -28,15 +30,12 @@ export function CraEmptyState({
         <EmptyMedia variant="icon">
           <FileCheckIcon />
         </EmptyMedia>
-        <EmptyTitle>Aucune mission ne demande de CRA</EmptyTitle>
-        <EmptyDescription>
-          Activez « CRA mensuel requis » sur une mission facturée à la journée :
-          ses mois viendront s'empiler ici.
-        </EmptyDescription>
+        <EmptyTitle>{m.cra_empty_title()}</EmptyTitle>
+        <EmptyDescription>{m.cra_empty_description()}</EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
         <Button onClick={onGoToClients} size="2xl">
-          Ouvrir mes clients
+          {m.cra_empty_open_clients()}
         </Button>
       </EmptyContent>
     </Empty>

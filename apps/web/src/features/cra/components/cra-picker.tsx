@@ -6,19 +6,14 @@ import { SearchIcon } from "lucide-react";
 import { useLocale } from "@/components/money-format-provider";
 import { monthTitle } from "@/lib/months";
 import { COLOR_CLASSES } from "@/lib/palette";
-
+import { m } from "@/paraglide/messages.js";
 import {
   CRA_GROUP_DOT_CLASSES,
   craItemKey,
   groupCras,
 } from "../lib/cra-picker";
-import {
-  CRA_TITLE,
-  EYEBROW,
-  NO_MATCH,
-  SEARCH_PLACEHOLDER,
-  toProduceLabel,
-} from "../lib/labels";
+
+import { EYEBROW, toProduceLabel } from "../lib/labels";
 
 type CraPickerProps = {
   items: CraListItemData[];
@@ -44,7 +39,7 @@ export function CraPicker({
   return (
     <aside className="flex w-full shrink-0 flex-col self-stretch lg:w-72">
       <div className="mb-3.5 flex items-baseline justify-between gap-2">
-        <span className={EYEBROW}>{CRA_TITLE}</span>
+        <span className={EYEBROW}>{m.cra_list_title()}</span>
         {counts.toProduce > 0 && (
           <span className="text-primary-text text-xs">
             {toProduceLabel(counts.toProduce)}
@@ -58,9 +53,9 @@ export function CraPicker({
           className="size-3.5 shrink-0 text-muted-foreground-3"
         />
         <Input
-          aria-label="Rechercher un compte rendu"
+          aria-label={m.cra_search_aria()}
           onChange={(event) => onQueryChange(event.target.value)}
-          placeholder={SEARCH_PLACEHOLDER}
+          placeholder={m.cra_search_placeholder()}
           size="sm"
           surface="bare"
           value={query}
@@ -69,7 +64,7 @@ export function CraPicker({
 
       {groups.length === 0 ? (
         <p className="px-2.5 py-4.5 text-center text-muted-foreground-3 text-sm">
-          {NO_MATCH}
+          {m.cra_no_match()}
         </p>
       ) : (
         <div className="flex flex-col gap-6">
