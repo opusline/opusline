@@ -12,6 +12,7 @@ import {
   useLocation,
 } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
+import { useEffect } from "react";
 import { AddressAutocompleteProvider } from "@/components/address-autocomplete-provider";
 import { AppSidebar } from "@/components/app-sidebar";
 import { MoneyFormatProvider } from "@/components/money-format-provider";
@@ -22,6 +23,7 @@ import {
 } from "@/features/theme/lib/use-theme-preference";
 import { TimerContainer } from "@/features/timer/components/timer-container";
 import { TimerProvider } from "@/features/timer/components/timer-provider";
+import { syncLocale } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authed")({
   beforeLoad: async ({ context, location }) => {
@@ -76,6 +78,10 @@ function AuthedLayout() {
   const { pathname } = useLocation();
 
   useThemeSync(user);
+
+  useEffect(() => {
+    syncLocale(user.locale);
+  }, [user.locale]);
 
   const { theme, resolvedTheme, setTheme } = useThemeControl();
 

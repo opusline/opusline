@@ -1,22 +1,30 @@
 import * as z from "zod/mini";
 
-z.config({
-  ...z.locales.fr(),
-  customError: (issue) => {
-    if (issue.code === "invalid_format" && issue.format === "email") {
-      return "Adresse e-mail invalide.";
-    }
+import type { UiLocale } from "@/lib/i18n";
+import { m } from "@/paraglide/messages.js";
+import { getLocale } from "@/paraglide/runtime.js";
 
-    if (issue.code === "too_small" && issue.origin === "string") {
-      return issue.minimum === 1
-        ? "Ce champ est requis."
-        : `Au moins ${issue.minimum} caractères.`;
-    }
+export function applyZodLocale(tag: UiLocale): void {
+  z.config({
+    ...(tag === "fr" ? z.locales.fr() : z.locales.en()),
+    customError: (issue) => {
+      if (issue.code === "invalid_format" && issue.format === "email") {
+        return m.zod_email_invalid();
+      }
 
-    if (issue.code === "too_big" && issue.origin === "string") {
-      return `Au maximum ${issue.maximum} caractères.`;
-    }
+      if (issue.code === "too_small" && issue.origin === "string") {
+        return issue.minimum === 1
+          ? m.zod_field_required()
+          : m.zod_too_small({ min: String(issue.minimum) });
+      }
 
-    return undefined;
-  },
-});
+      if (issue.code === "too_big" && issue.origin === "string") {
+        return m.zod_too_big({ max: String(issue.maximum) });
+      }
+
+      return undefined;
+    },
+  });
+}
+
+applyZodLocale(getLocale());

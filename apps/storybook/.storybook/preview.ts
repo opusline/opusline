@@ -3,6 +3,7 @@ import type { Preview } from "@storybook/react";
 import "../src/preview.css";
 import { withThemeByClassName } from "@storybook/addon-themes";
 import { themes } from "storybook/theming";
+import { overwriteGetLocale } from "../../web/src/paraglide/runtime.js";
 
 const preview: Preview = {
   parameters: {
@@ -22,6 +23,20 @@ const preview: Preview = {
       test: "error",
     },
   },
+  globalTypes: {
+    locale: {
+      description: "UI language",
+      toolbar: {
+        icon: "globe",
+        items: [
+          { value: "fr", title: "Français" },
+          { value: "en", title: "English" },
+        ],
+        dynamicTitle: true,
+      },
+    },
+  },
+  initialGlobals: { locale: "fr" },
   decorators: [
     withThemeByClassName({
       themes: {
@@ -30,6 +45,11 @@ const preview: Preview = {
       },
       defaultTheme: "dark",
     }),
+    (Story, context) => {
+      overwriteGetLocale(() => (context.globals.locale === "en" ? "en" : "fr"));
+
+      return Story();
+    },
   ],
 };
 

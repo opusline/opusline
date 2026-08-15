@@ -1,0 +1,8 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "settings_language_hint": "Détermine la langue de l'interface et le format des montants et des nombres. Les CRA restent en français.",
+  "zod_email_invalid": "Adresse e-mail invalide.",
+  "zod_field_required": "Ce champ est requis.",
+  "zod_too_big": "Au maximum {max} caractères.",
+  "zod_too_small": "Au moins {min} caractères."
+}

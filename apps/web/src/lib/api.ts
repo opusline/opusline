@@ -1,6 +1,6 @@
 import { client } from "@opusline/api-client/client";
-
 import { readCookie } from "./cookies";
+import { apiLocaleFor, currentUiLocale } from "./i18n";
 
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
@@ -18,6 +18,8 @@ export function setupApiClient() {
     if (token) {
       request.headers.set("X-XSRF-TOKEN", token);
     }
+
+    request.headers.set("Accept-Language", apiLocaleFor(currentUiLocale()));
 
     return request;
   });

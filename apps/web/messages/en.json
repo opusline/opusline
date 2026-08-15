@@ -1,0 +1,8 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "settings_language_hint": "Sets the interface language and the format of amounts and numbers. CRA documents stay in French.",
+  "zod_email_invalid": "Invalid email address.",
+  "zod_field_required": "This field is required.",
+  "zod_too_big": "At most {max} characters.",
+  "zod_too_small": "At least {min} characters."
+}

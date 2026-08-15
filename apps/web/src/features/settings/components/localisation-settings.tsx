@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState } from "react";
 import { formatAmountWithCents } from "@/lib/billing";
 import { COUNTRY_OPTIONS } from "@/lib/countries";
 import { calendarDateNumericLabel } from "@/lib/dates";
+import { m } from "@/paraglide/messages.js";
 import { unsavedChangesLabel } from "../lib/settings-form";
 import { SaveBar } from "./save-bar";
 import { SettingsSection } from "./settings-section";
@@ -194,11 +195,7 @@ export function LocalisationSettings({
               </option>
             ))}
           </NativeSelect>
-          <p className={NOTE}>
-            Détermine le format des montants et des nombres. La traduction
-            complète de l'interface et des CRA arrivera plus tard — les libellés
-            restent en français.
-          </p>
+          <p className={NOTE}>{m.settings_language_hint()}</p>
         </Field>
 
         <div className="my-5.5 h-px bg-secondary" />

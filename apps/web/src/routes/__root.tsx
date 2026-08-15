@@ -6,6 +6,7 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import "@opusline/ui/globals.css";
 
 import { ThemeProvider } from "@/components/theme-provider";
+import { useUiLocale } from "@/lib/i18n";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -16,8 +17,10 @@ export const Route = createRootRouteWithContext<{
 const showDevtools = import.meta.env.DEV && import.meta.env.MODE !== "test";
 
 function RootComponent() {
+  const uiLocale = useUiLocale();
+
   return (
-    <ThemeProvider>
+    <ThemeProvider key={uiLocale}>
       <Outlet />
       {showDevtools && (
         <TanStackDevtools

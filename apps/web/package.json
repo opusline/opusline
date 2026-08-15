@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "generate-routes": "tsr generate",
+    "generate-messages": "node scripts/compile-messages.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
@@ -26,6 +27,8 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@inlang/paraglide-js": "^2.24.0",
+    "@inlang/plugin-message-format": "^4.4.3",
     "@storybook/react": "^10.5.5",
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/devtools-vite": "^0.8.3",
