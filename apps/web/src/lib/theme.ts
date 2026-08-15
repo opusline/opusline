@@ -1,4 +1,6 @@
 import type { Theme } from "@opusline/api-client";
+
+import { m } from "@/paraglide/messages.js";
 import { readCookie } from "./cookies";
 
 export type ThemePreference = "system" | "light" | "dark";
@@ -7,11 +9,15 @@ export type ResolvedTheme = "light" | "dark";
 
 export const THEME_PREFERENCES: ThemePreference[] = ["light", "dark", "system"];
 
-export const THEME_LABELS: Record<ThemePreference, string> = {
-  system: "Système",
-  light: "Clair",
-  dark: "Sombre",
+const THEME_MESSAGES: Record<ThemePreference, () => string> = {
+  system: m.theme_system,
+  light: m.theme_light,
+  dark: m.theme_dark,
 };
+
+export function themeLabel(preference: ThemePreference): string {
+  return THEME_MESSAGES[preference]();
+}
 
 const PREFERENCE_BY_THEME: Record<Theme, ThemePreference> = {
   0: "system",

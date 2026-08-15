@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { requireFrenchFiscality } from "@/lib/fiscality";
+import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute("/_authed/deadlines")({
   beforeLoad: ({ context }) => requireFrenchFiscality(context.user),
@@ -11,10 +12,10 @@ function EcheancesPage() {
   return (
     <div>
       <h1 className="font-heading font-semibold text-2xl text-card-foreground">
-        Échéances
+        {m.nav_deadlines()}
       </h1>
       <p className="mt-2 text-muted-foreground text-sm">
-        Les échéances arrivent ici — URSSAF, CA3, CFE, rappels.
+        {m.deadlines_placeholder()}
       </p>
     </div>
   );
