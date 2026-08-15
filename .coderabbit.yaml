@@ -4,6 +4,9 @@ reviews:
   profile: assertive
   request_changes_workflow: true
   high_level_summary: true
+  auto_review:
+    base_branches:
+      - ".*"
   pre_merge_checks:
     title:
       mode: error
