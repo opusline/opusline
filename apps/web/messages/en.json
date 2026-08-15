@@ -542,6 +542,7 @@
   "page_title_cra": "Activity report (CRA)",
   "page_title_deadlines": "Obligations",
   "page_title_declarations": "Filings",
+  "page_title_release_notes": "Release notes",
   "page_title_revenue": "Revenue",
   "page_title_settings": "Settings",
   "page_title_treasury": "Treasury",
@@ -551,6 +552,38 @@
   "payment_terms_or": "or",
   "payment_terms_other": "Other…",
   "payment_terms_preset": "{days} d",
+  "release_notes_installed": "installed",
+  "release_notes_intro": "Opusline is self-hosted: each release is an update you apply yourself. Database migrations run automatically and are reversible.",
+  "release_notes_kind_fixed": "Fixed",
+  "release_notes_kind_improved": "Improved",
+  "release_notes_kind_new": "New",
+  "release_notes_mark_read": "Mark as read",
+  "release_notes_repo_note": "Full history and migration notes in the repository.",
+  "release_notes_title": "Release notes",
+  "release_notes_type_major": "major",
+  "release_notes_type_minor": "minor",
+  "release_notes_type_patch": "patch",
+  "release_notes_unread_badge": "Unread",
+  "release_notes_unread_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} unread release note",
+        "countPlural=other": "{count} unread release notes"
+      }
+    }
+  ],
+  "release_notes_unread_title": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} release note you haven't read",
+        "countPlural=other": "{count} release notes you haven't read"
+      }
+    }
+  ],
   "revenue_placeholder": "Revenue tracking lands here — invoiced revenue, VAT collected, estimated net.",
   "rounding_fifteen_min": "15 min",
   "rounding_half_day": "0.5 d",

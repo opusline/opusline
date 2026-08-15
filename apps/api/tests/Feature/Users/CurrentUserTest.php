@@ -19,6 +19,7 @@ test('the current user endpoint returns the authenticated user', function (): vo
             'name' => $user->name,
             'email' => $user->email,
             'theme' => Theme::System->value,
+            'releaseNotesSeenVersion' => config()->string('app.version'),
             'locale' => Locale::en_US->value,
             'dateFormat' => DateFormat::DayMonthYear->value,
             'currency' => Currency::EUR->value,

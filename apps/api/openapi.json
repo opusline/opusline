@@ -204,6 +204,39 @@
                 }
             }
         },
+        "/user/release-notes-seen": {
+            "put": {
+                "operationId": "updateUserReleaseNotesSeen",
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateReleaseNotesSeenData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/clients": {
             "get": {
                 "operationId": "listClients",
@@ -5788,6 +5821,20 @@
                 ],
                 "title": "UpdateMissionData"
             },
+            "UpdateReleaseNotesSeenData": {
+                "type": "object",
+                "properties": {
+                    "version": {
+                        "type": "string",
+                        "pattern": "^\\d+\\.\\d+\\.\\d+$",
+                        "maxLength": 32
+                    }
+                },
+                "required": [
+                    "version"
+                ],
+                "title": "UpdateReleaseNotesSeenData"
+            },
             "UpdateSettingsCurrencyData": {
                 "type": "object",
                 "properties": {
@@ -6148,6 +6195,12 @@
                     "theme": {
                         "$ref": "#/components/schemas/Theme"
                     },
+                    "releaseNotesSeenVersion": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
                     "locale": {
                         "$ref": "#/components/schemas/Locale"
                     },
@@ -6175,6 +6228,7 @@
                     "name",
                     "email",
                     "theme",
+                    "releaseNotesSeenVersion",
                     "locale",
                     "dateFormat",
                     "currency",

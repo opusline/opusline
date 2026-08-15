@@ -542,6 +542,7 @@
   "page_title_cra": "Compte rendu d'activité",
   "page_title_deadlines": "Obligations",
   "page_title_declarations": "Déclarations",
+  "page_title_release_notes": "Notes de version",
   "page_title_revenue": "Revenus",
   "page_title_settings": "Réglages",
   "page_title_treasury": "Trésorerie",
@@ -551,6 +552,38 @@
   "payment_terms_or": "ou",
   "payment_terms_other": "Autre…",
   "payment_terms_preset": "{days} j",
+  "release_notes_installed": "installée",
+  "release_notes_intro": "Opusline est auto-hébergé : chaque version est une mise à jour que vous appliquez vous-même. Les migrations de base de données sont automatiques et réversibles.",
+  "release_notes_kind_fixed": "Corrigé",
+  "release_notes_kind_improved": "Amélioré",
+  "release_notes_kind_new": "Nouveau",
+  "release_notes_mark_read": "Marquer comme lu",
+  "release_notes_repo_note": "Historique complet et notes de migration dans le dépôt.",
+  "release_notes_title": "Notes de version",
+  "release_notes_type_major": "majeure",
+  "release_notes_type_minor": "mineure",
+  "release_notes_type_patch": "corrective",
+  "release_notes_unread_badge": "Non lu",
+  "release_notes_unread_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} note de version non lue",
+        "countPlural=other": "{count} notes de version non lues"
+      }
+    }
+  ],
+  "release_notes_unread_title": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} note de version que vous n'avez pas lue",
+        "countPlural=other": "{count} notes de version que vous n'avez pas lues"
+      }
+    }
+  ],
   "revenue_placeholder": "Le suivi des revenus arrive ici — CA facturé, TVA collectée, net estimé.",
   "rounding_fifteen_min": "15 min",
   "rounding_half_day": "0,5 j",

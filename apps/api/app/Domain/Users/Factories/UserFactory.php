@@ -33,6 +33,7 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
+            'release_notes_seen_version' => config()->string('app.version'),
             'remember_token' => Str::random(10),
         ];
     }

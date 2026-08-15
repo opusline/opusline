@@ -29,6 +29,14 @@ export const Sizes: Story = {
   ),
 };
 
+export const BrandOutline: Story = {
+  args: {
+    children: "Marquer comme lu",
+    size: "xl",
+    variant: "brand-outline",
+  },
+};
+
 export const RaisedSurface: Story = {
   render: () => (
     <div className="flex items-center gap-2 bg-background p-4">

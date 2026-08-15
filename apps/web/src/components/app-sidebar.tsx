@@ -17,6 +17,7 @@ import {
   SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
@@ -38,14 +39,16 @@ import {
   Database,
   Download,
   FileCheck,
+  History,
   LogOut,
   PanelLeft,
   ReceiptText,
   SlidersHorizontal,
   Users,
 } from "lucide-react";
-
 import { initials } from "@/lib/initials";
+import { unreadReleaseCount } from "@/lib/releases";
+import { APP_VERSION } from "@/lib/version";
 import { m } from "@/paraglide/messages.js";
 
 export function AppSidebar() {
@@ -54,6 +57,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: user } = useSuspenseQuery(currentUserOptions());
+  const unreadReleaseNotes = unreadReleaseCount(user.releaseNotesSeenVersion);
 
   const logout = useMutation({
     ...logoutMutation(),
@@ -215,6 +219,41 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="border-sidebar-border border-t p-0 group-data-[collapsible=icon]:p-2">
         <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className="h-auto rounded-none border-sidebar-border border-b px-3.5 py-2 group-data-[collapsible=icon]:rounded-md group-data-[collapsible=icon]:border-b-0"
+              isActive={pathname.startsWith("/release-notes")}
+              render={<Link to="/release-notes" />}
+              tooltip={m.release_notes_title()}
+            >
+              <History className="hidden group-data-[collapsible=icon]:block" />
+              <span className="flex items-baseline gap-2">
+                <span className="font-mono text-muted-foreground text-xs">
+                  v{APP_VERSION}
+                </span>
+                <span className="text-xs">{m.release_notes_title()}</span>
+              </span>
+            </SidebarMenuButton>
+            {unreadReleaseNotes > 0 && (
+              <>
+                <SidebarMenuBadge
+                  aria-hidden
+                  className="right-3.5 rounded-full bg-primary font-mono text-2xs text-primary-foreground peer-data-active/menu-button:text-primary-foreground peer-hover/menu-button:text-primary-foreground"
+                >
+                  {unreadReleaseNotes}
+                </SidebarMenuBadge>
+                <span
+                  aria-hidden
+                  className="absolute top-1 right-1 hidden size-1.5 rounded-full bg-primary group-data-[collapsible=icon]:block"
+                />
+                <span className="sr-only">
+                  {m.release_notes_unread_count({
+                    count: unreadReleaseNotes,
+                  })}
+                </span>
+              </>
+            )}
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger

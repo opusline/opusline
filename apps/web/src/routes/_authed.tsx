@@ -50,6 +50,7 @@ const pageTitles: Record<string, () => string> = {
   "/treasury": m.page_title_treasury,
   "/deadlines": m.page_title_deadlines,
   "/declarations": m.page_title_declarations,
+  "/release-notes": m.page_title_release_notes,
   "/settings": m.page_title_settings,
 };
 

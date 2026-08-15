@@ -79,5 +79,6 @@ return [
     'vatNumber' => 'VAT number',
     'vatRateBp' => 'VAT rate',
     'vatRegime' => 'VAT regime',
+    'version' => 'version',
     'workdayMinutes' => 'workday length',
 ];
