@@ -14,6 +14,7 @@ use Dedoc\Scramble\Configuration\ParametersExtractors;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\OperationExtensions\ParameterExtractor\FormRequestParametersExtractor;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
@@ -52,7 +53,7 @@ class AppServiceProvider extends ServiceProvider
 
         DB::prohibitDestructiveCommands($this->app->isProduction());
 
-        Validator::resolver(fn ($translator, array $data, array $rules, array $messages, array $attributes): LocalizedValidator => new LocalizedValidator($translator, $data, $rules, $messages, $attributes));
+        Validator::resolver(fn (Translator $translator, array $data, array $rules, array $messages, array $attributes): LocalizedValidator => new LocalizedValidator($translator, $data, $rules, $messages, $attributes));
 
         $caller = static function (Request $request): string {
             $identifier = $request->user()?->getAuthIdentifier();
