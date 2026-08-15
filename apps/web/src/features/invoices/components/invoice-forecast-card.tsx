@@ -3,7 +3,9 @@ import type { InvoiceSummaryData } from "@opusline/api-client";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatWholeAmount } from "@/lib/billing";
 
-import { INVOICE_FORECAST_BUCKET_LABELS } from "../lib/summary-labels";
+import { m } from "@/paraglide/messages.js";
+
+import { invoiceForecastBucketLabel } from "../lib/summary-labels";
 
 /**
  * What is expected to land in the next 60 days, bar per bucket.
@@ -22,7 +24,7 @@ export function InvoiceForecastCard({
   return (
     <section className="rounded-md border bg-card px-5 py-4">
       <h2 className="font-medium text-muted-foreground-2 text-xs uppercase tracking-widest">
-        Attendu sur 60 jours
+        {m.invoices_forecast_title()}
       </h2>
 
       <ul className="mt-3.5 flex flex-col gap-3">
@@ -30,7 +32,7 @@ export function InvoiceForecastCard({
           <li key={bar.bucket}>
             <div className="flex items-baseline justify-between gap-3">
               <span className="text-muted-foreground-3 text-xs">
-                {INVOICE_FORECAST_BUCKET_LABELS[bar.bucket]}
+                {invoiceForecastBucketLabel(bar.bucket)}
               </span>
               <span className="font-mono text-foreground-hi text-sm tabular-nums">
                 {formatWholeAmount(format, bar.amount.amount)}
@@ -51,7 +53,7 @@ export function InvoiceForecastCard({
           <span className="font-mono text-destructive tabular-nums">
             {formatWholeAmount(format, overdue.amount.amount)}
           </span>{" "}
-          déjà échus
+          {m.invoices_already_overdue()}
         </p>
       )}
     </section>

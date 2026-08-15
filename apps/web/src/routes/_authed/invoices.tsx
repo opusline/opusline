@@ -33,6 +33,7 @@ import { InvoiceTodoPanel } from "@/features/invoices/components/invoice-todo-pa
 import { InvoicesTable } from "@/features/invoices/components/invoices-table";
 import { accountTodayCalendarDate } from "@/lib/dates";
 import { serverErrorMessage } from "@/lib/validation";
+import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute("/_authed/invoices")({
   component: FacturesPage,
@@ -91,26 +92,26 @@ function FacturesPage() {
     ...remindInvoiceMutation(),
     onMutate: () => setActionError(null),
     onSuccess: refreshInvoices,
-    onError: reportFailure("La relance n'a pas pu être notée."),
+    onError: reportFailure(m.invoices_remind_failed()),
   });
 
   const send = useMutation({
     ...sendInvoiceMutation(),
     onMutate: () => setActionError(null),
     onSuccess: refreshInvoices,
-    onError: reportFailure("La facture n'a pas pu être marquée envoyée."),
+    onError: reportFailure(m.invoices_send_failed()),
   });
 
   const setReference = useMutation({
     ...updateInvoiceMutation(),
-    onError: reportFailure("La référence n'a pas pu être enregistrée."),
+    onError: reportFailure(m.invoices_reference_failed()),
   });
 
   const pay = useMutation({
     ...payInvoiceMutation(),
     onMutate: () => setActionError(null),
     onSuccess: refreshInvoices,
-    onError: reportFailure("L'encaissement n'a pas pu être enregistré."),
+    onError: reportFailure(m.invoices_pay_failed()),
   });
 
   const create = useMutation({
@@ -121,9 +122,7 @@ function FacturesPage() {
       await refreshInvoices();
     },
     onError: (error) => {
-      setCreateError(
-        serverErrorMessage(error, "La facture n'a pas pu être créée."),
-      );
+      setCreateError(serverErrorMessage(error, m.invoices_create_failed()));
     },
   });
 
@@ -194,11 +193,10 @@ function FacturesPage() {
     <div className="flex flex-col gap-5">
       <div>
         <h1 className="font-heading font-semibold text-2xl text-foreground-hi">
-          Factures
+          {m.nav_invoices()}
         </h1>
         <p className="mt-1 max-w-[60ch] text-muted-foreground-3 text-sm text-pretty">
-          Les factures sont éditées ailleurs. Opusline garde la trace de ce qui
-          est facturé, de ce qui reste à facturer et de ce qui est encaissé.
+          {m.invoices_page_intro()}
         </p>
       </div>
 
@@ -209,9 +207,7 @@ function FacturesPage() {
 
       {(invoices.isError || summary.isError) && (
         <Alert variant="destructive">
-          <AlertDescription>
-            Impossible de charger les factures. Réessayez dans un instant.
-          </AlertDescription>
+          <AlertDescription>{m.invoices_load_failed()}</AlertDescription>
         </Alert>
       )}
 

@@ -15,7 +15,12 @@ import {
 } from "@/components/money-format-provider";
 import { formatAmountWithCents, formatPercentFromBp } from "@/lib/billing";
 import { calendarDateNumericLabel, calendarRangeLabel } from "@/lib/dates";
-import { invoiceEventLabel, invoiceStatusBadge } from "@/lib/invoice-status";
+import {
+  invoiceEventLabel,
+  invoiceStatusBadge,
+  invoiceStatusLabel,
+} from "@/lib/invoice-status";
+import { m } from "@/paraglide/messages.js";
 
 import { Fact } from "./invoice-fact";
 
@@ -49,8 +54,8 @@ export function InvoiceDrawer({
       >
         {detail === undefined ? (
           <SheetHeader>
-            <SheetTitle>Facture</SheetTitle>
-            <SheetDescription>Chargement…</SheetDescription>
+            <SheetTitle>{m.invoices_drawer_title()}</SheetTitle>
+            <SheetDescription>{m.invoices_loading()}</SheetDescription>
           </SheetHeader>
         ) : (
           <InvoiceDrawerBody actions={actions} detail={detail} />
@@ -76,7 +81,7 @@ function InvoiceDrawerBody({
     <>
       <SheetHeader className="gap-1.5">
         <SheetTitle className="flex items-center gap-2.5 font-mono text-base">
-          {invoice.number ?? "Brouillon"}
+          {invoice.number ?? invoiceStatusLabel(0)}
           <Badge variant={badge.variant}>{badge.label}</Badge>
         </SheetTitle>
         <SheetDescription>
@@ -88,11 +93,11 @@ function InvoiceDrawerBody({
         <Fact label="Client" value={client.name} tone="text" />
         <Fact
           label="Mission"
-          value={mission?.name ?? "Sans mission"}
+          value={mission?.name ?? m.invoices_no_mission()}
           tone="text"
         />
         <Fact
-          label="Période"
+          label={m.invoices_fact_period()}
           value={
             calendarRangeLabel(
               dateFormat,
@@ -102,19 +107,21 @@ function InvoiceDrawerBody({
           }
         />
         <Fact
-          label="Émise le"
+          label={m.invoices_issued_on_label()}
           value={calendarDateNumericLabel(dateFormat, invoice.issuedOn)}
         />
         <Fact
-          label="Échéance"
+          label={m.invoices_due_label()}
           value={calendarDateNumericLabel(dateFormat, invoice.dueOn)}
         />
         <Fact
-          label="Montant HT"
+          label={m.invoices_amount_ht_label()}
           value={formatAmountWithCents(format, invoice.amountHt.amount)}
         />
         <Fact
-          label={`TVA ${formatPercentFromBp(format.locale, invoice.vatRateBp)} %`}
+          label={m.invoices_vat_rate_fact({
+            rate: formatPercentFromBp(format.locale, invoice.vatRateBp),
+          })}
           value={formatAmountWithCents(format, invoice.amountVat.amount)}
         />
         <Fact
@@ -123,7 +130,7 @@ function InvoiceDrawerBody({
         />
         {invoice.paidOn !== null && (
           <Fact
-            label="Encaissée le"
+            label={m.invoices_paid_on_label()}
             value={calendarDateNumericLabel(dateFormat, invoice.paidOn)}
           />
         )}
@@ -132,7 +139,7 @@ function InvoiceDrawerBody({
       {actions}
 
       <section className="border-t px-4 py-5">
-        <SectionTitle>Historique</SectionTitle>
+        <SectionTitle>{m.invoices_history_title()}</SectionTitle>
         <ol className="mt-3.5 flex flex-col gap-3.5">
           {/* Newest first: the last thing that happened is the thing you came to check. */}
           {[...history].reverse().map((event) => (

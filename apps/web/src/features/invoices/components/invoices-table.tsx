@@ -14,13 +14,14 @@ import {
 import { formatWholeAmount } from "@/lib/billing";
 import { invoiceStatusBadge } from "@/lib/invoice-status";
 import { COLOR_CLASSES } from "@/lib/palette";
+import { m } from "@/paraglide/messages.js";
 
 import {
   countByScope,
   groupByClient,
-  INVOICE_SCOPE_LABELS,
   INVOICE_SCOPES,
   type InvoiceScope,
+  invoiceScopeLabel,
   isInvoiceScope,
   matchesScope,
 } from "../lib/grouping";
@@ -62,7 +63,7 @@ export function InvoicesTable({
   return (
     <div className="flex flex-col gap-3">
       <ChipGroup
-        aria-label="Filtrer les factures"
+        aria-label={m.invoices_filter_aria()}
         value={[scope]}
         onValueChange={(value) => {
           const nextScope = value.find(isInvoiceScope);
@@ -77,9 +78,9 @@ export function InvoicesTable({
             key={invoiceScope}
             value={invoiceScope}
             shape="pill"
-            aria-label={`${INVOICE_SCOPE_LABELS[invoiceScope]} (${counts[invoiceScope]})`}
+            aria-label={`${invoiceScopeLabel(invoiceScope)} (${counts[invoiceScope]})`}
           >
-            {INVOICE_SCOPE_LABELS[invoiceScope]}
+            {invoiceScopeLabel(invoiceScope)}
             <ChipCount aria-hidden>{counts[invoiceScope]}</ChipCount>
           </Chip>
         ))}
@@ -110,7 +111,9 @@ export function InvoicesTable({
                 <span className="ml-auto whitespace-nowrap text-muted-foreground-3 text-xs">
                   {group.averageDaysToPay === null
                     ? null
-                    : `${group.averageDaysToPay} j en moyenne pour payer`}
+                    : m.invoices_average_days_to_pay({
+                        days: group.averageDaysToPay,
+                      })}
                 </span>
                 <span className="w-32 text-right font-mono text-foreground-hi text-sm tabular-nums">
                   {formatWholeAmount(format, group.total)}
@@ -133,7 +136,7 @@ export function InvoicesTable({
                         </span>
                         <span className="min-w-0">
                           <span className="block truncate text-foreground-2 text-sm">
-                            {mission?.name ?? "Sans mission"}
+                            {mission?.name ?? m.invoices_no_mission()}
                           </span>
                           <span className="mt-0.75 block text-muted-foreground-3 text-xs">
                             {invoiceRowDetail(

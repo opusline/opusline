@@ -5,6 +5,8 @@ import type {
   Locale,
 } from "@opusline/api-client";
 
+import { m } from "@/paraglide/messages.js";
+
 import { averageDaysToPay } from "./labels";
 
 export const INVOICE_SCOPES = ["all", "open", "late", "paid", "draft"] as const;
@@ -15,13 +17,17 @@ export type InvoiceScope = (typeof INVOICE_SCOPES)[number];
  * Provisional copy — the design's chips are bound values the canvas markup does not
  * carry. These follow the API's own vocabulary; correcting one is a one-line edit.
  */
-export const INVOICE_SCOPE_LABELS: Record<InvoiceScope, string> = {
-  all: "Toutes",
-  open: "À encaisser",
-  late: "En retard",
-  paid: "Payées",
-  draft: "Brouillons",
+const INVOICE_SCOPE_MESSAGES: Record<InvoiceScope, () => string> = {
+  all: m.invoices_scope_all,
+  open: m.invoices_scope_open,
+  late: m.invoice_status_late,
+  paid: m.invoices_scope_paid,
+  draft: m.invoices_scope_draft,
 };
+
+export function invoiceScopeLabel(scope: InvoiceScope): string {
+  return INVOICE_SCOPE_MESSAGES[scope]();
+}
 
 export function isInvoiceScope(value: unknown): value is InvoiceScope {
   return (INVOICE_SCOPES as readonly unknown[]).includes(value);

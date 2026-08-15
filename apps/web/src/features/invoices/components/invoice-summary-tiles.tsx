@@ -3,6 +3,7 @@ import { StatTile, StatTileRow } from "@opusline/ui/components/stat-tile";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatWholeAmount } from "@/lib/billing";
+import { m } from "@/paraglide/messages.js";
 
 import { openInvoicesLabel, overdueLabel } from "../lib/summary-labels";
 
@@ -17,13 +18,13 @@ export function InvoiceSummaryTiles({
   return (
     <StatTileRow className="grid-cols-1 sm:grid-cols-3">
       <StatTile
-        label="À encaisser"
+        label={m.invoices_scope_open()}
         value={formatWholeAmount(format, toCollect.amount.amount)}
         sub={openInvoicesLabel(toCollect)}
         tone="strong"
       />
       <StatTile
-        label="Dont en retard"
+        label={m.invoices_overdue_tile()}
         value={formatWholeAmount(format, overdue.amount.amount)}
         sub={overdueLabel(overdue)}
         tone={overdue.count === 0 ? "quiet" : "warn"}
@@ -34,9 +35,9 @@ export function InvoiceSummaryTiles({
         number would come from. It gains a value in the same change that produces one.
       */}
       <StatTile
-        label="Solde compte pro"
+        label={m.invoices_bank_balance_tile()}
         value="—"
-        sub="saisi à la main · importer un relevé"
+        sub={m.invoices_bank_balance_sub()}
         tone="quiet"
       />
     </StatTileRow>
