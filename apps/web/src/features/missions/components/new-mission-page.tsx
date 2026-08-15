@@ -35,9 +35,9 @@ import {
 import type { FormSubmitResult } from "@/lib/form";
 import {
   COLOR_CLASSES,
-  COLOR_LABELS,
   COLOR_WASH_CLASSES,
   COLORS,
+  colorLabel,
 } from "@/lib/palette";
 import { BILLING_MODE_LABELS } from "../lib/labels";
 import { MissionRateField } from "./mission-rate-field";
@@ -473,7 +473,7 @@ export function NewMissionPage({
                 Couleur de la ligne
               </FieldLabel>
               <span className="text-muted-foreground-3 text-xs">
-                {COLOR_LABELS[barColor]} ·{" "}
+                {colorLabel(barColor)} ·{" "}
                 {color === null
                   ? `héritée de ${selectedClient?.name}`
                   : "propre à la mission"}
@@ -494,9 +494,9 @@ export function NewMissionPage({
               {COLORS.map((paletteColor) => (
                 <Swatch
                   key={paletteColor}
-                  aria-label={COLOR_LABELS[paletteColor]}
+                  aria-label={colorLabel(paletteColor)}
                   className={COLOR_CLASSES[paletteColor]}
-                  title={COLOR_LABELS[paletteColor]}
+                  title={colorLabel(paletteColor)}
                   value={String(paletteColor)}
                 />
               ))}

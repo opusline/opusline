@@ -17,7 +17,7 @@ import { LogoPicker } from "@/components/logo-picker";
 import { PaymentTermsPicker } from "@/components/payment-terms-picker";
 import { paymentTermsLabel } from "@/lib/billing";
 import type { FormSubmitResult } from "@/lib/form";
-import { COLOR_CLASSES, COLOR_LABELS, COLORS } from "@/lib/palette";
+import { COLOR_CLASSES, COLORS, colorLabel } from "@/lib/palette";
 import {
   BILLING_ADDRESS_NAMES,
   type ClientFormValues,
@@ -276,7 +276,7 @@ export function NewClientPage({
                     Couleur par défaut
                   </FieldLabel>
                   <span className="text-muted-foreground-3 text-xs">
-                    {COLOR_LABELS[field.state.value]} · héritée par ses missions
+                    {colorLabel(field.state.value)} · héritée par ses missions
                   </span>
                 </div>
                 <SwatchGroup
@@ -294,9 +294,9 @@ export function NewClientPage({
                   {COLORS.map((color) => (
                     <Swatch
                       key={color}
-                      aria-label={COLOR_LABELS[color]}
+                      aria-label={colorLabel(color)}
                       className={COLOR_CLASSES[color]}
-                      title={COLOR_LABELS[color]}
+                      title={colorLabel(color)}
                       value={String(color)}
                     />
                   ))}

@@ -4,11 +4,17 @@ import type {
   InvoiceStatus,
 } from "@opusline/api-client";
 
-export const INVOICE_STATUS_LABELS: Record<InvoiceStatus, string> = {
-  0: "Brouillon",
-  1: "Envoyée",
-  2: "Payée",
+import { m } from "@/paraglide/messages.js";
+
+const INVOICE_STATUS_MESSAGES: Record<InvoiceStatus, () => string> = {
+  0: m.invoice_status_draft,
+  1: m.invoice_status_sent,
+  2: m.invoice_status_paid,
 };
+
+export function invoiceStatusLabel(status: InvoiceStatus): string {
+  return INVOICE_STATUS_MESSAGES[status]();
+}
 
 type BadgeTone = "brand" | "neutral" | "success" | "warn";
 
@@ -32,19 +38,23 @@ export function invoiceStatusBadge(invoice: InvoiceData): {
   label: string;
 } {
   if (invoice.isLate) {
-    return { variant: "warn", label: "En retard" };
+    return { variant: "warn", label: m.invoice_status_late() };
   }
 
   return {
     variant: STATUS_TONES[invoice.status],
-    label: INVOICE_STATUS_LABELS[invoice.status],
+    label: invoiceStatusLabel(invoice.status),
   };
 }
 
-export const INVOICE_EVENT_LABELS: Record<InvoiceEventKind, string> = {
-  0: "Facture créée",
-  1: "Envoyée",
-  2: "Relance notée",
-  3: "Encaissement",
-  4: "Montant corrigé",
+const INVOICE_EVENT_MESSAGES: Record<InvoiceEventKind, () => string> = {
+  0: m.invoice_event_created,
+  1: m.invoice_event_sent,
+  2: m.invoice_event_reminded,
+  3: m.invoice_event_paid,
+  4: m.invoice_event_corrected,
 };
+
+export function invoiceEventLabel(kind: InvoiceEventKind): string {
+  return INVOICE_EVENT_MESSAGES[kind]();
+}

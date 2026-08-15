@@ -1,10 +1,16 @@
 import type { CraStatus } from "@opusline/api-client";
 
-export const CRA_STATUS_LABELS: Record<CraStatus, string> = {
-  0: "Brouillon",
-  1: "Envoyé",
-  2: "Signé",
+import { m } from "@/paraglide/messages.js";
+
+const CRA_STATUS_MESSAGES: Record<CraStatus, () => string> = {
+  0: m.cra_status_draft,
+  1: m.cra_status_sent,
+  2: m.cra_status_signed,
 };
+
+export function craStatusLabel(status: CraStatus): string {
+  return CRA_STATUS_MESSAGES[status]();
+}
 
 type BadgeTone = "brand" | "neutral" | "quiet" | "success" | "warn";
 
@@ -23,5 +29,5 @@ export function craStatusBadge(status: CraStatus): {
   variant: BadgeTone;
   label: string;
 } {
-  return { variant: STATUS_TONES[status], label: CRA_STATUS_LABELS[status] };
+  return { variant: STATUS_TONES[status], label: craStatusLabel(status) };
 }

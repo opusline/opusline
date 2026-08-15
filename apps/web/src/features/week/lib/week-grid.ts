@@ -10,7 +10,7 @@ import {
   type MoneyFormat,
   missionBills,
 } from "@/lib/billing";
-import { CLIENT_TYPE_SHORT_LABELS } from "@/lib/client-types";
+import { clientTypeShortLabel } from "@/lib/client-types";
 import {
   formatBilledDays,
   formatBilledHours,
@@ -172,7 +172,7 @@ function missionSubtitle(
   mission: MissionData,
   client: ClientWithMissionsData,
 ) {
-  return `${CLIENT_TYPE_SHORT_LABELS[client.type]} · ${formatMissionRate(format, mission)}`;
+  return `${clientTypeShortLabel(client.type)} · ${formatMissionRate(format, mission)}`;
 }
 
 function selectMissions(

@@ -5,6 +5,8 @@ import type {
 } from "@opusline/api-client";
 import { redirect } from "@tanstack/react-router";
 
+import { m } from "@/paraglide/messages.js";
+
 /**
  * Mirrors the API's UserSettings::FRENCH_FISCALITY_COUNTRY — the one country
  * whose fiscal rules are implemented. The server remains the authority; this
@@ -28,46 +30,64 @@ export function abroadTaxTerms(isEuVat: boolean): {
 } {
   return isEuVat
     ? {
-        name: "TVA",
-        rateLabel: "TVA par défaut",
-        zeroHint: "Mettez 0 si vous ne facturez pas de TVA.",
+        name: m.fiscality_vat_name(),
+        rateLabel: m.fiscality_vat_rate_label(),
+        zeroHint: m.fiscality_vat_zero_hint(),
       }
     : {
-        name: "Taxe sur les ventes",
-        rateLabel: "Taux de taxe par défaut",
-        zeroHint: "Mettez 0 si vous ne facturez pas de taxe.",
+        name: m.fiscality_sales_tax_name(),
+        rateLabel: m.fiscality_sales_tax_rate_label(),
+        zeroHint: m.fiscality_sales_tax_zero_hint(),
       };
 }
 
 export const URSSAF_PERIODICITIES: UrssafPeriodicity[] = [0, 1];
 
-export const URSSAF_PERIODICITY_LABELS: Record<UrssafPeriodicity, string> = {
-  0: "Mensuelle",
-  1: "Trimestrielle",
+const URSSAF_PERIODICITY_MESSAGES: Record<UrssafPeriodicity, () => string> = {
+  0: m.urssaf_periodicity_monthly,
+  1: m.urssaf_periodicity_quarterly,
 };
+
+export function urssafPeriodicityLabel(periodicity: UrssafPeriodicity): string {
+  return URSSAF_PERIODICITY_MESSAGES[periodicity]();
+}
 
 export const VAT_REGIMES: VatRegime[] = [0, 1, 2];
 
-export const VAT_REGIME_DETAILS: Record<
+const VAT_REGIME_MESSAGES: Record<
   VatRegime,
-  { label: string; hint: string; note: string }
+  { label: () => string; hint: () => string; note: () => string }
 > = {
   0: {
-    label: "Franchise en base",
-    hint: "Je ne facture pas la TVA",
-    note: "Vos factures portent la mention « TVA non applicable, art. 293 B du CGI ».",
+    label: m.vat_regime_franchise_label,
+    hint: m.vat_regime_franchise_hint,
+    note: m.vat_regime_franchise_note,
   },
   1: {
-    label: "Réel simplifié",
-    hint: "Assujetti · CA12 annuelle",
-    note: "Vos factures portent la TVA et une déclaration CA12 est attendue chaque année, avec acomptes.",
+    label: m.vat_regime_simplified_label,
+    hint: m.vat_regime_simplified_hint,
+    note: m.vat_regime_simplified_note,
   },
   2: {
-    label: "Réel normal",
-    hint: "Assujetti · CA3 mensuelle",
-    note: "Vos factures portent la TVA et une déclaration CA3 est attendue chaque mois.",
+    label: m.vat_regime_normal_label,
+    hint: m.vat_regime_normal_hint,
+    note: m.vat_regime_normal_note,
   },
 };
+
+export function vatRegimeDetails(regime: VatRegime): {
+  label: string;
+  hint: string;
+  note: string;
+} {
+  const messages = VAT_REGIME_MESSAGES[regime];
+
+  return {
+    label: messages.label(),
+    hint: messages.hint(),
+    note: messages.note(),
+  };
+}
 
 /**
  * Route guard for the screens that only make sense for a business established

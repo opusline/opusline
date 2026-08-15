@@ -23,9 +23,9 @@ import { useMoneyFormat } from "@/components/money-format-provider";
 import {
   abroadTaxTerms,
   URSSAF_PERIODICITIES,
-  URSSAF_PERIODICITY_LABELS,
-  VAT_REGIME_DETAILS,
+  urssafPeriodicityLabel,
   VAT_REGIMES,
+  vatRegimeDetails,
 } from "@/lib/fiscality";
 import { formatRateBp, ratePercentValidator } from "../lib/settings-form";
 import type { SettingsForm } from "../lib/use-settings-form";
@@ -109,7 +109,7 @@ export function FiscalSettingsForm({
                       key={periodicity}
                       value={String(periodicity)}
                     >
-                      {URSSAF_PERIODICITY_LABELS[periodicity]}
+                      {urssafPeriodicityLabel(periodicity)}
                     </SegmentedControlItem>
                   ))}
                 </SegmentedControl>
@@ -206,15 +206,15 @@ export function FiscalSettingsForm({
               >
                 {VAT_REGIMES.map((regime) => (
                   <RadioCard
-                    description={VAT_REGIME_DETAILS[regime].hint}
+                    description={vatRegimeDetails(regime).hint}
                     key={regime}
-                    title={VAT_REGIME_DETAILS[regime].label}
+                    title={vatRegimeDetails(regime).label}
                     value={String(regime)}
                   />
                 ))}
               </RadioGroup>
               <FieldDescription>
-                {VAT_REGIME_DETAILS[field.state.value].note}
+                {vatRegimeDetails(field.state.value).note}
               </FieldDescription>
             </FieldSet>
           )}

@@ -1,17 +1,23 @@
 import type { Color } from "@opusline/api-client";
 
+import { m } from "@/paraglide/messages.js";
+
 export const COLORS: Color[] = [0, 1, 2, 3, 4, 5, 6, 7];
 
-export const COLOR_LABELS: Record<Color, string> = {
-  0: "Ambre",
-  1: "Terracotta",
-  2: "Olive",
-  3: "Sauge",
-  4: "Ardoise",
-  5: "Encre",
-  6: "Prune",
-  7: "Pierre",
+const COLOR_MESSAGES: Record<Color, () => string> = {
+  0: m.color_amber,
+  1: m.color_terracotta,
+  2: m.color_olive,
+  3: m.color_sage,
+  4: m.color_slate,
+  5: m.color_ink,
+  6: m.color_plum,
+  7: m.color_stone,
 };
+
+export function colorLabel(color: Color): string {
+  return COLOR_MESSAGES[color]();
+}
 
 export const COLOR_CLASSES: Record<Color, string> = {
   0: "bg-palette-amber",

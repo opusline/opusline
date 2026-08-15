@@ -16,10 +16,10 @@ import { AddressFields } from "@/components/address-fields";
 import { FormTextField } from "@/components/form-text-field";
 import { LogoPicker } from "@/components/logo-picker";
 import { PaymentTermsPicker } from "@/components/payment-terms-picker";
-import { CLIENT_TYPE_LABELS } from "@/lib/client-types";
+import { clientTypeLabel } from "@/lib/client-types";
 import type { FormSubmitResult } from "@/lib/form";
 import type { LogoUploadResult } from "@/lib/logos";
-import { COLOR_CLASSES, COLOR_LABELS, COLORS } from "@/lib/palette";
+import { COLOR_CLASSES, COLORS, colorLabel } from "@/lib/palette";
 import {
   BILLING_ADDRESS_NAMES,
   type ClientFormValues,
@@ -176,7 +176,7 @@ export function ClientEditForm({
                         size="lg"
                         value={String(clientType)}
                       >
-                        {CLIENT_TYPE_LABELS[clientType]}
+                        {clientTypeLabel(clientType)}
                       </Chip>
                     ))}
                   </ChipGroup>
@@ -215,7 +215,7 @@ export function ClientEditForm({
                       Couleur
                     </FieldLabel>
                     <span className="text-muted-foreground-5 text-xs">
-                      {COLOR_LABELS[field.state.value]}
+                      {colorLabel(field.state.value)}
                     </span>
                   </div>
                   <SwatchGroup
@@ -233,9 +233,9 @@ export function ClientEditForm({
                     {COLORS.map((color) => (
                       <Swatch
                         key={color}
-                        aria-label={COLOR_LABELS[color]}
+                        aria-label={colorLabel(color)}
                         className={COLOR_CLASSES[color]}
-                        title={COLOR_LABELS[color]}
+                        title={colorLabel(color)}
                         value={String(color)}
                       />
                     ))}
