@@ -71,8 +71,8 @@ type LocalisationSettingsProps = {
 
 function countryNote(country: string): string {
   return country === "FR"
-    ? "La France est le seul pays dont les règles fiscales sont implémentées : régime auto-entrepreneur, SIRET, cotisations URSSAF et TVA française."
-    : "Le suivi du temps, les clients et les factures fonctionnent normalement. En revanche les règles fiscales de ce pays ne sont pas encore implémentées : cotisations, TVA et numéro d'immatriculation restent à saisir à la main.";
+    ? m.settings_country_note_france()
+    : m.settings_country_note_abroad();
 }
 
 /**
@@ -117,12 +117,12 @@ export function LocalisationSettings({
   return (
     <>
       <SettingsSection
-        description="Pays d'exercice, monnaie dans laquelle Opusline compte votre activité, et langue de l'interface."
-        title="Localisation"
+        description={m.settings_regional_description()}
+        title={m.settings_tab_regional_label()}
       >
         <Field>
           <FieldLabel className={LABEL} htmlFor="localisation-country">
-            Pays d'exercice
+            {m.settings_country_label()}
           </FieldLabel>
           <NativeSelect
             className="w-70"
@@ -148,7 +148,7 @@ export function LocalisationSettings({
 
         <Field>
           <FieldLabel className={LABEL} htmlFor="localisation-currency">
-            Devise de l'activité
+            {m.settings_currency_label()}
           </FieldLabel>
           <div className="flex flex-wrap items-center gap-3">
             <NativeSelect
@@ -171,7 +171,7 @@ export function LocalisationSettings({
               ))}
             </NativeSelect>
             <span className="font-mono text-muted-foreground-3 text-xs tabular-nums">
-              Exemple :{" "}
+              {m.settings_currency_example()}{" "}
               {formatAmountWithCents(
                 { locale: draft.locale, currency: draft.currency },
                 165_000,
@@ -180,8 +180,8 @@ export function LocalisationSettings({
           </div>
           <p className={NOTE}>
             {currencyLocked
-              ? "Fixée : une mission tarifée ou une facture existe déjà dans cette devise."
-              : "Tous les montants de l'application sont comptés et affichés dans cette devise : revenus, factures, matelas de trésorerie, provisions. Elle devient définitive à la première mission tarifée ou facture."}
+              ? m.settings_currency_locked()
+              : m.settings_currency_hint()}
           </p>
         </Field>
 
@@ -189,7 +189,7 @@ export function LocalisationSettings({
 
         <Field>
           <FieldLabel className={LABEL} htmlFor="localisation-lang">
-            Langue de l'interface
+            {m.settings_interface_language_label()}
           </FieldLabel>
           <NativeSelect
             className="w-70"
@@ -216,7 +216,7 @@ export function LocalisationSettings({
 
         <Field>
           <FieldLabel className={LABEL} htmlFor="localisation-timezone">
-            Fuseau horaire
+            {m.settings_timezone_label()}
           </FieldLabel>
           <NativeSelect
             className="w-70"
@@ -235,21 +235,17 @@ export function LocalisationSettings({
               </option>
             ))}
           </NativeSelect>
-          <p className={NOTE}>
-            Détermine la date du jour pour les paiements, envois de CRA et
-            factures — un règlement saisi à 0 h 30 tombe sur votre date, pas sur
-            celle du serveur.
-          </p>
+          <p className={NOTE}>{m.settings_timezone_hint()}</p>
         </Field>
 
         <div className="my-5.5 h-px bg-secondary" />
 
         <Field>
           <FieldLabel className={LABEL} htmlFor="localisation-date-format">
-            Format des dates
+            {m.settings_date_format_label()}
           </FieldLabel>
           <ChipGroup
-            aria-label="Format des dates"
+            aria-label={m.settings_date_format_label()}
             id="localisation-date-format"
             onValueChange={(value) => {
               const next = zDateFormat.safeParse(Number(value[0]));
@@ -288,7 +284,7 @@ export function LocalisationSettings({
           }}
         >
           <Button disabled={isSaving} onClick={() => onSave(draft)} size="xl">
-            {isSaving ? "Enregistrement…" : "Enregistrer"}
+            {isSaving ? m.settings_saving() : m.settings_save()}
           </Button>
         </SaveBar>
       )}

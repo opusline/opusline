@@ -3,6 +3,7 @@ import { House } from "lucide-react";
 
 import { AddressFields } from "@/components/address-fields";
 import { FormTextField } from "@/components/form-text-field";
+import { m } from "@/paraglide/messages.js";
 import {
   COMPANY_ADDRESS_NAMES,
   HOME_ADDRESS_NAMES,
@@ -27,8 +28,8 @@ export function IdentitySettingsForm({
 }) {
   return (
     <SettingsSection
-      description="Composent l'en-tête de vos CRA et de vos factures."
-      title="Identité et coordonnées"
+      description={m.settings_identity_description()}
+      title={m.settings_identity_title()}
     >
       {hasFrenchFiscality && (
         <div className="mb-5 flex items-center gap-3 rounded-md border bg-muted px-3.5 py-3">
@@ -37,11 +38,10 @@ export function IdentitySettingsForm({
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-foreground-hi text-sm">
-              Auto-entrepreneur
+              {m.settings_auto_entrepreneur()}
             </span>
             <span className="mt-0.5 block text-muted-foreground-3 text-xs">
-              Seul statut géré pour l'instant. Les sociétés arriveront plus
-              tard.
+              {m.settings_auto_entrepreneur_hint()}
             </span>
           </span>
         </div>
@@ -52,9 +52,9 @@ export function IdentitySettingsForm({
           {(field) => (
             <FormTextField
               field={field}
-              label="Nom commercial"
+              label={m.settings_trade_name_label()}
               labelClassName={LABEL}
-              placeholder="Nom sous lequel vous facturez"
+              placeholder={m.settings_trade_name_placeholder()}
             />
           )}
         </form.Field>
@@ -79,10 +79,10 @@ export function IdentitySettingsForm({
               vatRegime === 0 ? (
                 <div>
                   <span className={`mb-1.5 block ${LABEL}`}>
-                    TVA intracommunautaire
+                    {m.settings_eu_vat_label()}
                   </span>
                   <div className="flex h-10 items-center rounded-md border border-border-3 border-dashed bg-muted px-3 text-muted-foreground-3 text-sm">
-                    Non assujetti · franchise en base
+                    {m.settings_eu_vat_exempt()}
                   </div>
                 </div>
               ) : (
@@ -91,7 +91,7 @@ export function IdentitySettingsForm({
                     <FormTextField
                       field={field}
                       font="mono"
-                      label="TVA intracommunautaire"
+                      label={m.settings_eu_vat_label()}
                       labelClassName={LABEL}
                       placeholder="FR00 000000000"
                     />
@@ -106,9 +106,9 @@ export function IdentitySettingsForm({
           {(field) => (
             <FormTextField
               field={field}
-              label="Lieu de signature"
+              label={m.settings_signature_city_label()}
               labelClassName={LABEL}
-              placeholder="Ville"
+              placeholder={m.settings_city_placeholder()}
             />
           )}
         </form.Field>
@@ -119,7 +119,7 @@ export function IdentitySettingsForm({
               field={field}
               label="Email"
               labelClassName={LABEL}
-              placeholder="contact@exemple.fr"
+              placeholder={m.settings_email_placeholder()}
               type="email"
             />
           )}
@@ -129,7 +129,7 @@ export function IdentitySettingsForm({
           {(field) => (
             <FormTextField
               field={field}
-              label="Téléphone"
+              label={m.settings_phone_label()}
               labelClassName={LABEL}
               placeholder="00 00 00 00 00"
             />
@@ -138,13 +138,13 @@ export function IdentitySettingsForm({
       </div>
 
       <div className="mt-6.5 mb-3 flex items-baseline justify-between gap-3">
-        <span className={EYEBROW}>Adresse de la société</span>
+        <span className={EYEBROW}>{m.settings_company_address_title()}</span>
         <span className="text-muted-foreground-3 text-xs">
-          Figure sur les documents
+          {m.settings_company_address_hint()}
         </span>
       </div>
       <AddressFields
-        complementLabel="Complément d'adresse"
+        complementLabel={m.settings_address_complement_label()}
         gapClassName="gap-4"
         labelClassName={LABEL}
         names={COMPANY_ADDRESS_NAMES}
@@ -152,12 +152,12 @@ export function IdentitySettingsForm({
           <form.Field name={name}>{(field) => render(field)}</form.Field>
         )}
         setFieldValue={(name, value) => form.setFieldValue(name, value)}
-        streetLabel="Adresse"
+        streetLabel={m.settings_address_street_label()}
         withPlaceholders
       />
 
       <div className="mt-6.5 mb-3 flex items-baseline justify-between gap-3">
-        <span className={EYEBROW}>Adresse personnelle</span>
+        <span className={EYEBROW}>{m.settings_home_address_title()}</span>
         <form.Field name="homeAddressSameAsCompany">
           {(field) => (
             // biome-ignore lint/a11y/noLabelWithoutControl: Base UI's Switch renders a hidden input beside its span, so the wrapping label is its control
@@ -166,7 +166,7 @@ export function IdentitySettingsForm({
                 checked={field.state.value}
                 onCheckedChange={field.handleChange}
               />
-              Identique à la société
+              {m.settings_home_same_label()}
             </label>
           )}
         </form.Field>
@@ -178,12 +178,12 @@ export function IdentitySettingsForm({
         {(isSame) =>
           isSame ? (
             <div className="rounded-md border bg-muted px-3.5 py-3 text-muted-foreground-3 text-sm leading-relaxed">
-              Vous êtes domicilié à l'adresse de la société.
+              {m.settings_home_same_note()}
             </div>
           ) : (
             <>
               <AddressFields
-                complementLabel="Complément d'adresse"
+                complementLabel={m.settings_address_complement_label()}
                 gapClassName="gap-4"
                 labelClassName={LABEL}
                 names={HOME_ADDRESS_NAMES}
@@ -193,12 +193,11 @@ export function IdentitySettingsForm({
                   </form.Field>
                 )}
                 setFieldValue={(name, value) => form.setFieldValue(name, value)}
-                streetLabel="Adresse"
+                streetLabel={m.settings_address_street_label()}
                 withPlaceholders
               />
               <p className="mt-2.5 text-muted-foreground-3 text-xs leading-relaxed">
-                Utilisée pour les démarches URSSAF et impôts, jamais imprimée
-                sur les CRA ni les factures.
+                {m.settings_home_address_hint()}
               </p>
             </>
           )
@@ -208,8 +207,9 @@ export function IdentitySettingsForm({
       <form.Subscribe selector={(state) => state.values.signatureCity}>
         {(city) => (
           <p className="mt-4.5 text-muted-foreground-3 text-xs">
-            « Fait à {city.trim() === "" ? "…" : city} » apparaîtra sur les
-            documents signés.
+            {m.settings_made_at_note({
+              city: city.trim() === "" ? "…" : city,
+            })}
           </p>
         )}
       </form.Subscribe>

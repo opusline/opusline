@@ -12,6 +12,7 @@ import { useMoneyFormat } from "@/components/money-format-provider";
 import { hasEuVat } from "@/lib/countries";
 import { abroadTaxTerms } from "@/lib/fiscality";
 import type { FormSubmitResult } from "@/lib/form";
+import { m } from "@/paraglide/messages.js";
 import {
   countChanges,
   SETTINGS_TAB_DETAILS,
@@ -108,18 +109,17 @@ export function SettingsPage({
 
   const isEuVat = hasEuVat(settings.businessCountry);
   const fiscaliteHint = settings.hasFrenchFiscality
-    ? SETTINGS_TAB_DETAILS.fiscalite.hint
+    ? SETTINGS_TAB_DETAILS.fiscalite.hint()
     : abroadTaxTerms(isEuVat).name;
 
   return (
     <div>
       <div className="mb-6.5">
         <h1 className="mb-1 font-heading font-semibold text-2xl text-foreground-hi">
-          Réglages
+          {m.page_title_settings()}
         </h1>
         <p className="text-muted-foreground-3 text-sm">
-          Identité de la société, signature et fiscalité de votre
-          micro-entreprise.
+          {m.settings_page_subtitle()}
         </p>
       </div>
 
@@ -134,12 +134,12 @@ export function SettingsPage({
             <TabsTrigger key={tab} value={tab}>
               <span className="flex flex-col gap-0.75">
                 <span className="text-sm">
-                  {SETTINGS_TAB_DETAILS[tab].label}
+                  {SETTINGS_TAB_DETAILS[tab].label()}
                 </span>
                 <span className="text-muted-foreground-3 text-xs">
                   {tab === "fiscalite"
                     ? fiscaliteHint
-                    : SETTINGS_TAB_DETAILS[tab].hint}
+                    : SETTINGS_TAB_DETAILS[tab].hint()}
                 </span>
               </span>
             </TabsTrigger>
@@ -244,7 +244,9 @@ export function SettingsPage({
                   label={
                     invalidTab === undefined
                       ? unsavedChangesLabel(changes)
-                      : `Corrigez le champ en erreur dans l'onglet ${SETTINGS_TAB_DETAILS[invalidTab].label}.`
+                      : m.settings_fix_invalid_tab({
+                          tab: SETTINGS_TAB_DETAILS[invalidTab].label(),
+                        })
                   }
                   onCancel={() => form.reset(savedValues)}
                 >
@@ -262,7 +264,7 @@ export function SettingsPage({
                     size="xl"
                     type="submit"
                   >
-                    Enregistrer
+                    {m.settings_save()}
                   </Button>
                 </SaveBar>
               );

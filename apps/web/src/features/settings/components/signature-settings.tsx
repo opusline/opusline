@@ -7,6 +7,7 @@ import {
 import { CircleAlert, PencilLine, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { PAPER } from "@/lib/paper";
+import { m } from "@/paraglide/messages.js";
 import { SettingsSection } from "./settings-section";
 
 type SignatureSettingsProps = {
@@ -53,8 +54,8 @@ export function SignatureSettings({
 
   return (
     <SettingsSection
-      description="Signez une fois — à la souris, au trackpad ou au clavier en saisissant votre nom. Opusline l'appose sur chaque CRA et chaque facture générés."
-      title="Signature"
+      description={m.settings_signature_description()}
+      title={m.settings_tab_signature_label()}
     >
       {error === null ? null : (
         <Alert className="mb-3.5" variant="warn">
@@ -70,17 +71,17 @@ export function SignatureSettings({
             style={{ background: PAPER.sheet }}
           >
             <img
-              alt="Signature enregistrée"
+              alt={m.settings_signature_saved()}
               className="max-h-11 max-w-full object-contain"
               src={signatureSrc}
             />
           </span>
           <div className="min-w-40 flex-1">
             <div className="text-foreground-hi text-sm">
-              Signature enregistrée
+              {m.settings_signature_saved()}
             </div>
             <div className="mt-0.5 text-muted-foreground-3 text-xs leading-relaxed">
-              Apposée automatiquement sur les documents générés.
+              {m.settings_signature_saved_hint()}
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2">
@@ -91,7 +92,7 @@ export function SignatureSettings({
               variant="outline"
             >
               <PencilLine data-icon="inline-start" />
-              Refaire
+              {m.settings_signature_redo()}
             </Button>
             <Button
               disabled={isPending}
@@ -100,21 +101,21 @@ export function SignatureSettings({
               variant="destructive"
             >
               <Trash2 data-icon="inline-start" />
-              Supprimer
+              {m.settings_signature_delete()}
             </Button>
           </div>
         </div>
       ) : (
         <div>
           <SignaturePad
-            drawModeLabel="Dessiner"
-            drawnLabel="Signature tracée"
-            label="Zone de signature"
-            modeToggleLabel="Méthode de signature"
-            placeholder="Tracez votre signature ici"
-            typedLabel="Nom apposé comme signature"
-            typeModeLabel="Saisir au clavier"
-            typedPlaceholder="Votre nom"
+            drawModeLabel={m.settings_signature_pad_draw_mode()}
+            drawnLabel={m.settings_signature_pad_drawn()}
+            label={m.settings_signature_pad_area()}
+            modeToggleLabel={m.settings_signature_pad_mode_toggle()}
+            placeholder={m.settings_signature_pad_placeholder()}
+            typedLabel={m.settings_signature_pad_typed()}
+            typeModeLabel={m.settings_signature_pad_type_mode()}
+            typedPlaceholder={m.settings_signature_pad_typed_placeholder()}
             onDrawingChange={setHasDrawing}
             ref={padRef}
           />
@@ -124,7 +125,7 @@ export function SignatureSettings({
               onClick={() => void save()}
               size="2xl"
             >
-              Enregistrer la signature
+              {m.settings_signature_save()}
             </Button>
             <Button
               disabled={!hasDrawing || isPending}
@@ -135,7 +136,7 @@ export function SignatureSettings({
               size="2xl"
               variant="outline"
             >
-              Effacer
+              {m.settings_signature_clear()}
             </Button>
             {hasSignature ? (
               <Button
@@ -144,7 +145,7 @@ export function SignatureSettings({
                 size="2xl"
                 variant="ghost"
               >
-                Annuler
+                {m.settings_cancel()}
               </Button>
             ) : null}
           </div>
