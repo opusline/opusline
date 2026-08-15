@@ -9,8 +9,6 @@ use Illuminate\Contracts\Validation\ValidationRule;
 
 class VatNumber implements ValidationRule
 {
-    private const string MESSAGE = 'Le numéro de TVA intracommunautaire est invalide.';
-
     /**
      * @var array<string, string>
      */
@@ -47,7 +45,7 @@ class VatNumber implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if (! is_string($value)) {
-            $fail(self::MESSAGE);
+            $fail(__('rules.vat_number'));
 
             return;
         }
@@ -57,19 +55,19 @@ class VatNumber implements ValidationRule
         $pattern = self::NATIONAL_PATTERNS[$country] ?? null;
 
         if ($pattern === null) {
-            $fail(self::MESSAGE);
+            $fail(__('rules.vat_number'));
 
             return;
         }
 
         if (preg_match('/^'.$pattern.'$/', substr($normalized, 2)) !== 1) {
-            $fail(self::MESSAGE);
+            $fail(__('rules.vat_number'));
 
             return;
         }
 
         if ($country === 'FR' && ! $this->hasValidFrenchKey($normalized)) {
-            $fail(self::MESSAGE);
+            $fail(__('rules.vat_number'));
         }
     }
 

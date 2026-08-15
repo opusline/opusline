@@ -28,12 +28,10 @@ class InvoiceNumberFormat implements ValidationRule
     /** Splits a run into its individual tokens. */
     public const string TOKEN_PATTERN = '/AAAA|MM|NNN/';
 
-    private const string MESSAGE = 'Le format doit contenir un seul compteur NNN et n\'accepter que les jetons AAAA, MM et NNN.';
-
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if (! is_string($value) || ! $this->hasSingleCounter($value)) {
-            $fail(self::MESSAGE);
+            $fail(__('rules.invoice_number_format'));
 
             return;
         }
@@ -41,7 +39,7 @@ class InvoiceNumberFormat implements ValidationRule
         $literals = preg_replace(self::TOKEN_RUN_PATTERN, '', $value) ?? '';
 
         if (preg_match('/^[A-Za-z0-9\-\/_. ]*$/', $literals) !== 1) {
-            $fail(self::MESSAGE);
+            $fail(__('rules.invoice_number_format'));
         }
     }
 

@@ -11,12 +11,10 @@ class Siret implements ValidationRule
 {
     private const string LA_POSTE_SIREN = '356000000';
 
-    private const string MESSAGE = 'Le SIRET doit comporter 14 chiffres et être valide.';
-
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if (! is_string($value)) {
-            $fail(self::MESSAGE);
+            $fail(__('rules.siret'));
 
             return;
         }
@@ -24,13 +22,13 @@ class Siret implements ValidationRule
         $digits = (string) preg_replace('/[\s.]+/', '', $value);
 
         if (preg_match('/^\d{14}$/', $digits) !== 1) {
-            $fail(self::MESSAGE);
+            $fail(__('rules.siret'));
 
             return;
         }
 
         if (! $this->hasValidChecksum($digits)) {
-            $fail(self::MESSAGE);
+            $fail(__('rules.siret'));
         }
     }
 
