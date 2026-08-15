@@ -21,6 +21,7 @@ import {
   parseDuration,
 } from "@/lib/durations";
 import { isoWeekOf, isoWeekTitle, shortDateLabel } from "@/lib/weeks";
+import { m } from "@/paraglide/messages.js";
 import { durationErrorHint, durationUnitHint } from "../lib/labels";
 import type { MissionOption } from "../lib/week-grid";
 import { BillableToggle } from "./billable-toggle";
@@ -75,7 +76,7 @@ export function NewEntryDialog({
       >
         <DialogHeader className="flex-row items-center justify-between gap-4 border-border border-b px-5 py-4">
           <DialogTitle className="font-heading font-semibold text-foreground-hi text-lg">
-            Nouvelle entrée
+            {m.week_new_entry()}
           </DialogTitle>
           <StepIndicator step={mission === null ? 1 : 2} />
         </DialogHeader>
@@ -102,7 +103,7 @@ export function NewEntryDialog({
 function StepIndicator({ step }: { step: 1 | 2 }) {
   return (
     <span
-      aria-label={`Étape ${step} sur 2`}
+      aria-label={m.week_step_indicator({ step })}
       className="flex gap-1.5"
       role="img"
     >
@@ -129,14 +130,16 @@ function MissionStep({
   if (missions.length === 0) {
     return (
       <p className="px-5 py-4.5 text-muted-foreground-3 text-sm">
-        Créez d'abord une mission — c'est elle qui porte le tarif.
+        {m.timer_start_empty()}
       </p>
     );
   }
 
   return (
     <div className="flex flex-col gap-3 px-5 py-4.5">
-      <p className="text-muted-foreground text-sm">Sur quelle mission ?</p>
+      <p className="text-muted-foreground text-sm">
+        {m.week_mission_step_title()}
+      </p>
       <ul className="flex flex-col gap-2">
         {missions.map((mission) => (
           <li key={mission.missionId}>
@@ -162,7 +165,7 @@ function MissionStep({
               </span>
               {!mission.isInGrid && (
                 <span className="shrink-0 rounded-full border border-border-2 px-2 py-0.5 text-muted-foreground-3 text-xs">
-                  hors grille
+                  {m.week_off_grid_pill()}
                 </span>
               )}
             </button>
@@ -202,9 +205,9 @@ function EntryStep({
   const [error, setError] = useState<string | null>(null);
 
   const shortcuts = [
-    { date: today, label: "Aujourd'hui" },
-    { date: addCalendarDays(today, -1), label: "Hier" },
-    { date: addCalendarDays(today, -2), label: "Avant-hier" },
+    { date: today, label: m.week_today() },
+    { date: addCalendarDays(today, -1), label: m.week_yesterday() },
+    { date: addCalendarDays(today, -2), label: m.week_day_before_yesterday() },
   ];
 
   const isDateValid = isCalendarDate(date);
@@ -225,7 +228,7 @@ function EntryStep({
 
   const submit = () => {
     if (!isDateValid) {
-      setError("Indiquez une date.");
+      setError(m.week_date_required());
 
       return;
     }
@@ -238,7 +241,7 @@ function EntryStep({
     if (parsed.kind !== "minutes") {
       setError(
         parsed.kind === "clear"
-          ? "Indiquez une durée."
+          ? m.week_duration_required()
           : durationErrorHint(parsed.reason),
       );
 
@@ -267,16 +270,16 @@ function EntryStep({
             {mission.name}
           </span>
           <Button onClick={onBack} variant="outline">
-            Changer
+            {m.week_change_mission()}
           </Button>
         </div>
 
         <div className="flex flex-col gap-2">
           <Label tone="quiet" htmlFor={dateId}>
-            Date
+            {m.week_date_label()}
           </Label>
           <ChipGroup
-            aria-label="Raccourcis de date"
+            aria-label={m.week_date_shortcuts_label()}
             onValueChange={(value) => {
               const picked = value.find((candidate) => candidate !== undefined);
 
@@ -310,31 +313,31 @@ function EntryStep({
               ? `${shortDateLabel(locale, date)} · ${isoWeekTitle(
                   isoWeekOf(date),
                 ).toLowerCase()}`
-              : "Date incomplète"}
+              : m.week_date_incomplete()}
           </p>
         </div>
 
         {existing.length > 0 && (
           <div className="flex flex-col gap-2.5 rounded-md border border-border bg-muted px-3.5 py-3">
             <p className="text-foreground-2 text-sm">
-              Une entrée de {existingLabel} existe déjà ce jour-là.
+              {m.week_entry_exists({ duration: existingLabel })}
             </p>
             <ChipGroup
-              aria-label="Que faire de l'entrée existante"
+              aria-label={m.week_existing_action_label()}
               onValueChange={(value) =>
                 setReplaceExisting(value.includes("replace"))
               }
               value={[replaceExisting ? "replace" : "add"]}
             >
-              <Chip value="add">Cumuler</Chip>
-              <Chip value="replace">Remplacer</Chip>
+              <Chip value="add">{m.week_cumulate()}</Chip>
+              <Chip value="replace">{m.week_replace()}</Chip>
             </ChipGroup>
           </div>
         )}
 
         <div className="flex flex-col gap-2">
           <Label tone="quiet" htmlFor={durationId}>
-            Durée
+            {m.week_duration_label()}
           </Label>
           <Input
             aria-describedby={`${durationId}-hint`}
@@ -365,12 +368,12 @@ function EntryStep({
 
         <div className="flex flex-col gap-2">
           <Label tone="quiet" htmlFor={noteId}>
-            Activité
+            {m.timer_note_label()}
           </Label>
           <Input
             id={noteId}
             onChange={(event) => setNote(event.target.value)}
-            placeholder="Revue PR, cadrage…"
+            placeholder={m.timer_stop_note_placeholder()}
             size="sm"
             value={note}
           />
@@ -388,10 +391,10 @@ function EntryStep({
         )}
         <div className="flex items-center gap-2">
           <Button onClick={onBack} variant="ghost">
-            Retour
+            {m.week_back()}
           </Button>
           <Button disabled={isSaving} onClick={submit} size="2xl">
-            {isSaving ? "Enregistrement…" : "Enregistrer"}
+            {isSaving ? m.timer_saving() : m.timer_save()}
           </Button>
         </div>
       </div>

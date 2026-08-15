@@ -30,6 +30,7 @@ import { provisionalBilledLabel } from "@/lib/durations";
 import { operationFilter } from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { isIsoWeek, isoWeekOf, isoWeekRange, shiftIsoWeek } from "@/lib/weeks";
+import { m } from "@/paraglide/messages.js";
 
 type SemaineSearch = { week?: string; weekend?: true };
 
@@ -42,10 +43,8 @@ export const Route = createFileRoute("/_authed/week")({
   component: SemaineRoute,
 });
 
-const WRITE_FAILED = "L'enregistrement a échoué. Réessayez dans un instant.";
-
 function writeErrorMessage(error: unknown): string {
-  return serverErrorMessage(error, WRITE_FAILED);
+  return serverErrorMessage(error, m.week_write_failed());
 }
 
 function SemaineRoute() {
@@ -223,17 +222,13 @@ function SemaineRoute() {
 
   const handleRepeatPreviousWeek = async () => {
     if (previousEntries.isError) {
-      setError(
-        "La semaine précédente n'a pas pu être chargée. Réessayez dans un instant.",
-      );
+      setError(m.week_previous_load_failed());
 
       return;
     }
 
     if (previousEntries.isPlaceholderData) {
-      setError(
-        "La semaine précédente est encore en cours de chargement. Réessayez dans un instant.",
-      );
+      setError(m.week_previous_loading());
 
       return;
     }
@@ -267,14 +262,18 @@ function SemaineRoute() {
 
     if (failures.length > 0) {
       setError(
-        `${copied} entrée(s) reprises, ${failures.length} échouée(s) : ${writeErrorMessage(failures[0])}`,
+        m.week_repeat_result({
+          copied,
+          failed: failures.length,
+          message: writeErrorMessage(failures[0]),
+        }),
       );
 
       return;
     }
 
     if (copied === 0) {
-      setError("Aucune entrée à reprendre sur la semaine précédente.");
+      setError(m.week_repeat_none());
     }
   };
 
@@ -316,9 +315,7 @@ function SemaineRoute() {
       )}
       {isError && (
         <Alert variant="destructive">
-          <AlertDescription>
-            Impossible de charger la semaine. Réessayez dans un instant.
-          </AlertDescription>
+          <AlertDescription>{m.week_load_failed()}</AlertDescription>
         </Alert>
       )}
       {clients.data !== undefined && entries.data !== undefined && (

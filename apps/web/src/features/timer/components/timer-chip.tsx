@@ -1,17 +1,8 @@
 import type { TimerState } from "@opusline/api-client";
 import { cn } from "@opusline/ui/lib/utils";
 import { ChevronDown, Pause, Play, Square } from "lucide-react";
-
+import { m } from "@/paraglide/messages.js";
 import { formatClock, isRunning } from "../lib/elapsed";
-import {
-  CHIP_PAUSED,
-  DETAILS,
-  LONG_RUN_BADGE,
-  PAUSE,
-  RESUME,
-  RUNNING_STATE,
-  STOP,
-} from "../lib/labels";
 
 export type TimerChipProps = {
   elapsedSeconds: number;
@@ -57,7 +48,7 @@ export function TimerChip({
           running ? "animate-pulse bg-primary-text" : "bg-muted-foreground-3",
         )}
       />
-      {running && <span className="sr-only">{RUNNING_STATE}</span>}
+      {running && <span className="sr-only">{m.timer_running_state()}</span>}
       <span
         className={cn(
           "font-mono text-sm tabular-nums",
@@ -68,12 +59,12 @@ export function TimerChip({
       </span>
       {!running && (
         <span className="whitespace-nowrap font-medium text-muted-foreground-2 text-xs uppercase tracking-[0.06em]">
-          {CHIP_PAUSED}
+          {m.timer_chip_paused()}
         </span>
       )}
       {isLongRun && (
         <span className="whitespace-nowrap font-medium text-primary-text text-xs uppercase tracking-[0.06em]">
-          {LONG_RUN_BADGE}
+          {m.timer_long_run_badge()}
         </span>
       )}
       <span
@@ -86,14 +77,14 @@ export function TimerChip({
       </span>
 
       <button
-        aria-label={running ? PAUSE : RESUME}
+        aria-label={running ? m.timer_pause() : m.timer_resume()}
         className={cn(
           CONTROL,
           "text-foreground-2 hover:bg-primary/25 hover:text-primary-text",
         )}
         disabled={isBusy}
         onClick={onTogglePause}
-        title={running ? PAUSE : RESUME}
+        title={running ? m.timer_pause() : m.timer_resume()}
         type="button"
       >
         {running ? (
@@ -103,14 +94,14 @@ export function TimerChip({
         )}
       </button>
       <button
-        aria-label={STOP}
+        aria-label={m.timer_stop()}
         className={cn(
           CONTROL,
           "text-foreground-2 hover:bg-primary/25 hover:text-primary-text",
         )}
         disabled={isBusy}
         onClick={onStop}
-        title={STOP}
+        title={m.timer_stop()}
         type="button"
       >
         <Square aria-hidden className="size-3 fill-current" />
@@ -118,13 +109,13 @@ export function TimerChip({
       <button
         aria-expanded={isDetailsOpen}
         aria-haspopup="dialog"
-        aria-label={DETAILS}
+        aria-label={m.timer_details()}
         className={cn(
           CONTROL,
           "text-muted-foreground-2 hover:text-foreground-hi",
         )}
         onClick={onOpenDetails}
-        title={DETAILS}
+        title={m.timer_details()}
         type="button"
       >
         <ChevronDown aria-hidden className="size-3.5" />

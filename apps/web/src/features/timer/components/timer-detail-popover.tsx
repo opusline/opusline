@@ -5,25 +5,12 @@ import { Clock, TriangleAlert } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 import { useLocale } from "@/components/money-format-provider";
+import { m } from "@/paraglide/messages.js";
 import { formatClock, formatStartedAt, isRunning } from "../lib/elapsed";
 import type { IdleNotice } from "../lib/idle";
 import {
-  CANCEL,
-  DISCARD,
-  DISCARD_CONFIRM,
   idleDetected,
-  KEEP_IDLE,
-  LONG_RUN_KEEP,
-  LONG_RUN_STOP,
   longRunMessage,
-  NOTE_LABEL,
-  NOTE_PLACEHOLDER,
-  PAUSE,
-  PAUSE_SHORT,
-  PAUSED_STATE,
-  RESUME,
-  RUNNING_STATE,
-  STOP_AND_SAVE,
   startedAtLabel,
   trimIdle,
 } from "../lib/labels";
@@ -87,7 +74,7 @@ export function TimerDetailPopover({
     <div className="flex flex-col">
       <div className="mb-3 flex items-baseline justify-between gap-3">
         <span className="font-medium text-muted-foreground-3 text-xs uppercase tracking-wider-2">
-          {running ? RUNNING_STATE : PAUSED_STATE}
+          {running ? m.timer_running_state() : m.timer_paused_state()}
         </span>
         <span className="font-mono text-muted-foreground-3 text-xs tabular-nums">
           {startedAtLabel(formatStartedAt(locale, startedAt))}
@@ -114,10 +101,10 @@ export function TimerDetailPopover({
             </p>
             <div className="mt-2.5 flex flex-wrap gap-2">
               <Button disabled={isBusy} onClick={onStop} variant="secondary">
-                {LONG_RUN_STOP}
+                {m.timer_long_run_stop()}
               </Button>
               <Button onClick={onKeepLongRun} variant="outline">
-                {LONG_RUN_KEEP}
+                {m.timer_long_run_keep()}
               </Button>
             </div>
           </div>
@@ -143,7 +130,7 @@ export function TimerDetailPopover({
                 {trimIdle(idle.idleMinutes)}
               </Button>
               <Button onClick={onDismissIdle} variant="ghost">
-                {KEEP_IDLE}
+                {m.timer_keep_idle()}
               </Button>
             </div>
           </div>
@@ -151,9 +138,9 @@ export function TimerDetailPopover({
       )}
 
       <Input
-        aria-label={NOTE_LABEL}
+        aria-label={m.timer_note_label()}
         onChange={(event) => onChangeNote(event.target.value)}
-        placeholder={NOTE_PLACEHOLDER}
+        placeholder={m.timer_note_placeholder()}
         value={note}
       />
 
@@ -165,16 +152,16 @@ export function TimerDetailPopover({
 
       <div className="mt-3 flex gap-2">
         <Button className="flex-1" disabled={isBusy} onClick={onStop} size="xl">
-          {STOP_AND_SAVE}
+          {m.timer_stop_and_save()}
         </Button>
         <Button
-          aria-label={running ? PAUSE : RESUME}
+          aria-label={running ? m.timer_pause() : m.timer_resume()}
           disabled={isBusy}
           onClick={onTogglePause}
           size="xl"
           variant="outline"
         >
-          {running ? PAUSE_SHORT : RESUME}
+          {running ? m.timer_pause_short() : m.timer_resume()}
         </Button>
       </div>
 
@@ -187,10 +174,10 @@ export function TimerDetailPopover({
               ref={confirmRef}
               variant="destructive"
             >
-              {DISCARD_CONFIRM}
+              {m.timer_discard_confirm()}
             </Button>
             <Button onClick={onCancelDiscard} variant="ghost">
-              {CANCEL}
+              {m.timer_cancel()}
             </Button>
           </>
         ) : (
@@ -200,7 +187,7 @@ export function TimerDetailPopover({
             onClick={onDiscard}
             variant="ghost"
           >
-            {DISCARD}
+            {m.timer_discard()}
           </Button>
         )}
       </div>

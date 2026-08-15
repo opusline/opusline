@@ -4,8 +4,8 @@ import { useMoneyFormat } from "@/components/money-format-provider";
 import { calendarDateLabel } from "@/lib/dates";
 import { formatWorkedTime } from "@/lib/durations";
 import { entryRoundingLabel } from "@/lib/entry-rounding";
+import { m } from "@/paraglide/messages.js";
 import { formatClock } from "../lib/elapsed";
-import { START_TITLE } from "../lib/labels";
 import { quickDurations } from "../lib/long-run";
 import {
   defaultStopOption,
@@ -71,7 +71,7 @@ export function TimerContainer({ workdayMinutes }: { workdayMinutes: number }) {
         <PopoverContent
           align="end"
           anchor={anchorRef}
-          aria-label={START_TITLE}
+          aria-label={m.timer_start_title()}
           className="w-84 p-1.5"
         >
           <TimerStartPopover

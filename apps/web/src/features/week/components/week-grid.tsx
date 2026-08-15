@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { fromPromise } from "xstate";
 
 import { isHourly } from "@/lib/durations";
-
+import { m } from "@/paraglide/messages.js";
 import {
   focusableColumnCount,
   type LiveCell,
@@ -451,7 +451,7 @@ export function WeekGrid({
             ))}
             <ReadOnlyCell
               aria-colindex={model.columns.length + 2}
-              aria-label={`Total ${row.name}`}
+              aria-label={m.week_row_total_label({ mission: row.name })}
               className={cn(
                 "whitespace-nowrap border-secondary border-b border-l px-3 py-3.5 text-right font-mono text-sm tabular-nums",
                 row.hasRate && !isHourly(row.billingMode)
@@ -472,7 +472,7 @@ export function WeekGrid({
             aria-colindex={1}
             className={cn(HEAD_CLASSES, "bg-muted p-3.5")}
           >
-            Total jour
+            {m.week_day_total()}
           </RowHeader>
           {model.dayTotals.map((total, columnIndex) => {
             const column = model.columns[columnIndex];
@@ -495,7 +495,7 @@ export function WeekGrid({
           })}
           <ReadOnlyCell
             aria-colindex={model.columns.length + 2}
-            aria-label="Total de la semaine"
+            aria-label={m.week_week_total_label()}
             // Not nowrap: the week total is the one figure that can outgrow its
             // track, and wrapping beats spilling over the card edge.
             className="border-l bg-muted px-3 py-3.5 text-right font-mono font-medium text-primary-text text-sm tabular-nums"

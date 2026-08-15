@@ -11,7 +11,7 @@ export function WeekLegend({ skins = WEEK_SKINS }: { skins?: PillSkin[] }) {
             aria-hidden
             className={`h-3 w-3.5 rounded-sm border ${PILL_SKINS[skin].swatch}`}
           />
-          {PILL_SKINS[skin].label}
+          {PILL_SKINS[skin].label()}
         </li>
       ))}
     </ul>

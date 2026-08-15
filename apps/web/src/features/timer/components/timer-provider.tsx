@@ -36,7 +36,7 @@ import {
 } from "@/lib/dates";
 import { operationFilter } from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
-
+import { m } from "@/paraglide/messages.js";
 import { type IdleNotice, idleNotice, trimSeconds } from "../lib/idle";
 import { isLongRun, longRunHours, parseWorkedDuration } from "../lib/long-run";
 import type { TimerMissionOption } from "../lib/mission-options";
@@ -46,7 +46,6 @@ import { timerMachine } from "../lib/timer-machine";
 import { useActivity } from "../lib/use-activity";
 import { useLiveTimer } from "../lib/use-live-timer";
 
-const WRITE_FAILED = "L'opération a échoué. Réessayez dans un instant.";
 const NOTE_DEBOUNCE_MS = 600;
 const SUGGESTION_WINDOW_DAYS = 60;
 
@@ -208,7 +207,7 @@ export function TimerProvider({
         send({
           type: "FAILED",
           hasTimer: fresh === undefined ? hadTimer : fresh.timer !== null,
-          message: serverErrorMessage(caught, WRITE_FAILED),
+          message: serverErrorMessage(caught, m.timer_write_failed()),
         });
       }
 

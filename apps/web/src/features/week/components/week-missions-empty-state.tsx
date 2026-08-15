@@ -9,6 +9,7 @@ import {
 } from "@opusline/ui/components/empty";
 import { Link } from "@tanstack/react-router";
 import { CalendarIcon } from "lucide-react";
+import { m } from "@/paraglide/messages.js";
 
 export function WeekMissionsEmptyState() {
   return (
@@ -26,19 +27,18 @@ export function WeekMissionsEmptyState() {
           </div>
         </EmptyMedia>
         <EmptyTitle className="font-heading font-semibold text-base text-foreground-hi">
-          Rien à suivre pour l'instant
+          {m.week_missions_empty_title()}
         </EmptyTitle>
         <EmptyDescription className="max-w-[46ch] text-muted-foreground-3">
-          La grille affiche une ligne par mission. Créez un client, puis sa
-          première mission, et la semaine se remplit à la saisie.
+          {m.week_missions_empty_description()}
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent className="flex-row flex-wrap justify-center gap-2">
         <Button render={<Link to="/clients/new" />} size="2xl">
-          Créer un client
+          {m.week_create_client()}
         </Button>
         <Button render={<Link to="/clients" />} size="2xl" variant="outline">
-          Voir mes clients
+          {m.week_view_clients()}
         </Button>
       </EmptyContent>
     </Empty>
