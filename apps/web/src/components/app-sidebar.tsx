@@ -17,6 +17,7 @@ import {
   SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
@@ -226,28 +227,29 @@ export function AppSidebar() {
               tooltip={m.release_notes_title()}
             >
               <History className="hidden group-data-[collapsible=icon]:block" />
-              <span className="font-mono text-muted-foreground text-xs group-data-[collapsible=icon]:hidden">
-                v{APP_VERSION}
+              <span className="flex items-baseline gap-2">
+                <span className="font-mono text-muted-foreground text-xs">
+                  v{APP_VERSION}
+                </span>
+                <span className="text-xs">{m.release_notes_title()}</span>
               </span>
-              <span className="text-xs group-data-[collapsible=icon]:hidden">
-                {m.release_notes_title()}
-              </span>
-              {unreadReleaseNotes > 0 && (
-                <>
-                  <span
-                    aria-hidden
-                    className="ml-auto rounded-full bg-primary px-1.5 py-0.5 font-mono text-2xs text-primary-foreground tabular-nums group-data-[collapsible=icon]:hidden"
-                  >
-                    {unreadReleaseNotes}
-                  </span>
-                  <span className="sr-only">
-                    {m.release_notes_unread_count({
-                      count: unreadReleaseNotes,
-                    })}
-                  </span>
-                </>
-              )}
             </SidebarMenuButton>
+            {unreadReleaseNotes > 0 && (
+              <>
+                <SidebarMenuBadge className="right-3.5 rounded-full bg-primary font-mono text-2xs text-primary-foreground peer-data-active/menu-button:text-primary-foreground peer-hover/menu-button:text-primary-foreground">
+                  {unreadReleaseNotes}
+                </SidebarMenuBadge>
+                <span
+                  aria-hidden
+                  className="absolute top-1 right-1 hidden size-1.5 rounded-full bg-primary group-data-[collapsible=icon]:block"
+                />
+                <span className="sr-only">
+                  {m.release_notes_unread_count({
+                    count: unreadReleaseNotes,
+                  })}
+                </span>
+              </>
+            )}
           </SidebarMenuItem>
           <SidebarMenuItem>
             <DropdownMenu>

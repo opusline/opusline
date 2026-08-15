@@ -10,7 +10,7 @@ const en_release_notes_intro = /** @type {(inputs: Release_Notes_IntroInputs) =>
 };
 
 const fr_release_notes_intro = /** @type {(inputs: Release_Notes_IntroInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Opusline est auto-hébergé : chaque version est une mise à jour que vous appliquez vous-même. Les migrations de base sont automatiques et réversibles.`)
+	return /** @type {LocalizedString} */ (`Opusline est auto-hébergé : chaque version est une mise à jour que vous appliquez vous-même. Les migrations de base de données sont automatiques et réversibles.`)
 };
 
 /**

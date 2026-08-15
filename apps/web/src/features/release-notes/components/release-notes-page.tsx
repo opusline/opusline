@@ -6,12 +6,13 @@ import { useLocale } from "@/components/money-format-provider";
 import { calendarDateLabel } from "@/lib/dates";
 import {
   RELEASE_KIND_CLASSES,
+  RELEASES,
   releaseKindLabel,
   releaseTypeLabel,
-} from "@/lib/release-labels";
-import { RELEASES, unreadReleaseCount } from "@/lib/releases";
+  unreadReleaseCount,
+} from "@/lib/releases";
+import { isReleaseUnread, releaseType } from "@/lib/semver";
 import { APP_VERSION } from "@/lib/version";
-import { isReleaseUnread, releaseType } from "@/lib/versions";
 import { m } from "@/paraglide/messages.js";
 
 type ReleaseNotesPageProps = {
@@ -81,7 +82,7 @@ export function ReleaseNotesPage({
                 {releaseTypeLabel(releaseType(release.version))}
               </Badge>
               {isReleaseUnread(release.version, seenVersion) && (
-                <Badge className="uppercase" variant="brand-solid">
+                <Badge variant="brand-solid">
                   {m.release_notes_unread_badge()}
                 </Badge>
               )}
@@ -99,7 +100,7 @@ export function ReleaseNotesPage({
                 {release.items.map((item) => (
                   <div
                     className="grid grid-cols-[5.75rem_minmax(0,1fr)] items-baseline gap-3.5"
-                    key={item.text}
+                    key={`${item.kind}:${item.text}`}
                   >
                     <span
                       className={`font-medium text-xs uppercase tracking-wider-2 ${RELEASE_KIND_CLASSES[item.kind]}`}

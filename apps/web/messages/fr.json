@@ -553,7 +553,7 @@
   "payment_terms_other": "Autre…",
   "payment_terms_preset": "{days} j",
   "release_notes_installed": "installée",
-  "release_notes_intro": "Opusline est auto-hébergé : chaque version est une mise à jour que vous appliquez vous-même. Les migrations de base sont automatiques et réversibles.",
+  "release_notes_intro": "Opusline est auto-hébergé : chaque version est une mise à jour que vous appliquez vous-même. Les migrations de base de données sont automatiques et réversibles.",
   "release_notes_kind_fixed": "Corrigé",
   "release_notes_kind_improved": "Amélioré",
   "release_notes_kind_new": "Nouveau",
@@ -579,8 +579,8 @@
       "declarations": ["input count", "local countPlural = count: plural"],
       "selectors": ["countPlural"],
       "match": {
-        "countPlural=one": "{count} nouvelle version depuis votre dernière visite",
-        "countPlural=other": "{count} nouvelles versions depuis votre dernière visite"
+        "countPlural=one": "{count} note de version que vous n'avez pas lue",
+        "countPlural=other": "{count} notes de version que vous n'avez pas lues"
       }
     }
   ],

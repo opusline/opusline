@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 
-import { compareVersions, isReleaseUnread, releaseType } from "./versions";
+import { compareVersions, isReleaseUnread, releaseType } from "./semver";
 
 it("compares version segments numerically, not lexicographically", () => {
   expect(compareVersions("0.10.0", "0.9.1")).toBe(1);
@@ -24,6 +24,11 @@ it("marks only strictly newer releases unread", () => {
   expect(isReleaseUnread("0.10.0", "0.9.0")).toBe(true);
   expect(isReleaseUnread("0.9.0", "0.9.0")).toBe(false);
   expect(isReleaseUnread("0.8.0", "0.9.0")).toBe(false);
+});
+
+it("surfaces releases instead of hiding them when the seen version is malformed", () => {
+  expect(isReleaseUnread("0.10.0", "v0.9.0")).toBe(true);
+  expect(isReleaseUnread("0.10.0", "0.9.0-beta")).toBe(true);
 });
 
 it("derives the release type from the version number", () => {

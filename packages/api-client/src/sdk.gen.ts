@@ -72,14 +72,18 @@ export const updateUserTheme = <ThrowOnError extends boolean = false>(options: O
     }
 });
 
-export const updateUserReleaseNotesSeen = <ThrowOnError extends boolean = false>(options?: Options<UpdateUserReleaseNotesSeenData, ThrowOnError>): RequestResult<UpdateUserReleaseNotesSeenResponses, UpdateUserReleaseNotesSeenErrors, ThrowOnError> => (options?.client ?? client).put<UpdateUserReleaseNotesSeenResponses, UpdateUserReleaseNotesSeenErrors, ThrowOnError>({
+export const updateUserReleaseNotesSeen = <ThrowOnError extends boolean = false>(options: Options<UpdateUserReleaseNotesSeenData, ThrowOnError>): RequestResult<UpdateUserReleaseNotesSeenResponses, UpdateUserReleaseNotesSeenErrors, ThrowOnError> => (options.client ?? client).put<UpdateUserReleaseNotesSeenResponses, UpdateUserReleaseNotesSeenErrors, ThrowOnError>({
     security: [{
             in: 'cookie',
             name: 'opusline-session',
             type: 'apiKey'
         }],
     url: '/user/release-notes-seen',
-    ...options
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
 });
 
 export const listClients = <ThrowOnError extends boolean = false>(options?: Options<ListClientsData, ThrowOnError>): RequestResult<ListClientsResponses, ListClientsErrors, ThrowOnError> => (options?.client ?? client).get<ListClientsResponses, ListClientsErrors, ThrowOnError>({

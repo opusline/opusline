@@ -7,22 +7,22 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{ count: NonNullable<unknown> }} Release_Notes_Unread_TitleInputs */
 
 const en_release_notes_unread_title = /** @type {(inputs: Release_Notes_Unread_TitleInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
-	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} new release since your last visit`);
-	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} new releases since your last visit`);
+	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} release note you haven't read`);
+	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} release notes you haven't read`);
 	return /** @type {LocalizedString} */ ("release_notes_unread_title");
 };
 
 const fr_release_notes_unread_title = /** @type {(inputs: Release_Notes_Unread_TitleInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
-	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} nouvelle version depuis votre dernière visite`);
-	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} nouvelles versions depuis votre dernière visite`);
+	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} note de version que vous n'avez pas lue`);
+	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} notes de version que vous n'avez pas lues`);
 	return /** @type {LocalizedString} */ ("release_notes_unread_title");
 };
 
 /**
 * | countPlural | output |
 * | --- | --- |
-* | "one" | "{count} new release since your last visit" |
-* | "other" | "{count} new releases since your last visit" |
+* | "one" | "{count} release note you haven't read" |
+* | "other" | "{count} release notes you haven't read" |
 *
 * @param {Release_Notes_Unread_TitleInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

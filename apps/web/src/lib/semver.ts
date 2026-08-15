@@ -1,3 +1,5 @@
+const VERSION_PATTERN = /^\d+(\.\d+)*$/;
+
 export function compareVersions(a: string, b: string): number {
   const left = a.split(".").map(Number);
   const right = b.split(".").map(Number);
@@ -16,7 +18,11 @@ export function isReleaseUnread(
   version: string,
   seenVersion: string | null,
 ): boolean {
-  return seenVersion === null || compareVersions(version, seenVersion) > 0;
+  if (seenVersion === null || !VERSION_PATTERN.test(seenVersion)) {
+    return true;
+  }
+
+  return compareVersions(version, seenVersion) > 0;
 }
 
 export type ReleaseType = "major" | "minor" | "patch";

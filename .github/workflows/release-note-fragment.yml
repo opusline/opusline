@@ -5,7 +5,7 @@ on:
     types: [opened, edited, synchronize, reopened, labeled, unlabeled]
 
 permissions:
-  contents: read
+  pull-requests: read
 
 concurrency:
   group: release-note-fragment-${{ github.ref }}
@@ -19,17 +19,18 @@ jobs:
       && !(startsWith(github.head_ref, 'release-please--')
       && github.event.pull_request.user.login == 'github-actions[bot]')
       && !contains(github.event.pull_request.labels.*.name, 'no-release-note')
+      && (startsWith(github.event.pull_request.title, 'feat')
+      || startsWith(github.event.pull_request.title, 'fix'))
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-      - name: Require a fragment under .release-notes/
+      - name: Require a fragment added under .release-notes/
         env:
+          GH_TOKEN: ${{ github.token }}
           PR_TITLE: ${{ github.event.pull_request.title }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
+          # The job-level startsWith is a cheap prefilter that skips the runner
+          # entirely for other types; this matches the exact conventional
+          # feat/fix forms (with scope or breaking marker).
           case "$PR_TITLE" in
             "feat("*|"feat:"*|"feat!"*|"fix("*|"fix:"*|"fix!"*) ;;
             *)
@@ -37,7 +38,13 @@ jobs:
               exit 0
               ;;
           esac
-          if git diff --name-only "$BASE_SHA"...HEAD -- .release-notes/ | grep -q '\.json$'; then
+          # The PR files API reports per-file status against the merge base,
+          # so fragments that landed on the base branch after the PR opened
+          # cannot satisfy the gate, and status "added" restricts it to
+          # fragments this PR itself adds — all without cloning the repo.
+          if gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" \
+            --paginate --jq '.[] | select(.status == "added") | .filename' \
+            | grep -q '^\.release-notes/.*\.json$'; then
             echo "Release-note fragment found."
           else
             echo "::error::This feat/fix PR ships no release-note fragment. Add a JSON file under .release-notes/ (see .release-notes/README.md), or apply the 'no-release-note' label if nothing is user-visible."

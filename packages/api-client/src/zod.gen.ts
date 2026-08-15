@@ -809,6 +809,13 @@ export const zUpdateMissionData = z.object({
 });
 
 /**
+ * UpdateReleaseNotesSeenData
+ */
+export const zUpdateReleaseNotesSeenData = z.object({
+    version: z.string().check(z.maxLength(32), z.regex(/^\d+\.\d+\.\d+$/))
+});
+
+/**
  * UpdateSettingsCurrencyData
  */
 export const zUpdateSettingsCurrencyData = z.object({
@@ -1003,6 +1010,8 @@ export const zCurrentUserResponse = zUserData;
 export const zUpdateUserThemeBody = zUpdateUserThemeData;
 
 export const zUpdateUserThemeResponse = zUserData;
+
+export const zUpdateUserReleaseNotesSeenBody = zUpdateReleaseNotesSeenData;
 
 export const zUpdateUserReleaseNotesSeenResponse = zUserData;
 

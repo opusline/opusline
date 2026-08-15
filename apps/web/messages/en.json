@@ -579,8 +579,8 @@
       "declarations": ["input count", "local countPlural = count: plural"],
       "selectors": ["countPlural"],
       "match": {
-        "countPlural=one": "{count} new release since your last visit",
-        "countPlural=other": "{count} new releases since your last visit"
+        "countPlural=one": "{count} release note you haven't read",
+        "countPlural=other": "{count} release notes you haven't read"
       }
     }
   ],

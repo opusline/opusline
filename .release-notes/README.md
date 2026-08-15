@@ -6,6 +6,11 @@ release PR, run `node scripts/assemble-release-notes.mjs <version>` to fold
 them into the in-app release notes
 (`apps/web/src/lib/releases.ts`) and delete them.
 
+Commit the assembled entry to `main` through its own PR — never to the
+release-please branch, which the bot force-pushes on every push to `main`,
+wiping anything committed there. Once the assembly lands on `main`, the bot
+refreshes the release PR and the guard goes green.
+
 One JSON file per note, named with a short descriptive slug:
 
 ```json

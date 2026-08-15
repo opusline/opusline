@@ -13,7 +13,7 @@ import { fileURLToPath } from "node:url";
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const fragmentsDir = join(repoRoot, ".release-notes");
 const releasesModule = join(repoRoot, "apps/web/src/lib/releases.ts");
-const insertMarker = "// release-notes:insert";
+const insertMarker = "  // release-notes:insert";
 const kindOrder = ["new", "improved", "fixed"];
 
 function fail(message) {
@@ -28,7 +28,9 @@ if (!version || !/^\d+\.\d+\.\d+$/.test(version)) {
 
 const source = readFileSync(releasesModule, "utf8");
 if (!source.includes(insertMarker)) {
-  fail(`${releasesModule} lost its "${insertMarker}" marker.`);
+  fail(
+    `${releasesModule} lost its "${insertMarker.trim()}" marker (expected at two-space indentation).`,
+  );
 }
 if (source.includes(`version: "${version}"`)) {
   fail(`Release ${version} already has an entry in ${releasesModule}.`);
@@ -59,8 +61,20 @@ const items = fragmentFiles.map((name) => {
 });
 items.sort((a, b) => kindOrder.indexOf(a.kind) - kindOrder.indexOf(b.kind));
 
+const seenTexts = new Set();
+for (const item of items) {
+  if (seenTexts.has(item.text)) {
+    fail(
+      `Two fragments carry the same text ("${item.text}") — merge or reword one before assembling.`,
+    );
+  }
+  seenTexts.add(item.text);
+}
+
 const quote = (text) => JSON.stringify(text);
-const date = new Date().toISOString().slice(0, 10);
+const now = new Date();
+const pad = (part) => String(part).padStart(2, "0");
+const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 const entry = [
   "  {",
   `    version: ${quote(version)},`,
@@ -78,7 +92,7 @@ const entry = [
 
 writeFileSync(
   releasesModule,
-  source.replace(`  ${insertMarker}`, `  ${insertMarker}\n${entry}`),
+  source.replace(insertMarker, () => `${insertMarker}\n${entry}`),
 );
 for (const item of items) {
   rmSync(item.path);

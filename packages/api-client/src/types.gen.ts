@@ -784,6 +784,13 @@ export type UpdateMissionData = {
 };
 
 /**
+ * UpdateReleaseNotesSeenData
+ */
+export type UpdateReleaseNotesSeenData = {
+    version: string;
+};
+
+/**
  * UpdateSettingsCurrencyData
  */
 export type UpdateSettingsCurrencyData = {
@@ -1072,7 +1079,7 @@ export type UpdateUserThemeResponses = {
 export type UpdateUserThemeResponse = UpdateUserThemeResponses[keyof UpdateUserThemeResponses];
 
 export type UpdateUserReleaseNotesSeenData = {
-    body?: never;
+    body: UpdateReleaseNotesSeenData;
     path?: never;
     query?: never;
     url: '/user/release-notes-seen';
