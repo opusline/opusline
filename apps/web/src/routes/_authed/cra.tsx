@@ -290,7 +290,7 @@ function CraRoute() {
       }}
       onGoToClients={() => void navigate({ to: "/clients" })}
       onOpenSignatureSettings={() =>
-        void navigate({ search: { tab: "signature" }, to: "/reglages" })
+        void navigate({ search: { tab: "signature" }, to: "/settings" })
       }
       onPick={pick}
       onReopen={() => {

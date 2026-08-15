@@ -273,7 +273,7 @@ export function MissionDetailPage({
                 </span>
                 <Link
                   className="text-link text-sm transition-colors hover:text-link-hover"
-                  to="/semaine"
+                  to="/week"
                 >
                   Ouvrir la semaine →
                 </Link>

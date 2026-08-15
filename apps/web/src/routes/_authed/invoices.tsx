@@ -34,7 +34,7 @@ import { InvoicesTable } from "@/features/invoices/components/invoices-table";
 import { accountTodayCalendarDate } from "@/lib/dates";
 import { serverErrorMessage } from "@/lib/validation";
 
-export const Route = createFileRoute("/_authed/factures")({
+export const Route = createFileRoute("/_authed/invoices")({
   component: FacturesPage,
 });
 

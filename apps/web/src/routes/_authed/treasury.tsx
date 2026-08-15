@@ -2,19 +2,20 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { requireFrenchFiscality } from "@/lib/fiscality";
 
-export const Route = createFileRoute("/_authed/revenus")({
+export const Route = createFileRoute("/_authed/treasury")({
   beforeLoad: ({ context }) => requireFrenchFiscality(context.user),
-  component: RevenusPage,
+  component: VirementPage,
 });
 
-function RevenusPage() {
+function VirementPage() {
   return (
     <div>
       <h1 className="font-heading font-semibold text-2xl text-card-foreground">
-        Revenus
+        Combien je peux me virer ?
       </h1>
       <p className="mt-2 text-muted-foreground text-sm">
-        Le suivi des revenus arrive ici — CA facturé, TVA collectée, net estimé.
+        Le calculateur de virement arrive ici — provisions TVA et URSSAF
+        déduites.
       </p>
     </div>
   );

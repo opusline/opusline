@@ -36,7 +36,7 @@ import { serverErrorMessage, serverFieldErrors } from "@/lib/validation";
 
 type ReglagesSearch = { tab?: SettingsTab };
 
-export const Route = createFileRoute("/_authed/reglages")({
+export const Route = createFileRoute("/_authed/settings")({
   validateSearch: (search: Record<string, unknown>): ReglagesSearch => ({
     tab: isSettingsTab(search.tab) ? search.tab : undefined,
   }),
@@ -263,7 +263,7 @@ function ReglagesRoute() {
         activeTab={tab ?? "identite"}
         onSubmit={submit}
         onTabChange={(nextTab) =>
-          void navigate({ to: "/reglages", search: { tab: nextTab } })
+          void navigate({ to: "/settings", search: { tab: nextTab } })
         }
         settings={savedSettings}
         signature={{

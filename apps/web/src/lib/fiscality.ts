@@ -76,6 +76,6 @@ export const VAT_REGIME_DETAILS: Record<
  */
 export function requireFrenchFiscality(user: UserData): void {
   if (!user.hasFrenchFiscality) {
-    throw redirect({ to: "/semaine" });
+    throw redirect({ to: "/week" });
   }
 }
