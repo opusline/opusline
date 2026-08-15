@@ -14,6 +14,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.11.0",
+    date: "2026-08-15",
+    items: [
+      {
+        kind: "new",
+        text: "Release notes inside the app: the sidebar shows your installed version and flags unread notes; a dedicated page lists what changed in each release.",
+      },
+    ],
+  },
+  {
     version: "0.10.0",
     date: "2026-08-15",
     headline:
