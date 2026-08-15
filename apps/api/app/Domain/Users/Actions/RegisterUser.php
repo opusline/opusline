@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Users\Actions;
 
+use App\Domain\Settings\Enums\Locale;
 use App\Domain\Users\Data\RegisterUserData;
 use App\Domain\Users\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +20,9 @@ class RegisterUser
                 'password' => $data->password,
             ]);
 
-            $user->settings()->create();
+            $user->settings()->create([
+                'locale' => Locale::fromLanguageTag(app()->getLocale()),
+            ]);
 
             return $user;
         });

@@ -6,8 +6,8 @@ namespace App\Domain\Settings\Enums;
 
 /**
  * The numeric layout calendar dates are displayed in — 31/08/2026 or
- * 2026-08-31. Weekday and month names stay French until i18n lands; only
- * digit-only dates follow this preference.
+ * 2026-08-31. Only digit-only dates follow this preference; weekday and
+ * month names follow the account locale.
  */
 enum DateFormat: int
 {

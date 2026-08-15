@@ -46,6 +46,22 @@ test('the current user carries the localisation preferences', function (): void 
         ->assertJsonPath('dateFormat', DateFormat::YearMonthDay->value);
 });
 
+test('changing the locale switches the response language on the next request', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->putJson('/api/settings', settingsPayload(['locale' => Locale::en_US->value]))
+        ->assertOk();
+
+    // A fresh instance, because in-process requests reuse the acting user and
+    // its warmed settings relation; a real client rehydrates every request.
+    $response = $this->actingAs(User::sole())
+        ->putJson('/api/settings', settingsPayload(['workdayMinutes' => 0]))
+        ->assertUnprocessable();
+
+    expect($response->json('errors.workdayMinutes.0'))->toContain('workday length');
+});
+
 test('rejects an unknown locale or date format', function (array $overrides, string $field): void {
     $this->actingAs(User::factory()->create())
         ->putJson('/api/settings', settingsPayload($overrides))
