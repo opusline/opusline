@@ -16,11 +16,13 @@ fs.writeFileSync(spec, JSON.stringify(JSON.parse(fs.readFileSync(spec, "utf8")),
 
 pnpm --filter @opusline/api-client generate
 pnpm --filter @opusline/web generate-routes
+pnpm --filter @opusline/web generate-messages
 
 if ! git diff --exit-code -- \
   apps/api/openapi.json \
   packages/api-client/src \
-  apps/web/src/routeTree.gen.ts; then
+  apps/web/src/routeTree.gen.ts \
+  apps/web/src/paraglide; then
   echo "Generated files are stale. The fresh output is already in your working tree — commit it, then push again." >&2
   exit 1
 fi

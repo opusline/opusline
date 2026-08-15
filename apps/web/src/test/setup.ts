@@ -1,4 +1,5 @@
 import "@testing-library/jest-dom/vitest";
+import "./pin-locale";
 import "@/lib/zod";
 
 if (!window.matchMedia) {

@@ -3,6 +3,7 @@ import { RouterProvider } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
 import { setupApiClient } from "@/lib/api";
 import "@/lib/zod";
+import "@/lib/i18n";
 import { getRouter } from "./router";
 
 setupApiClient();
