@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { requireFrenchFiscality } from "@/lib/fiscality";
+import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute("/_authed/revenue")({
   beforeLoad: ({ context }) => requireFrenchFiscality(context.user),
@@ -11,10 +12,10 @@ function RevenusPage() {
   return (
     <div>
       <h1 className="font-heading font-semibold text-2xl text-card-foreground">
-        Revenus
+        {m.nav_revenue()}
       </h1>
       <p className="mt-2 text-muted-foreground text-sm">
-        Le suivi des revenus arrive ici — CA facturé, TVA collectée, net estimé.
+        {m.revenue_placeholder()}
       </p>
     </div>
   );

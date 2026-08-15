@@ -7,14 +7,14 @@ import {
   DropdownMenuTrigger,
 } from "@opusline/ui/components/dropdown-menu";
 import { Moon, Sun } from "lucide-react";
-
 import {
   isThemePreference,
   type ResolvedTheme,
-  THEME_LABELS,
   THEME_PREFERENCES,
   type ThemePreference,
+  themeLabel,
 } from "@/lib/theme";
+import { m } from "@/paraglide/messages.js";
 
 type ModeToggleProps = {
   theme: ThemePreference;
@@ -37,9 +37,9 @@ export function ModeToggle({
       <DropdownMenuTrigger
         render={
           <Button
-            aria-label="Choisir le thème"
+            aria-label={m.theme_choose()}
             size="icon-xl"
-            title="Choisir le thème"
+            title={m.theme_choose()}
             variant="outline"
           >
             {resolvedTheme === "dark" ? <Moon /> : <Sun />}
@@ -57,7 +57,7 @@ export function ModeToggle({
         >
           {THEME_PREFERENCES.map((preference) => (
             <DropdownMenuRadioItem key={preference} value={preference}>
-              {THEME_LABELS[preference]}
+              {themeLabel(preference)}
             </DropdownMenuRadioItem>
           ))}
         </DropdownMenuRadioGroup>

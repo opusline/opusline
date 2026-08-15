@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { requireFrenchFiscality } from "@/lib/fiscality";
+import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute("/_authed/treasury")({
   beforeLoad: ({ context }) => requireFrenchFiscality(context.user),
@@ -11,11 +12,10 @@ function VirementPage() {
   return (
     <div>
       <h1 className="font-heading font-semibold text-2xl text-card-foreground">
-        Combien je peux me virer ?
+        {m.treasury_title()}
       </h1>
       <p className="mt-2 text-muted-foreground text-sm">
-        Le calculateur de virement arrive ici — provisions TVA et URSSAF
-        déduites.
+        {m.treasury_placeholder()}
       </p>
     </div>
   );
