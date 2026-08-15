@@ -6,6 +6,7 @@ import type { KeyboardEvent } from "react";
 import { useId, useState } from "react";
 import { matchingNotes, NoteSuggestions } from "@/components/note-suggestions";
 import { formatWorkedTime } from "@/lib/durations";
+import { m } from "@/paraglide/messages.js";
 import type { WeekCell } from "../lib/week-grid";
 import { BillableToggle } from "./billable-toggle";
 
@@ -109,7 +110,7 @@ function ActivityField({
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between gap-2">
         <Label tone="quiet" htmlFor={fieldId}>
-          Activité
+          {m.timer_note_label()}
         </Label>
         {durationLabel !== null && (
           <span className="whitespace-nowrap font-mono text-muted-foreground-3 text-xs tabular-nums">
@@ -124,13 +125,13 @@ function ActivityField({
           onBlur={(event) => save(event.target.value)}
           onChange={(event) => setNote(event.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Revue PR, cadrage…"
+          placeholder={m.timer_stop_note_placeholder()}
           size="sm"
           value={note}
         />
         {onDelete !== null && (
           <Button
-            aria-label="Supprimer cette entrée"
+            aria-label={m.week_delete_entry()}
             onClick={onDelete}
             size="icon-sm"
             variant="ghost"

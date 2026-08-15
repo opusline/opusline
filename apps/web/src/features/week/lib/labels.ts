@@ -2,24 +2,21 @@ import type { BillingMode, Locale } from "@opusline/api-client";
 
 import { type DurationInvalidReason, isHourly } from "@/lib/durations";
 import { weekdayDateLabel } from "@/lib/weeks";
-
-export const DURATION_FORMAT_HINT = "Format : 1 · 0,5 · 2h · 1h30 · 90m";
+import { m } from "@/paraglide/messages.js";
 
 export function durationUnitHint(billingMode: BillingMode): string {
   return isHourly(billingMode)
-    ? "En heures — 1,5 pour une heure et demie. Ajoutez « j » pour saisir en jours."
-    : "En jours — 0,5 pour une demi-journée. Ajoutez « h » pour saisir en heures.";
+    ? m.week_duration_unit_hint_hourly()
+    : m.week_duration_unit_hint_daily();
 }
-
-export const DURATION_RANGE_HINT = "Une entrée va de 1 minute à 24 heures.";
 
 /** Exhaustive on purpose: a new parse reason must not silently read as a typo. */
 export function durationErrorHint(reason: DurationInvalidReason): string {
   switch (reason) {
     case "range":
-      return DURATION_RANGE_HINT;
+      return m.week_duration_range_hint();
     case "format":
-      return DURATION_FORMAT_HINT;
+      return m.week_duration_format_hint();
   }
 }
 
@@ -32,26 +29,28 @@ export function cellAriaLabel(input: {
   isEmpty: boolean;
 }): string {
   if (input.date === null) {
-    return "Week-end replié";
+    return m.week_weekend_collapsed();
   }
 
   const day = weekdayDateLabel(input.locale, input.date);
 
   if (input.isEmpty) {
-    return `${input.missionName}, ${day} : aucune entrée`;
+    return m.week_cell_empty_label({ mission: input.missionName, day });
   }
 
   const note = input.note === null ? "" : `, ${input.note}`;
 
-  return `${input.missionName}, ${day} : ${input.billedLabel}${note}`;
+  return m.week_cell_label({
+    mission: input.missionName,
+    day,
+    value: `${input.billedLabel}${note}`,
+  });
 }
 
-export const STOP_TRACKING = "Arrêter et enregistrer le suivi";
-
 export function liveCellLabel(isRunning: boolean, clock: string): string {
-  return `${isRunning ? "en cours" : "en pause"} · ${clock}`;
+  return `${isRunning ? m.week_live_running() : m.week_live_paused()} · ${clock}`;
 }
 
 export function weekendToggleLabel(weekendShown: boolean): string {
-  return weekendShown ? "Masquer le week-end" : "Afficher le week-end";
+  return weekendShown ? m.week_weekend_hide() : m.week_weekend_show();
 }

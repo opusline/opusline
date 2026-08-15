@@ -9,6 +9,7 @@ import {
   isoWeekTitle,
   shiftIsoWeek,
 } from "@/lib/weeks";
+import { m } from "@/paraglide/messages.js";
 import { weekendToggleLabel } from "../lib/labels";
 
 type WeekToolbarProps = {
@@ -22,9 +23,6 @@ type WeekToolbarProps = {
   onWeekendToggle: () => void;
   onNewEntry: () => void;
 };
-
-const WEEKEND_LOCK_REASON =
-  "Le week-end reste ouvert : il contient des entrées cette semaine.";
 
 export function WeekToolbar({
   week,
@@ -42,10 +40,10 @@ export function WeekToolbar({
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div className="flex flex-wrap items-center gap-2.5">
         <Button
-          aria-label="Semaine précédente"
+          aria-label={m.week_previous()}
           onClick={() => onWeekChange(shiftIsoWeek(week, -1))}
           size="icon-lg"
-          title="Semaine précédente"
+          title={m.week_previous()}
           variant="outline"
         >
           <ChevronLeftIcon aria-hidden />
@@ -60,10 +58,10 @@ export function WeekToolbar({
           </span>
         </h1>
         <Button
-          aria-label="Semaine suivante"
+          aria-label={m.week_next()}
           onClick={() => onWeekChange(shiftIsoWeek(week, 1))}
           size="icon-lg"
-          title="Semaine suivante"
+          title={m.week_next()}
           variant="outline"
         >
           <ChevronRightIcon aria-hidden />
@@ -85,19 +83,19 @@ export function WeekToolbar({
           focusableWhenDisabled
           onClick={onWeekendToggle}
           size="xl"
-          title={isWeekendLocked ? WEEKEND_LOCK_REASON : undefined}
+          title={isWeekendLocked ? m.week_weekend_lock_reason() : undefined}
           variant="outline"
         >
           {weekendToggleLabel(weekendShown)}
         </Button>
         {isWeekendLocked && (
           <span className="sr-only" id={weekendLockId}>
-            {WEEKEND_LOCK_REASON}
+            {m.week_weekend_lock_reason()}
           </span>
         )}
         <Button aria-keyshortcuts="n" onClick={onNewEntry} size="xl">
           <PlusIcon aria-hidden data-icon="inline-start" strokeWidth={2.2} />
-          Nouvelle entrée
+          {m.week_new_entry()}
           <Kbd>N</Kbd>
         </Button>
       </div>

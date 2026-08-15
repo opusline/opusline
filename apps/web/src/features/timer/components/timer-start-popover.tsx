@@ -1,10 +1,5 @@
 import { cn } from "@opusline/ui/lib/utils";
-import {
-  LAST_MISSION_PILL,
-  START_EMPTY,
-  START_HINT,
-  START_TITLE,
-} from "../lib/labels";
+import { m } from "@/paraglide/messages.js";
 import type { TimerMissionOption } from "../lib/mission-options";
 
 export type TimerStartPopoverProps = {
@@ -23,12 +18,12 @@ export function TimerStartPopover({
   return (
     <div className="flex flex-col">
       <p className="px-2.5 pt-2.5 pb-3 font-medium text-muted-foreground-3 text-xs uppercase tracking-wider-2">
-        {START_TITLE}
+        {m.timer_start_title()}
       </p>
 
       {missions.length === 0 ? (
         <p className="px-2.5 pb-2.5 text-muted-foreground-3 text-sm">
-          {START_EMPTY}
+          {m.timer_start_empty()}
         </p>
       ) : (
         <ul className="flex flex-col gap-1">
@@ -57,7 +52,7 @@ export function TimerStartPopover({
                 </span>
                 {mission.isLast && (
                   <span className="shrink-0 rounded-full border border-border-2 px-2 py-0.5 text-muted-foreground-3 text-xs">
-                    {LAST_MISSION_PILL}
+                    {m.timer_last_mission_pill()}
                   </span>
                 )}
               </button>
@@ -74,7 +69,7 @@ export function TimerStartPopover({
 
       {missions.length > 0 && (
         <p className="px-2.5 pt-2.5 pb-1 text-muted-foreground-3 text-xs leading-relaxed">
-          {START_HINT}
+          {m.timer_start_hint()}
         </p>
       )}
     </div>

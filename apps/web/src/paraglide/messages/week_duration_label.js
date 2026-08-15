@@ -1,0 +1,29 @@
+/* eslint-disable */
+import { getLocale, experimentalStaticLocale } from '../runtime.js';
+
+/** @typedef {import('../runtime.js').LocalizedString} LocalizedString */
+
+/** @typedef {{}} Week_Duration_LabelInputs */
+
+const en_week_duration_label = /** @type {(inputs: Week_Duration_LabelInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Duration`)
+};
+
+const fr_week_duration_label = /** @type {(inputs: Week_Duration_LabelInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Durée`)
+};
+
+/**
+* | output |
+* | --- |
+* | "Duration" |
+*
+* @param {Week_Duration_LabelInputs} inputs
+* @param {{ locale?: "en" | "fr" }} options
+* @returns {LocalizedString}
+*/
+export const week_duration_label = /** @type {((inputs?: Week_Duration_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Week_Duration_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
+	if (locale === "fr") return fr_week_duration_label(inputs)
+	return en_week_duration_label(inputs)
+});

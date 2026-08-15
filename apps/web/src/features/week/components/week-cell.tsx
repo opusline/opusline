@@ -4,8 +4,9 @@ import { PlusIcon } from "lucide-react";
 import type { KeyboardEvent, RefCallback, RefObject } from "react";
 
 import { isHourly } from "@/lib/durations";
+import { m } from "@/paraglide/messages.js";
 
-import { liveCellLabel, STOP_TRACKING } from "../lib/labels";
+import { liveCellLabel } from "../lib/labels";
 import { PILL_SKINS, type PillSkin } from "../lib/pill-skins";
 import type {
   LiveCell,
@@ -44,7 +45,7 @@ function skinOf(row: WeekRow, cell: WeekCellModel): PillSkin {
 function LivePill({ live }: { live: LiveCell }) {
   return (
     <button
-      aria-label={STOP_TRACKING}
+      aria-label={m.week_stop_tracking()}
       className={cn(
         "min-h-11 w-full rounded-sm border px-2.5 py-2 text-left transition-colors hover:bg-primary/20",
         PILL_SKINS.live.pill,
@@ -54,7 +55,7 @@ function LivePill({ live }: { live: LiveCell }) {
         live.onStop();
       }}
       tabIndex={-1}
-      title={STOP_TRACKING}
+      title={m.week_stop_tracking()}
       type="button"
     >
       <div className="flex items-center gap-1.5">
@@ -163,8 +164,8 @@ export function WeekCell({
                 className={cn("mt-0.5 truncate text-xs", PILL_SKINS[skin].note)}
               >
                 {cell.entries.length > 1
-                  ? `${cell.entries.length} entrées`
-                  : (cell.note ?? "Sans activité")}
+                  ? m.week_entries_count({ count: cell.entries.length })
+                  : (cell.note ?? m.week_no_activity())}
               </div>
             </div>
           )}
@@ -175,7 +176,7 @@ export function WeekCell({
           <Input
             aria-describedby={editor.error === null ? undefined : errorId}
             aria-invalid={editor.error !== null || undefined}
-            aria-label={`Durée — ${cell.ariaLabel}`}
+            aria-label={m.week_duration_cell_label({ cell: cell.ariaLabel })}
             font="mono"
             onBlur={onDraftBlur}
             onChange={(event) => onDraftChange(event.target.value)}

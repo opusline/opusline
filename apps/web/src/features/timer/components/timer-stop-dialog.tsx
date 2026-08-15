@@ -14,22 +14,12 @@ import { useId } from "react";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { matchingNotes, NoteSuggestions } from "@/components/note-suggestions";
 import { formatDurationInput, formatWorkedTime } from "@/lib/durations";
+import { m } from "@/paraglide/messages.js";
 import {
-  CANCEL,
-  DEFAULT_BADGE,
   durationClamped,
-  EXACT_DURATION_HINT,
-  EXACT_DURATION_LABEL,
   measuredDuration,
   missionRoundingHint,
-  NON_BILLABLE,
-  NOTE_LABEL,
-  ROUNDING_LABEL,
   roundingDeviation,
-  SAVE,
-  SAVING,
-  STOP_NOTE_PLACEHOLDER,
-  STOP_TITLE,
   stopSummary,
 } from "../lib/labels";
 import { HOURLY_BILLING } from "../lib/long-run";
@@ -102,7 +92,7 @@ export function TimerStopDialog({
       >
         <DialogHeader className="px-5 pt-5 pb-0">
           <DialogTitle className="font-heading font-semibold text-foreground-hi text-lg">
-            {STOP_TITLE}
+            {m.timer_stop_title()}
           </DialogTitle>
         </DialogHeader>
 
@@ -152,7 +142,7 @@ export function TimerStopDialog({
               </div>
               <div className="flex items-center gap-2.5">
                 <Input
-                  aria-label={EXACT_DURATION_LABEL}
+                  aria-label={m.timer_exact_duration_label()}
                   className="w-24"
                   font="mono"
                   onChange={(event) => onCorrectDuration(event.target.value)}
@@ -161,7 +151,7 @@ export function TimerStopDialog({
                   value={correctionDraft}
                 />
                 <span className="text-muted-foreground-3 text-xs">
-                  {EXACT_DURATION_HINT}
+                  {m.timer_exact_duration_hint()}
                 </span>
               </div>
             </div>
@@ -170,7 +160,7 @@ export function TimerStopDialog({
           <div className="flex flex-col gap-2">
             <div className="flex items-baseline justify-between gap-3">
               <span className="text-muted-foreground-3 text-xs">
-                {ROUNDING_LABEL}
+                {m.timer_rounding_label()}
               </span>
               {missionRoundingLabel !== null && (
                 <span className="text-muted-foreground-4 text-xs">
@@ -180,7 +170,7 @@ export function TimerStopDialog({
             </div>
 
             <ChipGroup
-              aria-label={ROUNDING_LABEL}
+              aria-label={m.timer_rounding_label()}
               className="flex-nowrap items-stretch"
               onValueChange={(value) => {
                 const [picked] = value;
@@ -196,7 +186,7 @@ export function TimerStopDialog({
                   align="center"
                   className="flex-1"
                   font="mono"
-                  hint={option.isDefault ? DEFAULT_BADGE : undefined}
+                  hint={option.isDefault ? m.timer_default_badge() : undefined}
                   key={option.key}
                   label={option.label}
                   value={option.key}
@@ -213,12 +203,12 @@ export function TimerStopDialog({
 
           <div className="flex flex-col gap-2">
             <Label tone="quiet" htmlFor={noteId}>
-              {NOTE_LABEL}
+              {m.timer_note_label()}
             </Label>
             <Input
               id={noteId}
               onChange={(event) => onChangeNote(event.target.value)}
-              placeholder={STOP_NOTE_PLACEHOLDER}
+              placeholder={m.timer_stop_note_placeholder()}
               value={note}
             />
             <NoteSuggestions
@@ -234,7 +224,7 @@ export function TimerStopDialog({
               onCheckedChange={(checked) => onChangeBillable(!checked)}
             />
             <Label tone="quiet" htmlFor={billableId}>
-              {NON_BILLABLE}
+              {m.timer_non_billable()}
             </Label>
           </div>
 
@@ -251,7 +241,7 @@ export function TimerStopDialog({
               size="2xl"
               type="submit"
             >
-              {isSaving ? SAVING : SAVE}
+              {isSaving ? m.timer_saving() : m.timer_save()}
               <Kbd>⏎</Kbd>
             </Button>
             <Button
@@ -260,7 +250,7 @@ export function TimerStopDialog({
               type="button"
               variant="outline"
             >
-              {CANCEL}
+              {m.timer_cancel()}
             </Button>
           </div>
         </form>
