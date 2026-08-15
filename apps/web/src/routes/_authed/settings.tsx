@@ -33,6 +33,7 @@ import {
 import { signatureHref } from "@/features/settings/lib/signature";
 import type { FormSubmitResult } from "@/lib/form";
 import { serverErrorMessage, serverFieldErrors } from "@/lib/validation";
+import { m } from "@/paraglide/messages.js";
 
 type ReglagesSearch = { tab?: SettingsTab };
 
@@ -42,11 +43,6 @@ export const Route = createFileRoute("/_authed/settings")({
   }),
   component: ReglagesRoute,
 });
-
-const SIGNATURE_FAILED = "L'envoi a échoué. Réessayez dans un instant.";
-const SAVE_FAILED = "L'enregistrement a échoué. Réessayez dans un instant.";
-const RATES_FAILED =
-  "Le barème de l'URSSAF n'a pas pu être lu. Vos taux actuels sont conservés.";
 
 /**
  * The formatting context and the fiscal gates read the current user; a save
@@ -118,7 +114,8 @@ function ReglagesRoute() {
       setRatesError(null);
       queryClient.setQueryData(showSettingsQueryKey(), data);
     },
-    onError: (error) => setRatesError(serverErrorMessage(error, RATES_FAILED)),
+    onError: (error) =>
+      setRatesError(serverErrorMessage(error, m.settings_rates_failed())),
   });
 
   const refreshSignature = async () => {
@@ -133,7 +130,7 @@ function ReglagesRoute() {
     onError: (error) => {
       setSignatureError(
         serverFieldErrors(error)?.signature?.message ??
-          serverErrorMessage(error, SIGNATURE_FAILED),
+          serverErrorMessage(error, m.settings_signature_failed()),
       );
     },
   });
@@ -141,7 +138,7 @@ function ReglagesRoute() {
   const deleteSignature = useMutation({
     ...deleteUserSignatureMutation(),
     onSuccess: refreshSignature,
-    onError: () => setSignatureError(SIGNATURE_FAILED),
+    onError: () => setSignatureError(m.settings_signature_failed()),
   });
 
   const isSavingLocalisation =
@@ -156,10 +153,7 @@ function ReglagesRoute() {
       <Alert variant="warn">
         <CircleAlert />
         <AlertDescription>
-          {serverErrorMessage(
-            settings.error,
-            "Les réglages n'ont pas pu être chargés.",
-          )}
+          {serverErrorMessage(settings.error, m.settings_load_failed())}
         </AlertDescription>
       </Alert>
     );
@@ -243,7 +237,7 @@ function ReglagesRoute() {
           : (Object.values(fieldErrors)[0]?.message ?? null);
 
       setLocalisationError(
-        firstFieldError ?? serverErrorMessage(error, SAVE_FAILED),
+        firstFieldError ?? serverErrorMessage(error, m.settings_save_failed()),
       );
     }
   };
@@ -255,7 +249,7 @@ function ReglagesRoute() {
         <Alert className="mb-3.5" variant="warn">
           <CircleAlert />
           <AlertDescription>
-            {serverErrorMessage(updateSettings.error, SAVE_FAILED)}
+            {serverErrorMessage(updateSettings.error, m.settings_save_failed())}
           </AlertDescription>
         </Alert>
       ) : null}

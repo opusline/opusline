@@ -11,6 +11,7 @@ import { useMoneyFormat } from "@/components/money-format-provider";
 import { PaymentTermsPicker } from "@/components/payment-terms-picker";
 import { currencySymbol, formatRateDraft } from "@/lib/billing";
 import { formatWorkedTime } from "@/lib/durations";
+import { m } from "@/paraglide/messages.js";
 import {
   hasInvoiceNumberCounter,
   parseBufferCents,
@@ -48,8 +49,8 @@ export function BillingSettingsForm({
 
   return (
     <SettingsSection
-      description="Valeurs proposées à la création d'un client, et seuil utilisé par la page Trésorerie."
-      title="Facturation et trésorerie"
+      description={m.settings_billing_description()}
+      title={m.settings_billing_title()}
     >
       <form.Field name="defaultPaymentTermsDays">
         {(field) => {
@@ -61,7 +62,7 @@ export function BillingSettingsForm({
                 className="text-foreground-3 text-sm"
                 htmlFor={`${field.name}-options`}
               >
-                Délai de paiement par défaut
+                {m.settings_payment_terms_label()}
               </FieldLabel>
               <PaymentTermsPicker
                 id={`${field.name}-options`}
@@ -75,7 +76,7 @@ export function BillingSettingsForm({
                 <FieldError errors={field.state.meta.errors} />
               ) : (
                 <FieldDescription>
-                  Au-delà de 60 jours, pensez aux pénalités de retard légales.
+                  {m.settings_payment_terms_hint()}
                 </FieldDescription>
               )}
             </Field>
@@ -91,7 +92,7 @@ export function BillingSettingsForm({
           onChange: ({ value }: { value: string }) =>
             hasInvoiceNumberCounter(value)
               ? undefined
-              : { message: "Le format doit contenir un seul compteur NNN." },
+              : { message: m.settings_invoice_number_counter_error() },
         }}
       >
         {(field) => (
@@ -102,18 +103,18 @@ export function BillingSettingsForm({
                 className="text-muted-foreground-3 text-sm"
                 id={`${field.name}-preview`}
               >
-                Prochaine :{" "}
+                {m.settings_invoice_number_next()}{" "}
                 <span className="font-mono text-foreground-3">
                   {previewInvoiceNumber(field.state.value, new Date())}
                 </span>
               </span>
             }
             describedBy={`${field.name}-preview`}
-            description="Jetons disponibles : AAAA (année), MM (mois), NNN (compteur)."
+            description={m.settings_invoice_number_hint()}
             field={field}
             font="mono"
             inputClassName="min-w-45 flex-1"
-            label="Numérotation des factures"
+            label={m.settings_invoice_number_label()}
             labelClassName="text-foreground-3 text-sm"
           />
         )}
@@ -128,7 +129,7 @@ export function BillingSettingsForm({
             value.trim() === "" ||
             parseBufferCents(format.locale, value) !== null
               ? undefined
-              : { message: "Indiquez un montant, ou laissez vide." },
+              : { message: m.settings_buffer_invalid() },
         }}
       >
         {(field) => (
@@ -139,8 +140,7 @@ export function BillingSettingsForm({
                 className="min-w-50 flex-1 text-muted-foreground-3 text-xs"
                 id={`${field.name}-hint`}
               >
-                Somme gardée sur le compte pro avant tout virement vers votre
-                compte personnel.
+                {m.settings_buffer_hint()}
               </span>
             }
             controlClassName="w-37.5 shrink-0"
@@ -154,7 +154,7 @@ export function BillingSettingsForm({
             }}
             font="mono"
             inputMode="decimal"
-            label="Matelas de trésorerie"
+            label={m.settings_buffer_label()}
             labelClassName="text-foreground-3 text-sm"
             placeholder="0"
           />
@@ -170,7 +170,7 @@ export function BillingSettingsForm({
               className="text-foreground-3 text-sm"
               htmlFor={field.name}
             >
-              Durée d'une journée de travail
+              {m.settings_workday_label()}
             </FieldLabel>
             <NativeSelect
               className="w-70"
@@ -187,10 +187,7 @@ export function BillingSettingsForm({
                 </option>
               ))}
             </NativeSelect>
-            <FieldDescription>
-              Convertit le temps suivi en fractions de journée sur les missions
-              au TJM. Le changement s'applique aussi à l'historique déjà saisi.
-            </FieldDescription>
+            <FieldDescription>{m.settings_workday_hint()}</FieldDescription>
           </Field>
         )}
       </form.Field>

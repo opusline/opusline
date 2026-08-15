@@ -15,6 +15,7 @@ import {
 } from "@/lib/billing";
 import { isFrenchFiscalityCountry } from "@/lib/fiscality";
 import { valueOrNull } from "@/lib/form";
+import { m } from "@/paraglide/messages.js";
 
 export const SETTINGS_TABS = [
   "identite",
@@ -28,13 +29,28 @@ export type SettingsTab = (typeof SETTINGS_TABS)[number];
 
 export const SETTINGS_TAB_DETAILS: Record<
   SettingsTab,
-  { label: string; hint: string }
+  { label: () => string; hint: () => string }
 > = {
-  identite: { label: "Identité", hint: "Coordonnées, adresse" },
-  signature: { label: "Signature", hint: "Tracé apposé aux documents" },
-  fiscalite: { label: "Fiscalité", hint: "URSSAF, TVA, provisions" },
-  facturation: { label: "Facturation", hint: "Délais, numérotation, matelas" },
-  regional: { label: "Localisation", hint: "Pays, devise, langue" },
+  identite: {
+    label: m.settings_tab_identity_label,
+    hint: m.settings_tab_identity_hint,
+  },
+  signature: {
+    label: m.settings_tab_signature_label,
+    hint: m.settings_tab_signature_hint,
+  },
+  fiscalite: {
+    label: m.settings_tab_fiscality_label,
+    hint: m.settings_tab_fiscality_hint,
+  },
+  facturation: {
+    label: m.settings_tab_billing_label,
+    hint: m.settings_tab_billing_hint,
+  },
+  regional: {
+    label: m.settings_tab_regional_label,
+    hint: m.settings_tab_regional_hint,
+  },
 };
 
 export function isSettingsTab(value: unknown): value is SettingsTab {
@@ -251,7 +267,7 @@ const FIELD_TAB: Record<keyof SettingsFormValues, SettingsTab> = {
 export function ratePercentValidator(locale: Locale) {
   return ({ value }: { value: string }): { message: string } | undefined =>
     parseRateBp(locale, value) === null
-      ? { message: "Indiquez un taux entre 0 et 100." }
+      ? { message: m.settings_rate_invalid() }
       : undefined;
 }
 
@@ -260,9 +276,7 @@ export function tabOwningField(field: string): SettingsTab | undefined {
 }
 
 export function unsavedChangesLabel(count: number): string {
-  return count === 1
-    ? "1 modification non enregistrée"
-    : `${count} modifications non enregistrées`;
+  return m.settings_unsaved_changes({ count });
 }
 
 /**

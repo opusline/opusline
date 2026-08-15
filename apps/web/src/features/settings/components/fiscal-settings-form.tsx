@@ -27,6 +27,7 @@ import {
   VAT_REGIMES,
   vatRegimeDetails,
 } from "@/lib/fiscality";
+import { m } from "@/paraglide/messages.js";
 import { formatRateBp, ratePercentValidator } from "../lib/settings-form";
 import type { SettingsForm } from "../lib/use-settings-form";
 import { RateSource } from "./rate-source";
@@ -63,22 +64,21 @@ export function FiscalSettingsForm({
 
   return (
     <SettingsSection
-      description="Ces valeurs pilotent les provisions et les échéances calculées par l'app."
-      title="Fiscalité"
+      description={m.settings_fiscality_description()}
+      title={m.settings_tab_fiscality_label()}
     >
       <div className="flex flex-col gap-5.5">
         <div className="flex items-center justify-between gap-4 rounded-md border bg-muted px-4 py-3.5">
           <div>
             <div className="mb-1 text-muted-foreground-2 text-xs">
-              Charges provisionnées
+              {m.settings_provisioned_rate_label()}
             </div>
             <div className="font-mono text-primary-text text-xl leading-none tabular-nums">
               {formatRateBp(format.locale, effectiveContributionRateBp)} %
             </div>
           </div>
           <div className="max-w-58 text-right text-muted-foreground-3 text-xs leading-relaxed">
-            Cotisations sociales seules. L'impôt sur le revenu reste dû
-            annuellement.
+            {m.settings_provisioned_rate_hint()}
           </div>
         </div>
 
@@ -90,10 +90,10 @@ export function FiscalSettingsForm({
                   className="text-foreground-3 text-sm"
                   htmlFor={field.name}
                 >
-                  Périodicité URSSAF
+                  {m.settings_urssaf_periodicity_label()}
                 </FieldLabel>
                 <SegmentedControl
-                  aria-label="Périodicité URSSAF"
+                  aria-label={m.settings_urssaf_periodicity_label()}
                   id={field.name}
                   onValueChange={(value) => {
                     const next = value[0];
@@ -126,7 +126,7 @@ export function FiscalSettingsForm({
                 {(autoRates) => (
                   <FormTextField
                     adornment="%"
-                    description="Taux BNC prestations de service, repris de l'URSSAF."
+                    description={m.settings_contribution_rate_hint()}
                     disabled={autoRates}
                     field={{
                       name: field.name,
@@ -144,7 +144,7 @@ export function FiscalSettingsForm({
                     }}
                     font="mono"
                     inputMode="decimal"
-                    label="Taux de cotisations"
+                    label={m.settings_contribution_rate_label()}
                     labelClassName="text-foreground-3 text-sm"
                   />
                 )}
@@ -173,15 +173,16 @@ export function FiscalSettingsForm({
             <div className="flex items-start justify-between gap-5">
               <div>
                 <div className="mb-1 text-foreground-3 text-sm">
-                  Versement libératoire de l'impôt
+                  {m.settings_liberating_payment_label()}
                 </div>
                 <div className="text-muted-foreground-2 text-xs">
-                  Ajoute {formatRateBp(format.locale, liberatingPaymentRateBp)}{" "}
-                  % aux cotisations et supprime l'IR annuel.
+                  {m.settings_liberating_payment_hint({
+                    rate: formatRateBp(format.locale, liberatingPaymentRateBp),
+                  })}
                 </div>
               </div>
               <Switch
-                aria-label="Versement libératoire de l'impôt"
+                aria-label={m.settings_liberating_payment_label()}
                 checked={field.state.value}
                 onCheckedChange={field.handleChange}
               />
@@ -195,7 +196,7 @@ export function FiscalSettingsForm({
           {(field) => (
             <FieldSet>
               <FieldLegend className="text-foreground-3 text-sm">
-                Régime de TVA
+                {m.settings_vat_regime_legend()}
               </FieldLegend>
               <RadioGroup
                 name={field.name}
@@ -245,20 +246,17 @@ export function FiscalAbroadPanel({
       <Empty className="rounded-md border border-solid bg-card px-7 py-9">
         <EmptyHeader>
           <EmptyTitle className="font-semibold text-base text-foreground-hi">
-            Fiscalité limitée à la France
+            {m.settings_fiscality_abroad_title()}
           </EmptyTitle>
           <EmptyDescription className="text-muted-foreground-3 text-sm">
-            Les cotisations URSSAF, la franchise en base et le versement
-            libératoire sont propres au régime français. Les règles du pays
-            choisi ne sont pas encore implémentées : provisions et déclarations
-            sont à calculer hors de l'application.
+            {m.settings_fiscality_abroad_description()}
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
 
       <SettingsSection
         className="mt-4"
-        description="Taux appliqué par défaut aux nouvelles factures."
+        description={m.settings_default_rate_description()}
         title={terms.name}
       >
         <form.Field

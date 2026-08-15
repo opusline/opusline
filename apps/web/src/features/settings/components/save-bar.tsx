@@ -1,6 +1,8 @@
 import { Button } from "@opusline/ui/components/button";
 import type { ReactNode } from "react";
 
+import { m } from "@/paraglide/messages.js";
+
 /**
  * The floating footer both settings save flows share: status text, Annuler,
  * and the caller's own save button — the bulk form submits through it, the
@@ -30,7 +32,7 @@ export function SaveBar({
           type="button"
           variant="outline"
         >
-          Annuler
+          {m.settings_cancel()}
         </Button>
         {children}
       </div>

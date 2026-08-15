@@ -6,6 +6,7 @@ import { RefreshCw } from "lucide-react";
 import { FormTextField } from "@/components/form-text-field";
 import { useLocale } from "@/components/money-format-provider";
 import { fullDateLabel } from "@/lib/dates";
+import { m } from "@/paraglide/messages.js";
 
 import type { SettingsForm } from "../lib/use-settings-form";
 
@@ -27,14 +28,17 @@ function rateStatusLabel({
   }
 
   if (isSituationUnsaved) {
-    return "Enregistrez pour appliquer le barème à cette situation.";
+    return m.settings_rates_unsaved();
   }
 
   if (ratesCheckedAt === null) {
-    return "Barème jamais lu";
+    return m.settings_rates_never_read();
   }
 
-  return `Barème ${ratesYear} · dernière vérification le ${fullDateLabel(locale, ratesCheckedAt)}`;
+  return m.settings_rates_status({
+    year: String(ratesYear),
+    date: fullDateLabel(locale, ratesCheckedAt),
+  });
 }
 
 type RateSourceProps = {
@@ -67,15 +71,14 @@ export function RateSource({
           <div className="flex items-start justify-between gap-5">
             <div>
               <div className="mb-1 text-foreground-3 text-sm">
-                Source des taux
+                {m.settings_rates_source_label()}
               </div>
               <div className="text-muted-foreground-2 text-xs leading-relaxed">
-                Opusline lit les barèmes publiés par l'URSSAF et applique le
-                taux en vigueur.
+                {m.settings_rates_source_hint()}
               </div>
             </div>
             <Switch
-              aria-label="Source des taux"
+              aria-label={m.settings_rates_source_label()}
               checked={field.state.value}
               onCheckedChange={field.handleChange}
             />
@@ -126,7 +129,7 @@ export function RateSource({
                   variant="outline"
                 >
                   <RefreshCw data-icon="inline-start" />
-                  Vérifier maintenant
+                  {m.settings_rates_check_now()}
                 </Button>
               </div>
 
@@ -137,7 +140,7 @@ export function RateSource({
                     onChangeListenTo: ["acre"],
                     onChange: ({ value, fieldApi }) =>
                       fieldApi.form.getFieldValue("acre") && value === ""
-                        ? { message: "Requis pour appliquer l'ACRE." }
+                        ? { message: m.settings_acre_required() }
                         : undefined,
                   }}
                 >
@@ -145,7 +148,7 @@ export function RateSource({
                     <FormTextField
                       field={field}
                       font="mono"
-                      label="Début d'activité"
+                      label={m.settings_business_started_label()}
                       labelClassName="text-muted-foreground-2 text-xs"
                       type="date"
                     />
@@ -156,11 +159,10 @@ export function RateSource({
                   {(field) => (
                     <div className="flex items-start justify-between gap-4 sm:pt-6">
                       <div className="text-muted-foreground-2 text-xs leading-relaxed">
-                        Je bénéficie de l'ACRE — le taux est réduit pendant les
-                        quatre premiers trimestres.
+                        {m.settings_acre_label()}
                       </div>
                       <Switch
-                        aria-label="Je bénéficie de l'ACRE"
+                        aria-label={m.settings_acre_switch_label()}
                         checked={field.state.value}
                         onCheckedChange={field.handleChange}
                       />
