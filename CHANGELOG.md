@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.11.0](https://github.com/opusline/opusline/compare/v0.10.0...v0.11.0) (2026-08-15)
+
+
+### Features
+
+* **repo:** add release notes ([#132](https://github.com/opusline/opusline/issues/132)) ([9c9f16f](https://github.com/opusline/opusline/commit/9c9f16fb3386add39158a9a56bbbb01bbe25032e))
+* **repo:** automate release notes assembly process ([64312fa](https://github.com/opusline/opusline/commit/64312fa7b6e10a086b66b2a7a7458deb0bd55f38))
+
 ## [0.10.0](https://github.com/opusline/opusline/compare/v0.9.1...v0.10.0) (2026-08-15)
 
 
