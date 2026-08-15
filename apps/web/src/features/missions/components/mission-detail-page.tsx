@@ -266,8 +266,12 @@ export function MissionDetailPage({
             {mission.craRequired && (
               <TabsTrigger value="cra">{m.nav_cra()}</TabsTrigger>
             )}
-            <TabsTrigger value="documents">Documents</TabsTrigger>
-            <TabsTrigger value="config">Configuration</TabsTrigger>
+            <TabsTrigger value="documents">
+              {m.common_documents_title()}
+            </TabsTrigger>
+            <TabsTrigger value="config">
+              {m.missions_tab_configuration()}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="entries">
@@ -278,9 +282,9 @@ export function MissionDetailPage({
                   "grid grid-cols-[5.5rem_5.75rem_minmax(0,1fr)_7.25rem] border-b px-5 py-3",
                 )}
               >
-                <div>Date</div>
-                <div>{m.missions_entries_header_duration()}</div>
-                <div>Note</div>
+                <div>{m.common_date_label()}</div>
+                <div>{m.common_duration()}</div>
+                <div>{m.common_note_label()}</div>
                 <div className="text-right">
                   {m.missions_entries_header_state()}
                 </div>

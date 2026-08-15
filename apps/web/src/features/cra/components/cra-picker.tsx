@@ -13,7 +13,7 @@ import {
   groupCras,
 } from "../lib/cra-picker";
 
-import { EYEBROW, toProduceLabel } from "../lib/labels";
+import { EYEBROW } from "../lib/labels";
 
 type CraPickerProps = {
   items: CraListItemData[];
@@ -42,7 +42,7 @@ export function CraPicker({
         <span className={EYEBROW}>{m.cra_list_title()}</span>
         {counts.toProduce > 0 && (
           <span className="text-primary-text text-xs">
-            {toProduceLabel(counts.toProduce)}
+            {m.cra_to_produce({ count: counts.toProduce })}
           </span>
         )}
       </div>

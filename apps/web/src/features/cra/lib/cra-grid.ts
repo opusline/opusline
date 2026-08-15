@@ -1,7 +1,8 @@
 import type { CraDayData, Locale } from "@opusline/api-client";
 
-import { cachedDateFormatter } from "@/lib/dates";
+import { capitalizeFirst } from "@/lib/dates";
 import { monthGridDates } from "@/lib/months";
+import { weekdayShortLabel } from "@/lib/weeks";
 
 import { FULL_DAY_BP, HALF_DAY_BP } from "./day-fraction";
 import { cellAriaLabel } from "./labels";
@@ -46,16 +47,10 @@ export type LocatedCell = {
 };
 
 /** "Lun" … "Dim", Monday first — 2024-01-01 is a Monday, only its weekday is read. */
-function weekdayLabels(locale: Locale): string[] {
-  const formatter = cachedDateFormatter(locale, { weekday: "short" });
-
-  return Array.from({ length: 7 }, (_, index) => {
-    const label = formatter
-      .format(new Date(2024, 0, 1 + index))
-      .replace(/\.$/, "");
-
-    return label.charAt(0).toUpperCase() + label.slice(1);
-  });
+export function weekdayLabels(locale: Locale): string[] {
+  return Array.from({ length: 7 }, (_, index) =>
+    capitalizeFirst(weekdayShortLabel(locale, `2024-01-0${1 + index}`)),
+  );
 }
 
 /** "0,5" — French decimals, and nothing at all on a day not worked. */

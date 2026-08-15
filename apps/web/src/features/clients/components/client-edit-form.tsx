@@ -72,7 +72,7 @@ export function ClientEditForm({
     setIsLogoPending(true);
 
     try {
-      setLogoError((await onRemoveLogo()) ? null : m.documents_delete_failed());
+      setLogoError((await onRemoveLogo()) ? null : m.common_delete_failed());
     } finally {
       setIsLogoPending(false);
     }
@@ -338,7 +338,7 @@ export function ClientEditForm({
 
       <div className="mt-4 flex items-center gap-2 border-t pt-4">
         <Button disabled={isPending} size="xl" type="submit">
-          {m.settings_save()}
+          {m.common_save()}
         </Button>
         <Button
           disabled={isPending}
@@ -347,7 +347,7 @@ export function ClientEditForm({
           type="button"
           variant="ghost"
         >
-          {m.timer_cancel()}
+          {m.common_cancel()}
         </Button>
       </div>
     </form>

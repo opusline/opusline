@@ -101,11 +101,14 @@ export function calendarMonthYearLabel(locale: Locale, date: string): string {
   return cachedDateFormatter(locale, MONTH_YEAR).format(fromCalendarDate(date));
 }
 
+/** French month and weekday names are lowercase; headings carry a capital. */
+export function capitalizeFirst(label: string): string {
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
 /** "Août 2026" — a month used as a heading rather than inside a sentence. */
 export function capitalizedMonthLabel(locale: Locale, date: string): string {
-  const label = calendarMonthYearLabel(locale, date);
-
-  return label.charAt(0).toUpperCase() + label.slice(1);
+  return capitalizeFirst(calendarMonthYearLabel(locale, date));
 }
 
 /**

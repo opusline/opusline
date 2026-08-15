@@ -129,11 +129,11 @@ export function formatRate(
 
   switch (billingMode) {
     case 0:
-      return `${amount}/j`;
+      return m.billing_rate_daily({ amount });
     case 1:
-      return `${amount}/h`;
+      return m.billing_rate_hourly({ amount });
     case 2:
-      return `${amount} forfait`;
+      return m.billing_rate_fixed({ amount });
   }
 }
 

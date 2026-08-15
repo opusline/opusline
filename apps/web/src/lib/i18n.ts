@@ -36,14 +36,16 @@ export function syncLocale(locale: Locale): void {
   }
 }
 
-export function useUiLocale(): UiLocale {
-  return useSyncExternalStore((onChange) => {
-    localeListeners.add(onChange);
+function subscribeToLocale(onChange: () => void): () => void {
+  localeListeners.add(onChange);
 
-    return () => {
-      localeListeners.delete(onChange);
-    };
-  }, currentUiLocale);
+  return () => {
+    localeListeners.delete(onChange);
+  };
+}
+
+export function useUiLocale(): UiLocale {
+  return useSyncExternalStore(subscribeToLocale, currentUiLocale);
 }
 
 document.documentElement.lang = getLocale();

@@ -145,7 +145,7 @@ export function SignatureSettings({
                 size="2xl"
                 variant="ghost"
               >
-                {m.settings_cancel()}
+                {m.common_cancel()}
               </Button>
             ) : null}
           </div>

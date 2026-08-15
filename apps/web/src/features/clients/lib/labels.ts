@@ -16,13 +16,6 @@ export const CLIENT_TYPE_BADGE_VARIANTS: Record<
   2: "neutral",
 };
 
-const CLIENT_TYPE_DESCRIPTOR_MESSAGES: Partial<
-  Record<ClientType, () => string>
-> = {
-  1: () => "ESN",
-  2: m.clients_descriptor_internal,
-};
-
 const CLIENT_TYPE_OPTION_MESSAGES: Record<ClientType, () => string> = {
   0: m.client_type_short_direct,
   1: m.clients_type_option_esn,
@@ -63,10 +56,10 @@ export function isNewClient(
 export function clientSubtitle(client: ClientWithMissionsData): string {
   const parts: string[] = [];
 
-  const descriptor = CLIENT_TYPE_DESCRIPTOR_MESSAGES[client.type];
-
-  if (descriptor !== undefined) {
-    parts.push(descriptor());
+  if (client.type === 1) {
+    parts.push("ESN");
+  } else if (client.type === 2) {
+    parts.push(m.clients_descriptor_internal());
   }
 
   const endClients = [

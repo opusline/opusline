@@ -15,13 +15,7 @@ import { useMoneyFormat } from "@/components/money-format-provider";
 import { matchingNotes, NoteSuggestions } from "@/components/note-suggestions";
 import { formatDurationInput, formatWorkedTime } from "@/lib/durations";
 import { m } from "@/paraglide/messages.js";
-import {
-  durationClamped,
-  measuredDuration,
-  missionRoundingHint,
-  roundingDeviation,
-  stopSummary,
-} from "../lib/labels";
+import { stopSummary } from "../lib/labels";
 import { HOURLY_BILLING } from "../lib/long-run";
 import type { StopOption } from "../lib/rounding";
 
@@ -112,14 +106,14 @@ export function TimerStopDialog({
               className="text-destructive text-xs leading-relaxed"
               role="alert"
             >
-              {durationClamped(droppedMinutes)}
+              {m.timer_duration_clamped({ minutes: droppedMinutes })}
             </p>
           )}
 
           {measuredLabel !== null && (
             <div className="flex flex-col gap-3 rounded-md border border-primary/45 bg-primary/8 p-3">
               <p className="text-foreground-2 text-sm leading-relaxed">
-                {measuredDuration(measuredLabel)}
+                {m.timer_measured_duration({ duration: measuredLabel })}
               </p>
               <div className="flex flex-wrap gap-2">
                 {quickDurations.map((minutes) => (
@@ -164,7 +158,9 @@ export function TimerStopDialog({
               </span>
               {missionRoundingLabel !== null && (
                 <span className="text-muted-foreground-4 text-xs">
-                  {missionRoundingHint(missionRoundingLabel)}
+                  {m.timer_mission_rounding_hint({
+                    rounding: missionRoundingLabel,
+                  })}
                 </span>
               )}
             </div>
@@ -196,7 +192,7 @@ export function TimerStopDialog({
 
             {isDeviating && (
               <p className="text-primary-note text-xs leading-relaxed">
-                {roundingDeviation(missionRoundingLabel)}
+                {m.timer_rounding_deviation({ rounding: missionRoundingLabel })}
               </p>
             )}
           </div>
@@ -241,7 +237,7 @@ export function TimerStopDialog({
               size="2xl"
               type="submit"
             >
-              {isSaving ? m.timer_saving() : m.timer_save()}
+              {isSaving ? m.common_saving() : m.common_save()}
               <Kbd>⏎</Kbd>
             </Button>
             <Button
@@ -250,7 +246,7 @@ export function TimerStopDialog({
               type="button"
               variant="outline"
             >
-              {m.timer_cancel()}
+              {m.common_cancel()}
             </Button>
           </div>
         </form>

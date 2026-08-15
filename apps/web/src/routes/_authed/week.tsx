@@ -44,7 +44,7 @@ export const Route = createFileRoute("/_authed/week")({
 });
 
 function writeErrorMessage(error: unknown): string {
-  return serverErrorMessage(error, m.week_write_failed());
+  return serverErrorMessage(error, m.common_save_failed());
 }
 
 function SemaineRoute() {

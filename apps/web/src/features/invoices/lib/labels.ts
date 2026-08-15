@@ -86,7 +86,3 @@ export function averageDaysToPay(invoices: InvoiceData[]): number | null {
     delays.reduce((total, days) => total + days, 0) / delays.length,
   );
 }
-
-export function invoiceCountLabel(count: number): string {
-  return m.invoices_count({ count });
-}

@@ -108,7 +108,7 @@ export function IdentitySettingsForm({
               field={field}
               label={m.settings_signature_city_label()}
               labelClassName={LABEL}
-              placeholder={m.settings_city_placeholder()}
+              placeholder={m.address_city()}
             />
           )}
         </form.Field>
@@ -144,7 +144,7 @@ export function IdentitySettingsForm({
         </span>
       </div>
       <AddressFields
-        complementLabel={m.settings_address_complement_label()}
+        complementLabel={m.address_complement_label()}
         gapClassName="gap-4"
         labelClassName={LABEL}
         names={COMPANY_ADDRESS_NAMES}
@@ -152,7 +152,7 @@ export function IdentitySettingsForm({
           <form.Field name={name}>{(field) => render(field)}</form.Field>
         )}
         setFieldValue={(name, value) => form.setFieldValue(name, value)}
-        streetLabel={m.settings_address_street_label()}
+        streetLabel={m.address_label()}
         withPlaceholders
       />
 
@@ -183,7 +183,7 @@ export function IdentitySettingsForm({
           ) : (
             <>
               <AddressFields
-                complementLabel={m.settings_address_complement_label()}
+                complementLabel={m.address_complement_label()}
                 gapClassName="gap-4"
                 labelClassName={LABEL}
                 names={HOME_ADDRESS_NAMES}
@@ -193,7 +193,7 @@ export function IdentitySettingsForm({
                   </form.Field>
                 )}
                 setFieldValue={(name, value) => form.setFieldValue(name, value)}
-                streetLabel={m.settings_address_street_label()}
+                streetLabel={m.address_label()}
                 withPlaceholders
               />
               <p className="mt-2.5 text-muted-foreground-3 text-xs leading-relaxed">

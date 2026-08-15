@@ -35,7 +35,7 @@ export function WeekMissionsEmptyState() {
       </EmptyHeader>
       <EmptyContent className="flex-row flex-wrap justify-center gap-2">
         <Button render={<Link to="/clients/new" />} size="2xl">
-          {m.week_create_client()}
+          {m.clients_create_short()}
         </Button>
         <Button render={<Link to="/clients" />} size="2xl" variant="outline">
           {m.week_view_clients()}

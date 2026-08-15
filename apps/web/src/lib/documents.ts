@@ -101,7 +101,7 @@ export function foldAccents(value: string): string {
 }
 
 function uploadFailureMessage(error: unknown): string {
-  return serverFieldErrors(error)?.file?.message ?? m.documents_upload_failed();
+  return serverFieldErrors(error)?.file?.message ?? m.common_upload_failed();
 }
 
 type DocumentHandlerOptions = {

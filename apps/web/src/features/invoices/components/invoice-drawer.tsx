@@ -15,11 +15,7 @@ import {
 } from "@/components/money-format-provider";
 import { formatAmountWithCents, formatPercentFromBp } from "@/lib/billing";
 import { calendarDateNumericLabel, calendarRangeLabel } from "@/lib/dates";
-import {
-  invoiceEventLabel,
-  invoiceStatusBadge,
-  invoiceStatusLabel,
-} from "@/lib/invoice-status";
+import { invoiceEventLabel, invoiceStatusBadge } from "@/lib/invoice-status";
 import { m } from "@/paraglide/messages.js";
 
 import { Fact } from "./invoice-fact";
@@ -81,7 +77,7 @@ function InvoiceDrawerBody({
     <>
       <SheetHeader className="gap-1.5">
         <SheetTitle className="flex items-center gap-2.5 font-mono text-base">
-          {invoice.number ?? invoiceStatusLabel(0)}
+          {invoice.number ?? m.invoice_status_draft()}
           <Badge variant={badge.variant}>{badge.label}</Badge>
         </SheetTitle>
         <SheetDescription>

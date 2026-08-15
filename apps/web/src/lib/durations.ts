@@ -1,6 +1,7 @@
 import type { BillingMode, EntryRounding, Locale } from "@opusline/api-client";
 
 import { cachedFormatter } from "@/lib/billing";
+import { m } from "@/paraglide/messages.js";
 
 export const MAX_MINUTES_PER_DAY = 1440;
 
@@ -115,7 +116,7 @@ function toMinutes(input: string, units: DurationUnits): number | null {
 
 /** The billed value of a day-counted entry: `1` → "1 j", `0.5` → "0,5 j". */
 export function formatBilledDays(locale: Locale, dayFraction: number): string {
-  return `${decimals(locale).format(dayFraction)} j`;
+  return m.duration_days_value({ value: decimals(locale).format(dayFraction) });
 }
 
 /**
@@ -125,7 +126,9 @@ export function formatBilledDays(locale: Locale, dayFraction: number): string {
  */
 export function formatBilledHours(locale: Locale, minutes: number): string {
   return minutes % 60 === 30
-    ? `${decimals(locale).format(Math.floor(minutes / 60) + 0.5)} h`
+    ? m.duration_hours_value({
+        value: decimals(locale).format(Math.floor(minutes / 60) + 0.5),
+      })
     : hoursAndMinutes(minutes);
 }
 
@@ -135,8 +138,11 @@ function hoursAndMinutes(minutes: number): string {
   const remainder = minutes % 60;
 
   return remainder === 0
-    ? `${hours} h`
-    : `${hours} h ${String(remainder).padStart(2, "0")}`;
+    ? m.duration_hours_value({ value: hours })
+    : m.duration_hours_minutes_value({
+        hours,
+        minutes: String(remainder).padStart(2, "0"),
+      });
 }
 
 /**
@@ -174,7 +180,9 @@ function twoDecimals(locale: Locale): Intl.NumberFormat {
 }
 
 export function formatDecimalHours(locale: Locale, minutes: number): string {
-  return `${twoDecimals(locale).format(minutes / 60)} h`;
+  return m.duration_hours_value({
+    value: twoDecimals(locale).format(minutes / 60),
+  });
 }
 
 function startedSteps(minutes: number, stepInMinutes: number): number {

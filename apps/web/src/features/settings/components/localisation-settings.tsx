@@ -16,27 +16,17 @@ import { SettingsSection } from "./settings-section";
 
 type CurrencyOption = { code: Currency; label: string };
 
-const currencyOptionsByLocale = new Map<Locale, CurrencyOption[]>();
+function buildCurrencyOptions(locale: Locale): CurrencyOption[] {
+  const currencyNames = new Intl.DisplayNames([locale], { type: "currency" });
 
-function currencyOptions(locale: Locale): CurrencyOption[] {
-  let options = currencyOptionsByLocale.get(locale);
-
-  if (options === undefined) {
-    const currencyNames = new Intl.DisplayNames([locale], {
-      type: "currency",
-    });
-    options = zCurrency.options.map((code) => ({
-      code,
-      label: `${code} · ${currencyNames.of(code) ?? code}`,
-    }));
-    currencyOptionsByLocale.set(locale, options);
-  }
-
-  return options;
+  return zCurrency.options.map((code) => ({
+    code,
+    label: `${code} · ${currencyNames.of(code) ?? code}`,
+  }));
 }
 
 const LOCALE_LABELS: Record<Locale, string> = {
-  "fr-FR": "Français",
+  "fr-FR": "Français", // i18n-ignore
   "en-US": "English",
 };
 
@@ -90,6 +80,7 @@ export function LocalisationSettings({
 }: LocalisationSettingsProps) {
   const [draft, setDraft] = useState<LocalisationDraft>(saved);
   const { businessCountry, currency, locale, dateFormat, timezone } = saved;
+  const currencyOptions = useMemo(() => buildCurrencyOptions(locale), [locale]);
   const zones = useMemo(() => timezoneOptions(timezone), [timezone]);
 
   // Re-seed field by field on value-stable deps: a save echo or an outside
@@ -164,7 +155,7 @@ export function LocalisationSettings({
               }}
               value={draft.currency}
             >
-              {currencyOptions(locale).map((option) => (
+              {currencyOptions.map((option) => (
                 <option key={option.code} value={option.code}>
                   {option.label}
                 </option>
@@ -284,7 +275,7 @@ export function LocalisationSettings({
           }}
         >
           <Button disabled={isSaving} onClick={() => onSave(draft)} size="xl">
-            {isSaving ? m.settings_saving() : m.settings_save()}
+            {isSaving ? m.common_saving() : m.common_save()}
           </Button>
         </SaveBar>
       )}

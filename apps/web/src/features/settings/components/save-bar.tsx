@@ -32,7 +32,7 @@ export function SaveBar({
           type="button"
           variant="outline"
         >
-          {m.settings_cancel()}
+          {m.common_cancel()}
         </Button>
         {children}
       </div>

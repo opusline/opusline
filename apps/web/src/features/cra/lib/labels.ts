@@ -10,16 +10,6 @@ import { FULL_DAY_BP } from "./day-fraction";
 export const EYEBROW =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
 
-/** "3 à produire" — the aside's counter. */
-export function toProduceLabel(count: number): string {
-  return m.cra_to_produce({ count });
-}
-
-/** "1 CRA" / "4 CRA" — CRA does not take a plural s, in either language. */
-export function craCountLabel(count: number): string {
-  return m.cra_count({ count });
-}
-
 /** "2,5 j" — a day count, in the unit the whole app uses for days. */
 export const daysLabel = formatBilledDays;
 

@@ -141,7 +141,7 @@ function CraRoute() {
     // lie, and the grid must not keep showing the day the server rejected next
     // to the error banner. The refetch restores the server's truth either way.
     onSettled: refreshCras,
-    onError: reportFailure(m.week_write_failed()),
+    onError: reportFailure(m.common_save_failed()),
   });
   const reset = useMutation({
     ...resetCraMutation(),

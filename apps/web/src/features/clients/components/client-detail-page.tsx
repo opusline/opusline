@@ -226,7 +226,10 @@ export function ClientDetailPage({
         />
         <StatTile label={m.clients_head_pending()} value="—" tone="strong" />
         <StatTile label={m.clients_head_average_delay()} value="—" />
-        <StatTile label="Missions" value={String(client.missions.length)} />
+        <StatTile
+          label={m.clients_missions_title()}
+          value={String(client.missions.length)}
+        />
       </StatTileRow>
 
       {isEditing ? (
@@ -242,9 +245,13 @@ export function ClientDetailPage({
       ) : (
         <Tabs defaultValue="missions">
           <TabsList className="mb-5" variant="underline">
-            <TabsTrigger value="missions">Missions</TabsTrigger>
+            <TabsTrigger value="missions">
+              {m.clients_missions_title()}
+            </TabsTrigger>
             <TabsTrigger value="factures">{m.nav_invoices()}</TabsTrigger>
-            <TabsTrigger value="documents">Documents</TabsTrigger>
+            <TabsTrigger value="documents">
+              {m.common_documents_title()}
+            </TabsTrigger>
             <TabsTrigger value="coordonnees">
               {m.clients_tab_details()}
             </TabsTrigger>
@@ -407,7 +414,7 @@ export function ClientDetailPage({
                   </div>
                   <div className="flex flex-col gap-3.5">
                     <CoordRow
-                      label="Contact"
+                      label={m.clients_contact_title()}
                       value={client.billingContactName}
                     />
                     <CoordRow label="Email" value={client.billingEmail} />

@@ -39,7 +39,7 @@ export function CraGuidedFooter({
     <div className="flex flex-wrap items-center gap-2.5">
       {index > 0 && (
         <Button disabled={isBusy} onClick={onBack} size="2xl" variant="outline">
-          {m.week_back()}
+          {m.common_back()}
         </Button>
       )}
 

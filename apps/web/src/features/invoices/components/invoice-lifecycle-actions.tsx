@@ -106,7 +106,7 @@ function SendStep({
         className="self-start"
         disabled={isPending || (needsReference && trimmed === "")}
       >
-        {isPending ? m.settings_saving() : m.invoices_mark_sent()}
+        {isPending ? m.common_saving() : m.invoices_mark_sent()}
       </Button>
     </form>
   );
@@ -153,7 +153,7 @@ function CollectStep({
 
       <div className="flex flex-wrap gap-2">
         <Button type="submit" disabled={isPending || paidOn === ""}>
-          {isPending ? m.settings_saving() : m.invoices_mark_paid()}
+          {isPending ? m.common_saving() : m.invoices_mark_paid()}
         </Button>
         <Button
           type="button"

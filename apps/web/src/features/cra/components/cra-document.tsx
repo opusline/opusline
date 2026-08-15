@@ -12,8 +12,12 @@ import { PAPER } from "@/lib/paper";
 import { m } from "@/paraglide/messages.js";
 
 import type { CraGridModel } from "../lib/cra-grid";
-import { formatDayFraction } from "../lib/cra-grid";
+import { formatDayFraction, weekdayLabels } from "../lib/cra-grid";
 import { EYEBROW } from "../lib/labels";
+
+// The printed artifact stays French whatever the UI language; the
+// interactive grid keeps following the account locale.
+const FRENCH_WEEKDAY_LABELS = weekdayLabels("fr-FR");
 
 type CraDocumentProps = {
   detail: CraDetailData;
@@ -120,7 +124,7 @@ export function CraDocument({
         </div>
 
         <div className="grid grid-cols-7 gap-0.5">
-          {model.weekdayLabels.map((label) => (
+          {FRENCH_WEEKDAY_LABELS.map((label) => (
             <div
               className="pb-0.75 text-center text-xs uppercase tracking-wider"
               key={label}

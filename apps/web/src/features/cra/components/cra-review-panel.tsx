@@ -44,7 +44,7 @@ function checksFor(
     },
     {
       key: "signature",
-      title: "Signature",
+      title: m.cra_review_signature_title(),
       detail: settings.hasSignature
         ? m.cra_check_signature_ready()
         : m.cra_check_signature_missing(),
