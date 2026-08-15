@@ -8,6 +8,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AuthCard } from "@/features/auth/components/auth-card";
 import { LoginForm } from "@/features/auth/components/login-form";
 import { serverFieldErrors } from "@/lib/validation";
+import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute("/_guest/login")({
   validateSearch: (search: Record<string, unknown>): { redirect?: string } => ({
@@ -42,18 +43,18 @@ function LoginPage() {
     <AuthCard
       footer={
         <>
-          Pas encore de compte ?{" "}
+          {m.auth_no_account()}{" "}
           <Link className="text-primary hover:underline" to="/register">
-            Créer un compte
+            {m.auth_create_account()}
           </Link>
         </>
       }
-      title="Connexion"
+      title={m.auth_login_title()}
     >
       <LoginForm
         error={
           login.error && !serverFieldErrors(login.error)
-            ? "Identifiants invalides."
+            ? m.auth_login_failed()
             : null
         }
         isPending={login.isPending}

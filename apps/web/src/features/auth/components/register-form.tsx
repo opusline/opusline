@@ -7,9 +7,11 @@ import { useForm } from "@tanstack/react-form";
 import { CircleAlert } from "lucide-react";
 import * as z from "zod/mini";
 
+import { m } from "@/paraglide/messages.js";
+
 const registerSchema = zRegisterUserData.check(
   z.refine((values) => values.password === values.password_confirmation, {
-    error: "Les mots de passe ne correspondent pas.",
+    error: () => m.auth_passwords_mismatch(),
     path: ["password_confirmation"],
   }),
 );
@@ -68,7 +70,9 @@ export function RegisterForm({
             field.state.meta.isTouched && !field.state.meta.isValid;
           return (
             <Field data-invalid={isInvalid}>
-              <FieldLabel htmlFor={field.name}>Nom</FieldLabel>
+              <FieldLabel htmlFor={field.name}>
+                {m.auth_name_label()}
+              </FieldLabel>
               <Input
                 aria-invalid={isInvalid}
                 id={field.name}
@@ -89,7 +93,9 @@ export function RegisterForm({
             field.state.meta.isTouched && !field.state.meta.isValid;
           return (
             <Field data-invalid={isInvalid}>
-              <FieldLabel htmlFor={field.name}>Adresse e-mail</FieldLabel>
+              <FieldLabel htmlFor={field.name}>
+                {m.auth_email_label()}
+              </FieldLabel>
               <Input
                 aria-invalid={isInvalid}
                 id={field.name}
@@ -111,7 +117,9 @@ export function RegisterForm({
             field.state.meta.isTouched && !field.state.meta.isValid;
           return (
             <Field data-invalid={isInvalid}>
-              <FieldLabel htmlFor={field.name}>Mot de passe</FieldLabel>
+              <FieldLabel htmlFor={field.name}>
+                {m.auth_password_label()}
+              </FieldLabel>
               <Input
                 aria-invalid={isInvalid}
                 id={field.name}
@@ -134,7 +142,7 @@ export function RegisterForm({
           return (
             <Field data-invalid={isInvalid}>
               <FieldLabel htmlFor={field.name}>
-                Confirmer le mot de passe
+                {m.auth_password_confirm_label()}
               </FieldLabel>
               <Input
                 aria-invalid={isInvalid}
@@ -157,7 +165,7 @@ export function RegisterForm({
         size="2xl"
         type="submit"
       >
-        Créer le compte
+        {m.auth_register_submit()}
       </Button>
     </form>
   );
