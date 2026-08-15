@@ -5,6 +5,9 @@ export const paraglideCompilerOptions = {
   outputStructure: "message-modules",
   cookieName: "opusline_locale",
   strategy: ["cookie", "preferredLanguage", "baseLocale"],
+  // The Vite plugin injects this per-bundler; the CLI defaults to a plain
+  // window check. Pinning it keeps both compilers byte-identical.
+  isServer: "import.meta.env?.SSR ?? typeof window === 'undefined'",
   emitGitIgnore: false,
   emitPrettierIgnore: false,
 };

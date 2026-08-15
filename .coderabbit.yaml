@@ -88,6 +88,7 @@ reviews:
     - "!apps/api/openapi.json"
     - "!packages/api-client/src/**"
     - "!apps/web/src/routeTree.gen.ts"
+    - "!apps/web/src/paraglide/**"
     - "!pnpm-lock.yaml"
     - "!apps/api/composer.lock"
   path_instructions:
@@ -129,10 +130,14 @@ reviews:
           state; no localStorage for anything important.
         - Every component needs a colocated CSF3 story (*.stories.tsx).
         - Accessibility is required: ARIA, focus management, keyboard navigation.
-        - i18n is deliberately deferred: no i18n runtime exists yet, and French
-          strings are written inline or centralized in feature lib files (e.g.
-          labels.ts). Do NOT request message catalogs, locale keys, or a
-          localization boundary until a runtime is adopted; only flag string
-          concatenation or interpolation patterns that would break a future
-          extraction.
+        - i18n runs on Paraglide: UI copy lives in apps/web/messages/{en,fr}.json
+          and renders through m.key() calls; apps/web/src/paraglide is compiled
+          output (never review or suggest edits there). Flag any new hardcoded
+          user-facing string, any module-level `const X = m.key()` (it freezes
+          the boot locale; zod schema errors must be lazy functions), glued
+          translated fragments where a parameterized or plural-variant message
+          belongs, and Intl formatters that bypass cachedFormatter/
+          cachedDateFormatter or hardcode a locale. French fiscal vocabulary
+          (CRA, SIRET, TJM, URSSAF, HT/TTC, CA3/CA12) stays untranslated in
+          both languages, and cra-document.tsx deliberately stays French.
         - zod imports must use zod/mini.
