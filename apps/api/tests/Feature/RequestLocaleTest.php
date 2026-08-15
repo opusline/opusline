@@ -17,30 +17,30 @@ function loginFailureMessage(string $acceptLanguage): ?string
 
 test('answers in the account language whatever the browser says', function (): void {
     $user = User::factory()->create();
-    $user->settings()->sole()->update(['locale' => Locale::en_US]);
+    $user->settings()->sole()->update(['locale' => Locale::fr_FR]);
 
     $response = $this->actingAs($user)
-        ->withHeader('Accept-Language', 'fr-FR,fr;q=0.9')
+        ->withHeader('Accept-Language', 'en-US,en;q=0.9')
         ->putJson('/api/settings', settingsPayload(['workdayMinutes' => 0]))
         ->assertUnprocessable();
 
-    expect($response->json('errors.workdayMinutes.0'))->toContain('workday length');
+    expect($response->json('errors.workdayMinutes.0'))->toContain('durée de journée');
 });
 
-test('negotiates a guest language from the Accept-Language header', function (): void {
-    expect(loginFailureMessage('en-GB,en;q=0.9'))->toBe(__('auth.failed', locale: 'en'));
+test('negotiates a French guest from the Accept-Language header', function (): void {
+    expect(loginFailureMessage('fr-FR,fr;q=0.9'))->toBe(__('auth.failed', locale: 'fr'));
 });
 
 test('picks English for a browser that only offers it second', function (): void {
     expect(loginFailureMessage('de-DE,de;q=0.9,en;q=0.8'))->toBe(__('auth.failed', locale: 'en'));
 });
 
-test('falls back to French when the browser offers neither language', function (): void {
-    expect(loginFailureMessage('de-DE,de;q=0.9'))->toBe(__('auth.failed', locale: 'fr'));
+test('falls back to English when the browser offers neither language', function (): void {
+    expect(loginFailureMessage('de-DE,de;q=0.9'))->toBe(__('auth.failed', locale: 'en'));
 });
 
-test('defaults to French when the browser sends no language', function (): void {
+test('defaults to English when the browser sends no language', function (): void {
     // An empty header, because Symfony's test requests inject an en-us
     // Accept-Language default — a truly absent header only exists in production.
-    expect(loginFailureMessage(''))->toBe(__('auth.failed', locale: 'fr'));
+    expect(loginFailureMessage(''))->toBe(__('auth.failed', locale: 'en'));
 });

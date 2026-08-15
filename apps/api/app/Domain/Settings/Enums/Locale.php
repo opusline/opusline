@@ -6,8 +6,8 @@ namespace App\Domain\Settings\Enums;
 
 enum Locale: string
 {
-    case fr_FR = 'fr-FR';
     case en_US = 'en-US';
+    case fr_FR = 'fr-FR';
 
     public static function fromLanguageTag(string $tag): self
     {
@@ -17,7 +17,7 @@ enum Locale: string
             }
         }
 
-        return self::fr_FR;
+        return self::en_US;
     }
 
     /**
@@ -31,8 +31,8 @@ enum Locale: string
     public function languageTag(): string
     {
         return match ($this) {
-            self::fr_FR => 'fr',
             self::en_US => 'en',
+            self::fr_FR => 'fr',
         };
     }
 }

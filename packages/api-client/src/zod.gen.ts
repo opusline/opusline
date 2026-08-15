@@ -366,11 +366,8 @@ export const zInvoiceTodoWorkData = z.object({
 
 /**
  * Locale
- *
- * The account's locale: the language the API answers in and the locale amounts and dates are formatted in. FR and EN only for now; a new case is a one-line addition alongside its `lang/` directory. Case names follow the standard locale identifiers (fr_FR); values are the BCP-47 tags because that is what `Intl.NumberFormat` consumes verbatim, while `languageTag()` reduces them to the `lang/` directory names.
- *
  */
-export const zLocale = z.enum(['fr-FR', 'en-US']);
+export const zLocale = z.enum(['en-US', 'fr-FR']);
 
 /**
  * LoginData

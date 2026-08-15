@@ -35,18 +35,7 @@ test('registration fails with an invalid payload', function (): void {
 });
 
 test('a new account starts in the browser language', function (): void {
-    fromSpa()->withHeader('Accept-Language', 'en-US,en;q=0.9')->postJson('/api/register', [
-        'name' => 'Test User',
-        'email' => 'test@example.com',
-        'password' => 'secret-password',
-        'password_confirmation' => 'secret-password',
-    ])->assertCreated();
-
-    expect(User::sole()->settingsOrFail()->locale)->toBe(Locale::en_US);
-});
-
-test('a new account defaults to French when the browser language is unknown', function (): void {
-    fromSpa()->withHeader('Accept-Language', 'de-DE,de;q=0.9')->postJson('/api/register', [
+    fromSpa()->withHeader('Accept-Language', 'fr-FR,fr;q=0.9')->postJson('/api/register', [
         'name' => 'Test User',
         'email' => 'test@example.com',
         'password' => 'secret-password',
@@ -54,6 +43,17 @@ test('a new account defaults to French when the browser language is unknown', fu
     ])->assertCreated();
 
     expect(User::sole()->settingsOrFail()->locale)->toBe(Locale::fr_FR);
+});
+
+test('a new account defaults to English when the browser language is unknown', function (): void {
+    fromSpa()->withHeader('Accept-Language', 'de-DE,de;q=0.9')->postJson('/api/register', [
+        'name' => 'Test User',
+        'email' => 'test@example.com',
+        'password' => 'secret-password',
+        'password_confirmation' => 'secret-password',
+    ])->assertCreated();
+
+    expect(User::sole()->settingsOrFail()->locale)->toBe(Locale::en_US);
 });
 
 test('registration fails when the email is already taken', function (): void {

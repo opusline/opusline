@@ -195,11 +195,11 @@
                             }
                         }
                     },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     }
                 }
             }
@@ -286,11 +286,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             },
@@ -331,11 +331,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             },
@@ -359,6 +359,12 @@
                     "204": {
                         "description": "No content"
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
                     "409": {
                         "description": "An error",
                         "content": {
@@ -377,12 +383,6 @@
                                 }
                             }
                         }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -415,11 +415,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -452,11 +452,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -489,11 +489,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             },
@@ -534,11 +534,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -589,11 +589,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             },
@@ -625,11 +625,11 @@
                     "204": {
                         "description": "No content"
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -682,11 +682,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -722,11 +722,11 @@
                     "204": {
                         "description": "No content"
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             },
@@ -769,11 +769,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             },
@@ -797,11 +797,11 @@
                     "204": {
                         "description": "No content"
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -900,11 +900,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             },
@@ -928,6 +928,12 @@
                     "204": {
                         "description": "No content"
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
                     "409": {
                         "description": "An error",
                         "content": {
@@ -946,12 +952,6 @@
                                 }
                             }
                         }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -994,6 +994,12 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
                     "409": {
                         "description": "An error",
                         "content": {
@@ -1012,12 +1018,6 @@
                                 }
                             }
                         }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -1050,6 +1050,12 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
                     "409": {
                         "description": "An error",
                         "content": {
@@ -1068,12 +1074,6 @@
                                 }
                             }
                         }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -1115,6 +1115,12 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
                     "409": {
                         "description": "An error",
                         "content": {
@@ -1133,12 +1139,6 @@
                                 }
                             }
                         }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -1171,6 +1171,12 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
                     "409": {
                         "description": "An error",
                         "content": {
@@ -1189,12 +1195,6 @@
                                 }
                             }
                         }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -1237,6 +1237,12 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
                     "409": {
                         "description": "An error",
                         "content": {
@@ -1255,12 +1261,6 @@
                                 }
                             }
                         }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -1329,11 +1329,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -1546,11 +1546,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             },
@@ -1591,11 +1591,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             },
@@ -1619,6 +1619,12 @@
                     "204": {
                         "description": "No content"
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
                     "409": {
                         "description": "An error",
                         "content": {
@@ -1637,12 +1643,6 @@
                                 }
                             }
                         }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -1675,6 +1675,12 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
                     "409": {
                         "description": "An error",
                         "content": {
@@ -1693,12 +1699,6 @@
                                 }
                             }
                         }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -1741,6 +1741,12 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
                     "409": {
                         "description": "An error",
                         "content": {
@@ -1759,12 +1765,6 @@
                                 }
                             }
                         }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -1806,6 +1806,12 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
                     "409": {
                         "description": "An error",
                         "content": {
@@ -1824,12 +1830,6 @@
                                 }
                             }
                         }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -1871,11 +1871,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             },
@@ -1925,11 +1925,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             },
@@ -1962,6 +1962,12 @@
                     "204": {
                         "description": "No content"
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
                     "409": {
                         "description": "An error",
                         "content": {
@@ -1980,12 +1986,6 @@
                                 }
                             }
                         }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -2028,11 +2028,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -2074,11 +2074,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             },
@@ -2128,11 +2128,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -2192,11 +2192,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             },
@@ -2237,11 +2237,11 @@
                     "204": {
                         "description": "No content"
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -2303,11 +2303,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -2329,11 +2329,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             },
@@ -2363,11 +2363,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -2399,14 +2399,14 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
                     },
                     "422": {
                         "$ref": "#/components/responses/ValidationException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -2428,6 +2428,12 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
                     "409": {
                         "description": "An error\n\nAn error\n\nAn error",
                         "content": {
@@ -2441,7 +2447,7 @@
                                                     "type": "string",
                                                     "description": "Error overview.",
                                                     "examples": [
-                                                        "Le bar\u00e8me de l'URSSAF ne s'applique qu'aux entreprises \u00e9tablies en France."
+                                                        "The URSSAF scale only applies to businesses established in France."
                                                     ]
                                                 }
                                             },
@@ -2456,7 +2462,7 @@
                                                     "type": "string",
                                                     "description": "Error overview.",
                                                     "examples": [
-                                                        "La source officielle des taux est d\u00e9sactiv\u00e9e. R\u00e9activez-la pour lire le bar\u00e8me de l'URSSAF."
+                                                        "The official rate source is disabled. Re-enable it to read the URSSAF scale."
                                                     ]
                                                 }
                                             },
@@ -2480,12 +2486,6 @@
                                 }
                             }
                         }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -2631,11 +2631,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -2678,11 +2678,11 @@
                             }
                         }
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             },
@@ -2706,11 +2706,11 @@
                     "204": {
                         "description": "No content"
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -2763,6 +2763,9 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
                     "409": {
                         "description": "An error",
                         "content": {
@@ -2781,9 +2784,6 @@
                                 }
                             }
                         }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             },
@@ -2813,6 +2813,9 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
                     "404": {
                         "description": "An error",
                         "content": {
@@ -2831,9 +2834,6 @@
                                 }
                             }
                         }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             },
@@ -2846,6 +2846,9 @@
                     "204": {
                         "description": "No content"
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
                     "404": {
                         "description": "An error",
                         "content": {
@@ -2864,9 +2867,6 @@
                                 }
                             }
                         }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -2888,6 +2888,9 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
                     "404": {
                         "description": "An error",
                         "content": {
@@ -2906,9 +2909,6 @@
                                 }
                             }
                         }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -2930,6 +2930,9 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
                     "404": {
                         "description": "An error",
                         "content": {
@@ -2948,9 +2951,6 @@
                                 }
                             }
                         }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -2982,6 +2982,9 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
                     "404": {
                         "description": "An error",
                         "content": {
@@ -3000,9 +3003,6 @@
                                 }
                             }
                         }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -3034,6 +3034,9 @@
                             }
                         }
                     },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
                     "404": {
                         "description": "An error",
                         "content": {
@@ -3052,9 +3055,6 @@
                                 }
                             }
                         }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -3959,7 +3959,7 @@
             },
             "Currency": {
                 "type": "string",
-                "description": "The currencies an account can be denominated in. Backed by the ISO 4217 code rather than an int \u2014 unlike every other enum here \u2014 because the code *is* the identifier the rest of the stack speaks: moneyphp, `Intl.NumberFormat`, and the `char(3)` columns all round-trip it verbatim.  Every case must have an ISO minor unit of 2, because storage is `*_cents` columns and the whole codebase reads them as hundredths. CurrencyTest enforces it, so adding JPY (0 decimals) or TND (3) fails the suite rather than quietly mis-stating amounts by two orders of magnitude.\n",
+                "description": "The currencies an account can be denominated in. Backed by the ISO 4217 code rather than an int — unlike every other enum here — because the code *is* the identifier the rest of the stack speaks: moneyphp, `Intl.NumberFormat`, and the `char(3)` columns all round-trip it verbatim.  Every case must have an ISO minor unit of 2, because storage is `*_cents` columns and the whole codebase reads them as hundredths. CurrencyTest enforces it, so adding JPY (0 decimals) or TND (3) fails the suite rather than quietly mis-stating amounts by two orders of magnitude.\n",
                 "enum": [
                     "EUR",
                     "USD",
@@ -4014,7 +4014,7 @@
             },
             "DateFormat": {
                 "type": "integer",
-                "description": "The numeric layout calendar dates are displayed in \u2014 31/08/2026 or 2026-08-31. Only digit-only dates follow this preference; weekday and month names follow the account locale.\n",
+                "description": "The numeric layout calendar dates are displayed in — 31/08/2026 or 2026-08-31. Only digit-only dates follow this preference; weekday and month names follow the account locale.\n",
                 "enum": [
                     0,
                     1
@@ -4568,7 +4568,7 @@
             },
             "InvoiceTodoKind": {
                 "type": "integer",
-                "description": "What the \"\u00c0 traiter\" list can put in front of you: money that was billed and has not come in, and money that was worked and has not been billed. Drafts are not here \u2014 an unsent draft is a note to self, not a debt. Labels live on the frontend, like every other enum here.\n",
+                "description": "What the \"À traiter\" list can put in front of you: money that was billed and has not come in, and money that was worked and has not been billed. Drafts are not here — an unsent draft is a note to self, not a debt. Labels live on the frontend, like every other enum here.\n",
                 "enum": [
                     0,
                     1
@@ -4676,14 +4676,13 @@
             },
             "Locale": {
                 "type": "string",
-                "description": "The account's locale: the language the API answers in and the locale amounts and dates are formatted in. FR and EN only for now; a new case is a one-line addition alongside its `lang/` directory. Case names follow the standard locale identifiers (fr_FR); values are the BCP-47 tags because that is what `Intl.NumberFormat` consumes verbatim, while `languageTag()` reduces them to the `lang/` directory names.\n",
                 "enum": [
-                    "fr-FR",
-                    "en-US"
+                    "en-US",
+                    "fr-FR"
                 ],
                 "x-enum-varnames": [
-                    "fr_FR",
-                    "en_US"
+                    "en_US",
+                    "fr_FR"
                 ],
                 "title": "Locale"
             },
