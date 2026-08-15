@@ -8,6 +8,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AuthCard } from "@/features/auth/components/auth-card";
 import { RegisterForm } from "@/features/auth/components/register-form";
 import { serverFieldErrors } from "@/lib/validation";
+import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute("/_guest/register")({
   component: RegisterPage,
@@ -39,18 +40,18 @@ function RegisterPage() {
     <AuthCard
       footer={
         <>
-          Déjà un compte ?{" "}
+          {m.auth_have_account()}{" "}
           <Link className="text-primary hover:underline" to="/login">
-            Se connecter
+            {m.auth_login_submit()}
           </Link>
         </>
       }
-      title="Créer un compte"
+      title={m.auth_create_account()}
     >
       <RegisterForm
         error={
           register.error && !serverFieldErrors(register.error)
-            ? "L'inscription a échoué. Réessayez."
+            ? m.auth_register_failed()
             : null
         }
         isPending={register.isPending}

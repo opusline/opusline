@@ -8,6 +8,8 @@ import { useForm } from "@tanstack/react-form";
 import { CircleAlert } from "lucide-react";
 import * as z from "zod/mini";
 
+import { m } from "@/paraglide/messages.js";
+
 const loginSchema = z.extend(zLoginData, { remember: z.boolean() });
 
 type LoginFormProps = {
@@ -54,7 +56,9 @@ export function LoginForm({ onSubmit, isPending, error }: LoginFormProps) {
             field.state.meta.isTouched && !field.state.meta.isValid;
           return (
             <Field data-invalid={isInvalid}>
-              <FieldLabel htmlFor={field.name}>Adresse e-mail</FieldLabel>
+              <FieldLabel htmlFor={field.name}>
+                {m.auth_email_label()}
+              </FieldLabel>
               <Input
                 aria-invalid={isInvalid}
                 id={field.name}
@@ -76,7 +80,9 @@ export function LoginForm({ onSubmit, isPending, error }: LoginFormProps) {
             field.state.meta.isTouched && !field.state.meta.isValid;
           return (
             <Field data-invalid={isInvalid}>
-              <FieldLabel htmlFor={field.name}>Mot de passe</FieldLabel>
+              <FieldLabel htmlFor={field.name}>
+                {m.auth_password_label()}
+              </FieldLabel>
               <Input
                 aria-invalid={isInvalid}
                 id={field.name}
@@ -101,7 +107,7 @@ export function LoginForm({ onSubmit, isPending, error }: LoginFormProps) {
               onCheckedChange={(checked) => field.handleChange(checked)}
             />
             <FieldLabel htmlFor={field.name}>
-              Rester connecté 30 jours
+              {m.auth_remember_label()}
             </FieldLabel>
           </Field>
         )}
@@ -112,7 +118,7 @@ export function LoginForm({ onSubmit, isPending, error }: LoginFormProps) {
         size="2xl"
         type="submit"
       >
-        Se connecter
+        {m.auth_login_submit()}
       </Button>
     </form>
   );
