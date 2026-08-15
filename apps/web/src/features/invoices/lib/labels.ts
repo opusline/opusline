@@ -5,6 +5,7 @@ import {
   calendarDaysBetween,
   capitalizedMonthLabel,
 } from "@/lib/dates";
+import { m } from "@/paraglide/messages.js";
 
 /** "Juin 2026" — the period an invoice covers, capitalised as a label. */
 function periodLabel(locale: Locale, invoice: InvoiceData): string | null {
@@ -37,18 +38,22 @@ function invoiceState(
   const paidIn = daysToPay(invoice);
 
   if (paidIn !== null) {
-    return `payée en ${paidIn} j`;
+    return m.invoices_state_paid_in({ days: paidIn });
   }
 
   if (invoice.isLate) {
-    return `${daysLate(invoice, accountToday)} j de retard`;
+    return m.invoices_state_days_late({
+      days: daysLate(invoice, accountToday),
+    });
   }
 
   if (invoice.status === 0) {
-    return "brouillon";
+    return m.invoices_state_draft();
   }
 
-  return `échéance ${calendarDateNumericLabel(dateFormat, invoice.dueOn)}`;
+  return m.invoices_state_due({
+    date: calendarDateNumericLabel(dateFormat, invoice.dueOn),
+  });
 }
 
 /** The row's second line: which period, and where the invoice stands. */
@@ -83,5 +88,5 @@ export function averageDaysToPay(invoices: InvoiceData[]): number | null {
 }
 
 export function invoiceCountLabel(count: number): string {
-  return count === 1 ? "1 facture" : `${count} factures`;
+  return m.invoices_count({ count });
 }

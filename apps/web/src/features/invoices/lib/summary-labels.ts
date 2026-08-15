@@ -13,44 +13,42 @@ import {
   fromCalendarDate,
 } from "@/lib/dates";
 import { formatBilledDays, formatBilledHours } from "@/lib/durations";
+import { m } from "@/paraglide/messages.js";
 
 export function openInvoicesLabel(toCollect: InvoiceTotalData): string {
-  if (toCollect.count === 0) {
-    return "rien en attente";
-  }
-
-  return toCollect.count === 1
-    ? "1 facture ouverte"
-    : `${toCollect.count} factures ouvertes`;
+  return toCollect.count === 0
+    ? m.invoices_none_pending()
+    : m.invoices_open_count({ count: toCollect.count });
 }
 
 /** "3 échues · jusqu'à 147 j" — the count, then the one that has waited longest. */
 export function overdueLabel(overdue: InvoiceOverdueData): string {
-  if (overdue.count === 0) {
-    return "aucune échéance dépassée";
-  }
-
-  const due = overdue.count === 1 ? "1 échue" : `${overdue.count} échues`;
-
-  return `${due} · jusqu'à ${overdue.maxDaysLate} j`;
+  return overdue.count === 0
+    ? m.invoices_no_overdue()
+    : m.invoices_overdue_up_to({
+        count: overdue.count,
+        days: overdue.maxDaysLate,
+      });
 }
 
-export const INVOICE_FORECAST_BUCKET_LABELS: Record<
+const INVOICE_FORECAST_BUCKET_MESSAGES: Record<
   InvoiceForecastBucket,
-  string
+  () => string
 > = {
-  1: "0 – 30 j",
-  2: "31 – 60 j",
+  1: m.invoices_forecast_bucket_first,
+  2: m.invoices_forecast_bucket_second,
 };
 
-export function periodsLabel(monthUnbilled: InvoiceTotalData): string {
-  if (monthUnbilled.count === 0) {
-    return "rien en attente de facture";
-  }
+export function invoiceForecastBucketLabel(
+  bucket: InvoiceForecastBucket,
+): string {
+  return INVOICE_FORECAST_BUCKET_MESSAGES[bucket]();
+}
 
-  return monthUnbilled.count === 1
-    ? "1 période en attente de facture"
-    : `${monthUnbilled.count} périodes en attente de facture`;
+export function periodsLabel(monthUnbilled: InvoiceTotalData): string {
+  return monthUnbilled.count === 0
+    ? m.invoices_periods_none()
+    : m.invoices_periods_count({ count: monthUnbilled.count });
 }
 
 /**
@@ -79,7 +77,10 @@ export function unbilledWorkTitle(
 
   return quantity === null
     ? work.missionName
-    : `${quantity} sur ${work.missionName}`;
+    : m.invoices_unbilled_work_title({
+        quantity,
+        missionName: work.missionName,
+      });
 }
 
 const DAY_AND_MONTH: Intl.DateTimeFormatOptions = {
@@ -102,7 +103,7 @@ export function unbilledWorkDetail(
   const lastLabel = dayAndMonth.format(last);
 
   if (work.firstEntryOn === work.lastEntryOn) {
-    return `Entrées du ${lastLabel}`;
+    return m.invoices_entries_on({ date: lastLabel });
   }
 
   const firstLabel =
@@ -110,7 +111,7 @@ export function unbilledWorkDetail(
       ? String(first.getDate()).padStart(2, "0")
       : dayAndMonth.format(first);
 
-  return `Entrées du ${firstLabel} au ${lastLabel}`;
+  return m.invoices_entries_range({ first: firstLabel, last: lastLabel });
 }
 
 /** "Échue le 30/06/2026 · 41 j de retard". */
@@ -118,5 +119,8 @@ export function overdueDetail(
   dateFormat: DateFormat,
   overdue: InvoiceTodoOverdueData,
 ): string {
-  return `Échue le ${calendarDateNumericLabel(dateFormat, overdue.dueOn)} · ${overdue.daysLate} j de retard`;
+  return m.invoices_overdue_detail({
+    date: calendarDateNumericLabel(dateFormat, overdue.dueOn),
+    days: overdue.daysLate,
+  });
 }

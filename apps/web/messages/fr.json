@@ -137,6 +137,133 @@
   "invoice_status_late": "En retard",
   "invoice_status_paid": "Payée",
   "invoice_status_sent": "Envoyée",
+  "invoices_already_overdue": "déjà échus",
+  "invoices_amount_ht_label": "Montant HT",
+  "invoices_average_days_to_pay": "{days} j en moyenne pour payer",
+  "invoices_bank_balance_sub": "saisi à la main · importer un relevé",
+  "invoices_bank_balance_tile": "Solde compte pro",
+  "invoices_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} facture",
+        "countPlural=other": "{count} factures"
+      }
+    }
+  ],
+  "invoices_covered_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} temps saisi sera marqué comme facturé et disparaîtra de « à facturer ».",
+        "countPlural=other": "{count} temps saisis seront marqués comme facturés et disparaîtront de « à facturer »."
+      }
+    }
+  ],
+  "invoices_covered_none": "Aucun temps ne sera rattaché à cette facture.",
+  "invoices_create_failed": "La facture n'a pas pu être créée.",
+  "invoices_create_title": "Créer la facture",
+  "invoices_creating": "Création…",
+  "invoices_drawer_title": "Facture",
+  "invoices_due_label": "Échéance",
+  "invoices_empty_filtered": "Changez de filtre, ou ajoutez une facture émise ailleurs.",
+  "invoices_empty_none": "Les factures sont éditées ailleurs. Ajoutez-en une pour suivre ce qui est facturé et ce qui est encaissé.",
+  "invoices_empty_title": "Aucune facture ici",
+  "invoices_entries_on": "Entrées du {date}",
+  "invoices_entries_range": "Entrées du {first} au {last}",
+  "invoices_fact_period": "Période",
+  "invoices_fact_time_value": "Valeur du temps",
+  "invoices_filter_aria": "Filtrer les factures",
+  "invoices_forecast_bucket_first": "0 – 30 j",
+  "invoices_forecast_bucket_second": "31 – 60 j",
+  "invoices_forecast_title": "Attendu sur 60 jours",
+  "invoices_history_title": "Historique",
+  "invoices_issued_on_label": "Émise le",
+  "invoices_load_failed": "Impossible de charger les factures. Réessayez dans un instant.",
+  "invoices_loading": "Chargement…",
+  "invoices_mark_paid": "Marquer encaissée",
+  "invoices_mark_sent": "Marquer envoyée",
+  "invoices_month_all_billed": "Tout le temps saisi ce mois-ci est facturé.",
+  "invoices_month_unbilled": "saisis ce mois-ci, pas encore facturés.",
+  "invoices_more_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "+ {count} autre",
+        "countPlural=other": "+ {count} autres"
+      }
+    }
+  ],
+  "invoices_no_mission": "Sans mission",
+  "invoices_no_overdue": "aucune échéance dépassée",
+  "invoices_no_reference": "Sans référence",
+  "invoices_none_pending": "rien en attente",
+  "invoices_note_reminder": "Noter une relance",
+  "invoices_open_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} facture ouverte",
+        "countPlural=other": "{count} factures ouvertes"
+      }
+    }
+  ],
+  "invoices_overdue_detail": "Échue le {date} · {days} j de retard",
+  "invoices_overdue_tile": "Dont en retard",
+  "invoices_overdue_up_to": [
+    {
+      "declarations": [
+        "input days",
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} échue · jusqu'à {days} j",
+        "countPlural=other": "{count} échues · jusqu'à {days} j"
+      }
+    }
+  ],
+  "invoices_page_intro": "Les factures sont éditées ailleurs. Opusline garde la trace de ce qui est facturé, de ce qui reste à facturer et de ce qui est encaissé.",
+  "invoices_paid_on_hint": "La date où l'argent est arrivé. URSSAF et TVA rattachent la recette à cette date, pas à celle de la facture.",
+  "invoices_paid_on_label": "Encaissée le",
+  "invoices_pay_failed": "L'encaissement n'a pas pu être enregistré.",
+  "invoices_pending_count": "{count} en attente",
+  "invoices_periods_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} période en attente de facture",
+        "countPlural=other": "{count} périodes en attente de facture"
+      }
+    }
+  ],
+  "invoices_periods_none": "rien en attente de facture",
+  "invoices_reference_failed": "La référence n'a pas pu être enregistrée.",
+  "invoices_reference_hint": "Celle de la facture émise ailleurs. Laissez vide pour un brouillon.",
+  "invoices_reference_label": "Référence",
+  "invoices_remind_failed": "La relance n'a pas pu être notée.",
+  "invoices_scope_all": "Toutes",
+  "invoices_scope_draft": "Brouillons",
+  "invoices_scope_open": "À encaisser",
+  "invoices_scope_paid": "Payées",
+  "invoices_send_failed": "La facture n'a pas pu être marquée envoyée.",
+  "invoices_send_reference_hint": "Celle du document envoyé au client. Une facture émise en porte une.",
+  "invoices_state_days_late": "{days} j de retard",
+  "invoices_state_draft": "brouillon",
+  "invoices_state_due": "échéance {date}",
+  "invoices_state_paid_in": "payée en {days} j",
+  "invoices_to_invoice_badge": "À facturer",
+  "invoices_todo_empty": "Tout est facturé et encaissé.",
+  "invoices_todo_title": "À traiter",
+  "invoices_unbilled_work_title": "{quantity} sur {missionName}",
+  "invoices_vat_hint": "La TVA et le TTC sont calculés depuis vos paramètres.",
+  "invoices_vat_rate_fact": "TVA {rate} %",
   "mission_status_active": "Active",
   "mission_status_completed": "Terminée",
   "mission_status_paused": "En pause",

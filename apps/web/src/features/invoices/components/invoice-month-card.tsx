@@ -5,6 +5,8 @@ import { formatWholeAmount } from "@/lib/billing";
 
 import { capitalizedMonthLabel } from "@/lib/dates";
 
+import { m } from "@/paraglide/messages.js";
+
 import { periodsLabel } from "../lib/summary-labels";
 
 /**
@@ -28,11 +30,11 @@ export function InvoiceMonthCard({ summary }: { summary: InvoiceSummaryData }) {
           <span className="font-mono text-foreground-hi tabular-nums">
             {formatWholeAmount(format, monthUnbilled.amount.amount)}
           </span>{" "}
-          saisis ce mois-ci, pas encore facturés.
+          {m.invoices_month_unbilled()}
         </p>
       ) : (
         <p className="mt-3 text-muted-foreground-3 text-sm text-pretty">
-          Tout le temps saisi ce mois-ci est facturé.
+          {m.invoices_month_all_billed()}
         </p>
       )}
 

@@ -11,6 +11,7 @@ import {
   useMoneyFormat,
 } from "@/components/money-format-provider";
 import { formatWholeAmount } from "@/lib/billing";
+import { m } from "@/paraglide/messages.js";
 
 import {
   overdueDetail,
@@ -36,15 +37,19 @@ export function InvoiceTodoPanel({
   return (
     <section className="overflow-hidden rounded-md border bg-card">
       <header className="flex items-baseline justify-between gap-3 border-b bg-muted-2 px-5 py-3">
-        <h2 className="font-medium text-foreground-hi text-sm">À traiter</h2>
+        <h2 className="font-medium text-foreground-hi text-sm">
+          {m.invoices_todo_title()}
+        </h2>
         <span className="text-muted-foreground-3 text-xs">
-          {todoTotal === 0 ? "rien en attente" : `${todoTotal} en attente`}
+          {todoTotal === 0
+            ? m.invoices_none_pending()
+            : m.invoices_pending_count({ count: todoTotal })}
         </span>
       </header>
 
       {todo.length === 0 ? (
         <p className="px-5 py-6 text-muted-foreground-3 text-sm">
-          Tout est facturé et encaissé.
+          {m.invoices_todo_empty()}
         </p>
       ) : (
         <ul>
@@ -72,7 +77,7 @@ export function InvoiceTodoPanel({
 
       {todoTotal > todo.length && (
         <p className="border-t px-5 py-2.5 text-muted-foreground-3 text-xs">
-          {`+ ${todoTotal - todo.length} autres`}
+          {m.invoices_more_count({ count: todoTotal - todo.length })}
         </p>
       )}
     </section>
@@ -130,8 +135,8 @@ function OverdueRow({
 
   return (
     <Row
-      badge={<Badge variant="warn">En retard</Badge>}
-      title={`${overdue.number ?? "Sans référence"} · ${todo.clientName}`}
+      badge={<Badge variant="warn">{m.invoice_status_late()}</Badge>}
+      title={`${overdue.number ?? m.invoices_no_reference()} · ${todo.clientName}`}
       detail={overdueDetail(dateFormat, overdue)}
       amount={formatWholeAmount(format, todo.amount.amount)}
       action={
@@ -141,7 +146,7 @@ function OverdueRow({
           disabled={isPending}
           onClick={() => onRemind(overdue.invoiceId)}
         >
-          Noter une relance
+          {m.invoices_note_reminder()}
         </Button>
       }
     />
@@ -161,13 +166,13 @@ function UnbilledWorkRow({
 
   return (
     <Row
-      badge={<Badge variant="brand">À facturer</Badge>}
+      badge={<Badge variant="brand">{m.invoices_to_invoice_badge()}</Badge>}
       title={unbilledWorkTitle(format.locale, work)}
       detail={unbilledWorkDetail(format.locale, work)}
       amount={`${formatWholeAmount(format, todo.amount.amount)} HT`}
       action={
         <Button size="sm" onClick={() => onCreateInvoice(todo)}>
-          Créer la facture
+          {m.invoices_create_title()}
         </Button>
       }
     />

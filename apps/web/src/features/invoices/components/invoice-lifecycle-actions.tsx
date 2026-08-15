@@ -4,6 +4,8 @@ import { Input } from "@opusline/ui/components/input";
 import { Label } from "@opusline/ui/components/label";
 import { useId, useState } from "react";
 
+import { m } from "@/paraglide/messages.js";
+
 type InvoiceLifecycleActionsProps = {
   invoice: InvoiceData;
   isPending: boolean;
@@ -84,7 +86,9 @@ function SendStep({
     >
       {needsReference && (
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor={referenceFieldId}>Référence</Label>
+          <Label htmlFor={referenceFieldId}>
+            {m.invoices_reference_label()}
+          </Label>
           <Input
             id={referenceFieldId}
             value={reference}
@@ -92,7 +96,7 @@ function SendStep({
             onChange={(event) => setReference(event.target.value)}
           />
           <p className="text-muted-foreground-3 text-xs">
-            Celle du document envoyé au client. Une facture émise en porte une.
+            {m.invoices_send_reference_hint()}
           </p>
         </div>
       )}
@@ -102,7 +106,7 @@ function SendStep({
         className="self-start"
         disabled={isPending || (needsReference && trimmed === "")}
       >
-        {isPending ? "Enregistrement…" : "Marquer envoyée"}
+        {isPending ? m.settings_saving() : m.invoices_mark_sent()}
       </Button>
     </form>
   );
@@ -133,7 +137,7 @@ function CollectStep({
       }}
     >
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor={paidOnFieldId}>Encaissée le</Label>
+        <Label htmlFor={paidOnFieldId}>{m.invoices_paid_on_label()}</Label>
         <Input
           id={paidOnFieldId}
           type="date"
@@ -143,14 +147,13 @@ function CollectStep({
           onChange={(event) => setPaidOn(event.target.value)}
         />
         <p className="text-muted-foreground-3 text-xs">
-          La date où l'argent est arrivé. URSSAF et TVA rattachent la recette à
-          cette date, pas à celle de la facture.
+          {m.invoices_paid_on_hint()}
         </p>
       </div>
 
       <div className="flex flex-wrap gap-2">
         <Button type="submit" disabled={isPending || paidOn === ""}>
-          {isPending ? "Enregistrement…" : "Marquer encaissée"}
+          {isPending ? m.settings_saving() : m.invoices_mark_paid()}
         </Button>
         <Button
           type="button"
@@ -158,7 +161,7 @@ function CollectStep({
           disabled={isPending}
           onClick={onRemind}
         >
-          Noter une relance
+          {m.invoices_note_reminder()}
         </Button>
       </div>
     </form>

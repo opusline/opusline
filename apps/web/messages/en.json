@@ -137,6 +137,133 @@
   "invoice_status_late": "Late",
   "invoice_status_paid": "Paid",
   "invoice_status_sent": "Sent",
+  "invoices_already_overdue": "already overdue",
+  "invoices_amount_ht_label": "Amount HT",
+  "invoices_average_days_to_pay": "{days} d average to pay",
+  "invoices_bank_balance_sub": "entered by hand · import a statement",
+  "invoices_bank_balance_tile": "Business account balance",
+  "invoices_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} invoice",
+        "countPlural=other": "{count} invoices"
+      }
+    }
+  ],
+  "invoices_covered_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} tracked time will be marked as invoiced and leave “to invoice”.",
+        "countPlural=other": "{count} tracked times will be marked as invoiced and leave “to invoice”."
+      }
+    }
+  ],
+  "invoices_covered_none": "No tracked time will be attached to this invoice.",
+  "invoices_create_failed": "The invoice could not be created.",
+  "invoices_create_title": "Create the invoice",
+  "invoices_creating": "Creating…",
+  "invoices_drawer_title": "Invoice",
+  "invoices_due_label": "Due",
+  "invoices_empty_filtered": "Change the filter, or add an invoice issued elsewhere.",
+  "invoices_empty_none": "Invoices are edited elsewhere. Add one to track what is invoiced and what has been collected.",
+  "invoices_empty_title": "No invoices here",
+  "invoices_entries_on": "Entries on {date}",
+  "invoices_entries_range": "Entries from {first} to {last}",
+  "invoices_fact_period": "Period",
+  "invoices_fact_time_value": "Time value",
+  "invoices_filter_aria": "Filter invoices",
+  "invoices_forecast_bucket_first": "0 – 30 d",
+  "invoices_forecast_bucket_second": "31 – 60 d",
+  "invoices_forecast_title": "Expected within 60 days",
+  "invoices_history_title": "History",
+  "invoices_issued_on_label": "Issued on",
+  "invoices_load_failed": "The invoices could not be loaded. Try again in a moment.",
+  "invoices_loading": "Loading…",
+  "invoices_mark_paid": "Mark as collected",
+  "invoices_mark_sent": "Mark as sent",
+  "invoices_month_all_billed": "All time tracked this month is invoiced.",
+  "invoices_month_unbilled": "tracked this month, not yet invoiced.",
+  "invoices_more_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "+ {count} more",
+        "countPlural=other": "+ {count} more"
+      }
+    }
+  ],
+  "invoices_no_mission": "No mission",
+  "invoices_no_overdue": "no overdue invoices",
+  "invoices_no_reference": "No reference",
+  "invoices_none_pending": "nothing pending",
+  "invoices_note_reminder": "Note a reminder",
+  "invoices_open_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} open invoice",
+        "countPlural=other": "{count} open invoices"
+      }
+    }
+  ],
+  "invoices_overdue_detail": "Overdue since {date} · {days} d late",
+  "invoices_overdue_tile": "Of which late",
+  "invoices_overdue_up_to": [
+    {
+      "declarations": [
+        "input days",
+        "input count",
+        "local countPlural = count: plural"
+      ],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} overdue · up to {days} d",
+        "countPlural=other": "{count} overdue · up to {days} d"
+      }
+    }
+  ],
+  "invoices_page_intro": "Invoices are edited elsewhere. Opusline keeps track of what is invoiced, what remains to invoice and what has been collected.",
+  "invoices_paid_on_hint": "The date the money arrived. URSSAF and VAT attach the revenue to this date, not to the invoice's.",
+  "invoices_paid_on_label": "Collected on",
+  "invoices_pay_failed": "The payment could not be recorded.",
+  "invoices_pending_count": "{count} pending",
+  "invoices_periods_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} period awaiting an invoice",
+        "countPlural=other": "{count} periods awaiting an invoice"
+      }
+    }
+  ],
+  "invoices_periods_none": "nothing awaiting an invoice",
+  "invoices_reference_failed": "The reference could not be saved.",
+  "invoices_reference_hint": "The one on the invoice issued elsewhere. Leave empty for a draft.",
+  "invoices_reference_label": "Reference",
+  "invoices_remind_failed": "The reminder could not be recorded.",
+  "invoices_scope_all": "All",
+  "invoices_scope_draft": "Drafts",
+  "invoices_scope_open": "To collect",
+  "invoices_scope_paid": "Paid",
+  "invoices_send_failed": "The invoice could not be marked as sent.",
+  "invoices_send_reference_hint": "The one on the document sent to the client. An issued invoice carries one.",
+  "invoices_state_days_late": "{days} d late",
+  "invoices_state_draft": "draft",
+  "invoices_state_due": "due {date}",
+  "invoices_state_paid_in": "paid in {days} d",
+  "invoices_to_invoice_badge": "To invoice",
+  "invoices_todo_empty": "Everything is invoiced and collected.",
+  "invoices_todo_title": "To handle",
+  "invoices_unbilled_work_title": "{quantity} on {missionName}",
+  "invoices_vat_hint": "VAT and the TTC total are computed from your settings.",
+  "invoices_vat_rate_fact": "VAT {rate} %",
   "mission_status_active": "Active",
   "mission_status_completed": "Completed",
   "mission_status_paused": "Paused",

@@ -24,6 +24,7 @@ import {
   parseRateToCents,
 } from "@/lib/billing";
 import { calendarRangeLabel } from "@/lib/dates";
+import { m } from "@/paraglide/messages.js";
 
 import { unbilledWorkTitle } from "../lib/summary-labels";
 import { Fact } from "./invoice-fact";
@@ -134,7 +135,7 @@ function CreateInvoiceForm({
       }}
     >
       <DialogHeader>
-        <DialogTitle>Créer la facture</DialogTitle>
+        <DialogTitle>{m.invoices_create_title()}</DialogTitle>
         <DialogDescription>
           {unbilledWorkTitle(format.locale, work)}
         </DialogDescription>
@@ -144,7 +145,7 @@ function CreateInvoiceForm({
         <Fact label="Client" value={todo.clientName} tone="text" />
         <Fact label="Mission" value={work.missionName} tone="text" />
         <Fact
-          label="Période"
+          label={m.invoices_fact_period()}
           value={
             calendarRangeLabel(
               dateFormat,
@@ -154,14 +155,14 @@ function CreateInvoiceForm({
           }
         />
         <Fact
-          label="Valeur du temps"
+          label={m.invoices_fact_time_value()}
           value={formatAmountWithCents(format, todo.amount.amount)}
         />
       </dl>
 
       <div className="mt-5 flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor={numberFieldId}>Référence</Label>
+          <Label htmlFor={numberFieldId}>{m.invoices_reference_label()}</Label>
           <Input
             id={numberFieldId}
             value={number}
@@ -169,12 +170,12 @@ function CreateInvoiceForm({
             onChange={(event) => setNumber(event.target.value)}
           />
           <p className="text-muted-foreground-3 text-xs">
-            Celle de la facture émise ailleurs. Laissez vide pour un brouillon.
+            {m.invoices_reference_hint()}
           </p>
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor={amountFieldId}>Montant HT</Label>
+          <Label htmlFor={amountFieldId}>{m.invoices_amount_ht_label()}</Label>
           <Input
             id={amountFieldId}
             inputMode="decimal"
@@ -183,7 +184,7 @@ function CreateInvoiceForm({
             onChange={(event) => setAmountDraft(event.target.value)}
           />
           <p className="text-muted-foreground-3 text-xs">
-            La TVA et le TTC sont calculés depuis vos paramètres.
+            {m.invoices_vat_hint()}
           </p>
         </div>
       </div>
@@ -200,7 +201,7 @@ function CreateInvoiceForm({
 
       <div className="mt-5 flex justify-end">
         <Button type="submit" disabled={!canSubmit}>
-          {isSaving ? "Création…" : "Créer la facture"}
+          {isSaving ? m.invoices_creating() : m.invoices_create_title()}
         </Button>
       </div>
     </form>
@@ -208,11 +209,7 @@ function CreateInvoiceForm({
 }
 
 function coveredTimeLabel(entryCount: number): string {
-  if (entryCount === 0) {
-    return "Aucun temps ne sera rattaché à cette facture.";
-  }
-
-  return entryCount === 1
-    ? "1 temps saisi sera marqué comme facturé et disparaîtra de « à facturer »."
-    : `${entryCount} temps saisis seront marqués comme facturés et disparaîtront de « à facturer ».`;
+  return entryCount === 0
+    ? m.invoices_covered_none()
+    : m.invoices_covered_count({ count: entryCount });
 }
