@@ -77,7 +77,7 @@ class AuthController extends Controller
 
     public function updateReleaseNotesSeen(UpdateReleaseNotesSeenData $data, #[CurrentUser] User $user, MarkReleaseNotesSeen $markReleaseNotesSeen): JsonResponse
     {
-        $markReleaseNotesSeen->handle($user, $data);
+        $user = $markReleaseNotesSeen->handle($user, $data);
 
         return response()->json(UserData::from($user));
     }

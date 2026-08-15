@@ -5,6 +5,7 @@ on:
     types: [opened, edited, synchronize, reopened, labeled, unlabeled]
 
 permissions:
+  contents: read
   pull-requests: read
 
 concurrency:
@@ -42,11 +43,23 @@ jobs:
           # so fragments that landed on the base branch after the PR opened
           # cannot satisfy the gate, and status "added" restricts it to
           # fragments this PR itself adds — all without cloning the repo.
-          if gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" \
-            --paginate --jq '.[] | select(.status == "added") | .filename' \
-            | grep -q '^\.release-notes/.*\.json$'; then
-            echo "Release-note fragment found."
-          else
+          added_fragments=$(gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" \
+            --paginate \
+            --jq '.[] | select(.status == "added") | select(.filename | test("^\\.release-notes/.*\\.json$")) | "\(.sha) \(.filename)"')
+          if [ -z "$added_fragments" ]; then
             echo "::error::This feat/fix PR ships no release-note fragment. Add a JSON file under .release-notes/ (see .release-notes/README.md), or apply the 'no-release-note' label if nothing is user-visible."
             exit 1
           fi
+          # Validate each fragment here, while its author is present, instead
+          # of at release time in scripts/assemble-release-notes.mjs. Blob
+          # shas from the files API resolve in the base repo even on fork PRs.
+          while read -r blob_sha fragment; do
+            if gh api "repos/${{ github.repository }}/git/blobs/$blob_sha" --jq '.content' \
+              | base64 -d \
+              | jq -e '(.kind | IN("new", "improved", "fixed")) and (.text | type == "string" and test("\\S"))' > /dev/null; then
+              echo "$fragment is a valid release-note fragment."
+            else
+              echo "::error file=$fragment::Fragment must be JSON with a kind of new|improved|fixed and a non-empty text (see .release-notes/README.md)."
+              exit 1
+            fi
+          done <<< "$added_fragments"

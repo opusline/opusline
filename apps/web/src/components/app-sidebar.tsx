@@ -236,7 +236,10 @@ export function AppSidebar() {
             </SidebarMenuButton>
             {unreadReleaseNotes > 0 && (
               <>
-                <SidebarMenuBadge className="right-3.5 rounded-full bg-primary font-mono text-2xs text-primary-foreground peer-data-active/menu-button:text-primary-foreground peer-hover/menu-button:text-primary-foreground">
+                <SidebarMenuBadge
+                  aria-hidden
+                  className="right-3.5 rounded-full bg-primary font-mono text-2xs text-primary-foreground peer-data-active/menu-button:text-primary-foreground peer-hover/menu-button:text-primary-foreground"
+                >
                   {unreadReleaseNotes}
                 </SidebarMenuBadge>
                 <span
