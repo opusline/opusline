@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Settings\Rates\RatesUnavailable;
+use App\Http\Support\SetLocale;
 use App\Http\Users\Support\ThemeCookie;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
@@ -18,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
         $middleware->throttleApi();
+        $middleware->api(append: SetLocale::class);
 
         $middleware->encryptCookies(except: [ThemeCookie::NAME]);
     })

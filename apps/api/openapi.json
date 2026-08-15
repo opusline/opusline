@@ -2447,7 +2447,7 @@
                                                     "type": "string",
                                                     "description": "Error overview.",
                                                     "examples": [
-                                                        "Le barème de l'URSSAF ne s'applique qu'aux entreprises établies en France."
+                                                        "The URSSAF scale only applies to businesses established in France."
                                                     ]
                                                 }
                                             },
@@ -2462,7 +2462,7 @@
                                                     "type": "string",
                                                     "description": "Error overview.",
                                                     "examples": [
-                                                        "La source officielle des taux est désactivée. Réactivez-la pour lire le barème de l'URSSAF."
+                                                        "The official rate source is disabled. Re-enable it to read the URSSAF scale."
                                                     ]
                                                 }
                                             },
@@ -4014,7 +4014,7 @@
             },
             "DateFormat": {
                 "type": "integer",
-                "description": "The numeric layout calendar dates are displayed in — 31/08/2026 or 2026-08-31. Weekday and month names stay French until i18n lands; only digit-only dates follow this preference.\n",
+                "description": "The numeric layout calendar dates are displayed in — 31/08/2026 or 2026-08-31. Only digit-only dates follow this preference; weekday and month names follow the account locale.\n",
                 "enum": [
                     0,
                     1
@@ -4676,14 +4676,13 @@
             },
             "Locale": {
                 "type": "string",
-                "description": "The locale amounts and dates are formatted in — not the UI language, which stays French until i18n lands (TODO.md). FR and EN only for now; a new case is a one-line addition. Case names follow the standard locale identifiers (fr_FR); values are the BCP-47 tags because that is what `Intl.NumberFormat` consumes verbatim.\n",
                 "enum": [
-                    "fr-FR",
-                    "en-US"
+                    "en-US",
+                    "fr-FR"
                 ],
                 "x-enum-varnames": [
-                    "fr_FR",
-                    "en_US"
+                    "en_US",
+                    "fr_FR"
                 ],
                 "title": "Locale"
             },

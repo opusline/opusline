@@ -176,7 +176,7 @@ export const zCurrency = z.enum([
 /**
  * DateFormat
  *
- * The numeric layout calendar dates are displayed in — 31/08/2026 or 2026-08-31. Weekday and month names stay French until i18n lands; only digit-only dates follow this preference.
+ * The numeric layout calendar dates are displayed in — 31/08/2026 or 2026-08-31. Only digit-only dates follow this preference; weekday and month names follow the account locale.
  *
  */
 export const zDateFormat = z.union([z.literal(0), z.literal(1)]);
@@ -366,11 +366,8 @@ export const zInvoiceTodoWorkData = z.object({
 
 /**
  * Locale
- *
- * The locale amounts and dates are formatted in — not the UI language, which stays French until i18n lands (TODO.md). FR and EN only for now; a new case is a one-line addition. Case names follow the standard locale identifiers (fr_FR); values are the BCP-47 tags because that is what `Intl.NumberFormat` consumes verbatim.
- *
  */
-export const zLocale = z.enum(['fr-FR', 'en-US']);
+export const zLocale = z.enum(['en-US', 'fr-FR']);
 
 /**
  * LoginData

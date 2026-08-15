@@ -240,7 +240,7 @@ export type Currency = 'EUR' | 'USD' | 'GBP' | 'CHF' | 'CAD' | 'AUD' | 'NZD' | '
 /**
  * DateFormat
  *
- * The numeric layout calendar dates are displayed in — 31/08/2026 or 2026-08-31. Weekday and month names stay French until i18n lands; only digit-only dates follow this preference.
+ * The numeric layout calendar dates are displayed in — 31/08/2026 or 2026-08-31. Only digit-only dates follow this preference; weekday and month names follow the account locale.
  *
  */
 export type DateFormat = 0 | 1;
@@ -478,11 +478,8 @@ export type InvoiceTotalData = {
 
 /**
  * Locale
- *
- * The locale amounts and dates are formatted in — not the UI language, which stays French until i18n lands (TODO.md). FR and EN only for now; a new case is a one-line addition. Case names follow the standard locale identifiers (fr_FR); values are the BCP-47 tags because that is what `Intl.NumberFormat` consumes verbatim.
- *
  */
-export type Locale = 'fr-FR' | 'en-US';
+export type Locale = 'en-US' | 'fr-FR';
 
 /**
  * LoginData

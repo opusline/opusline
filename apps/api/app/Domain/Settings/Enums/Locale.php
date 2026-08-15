@@ -4,16 +4,35 @@ declare(strict_types=1);
 
 namespace App\Domain\Settings\Enums;
 
-/**
- * The locale amounts and dates are formatted in — not the UI language, which
- * stays French until i18n lands (TODO.md). FR and EN only for now; a new case
- * is a one-line addition.
- *
- * Case names follow the standard locale identifiers (fr_FR); values are the
- * BCP-47 tags because that is what `Intl.NumberFormat` consumes verbatim.
- */
 enum Locale: string
 {
-    case fr_FR = 'fr-FR';
     case en_US = 'en-US';
+    case fr_FR = 'fr-FR';
+
+    public static function fromLanguageTag(string $tag): self
+    {
+        foreach (self::cases() as $case) {
+            if ($case->languageTag() === $tag) {
+                return $case;
+            }
+        }
+
+        return self::en_US;
+    }
+
+    /**
+     * @return non-empty-list<string>
+     */
+    public static function languageTags(): array
+    {
+        return array_map(fn (self $case): string => $case->languageTag(), self::cases());
+    }
+
+    public function languageTag(): string
+    {
+        return match ($this) {
+            self::en_US => 'en',
+            self::fr_FR => 'fr',
+        };
+    }
 }
