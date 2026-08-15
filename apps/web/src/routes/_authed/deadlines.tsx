@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { requireFrenchFiscality } from "@/lib/fiscality";
 
-export const Route = createFileRoute("/_authed/echeances")({
+export const Route = createFileRoute("/_authed/deadlines")({
   beforeLoad: ({ context }) => requireFrenchFiscality(context.user),
   component: EcheancesPage,
 });

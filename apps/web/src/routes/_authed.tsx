@@ -42,14 +42,14 @@ export const Route = createFileRoute("/_authed")({
 });
 
 const pageTitles: Record<string, string> = {
-  "/semaine": "Suivi du temps",
+  "/week": "Suivi du temps",
   "/clients": "Portefeuille clients",
   "/cra": "Compte rendu d'activité",
-  "/revenus": "Revenus",
-  "/virement": "Trésorerie",
-  "/echeances": "Obligations",
+  "/revenue": "Revenus",
+  "/treasury": "Trésorerie",
+  "/deadlines": "Obligations",
   "/declarations": "Déclarations",
-  "/reglages": "Réglages",
+  "/settings": "Réglages",
 };
 
 function ExpandSidebarButton() {

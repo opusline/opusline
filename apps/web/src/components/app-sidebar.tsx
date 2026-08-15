@@ -87,8 +87,8 @@ export function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  isActive={pathname.startsWith("/semaine")}
-                  render={<Link to="/semaine" />}
+                  isActive={pathname.startsWith("/week")}
+                  render={<Link to="/week" />}
                   tooltip="Semaine"
                 >
                   <CalendarDays />
@@ -117,8 +117,8 @@ export function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  isActive={pathname.startsWith("/factures")}
-                  render={<Link to="/factures" />}
+                  isActive={pathname.startsWith("/invoices")}
+                  render={<Link to="/invoices" />}
                   tooltip="Factures"
                 >
                   <ReceiptText />
@@ -134,8 +134,8 @@ export function AppSidebar() {
                 <>
                   <SidebarMenuItem>
                     <SidebarMenuButton
-                      isActive={pathname.startsWith("/revenus")}
-                      render={<Link to="/revenus" />}
+                      isActive={pathname.startsWith("/revenue")}
+                      render={<Link to="/revenue" />}
                       tooltip="Revenus"
                     >
                       <ChartLine />
@@ -144,8 +144,8 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton
-                      isActive={pathname.startsWith("/virement")}
-                      render={<Link to="/virement" />}
+                      isActive={pathname.startsWith("/treasury")}
+                      render={<Link to="/treasury" />}
                       tooltip="Virement"
                     >
                       <CreditCard />
@@ -154,8 +154,8 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton
-                      isActive={pathname.startsWith("/echeances")}
-                      render={<Link to="/echeances" />}
+                      isActive={pathname.startsWith("/deadlines")}
+                      render={<Link to="/deadlines" />}
                       tooltip="Échéances"
                     >
                       <Bell />
@@ -176,8 +176,8 @@ export function AppSidebar() {
               )}
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  isActive={pathname.startsWith("/reglages")}
-                  render={<Link to="/reglages" />}
+                  isActive={pathname.startsWith("/settings")}
+                  render={<Link to="/settings" />}
                   tooltip="Réglages"
                 >
                   <SlidersHorizontal />
@@ -192,7 +192,7 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <Link
                 className="block rounded-lg border border-primary/30 bg-primary/10 px-3.5 py-3 transition-colors hover:bg-primary/15"
-                to="/virement"
+                to="/treasury"
               >
                 {/*
                 No treasury endpoint exists yet — the figure arrives with the
@@ -247,7 +247,7 @@ export function AppSidebar() {
                     {user.email}
                   </div>
                 </div>
-                <DropdownMenuItem render={<Link to="/reglages" />}>
+                <DropdownMenuItem render={<Link to="/settings" />}>
                   <SlidersHorizontal />
                   Réglages fiscaux
                 </DropdownMenuItem>

@@ -33,7 +33,7 @@ import { isIsoWeek, isoWeekOf, isoWeekRange, shiftIsoWeek } from "@/lib/weeks";
 
 type SemaineSearch = { week?: string; weekend?: true };
 
-export const Route = createFileRoute("/_authed/semaine")({
+export const Route = createFileRoute("/_authed/week")({
   validateSearch: (search: Record<string, unknown>): SemaineSearch => ({
     week: isIsoWeek(search.week) ? search.week : undefined,
     weekend:
@@ -214,7 +214,7 @@ function SemaineRoute() {
     if (targetWeek !== week) {
       void navigate({
         search: { ...search, week: targetWeek },
-        to: "/semaine",
+        to: "/week",
       });
     }
 
@@ -338,13 +338,13 @@ function SemaineRoute() {
           onWeekChange={(nextWeek) =>
             void navigate({
               search: { ...search, week: nextWeek },
-              to: "/semaine",
+              to: "/week",
             })
           }
           onWeekendToggle={(open) =>
             void navigate({
               search: { ...search, weekend: open ? true : undefined },
-              to: "/semaine",
+              to: "/week",
             })
           }
           pendingCellKeys={pendingCellKeys}
