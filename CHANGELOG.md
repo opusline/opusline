@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.10.0](https://github.com/opusline/opusline/compare/v0.9.1...v0.10.0) (2026-08-15)
+
+
+### Features
+
+* **api:** add English and French locale resolution ([#117](https://github.com/opusline/opusline/issues/117)) ([d223f30](https://github.com/opusline/opusline/commit/d223f30c1b40f1a06d5dda9e444931ed016df58f))
+* **api:** localize validation attribute names ([#115](https://github.com/opusline/opusline/issues/115)) ([05887bb](https://github.com/opusline/opusline/commit/05887bb74735406df37cef49ae2e82a8deb11041))
+* **api:** localize validation error messages ([#114](https://github.com/opusline/opusline/issues/114)) ([34af8cc](https://github.com/opusline/opusline/commit/34af8cc54277cf1fe7620b8881cd2f6bee6d29bf))
+* **web:** add paraglide middleware and i18n support ([#118](https://github.com/opusline/opusline/issues/118)) ([eda0207](https://github.com/opusline/opusline/commit/eda02073de4d8155fd97e98c47a551faa1ea71fe))
+* **web:** enforce French literals guard in source ([#129](https://github.com/opusline/opusline/issues/129)) ([754048e](https://github.com/opusline/opusline/commit/754048e336c134a65bc1f22082a97ac20f41730b))
+* **web:** localize auth form labels and messages ([#122](https://github.com/opusline/opusline/issues/122)) ([64615a0](https://github.com/opusline/opusline/commit/64615a096495d92b21648162145379ed72233199))
+* **web:** localize invoice page and associated messages ([#126](https://github.com/opusline/opusline/issues/126)) ([2f2a2de](https://github.com/opusline/opusline/commit/2f2a2deba1809bc0820f2361ff16bb36e7e58280))
+* **web:** localize paraglide message functions ([#125](https://github.com/opusline/opusline/issues/125)) ([c60162c](https://github.com/opusline/opusline/commit/c60162c44670d0cc5f798868d414b88bd120a8d3))
+* **web:** localize paraglide message functions ([#127](https://github.com/opusline/opusline/issues/127)) ([78a7a94](https://github.com/opusline/opusline/commit/78a7a94263245e6868a64c8b954b69a6490b3618))
+* **web:** localize settings page labels and messages ([#123](https://github.com/opusline/opusline/issues/123)) ([0b0dd28](https://github.com/opusline/opusline/commit/0b0dd285795ce589c5847631abbb5f24422d8256))
+* **web:** localize theme and dashboard components ([#128](https://github.com/opusline/opusline/issues/128)) ([714973c](https://github.com/opusline/opusline/commit/714973c07b0227145f0935e361e2547c875350ba))
+* **web:** localize week view components ([#124](https://github.com/opusline/opusline/issues/124)) ([46ae181](https://github.com/opusline/opusline/commit/46ae1819e0d860b2f34a9166fa18f60ad59287ae))
+* **web:** refactor labels to use message functions ([#120](https://github.com/opusline/opusline/issues/120)) ([b37e63c](https://github.com/opusline/opusline/commit/b37e63c15b5a22602c07a54eb18eca4e8e9d6226))
+* **web:** refactor locale handling for dynamic formatting ([#121](https://github.com/opusline/opusline/issues/121)) ([b9b0dfd](https://github.com/opusline/opusline/commit/b9b0dfd7d64d2383dd1fea05992607b91e794b6c))
+* **web:** remove unused paraglide message functions ([#130](https://github.com/opusline/opusline/issues/130)) ([1df2230](https://github.com/opusline/opusline/commit/1df2230eb240b7f0618b61dcf6b1827b71c599c3))
+* **web:** remove unused routes ([#119](https://github.com/opusline/opusline/issues/119)) ([725e175](https://github.com/opusline/opusline/commit/725e175bf80c9fd67488816f427d501f7e28903c))
+
 ## [0.9.1](https://github.com/opusline/opusline/compare/v0.9.0...v0.9.1) (2026-08-14)
 
 
