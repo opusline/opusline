@@ -6,6 +6,7 @@ namespace App\Providers;
 
 use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Models\Mission;
+use App\Domain\Shared\Validation\LocalizedValidator;
 use App\Domain\Users\Models\User;
 use App\OpenApi\SpatieDataParametersExtractor;
 use Carbon\CarbonImmutable;
@@ -19,6 +20,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Spatie\LaravelData\Data;
 
@@ -49,6 +51,8 @@ class AppServiceProvider extends ServiceProvider
         ]);
 
         DB::prohibitDestructiveCommands($this->app->isProduction());
+
+        Validator::resolver(fn ($translator, array $data, array $rules, array $messages, array $attributes): LocalizedValidator => new LocalizedValidator($translator, $data, $rules, $messages, $attributes));
 
         $caller = static function (Request $request): string {
             $identifier = $request->user()?->getAuthIdentifier();
