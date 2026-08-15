@@ -1,4 +1,4 @@
-import type { DateFormat, InvoiceData } from "@opusline/api-client";
+import type { DateFormat, InvoiceData, Locale } from "@opusline/api-client";
 
 import {
   calendarDateNumericLabel,
@@ -7,10 +7,10 @@ import {
 } from "@/lib/dates";
 
 /** "Juin 2026" — the period an invoice covers, capitalised as a label. */
-function periodLabel(invoice: InvoiceData): string | null {
+function periodLabel(locale: Locale, invoice: InvoiceData): string | null {
   return invoice.periodStart === null
     ? null
-    : capitalizedMonthLabel(invoice.periodStart);
+    : capitalizedMonthLabel(locale, invoice.periodStart);
 }
 
 function daysToPay(invoice: InvoiceData): number | null {
@@ -53,11 +53,12 @@ function invoiceState(
 
 /** The row's second line: which period, and where the invoice stands. */
 export function invoiceRowDetail(
+  locale: Locale,
   dateFormat: DateFormat,
   invoice: InvoiceData,
   accountToday: string,
 ): string {
-  const period = periodLabel(invoice);
+  const period = periodLabel(locale, invoice);
   const state = invoiceState(dateFormat, invoice, accountToday);
 
   return period === null ? state : `${period} · ${state}`;

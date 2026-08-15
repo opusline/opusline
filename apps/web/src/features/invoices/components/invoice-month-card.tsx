@@ -20,7 +20,7 @@ export function InvoiceMonthCard({ summary }: { summary: InvoiceSummaryData }) {
   return (
     <section className="rounded-md border bg-card px-5 py-4">
       <h2 className="font-medium text-muted-foreground-2 text-xs uppercase tracking-widest">
-        {capitalizedMonthLabel(`${summary.month}-01`)}
+        {capitalizedMonthLabel(format.locale, `${summary.month}-01`)}
       </h2>
 
       {hasUnbilledWork ? (

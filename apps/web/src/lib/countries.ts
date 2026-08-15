@@ -1,3 +1,5 @@
+import type { Locale } from "@opusline/api-client";
+
 const REGION_CODES = [
   "FR",
   "BE",
@@ -47,16 +49,24 @@ const REGION_CODES = [
   "IN",
 ];
 
-const regionNames = new Intl.DisplayNames(["fr"], { type: "region" });
-
 export type CountrySuggestion = { id: string; label: string };
 
-export const COUNTRY_OPTIONS: CountrySuggestion[] = REGION_CODES.map(
-  (code) => ({
-    id: code,
-    label: regionNames.of(code) ?? code,
-  }),
-).sort((left, right) => left.label.localeCompare(right.label, "fr"));
+const countryOptionsByLocale = new Map<Locale, CountrySuggestion[]>();
+
+export function countryOptions(locale: Locale): CountrySuggestion[] {
+  let options = countryOptionsByLocale.get(locale);
+
+  if (options === undefined) {
+    const regionNames = new Intl.DisplayNames([locale], { type: "region" });
+    options = REGION_CODES.map((code) => ({
+      id: code,
+      label: regionNames.of(code) ?? code,
+    })).sort((left, right) => left.label.localeCompare(right.label, locale));
+    countryOptionsByLocale.set(locale, options);
+  }
+
+  return options;
+}
 
 function fold(value: string): string {
   return value
@@ -65,16 +75,19 @@ function fold(value: string): string {
     .toLowerCase();
 }
 
-export function searchCountries(query: string): CountrySuggestion[] {
+export function searchCountries(
+  locale: Locale,
+  query: string,
+): CountrySuggestion[] {
   const needle = fold(query.trim());
 
   if (needle === "") {
     return [];
   }
 
-  return COUNTRY_OPTIONS.filter((country) =>
-    fold(country.label).startsWith(needle),
-  ).slice(0, 8);
+  return countryOptions(locale)
+    .filter((country) => fold(country.label).startsWith(needle))
+    .slice(0, 8);
 }
 
 /**

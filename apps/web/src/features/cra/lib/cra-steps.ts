@@ -50,7 +50,7 @@ export function craStepState(
 
   return cra.sentOn === null
     ? "PDF prêt"
-    : `Envoyé le ${calendarDateLabel(cra.sentOn)}`;
+    : `Envoyé le ${calendarDateLabel(locale, cra.sentOn)}`;
 }
 
 /**

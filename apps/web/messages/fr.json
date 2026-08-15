@@ -82,6 +82,7 @@
   "vat_regime_simplified_hint": "Assujetti · CA12 annuelle",
   "vat_regime_simplified_label": "Réel simplifié",
   "vat_regime_simplified_note": "Vos factures portent la TVA et une déclaration CA12 est attendue chaque année, avec acomptes.",
+  "week_title": "Semaine {number}",
   "zod_email_invalid": "Adresse e-mail invalide.",
   "zod_field_required": "Ce champ est requis.",
   "zod_too_big": "Au maximum {max} caractères.",

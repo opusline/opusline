@@ -7,7 +7,11 @@ import type {
   InvoiceTotalData,
   Locale,
 } from "@opusline/api-client";
-import { calendarDateNumericLabel, fromCalendarDate } from "@/lib/dates";
+import {
+  cachedDateFormatter,
+  calendarDateNumericLabel,
+  fromCalendarDate,
+} from "@/lib/dates";
 import { formatBilledDays, formatBilledHours } from "@/lib/durations";
 
 export function openInvoicesLabel(toCollect: InvoiceTotalData): string {
@@ -78,17 +82,21 @@ export function unbilledWorkTitle(
     : `${quantity} sur ${work.missionName}`;
 }
 
-const dayAndMonth = new Intl.DateTimeFormat("fr-FR", {
+const DAY_AND_MONTH: Intl.DateTimeFormatOptions = {
   day: "2-digit",
   month: "long",
-});
+};
 
 /**
  * "Entrées du 03 au 07 août" — the span the invoice would cover. A single day says
  * so rather than repeating itself, and a span that crosses months names both:
  * "du 31 au 13 août" reads as a typo.
  */
-export function unbilledWorkDetail(work: InvoiceTodoWorkData): string {
+export function unbilledWorkDetail(
+  locale: Locale,
+  work: InvoiceTodoWorkData,
+): string {
+  const dayAndMonth = cachedDateFormatter(locale, DAY_AND_MONTH);
   const first = fromCalendarDate(work.firstEntryOn);
   const last = fromCalendarDate(work.lastEntryOn);
   const lastLabel = dayAndMonth.format(last);

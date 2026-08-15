@@ -2,6 +2,7 @@ import type {
   InvoiceClientTotalsData,
   InvoiceListItemData,
   InvoiceStatus,
+  Locale,
 } from "@opusline/api-client";
 
 import { averageDaysToPay } from "./labels";
@@ -88,6 +89,7 @@ export type InvoiceGroup = {
  * money arithmetic — and are gross: what is owed, not what gets declared.
  */
 export function groupByClient(
+  locale: Locale,
   items: InvoiceListItemData[],
   clientTotals: InvoiceClientTotalsData[],
   scope: InvoiceScope,
@@ -115,5 +117,5 @@ export function groupByClient(
         group.items.map((item) => item.invoice),
       ),
     }))
-    .sort((a, b) => a.client.name.localeCompare(b.client.name, "fr"));
+    .sort((a, b) => a.client.name.localeCompare(b.client.name, locale));
 }

@@ -30,7 +30,7 @@ type CraDocumentProps = {
  * as well as the city, and still carries the date when no city is set.
  */
 function placeAndDate(city: string | null, timezone: string): string {
-  const today = calendarDateLabel(accountTodayCalendarDate(timezone));
+  const today = calendarDateLabel("fr-FR", accountTodayCalendarDate(timezone));
 
   return city === null ? ` · le ${today}` : ` · fait à ${city}, le ${today}`;
 }
@@ -84,7 +84,7 @@ export function CraDocument({
               Compte rendu d'activité
             </h2>
             <p className="mt-0.75 text-xs" style={{ color: "#444444" }}>
-              {monthTitle(cra.month)}
+              {monthTitle("fr-FR", cra.month)}
             </p>
           </div>
           <div className="text-right text-xs leading-relaxed">

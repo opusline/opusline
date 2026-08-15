@@ -493,7 +493,7 @@ export function DocumentsTab({
                     </span>
                     <span className="text-muted-foreground-3 text-xs">
                       {formatFileSize(locale, document.sizeBytes)} · ajouté le{" "}
-                      {fullDateLabel(document.createdAt)}
+                      {fullDateLabel(locale, document.createdAt)}
                     </span>
                   </span>
                   <span className="flex-1" />

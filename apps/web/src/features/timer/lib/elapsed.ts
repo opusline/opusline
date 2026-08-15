@@ -1,4 +1,6 @@
-import type { TimerData, TimerState } from "@opusline/api-client";
+import type { Locale, TimerData, TimerState } from "@opusline/api-client";
+
+import { cachedDateFormatter } from "@/lib/dates";
 
 export function isRunning(state: TimerState): boolean {
   return state === 0;
@@ -28,11 +30,11 @@ export function formatClock(seconds: number): string {
     .join(":");
 }
 
-const startedAtTime = new Intl.DateTimeFormat("fr-FR", {
+const STARTED_AT_TIME: Intl.DateTimeFormatOptions = {
   hour: "2-digit",
   minute: "2-digit",
-});
+};
 
-export function formatStartedAt(instant: string): string {
-  return startedAtTime.format(new Date(instant));
+export function formatStartedAt(locale: Locale, instant: string): string {
+  return cachedDateFormatter(locale, STARTED_AT_TIME).format(new Date(instant));
 }

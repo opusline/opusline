@@ -40,7 +40,7 @@ export function trackableMissions(
     .sort(
       (left, right) =>
         Number(right.isLast) - Number(left.isLast) ||
-        left.name.localeCompare(right.name, "fr"),
+        left.name.localeCompare(right.name, format.locale),
     );
 }
 

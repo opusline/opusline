@@ -100,23 +100,27 @@ it("titles a week by its number, without the leading zero", () => {
 
 describe("isoWeekRangeLabel", () => {
   it("spells out a week that crosses a month", () => {
-    expect(isoWeekRangeLabel("2026-W31")).toMatch(/27 juil.+2 août 2026/);
+    expect(isoWeekRangeLabel("fr-FR", "2026-W31")).toMatch(
+      /27 juil.+2 août 2026/,
+    );
   });
 
   it("spells out a week that crosses a year", () => {
-    expect(isoWeekRangeLabel("2026-W01")).toMatch(/29 déc.+4 janv.+2026/);
+    expect(isoWeekRangeLabel("fr-FR", "2026-W01")).toMatch(
+      /29 déc.+4 janv.+2026/,
+    );
   });
 });
 
 it("drops the abbreviation period from the weekday", () => {
-  expect(weekdayShortLabel("2026-07-27")).toBe("lun");
+  expect(weekdayShortLabel("fr-FR", "2026-07-27")).toBe("lun");
 });
 
 it("names a day in full for assistive technology", () => {
-  expect(weekdayDateLabel("2026-07-27")).toBe("lundi 27 juillet");
+  expect(weekdayDateLabel("fr-FR", "2026-07-27")).toBe("lundi 27 juillet");
 });
 
 it("states a date in French next to a locale-driven date input", () => {
   // The weekday loses its abbreviation period; the month keeps its own.
-  expect(shortDateLabel("2026-07-30")).toBe("Jeu 30 juil. 2026");
+  expect(shortDateLabel("fr-FR", "2026-07-30")).toBe("Jeu 30 juil. 2026");
 });

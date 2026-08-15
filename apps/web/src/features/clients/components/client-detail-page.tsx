@@ -157,8 +157,8 @@ export function ClientDetailPage({
               {isArchived && <Badge variant="quiet">Archivé</Badge>}
             </div>
             <p className="mt-1.5 text-muted-foreground-3 text-sm">
-              Client depuis {monthYearLabel(client.createdAt)} · paiement à{" "}
-              {paymentTermsLabel(client.paymentTermsDays)}
+              Client depuis {monthYearLabel(format.locale, client.createdAt)} ·
+              paiement à {paymentTermsLabel(client.paymentTermsDays)}
             </p>
           </div>
         </div>

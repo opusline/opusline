@@ -90,8 +90,9 @@ export function CraSignedReturnDialog({
         <DialogHeader>
           <DialogTitle>{SIGNED_RETURN_TITLE}</DialogTitle>
           <DialogDescription>
-            CRA de {monthTitle(detail.cra.month)} · {detail.mission.name}. Le
-            document rejoint les pièces de la mission à côté de l'original.
+            CRA de {monthTitle(locale, detail.cra.month)} ·{" "}
+            {detail.mission.name}. Le document rejoint les pièces de la mission
+            à côté de l'original.
           </DialogDescription>
         </DialogHeader>
 

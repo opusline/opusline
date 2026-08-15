@@ -1,18 +1,22 @@
+import type { Locale } from "@opusline/api-client";
 import { Button } from "@opusline/ui/components/button";
 import { Switch } from "@opusline/ui/components/switch";
 import { cn } from "@opusline/ui/lib/utils";
 import { RefreshCw } from "lucide-react";
-
 import { FormTextField } from "@/components/form-text-field";
+import { useLocale } from "@/components/money-format-provider";
 import { fullDateLabel } from "@/lib/dates";
+
 import type { SettingsForm } from "../lib/use-settings-form";
 
 function rateStatusLabel({
+  locale,
   refreshError,
   isSituationUnsaved,
   ratesCheckedAt,
   ratesYear,
 }: {
+  locale: Locale;
   refreshError: string | null;
   isSituationUnsaved: boolean;
   ratesCheckedAt: string | null;
@@ -30,7 +34,7 @@ function rateStatusLabel({
     return "Barème jamais lu";
   }
 
-  return `Barème ${ratesYear} · dernière vérification le ${fullDateLabel(ratesCheckedAt)}`;
+  return `Barème ${ratesYear} · dernière vérification le ${fullDateLabel(locale, ratesCheckedAt)}`;
 }
 
 type RateSourceProps = {
@@ -54,6 +58,8 @@ export function RateSource({
   refreshError,
   onRefresh,
 }: RateSourceProps) {
+  const locale = useLocale();
+
   return (
     <div>
       <form.Field name="autoRates">
@@ -105,6 +111,7 @@ export function RateSource({
                   className="min-w-40 flex-1 text-foreground-3 text-sm"
                 >
                   {rateStatusLabel({
+                    locale,
                     refreshError,
                     isSituationUnsaved,
                     ratesCheckedAt,

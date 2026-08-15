@@ -127,6 +127,7 @@ export function shouldShowWeekend(
 }
 
 function buildColumns(
+  locale: Locale,
   week: string,
   today: string,
   weekendShown: boolean,
@@ -138,7 +139,7 @@ function buildColumns(
   const toColumn = (date: string, isWeekend: boolean): WeekColumn => ({
     kind: "day",
     date,
-    weekdayLabel: weekdayShortLabel(date),
+    weekdayLabel: weekdayShortLabel(locale, date),
     dayOfMonth: String(Number(date.slice(8))),
     isToday: date === today,
     isWeekend,
@@ -176,6 +177,7 @@ function missionSubtitle(
 }
 
 function selectMissions(
+  locale: Locale,
   clients: ClientWithMissionsData[],
   workedMissionIds: Set<number>,
   liveMissionId: number | null,
@@ -205,8 +207,8 @@ function selectMissions(
     }
 
     return (
-      left.client.name.localeCompare(right.client.name, "fr") ||
-      left.mission.name.localeCompare(right.mission.name, "fr")
+      left.client.name.localeCompare(right.client.name, locale) ||
+      left.mission.name.localeCompare(right.mission.name, locale)
     );
   });
 }
@@ -220,7 +222,12 @@ export function buildWeekGrid(input: {
   format: MoneyFormat;
   liveMissionId?: number | null;
 }): WeekGridModel {
-  const columns = buildColumns(input.week, input.today, input.weekendShown);
+  const columns = buildColumns(
+    input.format.locale,
+    input.week,
+    input.today,
+    input.weekendShown,
+  );
 
   const entriesByCell = new Map<string, TimeEntryData[]>();
   const workedMissionIds = new Set<number>();
@@ -242,6 +249,7 @@ export function buildWeekGrid(input: {
   const weekTotal = { dayFraction: 0, billedMinutes: 0 };
 
   const rows = selectMissions(
+    input.format.locale,
     input.clients,
     workedMissionIds,
     input.liveMissionId ?? null,
@@ -312,6 +320,7 @@ export function buildWeekGrid(input: {
           billedLabel,
           date: column.kind === "day" ? column.date : null,
           isEmpty: entries.length === 0,
+          locale: input.format.locale,
           missionName: mission.name,
           note,
         }),
@@ -376,7 +385,7 @@ function buildMissionOptions(
     .sort(
       (left, right) =>
         Number(right.isInGrid) - Number(left.isInGrid) ||
-        left.name.localeCompare(right.name, "fr"),
+        left.name.localeCompare(right.name, format.locale),
     );
 }
 

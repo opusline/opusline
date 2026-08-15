@@ -1,3 +1,5 @@
+import type { Locale } from "@opusline/api-client";
+
 import {
   addCalendarDays,
   calendarDaysBetween,
@@ -78,6 +80,6 @@ export function monthGridDates(month: string): string[] {
 }
 
 /** "Juillet 2026" — a page title, so it carries its capital. */
-export function monthTitle(month: string): string {
-  return capitalizedMonthLabel(monthStart(month));
+export function monthTitle(locale: Locale, month: string): string {
+  return capitalizedMonthLabel(locale, monthStart(month));
 }

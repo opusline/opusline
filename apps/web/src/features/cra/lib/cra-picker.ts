@@ -1,4 +1,4 @@
-import type { CraListItemData, CraStatus } from "@opusline/api-client";
+import type { CraListItemData, CraStatus, Locale } from "@opusline/api-client";
 
 import { foldAccents } from "@/lib/documents";
 import { monthTitle } from "@/lib/months";
@@ -49,15 +49,23 @@ export function craItemKey(
  * Matches on everything the row shows — the design's placeholder promises "Client,
  * mission, mois", and a search that ignored the month would be lying about it.
  */
-export function matchesQuery(item: CraListItemData, query: string): boolean {
-  return matchesNeedle(item, foldAccents(query.trim().toLowerCase()));
+export function matchesQuery(
+  locale: Locale,
+  item: CraListItemData,
+  query: string,
+): boolean {
+  return matchesNeedle(locale, item, foldAccents(query.trim().toLowerCase()));
 }
 
 /**
  * The fields are tried in turn rather than folded into one haystack up front: the
  * mission name matches most searches, and `monthTitle` is the expensive one.
  */
-function matchesNeedle(item: CraListItemData, needle: string): boolean {
+function matchesNeedle(
+  locale: Locale,
+  item: CraListItemData,
+  needle: string,
+): boolean {
   if (needle === "") {
     return true;
   }
@@ -69,7 +77,7 @@ function matchesNeedle(item: CraListItemData, needle: string): boolean {
     matches(item.missionName) ||
     matches(item.clientName) ||
     matches(item.month) ||
-    matches(monthTitle(item.month))
+    matches(monthTitle(locale, item.month))
   );
 }
 
@@ -77,10 +85,14 @@ function matchesNeedle(item: CraListItemData, needle: string): boolean {
  * The list as the aside draws it. Empty groups are dropped rather than shown as a
  * heading with nothing underneath.
  */
-export function groupCras(items: CraListItemData[], query: string): CraGroup[] {
+export function groupCras(
+  locale: Locale,
+  items: CraListItemData[],
+  query: string,
+): CraGroup[] {
   // Folded once rather than once per row: this runs on every keystroke.
   const needle = foldAccents(query.trim().toLowerCase());
-  const matching = items.filter((item) => matchesNeedle(item, needle));
+  const matching = items.filter((item) => matchesNeedle(locale, item, needle));
 
   return CRA_GROUPS.map((key) => ({
     key,

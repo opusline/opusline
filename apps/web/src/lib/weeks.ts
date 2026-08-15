@@ -1,5 +1,9 @@
+import type { Locale } from "@opusline/api-client";
+
+import { m } from "@/paraglide/messages.js";
 import {
   addCalendarDays,
+  cachedDateFormatter,
   fromCalendarDate,
   isoDayOfWeek,
   localDate,
@@ -18,27 +22,27 @@ const ISO_WEEK_PATTERN = /^(\d{4})-W(\d{2})$/;
 const EARLIEST_YEAR = 1970;
 const LATEST_YEAR = 2999;
 
-const weekdayShort = new Intl.DateTimeFormat("fr-FR", { weekday: "short" });
+const WEEKDAY_SHORT: Intl.DateTimeFormatOptions = { weekday: "short" };
 
 // Abbreviated: the range sits next to a 24px title and must not wrap.
-const dayMonthYear = new Intl.DateTimeFormat("fr-FR", {
+const DAY_MONTH_YEAR: Intl.DateTimeFormatOptions = {
   day: "numeric",
   month: "short",
   year: "numeric",
-});
+};
 
-const weekdayDayMonth = new Intl.DateTimeFormat("fr-FR", {
+const WEEKDAY_DAY_MONTH: Intl.DateTimeFormatOptions = {
   day: "numeric",
   month: "long",
   weekday: "long",
-});
+};
 
-const shortWeekdayDate = new Intl.DateTimeFormat("fr-FR", {
+const SHORT_WEEKDAY_DATE: Intl.DateTimeFormatOptions = {
   day: "numeric",
   month: "short",
   weekday: "short",
   year: "numeric",
-});
+};
 
 /** The two numbers behind a `2026-W31`, or a throw — never a silent fallback. */
 function parseIsoWeek(week: string): { year: number; week: number } {
@@ -135,7 +139,7 @@ export function shiftIsoWeek(week: string, delta: number): string {
 }
 
 export function isoWeekTitle(week: string): string {
-  return `Semaine ${parseIsoWeek(week).week}`;
+  return m.week_title({ number: parseIsoWeek(week).week });
 }
 
 /**
@@ -143,31 +147,35 @@ export function isoWeekTitle(week: string): string {
  * share, so the same call covers weeks inside a month, across two months and
  * across a year change.
  */
-export function isoWeekRangeLabel(week: string): string {
+export function isoWeekRangeLabel(locale: Locale, week: string): string {
   const dates = isoWeekDates(week);
 
-  return dayMonthYear.formatRange(
+  return cachedDateFormatter(locale, DAY_MONTH_YEAR).formatRange(
     fromCalendarDate(dates[0]),
     fromCalendarDate(dates[6]),
   );
 }
 
 /** "lun" — the `.eyebrow` style supplies the uppercase. */
-export function weekdayShortLabel(date: string): string {
-  return weekdayShort.format(fromCalendarDate(date)).replace(/\.$/, "");
+export function weekdayShortLabel(locale: Locale, date: string): string {
+  return cachedDateFormatter(locale, WEEKDAY_SHORT)
+    .format(fromCalendarDate(date))
+    .replace(/\.$/, "");
 }
 
 /** "lundi 27 juillet", for cell labels read out by a screen reader. */
-export function weekdayDateLabel(date: string): string {
-  return weekdayDayMonth.format(fromCalendarDate(date));
+export function weekdayDateLabel(locale: Locale, date: string): string {
+  return cachedDateFormatter(locale, WEEKDAY_DAY_MONTH).format(
+    fromCalendarDate(date),
+  );
 }
 
 /**
  * "Jeu 30 juil. 2026" — the app's own rendering of a date, next to a native
  * date input whose format follows the browser's locale rather than ours.
  */
-export function shortDateLabel(date: string): string {
-  const formatted = shortWeekdayDate
+export function shortDateLabel(locale: Locale, date: string): string {
+  const formatted = cachedDateFormatter(locale, SHORT_WEEKDAY_DATE)
     .format(fromCalendarDate(date))
     // Only the weekday's abbreviation period; the month keeps its own.
     .replace(".", "");

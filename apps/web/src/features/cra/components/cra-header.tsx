@@ -3,6 +3,7 @@ import { Badge } from "@opusline/ui/components/badge";
 import { Button } from "@opusline/ui/components/button";
 import { DownloadIcon } from "lucide-react";
 
+import { useLocale } from "@/components/money-format-provider";
 import { craStatusBadge } from "@/lib/cra-status";
 import { monthTitle } from "@/lib/months";
 
@@ -29,6 +30,7 @@ export function CraHeader({
   onSignedReturn,
   onDownload,
 }: CraHeaderProps) {
+  const locale = useLocale();
   const { cra, client, mission } = detail;
   const badge = craStatusBadge(cra.status);
 
@@ -37,7 +39,7 @@ export function CraHeader({
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2.5">
           <h1 className="font-heading font-semibold text-2xl text-foreground-hi leading-tight">
-            {monthTitle(cra.month)}
+            {monthTitle(locale, cra.month)}
           </h1>
           <Badge variant={badge.variant}>{badge.label}</Badge>
         </div>

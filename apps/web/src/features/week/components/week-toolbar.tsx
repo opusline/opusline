@@ -2,14 +2,13 @@ import { Button } from "@opusline/ui/components/button";
 import { Kbd } from "@opusline/ui/components/kbd";
 import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "lucide-react";
 import { useId } from "react";
-
+import { useLocale } from "@/components/money-format-provider";
 import {
   isoWeekOf,
   isoWeekRangeLabel,
   isoWeekTitle,
   shiftIsoWeek,
 } from "@/lib/weeks";
-
 import { weekendToggleLabel } from "../lib/labels";
 
 type WeekToolbarProps = {
@@ -37,6 +36,7 @@ export function WeekToolbar({
   onNewEntry,
 }: WeekToolbarProps) {
   const weekendLockId = useId();
+  const locale = useLocale();
 
   return (
     <div className="flex flex-wrap items-end justify-between gap-4">
@@ -56,7 +56,7 @@ export function WeekToolbar({
             ·
           </span>{" "}
           <span className="whitespace-nowrap font-normal text-foreground-3 text-xl">
-            {isoWeekRangeLabel(week)}
+            {isoWeekRangeLabel(locale, week)}
           </span>
         </h1>
         <Button
