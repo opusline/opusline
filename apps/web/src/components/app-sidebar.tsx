@@ -38,14 +38,16 @@ import {
   Database,
   Download,
   FileCheck,
+  History,
   LogOut,
   PanelLeft,
   ReceiptText,
   SlidersHorizontal,
   Users,
 } from "lucide-react";
-
 import { initials } from "@/lib/initials";
+import { unreadReleaseCount } from "@/lib/releases";
+import { APP_VERSION } from "@/lib/version";
 import { m } from "@/paraglide/messages.js";
 
 export function AppSidebar() {
@@ -54,6 +56,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: user } = useSuspenseQuery(currentUserOptions());
+  const unreadReleaseNotes = unreadReleaseCount(user.releaseNotesSeenVersion);
 
   const logout = useMutation({
     ...logoutMutation(),
@@ -215,6 +218,37 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="border-sidebar-border border-t p-0 group-data-[collapsible=icon]:p-2">
         <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className="h-auto rounded-none border-sidebar-border border-b px-3.5 py-2 group-data-[collapsible=icon]:rounded-md group-data-[collapsible=icon]:border-b-0"
+              isActive={pathname.startsWith("/release-notes")}
+              render={<Link to="/release-notes" />}
+              tooltip={m.release_notes_title()}
+            >
+              <History className="hidden group-data-[collapsible=icon]:block" />
+              <span className="font-mono text-muted-foreground text-xs group-data-[collapsible=icon]:hidden">
+                v{APP_VERSION}
+              </span>
+              <span className="text-xs group-data-[collapsible=icon]:hidden">
+                {m.release_notes_title()}
+              </span>
+              {unreadReleaseNotes > 0 && (
+                <>
+                  <span
+                    aria-hidden
+                    className="ml-auto rounded-full bg-primary px-1.5 py-0.5 font-mono text-2xs text-primary-foreground tabular-nums group-data-[collapsible=icon]:hidden"
+                  >
+                    {unreadReleaseNotes}
+                  </span>
+                  <span className="sr-only">
+                    {m.release_notes_unread_count({
+                      count: unreadReleaseNotes,
+                    })}
+                  </span>
+                </>
+              )}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger

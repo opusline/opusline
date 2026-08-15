@@ -18,6 +18,7 @@ class RegisterUser
                 'name' => $data->name,
                 'email' => $data->email,
                 'password' => $data->password,
+                'release_notes_seen_version' => config()->string('app.version'),
             ]);
 
             $user->settings()->create([

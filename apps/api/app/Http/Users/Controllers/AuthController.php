@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Users\Controllers;
 
+use App\Domain\Users\Actions\MarkReleaseNotesSeen;
 use App\Domain\Users\Actions\RegisterUser;
 use App\Domain\Users\Actions\UpdateUserTheme;
 use App\Domain\Users\Data\LoginData;
@@ -71,5 +72,12 @@ class AuthController extends Controller
 
         return response()->json(UserData::from($user))
             ->withCookie(ThemeCookie::for($user->theme));
+    }
+
+    public function updateReleaseNotesSeen(#[CurrentUser] User $user, MarkReleaseNotesSeen $markReleaseNotesSeen): JsonResponse
+    {
+        $markReleaseNotesSeen->handle($user);
+
+        return response()->json(UserData::from($user));
     }
 }

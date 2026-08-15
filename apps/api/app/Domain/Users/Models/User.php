@@ -31,10 +31,11 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property ?CarbonImmutable $email_verified_at
  * @property string $password
  * @property Theme $theme
+ * @property ?string $release_notes_seen_version
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  */
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'release_notes_seen_version'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements HasMedia
 {

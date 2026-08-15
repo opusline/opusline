@@ -46,6 +46,7 @@ jobs:
       - run: pnpm --filter @opusline/storybook exec playwright install chromium --with-deps
       - run: pnpm format-and-lint
       - run: sh scripts/i18n-guard.sh
+      - run: sh scripts/release-notes-guard.sh
       - run: pnpm exec turbo run test check-types build "--filter=!@opusline/api"
 
   api:

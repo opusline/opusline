@@ -901,6 +901,7 @@ export type UserData = {
     name: string;
     email: string;
     theme: Theme;
+    releaseNotesSeenVersion: string | null;
     locale: Locale;
     dateFormat: DateFormat;
     currency: Currency;
@@ -1069,6 +1070,33 @@ export type UpdateUserThemeResponses = {
 };
 
 export type UpdateUserThemeResponse = UpdateUserThemeResponses[keyof UpdateUserThemeResponses];
+
+export type UpdateUserReleaseNotesSeenData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/release-notes-seen';
+};
+
+export type UpdateUserReleaseNotesSeenErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateUserReleaseNotesSeenError = UpdateUserReleaseNotesSeenErrors[keyof UpdateUserReleaseNotesSeenErrors];
+
+export type UpdateUserReleaseNotesSeenResponses = {
+    200: UserData;
+};
+
+export type UpdateUserReleaseNotesSeenResponse = UpdateUserReleaseNotesSeenResponses[keyof UpdateUserReleaseNotesSeenResponses];
 
 export type ListClientsData = {
     body?: never;

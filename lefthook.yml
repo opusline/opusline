@@ -42,6 +42,9 @@ pre-push:
     - name: i18n-guard
       run: sh scripts/i18n-guard.sh
 
+    - name: release-notes-guard
+      run: sh scripts/release-notes-guard.sh
+
     - name: quality
       run: pnpm exec turbo run test check-types lint format-and-lint --output-logs=errors-only
 

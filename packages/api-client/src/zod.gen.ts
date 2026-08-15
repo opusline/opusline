@@ -873,6 +873,7 @@ export const zUserData = z.object({
     name: z.string(),
     email: z.string(),
     theme: zTheme,
+    releaseNotesSeenVersion: z.nullable(z.string()),
     locale: zLocale,
     dateFormat: zDateFormat,
     currency: zCurrency,
@@ -1002,6 +1003,8 @@ export const zCurrentUserResponse = zUserData;
 export const zUpdateUserThemeBody = zUpdateUserThemeData;
 
 export const zUpdateUserThemeResponse = zUserData;
+
+export const zUpdateUserReleaseNotesSeenResponse = zUserData;
 
 export const zListClientsResponse = zClientListData;
 

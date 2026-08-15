@@ -19,6 +19,7 @@ import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
 import { Route as AuthedDeadlinesRouteImport } from './routes/_authed/deadlines'
 import { Route as AuthedDeclarationsRouteImport } from './routes/_authed/declarations'
 import { Route as AuthedInvoicesRouteImport } from './routes/_authed/invoices'
+import { Route as AuthedReleaseNotesRouteImport } from './routes/_authed/release-notes'
 import { Route as AuthedRevenueRouteImport } from './routes/_authed/revenue'
 import { Route as AuthedSettingsRouteImport } from './routes/_authed/settings'
 import { Route as AuthedTreasuryRouteImport } from './routes/_authed/treasury'
@@ -76,6 +77,11 @@ const AuthedDeclarationsRoute = AuthedDeclarationsRouteImport.update({
 const AuthedInvoicesRoute = AuthedInvoicesRouteImport.update({
   id: '/invoices',
   path: '/invoices',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedReleaseNotesRoute = AuthedReleaseNotesRouteImport.update({
+  id: '/release-notes',
+  path: '/release-notes',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedRevenueRoute = AuthedRevenueRouteImport.update({
@@ -139,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/deadlines': typeof AuthedDeadlinesRoute
   '/declarations': typeof AuthedDeclarationsRoute
   '/invoices': typeof AuthedInvoicesRoute
+  '/release-notes': typeof AuthedReleaseNotesRoute
   '/revenue': typeof AuthedRevenueRoute
   '/settings': typeof AuthedSettingsRoute
   '/treasury': typeof AuthedTreasuryRoute
@@ -159,6 +166,7 @@ export interface FileRoutesByTo {
   '/deadlines': typeof AuthedDeadlinesRoute
   '/declarations': typeof AuthedDeclarationsRoute
   '/invoices': typeof AuthedInvoicesRoute
+  '/release-notes': typeof AuthedReleaseNotesRoute
   '/revenue': typeof AuthedRevenueRoute
   '/settings': typeof AuthedSettingsRoute
   '/treasury': typeof AuthedTreasuryRoute
@@ -182,6 +190,7 @@ export interface FileRoutesById {
   '/_authed/deadlines': typeof AuthedDeadlinesRoute
   '/_authed/declarations': typeof AuthedDeclarationsRoute
   '/_authed/invoices': typeof AuthedInvoicesRoute
+  '/_authed/release-notes': typeof AuthedReleaseNotesRoute
   '/_authed/revenue': typeof AuthedRevenueRoute
   '/_authed/settings': typeof AuthedSettingsRoute
   '/_authed/treasury': typeof AuthedTreasuryRoute
@@ -204,6 +213,7 @@ export interface FileRouteTypes {
     | '/deadlines'
     | '/declarations'
     | '/invoices'
+    | '/release-notes'
     | '/revenue'
     | '/settings'
     | '/treasury'
@@ -224,6 +234,7 @@ export interface FileRouteTypes {
     | '/deadlines'
     | '/declarations'
     | '/invoices'
+    | '/release-notes'
     | '/revenue'
     | '/settings'
     | '/treasury'
@@ -246,6 +257,7 @@ export interface FileRouteTypes {
     | '/_authed/deadlines'
     | '/_authed/declarations'
     | '/_authed/invoices'
+    | '/_authed/release-notes'
     | '/_authed/revenue'
     | '/_authed/settings'
     | '/_authed/treasury'
@@ -337,6 +349,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedInvoicesRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/release-notes': {
+      id: '/_authed/release-notes'
+      path: '/release-notes'
+      fullPath: '/release-notes'
+      preLoaderRoute: typeof AuthedReleaseNotesRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/revenue': {
       id: '/_authed/revenue'
       path: '/revenue'
@@ -417,6 +436,7 @@ interface AuthedRouteChildren {
   AuthedDeadlinesRoute: typeof AuthedDeadlinesRoute
   AuthedDeclarationsRoute: typeof AuthedDeclarationsRoute
   AuthedInvoicesRoute: typeof AuthedInvoicesRoute
+  AuthedReleaseNotesRoute: typeof AuthedReleaseNotesRoute
   AuthedRevenueRoute: typeof AuthedRevenueRoute
   AuthedSettingsRoute: typeof AuthedSettingsRoute
   AuthedTreasuryRoute: typeof AuthedTreasuryRoute
@@ -434,6 +454,7 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedDeadlinesRoute: AuthedDeadlinesRoute,
   AuthedDeclarationsRoute: AuthedDeclarationsRoute,
   AuthedInvoicesRoute: AuthedInvoicesRoute,
+  AuthedReleaseNotesRoute: AuthedReleaseNotesRoute,
   AuthedRevenueRoute: AuthedRevenueRoute,
   AuthedSettingsRoute: AuthedSettingsRoute,
   AuthedTreasuryRoute: AuthedTreasuryRoute,

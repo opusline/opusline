@@ -22,6 +22,9 @@ export const Tones: Story = {
       <Badge variant="neutral">Direct</Badge>
       <Badge variant="quiet">Archivé</Badge>
       <Badge variant="brand">Active</Badge>
+      <Badge className="uppercase" variant="brand-solid">
+        Non lu
+      </Badge>
       <Badge variant="success">Payée</Badge>
       <Badge variant="warn">En retard</Badge>
     </div>

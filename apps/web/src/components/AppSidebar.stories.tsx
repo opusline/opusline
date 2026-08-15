@@ -47,3 +47,7 @@ export const Default: Story = {
 export const FiscalNavigationHidden: Story = {
   render: () => <Example user={{ hasFrenchFiscality: false }} />,
 };
+
+export const WithUnreadReleaseNotes: Story = {
+  render: () => <Example user={{ releaseNotesSeenVersion: "0.8.0" }} />,
+};

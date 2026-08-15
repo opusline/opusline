@@ -2,11 +2,14 @@ import type { UserData } from "@opusline/api-client";
 import { currentUserQueryKey } from "@opusline/api-client/react-query";
 import type { QueryClient } from "@tanstack/react-query";
 
+import { APP_VERSION } from "@/lib/version";
+
 export const CURRENT_USER_FIXTURE: UserData = {
   id: 1,
   name: "Theo",
   email: "theo@example.com",
   theme: 0,
+  releaseNotesSeenVersion: APP_VERSION,
   locale: "fr-FR",
   dateFormat: 0,
   currency: "EUR",
