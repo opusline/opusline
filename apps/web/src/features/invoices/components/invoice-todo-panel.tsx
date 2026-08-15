@@ -163,7 +163,7 @@ function UnbilledWorkRow({
     <Row
       badge={<Badge variant="brand">À facturer</Badge>}
       title={unbilledWorkTitle(format.locale, work)}
-      detail={unbilledWorkDetail(work)}
+      detail={unbilledWorkDetail(format.locale, work)}
       amount={`${formatWholeAmount(format, todo.amount.amount)} HT`}
       action={
         <Button size="sm" onClick={() => onCreateInvoice(todo)}>

@@ -3,6 +3,7 @@ import { Input } from "@opusline/ui/components/input";
 import { cn } from "@opusline/ui/lib/utils";
 import { SearchIcon } from "lucide-react";
 
+import { useLocale } from "@/components/money-format-provider";
 import { monthTitle } from "@/lib/months";
 import { COLOR_CLASSES } from "@/lib/palette";
 
@@ -37,7 +38,8 @@ export function CraPicker({
   onQueryChange,
   onPick,
 }: CraPickerProps) {
-  const groups = groupCras(items, query);
+  const locale = useLocale();
+  const groups = groupCras(locale, items, query);
 
   return (
     <aside className="flex w-full shrink-0 flex-col self-stretch lg:w-72">
@@ -122,7 +124,7 @@ export function CraPicker({
                             {item.missionName}
                           </span>
                           <span className="mt-1 block truncate text-muted-foreground-3 text-xs">
-                            {item.clientName} · {monthTitle(item.month)}
+                            {item.clientName} · {monthTitle(locale, item.month)}
                           </span>
                         </span>
                       </button>

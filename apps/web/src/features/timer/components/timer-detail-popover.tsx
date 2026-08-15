@@ -4,6 +4,7 @@ import { Input } from "@opusline/ui/components/input";
 import { Clock, TriangleAlert } from "lucide-react";
 import { useEffect, useRef } from "react";
 
+import { useLocale } from "@/components/money-format-provider";
 import { formatClock, formatStartedAt, isRunning } from "../lib/elapsed";
 import type { IdleNotice } from "../lib/idle";
 import {
@@ -73,6 +74,7 @@ export function TimerDetailPopover({
   state,
 }: TimerDetailPopoverProps) {
   const running = isRunning(state);
+  const locale = useLocale();
   const confirmRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -88,7 +90,7 @@ export function TimerDetailPopover({
           {running ? RUNNING_STATE : PAUSED_STATE}
         </span>
         <span className="font-mono text-muted-foreground-3 text-xs tabular-nums">
-          {startedAtLabel(formatStartedAt(startedAt))}
+          {startedAtLabel(formatStartedAt(locale, startedAt))}
         </span>
       </div>
 

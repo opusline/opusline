@@ -7,19 +7,33 @@ import { NativeSelect } from "@opusline/ui/components/native-select";
 import { useEffect, useMemo, useState } from "react";
 
 import { formatAmountWithCents } from "@/lib/billing";
-import { COUNTRY_OPTIONS } from "@/lib/countries";
+import { countryOptions } from "@/lib/countries";
 import { calendarDateNumericLabel } from "@/lib/dates";
 import { m } from "@/paraglide/messages.js";
 import { unsavedChangesLabel } from "../lib/settings-form";
 import { SaveBar } from "./save-bar";
 import { SettingsSection } from "./settings-section";
 
-const currencyNames = new Intl.DisplayNames(["fr"], { type: "currency" });
+type CurrencyOption = { code: Currency; label: string };
 
-const CURRENCY_OPTIONS = zCurrency.options.map((code) => ({
-  code,
-  label: `${code} · ${currencyNames.of(code) ?? code}`,
-}));
+const currencyOptionsByLocale = new Map<Locale, CurrencyOption[]>();
+
+function currencyOptions(locale: Locale): CurrencyOption[] {
+  let options = currencyOptionsByLocale.get(locale);
+
+  if (options === undefined) {
+    const currencyNames = new Intl.DisplayNames([locale], {
+      type: "currency",
+    });
+    options = zCurrency.options.map((code) => ({
+      code,
+      label: `${code} · ${currencyNames.of(code) ?? code}`,
+    }));
+    currencyOptionsByLocale.set(locale, options);
+  }
+
+  return options;
+}
 
 const LOCALE_LABELS: Record<Locale, string> = {
   "fr-FR": "Français",
@@ -121,7 +135,7 @@ export function LocalisationSettings({
             }
             value={draft.businessCountry}
           >
-            {COUNTRY_OPTIONS.map((country) => (
+            {countryOptions(locale).map((country) => (
               <option key={country.id} value={country.id}>
                 {country.label}
               </option>
@@ -150,7 +164,7 @@ export function LocalisationSettings({
               }}
               value={draft.currency}
             >
-              {CURRENCY_OPTIONS.map((option) => (
+              {currencyOptions(locale).map((option) => (
                 <option key={option.code} value={option.code}>
                   {option.label}
                 </option>

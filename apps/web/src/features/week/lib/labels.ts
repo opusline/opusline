@@ -1,4 +1,4 @@
-import type { BillingMode } from "@opusline/api-client";
+import type { BillingMode, Locale } from "@opusline/api-client";
 
 import { type DurationInvalidReason, isHourly } from "@/lib/durations";
 import { weekdayDateLabel } from "@/lib/weeks";
@@ -24,6 +24,7 @@ export function durationErrorHint(reason: DurationInvalidReason): string {
 }
 
 export function cellAriaLabel(input: {
+  locale: Locale;
   missionName: string;
   date: string | null;
   billedLabel: string;
@@ -34,7 +35,7 @@ export function cellAriaLabel(input: {
     return "Week-end replié";
   }
 
-  const day = weekdayDateLabel(input.date);
+  const day = weekdayDateLabel(input.locale, input.date);
 
   if (input.isEmpty) {
     return `${input.missionName}, ${day} : aucune entrée`;

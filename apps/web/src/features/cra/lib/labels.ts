@@ -132,7 +132,7 @@ export function reportedAgainstTrackedLabel(
 export function cellAriaLabel(locale: Locale, day: CraDayData): string {
   // The weekday, not just the date: in a calendar grid it is what tells you which
   // column you have landed in.
-  const date = weekdayDateLabel(day.date);
+  const date = weekdayDateLabel(locale, day.date);
   const worked =
     day.dayFractionBp > 0
       ? daysLabel(locale, day.dayFractionBp / FULL_DAY_BP)

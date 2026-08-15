@@ -49,7 +49,7 @@ describe("groupByClient", () => {
   ];
 
   it("groups rows by client, ordered by name", () => {
-    const groups = groupByClient(items, totals, "all");
+    const groups = groupByClient("fr-FR", items, totals, "all");
 
     expect(groups.map((group) => group.client.name)).toEqual([
       "HartPrint",
@@ -60,14 +60,14 @@ describe("groupByClient", () => {
   });
 
   it("reads the total for the shown scope from the API verbatim", () => {
-    const groups = groupByClient(items, totals, "open");
+    const groups = groupByClient("fr-FR", items, totals, "open");
 
     // The frontend never sums money: 90 000 is the API's figure, not a re-addition.
     expect(groups[0]?.total).toBe(90_000);
   });
 
   it("derives the average days to pay from the paid rows", () => {
-    const groups = groupByClient([paid], totals, "paid");
+    const groups = groupByClient("fr-FR", [paid], totals, "paid");
 
     expect(groups[0]?.averageDaysToPay).toBe(20);
   });

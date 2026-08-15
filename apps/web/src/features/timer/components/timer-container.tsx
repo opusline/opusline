@@ -177,7 +177,7 @@ function StopDialog({
       billable={timer.billable}
       clockLabel={formatClock(measuredSeconds)}
       correctionDraft={timer.correctionDraft}
-      dateLabel={calendarDateLabel(startDate)}
+      dateLabel={calendarDateLabel(format.locale, startDate)}
       droppedMinutes={droppedMinutes}
       measuredLabel={
         timer.longRunHours === null

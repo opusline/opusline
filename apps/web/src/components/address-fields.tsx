@@ -5,6 +5,7 @@ import {
   FormTextField,
   type StringFieldApi,
 } from "@/components/form-text-field";
+import { useLocale } from "@/components/money-format-provider";
 import { SuggestField } from "@/components/suggest-field";
 import { searchCountries } from "@/lib/countries";
 
@@ -41,6 +42,7 @@ export function AddressFields<TName extends string>({
   gapClassName,
 }: AddressFieldsProps<TName>) {
   const autocomplete = useAddressAutocomplete();
+  const locale = useLocale();
   const placeholder = (value: string) => (withPlaceholders ? value : undefined);
 
   const setCountryFromSuggestion = () => {
@@ -133,7 +135,7 @@ export function AddressFields<TName extends string>({
               field={field}
               label="Pays"
               labelClassName={labelClassName}
-              onSearch={async (query) => searchCountries(query)}
+              onSearch={async (query) => searchCountries(locale, query)}
               onSelect={(suggestion) => field.handleChange(suggestion.label)}
               placeholder={placeholder("France")}
             />

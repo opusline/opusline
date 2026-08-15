@@ -82,6 +82,7 @@
   "vat_regime_simplified_hint": "VAT-liable · yearly CA12",
   "vat_regime_simplified_label": "Réel simplifié",
   "vat_regime_simplified_note": "Your invoices carry VAT and a CA12 return is expected every year, with instalments.",
+  "week_title": "Week {number}",
   "zod_email_invalid": "Invalid email address.",
   "zod_field_required": "This field is required.",
   "zod_too_big": "At most {max} characters.",

@@ -1,30 +1,51 @@
-import type { DateFormat } from "@opusline/api-client";
+import type { DateFormat, Locale } from "@opusline/api-client";
 
-const monthYear = new Intl.DateTimeFormat("fr-FR", {
+const dateFormatters = new Map<string, Intl.DateTimeFormat>();
+
+/** Mirror of billing's cachedFormatter — one Intl instance per locale+options. */
+export function cachedDateFormatter(
+  locale: Locale,
+  options: Intl.DateTimeFormatOptions,
+): Intl.DateTimeFormat {
+  const key = `${locale}|${JSON.stringify(options)}`;
+  let formatter = dateFormatters.get(key);
+
+  if (formatter === undefined) {
+    formatter = new Intl.DateTimeFormat(locale, options);
+    dateFormatters.set(key, formatter);
+  }
+
+  return formatter;
+}
+
+const MONTH_YEAR: Intl.DateTimeFormatOptions = {
   month: "long",
   year: "numeric",
-});
+};
+
+const FULL_DATE: Intl.DateTimeFormatOptions = {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+};
 
 // Invoice screens date everything numerically: an amount and a date sit on the
 // same dense row, and "30 juin 2026" pushes the row wider than the column.
+// Deliberately NOT locale-driven: the digit order is the user's explicit
+// DateFormat choice (day-first or ISO), and fr-FR anchors dd/MM/yyyy whatever
+// language the interface speaks.
 const numericDate = new Intl.DateTimeFormat("fr-FR", {
   day: "2-digit",
   month: "2-digit",
   year: "numeric",
 });
 
-const fullDate = new Intl.DateTimeFormat("fr-FR", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-});
-
-export function monthYearLabel(instant: string): string {
-  return monthYear.format(new Date(instant));
+export function monthYearLabel(locale: Locale, instant: string): string {
+  return cachedDateFormatter(locale, MONTH_YEAR).format(new Date(instant));
 }
 
-export function fullDateLabel(instant: string): string {
-  return fullDate.format(new Date(instant));
+export function fullDateLabel(locale: Locale, instant: string): string {
+  return cachedDateFormatter(locale, FULL_DATE).format(new Date(instant));
 }
 
 /**
@@ -76,13 +97,13 @@ export function toCalendarDate(date: Date): string {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
-export function calendarMonthYearLabel(date: string): string {
-  return monthYear.format(fromCalendarDate(date));
+export function calendarMonthYearLabel(locale: Locale, date: string): string {
+  return cachedDateFormatter(locale, MONTH_YEAR).format(fromCalendarDate(date));
 }
 
 /** "Août 2026" — a month used as a heading rather than inside a sentence. */
-export function capitalizedMonthLabel(date: string): string {
-  const label = calendarMonthYearLabel(date);
+export function capitalizedMonthLabel(locale: Locale, date: string): string {
+  const label = calendarMonthYearLabel(locale, date);
 
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
@@ -90,7 +111,7 @@ export function capitalizedMonthLabel(date: string): string {
 /**
  * The user's chosen numeric layout: 0 → "31/08/2026", 1 → "2026-08-31" (the
  * calendar-date payload IS the ISO layout, so it passes through verbatim).
- * Only digit-only dates follow the preference — month names stay French.
+ * The digit order is this explicit preference, never a locale artifact.
  */
 export function calendarDateNumericLabel(
   dateFormat: DateFormat,
@@ -114,8 +135,8 @@ export function isoDayOfWeek(date: Date): number {
   return date.getDay() === 0 ? 7 : date.getDay();
 }
 
-export function calendarDateLabel(date: string): string {
-  return fullDate.format(fromCalendarDate(date));
+export function calendarDateLabel(locale: Locale, date: string): string {
+  return cachedDateFormatter(locale, FULL_DATE).format(fromCalendarDate(date));
 }
 
 /**

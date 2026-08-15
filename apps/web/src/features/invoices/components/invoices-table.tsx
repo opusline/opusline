@@ -51,11 +51,12 @@ export function InvoicesTable({
   const groups = useMemo(
     () =>
       groupByClient(
+        format.locale,
         invoices.filter((item) => matchesScope(item, scope)),
         clientTotals,
         scope,
       ),
-    [invoices, clientTotals, scope],
+    [format.locale, invoices, clientTotals, scope],
   );
 
   return (
@@ -136,6 +137,7 @@ export function InvoicesTable({
                           </span>
                           <span className="mt-0.75 block text-muted-foreground-3 text-xs">
                             {invoiceRowDetail(
+                              format.locale,
                               dateFormat,
                               invoice,
                               accountToday,

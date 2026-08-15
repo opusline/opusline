@@ -63,7 +63,7 @@ it("keeps whole weeks whatever the month", () => {
 });
 
 it("titles a month for a heading", () => {
-  expect(monthTitle("2026-07")).toBe("Juillet 2026");
+  expect(monthTitle("fr-FR", "2026-07")).toBe("Juillet 2026");
 });
 
 it("throws on a month it cannot parse rather than guessing", () => {

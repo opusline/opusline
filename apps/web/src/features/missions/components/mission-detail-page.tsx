@@ -138,7 +138,7 @@ export function MissionDetailPage({
               mission.endClientName !== null &&
                 `client final ${mission.endClientName}`,
               mission.startDate !== null &&
-                `depuis ${calendarMonthYearLabel(mission.startDate)}`,
+                `depuis ${calendarMonthYearLabel(format.locale, mission.startDate)}`,
             ]
               .filter(Boolean)
               .join(" · ")}
@@ -373,7 +373,7 @@ export function MissionDetailPage({
                     value={
                       mission.startDate === null
                         ? "—"
-                        : calendarDateLabel(mission.startDate)
+                        : calendarDateLabel(format.locale, mission.startDate)
                     }
                   />
                   <FacturationRow
@@ -381,7 +381,7 @@ export function MissionDetailPage({
                     value={
                       mission.endDate === null
                         ? "—"
-                        : calendarDateLabel(mission.endDate)
+                        : calendarDateLabel(format.locale, mission.endDate)
                     }
                   />
                 </div>

@@ -307,7 +307,7 @@ function EntryStep({
           />
           <p className="text-muted-foreground-3 text-sm">
             {isDateValid
-              ? `${shortDateLabel(date)} · ${isoWeekTitle(
+              ? `${shortDateLabel(locale, date)} · ${isoWeekTitle(
                   isoWeekOf(date),
                 ).toLowerCase()}`
               : "Date incomplète"}
