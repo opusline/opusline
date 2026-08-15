@@ -39,6 +39,9 @@ pre-push:
           - name: client-routes-and-drift
             run: sh scripts/generated-artifacts.sh
 
+    - name: i18n-guard
+      run: sh scripts/i18n-guard.sh
+
     - name: quality
       run: pnpm exec turbo run test check-types lint format-and-lint --output-logs=errors-only
 

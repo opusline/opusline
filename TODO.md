@@ -156,8 +156,9 @@ Design reference : https://claude.ai/design/p/cf894101-b71a-4607-bb25-eed1925c83
 - [ ] **Mission budget alerts** — for fixed-budget missions: consumed vs budget.
 - [ ] **Public API + docs** — the OpenAPI spec is already there; publish it once
   stable. Kimai's adoption owes a lot to its API.
-- [ ] **i18n FR/EN** — strings are kept extractable from day one; actually wire
-  i18n when the core is stable. FR-first market, EN for OSS reach.
+- [x] **i18n FR/EN** — shipped: Paraglide message catalogs on the web, locale
+  negotiation + localized validation on the API, English URLs, default English
+  for unknown browsers. `scripts/i18n-guard.sh` keeps new strings out of source.
 - [ ] **Wizard** before starting
 
 ## Explicitly out of scope (do not build)

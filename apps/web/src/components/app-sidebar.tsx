@@ -197,7 +197,7 @@ export function AppSidebar() {
               >
                 {/*
                 No treasury endpoint exists yet — the figure arrives with the
-                Trésorerie screen. A dash keeps the tile honest until then.
+                treasury screen. A dash keeps the tile honest until then.
               */}
                 <div className="font-medium text-ring/70 text-xs uppercase tracking-wider-2">
                   {m.treasury_tile_title()}
