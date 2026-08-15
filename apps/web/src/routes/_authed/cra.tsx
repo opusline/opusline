@@ -24,6 +24,7 @@ import { CraPage } from "@/features/cra/components/cra-page";
 import { type CraStep, isCraStep } from "@/features/cra/lib/cra-steps";
 import { signatureHref } from "@/features/settings/lib/signature";
 import { serverErrorMessage } from "@/lib/validation";
+import { m } from "@/paraglide/messages.js";
 
 type CraSearch = { cra?: number; step?: CraStep };
 
@@ -34,8 +35,6 @@ export const Route = createFileRoute("/_authed/cra")({
   }),
   component: CraRoute,
 });
-
-const WRITE_FAILED = "L'enregistrement a échoué. Réessayez dans un instant.";
 
 /**
  * Fold a sparse day payload back onto the cached CRA, which carries every day of the
@@ -118,15 +117,13 @@ function CraRoute() {
 
   /** The dialog keeps its own channel, so a failed upload is shown where it happened. */
   const reportUploadFailure = (caught: unknown) => {
-    setUploadError(
-      serverErrorMessage(caught, "Le retour signé n'a pas pu être enregistré."),
-    );
+    setUploadError(serverErrorMessage(caught, m.cra_error_upload()));
   };
 
   const create = useMutation({
     ...createCraMutation(),
     onMutate: () => setError(null),
-    onError: reportFailure("Le CRA n'a pas pu être ouvert."),
+    onError: reportFailure(m.cra_error_open()),
   });
   /**
    * The grid writes a whole snapshot, and the snapshot is derived from the cached CRA.
@@ -144,25 +141,25 @@ function CraRoute() {
     // lie, and the grid must not keep showing the day the server rejected next
     // to the error banner. The refetch restores the server's truth either way.
     onSettled: refreshCras,
-    onError: reportFailure(WRITE_FAILED),
+    onError: reportFailure(m.week_write_failed()),
   });
   const reset = useMutation({
     ...resetCraMutation(),
     onMutate: () => setError(null),
     onSuccess: refreshCras,
-    onError: reportFailure("Les entrées n'ont pas pu être rétablies."),
+    onError: reportFailure(m.cra_error_reset()),
   });
   const send = useMutation({
     ...sendCraMutation(),
     onMutate: () => setError(null),
     onSuccess: refreshCras,
-    onError: reportFailure("Le CRA n'a pas pu être marqué envoyé."),
+    onError: reportFailure(m.cra_error_send()),
   });
   const reopen = useMutation({
     ...reopenCraMutation(),
     onMutate: () => setError(null),
     onSuccess: refreshCras,
-    onError: reportFailure("Le CRA n'a pas pu être rouvert."),
+    onError: reportFailure(m.cra_error_reopen()),
   });
   const uploadSignedReturn = useMutation({
     ...uploadSignedCraMutation(),
@@ -255,9 +252,7 @@ function CraRoute() {
   if (cras.isError || settings.isError || settings.data === undefined) {
     return (
       <Alert variant="destructive">
-        <AlertDescription>
-          Impossible de charger les comptes rendus. Réessayez dans un instant.
-        </AlertDescription>
+        <AlertDescription>{m.cra_error_load()}</AlertDescription>
       </Alert>
     );
   }
@@ -268,10 +263,7 @@ function CraRoute() {
       detail={detail.data ?? null}
       // A CRA that will not load has to say so: the column it fills is otherwise just
       // empty, and the URL keeps pointing at it.
-      error={
-        error ??
-        (detail.isError ? "Ce compte rendu n'a pas pu être chargé." : null)
-      }
+      error={error ?? (detail.isError ? m.cra_error_detail() : null)}
       isSignedReturnOpen={isSignedReturnOpen}
       onSignedReturnOpenChange={setIsSignedReturnOpen}
       isBusy={isBusy}

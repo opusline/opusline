@@ -7,6 +7,8 @@ import { useLocale } from "@/components/money-format-provider";
 import { craStatusBadge } from "@/lib/cra-status";
 import { monthTitle } from "@/lib/months";
 
+import { m } from "@/paraglide/messages.js";
+
 import { craSubtitle } from "../lib/labels";
 
 type CraHeaderProps = {
@@ -59,7 +61,7 @@ export function CraHeader({
             variant="outline"
           >
             <DownloadIcon aria-hidden data-icon="inline-start" />
-            Télécharger le PDF
+            {m.cra_download_pdf()}
           </Button>
         )}
 
@@ -71,10 +73,10 @@ export function CraHeader({
               size="xl"
               variant="ghost"
             >
-              Rouvrir
+              {m.cra_reopen()}
             </Button>
             <Button disabled={isBusy} onClick={onSignedReturn} size="xl">
-              Enregistrer le retour signé
+              {m.cra_signed_return_title()}
             </Button>
           </>
         )}

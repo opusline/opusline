@@ -2,6 +2,7 @@ import type { CraListItemData, CraStatus, Locale } from "@opusline/api-client";
 
 import { foldAccents } from "@/lib/documents";
 import { monthTitle } from "@/lib/months";
+import { m } from "@/paraglide/messages.js";
 
 /**
  * The aside's list: what is owed, what is out, what has come back.
@@ -10,10 +11,10 @@ import { monthTitle } from "@/lib/months";
 export const CRA_GROUPS = ["toProduce", "sent", "signed"] as const;
 export type CraGroupKey = (typeof CRA_GROUPS)[number];
 
-export const CRA_GROUP_LABELS: Record<CraGroupKey, string> = {
-  toProduce: "À produire",
-  sent: "En attente de signature",
-  signed: "Signés",
+export const CRA_GROUP_LABELS: Record<CraGroupKey, () => string> = {
+  toProduce: m.cra_group_to_produce,
+  sent: m.cra_group_sent,
+  signed: m.cra_group_signed,
 };
 
 const GROUP_STATUS: Record<CraGroupKey, CraStatus> = {
@@ -96,7 +97,7 @@ export function groupCras(
 
   return CRA_GROUPS.map((key) => ({
     key,
-    label: CRA_GROUP_LABELS[key],
+    label: CRA_GROUP_LABELS[key](),
     items: matching.filter((item) => item.status === GROUP_STATUS[key]),
   })).filter((group) => group.items.length > 0);
 }

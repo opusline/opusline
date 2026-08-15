@@ -15,13 +15,7 @@ import { useState } from "react";
 import { useLocale } from "@/components/money-format-provider";
 import { formatFileSize } from "@/lib/documents";
 import { monthTitle } from "@/lib/months";
-import {
-  CANCEL,
-  SIGNED_RETURN_DROP,
-  SIGNED_RETURN_HINT,
-  SIGNED_RETURN_REMOVE,
-  SIGNED_RETURN_TITLE,
-} from "../lib/labels";
+import { m } from "@/paraglide/messages.js";
 
 const ACCEPT = ".pdf,.jpg,.jpeg,.png";
 const ACCEPTED_EXTENSIONS = new Set(["pdf", "jpg", "jpeg", "png"]);
@@ -58,14 +52,14 @@ export function CraSignedReturnDialog({
     const extension = candidate.name.toLowerCase().split(".").pop() ?? "";
 
     if (!ACCEPTED_EXTENSIONS.has(extension)) {
-      setRejected(`${candidate.name} — un CRA signé est un PDF ou une image`);
+      setRejected(m.cra_rejected_type({ name: candidate.name }));
       setFile(null);
 
       return;
     }
 
     if (candidate.size > MAX_UPLOAD_BYTES) {
-      setRejected(`${candidate.name} — 20 Mo maximum`);
+      setRejected(m.cra_rejected_size({ name: candidate.name }));
       setFile(null);
 
       return;
@@ -88,11 +82,12 @@ export function CraSignedReturnDialog({
     <Dialog onOpenChange={close} open={open}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{SIGNED_RETURN_TITLE}</DialogTitle>
+          <DialogTitle>{m.cra_signed_return_title()}</DialogTitle>
           <DialogDescription>
-            CRA de {monthTitle(locale, detail.cra.month)} ·{" "}
-            {detail.mission.name}. Le document rejoint les pièces de la mission
-            à côté de l'original.
+            {m.cra_signed_return_description({
+              month: monthTitle(locale, detail.cra.month),
+              mission: detail.mission.name,
+            })}
           </DialogDescription>
         </DialogHeader>
 
@@ -116,7 +111,7 @@ export function CraSignedReturnDialog({
           >
             <input
               accept={ACCEPT}
-              aria-label={SIGNED_RETURN_DROP}
+              aria-label={m.cra_signed_return_drop()}
               className="sr-only"
               onChange={(event) => {
                 accept(event.target.files?.[0]);
@@ -132,10 +127,10 @@ export function CraSignedReturnDialog({
             </span>
             <span className="flex min-w-0 flex-col gap-0.75">
               <span className="text-foreground-hi text-sm">
-                {SIGNED_RETURN_DROP}
+                {m.cra_signed_return_drop()}
               </span>
               <span className="text-muted-foreground-3 text-xs">
-                {SIGNED_RETURN_HINT}
+                {m.cra_signed_return_hint()}
               </span>
             </span>
           </label>
@@ -158,7 +153,7 @@ export function CraSignedReturnDialog({
               size="xl"
               variant="outline"
             >
-              {SIGNED_RETURN_REMOVE}
+              {m.cra_signed_return_remove()}
             </Button>
           </div>
         )}
@@ -177,14 +172,14 @@ export function CraSignedReturnDialog({
 
         <DialogFooter>
           <Button onClick={() => close(false)} size="2xl" variant="ghost">
-            {CANCEL}
+            {m.timer_cancel()}
           </Button>
           <Button
             disabled={file === null || isPending}
             onClick={() => file !== null && onUpload(file)}
             size="2xl"
           >
-            Enregistrer le retour
+            {m.cra_signed_return_submit()}
           </Button>
         </DialogFooter>
       </DialogContent>

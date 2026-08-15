@@ -2,6 +2,7 @@ import type { CraData } from "@opusline/api-client";
 import { cn } from "@opusline/ui/lib/utils";
 import { CheckIcon } from "lucide-react";
 import { useLocale } from "@/components/money-format-provider";
+import { m } from "@/paraglide/messages.js";
 import {
   CRA_STEP_LABELS,
   CRA_STEPS,
@@ -20,7 +21,7 @@ export function CraStepTracker({ cra, current, onGo }: CraStepTrackerProps) {
   const currentIndex = CRA_STEPS.indexOf(current);
 
   return (
-    <ol aria-label="Étapes du compte rendu" className="flex flex-wrap gap-2">
+    <ol aria-label={m.cra_steps_aria()} className="flex flex-wrap gap-2">
       {CRA_STEPS.map((step, index) => {
         const isCurrent = step === current;
         const isDone = index < currentIndex;
@@ -62,7 +63,7 @@ export function CraStepTracker({ cra, current, onGo }: CraStepTrackerProps) {
                     isCurrent ? "text-foreground-hi" : "text-foreground-3",
                   )}
                 >
-                  {CRA_STEP_LABELS[step]}
+                  {CRA_STEP_LABELS[step]()}
                 </span>
                 <span className="block truncate text-muted-foreground-3 text-xs">
                   {craStepState(locale, step, cra)}

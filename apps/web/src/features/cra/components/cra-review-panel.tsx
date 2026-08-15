@@ -1,20 +1,9 @@
 import type { CraDetailData, Locale, SettingsData } from "@opusline/api-client";
 import { cn } from "@opusline/ui/lib/utils";
 import { useLocale } from "@/components/money-format-provider";
-import {
-  CHECK_DAYS,
-  CHECK_DAYS_MATCHING,
-  CHECK_RECIPIENT,
-  CHECK_RECIPIENT_DETAIL,
-  CHECK_SIGNATURE,
-  CHECK_SIGNATURE_MISSING,
-  CHECK_SIGNATURE_OFF,
-  CHECK_SIGNATURE_ON,
-  CHECK_SIGNATURE_READY,
-  checkDaysDrift,
-  daysLabel,
-  REVIEW_TITLE,
-} from "../lib/labels";
+import { m } from "@/paraglide/messages.js";
+
+import { checkDaysDrift, daysLabel } from "../lib/labels";
 
 type Check = {
   key: string;
@@ -38,28 +27,30 @@ function checksFor(
   return [
     {
       key: "days",
-      title: CHECK_DAYS,
+      title: m.cra_check_days(),
       detail:
         cra.differenceDays === 0
-          ? CHECK_DAYS_MATCHING
+          ? m.cra_check_days_matching()
           : checkDaysDrift(locale, cra.differenceDays),
       value: daysLabel(locale, cra.totalDays),
       tone: cra.differenceDays === 0 ? "ok" : "attention",
     },
     {
       key: "recipient",
-      title: CHECK_RECIPIENT,
-      detail: CHECK_RECIPIENT_DETAIL,
+      title: m.cra_check_recipient(),
+      detail: m.cra_check_recipient_detail(),
       value: recipientName,
       tone: "ok",
     },
     {
       key: "signature",
-      title: CHECK_SIGNATURE,
+      title: "Signature",
       detail: settings.hasSignature
-        ? CHECK_SIGNATURE_READY
-        : CHECK_SIGNATURE_MISSING,
-      value: settings.hasSignature ? CHECK_SIGNATURE_ON : CHECK_SIGNATURE_OFF,
+        ? m.cra_check_signature_ready()
+        : m.cra_check_signature_missing(),
+      value: settings.hasSignature
+        ? m.cra_check_signature_on()
+        : m.cra_check_signature_off(),
       tone: settings.hasSignature ? "ok" : "attention",
     },
   ];
@@ -75,7 +66,7 @@ export function CraReviewPanel({ detail, settings }: CraReviewPanelProps) {
   return (
     <section className="min-w-0 flex-1 rounded-md border bg-card p-5.5">
       <h2 className="mb-3.5 font-heading font-semibold text-foreground-hi text-lg">
-        {REVIEW_TITLE}
+        {m.cra_review_title()}
       </h2>
 
       <dl>
