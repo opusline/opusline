@@ -45,6 +45,7 @@ jobs:
           key: ${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
       - run: pnpm --filter @opusline/storybook exec playwright install chromium --with-deps
       - run: pnpm format-and-lint
+      - run: sh scripts/i18n-guard.sh
       - run: pnpm exec turbo run test check-types build "--filter=!@opusline/api"
 
   api:

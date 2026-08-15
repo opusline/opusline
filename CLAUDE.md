@@ -78,6 +78,14 @@ sh scripts/php.sh php vendor/bin/pint
   - **Do not narrate your own work.** No comments explaining a change you just made, restating a prop's type, or labelling the obvious step of a function. If every branch of a component has a comment above it, the component is doing too much or is named badly — fix that instead.
   - Docblocks on exported functions/components carry the same bar: skip them when the signature already says everything (`formatClock(seconds): string`). Write one when there is a real caveat, unit, or precondition to state.
 
+## i18n
+
+- Two languages, `en` (default and fallback for unknown browsers) and `fr`, both driven by `user_settings.locale` end to end.
+- **Web**: UI copy lives in `apps/web/messages/{en,fr}.json` (Paraglide; the compiled output in `apps/web/src/paraglide` is committed and drift-checked — regenerate with `pnpm --filter @opusline/web generate-messages`). Call `m.key()` at render time; **never** assign `m.key()` to a module-level const (it freezes the boot locale), and module-level zod schemas take lazy errors (`error: () => m.key()`). Counts use plural-variant messages, interpolation uses `{param}` messages — never glue translated fragments. Enum labels are `Record<Enum, () => string>` maps behind accessor functions. `Intl` formatters go through `cachedFormatter`/`cachedDateFormatter` with the locale threaded as the first parameter; numeric date layouts follow the user's `DateFormat`, not the locale.
+- **API**: messages live in `lang/{en,fr}` domain groups with exact key parity (guarded by `tests/Unit/LangCatalogTest.php`). Never add keys to the laravel-lang-managed files (`validation`, `auth`, `http-statuses`, `passwords`, `pagination`, the root JSON files) — `lang:update` prunes foreign keys on every composer update; use a domain group (`rules.php`, `fields.php`, …). Never memoize `__()` output in statics — Octane workers would freeze the first request's locale (see `FrenchHolidays`).
+- French fiscal vocabulary stays French in both languages: CRA, SIRET, TJM, URSSAF, ACRE, HT/TTC, CA3/CA12, « Franchise en base »… The CRA document (PDF and its web preview `cra-document.tsx`) is a French artifact and stays entirely French.
+- `scripts/i18n-guard.sh` (CI + pre-push) fails the build on accented literals outside the catalogs.
+
 ## Things NOT to do
 
 - Don't add SSR, server functions, or a Node backend to `web`.
