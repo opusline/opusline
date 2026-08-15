@@ -39,7 +39,7 @@ import { ClientLogo } from "@/components/client-logo";
 import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatMissionRate, paymentTermsLabel } from "@/lib/billing";
-import { CLIENT_TYPE_LABELS } from "@/lib/client-types";
+import { clientTypeLabel } from "@/lib/client-types";
 import { monthYearLabel } from "@/lib/dates";
 import type { FormSubmitResult } from "@/lib/form";
 import type { LogoUploadResult } from "@/lib/logos";
@@ -153,7 +153,7 @@ export function ClientDetailPage({
               <h1 className="font-heading font-semibold text-2xl text-foreground-hi">
                 {client.name}
               </h1>
-              <Badge>{CLIENT_TYPE_LABELS[client.type]}</Badge>
+              <Badge>{clientTypeLabel(client.type)}</Badge>
               {isArchived && <Badge variant="quiet">Archivé</Badge>}
             </div>
             <p className="mt-1.5 text-muted-foreground-3 text-sm">

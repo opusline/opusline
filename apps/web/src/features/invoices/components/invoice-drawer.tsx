@@ -15,7 +15,7 @@ import {
 } from "@/components/money-format-provider";
 import { formatAmountWithCents, formatPercentFromBp } from "@/lib/billing";
 import { calendarDateNumericLabel, calendarRangeLabel } from "@/lib/dates";
-import { INVOICE_EVENT_LABELS, invoiceStatusBadge } from "@/lib/invoice-status";
+import { invoiceEventLabel, invoiceStatusBadge } from "@/lib/invoice-status";
 
 import { Fact } from "./invoice-fact";
 
@@ -143,7 +143,7 @@ function InvoiceDrawerBody({
               />
               <div className="min-w-0">
                 <p className="text-foreground-3 text-sm">
-                  {INVOICE_EVENT_LABELS[event.kind]}
+                  {invoiceEventLabel(event.kind)}
                 </p>
                 <p className="mt-0.5 font-mono text-muted-foreground-3 text-xs tabular-nums">
                   {calendarDateNumericLabel(dateFormat, event.occurredOn)}

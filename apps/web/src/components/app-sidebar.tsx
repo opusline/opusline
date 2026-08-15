@@ -46,6 +46,7 @@ import {
 } from "lucide-react";
 
 import { initials } from "@/lib/initials";
+import { m } from "@/paraglide/messages.js";
 
 export function AppSidebar() {
   const { pathname } = useLocation();
@@ -72,9 +73,9 @@ export function AppSidebar() {
           </SidebarMenuButton>
           <button
             className="flex size-8 flex-none items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:hidden"
-            aria-label="Réduire le menu"
+            aria-label={m.sidebar_collapse_menu()}
             onClick={toggleSidebar}
-            title="Réduire"
+            title={m.sidebar_collapse()}
             type="button"
           >
             <PanelLeft aria-hidden className="size-4" />
@@ -89,40 +90,40 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   isActive={pathname.startsWith("/week")}
                   render={<Link to="/week" />}
-                  tooltip="Semaine"
+                  tooltip={m.nav_week()}
                 >
                   <CalendarDays />
-                  <span>Semaine</span>
+                  <span>{m.nav_week()}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={pathname.startsWith("/clients")}
                   render={<Link to="/clients" />}
-                  tooltip="Clients"
+                  tooltip={m.nav_clients()}
                 >
                   <Users />
-                  <span>Clients</span>
+                  <span>{m.nav_clients()}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={pathname.startsWith("/cra")}
                   render={<Link to="/cra" />}
-                  tooltip="CRA"
+                  tooltip={m.nav_cra()}
                 >
                   <FileCheck />
-                  <span>CRA</span>
+                  <span>{m.nav_cra()}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={pathname.startsWith("/invoices")}
                   render={<Link to="/invoices" />}
-                  tooltip="Factures"
+                  tooltip={m.nav_invoices()}
                 >
                   <ReceiptText />
-                  <span>Factures</span>
+                  <span>{m.nav_invoices()}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               {/*
@@ -136,40 +137,40 @@ export function AppSidebar() {
                     <SidebarMenuButton
                       isActive={pathname.startsWith("/revenue")}
                       render={<Link to="/revenue" />}
-                      tooltip="Revenus"
+                      tooltip={m.nav_revenue()}
                     >
                       <ChartLine />
-                      <span>Revenus</span>
+                      <span>{m.nav_revenue()}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       isActive={pathname.startsWith("/treasury")}
                       render={<Link to="/treasury" />}
-                      tooltip="Virement"
+                      tooltip={m.nav_treasury()}
                     >
                       <CreditCard />
-                      <span>Virement</span>
+                      <span>{m.nav_treasury()}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       isActive={pathname.startsWith("/deadlines")}
                       render={<Link to="/deadlines" />}
-                      tooltip="Échéances"
+                      tooltip={m.nav_deadlines()}
                     >
                       <Bell />
-                      <span>Échéances</span>
+                      <span>{m.nav_deadlines()}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       isActive={pathname.startsWith("/declarations")}
                       render={<Link to="/declarations" />}
-                      tooltip="Déclarations"
+                      tooltip={m.nav_declarations()}
                     >
                       <ClipboardList />
-                      <span>Déclarations</span>
+                      <span>{m.nav_declarations()}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </>
@@ -178,10 +179,10 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   isActive={pathname.startsWith("/settings")}
                   render={<Link to="/settings" />}
-                  tooltip="Réglages"
+                  tooltip={m.nav_settings()}
                 >
                   <SlidersHorizontal />
-                  <span>Réglages</span>
+                  <span>{m.nav_settings()}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -199,13 +200,13 @@ export function AppSidebar() {
                 Trésorerie screen. A dash keeps the tile honest until then.
               */}
                 <div className="font-medium text-ring/70 text-xs uppercase tracking-wider-2">
-                  Virable en sécurité
+                  {m.treasury_tile_title()}
                 </div>
                 <div className="mt-2 font-mono text-2xl text-ring leading-none tabular-nums">
                   —
                 </div>
                 <div className="mt-1.5 text-muted-foreground text-xs">
-                  provisions déduites
+                  {m.treasury_tile_caption()}
                 </div>
               </Link>
             </SidebarGroupContent>
@@ -249,19 +250,19 @@ export function AppSidebar() {
                 </div>
                 <DropdownMenuItem render={<Link to="/settings" />}>
                   <SlidersHorizontal />
-                  Réglages fiscaux
+                  {m.account_tax_settings()}
                 </DropdownMenuItem>
                 <DropdownMenuItem disabled>
                   <Download />
-                  Exporter mes données
+                  {m.account_export_data()}
                 </DropdownMenuItem>
                 <DropdownMenuItem disabled>
                   <Database />
-                  Instance et sauvegardes
+                  {m.account_instance_backups()}
                 </DropdownMenuItem>
                 <DropdownMenuItem disabled>
                   <CircleHelp />
-                  Aide et raccourcis
+                  {m.account_help_shortcuts()}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="mt-1 border-t not-focus:text-destructive not-focus:*:[svg]:text-destructive"
@@ -269,7 +270,7 @@ export function AppSidebar() {
                   onClick={() => logout.mutate({})}
                 >
                   <LogOut />
-                  Se déconnecter
+                  {m.account_logout()}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

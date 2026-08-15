@@ -24,6 +24,7 @@ import {
 import { TimerContainer } from "@/features/timer/components/timer-container";
 import { TimerProvider } from "@/features/timer/components/timer-provider";
 import { syncLocale } from "@/lib/i18n";
+import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute("/_authed")({
   beforeLoad: async ({ context, location }) => {
@@ -41,15 +42,15 @@ export const Route = createFileRoute("/_authed")({
   component: AuthedLayout,
 });
 
-const pageTitles: Record<string, string> = {
-  "/week": "Suivi du temps",
-  "/clients": "Portefeuille clients",
-  "/cra": "Compte rendu d'activité",
-  "/revenue": "Revenus",
-  "/treasury": "Trésorerie",
-  "/deadlines": "Obligations",
-  "/declarations": "Déclarations",
-  "/settings": "Réglages",
+const pageTitles: Record<string, () => string> = {
+  "/week": m.page_title_week,
+  "/clients": m.page_title_clients,
+  "/cra": m.page_title_cra,
+  "/revenue": m.page_title_revenue,
+  "/treasury": m.page_title_treasury,
+  "/deadlines": m.page_title_deadlines,
+  "/declarations": m.page_title_declarations,
+  "/settings": m.page_title_settings,
 };
 
 function ExpandSidebarButton() {
@@ -62,9 +63,9 @@ function ExpandSidebarButton() {
   return (
     <button
       className="flex h-8 w-7 flex-none items-center justify-center rounded-md border text-muted-foreground transition-colors hover:border-foreground/25 hover:text-foreground"
-      aria-label="Déplier le menu"
+      aria-label={m.sidebar_expand_menu()}
       onClick={toggleSidebar}
-      title="Déplier le menu"
+      title={m.sidebar_expand_menu()}
       type="button"
     >
       <Menu aria-hidden className="size-3.5" />
@@ -87,7 +88,7 @@ function AuthedLayout() {
 
   const pageTitle = Object.entries(pageTitles).find(([prefix]) =>
     pathname.startsWith(prefix),
-  )?.[1];
+  )?.[1]?.();
 
   return (
     <MoneyFormatProvider

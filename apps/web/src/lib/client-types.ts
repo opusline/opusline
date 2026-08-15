@@ -1,16 +1,26 @@
 import type { ClientType } from "@opusline/api-client";
 
-export const CLIENT_TYPE_LABELS: Record<ClientType, string> = {
-  0: "Direct",
-  1: "Intermédiaire",
-  2: "Interne",
+import { m } from "@/paraglide/messages.js";
+
+const CLIENT_TYPE_MESSAGES: Record<ClientType, () => string> = {
+  0: m.client_type_direct,
+  1: m.client_type_intermediary,
+  2: m.client_type_internal,
 };
 
-export const CLIENT_TYPE_SHORT_LABELS: Record<ClientType, string> = {
-  0: "Client direct",
-  1: "Via ESN",
-  2: "Perso",
+export function clientTypeLabel(type: ClientType): string {
+  return CLIENT_TYPE_MESSAGES[type]();
+}
+
+const CLIENT_TYPE_SHORT_MESSAGES: Record<ClientType, () => string> = {
+  0: m.client_type_short_direct,
+  1: m.client_type_short_esn,
+  2: m.client_type_short_personal,
 };
+
+export function clientTypeShortLabel(type: ClientType): string {
+  return CLIENT_TYPE_SHORT_MESSAGES[type]();
+}
 
 export function isInternalClient(type: ClientType): boolean {
   return type === 2;

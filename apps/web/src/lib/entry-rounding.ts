@@ -1,15 +1,17 @@
 import type { BillingMode, EntryRounding } from "@opusline/api-client";
 
-const DAILY_ROUNDING_LABELS: Record<EntryRounding, string> = {
-  0: "0,5 j",
-  1: "0,25 j",
-  2: "minutes",
+import { m } from "@/paraglide/messages.js";
+
+const DAILY_ROUNDING_MESSAGES: Record<EntryRounding, () => string> = {
+  0: m.rounding_half_day,
+  1: m.rounding_quarter_day,
+  2: m.rounding_minutes,
 };
 
-const HOURLY_ROUNDING_LABELS: Record<EntryRounding, string> = {
-  0: "30 min",
-  1: "15 min",
-  2: "minutes",
+const HOURLY_ROUNDING_MESSAGES: Record<EntryRounding, () => string> = {
+  0: m.rounding_thirty_min,
+  1: m.rounding_fifteen_min,
+  2: m.rounding_minutes,
 };
 
 export function entryRoundingLabel(
@@ -17,25 +19,12 @@ export function entryRoundingLabel(
   billingMode: BillingMode,
 ): string {
   return billingMode === 1
-    ? HOURLY_ROUNDING_LABELS[rounding]
-    : DAILY_ROUNDING_LABELS[rounding];
+    ? HOURLY_ROUNDING_MESSAGES[rounding]()
+    : DAILY_ROUNDING_MESSAGES[rounding]();
 }
 
 export function entryRoundingHint(billingMode: BillingMode): string {
-  if (billingMode === 1) {
-    return (
-      "Chaque temps saisi est arrondi au pas choisi avant d'être valorisé en heures. " +
-      "Avec 15 min, 1 h 07 pointée compte 1 h 15 ; avec 30 min, elle compte 1 h 30. " +
-      "En minutes, le temps est valorisé exactement, sans arrondi."
-    );
-  }
-
-  return (
-    "Chaque temps saisi est arrondi au pas choisi avant d'être valorisé en jours. " +
-    "Avec 0,5 j, 3 h pointées comptent une demi-journée et 5 h comptent une journée ; " +
-    "avec 0,25 j, la précision passe au quart de journée. " +
-    "En minutes, le temps est valorisé exactement, sans arrondi."
-  );
+  return billingMode === 1 ? m.rounding_hint_hourly() : m.rounding_hint_daily();
 }
 
 export function entryRoundingOrder(billingMode: BillingMode): EntryRounding[] {

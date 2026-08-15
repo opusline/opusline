@@ -32,7 +32,7 @@ import { type ReactNode, useState } from "react";
 import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatAmount, paymentTermsLabel } from "@/lib/billing";
-import { CLIENT_TYPE_LABELS } from "@/lib/client-types";
+import { clientTypeLabel } from "@/lib/client-types";
 import { calendarDateLabel, calendarMonthYearLabel } from "@/lib/dates";
 import { entryRoundingLabel } from "@/lib/entry-rounding";
 import type { FormSubmitResult } from "@/lib/form";
@@ -134,7 +134,7 @@ export function MissionDetailPage({
           </div>
           <p className="mt-1.5 pl-4 text-muted-foreground-3 text-sm">
             {[
-              `${CLIENT_TYPE_LABELS[client.type]} ${client.name}`,
+              `${clientTypeLabel(client.type)} ${client.name}`,
               mission.endClientName !== null &&
                 `client final ${mission.endClientName}`,
               mission.startDate !== null &&

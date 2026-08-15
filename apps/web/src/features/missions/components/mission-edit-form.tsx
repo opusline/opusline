@@ -30,7 +30,7 @@ import {
   entryRoundingOrder,
 } from "@/lib/entry-rounding";
 import type { FormSubmitResult } from "@/lib/form";
-import { COLOR_CLASSES, COLOR_LABELS, COLORS } from "@/lib/palette";
+import { COLOR_CLASSES, COLORS, colorLabel } from "@/lib/palette";
 import { BILLING_MODE_LABELS } from "../lib/labels";
 import { MissionRateField } from "./mission-rate-field";
 
@@ -190,7 +190,7 @@ export function MissionEditForm({
                   Couleur de la ligne
                 </FieldLabel>
                 <span className="text-muted-foreground-5 text-xs">
-                  {COLOR_LABELS[displayedColor]}
+                  {colorLabel(displayedColor)}
                   {color === null && ` · héritée de ${client.name}`}
                 </span>
               </div>
@@ -209,9 +209,9 @@ export function MissionEditForm({
                 {COLORS.map((paletteColor) => (
                   <Swatch
                     key={paletteColor}
-                    aria-label={COLOR_LABELS[paletteColor]}
+                    aria-label={colorLabel(paletteColor)}
                     className={COLOR_CLASSES[paletteColor]}
-                    title={COLOR_LABELS[paletteColor]}
+                    title={colorLabel(paletteColor)}
                     value={String(paletteColor)}
                   />
                 ))}

@@ -5,13 +5,18 @@ import type {
   MissionStatus,
 } from "@opusline/api-client";
 
+import { m } from "@/paraglide/messages.js";
 import { isInternalClient } from "./client-types";
 
-export const MISSION_STATUS_LABELS: Record<MissionStatus, string> = {
-  0: "Active",
-  1: "En pause",
-  2: "Terminée",
+const MISSION_STATUS_MESSAGES: Record<MissionStatus, () => string> = {
+  0: m.mission_status_active,
+  1: m.mission_status_paused,
+  2: m.mission_status_completed,
 };
+
+export function missionStatusLabel(status: MissionStatus): string {
+  return MISSION_STATUS_MESSAGES[status]();
+}
 
 export const MISSION_STATUS_BADGE_VARIANTS: Record<
   MissionStatus,
@@ -38,11 +43,11 @@ export function missionStatusBadge(
   clientType: ClientType,
 ): { variant: "brand" | "neutral" | "quiet"; label: string } {
   if (isInternalClient(clientType)) {
-    return { variant: "quiet", label: "Perso" };
+    return { variant: "quiet", label: m.mission_status_personal() };
   }
 
   return {
     variant: MISSION_STATUS_BADGE_VARIANTS[status],
-    label: MISSION_STATUS_LABELS[status],
+    label: missionStatusLabel(status),
   };
 }

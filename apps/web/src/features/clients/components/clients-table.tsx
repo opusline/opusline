@@ -16,7 +16,7 @@ import { useState } from "react";
 import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatMissionRate } from "@/lib/billing";
-import { CLIENT_TYPE_LABELS } from "@/lib/client-types";
+import { clientTypeLabel } from "@/lib/client-types";
 import { COLOR_CLASSES } from "@/lib/palette";
 
 import {
@@ -168,7 +168,7 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                   </TableCell>
                   <TableCell className="min-w-0 py-4 pr-3">
                     <Badge variant={CLIENT_TYPE_BADGE_VARIANTS[client.type]}>
-                      {CLIENT_TYPE_LABELS[client.type]}
+                      {clientTypeLabel(client.type)}
                     </Badge>
                   </TableCell>
                   <TableCell className="py-4 font-mono text-foreground-4 tabular-nums">
