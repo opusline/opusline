@@ -14,6 +14,20 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.12.0",
+    date: "2026-08-16",
+    items: [
+      {
+        kind: "new",
+        text: "Business account: import your bank statements (CSV, OFX, QIF or CAMT) to follow your balance and movements, reconcile incoming payments with invoices in one click, and see how much to set aside for VAT, URSSAF and your safety buffer.",
+      },
+      {
+        kind: "new",
+        text: "Revenue dashboard: invoiced or collected CA by month, quarter or year, with VAT collected, estimated net after URSSAF, and a breakdown by client.",
+      },
+    ],
+  },
+  {
     version: "0.11.0",
     date: "2026-08-15",
     items: [
