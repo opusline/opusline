@@ -1,10 +1,13 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import type { ComponentProps } from "react";
 import { expect, it, vi } from "vitest";
 
 import { MAX_STATEMENT_BYTES } from "../lib/statements";
 import { ImportStatementDialog } from "./import-statement-dialog";
 
-function renderDialog(overrides: Record<string, unknown> = {}) {
+function renderDialog(
+  overrides: Partial<ComponentProps<typeof ImportStatementDialog>> = {},
+) {
   const onSubmit = vi.fn();
 
   render(
@@ -65,6 +68,21 @@ it("sends the typed balance as signed cents", () => {
   expect(onSubmit).toHaveBeenCalledWith(
     expect.objectContaining({ balanceCents: 1_482_050 }),
   );
+});
+
+it("refuses to submit an unreadable balance", () => {
+  const { onSubmit } = renderDialog();
+
+  pickFile(new File(["x"], "releve.csv"));
+  fireEvent.change(
+    screen.getByLabelText("Solde du compte pro à la date du relevé"),
+    { target: { value: "12," } },
+  );
+
+  expect(
+    screen.getByRole("button", { name: "Analyser le relevé" }),
+  ).toBeDisabled();
+  expect(onSubmit).not.toHaveBeenCalled();
 });
 
 it("rejects a format no bank exports", () => {

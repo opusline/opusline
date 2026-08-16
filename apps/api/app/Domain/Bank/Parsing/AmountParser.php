@@ -79,8 +79,16 @@ final class AmountParser
         $separatorAt = $lastComma !== false ? $lastComma : $lastDot;
         $separator = $value[$separatorAt];
 
-        // Repeated separator can only group thousands ("1.234.567").
+        // Repeated separator can only group thousands ("1.234.567") — and the
+        // groups must actually be thousands. "12.34.56" is a malformed amount;
+        // silently reading it as 123456 would corrupt money.
         if (substr_count($value, $separator) > 1) {
+            $group = preg_quote($separator, '/');
+
+            if (preg_match('/^[0-9]{1,3}(?:'.$group.'[0-9]{3})+$/', $value) !== 1) {
+                throw new StatementParseException('bank.unreadable_file');
+            }
+
             return [str_replace($separator, '', $value), ''];
         }
 

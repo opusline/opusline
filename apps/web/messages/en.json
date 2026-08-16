@@ -558,6 +558,8 @@
   "invoices_unbilled_work_title": "{quantity} on {missionName}",
   "invoices_vat_hint": "VAT and the TTC total are computed from your settings.",
   "invoices_vat_rate_fact": "VAT {rate} %",
+  "logo_reject_size": "too heavy (max 2 MB)",
+  "logo_reject_type": "PNG or SVG only",
   "mission_status_active": "Active",
   "mission_status_completed": "Completed",
   "mission_status_paused": "Paused",

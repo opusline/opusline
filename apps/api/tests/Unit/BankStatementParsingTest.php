@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Bank\Enums\BankStatementFormat;
 use App\Domain\Bank\Parsing\ParseBankStatement;
+use App\Domain\Bank\Parsing\ParsedMovement;
 use App\Domain\Bank\Parsing\StatementParseException;
 
 test('detects the format from content, never from the file name', function (string $fixture, BankStatementFormat $expected): void {
@@ -24,6 +25,7 @@ test('refuses files that are not bank statements', function (string $fixture): v
     'binary garbage' => ['garbage.bin'],
     'empty file' => ['empty.txt'],
     'csv without a header row' => ['headerless.csv'],
+    'csv mixing currencies' => ['mixed_currencies.csv'],
 ]);
 
 test('reads a semicolon csv with french headers and amounts, oldest first', function (): void {
@@ -118,6 +120,29 @@ test('defaults ambiguous qif dates to day-first', function (): void {
 
     expect($statement->movements[0]->bookedOn->toDateString())->toBe('2026-02-01')
         ->and($statement->movements[1]->bookedOn->toDateString())->toBe('2026-04-03');
+});
+
+test('reads a camt053 document whose namespace is prefixed', function (): void {
+    [$statement] = (new ParseBankStatement)->handle(bankFixture('camt053_prefixed.xml'));
+
+    expect($statement->movements)->toHaveCount(2)
+        ->and($statement->movements[1]->amountCents)->toBe(1_254_000)
+        ->and($statement->movements[1]->label)->toBe('VIR SEPA CALLISTO SA · REF F2026041')
+        ->and($statement->movements[0]->amountCents)->toBe(-243_100)
+        ->and($statement->closingBalanceCents)->toBe(1_482_000)
+        ->and($statement->currency)->toBe('EUR');
+});
+
+test('reads only the first account of a multi-account ofx file', function (): void {
+    [$statement] = (new ParseBankStatement)->handle(bankFixture('multi_account.ofx'));
+
+    // The balance, period and currency all come from the first statement
+    // section — the movements must not mix in the other accounts' rows.
+    expect($statement->movements)->toHaveCount(2)
+        ->and(array_map(static fn (ParsedMovement $movement): ?string => $movement->fitid, $statement->movements))
+        ->not->toContain('OTHERACCOUNT01')
+        ->and($statement->closingBalanceCents)->toBe(1_482_000)
+        ->and($statement->currency)->toBe('EUR');
 });
 
 test('reads camt053 entries, the closing balance and the period', function (): void {

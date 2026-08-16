@@ -13,8 +13,8 @@ export type LogoUploadResult =
 export const rejectLogoReason = fileRejector({
   accept: LOGO_ACCEPT,
   maxBytes: MAX_LOGO_BYTES,
-  rejectType: () => "PNG ou SVG uniquement",
-  rejectSize: () => "trop lourd (max 2 Mo)",
+  rejectType: m.logo_reject_type,
+  rejectSize: m.logo_reject_size,
 });
 
 export function clientLogoHref(clientSlug: string, version = 0): string {

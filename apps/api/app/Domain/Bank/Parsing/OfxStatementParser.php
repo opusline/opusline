@@ -57,7 +57,7 @@ final class OfxStatementParser implements StatementParser
      */
     private function transactionBlocks(string $text): array
     {
-        $pieces = preg_split('/<STMTTRN>/i', $text);
+        $pieces = preg_split('/<STMTTRN>/i', $this->firstStatementSection($text));
 
         if ($pieces === false || count($pieces) < 2) {
             return [];
@@ -75,6 +75,22 @@ final class OfxStatementParser implements StatementParser
             },
             array_slice($pieces, 1),
         );
+    }
+
+    /**
+     * A multi-account file repeats <STMTRS> (or <CCSTMTRS>) sections, and the
+     * balance, period and currency are all read first-occurrence — so the
+     * movements must come from that same first section, not from every
+     * account in the file. Aggregate tags close even in OFX 1.x SGML; a file
+     * without the section stays whole, as before.
+     */
+    private function firstStatementSection(string $text): string
+    {
+        if (preg_match('/<((?:CC)?STMTRS)>.*?<\/\1>/is', $text, $matches) === 1) {
+            return $matches[0];
+        }
+
+        return $text;
     }
 
     private function value(string $block, string $tag): ?string

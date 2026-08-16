@@ -35,4 +35,6 @@ test('refuses what it cannot read exactly', function (string $raw): void {
     'letters' => ['douze'],
     'three decimals' => ['12,3456'],
     'doubled sign' => ['--12'],
+    'malformed thousands groups' => ['12.34.56'],
+    'oversized leading group' => ['1234.567.890'],
 ]);

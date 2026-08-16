@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<camt:Document xmlns:camt="urn:iso:std:iso:20022:tech:xsd:camt.053.001.02">
+  <camt:BkToCstmrStmt>
+    <camt:GrpHdr>
+      <camt:MsgId>RELEVE-2026-08</camt:MsgId>
+      <camt:CreDtTm>2026-08-10T06:00:00</camt:CreDtTm>
+    </camt:GrpHdr>
+    <camt:Stmt>
+      <camt:Id>STMT-2026-08</camt:Id>
+      <camt:FrToDt>
+        <camt:FrDtTm>2026-08-01T00:00:00</camt:FrDtTm>
+        <camt:ToDtTm>2026-08-10T00:00:00</camt:ToDtTm>
+      </camt:FrToDt>
+      <camt:Acct>
+        <camt:Id><camt:IBAN>FR7630004000031234567890143</camt:IBAN></camt:Id>
+        <camt:Ccy>EUR</camt:Ccy>
+      </camt:Acct>
+      <camt:Bal>
+        <camt:Tp><camt:CdOrPrtry><camt:Cd>CLBD</camt:Cd></camt:CdOrPrtry></camt:Tp>
+        <camt:Amt Ccy="EUR">14820.00</camt:Amt>
+        <camt:CdtDbtInd>CRDT</camt:CdtDbtInd>
+        <camt:Dt><camt:Dt>2026-08-10</camt:Dt></camt:Dt>
+      </camt:Bal>
+      <camt:Ntry>
+        <camt:Amt Ccy="EUR">12540.00</camt:Amt>
+        <camt:CdtDbtInd>CRDT</camt:CdtDbtInd>
+        <camt:Sts>BOOK</camt:Sts>
+        <camt:BookgDt><camt:Dt>2026-08-08</camt:Dt></camt:BookgDt>
+        <camt:AcctSvcrRef>REF-2026080801</camt:AcctSvcrRef>
+        <camt:NtryDtls>
+          <camt:TxDtls>
+            <camt:RmtInf>
+              <camt:Ustrd>VIR SEPA CALLISTO SA</camt:Ustrd>
+              <camt:Ustrd>REF F2026041</camt:Ustrd>
+            </camt:RmtInf>
+          </camt:TxDtls>
+        </camt:NtryDtls>
+      </camt:Ntry>
+      <camt:Ntry>
+        <camt:Amt Ccy="EUR">2431.00</camt:Amt>
+        <camt:CdtDbtInd>DBIT</camt:CdtDbtInd>
+        <camt:Sts>BOOK</camt:Sts>
+        <camt:BookgDt><camt:Dt>2026-08-05</camt:Dt></camt:BookgDt>
+        <camt:AddtlNtryInf>PRLV URSSAF</camt:AddtlNtryInf>
+      </camt:Ntry>
+    </camt:Stmt>
+  </camt:BkToCstmrStmt>
+</camt:Document>

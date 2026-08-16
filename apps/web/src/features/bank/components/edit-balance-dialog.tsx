@@ -76,6 +76,7 @@ function EditBalanceForm({
 }: EditBalanceFormProps) {
   const format = useMoneyFormat();
   const fieldId = useId();
+  const errorId = `${fieldId}-error`;
   const [draft, setDraft] = useState(() =>
     balance === null ? "" : formatAmount(format, balance.amount),
   );
@@ -106,6 +107,7 @@ function EditBalanceForm({
         </Label>
         <InputGroup>
           <InputGroupInput
+            aria-describedby={error === null ? undefined : errorId}
             aria-invalid={draft.trim() !== "" && cents === null}
             autoFocus
             className="flex-1 font-mono"
@@ -121,7 +123,7 @@ function EditBalanceForm({
       </div>
 
       {error !== null && (
-        <Alert className="mt-4" variant="destructive">
+        <Alert className="mt-4" id={errorId} variant="destructive">
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}

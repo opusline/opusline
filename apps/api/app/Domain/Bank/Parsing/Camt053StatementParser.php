@@ -43,6 +43,9 @@ final class Camt053StatementParser implements StatementParser
         try {
             $document = simplexml_load_string($text);
         } finally {
+            // The buffered parse errors are process-wide state — under Octane
+            // they would pile up across requests if left behind.
+            libxml_clear_errors();
             libxml_use_internal_errors($previous);
         }
 
@@ -50,8 +53,7 @@ final class Camt053StatementParser implements StatementParser
             throw new StatementParseException('bank.unreadable_file');
         }
 
-        $namespaces = $document->getNamespaces();
-        $document->registerXPathNamespace('c', $namespaces[''] ?? '');
+        $this->inheritNamespace($document);
 
         $statements = $document->xpath('//c:BkToCstmrStmt/c:Stmt');
 
@@ -60,7 +62,7 @@ final class Camt053StatementParser implements StatementParser
         }
 
         $statement = $statements[0];
-        $statement->registerXPathNamespace('c', $namespaces[''] ?? '');
+        $this->inheritNamespace($statement);
 
         return $statement;
     }
@@ -182,12 +184,14 @@ final class Camt053StatementParser implements StatementParser
 
     /**
      * SimpleXML forgets registered XPath namespaces on nodes returned by
-     * xpath(), so every hop re-registers the document namespace.
+     * xpath(), so every hop re-registers the document namespace — whichever
+     * URI the node's namespace declares, default or prefixed alike.
      */
     private function inheritNamespace(SimpleXMLElement $node): void
     {
         $namespaces = $node->getNamespaces();
-        $node->registerXPathNamespace('c', $namespaces[''] ?? '');
+        $namespace = $namespaces === [] ? '' : reset($namespaces);
+        $node->registerXPathNamespace('c', $namespace);
     }
 
     private function parseIsoDate(string $value): CarbonImmutable

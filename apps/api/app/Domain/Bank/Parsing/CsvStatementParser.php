@@ -347,6 +347,9 @@ final class CsvStatementParser implements StatementParser
     }
 
     /**
+     * A statement is denominated in one currency; rows disagreeing on the
+     * code mean the file cannot be imported as a single account's history.
+     *
      * @param  list<?string>  $cells
      */
     private function trackCurrency(?string $seen, array $cells, ?int $column): ?string
@@ -361,7 +364,11 @@ final class CsvStatementParser implements StatementParser
             return $seen;
         }
 
-        return $seen ?? $code;
+        if ($seen !== null && $code !== $seen) {
+            throw new StatementParseException('bank.unreadable_file');
+        }
+
+        return $code;
     }
 
     private function parseDate(string $value): CarbonImmutable

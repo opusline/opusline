@@ -152,10 +152,23 @@ export function bankData(
 
 /** Statements without balance data: the balance is Σ of the movements. */
 export function derivedBankData(): BankAccountData {
-  return bankData({
-    balance: { amount: eur(594_700), source: 2, asOf: null },
-    pendingMatches: [],
-  });
+  const data = bankData({ pendingMatches: [] });
+  const rolledFromZero = new Map<number, number>();
+  let running = 0;
+
+  for (const movement of [...data.movements].reverse()) {
+    running += movement.amount.amount;
+    rolledFromZero.set(movement.id, running);
+  }
+
+  return {
+    ...data,
+    balance: { amount: eur(running), source: 2, asOf: null },
+    movements: data.movements.map((movement) => ({
+      ...movement,
+      runningBalance: eur(rolledFromZero.get(movement.id) ?? 0),
+    })),
+  };
 }
 
 /** Balance typed by hand, nothing imported yet. */

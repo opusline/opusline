@@ -19,7 +19,7 @@ test('recognizes tva debits by the word, not the letters', function (string $lab
 })->with([
     'télérèglement' => ['TELEREGLEMENT TVA CA3 JUIN', true],
     'lowercase accented' => ['Télérèglement TVA · CA3 juillet', true],
-    'letters inside other words' => ['LOYER NUIT VALENCE', false],
+    'letters inside other words' => ['LOYER AGENCE MONTVAL', false],
     // The DGFiP collects income tax through the same channel — a bare DGFiP
     // debit must not be read as TVA.
     'bare dgfip debit' => ['PRLV DGFIP IMPOT REVENU', false],

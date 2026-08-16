@@ -558,6 +558,8 @@
   "invoices_unbilled_work_title": "{quantity} sur {missionName}",
   "invoices_vat_hint": "La TVA et le TTC sont calculés depuis vos paramètres.",
   "invoices_vat_rate_fact": "TVA {rate} %",
+  "logo_reject_size": "trop lourd (max 2 Mo)",
+  "logo_reject_type": "PNG ou SVG uniquement",
   "mission_status_active": "Active",
   "mission_status_completed": "Terminée",
   "mission_status_paused": "En pause",

@@ -40,7 +40,7 @@ it("cites the hand-typed source for a manual balance", () => {
 it("cites the movements for a derived balance", () => {
   render(<BankKpiTiles data={derivedBankData()} onEditBalance={() => {}} />);
 
-  expect(tile("Solde courant")).toHaveTextContent("5 947 €");
+  expect(tile("Solde courant")).toHaveTextContent("2 073 €");
   expect(sub("Solde courant")).toBe("calculé des relevés importés");
 });
 
