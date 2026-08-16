@@ -584,7 +584,72 @@
       }
     }
   ],
-  "revenue_placeholder": "Revenue tracking lands here — invoiced revenue, VAT collected, estimated net.",
+  "revenue_basis_aria": "Revenue basis",
+  "revenue_basis_collected": "Collected",
+  "revenue_basis_invoiced": "Invoiced",
+  "revenue_breakdown_clients": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} client",
+        "countPlural=other": "{count} clients"
+      }
+    }
+  ],
+  "revenue_breakdown_title": "Where the revenue comes from",
+  "revenue_chart_note": "Shown period in orange · click a month",
+  "revenue_chart_title_collected": "Collected revenue HT by month",
+  "revenue_chart_title_invoiced": "Invoiced revenue HT by month",
+  "revenue_empty_body_collected": "No payment landed over this period. Pending invoices are tracked on the Invoices screen.",
+  "revenue_empty_body_invoiced": "No invoice was issued over this period.",
+  "revenue_empty_cta": "See {period}",
+  "revenue_empty_title_collected": "Nothing collected in {period}",
+  "revenue_empty_title_invoiced": "Nothing invoiced in {period}",
+  "revenue_invoice_open_failed": "The invoice could not be opened. Try again in a moment.",
+  "revenue_invoices_empty_collected": "Nothing collected in {period}.",
+  "revenue_invoices_empty_invoiced": "Nothing issued in {period}.",
+  "revenue_invoices_link": "All invoices",
+  "revenue_invoices_title_collected": "Invoices collected",
+  "revenue_invoices_title_invoiced": "Invoices issued",
+  "revenue_kpi_collected_title": "Collected revenue HT",
+  "revenue_kpi_invoiced_title": "Invoiced revenue HT",
+  "revenue_kpi_zero_collected": "Nothing collected over the period",
+  "revenue_kpi_zero_invoiced": "No invoice issued over the period",
+  "revenue_load_failed": "The revenue could not be loaded. Try again in a moment.",
+  "revenue_net_title": "Estimated net after URSSAF",
+  "revenue_net_zero": "Nothing to contribute over the period",
+  "revenue_next_period": "Next period",
+  "revenue_period_kind_aria": "Period type",
+  "revenue_period_month": "Month",
+  "revenue_period_quarter": "Quarter",
+  "revenue_period_year": "Year",
+  "revenue_prev_period": "Previous period",
+  "revenue_quarter_title": "Q{quarter} {year}",
+  "revenue_row_collected": "collected on {date}",
+  "revenue_row_issued": "issued on {date}",
+  "revenue_subtitle_collected": "Revenue from invoices collected over the period.",
+  "revenue_subtitle_fallback_collected": "Nothing collected this month: here is the last period with activity.",
+  "revenue_subtitle_fallback_invoiced": "Nothing invoiced this month: here is the last period with activity.",
+  "revenue_subtitle_invoiced": "Revenue from invoices issued over the period.",
+  "revenue_trend_none_month": "Nothing comparable in the previous month",
+  "revenue_trend_none_quarter": "Nothing comparable in the previous quarter",
+  "revenue_trend_none_year": "Nothing comparable in the previous year",
+  "revenue_trend_vs": "{delta} % vs {period} ({amount})",
+  "revenue_unbilled_title": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} unbilled work period",
+        "countPlural=other": "{count} unbilled work periods"
+      }
+    }
+  ],
+  "revenue_unbilled_total": "That is {amount} HT not on any invoice.",
+  "revenue_vat_chip": "not yours",
+  "revenue_vat_sub": "VAT {rate} % · collected for the State",
+  "revenue_vat_title": "VAT collected",
   "rounding_fifteen_min": "15 min",
   "rounding_half_day": "0.5 d",
   "rounding_hint_daily": "Each tracked time is rounded to the chosen step before being valued in days. With 0.5 d, 3 h tracked count as half a day and 5 h count as a full day; with 0.25 d, precision moves to the quarter-day. With minutes, time is valued exactly, without rounding.",

@@ -419,6 +419,7 @@ export type InvoiceSummaryData = {
     overdue: InvoiceOverdueData;
     forecast: Array<InvoiceForecastData>;
     monthUnbilled: InvoiceTotalData;
+    unbilled: InvoiceTotalData;
     counts: InvoiceCountsData;
     todo: Array<InvoiceTodoData>;
     todoTotal: number;
@@ -554,6 +555,82 @@ export type RegisterUserData = {
 export type RemindInvoiceData = {
     occurredOn?: string | null;
     note?: string | null;
+};
+
+/**
+ * RevenueBasis
+ *
+ * The two ways a freelancer reads their revenue: by what was invoiced, or by what actually landed. URSSAF declares on the cash basis; the invoiced basis is the activity view.
+ * | |
+ * |---|
+ * | `0` <br/> Issued invoices, summed on their issue date. |
+ * | `1` <br/> Paid invoices, summed on their payment date. |
+ */
+export type RevenueBasis = 0 | 1;
+
+/**
+ * RevenueClientData
+ */
+export type RevenueClientData = {
+    clientId: number;
+    clientName: string;
+    color: Color;
+    invoiceCount: number;
+    total: MoneyData;
+    shareBp: number;
+};
+
+/**
+ * RevenueComparisonData
+ */
+export type RevenueComparisonData = {
+    period: string;
+    total: MoneyData;
+    changeBp: number | null;
+};
+
+/**
+ * RevenueData
+ */
+export type RevenueData = {
+    period: string;
+    basis: RevenueBasis;
+    fellBack: boolean;
+    lastActivePeriod: string | null;
+    total: MoneyData;
+    previous: RevenueComparisonData;
+    vat: RevenueVatData | null;
+    net: RevenueNetData | null;
+    months: Array<RevenueMonthData>;
+    invoices: Array<InvoiceListItemData>;
+    clients: Array<RevenueClientData>;
+};
+
+/**
+ * RevenueMonthData
+ */
+export type RevenueMonthData = {
+    month: string;
+    total: MoneyData;
+    inPeriod: boolean;
+    shareBp: number;
+};
+
+/**
+ * RevenueNetData
+ */
+export type RevenueNetData = {
+    amount: MoneyData;
+    contributions: MoneyData;
+    rateBp: number;
+};
+
+/**
+ * RevenueVatData
+ */
+export type RevenueVatData = {
+    amount: MoneyData;
+    rateBp: number;
 };
 
 /**
@@ -2979,6 +3056,36 @@ export type DownloadMissionDocumentResponses = {
 };
 
 export type DownloadMissionDocumentResponse = DownloadMissionDocumentResponses[keyof DownloadMissionDocumentResponses];
+
+export type ShowRevenueData = {
+    body?: never;
+    path?: never;
+    query?: {
+        period?: string | null;
+        basis?: RevenueBasis | null;
+    };
+    url: '/revenue';
+};
+
+export type ShowRevenueErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowRevenueError = ShowRevenueErrors[keyof ShowRevenueErrors];
+
+export type ShowRevenueResponses = {
+    200: RevenueData;
+};
+
+export type ShowRevenueResponse = ShowRevenueResponses[keyof ShowRevenueResponses];
 
 export type ShowSettingsData = {
     body?: never;

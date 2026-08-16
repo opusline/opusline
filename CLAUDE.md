@@ -99,6 +99,7 @@ sh scripts/php.sh php vendor/bin/pint
 
 - API: Pest. Feature tests for endpoints (happy path + validation errors + authorization), unit tests for domain actions.
 - Web: Vitest + Testing Library for components with logic; don't test trivial rendering.
+- **Fixture and demo names are fiction.** Every client, company, brand, and mission name in seeders, tests, stories, and fixtures must be invented — never the name of a real business, and never copied from a design mockup without checking (mockups have carried real names). Reuse the established fictional cast (Nordlys, Callisto, Lunaprint, Orvella, Vesterhus, Studio Lorem, Ateliers Ruche, Perso…) before coining new members, so the demo reads as one coherent world.
 - Storybook (`apps/storybook`, serves both workspaces): **every component in `packages/ui` AND `apps/web` gets a story**, colocated next to the component (`PascalCase.stories.tsx`, CSF3 `satisfies Meta`, `tags: ["autodocs"]`, title prefix `UI/` or `Web/`). Stories double as visual documentation; a component without a story is not done. Exceptions: TanStack Router route files (`src/routes/**`) are thin wiring — the feature component they render carries the story; context-provider components and story-only helpers have no visual surface of their own and need no story.
 
 ## When unsure

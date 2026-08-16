@@ -53,7 +53,7 @@ export const WithAMissionOffTheGrid: Story = {
         hasRate: true,
         isInGrid: false,
         missionId: 99,
-        name: "HartPrint refonte boutique",
+        name: "Vesterhus refonte boutique",
         subtitle: "Client direct · 480 €/j",
       },
     ],

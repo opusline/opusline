@@ -1,4 +1,9 @@
-import type { BillingMode, EntryRounding, Locale } from "@opusline/api-client";
+import type {
+  BillingMode,
+  EntryRounding,
+  InvoiceTodoWorkData,
+  Locale,
+} from "@opusline/api-client";
 
 import { cachedFormatter } from "@/lib/billing";
 import { m } from "@/paraglide/messages.js";
@@ -117,6 +122,24 @@ function toMinutes(input: string, units: DurationUnits): number | null {
 /** The billed value of a day-counted entry: `1` → "1 j", `0.5` → "0,5 j". */
 export function formatBilledDays(locale: Locale, dayFraction: number): string {
   return m.duration_days_value({ value: decimals(locale).format(dayFraction) });
+}
+
+/**
+ * How much unbilled work would bill, in the mission's own unit. Exactly one of
+ * the two quantities is set, decided by how the mission bills; null when the
+ * mission prices neither.
+ */
+export function billedQuantityLabel(
+  locale: Locale,
+  work: Pick<InvoiceTodoWorkData, "valuedDays" | "valuedMinutes">,
+): string | null {
+  if (work.valuedDays !== null) {
+    return formatBilledDays(locale, work.valuedDays);
+  }
+
+  return work.valuedMinutes === null
+    ? null
+    : formatBilledHours(locale, work.valuedMinutes);
 }
 
 /**

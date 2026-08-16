@@ -12,7 +12,7 @@ import {
   calendarDateNumericLabel,
   fromCalendarDate,
 } from "@/lib/dates";
-import { formatBilledDays, formatBilledHours } from "@/lib/durations";
+import { billedQuantityLabel } from "@/lib/durations";
 import { m } from "@/paraglide/messages.js";
 
 export function openInvoicesLabel(toCollect: InvoiceTotalData): string {
@@ -51,29 +51,12 @@ export function periodsLabel(monthUnbilled: InvoiceTotalData): string {
     : m.invoices_periods_count({ count: monthUnbilled.count });
 }
 
-/**
- * How much work a row would bill, in the mission's own unit. Exactly one of the two
- * quantities is set, decided by how the mission bills.
- */
-function quantityLabel(
-  locale: Locale,
-  work: InvoiceTodoWorkData,
-): string | null {
-  if (work.valuedDays !== null) {
-    return formatBilledDays(locale, work.valuedDays);
-  }
-
-  return work.valuedMinutes === null
-    ? null
-    : formatBilledHours(locale, work.valuedMinutes);
-}
-
-/** "3 j sur OGF front" — what would be billed, and on what. */
+/** "3 j sur Orvella front" — what would be billed, and on what. */
 export function unbilledWorkTitle(
   locale: Locale,
   work: InvoiceTodoWorkData,
 ): string {
-  const quantity = quantityLabel(locale, work);
+  const quantity = billedQuantityLabel(locale, work);
 
   return quantity === null
     ? work.missionName

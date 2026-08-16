@@ -12,7 +12,7 @@ const meta = {
     isBusy: false,
     isDetailsOpen: false,
     isLongRun: false,
-    missionName: "OGF front",
+    missionName: "Orvella front",
     onOpenDetails: () => undefined,
     onStop: () => undefined,
     onTogglePause: () => undefined,

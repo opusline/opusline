@@ -45,26 +45,26 @@ const baseClient = {
 } satisfies Partial<ClientWithMissionsData>;
 
 export const DEMO_MISSIONS = {
-  hartprint: {
+  vesterhus: {
     ...baseMission,
     billingMode: 1,
     clientId: 2,
     color: null,
     id: 2,
-    name: "HartPrint maintenance",
+    name: "Vesterhus maintenance",
     rate: { amount: 8_500, currency: "EUR" },
-    slug: "hartprint-maintenance",
+    slug: "vesterhus-maintenance",
   },
-  ogf: {
+  orvella: {
     ...baseMission,
     billingMode: 0,
     clientId: 1,
     color: null,
-    endClientName: "OGF",
+    endClientName: "Orvella",
     id: 1,
-    name: "OGF front",
+    name: "Orvella front",
     rate: { amount: 55_000, currency: "EUR" },
-    slug: "ogf-front",
+    slug: "orvella-front",
   },
   opusline: {
     ...baseMission,
@@ -83,7 +83,7 @@ export const DEMO_CLIENTS: ClientWithMissionsData[] = [
     ...baseClient,
     color: 4,
     id: 1,
-    missions: [DEMO_MISSIONS.ogf],
+    missions: [DEMO_MISSIONS.orvella],
     name: "Nordlys",
     slug: "nordlys",
     type: 1,
@@ -92,9 +92,9 @@ export const DEMO_CLIENTS: ClientWithMissionsData[] = [
     ...baseClient,
     color: 1,
     id: 2,
-    missions: [DEMO_MISSIONS.hartprint],
-    name: "HartPrint",
-    slug: "hartprint",
+    missions: [DEMO_MISSIONS.vesterhus],
+    name: "Vesterhus",
+    slug: "vesterhus",
     type: 0,
   },
   {
@@ -119,7 +119,7 @@ function billedDay(
     date,
     durationMinutes: dayFraction * DEMO_WORKDAY_MINUTES,
     id,
-    missionId: DEMO_MISSIONS.ogf.id,
+    missionId: DEMO_MISSIONS.orvella.id,
     note,
     rounding: null,
     valuedDayFraction: dayFraction,
@@ -156,15 +156,15 @@ export const DEMO_TIME_ENTRIES: TimeEntryData[] = [
   billedDay(5, FRIDAY, "Rétro + backlog", 0.5),
   billedHours(
     6,
-    DEMO_MISSIONS.hartprint.id,
+    DEMO_MISSIONS.vesterhus.id,
     WEDNESDAY,
     90,
     "Hotfix impression",
   ),
-  billedHours(7, DEMO_MISSIONS.hartprint.id, FRIDAY, 120, "Migration PHP 8.3"),
+  billedHours(7, DEMO_MISSIONS.vesterhus.id, FRIDAY, 120, "Migration PHP 8.3"),
   billedHours(
     10,
-    DEMO_MISSIONS.hartprint.id,
+    DEMO_MISSIONS.vesterhus.id,
     THURSDAY,
     60,
     "Analyse avant devis",

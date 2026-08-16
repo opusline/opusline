@@ -21,13 +21,13 @@ export const Figure: Story = {
 };
 
 export const Text: Story = {
-  args: { label: "Client", value: "HartPrint", tone: "text" },
+  args: { label: "Client", value: "Vesterhus", tone: "text" },
 };
 
 export const FactList: Story = {
   render: () => (
     <dl className="grid grid-cols-2 gap-x-5 gap-y-4">
-      <Fact label="Client" value="HartPrint" tone="text" />
+      <Fact label="Client" value="Vesterhus" tone="text" />
       <Fact label="Mission" value="Refonte catalogue" tone="text" />
       <Fact label="Période" value="01/06/2026 – 30/06/2026" />
       <Fact label="Montant HT" value="1 650,00 €" />

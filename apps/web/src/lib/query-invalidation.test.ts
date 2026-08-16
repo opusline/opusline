@@ -45,7 +45,7 @@ describe("operationFilter", () => {
       operationFilter("listMissionDocuments").predicate(
         queryWithKey(
           listMissionDocumentsQueryKey({
-            path: { client: "hartprint", mission: "refonte" },
+            path: { client: "vesterhus", mission: "refonte" },
           }),
         ),
       ),

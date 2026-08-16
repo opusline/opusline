@@ -8,7 +8,7 @@ import {
 } from "../lib/timer-fixtures";
 import { TimerStopDialog } from "./timer-stop-dialog";
 
-const halfDayMission = { ...DEMO_MISSIONS.ogf, rounding: 0 as const };
+const halfDayMission = { ...DEMO_MISSIONS.orvella, rounding: 0 as const };
 const { options: dailyOptions } = stopChoices(
   "fr-FR",
   DEMO_ELAPSED_SECONDS,
@@ -18,7 +18,7 @@ const { options: dailyOptions } = stopChoices(
 const { options: hourlyOptions } = stopChoices(
   "fr-FR",
   DEMO_ELAPSED_SECONDS,
-  DEMO_MISSIONS.hartprint,
+  DEMO_MISSIONS.vesterhus,
   DEMO_WORKDAY_MINUTES,
 );
 
@@ -37,7 +37,7 @@ const meta = {
     dateLabel: "jeudi 30 juillet",
     error: null,
     isSaving: false,
-    missionName: "OGF front",
+    missionName: "Orvella front",
     missionRoundingLabel: "0,5 j",
     note: "",
     noteSuggestions: ["Correctifs QA", "Sprint 23 · recette", "Filtre agences"],

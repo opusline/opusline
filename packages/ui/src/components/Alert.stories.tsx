@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { CircleAlert } from "lucide-react";
+import { CircleAlert, TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "./alert";
 
 const meta = {
@@ -37,6 +37,19 @@ export const Warn: Story = {
       <AlertDescription>
         Email ou mot de passe incorrect. 2 essais restants avant blocage
         temporaire.
+      </AlertDescription>
+    </Alert>
+  ),
+};
+
+export const Brand: Story = {
+  render: () => (
+    <Alert variant="brand">
+      <TriangleAlert />
+      <AlertTitle>2 périodes travaillées non facturées</AlertTitle>
+      <AlertDescription>
+        Orvella front · 3 j, Vesterhus maintenance · 3,5 h. Soit 1 948 € HT qui
+        ne figurent sur aucune facture.
       </AlertDescription>
     </Alert>
   ),

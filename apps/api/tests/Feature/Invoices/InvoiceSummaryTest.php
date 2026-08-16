@@ -107,6 +107,31 @@ test('values tracked time that no invoice covers, month by month', function (): 
         ->assertJsonPath('monthUnbilled.count', 1);
 });
 
+test('totals unbilled work across missions, whenever it was worked', function (): void {
+    $user = User::factory()->create();
+
+    foreach (['2026-07-20', '2026-08-03'] as $date) {
+        $mission = missionOwnedBy($user, fn ($factory) => $factory->state([
+            'rate_cents' => 55_000,
+            'rounding' => EntryRounding::Half,
+        ]));
+
+        TimeEntry::factory()->for($mission, 'mission')->create([
+            'user_id' => $user->id,
+            'date' => $date,
+            'duration_minutes' => 420,
+        ]);
+    }
+
+    // The month card only sees August; the grand total sees July too.
+    $this->actingAs($user)
+        ->getJson('/api/invoices/summary')
+        ->assertOk()
+        ->assertJsonPath('monthUnbilled.count', 1)
+        ->assertJsonPath('unbilled.amount.amount', 110_000)
+        ->assertJsonPath('unbilled.count', 2);
+});
+
 test('bills overtime as one day, matching the CRA figure', function (): void {
     $user = User::factory()->create();
     $mission = missionOwnedBy($user, fn ($factory) => $factory->state([
@@ -168,6 +193,7 @@ test('leaves fixed-price and non-billable time out of what is still to invoice',
         ->getJson('/api/invoices/summary')
         ->assertOk()
         ->assertJsonPath('monthUnbilled.amount.amount', 0)
+        ->assertJsonPath('unbilled.count', 0)
         ->assertJsonPath('todoTotal', 0);
 })->with([
     'a fixed-price mission' => [function (User $user): void {

@@ -8,8 +8,8 @@ import type {
 } from "../lib/week-grid";
 import { WeekCell } from "./week-cell";
 
-const billedDayRow = demoRowNamed("OGF front");
-const hourlyRow = demoRowNamed("HartPrint maintenance");
+const billedDayRow = demoRowNamed("Orvella front");
+const hourlyRow = demoRowNamed("Vesterhus maintenance");
 const nonBillableRow = demoRowNamed("Opusline");
 
 /** Cells only ever render inside a grid row, so the preview supplies one. */

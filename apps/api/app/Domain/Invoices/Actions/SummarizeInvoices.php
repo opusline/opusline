@@ -57,6 +57,7 @@ class SummarizeInvoices
             overdue: $this->overdue($overdue, $today, $currency),
             forecast: $this->forecast($outstanding, $today, $currency),
             monthUnbilled: $this->unbilledIn($unbilled, $currency),
+            unbilled: $this->unbilledTotal($unbilled, $currency),
             counts: $this->counts($user, $today),
             todo: $this->todo($overdue, $unbilled, $today),
             todoTotal: $overdue->count() + count($unbilled),
@@ -203,6 +204,23 @@ class SummarizeInvoices
         }
 
         return new InvoiceTotalData(amount: MoneyData::fromMoney($total), count: $periods);
+    }
+
+    /**
+     * The whole backlog, not just the month on show — the todo list is capped, so
+     * this is the only place its grand total exists.
+     *
+     * @param  list<UnbilledWork>  $unbilled
+     */
+    private function unbilledTotal(array $unbilled, Currency $currency): InvoiceTotalData
+    {
+        $total = new Money(0, $currency->value);
+
+        foreach ($unbilled as $row) {
+            $total = $total->add($row['amount']);
+        }
+
+        return new InvoiceTotalData(amount: MoneyData::fromMoney($total), count: count($unbilled));
     }
 
     /**

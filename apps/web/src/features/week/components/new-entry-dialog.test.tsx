@@ -52,13 +52,15 @@ it("asks which mission first", () => {
   renderDialog();
 
   expect(screen.getByText("Sur quelle mission ?")).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: /OGF front/ })).toBeInTheDocument();
+  expect(
+    screen.getByRole("button", { name: /Orvella front/ }),
+  ).toBeInTheDocument();
 });
 
 it("moves to the entry form once a mission is picked", () => {
   renderDialog();
 
-  pickMission("OGF front");
+  pickMission("Orvella front");
 
   expect(screen.getByRole("textbox", { name: "Durée" })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Changer" })).toBeInTheDocument();
@@ -67,7 +69,7 @@ it("moves to the entry form once a mission is picked", () => {
 it("reads a bare number in the mission's own unit", () => {
   const { onSubmit } = renderDialog({ timeEntries: [] });
 
-  pickMission("OGF front");
+  pickMission("Orvella front");
   fireEvent.change(screen.getByRole("textbox", { name: "Durée" }), {
     target: { value: "0,5" },
   });
@@ -86,7 +88,7 @@ it("reads a bare number in the mission's own unit", () => {
 it("reads a bare number as hours on an hourly mission", () => {
   const { onSubmit } = renderDialog({ timeEntries: [] });
 
-  pickMission("HartPrint maintenance");
+  pickMission("Vesterhus maintenance");
   fireEvent.change(screen.getByRole("textbox", { name: "Durée" }), {
     target: { value: "2" },
   });
@@ -100,7 +102,7 @@ it("reads a bare number as hours on an hourly mission", () => {
 it("refuses to save without a duration", () => {
   const { onSubmit } = renderDialog({ timeEntries: [] });
 
-  pickMission("OGF front");
+  pickMission("Orvella front");
   fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
 
   expect(screen.getByRole("alert")).toHaveTextContent("Indiquez une durée");
@@ -110,7 +112,7 @@ it("refuses to save without a duration", () => {
 it("warns when the day already carries an entry", () => {
   renderDialog();
 
-  pickMission("OGF front");
+  pickMission("Orvella front");
 
   expect(screen.getByText(/existe déjà ce jour-là/)).toBeInTheDocument();
 });
@@ -118,7 +120,7 @@ it("warns when the day already carries an entry", () => {
 it("adds alongside the existing entry by default", () => {
   const { onSubmit } = renderDialog();
 
-  pickMission("OGF front");
+  pickMission("Orvella front");
   fireEvent.change(screen.getByRole("textbox", { name: "Durée" }), {
     target: { value: "0,5" },
   });
@@ -132,7 +134,7 @@ it("adds alongside the existing entry by default", () => {
 it("replaces the existing entry when asked to", () => {
   const { onSubmit } = renderDialog();
 
-  pickMission("OGF front");
+  pickMission("Orvella front");
   fireEvent.click(screen.getByRole("button", { name: "Remplacer" }));
   fireEvent.change(screen.getByRole("textbox", { name: "Durée" }), {
     target: { value: "0,5" },
@@ -172,7 +174,7 @@ it("replaces every entry on the day, not just the first", () => {
     ],
   });
 
-  pickMission("OGF front");
+  pickMission("Orvella front");
   fireEvent.click(screen.getByRole("button", { name: "Remplacer" }));
   fireEvent.change(screen.getByRole("textbox", { name: "Durée" }), {
     target: { value: "0,5" },
@@ -187,7 +189,7 @@ it("replaces every entry on the day, not just the first", () => {
 it("says nothing about a day it has no entries for", () => {
   renderDialog({ knownRange: { from: "2026-07-27", to: "2026-08-02" } });
 
-  pickMission("OGF front");
+  pickMission("Orvella front");
   fireEvent.change(screen.getByLabelText("Date"), {
     target: { value: "2026-03-02" },
   });
@@ -200,7 +202,7 @@ it("says nothing about a day it has no entries for", () => {
 it("survives an incomplete date instead of crashing the page", () => {
   const { onSubmit } = renderDialog({ timeEntries: [] });
 
-  pickMission("OGF front");
+  pickMission("Orvella front");
   fireEvent.change(screen.getByLabelText("Date"), { target: { value: "" } });
 
   expect(screen.getByText("Date incomplète")).toBeInTheDocument();
@@ -214,7 +216,7 @@ it("survives an incomplete date instead of crashing the page", () => {
 it("says a too-long duration is out of range, not malformed", () => {
   const { onSubmit } = renderDialog({ timeEntries: [] });
 
-  pickMission("OGF front");
+  pickMission("Orvella front");
   fireEvent.change(screen.getByRole("textbox", { name: "Durée" }), {
     target: { value: "4" },
   });
@@ -227,7 +229,7 @@ it("says a too-long duration is out of range, not malformed", () => {
 it("logs time that will not be invoiced", () => {
   const { onSubmit } = renderDialog({ timeEntries: [] });
 
-  pickMission("OGF front");
+  pickMission("Orvella front");
   fireEvent.click(screen.getByRole("checkbox", { name: "Non facturable" }));
   fireEvent.change(screen.getByRole("textbox", { name: "Durée" }), {
     target: { value: "0,5" },
@@ -261,7 +263,7 @@ it("flags a mission the grid is not showing", () => {
 it("logs onto an earlier day from the shortcuts", () => {
   const { onSubmit } = renderDialog({ timeEntries: [] });
 
-  pickMission("OGF front");
+  pickMission("Orvella front");
   fireEvent.click(screen.getByRole("button", { name: "Avant-hier" }));
   fireEvent.change(screen.getByRole("textbox", { name: "Durée" }), {
     target: { value: "1" },

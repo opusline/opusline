@@ -74,7 +74,7 @@ const MONDAY_TJM_ENTRY = {
 /** The Monday cell of the TJM mission — "1 j, Sprint 24 · specs". */
 function mondayTjmCell(): HTMLElement {
   return screen.getByRole("gridcell", {
-    name: /OGF front, lundi 27 juillet/,
+    name: /Orvella front, lundi 27 juillet/,
   });
 }
 
@@ -116,7 +116,7 @@ it("names a filled cell with its mission, day, value and note", () => {
   renderGrid();
 
   expect(mondayTjmCell()).toHaveAccessibleName(
-    "OGF front, lundi 27 juillet : 1 j, Sprint 24 · specs",
+    "Orvella front, lundi 27 juillet : 1 j, Sprint 24 · specs",
   );
 });
 
@@ -124,7 +124,7 @@ it("names an empty cell as empty", () => {
   renderGrid({ timeEntries: [] });
 
   expect(mondayTjmCell()).toHaveAccessibleName(
-    "OGF front, lundi 27 juillet : aucune entrée",
+    "Orvella front, lundi 27 juillet : aucune entrée",
   );
 });
 
@@ -144,7 +144,7 @@ it("keeps a single tab stop and moves it with the arrow keys", () => {
   fireEvent.keyDown(monday, { key: "ArrowRight" });
 
   expect(
-    screen.getByRole("gridcell", { name: /OGF front, mardi 28 juillet/ }),
+    screen.getByRole("gridcell", { name: /Orvella front, mardi 28 juillet/ }),
   ).toHaveFocus();
   expect(monday).toHaveAttribute("tabindex", "-1");
 });
@@ -169,7 +169,7 @@ it("never lands the tab stop on the collapsed weekend", () => {
   renderGrid();
 
   const friday = screen.getByRole("gridcell", {
-    name: /OGF front, vendredi 31 juillet/,
+    name: /Orvella front, vendredi 31 juillet/,
   });
   friday.focus();
   fireEvent.keyDown(friday, { key: "ArrowRight" });
@@ -382,7 +382,7 @@ it("reads a bare number as hours on an hourly mission", () => {
   const { onCreate } = renderGrid({ timeEntries: [] });
 
   const cell = screen.getByRole("gridcell", {
-    name: /HartPrint maintenance, lundi 27 juillet/,
+    name: /Vesterhus maintenance, lundi 27 juillet/,
   });
   cell.focus();
   fireEvent.keyDown(cell, { key: "2" });
@@ -521,7 +521,7 @@ it("leaves every other day of that mission alone", () => {
   renderGrid({ live: RUNNING_ON_MONDAY });
 
   expect(
-    screen.getByRole("gridcell", { name: /OGF front, mardi 28 juillet/ }),
+    screen.getByRole("gridcell", { name: /Orvella front, mardi 28 juillet/ }),
   ).not.toHaveTextContent("en cours");
 });
 
@@ -553,6 +553,6 @@ it("renders the live pill on a weekend day", () => {
   });
 
   expect(
-    screen.getByRole("gridcell", { name: /OGF front, samedi 1 août/ }),
+    screen.getByRole("gridcell", { name: /Orvella front, samedi 1 août/ }),
   ).toHaveTextContent("en cours · 03:42:18");
 });
