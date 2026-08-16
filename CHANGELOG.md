@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.0](https://github.com/opusline/opusline/compare/v0.11.0...v0.12.0) (2026-08-16)
+
+
+### Features
+
+* **api:** add bank account support ([#144](https://github.com/opusline/opusline/issues/144)) ([3f06dfd](https://github.com/opusline/opusline/commit/3f06dfdad1965c6c5817245bf797bb9ee586ab4d))
+* **web:** add authenticated revenue dashboard ([#141](https://github.com/opusline/opusline/issues/141)) ([3be8568](https://github.com/opusline/opusline/commit/3be85686b9f2ca5608510e8b5897c6b3aad3c291))
+
 ## [0.11.0](https://github.com/opusline/opusline/compare/v0.10.0...v0.11.0) (2026-08-15)
 
 
