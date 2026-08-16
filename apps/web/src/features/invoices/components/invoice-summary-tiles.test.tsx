@@ -10,11 +10,15 @@ const NOTHING_OVERDUE = {
   maxDaysLate: 0,
 } as const;
 
+function tile(label: string): HTMLElement {
+  return screen
+    .getByText(label)
+    .closest('[data-slot="stat-tile"]') as HTMLElement;
+}
+
 /** The line under a tile's figure. */
 function sub(label: string): string {
-  const tile = screen.getByText(label).parentElement as HTMLElement;
-
-  return tile.lastElementChild?.textContent ?? "";
+  return tile(label).lastElementChild?.textContent ?? "";
 }
 
 it("counts what the outstanding total is made of", () => {
@@ -43,9 +47,55 @@ it("drops the alert tone when nothing is late", () => {
 it("shows no figure for the pro account rather than a zero", () => {
   render(<InvoiceSummaryTiles summary={invoiceSummary()} />);
 
-  const tile = screen.getByText("Solde compte pro")
-    .parentElement as HTMLElement;
+  const balanceTile = tile("Solde compte pro");
 
-  expect(tile).toHaveTextContent("—");
-  expect(tile).not.toHaveTextContent("0 €");
+  expect(balanceTile).toHaveTextContent("—");
+  expect(balanceTile).not.toHaveTextContent("0 €");
+  expect(sub("Solde compte pro")).toBe("saisi à la main · importer un relevé");
+});
+
+it("shows the statement-anchored balance once the bank knows one", () => {
+  render(
+    <InvoiceSummaryTiles
+      bankBalance={{
+        amount: { amount: 1_482_000, currency: "EUR" },
+        source: 1,
+        asOf: "2026-08-10",
+      }}
+      summary={invoiceSummary()}
+    />,
+  );
+
+  expect(tile("Solde compte pro")).toHaveTextContent("14 820 €");
+  expect(sub("Solde compte pro")).toBe("relevé du 10/08/2026");
+});
+
+it("cites the hand-typed source for a manual balance", () => {
+  render(
+    <InvoiceSummaryTiles
+      bankBalance={{
+        amount: { amount: 742_000, currency: "EUR" },
+        source: 0,
+        asOf: "2026-08-11",
+      }}
+      summary={invoiceSummary()}
+    />,
+  );
+
+  expect(sub("Solde compte pro")).toBe("saisi à la main");
+});
+
+it("cites the movements for a derived balance", () => {
+  render(
+    <InvoiceSummaryTiles
+      bankBalance={{
+        amount: { amount: 594_700, currency: "EUR" },
+        source: 2,
+        asOf: null,
+      }}
+      summary={invoiceSummary()}
+    />,
+  );
+
+  expect(sub("Solde compte pro")).toBe("calculé des relevés importés");
 });

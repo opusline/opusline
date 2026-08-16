@@ -54,14 +54,28 @@ function EmptyMedia({
   );
 }
 
-function EmptyTitle({ className, ...props }: React.ComponentProps<"div">) {
+const emptyTitleVariants = cva("font-heading tracking-tight", {
+  variants: {
+    variant: {
+      default: "text-sm font-medium",
+      strong: "text-base font-semibold text-foreground-hi",
+    },
+  },
+  defaultVariants: {
+    variant: "default",
+  },
+});
+
+function EmptyTitle({
+  className,
+  variant = "default",
+  ...props
+}: React.ComponentProps<"div"> & VariantProps<typeof emptyTitleVariants>) {
   return (
     <div
       data-slot="empty-title"
-      className={cn(
-        "font-heading text-sm font-medium tracking-tight",
-        className,
-      )}
+      data-variant={variant}
+      className={cn(emptyTitleVariants({ variant, className }))}
       {...props}
     />
   );

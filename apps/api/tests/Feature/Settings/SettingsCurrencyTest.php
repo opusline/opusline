@@ -98,6 +98,39 @@ test('changing the currency clears the treasury buffer instead of re-denominatin
     ]);
 });
 
+test('changing the currency clears the hand-typed bank balance too', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update([
+        'bank_balance_cents' => 1_482_000,
+        'bank_balance_recorded_on' => '2026-08-10',
+    ]);
+
+    $this->actingAs($user)
+        ->putJson('/api/settings/currency', ['currency' => Currency::USD->value])
+        ->assertOk();
+
+    $this->assertDatabaseHas('user_settings', [
+        'user_id' => $user->id,
+        'bank_balance_cents' => null,
+        'bank_balance_recorded_on' => null,
+    ]);
+});
+
+test('locks the currency once a bank statement was imported', function (): void {
+    $user = User::factory()->create();
+    bankStatementOwnedBy($user);
+
+    $this->actingAs($user)
+        ->putJson('/api/settings/currency', ['currency' => Currency::USD->value])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['currency']);
+
+    $this->assertDatabaseHas('user_settings', [
+        'user_id' => $user->id,
+        'currency' => Currency::EUR->value,
+    ]);
+});
+
 test('an amount written under the lock must match the account currency', function (): void {
     // Request validation reads the currency before the user-row lock is taken;
     // this is the in-transaction re-check that closes the race window.

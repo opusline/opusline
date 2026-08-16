@@ -3,6 +3,64 @@
 import * as z from 'zod/mini';
 
 /**
+ * BankBalanceSource
+ *
+ * | |
+ * |---|
+ * | `0` <br/>  |
+ * | `1` <br/>  |
+ * | `2` <br/> No anchor exists: the balance is the sum of every imported movement, as if the account had opened empty just before the first one. Exact once the full history is imported; the hand-typed anchor corrects it otherwise. |
+ */
+export const zBankBalanceSource = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * BankMatchInvoiceData
+ */
+export const zBankMatchInvoiceData = z.object({
+    id: z.int(),
+    number: z.nullable(z.string()),
+    clientName: z.string()
+});
+
+/**
+ * BankMatchReason
+ *
+ * Why a credit movement was paired with an invoice. Ascending value = descending confidence; the matcher offers the lowest value that applies.
+ *
+ */
+export const zBankMatchReason = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * BankMovementInvoiceData
+ */
+export const zBankMovementInvoiceData = z.object({
+    id: z.int(),
+    number: z.nullable(z.string())
+});
+
+/**
+ * BankStatementData
+ */
+export const zBankStatementData = z.object({
+    id: z.int(),
+    fileName: z.string(),
+    periodStart: z.iso.date(),
+    periodEnd: z.iso.date(),
+    lineCount: z.int(),
+    importedAt: z.iso.date(),
+    matchCount: z.int(),
+    validatedMatchCount: z.int()
+});
+
+/**
  * BillingMode
  */
 export const zBillingMode = z.union([
@@ -258,6 +316,15 @@ export const zCreateMissionData = z.object({
 });
 
 /**
+ * ImportBankStatementData
+ */
+export const zImportBankStatementData = z.object({
+    file: z.string(),
+    balanceAmount: z.nullish(z.int()),
+    balanceCurrency: z.nullish(zCurrency)
+});
+
+/**
  * InvoiceCountsData
  */
 export const zInvoiceCountsData = z.object({
@@ -393,6 +460,37 @@ export const zMissionStatus = z.union([
 export const zMoneyData = z.object({
     amount: z.int(),
     currency: zCurrency
+});
+
+/**
+ * BankMatchData
+ */
+export const zBankMatchData = z.object({
+    id: z.int(),
+    reason: zBankMatchReason,
+    movementId: z.int(),
+    bookedOn: z.iso.date(),
+    label: z.string(),
+    amount: zMoneyData,
+    invoice: zBankMatchInvoiceData
+});
+
+/**
+ * BankProvisionData
+ */
+export const zBankProvisionData = z.object({
+    amount: zMoneyData,
+    rateBp: z.nullable(z.int())
+});
+
+/**
+ * BankProvisionsData
+ */
+export const zBankProvisionsData = z.object({
+    vat: z.nullable(zBankProvisionData),
+    urssaf: z.nullable(zBankProvisionData),
+    buffer: z.nullable(zMoneyData),
+    total: zMoneyData
 });
 
 /**
@@ -710,6 +808,57 @@ export const zSendCraData = z.object({
 });
 
 /**
+ * SignedMoneyData
+ */
+export const zSignedMoneyData = z.object({
+    amount: z.int(),
+    currency: zCurrency
+});
+
+/**
+ * BankBalanceData
+ */
+export const zBankBalanceData = z.object({
+    amount: zSignedMoneyData,
+    source: zBankBalanceSource,
+    asOf: z.nullable(z.iso.date())
+});
+
+/**
+ * BankMovementData
+ */
+export const zBankMovementData = z.object({
+    id: z.int(),
+    bookedOn: z.iso.date(),
+    label: z.string(),
+    amount: zSignedMoneyData,
+    runningBalance: z.nullable(zSignedMoneyData),
+    invoice: z.nullable(zBankMovementInvoiceData),
+    pendingMatchId: z.nullable(z.int())
+});
+
+/**
+ * BankAccountData
+ */
+export const zBankAccountData = z.object({
+    balance: z.nullable(zBankBalanceData),
+    provisions: zBankProvisionsData,
+    pendingMatches: z.array(zBankMatchData),
+    movements: z.array(zBankMovementData),
+    statements: z.array(zBankStatementData)
+});
+
+/**
+ * BankImportData
+ */
+export const zBankImportData = z.object({
+    lineCount: z.int(),
+    importedCount: z.int(),
+    suggestionCount: z.int(),
+    account: zBankAccountData
+});
+
+/**
  * StartTimerData
  */
 export const zStartTimerData = z.object({
@@ -802,6 +951,16 @@ export const zTimerStateData = z.object({
  */
 export const zTrimTimerData = z.object({
     seconds: z.int().check(z.gte(1), z.lte(86400))
+});
+
+/**
+ * UpdateBankBalanceData
+ */
+export const zUpdateBankBalanceData = z.object({
+    balance: z.nullish(z.object({
+        amount: z.int(),
+        currency: zCurrency
+    }))
 });
 
 /**
@@ -1091,6 +1250,28 @@ export const zUpdateUserThemeResponse = zUserData;
 export const zUpdateUserReleaseNotesSeenBody = zUpdateReleaseNotesSeenData;
 
 export const zUpdateUserReleaseNotesSeenResponse = zUserData;
+
+export const zShowBankAccountResponse = zBankAccountData;
+
+export const zUpdateBankBalanceBody = zUpdateBankBalanceData;
+
+export const zUpdateBankBalanceResponse = zBankAccountData;
+
+export const zImportBankStatementBody = zImportBankStatementData;
+
+export const zImportBankStatementResponse = zBankImportData;
+
+export const zValidateBankMatchPath = z.object({
+    match: z.int()
+});
+
+export const zValidateBankMatchResponse = zBankAccountData;
+
+export const zDismissBankMatchPath = z.object({
+    match: z.int()
+});
+
+export const zDismissBankMatchResponse = zBankAccountData;
 
 export const zListClientsResponse = zClientListData;
 

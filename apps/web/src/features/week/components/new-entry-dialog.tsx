@@ -75,9 +75,7 @@ export function NewEntryDialog({
         showCloseButton={false}
       >
         <DialogHeader className="flex-row items-center justify-between gap-4 border-border border-b px-5 py-4">
-          <DialogTitle className="font-heading font-semibold text-foreground-hi text-lg">
-            {m.week_new_entry()}
-          </DialogTitle>
+          <DialogTitle size="lg">{m.week_new_entry()}</DialogTitle>
           <StepIndicator step={mission === null ? 1 : 2} />
         </DialogHeader>
         {mission === null ? (

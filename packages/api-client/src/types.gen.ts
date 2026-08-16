@@ -5,6 +5,130 @@ export type ClientOptions = {
 };
 
 /**
+ * BankAccountData
+ */
+export type BankAccountData = {
+    balance: BankBalanceData | null;
+    provisions: BankProvisionsData;
+    pendingMatches: Array<BankMatchData>;
+    movements: Array<BankMovementData>;
+    statements: Array<BankStatementData>;
+};
+
+/**
+ * BankBalanceData
+ */
+export type BankBalanceData = {
+    amount: SignedMoneyData;
+    source: BankBalanceSource;
+    asOf: string | null;
+};
+
+/**
+ * BankBalanceSource
+ *
+ * | |
+ * |---|
+ * | `0` <br/>  |
+ * | `1` <br/>  |
+ * | `2` <br/> No anchor exists: the balance is the sum of every imported movement, as if the account had opened empty just before the first one. Exact once the full history is imported; the hand-typed anchor corrects it otherwise. |
+ */
+export type BankBalanceSource = 0 | 1 | 2;
+
+/**
+ * BankImportData
+ */
+export type BankImportData = {
+    lineCount: number;
+    importedCount: number;
+    suggestionCount: number;
+    account: BankAccountData;
+};
+
+/**
+ * BankMatchData
+ */
+export type BankMatchData = {
+    id: number;
+    reason: BankMatchReason;
+    movementId: number;
+    bookedOn: string;
+    label: string;
+    amount: MoneyData;
+    invoice: BankMatchInvoiceData;
+};
+
+/**
+ * BankMatchInvoiceData
+ */
+export type BankMatchInvoiceData = {
+    id: number;
+    number: string | null;
+    clientName: string;
+};
+
+/**
+ * BankMatchReason
+ *
+ * Why a credit movement was paired with an invoice. Ascending value = descending confidence; the matcher offers the lowest value that applies.
+ *
+ */
+export type BankMatchReason = 0 | 1 | 2;
+
+/**
+ * BankMovementData
+ */
+export type BankMovementData = {
+    id: number;
+    bookedOn: string;
+    label: string;
+    amount: SignedMoneyData;
+    runningBalance: SignedMoneyData | null;
+    invoice: BankMovementInvoiceData | null;
+    pendingMatchId: number | null;
+};
+
+/**
+ * BankMovementInvoiceData
+ */
+export type BankMovementInvoiceData = {
+    id: number;
+    number: string | null;
+};
+
+/**
+ * BankProvisionData
+ */
+export type BankProvisionData = {
+    amount: MoneyData;
+    rateBp: number | null;
+};
+
+/**
+ * BankProvisionsData
+ */
+export type BankProvisionsData = {
+    vat: BankProvisionData | null;
+    urssaf: BankProvisionData | null;
+    buffer: MoneyData | null;
+    total: MoneyData;
+};
+
+/**
+ * BankStatementData
+ */
+export type BankStatementData = {
+    id: number;
+    fileName: string;
+    periodStart: string;
+    periodEnd: string;
+    lineCount: number;
+    importedAt: string;
+    matchCount: number;
+    validatedMatchCount: number;
+};
+
+/**
  * BillingMode
  */
 export type BillingMode = 0 | 1 | 2;
@@ -290,6 +414,18 @@ export type DocumentSource = 0 | 1;
  *
  */
 export type EntryRounding = 0 | 1 | 2;
+
+/**
+ * ImportBankStatementData
+ */
+export type ImportBankStatementData = {
+    /**
+     * Maximum file size: 10240 kilobytes.
+     */
+    file: Blob | File;
+    balanceAmount?: number | null;
+    balanceCurrency?: Currency | null;
+};
 
 /**
  * InvoiceClientTotalsData
@@ -689,6 +825,14 @@ export type SettingsData = {
 };
 
 /**
+ * SignedMoneyData
+ */
+export type SignedMoneyData = {
+    amount: number;
+    currency: Currency;
+};
+
+/**
  * StartTimerData
  */
 export type StartTimerData = {
@@ -777,6 +921,16 @@ export type TimerStateData = {
  */
 export type TrimTimerData = {
     seconds: number;
+};
+
+/**
+ * UpdateBankBalanceData
+ */
+export type UpdateBankBalanceData = {
+    balance?: {
+        amount: number;
+        currency: Currency;
+    } | null;
 };
 
 /**
@@ -1181,6 +1335,169 @@ export type UpdateUserReleaseNotesSeenResponses = {
 };
 
 export type UpdateUserReleaseNotesSeenResponse = UpdateUserReleaseNotesSeenResponses[keyof UpdateUserReleaseNotesSeenResponses];
+
+export type ShowBankAccountData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/bank';
+};
+
+export type ShowBankAccountErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowBankAccountError = ShowBankAccountErrors[keyof ShowBankAccountErrors];
+
+export type ShowBankAccountResponses = {
+    200: BankAccountData;
+};
+
+export type ShowBankAccountResponse = ShowBankAccountResponses[keyof ShowBankAccountResponses];
+
+export type UpdateBankBalanceData2 = {
+    body?: UpdateBankBalanceData;
+    path?: never;
+    query?: never;
+    url: '/bank/balance';
+};
+
+export type UpdateBankBalanceErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateBankBalanceError = UpdateBankBalanceErrors[keyof UpdateBankBalanceErrors];
+
+export type UpdateBankBalanceResponses = {
+    200: BankAccountData;
+};
+
+export type UpdateBankBalanceResponse = UpdateBankBalanceResponses[keyof UpdateBankBalanceResponses];
+
+export type ImportBankStatementData2 = {
+    body: ImportBankStatementData;
+    path?: never;
+    query?: never;
+    url: '/bank/statements';
+};
+
+export type ImportBankStatementErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ImportBankStatementError = ImportBankStatementErrors[keyof ImportBankStatementErrors];
+
+export type ImportBankStatementResponses = {
+    201: BankImportData;
+};
+
+export type ImportBankStatementResponse = ImportBankStatementResponses[keyof ImportBankStatementResponses];
+
+export type ValidateBankMatchData = {
+    body?: never;
+    path: {
+        /**
+         * The match ID
+         */
+        match: number;
+    };
+    query?: never;
+    url: '/bank/matches/{match}/validate';
+};
+
+export type ValidateBankMatchErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ValidateBankMatchError = ValidateBankMatchErrors[keyof ValidateBankMatchErrors];
+
+export type ValidateBankMatchResponses = {
+    200: BankAccountData;
+};
+
+export type ValidateBankMatchResponse = ValidateBankMatchResponses[keyof ValidateBankMatchResponses];
+
+export type DismissBankMatchData = {
+    body?: never;
+    path: {
+        /**
+         * The match ID
+         */
+        match: number;
+    };
+    query?: never;
+    url: '/bank/matches/{match}/dismiss';
+};
+
+export type DismissBankMatchErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DismissBankMatchError = DismissBankMatchErrors[keyof DismissBankMatchErrors];
+
+export type DismissBankMatchResponses = {
+    200: BankAccountData;
+};
+
+export type DismissBankMatchResponse = DismissBankMatchResponses[keyof DismissBankMatchResponses];
 
 export type ListClientsData = {
     body?: never;

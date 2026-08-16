@@ -1,31 +1,21 @@
 import { client as apiClient } from "@opusline/api-client/client";
+import { fileRejector } from "@/lib/files";
 import { serverFieldErrors } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
 export const LOGO_ACCEPT = ".png,.svg";
 export const MAX_LOGO_BYTES = 2048 * 1024;
 
-const ACCEPTED_EXTENSIONS = new Set(
-  LOGO_ACCEPT.split(",").map((extension) => extension.slice(1)),
-);
-
 export type LogoUploadResult =
   | { status: "success" }
   | { status: "failed"; message: string };
 
-export function rejectLogoReason(file: File): string | null {
-  const extension = file.name.toLowerCase().split(".").pop() ?? "";
-
-  if (!ACCEPTED_EXTENSIONS.has(extension)) {
-    return "PNG ou SVG uniquement";
-  }
-
-  if (file.size > MAX_LOGO_BYTES) {
-    return "trop lourd (max 2 Mo)";
-  }
-
-  return null;
-}
+export const rejectLogoReason = fileRejector({
+  accept: LOGO_ACCEPT,
+  maxBytes: MAX_LOGO_BYTES,
+  rejectType: () => "PNG ou SVG uniquement",
+  rejectSize: () => "trop lourd (max 2 Mo)",
+});
 
 export function clientLogoHref(clientSlug: string, version = 0): string {
   const url = apiClient.buildUrl({

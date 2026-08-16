@@ -1,7 +1,11 @@
-import type { InvoiceSummaryData } from "@opusline/api-client";
+import type { BankBalanceData, InvoiceSummaryData } from "@opusline/api-client";
 import { StatTile, StatTileRow } from "@opusline/ui/components/stat-tile";
 
-import { useMoneyFormat } from "@/components/money-format-provider";
+import {
+  useDateFormat,
+  useMoneyFormat,
+} from "@/components/money-format-provider";
+import { bankBalanceSubLabel, bankBalanceTileValue } from "@/lib/bank";
 import { formatWholeAmount } from "@/lib/billing";
 import { m } from "@/paraglide/messages.js";
 
@@ -9,10 +13,14 @@ import { openInvoicesLabel, overdueLabel } from "../lib/summary-labels";
 
 export function InvoiceSummaryTiles({
   summary,
+  bankBalance,
 }: {
   summary: InvoiceSummaryData;
+  /** The Compte pro balance; undefined while it loads or outside its gate. */
+  bankBalance?: BankBalanceData | null;
 }) {
   const format = useMoneyFormat();
+  const dateFormat = useDateFormat();
   const { toCollect, overdue } = summary;
 
   return (
@@ -29,16 +37,11 @@ export function InvoiceSummaryTiles({
         sub={overdueLabel(overdue)}
         tone={overdue.count === 0 ? "quiet" : "warn"}
       />
-      {/*
-        Nothing in the app knows this figure yet — there is no bank import and no field
-        to type it into — so the tile holds its place in the row and says where the
-        number would come from. It gains a value in the same change that produces one.
-      */}
       <StatTile
         label={m.invoices_bank_balance_tile()}
-        value="—"
-        sub={m.invoices_bank_balance_sub()}
-        tone="quiet"
+        value={bankBalanceTileValue(format, bankBalance)}
+        sub={bankBalanceSubLabel(dateFormat, bankBalance)}
+        tone={bankBalance == null ? "quiet" : "strong"}
       />
     </StatTileRow>
   );

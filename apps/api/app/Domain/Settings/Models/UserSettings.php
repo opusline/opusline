@@ -51,6 +51,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $default_payment_terms_days
  * @property string $invoice_number_format
  * @property ?Money $treasury_buffer_cents
+ * @property ?Money $bank_balance_cents
+ * @property ?CarbonImmutable $bank_balance_recorded_on
  * @property Currency $currency
  * @property Locale $locale
  * @property DateFormat $date_format
@@ -90,6 +92,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'default_payment_terms_days',
     'invoice_number_format',
     'treasury_buffer_cents',
+    'bank_balance_cents',
+    'bank_balance_recorded_on',
     'currency',
     'locale',
     'date_format',
@@ -130,6 +134,8 @@ class UserSettings extends Model
             'default_vat_rate_bp' => 'integer',
             'default_payment_terms_days' => 'integer',
             'treasury_buffer_cents' => MoneyIntegerCast::class.':currency',
+            'bank_balance_cents' => MoneyIntegerCast::class.':currency',
+            'bank_balance_recorded_on' => 'date',
             'currency' => Currency::class,
             'locale' => Locale::class,
             'date_format' => DateFormat::class,

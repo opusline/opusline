@@ -77,7 +77,7 @@ export const VAT_REGIME_MESSAGES: Record<
 
 /**
  * Route guard for the screens that only make sense for a business established
- * in France (URSSAF, TVA, plafond, virement). One named guard, four explicit
+ * in France (URSSAF, TVA, plafond, virement). One named guard, five explicit
  * call sites — grep `requireFrenchFiscality` to find every gated screen.
  */
 export function requireFrenchFiscality(user: UserData): void {

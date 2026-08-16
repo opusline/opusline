@@ -13,6 +13,7 @@ Route::get('/ping', fn () => response()->json([
 ]));
 
 require __DIR__.'/api/auth.php';
+require __DIR__.'/api/bank.php';
 require __DIR__.'/api/clients.php';
 require __DIR__.'/api/cra.php';
 require __DIR__.'/api/invoices.php';

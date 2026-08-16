@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as GuestRouteImport } from './routes/_guest'
 import { Route as HealthRouteImport } from './routes/health'
+import { Route as AuthedBankAccountRouteImport } from './routes/_authed/bank-account'
 import { Route as AuthedClientsRouteImport } from './routes/_authed/clients'
 import { Route as AuthedCraRouteImport } from './routes/_authed/cra'
 import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
@@ -48,6 +49,11 @@ const HealthRoute = HealthRouteImport.update({
   id: '/health',
   path: '/health',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthedBankAccountRoute = AuthedBankAccountRouteImport.update({
+  id: '/bank-account',
+  path: '/bank-account',
+  getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedClientsRoute = AuthedClientsRouteImport.update({
   id: '/clients',
@@ -139,6 +145,7 @@ const AuthedClientsClientSlugMissionsMissionSlugRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/health': typeof HealthRoute
+  '/bank-account': typeof AuthedBankAccountRoute
   '/clients': typeof AuthedClientsRoute
   '/cra': typeof AuthedCraRoute
   '/dashboard': typeof AuthedDashboardRoute
@@ -160,6 +167,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/health': typeof HealthRoute
+  '/bank-account': typeof AuthedBankAccountRoute
   '/clients': typeof AuthedClientsRoute
   '/cra': typeof AuthedCraRoute
   '/dashboard': typeof AuthedDashboardRoute
@@ -184,6 +192,7 @@ export interface FileRoutesById {
   '/_authed': typeof AuthedRouteWithChildren
   '/_guest': typeof GuestRouteWithChildren
   '/health': typeof HealthRoute
+  '/_authed/bank-account': typeof AuthedBankAccountRoute
   '/_authed/clients': typeof AuthedClientsRoute
   '/_authed/cra': typeof AuthedCraRoute
   '/_authed/dashboard': typeof AuthedDashboardRoute
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/health'
+    | '/bank-account'
     | '/clients'
     | '/cra'
     | '/dashboard'
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/health'
+    | '/bank-account'
     | '/clients'
     | '/cra'
     | '/dashboard'
@@ -251,6 +262,7 @@ export interface FileRouteTypes {
     | '/_authed'
     | '/_guest'
     | '/health'
+    | '/_authed/bank-account'
     | '/_authed/clients'
     | '/_authed/cra'
     | '/_authed/dashboard'
@@ -306,6 +318,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/health'
       preLoaderRoute: typeof HealthRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authed/bank-account': {
+      id: '/_authed/bank-account'
+      path: '/bank-account'
+      fullPath: '/bank-account'
+      preLoaderRoute: typeof AuthedBankAccountRouteImport
+      parentRoute: typeof AuthedRoute
     }
     '/_authed/clients': {
       id: '/_authed/clients'
@@ -430,6 +449,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthedRouteChildren {
+  AuthedBankAccountRoute: typeof AuthedBankAccountRoute
   AuthedClientsRoute: typeof AuthedClientsRoute
   AuthedCraRoute: typeof AuthedCraRoute
   AuthedDashboardRoute: typeof AuthedDashboardRoute
@@ -448,6 +468,7 @@ interface AuthedRouteChildren {
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
+  AuthedBankAccountRoute: AuthedBankAccountRoute,
   AuthedClientsRoute: AuthedClientsRoute,
   AuthedCraRoute: AuthedCraRoute,
   AuthedDashboardRoute: AuthedDashboardRoute,

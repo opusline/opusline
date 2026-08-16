@@ -258,6 +258,42 @@ export function parseRateToCents(locale: Locale, draft: string): number | null {
   return amount === null || amount <= 0 ? null : Math.round(amount * 100);
 }
 
+/** An ASCII hyphen or the typographic minus a formatter may have echoed back. */
+function splitLeadingMinus(draft: string): {
+  isNegative: boolean;
+  magnitude: string;
+} {
+  const isNegative = draft.startsWith("-") || draft.startsWith("\u2212");
+
+  return { isNegative, magnitude: isNegative ? draft.slice(1) : draft };
+}
+
+/** The rate draft formatter, minus-aware: "-1234,5" stays typeable. */
+export function formatSignedDraft(locale: Locale, draft: string): string {
+  const { isNegative, magnitude } = splitLeadingMinus(draft.trimStart());
+  const formatted = formatRateDraft(locale, magnitude);
+
+  return isNegative ? `-${formatted}` : formatted;
+}
+
+/**
+ * A signed amount in cents: bank balances accept a leading minus (an overdraft
+ * is a legal state) and zero (an empty account is one too).
+ */
+export function parseSignedAmountToCents(
+  locale: Locale,
+  draft: string,
+): number | null {
+  const { isNegative, magnitude } = splitLeadingMinus(draft.trim());
+  const amount = parseDecimal(locale, magnitude);
+
+  if (amount === null) {
+    return null;
+  }
+
+  return Math.round(amount * 100) * (isNegative ? -1 : 1);
+}
+
 export function missionBills(mission: MissionData): boolean {
   return mission.rate !== null;
 }

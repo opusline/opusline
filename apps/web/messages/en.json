@@ -27,6 +27,117 @@
   "auth_register_failed": "Registration failed. Try again.",
   "auth_register_submit": "Create the account",
   "auth_remember_label": "Stay signed in for 30 days",
+  "bank_badge_no_statement": "No statement",
+  "bank_badge_to_validate": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} to validate",
+        "countPlural=other": "{count} to validate"
+      }
+    }
+  ],
+  "bank_badge_up_to_date": "Up to date",
+  "bank_balance_derived": "computed from the imported statements",
+  "bank_balance_dialog_description": "The balance you read on your bank today. The next imported statement will replace it.",
+  "bank_balance_dialog_title": "Business account balance",
+  "bank_balance_edit_aria": "Edit the balance",
+  "bank_balance_field_label": "Balance",
+  "bank_balance_from_statement": "statement of {date}",
+  "bank_balance_manual": "entered by hand",
+  "bank_balance_save_failed": "The balance could not be saved.",
+  "bank_balance_tile": "Current balance",
+  "bank_dismiss_failed": "The suggestion could not be dismissed.",
+  "bank_import_analysing": "Analysing…",
+  "bank_import_balance_help": "Used to compute what can safely be transferred.",
+  "bank_import_balance_label": "Business account balance at the statement date",
+  "bank_import_button": "Import a statement",
+  "bank_import_description": "The file exported from your business bank (CSV, OFX, QIF or CAMT). Opusline reads the payments and suggests a reconciliation with your invoices.",
+  "bank_import_drop_hint": "Drop the file, or click to choose it",
+  "bank_import_failed": "The statement could not be analysed.",
+  "bank_import_reject_size": "This file is too heavy (max 10 MB).",
+  "bank_import_reject_type": "This format is not supported (CSV, OFX, QIF or CAMT).",
+  "bank_import_submit": "Analyse the statement",
+  "bank_import_success_dismiss_aria": "Dismiss the import summary",
+  "bank_import_success_lines": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} line read",
+        "countPlural=other": "{count} lines read"
+      }
+    }
+  ],
+  "bank_import_success_suggestions": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} match suggested",
+        "countPlural=other": "{count} matches suggested"
+      }
+    }
+  ],
+  "bank_import_title": "Import a statement",
+  "bank_intro": "Opusline does not connect to any bank. You drop in the statement exported from yours: it feeds the balance, the movements and invoice reconciliation.",
+  "bank_load_failed": "The account could not be loaded. Try again in a moment.",
+  "bank_match_ignore": "Ignore",
+  "bank_match_invoice_aria": "Open invoice {number}",
+  "bank_match_reason_client": "Exact amount, client identified",
+  "bank_match_reason_overdue": "Exact amount, overdue invoice",
+  "bank_match_reason_reference": "Exact amount and reference in the label",
+  "bank_match_validate": "Validate",
+  "bank_movement_pending_chip": "To reconcile",
+  "bank_movements_amount_header": "Amount",
+  "bank_movements_balance_header": "Balance",
+  "bank_movements_date_header": "Date",
+  "bank_movements_empty": "No movements to show yet.",
+  "bank_movements_label_header": "Label",
+  "bank_movements_link_header": "Link",
+  "bank_movements_source_manual": "Entered by hand · no statement imported",
+  "bank_movements_source_statement": "Statement {start} to {end}, imported on {date}",
+  "bank_movements_title": "Movements",
+  "bank_no_statement_body": "Drop in the statement exported from your bank: Opusline suggests an invoice for each payment, you validate in one click.",
+  "bank_no_statement_title": "Nothing to reconcile yet",
+  "bank_pending_done": "everything is reconciled",
+  "bank_pending_none_statement": "no statement imported",
+  "bank_pending_none_suggested": "no suggestions waiting",
+  "bank_pending_sub": "payments with no linked invoice",
+  "bank_pending_tile": "To reconcile",
+  "bank_provisions_sub": "VAT, URSSAF and buffer",
+  "bank_provisions_sub_no_vat": "URSSAF and buffer",
+  "bank_provisions_tile": "Provisions to keep",
+  "bank_reconciled_body": "Every payment on the statement is linked to its invoice. The next import will pick up here.",
+  "bank_reconciled_title": "Everything is reconciled",
+  "bank_reconciled_unlinked_body": "Some payments still have no linked invoice — they stay visible in the movements. A future import can suggest new matches.",
+  "bank_reconciled_unlinked_title": "No suggestions waiting",
+  "bank_reconciliation_title": "Reconciliation",
+  "bank_statement_detail": [
+    {
+      "declarations": [
+        "input start",
+        "input end",
+        "input date",
+        "input lines",
+        "local linesPlural = lines: plural"
+      ],
+      "selectors": ["linesPlural"],
+      "match": {
+        "linesPlural=one": "{start} → {end} · {lines} line · imported on {date}",
+        "linesPlural=other": "{start} → {end} · {lines} lines · imported on {date}"
+      }
+    }
+  ],
+  "bank_statement_note": "Statement {start} to {end} · {validated} of {total} validated",
+  "bank_statement_note_done": "Statement {start} to {end} · all handled",
+  "bank_statement_note_none": "No statement imported",
+  "bank_statement_reconciled_count": "{validated} / {total} reconciled",
+  "bank_statements_empty": "No statement imported. The balance shown is the one you entered by hand.",
+  "bank_statements_title": "Imported statements",
+  "bank_title": "Business account",
+  "bank_validate_failed": "The match could not be validated.",
   "billing_rate_daily": "{amount} / d",
   "billing_rate_fixed": "{amount} fixed price",
   "billing_rate_hourly": "{amount} / h",
@@ -394,6 +505,7 @@
       }
     }
   ],
+  "invoices_open_failed": "The invoice could not be opened. Try again in a moment.",
   "invoices_overdue_detail": "Overdue since {date} · {days} d late",
   "invoices_overdue_tile": "Of which late",
   "invoices_overdue_up_to": [
@@ -526,6 +638,7 @@
   "missions_unit_hourly": " / hour",
   "missions_unit_short_daily": " / d",
   "missions_unit_short_hourly": " / h",
+  "nav_bank": "Business account",
   "nav_clients": "Clients",
   "nav_cra": "CRA",
   "nav_deadlines": "Deadlines",
@@ -538,6 +651,7 @@
   "not_found_hint": "This address leads nowhere — the link may be stale.",
   "not_found_home": "Back to the dashboard",
   "not_found_title": "Page not found",
+  "page_title_bank": "Business account",
   "page_title_clients": "Client portfolio",
   "page_title_cra": "Activity report (CRA)",
   "page_title_deadlines": "Obligations",

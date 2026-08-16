@@ -4,6 +4,7 @@ import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { Button } from "@opusline/ui/components/button";
 
 import { cn } from "@opusline/ui/lib/utils";
+import { cva, type VariantProps } from "class-variance-authority";
 import { XIcon } from "lucide-react";
 import type * as React from "react";
 
@@ -116,11 +117,27 @@ function DialogFooter({
   );
 }
 
-function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
+const dialogTitleVariants = cva("font-heading", {
+  variants: {
+    size: {
+      default: "text-sm font-medium",
+      lg: "text-lg font-semibold text-foreground-hi",
+    },
+  },
+  defaultVariants: {
+    size: "default",
+  },
+});
+
+function DialogTitle({
+  className,
+  size = "default",
+  ...props
+}: DialogPrimitive.Title.Props & VariantProps<typeof dialogTitleVariants>) {
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("font-heading text-sm font-medium", className)}
+      className={cn(dialogTitleVariants({ size, className }))}
       {...props}
     />
   );

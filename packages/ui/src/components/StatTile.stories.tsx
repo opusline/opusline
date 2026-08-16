@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { Pencil } from "lucide-react";
+import { Button } from "./button";
 import { StatTile, StatTileRow } from "./stat-tile";
 
 const meta = {
@@ -68,6 +70,52 @@ export const WithoutSub: Story = {
       <StatTile label="En attente" value="—" tone="strong" />
       <StatTile label="Délai moyen" value="—" />
       <StatTile label="Missions" value="3" />
+    </StatTileRow>
+  ),
+};
+
+export const Large: Story = {
+  render: () => (
+    <StatTileRow className="grid-cols-1 md:grid-cols-3">
+      <StatTile
+        label="Solde courant"
+        value="14 820,00 €"
+        sub="relevé du 10/08/2026"
+        tone="strong"
+        size="lg"
+      />
+      <StatTile
+        label="Provisions à garder"
+        value="6 307 €"
+        sub="TVA, URSSAF et matelas"
+        size="lg"
+      />
+      <StatTile
+        label="À rapprocher"
+        value="3"
+        sub="encaissements sans facture liée"
+        tone="brand"
+        size="lg"
+      />
+    </StatTileRow>
+  ),
+};
+
+export const WithAction: Story = {
+  render: () => (
+    <StatTileRow className="grid-cols-1">
+      <StatTile
+        label="Solde courant"
+        value="14 820,00 €"
+        sub="saisi à la main"
+        tone="strong"
+        size="lg"
+        action={
+          <Button variant="ghost" size="icon-sm" aria-label="Modifier le solde">
+            <Pencil />
+          </Button>
+        }
+      />
     </StatTileRow>
   ),
 };

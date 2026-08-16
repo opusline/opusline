@@ -237,6 +237,168 @@
                 }
             }
         },
+        "/bank": {
+            "get": {
+                "operationId": "showBankAccount",
+                "tags": [
+                    "Bank"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BankAccountData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/bank/balance": {
+            "put": {
+                "operationId": "updateBankBalance",
+                "tags": [
+                    "Bank"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateBankBalanceData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BankAccountData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/bank/statements": {
+            "post": {
+                "operationId": "importBankStatement",
+                "tags": [
+                    "Bank"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ImportBankStatementData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BankImportData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/bank/matches/{match}/validate": {
+            "post": {
+                "operationId": "validateBankMatch",
+                "tags": [
+                    "Bank"
+                ],
+                "parameters": [
+                    {
+                        "name": "match",
+                        "in": "path",
+                        "required": true,
+                        "description": "The match ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BankAccountData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/bank/matches/{match}/dismiss": {
+            "post": {
+                "operationId": "dismissBankMatch",
+                "tags": [
+                    "Bank"
+                ],
+                "parameters": [
+                    {
+                        "name": "match",
+                        "in": "path",
+                        "required": true,
+                        "description": "The match ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BankAccountData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/clients": {
             "get": {
                 "operationId": "listClients",
@@ -3152,6 +3314,368 @@
             }
         },
         "schemas": {
+            "BankAccountData": {
+                "type": "object",
+                "properties": {
+                    "balance": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BankBalanceData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "provisions": {
+                        "$ref": "#/components/schemas/BankProvisionsData"
+                    },
+                    "pendingMatches": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BankMatchData"
+                        }
+                    },
+                    "movements": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BankMovementData"
+                        }
+                    },
+                    "statements": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BankStatementData"
+                        }
+                    }
+                },
+                "required": [
+                    "balance",
+                    "provisions",
+                    "pendingMatches",
+                    "movements",
+                    "statements"
+                ],
+                "title": "BankAccountData"
+            },
+            "BankBalanceData": {
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "$ref": "#/components/schemas/SignedMoneyData"
+                    },
+                    "source": {
+                        "$ref": "#/components/schemas/BankBalanceSource"
+                    },
+                    "asOf": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "amount",
+                    "source",
+                    "asOf"
+                ],
+                "title": "BankBalanceData"
+            },
+            "BankBalanceSource": {
+                "type": "integer",
+                "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/> No anchor exists: the balance is the sum of every imported movement, as if the account had opened empty just before the first one. Exact once the full history is imported; the hand-typed anchor corrects it otherwise. |",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "Manual",
+                    "Statement",
+                    "Derived"
+                ],
+                "title": "BankBalanceSource"
+            },
+            "BankImportData": {
+                "type": "object",
+                "properties": {
+                    "lineCount": {
+                        "type": "integer"
+                    },
+                    "importedCount": {
+                        "type": "integer"
+                    },
+                    "suggestionCount": {
+                        "type": "integer"
+                    },
+                    "account": {
+                        "$ref": "#/components/schemas/BankAccountData"
+                    }
+                },
+                "required": [
+                    "lineCount",
+                    "importedCount",
+                    "suggestionCount",
+                    "account"
+                ],
+                "title": "BankImportData"
+            },
+            "BankMatchData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "reason": {
+                        "$ref": "#/components/schemas/BankMatchReason"
+                    },
+                    "movementId": {
+                        "type": "integer"
+                    },
+                    "bookedOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "invoice": {
+                        "$ref": "#/components/schemas/BankMatchInvoiceData"
+                    }
+                },
+                "required": [
+                    "id",
+                    "reason",
+                    "movementId",
+                    "bookedOn",
+                    "label",
+                    "amount",
+                    "invoice"
+                ],
+                "title": "BankMatchData"
+            },
+            "BankMatchInvoiceData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "number": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "clientName": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "number",
+                    "clientName"
+                ],
+                "title": "BankMatchInvoiceData"
+            },
+            "BankMatchReason": {
+                "type": "integer",
+                "description": "Why a credit movement was paired with an invoice. Ascending value = descending confidence; the matcher offers the lowest value that applies.\n",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "RefInLabel",
+                    "ClientInLabel",
+                    "OverdueUniqueAmount"
+                ],
+                "title": "BankMatchReason"
+            },
+            "BankMovementData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "bookedOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/SignedMoneyData"
+                    },
+                    "runningBalance": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/SignedMoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "invoice": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BankMovementInvoiceData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "pendingMatchId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "bookedOn",
+                    "label",
+                    "amount",
+                    "runningBalance",
+                    "invoice",
+                    "pendingMatchId"
+                ],
+                "title": "BankMovementData"
+            },
+            "BankMovementInvoiceData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "number": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "number"
+                ],
+                "title": "BankMovementInvoiceData"
+            },
+            "BankProvisionData": {
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "rateBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "amount",
+                    "rateBp"
+                ],
+                "title": "BankProvisionData"
+            },
+            "BankProvisionsData": {
+                "type": "object",
+                "properties": {
+                    "vat": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BankProvisionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "urssaf": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BankProvisionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "buffer": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "total": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "vat",
+                    "urssaf",
+                    "buffer",
+                    "total"
+                ],
+                "title": "BankProvisionsData"
+            },
+            "BankStatementData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "fileName": {
+                        "type": "string"
+                    },
+                    "periodStart": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "periodEnd": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "lineCount": {
+                        "type": "integer"
+                    },
+                    "importedAt": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "matchCount": {
+                        "type": "integer"
+                    },
+                    "validatedMatchCount": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "id",
+                    "fileName",
+                    "periodStart",
+                    "periodEnd",
+                    "lineCount",
+                    "importedAt",
+                    "matchCount",
+                    "validatedMatchCount"
+                ],
+                "title": "BankStatementData"
+            },
             "BillingMode": {
                 "type": "integer",
                 "enum": [
@@ -4203,6 +4727,37 @@
                     "Minute"
                 ],
                 "title": "EntryRounding"
+            },
+            "ImportBankStatementData": {
+                "type": "object",
+                "properties": {
+                    "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "contentMediaType": "application/octet-stream",
+                        "description": "Maximum file size: 10240 kilobytes."
+                    },
+                    "balanceAmount": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "balanceCurrency": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Currency"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "file"
+                ],
+                "title": "ImportBankStatementData"
             },
             "InvoiceClientTotalsData": {
                 "type": "object",
@@ -5455,6 +6010,22 @@
                 ],
                 "title": "SettingsData"
             },
+            "SignedMoneyData": {
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "type": "integer"
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currency"
+                    }
+                },
+                "required": [
+                    "amount",
+                    "currency"
+                ],
+                "title": "SignedMoneyData"
+            },
             "StartTimerData": {
                 "type": "object",
                 "properties": {
@@ -5735,6 +6306,30 @@
                     "seconds"
                 ],
                 "title": "TrimTimerData"
+            },
+            "UpdateBankBalanceData": {
+                "type": "object",
+                "properties": {
+                    "balance": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "amount": {
+                                "type": "integer"
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    }
+                },
+                "title": "UpdateBankBalanceData"
             },
             "UpdateClientData": {
                 "type": "object",
