@@ -24,8 +24,8 @@ function renderPopover(overrides: Partial<TimerDetailPopoverProps> = {}) {
       isConfirmingDiscard={false}
       longRunHours={null}
       onKeepLongRun={onKeepLongRun}
-      missionName="OGF front"
-      missionSubtitle="Catamania · 550 €/j"
+      missionName="Orvella front"
+      missionSubtitle="Nordlys · 550 €/j"
       note=""
       onCancelDiscard={onCancelDiscard}
       onChangeNote={vi.fn()}
@@ -72,9 +72,9 @@ it("labels the start time rather than showing a bare clock", () => {
 });
 
 it("identifies the mission by its client, not the client's type", () => {
-  renderPopover({ missionSubtitle: "Catamania · 550 €/j" });
+  renderPopover({ missionSubtitle: "Nordlys · 550 €/j" });
 
-  expect(screen.getByText(/Catamania · 550 €\/j/)).toBeInTheDocument();
+  expect(screen.getByText(/Nordlys · 550 €\/j/)).toBeInTheDocument();
 });
 
 it("says nothing about idleness while the user is active", () => {

@@ -14,7 +14,7 @@ import {
   type TimerStopDialogProps,
 } from "./timer-stop-dialog";
 
-const HALF_DAY_MISSION = DEMO_MISSIONS.ogf;
+const HALF_DAY_MISSION = DEMO_MISSIONS.orvella;
 const MISSION_ROUNDING_LABEL = entryRoundingLabel(
   HALF_DAY_MISSION.rounding,
   HALF_DAY_MISSION.billingMode,
@@ -44,7 +44,7 @@ function renderDialog(overrides: Partial<TimerStopDialogProps> = {}) {
       dateLabel="jeudi 30 juillet"
       error={null}
       isSaving={false}
-      missionName="OGF front"
+      missionName="Orvella front"
       missionRoundingLabel={MISSION_ROUNDING_LABEL}
       note=""
       noteSuggestions={["Revue PR", "Cadrage V2"]}
@@ -140,7 +140,7 @@ it("summarises the session on the day it started", () => {
   renderDialog();
 
   expect(
-    screen.getByText("03:42:18 sur OGF front · jeudi 30 juillet"),
+    screen.getByText("03:42:18 sur Orvella front · jeudi 30 juillet"),
   ).toBeInTheDocument();
 });
 
@@ -149,7 +149,7 @@ it("says so in the summary when the entry will not be billed", () => {
 
   expect(
     screen.getByText(
-      "03:42:18 sur OGF front · jeudi 30 juillet · non facturable",
+      "03:42:18 sur Orvella front · jeudi 30 juillet · non facturable",
     ),
   ).toBeInTheDocument();
 });

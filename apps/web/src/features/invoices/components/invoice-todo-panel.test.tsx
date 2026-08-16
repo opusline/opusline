@@ -27,7 +27,7 @@ function renderPanel(
 
 it("offers a reminder on money that is owed and late", () => {
   const { onRemind } = renderPanel();
-  const row = screen.getByText("F-2026-036 · HartPrint").closest("div")
+  const row = screen.getByText("F-2026-036 · Vesterhus").closest("div")
     ?.parentElement as HTMLElement;
 
   fireEvent.click(
@@ -60,7 +60,7 @@ it("says how late an overdue invoice is, not just that it is", () => {
 it("measures unbilled work in the mission's own unit", () => {
   renderPanel({ todo: [unbilledTodoRow()], todoTotal: 1 });
 
-  expect(screen.getByText("3 j sur OGF front")).toBeInTheDocument();
+  expect(screen.getByText("3 j sur Orvella front")).toBeInTheDocument();
 });
 
 it("bills hourly missions in hours", () => {
@@ -69,14 +69,14 @@ it("bills hourly missions in hours", () => {
       unbilledTodoRow({
         valuedDays: null,
         valuedMinutes: 210,
-        missionName: "HartPrint maintenance",
+        missionName: "Vesterhus maintenance",
       }),
     ],
     todoTotal: 1,
   });
 
   expect(
-    screen.getByText("3,5 h sur HartPrint maintenance"),
+    screen.getByText("3,5 h sur Vesterhus maintenance"),
   ).toBeInTheDocument();
 });
 

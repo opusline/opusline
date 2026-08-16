@@ -282,8 +282,8 @@ describe("totals", () => {
             mission({
               id: 2,
               billingMode: 1,
-              name: "HartPrint",
-              slug: "hartprint",
+              name: "Vesterhus",
+              slug: "vesterhus",
             }),
           ],
         }),

@@ -154,7 +154,7 @@ it("leaves N alone while a field has focus", async () => {
   await renderPage();
 
   const cell = screen.getByRole("gridcell", {
-    name: /OGF front, lundi 27 juillet/,
+    name: /Orvella front, lundi 27 juillet/,
   });
   cell.focus();
   fireEvent.keyDown(cell, { key: "Enter" });
@@ -170,7 +170,7 @@ it("keeps the new-entry dialog open when the entry is refused", async () => {
   onSubmitNewEntry.mockResolvedValue(false);
 
   fireEvent.keyDown(window, { key: "n" });
-  fireEvent.click(screen.getByRole("button", { name: /OGF front/ }));
+  fireEvent.click(screen.getByRole("button", { name: /Orvella front/ }));
   fireEvent.change(screen.getByRole("textbox", { name: "Durée" }), {
     target: { value: "0,5" },
   });
@@ -186,7 +186,7 @@ it("closes the new-entry dialog once the entry is saved", async () => {
   await renderPage();
 
   fireEvent.keyDown(window, { key: "n" });
-  fireEvent.click(screen.getByRole("button", { name: /OGF front/ }));
+  fireEvent.click(screen.getByRole("button", { name: /Orvella front/ }));
   fireEvent.change(screen.getByRole("textbox", { name: "Durée" }), {
     target: { value: "0,5" },
   });

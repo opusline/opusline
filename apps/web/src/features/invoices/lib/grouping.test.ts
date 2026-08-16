@@ -52,18 +52,18 @@ describe("groupByClient", () => {
     const groups = groupByClient("fr-FR", items, totals, "all");
 
     expect(groups.map((group) => group.client.name)).toEqual([
-      "HartPrint",
-      "OGF",
+      "Orvella",
+      "Vesterhus",
     ]);
-    expect(groups[0]?.items).toHaveLength(3);
-    expect(groups[1]?.items).toHaveLength(1);
+    expect(groups[0]?.items).toHaveLength(1);
+    expect(groups[1]?.items).toHaveLength(3);
   });
 
   it("reads the total for the shown scope from the API verbatim", () => {
     const groups = groupByClient("fr-FR", items, totals, "open");
 
     // The frontend never sums money: 90 000 is the API's figure, not a re-addition.
-    expect(groups[0]?.total).toBe(90_000);
+    expect(groups[1]?.total).toBe(90_000);
   });
 
   it("derives the average days to pay from the paid rows", () => {

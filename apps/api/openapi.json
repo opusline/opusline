@@ -2345,6 +2345,56 @@
                 }
             }
         },
+        "/revenue": {
+            "get": {
+                "operationId": "showRevenue",
+                "tags": [
+                    "Revenue"
+                ],
+                "parameters": [
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "pattern": "^\\d{4}(-(0[1-9]|1[0-2])|-Q[1-4])?$"
+                        }
+                    },
+                    {
+                        "name": "basis",
+                        "in": "query",
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/RevenueBasis"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RevenueData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/settings": {
             "get": {
                 "operationId": "showSettings",
@@ -4530,6 +4580,9 @@
                     "monthUnbilled": {
                         "$ref": "#/components/schemas/InvoiceTotalData"
                     },
+                    "unbilled": {
+                        "$ref": "#/components/schemas/InvoiceTotalData"
+                    },
                     "counts": {
                         "$ref": "#/components/schemas/InvoiceCountsData"
                     },
@@ -4549,6 +4602,7 @@
                     "overdue",
                     "forecast",
                     "monthUnbilled",
+                    "unbilled",
                     "counts",
                     "todo",
                     "todoTotal"
@@ -4947,6 +5001,212 @@
                     }
                 },
                 "title": "RemindInvoiceData"
+            },
+            "RevenueBasis": {
+                "type": "integer",
+                "description": "The two ways a freelancer reads their revenue: by what was invoiced, or by what actually landed. URSSAF declares on the cash basis; the invoiced basis is the activity view.\n| |\n|---|\n| `0` <br/> Issued invoices, summed on their issue date. |\n| `1` <br/> Paid invoices, summed on their payment date. |",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "Invoiced",
+                    "Collected"
+                ],
+                "title": "RevenueBasis"
+            },
+            "RevenueClientData": {
+                "type": "object",
+                "properties": {
+                    "clientId": {
+                        "type": "integer"
+                    },
+                    "clientName": {
+                        "type": "string"
+                    },
+                    "color": {
+                        "$ref": "#/components/schemas/Color"
+                    },
+                    "invoiceCount": {
+                        "type": "integer"
+                    },
+                    "total": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "shareBp": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "clientId",
+                    "clientName",
+                    "color",
+                    "invoiceCount",
+                    "total",
+                    "shareBp"
+                ],
+                "title": "RevenueClientData"
+            },
+            "RevenueComparisonData": {
+                "type": "object",
+                "properties": {
+                    "period": {
+                        "type": "string"
+                    },
+                    "total": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "changeBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "period",
+                    "total",
+                    "changeBp"
+                ],
+                "title": "RevenueComparisonData"
+            },
+            "RevenueData": {
+                "type": "object",
+                "properties": {
+                    "period": {
+                        "type": "string"
+                    },
+                    "basis": {
+                        "$ref": "#/components/schemas/RevenueBasis"
+                    },
+                    "fellBack": {
+                        "type": "boolean"
+                    },
+                    "lastActivePeriod": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "total": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "previous": {
+                        "$ref": "#/components/schemas/RevenueComparisonData"
+                    },
+                    "vat": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/RevenueVatData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "net": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/RevenueNetData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "months": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RevenueMonthData"
+                        }
+                    },
+                    "invoices": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoiceListItemData"
+                        }
+                    },
+                    "clients": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RevenueClientData"
+                        }
+                    }
+                },
+                "required": [
+                    "period",
+                    "basis",
+                    "fellBack",
+                    "lastActivePeriod",
+                    "total",
+                    "previous",
+                    "vat",
+                    "net",
+                    "months",
+                    "invoices",
+                    "clients"
+                ],
+                "title": "RevenueData"
+            },
+            "RevenueMonthData": {
+                "type": "object",
+                "properties": {
+                    "month": {
+                        "type": "string"
+                    },
+                    "total": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "inPeriod": {
+                        "type": "boolean"
+                    },
+                    "shareBp": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "month",
+                    "total",
+                    "inPeriod",
+                    "shareBp"
+                ],
+                "title": "RevenueMonthData"
+            },
+            "RevenueNetData": {
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "contributions": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "rateBp": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "amount",
+                    "contributions",
+                    "rateBp"
+                ],
+                "title": "RevenueNetData"
+            },
+            "RevenueVatData": {
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "rateBp": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "amount",
+                    "rateBp"
+                ],
+                "title": "RevenueVatData"
             },
             "SendCraData": {
                 "type": "object",

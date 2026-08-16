@@ -584,7 +584,72 @@
       }
     }
   ],
-  "revenue_placeholder": "Le suivi des revenus arrive ici — CA facturé, TVA collectée, net estimé.",
+  "revenue_basis_aria": "Base de calcul",
+  "revenue_basis_collected": "Encaissé",
+  "revenue_basis_invoiced": "Facturé",
+  "revenue_breakdown_clients": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} client",
+        "countPlural=other": "{count} clients"
+      }
+    }
+  ],
+  "revenue_breakdown_title": "D'où vient le chiffre d'affaires",
+  "revenue_chart_note": "Période affichée en orange · cliquez un mois",
+  "revenue_chart_title_collected": "CA encaissé HT par mois",
+  "revenue_chart_title_invoiced": "CA facturé HT par mois",
+  "revenue_empty_body_collected": "Aucun règlement n'est arrivé sur cette période. Les factures en attente sont suivies dans l'écran Factures.",
+  "revenue_empty_body_invoiced": "Aucune facture n'a été émise sur cette période.",
+  "revenue_empty_cta": "Voir {period}",
+  "revenue_empty_title_collected": "Rien d'encaissé sur {period}",
+  "revenue_empty_title_invoiced": "Rien de facturé sur {period}",
+  "revenue_invoice_open_failed": "La facture n'a pas pu être ouverte. Réessayez dans un instant.",
+  "revenue_invoices_empty_collected": "Aucun encaissement sur {period}.",
+  "revenue_invoices_empty_invoiced": "Rien d'émis sur {period}.",
+  "revenue_invoices_link": "Toutes les factures",
+  "revenue_invoices_title_collected": "Factures encaissées",
+  "revenue_invoices_title_invoiced": "Factures émises",
+  "revenue_kpi_collected_title": "CA encaissé HT",
+  "revenue_kpi_invoiced_title": "CA facturé HT",
+  "revenue_kpi_zero_collected": "Aucun encaissement sur la période",
+  "revenue_kpi_zero_invoiced": "Aucune facture émise sur la période",
+  "revenue_load_failed": "Les revenus n'ont pas pu être chargés. Réessayez dans un instant.",
+  "revenue_net_title": "Estimation net après URSSAF",
+  "revenue_net_zero": "Rien à cotiser sur la période",
+  "revenue_next_period": "Période suivante",
+  "revenue_period_kind_aria": "Type de période",
+  "revenue_period_month": "Mois",
+  "revenue_period_quarter": "Trimestre",
+  "revenue_period_year": "Année",
+  "revenue_prev_period": "Période précédente",
+  "revenue_quarter_title": "T{quarter} {year}",
+  "revenue_row_collected": "encaissée le {date}",
+  "revenue_row_issued": "émise le {date}",
+  "revenue_subtitle_collected": "Chiffre d'affaires des factures encaissées sur la période.",
+  "revenue_subtitle_fallback_collected": "Rien d'encaissé sur le mois en cours : voici la dernière période avec activité.",
+  "revenue_subtitle_fallback_invoiced": "Rien de facturé sur le mois en cours : voici la dernière période avec activité.",
+  "revenue_subtitle_invoiced": "Chiffre d'affaires des factures émises sur la période.",
+  "revenue_trend_none_month": "Rien de comparable sur le mois précédent",
+  "revenue_trend_none_quarter": "Rien de comparable sur le trimestre précédent",
+  "revenue_trend_none_year": "Rien de comparable sur l'année précédente",
+  "revenue_trend_vs": "{delta} % vs {period} ({amount})",
+  "revenue_unbilled_title": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} période travaillée non facturée",
+        "countPlural=other": "{count} périodes travaillées non facturées"
+      }
+    }
+  ],
+  "revenue_unbilled_total": "Soit {amount} HT qui ne figurent sur aucune facture.",
+  "revenue_vat_chip": "pas à vous",
+  "revenue_vat_sub": "TVA {rate} % · encaissée pour l'État",
+  "revenue_vat_title": "TVA collectée",
   "rounding_fifteen_min": "15 min",
   "rounding_half_day": "0,5 j",
   "rounding_hint_daily": "Chaque temps saisi est arrondi au pas choisi avant d'être valorisé en jours. Avec 0,5 j, 3 h pointées comptent une demi-journée et 5 h comptent une journée ; avec 0,25 j, la précision passe au quart de journée. En minutes, le temps est valorisé exactement, sans arrondi.",

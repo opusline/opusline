@@ -26,7 +26,7 @@ export const HourlyMission: Story = {
   args: {
     todo: [
       unbilledTodoRow({
-        missionName: "HartPrint maintenance",
+        missionName: "Vesterhus maintenance",
         valuedDays: null,
         valuedMinutes: 210,
         firstEntryOn: "2026-07-14",

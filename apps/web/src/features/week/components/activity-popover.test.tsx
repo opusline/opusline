@@ -31,7 +31,7 @@ function mondayCellOf(name: string): WeekCell {
   return cell;
 }
 
-const singleEntryCell = mondayCellOf("OGF front");
+const singleEntryCell = mondayCellOf("Orvella front");
 
 function renderPopover() {
   const onUpdateEntry = vi.fn();

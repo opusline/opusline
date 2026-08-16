@@ -25,8 +25,8 @@ it("groups rows under the client they are filed against", () => {
     />,
   );
 
-  expect(screen.getByText("HartPrint")).toBeInTheDocument();
-  expect(screen.getByText("OGF")).toBeInTheDocument();
+  expect(screen.getByText("Vesterhus")).toBeInTheDocument();
+  expect(screen.getByText("Orvella")).toBeInTheDocument();
 });
 
 it("shows the API's per-client total for the shown scope, verbatim", () => {
@@ -92,7 +92,7 @@ it("explains an empty filter differently from an empty account", () => {
   );
 
   fireEvent.click(screen.getByRole("button", { name: "Payées (1)" }));
-  const paid = screen.getByText("OGF");
+  const paid = screen.getByText("Orvella");
   expect(
     within(paid.closest("section") as HTMLElement).getByText("2026-009"),
   ).toBeInTheDocument();

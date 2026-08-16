@@ -497,6 +497,7 @@ export const zInvoiceSummaryData = z.object({
     overdue: zInvoiceOverdueData,
     forecast: z.array(zInvoiceForecastData),
     monthUnbilled: zInvoiceTotalData,
+    unbilled: zInvoiceTotalData,
     counts: zInvoiceCountsData,
     todo: z.array(zInvoiceTodoData),
     todoTotal: z.int()
@@ -622,6 +623,82 @@ export const zRegisterUserData = z.object({
 export const zRemindInvoiceData = z.object({
     occurredOn: z.nullish(z.iso.date()),
     note: z.nullish(z.string().check(z.maxLength(2000)))
+});
+
+/**
+ * RevenueBasis
+ *
+ * The two ways a freelancer reads their revenue: by what was invoiced, or by what actually landed. URSSAF declares on the cash basis; the invoiced basis is the activity view.
+ * | |
+ * |---|
+ * | `0` <br/> Issued invoices, summed on their issue date. |
+ * | `1` <br/> Paid invoices, summed on their payment date. |
+ */
+export const zRevenueBasis = z.union([z.literal(0), z.literal(1)]);
+
+/**
+ * RevenueClientData
+ */
+export const zRevenueClientData = z.object({
+    clientId: z.int(),
+    clientName: z.string(),
+    color: zColor,
+    invoiceCount: z.int(),
+    total: zMoneyData,
+    shareBp: z.int()
+});
+
+/**
+ * RevenueComparisonData
+ */
+export const zRevenueComparisonData = z.object({
+    period: z.string(),
+    total: zMoneyData,
+    changeBp: z.nullable(z.int())
+});
+
+/**
+ * RevenueMonthData
+ */
+export const zRevenueMonthData = z.object({
+    month: z.string(),
+    total: zMoneyData,
+    inPeriod: z.boolean(),
+    shareBp: z.int()
+});
+
+/**
+ * RevenueNetData
+ */
+export const zRevenueNetData = z.object({
+    amount: zMoneyData,
+    contributions: zMoneyData,
+    rateBp: z.int()
+});
+
+/**
+ * RevenueVatData
+ */
+export const zRevenueVatData = z.object({
+    amount: zMoneyData,
+    rateBp: z.int()
+});
+
+/**
+ * RevenueData
+ */
+export const zRevenueData = z.object({
+    period: z.string(),
+    basis: zRevenueBasis,
+    fellBack: z.boolean(),
+    lastActivePeriod: z.nullable(z.string()),
+    total: zMoneyData,
+    previous: zRevenueComparisonData,
+    vat: z.nullable(zRevenueVatData),
+    net: z.nullable(zRevenueNetData),
+    months: z.array(zRevenueMonthData),
+    invoices: z.array(zInvoiceListItemData),
+    clients: z.array(zRevenueClientData)
 });
 
 /**
@@ -1339,6 +1416,13 @@ export const zDownloadMissionDocumentPath = z.object({
 });
 
 export const zDownloadMissionDocumentResponse = z.string();
+
+export const zShowRevenueQuery = z.object({
+    period: z.nullish(z.string().check(z.regex(/^\d{4}(-(0[1-9]|1[0-2])|-Q[1-4])?$/))),
+    basis: z.nullish(zRevenueBasis)
+});
+
+export const zShowRevenueResponse = zRevenueData;
 
 export const zShowSettingsResponse = zSettingsData;
 

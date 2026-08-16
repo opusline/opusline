@@ -9,7 +9,7 @@ import {
 } from "./timer-fixtures";
 
 const missionWith = (overrides: Partial<MissionData>): MissionData => ({
-  ...DEMO_MISSIONS.ogf,
+  ...DEMO_MISSIONS.orvella,
   ...overrides,
 });
 

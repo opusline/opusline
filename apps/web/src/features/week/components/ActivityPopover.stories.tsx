@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { demoRowNamed } from "../lib/week-fixtures";
 import { ActivityPopover } from "./activity-popover";
 
-const billedDayRow = demoRowNamed("OGF front");
+const billedDayRow = demoRowNamed("Orvella front");
 
 const meta = {
   title: "Web/Week/ActivityPopover",

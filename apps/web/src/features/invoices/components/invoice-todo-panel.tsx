@@ -142,7 +142,7 @@ function OverdueRow({
       action={
         <Button
           variant="outline"
-          size="sm"
+          size="lg"
           disabled={isPending}
           onClick={() => onRemind(overdue.invoiceId)}
         >
@@ -171,7 +171,7 @@ function UnbilledWorkRow({
       detail={unbilledWorkDetail(format.locale, work)}
       amount={`${formatWholeAmount(format, todo.amount.amount)} HT`}
       action={
-        <Button size="sm" onClick={() => onCreateInvoice(todo)}>
+        <Button size="lg" onClick={() => onCreateInvoice(todo)}>
           {m.invoices_create_title()}
         </Button>
       }
