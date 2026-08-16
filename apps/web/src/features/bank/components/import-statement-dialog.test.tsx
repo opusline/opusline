@@ -70,7 +70,7 @@ it("sends the typed balance as signed cents", () => {
   );
 });
 
-it("refuses to submit an unreadable balance", () => {
+it("refuses to submit an unreadable balance and says why", () => {
   const { onSubmit } = renderDialog();
 
   pickFile(new File(["x"], "releve.csv"));
@@ -82,6 +82,9 @@ it("refuses to submit an unreadable balance", () => {
   expect(
     screen.getByRole("button", { name: "Analyser le relevé" }),
   ).toBeDisabled();
+  expect(
+    screen.getByLabelText("Solde du compte pro à la date du relevé"),
+  ).toHaveAccessibleDescription(/Montant illisible/);
   expect(onSubmit).not.toHaveBeenCalled();
 });
 

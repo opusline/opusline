@@ -152,7 +152,7 @@ class SummarizeBankAccount
             ])
             ->values();
 
-        return array_values(BankMatchData::collect($ordered, 'array'));
+        return array_values(BankMatchData::collect($ordered->all(), 'array'));
     }
 
     /**

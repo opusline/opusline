@@ -103,6 +103,7 @@ function ImportStatementForm({
       ? null
       : parseSignedAmountToCents(format.locale, balanceDraft);
   const balanceInvalid = balanceDraft.trim() !== "" && balanceCents === null;
+  const balanceErrorId = `${balanceId}-invalid`;
   const canSubmit = file !== null && !balanceInvalid && !isSaving;
 
   const submit = () => {
@@ -179,6 +180,7 @@ function ImportStatementForm({
         </Label>
         <InputGroup>
           <InputGroupInput
+            aria-describedby={balanceInvalid ? balanceErrorId : undefined}
             aria-invalid={balanceInvalid}
             className="flex-1 font-mono"
             id={balanceId}
@@ -192,6 +194,15 @@ function ImportStatementForm({
           />
           <InputGroupSuffix>{currencySymbol(format)}</InputGroupSuffix>
         </InputGroup>
+        {balanceInvalid && (
+          <p
+            className="text-destructive text-xs"
+            id={balanceErrorId}
+            role="alert"
+          >
+            {m.bank_balance_unreadable()}
+          </p>
+        )}
         <p className="text-muted-foreground-3 text-xs">
           {m.bank_import_balance_help()}
         </p>

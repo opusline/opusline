@@ -77,12 +77,18 @@ function EditBalanceForm({
   const format = useMoneyFormat();
   const fieldId = useId();
   const errorId = `${fieldId}-error`;
+  const invalidId = `${fieldId}-invalid`;
   const [draft, setDraft] = useState(() =>
     balance === null ? "" : formatAmount(format, balance.amount),
   );
 
   const cents = parseSignedAmountToCents(format.locale, draft);
+  const isInvalidDraft = draft.trim() !== "" && cents === null;
   const canSubmit = cents !== null && !isSaving;
+  const describedBy =
+    [isInvalidDraft ? invalidId : "", error === null ? "" : errorId]
+      .join(" ")
+      .trim() || undefined;
 
   return (
     <form
@@ -107,8 +113,8 @@ function EditBalanceForm({
         </Label>
         <InputGroup>
           <InputGroupInput
-            aria-describedby={error === null ? undefined : errorId}
-            aria-invalid={draft.trim() !== "" && cents === null}
+            aria-describedby={describedBy}
+            aria-invalid={isInvalidDraft}
             autoFocus
             className="flex-1 font-mono"
             id={fieldId}
@@ -120,6 +126,11 @@ function EditBalanceForm({
           />
           <InputGroupSuffix>{currencySymbol(format)}</InputGroupSuffix>
         </InputGroup>
+        {isInvalidDraft && (
+          <p className="text-destructive text-xs" id={invalidId} role="alert">
+            {m.bank_balance_unreadable()}
+          </p>
+        )}
       </div>
 
       {error !== null && (

@@ -48,6 +48,7 @@
   "bank_balance_manual": "saisi à la main",
   "bank_balance_save_failed": "Le solde n'a pas pu être enregistré.",
   "bank_balance_tile": "Solde courant",
+  "bank_balance_unreadable": "Montant illisible : des chiffres, un séparateur décimal et un signe moins en tête si besoin.",
   "bank_dismiss_failed": "La suggestion n'a pas pu être écartée.",
   "bank_import_analysing": "Analyse…",
   "bank_import_balance_help": "Sert au calcul du montant virable en sécurité.",

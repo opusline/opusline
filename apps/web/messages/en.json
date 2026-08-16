@@ -48,6 +48,7 @@
   "bank_balance_manual": "entered by hand",
   "bank_balance_save_failed": "The balance could not be saved.",
   "bank_balance_tile": "Current balance",
+  "bank_balance_unreadable": "Unreadable amount: use digits, one decimal separator, and an optional leading minus.",
   "bank_dismiss_failed": "The suggestion could not be dismissed.",
   "bank_import_analysing": "Analysing…",
   "bank_import_balance_help": "Used to compute what can safely be transferred.",

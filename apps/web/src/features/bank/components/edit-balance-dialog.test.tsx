@@ -1,11 +1,14 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import type { ComponentProps } from "react";
 import { expect, it, vi } from "vitest";
 
 import { EditBalanceDialog } from "./edit-balance-dialog";
 
 const NARROW_NBSP = "\u202f";
 
-function renderDialog(overrides: Record<string, unknown> = {}) {
+function renderDialog(
+  overrides: Partial<ComponentProps<typeof EditBalanceDialog>> = {},
+) {
   const onSubmit = vi.fn();
 
   render(
@@ -60,6 +63,19 @@ it("refuses to submit an unreadable draft", () => {
 
   expect(screen.getByRole("button", { name: "Enregistrer" })).toBeDisabled();
   expect(onSubmit).not.toHaveBeenCalled();
+});
+
+it("names the problem on an unreadable draft", () => {
+  renderDialog();
+
+  fireEvent.change(screen.getByLabelText("Solde"), {
+    target: { value: "12," },
+  });
+
+  expect(screen.getByRole("button", { name: "Enregistrer" })).toBeDisabled();
+  expect(screen.getByLabelText("Solde")).toHaveAccessibleDescription(
+    /Montant illisible/,
+  );
 });
 
 it("surfaces the server's refusal", () => {
