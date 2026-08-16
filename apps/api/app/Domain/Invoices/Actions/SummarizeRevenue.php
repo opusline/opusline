@@ -20,6 +20,7 @@ use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Money\Money as MoneyPhp;
 
@@ -119,18 +120,26 @@ class SummarizeRevenue
     }
 
     /**
+     * The basis's slice of the ledger: issued or paid inside the bounds.
+     *
+     * @return HasMany<Invoice, User>
+     */
+    private function invoicesBetween(User $user, RevenueBasis $basis, CarbonImmutable $start, CarbonImmutable $end): HasMany
+    {
+        return $user->invoices()
+            ->whereIn('status', $this->statuses($basis))
+            ->whereBetween($this->dateColumn($basis), [$start->toDateString(), $end->toDateString()]);
+    }
+
+    /**
      * @param  Period  $period
      * @return Collection<int, Invoice>
      */
     private function invoicesIn(User $user, RevenueBasis $basis, array $period): Collection
     {
-        $column = $this->dateColumn($basis);
-
-        return $user->invoices()
+        return $this->invoicesBetween($user, $basis, $period['start'], $period['end'])
             ->with(['client', 'mission'])
-            ->whereIn('status', $this->statuses($basis))
-            ->whereBetween($column, [$period['start']->toDateString(), $period['end']->toDateString()])
-            ->orderByDesc($column)
+            ->orderByDesc($this->dateColumn($basis))
             ->orderByDesc('id')
             ->get();
     }
@@ -175,9 +184,7 @@ class SummarizeRevenue
      */
     private function totalBetween(User $user, RevenueBasis $basis, array $period, string $currency): Money
     {
-        $invoices = $user->invoices()
-            ->whereIn('status', $this->statuses($basis))
-            ->whereBetween($this->dateColumn($basis), [$period['start']->toDateString(), $period['end']->toDateString()])
+        $invoices = $this->invoicesBetween($user, $basis, $period['start'], $period['end'])
             ->get(['amount_ht_cents', 'currency']);
 
         return $this->totalOf($invoices, $currency);
@@ -257,9 +264,7 @@ class SummarizeRevenue
         }
 
         $column = $this->dateColumn($basis);
-        $invoices = $user->invoices()
-            ->whereIn('status', $this->statuses($basis))
-            ->whereBetween($column, [$firstMonth->toDateString(), $period['end']->toDateString()])
+        $invoices = $this->invoicesBetween($user, $basis, $firstMonth, $period['end'])
             ->get([$column, 'amount_ht_cents', 'currency']);
 
         foreach ($invoices as $invoice) {

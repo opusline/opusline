@@ -103,7 +103,7 @@ test('prices last month invoice from its own tracked time and links it', functio
     'a month-end day' => ['2026-03-30'],
 ]);
 
-test('the demo account opens the Revenus and Factures screens on real figures', function (): void {
+test('the demo account opens the Revenus screen on real figures', function (): void {
     $this->seed();
 
     $user = User::query()->where('email', 'test@example.com')->firstOrFail();
@@ -118,6 +118,12 @@ test('the demo account opens the Revenus and Factures screens on real figures', 
 
     expect($revenue['total']['amount'])->toBeGreaterThan(0)
         ->and($revenue['previous']['changeBp'])->not->toBeNull();
+});
+
+test('the demo account flags exactly one late invoice', function (): void {
+    $this->seed();
+
+    $user = User::query()->where('email', 'test@example.com')->firstOrFail();
 
     $this->actingAs($user)
         ->getJson('/api/invoices/summary')

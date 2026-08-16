@@ -12,9 +12,9 @@ import {
 import { buildWeekGrid } from "./week-grid";
 import { type WriteRequest, weekMachine } from "./week-machine";
 
-const Orvella_MONDAY = "1:2026-07-27";
-const Orvella_FRIDAY = "1:2026-07-31";
-const HARTPRINT_MONDAY = "2:2026-07-27";
+const ORVELLA_MONDAY = "1:2026-07-27";
+const ORVELLA_FRIDAY = "1:2026-07-31";
+const VESTERHUS_MONDAY = "2:2026-07-27";
 
 function modelWith(timeEntries = DEMO_TIME_ENTRIES, week = DEMO_WEEK) {
   return buildWeekGrid({
@@ -75,21 +75,21 @@ it("starts on today's column of the first row, browsing", () => {
 it("never lands the tab stop on the collapsed weekend", () => {
   const actor = start();
 
-  actor.send({ type: "FOCUS", key: Orvella_FRIDAY });
+  actor.send({ type: "FOCUS", key: ORVELLA_FRIDAY });
   actor.send({
     ctrlKey: false,
-    from: Orvella_FRIDAY,
+    from: ORVELLA_FRIDAY,
     key: "ArrowRight",
     type: "NAVIGATE",
   });
 
-  expect(actor.getSnapshot().context.focusedKey).toBe(Orvella_FRIDAY);
+  expect(actor.getSnapshot().context.focusedKey).toBe(ORVELLA_FRIDAY);
 });
 
 it("moves the tab stop back into the model when its cell is gone", () => {
   const actor = start();
 
-  actor.send({ key: Orvella_MONDAY, type: "FOCUS" });
+  actor.send({ key: ORVELLA_MONDAY, type: "FOCUS" });
   // Changing week retires every key: the dates are all different.
   actor.send({
     model: modelWith([], "2026-W32"),
@@ -100,13 +100,13 @@ it("moves the tab stop back into the model when its cell is gone", () => {
   const { context } = actor.getSnapshot();
 
   expect(context.focusedKey).not.toBeNull();
-  expect(context.focusedKey).not.toBe(Orvella_MONDAY);
+  expect(context.focusedKey).not.toBe(ORVELLA_MONDAY);
 });
 
 it("seeds the editor from a typed digit and keeps the caret after it", () => {
   const actor = start([]);
 
-  actor.send({ key: Orvella_MONDAY, seed: "1", type: "EDIT" });
+  actor.send({ key: ORVELLA_MONDAY, seed: "1", type: "EDIT" });
 
   const snapshot = actor.getSnapshot();
 
@@ -118,7 +118,7 @@ it("seeds the editor from a typed digit and keeps the caret after it", () => {
 it("selects an existing value so typing replaces it", () => {
   const actor = start();
 
-  actor.send({ key: Orvella_MONDAY, type: "EDIT" });
+  actor.send({ key: ORVELLA_MONDAY, type: "EDIT" });
 
   const snapshot = actor.getSnapshot();
 
@@ -129,9 +129,9 @@ it("selects an existing value so typing replaces it", () => {
 it("ignores a click that comes from inside its own editor", () => {
   const actor = start([]);
 
-  actor.send({ key: Orvella_MONDAY, seed: "1", type: "EDIT" });
+  actor.send({ key: ORVELLA_MONDAY, seed: "1", type: "EDIT" });
   actor.send({ draft: "0,5", type: "CHANGE" });
-  actor.send({ key: Orvella_MONDAY, type: "ACTIVATE" });
+  actor.send({ key: ORVELLA_MONDAY, type: "ACTIVATE" });
 
   expect(actor.getSnapshot().context.draft).toBe("0,5");
 });
@@ -143,7 +143,7 @@ it("opens the popover instead of the editor when a cell holds several entries", 
   ];
   const actor = start(twice);
 
-  actor.send({ key: Orvella_MONDAY, type: "EDIT" });
+  actor.send({ key: ORVELLA_MONDAY, type: "EDIT" });
 
   expect(actor.getSnapshot().value).toBe("labelling");
 });
@@ -151,7 +151,7 @@ it("opens the popover instead of the editor when a cell holds several entries", 
 it("keeps an unparseable draft on screen and writes nothing", () => {
   const actor = start();
 
-  actor.send({ key: Orvella_MONDAY, type: "EDIT" });
+  actor.send({ key: ORVELLA_MONDAY, type: "EDIT" });
   actor.send({ draft: "beaucoup", type: "CHANGE" });
   actor.send({ move: "stay", type: "COMMIT" });
 
@@ -166,7 +166,7 @@ it("keeps an unparseable draft on screen and writes nothing", () => {
 it("tells a too-long duration apart from a malformed one", () => {
   const actor = start();
 
-  actor.send({ key: Orvella_MONDAY, type: "EDIT" });
+  actor.send({ key: ORVELLA_MONDAY, type: "EDIT" });
   actor.send({ draft: "4", type: "CHANGE" });
   actor.send({ move: "stay", type: "COMMIT" });
 
@@ -176,7 +176,7 @@ it("tells a too-long duration apart from a malformed one", () => {
 it("writes nothing when the duration is unchanged", () => {
   const actor = start();
 
-  actor.send({ key: Orvella_MONDAY, type: "EDIT" });
+  actor.send({ key: ORVELLA_MONDAY, type: "EDIT" });
   actor.send({ move: "stay", type: "COMMIT" });
 
   expect(actor.getSnapshot().value).toBe("browsing");
@@ -186,13 +186,13 @@ it("writes nothing when the duration is unchanged", () => {
 it("creates in the row's own unit", () => {
   const actor = start([]);
 
-  actor.send({ key: Orvella_MONDAY, type: "EDIT" });
+  actor.send({ key: ORVELLA_MONDAY, type: "EDIT" });
   actor.send({ draft: "0,5", type: "CHANGE" });
   actor.send({ move: "stay", type: "COMMIT" });
 
   expect(writes).toEqual([
     {
-      cellKey: Orvella_MONDAY,
+      cellKey: ORVELLA_MONDAY,
       date: "2026-07-27",
       durationMinutes: 210,
       kind: "create",
@@ -204,7 +204,7 @@ it("creates in the row's own unit", () => {
 it("reads a bare number as hours on an hourly row", () => {
   const actor = start([]);
 
-  actor.send({ key: HARTPRINT_MONDAY, type: "EDIT" });
+  actor.send({ key: VESTERHUS_MONDAY, type: "EDIT" });
   actor.send({ draft: "2", type: "CHANGE" });
   actor.send({ move: "stay", type: "COMMIT" });
 
@@ -214,7 +214,7 @@ it("reads a bare number as hours on an hourly row", () => {
 it("writes once when the blur lands after the commit", async () => {
   const actor = start([]);
 
-  actor.send({ key: Orvella_MONDAY, type: "EDIT" });
+  actor.send({ key: ORVELLA_MONDAY, type: "EDIT" });
   actor.send({ draft: "1", type: "CHANGE" });
   actor.send({ move: "stay", type: "COMMIT" });
   // Closing the editor moves focus, which blurs the input. The machine has
@@ -228,7 +228,7 @@ it("writes once when the blur lands after the commit", async () => {
 it("commits the draft when the editor is blurred", () => {
   const actor = start([]);
 
-  actor.send({ key: Orvella_MONDAY, type: "EDIT" });
+  actor.send({ key: ORVELLA_MONDAY, type: "EDIT" });
   actor.send({ draft: "0,5", type: "CHANGE" });
   actor.send({ type: "BLUR" });
 
@@ -238,7 +238,7 @@ it("commits the draft when the editor is blurred", () => {
 it("keeps an unparseable draft on screen when the editor is blurred", () => {
   const actor = start();
 
-  actor.send({ key: Orvella_MONDAY, type: "EDIT" });
+  actor.send({ key: ORVELLA_MONDAY, type: "EDIT" });
   actor.send({ draft: "beaucoup", type: "CHANGE" });
   actor.send({ type: "BLUR" });
 
@@ -249,7 +249,7 @@ it("keeps an unparseable draft on screen when the editor is blurred", () => {
 it("does not name the activity after a blur — only Enter asks", async () => {
   const actor = start([]);
 
-  actor.send({ key: Orvella_MONDAY, type: "EDIT" });
+  actor.send({ key: ORVELLA_MONDAY, type: "EDIT" });
   actor.send({ draft: "1", type: "CHANGE" });
   actor.send({ type: "BLUR" });
   await settle();
@@ -260,7 +260,7 @@ it("does not name the activity after a blur — only Enter asks", async () => {
 it("asks for the activity once the created entry reaches the model", async () => {
   const actor = start([]);
 
-  actor.send({ key: Orvella_MONDAY, type: "EDIT" });
+  actor.send({ key: ORVELLA_MONDAY, type: "EDIT" });
   actor.send({ draft: "1", type: "CHANGE" });
   actor.send({ move: "stay", type: "COMMIT" });
   await settle();
@@ -280,7 +280,7 @@ it("never asks for the activity when the write is refused", async () => {
   writeResult = new Error("422");
   const actor = start([]);
 
-  actor.send({ key: Orvella_MONDAY, type: "EDIT" });
+  actor.send({ key: ORVELLA_MONDAY, type: "EDIT" });
   actor.send({ draft: "1", type: "CHANGE" });
   actor.send({ move: "stay", type: "COMMIT" });
   await settle();
@@ -300,7 +300,7 @@ it("never asks for the activity when the write is refused", async () => {
 it("does not interrupt the fill-the-week path when Tab commits", async () => {
   const actor = start([]);
 
-  actor.send({ key: Orvella_MONDAY, type: "EDIT" });
+  actor.send({ key: ORVELLA_MONDAY, type: "EDIT" });
   actor.send({ draft: "1", type: "CHANGE" });
   actor.send({ move: "right", type: "COMMIT" });
   await settle();
@@ -311,7 +311,7 @@ it("does not interrupt the fill-the-week path when Tab commits", async () => {
 it("moves the tab stop one column right when Tab commits", () => {
   const actor = start([]);
 
-  actor.send({ key: Orvella_MONDAY, type: "EDIT" });
+  actor.send({ key: ORVELLA_MONDAY, type: "EDIT" });
   actor.send({ draft: "1", type: "CHANGE" });
   actor.send({ move: "right", type: "COMMIT" });
 
@@ -321,7 +321,7 @@ it("moves the tab stop one column right when Tab commits", () => {
 it("marks an empty day in one keystroke", () => {
   const actor = start([]);
 
-  actor.send({ key: Orvella_MONDAY, type: "TOGGLE_DAY" });
+  actor.send({ key: ORVELLA_MONDAY, type: "TOGGLE_DAY" });
 
   expect(writes).toEqual([
     expect.objectContaining({
@@ -334,7 +334,7 @@ it("marks an empty day in one keystroke", () => {
 it("unmarks a full day in one keystroke", () => {
   const actor = start();
 
-  actor.send({ key: Orvella_MONDAY, type: "TOGGLE_DAY" });
+  actor.send({ key: ORVELLA_MONDAY, type: "TOGGLE_DAY" });
 
   expect(writes).toEqual([
     expect.objectContaining({ entryIds: [1], kind: "clear" }),
@@ -344,7 +344,7 @@ it("unmarks a full day in one keystroke", () => {
 it("opens the editor rather than toggling on an hourly row", () => {
   const actor = start([]);
 
-  actor.send({ key: HARTPRINT_MONDAY, type: "TOGGLE_DAY" });
+  actor.send({ key: VESTERHUS_MONDAY, type: "TOGGLE_DAY" });
 
   expect(actor.getSnapshot().value).toBe("editing");
   expect(writes).toHaveLength(0);
@@ -353,7 +353,7 @@ it("opens the editor rather than toggling on an hourly row", () => {
 it("clears every entry in the cell", () => {
   const actor = start();
 
-  actor.send({ key: Orvella_MONDAY, type: "CLEAR" });
+  actor.send({ key: ORVELLA_MONDAY, type: "CLEAR" });
 
   expect(writes[0]).toMatchObject({ entryIds: [1], kind: "clear" });
 });
@@ -362,30 +362,30 @@ it("returns focus to the cell when the editor is cancelled", () => {
   const actor = start();
   const before = actor.getSnapshot().context.focusRequest;
 
-  actor.send({ key: Orvella_MONDAY, type: "EDIT" });
+  actor.send({ key: ORVELLA_MONDAY, type: "EDIT" });
   actor.send({ type: "CANCEL" });
 
   const { context, value } = actor.getSnapshot();
 
   expect(value).toBe("browsing");
-  expect(context.focusedKey).toBe(Orvella_MONDAY);
+  expect(context.focusedKey).toBe(ORVELLA_MONDAY);
   expect(context.focusRequest).toBeGreaterThan(before);
 });
 
 it("returns focus to the cell when the popover closes", () => {
   const actor = start();
 
-  actor.send({ key: Orvella_MONDAY, type: "LABEL" });
+  actor.send({ key: ORVELLA_MONDAY, type: "LABEL" });
   actor.send({ type: "CLOSE" });
 
   expect(actor.getSnapshot().value).toBe("browsing");
-  expect(actor.getSnapshot().context.focusedKey).toBe(Orvella_MONDAY);
+  expect(actor.getSnapshot().context.focusedKey).toBe(ORVELLA_MONDAY);
 });
 
 it("refuses to open the popover on an empty cell", () => {
   const actor = start([]);
 
-  actor.send({ key: Orvella_MONDAY, type: "LABEL" });
+  actor.send({ key: ORVELLA_MONDAY, type: "LABEL" });
 
   expect(actor.getSnapshot().value).toBe("browsing");
 });
@@ -393,7 +393,7 @@ it("refuses to open the popover on an empty cell", () => {
 it("forgets the draft when it returns to browsing", () => {
   const actor = start([]);
 
-  actor.send({ key: Orvella_MONDAY, seed: "9", type: "EDIT" });
+  actor.send({ key: ORVELLA_MONDAY, seed: "9", type: "EDIT" });
   actor.send({ type: "CANCEL" });
 
   const { context } = actor.getSnapshot();
@@ -411,7 +411,7 @@ it("has no write of its own — the route provides one", async () => {
   });
 
   bare.start();
-  bare.send({ key: Orvella_MONDAY, type: "TOGGLE_DAY" });
+  bare.send({ key: ORVELLA_MONDAY, type: "TOGGLE_DAY" });
 
   expect(bare.getSnapshot().value).toBe("saving");
 
@@ -423,12 +423,12 @@ it("has no write of its own — the route provides one", async () => {
 it("stays usable while a write is in flight", async () => {
   const actor = start([]);
 
-  actor.send({ key: Orvella_MONDAY, type: "TOGGLE_DAY" });
+  actor.send({ key: ORVELLA_MONDAY, type: "TOGGLE_DAY" });
 
   expect(actor.getSnapshot().value).toBe("saving");
 
   // The fill-the-week path must not stall behind the server.
-  actor.send({ key: HARTPRINT_MONDAY, seed: "2", type: "EDIT" });
+  actor.send({ key: VESTERHUS_MONDAY, seed: "2", type: "EDIT" });
 
   const snapshot = actor.getSnapshot();
 
@@ -441,13 +441,13 @@ it("stays usable while a write is in flight", async () => {
 it("writes once when the same cell is toggled twice before the first lands", async () => {
   const actor = start([]);
 
-  actor.send({ key: Orvella_MONDAY, type: "TOGGLE_DAY" });
+  actor.send({ key: ORVELLA_MONDAY, type: "TOGGLE_DAY" });
   // The model still shows the cell empty, so a second toggle would re-create it.
-  actor.send({ key: Orvella_MONDAY, type: "TOGGLE_DAY" });
+  actor.send({ key: ORVELLA_MONDAY, type: "TOGGLE_DAY" });
 
   expect(writes).toEqual([
     expect.objectContaining({
-      cellKey: Orvella_MONDAY,
+      cellKey: ORVELLA_MONDAY,
       durationMinutes: DEMO_WORKDAY_MINUTES,
       kind: "create",
     }),
@@ -459,11 +459,11 @@ it("writes once when the same cell is toggled twice before the first lands", asy
 it("drops the activity follow-up when the user moves on mid-write", async () => {
   const actor = start([]);
 
-  actor.send({ key: Orvella_MONDAY, type: "EDIT" });
+  actor.send({ key: ORVELLA_MONDAY, type: "EDIT" });
   actor.send({ draft: "1", type: "CHANGE" });
   actor.send({ move: "stay", type: "COMMIT" });
   // Moving to another cell before the create lands cancels the popover.
-  actor.send({ key: HARTPRINT_MONDAY, type: "EDIT" });
+  actor.send({ key: VESTERHUS_MONDAY, type: "EDIT" });
   await settle();
 
   actor.send({

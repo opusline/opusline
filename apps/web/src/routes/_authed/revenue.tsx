@@ -75,6 +75,18 @@ function RevenusRoute() {
 
   const detailFailed = openInvoiceId !== null && detail.isError;
 
+  const openInvoice = (invoiceId: number) => {
+    // Re-picking the invoice whose fiche just failed must retry the fetch —
+    // the query key does not change, so nothing else would trigger one.
+    if (invoiceId === openInvoiceId && detail.isError) {
+      void detail.refetch();
+
+      return;
+    }
+
+    setOpenInvoiceId(invoiceId);
+  };
+
   if (revenue.isPending) {
     return (
       <div className="flex flex-col gap-3.5">
@@ -119,7 +131,7 @@ function RevenusRoute() {
         isRefreshing={revenue.isPlaceholderData}
         onBasisChange={showBasis}
         onGoToInvoices={() => navigate({ to: "/invoices" })}
-        onOpenInvoice={setOpenInvoiceId}
+        onOpenInvoice={openInvoice}
         onPeriodChange={showPeriod}
         requestedBasis={basis}
         requestedPeriod={search.period ?? revenue.data.period}
