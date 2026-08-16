@@ -81,12 +81,13 @@ final class OfxStatementParser implements StatementParser
      * A multi-account file repeats <STMTRS> (or <CCSTMTRS>) sections, and the
      * balance, period and currency are all read first-occurrence — so the
      * movements must come from that same first section, not from every
-     * account in the file. Aggregate tags close even in OFX 1.x SGML; a file
-     * without the section stays whole, as before.
+     * account in the file. Sloppy OFX 1.x exports may leave the aggregate
+     * unclosed, so the section also ends at the next section opening or at
+     * the end of the file; a file without any section stays whole, as before.
      */
     private function firstStatementSection(string $text): string
     {
-        if (preg_match('/<((?:CC)?STMTRS)>.*?<\/\1>/is', $text, $matches) === 1) {
+        if (preg_match('/<((?:CC)?STMTRS)>.*?(?:<\/\1>|(?=<(?:CC)?STMTRS>)|\z)/is', $text, $matches) === 1) {
             return $matches[0];
         }
 

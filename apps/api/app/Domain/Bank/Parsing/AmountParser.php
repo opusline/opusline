@@ -66,12 +66,20 @@ final class AmountParser
             return [$value, ''];
         }
 
-        // Both present: the rightmost is the decimal mark, the other groups thousands.
+        // Both present: the rightmost is the decimal mark, the other groups
+        // thousands — and must actually group thousands, or "1,23.45" would
+        // silently read as 123,45.
         if ($lastComma !== false && $lastDot !== false) {
             $decimalAt = max($lastComma, $lastDot);
+            $integerPart = substr($value, 0, $decimalAt);
+            $group = preg_quote($value[$decimalAt] === ',' ? '.' : ',', '/');
+
+            if (preg_match('/^[0-9]{1,3}(?:'.$group.'[0-9]{3})+$/', $integerPart) !== 1) {
+                throw new StatementParseException('bank.unreadable_file');
+            }
 
             return [
-                str_replace([',', '.'], '', substr($value, 0, $decimalAt)),
+                str_replace([',', '.'], '', $integerPart),
                 substr($value, $decimalAt + 1),
             ];
         }

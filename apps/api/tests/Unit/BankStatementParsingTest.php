@@ -133,8 +133,8 @@ test('reads a camt053 document whose namespace is prefixed', function (): void {
         ->and($statement->currency)->toBe('EUR');
 });
 
-test('reads only the first account of a multi-account ofx file', function (): void {
-    [$statement] = (new ParseBankStatement)->handle(bankFixture('multi_account.ofx'));
+test('reads only the first account of a multi-account ofx file', function (string $fixture): void {
+    [$statement] = (new ParseBankStatement)->handle(bankFixture($fixture));
 
     // The balance, period and currency all come from the first statement
     // section — the movements must not mix in the other accounts' rows.
@@ -143,7 +143,10 @@ test('reads only the first account of a multi-account ofx file', function (): vo
         ->not->toContain('OTHERACCOUNT01')
         ->and($statement->closingBalanceCents)->toBe(1_482_000)
         ->and($statement->currency)->toBe('EUR');
-});
+})->with([
+    'closed aggregates' => ['multi_account.ofx'],
+    'sgml without closing aggregate tags' => ['multi_account_unclosed.ofx'],
+]);
 
 test('reads camt053 entries, the closing balance and the period', function (): void {
     [$statement] = (new ParseBankStatement)->handle(bankFixture('camt053.xml'));

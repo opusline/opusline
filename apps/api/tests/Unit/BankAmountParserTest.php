@@ -24,6 +24,7 @@ test('reads bank amount notations as signed cents', function (string $raw, int $
     'lone thousands dot' => ['1.234', 123_400],
     'lone thousands comma' => ['12,345', 1_234_500],
     'repeated thousands dots' => ['1.234.567', 123_456_700],
+    'grouped with decimals' => ['1.234.567,89', 123_456_789],
     'euro sign' => ['612,00 €', 61_200],
     'currency code prefix' => ['EUR 612,00', 61_200],
 ]);
@@ -37,4 +38,6 @@ test('refuses what it cannot read exactly', function (string $raw): void {
     'doubled sign' => ['--12'],
     'malformed thousands groups' => ['12.34.56'],
     'oversized leading group' => ['1234.567.890'],
+    'malformed group before decimals' => ['1,23.45'],
+    'oversized group before decimals' => ['1234,567.89'],
 ]);
