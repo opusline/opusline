@@ -6,9 +6,11 @@ import {
   formatAmountWithCents,
   formatRate,
   formatRateDraft,
+  formatSignedDraft,
   formatWholeAmount,
   type MoneyFormat,
   parseRateToCents,
+  parseSignedAmountToCents,
 } from "./billing";
 
 const NARROW_NBSP = " ";
@@ -113,6 +115,46 @@ describe("French rate drafts", () => {
   it("survives a round trip through the draft formatter", () => {
     expect(parseRateToCents("fr-FR", formatRateDraft("fr-FR", "1234.5"))).toBe(
       123_450,
+    );
+  });
+});
+
+describe("signed amounts", () => {
+  it("reads a positive balance as cents", () => {
+    expect(parseSignedAmountToCents("fr-FR", `14${NARROW_NBSP}820,50`)).toBe(
+      1_482_050,
+    );
+  });
+
+  it("accepts an overdraft with an ascii minus", () => {
+    expect(parseSignedAmountToCents("fr-FR", "-350,25")).toBe(-35_025);
+  });
+
+  it("accepts an overdraft with a unicode minus", () => {
+    expect(parseSignedAmountToCents("fr-FR", "−350,25")).toBe(-35_025);
+  });
+
+  it("accepts zero", () => {
+    expect(parseSignedAmountToCents("fr-FR", "0")).toBe(0);
+  });
+
+  it("rejects an empty draft", () => {
+    expect(parseSignedAmountToCents("fr-FR", "")).toBeNull();
+  });
+
+  it("rejects a lone minus", () => {
+    expect(parseSignedAmountToCents("fr-FR", "-")).toBeNull();
+  });
+
+  it("round-trips through the signed draft formatter", () => {
+    expect(
+      parseSignedAmountToCents("fr-FR", formatSignedDraft("fr-FR", "-14820,5")),
+    ).toBe(-1_482_050);
+  });
+
+  it("keeps the minus while grouping the draft", () => {
+    expect(formatSignedDraft("fr-FR", "-14820,5")).toBe(
+      `-14${NARROW_NBSP}820,5`,
     );
   });
 });

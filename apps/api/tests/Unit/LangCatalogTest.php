@@ -35,6 +35,10 @@ function langCatalogKeys(string $locale): array
 function requestDataFields(): array
 {
     $responseOnly = [
+        'BankAccountData', 'BankBalanceData', 'BankImportData',
+        'BankMatchData', 'BankMatchInvoiceData', 'BankMovementData',
+        'BankMovementInvoiceData', 'BankProvisionData', 'BankProvisionsData',
+        'BankStatementData', 'SignedMoneyData',
         'ClientData', 'ClientListData', 'ClientWithMissionsData',
         'CraCountsData', 'CraData', 'CraDayData', 'CraDetailData',
         'CraListData', 'CraListItemData', 'DocumentData', 'DocumentListData',

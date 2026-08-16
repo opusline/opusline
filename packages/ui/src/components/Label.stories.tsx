@@ -30,3 +30,14 @@ export const Quiet: Story = {
     </div>
   ),
 };
+
+export const Medium: Story = {
+  render: () => (
+    <div className="grid max-w-sm gap-1.5">
+      <Label htmlFor="label-md-demo" size="md">
+        Solde du compte pro
+      </Label>
+      <Input id="label-md-demo" placeholder="12 480,00" />
+    </div>
+  ),
+};

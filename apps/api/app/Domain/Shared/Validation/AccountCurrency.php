@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Shared\Validation;
 
+use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Shared\Data\MoneyData;
+use App\Domain\Shared\Data\SignedMoneyData;
 use App\Domain\Users\Models\User;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -39,9 +41,20 @@ class AccountCurrency implements ValidationRule
      *
      * @throws ValidationException
      */
-    public static function assertMatchesAccount(User $user, MoneyData $money): void
+    public static function assertMatchesAccount(User $user, MoneyData|SignedMoneyData $money): void
     {
-        if ($money->currency !== $user->settings()->sole()->currency) {
+        self::assertMatchesSettings($user->settings()->sole(), $money);
+    }
+
+    /**
+     * The same assert against a settings row the caller already holds under
+     * the lock — no re-query, one spelling of the invariant.
+     *
+     * @throws ValidationException
+     */
+    public static function assertMatchesSettings(UserSettings $settings, MoneyData|SignedMoneyData $money): void
+    {
+        if ($money->currency !== $settings->currency) {
             throw ValidationException::withMessages([
                 'currency' => __('settings.currency_mismatch'),
             ]);
@@ -55,7 +68,7 @@ class AccountCurrency implements ValidationRule
      *
      * @throws ValidationException
      */
-    public static function assertMatchesAccountUnderLock(int $userId, MoneyData $money): void
+    public static function assertMatchesAccountUnderLock(int $userId, MoneyData|SignedMoneyData $money): void
     {
         $user = User::lockRow($userId);
 

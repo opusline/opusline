@@ -6,6 +6,7 @@ import {
   payInvoiceMutation,
   remindInvoiceMutation,
   sendInvoiceMutation,
+  showBankAccountOptions,
   showInvoiceOptions,
   showInvoiceQueryKey,
   showInvoiceSummaryOptions,
@@ -17,7 +18,7 @@ import {
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import {
@@ -35,18 +36,36 @@ import { accountTodayCalendarDate } from "@/lib/dates";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
+type FacturesSearch = { invoice?: number };
+
 export const Route = createFileRoute("/_authed/invoices")({
+  validateSearch: (search: Record<string, unknown>): FacturesSearch => {
+    const invoice = Number(search.invoice);
+
+    return Number.isInteger(invoice) && invoice > 0 ? { invoice } : {};
+  },
   component: FacturesPage,
 });
 
 function FacturesPage() {
   const { user } = Route.useRouteContext();
+  const search = Route.useSearch();
+  const navigate = useNavigate();
   const format = useMoneyFormat();
   const queryClient = useQueryClient();
   const invoices = useQuery(listInvoicesOptions());
   const summary = useQuery(showInvoiceSummaryOptions());
 
-  const [openInvoiceId, setOpenInvoiceId] = useState<number | null>(null);
+  // The Compte pro balance tile; the endpoint exists for every account, but the
+  // screen it belongs to is gated, so ungated accounts keep the placeholder.
+  const bank = useQuery({
+    ...showBankAccountOptions(),
+    enabled: user.hasFrenchFiscality,
+  });
+
+  // `?invoice=` IS the open fiche — the Compte pro suggestions deep-link
+  // here, and refresh, back and shared links all reopen the same one.
+  const openInvoiceId = search.invoice ?? null;
   const [creatingFor, setCreatingFor] = useState<InvoiceTodoData | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -54,7 +73,29 @@ function FacturesPage() {
   const detail = useQuery({
     ...showInvoiceOptions({ path: { invoice: openInvoiceId ?? 0 } }),
     enabled: openInvoiceId !== null,
+    // A deep-linked id can be stale (deleted invoice, foreign account); its
+    // 404 is deterministic, so retrying only stretches the loading state.
+    retry: false,
   });
+
+  const detailFailed = openInvoiceId !== null && detail.isError;
+
+  const openInvoice = (invoiceId: number) => {
+    // Re-picking the invoice whose fiche just failed must retry the fetch —
+    // the query key does not change, so nothing else would trigger one.
+    if (invoiceId === openInvoiceId && detail.isError) {
+      void detail.refetch();
+
+      return;
+    }
+
+    navigate({ to: "/invoices", search: { invoice: invoiceId } });
+  };
+
+  const closeInvoice = () => {
+    // Replace, so back does not walk through every fiche viewed.
+    navigate({ to: "/invoices", search: {}, replace: true });
+  };
 
   const nextNumber = useQuery({
     ...showNextInvoiceNumberOptions(),
@@ -202,12 +243,27 @@ function FacturesPage() {
 
       {summary.isPending && <Skeleton className="h-24 w-full" />}
       {summary.data !== undefined && (
-        <InvoiceSummaryTiles summary={summary.data} />
+        <InvoiceSummaryTiles
+          bankBalance={bank.data?.balance}
+          summary={summary.data}
+        />
       )}
 
       {(invoices.isError || summary.isError) && (
         <Alert variant="destructive">
           <AlertDescription>{m.invoices_load_failed()}</AlertDescription>
+        </Alert>
+      )}
+      {/* Without this, a failed bank fetch would leave the balance tile
+          claiming no balance was ever recorded. */}
+      {bank.isError && (
+        <Alert variant="destructive">
+          <AlertDescription>{m.bank_load_failed()}</AlertDescription>
+        </Alert>
+      )}
+      {detailFailed && (
+        <Alert variant="destructive">
+          <AlertDescription>{m.invoices_open_failed()}</AlertDescription>
         </Alert>
       )}
 
@@ -247,7 +303,7 @@ function FacturesPage() {
               accountToday={accountTodayCalendarDate(user.timezone)}
               clientTotals={invoices.data.clientTotals}
               invoices={invoices.data.invoices}
-              onOpen={setOpenInvoiceId}
+              onOpen={openInvoice}
             />
           )}
         </div>
@@ -298,10 +354,10 @@ function FacturesPage() {
             />
           )
         }
-        open={openInvoiceId !== null}
+        open={openInvoiceId !== null && !detail.isError}
         onOpenChange={(open) => {
           if (!open) {
-            setOpenInvoiceId(null);
+            closeInvoice();
           }
         }}
       />

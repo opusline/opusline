@@ -37,3 +37,19 @@ export const Default: Story = {
     </Empty>
   ),
 };
+
+export const StrongTitle: Story = {
+  render: () => (
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <FolderOpenIcon />
+        </EmptyMedia>
+        <EmptyTitle variant="strong">Tout est rapproché</EmptyTitle>
+        <EmptyDescription>
+          Le titre appuyé, pour les états vides qui occupent un panneau entier.
+        </EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  ),
+};

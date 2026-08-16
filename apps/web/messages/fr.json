@@ -27,6 +27,118 @@
   "auth_register_failed": "L'inscription a échoué. Réessayez.",
   "auth_register_submit": "Créer le compte",
   "auth_remember_label": "Rester connecté 30 jours",
+  "bank_badge_no_statement": "Aucun relevé",
+  "bank_badge_to_validate": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} à valider",
+        "countPlural=other": "{count} à valider"
+      }
+    }
+  ],
+  "bank_badge_up_to_date": "À jour",
+  "bank_balance_derived": "calculé des relevés importés",
+  "bank_balance_dialog_description": "Le solde que vous lisez aujourd'hui sur votre banque. Le prochain relevé importé le remplacera.",
+  "bank_balance_dialog_title": "Solde du compte pro",
+  "bank_balance_edit_aria": "Modifier le solde",
+  "bank_balance_field_label": "Solde",
+  "bank_balance_from_statement": "relevé du {date}",
+  "bank_balance_manual": "saisi à la main",
+  "bank_balance_save_failed": "Le solde n'a pas pu être enregistré.",
+  "bank_balance_tile": "Solde courant",
+  "bank_balance_unreadable": "Montant illisible : des chiffres, un séparateur décimal et un signe moins en tête si besoin.",
+  "bank_dismiss_failed": "La suggestion n'a pas pu être écartée.",
+  "bank_import_analysing": "Analyse…",
+  "bank_import_balance_help": "Sert au calcul du montant virable en sécurité.",
+  "bank_import_balance_label": "Solde du compte pro à la date du relevé",
+  "bank_import_button": "Importer un relevé",
+  "bank_import_description": "Le fichier exporté depuis votre banque pro (CSV, OFX, QIF ou CAMT). Opusline en lit les encaissements et propose un rapprochement avec vos factures.",
+  "bank_import_drop_hint": "Déposer le fichier, ou cliquer pour le choisir",
+  "bank_import_failed": "Le relevé n'a pas pu être analysé.",
+  "bank_import_reject_size": "Ce fichier est trop lourd (max 10 Mo).",
+  "bank_import_reject_type": "Format non pris en charge (CSV, OFX, QIF ou CAMT).",
+  "bank_import_submit": "Analyser le relevé",
+  "bank_import_success_dismiss_aria": "Fermer le résumé de l'import",
+  "bank_import_success_lines": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} ligne lue",
+        "countPlural=other": "{count} lignes lues"
+      }
+    }
+  ],
+  "bank_import_success_suggestions": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} rapprochement proposé",
+        "countPlural=other": "{count} rapprochements proposés"
+      }
+    }
+  ],
+  "bank_import_title": "Importer un relevé",
+  "bank_intro": "Opusline ne se connecte à aucune banque. Vous déposez le relevé exporté depuis la vôtre : il alimente le solde, les mouvements et le rapprochement des factures.",
+  "bank_load_failed": "Le compte n'a pas pu être chargé. Réessayez dans un instant.",
+  "bank_match_ignore": "Ignorer",
+  "bank_match_invoice_aria": "Ouvrir la facture {number}",
+  "bank_match_reason_client": "Montant exact, client identifié",
+  "bank_match_reason_overdue": "Montant exact, facture en retard",
+  "bank_match_reason_reference": "Montant exact et référence dans le libellé",
+  "bank_match_validate": "Valider",
+  "bank_movement_pending_chip": "À rapprocher",
+  "bank_movements_amount_header": "Montant",
+  "bank_movements_balance_header": "Solde",
+  "bank_movements_date_header": "Date",
+  "bank_movements_empty": "Aucun mouvement à afficher pour l'instant.",
+  "bank_movements_label_header": "Libellé",
+  "bank_movements_link_header": "Lien",
+  "bank_movements_source_manual": "Saisis à la main · aucun relevé importé",
+  "bank_movements_source_statement": "Relevé du {start} au {end}, importé le {date}",
+  "bank_movements_title": "Mouvements",
+  "bank_no_statement_body": "Déposez le relevé exporté depuis votre banque : Opusline propose une facture pour chaque encaissement, vous validez d'un clic.",
+  "bank_no_statement_title": "Rien à rapprocher pour l'instant",
+  "bank_pending_done": "tout est rapproché",
+  "bank_pending_none_statement": "aucun relevé importé",
+  "bank_pending_none_suggested": "aucune suggestion en attente",
+  "bank_pending_sub": "encaissements sans facture liée",
+  "bank_pending_tile": "À rapprocher",
+  "bank_provisions_sub": "TVA, URSSAF et matelas",
+  "bank_provisions_sub_no_vat": "URSSAF et matelas",
+  "bank_provisions_tile": "Provisions à garder",
+  "bank_reconciled_body": "Chaque encaissement du relevé est relié à sa facture. Le prochain import reprendra ici.",
+  "bank_reconciled_title": "Tout est rapproché",
+  "bank_reconciled_unlinked_body": "Certains encaissements restent sans facture liée — ils sont visibles dans les mouvements. Un prochain import pourra proposer de nouveaux rapprochements.",
+  "bank_reconciled_unlinked_title": "Aucune suggestion en attente",
+  "bank_reconciliation_title": "Rapprochement",
+  "bank_statement_detail": [
+    {
+      "declarations": [
+        "input start",
+        "input end",
+        "input date",
+        "input lines",
+        "local linesPlural = lines: plural"
+      ],
+      "selectors": ["linesPlural"],
+      "match": {
+        "linesPlural=one": "{start} → {end} · {lines} ligne · importé le {date}",
+        "linesPlural=other": "{start} → {end} · {lines} lignes · importé le {date}"
+      }
+    }
+  ],
+  "bank_statement_note": "Relevé du {start} au {end} · {validated} sur {total} validées",
+  "bank_statement_note_done": "Relevé du {start} au {end} · tout est traité",
+  "bank_statement_note_none": "Aucun relevé importé",
+  "bank_statement_reconciled_count": "{validated} / {total} rapprochées",
+  "bank_statements_empty": "Aucun relevé importé. Le solde affiché est celui que vous avez saisi à la main.",
+  "bank_statements_title": "Relevés importés",
+  "bank_title": "Compte pro",
+  "bank_validate_failed": "Le rapprochement n'a pas pu être validé.",
   "billing_rate_daily": "{amount}/j",
   "billing_rate_fixed": "{amount} forfait",
   "billing_rate_hourly": "{amount}/h",
@@ -394,6 +506,7 @@
       }
     }
   ],
+  "invoices_open_failed": "La facture n'a pas pu être ouverte. Réessayez dans un instant.",
   "invoices_overdue_detail": "Échue le {date} · {days} j de retard",
   "invoices_overdue_tile": "Dont en retard",
   "invoices_overdue_up_to": [
@@ -446,6 +559,8 @@
   "invoices_unbilled_work_title": "{quantity} sur {missionName}",
   "invoices_vat_hint": "La TVA et le TTC sont calculés depuis vos paramètres.",
   "invoices_vat_rate_fact": "TVA {rate} %",
+  "logo_reject_size": "trop lourd (max 2 Mo)",
+  "logo_reject_type": "PNG ou SVG uniquement",
   "mission_status_active": "Active",
   "mission_status_completed": "Terminée",
   "mission_status_paused": "En pause",
@@ -526,6 +641,7 @@
   "missions_unit_hourly": " / heure",
   "missions_unit_short_daily": " / j",
   "missions_unit_short_hourly": " / h",
+  "nav_bank": "Compte pro",
   "nav_clients": "Clients",
   "nav_cra": "CRA",
   "nav_deadlines": "Échéances",
@@ -538,6 +654,7 @@
   "not_found_hint": "Cette adresse ne mène nulle part — le lien est peut-être ancien.",
   "not_found_home": "Retour au tableau de bord",
   "not_found_title": "Page introuvable",
+  "page_title_bank": "Compte pro",
   "page_title_clients": "Portefeuille clients",
   "page_title_cra": "Compte rendu d'activité",
   "page_title_deadlines": "Obligations",

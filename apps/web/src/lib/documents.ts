@@ -5,6 +5,7 @@ import type {
 } from "@opusline/api-client";
 import { client as apiClient } from "@opusline/api-client/client";
 import { cachedFormatter } from "@/lib/billing";
+import { fileRejector } from "@/lib/files";
 import { serverFieldErrors } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -43,27 +44,16 @@ export const DOCUMENT_ACCEPT =
   ".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx,.odt,.ods,.csv";
 export const MAX_DOCUMENT_BYTES = 20_480 * 1024;
 
-const ACCEPTED_EXTENSIONS = new Set(
-  DOCUMENT_ACCEPT.split(",").map((extension) => extension.slice(1)),
-);
-
 export type DocumentUploadResult =
   | { status: "success" }
   | { status: "failed"; message: string };
 
-export function rejectDocumentReason(file: File): string | null {
-  const extension = file.name.toLowerCase().split(".").pop() ?? "";
-
-  if (!ACCEPTED_EXTENSIONS.has(extension)) {
-    return m.documents_reject_type();
-  }
-
-  if (file.size > MAX_DOCUMENT_BYTES) {
-    return m.documents_reject_size();
-  }
-
-  return null;
-}
+export const rejectDocumentReason = fileRejector({
+  accept: DOCUMENT_ACCEPT,
+  maxBytes: MAX_DOCUMENT_BYTES,
+  rejectType: m.documents_reject_type,
+  rejectSize: m.documents_reject_size,
+});
 
 export function guessDocumentCategory(fileName: string): DocumentCategory {
   const name = fileName.toLowerCase();

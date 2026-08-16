@@ -40,6 +40,7 @@ import {
   Download,
   FileCheck,
   History,
+  Landmark,
   LogOut,
   PanelLeft,
   ReceiptText,
@@ -155,6 +156,16 @@ export function AppSidebar() {
                     >
                       <CreditCard />
                       <span>{m.nav_treasury()}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      isActive={pathname.startsWith("/bank-account")}
+                      render={<Link to="/bank-account" />}
+                      tooltip={m.nav_bank()}
+                    >
+                      <Landmark />
+                      <span>{m.nav_bank()}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>

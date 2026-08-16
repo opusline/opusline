@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.02">
+  <BkToCstmrStmt>
+    <GrpHdr>
+      <MsgId>RELEVE-2026-08</MsgId>
+      <CreDtTm>2026-08-10T06:00:00</CreDtTm>
+    </GrpHdr>
+    <Stmt>
+      <Id>STMT-2026-08</Id>
+      <FrToDt>
+        <FrDtTm>2026-08-01T00:00:00</FrDtTm>
+        <ToDtTm>2026-08-10T00:00:00</ToDtTm>
+      </FrToDt>
+      <Acct>
+        <Id><IBAN>FR7630004000031234567890143</IBAN></Id>
+        <Ccy>EUR</Ccy>
+      </Acct>
+      <Bal>
+        <Tp><CdOrPrtry><Cd>OPBD</Cd></CdOrPrtry></Tp>
+        <Amt Ccy="EUR">4711.00</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Dt><Dt>2026-08-01</Dt></Dt>
+      </Bal>
+      <Bal>
+        <Tp><CdOrPrtry><Cd>CLBD</Cd></CdOrPrtry></Tp>
+        <Amt Ccy="EUR">14820.00</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Dt><Dt>2026-08-10</Dt></Dt>
+      </Bal>
+      <Ntry>
+        <Amt Ccy="EUR">12540.00</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt><Dt>2026-08-08</Dt></BookgDt>
+        <AcctSvcrRef>REF-2026080801</AcctSvcrRef>
+        <NtryDtls>
+          <TxDtls>
+            <RmtInf>
+              <Ustrd>VIR SEPA CALLISTO SA</Ustrd>
+              <Ustrd>REF F2026041</Ustrd>
+            </RmtInf>
+          </TxDtls>
+        </NtryDtls>
+      </Ntry>
+      <Ntry>
+        <Amt Ccy="EUR">2431.00</Amt>
+        <CdtDbtInd>DBIT</CdtDbtInd>
+        <Sts>BOOK</Sts>
+        <BookgDt><Dt>2026-08-05</Dt></BookgDt>
+        <AddtlNtryInf>PRLV URSSAF</AddtlNtryInf>
+      </Ntry>
+    </Stmt>
+  </BkToCstmrStmt>
+</Document>

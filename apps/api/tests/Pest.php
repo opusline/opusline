@@ -2,6 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Domain\Bank\Factories\BankMatchFactory;
+use App\Domain\Bank\Factories\BankMovementFactory;
+use App\Domain\Bank\Factories\BankStatementFactory;
+use App\Domain\Bank\Models\BankMatch;
+use App\Domain\Bank\Models\BankMovement;
+use App\Domain\Bank\Models\BankStatement;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Cra\Factories\CraFactory;
 use App\Domain\Cra\Models\Cra;
@@ -94,6 +100,49 @@ function freezeTodayAtUtcNoon(): void
 function fromSpa(): TestCase
 {
     return test()->withHeader('Referer', 'http://localhost:3000');
+}
+
+/** The raw bytes of a bank-statement fixture file. */
+function bankFixture(string $name): string
+{
+    return (string) file_get_contents(__DIR__.'/Fixtures/Bank/'.$name);
+}
+
+/**
+ * A bank statement imported by the given user.
+ *
+ * @param  (callable(BankStatementFactory): BankStatementFactory)|null  $configure
+ */
+function bankStatementOwnedBy(User $user, ?callable $configure = null): BankStatement
+{
+    return configuredFactory(BankStatement::factory(), $configure)->create(['user_id' => $user->id]);
+}
+
+/**
+ * A bank movement of the given user, on a statement of theirs.
+ *
+ * @param  (callable(BankMovementFactory): BankMovementFactory)|null  $configure
+ */
+function bankMovementFor(User $user, ?BankStatement $statement = null, ?callable $configure = null): BankMovement
+{
+    $factory = BankMovement::factory()->for($statement ?? bankStatementOwnedBy($user), 'statement');
+
+    return configuredFactory($factory, $configure)->create(['user_id' => $user->id]);
+}
+
+/**
+ * A reconciliation suggestion of the given user, pairing a movement and an
+ * invoice of theirs.
+ *
+ * @param  (callable(BankMatchFactory): BankMatchFactory)|null  $configure
+ */
+function bankMatchFor(User $user, ?Invoice $invoice = null, ?BankMovement $movement = null, ?callable $configure = null): BankMatch
+{
+    $factory = BankMatch::factory()
+        ->for($movement ?? bankMovementFor($user), 'movement')
+        ->for($invoice ?? invoiceOwnedBy($user, configure: fn (InvoiceFactory $invoiceFactory): InvoiceFactory => $invoiceFactory->sent()), 'invoice');
+
+    return configuredFactory($factory, $configure)->create(['user_id' => $user->id]);
 }
 
 /**

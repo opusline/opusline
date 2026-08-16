@@ -42,3 +42,26 @@ export const Default: Story = {
     </Dialog>
   ),
 };
+
+export const LargeTitle: Story = {
+  render: () => (
+    <Dialog>
+      <DialogTrigger
+        render={<Button variant="outline">Importer un relevé</Button>}
+      />
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle size="lg">Importer un relevé</DialogTitle>
+          <DialogDescription>
+            Le titre en grand pour les dialogues de premier plan — formulaires
+            et imports — où le corps du texte est lui aussi plus grand.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose render={<Button variant="outline">Annuler</Button>} />
+          <Button>Analyser le relevé</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  ),
+};

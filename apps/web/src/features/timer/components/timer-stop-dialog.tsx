@@ -85,9 +85,7 @@ export function TimerStopDialog({
         showCloseButton={false}
       >
         <DialogHeader className="px-5 pt-5 pb-0">
-          <DialogTitle className="font-heading font-semibold text-foreground-hi text-lg">
-            {m.timer_stop_title()}
-          </DialogTitle>
+          <DialogTitle size="lg">{m.timer_stop_title()}</DialogTitle>
         </DialogHeader>
 
         <form
