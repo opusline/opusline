@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Settings\Controllers\DeclarationController;
 use App\Http\Settings\Controllers\FiscalDeadlineController;
 use App\Http\Settings\Controllers\SettingsController;
 use App\Http\Settings\Controllers\SignatureController;
@@ -11,6 +12,10 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/settings', [SettingsController::class, 'show'])->name('showSettings');
     Route::get('/fiscal-deadlines', [FiscalDeadlineController::class, 'index'])
         ->name('listFiscalDeadlines');
+    Route::get('/declarations', [DeclarationController::class, 'index'])
+        ->name('listDeclarations');
+    Route::post('/declarations', [DeclarationController::class, 'store'])
+        ->name('recordDeclaration');
     Route::put('/settings', [SettingsController::class, 'update'])->name('updateSettings');
     Route::put('/settings/currency', [SettingsController::class, 'updateCurrency'])->name('updateSettingsCurrency');
     Route::post('/settings/rates/refresh', [SettingsController::class, 'refreshRates'])

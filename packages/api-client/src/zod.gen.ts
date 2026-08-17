@@ -525,6 +525,28 @@ export const zCraData = z.object({
 });
 
 /**
+ * DeclarationData
+ */
+export const zDeclarationData = z.object({
+    kind: zFiscalDeadlineKind,
+    period: z.string(),
+    dueOn: z.iso.date(),
+    amount: z.nullable(zMoneyData),
+    filedOn: z.nullable(z.iso.date()),
+    declaredAmount: z.nullable(zMoneyData),
+    isFiled: z.boolean(),
+    isLate: z.boolean()
+});
+
+/**
+ * DeclarationListData
+ */
+export const zDeclarationListData = z.object({
+    declarations: z.array(zDeclarationData),
+    hasUncomputedVatSchedule: z.boolean()
+});
+
+/**
  * FiscalDeadlineData
  */
 export const zFiscalDeadlineData = z.object({
@@ -734,6 +756,19 @@ export const zNextInvoiceNumberData = z.object({
  */
 export const zPayInvoiceData = z.object({
     paidOn: z.iso.date()
+});
+
+/**
+ * RecordDeclarationData
+ */
+export const zRecordDeclarationData = z.object({
+    kind: zFiscalDeadlineKind,
+    period: z.string().check(z.regex(/^\d{4}-(0[1-9]|1[0-2]|Q[1-4])$/)),
+    filedOn: z.nullish(z.iso.date()),
+    declaredAmount: z.nullish(z.object({
+        amount: z.int().check(z.gte(1)),
+        currency: zCurrency
+    }))
 });
 
 /**
@@ -1481,6 +1516,12 @@ export const zDownloadCraPdfQuery = z.object({
 });
 
 export const zDownloadCraPdfResponse = z.string();
+
+export const zListDeclarationsResponse = zDeclarationListData;
+
+export const zRecordDeclarationBody = zRecordDeclarationData;
+
+export const zRecordDeclarationResponse = zDeclarationListData;
 
 export const zListFiscalDeadlinesResponse = zFiscalDeadlineListData;
 

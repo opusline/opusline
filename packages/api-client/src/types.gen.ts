@@ -370,6 +370,28 @@ export type Currency = 'EUR' | 'USD' | 'GBP' | 'CHF' | 'CAD' | 'AUD' | 'NZD' | '
 export type DateFormat = 0 | 1;
 
 /**
+ * DeclarationData
+ */
+export type DeclarationData = {
+    kind: FiscalDeadlineKind;
+    period: string;
+    dueOn: string;
+    amount: MoneyData | null;
+    filedOn: string | null;
+    declaredAmount: MoneyData | null;
+    isFiled: boolean;
+    isLate: boolean;
+};
+
+/**
+ * DeclarationListData
+ */
+export type DeclarationListData = {
+    declarations: Array<DeclarationData>;
+    hasUncomputedVatSchedule: boolean;
+};
+
+/**
  * DocumentCategory
  *
  * | |
@@ -704,6 +726,19 @@ export type NextInvoiceNumberData = {
  */
 export type PayInvoiceData = {
     paidOn: string;
+};
+
+/**
+ * RecordDeclarationData
+ */
+export type RecordDeclarationData = {
+    kind: FiscalDeadlineKind;
+    period: string;
+    filedOn?: string | null;
+    declaredAmount?: {
+        amount: number;
+        currency: Currency;
+    } | null;
 };
 
 /**
@@ -2583,6 +2618,60 @@ export type DownloadCraPdfResponses = {
 };
 
 export type DownloadCraPdfResponse = DownloadCraPdfResponses[keyof DownloadCraPdfResponses];
+
+export type ListDeclarationsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/declarations';
+};
+
+export type ListDeclarationsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListDeclarationsError = ListDeclarationsErrors[keyof ListDeclarationsErrors];
+
+export type ListDeclarationsResponses = {
+    200: DeclarationListData;
+};
+
+export type ListDeclarationsResponse = ListDeclarationsResponses[keyof ListDeclarationsResponses];
+
+export type RecordDeclarationData2 = {
+    body: RecordDeclarationData;
+    path?: never;
+    query?: never;
+    url: '/declarations';
+};
+
+export type RecordDeclarationErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type RecordDeclarationError = RecordDeclarationErrors[keyof RecordDeclarationErrors];
+
+export type RecordDeclarationResponses = {
+    201: DeclarationListData;
+};
+
+export type RecordDeclarationResponse = RecordDeclarationResponses[keyof RecordDeclarationResponses];
 
 export type ListFiscalDeadlinesData = {
     body?: never;

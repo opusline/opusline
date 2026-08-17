@@ -1533,6 +1533,61 @@
                 }
             }
         },
+        "/declarations": {
+            "get": {
+                "operationId": "listDeclarations",
+                "tags": [
+                    "Declaration"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeclarationListData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "recordDeclaration",
+                "summary": "Answers with the whole ledger rather than the created row: filing a\nreturn changes what the rest of the list still asks for",
+                "tags": [
+                    "Declaration"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecordDeclarationData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeclarationListData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/fiscal-deadlines": {
             "get": {
                 "operationId": "listFiscalDeadlines",
@@ -4655,6 +4710,84 @@
                 ],
                 "title": "DateFormat"
             },
+            "DeclarationData": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "$ref": "#/components/schemas/FiscalDeadlineKind"
+                    },
+                    "period": {
+                        "type": "string"
+                    },
+                    "dueOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "amount": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "filedOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "declaredAmount": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "isFiled": {
+                        "type": "boolean"
+                    },
+                    "isLate": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "period",
+                    "dueOn",
+                    "amount",
+                    "filedOn",
+                    "declaredAmount",
+                    "isFiled",
+                    "isLate"
+                ],
+                "title": "DeclarationData"
+            },
+            "DeclarationListData": {
+                "type": "object",
+                "properties": {
+                    "declarations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DeclarationData"
+                        }
+                    },
+                    "hasUncomputedVatSchedule": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "declarations",
+                    "hasUncomputedVatSchedule"
+                ],
+                "title": "DeclarationListData"
+            },
             "DocumentCategory": {
                 "type": "integer",
                 "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/>  |\n| `3` <br/>  |\n| `4` <br/>  |\n| `5` <br/> The CRA Opusline generated, filed next to the signed return it comes back as. |",
@@ -5601,6 +5734,49 @@
                     "paidOn"
                 ],
                 "title": "PayInvoiceData"
+            },
+            "RecordDeclarationData": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "$ref": "#/components/schemas/FiscalDeadlineKind"
+                    },
+                    "period": {
+                        "type": "string",
+                        "pattern": "^\\d{4}-(0[1-9]|1[0-2]|Q[1-4])$"
+                    },
+                    "filedOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "declaredAmount": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    }
+                },
+                "required": [
+                    "kind",
+                    "period"
+                ],
+                "title": "RecordDeclarationData"
             },
             "RegisterUserData": {
                 "type": "object",

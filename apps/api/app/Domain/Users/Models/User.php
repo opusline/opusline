@@ -11,6 +11,7 @@ use App\Domain\Clients\Models\Client;
 use App\Domain\Cra\Models\Cra;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Models\Mission;
+use App\Domain\Settings\Models\FiscalDeclaration;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Timers\Models\RunningTimer;
@@ -126,6 +127,12 @@ class User extends Authenticatable implements HasMedia
     public function bankMovements(): HasMany
     {
         return $this->hasMany(BankMovement::class);
+    }
+
+    /** @return HasMany<FiscalDeclaration, $this> */
+    public function fiscalDeclarations(): HasMany
+    {
+        return $this->hasMany(FiscalDeclaration::class);
     }
 
     /** @return HasMany<BankMatch, $this> */
