@@ -57,6 +57,29 @@ function clientPayload(
   };
 }
 
+function revenuePayload() {
+  return {
+    year: 2026,
+    clients: [
+      {
+        clientId: 1,
+        yearToDate: { amount: 4_820_000, currency: "EUR" },
+        pending: { amount: 960_000, currency: "EUR" },
+        averagePaymentDelayDays: 27,
+        missions: [
+          {
+            missionId: 1,
+            yearToDate: { amount: 4_820_000, currency: "EUR" },
+            currentMonth: { amount: 605_000, currency: "EUR" },
+            total: { amount: 7_150_000, currency: "EUR" },
+            monthlyAverage: { amount: 447_000, currency: "EUR" },
+          },
+        ],
+      },
+    ],
+  };
+}
+
 function jsonResponse(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -103,7 +126,7 @@ function stubApi(
       }
 
       if (url.pathname.endsWith("/client-revenue")) {
-        return jsonResponse(200, { year: 2026, clients: [] });
+        return jsonResponse(200, revenuePayload());
       }
 
       if (url.pathname.endsWith("/documents")) {
@@ -461,4 +484,25 @@ it("opens the coordinates tab for a client whose only address part is a country"
   fireEvent.click(screen.getByRole("tab", { name: "Coordonnées" }));
 
   expect(await screen.findByText("France")).toBeInTheDocument();
+});
+
+it("fills the header tiles with the client's revenue figures", async () => {
+  stubApi(clientPayload());
+  await renderDetailPage();
+
+  expect(await screen.findByText("CA 2026")).toBeInTheDocument();
+  // The mission row carries the same figure, so this one is not unique.
+  expect(screen.getAllByText("48 200 €").length).toBeGreaterThan(0);
+  expect(screen.getByText("9 600 €")).toBeInTheDocument();
+  expect(screen.getByText("27 jours")).toBeInTheDocument();
+});
+
+it("shows each mission's revenue for the year in the missions tab", async () => {
+  stubApi(clientPayload());
+  await renderDetailPage();
+
+  // The mission row and the client tile both read 48 200 € here, so the count
+  // is what proves the row picked its own figure up rather than staying blank.
+  expect(await screen.findByText("Callisto front")).toBeInTheDocument();
+  expect(screen.getAllByText("48 200 €")).toHaveLength(2);
 });

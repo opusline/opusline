@@ -31,6 +31,29 @@ function missionPayload(overrides: Partial<MissionData> = {}): MissionData {
   };
 }
 
+function revenuePayload() {
+  return {
+    year: 2026,
+    clients: [
+      {
+        clientId: 1,
+        yearToDate: { amount: 4_820_000, currency: "EUR" },
+        pending: { amount: 960_000, currency: "EUR" },
+        averagePaymentDelayDays: 27,
+        missions: [
+          {
+            missionId: 1,
+            yearToDate: { amount: 4_820_000, currency: "EUR" },
+            currentMonth: { amount: 605_000, currency: "EUR" },
+            total: { amount: 7_150_000, currency: "EUR" },
+            monthlyAverage: { amount: 447_000, currency: "EUR" },
+          },
+        ],
+      },
+    ],
+  };
+}
+
 function clientPayload(): ClientWithMissionsData {
   return {
     id: 1,
@@ -94,7 +117,7 @@ function stubApi(
       requests.push({ method: request.method, path: url.pathname, body });
 
       if (url.pathname.endsWith("/client-revenue")) {
-        return jsonResponse(200, { year: 2026, clients: [] });
+        return jsonResponse(200, revenuePayload());
       }
 
       if (url.pathname.endsWith("/documents")) {
@@ -248,7 +271,7 @@ it("shows a server error on an untouched field after saving", async () => {
       }
 
       if (url.pathname.endsWith("/client-revenue")) {
-        return jsonResponse(200, { year: 2026, clients: [] });
+        return jsonResponse(200, revenuePayload());
       }
 
       if (url.pathname.endsWith("/documents")) {
@@ -339,7 +362,7 @@ it("refuses a second mutation while the first is still running", async () => {
       }
 
       if (url.pathname.endsWith("/client-revenue")) {
-        return jsonResponse(200, { year: 2026, clients: [] });
+        return jsonResponse(200, revenuePayload());
       }
 
       if (url.pathname.endsWith("/documents")) {
@@ -390,4 +413,13 @@ it("refuses a second mutation while the first is still running", async () => {
   await waitFor(() => {
     expect(screen.getByRole("button", { name: "Enregistrer" })).toBeEnabled();
   });
+});
+
+it("fills the header tiles with the mission's revenue figures", async () => {
+  stubApi(missionPayload());
+  await renderMissionDetail();
+
+  expect(await screen.findByText("6 050 €")).toBeInTheDocument();
+  expect(screen.getByText("71 500 €")).toBeInTheDocument();
+  expect(screen.getByText("4 470 €")).toBeInTheDocument();
 });
