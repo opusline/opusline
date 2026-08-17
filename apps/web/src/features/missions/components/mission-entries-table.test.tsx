@@ -45,6 +45,7 @@ it("shows an entry with its date, duration and note", async () => {
 
   expect(await screen.findByText("Refonte du tunnel")).toBeInTheDocument();
   expect(screen.getByText("7 h 30")).toBeInTheDocument();
+  expect(screen.getByText("14 août 2026")).toBeInTheDocument();
 });
 
 it("marks an entry an invoice already bills as invoiced", async () => {
