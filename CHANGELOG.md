@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.13.0](https://github.com/opusline/opusline/compare/v0.12.0...v0.13.0) (2026-08-17)
+
+
+### Features
+
+* **web:** list a mission's tracked time ([#150](https://github.com/opusline/opusline/issues/150)) ([23b73c5](https://github.com/opusline/opusline/commit/23b73c58545f17e27787e83aaa574db1b3d0ee2c))
+* **web:** show client and mission revenue ([#149](https://github.com/opusline/opusline/issues/149)) ([fd5ddb7](https://github.com/opusline/opusline/commit/fd5ddb70001405187520d11bcfad50e798e3d2da))
+* **web:** total the week's billable time ([#151](https://github.com/opusline/opusline/issues/151)) ([7c8eb0a](https://github.com/opusline/opusline/commit/7c8eb0a64aa182b199407421fb52fe7c626c8e9b))
+
 ## [0.12.0](https://github.com/opusline/opusline/compare/v0.11.0...v0.12.0) (2026-08-16)
 
 
