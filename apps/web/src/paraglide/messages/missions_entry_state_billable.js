@@ -6,17 +6,17 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{}} Missions_Entry_State_BillableInputs */
 
 const en_missions_entry_state_billable = /** @type {(inputs: Missions_Entry_State_BillableInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Billable`)
+	return /** @type {LocalizedString} */ (`To invoice`)
 };
 
 const fr_missions_entry_state_billable = /** @type {(inputs: Missions_Entry_State_BillableInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Facturable`)
+	return /** @type {LocalizedString} */ (`À facturer`)
 };
 
 /**
 * | output |
 * | --- |
-* | "Billable" |
+* | "To invoice" |
 *
 * @param {Missions_Entry_State_BillableInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

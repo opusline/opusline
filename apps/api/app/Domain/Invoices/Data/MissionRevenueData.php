@@ -27,5 +27,17 @@ class MissionRevenueData extends Data
          * been invoiced once, so the tile can stay empty rather than read zero.
          */
         public ?MoneyData $monthlyAverage,
+        /**
+         * Time tracked this civil month, valued in the unit the mission bills
+         * in and rounded to its increment — the quantity an invoice for the
+         * month would carry, not the raw duration.
+         *
+         * Exactly one of the two is set, the way TimeEntryData reports a single
+         * entry: days on a day-billed mission, minutes on an hourly one. Zero
+         * rather than null when the month is simply empty, so the cell can say
+         * "nothing yet" instead of "unknown".
+         */
+        public ?float $currentMonthDays,
+        public ?int $currentMonthMinutes,
     ) {}
 }

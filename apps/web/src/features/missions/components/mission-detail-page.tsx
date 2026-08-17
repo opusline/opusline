@@ -34,7 +34,7 @@ import { type ReactNode, useState } from "react";
 import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatAmount, paymentTermsLabel } from "@/lib/billing";
-import { formatRevenue } from "@/lib/client-revenue";
+import { formatRevenue, formatTrackedMonth } from "@/lib/client-revenue";
 import { clientTypeLabel } from "@/lib/client-types";
 import { calendarDateLabel, calendarMonthYearLabel } from "@/lib/dates";
 import { entryRoundingLabel } from "@/lib/entry-rounding";
@@ -259,7 +259,7 @@ export function MissionDetailPage({
       <StatTileRow className="mb-5 grid-cols-2 md:grid-cols-4">
         <StatTile
           label={m.missions_stat_this_month()}
-          value="—"
+          value={formatTrackedMonth(format.locale, revenue)}
           tone="strong"
         />
         <StatTile

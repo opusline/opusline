@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Models\Mission;
+use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Users\Models\User;
 
 beforeEach(fn () => freezeTodayAtUtcNoon());
@@ -175,8 +176,7 @@ test('splits revenue across the missions it was billed against', function (): vo
         ->getJson('/api/client-revenue')
         ->assertOk()
         ->assertJsonPath('clients.0.missions.0.missionId', $mission->id)
-        ->assertJsonPath('clients.0.missions.0.yearToDate.amount', 95_000)
-        ->assertJsonPath('clients.0.missions.0.currentMonth.amount', 70_000);
+        ->assertJsonPath('clients.0.missions.0.yearToDate.amount', 95_000);
 });
 
 test('totals mission revenue across every year for the cumulative figure', function (): void {
@@ -324,4 +324,141 @@ test('never reports another account revenue', function (): void {
         ->getJson('/api/client-revenue')
         ->assertOk()
         ->assertJsonPath('clients', []);
+});
+
+test('counts this month tracked time as days on a day-billed mission', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user);
+
+    TimeEntry::factory()->for($mission, 'mission')->create(['date' => '2026-08-03', 'duration_minutes' => 420]);
+    TimeEntry::factory()->for($mission, 'mission')->create(['date' => '2026-08-04', 'duration_minutes' => 420]);
+
+    $this->actingAs($user)
+        ->getJson('/api/client-revenue')
+        ->assertOk()
+        ->assertJsonPath('clients.0.missions.0.currentMonthDays', 2)
+        ->assertJsonPath('clients.0.missions.0.currentMonthMinutes', null);
+});
+
+test('rounds a part day up to the mission increment', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user);
+
+    // Half-day rounding on a 7-hour workday: a 3-hour morning bills half a day.
+    TimeEntry::factory()->for($mission, 'mission')->create(['date' => '2026-08-03', 'duration_minutes' => 180]);
+
+    $this->actingAs($user)
+        ->getJson('/api/client-revenue')
+        ->assertOk()
+        ->assertJsonPath('clients.0.missions.0.currentMonthDays', 0.5);
+});
+
+test('counts this month tracked time as minutes on an hourly mission', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user, fn ($factory) => $factory->hourly());
+
+    TimeEntry::factory()->for($mission, 'mission')->create(['date' => '2026-08-03', 'duration_minutes' => 200]);
+
+    $this->actingAs($user)
+        ->getJson('/api/client-revenue')
+        ->assertOk()
+        // Half rounding values in 30-minute steps: 200 minutes bill as 210.
+        ->assertJsonPath('clients.0.missions.0.currentMonthMinutes', 210)
+        ->assertJsonPath('clients.0.missions.0.currentMonthDays', null);
+});
+
+test('leaves another month tracked time out of this month', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user);
+
+    TimeEntry::factory()->for($mission, 'mission')->create(['date' => '2026-07-31', 'duration_minutes' => 420]);
+
+    $this->actingAs($user)
+        ->getJson('/api/client-revenue')
+        ->assertOk()
+        ->assertJsonPath('clients.0.missions.0.currentMonthDays', 0);
+});
+
+test('keeps each mission tracked time under its own row', function (): void {
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+    $refonte = Mission::factory()->for($client)->create(['name' => 'Refonte', 'user_id' => $user->id]);
+    $maintenance = Mission::factory()->for($client)->create(['name' => 'Maintenance', 'user_id' => $user->id]);
+
+    TimeEntry::factory()->for($refonte, 'mission')->create(['date' => '2026-08-03', 'duration_minutes' => 420]);
+
+    $missions = collect($this->actingAs($user)
+        ->getJson('/api/client-revenue')
+        ->assertOk()
+        ->json('clients.0.missions'))
+        ->keyBy('missionId');
+
+    expect($missions[$refonte->id]['currentMonthDays'])->toEqual(1)
+        ->and($missions[$maintenance->id]['currentMonthDays'])->toEqual(0);
+});
+
+test('values the month from the time tracked in it, not from what was invoiced', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user);
+
+    // 550 EUR/day, one full day tracked and nothing invoiced yet.
+    TimeEntry::factory()->for($mission, 'mission')->create(['date' => '2026-08-03', 'duration_minutes' => 420]);
+
+    $this->actingAs($user)
+        ->getJson('/api/client-revenue')
+        ->assertOk()
+        ->assertJsonPath('clients.0.missions.0.currentMonth.amount', 55_000);
+});
+
+test('falls back to the month invoiced when the mission prices no time', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user, fn ($factory) => $factory->fixed());
+
+    TimeEntry::factory()->for($mission, 'mission')->create(['date' => '2026-08-03', 'duration_minutes' => 420]);
+    invoiceForMission($user, $mission, fn ($factory) => $factory->sent()->state([
+        'issued_on' => '2026-08-04',
+        'amount_ht_cents' => 80_000,
+    ]));
+
+    $this->actingAs($user)
+        ->getJson('/api/client-revenue')
+        ->assertOk()
+        ->assertJsonPath('clients.0.missions.0.currentMonth.amount', 80_000);
+});
+
+test('stops the monthly average at the last invoice once the mission is done', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user, fn ($factory) => $factory->done());
+
+    // Billed across February and March 2025, finished since: the average is the
+    // rate over those two months, not the total decayed over every month since.
+    invoiceForMission($user, $mission, fn ($factory) => $factory->sent()->state([
+        'issued_on' => '2025-02-10',
+        'amount_ht_cents' => 60_000,
+    ]));
+    invoiceForMission($user, $mission, fn ($factory) => $factory->sent()->state([
+        'issued_on' => '2025-03-10',
+        'amount_ht_cents' => 40_000,
+    ]));
+
+    $this->actingAs($user)
+        ->getJson('/api/client-revenue')
+        ->assertOk()
+        ->assertJsonPath('clients.0.missions.0.monthlyAverage.amount', 50_000);
+});
+
+test('keeps spreading a live mission average over its dry months', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user);
+
+    // Billed once in June and nothing since: June, July and August share it.
+    invoiceForMission($user, $mission, fn ($factory) => $factory->sent()->state([
+        'issued_on' => '2026-06-15',
+        'amount_ht_cents' => 90_000,
+    ]));
+
+    $this->actingAs($user)
+        ->getJson('/api/client-revenue')
+        ->assertOk()
+        ->assertJsonPath('clients.0.missions.0.monthlyAverage.amount', 30_000);
 });

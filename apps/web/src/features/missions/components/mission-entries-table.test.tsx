@@ -36,16 +36,50 @@ function entry(overrides: Partial<TimeEntryData> = {}): TimeEntryData {
   };
 }
 
-it("shows an entry with its date, duration and note", async () => {
+it("shows an entry with its date, quantity and note", async () => {
   renderWithRouter(
     <MissionEntriesTable
-      entries={[entry({ note: "Refonte du tunnel", durationMinutes: 450 })]}
+      entries={[
+        entry({
+          note: "Refonte du tunnel",
+          durationMinutes: 450,
+          valuedMinutes: 450,
+        }),
+      ]}
     />,
   );
 
   expect(await screen.findByText("Refonte du tunnel")).toBeInTheDocument();
-  expect(screen.getByText("7 h 30")).toBeInTheDocument();
-  expect(screen.getByText("14 août 2026")).toBeInTheDocument();
+  // A billed half-hour reads as a decimal: "7,5 h", not "7 h 30".
+  expect(screen.getByText("7,5 h")).toBeInTheDocument();
+  expect(screen.getByText("14/08/2026")).toBeInTheDocument();
+});
+
+it("shows a day-billed entry in days rather than hours", async () => {
+  renderWithRouter(
+    <MissionEntriesTable
+      entries={[entry({ durationMinutes: 210, valuedDayFraction: 0.5 })]}
+    />,
+  );
+
+  expect(await screen.findByText("0,5 j")).toBeInTheDocument();
+  expect(screen.queryByText("3 h 30")).not.toBeInTheDocument();
+});
+
+it("falls back to the tracked duration when the mission prices no time", async () => {
+  renderWithRouter(
+    <MissionEntriesTable
+      entries={[
+        entry({
+          durationMinutes: 450,
+          valuedMinutes: null,
+          valuedDayFraction: null,
+        }),
+      ]}
+    />,
+  );
+
+  expect(await screen.findByText("7 h 30")).toBeInTheDocument();
 });
 
 it("marks an entry an invoice already bills as invoiced", async () => {
@@ -56,17 +90,17 @@ it("marks an entry an invoice already bills as invoiced", async () => {
   );
 
   expect(await screen.findByText("Facturé")).toBeInTheDocument();
-  expect(screen.queryByText("Facturable")).not.toBeInTheDocument();
+  expect(screen.queryByText("À facturer")).not.toBeInTheDocument();
 });
 
-it("marks a billable entry no invoice covers yet as billable", async () => {
+it("marks a billable entry no invoice covers yet as still to invoice", async () => {
   renderWithRouter(
     <MissionEntriesTable
       entries={[entry({ billable: true, invoiced: false })]}
     />,
   );
 
-  expect(await screen.findByText("Facturable")).toBeInTheDocument();
+  expect(await screen.findByText("À facturer")).toBeInTheDocument();
 });
 
 it("marks an entry excluded from billing as non billable", async () => {

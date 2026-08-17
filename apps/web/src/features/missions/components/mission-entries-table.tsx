@@ -1,18 +1,18 @@
-import type { TimeEntryData } from "@opusline/api-client";
+import type { Locale, TimeEntryData } from "@opusline/api-client";
 import { Badge } from "@opusline/ui/components/badge";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { cn } from "@opusline/ui/lib/utils";
 import { Link } from "@tanstack/react-router";
 
-import { useLocale } from "@/components/money-format-provider";
-import { calendarDateLabel } from "@/lib/dates";
-import { formatWorkedTime } from "@/lib/durations";
+import { useDateFormat, useLocale } from "@/components/money-format-provider";
+import { calendarDateNumericLabel } from "@/lib/dates";
+import { billedQuantityLabel, formatWorkedTime } from "@/lib/durations";
 import { m } from "@/paraglide/messages.js";
 
 const EYEBROW_CLASSES =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
 
-const ROW_GRID = "grid grid-cols-[5.5rem_5.75rem_minmax(0,1fr)_7.25rem]";
+const ROW_GRID = "grid grid-cols-[7rem_5rem_minmax(0,1fr)_7.25rem] gap-x-3";
 
 type EntryState = "invoiced" | "billable" | "nonBillable";
 
@@ -26,6 +26,23 @@ function entryStateOf(entry: TimeEntryData): EntryState {
   }
 
   return entry.billable ? "billable" : "nonBillable";
+}
+
+/**
+ * The entry in the unit its mission bills in — days on a TJM mission, hours on
+ * an hourly one — already rounded to the mission's increment by the API, so the
+ * row reads as the quantity an invoice would carry.
+ *
+ * A mission that prices no time (fixed price, or no rate) values nothing, and
+ * falls back to the duration actually tracked.
+ */
+function quantityLabel(locale: Locale, entry: TimeEntryData): string {
+  return (
+    billedQuantityLabel(locale, {
+      valuedDays: entry.valuedDayFraction,
+      valuedMinutes: entry.valuedMinutes,
+    }) ?? formatWorkedTime(entry.durationMinutes)
+  );
 }
 
 const STATE_MESSAGES: Record<EntryState, () => string> = {
@@ -55,18 +72,28 @@ export function MissionEntriesTable({
   isError,
 }: MissionEntriesTableProps) {
   const locale = useLocale();
+  const dateFormat = useDateFormat();
 
   return (
     <div className="overflow-hidden rounded-md border bg-card">
       {/*
-        The columns are fixed tracks, so on a narrow viewport the row is wider
-        than the card. It has to scroll here: the card clips its overflow for
-        its rounded corners, and clipping a table drops the state column off
-        the right edge with nothing to say it is there.
+        Scrolls on both axes in its own box. Vertically, because a long-running
+        mission has hundreds of entries and the page should keep the header
+        tiles and the tab bar in view; horizontally, because the columns are
+        fixed tracks and the card clips its overflow for its rounded corners,
+        which would drop the state column off the edge with nothing to say it
+        is there. The column header sticks, since a scrolled row with no header
+        above it is unreadable.
       */}
-      <div className="overflow-x-auto">
+      <div className="max-h-160 overflow-auto">
         <div className="min-w-124">
-          <div className={cn(EYEBROW_CLASSES, ROW_GRID, "border-b px-5 py-3")}>
+          <div
+            className={cn(
+              EYEBROW_CLASSES,
+              ROW_GRID,
+              "sticky top-0 z-10 border-b bg-card px-5 py-3",
+            )}
+          >
             <div>{m.common_date_label()}</div>
             <div>{m.common_duration()}</div>
             <div>{m.common_note_label()}</div>
@@ -89,10 +116,10 @@ export function MissionEntriesTable({
                   )}
                 >
                   <div className="font-mono text-foreground-3 text-sm tabular-nums">
-                    {calendarDateLabel(locale, entry.date)}
+                    {calendarDateNumericLabel(dateFormat, entry.date)}
                   </div>
                   <div className="font-mono text-foreground-hi text-sm tabular-nums">
-                    {formatWorkedTime(entry.durationMinutes)}
+                    {quantityLabel(locale, entry)}
                   </div>
                   <div className="min-w-0 truncate pr-3 text-muted-foreground text-sm">
                     {entry.note ?? ""}

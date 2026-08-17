@@ -124,6 +124,8 @@ const revenue: ClientRevenueData = {
     currentMonth: { amount: 605_000, currency: "EUR" },
     total: { amount: 7_150_000, currency: "EUR" },
     monthlyAverage: { amount: 447_000, currency: "EUR" },
+    currentMonthDays: 12.5,
+    currentMonthMinutes: null,
   })),
 };
 

@@ -84,7 +84,9 @@ test('reports one mission figures', function (): void {
         ->assertOk()
         ->assertJsonPath('missionId', $mission->id)
         ->assertJsonPath('yearToDate.amount', 90_000)
-        ->assertJsonPath('currentMonth.amount', 30_000)
+        // Nothing tracked this month, so the month has earned nothing yet —
+        // the 30 000 invoiced in August is already in yearToDate and total.
+        ->assertJsonPath('currentMonth.amount', 0)
         ->assertJsonPath('total.amount', 90_000)
         // June, July and August share the total.
         ->assertJsonPath('monthlyAverage.amount', 30_000);

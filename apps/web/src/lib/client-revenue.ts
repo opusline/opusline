@@ -1,11 +1,13 @@
 import type {
   ClientRevenueData,
   ClientRevenueListData,
+  Locale,
   MissionRevenueData,
   MoneyData,
 } from "@opusline/api-client";
 
 import { formatWholeAmount, type MoneyFormat } from "@/lib/billing";
+import { billedQuantityLabel } from "@/lib/durations";
 import { m } from "@/paraglide/messages.js";
 
 /** What every revenue cell shows before the figures land, or when there are none. */
@@ -55,6 +57,30 @@ export function formatRevenue(
   return amount == null
     ? REVENUE_PLACEHOLDER
     : formatWholeAmount(format, amount.amount);
+}
+
+/**
+ * The month's tracked time in the unit its mission bills in, already rounded to
+ * the mission's increment by the API. The placeholder is for figures that have
+ * not arrived — an empty month is a real "0 j", not an unknown.
+ */
+export function formatTrackedMonth(
+  locale: Locale,
+  revenue:
+    | Pick<MissionRevenueData, "currentMonthDays" | "currentMonthMinutes">
+    | null
+    | undefined,
+): string {
+  if (revenue == null) {
+    return REVENUE_PLACEHOLDER;
+  }
+
+  return (
+    billedQuantityLabel(locale, {
+      valuedDays: revenue.currentMonthDays,
+      valuedMinutes: revenue.currentMonthMinutes,
+    }) ?? REVENUE_PLACEHOLDER
+  );
 }
 
 /**

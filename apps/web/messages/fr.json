@@ -604,7 +604,7 @@
   "missions_entries_from_week": "Les entrées se créent depuis la grille de la semaine.",
   "missions_entries_header_state": "État",
   "missions_entries_load_failed": "Impossible de charger les entrées de cette mission.",
-  "missions_entry_state_billable": "Facturable",
+  "missions_entry_state_billable": "À facturer",
   "missions_entry_state_invoiced": "Facturé",
   "missions_entry_state_non_billable": "Non facturable",
   "missions_forfait_note": "Au forfait, le temps est suivi pour votre marge mais n'entre pas dans le montant facturé.",

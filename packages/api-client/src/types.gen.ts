@@ -683,6 +683,8 @@ export type MissionRevenueData = {
     currentMonth: MoneyData;
     total: MoneyData;
     monthlyAverage: MoneyData | null;
+    currentMonthDays: number | null;
+    currentMonthMinutes: number | null;
 };
 
 /**

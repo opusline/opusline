@@ -5694,6 +5694,18 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "currentMonthDays": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "currentMonthMinutes": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
                     }
                 },
                 "required": [
@@ -5701,7 +5713,9 @@
                     "yearToDate",
                     "currentMonth",
                     "total",
-                    "monthlyAverage"
+                    "monthlyAverage",
+                    "currentMonthDays",
+                    "currentMonthMinutes"
                 ],
                 "title": "MissionRevenueData"
             },

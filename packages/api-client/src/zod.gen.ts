@@ -698,7 +698,9 @@ export const zMissionRevenueData = z.object({
     yearToDate: zMoneyData,
     currentMonth: zMoneyData,
     total: zMoneyData,
-    monthlyAverage: z.nullable(zMoneyData)
+    monthlyAverage: z.nullable(zMoneyData),
+    currentMonthDays: z.nullable(z.number()),
+    currentMonthMinutes: z.nullable(z.int())
 });
 
 /**
