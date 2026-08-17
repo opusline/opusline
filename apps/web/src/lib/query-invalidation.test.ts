@@ -1,6 +1,7 @@
 import {
   listClientRevenueQueryKey,
   listMissionDocumentsQueryKey,
+  listMissionTimeEntriesQueryKey,
   listTimeEntriesQueryKey,
   showClientRevenueQueryKey,
   showInvoiceSummaryQueryKey,
@@ -9,7 +10,11 @@ import {
 import type { Query } from "@tanstack/react-query";
 import { describe, expect, it } from "vitest";
 
-import { operationFilter, revenueFilter } from "./query-invalidation";
+import {
+  missionTimeEntriesFilter,
+  operationFilter,
+  revenueFilter,
+} from "./query-invalidation";
 
 function queryWithKey(queryKey: unknown): Query {
   return { queryKey } as Query;
@@ -104,6 +109,32 @@ describe("revenueFilter", () => {
   it("leaves the other invoice reads alone", () => {
     expect(
       revenueFilter().predicate(queryWithKey(showInvoiceSummaryQueryKey())),
+    ).toBe(false);
+  });
+});
+
+describe("missionTimeEntriesFilter", () => {
+  it("matches a mission's entry history whichever mission it was fetched for", () => {
+    expect(
+      missionTimeEntriesFilter().predicate(
+        queryWithKey(
+          listMissionTimeEntriesQueryKey({
+            path: { client: "vesterhus", mission: "refonte" },
+          }),
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  it("leaves the week's own entry list alone", () => {
+    expect(
+      missionTimeEntriesFilter().predicate(
+        queryWithKey(
+          listTimeEntriesQueryKey({
+            query: { from: "2026-08-03", to: "2026-08-09" },
+          }),
+        ),
+      ),
     ).toBe(false);
   });
 });

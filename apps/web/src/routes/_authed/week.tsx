@@ -20,13 +20,13 @@ import { useState } from "react";
 
 import { useTimer } from "@/features/timer/components/timer-provider";
 import { formatClock } from "@/features/timer/lib/elapsed";
-import { findMissionById } from "@/features/timer/lib/mission-options";
 import type { NewEntrySubmit } from "@/features/week/components/new-entry-dialog";
 import { WeekPage } from "@/features/week/components/week-page";
 import { planWeekRepeat } from "@/features/week/lib/repeat-week";
 import { cellKeyFor, type LiveCell } from "@/features/week/lib/week-grid";
 import { browserTodayCalendarDate } from "@/lib/dates";
 import { provisionalBilledLabel } from "@/lib/durations";
+import { findMissionById } from "@/lib/missions";
 import {
   invalidateTimeEntries,
   operationFilter,

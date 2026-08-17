@@ -34,13 +34,14 @@ import {
   browserTodayCalendarDate,
   toCalendarDate,
 } from "@/lib/dates";
+import { findMissionById } from "@/lib/missions";
 import { invalidateTimeEntries } from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 import { type IdleNotice, idleNotice, trimSeconds } from "../lib/idle";
 import { isLongRun, longRunHours, parseWorkedDuration } from "../lib/long-run";
 import type { TimerMissionOption } from "../lib/mission-options";
-import { findMissionById, trackableMissions } from "../lib/mission-options";
+import { trackableMissions } from "../lib/mission-options";
 import { createNoteQueue } from "../lib/note-queue";
 import { timerMachine } from "../lib/timer-machine";
 import { useActivity } from "../lib/use-activity";

@@ -1,8 +1,4 @@
-import type {
-  BillingMode,
-  ClientWithMissionsData,
-  MissionData,
-} from "@opusline/api-client";
+import type { BillingMode, ClientWithMissionsData } from "@opusline/api-client";
 
 import { formatMissionRate, type MoneyFormat } from "@/lib/billing";
 import { isMissionOpenForTime } from "@/lib/mission-status";
@@ -42,21 +38,4 @@ export function trackableMissions(
         Number(right.isLast) - Number(left.isLast) ||
         left.name.localeCompare(right.name, format.locale),
     );
-}
-
-export function findMissionById(
-  clients: ClientWithMissionsData[],
-  missionId: number,
-): MissionData | null {
-  for (const client of clients) {
-    const mission = client.missions.find(
-      (candidate) => candidate.id === missionId,
-    );
-
-    if (mission !== undefined) {
-      return mission;
-    }
-  }
-
-  return null;
 }
