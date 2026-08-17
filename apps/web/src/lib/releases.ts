@@ -14,6 +14,24 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.13.0",
+    date: "2026-08-17",
+    items: [
+      {
+        kind: "new",
+        text: "Client and mission pages now show real figures: revenue for the year, what is still outstanding, your average payment delay, and each mission's monthly and cumulative revenue.",
+      },
+      {
+        kind: "new",
+        text: "A mission's page now lists the time tracked on it, each entry showing the quantity it bills — days on a daily mission, hours on an hourly one — and whether it is still to invoice or already covered by one. The month's tracked total appears on the mission header and beside every mission of a client.",
+      },
+      {
+        kind: "new",
+        text: "The week view now totals what the week is worth: billable time valued at each mission's rate, with the non-billable and forfait time it left out named underneath.",
+      },
+    ],
+  },
+  {
     version: "0.12.0",
     date: "2026-08-16",
     items: [
