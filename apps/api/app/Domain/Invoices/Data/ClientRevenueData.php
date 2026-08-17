@@ -21,7 +21,10 @@ class ClientRevenueData extends Data
         public int $clientId,
         /** Invoiced HT over the current civil year. */
         public MoneyData $yearToDate,
-        /** Issued but unsettled HT, all years — what the client still owes. */
+        /**
+         * Issued but unsettled TTC, all years — what the client still owes,
+         * VAT included, on the same base as the invoices dashboard.
+         */
         public MoneyData $pending,
         /**
          * Mean days between issue and payment over every settled invoice, all

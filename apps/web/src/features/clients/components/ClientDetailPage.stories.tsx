@@ -171,3 +171,18 @@ export const WithoutCoordinates: Story = {
     onToggleArchive: () => {},
   },
 };
+
+/**
+ * The revenue endpoint answered with an error. The tiles fall back to
+ * placeholders, and the warning says so — otherwise the dashes read as a client
+ * that was never invoiced.
+ */
+export const RevenueUnavailable: Story = {
+  args: {
+    client,
+    documentsTab,
+    revenueFailed: true,
+    onUpdate: async () => ({ status: "success" }) as const,
+    onToggleArchive: () => {},
+  },
+};

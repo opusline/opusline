@@ -141,3 +141,19 @@ export const Done: Story = {
     onSetStatus: () => {},
   },
 };
+
+/**
+ * The revenue endpoint answered with an error. The tiles fall back to
+ * placeholders, and the warning says so — otherwise the dashes read as a
+ * mission that was never invoiced.
+ */
+export const RevenueUnavailable: Story = {
+  args: {
+    mission,
+    client,
+    documentsTab,
+    revenueFailed: true,
+    onUpdate: async () => ({ status: "success" }) as const,
+    onSetStatus: () => {},
+  },
+};

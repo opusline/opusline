@@ -69,6 +69,8 @@ type MissionDetailPageProps = {
   error?: string | null;
   /** Undefined while the figures are still loading; tiles show a placeholder. */
   revenue?: MissionRevenueData;
+  /** The figures could not be fetched — placeholders alone would read as "none". */
+  revenueFailed?: boolean;
 };
 
 export function MissionDetailPage({
@@ -82,6 +84,7 @@ export function MissionDetailPage({
   isStatusPending,
   error,
   revenue,
+  revenueFailed,
 }: MissionDetailPageProps) {
   const format = useMoneyFormat();
   const [isEditing, setIsEditing] = useState(false);
@@ -235,6 +238,13 @@ export function MissionDetailPage({
         <Alert className="mb-5" variant="warn">
           <CircleAlert />
           <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      ) : null}
+
+      {revenueFailed ? (
+        <Alert className="mb-5" variant="warn">
+          <CircleAlert />
+          <AlertDescription>{m.revenue_load_failed()}</AlertDescription>
         </Alert>
       ) : null}
 

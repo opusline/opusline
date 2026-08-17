@@ -6,39 +6,50 @@ namespace App\Domain\Invoices\Actions;
 
 use App\Domain\Clients\Models\Client;
 use App\Domain\Invoices\Data\ClientRevenueData;
+use App\Domain\Invoices\Data\ClientRevenueDetailData;
 use App\Domain\Invoices\Data\ClientRevenueListData;
 use App\Domain\Invoices\Data\MissionRevenueData;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Revenue\RevenueWindow;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Users\Models\User;
-use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Money\Money as MoneyPhp;
 
 /**
- * Per-client and per-mission revenue for the clients listing and the client and
- * mission detail headers.
+ * Per-client and per-mission invoiced revenue, for the clients listing and for
+ * the client and mission detail headers.
  *
- * The whole ledger is read once and folded in PHP rather than aggregated per
- * client in SQL: a freelancer's invoice count is small, this keeps the query
- * count at two whatever the client count, and it avoids date arithmetic that
- * differs between the MySQL of production and the SQLite of the test suite.
+ * The ledger is read once and folded in PHP rather than aggregated per client
+ * in SQL: a freelancer's invoice count is small, it keeps the query count fixed
+ * whatever the client count, and it avoids date arithmetic that differs between
+ * the MySQL of production and the SQLite of the test suite.
  */
 class SummarizeClientRevenue
 {
+    /**
+     * @var list<string>
+     */
+    private const array INVOICE_COLUMNS = [
+        'client_id',
+        'mission_id',
+        'status',
+        'issued_on',
+        'paid_on',
+        'amount_ht_cents',
+        'amount_ttc_cents',
+        'currency',
+    ];
+
     public function handle(User $user): ClientRevenueListData
     {
-        $settings = $user->settingsOrFail();
-        $today = $settings->today();
-        $currency = $settings->currency->value;
+        $window = $this->windowFor($user);
 
-        $invoicesByClient = $user->invoices()
-            ->whereIn('status', [InvoiceStatus::Sent, InvoiceStatus::Paid])
-            ->get(['client_id', 'mission_id', 'status', 'issued_on', 'paid_on', 'amount_ht_cents', 'currency'])
-            ->groupBy('client_id');
+        $invoicesByClient = $this->billedInvoices($user)->get(self::INVOICE_COLUMNS)->groupBy('client_id');
 
         $clients = $user->clients()
             ->with('missions:id,client_id')
@@ -48,77 +59,158 @@ class SummarizeClientRevenue
         $rows = $clients->map(fn (Client $client): ClientRevenueData => $this->forClient(
             $client,
             $invoicesByClient->get($client->id) ?? new Collection,
-            $today,
-            $currency,
+            $window,
         ));
 
         return new ClientRevenueListData(
-            year: $today->year,
+            year: $window->year,
             clients: array_values($rows->all()),
         );
     }
 
     /**
+     * One client's figures, read without folding the rest of the account —
+     * the detail page needs a point lookup, not the whole listing payload.
+     */
+    public function forOneClient(User $user, Client $client): ClientRevenueDetailData
+    {
+        $window = $this->windowFor($user);
+
+        $invoices = $this->billedInvoices($user)
+            ->where('client_id', $client->id)
+            ->get(self::INVOICE_COLUMNS);
+
+        $client->loadMissing('missions:id,client_id');
+
+        return new ClientRevenueDetailData(
+            year: $window->year,
+            revenue: $this->forClient($client, $invoices, $window),
+        );
+    }
+
+    public function forOneMission(User $user, Mission $mission): MissionRevenueData
+    {
+        $invoices = $this->billedInvoices($user)
+            ->where('mission_id', $mission->id)
+            ->get(self::INVOICE_COLUMNS);
+
+        return $this->forMission($mission->id, $invoices, $this->windowFor($user));
+    }
+
+    private function windowFor(User $user): RevenueWindow
+    {
+        $settings = $user->settingsOrFail();
+
+        return RevenueWindow::around($settings->today(), $settings->currency->value);
+    }
+
+    /**
+     * Issued invoices only: a draft has not reached the client, so it is neither
+     * revenue nor a debt.
+     *
+     * @return HasMany<Invoice, User>
+     */
+    private function billedInvoices(User $user): HasMany
+    {
+        return $user->invoices()->whereIn('status', [InvoiceStatus::Sent, InvoiceStatus::Paid]);
+    }
+
+    /**
      * @param  Collection<int, Invoice>  $invoices
      */
-    private function forClient(Client $client, Collection $invoices, CarbonImmutable $today, string $currency): ClientRevenueData
+    private function forClient(Client $client, Collection $invoices, RevenueWindow $window): ClientRevenueData
     {
         $byMission = $invoices->groupBy('mission_id');
 
-        $missions = $client->missions->map(function (Mission $mission) use ($byMission, $today, $currency): MissionRevenueData {
-            /** @var Collection<int, Invoice> $billed */
-            $billed = $byMission->get($mission->id) ?? new Collection;
-            $total = $this->totalOf($billed, $currency);
-
-            return new MissionRevenueData(
-                missionId: $mission->id,
-                yearToDate: MoneyData::fromMoney(
-                    $this->issuedBetween($billed, $today->startOfYear(), $today->endOfYear(), $currency),
-                ),
-                currentMonth: MoneyData::fromMoney(
-                    $this->issuedBetween($billed, $today->startOfMonth(), $today->endOfMonth(), $currency),
-                ),
-                total: MoneyData::fromMoney($total),
-                monthlyAverage: $this->monthlyAverage($billed, $total, $today),
-            );
-        });
+        $rows = $client->missions->map(fn (Mission $mission): MissionRevenueData => $this->forMission(
+            $mission->id,
+            $byMission->get($mission->id) ?? new Collection,
+            $window,
+        ));
 
         return new ClientRevenueData(
             clientId: $client->id,
-            yearToDate: MoneyData::fromMoney(
-                $this->issuedBetween($invoices, $today->startOfYear(), $today->endOfYear(), $currency),
-            ),
-            pending: MoneyData::fromMoney($this->pending($invoices, $currency)),
+            yearToDate: MoneyData::fromMoney($this->issuedThisYear($invoices, $window)),
+            pending: MoneyData::fromMoney($this->pending($invoices, $window)),
             averagePaymentDelayDays: $this->averagePaymentDelayDays($invoices),
-            missions: array_values($missions->all()),
+            missions: array_values($rows->all()),
         );
     }
 
     /**
      * @param  Collection<int, Invoice>  $invoices
      */
-    private function issuedBetween(Collection $invoices, CarbonImmutable $start, CarbonImmutable $end, string $currency): Money
+    private function forMission(int $missionId, Collection $invoices, RevenueWindow $window): MissionRevenueData
     {
-        $total = new Money(0, $currency);
+        $total = $this->sumHt($invoices, $window);
+
+        return new MissionRevenueData(
+            missionId: $missionId,
+            yearToDate: MoneyData::fromMoney($this->issuedThisYear($invoices, $window)),
+            currentMonth: MoneyData::fromMoney($this->sumHt(
+                $invoices,
+                $window,
+                fn (Invoice $invoice): bool => $invoice->issued_on->between($window->monthStart, $window->monthEnd),
+            )),
+            total: MoneyData::fromMoney($total),
+            monthlyAverage: $this->monthlyAverage($invoices, $total, $window),
+        );
+    }
+
+    /**
+     * @param  Collection<int, Invoice>  $invoices
+     */
+    private function issuedThisYear(Collection $invoices, RevenueWindow $window): Money
+    {
+        return $this->sumHt(
+            $invoices,
+            $window,
+            fn (Invoice $invoice): bool => $invoice->issued_on->between($window->yearStart, $window->yearEnd),
+        );
+    }
+
+    /**
+     * Revenue is counted HT throughout, to match the figures of the revenue
+     * page — the VAT of an invoice is collected on the state's behalf and was
+     * never the freelancer's turnover.
+     *
+     * @param  Collection<int, Invoice>  $invoices
+     * @param  (callable(Invoice): bool)|null  $keep  every invoice when null
+     */
+    private function sumHt(Collection $invoices, RevenueWindow $window, ?callable $keep = null): Money
+    {
+        $total = new Money(0, $window->currency);
 
         foreach ($invoices as $invoice) {
-            if ($invoice->issued_on->between($start, $end)) {
-                $total = $total->add($invoice->amount_ht_cents);
+            if ($keep !== null && ! $keep($invoice)) {
+                continue;
             }
+
+            $total = $total->add($invoice->amount_ht_cents);
         }
 
         return $total;
     }
 
     /**
+     * Issued and still unsettled — a paid invoice has left the balance.
+     *
+     * Counted TTC, unlike every other figure here: this is a debt, not turnover,
+     * and the client owes the VAT too. It is the same base as the "to collect"
+     * total of the invoices dashboard, which the two must agree on.
+     *
      * @param  Collection<int, Invoice>  $invoices
      */
-    private function totalOf(Collection $invoices, string $currency): Money
+    private function pending(Collection $invoices, RevenueWindow $window): Money
     {
-        $total = new Money(0, $currency);
+        $total = new Money(0, $window->currency);
 
         foreach ($invoices as $invoice) {
-            $total = $total->add($invoice->amount_ht_cents);
+            if ($invoice->status !== InvoiceStatus::Sent) {
+                continue;
+            }
+
+            $total = $total->add($invoice->amount_ttc_cents);
         }
 
         return $total;
@@ -131,7 +223,7 @@ class SummarizeClientRevenue
      *
      * @param  Collection<int, Invoice>  $invoices
      */
-    private function monthlyAverage(Collection $invoices, Money $total, CarbonImmutable $today): ?MoneyData
+    private function monthlyAverage(Collection $invoices, Money $total, RevenueWindow $window): ?MoneyData
     {
         $first = null;
 
@@ -145,28 +237,9 @@ class SummarizeClientRevenue
             return null;
         }
 
-        $months = $first->startOfMonth()->diffInMonths($today->startOfMonth()) + 1;
-
-        return MoneyData::fromMoney($total->divide((int) $months, MoneyPhp::ROUND_HALF_UP));
-    }
-
-    /**
-     * Issued and still unsettled. A paid invoice has left the balance and a
-     * draft never entered it.
-     *
-     * @param  Collection<int, Invoice>  $invoices
-     */
-    private function pending(Collection $invoices, string $currency): Money
-    {
-        $total = new Money(0, $currency);
-
-        foreach ($invoices as $invoice) {
-            if ($invoice->status === InvoiceStatus::Sent) {
-                $total = $total->add($invoice->amount_ht_cents);
-            }
-        }
-
-        return $total;
+        return MoneyData::fromMoney(
+            $total->divide($window->monthsSince($first), MoneyPhp::ROUND_HALF_UP),
+        );
     }
 
     /**

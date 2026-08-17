@@ -5,12 +5,15 @@ declare(strict_types=1);
 use App\Http\Clients\Controllers\ClientController;
 use App\Http\Clients\Controllers\ClientDocumentController;
 use App\Http\Clients\Controllers\ClientLogoController;
+use App\Http\Invoices\Controllers\ClientRevenueController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/clients', [ClientController::class, 'index'])->name('listClients');
     Route::get('/clients/{client}', [ClientController::class, 'show'])
         ->name('showClient');
+    Route::get('/clients/{client}/revenue', [ClientRevenueController::class, 'show'])
+        ->name('showClientRevenue');
     Route::post('/clients', [ClientController::class, 'store'])->name('createClient');
     Route::put('/clients/{client}', [ClientController::class, 'update'])
         ->name('updateClient');

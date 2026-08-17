@@ -1,11 +1,15 @@
 import {
+  listClientRevenueQueryKey,
   listMissionDocumentsQueryKey,
   listTimeEntriesQueryKey,
+  showClientRevenueQueryKey,
+  showInvoiceSummaryQueryKey,
+  showMissionRevenueQueryKey,
 } from "@opusline/api-client/react-query";
 import type { Query } from "@tanstack/react-query";
 import { describe, expect, it } from "vitest";
 
-import { operationFilter } from "./query-invalidation";
+import { operationFilter, revenueFilter } from "./query-invalidation";
 
 function queryWithKey(queryKey: unknown): Query {
   return { queryKey } as Query;
@@ -65,5 +69,41 @@ describe("operationFilter", () => {
     expect(operationFilter("listTimeEntries").predicate(queryWithKey([]))).toBe(
       false,
     );
+  });
+});
+
+/**
+ * Pins revenueFilter to the real generated query keys, so a regeneration that
+ * renames one of the three operations fails here. It cannot catch a *new*
+ * revenue read being added without being listed — nothing in the generated
+ * surface distinguishes those from showRevenue, which deliberately stays out.
+ */
+describe("revenueFilter", () => {
+  it("matches every revenue read", () => {
+    expect(
+      revenueFilter().predicate(queryWithKey(listClientRevenueQueryKey())),
+    ).toBe(true);
+    expect(
+      revenueFilter().predicate(
+        queryWithKey(
+          showClientRevenueQueryKey({ path: { client: "vesterhus" } }),
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      revenueFilter().predicate(
+        queryWithKey(
+          showMissionRevenueQueryKey({
+            path: { client: "vesterhus", mission: "refonte" },
+          }),
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  it("leaves the other invoice reads alone", () => {
+    expect(
+      revenueFilter().predicate(queryWithKey(showInvoiceSummaryQueryKey())),
+    ).toBe(false);
   });
 });

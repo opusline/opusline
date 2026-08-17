@@ -6,7 +6,7 @@ import { afterEach, expect, it, vi } from "vitest";
 
 import { getRouter } from "@/router";
 import { seedCurrentUser } from "@/test/current-user";
-import { clientRevenuePayload } from "@/test/fixtures";
+import { clientRevenueDetailPayload } from "@/test/fixtures";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -103,8 +103,8 @@ function stubApi(
         return overridden;
       }
 
-      if (url.pathname.endsWith("/client-revenue")) {
-        return jsonResponse(200, clientRevenuePayload());
+      if (url.pathname.endsWith("/revenue")) {
+        return jsonResponse(200, clientRevenueDetailPayload());
       }
 
       if (url.pathname.endsWith("/documents")) {
