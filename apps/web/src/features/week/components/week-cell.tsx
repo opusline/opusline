@@ -148,7 +148,7 @@ export function WeekCell({
               )}
             >
               <PlusIcon aria-hidden className="size-3" strokeWidth={2.2} />
-              Ajouter
+              {m.week_cell_add()}
             </span>
           ) : (
             <div

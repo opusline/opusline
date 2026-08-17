@@ -21,6 +21,7 @@ import { WEEK_SKINS, WeekLegend } from "./week-legend";
 
 const LIVE_SKINS: PillSkin[] = [...WEEK_SKINS, "live"];
 
+import { m } from "@/paraglide/messages.js";
 import { WeekMissionsEmptyState } from "./week-missions-empty-state";
 import { WeekToolbar } from "./week-toolbar";
 
@@ -148,7 +149,7 @@ export function WeekPage({
     return (
       <div className="flex flex-col gap-5">
         <h1 className="font-heading font-semibold text-2xl text-foreground-hi">
-          Semaine
+          {m.nav_week()}
         </h1>
         <WeekMissionsEmptyState />
       </div>

@@ -71,7 +71,7 @@ export function WeekToolbar({
           onClick={() => onWeekChange(isoWeekOf(today))}
           variant="outline"
         >
-          Aujourd'hui
+          {m.week_today()}
         </Button>
       </div>
       <div className="flex flex-wrap items-center gap-2">

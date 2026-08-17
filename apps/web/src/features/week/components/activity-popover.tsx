@@ -59,7 +59,7 @@ export function ActivityPopover({
           <span />
         )}
         <Button onClick={onClose} variant="outline">
-          OK
+          {m.common_ok()}
         </Button>
       </div>
     </div>

@@ -329,7 +329,7 @@ export function WeekGrid({
             aria-colindex={1}
             className={cn(HEAD_CLASSES, "border-b px-3.5 py-3")}
           >
-            Mission
+            {m.common_mission()}
           </ColumnHeader>
           {model.columns.map((column, columnIndex) =>
             column.kind === "day" ? (
@@ -375,7 +375,7 @@ export function WeekGrid({
               "border-b border-l px-3.5 py-3 text-right",
             )}
           >
-            Total
+            {m.common_total()}
           </ColumnHeader>
         </GridRow>
 
