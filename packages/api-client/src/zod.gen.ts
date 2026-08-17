@@ -93,30 +93,6 @@ export const zColor = z.union([
 ]);
 
 /**
- * ClientData
- */
-export const zClientData = z.object({
-    id: z.int(),
-    slug: z.string(),
-    name: z.string(),
-    type: zClientType,
-    notes: z.nullable(z.string()),
-    siret: z.nullable(z.string()),
-    vatNumber: z.nullable(z.string()),
-    billingAddressLine1: z.nullable(z.string()),
-    billingAddressLine2: z.nullable(z.string()),
-    billingPostalCode: z.nullable(z.string()),
-    billingCity: z.nullable(z.string()),
-    billingCountry: z.nullable(z.string()),
-    billingContactName: z.nullable(z.string()),
-    billingEmail: z.nullable(z.string()),
-    color: zColor,
-    paymentTermsDays: z.int(),
-    archivedAt: z.nullable(z.iso.datetime()),
-    createdAt: z.iso.datetime()
-});
-
-/**
  * CraCountsData
  */
 export const zCraCountsData = z.object({
@@ -169,26 +145,6 @@ export const zCraListItemData = z.object({
 export const zCraListData = z.object({
     cras: z.array(zCraListItemData),
     counts: zCraCountsData
-});
-
-/**
- * CreateClientData
- */
-export const zCreateClientData = z.object({
-    name: z.string().check(z.minLength(1), z.maxLength(255)),
-    type: zClientType,
-    notes: z.nullish(z.string()),
-    siret: z.nullish(z.string().check(z.maxLength(255))),
-    vatNumber: z.nullish(z.string().check(z.maxLength(255))),
-    billingAddressLine1: z.nullish(z.string().check(z.maxLength(255))),
-    billingAddressLine2: z.nullish(z.string().check(z.maxLength(255))),
-    billingPostalCode: z.nullish(z.string().check(z.maxLength(32))),
-    billingCity: z.nullish(z.string().check(z.maxLength(255))),
-    billingCountry: z.nullish(z.string().check(z.maxLength(255))),
-    billingContactName: z.nullish(z.string().check(z.maxLength(255))),
-    billingEmail: z.nullish(z.email().check(z.maxLength(255))),
-    color: z.optional(zColor),
-    paymentTermsDays: z.optional(z.int().check(z.gte(0), z.lte(365)))
 });
 
 /**
@@ -526,29 +482,6 @@ export const zInvoiceClientTotalsData = z.object({
 });
 
 /**
- * InvoiceData
- */
-export const zInvoiceData = z.object({
-    id: z.int(),
-    clientId: z.int(),
-    missionId: z.nullable(z.int()),
-    number: z.nullable(z.string()),
-    status: zInvoiceStatus,
-    isLate: z.boolean(),
-    issuedOn: z.iso.date(),
-    dueOn: z.iso.date(),
-    paidOn: z.nullable(z.iso.date()),
-    periodStart: z.nullable(z.iso.date()),
-    periodEnd: z.nullable(z.iso.date()),
-    amountHt: zMoneyData,
-    amountVat: zMoneyData,
-    amountTtc: zMoneyData,
-    ttcOverridden: z.boolean(),
-    vatRateBp: z.int(),
-    notes: z.nullable(z.string())
-});
-
-/**
  * InvoiceForecastData
  */
 export const zInvoiceForecastData = z.object({
@@ -619,75 +552,6 @@ export const zMissionData = z.object({
     notes: z.nullable(z.string()),
     startDate: z.nullable(z.iso.date()),
     endDate: z.nullable(z.iso.date())
-});
-
-/**
- * ClientWithMissionsData
- */
-export const zClientWithMissionsData = z.object({
-    id: z.int(),
-    slug: z.string(),
-    name: z.string(),
-    type: zClientType,
-    notes: z.nullable(z.string()),
-    siret: z.nullable(z.string()),
-    vatNumber: z.nullable(z.string()),
-    billingAddressLine1: z.nullable(z.string()),
-    billingAddressLine2: z.nullable(z.string()),
-    billingPostalCode: z.nullable(z.string()),
-    billingCity: z.nullable(z.string()),
-    billingCountry: z.nullable(z.string()),
-    billingContactName: z.nullable(z.string()),
-    billingEmail: z.nullable(z.string()),
-    color: zColor,
-    paymentTermsDays: z.int(),
-    archivedAt: z.nullable(z.iso.datetime()),
-    createdAt: z.iso.datetime(),
-    missions: z.array(zMissionData)
-});
-
-/**
- * ClientListData
- */
-export const zClientListData = z.object({
-    clients: z.array(zClientWithMissionsData)
-});
-
-/**
- * CraDetailData
- */
-export const zCraDetailData = z.object({
-    cra: zCraData,
-    client: zClientData,
-    mission: zMissionData,
-    recipientName: z.string()
-});
-
-/**
- * InvoiceDetailData
- */
-export const zInvoiceDetailData = z.object({
-    invoice: zInvoiceData,
-    client: zClientData,
-    mission: z.nullable(zMissionData),
-    history: z.array(zInvoiceEventData)
-});
-
-/**
- * InvoiceListItemData
- */
-export const zInvoiceListItemData = z.object({
-    invoice: zInvoiceData,
-    client: zClientData,
-    mission: z.nullable(zMissionData)
-});
-
-/**
- * InvoiceListData
- */
-export const zInvoiceListData = z.object({
-    invoices: z.array(zInvoiceListItemData),
-    clientTotals: z.array(zInvoiceClientTotalsData)
 });
 
 /**
@@ -780,23 +644,6 @@ export const zRevenueNetData = z.object({
 export const zRevenueVatData = z.object({
     amount: zMoneyData,
     rateBp: z.int()
-});
-
-/**
- * RevenueData
- */
-export const zRevenueData = z.object({
-    period: z.string(),
-    basis: zRevenueBasis,
-    fellBack: z.boolean(),
-    lastActivePeriod: z.nullable(z.string()),
-    total: zMoneyData,
-    previous: zRevenueComparisonData,
-    vat: z.nullable(zRevenueVatData),
-    net: z.nullable(zRevenueNetData),
-    months: z.array(zRevenueMonthData),
-    invoices: z.array(zInvoiceListItemData),
-    clients: z.array(zRevenueClientData)
 });
 
 /**
@@ -961,26 +808,6 @@ export const zUpdateBankBalanceData = z.object({
         amount: z.int(),
         currency: zCurrency
     }))
-});
-
-/**
- * UpdateClientData
- */
-export const zUpdateClientData = z.object({
-    name: z.string().check(z.minLength(1), z.maxLength(255)),
-    type: zClientType,
-    notes: z.nullish(z.string()),
-    siret: z.nullish(z.string().check(z.maxLength(255))),
-    vatNumber: z.nullish(z.string().check(z.maxLength(255))),
-    billingAddressLine1: z.nullish(z.string().check(z.maxLength(255))),
-    billingAddressLine2: z.nullish(z.string().check(z.maxLength(255))),
-    billingPostalCode: z.nullish(z.string().check(z.maxLength(32))),
-    billingCity: z.nullish(z.string().check(z.maxLength(255))),
-    billingCountry: z.nullish(z.string().check(z.maxLength(255))),
-    billingContactName: z.nullish(z.string().check(z.maxLength(255))),
-    billingEmail: z.nullish(z.email().check(z.maxLength(255))),
-    color: z.optional(zColor),
-    paymentTermsDays: z.optional(z.int().check(z.gte(0), z.lte(365)))
 });
 
 /**
@@ -1221,6 +1048,200 @@ export const zUpdateSettingsData = z.object({
         amount: z.int().check(z.gte(1)),
         currency: zCurrency
     }))
+});
+
+/**
+ * VatTreatment
+ *
+ * Which VAT rule an invoice to this client falls under. Declared per client rather than inferred from the billing address: that address is free text, and guessing a tax jurisdiction out of "Canada", "canada" or "CA" would put a wrong legal mention on a real invoice. The freelancer states the treatment once; Opusline applies it every time.  Labels and the legal mentions they carry live on the frontend, like every other enum here.
+ * | |
+ * |---|
+ * | `0` <br/> The account's own VAT applies — the domestic case, and the default. |
+ * | `1` <br/> EU B2B holding a VAT number: the client accounts for the VAT, not you. |
+ * | `2` <br/> Outside the EU: the service falls outside the scope of French VAT. |
+ */
+export const zVatTreatment = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * ClientData
+ */
+export const zClientData = z.object({
+    id: z.int(),
+    slug: z.string(),
+    name: z.string(),
+    type: zClientType,
+    notes: z.nullable(z.string()),
+    siret: z.nullable(z.string()),
+    vatNumber: z.nullable(z.string()),
+    vatTreatment: zVatTreatment,
+    billingAddressLine1: z.nullable(z.string()),
+    billingAddressLine2: z.nullable(z.string()),
+    billingPostalCode: z.nullable(z.string()),
+    billingCity: z.nullable(z.string()),
+    billingCountry: z.nullable(z.string()),
+    billingContactName: z.nullable(z.string()),
+    billingEmail: z.nullable(z.string()),
+    color: zColor,
+    paymentTermsDays: z.int(),
+    archivedAt: z.nullable(z.iso.datetime()),
+    createdAt: z.iso.datetime()
+});
+
+/**
+ * ClientWithMissionsData
+ */
+export const zClientWithMissionsData = z.object({
+    id: z.int(),
+    slug: z.string(),
+    name: z.string(),
+    type: zClientType,
+    notes: z.nullable(z.string()),
+    siret: z.nullable(z.string()),
+    vatNumber: z.nullable(z.string()),
+    vatTreatment: zVatTreatment,
+    billingAddressLine1: z.nullable(z.string()),
+    billingAddressLine2: z.nullable(z.string()),
+    billingPostalCode: z.nullable(z.string()),
+    billingCity: z.nullable(z.string()),
+    billingCountry: z.nullable(z.string()),
+    billingContactName: z.nullable(z.string()),
+    billingEmail: z.nullable(z.string()),
+    color: zColor,
+    paymentTermsDays: z.int(),
+    archivedAt: z.nullable(z.iso.datetime()),
+    createdAt: z.iso.datetime(),
+    missions: z.array(zMissionData)
+});
+
+/**
+ * ClientListData
+ */
+export const zClientListData = z.object({
+    clients: z.array(zClientWithMissionsData)
+});
+
+/**
+ * CraDetailData
+ */
+export const zCraDetailData = z.object({
+    cra: zCraData,
+    client: zClientData,
+    mission: zMissionData,
+    recipientName: z.string()
+});
+
+/**
+ * CreateClientData
+ */
+export const zCreateClientData = z.object({
+    name: z.string().check(z.minLength(1), z.maxLength(255)),
+    type: zClientType,
+    notes: z.nullish(z.string()),
+    siret: z.nullish(z.string().check(z.maxLength(255))),
+    vatNumber: z.nullish(z.string().check(z.maxLength(255))),
+    vatTreatment: z.nullish(zVatTreatment),
+    billingAddressLine1: z.nullish(z.string().check(z.maxLength(255))),
+    billingAddressLine2: z.nullish(z.string().check(z.maxLength(255))),
+    billingPostalCode: z.nullish(z.string().check(z.maxLength(32))),
+    billingCity: z.nullish(z.string().check(z.maxLength(255))),
+    billingCountry: z.nullish(z.string().check(z.maxLength(255))),
+    billingContactName: z.nullish(z.string().check(z.maxLength(255))),
+    billingEmail: z.nullish(z.email().check(z.maxLength(255))),
+    color: z.optional(zColor),
+    paymentTermsDays: z.optional(z.int().check(z.gte(0), z.lte(365)))
+});
+
+/**
+ * InvoiceData
+ */
+export const zInvoiceData = z.object({
+    id: z.int(),
+    clientId: z.int(),
+    missionId: z.nullable(z.int()),
+    number: z.nullable(z.string()),
+    status: zInvoiceStatus,
+    isLate: z.boolean(),
+    issuedOn: z.iso.date(),
+    dueOn: z.iso.date(),
+    paidOn: z.nullable(z.iso.date()),
+    periodStart: z.nullable(z.iso.date()),
+    periodEnd: z.nullable(z.iso.date()),
+    amountHt: zMoneyData,
+    amountVat: zMoneyData,
+    amountTtc: zMoneyData,
+    ttcOverridden: z.boolean(),
+    vatRateBp: z.int(),
+    vatTreatment: zVatTreatment,
+    notes: z.nullable(z.string())
+});
+
+/**
+ * InvoiceDetailData
+ */
+export const zInvoiceDetailData = z.object({
+    invoice: zInvoiceData,
+    client: zClientData,
+    mission: z.nullable(zMissionData),
+    history: z.array(zInvoiceEventData)
+});
+
+/**
+ * InvoiceListItemData
+ */
+export const zInvoiceListItemData = z.object({
+    invoice: zInvoiceData,
+    client: zClientData,
+    mission: z.nullable(zMissionData)
+});
+
+/**
+ * InvoiceListData
+ */
+export const zInvoiceListData = z.object({
+    invoices: z.array(zInvoiceListItemData),
+    clientTotals: z.array(zInvoiceClientTotalsData)
+});
+
+/**
+ * RevenueData
+ */
+export const zRevenueData = z.object({
+    period: z.string(),
+    basis: zRevenueBasis,
+    fellBack: z.boolean(),
+    lastActivePeriod: z.nullable(z.string()),
+    total: zMoneyData,
+    previous: zRevenueComparisonData,
+    vat: z.nullable(zRevenueVatData),
+    net: z.nullable(zRevenueNetData),
+    months: z.array(zRevenueMonthData),
+    invoices: z.array(zInvoiceListItemData),
+    clients: z.array(zRevenueClientData)
+});
+
+/**
+ * UpdateClientData
+ */
+export const zUpdateClientData = z.object({
+    name: z.string().check(z.minLength(1), z.maxLength(255)),
+    type: zClientType,
+    notes: z.nullish(z.string()),
+    siret: z.nullish(z.string().check(z.maxLength(255))),
+    vatNumber: z.nullish(z.string().check(z.maxLength(255))),
+    vatTreatment: z.nullish(zVatTreatment),
+    billingAddressLine1: z.nullish(z.string().check(z.maxLength(255))),
+    billingAddressLine2: z.nullish(z.string().check(z.maxLength(255))),
+    billingPostalCode: z.nullish(z.string().check(z.maxLength(32))),
+    billingCity: z.nullish(z.string().check(z.maxLength(255))),
+    billingCountry: z.nullish(z.string().check(z.maxLength(255))),
+    billingContactName: z.nullish(z.string().check(z.maxLength(255))),
+    billingEmail: z.nullish(z.email().check(z.maxLength(255))),
+    color: z.optional(zColor),
+    paymentTermsDays: z.optional(z.int().check(z.gte(0), z.lte(365)))
 });
 
 export const zGetPingResponse = z.object({

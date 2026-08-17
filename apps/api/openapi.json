@@ -3723,6 +3723,9 @@
                             "null"
                         ]
                     },
+                    "vatTreatment": {
+                        "$ref": "#/components/schemas/VatTreatment"
+                    },
                     "billingAddressLine1": {
                         "type": [
                             "string",
@@ -3791,6 +3794,7 @@
                     "notes",
                     "siret",
                     "vatNumber",
+                    "vatTreatment",
                     "billingAddressLine1",
                     "billingAddressLine2",
                     "billingPostalCode",
@@ -3867,6 +3871,9 @@
                             "null"
                         ]
                     },
+                    "vatTreatment": {
+                        "$ref": "#/components/schemas/VatTreatment"
+                    },
                     "billingAddressLine1": {
                         "type": [
                             "string",
@@ -3941,6 +3948,7 @@
                     "notes",
                     "siret",
                     "vatNumber",
+                    "vatTreatment",
                     "billingAddressLine1",
                     "billingAddressLine2",
                     "billingPostalCode",
@@ -4263,6 +4271,16 @@
                             "null"
                         ],
                         "maxLength": 255
+                    },
+                    "vatTreatment": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/VatTreatment"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "billingAddressLine1": {
                         "type": [
@@ -4890,6 +4908,9 @@
                     "vatRateBp": {
                         "type": "integer"
                     },
+                    "vatTreatment": {
+                        "$ref": "#/components/schemas/VatTreatment"
+                    },
                     "notes": {
                         "type": [
                             "string",
@@ -4914,6 +4935,7 @@
                     "amountTtc",
                     "ttcOverridden",
                     "vatRateBp",
+                    "vatTreatment",
                     "notes"
                 ],
                 "title": "InvoiceData"
@@ -6362,6 +6384,16 @@
                         ],
                         "maxLength": 255
                     },
+                    "vatTreatment": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/VatTreatment"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "billingAddressLine1": {
                         "type": [
                             "string",
@@ -7107,6 +7139,21 @@
                     "ReelNormal"
                 ],
                 "title": "VatRegime"
+            },
+            "VatTreatment": {
+                "type": "integer",
+                "description": "Which VAT rule an invoice to this client falls under. Declared per client rather than inferred from the billing address: that address is free text, and guessing a tax jurisdiction out of \"Canada\", \"canada\" or \"CA\" would put a wrong legal mention on a real invoice. The freelancer states the treatment once; Opusline applies it every time.  Labels and the legal mentions they carry live on the frontend, like every other enum here.\n| |\n|---|\n| `0` <br/> The account's own VAT applies — the domestic case, and the default. |\n| `1` <br/> EU B2B holding a VAT number: the client accounts for the VAT, not you. |\n| `2` <br/> Outside the EU: the service falls outside the scope of French VAT. |",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "Standard",
+                    "EuReverseCharge",
+                    "OutsideEu"
+                ],
+                "title": "VatTreatment"
             }
         },
         "responses": {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Clients\Models;
 
 use App\Domain\Clients\Enums\ClientType;
+use App\Domain\Clients\Enums\VatTreatment;
 use App\Domain\Clients\Factories\ClientFactory;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Models\Mission;
@@ -32,6 +33,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property ?string $notes
  * @property ?string $siret
  * @property ?string $vat_number
+ * @property VatTreatment $vat_treatment
  * @property ?string $billing_address_line1
  * @property ?string $billing_address_line2
  * @property ?string $billing_postal_code
@@ -51,6 +53,7 @@ use Spatie\Sluggable\SlugOptions;
     'notes',
     'siret',
     'vat_number',
+    'vat_treatment',
     'billing_address_line1',
     'billing_address_line2',
     'billing_postal_code',
@@ -101,6 +104,7 @@ class Client extends Model implements HasMedia
     {
         return [
             'type' => ClientType::class,
+            'vat_treatment' => VatTreatment::class,
             'color' => Color::class,
             'payment_terms_days' => 'integer',
             'archived_at' => 'datetime',

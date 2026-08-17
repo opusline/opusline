@@ -3,6 +3,7 @@ import type {
   Color,
   CreateClientData,
   UpdateClientData,
+  VatTreatment,
 } from "@opusline/api-client";
 
 import { valueOrNull } from "@/lib/form";
@@ -20,6 +21,7 @@ export type ClientFormValues = {
   type: ClientType;
   siret: string;
   vatNumber: string;
+  vatTreatment: VatTreatment;
   billingAddressLine1: string;
   billingAddressLine2: string;
   billingPostalCode: string;
@@ -39,6 +41,7 @@ export function toClientPayload(
     type: values.type,
     siret: valueOrNull(values.siret),
     vatNumber: valueOrNull(values.vatNumber),
+    vatTreatment: values.vatTreatment,
     billingAddressLine1: valueOrNull(values.billingAddressLine1),
     billingAddressLine2: valueOrNull(values.billingAddressLine2),
     billingPostalCode: valueOrNull(values.billingPostalCode),

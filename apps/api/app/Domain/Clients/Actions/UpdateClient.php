@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Clients\Actions;
 
 use App\Domain\Clients\Data\UpdateClientData;
+use App\Domain\Clients\Enums\VatTreatment;
 use App\Domain\Clients\Models\Client;
 
 class UpdateClient
@@ -17,6 +18,7 @@ class UpdateClient
             'notes' => $data->notes,
             'siret' => $data->siret,
             'vat_number' => $data->vatNumber,
+            'vat_treatment' => $data->vatTreatment ?? VatTreatment::Standard,
             'billing_address_line1' => $data->billingAddressLine1,
             'billing_address_line2' => $data->billingAddressLine2,
             'billing_postal_code' => $data->billingPostalCode,

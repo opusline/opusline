@@ -82,6 +82,7 @@ return [
     'treasuryBuffer' => 'matelas de trésorerie',
     'urssafPeriodicity' => 'périodicité URSSAF',
     'vatNumber' => 'numéro de TVA',
+    'vatTreatment' => 'régime de TVA du client',
     'vatRateBp' => 'taux de TVA',
     'vatRegime' => 'régime de TVA',
     'version' => 'version',

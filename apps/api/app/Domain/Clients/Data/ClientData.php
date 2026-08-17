@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Clients\Data;
 
 use App\Domain\Clients\Enums\ClientType;
+use App\Domain\Clients\Enums\VatTreatment;
 use App\Domain\Shared\Enums\Color;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Data;
@@ -19,6 +20,7 @@ class ClientData extends Data
         public ?string $notes,
         public ?string $siret,
         public ?string $vatNumber,
+        public VatTreatment $vatTreatment,
         public ?string $billingAddressLine1,
         public ?string $billingAddressLine2,
         public ?string $billingPostalCode,

@@ -30,6 +30,7 @@ const client: ClientWithMissionsData = {
   notes: null,
   siret: null,
   vatNumber: null,
+  vatTreatment: 0,
   billingAddressLine1: null,
   billingAddressLine2: null,
   billingPostalCode: null,

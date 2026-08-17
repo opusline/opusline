@@ -26,6 +26,7 @@ export const CLIENT_FIXTURE = {
   notes: null,
   siret: null,
   vatNumber: null,
+  vatTreatment: 0,
   billingAddressLine1: null,
   billingAddressLine2: null,
   billingPostalCode: null,
@@ -73,6 +74,7 @@ export const INVOICE_FIXTURE = {
   amountTtc: eur(198_000),
   ttcOverridden: false,
   vatRateBp: 2000,
+  vatTreatment: 0,
   notes: null,
 } satisfies InvoiceData;
 

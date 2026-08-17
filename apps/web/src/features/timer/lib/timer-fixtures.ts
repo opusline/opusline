@@ -36,6 +36,7 @@ const baseClient = {
   paymentTermsDays: 45,
   siret: null,
   vatNumber: null,
+  vatTreatment: 0,
 } satisfies Partial<ClientWithMissionsData>;
 
 export const DEMO_MISSIONS = {

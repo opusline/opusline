@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Domain\Clients\Data;
 
 use App\Domain\Clients\Enums\ClientType;
+use App\Domain\Clients\Enums\VatTreatment;
 use App\Domain\Shared\Enums\Color;
 use App\Domain\Shared\Validation\AuthenticatedUserId;
 use App\Domain\Shared\Validation\Siret;
 use App\Domain\Shared\Validation\VatNumber;
 use Spatie\LaravelData\Attributes\Validation\Between;
 use Spatie\LaravelData\Attributes\Validation\Email;
+use Spatie\LaravelData\Attributes\Validation\Enum;
 use Spatie\LaravelData\Attributes\Validation\IntegerType;
 use Spatie\LaravelData\Attributes\Validation\Max;
 use Spatie\LaravelData\Attributes\Validation\Min;
@@ -31,6 +33,8 @@ class CreateClientData extends Data
         public ?string $siret = null,
         #[Max(255), Rule(new VatNumber)]
         public ?string $vatNumber = null,
+        #[Enum(VatTreatment::class)]
+        public ?VatTreatment $vatTreatment = null,
         #[Max(255)]
         public ?string $billingAddressLine1 = null,
         #[Max(255)]

@@ -11,6 +11,7 @@ const client: ClientWithMissionsData = {
   notes: null,
   siret: "443 061 841 00047",
   vatNumber: "FR64 443061841",
+  vatTreatment: 0,
   billingAddressLine1: "12 rue de la Paix",
   billingAddressLine2: null,
   billingPostalCode: "44000",

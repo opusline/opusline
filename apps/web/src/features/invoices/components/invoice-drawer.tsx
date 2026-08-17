@@ -16,6 +16,7 @@ import {
 import { formatAmountWithCents, formatPercentFromBp } from "@/lib/billing";
 import { calendarDateNumericLabel, calendarRangeLabel } from "@/lib/dates";
 import { invoiceEventLabel, invoiceStatusBadge } from "@/lib/invoice-status";
+import { vatMention } from "@/lib/vat-treatment";
 import { m } from "@/paraglide/messages.js";
 
 import { Fact } from "./invoice-fact";
@@ -124,6 +125,11 @@ function InvoiceDrawerBody({
           label="Total TTC"
           value={formatAmountWithCents(format, invoice.amountTtc.amount)}
         />
+        {vatMention(invoice.vatTreatment) !== null && (
+          <p className="px-1 py-2 text-muted-foreground-3 text-xs">
+            {vatMention(invoice.vatTreatment)}
+          </p>
+        )}
         {invoice.paidOn !== null && (
           <Fact
             label={m.invoices_paid_on_label()}

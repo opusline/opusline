@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Models;
 
+use App\Domain\Clients\Enums\VatTreatment;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Invoices\Actions\ComputeInvoiceAmounts;
 use App\Domain\Invoices\Enums\InvoiceStatus;
@@ -38,6 +39,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property Money $amount_ht_cents
  * @property Money $amount_ttc_cents
  * @property int $vat_rate_bp
+ * @property VatTreatment $vat_treatment
  * @property string $currency
  * @property ?string $notes
  * @property CarbonImmutable $created_at
@@ -60,6 +62,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'amount_ht_cents',
     'amount_ttc_cents',
     'vat_rate_bp',
+    'vat_treatment',
     'notes',
 ])]
 class Invoice extends Model
@@ -109,6 +112,7 @@ class Invoice extends Model
             'amount_ht_cents' => MoneyIntegerCast::class.':currency',
             'amount_ttc_cents' => MoneyIntegerCast::class.':currency',
             'vat_rate_bp' => 'integer',
+            'vat_treatment' => VatTreatment::class,
         ];
     }
 

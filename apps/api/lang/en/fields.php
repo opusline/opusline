@@ -82,6 +82,7 @@ return [
     'treasuryBuffer' => 'treasury buffer',
     'urssafPeriodicity' => 'URSSAF periodicity',
     'vatNumber' => 'VAT number',
+    'vatTreatment' => 'client VAT treatment',
     'vatRateBp' => 'VAT rate',
     'vatRegime' => 'VAT regime',
     'version' => 'version',

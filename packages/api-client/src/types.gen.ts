@@ -144,6 +144,7 @@ export type ClientData = {
     notes: string | null;
     siret: string | null;
     vatNumber: string | null;
+    vatTreatment: VatTreatment;
     billingAddressLine1: string | null;
     billingAddressLine2: string | null;
     billingPostalCode: string | null;
@@ -180,6 +181,7 @@ export type ClientWithMissionsData = {
     notes: string | null;
     siret: string | null;
     vatNumber: string | null;
+    vatTreatment: VatTreatment;
     billingAddressLine1: string | null;
     billingAddressLine2: string | null;
     billingPostalCode: string | null;
@@ -289,6 +291,7 @@ export type CreateClientData = {
     notes?: string | null;
     siret?: string | null;
     vatNumber?: string | null;
+    vatTreatment?: VatTreatment | null;
     billingAddressLine1?: string | null;
     billingAddressLine2?: string | null;
     billingPostalCode?: string | null;
@@ -470,6 +473,7 @@ export type InvoiceData = {
     amountTtc: MoneyData;
     ttcOverridden: boolean;
     vatRateBp: number;
+    vatTreatment: VatTreatment;
     notes: string | null;
 };
 
@@ -942,6 +946,7 @@ export type UpdateClientData = {
     notes?: string | null;
     siret?: string | null;
     vatNumber?: string | null;
+    vatTreatment?: VatTreatment | null;
     billingAddressLine1?: string | null;
     billingAddressLine2?: string | null;
     billingPostalCode?: string | null;
@@ -1153,6 +1158,18 @@ export type UserData = {
  * VatRegime
  */
 export type VatRegime = 0 | 1 | 2;
+
+/**
+ * VatTreatment
+ *
+ * Which VAT rule an invoice to this client falls under. Declared per client rather than inferred from the billing address: that address is free text, and guessing a tax jurisdiction out of "Canada", "canada" or "CA" would put a wrong legal mention on a real invoice. The freelancer states the treatment once; Opusline applies it every time.  Labels and the legal mentions they carry live on the frontend, like every other enum here.
+ * | |
+ * |---|
+ * | `0` <br/> The account's own VAT applies — the domestic case, and the default. |
+ * | `1` <br/> EU B2B holding a VAT number: the client accounts for the VAT, not you. |
+ * | `2` <br/> Outside the EU: the service falls outside the scope of French VAT. |
+ */
+export type VatTreatment = 0 | 1 | 2;
 
 export type GetPingData = {
     body?: never;

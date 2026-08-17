@@ -20,6 +20,11 @@ import { clientTypeLabel } from "@/lib/client-types";
 import type { FormSubmitResult } from "@/lib/form";
 import type { LogoUploadResult } from "@/lib/logos";
 import { COLOR_CLASSES, COLORS, colorLabel } from "@/lib/palette";
+import {
+  VAT_TREATMENTS,
+  vatTreatmentHint,
+  vatTreatmentLabel,
+} from "@/lib/vat-treatment";
 import { m } from "@/paraglide/messages.js";
 import {
   BILLING_ADDRESS_NAMES,
@@ -84,6 +89,7 @@ export function ClientEditForm({
       type: client.type,
       siret: client.siret ?? "",
       vatNumber: client.vatNumber ?? "",
+      vatTreatment: client.vatTreatment,
       billingAddressLine1: client.billingAddressLine1 ?? "",
       billingAddressLine2: client.billingAddressLine2 ?? "",
       billingPostalCode: client.billingPostalCode ?? "",
@@ -264,6 +270,37 @@ export function ClientEditForm({
                   labelClassName={EDIT_LABEL_CLASSES}
                   font="mono"
                 />
+              )}
+            </form.Field>
+
+            <form.Field name="vatTreatment">
+              {(field) => (
+                <div className="flex flex-col gap-1.5">
+                  <span className={EDIT_LABEL_CLASSES}>
+                    {m.vat_treatment_label()}
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {VAT_TREATMENTS.map((treatment) => (
+                      <Button
+                        key={treatment}
+                        aria-pressed={field.state.value === treatment}
+                        onClick={() => field.handleChange(treatment)}
+                        size="sm"
+                        type="button"
+                        variant={
+                          field.state.value === treatment
+                            ? "default"
+                            : "outline"
+                        }
+                      >
+                        {vatTreatmentLabel(treatment)}
+                      </Button>
+                    ))}
+                  </div>
+                  <p className="text-muted-foreground-3 text-xs">
+                    {vatTreatmentHint(field.state.value)}
+                  </p>
+                </div>
               )}
             </form.Field>
 

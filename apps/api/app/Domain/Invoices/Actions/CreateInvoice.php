@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Actions;
 
+use App\Domain\Clients\Enums\VatTreatment;
 use App\Domain\Invoices\Data\CreateInvoiceData;
 use App\Domain\Invoices\Enums\InvoiceEventKind;
 use App\Domain\Invoices\Enums\InvoiceStatus;
@@ -34,7 +35,9 @@ class CreateInvoice
 
         $client = $user->clients()->whereKey($data->clientId)->firstOrFail();
         $status = $data->status ?? InvoiceStatus::Draft;
-        $vatRateBp = $data->vatRateBp ?? $user->settings()->sole()->effectiveVatRateBp();
+        $vatTreatment = $client->vat_treatment;
+        $vatRateBp = $data->vatRateBp
+            ?? $this->defaultVatRateBp($user, $vatTreatment);
         $amountHt = $data->amountHt->toMoney();
 
         $attributes = [
@@ -52,6 +55,7 @@ class CreateInvoice
             'amount_ttc_cents' => $data->amountTtc?->toMoney()
                 ?? $this->computeInvoiceAmounts->ttcFor($amountHt, $vatRateBp),
             'vat_rate_bp' => $vatRateBp,
+            'vat_treatment' => $vatTreatment,
             'notes' => $data->notes,
         ];
 
@@ -77,6 +81,19 @@ class CreateInvoice
 
             return $invoice;
         });
+    }
+
+    /**
+     * An exempt client bills at zero whatever the account charges at home: a
+     * reverse charge hands the VAT to the client, and a service outside the EU
+     * never entered the scope of French VAT. An explicit rate on the request
+     * still wins — the caller has said what it wants.
+     */
+    private function defaultVatRateBp(User $user, VatTreatment $vatTreatment): int
+    {
+        return $vatTreatment->exemptsVat()
+            ? 0
+            : $user->settings()->sole()->effectiveVatRateBp();
     }
 
     private function recordHistory(Invoice $invoice, InvoiceStatus $status, CarbonImmutable $issuedOn): void

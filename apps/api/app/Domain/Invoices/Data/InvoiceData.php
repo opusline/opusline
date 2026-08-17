@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Data;
 
+use App\Domain\Clients\Enums\VatTreatment;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Shared\Data\MoneyData;
@@ -36,6 +37,8 @@ class InvoiceData extends Data
         public MoneyData $amountTtc,
         public bool $ttcOverridden,
         public int $vatRateBp,
+        /** Which VAT rule applied when the invoice was drawn up. */
+        public VatTreatment $vatTreatment,
         public ?string $notes,
     ) {}
 
@@ -58,6 +61,7 @@ class InvoiceData extends Data
             amountTtc: MoneyData::fromMoney($invoice->amount_ttc_cents),
             ttcOverridden: $invoice->isTtcOverridden(),
             vatRateBp: $invoice->vat_rate_bp,
+            vatTreatment: $invoice->vat_treatment,
             notes: $invoice->notes,
         );
     }
