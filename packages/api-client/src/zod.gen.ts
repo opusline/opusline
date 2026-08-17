@@ -713,6 +713,14 @@ export const zClientRevenueData = z.object({
 });
 
 /**
+ * ClientRevenueDetailData
+ */
+export const zClientRevenueDetailData = z.object({
+    year: z.int(),
+    revenue: zClientRevenueData
+});
+
+/**
  * ClientRevenueListData
  */
 export const zClientRevenueListData = z.object({
@@ -1410,6 +1418,19 @@ export const zUploadClientLogoPath = z.object({
  * No content
  */
 export const zUploadClientLogoResponse = z.void();
+
+export const zShowClientRevenuePath = z.object({
+    client: z.string()
+});
+
+export const zShowClientRevenueResponse = zClientRevenueDetailData;
+
+export const zShowMissionRevenuePath = z.object({
+    client: z.string(),
+    mission: z.string()
+});
+
+export const zShowMissionRevenueResponse = zMissionRevenueData;
 
 export const zListClientRevenueResponse = zClientRevenueListData;
 

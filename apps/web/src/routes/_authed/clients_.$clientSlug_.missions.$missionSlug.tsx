@@ -1,7 +1,6 @@
 import type { MissionStatus, UpdateMissionData } from "@opusline/api-client";
 import {
   deleteMissionDocumentMutation,
-  listClientRevenueOptions,
   listClientsQueryKey,
   listMissionDocumentsOptions,
   listMissionDocumentsQueryKey,
@@ -9,6 +8,7 @@ import {
   showClientOptions,
   showMissionOptions,
   showMissionQueryKey,
+  showMissionRevenueOptions,
   updateMissionMutation,
   uploadMissionDocumentMutation,
 } from "@opusline/api-client/react-query";
@@ -20,7 +20,6 @@ import { useRef, useState } from "react";
 
 import { DocumentsTab } from "@/components/documents-tab";
 import { MissionDetailPage } from "@/features/missions/components/mission-detail-page";
-import { findClientRevenue, findMissionRevenue } from "@/lib/client-revenue";
 import {
   documentHandlers,
   isClientDocument,
@@ -49,7 +48,9 @@ function MissionDetailRoute() {
   const documentsQuery = useQuery(
     listMissionDocumentsOptions({ path: missionPath }),
   );
-  const revenueQuery = useQuery(listClientRevenueOptions());
+  const revenueQuery = useQuery(
+    showMissionRevenueOptions({ path: missionPath }),
+  );
   const entriesQuery = useQuery(
     listMissionTimeEntriesOptions({ path: missionPath }),
   );
@@ -228,10 +229,8 @@ function MissionDetailRoute() {
       entries={entriesQuery.data?.timeEntries ?? []}
       isEntriesError={entriesQuery.isError}
       isEntriesPending={entriesQuery.isPending}
-      revenue={findMissionRevenue(
-        findClientRevenue(revenueQuery.data, clientQuery.data.id),
-        missionQuery.data.id,
-      )}
+      revenue={revenueQuery.data}
+      revenueFailed={revenueQuery.isError}
     />
   );
 }

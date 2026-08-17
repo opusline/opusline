@@ -1001,6 +1001,90 @@
                 }
             }
         },
+        "/clients/{client}/revenue": {
+            "get": {
+                "operationId": "showClientRevenue",
+                "tags": [
+                    "ClientRevenue"
+                ],
+                "parameters": [
+                    {
+                        "name": "client",
+                        "in": "path",
+                        "required": true,
+                        "description": "The client slug",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClientRevenueDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/clients/{client}/missions/{mission}/revenue": {
+            "get": {
+                "operationId": "showMissionRevenue",
+                "summary": "$client is unused but load-bearing: the implicit binding resolves it, and\nthe route's scopeBindings() then resolves the mission off its missions()",
+                "tags": [
+                    "ClientRevenue"
+                ],
+                "parameters": [
+                    {
+                        "name": "client",
+                        "in": "path",
+                        "required": true,
+                        "description": "The client slug",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "mission",
+                        "in": "path",
+                        "required": true,
+                        "description": "The mission slug",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MissionRevenueData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/client-revenue": {
             "get": {
                 "operationId": "listClientRevenue",
@@ -3922,6 +4006,22 @@
                     "missions"
                 ],
                 "title": "ClientRevenueData"
+            },
+            "ClientRevenueDetailData": {
+                "type": "object",
+                "properties": {
+                    "year": {
+                        "type": "integer"
+                    },
+                    "revenue": {
+                        "$ref": "#/components/schemas/ClientRevenueData"
+                    }
+                },
+                "required": [
+                    "year",
+                    "revenue"
+                ],
+                "title": "ClientRevenueDetailData"
             },
             "ClientRevenueListData": {
                 "type": "object",

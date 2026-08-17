@@ -5,10 +5,10 @@ import {
   deleteClientLogoMutation,
   listClientDocumentsOptions,
   listClientDocumentsQueryKey,
-  listClientRevenueOptions,
   listClientsQueryKey,
   showClientOptions,
   showClientQueryKey,
+  showClientRevenueOptions,
   unarchiveClientMutation,
   updateClientMutation,
   uploadClientDocumentMutation,
@@ -22,7 +22,6 @@ import { useState } from "react";
 
 import { DocumentsTab } from "@/components/documents-tab";
 import { ClientDetailPage } from "@/features/clients/components/client-detail-page";
-import { findClientRevenue } from "@/lib/client-revenue";
 import { clientDocumentDownloadHref, documentHandlers } from "@/lib/documents";
 import type { FormSubmitResult } from "@/lib/form";
 import { clientLogoHref, logoHandlers } from "@/lib/logos";
@@ -52,7 +51,7 @@ function ClientDetailRoute() {
   const documentsQuery = useQuery(
     listClientDocumentsOptions({ path: { client } }),
   );
-  const revenueQuery = useQuery(listClientRevenueOptions());
+  const revenueQuery = useQuery(showClientRevenueOptions({ path: { client } }));
 
   const updateClient = useMutation(updateClientMutation());
   const archiveClient = useMutation(archiveClientMutation());
@@ -200,7 +199,8 @@ function ClientDetailRoute() {
       onToggleArchive={() => void handleToggleArchive()}
       onUpdate={handleUpdate}
       onUploadLogo={handleUploadLogo}
-      revenue={findClientRevenue(revenueQuery.data, data.id)}
+      revenue={revenueQuery.data?.revenue}
+      revenueFailed={revenueQuery.isError}
       revenueYear={revenueQuery.data?.year}
     />
   );

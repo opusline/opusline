@@ -30,6 +30,7 @@ import {
   type ImportStatementSubmit,
 } from "@/features/bank/components/import-statement-dialog";
 import { requireFrenchFiscality } from "@/lib/fiscality";
+import { revenueFilter } from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -64,13 +65,14 @@ function BankRoute() {
   };
 
   // Validating a suggestion marked an invoice paid, so the invoice screens are
-  // stale too.
+  // stale too — and with them the client and mission revenue figures.
   const refreshInvoices = async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: listInvoicesQueryKey() }),
       queryClient.invalidateQueries({
         queryKey: showInvoiceSummaryQueryKey(),
       }),
+      queryClient.invalidateQueries(revenueFilter()),
     ]);
   };
 

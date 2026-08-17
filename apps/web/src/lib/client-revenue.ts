@@ -11,18 +11,37 @@ import { m } from "@/paraglide/messages.js";
 /** What every revenue cell shows before the figures land, or when there are none. */
 export const REVENUE_PLACEHOLDER = "—";
 
-export function findClientRevenue(
+/**
+ * The listing renders one row per client and one per mission, each needing its
+ * own figures — indexing once beats scanning the payload per row.
+ */
+export function indexClientRevenue(
   revenue: ClientRevenueListData | undefined,
-  clientId: number,
-): ClientRevenueData | undefined {
-  return revenue?.clients.find((client) => client.clientId === clientId);
+): Map<number, ClientRevenueData> {
+  return new Map(
+    revenue?.clients.map((client) => [client.clientId, client]) ?? [],
+  );
 }
 
-export function findMissionRevenue(
-  client: ClientRevenueData | undefined,
-  missionId: number,
-): MissionRevenueData | undefined {
-  return client?.missions.find((mission) => mission.missionId === missionId);
+/** Mission ids are unique account-wide, so one flat index covers every client. */
+export function indexMissionRevenue(
+  clients: ClientRevenueData[] | undefined,
+): Map<number, MissionRevenueData> {
+  return new Map(
+    clients?.flatMap((client) =>
+      client.missions.map((mission) => [mission.missionId, mission] as const),
+    ) ?? [],
+  );
+}
+
+/**
+ * The authoritative year is cut in the account timezone and arrives with the
+ * figures, so the label carries no year until they land.
+ */
+export function revenueYearLabel(year: number | undefined): string {
+  return year === undefined
+    ? m.clients_head_revenue_short()
+    : m.clients_head_revenue({ year });
 }
 
 /**

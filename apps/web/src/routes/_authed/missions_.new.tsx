@@ -13,6 +13,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { NewMissionPage } from "@/features/missions/components/new-mission-page";
 import type { FormSubmitResult } from "@/lib/form";
+import { revenueFilter } from "@/lib/query-invalidation";
 import { serverFieldErrors } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -65,6 +66,9 @@ function NewMissionRoute() {
           queryKey: showClientQueryKey({ path: { client: clientSlug } }),
           refetchType: "none",
         }),
+        // The new mission is absent from the cached fold, and an unmatched row
+        // reads as "—" where the API would answer zero.
+        queryClient.invalidateQueries(revenueFilter()),
       ]);
       await queryClient.fetchQuery(
         showClientOptions({ path: { client: clientSlug } }),

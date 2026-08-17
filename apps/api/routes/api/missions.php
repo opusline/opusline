@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Invoices\Controllers\ClientRevenueController;
 use App\Http\Missions\Controllers\MissionController;
 use App\Http\Missions\Controllers\MissionDocumentController;
 use App\Http\Missions\Controllers\MissionTimeEntryController;
@@ -10,6 +11,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->scopeBindings()->group(function (): void {
     Route::get('/clients/{client}/missions/{mission}', [MissionController::class, 'show'])
         ->name('showMission');
+    Route::get('/clients/{client}/missions/{mission}/revenue', [ClientRevenueController::class, 'showMission'])
+        ->name('showMissionRevenue');
     Route::post('/clients/{client}/missions', [MissionController::class, 'store'])
         ->name('createMission');
     Route::put('/clients/{client}/missions/{mission}', [MissionController::class, 'update'])

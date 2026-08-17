@@ -10,7 +10,7 @@ import type { Query, QueryClient, QueryFilters } from "@tanstack/react-query";
  * against the real builders — a regeneration that moves it fails the suite
  * instead of turning these invalidations into silent no-ops.
  */
-export function operationFilter(operationId: string): {
+export function operationFilter(...operationIds: string[]): {
   predicate: (query: Query) => boolean;
 } {
   return {
@@ -21,7 +21,7 @@ export function operationFilter(operationId: string): {
         typeof first === "object" &&
         first !== null &&
         "_id" in first &&
-        (first as { _id: unknown })._id === operationId
+        operationIds.includes((first as { _id: unknown })._id as string)
       );
     },
   };
@@ -43,4 +43,17 @@ export function invalidateTimeEntries(
     queryClient.invalidateQueries(weekFilter),
     queryClient.invalidateQueries(operationFilter("listMissionTimeEntries")),
   ]).then(() => undefined);
+}
+
+/**
+ * Every cached revenue read: the clients listing fold and the two detail
+ * lookups. Any invoice write moves all three, and they are routinely written on
+ * one page and read back on another — one name so no call site invents its own.
+ */
+export function revenueFilter(): { predicate: (query: Query) => boolean } {
+  return operationFilter(
+    "listClientRevenue",
+    "showClientRevenue",
+    "showMissionRevenue",
+  );
 }

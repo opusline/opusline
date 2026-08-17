@@ -15,15 +15,16 @@ import {
 import { cn } from "@opusline/ui/lib/utils";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatMissionRate } from "@/lib/billing";
 import {
-  findClientRevenue,
-  findMissionRevenue,
   formatPaymentDelay,
   formatRevenue,
+  indexClientRevenue,
+  indexMissionRevenue,
+  revenueYearLabel,
 } from "@/lib/client-revenue";
 import { clientTypeLabel } from "@/lib/client-types";
 import { COLOR_CLASSES } from "@/lib/palette";
@@ -64,13 +65,17 @@ export function ClientsTable({ clients, revenue }: ClientsTableProps) {
   const format = useMoneyFormat();
   const navigate = useNavigate();
   const [scope, setScope] = useState<ClientScope>("active");
+  const revenueByClient = useMemo(() => indexClientRevenue(revenue), [revenue]);
+  const revenueByMission = useMemo(
+    () => indexMissionRevenue(revenue?.clients),
+    [revenue],
+  );
 
   if (clients.length === 0) {
     return <ClientsEmptyState />;
   }
 
   const now = new Date();
-  const currentYear = revenue?.year ?? now.getFullYear();
 
   const scopedClients: Record<ClientScope, ClientWithMissionsData[]> = {
     all: clients,
@@ -118,7 +123,7 @@ export function ClientsTable({ clients, revenue }: ClientsTableProps) {
                 Missions
               </TableHead>
               <TableHead className={cn(HEAD_CLASSES, "w-1/6 text-right")}>
-                {m.clients_head_revenue({ year: currentYear })}
+                {revenueYearLabel(revenue?.year)}
               </TableHead>
               <TableHead className={cn(HEAD_CLASSES, "w-1/6 text-right")}>
                 {m.clients_head_pending()}
@@ -131,7 +136,7 @@ export function ClientsTable({ clients, revenue }: ClientsTableProps) {
           {visibleClients.map((client) => {
             const subtitle = clientSubtitle(client);
             const isArchived = client.archivedAt !== null;
-            const clientRevenue = findClientRevenue(revenue, client.id);
+            const clientRevenue = revenueByClient.get(client.id);
 
             return (
               <TableBody
@@ -203,10 +208,7 @@ export function ClientsTable({ clients, revenue }: ClientsTableProps) {
                   </TableCell>
                 </TableRow>
                 {client.missions.map((mission) => {
-                  const missionRevenue = findMissionRevenue(
-                    clientRevenue,
-                    mission.id,
-                  );
+                  const missionRevenue = revenueByMission.get(mission.id);
 
                   return (
                     <TableRow

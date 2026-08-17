@@ -176,6 +176,14 @@ export type ClientRevenueData = {
 };
 
 /**
+ * ClientRevenueDetailData
+ */
+export type ClientRevenueDetailData = {
+    year: number;
+    revenue: ClientRevenueData;
+};
+
+/**
  * ClientRevenueListData
  */
 export type ClientRevenueListData = {
@@ -2140,6 +2148,92 @@ export type UploadClientLogoResponses = {
 };
 
 export type UploadClientLogoResponse = UploadClientLogoResponses[keyof UploadClientLogoResponses];
+
+export type ShowClientRevenueData = {
+    body?: never;
+    path: {
+        /**
+         * The client slug
+         */
+        client: string;
+    };
+    query?: never;
+    url: '/clients/{client}/revenue';
+};
+
+export type ShowClientRevenueErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowClientRevenueError = ShowClientRevenueErrors[keyof ShowClientRevenueErrors];
+
+export type ShowClientRevenueResponses = {
+    200: ClientRevenueDetailData;
+};
+
+export type ShowClientRevenueResponse = ShowClientRevenueResponses[keyof ShowClientRevenueResponses];
+
+export type ShowMissionRevenueData = {
+    body?: never;
+    path: {
+        /**
+         * The client slug
+         */
+        client: string;
+        /**
+         * The mission slug
+         */
+        mission: string;
+    };
+    query?: never;
+    url: '/clients/{client}/missions/{mission}/revenue';
+};
+
+export type ShowMissionRevenueErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowMissionRevenueError = ShowMissionRevenueErrors[keyof ShowMissionRevenueErrors];
+
+export type ShowMissionRevenueResponses = {
+    200: MissionRevenueData;
+};
+
+export type ShowMissionRevenueResponse = ShowMissionRevenueResponses[keyof ShowMissionRevenueResponses];
 
 export type ListClientRevenueData = {
     body?: never;

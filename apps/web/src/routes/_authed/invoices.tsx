@@ -33,6 +33,7 @@ import { InvoiceSummaryTiles } from "@/features/invoices/components/invoice-summ
 import { InvoiceTodoPanel } from "@/features/invoices/components/invoice-todo-panel";
 import { InvoicesTable } from "@/features/invoices/components/invoices-table";
 import { accountTodayCalendarDate } from "@/lib/dates";
+import { revenueFilter } from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -112,6 +113,9 @@ function FacturesPage() {
       queryClient.invalidateQueries({
         queryKey: showNextInvoiceNumberQueryKey(),
       }),
+      // Issuing, paying or deleting an invoice moves the client and mission
+      // figures the other pages read.
+      queryClient.invalidateQueries(revenueFilter()),
       ...(openInvoiceId === null
         ? []
         : [

@@ -10,7 +10,7 @@ import { afterEach, expect, it, vi } from "vitest";
 
 import { getRouter } from "@/router";
 import { seedCurrentUser } from "@/test/current-user";
-import { clientRevenuePayload } from "@/test/fixtures";
+import { missionRevenueDetailPayload } from "@/test/fixtures";
 
 function missionPayload(overrides: Partial<MissionData> = {}): MissionData {
   return {
@@ -98,8 +98,8 @@ function stubApi(
         return jsonResponse(200, { timeEntries: [] });
       }
 
-      if (url.pathname.endsWith("/client-revenue")) {
-        return jsonResponse(200, clientRevenuePayload());
+      if (url.pathname.endsWith("/revenue")) {
+        return jsonResponse(200, missionRevenueDetailPayload());
       }
 
       if (url.pathname.endsWith("/documents")) {
@@ -256,8 +256,8 @@ it("shows a server error on an untouched field after saving", async () => {
         return jsonResponse(200, { timeEntries: [] });
       }
 
-      if (url.pathname.endsWith("/client-revenue")) {
-        return jsonResponse(200, clientRevenuePayload());
+      if (url.pathname.endsWith("/revenue")) {
+        return jsonResponse(200, missionRevenueDetailPayload());
       }
 
       if (url.pathname.endsWith("/documents")) {
@@ -351,8 +351,8 @@ it("refuses a second mutation while the first is still running", async () => {
         return jsonResponse(200, { timeEntries: [] });
       }
 
-      if (url.pathname.endsWith("/client-revenue")) {
-        return jsonResponse(200, clientRevenuePayload());
+      if (url.pathname.endsWith("/revenue")) {
+        return jsonResponse(200, missionRevenueDetailPayload());
       }
 
       if (url.pathname.endsWith("/documents")) {

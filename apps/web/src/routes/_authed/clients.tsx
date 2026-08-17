@@ -46,6 +46,13 @@ function ClientsPage() {
           <AlertDescription>{m.clients_load_failed()}</AlertDescription>
         </Alert>
       )}
+      {/* Warn, not destructive: the rows are still usable, only their figures
+          are missing — and silent placeholders would read as "nothing billed". */}
+      {revenue.isError && (
+        <Alert variant="warn">
+          <AlertDescription>{m.revenue_load_failed()}</AlertDescription>
+        </Alert>
+      )}
       {data !== undefined && (
         <ClientsTable clients={data.clients} revenue={revenue.data} />
       )}
