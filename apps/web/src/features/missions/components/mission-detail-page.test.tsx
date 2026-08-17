@@ -10,6 +10,7 @@ import { afterEach, expect, it, vi } from "vitest";
 
 import { getRouter } from "@/router";
 import { seedCurrentUser } from "@/test/current-user";
+import { clientRevenuePayload } from "@/test/fixtures";
 
 function missionPayload(overrides: Partial<MissionData> = {}): MissionData {
   return {
@@ -28,29 +29,6 @@ function missionPayload(overrides: Partial<MissionData> = {}): MissionData {
     startDate: "2025-03-03",
     endDate: null,
     ...overrides,
-  };
-}
-
-function revenuePayload() {
-  return {
-    year: 2026,
-    clients: [
-      {
-        clientId: 1,
-        yearToDate: { amount: 4_820_000, currency: "EUR" },
-        pending: { amount: 960_000, currency: "EUR" },
-        averagePaymentDelayDays: 27,
-        missions: [
-          {
-            missionId: 1,
-            yearToDate: { amount: 4_820_000, currency: "EUR" },
-            currentMonth: { amount: 605_000, currency: "EUR" },
-            total: { amount: 7_150_000, currency: "EUR" },
-            monthlyAverage: { amount: 447_000, currency: "EUR" },
-          },
-        ],
-      },
-    ],
   };
 }
 
@@ -117,7 +95,7 @@ function stubApi(
       requests.push({ method: request.method, path: url.pathname, body });
 
       if (url.pathname.endsWith("/client-revenue")) {
-        return jsonResponse(200, revenuePayload());
+        return jsonResponse(200, clientRevenuePayload());
       }
 
       if (url.pathname.endsWith("/documents")) {
@@ -271,7 +249,7 @@ it("shows a server error on an untouched field after saving", async () => {
       }
 
       if (url.pathname.endsWith("/client-revenue")) {
-        return jsonResponse(200, revenuePayload());
+        return jsonResponse(200, clientRevenuePayload());
       }
 
       if (url.pathname.endsWith("/documents")) {
@@ -362,7 +340,7 @@ it("refuses a second mutation while the first is still running", async () => {
       }
 
       if (url.pathname.endsWith("/client-revenue")) {
-        return jsonResponse(200, revenuePayload());
+        return jsonResponse(200, clientRevenuePayload());
       }
 
       if (url.pathname.endsWith("/documents")) {

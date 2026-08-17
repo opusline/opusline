@@ -1,5 +1,6 @@
 import type {
   ClientData,
+  ClientRevenueListData,
   InvoiceData,
   InvoiceListItemData,
   InvoiceSummaryData,
@@ -16,6 +17,35 @@ import type {
 
 export function eur(amount: number): MoneyData {
   return { amount, currency: "EUR" };
+}
+
+/**
+ * The revenue fold as the API returns it, for client id 1 and mission id 1 —
+ * the ids CLIENT_FIXTURE and MISSION_FIXTURE use, and the ones the clients and
+ * missions detail suites stub. One definition so the mocked contract cannot
+ * drift between the two.
+ */
+export function clientRevenuePayload(): ClientRevenueListData {
+  return {
+    year: 2026,
+    clients: [
+      {
+        clientId: 1,
+        yearToDate: eur(4_820_000),
+        pending: eur(960_000),
+        averagePaymentDelayDays: 27,
+        missions: [
+          {
+            missionId: 1,
+            yearToDate: eur(4_820_000),
+            currentMonth: eur(605_000),
+            total: eur(7_150_000),
+            monthlyAverage: eur(447_000),
+          },
+        ],
+      },
+    ],
+  };
 }
 
 export const CLIENT_FIXTURE = {
