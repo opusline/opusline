@@ -102,6 +102,10 @@ function stubApi(
         return jsonResponse(200, { clients: CLIENTS });
       }
 
+      if (url.pathname.endsWith("/billing")) {
+        return jsonResponse(200, null);
+      }
+
       if (request.method === "GET" && url.pathname.endsWith("/documents")) {
         return jsonResponse(200, { documents: [] });
       }
@@ -361,6 +365,10 @@ it("stays locked between the mission creation and the client refresh", async () 
 
       if (url.pathname.endsWith("/clients")) {
         return jsonResponse(200, { clients: CLIENTS });
+      }
+
+      if (url.pathname.endsWith("/billing")) {
+        return jsonResponse(200, null);
       }
 
       if (url.pathname.endsWith("/documents")) {

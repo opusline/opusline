@@ -1,5 +1,6 @@
 import type {
   ClientWithMissionsData,
+  MissionBillingProgressData,
   MissionData,
   MissionStatus,
   UpdateMissionData,
@@ -41,6 +42,7 @@ import { COLOR_CLASSES } from "@/lib/palette";
 import { m } from "@/paraglide/messages.js";
 
 import { billingModeUnitShort } from "../lib/labels";
+import { ForfaitProgress } from "./forfait-progress";
 import { MissionEditForm } from "./mission-edit-form";
 
 const EYEBROW_CLASSES =
@@ -65,6 +67,8 @@ type MissionDetailPageProps = {
   isUpdatePending?: boolean;
   isStatusPending?: boolean;
   error?: string | null;
+  /** Null for a mission not sold at a fixed price. */
+  billingProgress?: MissionBillingProgressData | null;
 };
 
 export function MissionDetailPage({
@@ -77,6 +81,7 @@ export function MissionDetailPage({
   isUpdatePending,
   isStatusPending,
   error,
+  billingProgress = null,
 }: MissionDetailPageProps) {
   const format = useMoneyFormat();
   const [isEditing, setIsEditing] = useState(false);
@@ -232,6 +237,12 @@ export function MissionDetailPage({
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : null}
+
+      {billingProgress !== null && (
+        <div className="mb-5">
+          <ForfaitProgress progress={billingProgress} />
+        </div>
+      )}
 
       <StatTileRow className="mb-5 grid-cols-2 md:grid-cols-4">
         <StatTile

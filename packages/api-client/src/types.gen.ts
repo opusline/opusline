@@ -628,6 +628,19 @@ export type LoginData = {
 };
 
 /**
+ * MissionBillingProgressData
+ */
+export type MissionBillingProgressData = {
+    fixedPrice: MoneyData;
+    invoiced: MoneyData;
+    remaining: SignedMoneyData;
+    progressBp: number;
+    isOverBilled: boolean;
+    issuedCount: number;
+    draftCount: number;
+};
+
+/**
  * MissionData
  */
 export type MissionData = {
@@ -3142,6 +3155,51 @@ export type CreateMissionResponses = {
 };
 
 export type CreateMissionResponse = CreateMissionResponses[keyof CreateMissionResponses];
+
+export type ShowMissionBillingData = {
+    body?: never;
+    path: {
+        /**
+         * The client slug
+         */
+        client: string;
+        /**
+         * The mission slug
+         */
+        mission: string;
+    };
+    query?: never;
+    url: '/clients/{client}/missions/{mission}/billing';
+};
+
+export type ShowMissionBillingErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowMissionBillingError = ShowMissionBillingErrors[keyof ShowMissionBillingErrors];
+
+export type ShowMissionBillingResponses = {
+    200: MissionBillingProgressData | null;
+};
+
+export type ShowMissionBillingResponse = ShowMissionBillingResponses[keyof ShowMissionBillingResponses];
 
 export type ListMissionDocumentsData = {
     body?: never;

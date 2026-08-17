@@ -5,6 +5,7 @@ import {
   listMissionDocumentsOptions,
   listMissionDocumentsQueryKey,
   showClientOptions,
+  showMissionBillingOptions,
   showMissionOptions,
   showMissionQueryKey,
   updateMissionMutation,
@@ -45,6 +46,9 @@ function MissionDetailRoute() {
   const missionQuery = useQuery(showMissionOptions({ path: missionPath }));
   const documentsQuery = useQuery(
     listMissionDocumentsOptions({ path: missionPath }),
+  );
+  const billingQuery = useQuery(
+    showMissionBillingOptions({ path: missionPath }),
   );
 
   const updateMission = useMutation(updateMissionMutation());
@@ -205,6 +209,7 @@ function MissionDetailRoute() {
 
   return (
     <MissionDetailPage
+      billingProgress={billingQuery.data ?? null}
       client={clientQuery.data}
       documentsTab={documentsTab}
       error={

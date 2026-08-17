@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Missions\Controllers\MissionBillingController;
 use App\Http\Missions\Controllers\MissionController;
 use App\Http\Missions\Controllers\MissionDocumentController;
 use Illuminate\Support\Facades\Route;
@@ -15,6 +16,9 @@ Route::middleware('auth:sanctum')->scopeBindings()->group(function (): void {
         ->name('updateMission');
     Route::delete('/clients/{client}/missions/{mission}', [MissionController::class, 'destroy'])
         ->name('deleteMission');
+
+    Route::get('/clients/{client}/missions/{mission}/billing', [MissionBillingController::class, 'show'])
+        ->name('showMissionBilling');
 
     Route::get('/clients/{client}/missions/{mission}/documents', [MissionDocumentController::class, 'index'])
         ->name('listMissionDocuments');

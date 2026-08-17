@@ -2232,6 +2232,60 @@
                 }
             }
         },
+        "/clients/{client}/missions/{mission}/billing": {
+            "get": {
+                "operationId": "showMissionBilling",
+                "summary": "Answers null for a mission billed by the day or the hour: there is no\nagreed total to measure progress against, and a zero would read as\n\"nothing billed\" rather than \"not applicable\"",
+                "tags": [
+                    "MissionBilling"
+                ],
+                "parameters": [
+                    {
+                        "name": "client",
+                        "in": "path",
+                        "required": true,
+                        "description": "The client slug",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "mission",
+                        "in": "path",
+                        "required": true,
+                        "description": "The mission slug",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/MissionBillingProgressData"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/clients/{client}/missions/{mission}/documents": {
             "get": {
                 "operationId": "listMissionDocuments",
@@ -5348,6 +5402,42 @@
                     "password"
                 ],
                 "title": "LoginData"
+            },
+            "MissionBillingProgressData": {
+                "type": "object",
+                "properties": {
+                    "fixedPrice": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "invoiced": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "remaining": {
+                        "$ref": "#/components/schemas/SignedMoneyData"
+                    },
+                    "progressBp": {
+                        "type": "integer"
+                    },
+                    "isOverBilled": {
+                        "type": "boolean"
+                    },
+                    "issuedCount": {
+                        "type": "integer"
+                    },
+                    "draftCount": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "fixedPrice",
+                    "invoiced",
+                    "remaining",
+                    "progressBp",
+                    "isOverBilled",
+                    "issuedCount",
+                    "draftCount"
+                ],
+                "title": "MissionBillingProgressData"
             },
             "MissionData": {
                 "type": "object",
