@@ -12,17 +12,21 @@ use App\Domain\Invoices\Data\MissionRevenueData;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Revenue\RevenueWindow;
+use App\Domain\Missions\Enums\MissionStatus;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Data\MoneyData;
+use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Users\Models\User;
 use Cknow\Money\Money;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Money\Money as MoneyPhp;
 
 /**
- * Per-client and per-mission invoiced revenue, for the clients listing and for
- * the client and mission detail headers.
+ * Per-client and per-mission revenue and tracked time, for the clients listing
+ * and for the client and mission detail headers.
  *
  * The ledger is read once and folded in PHP rather than aggregated per client
  * in SQL: a freelancer's invoice count is small, it keeps the query count fixed
@@ -31,6 +35,8 @@ use Money\Money as MoneyPhp;
  */
 class SummarizeClientRevenue
 {
+    public function __construct(private readonly ValueTrackedTime $valueTrackedTime) {}
+
     /**
      * @var list<string>
      */
@@ -45,20 +51,40 @@ class SummarizeClientRevenue
         'currency',
     ];
 
+    /**
+     * Enough of a mission to value its tracked time: the unit it bills in and
+     * the increment it rounds to.
+     *
+     * @var list<string>
+     */
+    private const array MISSION_COLUMNS = [
+        'id',
+        'client_id',
+        'billing_mode',
+        'rounding',
+        'status',
+        'end_date',
+        // Currency must precede rate_cents: MoneyIntegerCast reads it to build the rate.
+        'currency',
+        'rate_cents',
+    ];
+
     public function handle(User $user): ClientRevenueListData
     {
         $window = $this->windowFor($user);
 
         $invoicesByClient = $this->billedInvoices($user)->get(self::INVOICE_COLUMNS)->groupBy('client_id');
+        $entriesByMission = $this->entriesThisMonth($user, $window, null);
 
         $clients = $user->clients()
-            ->with('missions:id,client_id')
+            ->with('missions:'.implode(',', self::MISSION_COLUMNS))
             ->orderBy('name')
             ->get(['id']);
 
         $rows = $clients->map(fn (Client $client): ClientRevenueData => $this->forClient(
             $client,
             $invoicesByClient->get($client->id) ?? new Collection,
+            $entriesByMission,
             $window,
         ));
 
@@ -80,11 +106,20 @@ class SummarizeClientRevenue
             ->where('client_id', $client->id)
             ->get(self::INVOICE_COLUMNS);
 
-        $client->loadMissing('missions:id,client_id');
+        // load, not loadMissing: a caller handing in a Client whose missions were
+        // already read with a narrower select would otherwise reach the fold
+        // without billing_mode or rate_cents.
+        $client->load('missions:'.implode(',', self::MISSION_COLUMNS));
+        $missionIds = $client->missions->modelKeys();
 
         return new ClientRevenueDetailData(
             year: $window->year,
-            revenue: $this->forClient($client, $invoices, $window),
+            revenue: $this->forClient(
+                $client,
+                $invoices,
+                $this->entriesThisMonth($user, $window, $missionIds),
+                $window,
+            ),
         );
     }
 
@@ -94,14 +129,21 @@ class SummarizeClientRevenue
             ->where('mission_id', $mission->id)
             ->get(self::INVOICE_COLUMNS);
 
-        return $this->forMission($mission->id, $invoices, $this->windowFor($user));
+        $window = $this->windowFor($user);
+
+        return $this->forMission(
+            $mission,
+            $invoices,
+            $this->entriesThisMonth($user, $window, [$mission->id])->get($mission->id) ?? new Collection,
+            $window,
+        );
     }
 
     private function windowFor(User $user): RevenueWindow
     {
         $settings = $user->settingsOrFail();
 
-        return RevenueWindow::around($settings->today(), $settings->currency->value);
+        return RevenueWindow::around($settings->today(), $settings->currency->value, $settings->workday_minutes);
     }
 
     /**
@@ -117,14 +159,16 @@ class SummarizeClientRevenue
 
     /**
      * @param  Collection<int, Invoice>  $invoices
+     * @param  Collection<int|string, EloquentCollection<int, TimeEntry>>  $entriesByMission
      */
-    private function forClient(Client $client, Collection $invoices, RevenueWindow $window): ClientRevenueData
+    private function forClient(Client $client, Collection $invoices, Collection $entriesByMission, RevenueWindow $window): ClientRevenueData
     {
         $byMission = $invoices->groupBy('mission_id');
 
         $rows = $client->missions->map(fn (Mission $mission): MissionRevenueData => $this->forMission(
-            $mission->id,
+            $mission,
             $byMission->get($mission->id) ?? new Collection,
+            $entriesByMission->get($mission->id) ?? new Collection,
             $window,
         ));
 
@@ -139,22 +183,106 @@ class SummarizeClientRevenue
 
     /**
      * @param  Collection<int, Invoice>  $invoices
+     * @param  Collection<int, TimeEntry>  $entries  tracked this month
      */
-    private function forMission(int $missionId, Collection $invoices, RevenueWindow $window): MissionRevenueData
+    private function forMission(Mission $mission, Collection $invoices, Collection $entries, RevenueWindow $window): MissionRevenueData
     {
         $total = $this->sumHt($invoices, $window);
+        $tracked = $this->trackedThisMonth($mission, $entries, $window);
 
         return new MissionRevenueData(
-            missionId: $missionId,
+            missionId: $mission->id,
             yearToDate: MoneyData::fromMoney($this->issuedThisYear($invoices, $window)),
-            currentMonth: MoneyData::fromMoney($this->sumHt(
+            currentMonth: MoneyData::fromMoney($this->earnedThisMonth($mission, $invoices, $entries, $window)),
+            total: MoneyData::fromMoney($total),
+            monthlyAverage: $this->monthlyAverage($mission, $invoices, $total, $window),
+            currentMonthDays: $tracked['days'],
+            currentMonthMinutes: $tracked['minutes'],
+        );
+    }
+
+    /**
+     * This month's billable entries, grouped by mission, for the given missions
+     * or the whole account when null.
+     *
+     * Read in one query and folded in PHP for the same reason the invoices are:
+     * the rounding lives in EntryRounding, and reimplementing it in SQL would
+     * give the listing a second, drifting definition of what a day is worth.
+     *
+     * @param  array<int, int>|null  $missionIds
+     * @return Collection<int|string, EloquentCollection<int, TimeEntry>>
+     */
+    private function entriesThisMonth(User $user, RevenueWindow $window, ?array $missionIds): Collection
+    {
+        return $user->timeEntries()
+            ->when($missionIds !== null, fn (Builder $query): Builder => $query->whereIn('mission_id', $missionIds))
+            ->where('billable', true)
+            // Bare Y-m-d, not the Carbon instances: bound with their time component
+            // they compare as '2026-08-01 00:00:00' against a date column, which
+            // sorts after '2026-08-01' and silently drops the first of the month.
+            ->whereBetween('date', [$window->monthStart->toDateString(), $window->monthEnd->toDateString()])
+            ->get(['mission_id', 'duration_minutes', 'rounding'])
+            ->groupBy('mission_id')
+            ->toBase();
+    }
+
+    /**
+     * What the month has earned: the time tracked in it at the mission's rate.
+     * Deliberately not "invoiced this month" — a mission billed at month end
+     * would read zero for four weeks and then jump.
+     *
+     * A mission that prices no time (fixed price, or no rate) accrues nothing,
+     * so it falls back to what it did invoice — the only figure that means
+     * anything there.
+     *
+     * @param  Collection<int, Invoice>  $invoices
+     * @param  Collection<int, TimeEntry>  $entries  tracked this month
+     */
+    private function earnedThisMonth(Mission $mission, Collection $invoices, Collection $entries, RevenueWindow $window): Money
+    {
+        if (! $this->valueTrackedTime->pricesTime($mission)) {
+            return $this->sumHt(
                 $invoices,
                 $window,
                 fn (Invoice $invoice): bool => $invoice->issued_on->between($window->monthStart, $window->monthEnd),
-            )),
-            total: MoneyData::fromMoney($total),
-            monthlyAverage: $this->monthlyAverage($invoices, $total, $window),
-        );
+            );
+        }
+
+        $earned = new Money(0, $mission->currency);
+
+        foreach ($entries as $entry) {
+            $earned = $earned->add(
+                $this->valueTrackedTime->measure($mission, $entry, $window->workdayMinutes)['value'],
+            );
+        }
+
+        return $earned;
+    }
+
+    /**
+     * The month's tracked time in the mission's own unit. Counted even when the
+     * mission prices no time: effort on a fixed-price mission is exactly what
+     * its margin is read from.
+     *
+     * @param  Collection<int, TimeEntry>  $entries  tracked this month
+     * @return array{days: ?float, minutes: ?int}
+     */
+    private function trackedThisMonth(Mission $mission, Collection $entries, RevenueWindow $window): array
+    {
+        $billsByDay = $mission->billing_mode->usesDayFraction();
+        $days = 0.0;
+        $minutes = 0;
+
+        foreach ($entries as $entry) {
+            $quantity = $this->valueTrackedTime->quantityFor($mission, $entry, $window->workdayMinutes);
+            $days += $quantity['days'] ?? 0.0;
+            $minutes += $quantity['minutes'] ?? 0;
+        }
+
+        return [
+            'days' => $billsByDay ? $days : null,
+            'minutes' => $billsByDay ? null : $minutes,
+        ];
     }
 
     /**
@@ -223,13 +351,17 @@ class SummarizeClientRevenue
      *
      * @param  Collection<int, Invoice>  $invoices
      */
-    private function monthlyAverage(Collection $invoices, Money $total, RevenueWindow $window): ?MoneyData
+    private function monthlyAverage(Mission $mission, Collection $invoices, Money $total, RevenueWindow $window): ?MoneyData
     {
         $first = null;
+        $last = null;
 
         foreach ($invoices as $invoice) {
             if ($first === null || $invoice->issued_on->lessThan($first)) {
                 $first = $invoice->issued_on;
+            }
+            if ($last === null || $invoice->issued_on->greaterThan($last)) {
+                $last = $invoice->issued_on;
             }
         }
 
@@ -237,9 +369,19 @@ class SummarizeClientRevenue
             return null;
         }
 
+        // A mission that is over stops accruing dry months: measured to today it
+        // would decay toward zero for as long as the account exists.
+        $until = $this->hasStopped($mission, $window) ? $last : null;
+
         return MoneyData::fromMoney(
-            $total->divide($window->monthsSince($first), MoneyPhp::ROUND_HALF_UP),
+            $total->divide($window->monthsBetween($first, $until), MoneyPhp::ROUND_HALF_UP),
         );
+    }
+
+    private function hasStopped(Mission $mission, RevenueWindow $window): bool
+    {
+        return $mission->status === MissionStatus::Done
+            || ($mission->end_date !== null && $mission->end_date->lessThan($window->monthStart));
     }
 
     /**

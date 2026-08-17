@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Invoices\Actions;
 
 use App\Domain\Missions\Enums\BillingMode;
+use App\Domain\Missions\Enums\EntryRounding;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\TimeEntries\Models\TimeEntry;
 use Cknow\Money\Money;
@@ -34,6 +35,40 @@ class ValueTrackedTime
     }
 
     /**
+     * Not $entry->effectiveRounding(): that reaches back through the mission
+     * relation, which is not loaded on entries fetched through the mission.
+     */
+    private function roundingFor(Mission $mission, TimeEntry $entry): EntryRounding
+    {
+        return $entry->rounding ?? $mission->effectiveRounding();
+    }
+
+    /**
+     * How much of the mission's own unit the entry bills, whether or not the
+     * mission prices it: days on a day-billed mission, minutes on an hourly one,
+     * exactly one of the two set.
+     *
+     * measure() zeroes these for a mission that prices no time, because it is
+     * answering "what does this bill". A fixed-price mission still tracks days
+     * worth counting, so the quantity has to be askable on its own.
+     *
+     * @return array{days: ?float, minutes: ?int}
+     */
+    public function quantityFor(Mission $mission, TimeEntry $entry, int $workdayMinutes): array
+    {
+        $rounding = $this->roundingFor($mission, $entry);
+
+        if (! $mission->billing_mode->usesDayFraction()) {
+            return ['days' => null, 'minutes' => $rounding->valueMinutes($entry->duration_minutes)];
+        }
+
+        return [
+            'days' => $rounding->valueDayFraction($entry->duration_minutes, $workdayMinutes),
+            'minutes' => null,
+        ];
+    }
+
+    /**
      * What the entry bills: its value, and the quantity behind it in the mission's own
      * unit — days on a day-billed mission, minutes on an hourly one.
      *
@@ -44,9 +79,7 @@ class ValueTrackedTime
      */
     public function measure(Mission $mission, TimeEntry $entry, int $workdayMinutes): array
     {
-        // Not $entry->effectiveRounding(): that reaches back through the mission
-        // relation, which is not loaded on entries fetched through the mission.
-        $rounding = $entry->rounding ?? $mission->effectiveRounding();
+        $rounding = $this->roundingFor($mission, $entry);
         $rate = $mission->rate_cents;
         $isHourly = $mission->billing_mode === BillingMode::Hourly;
 

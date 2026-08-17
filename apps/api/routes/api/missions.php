@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Invoices\Controllers\ClientRevenueController;
 use App\Http\Missions\Controllers\MissionController;
 use App\Http\Missions\Controllers\MissionDocumentController;
+use App\Http\Missions\Controllers\MissionTimeEntryController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->scopeBindings()->group(function (): void {
@@ -18,6 +19,9 @@ Route::middleware('auth:sanctum')->scopeBindings()->group(function (): void {
         ->name('updateMission');
     Route::delete('/clients/{client}/missions/{mission}', [MissionController::class, 'destroy'])
         ->name('deleteMission');
+
+    Route::get('/clients/{client}/missions/{mission}/time-entries', [MissionTimeEntryController::class, 'index'])
+        ->name('listMissionTimeEntries');
 
     Route::get('/clients/{client}/missions/{mission}/documents', [MissionDocumentController::class, 'index'])
         ->name('listMissionDocuments');

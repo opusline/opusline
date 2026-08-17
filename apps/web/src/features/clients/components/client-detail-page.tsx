@@ -43,6 +43,7 @@ import { formatMissionRate, paymentTermsLabel } from "@/lib/billing";
 import {
   formatPaymentDelay,
   formatRevenue,
+  formatTrackedMonth,
   indexMissionRevenue,
   revenueYearLabel,
 } from "@/lib/client-revenue";
@@ -366,7 +367,7 @@ export function ClientDetailPage({
                             {formatMissionRate(format, mission)}
                           </TableCell>
                           <TableCell className="py-4 font-mono text-foreground-2 tabular-nums">
-                            —
+                            {formatTrackedMonth(format.locale, missionRevenue)}
                           </TableCell>
                           <TableCell className="py-4 text-right font-mono text-primary-text tabular-nums">
                             {formatRevenue(format, missionRevenue?.yearToDate)}

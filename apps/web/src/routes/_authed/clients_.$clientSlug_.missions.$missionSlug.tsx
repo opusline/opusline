@@ -4,6 +4,7 @@ import {
   listClientsQueryKey,
   listMissionDocumentsOptions,
   listMissionDocumentsQueryKey,
+  listMissionTimeEntriesOptions,
   showClientOptions,
   showMissionOptions,
   showMissionQueryKey,
@@ -49,6 +50,9 @@ function MissionDetailRoute() {
   );
   const revenueQuery = useQuery(
     showMissionRevenueOptions({ path: missionPath }),
+  );
+  const entriesQuery = useQuery(
+    listMissionTimeEntriesOptions({ path: missionPath }),
   );
 
   const updateMission = useMutation(updateMissionMutation());
@@ -222,6 +226,9 @@ function MissionDetailRoute() {
       onOpenCra={() => void navigate({ to: "/cra" })}
       onSetStatus={(status) => void handleSetStatus(status)}
       onUpdate={handleUpdate}
+      entries={entriesQuery.data?.timeEntries}
+      isEntriesError={entriesQuery.isError}
+      isEntriesPending={entriesQuery.isPending}
       revenue={revenueQuery.data}
       revenueFailed={revenueQuery.isError}
     />

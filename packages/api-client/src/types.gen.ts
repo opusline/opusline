@@ -683,6 +683,8 @@ export type MissionRevenueData = {
     currentMonth: MoneyData;
     total: MoneyData;
     monthlyAverage: MoneyData | null;
+    currentMonthDays: number | null;
+    currentMonthMinutes: number | null;
 };
 
 /**
@@ -905,6 +907,7 @@ export type TimeEntryData = {
     valuedMinutes: number | null;
     valuedDayFraction: number | null;
     billable: boolean;
+    invoiced: boolean;
     note: string | null;
 };
 
@@ -3524,6 +3527,51 @@ export type DownloadMissionDocumentResponses = {
 };
 
 export type DownloadMissionDocumentResponse = DownloadMissionDocumentResponses[keyof DownloadMissionDocumentResponses];
+
+export type ListMissionTimeEntriesData = {
+    body?: never;
+    path: {
+        /**
+         * The client slug
+         */
+        client: string;
+        /**
+         * The mission slug
+         */
+        mission: string;
+    };
+    query?: never;
+    url: '/clients/{client}/missions/{mission}/time-entries';
+};
+
+export type ListMissionTimeEntriesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListMissionTimeEntriesError = ListMissionTimeEntriesErrors[keyof ListMissionTimeEntriesErrors];
+
+export type ListMissionTimeEntriesResponses = {
+    200: TimeEntryListData;
+};
+
+export type ListMissionTimeEntriesResponse = ListMissionTimeEntriesResponses[keyof ListMissionTimeEntriesResponses];
 
 export type ShowRevenueData = {
     body?: never;

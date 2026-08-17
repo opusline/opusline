@@ -34,6 +34,8 @@ function missionRevenue(): MissionRevenueData {
     currentMonth: eur(605_000),
     total: eur(7_150_000),
     monthlyAverage: eur(447_000),
+    currentMonthDays: 12.5,
+    currentMonthMinutes: null,
   };
 }
 

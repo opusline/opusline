@@ -1,4 +1,4 @@
-import type { Query } from "@tanstack/react-query";
+import type { Query, QueryClient, QueryFilters } from "@tanstack/react-query";
 
 /**
  * Filter matching every cached query of one generated operation, whatever
@@ -25,6 +25,27 @@ export function operationFilter(...operationIds: string[]): {
       );
     },
   };
+}
+
+/**
+ * Three things read a time entry: the week grid's date-range list, the mission
+ * page's own history, and the revenue figures, whose month totals are derived
+ * from tracked time. Writing one entry invalidates all of them, so a mission
+ * opened right after an edit in the grid shows neither a pre-edit history nor
+ * pre-edit tiles.
+ *
+ * Keep every time-entry write going through this rather than invalidating
+ * listTimeEntries directly, or those surfaces silently go stale again.
+ */
+export async function invalidateTimeEntries(
+  queryClient: QueryClient,
+  weekFilter: QueryFilters = operationFilter("listTimeEntries"),
+): Promise<void> {
+  await Promise.all([
+    queryClient.invalidateQueries(weekFilter),
+    queryClient.invalidateQueries(operationFilter("listMissionTimeEntries")),
+    queryClient.invalidateQueries(revenueFilter()),
+  ]);
 }
 
 /**

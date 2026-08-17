@@ -116,6 +116,7 @@ function billedDay(
 ): TimeEntryData {
   return {
     billable: true,
+    invoiced: false,
     date,
     durationMinutes: dayFraction * DEMO_WORKDAY_MINUTES,
     id,
@@ -137,6 +138,7 @@ function billedHours(
 ): TimeEntryData {
   return {
     billable,
+    invoiced: false,
     date,
     durationMinutes: minutes,
     id,
