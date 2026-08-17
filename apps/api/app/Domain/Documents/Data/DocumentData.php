@@ -41,6 +41,7 @@ class DocumentData extends Data
             source: match ($media->model_type) {
                 'mission' => DocumentSource::Mission,
                 'client' => DocumentSource::Client,
+                'user' => DocumentSource::Personal,
                 default => throw new UnexpectedValueException("Unexpected document owner type [{$media->model_type}]."),
             },
             sizeBytes: $media->size,

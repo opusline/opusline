@@ -2507,6 +2507,172 @@
                 }
             }
         },
+        "/documents": {
+            "get": {
+                "operationId": "listPersonalDocuments",
+                "tags": [
+                    "PersonalDocument"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentListData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "uploadPersonalDocument",
+                "tags": [
+                    "PersonalDocument"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UploadDocumentData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/documents/{document}": {
+            "put": {
+                "operationId": "updatePersonalDocument",
+                "tags": [
+                    "PersonalDocument"
+                ],
+                "parameters": [
+                    {
+                        "name": "document",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateDocumentData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deletePersonalDocument",
+                "tags": [
+                    "PersonalDocument"
+                ],
+                "parameters": [
+                    {
+                        "name": "document",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/documents/{document}/download": {
+            "get": {
+                "operationId": "downloadPersonalDocument",
+                "tags": [
+                    "PersonalDocument"
+                ],
+                "parameters": [
+                    {
+                        "name": "document",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Transfer-Encoding": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "chunked"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/revenue": {
             "get": {
                 "operationId": "showRevenue",
@@ -4634,14 +4800,18 @@
             },
             "DocumentCategory": {
                 "type": "integer",
-                "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/>  |\n| `3` <br/>  |\n| `4` <br/>  |\n| `5` <br/> The CRA Opusline generated, filed next to the signed return it comes back as. |",
+                "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/>  |\n| `3` <br/>  |\n| `4` <br/>  |\n| `5` <br/> The CRA Opusline generated, filed next to the signed return it comes back as. |\n| `6` <br/>  |\n| `7` <br/>  |\n| `8` <br/>  |\n| `9` <br/>  |",
                 "enum": [
                     0,
                     1,
                     2,
                     3,
                     4,
-                    5
+                    5,
+                    6,
+                    7,
+                    8,
+                    9
                 ],
                 "x-enum-varnames": [
                     "Contract",
@@ -4649,7 +4819,11 @@
                     "SignedCra",
                     "ReceivedInvoice",
                     "Other",
-                    "Cra"
+                    "Cra",
+                    "Kbis",
+                    "UrssafVigilance",
+                    "Insurance",
+                    "Rib"
                 ],
                 "title": "DocumentCategory"
             },
@@ -4703,13 +4877,16 @@
             },
             "DocumentSource": {
                 "type": "integer",
+                "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/> Attached to the account itself — the freelancer's own pieces. |",
                 "enum": [
                     0,
-                    1
+                    1,
+                    2
                 ],
                 "x-enum-varnames": [
                     "Mission",
-                    "Client"
+                    "Client",
+                    "Personal"
                 ],
                 "title": "DocumentSource"
             },

@@ -11,7 +11,7 @@ import { m } from "@/paraglide/messages.js";
 
 /** Every category a document can carry, including the ones only the server assigns. */
 export const DOCUMENT_CATEGORIES: readonly DocumentCategory[] = [
-  0, 1, 2, 3, 4, 5,
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
 ];
 
 /**
@@ -23,6 +23,19 @@ export const ASSIGNABLE_DOCUMENT_CATEGORIES: readonly DocumentCategory[] = [
   0, 1, 2, 3, 4,
 ];
 
+/**
+ * What a client asks for before signing. The account's own pieces, so the
+ * client and mission tabs never offer them, and "Mes documents" offers only
+ * these plus "Autre".
+ */
+export const ADMINISTRATIVE_DOCUMENT_CATEGORIES: readonly DocumentCategory[] = [
+  6, 7, 8, 9,
+];
+
+export const PERSONAL_DOCUMENT_CATEGORIES: readonly DocumentCategory[] = [
+  6, 7, 8, 9, 4,
+];
+
 const DOCUMENT_CATEGORY_MESSAGES: Record<DocumentCategory, () => string> = {
   0: m.documents_category_contract,
   1: m.documents_category_quote,
@@ -30,6 +43,10 @@ const DOCUMENT_CATEGORY_MESSAGES: Record<DocumentCategory, () => string> = {
   3: m.documents_category_received_invoice,
   4: m.documents_category_other,
   5: m.documents_category_cra,
+  6: m.documents_category_kbis,
+  7: m.documents_category_urssaf_vigilance,
+  8: m.documents_category_insurance,
+  9: m.documents_category_rib,
 };
 
 export function documentCategoryLabel(category: DocumentCategory): string {
@@ -146,6 +163,13 @@ export function clientDocumentDownloadHref(
   return apiClient.buildUrl({
     url: "/clients/{client}/documents/{document}/download",
     path: { client: clientSlug, document: documentId },
+  });
+}
+
+export function personalDocumentDownloadHref(documentId: number): string {
+  return apiClient.buildUrl({
+    url: "/documents/{document}/download",
+    path: { document: documentId },
   });
 }
 

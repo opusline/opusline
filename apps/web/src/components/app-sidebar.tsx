@@ -39,6 +39,7 @@ import {
   Database,
   Download,
   FileCheck,
+  Folder as FolderIcon,
   History,
   Landmark,
   LogOut,
@@ -190,6 +191,20 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                 </>
               )}
+              {/*
+                Not gated on French fiscality: a Kbis, an insurance
+                certificate and a RIB are asked for wherever you invoice from.
+              */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={pathname.startsWith("/documents")}
+                  render={<Link to="/documents" />}
+                  tooltip={m.nav_my_documents()}
+                >
+                  <FolderIcon />
+                  <span>{m.nav_my_documents()}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={pathname.startsWith("/settings")}

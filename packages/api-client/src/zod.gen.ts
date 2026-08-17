@@ -250,6 +250,10 @@ export const zDateFormat = z.union([z.literal(0), z.literal(1)]);
  * | `3` <br/>  |
  * | `4` <br/>  |
  * | `5` <br/> The CRA Opusline generated, filed next to the signed return it comes back as. |
+ * | `6` <br/>  |
+ * | `7` <br/>  |
+ * | `8` <br/>  |
+ * | `9` <br/>  |
  */
 export const zDocumentCategory = z.union([
     z.literal(0),
@@ -257,13 +261,27 @@ export const zDocumentCategory = z.union([
     z.literal(2),
     z.literal(3),
     z.literal(4),
-    z.literal(5)
+    z.literal(5),
+    z.literal(6),
+    z.literal(7),
+    z.literal(8),
+    z.literal(9)
 ]);
 
 /**
  * DocumentSource
+ *
+ * | |
+ * |---|
+ * | `0` <br/>  |
+ * | `1` <br/>  |
+ * | `2` <br/> Attached to the account itself — the freelancer's own pieces. |
  */
-export const zDocumentSource = z.union([z.literal(0), z.literal(1)]);
+export const zDocumentSource = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
 
 /**
  * DocumentData
@@ -1597,6 +1615,35 @@ export const zDownloadMissionDocumentPath = z.object({
 });
 
 export const zDownloadMissionDocumentResponse = z.string();
+
+export const zListPersonalDocumentsResponse = zDocumentListData;
+
+export const zUploadPersonalDocumentBody = zUploadDocumentData;
+
+export const zUploadPersonalDocumentResponse = zDocumentData;
+
+export const zDeletePersonalDocumentPath = z.object({
+    document: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeletePersonalDocumentResponse = z.void();
+
+export const zUpdatePersonalDocumentBody = zUpdateDocumentData;
+
+export const zUpdatePersonalDocumentPath = z.object({
+    document: z.int()
+});
+
+export const zUpdatePersonalDocumentResponse = zDocumentData;
+
+export const zDownloadPersonalDocumentPath = z.object({
+    document: z.int()
+});
+
+export const zDownloadPersonalDocumentResponse = z.string();
 
 export const zShowRevenueQuery = z.object({
     period: z.nullish(z.string().check(z.regex(/^\d{4}(-(0[1-9]|1[0-2])|-Q[1-4])?$/))),

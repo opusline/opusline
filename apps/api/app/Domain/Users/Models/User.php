@@ -63,6 +63,7 @@ class User extends Authenticatable implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('signature')->singleFile();
+        $this->addMediaCollection('documents');
     }
 
     /**

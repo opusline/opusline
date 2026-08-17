@@ -66,6 +66,8 @@ type DocumentsTabProps = {
   downloadHref: (document: DocumentData) => string;
   canRemove?: (document: DocumentData) => boolean;
   showSourceBadge?: boolean;
+  /** Categories offered when filing a piece here. Defaults to the billing set. */
+  assignableCategories?: readonly DocumentCategory[];
 };
 
 export function DocumentsTab({
@@ -76,6 +78,7 @@ export function DocumentsTab({
   downloadHref,
   canRemove,
   showSourceBadge,
+  assignableCategories = ASSIGNABLE_DOCUMENT_CATEGORIES,
 }: DocumentsTabProps) {
   const locale = useLocale();
   const nextKey = useRef(0);
@@ -370,7 +373,7 @@ export function DocumentsTab({
                     size="sm"
                     value={String(item.category)}
                   >
-                    {ASSIGNABLE_DOCUMENT_CATEGORIES.map((category) => (
+                    {assignableCategories.map((category) => (
                       <option key={category} value={String(category)}>
                         {documentCategoryLabel(category)}
                       </option>

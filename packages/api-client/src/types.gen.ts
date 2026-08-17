@@ -380,8 +380,12 @@ export type DateFormat = 0 | 1;
  * | `3` <br/>  |
  * | `4` <br/>  |
  * | `5` <br/> The CRA Opusline generated, filed next to the signed return it comes back as. |
+ * | `6` <br/>  |
+ * | `7` <br/>  |
+ * | `8` <br/>  |
+ * | `9` <br/>  |
  */
-export type DocumentCategory = 0 | 1 | 2 | 3 | 4 | 5;
+export type DocumentCategory = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 
 /**
  * DocumentData
@@ -404,8 +408,14 @@ export type DocumentListData = {
 
 /**
  * DocumentSource
+ *
+ * | |
+ * |---|
+ * | `0` <br/>  |
+ * | `1` <br/>  |
+ * | `2` <br/> Attached to the account itself — the freelancer's own pieces. |
  */
-export type DocumentSource = 0 | 1;
+export type DocumentSource = 0 | 1 | 2;
 
 /**
  * EntryRounding
@@ -3373,6 +3383,150 @@ export type DownloadMissionDocumentResponses = {
 };
 
 export type DownloadMissionDocumentResponse = DownloadMissionDocumentResponses[keyof DownloadMissionDocumentResponses];
+
+export type ListPersonalDocumentsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/documents';
+};
+
+export type ListPersonalDocumentsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListPersonalDocumentsError = ListPersonalDocumentsErrors[keyof ListPersonalDocumentsErrors];
+
+export type ListPersonalDocumentsResponses = {
+    200: DocumentListData;
+};
+
+export type ListPersonalDocumentsResponse = ListPersonalDocumentsResponses[keyof ListPersonalDocumentsResponses];
+
+export type UploadPersonalDocumentData = {
+    body: UploadDocumentData;
+    path?: never;
+    query?: never;
+    url: '/documents';
+};
+
+export type UploadPersonalDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UploadPersonalDocumentError = UploadPersonalDocumentErrors[keyof UploadPersonalDocumentErrors];
+
+export type UploadPersonalDocumentResponses = {
+    201: DocumentData;
+};
+
+export type UploadPersonalDocumentResponse = UploadPersonalDocumentResponses[keyof UploadPersonalDocumentResponses];
+
+export type DeletePersonalDocumentData = {
+    body?: never;
+    path: {
+        document: number;
+    };
+    query?: never;
+    url: '/documents/{document}';
+};
+
+export type DeletePersonalDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeletePersonalDocumentError = DeletePersonalDocumentErrors[keyof DeletePersonalDocumentErrors];
+
+export type DeletePersonalDocumentResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeletePersonalDocumentResponse = DeletePersonalDocumentResponses[keyof DeletePersonalDocumentResponses];
+
+export type UpdatePersonalDocumentData = {
+    body: UpdateDocumentData;
+    path: {
+        document: number;
+    };
+    query?: never;
+    url: '/documents/{document}';
+};
+
+export type UpdatePersonalDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdatePersonalDocumentError = UpdatePersonalDocumentErrors[keyof UpdatePersonalDocumentErrors];
+
+export type UpdatePersonalDocumentResponses = {
+    200: DocumentData;
+};
+
+export type UpdatePersonalDocumentResponse = UpdatePersonalDocumentResponses[keyof UpdatePersonalDocumentResponses];
+
+export type DownloadPersonalDocumentData = {
+    body?: never;
+    path: {
+        document: number;
+    };
+    query?: never;
+    url: '/documents/{document}/download';
+};
+
+export type DownloadPersonalDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DownloadPersonalDocumentError = DownloadPersonalDocumentErrors[keyof DownloadPersonalDocumentErrors];
+
+export type DownloadPersonalDocumentResponses = {
+    200: Blob | File;
+};
+
+export type DownloadPersonalDocumentResponse = DownloadPersonalDocumentResponses[keyof DownloadPersonalDocumentResponses];
 
 export type ShowRevenueData = {
     body?: never;
