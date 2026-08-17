@@ -6,6 +6,7 @@ import { afterEach, expect, it, vi } from "vitest";
 
 import { getRouter } from "@/router";
 import { seedCurrentUser } from "@/test/current-user";
+import { clientRevenueDetailPayload } from "@/test/fixtures";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -100,6 +101,10 @@ function stubApi(
       const overridden = overrides?.(request);
       if (overridden) {
         return overridden;
+      }
+
+      if (url.pathname.endsWith("/revenue")) {
+        return jsonResponse(200, clientRevenueDetailPayload());
       }
 
       if (url.pathname.endsWith("/documents")) {
@@ -457,4 +462,33 @@ it("opens the coordinates tab for a client whose only address part is a country"
   fireEvent.click(screen.getByRole("tab", { name: "Coordonnées" }));
 
   expect(await screen.findByText("France")).toBeInTheDocument();
+});
+
+it("fills the header tiles with the client's revenue figures", async () => {
+  stubApi(clientPayload());
+  await renderDetailPage();
+
+  // Scoped to the tile: the mission row shows the same figure, so a bare
+  // getAllByText would pass on the row alone and never notice an empty tile.
+  const revenueTile = (await screen.findByText("CA 2026")).closest(
+    '[data-slot="stat-tile"]',
+  );
+
+  expect(revenueTile).toHaveTextContent("48 200 €");
+  expect(
+    screen.getByText("En attente").closest('[data-slot="stat-tile"]'),
+  ).toHaveTextContent("9 600 €");
+  expect(
+    screen.getByText("Délai moyen").closest('[data-slot="stat-tile"]'),
+  ).toHaveTextContent("27 jours");
+});
+
+it("shows each mission's revenue for the year in the missions tab", async () => {
+  stubApi(clientPayload());
+  await renderDetailPage();
+
+  // The mission row and the client tile both read 48 200 € here, so the count
+  // is what proves the row picked its own figure up rather than staying blank.
+  expect(await screen.findByText("Callisto front")).toBeInTheDocument();
+  expect(screen.getAllByText("48 200 €")).toHaveLength(2);
 });

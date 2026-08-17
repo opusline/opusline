@@ -7,6 +7,7 @@ import {
   showClientOptions,
   showMissionOptions,
   showMissionQueryKey,
+  showMissionRevenueOptions,
   updateMissionMutation,
   uploadMissionDocumentMutation,
 } from "@opusline/api-client/react-query";
@@ -45,6 +46,9 @@ function MissionDetailRoute() {
   const missionQuery = useQuery(showMissionOptions({ path: missionPath }));
   const documentsQuery = useQuery(
     listMissionDocumentsOptions({ path: missionPath }),
+  );
+  const revenueQuery = useQuery(
+    showMissionRevenueOptions({ path: missionPath }),
   );
 
   const updateMission = useMutation(updateMissionMutation());
@@ -218,6 +222,8 @@ function MissionDetailRoute() {
       onOpenCra={() => void navigate({ to: "/cra" })}
       onSetStatus={(status) => void handleSetStatus(status)}
       onUpdate={handleUpdate}
+      revenue={revenueQuery.data}
+      revenueFailed={revenueQuery.isError}
     />
   );
 }

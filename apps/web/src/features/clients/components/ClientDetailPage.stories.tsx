@@ -1,4 +1,7 @@
-import type { ClientWithMissionsData } from "@opusline/api-client";
+import type {
+  ClientRevenueData,
+  ClientWithMissionsData,
+} from "@opusline/api-client";
 import type { Meta, StoryObj } from "@storybook/react";
 import { DocumentsTab } from "@/components/documents-tab";
 import { SAMPLE_LOGO_SRC } from "@/lib/logo-fixture";
@@ -110,10 +113,26 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof ClientDetailPage>;
 
+const revenue: ClientRevenueData = {
+  clientId: client.id,
+  yearToDate: { amount: 4_820_000, currency: "EUR" },
+  pending: { amount: 960_000, currency: "EUR" },
+  averagePaymentDelayDays: 27,
+  missions: client.missions.map((mission) => ({
+    missionId: mission.id,
+    yearToDate: { amount: 4_820_000, currency: "EUR" },
+    currentMonth: { amount: 605_000, currency: "EUR" },
+    total: { amount: 7_150_000, currency: "EUR" },
+    monthlyAverage: { amount: 447_000, currency: "EUR" },
+  })),
+};
+
 export const Default: Story = {
   args: {
     client,
     documentsTab,
+    revenue,
+    revenueYear: 2026,
     onUpdate: async () => ({ status: "success" }) as const,
     onToggleArchive: () => {},
   },
@@ -148,6 +167,21 @@ export const WithoutCoordinates: Story = {
       missions: [],
     },
     documentsTab,
+    onUpdate: async () => ({ status: "success" }) as const,
+    onToggleArchive: () => {},
+  },
+};
+
+/**
+ * The revenue endpoint answered with an error. The tiles fall back to
+ * placeholders, and the warning says so — otherwise the dashes read as a client
+ * that was never invoiced.
+ */
+export const RevenueUnavailable: Story = {
+  args: {
+    client,
+    documentsTab,
+    revenueFailed: true,
     onUpdate: async () => ({ status: "success" }) as const,
     onToggleArchive: () => {},
   },

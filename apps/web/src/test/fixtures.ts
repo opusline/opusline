@@ -1,10 +1,13 @@
 import type {
   ClientData,
+  ClientRevenueData,
+  ClientRevenueDetailData,
   InvoiceData,
   InvoiceListItemData,
   InvoiceSummaryData,
   InvoiceTodoData,
   MissionData,
+  MissionRevenueData,
   MoneyData,
 } from "@opusline/api-client";
 
@@ -16,6 +19,42 @@ import type {
 
 export function eur(amount: number): MoneyData {
   return { amount, currency: "EUR" };
+}
+
+/**
+ * The revenue figures as the API returns them, for client id 1 and mission id 1
+ * — the ids CLIENT_FIXTURE and MISSION_FIXTURE use, and the ones the clients and
+ * missions detail suites stub. One definition per figure so the two per-resource
+ * payloads cannot drift apart.
+ */
+function missionRevenue(): MissionRevenueData {
+  return {
+    missionId: 1,
+    yearToDate: eur(4_820_000),
+    currentMonth: eur(605_000),
+    total: eur(7_150_000),
+    monthlyAverage: eur(447_000),
+  };
+}
+
+function clientRevenue(): ClientRevenueData {
+  return {
+    clientId: 1,
+    yearToDate: eur(4_820_000),
+    pending: eur(960_000),
+    averagePaymentDelayDays: 27,
+    missions: [missionRevenue()],
+  };
+}
+
+/** GET /api/clients/{client}/revenue */
+export function clientRevenueDetailPayload(): ClientRevenueDetailData {
+  return { year: 2026, revenue: clientRevenue() };
+}
+
+/** GET /api/clients/{client}/missions/{mission}/revenue */
+export function missionRevenueDetailPayload(): MissionRevenueData {
+  return missionRevenue();
 }
 
 export const CLIENT_FIXTURE = {

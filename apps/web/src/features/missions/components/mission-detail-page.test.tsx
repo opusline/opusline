@@ -10,6 +10,7 @@ import { afterEach, expect, it, vi } from "vitest";
 
 import { getRouter } from "@/router";
 import { seedCurrentUser } from "@/test/current-user";
+import { missionRevenueDetailPayload } from "@/test/fixtures";
 
 function missionPayload(overrides: Partial<MissionData> = {}): MissionData {
   return {
@@ -92,6 +93,10 @@ function stubApi(
               .json()
               .catch(() => null);
       requests.push({ method: request.method, path: url.pathname, body });
+
+      if (url.pathname.endsWith("/revenue")) {
+        return jsonResponse(200, missionRevenueDetailPayload());
+      }
 
       if (url.pathname.endsWith("/documents")) {
         return jsonResponse(200, { documents });
@@ -243,6 +248,10 @@ it("shows a server error on an untouched field after saving", async () => {
         });
       }
 
+      if (url.pathname.endsWith("/revenue")) {
+        return jsonResponse(200, missionRevenueDetailPayload());
+      }
+
       if (url.pathname.endsWith("/documents")) {
         return jsonResponse(200, { documents: [] });
       }
@@ -330,6 +339,10 @@ it("refuses a second mutation while the first is still running", async () => {
         return jsonResponse(200, missionPayload());
       }
 
+      if (url.pathname.endsWith("/revenue")) {
+        return jsonResponse(200, missionRevenueDetailPayload());
+      }
+
       if (url.pathname.endsWith("/documents")) {
         return jsonResponse(200, { documents: [] });
       }
@@ -378,4 +391,13 @@ it("refuses a second mutation while the first is still running", async () => {
   await waitFor(() => {
     expect(screen.getByRole("button", { name: "Enregistrer" })).toBeEnabled();
   });
+});
+
+it("fills the header tiles with the mission's revenue figures", async () => {
+  stubApi(missionPayload());
+  await renderMissionDetail();
+
+  expect(await screen.findByText("6 050 €")).toBeInTheDocument();
+  expect(screen.getByText("71 500 €")).toBeInTheDocument();
+  expect(screen.getByText("4 470 €")).toBeInTheDocument();
 });

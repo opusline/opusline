@@ -165,6 +165,33 @@ export type ClientListData = {
 };
 
 /**
+ * ClientRevenueData
+ */
+export type ClientRevenueData = {
+    clientId: number;
+    yearToDate: MoneyData;
+    pending: MoneyData;
+    averagePaymentDelayDays: number | null;
+    missions: Array<MissionRevenueData>;
+};
+
+/**
+ * ClientRevenueDetailData
+ */
+export type ClientRevenueDetailData = {
+    year: number;
+    revenue: ClientRevenueData;
+};
+
+/**
+ * ClientRevenueListData
+ */
+export type ClientRevenueListData = {
+    year: number;
+    clients: Array<ClientRevenueData>;
+};
+
+/**
  * ClientType
  */
 export type ClientType = 0 | 1 | 2;
@@ -645,6 +672,17 @@ export type MissionData = {
     notes: string | null;
     startDate: string | null;
     endDate: string | null;
+};
+
+/**
+ * MissionRevenueData
+ */
+export type MissionRevenueData = {
+    missionId: number;
+    yearToDate: MoneyData;
+    currentMonth: MoneyData;
+    total: MoneyData;
+    monthlyAverage: MoneyData | null;
 };
 
 /**
@@ -2109,6 +2147,119 @@ export type UploadClientLogoResponses = {
 };
 
 export type UploadClientLogoResponse = UploadClientLogoResponses[keyof UploadClientLogoResponses];
+
+export type ShowClientRevenueData = {
+    body?: never;
+    path: {
+        /**
+         * The client slug
+         */
+        client: string;
+    };
+    query?: never;
+    url: '/clients/{client}/revenue';
+};
+
+export type ShowClientRevenueErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowClientRevenueError = ShowClientRevenueErrors[keyof ShowClientRevenueErrors];
+
+export type ShowClientRevenueResponses = {
+    200: ClientRevenueDetailData;
+};
+
+export type ShowClientRevenueResponse = ShowClientRevenueResponses[keyof ShowClientRevenueResponses];
+
+export type ShowMissionRevenueData = {
+    body?: never;
+    path: {
+        /**
+         * The client slug
+         */
+        client: string;
+        /**
+         * The mission slug
+         */
+        mission: string;
+    };
+    query?: never;
+    url: '/clients/{client}/missions/{mission}/revenue';
+};
+
+export type ShowMissionRevenueErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowMissionRevenueError = ShowMissionRevenueErrors[keyof ShowMissionRevenueErrors];
+
+export type ShowMissionRevenueResponses = {
+    200: MissionRevenueData;
+};
+
+export type ShowMissionRevenueResponse = ShowMissionRevenueResponses[keyof ShowMissionRevenueResponses];
+
+export type ListClientRevenueData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/client-revenue';
+};
+
+export type ListClientRevenueErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListClientRevenueError = ListClientRevenueErrors[keyof ListClientRevenueErrors];
+
+export type ListClientRevenueResponses = {
+    200: ClientRevenueListData;
+};
+
+export type ListClientRevenueResponse = ListClientRevenueResponses[keyof ListClientRevenueResponses];
 
 export type ListCrasData = {
     body?: never;

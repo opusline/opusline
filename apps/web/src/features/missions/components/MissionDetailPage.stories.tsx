@@ -1,4 +1,8 @@
-import type { ClientWithMissionsData, MissionData } from "@opusline/api-client";
+import type {
+  ClientWithMissionsData,
+  MissionData,
+  MissionRevenueData,
+} from "@opusline/api-client";
 import type { Meta, StoryObj } from "@storybook/react";
 import { DocumentsTab } from "@/components/documents-tab";
 import { isClientDocument } from "@/lib/documents";
@@ -99,11 +103,20 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof MissionDetailPage>;
 
+const revenue: MissionRevenueData = {
+  missionId: mission.id,
+  yearToDate: { amount: 4_820_000, currency: "EUR" },
+  currentMonth: { amount: 605_000, currency: "EUR" },
+  total: { amount: 7_150_000, currency: "EUR" },
+  monthlyAverage: { amount: 447_000, currency: "EUR" },
+};
+
 export const Default: Story = {
   args: {
     mission,
     client,
     documentsTab,
+    revenue,
     onUpdate: async () => ({ status: "success" }) as const,
     onSetStatus: () => {},
   },
@@ -124,6 +137,22 @@ export const Done: Story = {
     mission: { ...mission, status: 2 },
     client,
     documentsTab,
+    onUpdate: async () => ({ status: "success" }) as const,
+    onSetStatus: () => {},
+  },
+};
+
+/**
+ * The revenue endpoint answered with an error. The tiles fall back to
+ * placeholders, and the warning says so — otherwise the dashes read as a
+ * mission that was never invoiced.
+ */
+export const RevenueUnavailable: Story = {
+  args: {
+    mission,
+    client,
+    documentsTab,
+    revenueFailed: true,
     onUpdate: async () => ({ status: "success" }) as const,
     onSetStatus: () => {},
   },

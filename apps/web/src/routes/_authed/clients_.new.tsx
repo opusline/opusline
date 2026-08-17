@@ -11,6 +11,7 @@ import { useState } from "react";
 
 import { NewClientPage } from "@/features/clients/components/new-client-page";
 import type { FormSubmitResult } from "@/lib/form";
+import { revenueFilter } from "@/lib/query-invalidation";
 import { serverFieldErrors } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -48,10 +49,15 @@ function NewClientRoute() {
         }
       }
 
-      await queryClient.invalidateQueries({
-        queryKey: listClientsQueryKey(),
-        refetchType: "none",
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: listClientsQueryKey(),
+          refetchType: "none",
+        }),
+        // The new client is absent from the cached fold, and an unmatched row
+        // reads as "—" where the API would answer zero.
+        queryClient.invalidateQueries(revenueFilter()),
+      ]);
       await queryClient.fetchQuery(listClientsOptions());
 
       if (hasLogoFailed) {

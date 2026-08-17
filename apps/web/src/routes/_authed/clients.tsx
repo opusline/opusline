@@ -1,4 +1,7 @@
-import { listClientsOptions } from "@opusline/api-client/react-query";
+import {
+  listClientRevenueOptions,
+  listClientsOptions,
+} from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
 import { Skeleton } from "@opusline/ui/components/skeleton";
@@ -15,6 +18,9 @@ export const Route = createFileRoute("/_authed/clients")({
 
 function ClientsPage() {
   const { data, isPending, isError } = useQuery(listClientsOptions());
+  // Its own query so a slow or failing revenue fold never holds back the list:
+  // the columns fall back to placeholders while the client rows render.
+  const revenue = useQuery(listClientRevenueOptions());
 
   return (
     <div className="flex flex-col gap-5">
@@ -40,7 +46,16 @@ function ClientsPage() {
           <AlertDescription>{m.clients_load_failed()}</AlertDescription>
         </Alert>
       )}
-      {data !== undefined && <ClientsTable clients={data.clients} />}
+      {/* Warn, not destructive: the rows are still usable, only their figures
+          are missing — and silent placeholders would read as "nothing billed". */}
+      {revenue.isError && (
+        <Alert variant="warn">
+          <AlertDescription>{m.revenue_load_failed()}</AlertDescription>
+        </Alert>
+      )}
+      {data !== undefined && (
+        <ClientsTable clients={data.clients} revenue={revenue.data} />
+      )}
     </div>
   );
 }

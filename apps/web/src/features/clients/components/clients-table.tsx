@@ -1,4 +1,7 @@
-import type { ClientWithMissionsData } from "@opusline/api-client";
+import type {
+  ClientRevenueListData,
+  ClientWithMissionsData,
+} from "@opusline/api-client";
 import { Badge } from "@opusline/ui/components/badge";
 import { Chip, ChipCount, ChipGroup } from "@opusline/ui/components/chip";
 import {
@@ -12,10 +15,17 @@ import {
 import { cn } from "@opusline/ui/lib/utils";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatMissionRate } from "@/lib/billing";
+import {
+  formatPaymentDelay,
+  formatRevenue,
+  indexClientRevenue,
+  indexMissionRevenue,
+  revenueYearLabel,
+} from "@/lib/client-revenue";
 import { clientTypeLabel } from "@/lib/client-types";
 import { COLOR_CLASSES } from "@/lib/palette";
 
@@ -47,19 +57,25 @@ function isClientScope(value: unknown): value is ClientScope {
 
 type ClientsTableProps = {
   clients: ClientWithMissionsData[];
+  /** Undefined while the figures are still loading; cells show a placeholder. */
+  revenue?: ClientRevenueListData;
 };
 
-export function ClientsTable({ clients }: ClientsTableProps) {
+export function ClientsTable({ clients, revenue }: ClientsTableProps) {
   const format = useMoneyFormat();
   const navigate = useNavigate();
   const [scope, setScope] = useState<ClientScope>("active");
+  const revenueByClient = useMemo(() => indexClientRevenue(revenue), [revenue]);
+  const revenueByMission = useMemo(
+    () => indexMissionRevenue(revenue?.clients),
+    [revenue],
+  );
 
   if (clients.length === 0) {
     return <ClientsEmptyState />;
   }
 
   const now = new Date();
-  const currentYear = now.getFullYear();
 
   const scopedClients: Record<ClientScope, ClientWithMissionsData[]> = {
     all: clients,
@@ -107,7 +123,7 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                 Missions
               </TableHead>
               <TableHead className={cn(HEAD_CLASSES, "w-1/6 text-right")}>
-                {m.clients_head_revenue({ year: currentYear })}
+                {revenueYearLabel(revenue?.year)}
               </TableHead>
               <TableHead className={cn(HEAD_CLASSES, "w-1/6 text-right")}>
                 {m.clients_head_pending()}
@@ -120,6 +136,7 @@ export function ClientsTable({ clients }: ClientsTableProps) {
           {visibleClients.map((client) => {
             const subtitle = clientSubtitle(client);
             const isArchived = client.archivedAt !== null;
+            const clientRevenue = revenueByClient.get(client.id);
 
             return (
               <TableBody
@@ -181,69 +198,73 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                     {client.missions.length}
                   </TableCell>
                   <TableCell className="py-4 text-right font-mono tabular-nums">
-                    —
+                    {formatRevenue(format, clientRevenue?.yearToDate)}
                   </TableCell>
                   <TableCell className="py-4 text-right font-mono text-muted-foreground tabular-nums">
-                    —
+                    {formatRevenue(format, clientRevenue?.pending)}
                   </TableCell>
                   <TableCell className="py-4 pr-5 text-right font-mono text-muted-foreground-3 tabular-nums">
-                    —
+                    {formatPaymentDelay(clientRevenue?.averagePaymentDelayDays)}
                   </TableCell>
                 </TableRow>
-                {client.missions.map((mission) => (
-                  <TableRow
-                    key={mission.id}
-                    className="cursor-pointer border-secondary bg-muted hover:bg-card-2"
-                    onClick={() =>
-                      void navigate({
-                        to: "/clients/$clientSlug/missions/$missionSlug",
-                        params: {
-                          clientSlug: client.slug,
-                          missionSlug: mission.slug,
-                        },
-                      })
-                    }
-                  >
-                    <TableCell className="py-2.5 pl-5">
-                      <div className="flex min-w-0 items-center gap-2.5 pl-3.5">
-                        <span
-                          aria-hidden
-                          className={cn(
-                            "h-3 w-0.75 shrink-0 rounded-sm",
-                            COLOR_CLASSES[mission.color ?? client.color],
-                          )}
-                        />
-                        <Link
-                          className="truncate text-sm text-foreground-3"
-                          onClick={(event) => event.stopPropagation()}
-                          params={{
+                {client.missions.map((mission) => {
+                  const missionRevenue = revenueByMission.get(mission.id);
+
+                  return (
+                    <TableRow
+                      key={mission.id}
+                      className="cursor-pointer border-secondary bg-muted hover:bg-card-2"
+                      onClick={() =>
+                        void navigate({
+                          to: "/clients/$clientSlug/missions/$missionSlug",
+                          params: {
                             clientSlug: client.slug,
                             missionSlug: mission.slug,
-                          }}
-                          to="/clients/$clientSlug/missions/$missionSlug"
-                        >
-                          {mission.name}
-                        </Link>
-                      </div>
-                    </TableCell>
-                    <TableCell className="py-2.5 text-muted-foreground-2 text-xs">
-                      {formatMissionRate(format, mission)}
-                    </TableCell>
-                    <TableCell className="py-2.5 font-mono text-muted-foreground-3 tabular-nums">
-                      —
-                    </TableCell>
-                    <TableCell className="py-2.5 text-right font-mono text-foreground-3 tabular-nums">
-                      —
-                    </TableCell>
-                    <TableCell />
-                    <TableCell className="py-2.5 pr-5 text-right">
-                      <MissionStatusBadge
-                        clientType={client.type}
-                        status={mission.status}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
+                          },
+                        })
+                      }
+                    >
+                      <TableCell className="py-2.5 pl-5">
+                        <div className="flex min-w-0 items-center gap-2.5 pl-3.5">
+                          <span
+                            aria-hidden
+                            className={cn(
+                              "h-3 w-0.75 shrink-0 rounded-sm",
+                              COLOR_CLASSES[mission.color ?? client.color],
+                            )}
+                          />
+                          <Link
+                            className="truncate text-sm text-foreground-3"
+                            onClick={(event) => event.stopPropagation()}
+                            params={{
+                              clientSlug: client.slug,
+                              missionSlug: mission.slug,
+                            }}
+                            to="/clients/$clientSlug/missions/$missionSlug"
+                          >
+                            {mission.name}
+                          </Link>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-2.5 text-muted-foreground-2 text-xs">
+                        {formatMissionRate(format, mission)}
+                      </TableCell>
+                      <TableCell className="py-2.5 font-mono text-muted-foreground-3 tabular-nums">
+                        —
+                      </TableCell>
+                      <TableCell className="py-2.5 text-right font-mono text-foreground-3 tabular-nums">
+                        {formatRevenue(format, missionRevenue?.yearToDate)}
+                      </TableCell>
+                      <TableCell />
+                      <TableCell className="py-2.5 pr-5 text-right">
+                        <MissionStatusBadge
+                          clientType={client.type}
+                          status={mission.status}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
                 {isArchived ? (
                   <TableRow className="bg-muted hover:bg-muted">
                     <TableCell

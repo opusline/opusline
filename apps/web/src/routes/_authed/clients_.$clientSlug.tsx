@@ -8,6 +8,7 @@ import {
   listClientsQueryKey,
   showClientOptions,
   showClientQueryKey,
+  showClientRevenueOptions,
   unarchiveClientMutation,
   updateClientMutation,
   uploadClientDocumentMutation,
@@ -50,6 +51,7 @@ function ClientDetailRoute() {
   const documentsQuery = useQuery(
     listClientDocumentsOptions({ path: { client } }),
   );
+  const revenueQuery = useQuery(showClientRevenueOptions({ path: { client } }));
 
   const updateClient = useMutation(updateClientMutation());
   const archiveClient = useMutation(archiveClientMutation());
@@ -197,6 +199,9 @@ function ClientDetailRoute() {
       onToggleArchive={() => void handleToggleArchive()}
       onUpdate={handleUpdate}
       onUploadLogo={handleUploadLogo}
+      revenue={revenueQuery.data?.revenue}
+      revenueFailed={revenueQuery.isError}
+      revenueYear={revenueQuery.data?.year}
     />
   );
 }
