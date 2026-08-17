@@ -1,5 +1,6 @@
 import type {
   ClientWithMissionsData,
+  MissionBillingProgressData,
   MissionData,
   MissionRevenueData,
   MissionStatus,
@@ -44,6 +45,7 @@ import { COLOR_CLASSES } from "@/lib/palette";
 import { m } from "@/paraglide/messages.js";
 
 import { billingModeUnitShort } from "../lib/labels";
+import { ForfaitProgress } from "./forfait-progress";
 import { MissionEditForm } from "./mission-edit-form";
 import { MissionEntriesTable } from "./mission-entries-table";
 
@@ -73,6 +75,8 @@ type MissionDetailPageProps = {
   revenue?: MissionRevenueData;
   /** The figures could not be fetched — placeholders alone would read as "none". */
   revenueFailed?: boolean;
+  /** Null for a mission not sold at a fixed price. */
+  billingProgress?: MissionBillingProgressData | null;
   entries?: TimeEntryData[];
   isEntriesPending?: boolean;
   isEntriesError?: boolean;
@@ -90,6 +94,7 @@ export function MissionDetailPage({
   error,
   revenue,
   revenueFailed,
+  billingProgress = null,
   entries = [],
   isEntriesPending,
   isEntriesError,
@@ -255,6 +260,12 @@ export function MissionDetailPage({
           <AlertDescription>{m.revenue_load_failed()}</AlertDescription>
         </Alert>
       ) : null}
+
+      {billingProgress !== null && (
+        <div className="mb-5">
+          <ForfaitProgress progress={billingProgress} />
+        </div>
+      )}
 
       <StatTileRow className="mb-5 grid-cols-2 md:grid-cols-4">
         <StatTile

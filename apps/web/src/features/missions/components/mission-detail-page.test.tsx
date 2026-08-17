@@ -99,6 +99,10 @@ function stubApi(
         return jsonResponse(200, { timeEntries: [] });
       }
 
+      if (url.pathname.endsWith("/billing")) {
+        return jsonResponse(200, null);
+      }
+
       if (url.pathname.endsWith("/revenue")) {
         return jsonResponse(200, missionRevenueDetailPayload());
       }
@@ -257,6 +261,10 @@ it("shows a server error on an untouched field after saving", async () => {
         return jsonResponse(200, { timeEntries: [] });
       }
 
+      if (url.pathname.endsWith("/billing")) {
+        return jsonResponse(200, null);
+      }
+
       if (url.pathname.endsWith("/revenue")) {
         return jsonResponse(200, missionRevenueDetailPayload());
       }
@@ -350,6 +358,10 @@ it("refuses a second mutation while the first is still running", async () => {
 
       if (url.pathname.endsWith("/time-entries")) {
         return jsonResponse(200, { timeEntries: [] });
+      }
+
+      if (url.pathname.endsWith("/billing")) {
+        return jsonResponse(200, null);
       }
 
       if (url.pathname.endsWith("/revenue")) {

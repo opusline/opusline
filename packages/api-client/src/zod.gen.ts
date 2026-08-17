@@ -912,6 +912,19 @@ export const zBankImportData = z.object({
 });
 
 /**
+ * MissionBillingProgressData
+ */
+export const zMissionBillingProgressData = z.object({
+    fixedPrice: zMoneyData,
+    invoiced: zMoneyData,
+    remaining: zSignedMoneyData,
+    progressBp: z.int(),
+    isOverBilled: z.boolean(),
+    issuedCount: z.int(),
+    draftCount: z.int()
+});
+
+/**
  * StartTimerData
  */
 export const zStartTimerData = z.object({
@@ -1624,6 +1637,13 @@ export const zCreateMissionPath = z.object({
 });
 
 export const zCreateMissionResponse = zMissionData;
+
+export const zShowMissionBillingPath = z.object({
+    client: z.string(),
+    mission: z.string()
+});
+
+export const zShowMissionBillingResponse = z.nullable(zMissionBillingProgressData);
 
 export const zListMissionDocumentsPath = z.object({
     client: z.string(),
