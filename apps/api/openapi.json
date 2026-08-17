@@ -2530,6 +2530,52 @@
                 }
             }
         },
+        "/clients/{client}/missions/{mission}/time-entries": {
+            "get": {
+                "operationId": "listMissionTimeEntries",
+                "tags": [
+                    "MissionTimeEntry"
+                ],
+                "parameters": [
+                    {
+                        "name": "client",
+                        "in": "path",
+                        "required": true,
+                        "description": "The client slug",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "mission",
+                        "in": "path",
+                        "required": true,
+                        "description": "The mission slug",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TimeEntryListData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/revenue": {
             "get": {
                 "operationId": "showRevenue",
@@ -6244,6 +6290,9 @@
                     "billable": {
                         "type": "boolean"
                     },
+                    "invoiced": {
+                        "type": "boolean"
+                    },
                     "note": {
                         "type": [
                             "string",
@@ -6260,6 +6309,7 @@
                     "valuedMinutes",
                     "valuedDayFraction",
                     "billable",
+                    "invoiced",
                     "note"
                 ],
                 "title": "TimeEntryData"

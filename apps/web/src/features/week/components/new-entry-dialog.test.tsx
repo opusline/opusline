@@ -151,6 +151,7 @@ it("replaces every entry on the day, not just the first", () => {
     timeEntries: [
       {
         billable: true,
+        invoiced: false,
         date: DEMO_TODAY,
         durationMinutes: 210,
         id: 41,
@@ -162,6 +163,7 @@ it("replaces every entry on the day, not just the first", () => {
       },
       {
         billable: true,
+        invoiced: false,
         date: DEMO_TODAY,
         durationMinutes: 210,
         id: 42,

@@ -927,6 +927,7 @@ export const zTimeEntryData = z.object({
     valuedMinutes: z.nullable(z.int()),
     valuedDayFraction: z.nullable(z.number()),
     billable: z.boolean(),
+    invoiced: z.boolean(),
     note: z.nullable(z.string())
 });
 
@@ -1629,6 +1630,13 @@ export const zDownloadMissionDocumentPath = z.object({
 });
 
 export const zDownloadMissionDocumentResponse = z.string();
+
+export const zListMissionTimeEntriesPath = z.object({
+    client: z.string(),
+    mission: z.string()
+});
+
+export const zListMissionTimeEntriesResponse = zTimeEntryListData;
 
 export const zShowRevenueQuery = z.object({
     period: z.nullish(z.string().check(z.regex(/^\d{4}(-(0[1-9]|1[0-2])|-Q[1-4])?$/))),

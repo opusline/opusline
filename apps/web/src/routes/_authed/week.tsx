@@ -27,7 +27,10 @@ import { planWeekRepeat } from "@/features/week/lib/repeat-week";
 import { cellKeyFor, type LiveCell } from "@/features/week/lib/week-grid";
 import { browserTodayCalendarDate } from "@/lib/dates";
 import { provisionalBilledLabel } from "@/lib/durations";
-import { operationFilter } from "@/lib/query-invalidation";
+import {
+  invalidateTimeEntries,
+  operationFilter,
+} from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { isIsoWeek, isoWeekOf, isoWeekRange, shiftIsoWeek } from "@/lib/weeks";
 import { m } from "@/paraglide/messages.js";
@@ -86,7 +89,8 @@ function SemaineRoute() {
   const deleteEntry = useMutation(deleteTimeEntryMutation());
 
   const refreshEntries = (scope: "week" | "all" = "week") =>
-    queryClient.invalidateQueries(
+    invalidateTimeEntries(
+      queryClient,
       scope === "all"
         ? operationFilter("listTimeEntries")
         : { queryKey: listTimeEntriesQueryKey({ query: isoWeekRange(week) }) },

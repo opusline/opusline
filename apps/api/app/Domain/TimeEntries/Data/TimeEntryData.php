@@ -23,6 +23,8 @@ class TimeEntryData extends Data
         public ?int $valuedMinutes,
         public ?float $valuedDayFraction,
         public bool $billable,
+        /** Whether an invoice already bills this entry, so it can no longer be re-billed. */
+        public bool $invoiced,
         public ?string $note,
     ) {}
 
@@ -37,6 +39,7 @@ class TimeEntryData extends Data
             valuedMinutes: $timeEntry->valuedMinutes(),
             valuedDayFraction: $timeEntry->valuedDayFraction(),
             billable: $timeEntry->billable,
+            invoiced: $timeEntry->isInvoiced(),
             note: $timeEntry->note,
         );
     }

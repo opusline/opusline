@@ -3,6 +3,7 @@ import type {
   MissionData,
   MissionRevenueData,
   MissionStatus,
+  TimeEntryData,
   UpdateMissionData,
 } from "@opusline/api-client";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
@@ -44,6 +45,7 @@ import { m } from "@/paraglide/messages.js";
 
 import { billingModeUnitShort } from "../lib/labels";
 import { MissionEditForm } from "./mission-edit-form";
+import { MissionEntriesTable } from "./mission-entries-table";
 
 const EYEBROW_CLASSES =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
@@ -69,6 +71,9 @@ type MissionDetailPageProps = {
   error?: string | null;
   /** Undefined while the figures are still loading; tiles show a placeholder. */
   revenue?: MissionRevenueData;
+  entries?: TimeEntryData[];
+  isEntriesPending?: boolean;
+  isEntriesError?: boolean;
 };
 
 export function MissionDetailPage({
@@ -82,6 +87,9 @@ export function MissionDetailPage({
   isStatusPending,
   error,
   revenue,
+  entries = [],
+  isEntriesPending,
+  isEntriesError,
 }: MissionDetailPageProps) {
   const format = useMoneyFormat();
   const [isEditing, setIsEditing] = useState(false);
@@ -286,35 +294,11 @@ export function MissionDetailPage({
           </TabsList>
 
           <TabsContent value="entries">
-            <div className="overflow-hidden rounded-md border bg-card">
-              <div
-                className={cn(
-                  EYEBROW_CLASSES,
-                  "grid grid-cols-[5.5rem_5.75rem_minmax(0,1fr)_7.25rem] border-b px-5 py-3",
-                )}
-              >
-                <div>{m.common_date_label()}</div>
-                <div>{m.common_duration()}</div>
-                <div>{m.common_note_label()}</div>
-                <div className="text-right">
-                  {m.missions_entries_header_state()}
-                </div>
-              </div>
-              <div className="px-5 py-6 text-center text-muted-foreground-3 text-sm">
-                {m.missions_entries_empty()}
-              </div>
-              <div className="flex items-center justify-between bg-muted px-5 py-3.5">
-                <span className="text-muted-foreground-3 text-sm">
-                  {m.missions_entries_from_week()}
-                </span>
-                <Link
-                  className="text-link text-sm transition-colors hover:text-link-hover"
-                  to="/week"
-                >
-                  {m.missions_open_week()}
-                </Link>
-              </div>
-            </div>
+            <MissionEntriesTable
+              entries={entries}
+              isError={isEntriesError}
+              isPending={isEntriesPending}
+            />
           </TabsContent>
 
           <TabsContent value="invoices">

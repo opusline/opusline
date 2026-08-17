@@ -1,0 +1,4 @@
+{
+  "kind": "new",
+  "text": "A mission's page now lists the time tracked on it, each entry showing whether it is billable, still to bill, or already covered by an invoice."
+}

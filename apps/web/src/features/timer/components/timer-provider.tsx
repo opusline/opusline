@@ -34,7 +34,7 @@ import {
   browserTodayCalendarDate,
   toCalendarDate,
 } from "@/lib/dates";
-import { operationFilter } from "@/lib/query-invalidation";
+import { invalidateTimeEntries } from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 import { type IdleNotice, idleNotice, trimSeconds } from "../lib/idle";
@@ -326,7 +326,7 @@ export function TimerProvider({
 
     if (saved) {
       send({ type: "SAVED" });
-      await queryClient.invalidateQueries(operationFilter("listTimeEntries"));
+      await invalidateTimeEntries(queryClient);
     }
   };
 

@@ -61,6 +61,7 @@ function renderGrid(
 
 const MONDAY_TJM_ENTRY = {
   billable: true,
+  invoiced: false,
   date: "2026-07-27",
   durationMinutes: DEMO_WORKDAY_MINUTES,
   id: 101,
@@ -457,6 +458,7 @@ it("opens the detail popover rather than the inline editor when a cell holds sev
     timeEntries: [
       {
         billable: true,
+        invoiced: false,
         date: "2026-07-27",
         durationMinutes: 210,
         id: 1,
@@ -468,6 +470,7 @@ it("opens the detail popover rather than the inline editor when a cell holds sev
       },
       {
         billable: true,
+        invoiced: false,
         date: "2026-07-27",
         durationMinutes: 210,
         id: 2,
