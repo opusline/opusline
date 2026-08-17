@@ -316,6 +316,17 @@ export const zCreateMissionData = z.object({
 });
 
 /**
+ * FiscalDeadlineKind
+ *
+ * What a fiscal deadline is for. Labels live on the frontend, like every other enum here.
+ * | |
+ * |---|
+ * | `0` <br/> TVA return — CA3 under réel normal, CA12 under réel simplifié. |
+ * | `1` <br/> URSSAF contributions on the period's collections. |
+ */
+export const zFiscalDeadlineKind = z.union([z.literal(0), z.literal(1)]);
+
+/**
  * ImportBankStatementData
  */
 export const zImportBankStatementData = z.object({
@@ -511,6 +522,26 @@ export const zCraData = z.object({
     editable: z.boolean(),
     notes: z.nullable(z.string()),
     days: z.array(zCraDayData)
+});
+
+/**
+ * FiscalDeadlineData
+ */
+export const zFiscalDeadlineData = z.object({
+    kind: zFiscalDeadlineKind,
+    period: z.string(),
+    dueOn: z.iso.date(),
+    amount: z.nullable(zMoneyData),
+    daysUntilDue: z.int(),
+    isOverdue: z.boolean()
+});
+
+/**
+ * FiscalDeadlineListData
+ */
+export const zFiscalDeadlineListData = z.object({
+    deadlines: z.array(zFiscalDeadlineData),
+    hasUncomputedVatSchedule: z.boolean()
 });
 
 /**
@@ -1450,6 +1481,8 @@ export const zDownloadCraPdfQuery = z.object({
 });
 
 export const zDownloadCraPdfResponse = z.string();
+
+export const zListFiscalDeadlinesResponse = zFiscalDeadlineListData;
 
 export const zListInvoicesQuery = z.object({
     status: z.nullish(zInvoiceStatus),

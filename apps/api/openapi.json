@@ -1533,6 +1533,29 @@
                 }
             }
         },
+        "/fiscal-deadlines": {
+            "get": {
+                "operationId": "listFiscalDeadlines",
+                "tags": [
+                    "FiscalDeadline"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FiscalDeadlineListData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/invoices": {
             "get": {
                 "operationId": "listInvoices",
@@ -4727,6 +4750,78 @@
                     "Minute"
                 ],
                 "title": "EntryRounding"
+            },
+            "FiscalDeadlineData": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "$ref": "#/components/schemas/FiscalDeadlineKind"
+                    },
+                    "period": {
+                        "type": "string"
+                    },
+                    "dueOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "amount": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "daysUntilDue": {
+                        "type": "integer"
+                    },
+                    "isOverdue": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "period",
+                    "dueOn",
+                    "amount",
+                    "daysUntilDue",
+                    "isOverdue"
+                ],
+                "title": "FiscalDeadlineData"
+            },
+            "FiscalDeadlineKind": {
+                "type": "integer",
+                "description": "What a fiscal deadline is for. Labels live on the frontend, like every other enum here.\n| |\n|---|\n| `0` <br/> TVA return — CA3 under réel normal, CA12 under réel simplifié. |\n| `1` <br/> URSSAF contributions on the period's collections. |",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "Vat",
+                    "Urssaf"
+                ],
+                "title": "FiscalDeadlineKind"
+            },
+            "FiscalDeadlineListData": {
+                "type": "object",
+                "properties": {
+                    "deadlines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FiscalDeadlineData"
+                        }
+                    },
+                    "hasUncomputedVatSchedule": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "deadlines",
+                    "hasUncomputedVatSchedule"
+                ],
+                "title": "FiscalDeadlineListData"
             },
             "ImportBankStatementData": {
                 "type": "object",

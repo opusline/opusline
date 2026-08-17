@@ -42,6 +42,7 @@ function requestDataFields(): array
         'ClientData', 'ClientListData', 'ClientWithMissionsData',
         'CraCountsData', 'CraData', 'CraDayData', 'CraDetailData',
         'CraListData', 'CraListItemData', 'DocumentData', 'DocumentListData',
+        'FiscalDeadlineData', 'FiscalDeadlineListData',
         'InvoiceClientTotalsData', 'InvoiceCountsData', 'InvoiceData',
         'InvoiceDetailData', 'InvoiceEventData', 'InvoiceForecastData',
         'InvoiceListItemData', 'InvoiceOverdueData', 'InvoiceSummaryData',

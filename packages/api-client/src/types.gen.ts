@@ -416,6 +416,37 @@ export type DocumentSource = 0 | 1;
 export type EntryRounding = 0 | 1 | 2;
 
 /**
+ * FiscalDeadlineData
+ */
+export type FiscalDeadlineData = {
+    kind: FiscalDeadlineKind;
+    period: string;
+    dueOn: string;
+    amount: MoneyData | null;
+    daysUntilDue: number;
+    isOverdue: boolean;
+};
+
+/**
+ * FiscalDeadlineKind
+ *
+ * What a fiscal deadline is for. Labels live on the frontend, like every other enum here.
+ * | |
+ * |---|
+ * | `0` <br/> TVA return — CA3 under réel normal, CA12 under réel simplifié. |
+ * | `1` <br/> URSSAF contributions on the period's collections. |
+ */
+export type FiscalDeadlineKind = 0 | 1;
+
+/**
+ * FiscalDeadlineListData
+ */
+export type FiscalDeadlineListData = {
+    deadlines: Array<FiscalDeadlineData>;
+    hasUncomputedVatSchedule: boolean;
+};
+
+/**
  * ImportBankStatementData
  */
 export type ImportBankStatementData = {
@@ -2552,6 +2583,33 @@ export type DownloadCraPdfResponses = {
 };
 
 export type DownloadCraPdfResponse = DownloadCraPdfResponses[keyof DownloadCraPdfResponses];
+
+export type ListFiscalDeadlinesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/fiscal-deadlines';
+};
+
+export type ListFiscalDeadlinesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListFiscalDeadlinesError = ListFiscalDeadlinesErrors[keyof ListFiscalDeadlinesErrors];
+
+export type ListFiscalDeadlinesResponses = {
+    200: FiscalDeadlineListData;
+};
+
+export type ListFiscalDeadlinesResponse = ListFiscalDeadlinesResponses[keyof ListFiscalDeadlinesResponses];
 
 export type ListInvoicesData = {
     body?: never;
