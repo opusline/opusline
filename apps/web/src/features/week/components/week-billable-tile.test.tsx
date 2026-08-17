@@ -12,6 +12,7 @@ function summary(
     valuedEntryCount: 5,
     nonBillableEntryCount: 0,
     fixedPriceEntryCount: 0,
+    unratedEntryCount: 0,
     ...overrides,
   };
 }
@@ -36,14 +37,27 @@ it("mentions the time it deliberately left out", () => {
   ).toBeInTheDocument();
 });
 
+it("mentions the time it could not value", () => {
+  render(<WeekBillableTile summary={summary({ unratedEntryCount: 3 })} />);
+
+  expect(screen.getByText("sur 5 entrées · 3 sans tarif")).toBeInTheDocument();
+});
+
 it("says nothing billable was tracked rather than showing a bare zero", () => {
   render(
     <WeekBillableTile
-      summary={summary({ amountCents: 0, valuedEntryCount: 0 })}
+      summary={summary({
+        amountCents: 0,
+        valuedEntryCount: 0,
+        nonBillableEntryCount: 2,
+        fixedPriceEntryCount: 1,
+      })}
     />,
   );
 
   expect(
-    screen.getByText("Rien de facturable saisi cette semaine."),
+    screen.getByText(
+      "Rien de facturable saisi cette semaine · 1 au forfait · 2 non facturables",
+    ),
   ).toBeInTheDocument();
 });

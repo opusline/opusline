@@ -43,9 +43,20 @@ export async function invalidateTimeEntries(
 ): Promise<void> {
   await Promise.all([
     queryClient.invalidateQueries(weekFilter),
-    queryClient.invalidateQueries(operationFilter("listMissionTimeEntries")),
+    queryClient.invalidateQueries(missionTimeEntriesFilter()),
     queryClient.invalidateQueries(revenueFilter()),
   ]);
+}
+
+/**
+ * The mission page's own entry history. Time-entry writes move it, and so does
+ * invoicing — linking entries to an invoice flips the state each row shows —
+ * so both reach for one name rather than the raw operation id.
+ */
+export function missionTimeEntriesFilter(): {
+  predicate: (query: Query) => boolean;
+} {
+  return operationFilter("listMissionTimeEntries");
 }
 
 /**

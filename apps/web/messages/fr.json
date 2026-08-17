@@ -967,7 +967,7 @@
       }
     }
   ],
-  "week_billable_empty": "Rien de facturable saisi cette semaine.",
+  "week_billable_empty": "Rien de facturable saisi cette semaine",
   "week_billable_fixed_price": [
     {
       "declarations": ["input count", "local countPlural = count: plural"],
@@ -989,6 +989,16 @@
     }
   ],
   "week_billable_title": "Facturable cette semaine",
+  "week_billable_unrated": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} sans tarif",
+        "countPlural=other": "{count} sans tarif"
+      }
+    }
+  ],
   "week_cell_empty_label": "{mission}, {day} : aucune entrée",
   "week_cell_label": "{mission}, {day} : {value}",
   "week_change_mission": "Changer",

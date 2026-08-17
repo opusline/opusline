@@ -1,33 +1,15 @@
 import type {
+  BillingMode,
   ClientWithMissionsData,
   TimeEntryData,
 } from "@opusline/api-client";
 
+import { isHourly } from "@/lib/durations";
+import { findMissionById } from "@/lib/missions";
+
 const MINUTES_PER_HOUR = 60;
 
-type Mission = ClientWithMissionsData["missions"][number];
-
-/**
- * Local rather than shared with the timer's identical lookup: features must not
- * import each other, and one small loop is cheaper than promoting a helper into
- * `lib/` for a second caller.
- */
-function findMission(
-  clients: ClientWithMissionsData[],
-  missionId: number,
-): Mission | null {
-  for (const client of clients) {
-    const mission = client.missions.find(
-      (candidate) => candidate.id === missionId,
-    );
-
-    if (mission !== undefined) {
-      return mission;
-    }
-  }
-
-  return null;
-}
+const FIXED_PRICE: BillingMode = 2;
 
 export type WeekBillableSummary = {
   /** What the week's billable time is worth, HT, in cents of the account currency. */
@@ -42,6 +24,12 @@ export type WeekBillableSummary = {
    * counting them in the figure would invent revenue.
    */
   fixedPriceEntryCount: number;
+  /**
+   * Billable entries the week cannot value: their mission carries no rate yet,
+   * or is missing from the loaded clients. Counted rather than dropped so the
+   * detail line accounts for every entry of the week.
+   */
+  unratedEntryCount: number;
 };
 
 /**
@@ -58,6 +46,7 @@ export function summarizeWeekBillable(
     valuedEntryCount: 0,
     nonBillableEntryCount: 0,
     fixedPriceEntryCount: 0,
+    unratedEntryCount: 0,
   };
 
   for (const entry of timeEntries) {
@@ -66,25 +55,23 @@ export function summarizeWeekBillable(
       continue;
     }
 
-    const mission = findMission(clients, entry.missionId);
+    const mission = findMissionById(clients, entry.missionId);
 
-    if (mission === null || mission.rate === null) {
-      continue;
-    }
-
-    if (mission.billingMode === 2) {
+    // Before the rate check: a forfait mission whose price is not set yet is
+    // still forfait time, not time waiting for a rate.
+    if (mission?.billingMode === FIXED_PRICE) {
       summary.fixedPriceEntryCount += 1;
       continue;
     }
 
-    const value =
-      mission.billingMode === 1
-        ? ((entry.valuedMinutes ?? 0) / MINUTES_PER_HOUR) * mission.rate.amount
-        : (entry.valuedDayFraction ?? 0) * mission.rate.amount;
-
-    if (value === 0) {
+    if (mission === null || mission.rate === null) {
+      summary.unratedEntryCount += 1;
       continue;
     }
+
+    const value = isHourly(mission.billingMode)
+      ? ((entry.valuedMinutes ?? 0) / MINUTES_PER_HOUR) * mission.rate.amount
+      : (entry.valuedDayFraction ?? 0) * mission.rate.amount;
 
     summary.amountCents += Math.round(value);
     summary.valuedEntryCount += 1;

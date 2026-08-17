@@ -6,17 +6,17 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{}} Week_Billable_EmptyInputs */
 
 const en_week_billable_empty = /** @type {(inputs: Week_Billable_EmptyInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Nothing billable tracked this week yet.`)
+	return /** @type {LocalizedString} */ (`Nothing billable tracked this week yet`)
 };
 
 const fr_week_billable_empty = /** @type {(inputs: Week_Billable_EmptyInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Rien de facturable saisi cette semaine.`)
+	return /** @type {LocalizedString} */ (`Rien de facturable saisi cette semaine`)
 };
 
 /**
 * | output |
 * | --- |
-* | "Nothing billable tracked this week yet." |
+* | "Nothing billable tracked this week yet" |
 *
 * @param {Week_Billable_EmptyInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

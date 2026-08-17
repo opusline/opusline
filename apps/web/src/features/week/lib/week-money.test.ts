@@ -1,74 +1,30 @@
 import type {
   ClientWithMissionsData,
+  MissionData,
   TimeEntryData,
 } from "@opusline/api-client";
 import { expect, it } from "vitest";
 
+import {
+  DEMO_CLIENTS,
+  DEMO_MISSIONS,
+  DEMO_TIME_ENTRIES,
+} from "./week-fixtures";
 import { summarizeWeekBillable } from "./week-money";
 
-function mission(
-  overrides: Partial<ClientWithMissionsData["missions"][number]>,
-) {
-  return {
-    id: 1,
-    slug: "orvella-front",
-    clientId: 1,
-    name: "Orvella front",
-    endClientName: null,
-    billingMode: 0 as const,
-    rate: { amount: 55_000, currency: "EUR" as const },
-    rounding: null,
-    status: 0 as const,
-    craRequired: false,
-    color: null,
-    notes: null,
-    startDate: null,
-    endDate: null,
-    ...overrides,
-  };
+const [NORDLYS] = DEMO_CLIENTS;
+const [BILLED_DAY] = DEMO_TIME_ENTRIES;
+
+function mission(overrides: Partial<MissionData>): MissionData {
+  return { ...DEMO_MISSIONS.orvella, ...overrides };
 }
 
-function clients(
-  missions: ClientWithMissionsData["missions"],
-): ClientWithMissionsData[] {
-  return [
-    {
-      id: 1,
-      slug: "orvella",
-      name: "Orvella",
-      type: 0,
-      notes: null,
-      siret: null,
-      vatNumber: null,
-      billingAddressLine1: null,
-      billingAddressLine2: null,
-      billingPostalCode: null,
-      billingCity: null,
-      billingCountry: null,
-      billingContactName: null,
-      billingEmail: null,
-      color: 0,
-      paymentTermsDays: 45,
-      archivedAt: null,
-      createdAt: "2026-01-01T00:00:00+00:00",
-      missions,
-    },
-  ];
+function clients(missions: MissionData[]): ClientWithMissionsData[] {
+  return [{ ...NORDLYS, missions }];
 }
 
 function entry(overrides: Partial<TimeEntryData> = {}): TimeEntryData {
-  return {
-    id: 1,
-    missionId: 1,
-    date: "2026-08-10",
-    durationMinutes: 480,
-    rounding: null,
-    valuedMinutes: null,
-    valuedDayFraction: 1,
-    billable: true,
-    note: null,
-    ...overrides,
-  };
+  return { ...BILLED_DAY, ...overrides };
 }
 
 it("values a day-billed entry at the mission's daily rate", () => {
@@ -129,21 +85,33 @@ it("counts forfait time separately instead of inventing revenue for it", () => {
   expect(summary.fixedPriceEntryCount).toBe(1);
 });
 
-it("skips a mission that carries no rate at all", () => {
+it("counts a mission that carries no rate at all as unrated", () => {
   const summary = summarizeWeekBillable(clients([mission({ rate: null })]), [
     entry(),
   ]);
 
   expect(summary.amountCents).toBe(0);
   expect(summary.valuedEntryCount).toBe(0);
+  expect(summary.unratedEntryCount).toBe(1);
 });
 
-it("ignores an entry whose mission is not in the loaded clients", () => {
+it("counts an entry whose mission is not in the loaded clients as unrated", () => {
   const summary = summarizeWeekBillable(clients([mission({})]), [
     entry({ missionId: 999 }),
   ]);
 
   expect(summary.amountCents).toBe(0);
+  expect(summary.unratedEntryCount).toBe(1);
+});
+
+it("counts forfait time as forfait even before its price is set", () => {
+  const summary = summarizeWeekBillable(
+    clients([mission({ billingMode: 2, rate: null })]),
+    [entry()],
+  );
+
+  expect(summary.fixedPriceEntryCount).toBe(1);
+  expect(summary.unratedEntryCount).toBe(0);
 });
 
 it("reports zero for a week with no entries", () => {
@@ -154,5 +122,6 @@ it("reports zero for a week with no entries", () => {
     valuedEntryCount: 0,
     nonBillableEntryCount: 0,
     fixedPriceEntryCount: 0,
+    unratedEntryCount: 0,
   });
 });

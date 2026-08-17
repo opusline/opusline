@@ -7,7 +7,11 @@ import { m } from "@/paraglide/messages.js";
 import type { WeekBillableSummary } from "../lib/week-money";
 
 function detailOf(summary: WeekBillableSummary): string {
-  const parts = [m.week_billable_detail({ count: summary.valuedEntryCount })];
+  const parts = [
+    summary.valuedEntryCount > 0
+      ? m.week_billable_detail({ count: summary.valuedEntryCount })
+      : m.week_billable_empty(),
+  ];
 
   if (summary.fixedPriceEntryCount > 0) {
     parts.push(
@@ -21,6 +25,10 @@ function detailOf(summary: WeekBillableSummary): string {
     );
   }
 
+  if (summary.unratedEntryCount > 0) {
+    parts.push(m.week_billable_unrated({ count: summary.unratedEntryCount }));
+  }
+
   return parts.join(" · ");
 }
 
@@ -30,19 +38,19 @@ type WeekBillableTileProps = {
 
 /**
  * The design's row holds three tiles — this one, "Mois en cours" (#66) and
- * "Prochaine échéance" (#75). It keeps the three-column row so the other two
- * drop in beside it without relayout.
+ * "Prochaine échéance" (#75). Until those land the row is one column: the row's
+ * hairline background paints empty columns as a grey slab.
  */
 export function WeekBillableTile({ summary }: WeekBillableTileProps) {
   const format = useMoneyFormat();
   const hasBillableTime = summary.valuedEntryCount > 0;
 
   return (
-    <StatTileRow className="md:grid-cols-3">
+    <StatTileRow className="grid-cols-1">
       <StatTile
         label={m.week_billable_title()}
         size="lg"
-        sub={hasBillableTime ? detailOf(summary) : m.week_billable_empty()}
+        sub={detailOf(summary)}
         tone={hasBillableTime ? "brand" : "quiet"}
         value={
           <span className="flex items-baseline gap-1.5">

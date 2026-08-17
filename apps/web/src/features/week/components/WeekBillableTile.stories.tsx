@@ -17,11 +17,12 @@ export const Default: Story = {
       valuedEntryCount: 5,
       nonBillableEntryCount: 0,
       fixedPriceEntryCount: 0,
+      unratedEntryCount: 0,
     },
   },
 };
 
-/** A week that also carries time nobody will be billed for. */
+/** A week that also carries time the figure deliberately leaves out. */
 export const WithExcludedTime: Story = {
   args: {
     summary: {
@@ -29,6 +30,7 @@ export const WithExcludedTime: Story = {
       valuedEntryCount: 3,
       nonBillableEntryCount: 2,
       fixedPriceEntryCount: 1,
+      unratedEntryCount: 1,
     },
   },
 };
@@ -40,6 +42,7 @@ export const NothingBillable: Story = {
       valuedEntryCount: 0,
       nonBillableEntryCount: 1,
       fixedPriceEntryCount: 0,
+      unratedEntryCount: 0,
     },
   },
 };

@@ -967,7 +967,7 @@
       }
     }
   ],
-  "week_billable_empty": "Nothing billable tracked this week yet.",
+  "week_billable_empty": "Nothing billable tracked this week yet",
   "week_billable_fixed_price": [
     {
       "declarations": ["input count", "local countPlural = count: plural"],
@@ -989,6 +989,16 @@
     }
   ],
   "week_billable_title": "Billable this week",
+  "week_billable_unrated": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} without a rate",
+        "countPlural=other": "{count} without a rate"
+      }
+    }
+  ],
   "week_cell_empty_label": "{mission}, {day}: no entries",
   "week_cell_label": "{mission}, {day}: {value}",
   "week_change_mission": "Change",

@@ -33,7 +33,10 @@ import { InvoiceSummaryTiles } from "@/features/invoices/components/invoice-summ
 import { InvoiceTodoPanel } from "@/features/invoices/components/invoice-todo-panel";
 import { InvoicesTable } from "@/features/invoices/components/invoices-table";
 import { accountTodayCalendarDate } from "@/lib/dates";
-import { revenueFilter } from "@/lib/query-invalidation";
+import {
+  missionTimeEntriesFilter,
+  revenueFilter,
+} from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -116,6 +119,9 @@ function FacturesPage() {
       // Issuing, paying or deleting an invoice moves the client and mission
       // figures the other pages read.
       queryClient.invalidateQueries(revenueFilter()),
+      // Creating an invoice links time entries to it and deleting one unlinks
+      // them, which flips the invoiced badge on the mission's history.
+      queryClient.invalidateQueries(missionTimeEntriesFilter()),
       ...(openInvoiceId === null
         ? []
         : [
