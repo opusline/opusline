@@ -22,7 +22,6 @@ import { formatMissionRate } from "@/lib/billing";
 import {
   formatPaymentDelay,
   formatRevenue,
-  formatTrackedMonth,
   indexClientRevenue,
   indexMissionRevenue,
   revenueYearLabel,
@@ -195,16 +194,16 @@ export function ClientsTable({ clients, revenue }: ClientsTableProps) {
                       {clientTypeLabel(client.type)}
                     </Badge>
                   </TableCell>
-                  <TableCell className="py-4 font-mono text-foreground-4 text-sm tabular-nums">
+                  <TableCell className="py-4 font-mono text-foreground-4 tabular-nums">
                     {client.missions.length}
                   </TableCell>
-                  <TableCell className="py-4 text-right font-mono text-sm tabular-nums">
+                  <TableCell className="py-4 text-right font-mono tabular-nums">
                     {formatRevenue(format, clientRevenue?.yearToDate)}
                   </TableCell>
-                  <TableCell className="py-4 text-right font-mono text-muted-foreground text-sm tabular-nums">
+                  <TableCell className="py-4 text-right font-mono text-muted-foreground tabular-nums">
                     {formatRevenue(format, clientRevenue?.pending)}
                   </TableCell>
-                  <TableCell className="py-4 pr-5 text-right font-mono text-muted-foreground-3 text-sm tabular-nums">
+                  <TableCell className="py-4 pr-5 text-right font-mono text-muted-foreground-3 tabular-nums">
                     {formatPaymentDelay(clientRevenue?.averagePaymentDelayDays)}
                   </TableCell>
                 </TableRow>
@@ -250,10 +249,10 @@ export function ClientsTable({ clients, revenue }: ClientsTableProps) {
                       <TableCell className="py-2.5 text-muted-foreground-2 text-xs">
                         {formatMissionRate(format, mission)}
                       </TableCell>
-                      <TableCell className="py-2.5 font-mono text-muted-foreground-3 text-sm tabular-nums">
-                        {formatTrackedMonth(format.locale, missionRevenue)}
+                      <TableCell className="py-2.5 font-mono text-muted-foreground-3 tabular-nums">
+                        —
                       </TableCell>
-                      <TableCell className="py-2.5 text-right font-mono text-foreground-3 text-sm tabular-nums">
+                      <TableCell className="py-2.5 text-right font-mono text-foreground-3 tabular-nums">
                         {formatRevenue(format, missionRevenue?.yearToDate)}
                       </TableCell>
                       <TableCell />

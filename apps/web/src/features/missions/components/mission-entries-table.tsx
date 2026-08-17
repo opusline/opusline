@@ -5,8 +5,9 @@ import { cn } from "@opusline/ui/lib/utils";
 import { Link } from "@tanstack/react-router";
 
 import { useDateFormat, useLocale } from "@/components/money-format-provider";
+import { REVENUE_PLACEHOLDER } from "@/lib/client-revenue";
 import { calendarDateNumericLabel } from "@/lib/dates";
-import { billedQuantityLabel, formatWorkedTime } from "@/lib/durations";
+import { billedQuantityLabel } from "@/lib/durations";
 import { m } from "@/paraglide/messages.js";
 
 const EYEBROW_CLASSES =
@@ -29,19 +30,16 @@ function entryStateOf(entry: TimeEntryData): EntryState {
 }
 
 /**
- * The entry in the unit its mission bills in — days on a TJM mission, hours on
- * an hourly one — already rounded to the mission's increment by the API, so the
- * row reads as the quantity an invoice would carry.
- *
- * A mission that prices no time (fixed price, or no rate) values nothing, and
- * falls back to the duration actually tracked.
+ * The entry in the unit its mission bills in — days on a day-billed mission,
+ * hours on an hourly one — already rounded to the mission's increment by the
+ * API, so the row reads as the quantity an invoice would carry.
  */
 function quantityLabel(locale: Locale, entry: TimeEntryData): string {
   return (
     billedQuantityLabel(locale, {
       valuedDays: entry.valuedDayFraction,
       valuedMinutes: entry.valuedMinutes,
-    }) ?? formatWorkedTime(entry.durationMinutes)
+    }) ?? REVENUE_PLACEHOLDER
   );
 }
 
@@ -77,13 +75,9 @@ export function MissionEntriesTable({
   return (
     <div className="overflow-hidden rounded-md border bg-card">
       {/*
-        Scrolls on both axes in its own box. Vertically, because a long-running
-        mission has hundreds of entries and the page should keep the header
-        tiles and the tab bar in view; horizontally, because the columns are
-        fixed tracks and the card clips its overflow for its rounded corners,
-        which would drop the state column off the edge with nothing to say it
-        is there. The column header sticks, since a scrolled row with no header
-        above it is unreadable.
+        Scrolls in its own box so a long mission's history does not push the
+        header tiles and tabs off the page, and so the fixed column tracks stay
+        reachable instead of being clipped by the card's rounded corners.
       */}
       <div className="max-h-160 overflow-auto">
         <div className="min-w-124">
@@ -95,7 +89,7 @@ export function MissionEntriesTable({
             )}
           >
             <div>{m.common_date_label()}</div>
-            <div>{m.common_duration()}</div>
+            <div>{m.missions_entries_header_quantity()}</div>
             <div>{m.common_note_label()}</div>
             <div className="text-right">
               {m.missions_entries_header_state()}

@@ -366,10 +366,10 @@ export function ClientDetailPage({
                           <TableCell className="py-4 text-muted-foreground-3 text-sm">
                             {formatMissionRate(format, mission)}
                           </TableCell>
-                          <TableCell className="py-4 font-mono text-foreground-2 text-sm tabular-nums">
+                          <TableCell className="py-4 font-mono text-foreground-2 tabular-nums">
                             {formatTrackedMonth(format.locale, missionRevenue)}
                           </TableCell>
-                          <TableCell className="py-4 text-right font-mono text-primary-text text-sm tabular-nums">
+                          <TableCell className="py-4 text-right font-mono text-primary-text tabular-nums">
                             {formatRevenue(format, missionRevenue?.yearToDate)}
                           </TableCell>
                           <TableCell className="py-4 pr-5 text-right">

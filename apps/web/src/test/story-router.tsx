@@ -7,8 +7,9 @@ import {
 import type * as React from "react";
 
 /**
- * A memory router around a story, so components rendering `<Link>` work
- * outside the app. Story-only helper — it needs no story of its own.
+ * A memory router around a subject, so components rendering `<Link>` work
+ * outside the app. Used by stories and by component tests; a helper with no
+ * visual surface of its own, so it needs no story.
  */
 export function StoryRouter({ children }: { children: React.ReactNode }) {
   const router = createRouter({

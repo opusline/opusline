@@ -21,11 +21,16 @@ class ListMissionTimeEntries
      */
     public function handle(Mission $mission): array
     {
-        return $mission->timeEntries()
-            ->with('mission')
+        $entries = $mission->timeEntries()
             ->orderByDesc('date')
             ->orderByDesc('id')
-            ->get()
-            ->all();
+            ->get(['id', 'mission_id', 'invoice_id', 'date', 'duration_minutes', 'rounding', 'billable', 'note']);
+
+        // TimeEntryData values each entry through its mission. Seeding the
+        // relation from the one we were handed spares a query that would fetch
+        // the same row back.
+        $entries->each(fn (TimeEntry $entry): TimeEntry => $entry->setRelation('mission', $mission));
+
+        return $entries->all();
     }
 }

@@ -28,21 +28,24 @@ export function operationFilter(...operationIds: string[]): {
 }
 
 /**
- * Two endpoints read the same entries — the week grid's date-range list and the
- * mission page's own history. Writing one entry invalidates both, so a mission
- * opened right after an edit in the grid does not show the pre-edit history.
+ * Three things read a time entry: the week grid's date-range list, the mission
+ * page's own history, and the revenue figures, whose month totals are derived
+ * from tracked time. Writing one entry invalidates all of them, so a mission
+ * opened right after an edit in the grid shows neither a pre-edit history nor
+ * pre-edit tiles.
  *
  * Keep every time-entry write going through this rather than invalidating
- * listTimeEntries directly, or the mission tab silently goes stale again.
+ * listTimeEntries directly, or those surfaces silently go stale again.
  */
-export function invalidateTimeEntries(
+export async function invalidateTimeEntries(
   queryClient: QueryClient,
   weekFilter: QueryFilters = operationFilter("listTimeEntries"),
 ): Promise<void> {
-  return Promise.all([
+  await Promise.all([
     queryClient.invalidateQueries(weekFilter),
     queryClient.invalidateQueries(operationFilter("listMissionTimeEntries")),
-  ]).then(() => undefined);
+    queryClient.invalidateQueries(revenueFilter()),
+  ]);
 }
 
 /**

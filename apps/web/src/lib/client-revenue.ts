@@ -62,7 +62,8 @@ export function formatRevenue(
 /**
  * The month's tracked time in the unit its mission bills in, already rounded to
  * the mission's increment by the API. The placeholder is for figures that have
- * not arrived — an empty month is a real "0 j", not an unknown.
+ * not arrived — an empty month is a real "0 j", not an unknown, and the API
+ * always sets exactly one of the two, so the second fallback is a type guard.
  */
 export function formatTrackedMonth(
   locale: Locale,

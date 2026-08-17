@@ -17,7 +17,11 @@ class MissionRevenueData extends Data
         public int $missionId,
         /** Invoiced HT over the current civil year. */
         public MoneyData $yearToDate,
-        /** Invoiced HT over the current civil month. */
+        /**
+         * What the month has earned HT: the time tracked in it at the mission's
+         * rate, so the figure moves before anything is invoiced. A mission that
+         * prices no time reports what it invoiced this month instead.
+         */
         public MoneyData $currentMonth,
         /** Invoiced HT since the mission began — the "CA cumulé" tile. */
         public MoneyData $total,

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Models\Mission;
-use App\Domain\TimeEntries\Models\TimeEntry;
+use App\Domain\TimeEntries\Factories\TimeEntryFactory;
 use App\Domain\Users\Models\User;
 
 beforeEach(fn () => freezeTodayAtUtcNoon());
@@ -330,8 +330,8 @@ test('counts this month tracked time as days on a day-billed mission', function 
     $user = User::factory()->create();
     $mission = missionOwnedBy($user);
 
-    TimeEntry::factory()->for($mission, 'mission')->create(['date' => '2026-08-03', 'duration_minutes' => 420]);
-    TimeEntry::factory()->for($mission, 'mission')->create(['date' => '2026-08-04', 'duration_minutes' => 420]);
+    trackedDay($user, $mission, '2026-08-03', 420);
+    trackedDay($user, $mission, '2026-08-04', 420);
 
     $this->actingAs($user)
         ->getJson('/api/client-revenue')
@@ -345,7 +345,7 @@ test('rounds a part day up to the mission increment', function (): void {
     $mission = missionOwnedBy($user);
 
     // Half-day rounding on a 7-hour workday: a 3-hour morning bills half a day.
-    TimeEntry::factory()->for($mission, 'mission')->create(['date' => '2026-08-03', 'duration_minutes' => 180]);
+    trackedDay($user, $mission, '2026-08-03', 180);
 
     $this->actingAs($user)
         ->getJson('/api/client-revenue')
@@ -357,7 +357,7 @@ test('counts this month tracked time as minutes on an hourly mission', function 
     $user = User::factory()->create();
     $mission = missionOwnedBy($user, fn ($factory) => $factory->hourly());
 
-    TimeEntry::factory()->for($mission, 'mission')->create(['date' => '2026-08-03', 'duration_minutes' => 200]);
+    trackedDay($user, $mission, '2026-08-03', 200);
 
     $this->actingAs($user)
         ->getJson('/api/client-revenue')
@@ -371,7 +371,7 @@ test('leaves another month tracked time out of this month', function (): void {
     $user = User::factory()->create();
     $mission = missionOwnedBy($user);
 
-    TimeEntry::factory()->for($mission, 'mission')->create(['date' => '2026-07-31', 'duration_minutes' => 420]);
+    trackedDay($user, $mission, '2026-07-31', 420);
 
     $this->actingAs($user)
         ->getJson('/api/client-revenue')
@@ -385,7 +385,7 @@ test('keeps each mission tracked time under its own row', function (): void {
     $refonte = Mission::factory()->for($client)->create(['name' => 'Refonte', 'user_id' => $user->id]);
     $maintenance = Mission::factory()->for($client)->create(['name' => 'Maintenance', 'user_id' => $user->id]);
 
-    TimeEntry::factory()->for($refonte, 'mission')->create(['date' => '2026-08-03', 'duration_minutes' => 420]);
+    trackedDay($user, $refonte, '2026-08-03', 420);
 
     $missions = collect($this->actingAs($user)
         ->getJson('/api/client-revenue')
@@ -402,7 +402,7 @@ test('values the month from the time tracked in it, not from what was invoiced',
     $mission = missionOwnedBy($user);
 
     // 550 EUR/day, one full day tracked and nothing invoiced yet.
-    TimeEntry::factory()->for($mission, 'mission')->create(['date' => '2026-08-03', 'duration_minutes' => 420]);
+    trackedDay($user, $mission, '2026-08-03', 420);
 
     $this->actingAs($user)
         ->getJson('/api/client-revenue')
@@ -414,7 +414,7 @@ test('falls back to the month invoiced when the mission prices no time', functio
     $user = User::factory()->create();
     $mission = missionOwnedBy($user, fn ($factory) => $factory->fixed());
 
-    TimeEntry::factory()->for($mission, 'mission')->create(['date' => '2026-08-03', 'duration_minutes' => 420]);
+    trackedDay($user, $mission, '2026-08-03', 420);
     invoiceForMission($user, $mission, fn ($factory) => $factory->sent()->state([
         'issued_on' => '2026-08-04',
         'amount_ht_cents' => 80_000,
@@ -461,4 +461,29 @@ test('keeps spreading a live mission average over its dry months', function (): 
         ->getJson('/api/client-revenue')
         ->assertOk()
         ->assertJsonPath('clients.0.missions.0.monthlyAverage.amount', 30_000);
+});
+
+test('counts an entry dated the first of the month', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user);
+
+    trackedDay($user, $mission, '2026-08-01', 420);
+
+    $this->actingAs($user)
+        ->getJson('/api/client-revenue')
+        ->assertOk()
+        ->assertJsonPath('clients.0.missions.0.currentMonthDays', 1);
+});
+
+test('leaves non-billable tracked time out of the month figures', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user);
+
+    trackedDay($user, $mission, '2026-08-03', 420, fn (TimeEntryFactory $factory): TimeEntryFactory => $factory->nonBillable());
+
+    $this->actingAs($user)
+        ->getJson('/api/client-revenue')
+        ->assertOk()
+        ->assertJsonPath('clients.0.missions.0.currentMonthDays', 0)
+        ->assertJsonPath('clients.0.missions.0.currentMonth.amount', 0);
 });

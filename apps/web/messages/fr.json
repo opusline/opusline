@@ -602,6 +602,7 @@
   "missions_end_label": "Fin prévue",
   "missions_entries_empty": "Aucune entrée pour le moment.",
   "missions_entries_from_week": "Les entrées se créent depuis la grille de la semaine.",
+  "missions_entries_header_quantity": "Quantité",
   "missions_entries_header_state": "État",
   "missions_entries_load_failed": "Impossible de charger les entrées de cette mission.",
   "missions_entry_state_billable": "À facturer",

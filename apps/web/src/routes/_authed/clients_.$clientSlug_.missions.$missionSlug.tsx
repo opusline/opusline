@@ -226,7 +226,7 @@ function MissionDetailRoute() {
       onOpenCra={() => void navigate({ to: "/cra" })}
       onSetStatus={(status) => void handleSetStatus(status)}
       onUpdate={handleUpdate}
-      entries={entriesQuery.data?.timeEntries ?? []}
+      entries={entriesQuery.data?.timeEntries}
       isEntriesError={entriesQuery.isError}
       isEntriesPending={entriesQuery.isPending}
       revenue={revenueQuery.data}

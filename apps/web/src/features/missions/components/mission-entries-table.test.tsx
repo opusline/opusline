@@ -1,23 +1,13 @@
 import type { TimeEntryData } from "@opusline/api-client";
-import {
-  createMemoryHistory,
-  createRootRoute,
-  createRouter,
-  RouterProvider,
-} from "@tanstack/react-router";
 import { render, screen } from "@testing-library/react";
 import type * as React from "react";
 import { expect, it } from "vitest";
+import { StoryRouter } from "@/test/story-router";
 import { MissionEntriesTable } from "./mission-entries-table";
 
 // The footer links to the week route, so every render needs a router in scope.
 function renderWithRouter(ui: React.ReactNode) {
-  const router = createRouter({
-    routeTree: createRootRoute({ component: () => ui }),
-    history: createMemoryHistory({ initialEntries: ["/"] }),
-  });
-
-  return render(<RouterProvider router={router} />);
+  return render(<StoryRouter>{ui}</StoryRouter>);
 }
 
 function entry(overrides: Partial<TimeEntryData> = {}): TimeEntryData {
@@ -66,20 +56,16 @@ it("shows a day-billed entry in days rather than hours", async () => {
   expect(screen.queryByText("3 h 30")).not.toBeInTheDocument();
 });
 
-it("falls back to the tracked duration when the mission prices no time", async () => {
+it("counts a fixed-price mission entry in days too", async () => {
+  // BillingMode::Fixed uses day fractions like Daily does, so the API values the
+  // entry even though nothing prices it.
   renderWithRouter(
     <MissionEntriesTable
-      entries={[
-        entry({
-          durationMinutes: 450,
-          valuedMinutes: null,
-          valuedDayFraction: null,
-        }),
-      ]}
+      entries={[entry({ durationMinutes: 30, valuedDayFraction: 0.25 })]}
     />,
   );
 
-  expect(await screen.findByText("7 h 30")).toBeInTheDocument();
+  expect(await screen.findByText("0,25 j")).toBeInTheDocument();
 });
 
 it("marks an entry an invoice already bills as invoiced", async () => {

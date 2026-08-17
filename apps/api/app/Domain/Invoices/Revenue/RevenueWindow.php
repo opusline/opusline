@@ -38,14 +38,14 @@ final readonly class RevenueWindow
     }
 
     /**
-     * Whole months from one date's month to another's, counting both ends, and
-     * defaulting to this window's month when no end is given.
+     * Whole months from one date's month to another's, counting both ends and
+     * falling back to this window's month.
      *
      * Carbon 3 diffs are signed, so a date ahead of the end would otherwise
      * yield zero or a negative span — the floor keeps a forward-dated invoice
      * on the single month it sits in.
      */
-    public function monthsBetween(CarbonImmutable $from, ?CarbonImmutable $until = null): int
+    public function monthsBetween(CarbonImmutable $from, ?CarbonImmutable $until): int
     {
         $end = ($until ?? $this->monthStart)->startOfMonth();
 
