@@ -274,6 +274,7 @@
   "common_documents_title": "Documents",
   "common_duration": "Duration",
   "common_edit": "Edit",
+  "common_ht": "HT",
   "common_more_actions": "More actions",
   "common_no_invoices_title": "No invoices",
   "common_note_label": "Note",
@@ -956,6 +957,38 @@
   "vat_regime_simplified_hint": "VAT-liable · yearly CA12",
   "vat_regime_simplified_label": "Réel simplifié",
   "vat_regime_simplified_note": "Your invoices carry VAT and a CA12 return is expected every year, with instalments.",
+  "week_billable_detail": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "over {count} entry",
+        "countPlural=other": "over {count} entries"
+      }
+    }
+  ],
+  "week_billable_empty": "Nothing billable tracked this week yet.",
+  "week_billable_fixed_price": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} on a forfait",
+        "countPlural=other": "{count} on a forfait"
+      }
+    }
+  ],
+  "week_billable_non_billable": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} non-billable",
+        "countPlural=other": "{count} non-billable"
+      }
+    }
+  ],
+  "week_billable_title": "Billable this week",
   "week_cell_empty_label": "{mission}, {day}: no entries",
   "week_cell_label": "{mission}, {day}: {value}",
   "week_change_mission": "Change",

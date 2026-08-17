@@ -274,6 +274,7 @@
   "common_documents_title": "Documents",
   "common_duration": "Durée",
   "common_edit": "Modifier",
+  "common_ht": "HT",
   "common_more_actions": "Plus d'actions",
   "common_no_invoices_title": "Aucune facture",
   "common_note_label": "Note",
@@ -956,6 +957,38 @@
   "vat_regime_simplified_hint": "Assujetti · CA12 annuelle",
   "vat_regime_simplified_label": "Réel simplifié",
   "vat_regime_simplified_note": "Vos factures portent la TVA et une déclaration CA12 est attendue chaque année, avec acomptes.",
+  "week_billable_detail": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "sur {count} entrée",
+        "countPlural=other": "sur {count} entrées"
+      }
+    }
+  ],
+  "week_billable_empty": "Rien de facturable saisi cette semaine.",
+  "week_billable_fixed_price": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} au forfait",
+        "countPlural=other": "{count} au forfait"
+      }
+    }
+  ],
+  "week_billable_non_billable": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} non facturable",
+        "countPlural=other": "{count} non facturables"
+      }
+    }
+  ],
+  "week_billable_title": "Facturable cette semaine",
   "week_cell_empty_label": "{mission}, {day} : aucune entrée",
   "week_cell_label": "{mission}, {day} : {value}",
   "week_change_mission": "Changer",

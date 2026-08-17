@@ -14,7 +14,9 @@ import {
   type LiveCell,
   shouldShowWeekend,
 } from "../lib/week-grid";
+import { summarizeWeekBillable } from "../lib/week-money";
 import { NewEntryDialog, type NewEntrySubmit } from "./new-entry-dialog";
+import { WeekBillableTile } from "./week-billable-tile";
 import { WeekEmptyBanner } from "./week-empty-banner";
 import { WeekGrid, type WeekGridProps } from "./week-grid";
 import { WEEK_SKINS, WeekLegend } from "./week-legend";
@@ -121,6 +123,10 @@ export function WeekPage({
     () => collectNoteSuggestions(timeEntries),
     [timeEntries],
   );
+  const billable = useMemo(
+    () => summarizeWeekBillable(clients, timeEntries),
+    [clients, timeEntries],
+  );
 
   useEffect(() => {
     const startNewEntry = (event: KeyboardEvent) => {
@@ -199,6 +205,7 @@ export function WeekPage({
         />
       </div>
       <WeekLegend skins={liveHere === null ? WEEK_SKINS : LIVE_SKINS} />
+      <WeekBillableTile summary={billable} />
       <NewEntryDialog
         isSaving={pendingCellKeys.size > 0}
         knownRange={knownEntryRange}
