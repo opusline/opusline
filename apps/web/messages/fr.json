@@ -165,6 +165,16 @@
   "clients_create_short": "Créer un client",
   "clients_create_submit": "Créer le client",
   "clients_default_color_label": "Couleur par défaut",
+  "clients_delay_days": [
+    {
+      "declarations": ["input days", "local daysPlural = days: plural"],
+      "selectors": ["daysPlural"],
+      "match": {
+        "daysPlural=one": "{days} jour",
+        "daysPlural=other": "{days} jours"
+      }
+    }
+  ],
   "clients_descriptor_internal": "Projets internes",
   "clients_details_empty_hint": "SIRET, TVA et adresse sont nécessaires pour émettre une facture à ce client.",
   "clients_details_empty_title": "Coordonnées à compléter",

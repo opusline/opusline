@@ -297,3 +297,70 @@ it("explains an empty scope instead of showing a bare table", async () => {
 
   expect(screen.getByText("Aucun client dans cette vue.")).toBeInTheDocument();
 });
+
+it("fills the revenue columns from the figures it is given", async () => {
+  renderWithRouter(
+    <ClientsTable
+      clients={[client({ missions: [] })]}
+      revenue={{
+        year: 2026,
+        clients: [
+          {
+            clientId: 1,
+            yearToDate: { amount: 4_820_000, currency: "EUR" },
+            pending: { amount: 960_000, currency: "EUR" },
+            averagePaymentDelayDays: 27,
+            missions: [],
+          },
+        ],
+      }}
+    />,
+  );
+
+  expect(await screen.findByText("48 200 €")).toBeInTheDocument();
+  expect(screen.getByText("9 600 €")).toBeInTheDocument();
+  expect(screen.getByText("27 jours")).toBeInTheDocument();
+});
+
+it("heads the revenue column with the year the figures cover", async () => {
+  renderWithRouter(
+    <ClientsTable
+      clients={[client({})]}
+      revenue={{ year: 2024, clients: [] }}
+    />,
+  );
+
+  expect(await screen.findByText("CA 2024")).toBeInTheDocument();
+});
+
+it("shows placeholders while the revenue figures have not arrived", async () => {
+  renderWithRouter(<ClientsTable clients={[client({})]} />);
+
+  expect(await screen.findByText("Nordlys")).toBeInTheDocument();
+  // Revenue, outstanding and average delay all fall back to the dash.
+  expect(screen.getAllByText("—")).toHaveLength(3);
+});
+
+it("says a client who never paid has no average delay rather than zero days", async () => {
+  renderWithRouter(
+    <ClientsTable
+      clients={[client({})]}
+      revenue={{
+        year: 2026,
+        clients: [
+          {
+            clientId: 1,
+            yearToDate: { amount: 0, currency: "EUR" },
+            pending: { amount: 120_000, currency: "EUR" },
+            averagePaymentDelayDays: null,
+            missions: [],
+          },
+        ],
+      }}
+    />,
+  );
+
+  expect(await screen.findByText("1 200 €")).toBeInTheDocument();
+  expect(screen.queryByText("0 jour")).not.toBeInTheDocument();
+  expect(screen.getByText("—")).toBeInTheDocument();
+});

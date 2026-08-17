@@ -1,4 +1,7 @@
-import type { ClientWithMissionsData } from "@opusline/api-client";
+import type {
+  ClientRevenueListData,
+  ClientWithMissionsData,
+} from "@opusline/api-client";
 import type { Meta, StoryObj } from "@storybook/react";
 import { StoryRouter } from "@/test/story-router";
 import { ClientsTable } from "./clients-table";
@@ -123,7 +126,74 @@ const clients: ClientWithMissionsData[] = [
   },
 ];
 
+const revenue: ClientRevenueListData = {
+  year: 2026,
+  clients: [
+    {
+      clientId: 1,
+      yearToDate: { amount: 4_820_000, currency: "EUR" },
+      pending: { amount: 960_000, currency: "EUR" },
+      averagePaymentDelayDays: 27,
+      missions: [
+        {
+          missionId: 1,
+          yearToDate: { amount: 4_820_000, currency: "EUR" },
+          currentMonth: { amount: 605_000, currency: "EUR" },
+          total: { amount: 7_150_000, currency: "EUR" },
+          monthlyAverage: { amount: 447_000, currency: "EUR" },
+        },
+      ],
+    },
+    {
+      clientId: 2,
+      yearToDate: { amount: 731_000, currency: "EUR" },
+      pending: { amount: 0, currency: "EUR" },
+      averagePaymentDelayDays: 12,
+      missions: [
+        {
+          missionId: 2,
+          yearToDate: { amount: 731_000, currency: "EUR" },
+          currentMonth: { amount: 102_000, currency: "EUR" },
+          total: { amount: 731_000, currency: "EUR" },
+          monthlyAverage: { amount: 91_000, currency: "EUR" },
+        },
+      ],
+    },
+    {
+      clientId: 3,
+      yearToDate: { amount: 0, currency: "EUR" },
+      pending: { amount: 0, currency: "EUR" },
+      // Archived and never settled an invoice: the delay column stays empty.
+      averagePaymentDelayDays: null,
+      missions: [],
+    },
+    {
+      clientId: 4,
+      yearToDate: { amount: 0, currency: "EUR" },
+      pending: { amount: 0, currency: "EUR" },
+      averagePaymentDelayDays: null,
+      missions: [
+        {
+          missionId: 3,
+          yearToDate: { amount: 0, currency: "EUR" },
+          currentMonth: { amount: 0, currency: "EUR" },
+          total: { amount: 0, currency: "EUR" },
+          monthlyAverage: null,
+        },
+      ],
+    },
+  ],
+};
+
 export const Default: Story = {
+  args: {
+    clients,
+    revenue,
+  },
+};
+
+/** What the table shows on first paint, before the revenue fold has landed. */
+export const RevenuePending: Story = {
   args: {
     clients,
   },

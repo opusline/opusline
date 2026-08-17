@@ -102,6 +102,10 @@ function stubApi(
         return overridden;
       }
 
+      if (url.pathname.endsWith("/client-revenue")) {
+        return jsonResponse(200, { year: 2026, clients: [] });
+      }
+
       if (url.pathname.endsWith("/documents")) {
         return jsonResponse(200, { documents: [] });
       }

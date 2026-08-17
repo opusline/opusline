@@ -691,6 +691,36 @@ export const zInvoiceListData = z.object({
 });
 
 /**
+ * MissionRevenueData
+ */
+export const zMissionRevenueData = z.object({
+    missionId: z.int(),
+    yearToDate: zMoneyData,
+    currentMonth: zMoneyData,
+    total: zMoneyData,
+    monthlyAverage: z.nullable(zMoneyData)
+});
+
+/**
+ * ClientRevenueData
+ */
+export const zClientRevenueData = z.object({
+    clientId: z.int(),
+    yearToDate: zMoneyData,
+    pending: zMoneyData,
+    averagePaymentDelayDays: z.nullable(z.int()),
+    missions: z.array(zMissionRevenueData)
+});
+
+/**
+ * ClientRevenueListData
+ */
+export const zClientRevenueListData = z.object({
+    year: z.int(),
+    clients: z.array(zClientRevenueData)
+});
+
+/**
  * NextInvoiceNumberData
  */
 export const zNextInvoiceNumberData = z.object({
@@ -1379,6 +1409,8 @@ export const zUploadClientLogoPath = z.object({
  * No content
  */
 export const zUploadClientLogoResponse = z.void();
+
+export const zListClientRevenueResponse = zClientRevenueListData;
 
 export const zListCrasQuery = z.object({
     month: z.nullish(z.string())

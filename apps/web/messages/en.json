@@ -165,6 +165,16 @@
   "clients_create_short": "Create a client",
   "clients_create_submit": "Create the client",
   "clients_default_color_label": "Default color",
+  "clients_delay_days": [
+    {
+      "declarations": ["input days", "local daysPlural = days: plural"],
+      "selectors": ["daysPlural"],
+      "match": {
+        "daysPlural=one": "{days} day",
+        "daysPlural=other": "{days} days"
+      }
+    }
+  ],
   "clients_descriptor_internal": "Internal projects",
   "clients_details_empty_hint": "SIRET, VAT and address are needed to issue an invoice to this client.",
   "clients_details_empty_title": "Contact details to complete",

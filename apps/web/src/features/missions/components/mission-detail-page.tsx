@@ -1,6 +1,7 @@
 import type {
   ClientWithMissionsData,
   MissionData,
+  MissionRevenueData,
   MissionStatus,
   UpdateMissionData,
 } from "@opusline/api-client";
@@ -32,6 +33,7 @@ import { type ReactNode, useState } from "react";
 import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatAmount, paymentTermsLabel } from "@/lib/billing";
+import { formatRevenue } from "@/lib/client-revenue";
 import { clientTypeLabel } from "@/lib/client-types";
 import { calendarDateLabel, calendarMonthYearLabel } from "@/lib/dates";
 import { entryRoundingLabel } from "@/lib/entry-rounding";
@@ -65,6 +67,8 @@ type MissionDetailPageProps = {
   isUpdatePending?: boolean;
   isStatusPending?: boolean;
   error?: string | null;
+  /** Undefined while the figures are still loading; tiles show a placeholder. */
+  revenue?: MissionRevenueData;
 };
 
 export function MissionDetailPage({
@@ -77,6 +81,7 @@ export function MissionDetailPage({
   isUpdatePending,
   isStatusPending,
   error,
+  revenue,
 }: MissionDetailPageProps) {
   const format = useMoneyFormat();
   const [isEditing, setIsEditing] = useState(false);
@@ -241,11 +246,17 @@ export function MissionDetailPage({
         />
         <StatTile
           label={m.missions_stat_revenue_month()}
-          value="—"
+          value={formatRevenue(format, revenue?.currentMonth)}
           tone="brand"
         />
-        <StatTile label={m.missions_stat_revenue_total()} value="—" />
-        <StatTile label={m.missions_stat_monthly_average()} value="—" />
+        <StatTile
+          label={m.missions_stat_revenue_total()}
+          value={formatRevenue(format, revenue?.total)}
+        />
+        <StatTile
+          label={m.missions_stat_monthly_average()}
+          value={formatRevenue(format, revenue?.monthlyAverage)}
+        />
       </StatTileRow>
 
       {isEditing ? (

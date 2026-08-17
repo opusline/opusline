@@ -98,6 +98,10 @@ function stubApi(
         return overridden;
       }
 
+      if (url.pathname.endsWith("/client-revenue")) {
+        return jsonResponse(200, { year: 2026, clients: [] });
+      }
+
       if (request.method === "GET" && url.pathname.endsWith("/clients")) {
         return jsonResponse(200, { clients: CLIENTS });
       }
@@ -357,6 +361,10 @@ it("stays locked between the mission creation and the client refresh", async () 
       if (request.method === "POST") {
         hasCreated = true;
         return jsonResponse(201, CREATED_MISSION);
+      }
+
+      if (url.pathname.endsWith("/client-revenue")) {
+        return jsonResponse(200, { year: 2026, clients: [] });
       }
 
       if (url.pathname.endsWith("/clients")) {

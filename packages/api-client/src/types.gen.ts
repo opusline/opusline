@@ -165,6 +165,25 @@ export type ClientListData = {
 };
 
 /**
+ * ClientRevenueData
+ */
+export type ClientRevenueData = {
+    clientId: number;
+    yearToDate: MoneyData;
+    pending: MoneyData;
+    averagePaymentDelayDays: number | null;
+    missions: Array<MissionRevenueData>;
+};
+
+/**
+ * ClientRevenueListData
+ */
+export type ClientRevenueListData = {
+    year: number;
+    clients: Array<ClientRevenueData>;
+};
+
+/**
  * ClientType
  */
 export type ClientType = 0 | 1 | 2;
@@ -645,6 +664,17 @@ export type MissionData = {
     notes: string | null;
     startDate: string | null;
     endDate: string | null;
+};
+
+/**
+ * MissionRevenueData
+ */
+export type MissionRevenueData = {
+    missionId: number;
+    yearToDate: MoneyData;
+    currentMonth: MoneyData;
+    total: MoneyData;
+    monthlyAverage: MoneyData | null;
 };
 
 /**
@@ -2109,6 +2139,33 @@ export type UploadClientLogoResponses = {
 };
 
 export type UploadClientLogoResponse = UploadClientLogoResponses[keyof UploadClientLogoResponses];
+
+export type ListClientRevenueData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/client-revenue';
+};
+
+export type ListClientRevenueErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListClientRevenueError = ListClientRevenueErrors[keyof ListClientRevenueErrors];
+
+export type ListClientRevenueResponses = {
+    200: ClientRevenueListData;
+};
+
+export type ListClientRevenueResponse = ListClientRevenueResponses[keyof ListClientRevenueResponses];
 
 export type ListCrasData = {
     body?: never;

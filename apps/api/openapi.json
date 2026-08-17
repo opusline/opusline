@@ -1001,6 +1001,29 @@
                 }
             }
         },
+        "/client-revenue": {
+            "get": {
+                "operationId": "listClientRevenue",
+                "tags": [
+                    "ClientRevenue"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClientRevenueListData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/cras": {
             "get": {
                 "operationId": "listCras",
@@ -3820,6 +3843,59 @@
                 ],
                 "title": "ClientListData"
             },
+            "ClientRevenueData": {
+                "type": "object",
+                "properties": {
+                    "clientId": {
+                        "type": "integer"
+                    },
+                    "yearToDate": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "pending": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "averagePaymentDelayDays": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "missions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MissionRevenueData"
+                        }
+                    }
+                },
+                "required": [
+                    "clientId",
+                    "yearToDate",
+                    "pending",
+                    "averagePaymentDelayDays",
+                    "missions"
+                ],
+                "title": "ClientRevenueData"
+            },
+            "ClientRevenueListData": {
+                "type": "object",
+                "properties": {
+                    "year": {
+                        "type": "integer"
+                    },
+                    "clients": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ClientRevenueData"
+                        }
+                    }
+                },
+                "required": [
+                    "year",
+                    "clients"
+                ],
+                "title": "ClientRevenueListData"
+            },
             "ClientType": {
                 "type": "integer",
                 "enum": [
@@ -5447,6 +5523,41 @@
                     "endDate"
                 ],
                 "title": "MissionData"
+            },
+            "MissionRevenueData": {
+                "type": "object",
+                "properties": {
+                    "missionId": {
+                        "type": "integer"
+                    },
+                    "yearToDate": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "currentMonth": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "total": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "monthlyAverage": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "missionId",
+                    "yearToDate",
+                    "currentMonth",
+                    "total",
+                    "monthlyAverage"
+                ],
+                "title": "MissionRevenueData"
             },
             "MissionStatus": {
                 "type": "integer",

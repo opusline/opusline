@@ -93,6 +93,10 @@ function stubApi(
               .catch(() => null);
       requests.push({ method: request.method, path: url.pathname, body });
 
+      if (url.pathname.endsWith("/client-revenue")) {
+        return jsonResponse(200, { year: 2026, clients: [] });
+      }
+
       if (url.pathname.endsWith("/documents")) {
         return jsonResponse(200, { documents });
       }
@@ -243,6 +247,10 @@ it("shows a server error on an untouched field after saving", async () => {
         });
       }
 
+      if (url.pathname.endsWith("/client-revenue")) {
+        return jsonResponse(200, { year: 2026, clients: [] });
+      }
+
       if (url.pathname.endsWith("/documents")) {
         return jsonResponse(200, { documents: [] });
       }
@@ -328,6 +336,10 @@ it("refuses a second mutation while the first is still running", async () => {
         });
 
         return jsonResponse(200, missionPayload());
+      }
+
+      if (url.pathname.endsWith("/client-revenue")) {
+        return jsonResponse(200, { year: 2026, clients: [] });
       }
 
       if (url.pathname.endsWith("/documents")) {
