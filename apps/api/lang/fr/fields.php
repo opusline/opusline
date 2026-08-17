@@ -58,6 +58,7 @@ return [
     'logo' => 'logo',
     'missionId' => 'mission',
     'note' => 'note',
+    'transferredOn' => 'date du virement',
     'notes' => 'notes',
     'occurredOn' => 'date de la relance',
     'paidOn' => 'date de paiement',

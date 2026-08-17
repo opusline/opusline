@@ -58,6 +58,7 @@ return [
     'logo' => 'logo',
     'missionId' => 'mission',
     'note' => 'note',
+    'transferredOn' => 'transfer date',
     'notes' => 'notes',
     'occurredOn' => 'reminder date',
     'paidOn' => 'payment date',

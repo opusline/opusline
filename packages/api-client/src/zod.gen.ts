@@ -706,6 +706,18 @@ export const zPayInvoiceData = z.object({
 });
 
 /**
+ * RecordTreasuryTransferData
+ */
+export const zRecordTreasuryTransferData = z.object({
+    amount: z.object({
+        amount: z.int().check(z.gte(1)),
+        currency: zCurrency
+    }),
+    transferredOn: z.nullish(z.iso.date()),
+    note: z.nullish(z.string().check(z.maxLength(255)))
+});
+
+/**
  * RegisterUserData
  */
 export const zRegisterUserData = z.object({
@@ -944,6 +956,29 @@ export const zTimerData = z.object({
 export const zTimerStateData = z.object({
     timer: z.nullable(zTimerData),
     lastMissionId: z.nullable(z.int())
+});
+
+/**
+ * TreasuryTransferData
+ */
+export const zTreasuryTransferData = z.object({
+    id: z.int(),
+    transferredOn: z.iso.date(),
+    amount: zMoneyData,
+    note: z.nullable(z.string()),
+    isSettled: z.boolean()
+});
+
+/**
+ * TreasuryData
+ */
+export const zTreasuryData = z.object({
+    balance: z.nullable(zBankBalanceData),
+    provisions: zBankProvisionsData,
+    transferable: zMoneyData,
+    shortfall: z.nullable(zSignedMoneyData),
+    pendingTransfers: zMoneyData,
+    transfers: z.array(zTreasuryTransferData)
 });
 
 /**
@@ -1685,3 +1720,9 @@ export const zTrimTimerResponse = zTimerData;
 export const zStopTimerBody = zStopTimerData;
 
 export const zStopTimerResponse = zTimeEntryData;
+
+export const zShowTreasuryResponse = zTreasuryData;
+
+export const zRecordTreasuryTransferBody = zRecordTreasuryTransferData;
+
+export const zRecordTreasuryTransferResponse = zTreasuryData;

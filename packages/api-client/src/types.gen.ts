@@ -676,6 +676,18 @@ export type PayInvoiceData = {
 };
 
 /**
+ * RecordTreasuryTransferData
+ */
+export type RecordTreasuryTransferData = {
+    amount: {
+        amount: number;
+        currency: Currency;
+    };
+    transferredOn?: string | null;
+    note?: string | null;
+};
+
+/**
  * RegisterUserData
  */
 export type RegisterUserData = {
@@ -914,6 +926,29 @@ export type TimerState = 0 | 1;
 export type TimerStateData = {
     timer: TimerData | null;
     lastMissionId: number | null;
+};
+
+/**
+ * TreasuryData
+ */
+export type TreasuryData = {
+    balance: BankBalanceData | null;
+    provisions: BankProvisionsData;
+    transferable: MoneyData;
+    shortfall: SignedMoneyData | null;
+    pendingTransfers: MoneyData;
+    transfers: Array<TreasuryTransferData>;
+};
+
+/**
+ * TreasuryTransferData
+ */
+export type TreasuryTransferData = {
+    id: number;
+    transferredOn: string;
+    amount: MoneyData;
+    note: string | null;
+    isSettled: boolean;
 };
 
 /**
@@ -4105,3 +4140,57 @@ export type StopTimerResponses = {
 };
 
 export type StopTimerResponse = StopTimerResponses[keyof StopTimerResponses];
+
+export type ShowTreasuryData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/treasury';
+};
+
+export type ShowTreasuryErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowTreasuryError = ShowTreasuryErrors[keyof ShowTreasuryErrors];
+
+export type ShowTreasuryResponses = {
+    200: TreasuryData;
+};
+
+export type ShowTreasuryResponse = ShowTreasuryResponses[keyof ShowTreasuryResponses];
+
+export type RecordTreasuryTransferData2 = {
+    body: RecordTreasuryTransferData;
+    path?: never;
+    query?: never;
+    url: '/treasury/transfers';
+};
+
+export type RecordTreasuryTransferErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type RecordTreasuryTransferError = RecordTreasuryTransferErrors[keyof RecordTreasuryTransferErrors];
+
+export type RecordTreasuryTransferResponses = {
+    201: TreasuryData;
+};
+
+export type RecordTreasuryTransferResponse = RecordTreasuryTransferResponses[keyof RecordTreasuryTransferResponses];

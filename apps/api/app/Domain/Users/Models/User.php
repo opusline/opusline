@@ -7,6 +7,7 @@ namespace App\Domain\Users\Models;
 use App\Domain\Bank\Models\BankMatch;
 use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Bank\Models\BankStatement;
+use App\Domain\Bank\Models\TreasuryTransfer;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Cra\Models\Cra;
 use App\Domain\Invoices\Models\Invoice;
@@ -126,6 +127,12 @@ class User extends Authenticatable implements HasMedia
     public function bankMovements(): HasMany
     {
         return $this->hasMany(BankMovement::class);
+    }
+
+    /** @return HasMany<TreasuryTransfer, $this> */
+    public function treasuryTransfers(): HasMany
+    {
+        return $this->hasMany(TreasuryTransfer::class);
     }
 
     /** @return HasMany<BankMatch, $this> */

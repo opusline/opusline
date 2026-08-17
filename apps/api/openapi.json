@@ -3303,6 +3303,63 @@
                     }
                 }
             }
+        },
+        "/treasury": {
+            "get": {
+                "operationId": "showTreasury",
+                "tags": [
+                    "Treasury"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TreasuryData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/treasury/transfers": {
+            "post": {
+                "operationId": "recordTreasuryTransfer",
+                "summary": "Answers with the whole screen rather than the created row: recording a\ntransfer moves the figure the page exists to show",
+                "tags": [
+                    "Treasury"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecordTreasuryTransferData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TreasuryData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -5507,6 +5564,45 @@
                 ],
                 "title": "PayInvoiceData"
             },
+            "RecordTreasuryTransferData": {
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "transferredOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "note": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    }
+                },
+                "required": [
+                    "amount"
+                ],
+                "title": "RecordTreasuryTransferData"
+            },
             "RegisterUserData": {
                 "type": "object",
                 "properties": {
@@ -6292,6 +6388,87 @@
                     "lastMissionId"
                 ],
                 "title": "TimerStateData"
+            },
+            "TreasuryData": {
+                "type": "object",
+                "properties": {
+                    "balance": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BankBalanceData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "provisions": {
+                        "$ref": "#/components/schemas/BankProvisionsData"
+                    },
+                    "transferable": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "shortfall": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/SignedMoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "pendingTransfers": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "transfers": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TreasuryTransferData"
+                        }
+                    }
+                },
+                "required": [
+                    "balance",
+                    "provisions",
+                    "transferable",
+                    "shortfall",
+                    "pendingTransfers",
+                    "transfers"
+                ],
+                "title": "TreasuryData"
+            },
+            "TreasuryTransferData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "transferredOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "note": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "isSettled": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "id",
+                    "transferredOn",
+                    "amount",
+                    "note",
+                    "isSettled"
+                ],
+                "title": "TreasuryTransferData"
             },
             "TrimTimerData": {
                 "type": "object",
