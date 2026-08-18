@@ -18,6 +18,12 @@ import {
   UNBILLED_TODO,
 } from "@/test/fixtures";
 
+import {
+  type InvoicePrefill,
+  prefillFromForfait,
+  prefillFromUnbilledWork,
+} from "./invoice-prefill";
+
 export { invoiceItem, invoiceSummary };
 
 export const secondClient = {
@@ -77,5 +83,47 @@ export function overdueTodoRow(
 export function unbilledTodoRow(
   overrides: Partial<InvoiceTodoWorkData> = {},
 ): InvoiceTodoData {
-  return { ...UNBILLED_TODO, work: { ...UNBILLED_TODO.work, ...overrides } };
+  return { ...UNBILLED_TODO, work: unbilledWork(overrides) };
+}
+
+function unbilledWork(
+  overrides: Partial<InvoiceTodoWorkData> = {},
+): InvoiceTodoWorkData {
+  return { ...UNBILLED_TODO.work, ...overrides };
+}
+
+/** What the dialog opens on from a row of "à facturer". */
+export function unbilledPrefill(
+  overrides: Partial<InvoiceTodoWorkData> = {},
+): InvoicePrefill {
+  return prefillFromUnbilledWork(
+    "fr-FR",
+    UNBILLED_TODO,
+    unbilledWork(overrides),
+  );
+}
+
+/** What it opens on from a fixed-price mission: no time, no period, an empty amount. */
+export function forfaitPrefill(
+  overrides: Partial<InvoicePrefill> = {},
+): InvoicePrefill {
+  return {
+    ...prefillFromForfait({
+      clientId: 2,
+      clientName: "Orvella",
+      missionId: 20,
+      missionName: "Orvella front",
+      progress: {
+        fixedPrice: eur(800_000),
+        invoiced: eur(240_000),
+        remaining: eur(560_000),
+        progressBp: 3000,
+        isOverBilled: false,
+        issuedCount: 1,
+        draftCount: 0,
+      },
+      vatRateBp: 2000,
+    }),
+    ...overrides,
+  };
 }

@@ -1,7 +1,3 @@
-import type {
-  InvoiceTodoData,
-  InvoiceTodoWorkData,
-} from "@opusline/api-client";
 import { Button } from "@opusline/ui/components/button";
 import {
   Dialog,
@@ -28,13 +24,14 @@ import {
   formatAmount,
   formatAmountWithCents,
   formatPercentFromBp,
+  formatRateDraft,
   parseRateBp,
   parseRateToCents,
 } from "@/lib/billing";
 import { calendarRangeLabel } from "@/lib/dates";
 import { m } from "@/paraglide/messages.js";
 
-import { unbilledWorkTitle } from "../lib/summary-labels";
+import type { InvoicePrefill } from "../lib/invoice-prefill";
 import { Fact } from "./invoice-fact";
 
 export type CreateInvoiceSubmit = {
@@ -50,7 +47,7 @@ export type CreateInvoiceSubmit = {
 };
 
 type CreateInvoiceDialogProps = {
-  todo: InvoiceTodoData | null;
+  prefill: InvoicePrefill | null;
   suggestedNumber: string | null;
   /**
    * Whether the account charges TVA at all. Under the franchise en base the field is
@@ -64,13 +61,13 @@ type CreateInvoiceDialogProps = {
 };
 
 /**
- * Turns a row of tracked time into an invoice record. Opusline does not issue the
- * document — the amount and the reference come from whatever tool did — so the fields
- * are prefilled from the time behind the row and stay editable: what was actually
- * invoiced wins over what the rate says it should have been.
+ * Records an invoice against a mission. Opusline does not issue the document — the
+ * amount and the reference come from whatever tool did — so the fields are prefilled
+ * from whatever the invoice bills and stay editable: what was actually invoiced wins
+ * over what the rate says it should have been.
  */
 export function CreateInvoiceDialog({
-  todo,
+  prefill,
   suggestedNumber,
   vatLiable,
   isSaving,
@@ -79,12 +76,11 @@ export function CreateInvoiceDialog({
   onSubmit,
 }: CreateInvoiceDialogProps) {
   return (
-    <Dialog open={todo !== null} onOpenChange={onOpenChange}>
+    <Dialog open={prefill !== null} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
-        {todo?.work == null ? null : (
+        {prefill === null ? null : (
           <CreateInvoiceForm
-            todo={todo}
-            work={todo.work}
+            prefill={prefill}
             suggestedNumber={suggestedNumber}
             vatLiable={vatLiable}
             isSaving={isSaving}
@@ -98,16 +94,14 @@ export function CreateInvoiceDialog({
 }
 
 function CreateInvoiceForm({
-  todo,
-  work,
+  prefill,
   suggestedNumber,
   vatLiable,
   isSaving,
   error,
   onSubmit,
 }: {
-  todo: InvoiceTodoData;
-  work: InvoiceTodoWorkData;
+  prefill: InvoicePrefill;
   suggestedNumber: string | null;
   vatLiable: boolean;
   isSaving: boolean;
@@ -122,10 +116,12 @@ function CreateInvoiceForm({
   const vatHintId = useId();
   const [number, setNumber] = useState("");
   const [amountDraft, setAmountDraft] = useState(() =>
-    formatAmount(format, todo.amount.amount),
+    prefill.amountHtCents === null
+      ? ""
+      : formatAmount(format, prefill.amountHtCents),
   );
   const [vatDraft, setVatDraft] = useState(() =>
-    formatPercentFromBp(format.locale, work.vatRateBp),
+    formatPercentFromBp(format.locale, prefill.vatRateBp),
   );
 
   // The suggestion arrives after the dialog opens, and must not overwrite typing.
@@ -136,12 +132,20 @@ function CreateInvoiceForm({
   }, [suggestedNumber]);
 
   const amountHtCents = parseRateToCents(format.locale, amountDraft);
+  // An amount the user has not typed yet is not an amount they got wrong: an
+  // invoice that opens with an empty field must not open already flagged red.
+  const isAmountInvalid = amountDraft.trim() !== "" && amountHtCents === null;
   // With no field to read, the rate goes back to the API rather than being invented
-  // here: a cached vatLiable or a cached work.vatRateBp could each be a regime behind,
-  // and only the server resolves the regime and the client's rate together.
+  // here: a cached vatLiable or a cached prefill.vatRateBp could each be a regime
+  // behind, and only the server resolves the regime and the client's rate together.
   const vatRateBp = vatLiable ? parseRateBp(format.locale, vatDraft) : null;
   const isVatInvalid = vatLiable && vatRateBp === null;
   const canSubmit = amountHtCents !== null && !isVatInvalid && !isSaving;
+  const periodLabel = calendarRangeLabel(
+    dateFormat,
+    prefill.periodStart,
+    prefill.periodEnd,
+  );
 
   return (
     <form
@@ -153,41 +157,40 @@ function CreateInvoiceForm({
         }
 
         onSubmit({
-          clientId: todo.clientId,
-          missionId: work.missionId,
+          clientId: prefill.clientId,
+          missionId: prefill.missionId,
           number: number.trim() === "" ? null : number.trim(),
           amountHtCents,
           vatRateBp,
-          periodStart: work.firstEntryOn,
-          periodEnd: work.lastEntryOn,
-          timeEntryIds: work.timeEntryIds,
+          periodStart: prefill.periodStart,
+          periodEnd: prefill.periodEnd,
+          timeEntryIds: prefill.timeEntryIds,
         });
       }}
     >
       <DialogHeader>
         <DialogTitle>{m.invoices_create_title()}</DialogTitle>
-        <DialogDescription>
-          {unbilledWorkTitle(format.locale, work)}
-        </DialogDescription>
+        <DialogDescription>{prefill.title}</DialogDescription>
       </DialogHeader>
 
       <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-3 border-t pt-4">
-        <Fact label="Client" value={todo.clientName} tone="text" />
-        <Fact label="Mission" value={work.missionName} tone="text" />
-        <Fact
-          label={m.invoices_fact_period()}
-          value={
-            calendarRangeLabel(
-              dateFormat,
-              work.firstEntryOn,
-              work.lastEntryOn,
-            ) ?? "—"
-          }
-        />
-        <Fact
-          label={m.invoices_fact_time_value()}
-          value={formatAmountWithCents(format, todo.amount.amount)}
-        />
+        <Fact label="Client" value={prefill.clientName} tone="text" />
+        <Fact label="Mission" value={prefill.missionName} tone="text" />
+        {periodLabel !== null && (
+          <Fact label={m.invoices_fact_period()} value={periodLabel} />
+        )}
+        {prefill.timeValueCents !== null && (
+          <Fact
+            label={m.invoices_fact_time_value()}
+            value={formatAmountWithCents(format, prefill.timeValueCents)}
+          />
+        )}
+        {prefill.remainingCents !== null && (
+          <Fact
+            label={m.invoices_fact_remaining()}
+            value={formatAmountWithCents(format, prefill.remainingCents)}
+          />
+        )}
       </dl>
 
       <div className="mt-5 flex flex-col gap-4">
@@ -210,8 +213,10 @@ function CreateInvoiceForm({
             id={amountFieldId}
             inputMode="decimal"
             value={amountDraft}
-            aria-invalid={amountHtCents === null}
-            onChange={(event) => setAmountDraft(event.target.value)}
+            aria-invalid={isAmountInvalid}
+            onChange={(event) =>
+              setAmountDraft(formatRateDraft(format.locale, event.target.value))
+            }
           />
         </div>
 
@@ -254,7 +259,7 @@ function CreateInvoiceForm({
       )}
 
       <p className="mt-4 text-muted-foreground-3 text-xs text-pretty">
-        {coveredTimeLabel(work.entryCount)}
+        {coveredTimeLabel(prefill.timeEntryIds.length)}
       </p>
 
       <div className="mt-5 flex justify-end">

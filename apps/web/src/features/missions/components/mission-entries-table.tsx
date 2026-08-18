@@ -1,4 +1,4 @@
-import type { Locale, TimeEntryData } from "@opusline/api-client";
+import type { BillingMode, Locale, TimeEntryData } from "@opusline/api-client";
 import { Badge } from "@opusline/ui/components/badge";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { cn } from "@opusline/ui/lib/utils";
@@ -7,7 +7,7 @@ import { Link } from "@tanstack/react-router";
 import { useDateFormat, useLocale } from "@/components/money-format-provider";
 import { REVENUE_PLACEHOLDER } from "@/lib/client-revenue";
 import { calendarDateNumericLabel } from "@/lib/dates";
-import { billedQuantityLabel } from "@/lib/durations";
+import { billedQuantityLabel, isFixedPrice } from "@/lib/durations";
 import { m } from "@/paraglide/messages.js";
 
 const EYEBROW_CLASSES =
@@ -15,15 +15,26 @@ const EYEBROW_CLASSES =
 
 const ROW_GRID = "grid grid-cols-[7rem_5rem_minmax(0,1fr)_7.25rem] gap-x-3";
 
-type EntryState = "invoiced" | "billable" | "nonBillable";
+type EntryState = "invoiced" | "forfait" | "billable" | "nonBillable";
 
 /**
  * Invoiced outranks billable: once a bill covers the entry, whether it *could*
  * have been billed is no longer the useful thing to read.
+ *
+ * On a fixed price no entry is ever waiting to be invoiced — the price is what
+ * gets billed, not the time — so "à facturer" would promise an invoice that is
+ * never coming.
  */
-function entryStateOf(entry: TimeEntryData): EntryState {
+function entryStateOf(
+  entry: TimeEntryData,
+  billingMode: BillingMode | null,
+): EntryState {
   if (entry.invoiced) {
     return "invoiced";
+  }
+
+  if (billingMode !== null && isFixedPrice(billingMode)) {
+    return "forfait";
   }
 
   return entry.billable ? "billable" : "nonBillable";
@@ -45,6 +56,7 @@ function quantityLabel(locale: Locale, entry: TimeEntryData): string {
 
 const STATE_MESSAGES: Record<EntryState, () => string> = {
   invoiced: m.missions_entry_state_invoiced,
+  forfait: m.missions_entry_state_forfait,
   billable: m.missions_entry_state_billable,
   nonBillable: m.missions_entry_state_non_billable,
 };
@@ -54,18 +66,22 @@ const STATE_VARIANTS: Record<
   React.ComponentProps<typeof Badge>["variant"]
 > = {
   invoiced: "success",
+  forfait: "quiet",
   billable: "brand",
   nonBillable: "quiet",
 };
 
 type MissionEntriesTableProps = {
   entries: TimeEntryData[];
+  /** Null while the mission is still loading; the state column falls back to billable. */
+  billingMode?: BillingMode | null;
   isPending?: boolean;
   isError?: boolean;
 };
 
 export function MissionEntriesTable({
   entries,
+  billingMode = null,
   isPending,
   isError,
 }: MissionEntriesTableProps) {
@@ -99,7 +115,7 @@ export function MissionEntriesTable({
           {!isPending &&
             !isError &&
             entries.map((entry) => {
-              const state = entryStateOf(entry);
+              const state = entryStateOf(entry, billingMode);
 
               return (
                 <div

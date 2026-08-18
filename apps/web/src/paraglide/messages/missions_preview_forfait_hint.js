@@ -6,17 +6,17 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{}} Missions_Preview_Forfait_HintInputs */
 
 const en_missions_preview_forfait_hint = /** @type {(inputs: Missions_Preview_Forfait_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`fixed price, billed once`)
+	return /** @type {LocalizedString} */ (`fixed price, in one invoice or several`)
 };
 
 const fr_missions_preview_forfait_hint = /** @type {(inputs: Missions_Preview_Forfait_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`montant du forfait, facturé en une fois`)
+	return /** @type {LocalizedString} */ (`montant du forfait, facturé en une ou plusieurs fois`)
 };
 
 /**
 * | output |
 * | --- |
-* | "fixed price, billed once" |
+* | "fixed price, in one invoice or several" |
 *
 * @param {Missions_Preview_Forfait_HintInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

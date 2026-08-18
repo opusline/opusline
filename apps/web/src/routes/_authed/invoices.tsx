@@ -1,8 +1,6 @@
-import type { InvoiceTodoData } from "@opusline/api-client";
 import {
   createInvoiceMutation,
   listInvoicesOptions,
-  listInvoicesQueryKey,
   payInvoiceMutation,
   remindInvoiceMutation,
   sendInvoiceMutation,
@@ -10,9 +8,7 @@ import {
   showInvoiceOptions,
   showInvoiceQueryKey,
   showInvoiceSummaryOptions,
-  showInvoiceSummaryQueryKey,
   showNextInvoiceNumberOptions,
-  showNextInvoiceNumberQueryKey,
   updateInvoiceMutation,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
@@ -32,12 +28,12 @@ import { InvoiceMonthCard } from "@/features/invoices/components/invoice-month-c
 import { InvoiceSummaryTiles } from "@/features/invoices/components/invoice-summary-tiles";
 import { InvoiceTodoPanel } from "@/features/invoices/components/invoice-todo-panel";
 import { InvoicesTable } from "@/features/invoices/components/invoices-table";
-import { accountTodayCalendarDate } from "@/lib/dates";
 import {
-  missionTimeEntriesFilter,
-  revenueFilter,
-  weekTimeEntriesFilter,
-} from "@/lib/query-invalidation";
+  createInvoiceBody,
+  type InvoicePrefill,
+} from "@/features/invoices/lib/invoice-prefill";
+import { accountTodayCalendarDate } from "@/lib/dates";
+import { invalidateInvoiceWrites } from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -71,7 +67,7 @@ function FacturesPage() {
   // `?invoice=` IS the open fiche — the Compte pro suggestions deep-link
   // here, and refresh, back and shared links all reopen the same one.
   const openInvoiceId = search.invoice ?? null;
-  const [creatingFor, setCreatingFor] = useState<InvoiceTodoData | null>(null);
+  const [creatingFor, setCreatingFor] = useState<InvoicePrefill | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
@@ -107,25 +103,10 @@ function FacturesPage() {
     enabled: creatingFor !== null,
   });
 
-  // The next free reference is derived from the numbers already taken, so creating an
-  // invoice invalidates it — otherwise the following one is prefilled with a reference
-  // that was just used and the save is refused as a duplicate.
-  const refreshInvoices = async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: listInvoicesQueryKey() }),
-      queryClient.invalidateQueries({ queryKey: showInvoiceSummaryQueryKey() }),
-      queryClient.invalidateQueries({
-        queryKey: showNextInvoiceNumberQueryKey(),
-      }),
-      // Issuing, paying or deleting an invoice moves the client and mission
-      // figures the other pages read.
-      queryClient.invalidateQueries(revenueFilter()),
-      // Creating an invoice links time entries to it and deleting one unlinks
-      // them, which flips the invoiced badge on the mission's history and the
-      // "to invoice" ring on the week grid's cells.
-      queryClient.invalidateQueries(missionTimeEntriesFilter()),
-      queryClient.invalidateQueries(weekTimeEntriesFilter()),
-      ...(openInvoiceId === null
+  const refreshInvoices = () =>
+    invalidateInvoiceWrites(
+      queryClient,
+      openInvoiceId === null
         ? []
         : [
             queryClient.invalidateQueries({
@@ -133,9 +114,8 @@ function FacturesPage() {
                 path: { invoice: openInvoiceId },
               }),
             }),
-          ]),
-    ]);
-  };
+          ],
+    );
 
   /** Every lifecycle write reports through one message, wherever it was triggered. */
   const reportFailure = (fallback: string) => (error: unknown) => {
@@ -183,22 +163,7 @@ function FacturesPage() {
   const submitInvoice = (input: CreateInvoiceSubmit) => {
     setCreateError(null);
     create.mutate({
-      body: {
-        clientId: input.clientId,
-        missionId: input.missionId,
-        number: input.number,
-        // A reference means the document exists somewhere: the invoice is issued, and
-        // only an issued invoice counts towards what is still to be collected. Without
-        // one it stays a draft, which is what the dialog says it will do.
-        status: input.number === null ? 0 : 1,
-        // A stale render-context currency is refused by the API (422);
-        // see settings-form.ts for the one case needing the snapshot.
-        amountHt: { amount: input.amountHtCents, currency: format.currency },
-        vatRateBp: input.vatRateBp,
-        periodStart: input.periodStart,
-        periodEnd: input.periodEnd,
-        timeEntryIds: input.timeEntryIds,
-      },
+      body: createInvoiceBody(input, format.currency),
     });
   };
 
@@ -297,9 +262,9 @@ function FacturesPage() {
                 remind.isPending ? remind.variables?.path.invoice : null
               }
               onRemind={noteReminder}
-              onCreateInvoice={(todo) => {
+              onInvoice={(prefill) => {
                 setCreateError(null);
-                setCreatingFor(todo);
+                setCreatingFor(prefill);
               }}
             />
           )}
@@ -331,7 +296,7 @@ function FacturesPage() {
       </div>
 
       <CreateInvoiceDialog
-        todo={creatingFor}
+        prefill={creatingFor}
         suggestedNumber={nextNumber.data?.number ?? null}
         vatLiable={user.vatLiable}
         isSaving={create.isPending}

@@ -14,6 +14,10 @@ import { formatWholeAmount } from "@/lib/billing";
 import { m } from "@/paraglide/messages.js";
 
 import {
+  type InvoicePrefill,
+  prefillFromUnbilledWork,
+} from "../lib/invoice-prefill";
+import {
   overdueDetail,
   unbilledWorkDetail,
   unbilledWorkTitle,
@@ -23,7 +27,11 @@ type InvoiceTodoPanelProps = {
   todo: InvoiceTodoData[];
   todoTotal: number;
   onRemind: (invoiceId: number) => void;
-  onCreateInvoice: (todo: InvoiceTodoData) => void;
+  /**
+   * One handler whatever the row bills: the rows already know their kind, so a
+   * fourth one costs a row component and nothing else.
+   */
+  onInvoice: (prefill: InvoicePrefill) => void;
   pendingInvoiceId?: number | null;
 };
 
@@ -31,7 +39,7 @@ export function InvoiceTodoPanel({
   todo,
   todoTotal,
   onRemind,
-  onCreateInvoice,
+  onInvoice,
   pendingInvoiceId,
 }: InvoiceTodoPanelProps) {
   return (
@@ -67,7 +75,7 @@ export function InvoiceTodoPanel({
                 <UnbilledWorkRow
                   todo={item}
                   work={item.work}
-                  onCreateInvoice={onCreateInvoice}
+                  onInvoice={onInvoice}
                 />
               )}
             </li>
@@ -156,11 +164,11 @@ function OverdueRow({
 function UnbilledWorkRow({
   todo,
   work,
-  onCreateInvoice,
+  onInvoice,
 }: {
   todo: InvoiceTodoData;
   work: InvoiceTodoWorkData;
-  onCreateInvoice: (todo: InvoiceTodoData) => void;
+  onInvoice: (prefill: InvoicePrefill) => void;
 }) {
   const format = useMoneyFormat();
 
@@ -171,7 +179,12 @@ function UnbilledWorkRow({
       detail={unbilledWorkDetail(format.locale, work)}
       amount={`${formatWholeAmount(format, todo.amount.amount)} HT`}
       action={
-        <Button size="lg" onClick={() => onCreateInvoice(todo)}>
+        <Button
+          size="lg"
+          onClick={() =>
+            onInvoice(prefillFromUnbilledWork(format.locale, todo, work))
+          }
+        >
           {m.invoices_create_title()}
         </Button>
       }

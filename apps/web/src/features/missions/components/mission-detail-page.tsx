@@ -65,6 +65,7 @@ type MissionDetailPageProps = {
   mission: MissionData;
   client: ClientWithMissionsData;
   documentsTab: ReactNode;
+  invoicesTab: ReactNode;
   onUpdate: (body: UpdateMissionData) => Promise<FormSubmitResult>;
   onSetStatus: (status: MissionStatus) => void;
   onOpenCra: () => void;
@@ -86,6 +87,7 @@ export function MissionDetailPage({
   mission,
   client,
   documentsTab,
+  invoicesTab,
   onUpdate,
   onSetStatus,
   onOpenCra,
@@ -261,12 +263,6 @@ export function MissionDetailPage({
         </Alert>
       ) : null}
 
-      {billingProgress !== null && (
-        <div className="mb-5">
-          <ForfaitProgress progress={billingProgress} />
-        </div>
-      )}
-
       <StatTileRow className="mb-5 grid-cols-2 md:grid-cols-4">
         <StatTile
           label={m.missions_stat_this_month()}
@@ -287,6 +283,12 @@ export function MissionDetailPage({
           value={formatRevenue(format, revenue?.monthlyAverage)}
         />
       </StatTileRow>
+
+      {billingProgress !== null && (
+        <div className="mb-5">
+          <ForfaitProgress progress={billingProgress} />
+        </div>
+      )}
 
       {isEditing ? (
         <MissionEditForm
@@ -316,24 +318,14 @@ export function MissionDetailPage({
 
           <TabsContent value="entries">
             <MissionEntriesTable
+              billingMode={mission.billingMode}
               entries={entries}
               isError={isEntriesError}
               isPending={isEntriesPending}
             />
           </TabsContent>
 
-          <TabsContent value="invoices">
-            <div className="rounded-md border bg-card px-7 py-9 text-center">
-              <div className="mb-2 font-heading font-semibold text-base text-foreground-hi">
-                {m.common_no_invoices_title()}
-              </div>
-              <p className="mx-auto max-w-md text-pretty text-muted-foreground-3 text-sm leading-relaxed">
-                {isBillable
-                  ? m.missions_no_invoices_billable_hint()
-                  : m.missions_no_invoices_unbillable_hint()}
-              </p>
-            </div>
-          </TabsContent>
+          <TabsContent value="invoices">{invoicesTab}</TabsContent>
 
           {mission.craRequired && (
             <TabsContent value="cra">

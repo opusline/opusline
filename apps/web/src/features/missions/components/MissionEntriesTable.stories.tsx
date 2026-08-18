@@ -109,10 +109,13 @@ export const HourlyMission: Story = {
 
 /**
  * A fixed-price mission still counts days — it rounds to quarters, since a fixed
- * mission stores no increment of its own — even though nothing prices them.
+ * mission stores no increment of its own — even though nothing prices them. Its
+ * entries read "forfait" rather than "à facturer": no invoice is ever coming for
+ * them, the price is what gets billed.
  */
 export const FixedPriceMission: Story = {
   args: {
+    billingMode: 2,
     entries: [
       {
         ...baseEntry,

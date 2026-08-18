@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
-import { unbilledTodoRow } from "../lib/fixtures";
+import { forfaitPrefill, unbilledPrefill } from "../lib/fixtures";
 import {
   CreateInvoiceDialog,
   type CreateInvoiceSubmit,
@@ -19,7 +19,7 @@ function renderDialog(
       onOpenChange={() => {}}
       onSubmit={onSubmit}
       suggestedNumber="2026-021"
-      todo={unbilledTodoRow()}
+      prefill={unbilledPrefill()}
       vatLiable
       {...props}
     />,
@@ -29,13 +29,13 @@ function renderDialog(
 }
 
 it("starts on the rate the client is billed at", () => {
-  renderDialog({ todo: unbilledTodoRow({ vatRateBp: 550 }) });
+  renderDialog({ prefill: unbilledPrefill({ vatRateBp: 550 }) });
 
   expect(screen.getByLabelText("TVA")).toHaveValue("5,5");
 });
 
 it("bills a client outside the scope of TVA at zero", () => {
-  renderDialog({ todo: unbilledTodoRow({ vatRateBp: 0 }) });
+  renderDialog({ prefill: unbilledPrefill({ vatRateBp: 0 }) });
 
   expect(screen.getByLabelText("TVA")).toHaveValue("0");
 });
@@ -65,7 +65,7 @@ it("sends an edited rate rather than the client's", () => {
 it("offers no rate under the franchise en base, and leaves it to the API", () => {
   const onSubmit = renderDialog({
     vatLiable: false,
-    todo: unbilledTodoRow({ vatRateBp: 0 }),
+    prefill: unbilledPrefill({ vatRateBp: 0 }),
   });
 
   expect(screen.queryByLabelText("TVA")).toBeNull();
@@ -94,4 +94,46 @@ it("explains a rate it cannot read instead of silently doing nothing", () => {
   fireEvent.click(submit);
 
   expect(onSubmit).not.toHaveBeenCalled();
+});
+
+it("bills a fixed price without consuming any tracked time", () => {
+  const onSubmit = renderDialog({ prefill: forfaitPrefill() });
+
+  fireEvent.change(screen.getByLabelText("Montant HT"), {
+    target: { value: "2400" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Créer la facture" }));
+
+  // A forfait bills a price, not the time behind it: linking entries here would
+  // mark them invoiced and quietly retire them from the mission's own history.
+  expect(onSubmit).toHaveBeenCalledWith(
+    expect.objectContaining({
+      amountHtCents: 240_000,
+      timeEntryIds: [],
+      periodStart: null,
+      periodEnd: null,
+    }),
+  );
+});
+
+it("opens a fixed price on an empty amount rather than a guess", () => {
+  renderDialog({ prefill: forfaitPrefill() });
+
+  const amount = screen.getByLabelText("Montant HT");
+
+  expect(amount).toHaveValue("");
+  // Empty is not wrong yet — flagging it red before the user has typed would
+  // read as a rejection of something they never entered.
+  expect(amount).not.toHaveAttribute("aria-invalid", "true");
+  expect(
+    screen.getByRole("button", { name: "Créer la facture" }),
+  ).toBeDisabled();
+});
+
+it("shows what a fixed price still has to bill", () => {
+  renderDialog({ prefill: forfaitPrefill() });
+
+  expect(screen.getByText("Reste à facturer")).toBeVisible();
+  // The value of tracked time is a figure a forfait does not have.
+  expect(screen.queryByText("Valeur du temps")).toBeNull();
 });

@@ -1,7 +1,9 @@
 import type { MissionStatus, UpdateMissionData } from "@opusline/api-client";
 import {
+  createInvoiceMutation,
   deleteMissionDocumentMutation,
   listClientsQueryKey,
+  listInvoicesOptions,
   listMissionDocumentsOptions,
   listMissionDocumentsQueryKey,
   listMissionTimeEntriesOptions,
@@ -10,6 +12,7 @@ import {
   showMissionOptions,
   showMissionQueryKey,
   showMissionRevenueOptions,
+  showNextInvoiceNumberOptions,
   updateMissionMutation,
   uploadMissionDocumentMutation,
 } from "@opusline/api-client/react-query";
@@ -20,14 +23,28 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 
 import { DocumentsTab } from "@/components/documents-tab";
+import { useMoneyFormat } from "@/components/money-format-provider";
+import {
+  CreateInvoiceDialog,
+  type CreateInvoiceSubmit,
+} from "@/features/invoices/components/create-invoice-dialog";
+import { MissionInvoicesTab } from "@/features/invoices/components/mission-invoices-tab";
+import {
+  createInvoiceBody,
+  type InvoicePrefill,
+  prefillFromForfait,
+} from "@/features/invoices/lib/invoice-prefill";
 import { MissionDetailPage } from "@/features/missions/components/mission-detail-page";
+import { accountTodayCalendarDate } from "@/lib/dates";
 import {
   documentHandlers,
   isClientDocument,
   missionDocumentDownloadHref,
 } from "@/lib/documents";
+import { isFixedPrice } from "@/lib/durations";
 import type { FormSubmitResult } from "@/lib/form";
-import { serverFieldErrors } from "@/lib/validation";
+import { invalidateInvoiceWrites } from "@/lib/query-invalidation";
+import { serverErrorMessage, serverFieldErrors } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute(
@@ -38,8 +55,12 @@ export const Route = createFileRoute(
 
 function MissionDetailRoute() {
   const { clientSlug, missionSlug } = Route.useParams();
+  const { user } = Route.useRouteContext();
+  const format = useMoneyFormat();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [creatingFor, setCreatingFor] = useState<InvoicePrefill | null>(null);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   const missionPath = { client: clientSlug, mission: missionSlug };
   const clientQuery = useQuery(
@@ -58,6 +79,16 @@ function MissionDetailRoute() {
   const entriesQuery = useQuery(
     listMissionTimeEntriesOptions({ path: missionPath }),
   );
+  const invoicesQuery = useQuery({
+    ...listInvoicesOptions({ query: { missionId: missionQuery.data?.id } }),
+    // Without the mission the filter is dropped and the request fetches the whole
+    // account's invoices, under a key the filtered one then replaces.
+    enabled: missionQuery.data !== undefined,
+  });
+  const nextNumberQuery = useQuery({
+    ...showNextInvoiceNumberOptions(),
+    enabled: creatingFor !== null,
+  });
 
   const updateMission = useMutation(updateMissionMutation());
   const [isMutating, setIsMutating] = useState(false);
@@ -156,6 +187,27 @@ function MissionDetailRoute() {
     }
   };
 
+  const createInvoice = useMutation({
+    ...createInvoiceMutation(),
+    onSuccess: async () => {
+      setCreatingFor(null);
+      setCreateError(null);
+      await invalidateInvoiceWrites(queryClient, [
+        queryClient.invalidateQueries({ queryKey: listClientsQueryKey() }),
+      ]);
+    },
+    onError: (error) => {
+      setCreateError(serverErrorMessage(error, m.invoices_create_failed()));
+    },
+  });
+
+  const submitInvoice = (input: CreateInvoiceSubmit) => {
+    setCreateError(null);
+    createInvoice.mutate({
+      body: createInvoiceBody(input, format.currency),
+    });
+  };
+
   const {
     handleUpload: handleUploadDocument,
     handleDelete: handleDeleteDocument,
@@ -215,27 +267,82 @@ function MissionDetailRoute() {
     />
   );
 
+  const mission = missionQuery.data;
+  const progress = billingQuery.data ?? null;
+  /** Opens the dialog on this forfait, with the room left as a reference fact. */
+  const openForfaitInvoice = () => {
+    if (progress === null) {
+      return;
+    }
+
+    setCreateError(null);
+    setCreatingFor(
+      prefillFromForfait({
+        clientId: mission.clientId,
+        clientName: clientQuery.data.name,
+        missionId: mission.id,
+        missionName: mission.name,
+        progress,
+        vatRateBp: clientQuery.data.defaultVatRateBp ?? user.effectiveVatRateBp,
+      }),
+    );
+  };
+
+  const invoicesTab = (
+    <div className="flex flex-col gap-5">
+      <MissionInvoicesTab
+        accountToday={accountTodayCalendarDate(user.timezone)}
+        invoices={invoicesQuery.data?.invoices ?? []}
+        isError={invoicesQuery.isError}
+        isPending={invoicesQuery.isPending}
+        mission={mission}
+        onCreateInvoice={() => openForfaitInvoice()}
+        onOpenInvoice={(invoiceId) =>
+          void navigate({ to: "/invoices", search: { invoice: invoiceId } })
+        }
+      />
+    </div>
+  );
+
   return (
-    <MissionDetailPage
-      billingProgress={billingQuery.data ?? null}
-      client={clientQuery.data}
-      documentsTab={documentsTab}
-      error={
-        updateMission.error && !serverFieldErrors(updateMission.error)
-          ? m.common_action_failed()
-          : null
-      }
-      isStatusPending={isMutating}
-      isUpdatePending={isMutating}
-      mission={missionQuery.data}
-      onOpenCra={() => void navigate({ to: "/cra" })}
-      onSetStatus={(status) => void handleSetStatus(status)}
-      onUpdate={handleUpdate}
-      entries={entriesQuery.data?.timeEntries}
-      isEntriesError={entriesQuery.isError}
-      isEntriesPending={entriesQuery.isPending}
-      revenue={revenueQuery.data}
-      revenueFailed={revenueQuery.isError}
-    />
+    <>
+      <MissionDetailPage
+        billingProgress={billingQuery.data ?? null}
+        client={clientQuery.data}
+        documentsTab={documentsTab}
+        invoicesTab={invoicesTab}
+        error={
+          updateMission.error && !serverFieldErrors(updateMission.error)
+            ? m.common_action_failed()
+            : null
+        }
+        isStatusPending={isMutating}
+        isUpdatePending={isMutating}
+        mission={missionQuery.data}
+        onOpenCra={() => void navigate({ to: "/cra" })}
+        onSetStatus={(status) => void handleSetStatus(status)}
+        onUpdate={handleUpdate}
+        entries={entriesQuery.data?.timeEntries}
+        isEntriesError={entriesQuery.isError}
+        isEntriesPending={entriesQuery.isPending}
+        revenue={revenueQuery.data}
+        revenueFailed={revenueQuery.isError}
+      />
+
+      <CreateInvoiceDialog
+        prefill={creatingFor}
+        suggestedNumber={nextNumberQuery.data?.number ?? null}
+        vatLiable={user.vatLiable}
+        isSaving={createInvoice.isPending}
+        error={createError}
+        onOpenChange={(open) => {
+          if (!open) {
+            setCreatingFor(null);
+            setCreateError(null);
+          }
+        }}
+        onSubmit={submitInvoice}
+      />
+    </>
   );
 }

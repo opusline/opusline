@@ -1,3 +1,8 @@
+import {
+  listInvoicesQueryKey,
+  showInvoiceSummaryQueryKey,
+  showNextInvoiceNumberQueryKey,
+} from "@opusline/api-client/react-query";
 import type { Query, QueryClient, QueryFilters } from "@tanstack/react-query";
 
 /**
@@ -93,4 +98,31 @@ export function revenueFilter(): { predicate: (query: Query) => boolean } {
     "showClientRevenue",
     "showMissionRevenue",
   );
+}
+
+/**
+ * Everything an invoice write moves. Creating, issuing, paying or deleting one
+ * shifts the list, the summary, the next free reference and every revenue figure
+ * the other screens read — keep every invoice write going through this, or the
+ * next derived query has to be remembered on two screens.
+ */
+export function invalidateInvoiceWrites(
+  queryClient: QueryClient,
+  extras: Promise<unknown>[] = [],
+): Promise<unknown> {
+  return Promise.all([
+    queryClient.invalidateQueries({ queryKey: listInvoicesQueryKey() }),
+    queryClient.invalidateQueries({ queryKey: showInvoiceSummaryQueryKey() }),
+    // Derived from the numbers already taken: without this the next invoice is
+    // prefilled with the reference just used and the save is refused.
+    queryClient.invalidateQueries({
+      queryKey: showNextInvoiceNumberQueryKey(),
+    }),
+    queryClient.invalidateQueries(revenueFilter()),
+    // Linking time to an invoice flips the invoiced badge on the mission's
+    // history and the "to invoice" ring on the week grid's cells.
+    queryClient.invalidateQueries(missionTimeEntriesFilter()),
+    queryClient.invalidateQueries(weekTimeEntriesFilter()),
+    ...extras,
+  ]);
 }

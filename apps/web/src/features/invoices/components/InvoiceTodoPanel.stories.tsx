@@ -13,7 +13,7 @@ const meta = {
     todo: summary.todo,
     todoTotal: summary.todoTotal,
     onRemind: () => {},
-    onCreateInvoice: () => {},
+    onInvoice: () => {},
   },
 } satisfies Meta<typeof InvoiceTodoPanel>;
 

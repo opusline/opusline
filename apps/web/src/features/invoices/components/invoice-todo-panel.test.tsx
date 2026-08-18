@@ -10,19 +10,19 @@ function renderPanel(
   props: Partial<Parameters<typeof InvoiceTodoPanel>[0]> = {},
 ) {
   const onRemind = vi.fn();
-  const onCreateInvoice = vi.fn();
+  const onInvoice = vi.fn();
 
   render(
     <InvoiceTodoPanel
       todo={summary.todo}
       todoTotal={summary.todoTotal}
       onRemind={onRemind}
-      onCreateInvoice={onCreateInvoice}
+      onInvoice={onInvoice}
       {...props}
     />,
   );
 
-  return { onRemind, onCreateInvoice };
+  return { onRemind, onInvoice };
 }
 
 it("offers a reminder on money that is owed and late", () => {
@@ -38,13 +38,17 @@ it("offers a reminder on money that is owed and late", () => {
 });
 
 it("offers an invoice on work that has not been billed", () => {
-  const { onCreateInvoice } = renderPanel();
+  const { onInvoice } = renderPanel();
 
   fireEvent.click(screen.getByRole("button", { name: "Créer la facture" }));
 
-  expect(onCreateInvoice).toHaveBeenCalledWith(
+  // The row builds the prefill itself, so the caller never re-narrows the
+  // nullable sub-object the row already proved was there.
+  expect(onInvoice).toHaveBeenCalledWith(
     expect.objectContaining({
-      work: expect.objectContaining({ missionId: 20 }),
+      clientId: 2,
+      missionId: 20,
+      timeEntryIds: [101, 102, 103],
     }),
   );
 });
