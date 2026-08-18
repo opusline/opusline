@@ -375,6 +375,10 @@ export type CreateMissionData = {
         amount: number;
         currency: Currency;
     } | null;
+    targetRate?: {
+        amount: number;
+        currency: Currency;
+    } | null;
     endClientName?: string | null;
     rounding?: EntryRounding | null;
     craRequired?: boolean | null;
@@ -728,6 +732,7 @@ export type MissionData = {
     endClientName: string | null;
     billingMode: BillingMode;
     rate: MoneyData | null;
+    targetRate: MoneyData | null;
     rounding: EntryRounding | null;
     status: MissionStatus;
     craRequired: boolean;
@@ -735,6 +740,16 @@ export type MissionData = {
     notes: string | null;
     startDate: string | null;
     endDate: string | null;
+};
+
+/**
+ * MissionForfaitData
+ */
+export type MissionForfaitData = {
+    budgetMinutes: number | null;
+    trackedMinutes: number;
+    consumedShareBp: number | null;
+    effectiveRate: MoneyData | null;
 };
 
 /**
@@ -748,6 +763,7 @@ export type MissionRevenueData = {
     monthlyAverage: MoneyData | null;
     currentMonthDays: number | null;
     currentMonthMinutes: number | null;
+    forfait: MissionForfaitData | null;
 };
 
 /**
@@ -1128,6 +1144,10 @@ export type UpdateMissionData = {
     billingMode: BillingMode;
     status: MissionStatus;
     rate?: {
+        amount: number;
+        currency: Currency;
+    } | null;
+    targetRate?: {
         amount: number;
         currency: Currency;
     } | null;

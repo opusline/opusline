@@ -21,6 +21,11 @@ class CreateMissionData extends Data
         public string $name,
         public BillingMode $billingMode,
         public ?MoneyData $rate = null,
+        /**
+         * Your usual day rate, so a fixed price can be read as an effort budget.
+         * Only a forfait has one: every other mode already bills a rate.
+         */
+        public ?MoneyData $targetRate = null,
         #[Min(1), Max(255)]
         public ?string $endClientName = null,
         public ?EntryRounding $rounding = null,

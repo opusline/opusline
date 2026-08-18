@@ -2,6 +2,7 @@ import type {
   ClientRevenueData,
   ClientRevenueListData,
   Locale,
+  MissionForfaitData,
   MissionRevenueData,
   MoneyData,
 } from "@opusline/api-client";
@@ -90,4 +91,30 @@ export function formatTrackedMonth(
  */
 export function formatPaymentDelay(days: number | null | undefined): string {
   return days == null ? REVENUE_PLACEHOLDER : m.clients_delay_days({ days });
+}
+
+/** A whole, in the basis points the API reports shares in. */
+export const FULL_SHARE_BP = 10_000;
+
+/** Past this a forfait is worth a second look before more time goes into it. */
+export const WARN_SHARE_BP = 8_000;
+
+/**
+ * More effort has gone into a fixed price than its target day rate paid for.
+ *
+ * Takes either the mission's revenue or its forfait block, because the clients
+ * table holds one and the mission page the other. Null-safe throughout: only a
+ * forfait carries the block, and only one with a target rate carries the share,
+ * so everything else has nothing to be over.
+ */
+export function isOverBudget(
+  revenue: MissionRevenueData | MissionForfaitData | null | undefined,
+): boolean {
+  if (revenue === null || revenue === undefined) {
+    return false;
+  }
+
+  const forfait = "forfait" in revenue ? revenue.forfait : revenue;
+
+  return (forfait?.consumedShareBp ?? 0) > FULL_SHARE_BP;
 }

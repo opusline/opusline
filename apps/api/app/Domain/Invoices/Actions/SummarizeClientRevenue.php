@@ -8,10 +8,12 @@ use App\Domain\Clients\Models\Client;
 use App\Domain\Invoices\Data\ClientRevenueData;
 use App\Domain\Invoices\Data\ClientRevenueDetailData;
 use App\Domain\Invoices\Data\ClientRevenueListData;
+use App\Domain\Invoices\Data\MissionForfaitData;
 use App\Domain\Invoices\Data\MissionRevenueData;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Revenue\RevenueWindow;
+use App\Domain\Missions\Enums\BillingMode;
 use App\Domain\Missions\Enums\MissionStatus;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Data\MoneyData;
@@ -35,6 +37,8 @@ use Money\Money as MoneyPhp;
  */
 class SummarizeClientRevenue
 {
+    private const int BASIS_POINTS = 10_000;
+
     public function __construct(private readonly ValueTrackedTime $valueTrackedTime) {}
 
     /**
@@ -64,9 +68,12 @@ class SummarizeClientRevenue
         'rounding',
         'status',
         'end_date',
-        // Currency must precede rate_cents: MoneyIntegerCast reads it to build the rate.
+        // Currency must precede the *_cents columns: MoneyIntegerCast reads it to
+        // build each amount. A money column left out here reads back as null
+        // through the cast rather than raising, so the figure silently disappears.
         'currency',
         'rate_cents',
+        'target_rate_cents',
     ];
 
     public function handle(User $user): ClientRevenueListData
@@ -81,10 +88,18 @@ class SummarizeClientRevenue
             ->orderBy('name')
             ->get(['id']);
 
+        $trackedByMission = $this->trackedMinutesByMission(
+            $user,
+            $this->forfaitMissionIds($clients->flatMap(
+                fn (Client $client): Collection => $client->missions,
+            )),
+        );
+
         $rows = $clients->map(fn (Client $client): ClientRevenueData => $this->forClient(
             $client,
             $invoicesByClient->get($client->id) ?? new Collection,
             $entriesByMission,
+            $trackedByMission,
             $window,
         ));
 
@@ -118,6 +133,7 @@ class SummarizeClientRevenue
                 $client,
                 $invoices,
                 $this->entriesThisMonth($user, $window, $missionIds),
+                $this->trackedMinutesByMission($user, $this->forfaitMissionIds($client->missions)),
                 $window,
             ),
         );
@@ -135,6 +151,10 @@ class SummarizeClientRevenue
             $mission,
             $invoices,
             $this->entriesThisMonth($user, $window, [$mission->id])->get($mission->id) ?? new Collection,
+            (int) $this->trackedMinutesByMission(
+                $user,
+                $this->forfaitMissionIds(new Collection([$mission])),
+            )->get($mission->id, 0),
             $window,
         );
     }
@@ -160,15 +180,22 @@ class SummarizeClientRevenue
     /**
      * @param  Collection<int, Invoice>  $invoices
      * @param  Collection<int|string, EloquentCollection<int, TimeEntry>>  $entriesByMission
+     * @param  Collection<int, int>  $trackedByMission  all-time minutes, for the forfait budgets
      */
-    private function forClient(Client $client, Collection $invoices, Collection $entriesByMission, RevenueWindow $window): ClientRevenueData
-    {
+    private function forClient(
+        Client $client,
+        Collection $invoices,
+        Collection $entriesByMission,
+        Collection $trackedByMission,
+        RevenueWindow $window,
+    ): ClientRevenueData {
         $byMission = $invoices->groupBy('mission_id');
 
         $rows = $client->missions->map(fn (Mission $mission): MissionRevenueData => $this->forMission(
             $mission,
             $byMission->get($mission->id) ?? new Collection,
             $entriesByMission->get($mission->id) ?? new Collection,
+            (int) $trackedByMission->get($mission->id, 0),
             $window,
         ));
 
@@ -185,8 +212,13 @@ class SummarizeClientRevenue
      * @param  Collection<int, Invoice>  $invoices
      * @param  Collection<int, TimeEntry>  $entries  tracked this month
      */
-    private function forMission(Mission $mission, Collection $invoices, Collection $entries, RevenueWindow $window): MissionRevenueData
-    {
+    private function forMission(
+        Mission $mission,
+        Collection $invoices,
+        Collection $entries,
+        int $trackedMinutes,
+        RevenueWindow $window,
+    ): MissionRevenueData {
         $total = $this->sumHt($invoices, $window);
         $tracked = $this->trackedThisMonth($mission, $entries, $window);
 
@@ -198,7 +230,116 @@ class SummarizeClientRevenue
             monthlyAverage: $this->monthlyAverage($mission, $invoices, $total, $window),
             currentMonthDays: $tracked['days'],
             currentMonthMinutes: $tracked['minutes'],
+            forfait: $this->forfait($mission, $total, $trackedMinutes, $window->workdayMinutes),
         );
+    }
+
+    /**
+     * A fixed-price mission read against the price it was sold for. Null for
+     * every other billing mode: without an agreed total there is nothing to be
+     * a share of.
+     *
+     * $invoiced is the same figure the caller reports as the mission's total —
+     * issued HT since it began — so the two can never disagree.
+     */
+    private function forfait(
+        Mission $mission,
+        Money $invoiced,
+        int $trackedMinutes,
+        int $workdayMinutes,
+    ): ?MissionForfaitData {
+        $total = $mission->rate_cents;
+
+        if ($mission->billing_mode !== BillingMode::Fixed || ! $total instanceof Money) {
+            return null;
+        }
+
+        $budgetMinutes = $this->budgetMinutes($mission, $total, $workdayMinutes);
+
+        return new MissionForfaitData(
+            budgetMinutes: $budgetMinutes,
+            trackedMinutes: $trackedMinutes,
+            consumedShareBp: $budgetMinutes === null || $budgetMinutes === 0
+                ? null
+                : (int) round($trackedMinutes * self::BASIS_POINTS / $budgetMinutes),
+            effectiveRate: $this->effectiveRate($invoiced, $trackedMinutes, $workdayMinutes),
+        );
+    }
+
+    /**
+     * How much effort the price buys at the mission's target day rate. Integer
+     * arithmetic on the cents, because the day count is a ratio of two prices and
+     * putting it through a float would round twice.
+     */
+    private function budgetMinutes(Mission $mission, Money $total, int $workdayMinutes): ?int
+    {
+        $targetRate = $mission->target_rate_cents;
+
+        if (! $targetRate instanceof Money || $targetRate->isZero()) {
+            return null;
+        }
+
+        return (int) round(
+            (int) $total->getAmount() * $workdayMinutes / (int) $targetRate->getAmount(),
+        );
+    }
+
+    /**
+     * What the mission earned per day of work. Null until time exists: a rate over
+     * no days is unknown, not zero, and zero is the one answer that would read as
+     * a verdict.
+     */
+    private function effectiveRate(Money $invoiced, int $trackedMinutes, int $workdayMinutes): ?MoneyData
+    {
+        if ($trackedMinutes === 0) {
+            return null;
+        }
+
+        return MoneyData::fromMoney(
+            $invoiced->multiply($workdayMinutes)->divide($trackedMinutes, MoneyPhp::ROUND_HALF_UP),
+        );
+    }
+
+    /**
+     * All-time tracked minutes per mission, read in one aggregate rather than per
+     * mission: the clients listing folds every mission of the account, and a query
+     * each would grow with the account.
+     *
+     * Non-billable entries count. On a fixed price nothing is separately billable,
+     * so effort you chose not to bill still came out of the same budget.
+     *
+     * Only the fixed-price missions are asked for: they are the only ones with a
+     * budget to consume, and an account with none must not pay for a full scan of
+     * its time entries to learn that.
+     *
+     * @param  list<int>  $missionIds
+     * @return Collection<int, int>
+     */
+    private function trackedMinutesByMission(User $user, array $missionIds): Collection
+    {
+        if ($missionIds === []) {
+            return new Collection;
+        }
+
+        return $user->timeEntries()
+            ->whereIn('mission_id', $missionIds)
+            ->toBase()
+            ->selectRaw('mission_id, SUM(duration_minutes) as minutes')
+            ->groupBy('mission_id')
+            ->pluck('minutes', 'mission_id')
+            ->map(fn (mixed $minutes): int => (int) (is_scalar($minutes) ? $minutes : 0));
+    }
+
+    /**
+     * @param  Collection<int, Mission>  $missions
+     * @return list<int>
+     */
+    private function forfaitMissionIds(Collection $missions): array
+    {
+        return array_values($missions
+            ->filter(fn (Mission $mission): bool => $mission->billing_mode === BillingMode::Fixed)
+            ->map(fn (Mission $mission): int => $mission->id)
+            ->all());
     }
 
     /**

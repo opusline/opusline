@@ -43,5 +43,12 @@ class MissionRevenueData extends Data
          */
         public ?float $currentMonthDays,
         public ?int $currentMonthMinutes,
+        /**
+         * What the mission cost to deliver against what it was meant to, or null
+         * when it is not billed at a fixed price and so has no budget.
+         *
+         * What it has *billed* is a separate read — see SummarizeMissionBilling.
+         */
+        public ?MissionForfaitData $forfait,
     ) {}
 }

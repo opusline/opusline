@@ -337,3 +337,36 @@ test('returns 401 for guests', function (): void {
 
     $this->postJson("/api/clients/{$client->slug}/missions", [])->assertUnauthorized();
 });
+
+test('accepts a target day rate on a fixed price mission', function (): void {
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->postJson("/api/clients/{$client->slug}/missions", [
+            'name' => 'Lunaprint site',
+            'billingMode' => BillingMode::Fixed->value,
+            'rate' => ['amount' => 480_000, 'currency' => 'EUR'],
+            'targetRate' => ['amount' => 55_000, 'currency' => 'EUR'],
+        ])
+        ->assertCreated()
+        ->assertJsonPath('targetRate.amount', 55_000);
+});
+
+test('rejects a target day rate on a mission that already bills a rate', function (int $billingMode): void {
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->postJson("/api/clients/{$client->slug}/missions", [
+            'name' => 'Callisto front',
+            'billingMode' => $billingMode,
+            'rate' => ['amount' => 55_000, 'currency' => 'EUR'],
+            'targetRate' => ['amount' => 55_000, 'currency' => 'EUR'],
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['targetRate']);
+})->with([
+    'billed by the day' => [BillingMode::Daily->value],
+    'billed by the hour' => [BillingMode::Hourly->value],
+]);

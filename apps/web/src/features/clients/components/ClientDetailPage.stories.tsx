@@ -14,6 +14,7 @@ const baseMission = {
   clientId: 1,
   endClientName: null,
   rounding: 0,
+  targetRate: null,
   craRequired: false,
   color: null,
   notes: null,
@@ -129,6 +130,7 @@ const revenue: ClientRevenueData = {
     monthlyAverage: { amount: 447_000, currency: "EUR" },
     currentMonthDays: 12.5,
     currentMonthMinutes: null,
+    forfait: null,
   })),
 };
 

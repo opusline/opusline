@@ -5054,6 +5054,25 @@
                             "currency"
                         ]
                     },
+                    "targetRate": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
                     "endClientName": {
                         "type": [
                             "string",
@@ -6119,6 +6138,16 @@
                             }
                         ]
                     },
+                    "targetRate": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "rounding": {
                         "anyOf": [
                             {
@@ -6174,6 +6203,7 @@
                     "endClientName",
                     "billingMode",
                     "rate",
+                    "targetRate",
                     "rounding",
                     "status",
                     "craRequired",
@@ -6183,6 +6213,43 @@
                     "endDate"
                 ],
                 "title": "MissionData"
+            },
+            "MissionForfaitData": {
+                "type": "object",
+                "properties": {
+                    "budgetMinutes": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "trackedMinutes": {
+                        "type": "integer"
+                    },
+                    "consumedShareBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "effectiveRate": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "budgetMinutes",
+                    "trackedMinutes",
+                    "consumedShareBp",
+                    "effectiveRate"
+                ],
+                "title": "MissionForfaitData"
             },
             "MissionRevenueData": {
                 "type": "object",
@@ -6220,6 +6287,16 @@
                             "integer",
                             "null"
                         ]
+                    },
+                    "forfait": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MissionForfaitData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -6229,7 +6306,8 @@
                     "total",
                     "monthlyAverage",
                     "currentMonthDays",
-                    "currentMonthMinutes"
+                    "currentMonthMinutes",
+                    "forfait"
                 ],
                 "title": "MissionRevenueData"
             },
@@ -7454,6 +7532,25 @@
                         "$ref": "#/components/schemas/MissionStatus"
                     },
                     "rate": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "targetRate": {
                         "type": [
                             "object",
                             "null"

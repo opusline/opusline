@@ -30,11 +30,16 @@ class UpdateMission
                 AccountCurrency::assertMatchesAccountUnderLock($mission->user_id, $data->rate);
             }
 
+            if ($data->targetRate instanceof MoneyData) {
+                AccountCurrency::assertMatchesAccountUnderLock($mission->user_id, $data->targetRate);
+            }
+
             $mission->update([
                 'name' => $data->name,
                 'end_client_name' => $data->endClientName,
                 'billing_mode' => $data->billingMode,
                 'rate_cents' => $data->rate?->toMoney(),
+                'target_rate_cents' => $data->targetRate?->toMoney(),
                 'rounding' => $data->billingMode->resolveRounding($data->rounding),
                 'status' => $data->status,
                 'cra_required' => $data->billingMode->resolveCraRequired(

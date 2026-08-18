@@ -26,6 +26,8 @@ class MissionData extends Data
         public BillingMode $billingMode,
         #[MapInputName('rate_cents')]
         public ?MoneyData $rate,
+        #[MapInputName('target_rate_cents')]
+        public ?MoneyData $targetRate,
         public ?EntryRounding $rounding,
         public MissionStatus $status,
         public bool $craRequired,

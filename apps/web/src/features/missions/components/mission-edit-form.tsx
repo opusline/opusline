@@ -34,6 +34,7 @@ import { COLOR_CLASSES, COLORS, colorLabel } from "@/lib/palette";
 import { m } from "@/paraglide/messages.js";
 import { billingModeLabel } from "../lib/labels";
 import { MissionRateField } from "./mission-rate-field";
+import { MissionTargetRateField } from "./mission-target-rate-field";
 
 const EYEBROW_CLASSES =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
@@ -84,6 +85,11 @@ export function MissionEditForm({
     initialRateDraft(format, mission),
   );
   const [isRateMissing, setIsRateMissing] = useState(false);
+  const [targetDraft, setTargetDraft] = useState(() =>
+    mission.targetRate === null
+      ? ""
+      : formatAmount(format, mission.targetRate.amount),
+  );
   const [rounding, setRounding] = useState<EntryRounding>(
     mission.rounding ?? 0,
   );
@@ -94,6 +100,7 @@ export function MissionEditForm({
   const rateCents = isInternal
     ? null
     : parseRateToCents(format.locale, rateDraft);
+  const targetCents = parseRateToCents(format.locale, targetDraft);
   const displayedColor = color ?? client.color;
 
   const form = useForm({
@@ -121,6 +128,12 @@ export function MissionEditForm({
                 // see settings-form.ts for the one case needing the snapshot.
                 { amount: rateCents, currency: format.currency },
           rounding: isForfait ? null : rounding,
+          // Only a forfait has a yardstick to be measured against; every other
+          // mode already bills a rate, and the API refuses one there.
+          targetRate:
+            isForfait && targetCents !== null
+              ? { amount: targetCents, currency: format.currency }
+              : null,
           craRequired: isEsn ? craRequired : null,
           endClientName:
             isEsn && value.endClientName.trim() !== ""
@@ -264,6 +277,15 @@ export function MissionEditForm({
                   }}
                   rateDraft={rateDraft}
                 />
+
+                {isForfait && !isInternal && (
+                  <MissionTargetRateField
+                    id="mission-edit-target-rate"
+                    labelClassName={EDIT_LABEL_CLASSES}
+                    onDraftChange={setTargetDraft}
+                    targetDraft={targetDraft}
+                  />
+                )}
 
                 {!isForfait && (
                   <Field>

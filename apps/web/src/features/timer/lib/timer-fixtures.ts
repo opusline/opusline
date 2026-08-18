@@ -48,6 +48,7 @@ export const DEMO_MISSIONS = {
     id: 2,
     name: "Vesterhus maintenance",
     rate: { amount: 8_500, currency: "EUR" },
+    targetRate: null,
     slug: "vesterhus-maintenance",
   },
   orvella: {
@@ -59,6 +60,7 @@ export const DEMO_MISSIONS = {
     id: 1,
     name: "Orvella front",
     rate: { amount: 55_000, currency: "EUR" },
+    targetRate: null,
     slug: "orvella-front",
   },
 } satisfies Record<string, MissionData>;

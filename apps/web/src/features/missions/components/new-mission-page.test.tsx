@@ -56,6 +56,7 @@ const CREATED_MISSION = {
   endClientName: "Callisto",
   billingMode: 0,
   rate: { amount: 55_000, currency: "EUR" },
+  targetRate: null,
   rounding: 0,
   status: 0,
   craRequired: true,
@@ -231,6 +232,7 @@ it("creates an internal mission without billing details", async () => {
     expect(creation?.body).toMatchObject({
       billingMode: 0,
       rate: null,
+      targetRate: null,
       rounding: 0,
       craRequired: null,
     });
@@ -269,6 +271,7 @@ it("creates the mission and lands on its own page", async () => {
     name: "Callisto front",
     billingMode: 0,
     rate: { amount: 55_000, currency: "EUR" },
+    targetRate: null,
     rounding: 0,
     craRequired: true,
     endClientName: "Callisto",

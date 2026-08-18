@@ -22,6 +22,7 @@ function mission(overrides: Partial<MissionData> = {}): MissionData {
     endClientName: null,
     billingMode: 0,
     rate: { amount: 55_000, currency: "EUR" },
+    targetRate: null,
     rounding: 0,
     status: 0,
     craRequired: false,

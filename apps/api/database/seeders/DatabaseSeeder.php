@@ -90,6 +90,36 @@ class DatabaseSeeder extends Seeder
             'created_at' => now()->subDays(2),
         ]);
 
+        $orvella = Client::factory()->for($user)->create([
+            'name' => 'Orvella',
+            'color' => Color::Indigo,
+            'billing_contact_name' => 'Salomé Vidal',
+            'billing_email' => 'compta@orvella.example',
+            'created_at' => now()->subMonths(6),
+        ]);
+
+        // Two forfaits, because the screens need both halves of the story: one
+        // mid-flight with a deposit behind it and instalments still to bill, one
+        // finished and billed to the last cent.
+        // The target is what turns 21 days of work into a verdict: 8 000 € at a
+        // 550 €/j target buys ~14,5 days, so this forfait is knowingly over budget.
+        $orvellaRefonte = Mission::factory()->for($orvella, 'client')->fixed()->create([
+            'user_id' => $user->id,
+            'name' => 'Orvella refonte',
+            'rate_cents' => 800_000,
+            'target_rate_cents' => 55_000,
+            'start_date' => CarbonImmutable::today()->subMonths(3)->toDateString(),
+        ]);
+
+        $orvellaIdentite = Mission::factory()->for($orvella, 'client')->fixed()->done()->create([
+            'user_id' => $user->id,
+            'name' => 'Orvella identité',
+            'rate_cents' => 240_000,
+            'target_rate_cents' => 55_000,
+            'start_date' => CarbonImmutable::today()->subMonths(6)->toDateString(),
+            'end_date' => CarbonImmutable::today()->subMonths(4)->toDateString(),
+        ]);
+
         $perso = Client::factory()->for($user)->internal()->create([
             'name' => 'Perso',
             'color' => Color::Stone,
@@ -112,6 +142,12 @@ class DatabaseSeeder extends Seeder
         );
         $this->seedPreviousMonthCra($user, $callistoFront);
         $this->seedInvoiceHistory($user, $nordlys, $callistoFront, $lunaprint, $lunaprintMaintenance);
+        $this->seedForfaits($user, $orvella, $orvellaRefonte, $orvellaIdentite);
+
+        // Numbering is an account-wide concern and runs last on purpose: it reads
+        // every issued invoice in date order, so any written after it would keep
+        // the blank reference that marks a draft.
+        $this->numberIssuedInvoices($user);
 
         RunningTimer::factory()
             ->for($lunaprintMaintenance, 'mission')
@@ -327,8 +363,139 @@ class DatabaseSeeder extends Seeder
             'kind' => InvoiceEventKind::Created,
             'occurred_on' => CarbonImmutable::today(),
         ]);
+    }
 
-        $this->numberIssuedInvoices($user);
+    /**
+     * The two fixed-price missions, with the time tracked on them and the
+     * instalments already billed.
+     *
+     * The point of the demo is that these two never meet: the time says what the
+     * forfait cost to deliver, the invoices say what it earned, and no figure on
+     * any screen multiplies one by the other. Orvella refonte is deliberately
+     * over its worth — 21 days on an 8 000 € deal is a 380 €/j margin, which is
+     * exactly the thing tracking time on a forfait is meant to reveal.
+     */
+    private function seedForfaits(
+        User $user,
+        Client $orvella,
+        Mission $refonte,
+        Mission $identite,
+    ): void {
+        $today = CarbonImmutable::today();
+
+        $this->seedForfaitTimeEntries($user, $refonte, $today->subMonths(3), 21, [
+            'Cadrage et ateliers',
+            'Maquettes intégrées',
+            'Tunnel de commande',
+            'Recette staging',
+        ]);
+
+        $this->seedForfaitTimeEntries($user, $identite, $today->subMonths(6), 6, [
+            'Recherche typographique',
+            'Déclinaisons logo',
+        ]);
+
+        // 30 % at kickoff, then 40 % once staging was up: the remaining 30 % is
+        // what the mission's bar reports as still to bill. Neither invoice covers
+        // any tracked time — a forfait bills a price, so timeEntryIds stays empty
+        // and the entries never leave the mission's own history.
+        $kickoff = $this->issuedInvoice(
+            $user,
+            $orvella,
+            $refonte,
+            issuedOn: $today->subMonths(3)->addDays(3),
+            amountHtCents: 240_000,
+            paidOn: $today->subMonths(2)->addDays(9),
+        );
+
+        $staging = $this->issuedInvoice(
+            $user,
+            $orvella,
+            $refonte,
+            issuedOn: $today->subDays(12),
+            amountHtCents: 320_000,
+            paidOn: null,
+        );
+
+        // The schedule the two invoices came from, with the last step overdue so
+        // "À traiter" has one of each kind to show.
+        $this->billingStep($user, $refonte, 0, 'Lancement', 240_000, invoice: $kickoff);
+        $this->billingStep($user, $refonte, 1, 'Mise en recette', 320_000, invoice: $staging);
+        $this->billingStep(
+            $user,
+            $refonte,
+            2,
+            'Mise en production',
+            240_000,
+            dueOn: $today->subDays(4),
+        );
+
+        // Billed in one go, the way most forfaits actually are.
+        $this->issuedInvoice(
+            $user,
+            $orvella,
+            $identite,
+            issuedOn: $today->subMonths(4),
+            amountHtCents: 240_000,
+            paidOn: $today->subMonths(4)->addDays(21),
+        );
+    }
+
+    /**
+     * One instalment of a forfait. A step already billed points at its invoice;
+     * one still to bill carries the date it was expected on.
+     */
+    private function billingStep(
+        User $user,
+        Mission $mission,
+        int $position,
+        string $label,
+        int $amountCents,
+        ?Invoice $invoice = null,
+        ?CarbonImmutable $dueOn = null,
+    ): void {
+        $user->billingSteps()->create([
+            'mission_id' => $mission->id,
+            'label' => $label,
+            // Currency before the *_cents key, as everywhere MoneyIntegerCast reads it.
+            'currency' => 'EUR',
+            'amount_cents' => $amountCents,
+            'position' => $position,
+            'due_on' => $dueOn,
+            'invoice_id' => $invoice?->id,
+        ]);
+    }
+
+    /**
+     * Working days walked back from a start date, so a forfait carries a history
+     * worth reading rather than a single lump.
+     *
+     * @param  non-empty-list<string>  $notes
+     */
+    private function seedForfaitTimeEntries(
+        User $user,
+        Mission $mission,
+        CarbonImmutable $startedOn,
+        int $days,
+        array $notes,
+    ): void {
+        $written = 0;
+        $cursor = $startedOn;
+
+        while ($written < $days) {
+            if (! $cursor->isWeekend()) {
+                TimeEntry::factory()->for($mission, 'mission')->create([
+                    'user_id' => $user->id,
+                    'date' => $cursor->toDateString(),
+                    'duration_minutes' => $written % 4 === 3 ? 210 : 420,
+                    'note' => $notes[$written % count($notes)],
+                ]);
+
+                $written++;
+            }
+
+            $cursor = $cursor->addDay();
+        }
     }
 
     /**

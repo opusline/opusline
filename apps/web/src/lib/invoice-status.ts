@@ -16,13 +16,18 @@ export function invoiceStatusLabel(status: InvoiceStatus): string {
   return INVOICE_STATUS_MESSAGES[status]();
 }
 
+/** A note to self, not a document — which is why no money figure counts it. */
+export function isDraftInvoice(status: InvoiceStatus): boolean {
+  return status === 0;
+}
+
 type BadgeTone = "brand" | "neutral" | "success" | "warn";
 
 /**
  * Tones follow the design's badge spec: brand is reserved for "active, unpaid",
  * success for money that has landed, neutral for a draft that is not a document yet.
  */
-const STATUS_TONES: Record<InvoiceStatus, BadgeTone> = {
+export const STATUS_TONES: Record<InvoiceStatus, BadgeTone> = {
   0: "neutral",
   1: "brand",
   2: "success",

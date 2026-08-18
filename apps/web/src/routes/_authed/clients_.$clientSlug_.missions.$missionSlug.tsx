@@ -187,6 +187,7 @@ function MissionDetailRoute() {
           billingMode: mission.billingMode,
           status,
           rate: mission.rate,
+          targetRate: mission.targetRate,
           rounding: mission.rounding,
           craRequired: mission.craRequired,
           endClientName: mission.endClientName,
@@ -407,6 +408,7 @@ function MissionDetailRoute() {
         isEntriesPending={entriesQuery.isPending}
         revenue={revenueQuery.data}
         revenueFailed={revenueQuery.isError}
+        workdayMinutes={user.workdayMinutes}
       />
 
       <CreateInvoiceDialog

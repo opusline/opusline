@@ -26,12 +26,17 @@ class CreateMission
                 AccountCurrency::assertMatchesAccountUnderLock($user->id, $data->rate);
             }
 
+            if ($data->targetRate instanceof MoneyData) {
+                AccountCurrency::assertMatchesAccountUnderLock($user->id, $data->targetRate);
+            }
+
             return $user->missions()->create([
                 'client_id' => $client->id,
                 'name' => $data->name,
                 'end_client_name' => $data->endClientName,
                 'billing_mode' => $data->billingMode,
                 'rate_cents' => $data->rate?->toMoney(),
+                'target_rate_cents' => $data->targetRate?->toMoney(),
                 'rounding' => $data->billingMode->resolveRounding($data->rounding),
                 'status' => MissionStatus::Active,
                 'cra_required' => $data->billingMode->resolveCraRequired(

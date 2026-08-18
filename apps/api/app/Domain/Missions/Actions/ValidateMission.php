@@ -46,6 +46,15 @@ class ValidateMission
             ]);
         }
 
+        // Unlike the billing mode, this one stays editable once time exists: it is
+        // a yardstick, not a term of the contract, and re-reading a mission against
+        // a corrected yardstick is the whole point of having one.
+        if ($data->billingMode !== BillingMode::Fixed && $data->targetRate instanceof MoneyData) {
+            throw ValidationException::withMessages([
+                'targetRate' => __('missions.target_rate_forfait_only'),
+            ]);
+        }
+
         if ($data->craRequired === true && ! $data->billingMode->usesDayFraction()) {
             throw ValidationException::withMessages([
                 'craRequired' => __('missions.cra_forbidden_for_hourly'),

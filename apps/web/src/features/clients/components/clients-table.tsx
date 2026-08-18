@@ -24,6 +24,7 @@ import {
   formatRevenue,
   indexClientRevenue,
   indexMissionRevenue,
+  isOverBudget,
   revenueYearLabel,
 } from "@/lib/client-revenue";
 import { clientTypeLabel } from "@/lib/client-types";
@@ -244,6 +245,11 @@ export function ClientsTable({ clients, revenue }: ClientsTableProps) {
                           >
                             {mission.name}
                           </Link>
+                          {isOverBudget(missionRevenue) && (
+                            <Badge variant="warn">
+                              {m.clients_mission_over_budget()}
+                            </Badge>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell className="py-2.5 text-muted-foreground-2 text-xs">

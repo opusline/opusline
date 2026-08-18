@@ -12,6 +12,7 @@ const forfaitMission = {
   name: "Orvella front",
   billingMode: 2,
   rate: { amount: 800_000, currency: "EUR" },
+  targetRate: null,
   rounding: null,
 } satisfies MissionData;
 

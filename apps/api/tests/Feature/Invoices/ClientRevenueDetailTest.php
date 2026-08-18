@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Models\Mission;
+use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Users\Models\User;
 
 beforeEach(fn () => freezeTodayAtUtcNoon());
@@ -147,4 +148,101 @@ test('404s on a mission that belongs to another client of the same account', fun
     $this->actingAs($user)
         ->getJson("/api/clients/{$nordlys->slug}/missions/{$mission->slug}/revenue")
         ->assertNotFound();
+});
+
+test('reports no budget block on a mission billed by the day', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user);
+
+    $this->actingAs($user)
+        ->getJson("/api/clients/{$mission->client->slug}/missions/{$mission->slug}/revenue")
+        ->assertOk()
+        ->assertJsonPath('forfait', null);
+});
+
+test('reports no budget block on a fixed-price mission that carries no price', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user, fn ($factory) => $factory->fixed()->state(['rate_cents' => null]));
+
+    $this->actingAs($user)
+        ->getJson("/api/clients/{$mission->client->slug}/missions/{$mission->slug}/revenue")
+        ->assertOk()
+        ->assertJsonPath('forfait', null);
+});
+
+test('reads a fixed price as an effort budget at its target day rate', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user, fn ($factory) => $factory->fixed()->state([
+        'rate_cents' => 800_000,
+        'target_rate_cents' => 55_000,
+    ]));
+
+    // 8 000 € at 550 €/j buys 14,54 days; a 7 h workday makes that 6109 minutes.
+    TimeEntry::factory()->for($mission, 'mission')->count(10)->create([
+        'user_id' => $user->id,
+        'duration_minutes' => 420,
+    ]);
+    invoiceForMission($user, $mission, fn ($factory) => $factory->sent()->state([
+        'amount_ht_cents' => 560_000,
+    ]));
+
+    $forfait = $this->actingAs($user)
+        ->getJson("/api/clients/{$mission->client->slug}/missions/{$mission->slug}/revenue")
+        ->assertOk()
+        ->json('forfait');
+
+    expect($forfait['budgetMinutes'])->toBe(6109)
+        ->and($forfait['trackedMinutes'])->toBe(4200)
+        ->and($forfait['consumedShareBp'])->toBe(6875)
+        // 5 600 € over 10 days worked: 560 €/j, above the 550 €/j target.
+        ->and($forfait['effectiveRate']['amount'])->toBe(56_000);
+});
+
+test('reports no budget on a fixed price with no target rate to measure it against', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user, fn ($factory) => $factory->fixed()->state(['rate_cents' => 800_000]));
+    TimeEntry::factory()->for($mission, 'mission')->create(['user_id' => $user->id]);
+
+    $forfait = $this->actingAs($user)
+        ->getJson("/api/clients/{$mission->client->slug}/missions/{$mission->slug}/revenue")
+        ->assertOk()
+        ->json('forfait');
+
+    // Null rather than zero: without a target there is no budget, and a zero
+    // would read as "all of it, already spent".
+    expect($forfait['budgetMinutes'])->toBeNull()
+        ->and($forfait['consumedShareBp'])->toBeNull();
+});
+
+test('counts non-billable time against a fixed price budget', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user, fn ($factory) => $factory->fixed()->state([
+        'rate_cents' => 800_000,
+        'target_rate_cents' => 55_000,
+    ]));
+    TimeEntry::factory()->for($mission, 'mission')->create([
+        'user_id' => $user->id,
+        'duration_minutes' => 420,
+        'billable' => false,
+    ]);
+
+    // On a forfait nothing is separately billable, so effort you chose not to
+    // bill still came out of the same budget.
+    $this->actingAs($user)
+        ->getJson("/api/clients/{$mission->client->slug}/missions/{$mission->slug}/revenue")
+        ->assertOk()
+        ->assertJsonPath('forfait.trackedMinutes', 420);
+});
+
+test('reports no effective rate until a fixed price has time behind it', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user, fn ($factory) => $factory->fixed()->state([
+        'rate_cents' => 800_000,
+        'target_rate_cents' => 55_000,
+    ]));
+
+    $this->actingAs($user)
+        ->getJson("/api/clients/{$mission->client->slug}/missions/{$mission->slug}/revenue")
+        ->assertOk()
+        ->assertJsonPath('forfait.effectiveRate', null);
 });

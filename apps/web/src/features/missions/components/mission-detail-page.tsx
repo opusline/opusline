@@ -46,6 +46,7 @@ import { m } from "@/paraglide/messages.js";
 
 import { billingModeUnitShort } from "../lib/labels";
 import { ForfaitProgress } from "./forfait-progress";
+import { MissionBudget } from "./mission-budget";
 import { MissionEditForm } from "./mission-edit-form";
 import { MissionEntriesTable } from "./mission-entries-table";
 
@@ -78,6 +79,8 @@ type MissionDetailPageProps = {
   revenueFailed?: boolean;
   /** Null for a mission not sold at a fixed price. */
   billingProgress?: MissionBillingProgressData | null;
+  /** The account's workday, which turns tracked minutes into days. */
+  workdayMinutes: number;
   entries?: TimeEntryData[];
   isEntriesPending?: boolean;
   isEntriesError?: boolean;
@@ -97,6 +100,7 @@ export function MissionDetailPage({
   revenue,
   revenueFailed,
   billingProgress = null,
+  workdayMinutes,
   entries = [],
   isEntriesPending,
   isEntriesError,
@@ -285,8 +289,20 @@ export function MissionDetailPage({
       </StatTileRow>
 
       {billingProgress !== null && (
-        <div className="mb-5">
+        <div className="mb-5 grid gap-4 md:grid-cols-2">
+          {/*
+            What the forfait has billed, beside what it has cost to deliver. The
+            two never meet: one is read from invoices, the other from tracked
+            time, and no figure on this page multiplies one by the other.
+          */}
           <ForfaitProgress progress={billingProgress} />
+          {revenue?.forfait != null && (
+            <MissionBudget
+              forfait={revenue.forfait}
+              targetRateCents={mission.targetRate?.amount ?? null}
+              workdayMinutes={workdayMinutes}
+            />
+          )}
         </div>
       )}
 

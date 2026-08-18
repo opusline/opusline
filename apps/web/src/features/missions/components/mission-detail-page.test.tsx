@@ -21,6 +21,7 @@ function missionPayload(overrides: Partial<MissionData> = {}): MissionData {
     endClientName: "Callisto",
     billingMode: 0,
     rate: { amount: 55_000, currency: "EUR" },
+    targetRate: null,
     rounding: 0,
     status: 0,
     craRequired: true,

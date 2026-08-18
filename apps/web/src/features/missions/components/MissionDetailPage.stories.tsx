@@ -17,6 +17,7 @@ const mission: MissionData = {
   endClientName: "Callisto",
   billingMode: 0,
   rate: { amount: 55_000, currency: "EUR" },
+  targetRate: null,
   rounding: 0,
   status: 0,
   craRequired: true,
@@ -112,6 +113,7 @@ const revenue: MissionRevenueData = {
   monthlyAverage: { amount: 447_000, currency: "EUR" },
   currentMonthDays: 12.5,
   currentMonthMinutes: null,
+  forfait: null,
 };
 
 export const Default: Story = {

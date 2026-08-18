@@ -308,6 +308,10 @@ export const zCreateMissionData = z.object({
         amount: z.int().check(z.gte(1)),
         currency: zCurrency
     })),
+    targetRate: z.nullish(z.object({
+        amount: z.int().check(z.gte(1)),
+        currency: zCurrency
+    })),
     endClientName: z.nullish(z.string().check(z.minLength(1), z.maxLength(255))),
     rounding: z.nullish(zEntryRounding),
     craRequired: z.nullish(z.boolean()),
@@ -665,6 +669,7 @@ export const zMissionData = z.object({
     endClientName: z.nullable(z.string()),
     billingMode: zBillingMode,
     rate: z.nullable(zMoneyData),
+    targetRate: z.nullable(zMoneyData),
     rounding: z.nullable(zEntryRounding),
     status: zMissionStatus,
     craRequired: z.boolean(),
@@ -745,6 +750,16 @@ export const zInvoiceListData = z.object({
 });
 
 /**
+ * MissionForfaitData
+ */
+export const zMissionForfaitData = z.object({
+    budgetMinutes: z.nullable(z.int()),
+    trackedMinutes: z.int(),
+    consumedShareBp: z.nullable(z.int()),
+    effectiveRate: z.nullable(zMoneyData)
+});
+
+/**
  * MissionRevenueData
  */
 export const zMissionRevenueData = z.object({
@@ -754,7 +769,8 @@ export const zMissionRevenueData = z.object({
     total: zMoneyData,
     monthlyAverage: z.nullable(zMoneyData),
     currentMonthDays: z.nullable(z.number()),
-    currentMonthMinutes: z.nullable(z.int())
+    currentMonthMinutes: z.nullable(z.int()),
+    forfait: z.nullable(zMissionForfaitData)
 });
 
 /**
@@ -1162,6 +1178,10 @@ export const zUpdateMissionData = z.object({
     billingMode: zBillingMode,
     status: zMissionStatus,
     rate: z.nullish(z.object({
+        amount: z.int().check(z.gte(1)),
+        currency: zCurrency
+    })),
+    targetRate: z.nullish(z.object({
         amount: z.int().check(z.gte(1)),
         currency: zCurrency
     })),

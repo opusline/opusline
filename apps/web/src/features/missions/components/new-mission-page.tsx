@@ -44,6 +44,7 @@ import { weekdayShortLabel } from "@/lib/weeks";
 import { m } from "@/paraglide/messages.js";
 import { billingModeLabel } from "../lib/labels";
 import { MissionRateField } from "./mission-rate-field";
+import { MissionTargetRateField } from "./mission-target-rate-field";
 
 const EYEBROW_CLASSES =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
@@ -98,6 +99,7 @@ export function NewMissionPage({
 
   const [billingMode, setBillingMode] = useState<BillingMode>(0);
   const [rateDraft, setRateDraft] = useState("");
+  const [targetDraft, setTargetDraft] = useState("");
   const [isRateMissing, setIsRateMissing] = useState(false);
   const [rounding, setRounding] = useState<EntryRounding>(0);
   const [color, setColor] = useState<Color | null>(null);
@@ -112,6 +114,7 @@ export function NewMissionPage({
   const rateCents = isInternal
     ? null
     : parseRateToCents(format.locale, rateDraft);
+  const targetCents = parseRateToCents(format.locale, targetDraft);
 
   const form = useForm({
     defaultValues: {
@@ -141,6 +144,12 @@ export function NewMissionPage({
                 // see settings-form.ts for the one case needing the snapshot.
                 { amount: rateCents, currency: format.currency },
           rounding: isForfait ? null : rounding,
+          // Only a forfait has a yardstick to be measured against; every other
+          // mode already bills a rate, and the API refuses one there.
+          targetRate:
+            isForfait && targetCents !== null
+              ? { amount: targetCents, currency: format.currency }
+              : null,
           craRequired: isEsn ? craRequired : null,
           endClientName:
             isEsn && value.endClientName.trim() !== ""
@@ -169,6 +178,7 @@ export function NewMissionPage({
     if (client !== undefined && isInternalClient(client.type)) {
       setBillingMode(0);
       setRateDraft("");
+      setTargetDraft("");
       setIsRateMissing(false);
     }
   };
@@ -305,6 +315,7 @@ export function NewMissionPage({
                   if (typeof next === "string") {
                     setBillingMode(Number(next) as BillingMode);
                     setRateDraft("");
+                    setTargetDraft("");
                     setIsRateMissing(false);
                   }
                 }}
@@ -332,6 +343,15 @@ export function NewMissionPage({
                 }}
                 rateDraft={rateDraft}
               />
+              {isForfait && (
+                <MissionTargetRateField
+                  className="min-w-0 sm:col-span-2"
+                  id="mission-target-rate"
+                  labelClassName="text-foreground-3"
+                  onDraftChange={setTargetDraft}
+                  targetDraft={targetDraft}
+                />
+              )}
               {!isForfait && (
                 <Field className="min-w-0">
                   <div className="flex items-center gap-1.5">

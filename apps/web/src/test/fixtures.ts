@@ -7,6 +7,7 @@ import type {
   InvoiceSummaryData,
   InvoiceTodoData,
   MissionData,
+  MissionForfaitData,
   MissionRevenueData,
   MoneyData,
 } from "@opusline/api-client";
@@ -36,6 +37,7 @@ function missionRevenue(): MissionRevenueData {
     monthlyAverage: eur(447_000),
     currentMonthDays: 12.5,
     currentMonthMinutes: null,
+    forfait: null,
   };
 }
 
@@ -89,6 +91,7 @@ export const MISSION_FIXTURE = {
   endClientName: null,
   billingMode: 0,
   rate: eur(55_000),
+  targetRate: null,
   rounding: 0,
   status: 0,
   craRequired: false,
@@ -184,6 +187,23 @@ export function invoiceSummary(
     counts: { all: 9, draft: 1, sent: 5, late: 3, paid: 3 },
     todo: [OVERDUE_TODO, UNBILLED_TODO],
     todoTotal: 2,
+    ...overrides,
+  };
+}
+
+/**
+ * What a fixed price has cost to deliver: 7 days spent of the ~14,5 an 8 000 €
+ * forfait buys at a 550 €/j target, earning 800 €/j so far. Callers override the
+ * one figure they are about rather than restating all four.
+ */
+export function forfait(
+  overrides: Partial<MissionForfaitData> = {},
+): MissionForfaitData {
+  return {
+    budgetMinutes: 6109,
+    trackedMinutes: 2940,
+    consumedShareBp: 4812,
+    effectiveRate: eur(80_000),
     ...overrides,
   };
 }

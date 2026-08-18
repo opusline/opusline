@@ -1,0 +1,4 @@
+{
+  "kind": "new",
+  "text": "Set a target day rate on a fixed-price mission and it reads the forfait as a number of days: the mission page shows the effort spent against it and your real rate per day, and the clients list flags any forfait that has gone over."
+}

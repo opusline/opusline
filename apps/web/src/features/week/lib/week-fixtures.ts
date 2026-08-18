@@ -34,6 +34,7 @@ const baseMission = {
   rounding: 0,
   startDate: null,
   status: 0,
+  targetRate: null,
 } satisfies Partial<MissionData>;
 
 const baseClient = {

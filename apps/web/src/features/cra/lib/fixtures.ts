@@ -41,6 +41,7 @@ const mission = {
   endClientName: "Callisto",
   billingMode: 0,
   rate: { amount: 55_000, currency: "EUR" },
+  targetRate: null,
   rounding: 0,
   status: 0,
   craRequired: true,
