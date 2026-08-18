@@ -64,10 +64,6 @@ export const Tones: Story = {
 };
 
 /**
- * A meter turns a figure into a share of its ceiling. It is decorative: the
- * value and the sub line already carry the same reading in words.
- */
-/**
  * Standalone cards instead of the shared-hairline band, for tiles that answer
  * separate questions rather than reading as one run of figures.
  */
@@ -93,6 +89,10 @@ export const Cards: Story = {
   ),
 };
 
+/**
+ * A meter turns a figure into a share of its ceiling. It is decorative: the
+ * value and the sub line already carry the same reading in words.
+ */
 export const WithMeter: Story = {
   render: () => (
     <StatTileRow className="grid-cols-1 md:grid-cols-3">

@@ -25,7 +25,10 @@ import type { NewEntrySubmit } from "@/features/week/components/new-entry-dialog
 import { WeekPage } from "@/features/week/components/week-page";
 import { planWeekRepeat } from "@/features/week/lib/repeat-week";
 import { cellKeyFor, type LiveCell } from "@/features/week/lib/week-grid";
-import { browserTodayCalendarDate } from "@/lib/dates";
+import {
+  accountTodayCalendarDate,
+  browserTodayCalendarDate,
+} from "@/lib/dates";
 import { provisionalBilledLabel } from "@/lib/durations";
 import { findMissionById } from "@/lib/missions";
 import {
@@ -84,11 +87,15 @@ function SemaineRoute() {
     ...listTimeEntriesOptions({ query: isoWeekRange(previousWeek) }),
     placeholderData: keepPreviousData,
   });
-  // "Mois en cours" reads the month the user is in, not the month the browsed
-  // week falls in: it is a standing capacity figure, and an ISO week straddling
-  // two months has no single month to report anyway.
+  // Reads the month the account is in, not the month the browsed week falls in:
+  // it is a standing capacity figure, and an ISO week straddling two months has
+  // no single month to report anyway. On the account clock rather than `today`'s
+  // browser clock because the figure it sits against — jours ouvrés — is a fact
+  // about the business, not about where the user happens to be reading from.
   const monthWorkload = useQuery(
-    summarizeMonthWorkloadOptions({ query: { month: today.slice(0, 7) } }),
+    summarizeMonthWorkloadOptions({
+      query: { month: accountTodayCalendarDate(user.timezone).slice(0, 7) },
+    }),
   );
 
   const createEntry = useMutation(createTimeEntryMutation());
@@ -341,7 +348,9 @@ function SemaineRoute() {
           knownEntryRange={knownRange}
           knownEntries={knownEntries}
           live={live}
-          monthWorkload={monthWorkload.data ?? null}
+          monthWorkload={
+            monthWorkload.data ?? (monthWorkload.isError ? "unavailable" : null)
+          }
           onSubmitNewEntry={handleSubmitNewEntry}
           onUpdate={handleUpdate}
           onWeekChange={(nextWeek) =>

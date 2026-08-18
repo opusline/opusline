@@ -6,17 +6,17 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{ value: NonNullable<unknown> }} Week_Uninvoiced_LegendInputs */
 
 const en_week_uninvoiced_legend = /** @type {(inputs: Week_Uninvoiced_LegendInputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.value} not invoiced this week`)
+	return /** @type {LocalizedString} */ (`${i?.value} to invoice this week`)
 };
 
 const fr_week_uninvoiced_legend = /** @type {(inputs: Week_Uninvoiced_LegendInputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.value} non facturés cette semaine`)
+	return /** @type {LocalizedString} */ (`${i?.value} à facturer cette semaine`)
 };
 
 /**
 * | output |
 * | --- |
-* | "{value} not invoiced this week" |
+* | "{value} to invoice this week" |
 *
 * @param {Week_Uninvoiced_LegendInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

@@ -16,7 +16,7 @@ type Story = StoryObj<typeof WeekSummaryTiles>;
 const AUGUST: MonthWorkloadData = {
   month: "2026-08",
   businessDays: 21,
-  workedDayFractionBp: 185_000,
+  workedDays: 18.5,
 };
 
 export const Default: Story = {
@@ -48,7 +48,7 @@ export const WithExcludedTime: Story = {
 
 export const NothingBillable: Story = {
   args: {
-    monthWorkload: { ...AUGUST, workedDayFractionBp: 0 },
+    monthWorkload: { ...AUGUST, workedDays: 0 },
     summary: {
       amountCents: 0,
       valuedEntryCount: 0,
@@ -76,7 +76,7 @@ export const WithoutMonth: Story = {
 /** A month worked past its business days still stops the bar at full. */
 export const MonthOverrun: Story = {
   args: {
-    monthWorkload: { ...AUGUST, workedDayFractionBp: 230_000 },
+    monthWorkload: { ...AUGUST, workedDays: 23 },
     summary: {
       amountCents: 412_500,
       valuedEntryCount: 8,

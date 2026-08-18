@@ -31,3 +31,11 @@ export const PILL_SKINS: Record<
     note: "text-primary-note",
   },
 };
+
+/**
+ * The mark on a cell holding time no invoice covers yet. Not a PillSkin: it sits
+ * on top of whichever skin the pill already wears rather than replacing it, so it
+ * carries only the ring itself — callers add their own placement.
+ */
+export const UNINVOICED_RING =
+  "size-2 rounded-full border-2 border-primary-note";

@@ -97,7 +97,7 @@ function StatTile({
         {action}
       </div>
       <div className={cn(statTileValueVariants({ tone, size }))}>{value}</div>
-      {meter === undefined ? null : (
+      {meter === undefined || !Number.isFinite(meter) ? null : (
         <div
           aria-hidden
           className="mt-2.5 h-1.5 overflow-hidden rounded-sm bg-secondary-2"

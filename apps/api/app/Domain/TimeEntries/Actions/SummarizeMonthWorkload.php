@@ -5,65 +5,47 @@ declare(strict_types=1);
 namespace App\Domain\TimeEntries\Actions;
 
 use App\Domain\Cra\Calendar\Holidays;
-use App\Domain\Cra\Models\CraDay;
 use App\Domain\TimeEntries\Data\MonthWorkloadData;
 use App\Domain\TimeEntries\Data\MonthWorkloadQueryData;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Collection as SupportCollection;
 
 class SummarizeMonthWorkload
 {
     public function handle(User $user, MonthWorkloadQueryData $data): MonthWorkloadData
     {
         $settings = $user->settingsOrFail();
-        $start = CarbonImmutable::parse($data->month.'-01')->startOfMonth();
+        $start = CarbonImmutable::parse($data->month.'-01');
         $end = $start->endOfMonth();
 
         return new MonthWorkloadData(
             month: $data->month,
-            businessDays: $this->businessDays($settings->business_country, $start, $end),
-            workedDayFractionBp: $this->workedDayFractionBp($user, $settings->workday_minutes, $start, $end),
+            businessDays: Holidays::businessDaysBetween($settings->business_country, $start, $end),
+            workedDays: $this->workedDays($user, $settings->workday_minutes, $start, $end),
         );
     }
 
-    private function businessDays(string $businessCountry, CarbonImmutable $start, CarbonImmutable $end): int
+    private function workedDays(User $user, int $workdayMinutes, CarbonImmutable $start, CarbonImmutable $end): float
     {
-        $holidays = Holidays::for($businessCountry)->between($start, $end);
-        $businessDays = 0;
-
-        for ($date = $start; $date->lessThanOrEqualTo($end); $date = $date->addDay()) {
-            if (! $date->isWeekend() && ! isset($holidays[$date->toDateString()])) {
-                $businessDays++;
-            }
-        }
-
-        return $businessDays;
-    }
-
-    private function workedDayFractionBp(User $user, int $workdayMinutes, CarbonImmutable $start, CarbonImmutable $end): int
-    {
-        $minutesByDate = [];
-
-        $entries = $user->timeEntries()
+        // Aggregated in SQL rather than hydrated: this runs on every week-view mount
+        // and again after every time-entry write, and only the per-day total matters.
+        /** @var SupportCollection<int, object{date: string, minutes: int|numeric-string}> $rows */
+        $rows = $user->timeEntries()
             ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
-            ->get(['date', 'duration_minutes']);
+            ->toBase()
+            ->selectRaw('date, SUM(duration_minutes) as minutes')
+            ->groupBy('date')
+            ->get();
 
-        foreach ($entries as $entry) {
-            $key = $entry->date->toDateString();
-            $minutesByDate[$key] = ($minutesByDate[$key] ?? 0) + $entry->duration_minutes;
+        $days = 0.0;
+
+        foreach ($rows as $row) {
+            // Capped per day: the tile measures how much of the month is behind you,
+            // and a long day cannot buy back a day the calendar never had.
+            $days += min((int) $row->minutes / $workdayMinutes, 1.0);
         }
 
-        $total = 0;
-
-        foreach ($minutesByDate as $minutes) {
-            // Capped per day: the tile measures how much of the month is behind
-            // you, and a long day cannot buy back a day the calendar never had.
-            $total += min(
-                (int) round($minutes * CraDay::FULL_DAY_BP / $workdayMinutes),
-                CraDay::FULL_DAY_BP,
-            );
-        }
-
-        return $total;
+        return round($days, 4);
     }
 }

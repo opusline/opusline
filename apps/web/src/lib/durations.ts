@@ -35,6 +35,14 @@ export function isHourly(billingMode: BillingMode): boolean {
   return billingMode === 1;
 }
 
+/**
+ * A forfait mission bills its price, not its hours. Its tracked time is real
+ * work, but no quantity of it ever lands on an invoice line.
+ */
+export function isFixedPrice(billingMode: BillingMode): boolean {
+  return billingMode === 2;
+}
+
 function toNumber(raw: string): number | null {
   const parsed = Number(raw.replace(",", "."));
 

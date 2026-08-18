@@ -48,7 +48,7 @@ test('reports tracked time as day fractions of the account workday', function ()
     $this->actingAs($user)
         ->getJson('/api/time-entries/month-workload?month=2026-08')
         ->assertOk()
-        ->assertJsonPath('workedDayFractionBp', 5_000);
+        ->assertJsonPath('workedDays', 0.5);
 });
 
 test('adds up the entries sharing a day', function (): void {
@@ -65,7 +65,7 @@ test('adds up the entries sharing a day', function (): void {
     $this->actingAs($user)
         ->getJson('/api/time-entries/month-workload?month=2026-08')
         ->assertOk()
-        ->assertJsonPath('workedDayFractionBp', 5_000);
+        ->assertJsonPath('workedDays', 0.5);
 });
 
 test('caps a long day at one day, so overtime cannot pass the month', function (): void {
@@ -80,7 +80,7 @@ test('caps a long day at one day, so overtime cannot pass the month', function (
     $this->actingAs($user)
         ->getJson('/api/time-entries/month-workload?month=2026-08')
         ->assertOk()
-        ->assertJsonPath('workedDayFractionBp', 10_000);
+        ->assertJsonPath('workedDays', 1);
 });
 
 test('counts non-billable time: the day was worked either way', function (): void {
@@ -96,7 +96,7 @@ test('counts non-billable time: the day was worked either way', function (): voi
     $this->actingAs($user)
         ->getJson('/api/time-entries/month-workload?month=2026-08')
         ->assertOk()
-        ->assertJsonPath('workedDayFractionBp', 10_000);
+        ->assertJsonPath('workedDays', 1);
 });
 
 test('ignores the days sitting outside the month', function (): void {
@@ -113,7 +113,7 @@ test('ignores the days sitting outside the month', function (): void {
     $this->actingAs($user)
         ->getJson('/api/time-entries/month-workload?month=2026-08')
         ->assertOk()
-        ->assertJsonPath('workedDayFractionBp', 0);
+        ->assertJsonPath('workedDays', 0);
 });
 
 test('excludes the time tracked by another user', function (): void {
@@ -127,7 +127,7 @@ test('excludes the time tracked by another user', function (): void {
     $this->actingAs($user)
         ->getJson('/api/time-entries/month-workload?month=2026-08')
         ->assertOk()
-        ->assertJsonPath('workedDayFractionBp', 0);
+        ->assertJsonPath('workedDays', 0);
 });
 
 test('rejects a month it cannot read', function (string $month): void {
@@ -137,7 +137,7 @@ test('rejects a month it cannot read', function (string $month): void {
         ->getJson("/api/time-entries/month-workload?month={$month}")
         ->assertStatus(422)
         ->assertJsonValidationErrors('month');
-})->with(['2026', '2026-13', '2026-00', '2026-8', 'aout', '2026-08-01']);
+})->with(['2026', '2026-13', '2026-00', '2026-8', 'aout', '2026-08-01', '0001-01', '9999-12']);
 
 test('requires the month', function (): void {
     $user = User::factory()->create();
@@ -151,4 +151,13 @@ test('requires the month', function (): void {
 test('requires authentication', function (): void {
     $this->getJson('/api/time-entries/month-workload?month=2026-08')
         ->assertStatus(401);
+});
+
+test('bounds the year so the holiday cache cannot be grown at will', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->getJson('/api/time-entries/month-workload?month=1899-01')
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('month');
 });

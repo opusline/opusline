@@ -1,6 +1,6 @@
 import { m } from "@/paraglide/messages.js";
 
-import { PILL_SKINS, type PillSkin } from "../lib/pill-skins";
+import { PILL_SKINS, type PillSkin, UNINVOICED_RING } from "../lib/pill-skins";
 
 export const WEEK_SKINS: PillSkin[] = ["billedDay", "hourly", "nonBillable"];
 
@@ -27,10 +27,7 @@ export function WeekLegend({
       ))}
       {uninvoicedTotal !== null && (
         <li className="flex items-center gap-2">
-          <span
-            aria-hidden
-            className="size-2 rounded-full border-2 border-primary-note"
-          />
+          <span aria-hidden className={UNINVOICED_RING} />
           {m.week_uninvoiced_legend({ value: uninvoicedTotal })}
         </li>
       )}

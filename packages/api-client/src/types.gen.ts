@@ -706,7 +706,7 @@ export type MoneyData = {
 export type MonthWorkloadData = {
     month: string;
     businessDays: number;
-    workedDayFractionBp: number;
+    workedDays: number;
 };
 
 /**

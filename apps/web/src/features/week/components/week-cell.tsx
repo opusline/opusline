@@ -7,7 +7,7 @@ import { isHourly } from "@/lib/durations";
 import { m } from "@/paraglide/messages.js";
 
 import { liveCellLabel } from "../lib/labels";
-import { PILL_SKINS, type PillSkin } from "../lib/pill-skins";
+import { PILL_SKINS, type PillSkin, UNINVOICED_RING } from "../lib/pill-skins";
 import type {
   LiveCell,
   WeekCell as WeekCellModel,
@@ -160,7 +160,7 @@ export function WeekCell({
               {cell.hasUninvoicedTime && (
                 <span
                   aria-hidden
-                  className="absolute top-1 right-1 size-2 rounded-full border-2 border-primary-note"
+                  className={cn("absolute top-1 right-1", UNINVOICED_RING)}
                   title={m.week_uninvoiced_marker()}
                 />
               )}

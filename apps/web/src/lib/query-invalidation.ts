@@ -28,6 +28,17 @@ export function operationFilter(...operationIds: string[]): {
 }
 
 /**
+ * The week grid's own date-range list. Time-entry writes move it, and so does
+ * invoicing — linking entries to an invoice flips the "to invoice" ring the grid
+ * draws — so both reach for one name rather than the raw operation id.
+ */
+export function weekTimeEntriesFilter(): {
+  predicate: (query: Query) => boolean;
+} {
+  return operationFilter("listTimeEntries");
+}
+
+/**
  * Four things read a time entry: the week grid's date-range list, the mission
  * page's own history, the revenue figures, and the week view's month workload —
  * the last three all derived from tracked time. Writing one entry invalidates
@@ -39,7 +50,7 @@ export function operationFilter(...operationIds: string[]): {
  */
 export async function invalidateTimeEntries(
   queryClient: QueryClient,
-  weekFilter: QueryFilters = operationFilter("listTimeEntries"),
+  weekFilter: QueryFilters = weekTimeEntriesFilter(),
 ): Promise<void> {
   await Promise.all([
     queryClient.invalidateQueries(weekFilter),

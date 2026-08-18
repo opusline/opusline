@@ -50,8 +50,8 @@ export type WeekPageProps = {
   /** Resolves to whether the entry was saved; a rejected one keeps the dialog
       open with everything the user typed still in it. */
   onSubmitNewEntry: (input: NewEntrySubmit) => Promise<boolean>;
-  /** The civil month today sits in, or null while it loads. */
-  monthWorkload: MonthWorkloadData | null;
+  /** The civil month today sits in: null while it loads, "unavailable" when it failed. */
+  monthWorkload: MonthWorkloadData | "unavailable" | null;
   /** Entries across every loaded week, and the range they cover. */
   knownEntries: TimeEntryData[];
   knownEntryRange: { from: string; to: string };

@@ -74,7 +74,7 @@ function month(overrides: Partial<MonthWorkloadData> = {}): MonthWorkloadData {
   return {
     month: "2026-08",
     businessDays: 21,
-    workedDayFractionBp: 185_000,
+    workedDays: 18.5,
     ...overrides,
   };
 }
@@ -89,7 +89,7 @@ it("reads the month as days worked against its business days", () => {
 it("rounds a month of part-days rather than reading it to the hundredth", () => {
   render(
     <WeekSummaryTiles
-      monthWorkload={month({ workedDayFractionBp: 124_600 })}
+      monthWorkload={month({ workedDays: 12.46 })}
       summary={summary()}
     />,
   );
@@ -100,7 +100,7 @@ it("rounds a month of part-days rather than reading it to the hundredth", () => 
 it("fills the meter with the share of the month already worked", () => {
   const { container } = render(
     <WeekSummaryTiles
-      monthWorkload={month({ businessDays: 20, workedDayFractionBp: 100_000 })}
+      monthWorkload={month({ businessDays: 20, workedDays: 10 })}
       summary={summary()}
     />,
   );
@@ -113,7 +113,7 @@ it("fills the meter with the share of the month already worked", () => {
 it("stops the meter at full when the month ran past its business days", () => {
   const { container } = render(
     <WeekSummaryTiles
-      monthWorkload={month({ businessDays: 20, workedDayFractionBp: 230_000 })}
+      monthWorkload={month({ businessDays: 20, workedDays: 23 })}
       summary={summary()}
     />,
   );

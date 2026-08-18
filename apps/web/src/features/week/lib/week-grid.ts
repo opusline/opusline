@@ -10,11 +10,12 @@ import {
   type MoneyFormat,
   missionBills,
 } from "@/lib/billing";
-import { clientTypeShortLabel } from "@/lib/client-types";
+import { clientTypeShortLabel, isInternalClient } from "@/lib/client-types";
 import {
   formatBilledDays,
   formatBilledHours,
   formatBilledTotal,
+  isFixedPrice,
   isHourly,
 } from "@/lib/durations";
 import { isMissionOpenForTime } from "@/lib/mission-status";
@@ -40,7 +41,6 @@ export type WeekCellEntry = {
   id: number;
   durationMinutes: number;
   billable: boolean;
-  invoiced: boolean;
   note: string | null;
 };
 
@@ -263,6 +263,12 @@ export function buildWeekGrid(input: {
   ).map(({ mission, client }) => {
     const dayBilled = !isHourly(mission.billingMode);
     const hasRate = missionBills(mission);
+    // Who could ever receive a bill for this time. Forfait is out — its invoice
+    // carries a price, never a count of days — and so is an internal client:
+    // there is nobody to invoice. Mirrors what SummarizeInvoices leaves out of
+    // "à facturer" on the API, so the two surfaces cannot promise different work.
+    const billsSomeone =
+      !isFixedPrice(mission.billingMode) && !isInternalClient(client.type);
     const rowTotal = { dayFraction: 0, billedMinutes: 0 };
 
     const cells = columns.map((column, columnIndex): WeekCell => {
@@ -293,11 +299,6 @@ export function buildWeekGrid(input: {
           dayTotals[columnIndex].billedMinutes += entry.valuedMinutes ?? 0;
           weekTotal.dayFraction += entry.valuedDayFraction ?? 0;
           weekTotal.billedMinutes += entry.valuedMinutes ?? 0;
-
-          if (!entry.invoiced) {
-            uninvoicedTotal.dayFraction += entry.valuedDayFraction ?? 0;
-            uninvoicedTotal.billedMinutes += entry.valuedMinutes ?? 0;
-          }
         }
       }
 
@@ -308,11 +309,21 @@ export function buildWeekGrid(input: {
         entries.length === 0,
       );
       const note = entries.length === 1 ? entries[0].note : null;
-      // Deliberately not gated on every entry being billable: a cell mixing
-      // billable and non-billable time still holds time waiting on an invoice,
-      // and hiding the ring there would hide money.
-      const hasUninvoicedTime =
-        hasRate && entries.some((entry) => entry.billable && !entry.invoiced);
+      // The ring and the legend tally both read this one list, so what the grid
+      // marks and what the legend counts cannot drift apart.
+      //
+      // Not gated on the mission having a rate: the hours exist whether or not a
+      // price is set, and time nobody has priced yet is exactly what this feature
+      // exists to stop you forgetting.
+      const uninvoicedEntries = billsSomeone
+        ? entries.filter((entry) => entry.billable && !entry.invoiced)
+        : [];
+      const hasUninvoicedTime = uninvoicedEntries.length > 0;
+
+      for (const entry of uninvoicedEntries) {
+        uninvoicedTotal.dayFraction += entry.valuedDayFraction ?? 0;
+        uninvoicedTotal.billedMinutes += entry.valuedMinutes ?? 0;
+      }
 
       return {
         key:
@@ -329,7 +340,6 @@ export function buildWeekGrid(input: {
         entries: entries.map((entry) => ({
           id: entry.id,
           billable: entry.billable,
-          invoiced: entry.invoiced,
           durationMinutes: entry.durationMinutes,
           note: entry.note,
         })),

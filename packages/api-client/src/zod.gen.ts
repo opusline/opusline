@@ -736,7 +736,7 @@ export const zClientRevenueListData = z.object({
 export const zMonthWorkloadData = z.object({
     month: z.string(),
     businessDays: z.int(),
-    workedDayFractionBp: z.int()
+    workedDays: z.number()
 });
 
 /**
@@ -1715,7 +1715,7 @@ export const zCreateTimeEntryBody = zTimeEntryInputData;
 export const zCreateTimeEntryResponse = zTimeEntryData;
 
 export const zSummarizeMonthWorkloadQuery = z.object({
-    month: z.string().check(z.regex(/^\d{4}-(0[1-9]|1[0-2])$/))
+    month: z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/))
 });
 
 export const zSummarizeMonthWorkloadResponse = zMonthWorkloadData;

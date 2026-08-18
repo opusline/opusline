@@ -1,14 +1,13 @@
-import type { MonthWorkloadData } from "@opusline/api-client";
+import type { Locale, MonthWorkloadData } from "@opusline/api-client";
 import { StatTile, StatTileRow } from "@opusline/ui/components/stat-tile";
 
-import { useLocale, useMoneyFormat } from "@/components/money-format-provider";
+import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatWholeAmount } from "@/lib/billing";
+import { REVENUE_PLACEHOLDER } from "@/lib/client-revenue";
 import { formatWorkedDays } from "@/lib/durations";
 import { m } from "@/paraglide/messages.js";
 
 import type { WeekBillableSummary } from "../lib/week-money";
-
-const FULL_DAY_BP = 10_000;
 
 function detailOf(summary: WeekBillableSummary): string {
   const parts = [
@@ -36,14 +35,50 @@ function detailOf(summary: WeekBillableSummary): string {
   return parts.join(" · ");
 }
 
+function monthTileOf(
+  locale: Locale,
+  monthWorkload: MonthWorkloadData | "unavailable" | null,
+) {
+  if (monthWorkload === null) {
+    return null;
+  }
+
+  if (monthWorkload === "unavailable") {
+    return (
+      <StatTile
+        label={m.week_month_title()}
+        size="lg"
+        sub={m.week_month_unavailable()}
+        tone="quiet"
+        value={REVENUE_PLACEHOLDER}
+      />
+    );
+  }
+
+  return (
+    <StatTile
+      label={m.week_month_title()}
+      meter={
+        monthWorkload.businessDays === 0
+          ? 0
+          : monthWorkload.workedDays / monthWorkload.businessDays
+      }
+      size="lg"
+      sub={m.week_month_business_days({ count: monthWorkload.businessDays })}
+      tone="strong"
+      value={formatWorkedDays(locale, monthWorkload.workedDays)}
+    />
+  );
+}
+
 type WeekSummaryTilesProps = {
   summary: WeekBillableSummary;
   /**
-   * The civil month the week sits in. Null while it loads, or when the account
-   * has no month to report — the row then stands on the billable tile alone
-   * rather than showing a month worth zero days.
+   * The civil month today sits in: null while it loads, "unavailable" when the
+   * request failed. One value rather than a pair, so "loaded and also failed"
+   * cannot be expressed in the first place.
    */
-  monthWorkload: MonthWorkloadData | null;
+  monthWorkload: MonthWorkloadData | "unavailable" | null;
 };
 
 /**
@@ -56,13 +91,13 @@ export function WeekSummaryTiles({
   monthWorkload,
 }: WeekSummaryTilesProps) {
   const format = useMoneyFormat();
-  const locale = useLocale();
   const hasBillableTime = summary.valuedEntryCount > 0;
+  const monthTile = monthTileOf(format.locale, monthWorkload);
 
   return (
     <StatTileRow
       className={
-        monthWorkload === null ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2"
+        monthTile === null ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2"
       }
       variant="cards"
     >
@@ -80,27 +115,7 @@ export function WeekSummaryTiles({
           </span>
         }
       />
-      {monthWorkload !== null && (
-        <StatTile
-          label={m.week_month_title()}
-          meter={
-            monthWorkload.businessDays === 0
-              ? 0
-              : monthWorkload.workedDayFractionBp /
-                FULL_DAY_BP /
-                monthWorkload.businessDays
-          }
-          size="lg"
-          sub={m.week_month_business_days({
-            count: monthWorkload.businessDays,
-          })}
-          tone="strong"
-          value={formatWorkedDays(
-            locale,
-            monthWorkload.workedDayFractionBp / FULL_DAY_BP,
-          )}
-        />
-      )}
+      {monthTile}
     </StatTileRow>
   );
 }

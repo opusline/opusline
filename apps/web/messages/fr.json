@@ -1047,6 +1047,7 @@
     }
   ],
   "week_month_title": "Mois en cours",
+  "week_month_unavailable": "Chargement impossible",
   "week_new_entry": "Nouvelle entrée",
   "week_next": "Semaine suivante",
   "week_no_activity": "Sans activité",
@@ -1092,7 +1093,7 @@
   "week_stop_tracking": "Arrêter et enregistrer le suivi",
   "week_title": "Semaine {number}",
   "week_today": "Aujourd'hui",
-  "week_uninvoiced_legend": "{value} non facturés cette semaine",
+  "week_uninvoiced_legend": "{value} à facturer cette semaine",
   "week_uninvoiced_marker": "Non facturé",
   "week_view_clients": "Voir mes clients",
   "week_week_total_label": "Total de la semaine",

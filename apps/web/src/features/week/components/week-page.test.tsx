@@ -10,6 +10,7 @@ import { expect, it, vi } from "vitest";
 
 import {
   DEMO_CLIENTS,
+  DEMO_MONTH_WORKLOAD,
   DEMO_TIME_ENTRIES,
   DEMO_TODAY,
   DEMO_WEEK,
@@ -255,9 +256,23 @@ it("opens the weekend when the week carries weekend entries", async () => {
 it("tallies the week's time still waiting on an invoice in the legend", async () => {
   await renderPage();
 
-  expect(screen.getByText(/non facturés cette semaine/)).toHaveTextContent(
-    "4,5 j · 3,5 h non facturés cette semaine",
+  expect(screen.getByText(/à facturer cette semaine/)).toHaveTextContent(
+    "4,5 j · 3,5 h à facturer cette semaine",
   );
+});
+
+it("renders the month tile beside the billable one", async () => {
+  await renderPage({ monthWorkload: DEMO_MONTH_WORKLOAD });
+
+  expect(screen.getByText("Mois en cours")).toBeInTheDocument();
+  expect(screen.getByText("sur 22 jours ouvrés")).toBeInTheDocument();
+});
+
+it("says so when the month could not be loaded, rather than hiding the tile", async () => {
+  await renderPage({ monthWorkload: "unavailable" });
+
+  expect(screen.getByText("Mois en cours")).toBeInTheDocument();
+  expect(screen.getByText("Chargement impossible")).toBeInTheDocument();
 });
 
 it("drops the legend tally once every entry is invoiced", async () => {
@@ -268,5 +283,5 @@ it("drops the legend tally once every entry is invoiced", async () => {
     })),
   });
 
-  expect(screen.queryByText(/non facturés cette semaine/)).toBeNull();
+  expect(screen.queryByText(/à facturer cette semaine/)).toBeNull();
 });
