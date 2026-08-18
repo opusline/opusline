@@ -86,5 +86,12 @@ it("explains a rate it cannot read instead of silently doing nothing", () => {
 
   expect(field).toHaveAttribute("aria-invalid", "true");
   expect(screen.getByText("Indiquez un taux entre 0 et 100.")).toBeVisible();
+
+  const submit = screen.getByRole("button", { name: "Créer la facture" });
+
+  expect(submit).toBeDisabled();
+
+  fireEvent.click(submit);
+
   expect(onSubmit).not.toHaveBeenCalled();
 });
