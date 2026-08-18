@@ -22,6 +22,7 @@ class CreateInvoice
         private readonly ComputeInvoiceAmounts $computeInvoiceAmounts,
         private readonly RecordInvoiceEvent $recordInvoiceEvent,
         private readonly LinkInvoiceTimeEntries $linkInvoiceTimeEntries,
+        private readonly LinkInvoiceBillingStep $linkInvoiceBillingStep,
     ) {}
 
     public function handle(User $user, CreateInvoiceData $data): Invoice
@@ -74,6 +75,7 @@ class CreateInvoice
             }
 
             $this->linkInvoiceTimeEntries->handle($invoice, $data->timeEntryIds);
+            $this->linkInvoiceBillingStep->handle($invoice, $data->billingStepId);
             $this->recordHistory($invoice, $status, $issuedOn);
 
             return $invoice;

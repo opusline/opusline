@@ -11,6 +11,7 @@ use App\Domain\Clients\Models\Client;
 use App\Domain\Cra\Models\Cra;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Models\Mission;
+use App\Domain\Missions\Models\MissionBillingStep;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Timers\Models\RunningTimer;
@@ -108,6 +109,12 @@ class User extends Authenticatable implements HasMedia
     public function cras(): HasMany
     {
         return $this->hasMany(Cra::class);
+    }
+
+    /** @return HasMany<MissionBillingStep, $this> */
+    public function billingSteps(): HasMany
+    {
+        return $this->hasMany(MissionBillingStep::class);
     }
 
     /** @return HasOne<RunningTimer, $this> */

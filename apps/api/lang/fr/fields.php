@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 return [
     'acre' => 'ACRE',
+    'amount' => 'montant',
     'amountHt' => 'montant HT',
     'amountTtc' => 'montant TTC',
     'applySignature' => 'application de la signature',
@@ -21,6 +22,7 @@ return [
     'billingEmail' => 'e-mail de facturation',
     'billingMode' => 'mode de facturation',
     'billingPostalCode' => 'code postal de facturation',
+    'billingStepId' => 'échéance',
     'businessCountry' => 'pays d\'exercice',
     'businessStartedOn' => 'date de début d\'activité',
     'category' => 'catégorie',
@@ -50,7 +52,9 @@ return [
     'homeCity' => 'ville du domicile',
     'homePostalCode' => 'code postal du domicile',
     'invoiceNumberFormat' => 'format de numérotation des factures',
+    'isReady' => 'prête à facturer',
     'issuedOn' => 'date d\'émission',
+    'label' => 'libellé',
     'late' => 'en retard',
     'liberatingPayment' => 'versement libératoire',
     'liberatingPaymentRateBp' => 'taux du versement libératoire',
@@ -75,6 +79,7 @@ return [
     'signedOn' => 'date de signature',
     'siret' => 'SIRET',
     'startDate' => 'date de début',
+    'targetRate' => 'TJM cible',
     'theme' => 'thème',
     'timeEntryIds' => 'entrées de temps',
     'timezone' => 'fuseau horaire',

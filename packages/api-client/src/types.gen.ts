@@ -361,6 +361,7 @@ export type CreateInvoiceData = {
     } | null;
     vatRateBp?: number | null;
     notes?: string | null;
+    billingStepId?: number | null;
     timeEntryIds?: Array<number>;
 };
 
@@ -601,15 +602,16 @@ export type InvoiceTodoData = {
     clientName: string;
     overdue?: InvoiceTodoOverdueData | null;
     work?: InvoiceTodoWorkData | null;
+    step?: InvoiceTodoStepData | null;
 };
 
 /**
  * InvoiceTodoKind
  *
- * What the "À traiter" list can put in front of you: money that was billed and has not come in, and money that was worked and has not been billed. Drafts are not here — an unsent draft is a note to self, not a debt. Labels live on the frontend, like every other enum here.
+ * What the "À traiter" list can put in front of you: money that was billed and has not come in, money that was worked and has not been billed, and an instalment of a fixed price the contract says is now due. Drafts are not here — an unsent draft is a note to self, not a debt. The three are different in kind, not degree. Unbilled work is value already earned; a billing step is a term of the contract coming round. They are never summed together, because against the same forfait they would count it twice.  Labels live on the frontend, like every other enum here.
  *
  */
-export type InvoiceTodoKind = 0 | 1;
+export type InvoiceTodoKind = 0 | 1 | 2;
 
 /**
  * InvoiceTodoOverdueData
@@ -619,6 +621,21 @@ export type InvoiceTodoOverdueData = {
     number: string | null;
     dueOn: string;
     daysLate: number;
+};
+
+/**
+ * InvoiceTodoStepData
+ */
+export type InvoiceTodoStepData = {
+    billingStepId: number;
+    label: string;
+    missionId: number;
+    missionName: string;
+    dueOn: string | null;
+    isReady: boolean;
+    daysLate: number;
+    vatRateBp: number;
+    remainingCents: number;
 };
 
 /**
@@ -659,6 +676,13 @@ export type LoginData = {
 };
 
 /**
+ * MarkBillingStepReadyData
+ */
+export type MarkBillingStepReadyData = {
+    isReady: boolean;
+};
+
+/**
  * MissionBillingProgressData
  */
 export type MissionBillingProgressData = {
@@ -669,6 +693,28 @@ export type MissionBillingProgressData = {
     isOverBilled: boolean;
     issuedCount: number;
     draftCount: number;
+};
+
+/**
+ * MissionBillingStepData
+ */
+export type MissionBillingStepData = {
+    id: number;
+    label: string;
+    amount: MoneyData;
+    position: number;
+    dueOn: string | null;
+    isReady: boolean;
+    invoiceId: number | null;
+    invoiceStatus: InvoiceStatus | null;
+};
+
+/**
+ * MissionBillingStepListData
+ */
+export type MissionBillingStepListData = {
+    steps: Array<MissionBillingStepData>;
+    scheduled: MoneyData;
 };
 
 /**
@@ -833,6 +879,18 @@ export type RevenueNetData = {
 export type RevenueVatData = {
     amount: MoneyData;
     rateBp: number | null;
+};
+
+/**
+ * SaveMissionBillingStepData
+ */
+export type SaveMissionBillingStepData = {
+    label: string;
+    amount: {
+        amount: number;
+        currency: Currency;
+    };
+    dueOn?: string | null;
 };
 
 /**
@@ -3370,6 +3428,197 @@ export type ShowMissionBillingResponses = {
 };
 
 export type ShowMissionBillingResponse = ShowMissionBillingResponses[keyof ShowMissionBillingResponses];
+
+export type ListMissionBillingStepsData = {
+    body?: never;
+    path: {
+        /**
+         * The client slug
+         */
+        client: string;
+        /**
+         * The mission slug
+         */
+        mission: string;
+    };
+    query?: never;
+    url: '/clients/{client}/missions/{mission}/billing-steps';
+};
+
+export type ListMissionBillingStepsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListMissionBillingStepsError = ListMissionBillingStepsErrors[keyof ListMissionBillingStepsErrors];
+
+export type ListMissionBillingStepsResponses = {
+    200: MissionBillingStepListData;
+};
+
+export type ListMissionBillingStepsResponse = ListMissionBillingStepsResponses[keyof ListMissionBillingStepsResponses];
+
+export type CreateMissionBillingStepData = {
+    body: SaveMissionBillingStepData;
+    path: {
+        /**
+         * The client slug
+         */
+        client: string;
+        /**
+         * The mission slug
+         */
+        mission: string;
+    };
+    query?: never;
+    url: '/clients/{client}/missions/{mission}/billing-steps';
+};
+
+export type CreateMissionBillingStepErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateMissionBillingStepError = CreateMissionBillingStepErrors[keyof CreateMissionBillingStepErrors];
+
+export type CreateMissionBillingStepResponses = {
+    201: MissionBillingStepListData;
+};
+
+export type CreateMissionBillingStepResponse = CreateMissionBillingStepResponses[keyof CreateMissionBillingStepResponses];
+
+export type MarkMissionBillingStepReadyData = {
+    body: MarkBillingStepReadyData;
+    path: {
+        /**
+         * The client slug
+         */
+        client: string;
+        /**
+         * The mission slug
+         */
+        mission: string;
+        /**
+         * The billing step ID
+         */
+        billingStep: number;
+    };
+    query?: never;
+    url: '/clients/{client}/missions/{mission}/billing-steps/{billingStep}/ready';
+};
+
+export type MarkMissionBillingStepReadyErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type MarkMissionBillingStepReadyError = MarkMissionBillingStepReadyErrors[keyof MarkMissionBillingStepReadyErrors];
+
+export type MarkMissionBillingStepReadyResponses = {
+    200: MissionBillingStepListData;
+};
+
+export type MarkMissionBillingStepReadyResponse = MarkMissionBillingStepReadyResponses[keyof MarkMissionBillingStepReadyResponses];
+
+export type DeleteMissionBillingStepData = {
+    body?: never;
+    path: {
+        /**
+         * The client slug
+         */
+        client: string;
+        /**
+         * The mission slug
+         */
+        mission: string;
+        /**
+         * The billing step ID
+         */
+        billingStep: number;
+    };
+    query?: never;
+    url: '/clients/{client}/missions/{mission}/billing-steps/{billingStep}';
+};
+
+export type DeleteMissionBillingStepErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteMissionBillingStepError = DeleteMissionBillingStepErrors[keyof DeleteMissionBillingStepErrors];
+
+export type DeleteMissionBillingStepResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteMissionBillingStepResponse = DeleteMissionBillingStepResponses[keyof DeleteMissionBillingStepResponses];
 
 export type ListMissionDocumentsData = {
     body?: never;

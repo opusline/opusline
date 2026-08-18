@@ -40,6 +40,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property ?string $end_client_name
  * @property BillingMode $billing_mode
  * @property ?Money $rate_cents
+ * @property ?Money $target_rate_cents
  * @property string $currency
  * @property ?EntryRounding $rounding
  * @property MissionStatus $status
@@ -59,6 +60,7 @@ use Spatie\Sluggable\SlugOptions;
     'end_client_name',
     'billing_mode',
     'rate_cents',
+    'target_rate_cents',
     'currency',
     'rounding',
     'status',
@@ -136,6 +138,7 @@ class Mission extends Model implements HasMedia
             'cra_required' => 'boolean',
             'color' => Color::class,
             'rate_cents' => MoneyIntegerCast::class.':currency',
+            'target_rate_cents' => MoneyIntegerCast::class.':currency',
             'start_date' => 'date',
             'end_date' => 'date',
         ];
@@ -173,6 +176,12 @@ class Mission extends Model implements HasMedia
     public function cras(): HasMany
     {
         return $this->hasMany(Cra::class);
+    }
+
+    /** @return HasMany<MissionBillingStep, $this> */
+    public function billingSteps(): HasMany
+    {
+        return $this->hasMany(MissionBillingStep::class)->orderBy('position');
     }
 
     /** @return HasOne<RunningTimer, $this> */

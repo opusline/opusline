@@ -9,6 +9,7 @@ use App\Domain\Invoices\Actions\ComputeInvoiceAmounts;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Factories\InvoiceFactory;
 use App\Domain\Missions\Models\Mission;
+use App\Domain\Missions\Models\MissionBillingStep;
 use App\Domain\Shared\Casts\CalendarDate;
 use App\Domain\Shared\Concerns\ResolvesAccountSettings;
 use App\Domain\Shared\Routing\OwnedRouteBinding;
@@ -153,6 +154,12 @@ class Invoice extends Model
     public function timeEntries(): HasMany
     {
         return $this->hasMany(TimeEntry::class);
+    }
+
+    /** @return HasMany<MissionBillingStep, $this> */
+    public function billingSteps(): HasMany
+    {
+        return $this->hasMany(MissionBillingStep::class);
     }
 
     public function vatAmount(): Money

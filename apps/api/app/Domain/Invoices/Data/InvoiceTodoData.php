@@ -27,5 +27,6 @@ class InvoiceTodoData extends Data
         public string $clientName,
         public ?InvoiceTodoOverdueData $overdue = null,
         public ?InvoiceTodoWorkData $work = null,
+        public ?InvoiceTodoStepData $step = null,
     ) {}
 }

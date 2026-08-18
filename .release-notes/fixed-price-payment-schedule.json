@@ -1,0 +1,4 @@
+{
+  "kind": "new",
+  "text": "Fixed-price missions can carry a payment schedule: split the forfait into instalments, and each one reaches \"À traiter\" when its date comes or when you mark the work behind it done."
+}

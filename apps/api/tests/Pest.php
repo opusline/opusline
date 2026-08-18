@@ -13,8 +13,10 @@ use App\Domain\Cra\Factories\CraFactory;
 use App\Domain\Cra\Models\Cra;
 use App\Domain\Invoices\Factories\InvoiceFactory;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Missions\Factories\MissionBillingStepFactory;
 use App\Domain\Missions\Factories\MissionFactory;
 use App\Domain\Missions\Models\Mission;
+use App\Domain\Missions\Models\MissionBillingStep;
 use App\Domain\Settings\Enums\DateFormat;
 use App\Domain\Settings\Enums\Locale;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
@@ -215,6 +217,32 @@ function invoiceForMission(User $user, Mission $mission, ?callable $configure = 
 
         return configuredFactory($factory, $configure);
     });
+}
+
+/**
+ * A mission of the given user billed at a fixed price.
+ *
+ * @param  (callable(MissionFactory): MissionFactory)|null  $configure
+ */
+function forfaitMissionOwnedBy(User $user, int $rateCents = 800_000, ?callable $configure = null): Mission
+{
+    return missionOwnedBy($user, function (MissionFactory $factory) use ($rateCents, $configure): MissionFactory {
+        $factory = $factory->fixed()->state(['rate_cents' => $rateCents]);
+
+        return configuredFactory($factory, $configure);
+    });
+}
+
+/**
+ * One instalment on a fixed-price mission of the given user.
+ *
+ * @param  (callable(MissionBillingStepFactory): MissionBillingStepFactory)|null  $configure
+ */
+function billingStepFor(User $user, Mission $mission, ?callable $configure = null): MissionBillingStep
+{
+    $factory = MissionBillingStep::factory()->for($mission, 'mission');
+
+    return configuredFactory($factory, $configure)->create(['user_id' => $user->id]);
 }
 
 /**

@@ -1,6 +1,7 @@
 import type {
   InvoiceTodoData,
   InvoiceTodoOverdueData,
+  InvoiceTodoStepData,
   InvoiceTodoWorkData,
 } from "@opusline/api-client";
 import { Badge } from "@opusline/ui/components/badge";
@@ -15,9 +16,11 @@ import { m } from "@/paraglide/messages.js";
 
 import {
   type InvoicePrefill,
+  prefillFromStep,
   prefillFromUnbilledWork,
 } from "../lib/invoice-prefill";
 import {
+  billingStepDetail,
   overdueDetail,
   unbilledWorkDetail,
   unbilledWorkTitle,
@@ -75,6 +78,13 @@ export function InvoiceTodoPanel({
                 <UnbilledWorkRow
                   todo={item}
                   work={item.work}
+                  onInvoice={onInvoice}
+                />
+              )}
+              {item.step != null && (
+                <BillingStepRow
+                  todo={item}
+                  step={item.step}
                   onInvoice={onInvoice}
                 />
               )}
@@ -184,6 +194,44 @@ function UnbilledWorkRow({
           onClick={() =>
             onInvoice(prefillFromUnbilledWork(format.locale, todo, work))
           }
+        >
+          {m.invoices_create_title()}
+        </Button>
+      }
+    />
+  );
+}
+
+/**
+ * An instalment of a fixed price the contract says is now due. Its amount is what
+ * the schedule planned, not what any tracked time is worth — which is why it never
+ * joins the "à facturer" total beside it.
+ */
+function BillingStepRow({
+  todo,
+  step,
+  onInvoice,
+}: {
+  todo: InvoiceTodoData;
+  step: InvoiceTodoStepData;
+  onInvoice: (prefill: InvoicePrefill) => void;
+}) {
+  const format = useMoneyFormat();
+  const dateFormat = useDateFormat();
+
+  return (
+    <Row
+      badge={<Badge variant="brand">{m.invoices_step_badge()}</Badge>}
+      title={m.invoices_step_title({
+        label: step.label,
+        missionName: step.missionName,
+      })}
+      detail={billingStepDetail(dateFormat, step)}
+      amount={`${formatWholeAmount(format, todo.amount.amount)} HT`}
+      action={
+        <Button
+          size="lg"
+          onClick={() => onInvoice(prefillFromStep(todo, step))}
         >
           {m.invoices_create_title()}
         </Button>

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 return [
     'acre' => 'ACRE',
+    'amount' => 'amount',
     'amountHt' => 'net amount',
     'amountTtc' => 'gross amount',
     'applySignature' => 'apply signature',
@@ -21,6 +22,7 @@ return [
     'billingEmail' => 'billing email',
     'billingMode' => 'billing mode',
     'billingPostalCode' => 'billing postal code',
+    'billingStepId' => 'payment step',
     'businessCountry' => 'business country',
     'businessStartedOn' => 'business start date',
     'category' => 'category',
@@ -50,7 +52,9 @@ return [
     'homeCity' => 'home city',
     'homePostalCode' => 'home postal code',
     'invoiceNumberFormat' => 'invoice number format',
+    'isReady' => 'ready to bill',
     'issuedOn' => 'issue date',
+    'label' => 'label',
     'late' => 'late',
     'liberatingPayment' => 'versement libératoire',
     'liberatingPaymentRateBp' => 'versement libératoire rate',
@@ -75,6 +79,7 @@ return [
     'signedOn' => 'signature date',
     'siret' => 'SIRET',
     'startDate' => 'start date',
+    'targetRate' => 'target day rate',
     'theme' => 'theme',
     'timeEntryIds' => 'time entries',
     'timezone' => 'timezone',

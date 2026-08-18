@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
-import { invoiceSummary, unbilledTodoRow } from "../lib/fixtures";
+import { invoiceSummary, stepTodoRow, unbilledTodoRow } from "../lib/fixtures";
 import { InvoiceTodoPanel } from "./invoice-todo-panel";
 
 const summary = invoiceSummary();
@@ -130,4 +130,37 @@ it("says so when there is nothing to act on", () => {
   renderPanel({ todo: [], todoTotal: 0 });
 
   expect(screen.getByText("Tout est facturé et encaissé.")).toBeInTheDocument();
+});
+
+it("offers an invoice on an instalment the contract says is due", () => {
+  const todo = stepTodoRow();
+  const { onInvoice } = renderPanel({ todo: [todo], todoTotal: 1 });
+
+  fireEvent.click(screen.getByRole("button", { name: "Créer la facture" }));
+
+  // The instalment's amount is what the schedule planned, and billing it must
+  // consume no tracked time.
+  expect(onInvoice).toHaveBeenCalledWith(
+    expect.objectContaining({
+      clientId: 2,
+      billingStepId: 7,
+      amountHtCents: 320_000,
+      timeEntryIds: [],
+    }),
+  );
+});
+
+it("says how late an instalment is, not just that it is due", () => {
+  renderPanel({ todo: [stepTodoRow()], todoTotal: 1 });
+
+  expect(screen.getByText(/il y a 6 j/)).toBeVisible();
+});
+
+it("says an instalment was marked ready when no date drove it", () => {
+  renderPanel({
+    todo: [stepTodoRow({ dueOn: null, isReady: true, daysLate: 0 })],
+    todoTotal: 1,
+  });
+
+  expect(screen.getByText("marquée prête")).toBeVisible();
 });

@@ -12,5 +12,9 @@ return [
     'cannot_delete_with_running_timer' => 'Impossible de supprimer une mission dont le suivi est en cours. Arrêtez-le d\'abord.',
     'cannot_delete_with_cras' => 'Impossible de supprimer une mission qui a des comptes rendus d\'activité. Supprimez-les d\'abord.',
     'cannot_leave_daily_billing_with_cras' => 'Cette mission a des comptes rendus d\'activité : elle ne peut plus passer à une facturation à l\'heure.',
+    'target_rate_forfait_only' => 'Un TJM cible ne s’applique qu’à une mission au forfait.',
+    'schedule_forfait_only' => 'Un échéancier ne s’applique qu’à une mission au forfait.',
+    'billing_step_already_invoiced' => 'Cette échéance a déjà été facturée. Supprimez d’abord la facture.',
+    'billing_step_not_on_mission' => 'Cette échéance n’appartient pas à la mission facturée.',
     'billing_mode_immutable_with_entries' => 'Cette mission a des temps saisis : son mode de facturation ne peut plus changer. Un nouveau contrat est une nouvelle mission.',
 ];

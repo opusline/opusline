@@ -12,5 +12,9 @@ return [
     'cannot_delete_with_running_timer' => 'Cannot delete a mission with a running timer. Stop it first.',
     'cannot_delete_with_cras' => 'Cannot delete a mission that has activity reports. Delete them first.',
     'cannot_leave_daily_billing_with_cras' => 'This mission has activity reports: it can no longer move to hourly billing.',
+    'target_rate_forfait_only' => 'A target day rate only applies to a fixed-price mission.',
+    'schedule_forfait_only' => 'A payment schedule only applies to a fixed-price mission.',
+    'billing_step_already_invoiced' => 'This step has already been invoiced. Delete the invoice first.',
+    'billing_step_not_on_mission' => 'This payment step does not belong to the mission being invoiced.',
     'billing_mode_immutable_with_entries' => 'This mission has tracked time: its billing mode can no longer change. A new contract is a new mission.',
 ];

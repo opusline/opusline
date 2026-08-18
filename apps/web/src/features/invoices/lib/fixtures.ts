@@ -5,6 +5,7 @@ import type {
   InvoiceDetailData,
   InvoiceTodoData,
   InvoiceTodoOverdueData,
+  InvoiceTodoStepData,
   InvoiceTodoWorkData,
   MoneyData,
 } from "@opusline/api-client";
@@ -125,5 +126,29 @@ export function forfaitPrefill(
       vatRateBp: 2000,
     }),
     ...overrides,
+  };
+}
+
+/** A row of "À traiter" carrying an instalment of a forfait that is now due. */
+export function stepTodoRow(
+  overrides: Partial<InvoiceTodoStepData> = {},
+): InvoiceTodoData {
+  return {
+    kind: 2,
+    amount: eur(320_000),
+    clientId: 2,
+    clientName: "Orvella",
+    step: {
+      billingStepId: 7,
+      label: "Mise en production",
+      missionId: 20,
+      missionName: "Orvella front",
+      dueOn: "2026-08-12",
+      isReady: false,
+      daysLate: 6,
+      vatRateBp: 2000,
+      remainingCents: 240_000,
+      ...overrides,
+    },
   };
 }

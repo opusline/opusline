@@ -398,16 +398,21 @@ export const zCreateInvoiceData = z.object({
     })),
     vatRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
     notes: z.nullish(z.string().check(z.maxLength(2000))),
+    billingStepId: z.nullish(z.int()),
     timeEntryIds: z.optional(z.array(z.int()))
 });
 
 /**
  * InvoiceTodoKind
  *
- * What the "À traiter" list can put in front of you: money that was billed and has not come in, and money that was worked and has not been billed. Drafts are not here — an unsent draft is a note to self, not a debt. Labels live on the frontend, like every other enum here.
+ * What the "À traiter" list can put in front of you: money that was billed and has not come in, money that was worked and has not been billed, and an instalment of a fixed price the contract says is now due. Drafts are not here — an unsent draft is a note to self, not a debt. The three are different in kind, not degree. Unbilled work is value already earned; a billing step is a term of the contract coming round. They are never summed together, because against the same forfait they would count it twice.  Labels live on the frontend, like every other enum here.
  *
  */
-export const zInvoiceTodoKind = z.union([z.literal(0), z.literal(1)]);
+export const zInvoiceTodoKind = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
 
 /**
  * InvoiceTodoOverdueData
@@ -417,6 +422,21 @@ export const zInvoiceTodoOverdueData = z.object({
     number: z.nullable(z.string()),
     dueOn: z.iso.date(),
     daysLate: z.int()
+});
+
+/**
+ * InvoiceTodoStepData
+ */
+export const zInvoiceTodoStepData = z.object({
+    billingStepId: z.int(),
+    label: z.string(),
+    missionId: z.int(),
+    missionName: z.string(),
+    dueOn: z.nullable(z.iso.date()),
+    isReady: z.boolean(),
+    daysLate: z.int(),
+    vatRateBp: z.int(),
+    remainingCents: z.int()
 });
 
 /**
@@ -446,6 +466,13 @@ export const zLoginData = z.object({
     email: z.email(),
     password: z.string().check(z.minLength(1)),
     remember: z.optional(z.boolean())
+});
+
+/**
+ * MarkBillingStepReadyData
+ */
+export const zMarkBillingStepReadyData = z.object({
+    isReady: z.boolean()
 });
 
 /**
@@ -578,7 +605,8 @@ export const zInvoiceTodoData = z.object({
     clientId: z.int(),
     clientName: z.string(),
     overdue: z.nullish(zInvoiceTodoOverdueData),
-    work: z.nullish(zInvoiceTodoWorkData)
+    work: z.nullish(zInvoiceTodoWorkData),
+    step: z.nullish(zInvoiceTodoStepData)
 });
 
 /**
@@ -602,6 +630,28 @@ export const zInvoiceSummaryData = z.object({
     counts: zInvoiceCountsData,
     todo: z.array(zInvoiceTodoData),
     todoTotal: z.int()
+});
+
+/**
+ * MissionBillingStepData
+ */
+export const zMissionBillingStepData = z.object({
+    id: z.int(),
+    label: z.string(),
+    amount: zMoneyData,
+    position: z.int(),
+    dueOn: z.nullable(z.iso.date()),
+    isReady: z.boolean(),
+    invoiceId: z.nullable(z.int()),
+    invoiceStatus: z.nullable(zInvoiceStatus)
+});
+
+/**
+ * MissionBillingStepListData
+ */
+export const zMissionBillingStepListData = z.object({
+    steps: z.array(zMissionBillingStepData),
+    scheduled: zMoneyData
 });
 
 /**
@@ -850,6 +900,18 @@ export const zRevenueData = z.object({
     months: z.array(zRevenueMonthData),
     invoices: z.array(zInvoiceListItemData),
     clients: z.array(zRevenueClientData)
+});
+
+/**
+ * SaveMissionBillingStepData
+ */
+export const zSaveMissionBillingStepData = z.object({
+    label: z.string().check(z.minLength(1), z.maxLength(255)),
+    amount: z.object({
+        amount: z.int().check(z.gte(1)),
+        currency: zCurrency
+    }),
+    dueOn: z.nullish(z.iso.date())
 });
 
 /**
@@ -1644,6 +1706,43 @@ export const zShowMissionBillingPath = z.object({
 });
 
 export const zShowMissionBillingResponse = z.nullable(zMissionBillingProgressData);
+
+export const zListMissionBillingStepsPath = z.object({
+    client: z.string(),
+    mission: z.string()
+});
+
+export const zListMissionBillingStepsResponse = zMissionBillingStepListData;
+
+export const zCreateMissionBillingStepBody = zSaveMissionBillingStepData;
+
+export const zCreateMissionBillingStepPath = z.object({
+    client: z.string(),
+    mission: z.string()
+});
+
+export const zCreateMissionBillingStepResponse = zMissionBillingStepListData;
+
+export const zMarkMissionBillingStepReadyBody = zMarkBillingStepReadyData;
+
+export const zMarkMissionBillingStepReadyPath = z.object({
+    client: z.string(),
+    mission: z.string(),
+    billingStep: z.int()
+});
+
+export const zMarkMissionBillingStepReadyResponse = zMissionBillingStepListData;
+
+export const zDeleteMissionBillingStepPath = z.object({
+    client: z.string(),
+    mission: z.string(),
+    billingStep: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteMissionBillingStepResponse = z.void();
 
 export const zListMissionDocumentsPath = z.object({
     client: z.string(),

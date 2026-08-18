@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Invoices\Controllers\ClientRevenueController;
 use App\Http\Missions\Controllers\MissionBillingController;
+use App\Http\Missions\Controllers\MissionBillingStepController;
 use App\Http\Missions\Controllers\MissionController;
 use App\Http\Missions\Controllers\MissionDocumentController;
 use App\Http\Missions\Controllers\MissionTimeEntryController;
@@ -26,6 +27,17 @@ Route::middleware('auth:sanctum')->scopeBindings()->group(function (): void {
 
     Route::get('/clients/{client}/missions/{mission}/billing', [MissionBillingController::class, 'show'])
         ->name('showMissionBilling');
+
+    Route::get('/clients/{client}/missions/{mission}/billing-steps', [MissionBillingStepController::class, 'index'])
+        ->name('listMissionBillingSteps');
+    Route::post('/clients/{client}/missions/{mission}/billing-steps', [MissionBillingStepController::class, 'store'])
+        ->name('createMissionBillingStep');
+    Route::post('/clients/{client}/missions/{mission}/billing-steps/{billingStep}/ready', [MissionBillingStepController::class, 'ready'])
+        ->whereNumber('billingStep')
+        ->name('markMissionBillingStepReady');
+    Route::delete('/clients/{client}/missions/{mission}/billing-steps/{billingStep}', [MissionBillingStepController::class, 'destroy'])
+        ->whereNumber('billingStep')
+        ->name('deleteMissionBillingStep');
 
     Route::get('/clients/{client}/missions/{mission}/documents', [MissionDocumentController::class, 'index'])
         ->name('listMissionDocuments');

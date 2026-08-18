@@ -20,6 +20,20 @@ enum InvoiceStatus: int
     }
 
     /**
+     * The same rule as isIssued(), in the shape a query needs. Without it every
+     * action that sums issued money re-spells the list by hand.
+     *
+     * @return list<self>
+     */
+    public static function issued(): array
+    {
+        return array_values(array_filter(
+            self::cases(),
+            static fn (self $status): bool => $status->isIssued(),
+        ));
+    }
+
+    /**
      * You cannot chase a bill the client never received, nor one already settled.
      */
     public function canBeReminded(): bool

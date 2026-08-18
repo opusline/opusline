@@ -54,6 +54,13 @@ class CreateInvoiceData extends Data
         public ?int $vatRateBp = null,
         #[Max(2000)]
         public ?string $notes = null,
+        /**
+         * The instalment of a fixed price this invoice bills, marked as billed so
+         * the schedule stops asking for it.
+         */
+        #[IntegerType]
+        #[Exists('mission_billing_steps', 'id', where: new WhereConstraint('user_id', new AuthenticatedUserId))]
+        public ?int $billingStepId = null,
         public array $timeEntryIds = [],
     ) {}
 

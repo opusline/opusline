@@ -44,6 +44,8 @@ export type CreateInvoiceSubmit = {
   periodStart: string | null;
   periodEnd: string | null;
   timeEntryIds: number[];
+  /** The instalment of a fixed price this invoice bills, when it bills one. */
+  billingStepId: number | null;
 };
 
 type CreateInvoiceDialogProps = {
@@ -165,6 +167,7 @@ function CreateInvoiceForm({
           periodStart: prefill.periodStart,
           periodEnd: prefill.periodEnd,
           timeEntryIds: prefill.timeEntryIds,
+          billingStepId: prefill.billingStepId,
         });
       }}
     >

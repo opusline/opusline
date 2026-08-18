@@ -11,6 +11,7 @@ use App\Domain\Invoices\Data\InvoiceOverdueData;
 use App\Domain\Invoices\Data\InvoiceSummaryData;
 use App\Domain\Invoices\Data\InvoiceTodoData;
 use App\Domain\Invoices\Data\InvoiceTodoOverdueData;
+use App\Domain\Invoices\Data\InvoiceTodoStepData;
 use App\Domain\Invoices\Data\InvoiceTodoWorkData;
 use App\Domain\Invoices\Data\InvoiceTotalData;
 use App\Domain\Invoices\Data\SummarizeInvoicesData;
@@ -19,7 +20,9 @@ use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Enums\InvoiceTodoKind;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Enums\BillingMode;
+use App\Domain\Missions\Enums\MissionStatus;
 use App\Domain\Missions\Models\Mission;
+use App\Domain\Missions\Models\MissionBillingStep;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Enums\Currency;
@@ -27,6 +30,7 @@ use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 /**
@@ -51,6 +55,7 @@ class SummarizeInvoices
         $outstanding = $this->outstanding($user);
         $overdue = $outstanding->filter(fn (Invoice $invoice): bool => $invoice->due_on->isBefore($today))->values();
         $unbilled = $this->unbilledByMission($user, $month, $settings->workday_minutes);
+        $dueSteps = $this->dueBillingSteps($user, $today);
 
         return new InvoiceSummaryData(
             month: $month->format('Y-m'),
@@ -60,8 +65,8 @@ class SummarizeInvoices
             monthUnbilled: $this->unbilledIn($unbilled, $currency),
             unbilled: $this->unbilledTotal($unbilled, $currency),
             counts: $this->counts($user, $today),
-            todo: $this->todo($overdue, $unbilled, $today, $settings),
-            todoTotal: $overdue->count() + count($unbilled),
+            todo: $this->todo($overdue, $unbilled, $dueSteps, $today, $settings),
+            todoTotal: $overdue->count() + count($unbilled) + $dueSteps->count(),
         );
     }
 
@@ -90,13 +95,21 @@ class SummarizeInvoices
         return new InvoiceOverdueData(
             amount: $total->amount,
             count: $total->count,
-            maxDaysLate: $worst instanceof Invoice ? $this->daysLate($worst, $today) : 0,
+            maxDaysLate: $worst instanceof Invoice ? $this->daysLate($worst->due_on, $today) : 0,
         );
     }
 
-    private function daysLate(Invoice $invoice, CarbonImmutable $today): int
+    /**
+     * How far a due date has passed. Zero when there is none, or when it is still
+     * ahead — an instalment expected next month is not late by a negative number.
+     */
+    private function daysLate(?CarbonImmutable $dueOn, CarbonImmutable $today): int
     {
-        return (int) $invoice->due_on->diffInDays($today);
+        if (! $dueOn instanceof CarbonImmutable || $dueOn->greaterThanOrEqualTo($today)) {
+            return 0;
+        }
+
+        return (int) $dueOn->diffInDays($today);
     }
 
     /**
@@ -299,25 +312,63 @@ class SummarizeInvoices
     }
 
     /**
+     * Instalments of a fixed price the contract says are now due: either someone
+     * marked the work behind them done, or the date they were expected on has come.
+     *
+     * These are a plan, not money. They are deliberately kept out of `unbilled` and
+     * `monthUnbilled`, which mean "value already worked" — adding a step's amount
+     * there would count the same forfait twice, once as effort and once as a term.
+     *
+     * @return Collection<int, MissionBillingStep>
+     */
+    private function dueBillingSteps(User $user, CarbonImmutable $today): Collection
+    {
+        return $user->billingSteps()
+            // Currency must precede rate_cents so MoneyIntegerCast can build the
+            // price; the rest is what the rows below actually read.
+            ->with([
+                'mission:id,client_id,name,status,currency,rate_cents',
+                'mission.client:id,name,default_vat_rate_bp',
+            ])
+            ->whereNull('invoice_id')
+            ->where(function (Builder $query) use ($today): void {
+                $query->whereNotNull('ready_at')
+                    ->orWhere('due_on', '<=', $today->toDateString());
+            })
+            // In SQL rather than a filter afterwards: a finished mission's steps
+            // would otherwise be fetched and hydrated only to be thrown away.
+            ->whereHas('mission', fn (Builder $query): Builder => $query->where('status', '!=', MissionStatus::Done))
+            ->orderByRaw('due_on is null')
+            ->orderBy('due_on')
+            ->orderBy('position')
+            ->get();
+    }
+
+    /**
      * Overdue first, then time that should have been invoiced — the order in which
      * each costs money to ignore.
      *
      * @param  Collection<int, Invoice>  $overdue
      * @param  list<UnbilledWork>  $unbilled
+     * @param  Collection<int, MissionBillingStep>  $dueSteps
      * @return list<InvoiceTodoData>
      */
     private function todo(
         Collection $overdue,
         array $unbilled,
+        Collection $dueSteps,
         CarbonImmutable $today,
         UserSettings $settings,
     ): array {
-        // Each kind is guaranteed half the list and may spill into whatever the other
-        // leaves free. Filling the list overdue-first would let a long backlog hide
-        // every invoice waiting to be written — and that row's button is the only way
-        // to write one.
-        $half = intdiv(self::TODO_LIMIT, 2);
-        $overdueTake = min($overdue->count(), max($half, self::TODO_LIMIT - count($unbilled)));
+        // Each kind is guaranteed its third of the list and may spill into whatever
+        // the others leave free. Filling the list overdue-first would let a long
+        // backlog hide every invoice waiting to be written — and those rows' buttons
+        // are the only way to write one.
+        [$overdueTake, $unbilledTake, $stepTake] = $this->shares(
+            $overdue->count(),
+            count($unbilled),
+            $dueSteps->count(),
+        );
 
         $items = [];
 
@@ -331,12 +382,12 @@ class SummarizeInvoices
                     invoiceId: $invoice->id,
                     number: $invoice->number,
                     dueOn: $invoice->due_on,
-                    daysLate: $this->daysLate($invoice, $today),
+                    daysLate: $this->daysLate($invoice->due_on, $today),
                 ),
             );
         }
 
-        foreach (array_slice($unbilled, 0, self::TODO_LIMIT - $overdueTake) as $row) {
+        foreach (array_slice($unbilled, 0, $unbilledTake) as $row) {
             $entries = $row['entries'];
 
             $items[] = new InvoiceTodoData(
@@ -358,7 +409,90 @@ class SummarizeInvoices
             );
         }
 
+        $shownSteps = $dueSteps->take($stepTake);
+        $invoicedByMission = $this->invoicedByMission($shownSteps);
+
+        foreach ($shownSteps as $step) {
+            $mission = $step->mission;
+            $items[] = new InvoiceTodoData(
+                kind: InvoiceTodoKind::BillingStep,
+                amount: MoneyData::fromMoney($step->amount_cents),
+                clientId: $mission->client_id,
+                clientName: $mission->client->name,
+                step: new InvoiceTodoStepData(
+                    billingStepId: $step->id,
+                    label: $step->label,
+                    missionId: $mission->id,
+                    missionName: $mission->name,
+                    dueOn: $step->due_on,
+                    isReady: $step->ready_at !== null,
+                    daysLate: $this->daysLate($step->due_on, $today),
+                    vatRateBp: $settings->effectiveVatRateBp($mission->client->default_vat_rate_bp),
+                    // Signed, like the mission's own bar: past the agreed price
+                    // this goes negative, and flooring it here would make the same
+                    // "reste à facturer" fact read differently on two screens.
+                    remainingCents: (int) ($mission->rate_cents?->getAmount() ?? 0)
+                        - ($invoicedByMission[$mission->id] ?? 0),
+                ),
+            );
+        }
+
         return $items;
+    }
+
+    /**
+     * How many rows each kind gets. Every kind is guaranteed its equal share and
+     * hands back whatever it does not use, so a single busy kind can fill the list
+     * only once the other two have taken all they have.
+     *
+     * @return array{int, int, int}
+     */
+    private function shares(int $overdue, int $unbilled, int $steps): array
+    {
+        $counts = [$overdue, $unbilled, $steps];
+        $floor = intdiv(self::TODO_LIMIT, count($counts));
+
+        $shares = array_map(static fn (int $count): int => min($count, $floor), $counts);
+        $slack = self::TODO_LIMIT - array_sum($shares);
+
+        foreach ($counts as $index => $count) {
+            $extra = min($count - $shares[$index], $slack);
+            $shares[$index] += $extra;
+            $slack -= $extra;
+        }
+
+        return $shares;
+    }
+
+    /**
+     * Issued HT per mission, for the missions the rows on show belong to.
+     *
+     * One aggregate rather than one per row: a schedule's whole point is several
+     * instalments on the same mission, so the per-step query was re-running the
+     * identical SUM two or three times over.
+     *
+     * @param  Collection<int, MissionBillingStep>  $steps
+     * @return array<int, int>
+     */
+    private function invoicedByMission(Collection $steps): array
+    {
+        $missionIds = $steps->pluck('mission_id')->unique()->values()->all();
+
+        if ($missionIds === []) {
+            return [];
+        }
+
+        /** @var array<int, int|string> $totals */
+        $totals = Invoice::query()
+            ->whereIn('mission_id', $missionIds)
+            ->whereIn('status', InvoiceStatus::issued())
+            ->toBase()
+            ->selectRaw('mission_id, SUM(amount_ht_cents) as invoiced')
+            ->groupBy('mission_id')
+            ->pluck('invoiced', 'mission_id')
+            ->all();
+
+        return array_map(static fn (int|string $invoiced): int => (int) $invoiced, $totals);
     }
 
     /**

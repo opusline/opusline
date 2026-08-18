@@ -1,12 +1,21 @@
-import type { MissionStatus, UpdateMissionData } from "@opusline/api-client";
+import type {
+  MissionBillingStepData,
+  MissionStatus,
+  UpdateMissionData,
+} from "@opusline/api-client";
 import {
   createInvoiceMutation,
+  createMissionBillingStepMutation,
+  deleteMissionBillingStepMutation,
   deleteMissionDocumentMutation,
   listClientsQueryKey,
   listInvoicesOptions,
+  listMissionBillingStepsOptions,
+  listMissionBillingStepsQueryKey,
   listMissionDocumentsOptions,
   listMissionDocumentsQueryKey,
   listMissionTimeEntriesOptions,
+  markMissionBillingStepReadyMutation,
   showClientOptions,
   showMissionBillingOptions,
   showMissionOptions,
@@ -34,6 +43,7 @@ import {
   type InvoicePrefill,
   prefillFromForfait,
 } from "@/features/invoices/lib/invoice-prefill";
+import { MissionBillingSchedule } from "@/features/missions/components/mission-billing-schedule";
 import { MissionDetailPage } from "@/features/missions/components/mission-detail-page";
 import { accountTodayCalendarDate } from "@/lib/dates";
 import {
@@ -61,6 +71,7 @@ function MissionDetailRoute() {
   const navigate = useNavigate();
   const [creatingFor, setCreatingFor] = useState<InvoicePrefill | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [scheduleError, setScheduleError] = useState<string | null>(null);
 
   const missionPath = { client: clientSlug, mission: missionSlug };
   const clientQuery = useQuery(
@@ -88,6 +99,13 @@ function MissionDetailRoute() {
   const nextNumberQuery = useQuery({
     ...showNextInvoiceNumberOptions(),
     enabled: creatingFor !== null,
+  });
+  const scheduleQuery = useQuery({
+    ...listMissionBillingStepsOptions({ path: missionPath }),
+    // Only a fixed price can carry one, and the API refuses the rest.
+    enabled:
+      missionQuery.data !== undefined &&
+      isFixedPrice(missionQuery.data.billingMode),
   });
 
   const updateMission = useMutation(updateMissionMutation());
@@ -187,18 +205,49 @@ function MissionDetailRoute() {
     }
   };
 
+  const refreshSchedule = async () => {
+    await queryClient.invalidateQueries({
+      queryKey: listMissionBillingStepsQueryKey({ path: missionPath }),
+    });
+  };
+
   const createInvoice = useMutation({
     ...createInvoiceMutation(),
     onSuccess: async () => {
       setCreatingFor(null);
       setCreateError(null);
       await invalidateInvoiceWrites(queryClient, [
+        // Billing an instalment stamps it, so the schedule row flips to invoiced.
+        refreshSchedule(),
         queryClient.invalidateQueries({ queryKey: listClientsQueryKey() }),
       ]);
     },
     onError: (error) => {
       setCreateError(serverErrorMessage(error, m.invoices_create_failed()));
     },
+  });
+
+  /** Every schedule write reports the same way and refetches the same list. */
+  const scheduleWrite = {
+    onMutate: () => setScheduleError(null),
+    onSuccess: refreshSchedule,
+    onError: (error: unknown) =>
+      setScheduleError(
+        serverErrorMessage(error, m.missions_schedule_save_failed()),
+      ),
+  };
+
+  const addStep = useMutation({
+    ...createMissionBillingStepMutation(),
+    ...scheduleWrite,
+  });
+  const deleteStep = useMutation({
+    ...deleteMissionBillingStepMutation(),
+    ...scheduleWrite,
+  });
+  const setStepReady = useMutation({
+    ...markMissionBillingStepReadyMutation(),
+    ...scheduleWrite,
   });
 
   const submitInvoice = (input: CreateInvoiceSubmit) => {
@@ -269,8 +318,11 @@ function MissionDetailRoute() {
 
   const mission = missionQuery.data;
   const progress = billingQuery.data ?? null;
-  /** Opens the dialog on this forfait, with the room left as a reference fact. */
-  const openForfaitInvoice = () => {
+  /**
+   * Both ways onto a forfait open the same dialog; the schedule only says which
+   * instalment is being billed, and the factory decides what that changes.
+   */
+  const openForfaitInvoice = (step?: MissionBillingStepData) => {
     if (progress === null) {
       return;
     }
@@ -284,12 +336,40 @@ function MissionDetailRoute() {
         missionName: mission.name,
         progress,
         vatRateBp: clientQuery.data.defaultVatRateBp ?? user.effectiveVatRateBp,
+        step,
       }),
     );
   };
 
   const invoicesTab = (
     <div className="flex flex-col gap-5">
+      {progress !== null && (
+        <MissionBillingSchedule
+          steps={scheduleQuery.data?.steps ?? []}
+          scheduledCents={scheduleQuery.data?.scheduled.amount ?? 0}
+          fixedPrice={progress.fixedPrice}
+          isPending={scheduleQuery.isPending}
+          isError={scheduleQuery.isError}
+          isSaving={
+            addStep.isPending || deleteStep.isPending || setStepReady.isPending
+          }
+          error={scheduleError}
+          onAdd={(body) => addStep.mutate({ body, path: missionPath })}
+          onDelete={(stepId) =>
+            deleteStep.mutate({
+              path: { ...missionPath, billingStep: stepId },
+            })
+          }
+          onSetReady={(stepId, isReady) =>
+            setStepReady.mutate({
+              body: { isReady },
+              path: { ...missionPath, billingStep: stepId },
+            })
+          }
+          onBill={(step) => openForfaitInvoice(step)}
+        />
+      )}
+
       <MissionInvoicesTab
         accountToday={accountTodayCalendarDate(user.timezone)}
         invoices={invoicesQuery.data?.invoices ?? []}

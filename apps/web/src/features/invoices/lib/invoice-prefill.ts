@@ -2,9 +2,11 @@ import type {
   CreateInvoiceData,
   Currency,
   InvoiceTodoData,
+  InvoiceTodoStepData,
   InvoiceTodoWorkData,
   Locale,
   MissionBillingProgressData,
+  MissionBillingStepData,
 } from "@opusline/api-client";
 
 import { m } from "@/paraglide/messages.js";
@@ -39,6 +41,8 @@ export type InvoicePrefill = {
   timeValueCents: number | null;
   /** What the fixed price still has to bill; null on any other billing mode. */
   remainingCents: number | null;
+  /** The instalment this invoice bills, marked as billed on submit. */
+  billingStepId: number | null;
 };
 
 /**
@@ -63,6 +67,7 @@ export function prefillFromUnbilledWork(
     timeEntryIds: work.timeEntryIds,
     timeValueCents: todo.amount.amount,
     remainingCents: null,
+    billingStepId: null,
   };
 }
 
@@ -78,6 +83,7 @@ export function prefillFromForfait({
   missionName,
   progress,
   vatRateBp,
+  step,
 }: {
   clientId: number;
   clientName: string;
@@ -86,22 +92,58 @@ export function prefillFromForfait({
   /** What the price has billed so far, for the room-left fact. */
   progress: MissionBillingProgressData;
   vatRateBp: number;
+  /** The instalment being billed, when the schedule drove it. */
+  step?: MissionBillingStepData;
 }): InvoicePrefill {
   return {
     clientId,
     clientName,
     missionId,
     missionName,
-    title: m.invoices_forfait_title({ missionName }),
-    // Left empty on purpose: the figure is a decision being made now, and seeding
-    // it with what remains would quietly turn every invoice into the last one.
-    amountHtCents: null,
+    title:
+      step === undefined
+        ? m.invoices_forfait_title({ missionName })
+        : m.invoices_step_prefill_title({ label: step.label, missionName }),
+    // An instalment's figure was decided by the contract; a one-off's is a
+    // decision being made now, and seeding it with what remains would quietly
+    // turn every invoice into the last one.
+    amountHtCents: step?.amount.amount ?? null,
     vatRateBp,
     periodStart: null,
     periodEnd: null,
     timeEntryIds: [],
     timeValueCents: null,
     remainingCents: progress.remaining.amount,
+    billingStepId: step?.id ?? null,
+  };
+}
+
+/**
+ * An instalment of a fixed price that the schedule says is due. Unlike a forfait
+ * invoiced by hand, the amount is prefilled: the contract already decided it.
+ * It stays editable — what was actually invoiced still wins.
+ */
+export function prefillFromStep(
+  todo: InvoiceTodoData,
+  step: InvoiceTodoStepData,
+): InvoicePrefill {
+  return {
+    clientId: todo.clientId,
+    clientName: todo.clientName,
+    missionId: step.missionId,
+    missionName: step.missionName,
+    title: m.invoices_step_prefill_title({
+      label: step.label,
+      missionName: step.missionName,
+    }),
+    amountHtCents: todo.amount.amount,
+    vatRateBp: step.vatRateBp,
+    periodStart: null,
+    periodEnd: null,
+    timeEntryIds: [],
+    timeValueCents: null,
+    remainingCents: step.remainingCents,
+    billingStepId: step.billingStepId,
   };
 }
 
@@ -131,5 +173,6 @@ export function createInvoiceBody(
     periodStart: input.periodStart,
     periodEnd: input.periodEnd,
     timeEntryIds: input.timeEntryIds,
+    billingStepId: input.billingStepId,
   };
 }

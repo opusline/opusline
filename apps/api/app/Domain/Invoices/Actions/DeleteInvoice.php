@@ -16,6 +16,9 @@ class DeleteInvoice
             abort_if($locked->status->isIssued(), 409, __('invoices.cannot_delete_issued'));
 
             $locked->timeEntries()->update(['invoice_id' => null]);
+            // Same reason the time entries are released: the schedule must go back
+            // to asking for an instalment the account no longer has an invoice for.
+            $locked->billingSteps()->update(['invoice_id' => null]);
 
             $locked->delete();
         });

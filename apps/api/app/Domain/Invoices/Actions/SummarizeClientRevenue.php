@@ -154,7 +154,7 @@ class SummarizeClientRevenue
      */
     private function billedInvoices(User $user): HasMany
     {
-        return $user->invoices()->whereIn('status', [InvoiceStatus::Sent, InvoiceStatus::Paid]);
+        return $user->invoices()->whereIn('status', InvoiceStatus::issued());
     }
 
     /**

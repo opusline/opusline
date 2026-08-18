@@ -3,6 +3,7 @@ import type {
   InvoiceForecastBucket,
   InvoiceOverdueData,
   InvoiceTodoOverdueData,
+  InvoiceTodoStepData,
   InvoiceTodoWorkData,
   InvoiceTotalData,
   Locale,
@@ -108,4 +109,23 @@ export function overdueDetail(
     date: calendarDateNumericLabel(dateFormat, overdue.dueOn),
     days: overdue.daysLate,
   });
+}
+
+/**
+ * Why the step is asking for an invoice: someone said the work was done, or the
+ * date it was expected on has come — and by how far it has passed.
+ */
+export function billingStepDetail(
+  dateFormat: DateFormat,
+  step: InvoiceTodoStepData,
+): string {
+  if (step.dueOn === null) {
+    return m.invoices_step_ready();
+  }
+
+  const date = calendarDateNumericLabel(dateFormat, step.dueOn);
+
+  return step.daysLate === 0
+    ? m.invoices_step_due({ date })
+    : m.invoices_step_late({ date, count: step.daysLate });
 }

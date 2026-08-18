@@ -2393,6 +2393,219 @@
                 }
             }
         },
+        "/clients/{client}/missions/{mission}/billing-steps": {
+            "get": {
+                "operationId": "listMissionBillingSteps",
+                "tags": [
+                    "MissionBillingStep"
+                ],
+                "parameters": [
+                    {
+                        "name": "client",
+                        "in": "path",
+                        "required": true,
+                        "description": "The client slug",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "mission",
+                        "in": "path",
+                        "required": true,
+                        "description": "The mission slug",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MissionBillingStepListData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "createMissionBillingStep",
+                "tags": [
+                    "MissionBillingStep"
+                ],
+                "parameters": [
+                    {
+                        "name": "client",
+                        "in": "path",
+                        "required": true,
+                        "description": "The client slug",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "mission",
+                        "in": "path",
+                        "required": true,
+                        "description": "The mission slug",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SaveMissionBillingStepData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MissionBillingStepListData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/clients/{client}/missions/{mission}/billing-steps/{billingStep}/ready": {
+            "post": {
+                "operationId": "markMissionBillingStepReady",
+                "tags": [
+                    "MissionBillingStep"
+                ],
+                "parameters": [
+                    {
+                        "name": "client",
+                        "in": "path",
+                        "required": true,
+                        "description": "The client slug",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "mission",
+                        "in": "path",
+                        "required": true,
+                        "description": "The mission slug",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "billingStep",
+                        "in": "path",
+                        "required": true,
+                        "description": "The billing step ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MarkBillingStepReadyData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MissionBillingStepListData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/clients/{client}/missions/{mission}/billing-steps/{billingStep}": {
+            "delete": {
+                "operationId": "deleteMissionBillingStep",
+                "tags": [
+                    "MissionBillingStep"
+                ],
+                "parameters": [
+                    {
+                        "name": "client",
+                        "in": "path",
+                        "required": true,
+                        "description": "The client slug",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "mission",
+                        "in": "path",
+                        "required": true,
+                        "description": "The mission slug",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "billingStep",
+                        "in": "path",
+                        "required": true,
+                        "description": "The billing step ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/clients/{client}/missions/{mission}/documents": {
             "get": {
                 "operationId": "listMissionDocuments",
@@ -4792,6 +5005,12 @@
                         ],
                         "maxLength": 2000
                     },
+                    "billingStepId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
                     "timeEntryIds": {
                         "type": "array",
                         "items": {
@@ -5530,6 +5749,16 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "step": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/InvoiceTodoStepData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -5542,14 +5771,16 @@
             },
             "InvoiceTodoKind": {
                 "type": "integer",
-                "description": "What the \"À traiter\" list can put in front of you: money that was billed and has not come in, and money that was worked and has not been billed. Drafts are not here — an unsent draft is a note to self, not a debt. Labels live on the frontend, like every other enum here.\n",
+                "description": "What the \"À traiter\" list can put in front of you: money that was billed and has not come in, money that was worked and has not been billed, and an instalment of a fixed price the contract says is now due. Drafts are not here — an unsent draft is a note to self, not a debt. The three are different in kind, not degree. Unbilled work is value already earned; a billing step is a term of the contract coming round. They are never summed together, because against the same forfait they would count it twice.  Labels live on the frontend, like every other enum here.\n",
                 "enum": [
                     0,
-                    1
+                    1,
+                    2
                 ],
                 "x-enum-varnames": [
                     "Overdue",
-                    "UnbilledWork"
+                    "UnbilledWork",
+                    "BillingStep"
                 ],
                 "title": "InvoiceTodoKind"
             },
@@ -5580,6 +5811,54 @@
                     "daysLate"
                 ],
                 "title": "InvoiceTodoOverdueData"
+            },
+            "InvoiceTodoStepData": {
+                "type": "object",
+                "properties": {
+                    "billingStepId": {
+                        "type": "integer"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "missionId": {
+                        "type": "integer"
+                    },
+                    "missionName": {
+                        "type": "string"
+                    },
+                    "dueOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "isReady": {
+                        "type": "boolean"
+                    },
+                    "daysLate": {
+                        "type": "integer"
+                    },
+                    "vatRateBp": {
+                        "type": "integer"
+                    },
+                    "remainingCents": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "billingStepId",
+                    "label",
+                    "missionId",
+                    "missionName",
+                    "dueOn",
+                    "isReady",
+                    "daysLate",
+                    "vatRateBp",
+                    "remainingCents"
+                ],
+                "title": "InvoiceTodoStepData"
             },
             "InvoiceTodoWorkData": {
                 "type": "object",
@@ -5685,6 +5964,18 @@
                 ],
                 "title": "LoginData"
             },
+            "MarkBillingStepReadyData": {
+                "type": "object",
+                "properties": {
+                    "isReady": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "isReady"
+                ],
+                "title": "MarkBillingStepReadyData"
+            },
             "MissionBillingProgressData": {
                 "type": "object",
                 "properties": {
@@ -5720,6 +6011,79 @@
                     "draftCount"
                 ],
                 "title": "MissionBillingProgressData"
+            },
+            "MissionBillingStepData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "position": {
+                        "type": "integer"
+                    },
+                    "dueOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "isReady": {
+                        "type": "boolean"
+                    },
+                    "invoiceId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "invoiceStatus": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/InvoiceStatus"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "label",
+                    "amount",
+                    "position",
+                    "dueOn",
+                    "isReady",
+                    "invoiceId",
+                    "invoiceStatus"
+                ],
+                "title": "MissionBillingStepData"
+            },
+            "MissionBillingStepListData": {
+                "type": "object",
+                "properties": {
+                    "steps": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MissionBillingStepData"
+                        }
+                    },
+                    "scheduled": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "steps",
+                    "scheduled"
+                ],
+                "title": "MissionBillingStepListData"
             },
             "MissionData": {
                 "type": "object",
@@ -6206,6 +6570,44 @@
                     "rateBp"
                 ],
                 "title": "RevenueVatData"
+            },
+            "SaveMissionBillingStepData": {
+                "type": "object",
+                "properties": {
+                    "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 255
+                    },
+                    "amount": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "dueOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "label",
+                    "amount"
+                ],
+                "title": "SaveMissionBillingStepData"
             },
             "SendCraData": {
                 "type": "object",
