@@ -19,6 +19,7 @@ const client = {
   notes: null,
   siret: "443 061 841 00047",
   vatNumber: null,
+  defaultVatRateBp: null,
   billingAddressLine1: null,
   billingAddressLine2: null,
   billingPostalCode: null,

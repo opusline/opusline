@@ -10,6 +10,7 @@ const meta = {
   args: {
     todo: unbilledTodoRow(),
     suggestedNumber: "2026-021",
+    vatLiable: true,
     isSaving: false,
     error: null,
     onOpenChange: () => {},
@@ -31,4 +32,14 @@ export const Rejected: Story = {
     error:
       "La facture n'a pas pu être créée. Vérifiez la référence et le montant.",
   },
+};
+
+/** A client outside the scope of TVA: the rate arrives at zero, still editable. */
+export const ClientWithoutVat: Story = {
+  args: { todo: unbilledTodoRow({ vatRateBp: 0 }) },
+};
+
+/** Under the franchise en base there is no rate to offer, so the field is not there. */
+export const FranchiseEnBase: Story = {
+  args: { vatLiable: false, todo: unbilledTodoRow({ vatRateBp: 0 }) },
 };

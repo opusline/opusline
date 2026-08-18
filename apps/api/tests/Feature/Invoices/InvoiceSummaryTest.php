@@ -386,6 +386,39 @@ test('dates unbilled work by the entries behind it', function (): void {
         ->and($todo['valuedMinutes'])->toBeNull();
 });
 
+test('starts unbilled work on the TVA rate its client is billed at', function (): void {
+    $user = User::factory()->create();
+    vatLiable($user);
+    $mission = missionOwnedBy($user);
+    $mission->client->update(['default_vat_rate_bp' => 0]);
+    TimeEntry::factory()->for($mission, 'mission')->create([
+        'user_id' => $user->id,
+        'date' => '2026-08-03',
+        'duration_minutes' => 420,
+    ]);
+
+    $this->actingAs($user)
+        ->getJson('/api/invoices/summary')
+        ->assertOk()
+        ->assertJsonPath('todo.0.work.vatRateBp', 0);
+});
+
+test('starts unbilled work on the account TVA rate when the client has none', function (): void {
+    $user = User::factory()->create();
+    vatLiable($user);
+    $mission = missionOwnedBy($user);
+    TimeEntry::factory()->for($mission, 'mission')->create([
+        'user_id' => $user->id,
+        'date' => '2026-08-03',
+        'duration_minutes' => 420,
+    ]);
+
+    $this->actingAs($user)
+        ->getJson('/api/invoices/summary')
+        ->assertOk()
+        ->assertJsonPath('todo.0.work.vatRateBp', 2_000);
+});
+
 test('measures unbilled work in hours when the mission bills by the hour', function (): void {
     $user = User::factory()->create();
     $mission = missionOwnedBy($user, fn ($factory) => $factory->hourly()->state([

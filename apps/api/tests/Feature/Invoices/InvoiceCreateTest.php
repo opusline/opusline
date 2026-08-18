@@ -72,6 +72,67 @@ test('keeps a supplied gross amount verbatim', function (): void {
         ->assertJsonPath('invoice.ttcOverridden', true);
 });
 
+test('charges no TVA to a client billed at zero', function (): void {
+    $user = User::factory()->create();
+    vatLiable($user);
+    $client = Client::factory()->for($user)->create(['default_vat_rate_bp' => 0]);
+
+    $this->actingAs($user)
+        ->postJson('/api/invoices', [
+            'clientId' => $client->id,
+            'amountHt' => ['amount' => 165_000, 'currency' => 'EUR'],
+        ])
+        ->assertCreated()
+        ->assertJsonPath('invoice.vatRateBp', 0)
+        ->assertJsonPath('invoice.amountVat.amount', 0)
+        ->assertJsonPath('invoice.amountTtc.amount', 165_000);
+});
+
+test('bills a client at its own rate rather than the account default', function (): void {
+    $user = User::factory()->create();
+    vatLiable($user);
+    $client = Client::factory()->for($user)->create(['default_vat_rate_bp' => 550]);
+
+    $this->actingAs($user)
+        ->postJson('/api/invoices', [
+            'clientId' => $client->id,
+            'amountHt' => ['amount' => 100_000, 'currency' => 'EUR'],
+        ])
+        ->assertCreated()
+        ->assertJsonPath('invoice.vatRateBp', 550)
+        ->assertJsonPath('invoice.amountVat.amount', 5_500);
+});
+
+test('a rate on the request beats the client own rate', function (): void {
+    $user = User::factory()->create();
+    vatLiable($user);
+    $client = Client::factory()->for($user)->create(['default_vat_rate_bp' => 0]);
+
+    $this->actingAs($user)
+        ->postJson('/api/invoices', [
+            'clientId' => $client->id,
+            'amountHt' => ['amount' => 100_000, 'currency' => 'EUR'],
+            'vatRateBp' => 2_000,
+        ])
+        ->assertCreated()
+        ->assertJsonPath('invoice.vatRateBp', 2_000)
+        ->assertJsonPath('invoice.amountVat.amount', 20_000);
+});
+
+test('the franchise en base outranks a client own rate', function (): void {
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create(['default_vat_rate_bp' => 2_000]);
+
+    $this->actingAs($user)
+        ->postJson('/api/invoices', [
+            'clientId' => $client->id,
+            'amountHt' => ['amount' => 100_000, 'currency' => 'EUR'],
+        ])
+        ->assertCreated()
+        ->assertJsonPath('invoice.vatRateBp', 0)
+        ->assertJsonPath('invoice.amountVat.amount', 0);
+});
+
 test('charges no TVA under the franchise en base', function (): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();

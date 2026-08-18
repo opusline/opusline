@@ -11,6 +11,7 @@ const client: ClientWithMissionsData = {
   notes: null,
   siret: "443 061 841 00047",
   vatNumber: "FR64 443061841",
+  defaultVatRateBp: null,
   billingAddressLine1: "12 rue de la Paix",
   billingAddressLine2: null,
   billingPostalCode: "44000",
@@ -33,6 +34,8 @@ const meta = {
     logoSrc: SAMPLE_LOGO_SRC,
     onUploadLogo: async () => ({ status: "success" }) as const,
     onRemoveLogo: async () => true,
+    vatLiable: true,
+    accountVatRateBp: 2000,
   },
 } satisfies Meta<typeof ClientEditForm>;
 

@@ -193,8 +193,36 @@ test('sums VAT from each invoice own rate', function (): void {
     $this->actingAs($user)
         ->getJson('/api/revenue')
         ->assertOk()
-        ->assertJsonPath('vat.amount.amount', 30_000)
-        ->assertJsonPath('vat.rateBp', 2_000);
+        ->assertJsonPath('vat.amount.amount', 30_000);
+});
+
+test('drops the VAT rate caption once the period mixes rates', function (): void {
+    $user = User::factory()->create();
+    vatLiable($user);
+    invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
+        'vat_rate_bp' => 2_000,
+    ]));
+    invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
+        'vat_rate_bp' => 0,
+    ]));
+
+    $this->actingAs($user)
+        ->getJson('/api/revenue')
+        ->assertOk()
+        ->assertJsonPath('vat.rateBp', null);
+});
+
+test('captions the VAT with the one rate the period agrees on', function (): void {
+    $user = User::factory()->create();
+    vatLiable($user);
+    invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
+        'vat_rate_bp' => 1_000,
+    ]));
+
+    $this->actingAs($user)
+        ->getJson('/api/revenue')
+        ->assertOk()
+        ->assertJsonPath('vat.rateBp', 1_000);
 });
 
 test('estimates net after contributions', function (): void {

@@ -194,6 +194,7 @@ function FacturesPage() {
         // A stale render-context currency is refused by the API (422);
         // see settings-form.ts for the one case needing the snapshot.
         amountHt: { amount: input.amountHtCents, currency: format.currency },
+        vatRateBp: input.vatRateBp,
         periodStart: input.periodStart,
         periodEnd: input.periodEnd,
         timeEntryIds: input.timeEntryIds,
@@ -332,6 +333,7 @@ function FacturesPage() {
       <CreateInvoiceDialog
         todo={creatingFor}
         suggestedNumber={nextNumber.data?.number ?? null}
+        vatLiable={user.vatLiable}
         isSaving={create.isPending}
         error={createError}
         onOpenChange={(open) => {

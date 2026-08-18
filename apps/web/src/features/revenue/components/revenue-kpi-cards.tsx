@@ -50,9 +50,11 @@ export function RevenueKpiCards({
             {formatWholeAmount(format, data.vat.amount.amount)}
           </p>
           <p className="mt-2.5 text-muted-foreground-3 text-sm">
-            {m.revenue_vat_sub({
-              rate: formatPercentFromBp(locale, data.vat.rateBp),
-            })}
+            {data.vat.rateBp === null
+              ? m.revenue_vat_sub_mixed()
+              : m.revenue_vat_sub({
+                  rate: formatPercentFromBp(locale, data.vat.rateBp),
+                })}
           </p>
         </section>
       )}

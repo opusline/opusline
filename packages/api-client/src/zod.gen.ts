@@ -103,6 +103,7 @@ export const zClientData = z.object({
     notes: z.nullable(z.string()),
     siret: z.nullable(z.string()),
     vatNumber: z.nullable(z.string()),
+    defaultVatRateBp: z.nullable(z.int()),
     billingAddressLine1: z.nullable(z.string()),
     billingAddressLine2: z.nullable(z.string()),
     billingPostalCode: z.nullable(z.string()),
@@ -180,6 +181,7 @@ export const zCreateClientData = z.object({
     notes: z.nullish(z.string()),
     siret: z.nullish(z.string().check(z.maxLength(255))),
     vatNumber: z.nullish(z.string().check(z.maxLength(255))),
+    defaultVatRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
     billingAddressLine1: z.nullish(z.string().check(z.maxLength(255))),
     billingAddressLine2: z.nullish(z.string().check(z.maxLength(255))),
     billingPostalCode: z.nullish(z.string().check(z.maxLength(32))),
@@ -428,7 +430,8 @@ export const zInvoiceTodoWorkData = z.object({
     lastEntryOn: z.iso.date(),
     valuedDays: z.nullable(z.number()),
     valuedMinutes: z.nullable(z.int()),
-    timeEntryIds: z.array(z.int())
+    timeEntryIds: z.array(z.int()),
+    vatRateBp: z.int()
 });
 
 /**
@@ -632,6 +635,7 @@ export const zClientWithMissionsData = z.object({
     notes: z.nullable(z.string()),
     siret: z.nullable(z.string()),
     vatNumber: z.nullable(z.string()),
+    defaultVatRateBp: z.nullable(z.int()),
     billingAddressLine1: z.nullable(z.string()),
     billingAddressLine2: z.nullable(z.string()),
     billingPostalCode: z.nullable(z.string()),
@@ -828,7 +832,7 @@ export const zRevenueNetData = z.object({
  */
 export const zRevenueVatData = z.object({
     amount: zMoneyData,
-    rateBp: z.int()
+    rateBp: z.nullable(z.int())
 });
 
 /**
@@ -1022,6 +1026,7 @@ export const zUpdateClientData = z.object({
     notes: z.nullish(z.string()),
     siret: z.nullish(z.string().check(z.maxLength(255))),
     vatNumber: z.nullish(z.string().check(z.maxLength(255))),
+    defaultVatRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
     billingAddressLine1: z.nullish(z.string().check(z.maxLength(255))),
     billingAddressLine2: z.nullish(z.string().check(z.maxLength(255))),
     billingPostalCode: z.nullish(z.string().check(z.maxLength(32))),
@@ -1172,6 +1177,8 @@ export const zUserData = z.object({
     currency: zCurrency,
     businessCountry: z.string(),
     hasFrenchFiscality: z.boolean(),
+    vatLiable: z.boolean(),
+    effectiveVatRateBp: z.int(),
     timezone: z.string(),
     workdayMinutes: z.int()
 });

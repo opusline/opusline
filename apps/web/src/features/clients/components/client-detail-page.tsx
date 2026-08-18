@@ -39,7 +39,11 @@ import { type ReactNode, useMemo, useState } from "react";
 import { ClientLogo } from "@/components/client-logo";
 import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { useMoneyFormat } from "@/components/money-format-provider";
-import { formatMissionRate, paymentTermsLabel } from "@/lib/billing";
+import {
+  formatMissionRate,
+  formatPercentFromBp,
+  paymentTermsLabel,
+} from "@/lib/billing";
 import {
   formatPaymentDelay,
   formatRevenue,
@@ -94,6 +98,10 @@ type ClientDetailPageProps = {
   logoSrc: string;
   onUploadLogo: (logo: File) => Promise<LogoUploadResult>;
   onRemoveLogo: () => Promise<boolean>;
+  /** Whether the account charges TVA at all; under the franchise en base it never does. */
+  vatLiable: boolean;
+  /** The rate a client with no rate of its own is billed at. */
+  accountVatRateBp: number;
   isUpdatePending?: boolean;
   isArchivePending?: boolean;
   error?: string | null;
@@ -113,6 +121,8 @@ export function ClientDetailPage({
   logoSrc,
   onUploadLogo,
   onRemoveLogo,
+  vatLiable,
+  accountVatRateBp,
   isUpdatePending,
   isArchivePending,
   error,
@@ -132,6 +142,7 @@ export function ClientDetailPage({
   const hasCoordinates =
     client.siret !== null ||
     client.vatNumber !== null ||
+    client.defaultVatRateBp !== null ||
     formatPostalAddress(client) !== null ||
     client.billingContactName !== null ||
     client.billingEmail !== null;
@@ -268,6 +279,7 @@ export function ClientDetailPage({
 
       {isEditing ? (
         <ClientEditForm
+          accountVatRateBp={accountVatRateBp}
           client={client}
           isPending={isUpdatePending}
           logoSrc={logoSrc}
@@ -275,6 +287,7 @@ export function ClientDetailPage({
           onRemoveLogo={onRemoveLogo}
           onSubmit={handleUpdate}
           onUploadLogo={onUploadLogo}
+          vatLiable={vatLiable}
         />
       ) : (
         <Tabs defaultValue="missions">
@@ -440,6 +453,17 @@ export function ClientDetailPage({
                       mono
                       value={client.vatNumber}
                     />
+                    {client.defaultVatRateBp !== null && (
+                      <CoordRow
+                        label={m.clients_vat_rate_label()}
+                        value={m.invoices_vat_rate_fact({
+                          rate: formatPercentFromBp(
+                            format.locale,
+                            client.defaultVatRateBp,
+                          ),
+                        })}
+                      />
+                    )}
                     <CoordRow
                       label={m.address_label()}
                       value={formatPostalAddress(client)}

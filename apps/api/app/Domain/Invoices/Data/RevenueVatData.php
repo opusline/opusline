@@ -16,7 +16,11 @@ class RevenueVatData extends Data
     public function __construct(
         /** Summed from each invoice's own VAT, so historic rate changes stay exact. */
         public MoneyData $amount,
-        /** The account's current default rate — caption context, not the sum's input. */
-        public int $rateBp,
+        /**
+         * The one rate every invoice in the period carries — caption context, not the
+         * sum's input. Null once they disagree, because clients can be billed at
+         * different rates and no single figure would describe the sum honestly.
+         */
+        public ?int $rateBp,
     ) {}
 }

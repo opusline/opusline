@@ -32,6 +32,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property ?string $notes
  * @property ?string $siret
  * @property ?string $vat_number
+ * @property ?int $default_vat_rate_bp
  * @property ?string $billing_address_line1
  * @property ?string $billing_address_line2
  * @property ?string $billing_postal_code
@@ -51,6 +52,7 @@ use Spatie\Sluggable\SlugOptions;
     'notes',
     'siret',
     'vat_number',
+    'default_vat_rate_bp',
     'billing_address_line1',
     'billing_address_line2',
     'billing_postal_code',
@@ -102,6 +104,7 @@ class Client extends Model implements HasMedia
         return [
             'type' => ClientType::class,
             'color' => Color::class,
+            'default_vat_rate_bp' => 'integer',
             'payment_terms_days' => 'integer',
             'archived_at' => 'datetime',
         ];

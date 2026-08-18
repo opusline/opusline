@@ -21,6 +21,8 @@ import {
 import {
   formatAmount,
   formatAmountWithCents,
+  formatPercentFromBp,
+  parseRateBp,
   parseRateToCents,
 } from "@/lib/billing";
 import { calendarRangeLabel } from "@/lib/dates";
@@ -34,6 +36,7 @@ export type CreateInvoiceSubmit = {
   missionId: number;
   number: string | null;
   amountHtCents: number;
+  vatRateBp: number;
   periodStart: string | null;
   periodEnd: string | null;
   timeEntryIds: number[];
@@ -42,6 +45,11 @@ export type CreateInvoiceSubmit = {
 type CreateInvoiceDialogProps = {
   todo: InvoiceTodoData | null;
   suggestedNumber: string | null;
+  /**
+   * Whether the account charges TVA at all. Under the franchise en base the field is
+   * not offered: every rate it could hold would put an unlawful line on the invoice.
+   */
+  vatLiable: boolean;
   isSaving: boolean;
   error: string | null;
   onOpenChange: (open: boolean) => void;
@@ -57,6 +65,7 @@ type CreateInvoiceDialogProps = {
 export function CreateInvoiceDialog({
   todo,
   suggestedNumber,
+  vatLiable,
   isSaving,
   error,
   onOpenChange,
@@ -70,6 +79,7 @@ export function CreateInvoiceDialog({
             todo={todo}
             work={todo.work}
             suggestedNumber={suggestedNumber}
+            vatLiable={vatLiable}
             isSaving={isSaving}
             error={error}
             onSubmit={onSubmit}
@@ -84,6 +94,7 @@ function CreateInvoiceForm({
   todo,
   work,
   suggestedNumber,
+  vatLiable,
   isSaving,
   error,
   onSubmit,
@@ -91,6 +102,7 @@ function CreateInvoiceForm({
   todo: InvoiceTodoData;
   work: InvoiceTodoWorkData;
   suggestedNumber: string | null;
+  vatLiable: boolean;
   isSaving: boolean;
   error: string | null;
   onSubmit: (input: CreateInvoiceSubmit) => void;
@@ -99,9 +111,13 @@ function CreateInvoiceForm({
   const dateFormat = useDateFormat();
   const numberFieldId = useId();
   const amountFieldId = useId();
+  const vatFieldId = useId();
   const [number, setNumber] = useState("");
   const [amountDraft, setAmountDraft] = useState(() =>
     formatAmount(format, todo.amount.amount),
+  );
+  const [vatDraft, setVatDraft] = useState(() =>
+    formatPercentFromBp(format.locale, work.vatRateBp),
   );
 
   // The suggestion arrives after the dialog opens, and must not overwrite typing.
@@ -112,14 +128,15 @@ function CreateInvoiceForm({
   }, [suggestedNumber]);
 
   const amountHtCents = parseRateToCents(format.locale, amountDraft);
-  const canSubmit = amountHtCents !== null && !isSaving;
+  const vatRateBp = vatLiable ? parseRateBp(format.locale, vatDraft) : 0;
+  const canSubmit = amountHtCents !== null && vatRateBp !== null && !isSaving;
 
   return (
     <form
       onSubmit={(event) => {
         event.preventDefault();
 
-        if (amountHtCents === null) {
+        if (amountHtCents === null || vatRateBp === null) {
           return;
         }
 
@@ -128,6 +145,7 @@ function CreateInvoiceForm({
           missionId: work.missionId,
           number: number.trim() === "" ? null : number.trim(),
           amountHtCents,
+          vatRateBp,
           periodStart: work.firstEntryOn,
           periodEnd: work.lastEntryOn,
           timeEntryIds: work.timeEntryIds,
@@ -183,10 +201,32 @@ function CreateInvoiceForm({
             aria-invalid={amountHtCents === null}
             onChange={(event) => setAmountDraft(event.target.value)}
           />
-          <p className="text-muted-foreground-3 text-xs">
-            {m.invoices_vat_hint()}
-          </p>
         </div>
+
+        {vatLiable ? (
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor={vatFieldId}>{m.invoices_vat_label()}</Label>
+            <div className="relative">
+              <Input
+                id={vatFieldId}
+                inputMode="decimal"
+                value={vatDraft}
+                aria-invalid={vatRateBp === null}
+                onChange={(event) => setVatDraft(event.target.value)}
+              />
+              <span className="-translate-y-1/2 pointer-events-none absolute top-1/2 right-3 text-muted-foreground-2 text-sm">
+                %
+              </span>
+            </div>
+            <p className="text-muted-foreground-3 text-xs">
+              {m.invoices_vat_hint()}
+            </p>
+          </div>
+        ) : (
+          <p className="text-muted-foreground-3 text-xs">
+            {m.invoices_vat_franchise_hint()}
+          </p>
+        )}
       </div>
 
       {error !== null && (

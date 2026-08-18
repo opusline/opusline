@@ -34,7 +34,8 @@ class CreateInvoice
 
         $client = $user->clients()->whereKey($data->clientId)->firstOrFail();
         $status = $data->status ?? InvoiceStatus::Draft;
-        $vatRateBp = $data->vatRateBp ?? $user->settings()->sole()->effectiveVatRateBp();
+        $vatRateBp = $data->vatRateBp
+            ?? $user->settingsOrFail()->effectiveVatRateBp($client->default_vat_rate_bp);
         $amountHt = $data->amountHt->toMoney();
 
         $attributes = [

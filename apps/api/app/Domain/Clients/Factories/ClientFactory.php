@@ -31,6 +31,7 @@ class ClientFactory extends Factory
             'notes' => null,
             'siret' => null,
             'vat_number' => null,
+            'default_vat_rate_bp' => null,
             'billing_address_line1' => null,
             'billing_address_line2' => null,
             'billing_postal_code' => null,

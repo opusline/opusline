@@ -184,6 +184,7 @@ export function revenueSummary(
           valuedDays: 3,
           valuedMinutes: null,
           timeEntryIds: [101, 102, 103],
+          vatRateBp: 2000,
         },
       },
       {
@@ -200,6 +201,7 @@ export function revenueSummary(
           valuedDays: null,
           valuedMinutes: 210,
           timeEntryIds: [104, 105],
+          vatRateBp: 2000,
         },
       },
     ],

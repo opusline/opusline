@@ -25,6 +25,7 @@ function clientPayload(
     notes: null,
     siret: "443 061 841 00047",
     vatNumber: null,
+    defaultVatRateBp: null,
     billingAddressLine1: null,
     billingAddressLine2: null,
     billingPostalCode: null,
@@ -219,6 +220,7 @@ it("shows saved billing contact details even without company identifiers", async
     clientPayload({
       siret: null,
       vatNumber: null,
+      defaultVatRateBp: null,
       billingAddressLine1: null,
       billingAddressLine2: null,
       billingPostalCode: null,

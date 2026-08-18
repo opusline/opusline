@@ -1,15 +1,13 @@
 import { expect, it } from "vitest";
 
-import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
+import { DEFAULT_MONEY_FORMAT, formatRateBp, parseRateBp } from "@/lib/billing";
 
 import { settingsFixture } from "./settings-fixture";
 import {
   countChanges,
-  formatRateBp,
   hasInvoiceNumberCounter,
   isSettingsTab,
   parseBufferCents,
-  parseRateBp,
   previewInvoiceNumber,
   toSettingsPayload,
   toSettingsValues,

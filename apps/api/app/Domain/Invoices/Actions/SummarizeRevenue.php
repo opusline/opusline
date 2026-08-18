@@ -219,9 +219,21 @@ class SummarizeRevenue
             $total = $total->add($invoice->vatAmount());
         }
 
+        // A period with nothing in it still reads as the account's rate; only invoices
+        // that genuinely disagree drop the caption.
+        $rates = $invoices
+            ->map(static fn (Invoice $invoice): int => $invoice->vat_rate_bp)
+            ->unique();
+
+        $rateBp = match ($rates->count()) {
+            0 => $settings->default_vat_rate_bp,
+            1 => $rates->first(),
+            default => null,
+        };
+
         return new RevenueVatData(
             amount: MoneyData::fromMoney($total),
-            rateBp: $settings->default_vat_rate_bp,
+            rateBp: $rateBp,
         );
     }
 

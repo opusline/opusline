@@ -40,6 +40,7 @@ export const Route = createFileRoute("/_authed/clients_/$clientSlug")({
 });
 
 function ClientDetailRoute() {
+  const { user } = Route.useRouteContext();
   const { clientSlug: client } = Route.useParams();
   const { logoFailed } = Route.useSearch();
   const navigate = useNavigate();
@@ -189,6 +190,7 @@ function ClientDetailRoute() {
 
   return (
     <ClientDetailPage
+      accountVatRateBp={user.effectiveVatRateBp}
       client={data}
       documentsTab={documentsTab}
       error={genericError}
@@ -202,6 +204,7 @@ function ClientDetailRoute() {
       revenue={revenueQuery.data?.revenue}
       revenueFailed={revenueQuery.isError}
       revenueYear={revenueQuery.data?.year}
+      vatLiable={user.vatLiable}
     />
   );
 }

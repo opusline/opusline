@@ -15,7 +15,9 @@ import { useState } from "react";
 import { AddressFields } from "@/components/address-fields";
 import { FormTextField } from "@/components/form-text-field";
 import { LogoPicker } from "@/components/logo-picker";
+import { useLocale } from "@/components/money-format-provider";
 import { PaymentTermsPicker } from "@/components/payment-terms-picker";
+import { formatPercentFromBp } from "@/lib/billing";
 import { clientTypeLabel } from "@/lib/client-types";
 import type { FormSubmitResult } from "@/lib/form";
 import type { LogoUploadResult } from "@/lib/logos";
@@ -24,9 +26,14 @@ import { m } from "@/paraglide/messages.js";
 import {
   BILLING_ADDRESS_NAMES,
   type ClientFormValues,
+  clientVatRateValidator,
   toClientPayload,
 } from "../lib/client-form";
 import { CLIENT_TYPES } from "../lib/labels";
+import {
+  ClientVatRateExempt,
+  ClientVatRateField,
+} from "./client-vat-rate-field";
 
 const EYEBROW_CLASSES =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
@@ -39,6 +46,10 @@ type ClientEditFormProps = {
   logoSrc: string;
   onUploadLogo: (logo: File) => Promise<LogoUploadResult>;
   onRemoveLogo: () => Promise<boolean>;
+  /** Whether the account charges TVA at all; under the franchise en base it never does. */
+  vatLiable: boolean;
+  /** The rate a client with no rate of its own is billed at. */
+  accountVatRateBp: number;
   isPending?: boolean;
   error?: string | null;
 };
@@ -50,9 +61,12 @@ export function ClientEditForm({
   logoSrc,
   onUploadLogo,
   onRemoveLogo,
+  vatLiable,
+  accountVatRateBp,
   isPending,
   error,
 }: ClientEditFormProps) {
+  const locale = useLocale();
   const [logoError, setLogoError] = useState<string | null>(null);
   const [isLogoPending, setIsLogoPending] = useState(false);
 
@@ -84,6 +98,10 @@ export function ClientEditForm({
       type: client.type,
       siret: client.siret ?? "",
       vatNumber: client.vatNumber ?? "",
+      defaultVatRate:
+        client.defaultVatRateBp === null
+          ? ""
+          : formatPercentFromBp(locale, client.defaultVatRateBp),
       billingAddressLine1: client.billingAddressLine1 ?? "",
       billingAddressLine2: client.billingAddressLine2 ?? "",
       billingPostalCode: client.billingPostalCode ?? "",
@@ -96,7 +114,7 @@ export function ClientEditForm({
     } as ClientFormValues,
     validators: {
       onSubmitAsync: async ({ value }) => {
-        const result = await onSubmit(toClientPayload(value));
+        const result = await onSubmit(toClientPayload(value, locale));
 
         return result.status === "invalid"
           ? { fields: result.fieldErrors }
@@ -266,6 +284,24 @@ export function ClientEditForm({
                 />
               )}
             </form.Field>
+
+            {vatLiable ? (
+              <form.Field
+                name="defaultVatRate"
+                validators={{ onChange: clientVatRateValidator(locale) }}
+              >
+                {(field) => (
+                  <ClientVatRateField
+                    accountVatRateBp={accountVatRateBp}
+                    field={field}
+                    labelClassName={EDIT_LABEL_CLASSES}
+                    locale={locale}
+                  />
+                )}
+              </form.Field>
+            ) : (
+              <ClientVatRateExempt labelClassName={EDIT_LABEL_CLASSES} />
+            )}
 
             <AddressFields
               names={BILLING_ADDRESS_NAMES}

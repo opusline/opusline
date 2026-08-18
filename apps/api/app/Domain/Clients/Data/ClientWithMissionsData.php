@@ -24,6 +24,7 @@ class ClientWithMissionsData extends Data
         public ?string $notes,
         public ?string $siret,
         public ?string $vatNumber,
+        public ?int $defaultVatRateBp,
         public ?string $billingAddressLine1,
         public ?string $billingAddressLine2,
         public ?string $billingPostalCode,

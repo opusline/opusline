@@ -9,9 +9,10 @@ import type {
 
 import {
   formatAmount,
-  formatPercentFromBp,
+  formatRateBp,
   type MoneyFormat,
   parseDecimal,
+  parseRateBp,
 } from "@/lib/billing";
 import { isFrenchFiscalityCountry } from "@/lib/fiscality";
 import { valueOrNull } from "@/lib/form";
@@ -318,20 +319,6 @@ export function previewInvoiceNumber(format: string, on: Date): string {
         : "001";
     }),
   );
-}
-
-export function formatRateBp(locale: Locale, basisPoints: number): string {
-  return formatPercentFromBp(locale, basisPoints, 1);
-}
-
-export function parseRateBp(locale: Locale, draft: string): number | null {
-  const rate = parseDecimal(locale, draft);
-
-  if (rate === null || rate > 100) {
-    return null;
-  }
-
-  return Math.round(rate * 100);
 }
 
 export function parseBufferCents(locale: Locale, draft: string): number | null {

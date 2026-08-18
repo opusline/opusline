@@ -25,6 +25,8 @@ test('the current user endpoint returns the authenticated user', function (): vo
             'currency' => Currency::EUR->value,
             'businessCountry' => 'FR',
             'hasFrenchFiscality' => true,
+            'vatLiable' => false,
+            'effectiveVatRateBp' => 0,
             'timezone' => 'Europe/Paris',
             'workdayMinutes' => 420,
         ]);
