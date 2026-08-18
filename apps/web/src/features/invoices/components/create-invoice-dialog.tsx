@@ -11,7 +11,13 @@ import {
   DialogTitle,
 } from "@opusline/ui/components/dialog";
 import { Input } from "@opusline/ui/components/input";
+import {
+  InputGroup,
+  InputGroupInput,
+  InputGroupSuffix,
+} from "@opusline/ui/components/input-group";
 import { Label } from "@opusline/ui/components/label";
+import { cn } from "@opusline/ui/lib/utils";
 import { useEffect, useId, useState } from "react";
 
 import {
@@ -21,6 +27,8 @@ import {
 import {
   formatAmount,
   formatAmountWithCents,
+  formatPercentFromBp,
+  parseRateBp,
   parseRateToCents,
 } from "@/lib/billing";
 import { calendarRangeLabel } from "@/lib/dates";
@@ -34,6 +42,8 @@ export type CreateInvoiceSubmit = {
   missionId: number;
   number: string | null;
   amountHtCents: number;
+  /** Null hands the rate back to the API, which resolves it from client and regime. */
+  vatRateBp: number | null;
   periodStart: string | null;
   periodEnd: string | null;
   timeEntryIds: number[];
@@ -42,6 +52,11 @@ export type CreateInvoiceSubmit = {
 type CreateInvoiceDialogProps = {
   todo: InvoiceTodoData | null;
   suggestedNumber: string | null;
+  /**
+   * Whether the account charges TVA at all. Under the franchise en base the field is
+   * not offered: every rate it could hold would put an unlawful line on the invoice.
+   */
+  vatLiable: boolean;
   isSaving: boolean;
   error: string | null;
   onOpenChange: (open: boolean) => void;
@@ -57,6 +72,7 @@ type CreateInvoiceDialogProps = {
 export function CreateInvoiceDialog({
   todo,
   suggestedNumber,
+  vatLiable,
   isSaving,
   error,
   onOpenChange,
@@ -70,6 +86,7 @@ export function CreateInvoiceDialog({
             todo={todo}
             work={todo.work}
             suggestedNumber={suggestedNumber}
+            vatLiable={vatLiable}
             isSaving={isSaving}
             error={error}
             onSubmit={onSubmit}
@@ -84,6 +101,7 @@ function CreateInvoiceForm({
   todo,
   work,
   suggestedNumber,
+  vatLiable,
   isSaving,
   error,
   onSubmit,
@@ -91,6 +109,7 @@ function CreateInvoiceForm({
   todo: InvoiceTodoData;
   work: InvoiceTodoWorkData;
   suggestedNumber: string | null;
+  vatLiable: boolean;
   isSaving: boolean;
   error: string | null;
   onSubmit: (input: CreateInvoiceSubmit) => void;
@@ -99,9 +118,14 @@ function CreateInvoiceForm({
   const dateFormat = useDateFormat();
   const numberFieldId = useId();
   const amountFieldId = useId();
+  const vatFieldId = useId();
+  const vatHintId = useId();
   const [number, setNumber] = useState("");
   const [amountDraft, setAmountDraft] = useState(() =>
     formatAmount(format, todo.amount.amount),
+  );
+  const [vatDraft, setVatDraft] = useState(() =>
+    formatPercentFromBp(format.locale, work.vatRateBp),
   );
 
   // The suggestion arrives after the dialog opens, and must not overwrite typing.
@@ -112,14 +136,19 @@ function CreateInvoiceForm({
   }, [suggestedNumber]);
 
   const amountHtCents = parseRateToCents(format.locale, amountDraft);
-  const canSubmit = amountHtCents !== null && !isSaving;
+  // With no field to read, the rate goes back to the API rather than being invented
+  // here: a cached vatLiable or a cached work.vatRateBp could each be a regime behind,
+  // and only the server resolves the regime and the client's rate together.
+  const vatRateBp = vatLiable ? parseRateBp(format.locale, vatDraft) : null;
+  const isVatInvalid = vatLiable && vatRateBp === null;
+  const canSubmit = amountHtCents !== null && !isVatInvalid && !isSaving;
 
   return (
     <form
       onSubmit={(event) => {
         event.preventDefault();
 
-        if (amountHtCents === null) {
+        if (amountHtCents === null || isVatInvalid) {
           return;
         }
 
@@ -128,6 +157,7 @@ function CreateInvoiceForm({
           missionId: work.missionId,
           number: number.trim() === "" ? null : number.trim(),
           amountHtCents,
+          vatRateBp,
           periodStart: work.firstEntryOn,
           periodEnd: work.lastEntryOn,
           timeEntryIds: work.timeEntryIds,
@@ -183,10 +213,38 @@ function CreateInvoiceForm({
             aria-invalid={amountHtCents === null}
             onChange={(event) => setAmountDraft(event.target.value)}
           />
-          <p className="text-muted-foreground-3 text-xs">
-            {m.invoices_vat_hint()}
-          </p>
         </div>
+
+        {vatLiable ? (
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor={vatFieldId}>{m.invoices_vat_label()}</Label>
+            <InputGroup>
+              <InputGroupInput
+                aria-describedby={vatHintId}
+                aria-invalid={isVatInvalid}
+                className="flex-1"
+                id={vatFieldId}
+                inputMode="decimal"
+                onChange={(event) => setVatDraft(event.target.value)}
+                value={vatDraft}
+              />
+              <InputGroupSuffix>%</InputGroupSuffix>
+            </InputGroup>
+            <p
+              className={cn(
+                "text-xs",
+                isVatInvalid ? "text-destructive" : "text-muted-foreground-3",
+              )}
+              id={vatHintId}
+            >
+              {isVatInvalid ? m.common_rate_invalid() : m.invoices_vat_hint()}
+            </p>
+          </div>
+        ) : (
+          <p className="text-muted-foreground-3 text-xs">
+            {m.invoices_vat_franchise_hint()}
+          </p>
+        )}
       </div>
 
       {error !== null && (

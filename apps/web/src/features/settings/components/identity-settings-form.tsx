@@ -2,6 +2,7 @@ import { Switch } from "@opusline/ui/components/switch";
 import { House } from "lucide-react";
 
 import { AddressFields } from "@/components/address-fields";
+import { ExemptField } from "@/components/exempt-field";
 import { FormTextField } from "@/components/form-text-field";
 import { m } from "@/paraglide/messages.js";
 import {
@@ -77,14 +78,11 @@ export function IdentitySettingsForm({
           <form.Subscribe selector={(state) => state.values.vatRegime}>
             {(vatRegime) =>
               vatRegime === 0 ? (
-                <div>
-                  <span className={`mb-1.5 block ${LABEL}`}>
-                    {m.settings_eu_vat_label()}
-                  </span>
-                  <div className="flex h-10 items-center rounded-md border border-border-3 border-dashed bg-muted px-3 text-muted-foreground-3 text-sm">
-                    {m.settings_eu_vat_exempt()}
-                  </div>
-                </div>
+                <ExemptField
+                  label={m.settings_eu_vat_label()}
+                  labelClassName={LABEL}
+                  reason={m.settings_eu_vat_exempt()}
+                />
               ) : (
                 <form.Field name="vatNumber">
                   {(field) => (

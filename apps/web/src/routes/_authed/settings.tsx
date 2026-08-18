@@ -1,4 +1,8 @@
-import type { SettingsData, UpdateSettingsData } from "@opusline/api-client";
+import type {
+  SettingsData,
+  UpdateSettingsData,
+  UserData,
+} from "@opusline/api-client";
 import {
   currentUserQueryKey,
   deleteUserSignatureMutation,
@@ -45,28 +49,42 @@ export const Route = createFileRoute("/_authed/settings")({
 });
 
 /**
+ * Every field UserData derives from the settings — which is exactly what the two
+ * DTOs have in common. Spelling it as the intersection rather than by hand means
+ * adding a settings-derived field to the API fails to compile here until it is
+ * mirrored, instead of going stale after every save until someone notices.
+ */
+type SettingsDerivedUserFields = Pick<
+  UserData,
+  keyof UserData & keyof SettingsData
+>;
+
+function settingsDerivedUserFields(
+  settings: SettingsData,
+): SettingsDerivedUserFields {
+  return {
+    currency: settings.currency,
+    businessCountry: settings.businessCountry,
+    hasFrenchFiscality: settings.hasFrenchFiscality,
+    vatLiable: settings.vatLiable,
+    effectiveVatRateBp: settings.effectiveVatRateBp,
+    locale: settings.locale,
+    dateFormat: settings.dateFormat,
+    timezone: settings.timezone,
+    workdayMinutes: settings.workdayMinutes,
+  };
+}
+
+/**
  * The formatting context and the fiscal gates read the current user; a save
  * that moves the country or currency must reach them without a reload — and
  * the PUT response already carries both, so patch the cache instead of paying
  * a refetch round trip on every save.
- *
- * This is a hand-kept mirror of UserData's settings-derived fields: a new one
- * on the API side must be added here too, or it goes stale after every save.
  */
 function patchCurrentUser(queryClient: QueryClient, settings: SettingsData) {
   queryClient.setQueryData(
     currentUserQueryKey(),
-    (user) =>
-      user && {
-        ...user,
-        currency: settings.currency,
-        businessCountry: settings.businessCountry,
-        hasFrenchFiscality: settings.hasFrenchFiscality,
-        locale: settings.locale,
-        dateFormat: settings.dateFormat,
-        timezone: settings.timezone,
-        workdayMinutes: settings.workdayMinutes,
-      },
+    (user) => user && { ...user, ...settingsDerivedUserFields(settings) },
   );
 }
 

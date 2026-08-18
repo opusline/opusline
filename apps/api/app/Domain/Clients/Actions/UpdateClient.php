@@ -17,6 +17,7 @@ class UpdateClient
             'notes' => $data->notes,
             'siret' => $data->siret,
             'vat_number' => $data->vatNumber,
+            'default_vat_rate_bp' => $data->defaultVatRateBp,
             'billing_address_line1' => $data->billingAddressLine1,
             'billing_address_line2' => $data->billingAddressLine2,
             'billing_postal_code' => $data->billingPostalCode,

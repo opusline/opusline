@@ -78,6 +78,28 @@ test('defaults the color to amber and the payment terms to 45 days', function ()
     expect($response->json('createdAt'))->not->toBeNull();
 });
 
+test('records a client billed at its own TVA rate', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->postJson('/api/clients', [
+            'name' => 'Vesterhus',
+            'type' => ClientType::Direct->value,
+            'defaultVatRateBp' => 0,
+        ])
+        ->assertCreated()
+        ->assertJsonPath('defaultVatRateBp', 0);
+
+    $this->assertDatabaseHas('clients', ['name' => 'Vesterhus', 'default_vat_rate_bp' => 0]);
+});
+
+test('leaves a client following the account TVA rate by default', function (): void {
+    $this->actingAs(User::factory()->create())
+        ->postJson('/api/clients', ['name' => 'Callisto', 'type' => ClientType::Direct->value])
+        ->assertCreated()
+        ->assertJsonPath('defaultVatRateBp', null);
+});
+
 test('generates a slug from the name', function (): void {
     $this->actingAs(User::factory()->create())
         ->postJson('/api/clients', ['name' => 'Studio Lorem', 'type' => ClientType::Direct->value])
@@ -137,6 +159,8 @@ test('rejects an invalid payload', function (array $payload, string $expectedErr
     'negative payment terms' => [['name' => 'Nordlys', 'type' => ClientType::Direct->value, 'paymentTermsDays' => -1], 'paymentTermsDays'],
     'payment terms above a year' => [['name' => 'Nordlys', 'type' => ClientType::Direct->value, 'paymentTermsDays' => 400], 'paymentTermsDays'],
     'non integer payment terms' => [['name' => 'Nordlys', 'type' => ClientType::Direct->value, 'paymentTermsDays' => 'soon'], 'paymentTermsDays'],
+    'negative vat rate' => [['name' => 'Nordlys', 'type' => ClientType::Direct->value, 'defaultVatRateBp' => -1], 'defaultVatRateBp'],
+    'vat rate above 100 percent' => [['name' => 'Nordlys', 'type' => ClientType::Direct->value, 'defaultVatRateBp' => 10001], 'defaultVatRateBp'],
 ]);
 
 test('returns 401 for guests', function (): void {

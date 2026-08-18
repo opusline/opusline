@@ -144,6 +144,7 @@ export type ClientData = {
     notes: string | null;
     siret: string | null;
     vatNumber: string | null;
+    defaultVatRateBp: number | null;
     billingAddressLine1: string | null;
     billingAddressLine2: string | null;
     billingPostalCode: string | null;
@@ -207,6 +208,7 @@ export type ClientWithMissionsData = {
     notes: string | null;
     siret: string | null;
     vatNumber: string | null;
+    defaultVatRateBp: number | null;
     billingAddressLine1: string | null;
     billingAddressLine2: string | null;
     billingPostalCode: string | null;
@@ -316,6 +318,7 @@ export type CreateClientData = {
     notes?: string | null;
     siret?: string | null;
     vatNumber?: string | null;
+    defaultVatRateBp?: number | null;
     billingAddressLine1?: string | null;
     billingAddressLine2?: string | null;
     billingPostalCode?: string | null;
@@ -630,6 +633,7 @@ export type InvoiceTodoWorkData = {
     valuedDays: number | null;
     valuedMinutes: number | null;
     timeEntryIds: Array<number>;
+    vatRateBp: number;
 };
 
 /**
@@ -815,7 +819,7 @@ export type RevenueNetData = {
  */
 export type RevenueVatData = {
     amount: MoneyData;
-    rateBp: number;
+    rateBp: number | null;
 };
 
 /**
@@ -992,6 +996,7 @@ export type UpdateClientData = {
     notes?: string | null;
     siret?: string | null;
     vatNumber?: string | null;
+    defaultVatRateBp?: number | null;
     billingAddressLine1?: string | null;
     billingAddressLine2?: string | null;
     billingPostalCode?: string | null;
@@ -1195,6 +1200,8 @@ export type UserData = {
     currency: Currency;
     businessCountry: string;
     hasFrenchFiscality: boolean;
+    vatLiable: boolean;
+    effectiveVatRateBp: number;
     timezone: string;
     workdayMinutes: number;
 };

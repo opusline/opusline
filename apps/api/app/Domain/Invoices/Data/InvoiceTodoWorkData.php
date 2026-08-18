@@ -19,6 +19,9 @@ class InvoiceTodoWorkData extends Data
      * @param  list<int>  $timeEntryIds
      * @param  ?float  $valuedDays  Billed quantity in the mission's own unit — exactly
      *                              one of days or minutes is set.
+     * @param  int  $vatRateBp  The rate an invoice for this row starts on, resolved from
+     *                          the client and the account regime. Sent so the create
+     *                          dialog prefills it instead of re-deriving the fiscal rule.
      */
     public function __construct(
         public int $missionId,
@@ -31,5 +34,6 @@ class InvoiceTodoWorkData extends Data
         public ?float $valuedDays,
         public ?int $valuedMinutes,
         public array $timeEntryIds,
+        public int $vatRateBp,
     ) {}
 }

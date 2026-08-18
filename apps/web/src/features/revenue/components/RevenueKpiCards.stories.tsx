@@ -50,6 +50,15 @@ export const FranchiseEnBase: Story = {
   args: { data: revenueData({ vat: null }) },
 };
 
+/** Clients billed at different rates: no single figure would describe the sum. */
+export const MixedVatRates: Story = {
+  args: {
+    data: revenueData({
+      vat: { amount: { amount: 228_200, currency: "EUR" }, rateBp: null },
+    }),
+  },
+};
+
 export const EmptyPeriod: Story = {
   args: { data: emptyRevenueData() },
 };

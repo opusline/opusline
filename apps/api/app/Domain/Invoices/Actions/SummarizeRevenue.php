@@ -219,9 +219,21 @@ class SummarizeRevenue
             $total = $total->add($invoice->vatAmount());
         }
 
+        // A period with nothing in it reads as the account's rate rather than as
+        // "several rates", which is what an empty unique() would otherwise caption.
+        $rates = $invoices
+            ->map(static fn (Invoice $invoice): int => $invoice->vat_rate_bp)
+            ->unique();
+
+        $rateBp = match ($rates->count()) {
+            0 => $settings->default_vat_rate_bp,
+            1 => $rates->first(),
+            default => null,
+        };
+
         return new RevenueVatData(
             amount: MoneyData::fromMoney($total),
-            rateBp: $settings->default_vat_rate_bp,
+            rateBp: $rateBp,
         );
     }
 

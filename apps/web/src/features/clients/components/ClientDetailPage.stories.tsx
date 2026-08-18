@@ -29,6 +29,7 @@ const client: ClientWithMissionsData = {
   notes: null,
   siret: "443 061 841 00047",
   vatNumber: "FR64 443061841",
+  defaultVatRateBp: null,
   billingAddressLine1: "12 rue de la Paix",
   billingAddressLine2: null,
   billingPostalCode: "44000",
@@ -107,6 +108,8 @@ const meta = {
     logoSrc: SAMPLE_LOGO_SRC,
     onUploadLogo: async () => ({ status: "success" }) as const,
     onRemoveLogo: async () => true,
+    vatLiable: true,
+    accountVatRateBp: 2000,
   },
 } satisfies Meta<typeof ClientDetailPage>;
 
@@ -159,6 +162,7 @@ export const WithoutCoordinates: Story = {
       ...client,
       siret: null,
       vatNumber: null,
+      defaultVatRateBp: null,
       billingAddressLine1: null,
       billingAddressLine2: null,
       billingPostalCode: null,
@@ -184,6 +188,18 @@ export const RevenueUnavailable: Story = {
     client,
     documentsTab,
     revenueFailed: true,
+    onUpdate: async () => ({ status: "success" }) as const,
+    onToggleArchive: () => {},
+  },
+};
+
+/** A client outside the scope of TVA: the Coordonnées card says so outright. */
+export const ClientWithoutVat: Story = {
+  args: {
+    client: { ...client, defaultVatRateBp: 0 },
+    documentsTab,
+    revenue,
+    revenueYear: 2026,
     onUpdate: async () => ({ status: "success" }) as const,
     onToggleArchive: () => {},
   },

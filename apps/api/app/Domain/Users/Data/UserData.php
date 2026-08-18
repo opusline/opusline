@@ -24,6 +24,8 @@ class UserData extends Data
         public Currency $currency,
         public string $businessCountry,
         public bool $hasFrenchFiscality,
+        public bool $vatLiable,
+        public int $effectiveVatRateBp,
         public string $timezone,
         public int $workdayMinutes,
     ) {}
@@ -43,6 +45,8 @@ class UserData extends Data
             currency: $settings->currency,
             businessCountry: $settings->business_country,
             hasFrenchFiscality: $settings->hasFrenchFiscality(),
+            vatLiable: $settings->vat_regime->isLiable(),
+            effectiveVatRateBp: $settings->effectiveVatRateBp(),
             timezone: $settings->timezone,
             workdayMinutes: $settings->workday_minutes,
         );

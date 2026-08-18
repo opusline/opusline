@@ -37,6 +37,8 @@ class UpdateClientData extends Data
         public ?string $siret = null,
         #[Max(255), Rule(new VatNumber)]
         public ?string $vatNumber = null,
+        #[IntegerType, Between(0, 10000)]
+        public ?int $defaultVatRateBp = null,
         #[Max(255)]
         public ?string $billingAddressLine1 = null,
         #[Max(255)]

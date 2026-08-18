@@ -171,10 +171,18 @@ class UserSettings extends Model
             + ($this->liberating_payment ? $this->liberating_payment_rate_bp : 0);
     }
 
-    /** The TVA rate a new invoice starts on; see config/fiscality.php. */
-    public function effectiveVatRateBp(): int
+    /**
+     * The TVA rate a new invoice starts on; see config/fiscality.php.
+     *
+     * @param  ?int  $clientRateBp  The client's own rate, when it has one. Null means it
+     *                              follows the account, so raising the default moves that
+     *                              client too; 0 means a client who is never charged TVA.
+     *                              The regime still wins over both: under the franchise en
+     *                              base there is no rate to charge anyone.
+     */
+    public function effectiveVatRateBp(?int $clientRateBp = null): int
     {
-        return $this->vat_regime->isLiable() ? $this->default_vat_rate_bp : 0;
+        return $this->vat_regime->isLiable() ? $clientRateBp ?? $this->default_vat_rate_bp : 0;
     }
 
     /**

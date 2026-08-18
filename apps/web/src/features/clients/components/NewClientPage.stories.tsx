@@ -22,6 +22,18 @@ export const Default: Story = {
   args: {
     onSubmit: async () => ({ status: "success" }) as const,
     onCancel: () => {},
+    vatLiable: true,
+    accountVatRateBp: 2000,
+  },
+};
+
+/** Under the franchise en base there is no rate to set, so the field is replaced. */
+export const FranchiseEnBase: Story = {
+  args: {
+    onSubmit: async () => ({ status: "success" }) as const,
+    onCancel: () => {},
+    vatLiable: false,
+    accountVatRateBp: 0,
   },
 };
 
@@ -29,6 +41,8 @@ export const WithServerError: Story = {
   args: {
     onSubmit: async () => ({ status: "success" }) as const,
     onCancel: () => {},
+    vatLiable: true,
+    accountVatRateBp: 2000,
     error: "Impossible de créer le client. Réessayez dans un instant.",
   },
 };

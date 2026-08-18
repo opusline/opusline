@@ -20,6 +20,7 @@ export const Route = createFileRoute("/_authed/clients_/new")({
 });
 
 function NewClientRoute() {
+  const { user } = Route.useRouteContext();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -88,6 +89,7 @@ function NewClientRoute() {
 
   return (
     <NewClientPage
+      accountVatRateBp={user.effectiveVatRateBp}
       error={
         createClient.error && !serverFieldErrors(createClient.error)
           ? m.clients_create_failed()
@@ -96,6 +98,7 @@ function NewClientRoute() {
       isPending={isSubmitting}
       onCancel={() => void navigate({ to: "/clients" })}
       onSubmit={handleSubmit}
+      vatLiable={user.vatLiable}
     />
   );
 }

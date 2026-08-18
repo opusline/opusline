@@ -12,6 +12,7 @@ import {
   formatPercentFromBp,
   type MoneyFormat,
   parseDecimal,
+  parseRateBp,
 } from "@/lib/billing";
 import { isFrenchFiscalityCountry } from "@/lib/fiscality";
 import { valueOrNull } from "@/lib/form";
@@ -267,7 +268,7 @@ const FIELD_TAB: Record<keyof SettingsFormValues, SettingsTab> = {
 export function ratePercentValidator(locale: Locale) {
   return ({ value }: { value: string }): { message: string } | undefined =>
     parseRateBp(locale, value) === null
-      ? { message: m.settings_rate_invalid() }
+      ? { message: m.common_rate_invalid() }
       : undefined;
 }
 
@@ -320,18 +321,9 @@ export function previewInvoiceNumber(format: string, on: Date): string {
   );
 }
 
+/** The same figure pinned to one decimal, so it does not jump as a rate is typed. */
 export function formatRateBp(locale: Locale, basisPoints: number): string {
   return formatPercentFromBp(locale, basisPoints, 1);
-}
-
-export function parseRateBp(locale: Locale, draft: string): number | null {
-  const rate = parseDecimal(locale, draft);
-
-  if (rate === null || rate > 100) {
-    return null;
-  }
-
-  return Math.round(rate * 100);
 }
 
 export function parseBufferCents(locale: Locale, draft: string): number | null {

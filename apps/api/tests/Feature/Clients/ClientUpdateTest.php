@@ -42,6 +42,7 @@ test('resets omitted optional fields to their defaults', function (): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create([
         'siret' => '443 061 841 00047',
+        'default_vat_rate_bp' => 0,
         'color' => Color::Sage,
         'payment_terms_days' => 60,
     ]);
@@ -53,8 +54,25 @@ test('resets omitted optional fields to their defaults', function (): void {
         ])
         ->assertOk()
         ->assertJsonPath('siret', null)
+        ->assertJsonPath('defaultVatRateBp', null)
         ->assertJsonPath('color', Color::Amber->value)
         ->assertJsonPath('paymentTermsDays', 45);
+});
+
+test('puts a client on its own TVA rate', function (): void {
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->putJson("/api/clients/{$client->slug}", [
+            'name' => $client->name,
+            'type' => ClientType::Direct->value,
+            'defaultVatRateBp' => 0,
+        ])
+        ->assertOk()
+        ->assertJsonPath('defaultVatRateBp', 0);
+
+    $this->assertDatabaseHas('clients', ['id' => $client->id, 'default_vat_rate_bp' => 0]);
 });
 
 test('keeps the slug when the client is renamed', function (): void {

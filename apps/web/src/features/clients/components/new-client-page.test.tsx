@@ -192,6 +192,7 @@ it("chains to the mission form after creating the client", async () => {
             notes: null,
             siret: null,
             vatNumber: null,
+            defaultVatRateBp: null,
             billingAddressLine1: null,
             billingAddressLine2: null,
             billingPostalCode: null,

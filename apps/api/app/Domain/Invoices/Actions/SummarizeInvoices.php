@@ -20,6 +20,7 @@ use App\Domain\Invoices\Enums\InvoiceTodoKind;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Enums\BillingMode;
 use App\Domain\Missions\Models\Mission;
+use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Enums\Currency;
 use App\Domain\TimeEntries\Models\TimeEntry;
@@ -59,7 +60,7 @@ class SummarizeInvoices
             monthUnbilled: $this->unbilledIn($unbilled, $currency),
             unbilled: $this->unbilledTotal($unbilled, $currency),
             counts: $this->counts($user, $today),
-            todo: $this->todo($overdue, $unbilled, $today),
+            todo: $this->todo($overdue, $unbilled, $today, $settings),
             todoTotal: $overdue->count() + count($unbilled),
         );
     }
@@ -305,8 +306,12 @@ class SummarizeInvoices
      * @param  list<UnbilledWork>  $unbilled
      * @return list<InvoiceTodoData>
      */
-    private function todo(Collection $overdue, array $unbilled, CarbonImmutable $today): array
-    {
+    private function todo(
+        Collection $overdue,
+        array $unbilled,
+        CarbonImmutable $today,
+        UserSettings $settings,
+    ): array {
         // Each kind is guaranteed half the list and may spill into whatever the other
         // leaves free. Filling the list overdue-first would let a long backlog hide
         // every invoice waiting to be written — and that row's button is the only way
@@ -348,6 +353,7 @@ class SummarizeInvoices
                     valuedDays: $row['days'],
                     valuedMinutes: $row['minutes'],
                     timeEntryIds: array_map(static fn (TimeEntry $entry): int => $entry->id, $entries),
+                    vatRateBp: $settings->effectiveVatRateBp($row['mission']->client->default_vat_rate_bp),
                 ),
             );
         }

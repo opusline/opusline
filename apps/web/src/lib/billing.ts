@@ -117,6 +117,17 @@ export function formatPercentFromBp(
   }).format(basisPoints / 100);
 }
 
+/** A typed percentage back to basis points: "5,5" -> 550. Null when it is not a rate. */
+export function parseRateBp(locale: Locale, draft: string): number | null {
+  const rate = parseDecimal(locale, draft);
+
+  if (rate === null || rate > 100) {
+    return null;
+  }
+
+  return Math.round(rate * 100);
+}
+
 export function formatRate(
   format: MoneyFormat,
   amountCents: number,

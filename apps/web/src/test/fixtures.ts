@@ -67,6 +67,7 @@ export const CLIENT_FIXTURE = {
   notes: null,
   siret: null,
   vatNumber: null,
+  defaultVatRateBp: null,
   billingAddressLine1: null,
   billingAddressLine2: null,
   billingPostalCode: null,
@@ -159,6 +160,7 @@ export const UNBILLED_TODO = {
     valuedDays: 3,
     valuedMinutes: null,
     timeEntryIds: [101, 102, 103],
+    vatRateBp: 2000,
   },
 } satisfies InvoiceTodoData;
 

@@ -14,6 +14,7 @@ import { AddressFields } from "@/components/address-fields";
 import { ClientLogo } from "@/components/client-logo";
 import { FormTextField } from "@/components/form-text-field";
 import { LogoPicker } from "@/components/logo-picker";
+import { useLocale } from "@/components/money-format-provider";
 import { PaymentTermsPicker } from "@/components/payment-terms-picker";
 import { RichMessage } from "@/components/rich-message";
 import { paymentTermsLabel } from "@/lib/billing";
@@ -23,6 +24,7 @@ import { m } from "@/paraglide/messages.js";
 import {
   BILLING_ADDRESS_NAMES,
   type ClientFormValues,
+  clientVatRateValidator,
   toClientPayload,
 } from "../lib/client-form";
 import {
@@ -31,6 +33,10 @@ import {
   clientTypeOptionLabel,
   randomColor,
 } from "../lib/labels";
+import {
+  ClientVatRateExempt,
+  ClientVatRateField,
+} from "./client-vat-rate-field";
 
 const EYEBROW_CLASSES =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
@@ -42,6 +48,10 @@ type NewClientPageProps = {
     logo: File | null,
   ) => Promise<FormSubmitResult>;
   onCancel: () => void;
+  /** Whether the account charges TVA at all; under the franchise en base it never does. */
+  vatLiable: boolean;
+  /** The rate a client with no rate of its own is billed at. */
+  accountVatRateBp: number;
   isPending?: boolean;
   error?: string | null;
 };
@@ -49,9 +59,12 @@ type NewClientPageProps = {
 export function NewClientPage({
   onSubmit,
   onCancel,
+  vatLiable,
+  accountVatRateBp,
   isPending,
   error,
 }: NewClientPageProps) {
+  const locale = useLocale();
   const [defaultColor] = useState<Color>(randomColor);
   const [logo, setLogo] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | undefined>(undefined);
@@ -75,6 +88,7 @@ export function NewClientPage({
       type: 0,
       siret: "",
       vatNumber: "",
+      defaultVatRate: "",
       billingAddressLine1: "",
       billingAddressLine2: "",
       billingPostalCode: "",
@@ -88,7 +102,7 @@ export function NewClientPage({
     validators: {
       onSubmitAsync: async ({ value }) => {
         const result = await onSubmit(
-          toClientPayload(value),
+          toClientPayload(value, locale),
           chainToMissionRef.current,
           logo,
         );
@@ -228,6 +242,23 @@ export function NewClientPage({
                 />
               )}
             </form.Field>
+            {vatLiable ? (
+              <form.Field
+                name="defaultVatRate"
+                validators={{ onChange: clientVatRateValidator(locale) }}
+              >
+                {(field) => (
+                  <ClientVatRateField
+                    accountVatRateBp={accountVatRateBp}
+                    field={field}
+                    labelClassName="text-foreground-3"
+                    locale={locale}
+                  />
+                )}
+              </form.Field>
+            ) : (
+              <ClientVatRateExempt labelClassName="text-foreground-3" />
+            )}
           </div>
 
           <AddressFields
