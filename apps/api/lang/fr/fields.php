@@ -57,6 +57,7 @@ return [
     'locale' => 'langue',
     'logo' => 'logo',
     'missionId' => 'mission',
+    'month' => 'mois',
     'note' => 'note',
     'notes' => 'notes',
     'occurredOn' => 'date de la relance',

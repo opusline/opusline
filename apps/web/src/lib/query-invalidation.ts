@@ -28,11 +28,11 @@ export function operationFilter(...operationIds: string[]): {
 }
 
 /**
- * Three things read a time entry: the week grid's date-range list, the mission
- * page's own history, and the revenue figures, whose month totals are derived
- * from tracked time. Writing one entry invalidates all of them, so a mission
- * opened right after an edit in the grid shows neither a pre-edit history nor
- * pre-edit tiles.
+ * Four things read a time entry: the week grid's date-range list, the mission
+ * page's own history, the revenue figures, and the week view's month workload —
+ * the last three all derived from tracked time. Writing one entry invalidates
+ * all of them, so a mission opened right after an edit in the grid shows neither
+ * a pre-edit history nor pre-edit tiles.
  *
  * Keep every time-entry write going through this rather than invalidating
  * listTimeEntries directly, or those surfaces silently go stale again.
@@ -45,7 +45,19 @@ export async function invalidateTimeEntries(
     queryClient.invalidateQueries(weekFilter),
     queryClient.invalidateQueries(missionTimeEntriesFilter()),
     queryClient.invalidateQueries(revenueFilter()),
+    queryClient.invalidateQueries(monthWorkloadFilter()),
   ]);
+}
+
+/**
+ * The week view's "Mois en cours" tile. Every time-entry write moves the days
+ * it counts, so it rides along with the rest rather than being refetched by
+ * whichever page happens to remount.
+ */
+export function monthWorkloadFilter(): {
+  predicate: (query: Query) => boolean;
+} {
+  return operationFilter("summarizeMonthWorkload");
 }
 
 /**

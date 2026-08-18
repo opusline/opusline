@@ -8,8 +8,10 @@ use App\Domain\Missions\Models\Mission;
 use App\Domain\TimeEntries\Actions\CreateTimeEntry;
 use App\Domain\TimeEntries\Actions\DeleteTimeEntry;
 use App\Domain\TimeEntries\Actions\ListTimeEntries;
+use App\Domain\TimeEntries\Actions\SummarizeMonthWorkload;
 use App\Domain\TimeEntries\Actions\UpdateTimeEntry;
 use App\Domain\TimeEntries\Data\ListTimeEntriesData;
+use App\Domain\TimeEntries\Data\MonthWorkloadQueryData;
 use App\Domain\TimeEntries\Data\TimeEntryData;
 use App\Domain\TimeEntries\Data\TimeEntryInputData;
 use App\Domain\TimeEntries\Data\TimeEntryListData;
@@ -30,6 +32,11 @@ class TimeEntryController extends Controller
         return response()->json(new TimeEntryListData(
             timeEntries: array_values(TimeEntryData::collect($timeEntries, 'array')),
         ));
+    }
+
+    public function monthWorkload(MonthWorkloadQueryData $data, #[CurrentUser] User $user, SummarizeMonthWorkload $summarizeMonthWorkload): JsonResponse
+    {
+        return response()->json($summarizeMonthWorkload->handle($user, $data));
     }
 
     /**

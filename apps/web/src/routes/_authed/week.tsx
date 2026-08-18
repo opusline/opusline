@@ -5,6 +5,7 @@ import {
   listClientsOptions,
   listTimeEntriesOptions,
   listTimeEntriesQueryKey,
+  summarizeMonthWorkloadOptions,
   updateTimeEntryMutation,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
@@ -83,6 +84,12 @@ function SemaineRoute() {
     ...listTimeEntriesOptions({ query: isoWeekRange(previousWeek) }),
     placeholderData: keepPreviousData,
   });
+  // "Mois en cours" reads the month the user is in, not the month the browsed
+  // week falls in: it is a standing capacity figure, and an ISO week straddling
+  // two months has no single month to report anyway.
+  const monthWorkload = useQuery(
+    summarizeMonthWorkloadOptions({ query: { month: today.slice(0, 7) } }),
+  );
 
   const createEntry = useMutation(createTimeEntryMutation());
   const updateEntry = useMutation(updateTimeEntryMutation());
@@ -334,6 +341,7 @@ function SemaineRoute() {
           knownEntryRange={knownRange}
           knownEntries={knownEntries}
           live={live}
+          monthWorkload={monthWorkload.data ?? null}
           onSubmitNewEntry={handleSubmitNewEntry}
           onUpdate={handleUpdate}
           onWeekChange={(nextWeek) =>

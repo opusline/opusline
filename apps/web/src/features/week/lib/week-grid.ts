@@ -40,6 +40,7 @@ export type WeekCellEntry = {
   id: number;
   durationMinutes: number;
   billable: boolean;
+  invoiced: boolean;
   note: string | null;
 };
 
@@ -49,7 +50,10 @@ export type WeekCell = {
   missionId: number;
   isWeekend: boolean;
   isToday: boolean;
-  isInvoiced: boolean;
+  /** Billable time on a mission that prices it — what the pill skin keys off. */
+  isBillable: boolean;
+  /** Billable time no invoice covers yet, so the cell wears the "to invoice" ring. */
+  hasUninvoicedTime: boolean;
   entries: WeekCellEntry[];
   billedLabel: string;
   note: string | null;
@@ -93,6 +97,8 @@ export type WeekGridModel = {
   missionOptions: MissionOption[];
   dayTotals: string[];
   weekTotal: string;
+  /** The week's billable time still waiting on an invoice, or null when none is. */
+  uninvoicedTotal: string | null;
   hasEntries: boolean;
 };
 
@@ -247,6 +253,7 @@ export function buildWeekGrid(input: {
 
   const dayTotals = columns.map(() => ({ dayFraction: 0, billedMinutes: 0 }));
   const weekTotal = { dayFraction: 0, billedMinutes: 0 };
+  const uninvoicedTotal = { dayFraction: 0, billedMinutes: 0 };
 
   const rows = selectMissions(
     input.format.locale,
@@ -286,6 +293,11 @@ export function buildWeekGrid(input: {
           dayTotals[columnIndex].billedMinutes += entry.valuedMinutes ?? 0;
           weekTotal.dayFraction += entry.valuedDayFraction ?? 0;
           weekTotal.billedMinutes += entry.valuedMinutes ?? 0;
+
+          if (!entry.invoiced) {
+            uninvoicedTotal.dayFraction += entry.valuedDayFraction ?? 0;
+            uninvoicedTotal.billedMinutes += entry.valuedMinutes ?? 0;
+          }
         }
       }
 
@@ -296,6 +308,11 @@ export function buildWeekGrid(input: {
         entries.length === 0,
       );
       const note = entries.length === 1 ? entries[0].note : null;
+      // Deliberately not gated on every entry being billable: a cell mixing
+      // billable and non-billable time still holds time waiting on an invoice,
+      // and hiding the ring there would hide money.
+      const hasUninvoicedTime =
+        hasRate && entries.some((entry) => entry.billable && !entry.invoiced);
 
       return {
         key:
@@ -306,11 +323,13 @@ export function buildWeekGrid(input: {
         missionId: mission.id,
         isWeekend: column.kind === "day" ? column.isWeekend : true,
         isToday: column.kind === "day" && column.isToday,
-        isInvoiced:
+        isBillable:
           hasRate && entries.every((entry) => entry.billable !== false),
+        hasUninvoicedTime,
         entries: entries.map((entry) => ({
           id: entry.id,
           billable: entry.billable,
+          invoiced: entry.invoiced,
           durationMinutes: entry.durationMinutes,
           note: entry.note,
         })),
@@ -320,6 +339,7 @@ export function buildWeekGrid(input: {
           billedLabel,
           date: column.kind === "day" ? column.date : null,
           isEmpty: entries.length === 0,
+          isUninvoiced: hasUninvoicedTime,
           locale: input.format.locale,
           missionName: mission.name,
           note,
@@ -359,6 +379,10 @@ export function buildWeekGrid(input: {
       formatBilledTotal(input.format.locale, total),
     ),
     weekTotal: formatBilledTotal(input.format.locale, weekTotal),
+    uninvoicedTotal:
+      uninvoicedTotal.dayFraction === 0 && uninvoicedTotal.billedMinutes === 0
+        ? null
+        : formatBilledTotal(input.format.locale, uninvoicedTotal),
     hasEntries: input.timeEntries.length > 0,
   };
 }

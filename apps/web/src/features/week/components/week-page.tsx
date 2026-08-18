@@ -1,5 +1,6 @@
 import type {
   ClientWithMissionsData,
+  MonthWorkloadData,
   TimeEntryData,
 } from "@opusline/api-client";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
@@ -16,10 +17,10 @@ import {
 } from "../lib/week-grid";
 import { summarizeWeekBillable } from "../lib/week-money";
 import { NewEntryDialog, type NewEntrySubmit } from "./new-entry-dialog";
-import { WeekBillableTile } from "./week-billable-tile";
 import { WeekEmptyBanner } from "./week-empty-banner";
 import { WeekGrid, type WeekGridProps } from "./week-grid";
 import { WEEK_SKINS, WeekLegend } from "./week-legend";
+import { WeekSummaryTiles } from "./week-summary-tiles";
 
 const LIVE_SKINS: PillSkin[] = [...WEEK_SKINS, "live"];
 
@@ -49,6 +50,8 @@ export type WeekPageProps = {
   /** Resolves to whether the entry was saved; a rejected one keeps the dialog
       open with everything the user typed still in it. */
   onSubmitNewEntry: (input: NewEntrySubmit) => Promise<boolean>;
+  /** The civil month today sits in, or null while it loads. */
+  monthWorkload: MonthWorkloadData | null;
   /** Entries across every loaded week, and the range they cover. */
   knownEntries: TimeEntryData[];
   knownEntryRange: { from: string; to: string };
@@ -83,6 +86,7 @@ export function WeekPage({
   onUpdate,
   onDelete,
   onSubmitNewEntry,
+  monthWorkload,
   knownEntries,
   knownEntryRange,
 }: WeekPageProps) {
@@ -204,8 +208,11 @@ export function WeekPage({
           workdayMinutes={workdayMinutes}
         />
       </div>
-      <WeekLegend skins={liveHere === null ? WEEK_SKINS : LIVE_SKINS} />
-      <WeekBillableTile summary={billable} />
+      <WeekLegend
+        skins={liveHere === null ? WEEK_SKINS : LIVE_SKINS}
+        uninvoicedTotal={model.uninvoicedTotal}
+      />
+      <WeekSummaryTiles monthWorkload={monthWorkload} summary={billable} />
       <NewEntryDialog
         isSaving={pendingCellKeys.size > 0}
         knownRange={knownEntryRange}

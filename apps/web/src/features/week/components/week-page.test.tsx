@@ -40,6 +40,7 @@ async function renderPage(overrides: Partial<WeekPageProps> = {}) {
       knownEntries={DEMO_TIME_ENTRIES}
       knownEntryRange={{ from: "2026-07-20", to: "2026-08-02" }}
       live={null}
+      monthWorkload={null}
       error={null}
       isRefreshing={false}
       isRepeating={false}
@@ -249,4 +250,23 @@ it("opens the weekend when the week carries weekend entries", async () => {
   });
 
   expect(screen.getByRole("grid")).toHaveAttribute("aria-colcount", "9");
+});
+
+it("tallies the week's time still waiting on an invoice in the legend", async () => {
+  await renderPage();
+
+  expect(screen.getByText(/non facturés cette semaine/)).toHaveTextContent(
+    "4,5 j · 3,5 h non facturés cette semaine",
+  );
+});
+
+it("drops the legend tally once every entry is invoiced", async () => {
+  await renderPage({
+    timeEntries: DEMO_TIME_ENTRIES.map((timeEntry) => ({
+      ...timeEntry,
+      invoiced: true,
+    })),
+  });
+
+  expect(screen.queryByText(/non facturés cette semaine/)).toBeNull();
 });

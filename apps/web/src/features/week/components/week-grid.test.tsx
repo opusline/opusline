@@ -117,8 +117,25 @@ it("names a filled cell with its mission, day, value and note", () => {
   renderGrid();
 
   expect(mondayTjmCell()).toHaveAccessibleName(
-    "Orvella front, lundi 27 juillet : 1 j, Sprint 24 · specs",
+    "Orvella front, lundi 27 juillet : 1 j, Sprint 24 · specs, Non facturé",
   );
+});
+
+it("rings a cell whose time no invoice covers yet", () => {
+  renderGrid();
+
+  expect(mondayTjmCell().querySelector('[title="Non facturé"]')).not.toBeNull();
+});
+
+it("drops the ring once an invoice covers the cell", () => {
+  renderGrid({
+    timeEntries: DEMO_TIME_ENTRIES.map((timeEntry) => ({
+      ...timeEntry,
+      invoiced: true,
+    })),
+  });
+
+  expect(mondayTjmCell().querySelector('[title="Non facturé"]')).toBeNull();
 });
 
 it("names an empty cell as empty", () => {

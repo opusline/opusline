@@ -35,6 +35,7 @@ import { InvoicesTable } from "@/features/invoices/components/invoices-table";
 import { accountTodayCalendarDate } from "@/lib/dates";
 import {
   missionTimeEntriesFilter,
+  operationFilter,
   revenueFilter,
 } from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
@@ -120,8 +121,10 @@ function FacturesPage() {
       // figures the other pages read.
       queryClient.invalidateQueries(revenueFilter()),
       // Creating an invoice links time entries to it and deleting one unlinks
-      // them, which flips the invoiced badge on the mission's history.
+      // them, which flips the invoiced badge on the mission's history and the
+      // "to invoice" ring on the week grid's cells.
       queryClient.invalidateQueries(missionTimeEntriesFilter()),
+      queryClient.invalidateQueries(operationFilter("listTimeEntries")),
       ...(openInvoiceId === null
         ? []
         : [

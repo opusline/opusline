@@ -35,7 +35,7 @@ type WeekCellProps = {
 };
 
 function skinOf(row: WeekRow, cell: WeekCellModel): PillSkin {
-  if (!cell.isInvoiced) {
+  if (!cell.isBillable) {
     return "nonBillable";
   }
 
@@ -153,10 +153,17 @@ export function WeekCell({
           ) : (
             <div
               className={cn(
-                "min-h-11 rounded-sm border px-2.5 py-2 transition-colors",
+                "relative min-h-11 rounded-sm border px-2.5 py-2 transition-colors",
                 PILL_SKINS[skin].pill,
               )}
             >
+              {cell.hasUninvoicedTime && (
+                <span
+                  aria-hidden
+                  className="absolute top-1 right-1 size-2 rounded-full border-2 border-primary-note"
+                  title={m.week_uninvoiced_marker()}
+                />
+              )}
               <div className="whitespace-nowrap font-mono text-sm tabular-nums">
                 {cell.billedLabel}
               </div>

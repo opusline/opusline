@@ -118,14 +118,37 @@ export const TimerAlongsideAnEntry: Story = {
   },
 };
 
+/**
+ * Time an invoice already covers loses the ring — the cell reads as settled
+ * rather than as work still owed a bill.
+ */
+export const Invoiced: Story = {
+  args: {
+    cell: { ...billedDayRow.cells[0], hasUninvoicedTime: false },
+    row: billedDayRow,
+  },
+};
+
 export const SeveralEntries: Story = {
   args: {
     cell: {
       ...billedDayRow.cells[0],
       billedLabel: "1 j",
       entries: [
-        { billable: true, durationMinutes: 210, id: 1, note: "Revue PR" },
-        { billable: true, durationMinutes: 210, id: 2, note: "Cadrage" },
+        {
+          billable: true,
+          durationMinutes: 210,
+          id: 1,
+          invoiced: false,
+          note: "Revue PR",
+        },
+        {
+          billable: true,
+          durationMinutes: 210,
+          id: 2,
+          invoiced: false,
+          note: "Cadrage",
+        },
       ],
       note: null,
     },

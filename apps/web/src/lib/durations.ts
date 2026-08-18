@@ -125,6 +125,20 @@ export function formatBilledDays(locale: Locale, dayFraction: number): string {
 }
 
 /**
+ * A stretch of days worked, for capacity figures like the month tile. Coarser
+ * than formatBilledDays on purpose: that one prices invoice lines, where a
+ * quarter-day is real, while summing a month of part-days lands on noise like
+ * 12,46 — nobody reads their month to the hundredth of a day.
+ */
+export function formatWorkedDays(locale: Locale, dayFraction: number): string {
+  return m.duration_days_value({
+    value: cachedFormatter(locale, { maximumFractionDigits: 1 }).format(
+      dayFraction,
+    ),
+  });
+}
+
+/**
  * How much unbilled work would bill, in the mission's own unit. Exactly one of
  * the two quantities is set, decided by how the mission bills; null when the
  * mission prices neither.

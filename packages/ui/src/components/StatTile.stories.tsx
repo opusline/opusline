@@ -63,6 +63,67 @@ export const Tones: Story = {
   ),
 };
 
+/**
+ * A meter turns a figure into a share of its ceiling. It is decorative: the
+ * value and the sub line already carry the same reading in words.
+ */
+/**
+ * Standalone cards instead of the shared-hairline band, for tiles that answer
+ * separate questions rather than reading as one run of figures.
+ */
+export const Cards: Story = {
+  render: () => (
+    <StatTileRow className="grid-cols-1 md:grid-cols-2" variant="cards">
+      <StatTile
+        label="Facturable cette semaine"
+        value="2 497,50 €"
+        sub="4 j × 550 € + 3,5 h × 85 €"
+        tone="brand"
+        size="lg"
+      />
+      <StatTile
+        label="Mois en cours"
+        value="19 j"
+        meter={19 / 22}
+        sub="sur 22 jours ouvrés"
+        tone="strong"
+        size="lg"
+      />
+    </StatTileRow>
+  ),
+};
+
+export const WithMeter: Story = {
+  render: () => (
+    <StatTileRow className="grid-cols-1 md:grid-cols-3">
+      <StatTile
+        label="Mois en cours"
+        value="18,5 j"
+        meter={18.5 / 21}
+        sub="sur 21 jours ouvrés"
+        tone="strong"
+        size="lg"
+      />
+      <StatTile
+        label="Mois vide"
+        value="0 j"
+        meter={0}
+        sub="sur 21 jours ouvrés"
+        tone="quiet"
+        size="lg"
+      />
+      <StatTile
+        label="Mois dépassé"
+        value="23 j"
+        meter={23 / 21}
+        sub="sur 21 jours ouvrés"
+        tone="strong"
+        size="lg"
+      />
+    </StatTileRow>
+  ),
+};
+
 export const WithoutSub: Story = {
   render: () => (
     <StatTileRow className="grid-cols-2 md:grid-cols-4">
