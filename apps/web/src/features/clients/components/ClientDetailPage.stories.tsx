@@ -192,3 +192,15 @@ export const RevenueUnavailable: Story = {
     onToggleArchive: () => {},
   },
 };
+
+/** A client outside the scope of TVA: the Coordonnées card says so outright. */
+export const ClientWithoutVat: Story = {
+  args: {
+    client: { ...client, defaultVatRateBp: 0 },
+    documentsTab,
+    revenue,
+    revenueYear: 2026,
+    onUpdate: async () => ({ status: "success" }) as const,
+    onToggleArchive: () => {},
+  },
+};

@@ -45,7 +45,7 @@ export function toClientPayload(
     type: values.type,
     siret: valueOrNull(values.siret),
     vatNumber: valueOrNull(values.vatNumber),
-    defaultVatRateBp: parseClientVatRate(locale, values.defaultVatRate),
+    defaultVatRateBp: parseRateBp(locale, values.defaultVatRate),
     billingAddressLine1: valueOrNull(values.billingAddressLine1),
     billingAddressLine2: valueOrNull(values.billingAddressLine2),
     billingPostalCode: valueOrNull(values.billingPostalCode),
@@ -59,27 +59,14 @@ export function toClientPayload(
 }
 
 /**
- * The draft as the API wants it. Empty means "follows the account", which is a
- * different fact from 0 — a client billed no TVA at all — so the two never collapse.
- *
- * A malformed draft lands on the same null as an empty one, so it must never reach
- * here: clientVatRateValidator below is what keeps the form from submitting it, and
- * turning an unreadable rate into "follows the account" would be a silent wrong answer.
- */
-export function parseClientVatRate(
-  locale: Locale,
-  draft: string,
-): number | null {
-  return draft.trim() === "" ? null : parseRateBp(locale, draft);
-}
-
-/**
  * Rejects a malformed rate but not an empty one: empty is the answer for most
- * clients, and it means something different from 0.
+ * clients, and it is what keeps an unreadable draft from reaching the payload,
+ * where parseRateBp would turn it into the same null that means "follows the
+ * account".
  */
 export function clientVatRateValidator(locale: Locale) {
   return ({ value }: { value: string }): { message: string } | undefined =>
-    value.trim() !== "" && parseClientVatRate(locale, value) === null
+    value.trim() !== "" && parseRateBp(locale, value) === null
       ? { message: m.clients_vat_rate_invalid() }
       : undefined;
 }

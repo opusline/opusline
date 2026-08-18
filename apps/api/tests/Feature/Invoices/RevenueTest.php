@@ -212,6 +212,17 @@ test('drops the VAT rate caption once the period mixes rates', function (): void
         ->assertJsonPath('vat.rateBp', null);
 });
 
+test('captions an empty period with the account rate rather than as mixed', function (): void {
+    $user = User::factory()->create();
+    vatLiable($user);
+
+    $this->actingAs($user)
+        ->getJson('/api/revenue')
+        ->assertOk()
+        ->assertJsonPath('vat.amount.amount', 0)
+        ->assertJsonPath('vat.rateBp', 2_000);
+});
+
 test('captions the VAT with the one rate the period agrees on', function (): void {
     $user = User::factory()->create();
     vatLiable($user);

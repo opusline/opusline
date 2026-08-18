@@ -219,8 +219,8 @@ class SummarizeRevenue
             $total = $total->add($invoice->vatAmount());
         }
 
-        // A period with nothing in it still reads as the account's rate; only invoices
-        // that genuinely disagree drop the caption.
+        // A period with nothing in it reads as the account's rate rather than as
+        // "several rates", which is what an empty unique() would otherwise caption.
         $rates = $invoices
             ->map(static fn (Invoice $invoice): int => $invoice->vat_rate_bp)
             ->unique();

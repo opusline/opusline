@@ -31,7 +31,6 @@ class CreateClientData extends Data
         public ?string $siret = null,
         #[Max(255), Rule(new VatNumber)]
         public ?string $vatNumber = null,
-        /** Null follows the account default; 0 is a client who is never charged TVA. */
         #[IntegerType, Between(0, 10000)]
         public ?int $defaultVatRateBp = null,
         #[Max(255)]

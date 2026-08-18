@@ -16,14 +16,20 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof ClientVatRateField>;
 
+/**
+ * The real form validates on change; a story only sets a default value, so the
+ * same validator is wired to mount as well — otherwise the invalid state below
+ * could never render and would document nothing.
+ */
 function Harness({ defaultVatRate }: { defaultVatRate: string }) {
   const form = useForm({ defaultValues: { defaultVatRate } });
+  const validate = clientVatRateValidator("fr-FR");
 
   return (
     <div className="max-w-sm">
       <form.Field
         name="defaultVatRate"
-        validators={{ onChange: clientVatRateValidator("fr-FR") }}
+        validators={{ onChange: validate, onMount: validate }}
       >
         {(field) => (
           <ClientVatRateField

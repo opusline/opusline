@@ -20,7 +20,6 @@ import {
 import { Switch } from "@opusline/ui/components/switch";
 import { FormTextField } from "@/components/form-text-field";
 import { useMoneyFormat } from "@/components/money-format-provider";
-import { formatRateBp } from "@/lib/billing";
 import {
   abroadTaxTerms,
   URSSAF_PERIODICITIES,
@@ -29,7 +28,7 @@ import {
   VAT_REGIMES,
 } from "@/lib/fiscality";
 import { m } from "@/paraglide/messages.js";
-import { ratePercentValidator } from "../lib/settings-form";
+import { formatRateBp, ratePercentValidator } from "../lib/settings-form";
 import type { SettingsForm } from "../lib/use-settings-form";
 import { RateSource } from "./rate-source";
 import { SettingsSection } from "./settings-section";

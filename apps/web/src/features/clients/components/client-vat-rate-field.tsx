@@ -1,5 +1,6 @@
 import type { Locale } from "@opusline/api-client";
 
+import { ExemptField } from "@/components/exempt-field";
 import {
   FormTextField,
   type StringFieldApi,
@@ -21,17 +22,17 @@ export function ClientVatRateField({
   accountVatRateBp,
   labelClassName,
 }: ClientVatRateFieldProps) {
+  const accountRate = formatPercentFromBp(locale, accountVatRateBp);
+
   return (
     <FormTextField
       adornment="%"
-      description={m.clients_vat_rate_hint({
-        rate: formatPercentFromBp(locale, accountVatRateBp),
-      })}
+      description={m.clients_vat_rate_hint({ rate: accountRate })}
       field={field}
       inputMode="decimal"
       label={m.clients_vat_rate_label()}
       labelClassName={labelClassName}
-      placeholder={formatPercentFromBp(locale, accountVatRateBp)}
+      placeholder={accountRate}
     />
   );
 }
@@ -43,13 +44,10 @@ export function ClientVatRateExempt({
   labelClassName?: string;
 }) {
   return (
-    <div>
-      <span className={`mb-1.5 block ${labelClassName ?? ""}`}>
-        {m.clients_vat_rate_label()}
-      </span>
-      <div className="flex h-10 items-center rounded-md border border-border-3 border-dashed bg-muted px-3 text-muted-foreground-3 text-sm">
-        {m.clients_vat_rate_franchise()}
-      </div>
-    </div>
+    <ExemptField
+      label={m.clients_vat_rate_label()}
+      labelClassName={labelClassName}
+      reason={m.clients_vat_rate_franchise()}
+    />
   );
 }

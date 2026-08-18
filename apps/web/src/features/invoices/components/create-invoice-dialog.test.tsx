@@ -62,17 +62,7 @@ it("sends an edited rate rather than the client's", () => {
   );
 });
 
-it("refuses to submit a rate that is not one", () => {
-  const onSubmit = renderDialog();
-  const field = screen.getByLabelText("TVA");
-
-  fireEvent.change(field, { target: { value: "beaucoup" } });
-  fireEvent.click(screen.getByRole("button", { name: "Créer la facture" }));
-
-  expect(onSubmit).not.toHaveBeenCalled();
-});
-
-it("offers no rate under the franchise en base, and invoices at zero", () => {
+it("offers no rate under the franchise en base, and leaves it to the API", () => {
   const onSubmit = renderDialog({
     vatLiable: false,
     todo: unbilledTodoRow({ vatRateBp: 0 }),
@@ -82,7 +72,19 @@ it("offers no rate under the franchise en base, and invoices at zero", () => {
 
   fireEvent.click(screen.getByRole("button", { name: "Créer la facture" }));
 
+  // Null, not a hard-coded 0: a cached regime must never decide a fiscal number.
   expect(onSubmit).toHaveBeenCalledWith(
-    expect.objectContaining({ vatRateBp: 0 }),
+    expect.objectContaining({ vatRateBp: null }),
   );
+});
+
+it("explains a rate it cannot read instead of silently doing nothing", () => {
+  const onSubmit = renderDialog();
+  const field = screen.getByLabelText("TVA");
+
+  fireEvent.change(field, { target: { value: "beaucoup" } });
+
+  expect(field).toHaveAttribute("aria-invalid", "true");
+  expect(screen.getByText("Indiquez un taux entre 0 et 100.")).toBeVisible();
+  expect(onSubmit).not.toHaveBeenCalled();
 });

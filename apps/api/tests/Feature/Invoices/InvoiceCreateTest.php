@@ -119,6 +119,23 @@ test('a rate on the request beats the client own rate', function (): void {
         ->assertJsonPath('invoice.amountVat.amount', 20_000);
 });
 
+test('an explicit null rate falls through to the account and client resolution', function (): void {
+    $user = User::factory()->create();
+    vatLiable($user);
+    $client = Client::factory()->for($user)->create(['default_vat_rate_bp' => 550]);
+
+    // The create dialog sends null rather than a figure whenever it shows no field,
+    // so null must resolve, not validate as out of range or store as 0.
+    $this->actingAs($user)
+        ->postJson('/api/invoices', [
+            'clientId' => $client->id,
+            'amountHt' => ['amount' => 100_000, 'currency' => 'EUR'],
+            'vatRateBp' => null,
+        ])
+        ->assertCreated()
+        ->assertJsonPath('invoice.vatRateBp', 550);
+});
+
 test('the franchise en base outranks a client own rate', function (): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create(['default_vat_rate_bp' => 2_000]);

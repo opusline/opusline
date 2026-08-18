@@ -11,7 +11,13 @@ import {
   DialogTitle,
 } from "@opusline/ui/components/dialog";
 import { Input } from "@opusline/ui/components/input";
+import {
+  InputGroup,
+  InputGroupInput,
+  InputGroupSuffix,
+} from "@opusline/ui/components/input-group";
 import { Label } from "@opusline/ui/components/label";
+import { cn } from "@opusline/ui/lib/utils";
 import { useEffect, useId, useState } from "react";
 
 import {
@@ -36,7 +42,8 @@ export type CreateInvoiceSubmit = {
   missionId: number;
   number: string | null;
   amountHtCents: number;
-  vatRateBp: number;
+  /** Null hands the rate back to the API, which resolves it from client and regime. */
+  vatRateBp: number | null;
   periodStart: string | null;
   periodEnd: string | null;
   timeEntryIds: number[];
@@ -112,6 +119,7 @@ function CreateInvoiceForm({
   const numberFieldId = useId();
   const amountFieldId = useId();
   const vatFieldId = useId();
+  const vatHintId = useId();
   const [number, setNumber] = useState("");
   const [amountDraft, setAmountDraft] = useState(() =>
     formatAmount(format, todo.amount.amount),
@@ -128,15 +136,19 @@ function CreateInvoiceForm({
   }, [suggestedNumber]);
 
   const amountHtCents = parseRateToCents(format.locale, amountDraft);
-  const vatRateBp = vatLiable ? parseRateBp(format.locale, vatDraft) : 0;
-  const canSubmit = amountHtCents !== null && vatRateBp !== null && !isSaving;
+  // With no field to read, the rate goes back to the API rather than being invented
+  // here: a cached vatLiable or a cached work.vatRateBp could each be a regime behind,
+  // and only the server resolves the regime and the client's rate together.
+  const vatRateBp = vatLiable ? parseRateBp(format.locale, vatDraft) : null;
+  const isVatInvalid = vatLiable && vatRateBp === null;
+  const canSubmit = amountHtCents !== null && !isVatInvalid && !isSaving;
 
   return (
     <form
       onSubmit={(event) => {
         event.preventDefault();
 
-        if (amountHtCents === null || vatRateBp === null) {
+        if (amountHtCents === null || isVatInvalid) {
           return;
         }
 
@@ -206,20 +218,26 @@ function CreateInvoiceForm({
         {vatLiable ? (
           <div className="flex flex-col gap-1.5">
             <Label htmlFor={vatFieldId}>{m.invoices_vat_label()}</Label>
-            <div className="relative">
-              <Input
+            <InputGroup>
+              <InputGroupInput
+                aria-describedby={vatHintId}
+                aria-invalid={isVatInvalid}
+                className="flex-1"
                 id={vatFieldId}
                 inputMode="decimal"
-                value={vatDraft}
-                aria-invalid={vatRateBp === null}
                 onChange={(event) => setVatDraft(event.target.value)}
+                value={vatDraft}
               />
-              <span className="-translate-y-1/2 pointer-events-none absolute top-1/2 right-3 text-muted-foreground-2 text-sm">
-                %
-              </span>
-            </div>
-            <p className="text-muted-foreground-3 text-xs">
-              {m.invoices_vat_hint()}
+              <InputGroupSuffix>%</InputGroupSuffix>
+            </InputGroup>
+            <p
+              className={cn(
+                "text-xs",
+                isVatInvalid ? "text-destructive" : "text-muted-foreground-3",
+              )}
+              id={vatHintId}
+            >
+              {isVatInvalid ? m.common_rate_invalid() : m.invoices_vat_hint()}
             </p>
           </div>
         ) : (

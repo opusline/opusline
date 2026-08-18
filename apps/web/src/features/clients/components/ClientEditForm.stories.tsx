@@ -66,3 +66,23 @@ export const WithoutLogo: Story = {
     onCancel: () => {},
   },
 };
+
+/** A client billed no TVA at all, as opposed to one that follows the account. */
+export const ClientWithoutVat: Story = {
+  args: {
+    client: { ...client, defaultVatRateBp: 0 },
+    onSubmit: async () => ({ status: "success" }) as const,
+    onCancel: () => {},
+  },
+};
+
+/** Under the franchise en base there is no rate to set, so the field is replaced. */
+export const FranchiseEnBase: Story = {
+  args: {
+    client,
+    vatLiable: false,
+    accountVatRateBp: 0,
+    onSubmit: async () => ({ status: "success" }) as const,
+    onCancel: () => {},
+  },
+};

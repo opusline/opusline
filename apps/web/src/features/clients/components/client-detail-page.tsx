@@ -139,10 +139,13 @@ export function ClientDetailPage({
   );
 
   const isArchived = client.archivedAt !== null;
+  // Null under the franchise en base whatever the client stores: no invoice for
+  // them will carry that rate, so the card must not claim it.
+  const ownVatRateBp = vatLiable ? client.defaultVatRateBp : null;
   const hasCoordinates =
     client.siret !== null ||
     client.vatNumber !== null ||
-    client.defaultVatRateBp !== null ||
+    ownVatRateBp !== null ||
     formatPostalAddress(client) !== null ||
     client.billingContactName !== null ||
     client.billingEmail !== null;
@@ -453,13 +456,13 @@ export function ClientDetailPage({
                       mono
                       value={client.vatNumber}
                     />
-                    {client.defaultVatRateBp !== null && (
+                    {ownVatRateBp !== null && (
                       <CoordRow
                         label={m.clients_vat_rate_label()}
-                        value={m.invoices_vat_rate_fact({
-                          rate: formatPercentFromBp(
+                        value={m.common_percent({
+                          value: formatPercentFromBp(
                             format.locale,
-                            client.defaultVatRateBp,
+                            ownVatRateBp,
                           ),
                         })}
                       />
