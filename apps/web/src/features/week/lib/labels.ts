@@ -27,6 +27,7 @@ export function cellAriaLabel(input: {
   billedLabel: string;
   note: string | null;
   isEmpty: boolean;
+  isUninvoiced: boolean;
 }): string {
   if (input.date === null) {
     return m.week_weekend_collapsed();
@@ -39,11 +40,12 @@ export function cellAriaLabel(input: {
   }
 
   const note = input.note === null ? "" : `, ${input.note}`;
+  const invoicing = input.isUninvoiced ? `, ${m.week_uninvoiced_marker()}` : "";
 
   return m.week_cell_label({
     mission: input.missionName,
     day,
-    value: `${input.billedLabel}${note}`,
+    value: `${input.billedLabel}${note}${invoicing}`,
   });
 }
 

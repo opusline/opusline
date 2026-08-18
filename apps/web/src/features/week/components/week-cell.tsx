@@ -7,7 +7,7 @@ import { isHourly } from "@/lib/durations";
 import { m } from "@/paraglide/messages.js";
 
 import { liveCellLabel } from "../lib/labels";
-import { PILL_SKINS, type PillSkin } from "../lib/pill-skins";
+import { PILL_SKINS, type PillSkin, UNINVOICED_RING } from "../lib/pill-skins";
 import type {
   LiveCell,
   WeekCell as WeekCellModel,
@@ -35,7 +35,7 @@ type WeekCellProps = {
 };
 
 function skinOf(row: WeekRow, cell: WeekCellModel): PillSkin {
-  if (!cell.isInvoiced) {
+  if (!cell.isBillable) {
     return "nonBillable";
   }
 
@@ -153,10 +153,17 @@ export function WeekCell({
           ) : (
             <div
               className={cn(
-                "min-h-11 rounded-sm border px-2.5 py-2 transition-colors",
+                "relative min-h-11 rounded-sm border px-2.5 py-2 transition-colors",
                 PILL_SKINS[skin].pill,
               )}
             >
+              {cell.hasUninvoicedTime && (
+                <span
+                  aria-hidden
+                  className={cn("absolute top-1 right-1", UNINVOICED_RING)}
+                  title={m.week_uninvoiced_marker()}
+                />
+              )}
               <div className="whitespace-nowrap font-mono text-sm tabular-nums">
                 {cell.billedLabel}
               </div>

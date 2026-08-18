@@ -1036,6 +1036,18 @@
   "week_mission_step_title": "Which mission?",
   "week_missions_empty_description": "The grid shows one row per mission. Create a client, then its first mission, and the week fills in as you track.",
   "week_missions_empty_title": "Nothing to track yet",
+  "week_month_business_days": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "of {count} business day",
+        "countPlural=other": "of {count} business days"
+      }
+    }
+  ],
+  "week_month_title": "Current month",
+  "week_month_unavailable": "Could not be loaded",
   "week_new_entry": "New entry",
   "week_next": "Next week",
   "week_no_activity": "No activity",
@@ -1081,6 +1093,8 @@
   "week_stop_tracking": "Stop and save the tracking",
   "week_title": "Week {number}",
   "week_today": "Today",
+  "week_uninvoiced_legend": "{value} to invoice this week",
+  "week_uninvoiced_marker": "Not invoiced",
   "week_view_clients": "View my clients",
   "week_week_total_label": "Week total",
   "week_weekend_collapsed": "Weekend collapsed",

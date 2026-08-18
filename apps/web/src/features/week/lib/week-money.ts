@@ -1,15 +1,12 @@
 import type {
-  BillingMode,
   ClientWithMissionsData,
   TimeEntryData,
 } from "@opusline/api-client";
 
-import { isHourly } from "@/lib/durations";
+import { isFixedPrice, isHourly } from "@/lib/durations";
 import { findMissionById } from "@/lib/missions";
 
 const MINUTES_PER_HOUR = 60;
-
-const FIXED_PRICE: BillingMode = 2;
 
 export type WeekBillableSummary = {
   /** What the week's billable time is worth, HT, in cents of the account currency. */
@@ -59,7 +56,7 @@ export function summarizeWeekBillable(
 
     // Before the rate check: a forfait mission whose price is not set yet is
     // still forfait time, not time waiting for a rate.
-    if (mission?.billingMode === FIXED_PRICE) {
+    if (mission !== null && isFixedPrice(mission.billingMode)) {
       summary.fixedPriceEntryCount += 1;
       continue;
     }

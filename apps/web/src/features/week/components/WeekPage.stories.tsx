@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { StoryRouter } from "@/test/story-router";
 import {
   DEMO_CLIENTS,
+  DEMO_MONTH_WORKLOAD,
   DEMO_TIME_ENTRIES,
   DEMO_TODAY,
   DEMO_WEEK,
@@ -22,6 +23,7 @@ const meta = {
     error: null,
     isRefreshing: false,
     isRepeating: false,
+    monthWorkload: DEMO_MONTH_WORKLOAD,
     onCreate: () => Promise.resolve(true),
     onDelete: () => Promise.resolve(true),
     onRepeatPreviousWeek: () => {},

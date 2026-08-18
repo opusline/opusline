@@ -1,8 +1,19 @@
-import { PILL_SKINS, type PillSkin } from "../lib/pill-skins";
+import { m } from "@/paraglide/messages.js";
+
+import { PILL_SKINS, type PillSkin, UNINVOICED_RING } from "../lib/pill-skins";
 
 export const WEEK_SKINS: PillSkin[] = ["billedDay", "hourly", "nonBillable"];
 
-export function WeekLegend({ skins = WEEK_SKINS }: { skins?: PillSkin[] }) {
+type WeekLegendProps = {
+  skins?: PillSkin[];
+  /** The week's billable time no invoice covers yet; omitted when all of it is. */
+  uninvoicedTotal?: string | null;
+};
+
+export function WeekLegend({
+  skins = WEEK_SKINS,
+  uninvoicedTotal = null,
+}: WeekLegendProps) {
   return (
     <ul className="flex flex-wrap items-center gap-x-5 gap-y-2 text-muted-foreground-3 text-xs">
       {skins.map((skin) => (
@@ -14,6 +25,12 @@ export function WeekLegend({ skins = WEEK_SKINS }: { skins?: PillSkin[] }) {
           {PILL_SKINS[skin].label()}
         </li>
       ))}
+      {uninvoicedTotal !== null && (
+        <li className="flex items-center gap-2">
+          <span aria-hidden className={UNINVOICED_RING} />
+          {m.week_uninvoiced_legend({ value: uninvoicedTotal })}
+        </li>
+      )}
     </ul>
   );
 }

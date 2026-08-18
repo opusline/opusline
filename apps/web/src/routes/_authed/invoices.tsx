@@ -36,6 +36,7 @@ import { accountTodayCalendarDate } from "@/lib/dates";
 import {
   missionTimeEntriesFilter,
   revenueFilter,
+  weekTimeEntriesFilter,
 } from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
@@ -120,8 +121,10 @@ function FacturesPage() {
       // figures the other pages read.
       queryClient.invalidateQueries(revenueFilter()),
       // Creating an invoice links time entries to it and deleting one unlinks
-      // them, which flips the invoiced badge on the mission's history.
+      // them, which flips the invoiced badge on the mission's history and the
+      // "to invoice" ring on the week grid's cells.
       queryClient.invalidateQueries(missionTimeEntriesFilter()),
+      queryClient.invalidateQueries(weekTimeEntriesFilter()),
       ...(openInvoiceId === null
         ? []
         : [

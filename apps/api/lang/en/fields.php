@@ -57,6 +57,7 @@ return [
     'locale' => 'language',
     'logo' => 'logo',
     'missionId' => 'mission',
+    'month' => 'month',
     'note' => 'note',
     'notes' => 'notes',
     'occurredOn' => 'reminder date',

@@ -10,6 +10,7 @@ import { expect, it, vi } from "vitest";
 
 import {
   DEMO_CLIENTS,
+  DEMO_MONTH_WORKLOAD,
   DEMO_TIME_ENTRIES,
   DEMO_TODAY,
   DEMO_WEEK,
@@ -40,6 +41,7 @@ async function renderPage(overrides: Partial<WeekPageProps> = {}) {
       knownEntries={DEMO_TIME_ENTRIES}
       knownEntryRange={{ from: "2026-07-20", to: "2026-08-02" }}
       live={null}
+      monthWorkload={null}
       error={null}
       isRefreshing={false}
       isRepeating={false}
@@ -249,4 +251,37 @@ it("opens the weekend when the week carries weekend entries", async () => {
   });
 
   expect(screen.getByRole("grid")).toHaveAttribute("aria-colcount", "9");
+});
+
+it("tallies the week's time still waiting on an invoice in the legend", async () => {
+  await renderPage();
+
+  expect(screen.getByText(/à facturer cette semaine/)).toHaveTextContent(
+    "4,5 j · 3,5 h à facturer cette semaine",
+  );
+});
+
+it("renders the month tile beside the billable one", async () => {
+  await renderPage({ monthWorkload: DEMO_MONTH_WORKLOAD });
+
+  expect(screen.getByText("Mois en cours")).toBeInTheDocument();
+  expect(screen.getByText("sur 22 jours ouvrés")).toBeInTheDocument();
+});
+
+it("says so when the month could not be loaded, rather than hiding the tile", async () => {
+  await renderPage({ monthWorkload: "unavailable" });
+
+  expect(screen.getByText("Mois en cours")).toBeInTheDocument();
+  expect(screen.getByText("Chargement impossible")).toBeInTheDocument();
+});
+
+it("drops the legend tally once every entry is invoiced", async () => {
+  await renderPage({
+    timeEntries: DEMO_TIME_ENTRIES.map((timeEntry) => ({
+      ...timeEntry,
+      invoiced: true,
+    })),
+  });
+
+  expect(screen.queryByText(/à facturer cette semaine/)).toBeNull();
 });

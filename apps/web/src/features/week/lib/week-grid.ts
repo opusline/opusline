@@ -10,11 +10,12 @@ import {
   type MoneyFormat,
   missionBills,
 } from "@/lib/billing";
-import { clientTypeShortLabel } from "@/lib/client-types";
+import { clientTypeShortLabel, isInternalClient } from "@/lib/client-types";
 import {
   formatBilledDays,
   formatBilledHours,
   formatBilledTotal,
+  isFixedPrice,
   isHourly,
 } from "@/lib/durations";
 import { isMissionOpenForTime } from "@/lib/mission-status";
@@ -49,7 +50,10 @@ export type WeekCell = {
   missionId: number;
   isWeekend: boolean;
   isToday: boolean;
-  isInvoiced: boolean;
+  /** Billable time on a mission that prices it — what the pill skin keys off. */
+  isBillable: boolean;
+  /** Billable time no invoice covers yet, so the cell wears the "to invoice" ring. */
+  hasUninvoicedTime: boolean;
   entries: WeekCellEntry[];
   billedLabel: string;
   note: string | null;
@@ -93,6 +97,8 @@ export type WeekGridModel = {
   missionOptions: MissionOption[];
   dayTotals: string[];
   weekTotal: string;
+  /** The week's billable time still waiting on an invoice, or null when none is. */
+  uninvoicedTotal: string | null;
   hasEntries: boolean;
 };
 
@@ -247,6 +253,7 @@ export function buildWeekGrid(input: {
 
   const dayTotals = columns.map(() => ({ dayFraction: 0, billedMinutes: 0 }));
   const weekTotal = { dayFraction: 0, billedMinutes: 0 };
+  const uninvoicedTotal = { dayFraction: 0, billedMinutes: 0 };
 
   const rows = selectMissions(
     input.format.locale,
@@ -256,6 +263,12 @@ export function buildWeekGrid(input: {
   ).map(({ mission, client }) => {
     const dayBilled = !isHourly(mission.billingMode);
     const hasRate = missionBills(mission);
+    // Who could ever receive a bill for this time. Forfait is out — its invoice
+    // carries a price, never a count of days — and so is an internal client:
+    // there is nobody to invoice. Mirrors what SummarizeInvoices leaves out of
+    // "à facturer" on the API, so the two surfaces cannot promise different work.
+    const billsSomeone =
+      !isFixedPrice(mission.billingMode) && !isInternalClient(client.type);
     const rowTotal = { dayFraction: 0, billedMinutes: 0 };
 
     const cells = columns.map((column, columnIndex): WeekCell => {
@@ -296,6 +309,21 @@ export function buildWeekGrid(input: {
         entries.length === 0,
       );
       const note = entries.length === 1 ? entries[0].note : null;
+      // The ring and the legend tally both read this one list, so what the grid
+      // marks and what the legend counts cannot drift apart.
+      //
+      // Not gated on the mission having a rate: the hours exist whether or not a
+      // price is set, and time nobody has priced yet is exactly what this feature
+      // exists to stop you forgetting.
+      const uninvoicedEntries = billsSomeone
+        ? entries.filter((entry) => entry.billable && !entry.invoiced)
+        : [];
+      const hasUninvoicedTime = uninvoicedEntries.length > 0;
+
+      for (const entry of uninvoicedEntries) {
+        uninvoicedTotal.dayFraction += entry.valuedDayFraction ?? 0;
+        uninvoicedTotal.billedMinutes += entry.valuedMinutes ?? 0;
+      }
 
       return {
         key:
@@ -306,8 +334,9 @@ export function buildWeekGrid(input: {
         missionId: mission.id,
         isWeekend: column.kind === "day" ? column.isWeekend : true,
         isToday: column.kind === "day" && column.isToday,
-        isInvoiced:
+        isBillable:
           hasRate && entries.every((entry) => entry.billable !== false),
+        hasUninvoicedTime,
         entries: entries.map((entry) => ({
           id: entry.id,
           billable: entry.billable,
@@ -320,6 +349,7 @@ export function buildWeekGrid(input: {
           billedLabel,
           date: column.kind === "day" ? column.date : null,
           isEmpty: entries.length === 0,
+          isUninvoiced: hasUninvoicedTime,
           locale: input.format.locale,
           missionName: mission.name,
           note,
@@ -359,6 +389,10 @@ export function buildWeekGrid(input: {
       formatBilledTotal(input.format.locale, total),
     ),
     weekTotal: formatBilledTotal(input.format.locale, weekTotal),
+    uninvoicedTotal:
+      uninvoicedTotal.dayFraction === 0 && uninvoicedTotal.billedMinutes === 0
+        ? null
+        : formatBilledTotal(input.format.locale, uninvoicedTotal),
     hasEntries: input.timeEntries.length > 0,
   };
 }

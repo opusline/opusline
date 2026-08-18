@@ -701,6 +701,15 @@ export type MoneyData = {
 };
 
 /**
+ * MonthWorkloadData
+ */
+export type MonthWorkloadData = {
+    month: string;
+    businessDays: number;
+    workedDays: number;
+};
+
+/**
  * NextInvoiceNumberData
  */
 export type NextInvoiceNumberData = {
@@ -3937,6 +3946,35 @@ export type CreateTimeEntryResponses = {
 };
 
 export type CreateTimeEntryResponse = CreateTimeEntryResponses[keyof CreateTimeEntryResponses];
+
+export type SummarizeMonthWorkloadData = {
+    body?: never;
+    path?: never;
+    query: {
+        month: string;
+    };
+    url: '/time-entries/month-workload';
+};
+
+export type SummarizeMonthWorkloadErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type SummarizeMonthWorkloadError = SummarizeMonthWorkloadErrors[keyof SummarizeMonthWorkloadErrors];
+
+export type SummarizeMonthWorkloadResponses = {
+    200: MonthWorkloadData;
+};
+
+export type SummarizeMonthWorkloadResponse = SummarizeMonthWorkloadResponses[keyof SummarizeMonthWorkloadResponses];
 
 export type DeleteTimeEntryData = {
     body?: never;

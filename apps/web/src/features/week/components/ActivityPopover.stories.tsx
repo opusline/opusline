@@ -35,7 +35,14 @@ export const JustAdded: Story = {
   args: {
     cell: {
       ...billedDayRow.cells[0],
-      entries: [{ billable: true, durationMinutes: 60, id: 1, note: null }],
+      entries: [
+        {
+          billable: true,
+          durationMinutes: 60,
+          id: 1,
+          note: null,
+        },
+      ],
       note: null,
     },
   },
@@ -52,8 +59,18 @@ export const SeveralEntries: Story = {
       ...billedDayRow.cells[0],
       billedLabel: "1 j",
       entries: [
-        { billable: true, durationMinutes: 210, id: 1, note: "Revue PR" },
-        { billable: true, durationMinutes: 210, id: 2, note: "Cadrage V2" },
+        {
+          billable: true,
+          durationMinutes: 210,
+          id: 1,
+          note: "Revue PR",
+        },
+        {
+          billable: true,
+          durationMinutes: 210,
+          id: 2,
+          note: "Cadrage V2",
+        },
       ],
       note: null,
     },

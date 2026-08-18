@@ -222,9 +222,102 @@ describe("cells", () => {
       timeEntries: [entry({ billable: false })],
     });
 
-    expect(rows[0].cells[0].isInvoiced).toBe(false);
+    expect(rows[0].cells[0].isBillable).toBe(false);
     // The mission still bills; this entry simply does not.
     expect(rows[0].hasRate).toBe(true);
+  });
+
+  it("rings a cell whose billable time no invoice covers yet", () => {
+    const { rows } = build({
+      clients: [client()],
+      timeEntries: [entry({ billable: true, invoiced: false })],
+    });
+
+    expect(rows[0].cells[0].hasUninvoicedTime).toBe(true);
+  });
+
+  it("drops the ring once an invoice covers the cell", () => {
+    const { rows } = build({
+      clients: [client()],
+      timeEntries: [entry({ billable: true, invoiced: true })],
+    });
+
+    expect(rows[0].cells[0].hasUninvoicedTime).toBe(false);
+  });
+
+  it("leaves non-billable time unringed: it will never be invoiced", () => {
+    const { rows } = build({
+      clients: [client()],
+      timeEntries: [entry({ billable: false, invoiced: false })],
+    });
+
+    expect(rows[0].cells[0].hasUninvoicedTime).toBe(false);
+  });
+
+  it("rings a cell mixing billable and non-billable time", () => {
+    const { rows } = build({
+      clients: [client()],
+      timeEntries: [
+        entry({ billable: false, id: 1, invoiced: false }),
+        entry({ billable: true, id: 2, invoiced: false }),
+      ],
+    });
+
+    expect(rows[0].cells[0].isBillable).toBe(false);
+    expect(rows[0].cells[0].hasUninvoicedTime).toBe(true);
+  });
+
+  it("totals only the billable time still waiting on an invoice", () => {
+    const model = build({
+      clients: [client()],
+      timeEntries: [
+        entry({ id: 1, invoiced: true, valuedDayFraction: 1 }),
+        entry({ id: 2, invoiced: false, valuedDayFraction: 0.5 }),
+      ],
+    });
+
+    expect(model.uninvoicedTotal).toBe("0,5 j");
+  });
+
+  it("reports no uninvoiced total once every entry is invoiced", () => {
+    const model = build({
+      clients: [client()],
+      timeEntries: [entry({ invoiced: true })],
+    });
+
+    expect(model.uninvoicedTotal).toBeNull();
+  });
+
+  it("rings billable time on a mission whose rate is not set yet", () => {
+    const { rows } = build({
+      clients: [client({ missions: [mission({ rate: null })] })],
+      timeEntries: [entry({ billable: true, invoiced: false })],
+    });
+
+    // The hours exist whether or not a price does; hiding them is what the ring
+    // is for. The pill still reads unpriced — only the ring is added.
+    expect(rows[0].cells[0].isBillable).toBe(false);
+    expect(rows[0].cells[0].hasUninvoicedTime).toBe(true);
+  });
+
+  it("leaves an internal client's time unringed: there is nobody to invoice", () => {
+    const model = build({
+      clients: [client({ type: 2 })],
+      timeEntries: [entry({ billable: true, invoiced: false })],
+    });
+
+    expect(model.rows[0].cells[0].hasUninvoicedTime).toBe(false);
+    expect(model.uninvoicedTotal).toBeNull();
+  });
+
+  it("leaves forfait time unringed: its invoice bills a price, not days", () => {
+    const model = build({
+      clients: [client({ missions: [mission({ billingMode: 2 })] })],
+      timeEntries: [entry({ billable: true, invoiced: false })],
+    });
+
+    expect(model.rows[0].cells[0].hasUninvoicedTime).toBe(false);
+    expect(model.uninvoicedTotal).toBeNull();
   });
 
   it("only surfaces a note when the cell holds a single entry", () => {

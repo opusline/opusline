@@ -35,6 +35,14 @@ export function isHourly(billingMode: BillingMode): boolean {
   return billingMode === 1;
 }
 
+/**
+ * A forfait mission bills its price, not its hours. Its tracked time is real
+ * work, but no quantity of it ever lands on an invoice line.
+ */
+export function isFixedPrice(billingMode: BillingMode): boolean {
+  return billingMode === 2;
+}
+
 function toNumber(raw: string): number | null {
   const parsed = Number(raw.replace(",", "."));
 
@@ -122,6 +130,20 @@ function toMinutes(input: string, units: DurationUnits): number | null {
 /** The billed value of a day-counted entry: `1` → "1 j", `0.5` → "0,5 j". */
 export function formatBilledDays(locale: Locale, dayFraction: number): string {
   return m.duration_days_value({ value: decimals(locale).format(dayFraction) });
+}
+
+/**
+ * A stretch of days worked, for capacity figures like the month tile. Coarser
+ * than formatBilledDays on purpose: that one prices invoice lines, where a
+ * quarter-day is real, while summing a month of part-days lands on noise like
+ * 12,46 — nobody reads their month to the hundredth of a day.
+ */
+export function formatWorkedDays(locale: Locale, dayFraction: number): string {
+  return m.duration_days_value({
+    value: cachedFormatter(locale, { maximumFractionDigits: 1 }).format(
+      dayFraction,
+    ),
+  });
 }
 
 /**

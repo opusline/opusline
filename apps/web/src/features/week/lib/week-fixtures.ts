@@ -1,6 +1,7 @@
 import type {
   ClientWithMissionsData,
   MissionData,
+  MonthWorkloadData,
   TimeEntryData,
 } from "@opusline/api-client";
 
@@ -11,6 +12,13 @@ import { buildWeekGrid, type WeekRow } from "./week-grid";
 export const DEMO_WEEK = "2026-W31";
 export const DEMO_TODAY = "2026-07-30";
 export const DEMO_WORKDAY_MINUTES = 420;
+
+/** The month DEMO_TODAY sits in: July 2026, 22 jours ouvrés once 14 July is out. */
+export const DEMO_MONTH_WORKLOAD: MonthWorkloadData = {
+  month: "2026-07",
+  businessDays: 22,
+  workedDays: 18.5,
+};
 
 const MONDAY = "2026-07-27";
 const TUESDAY = "2026-07-28";
