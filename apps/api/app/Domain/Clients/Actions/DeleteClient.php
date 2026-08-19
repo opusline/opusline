@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Domain\Clients\Actions;
 
 use App\Domain\Clients\Models\Client;
+use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Shared\Database\ConstraintViolations;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 
 class DeleteClient
 {
@@ -15,13 +18,10 @@ class DeleteClient
         abort_if($client->missions()->exists(), 409, __('clients.cannot_delete_with_missions'));
 
         try {
-            $client->delete();
-            // @phpstan-ignore catch.neverThrown (delete() hits the missions foreign key restriction at runtime)
+            DB::transaction(fn () => $client->delete());
         } catch (QueryException $exception) {
-            // A mission or invoice created between the check and the delete trips the
-            // foreign key restriction — surface it as the same conflict.
-            if ((string) $exception->getCode() === '23000') {
-                abort(409, $client->invoices()->exists()
+            if (ConstraintViolations::on($client->getConnection())->isForeignKeyViolation($exception)) {
+                abort(409, Invoice::query()->where('client_id', $client->id)->exists()
                     ? __('invoices.cannot_delete_client_with_invoices')
                     : __('clients.cannot_delete_with_missions'));
             }

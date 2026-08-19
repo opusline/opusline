@@ -7,7 +7,7 @@ namespace App\Domain\Timers\Actions;
 use App\Domain\Timers\Data\StartTimerData;
 use App\Domain\Timers\Models\RunningTimer;
 use App\Domain\Users\Models\User;
-use Illuminate\Database\QueryException;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 
 class StartTimer
@@ -31,10 +31,8 @@ class StartTimer
                     'accumulated_seconds' => 0,
                     'note' => null,
                 ]);
-            } catch (QueryException $exception) {
-                abort_if((string) $exception->getCode() === '23000', 409, __('timers.already_running'));
-
-                throw $exception;
+            } catch (UniqueConstraintViolationException) {
+                abort(409, __('timers.already_running'));
             }
 
             $timer->setRelation('mission', $mission);
