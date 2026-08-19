@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.14.0](https://github.com/opusline/opusline/compare/v0.13.0...v0.14.0) (2026-08-19)
+
+
+### Features
+
+* **api:** add monthly workload data and invoicing markers ([#175](https://github.com/opusline/opusline/issues/175)) ([ddee9d2](https://github.com/opusline/opusline/commit/ddee9d22961185dadb431bb4d8e27fa2e53885e7))
+* **api:** enable parallel testing and caching for CI tools ([#192](https://github.com/opusline/opusline/issues/192)) ([67271f7](https://github.com/opusline/opusline/commit/67271f716a5390c578fc8f9e79aa1b54b323a1a9))
+* **api:** support per-client VAT rates in invoices ([#180](https://github.com/opusline/opusline/issues/180)) ([8115c20](https://github.com/opusline/opusline/commit/8115c2021ee213a6474eb3cfe4577a89f09f81c0))
+
 ## [0.13.0](https://github.com/opusline/opusline/compare/v0.12.0...v0.13.0) (2026-08-17)
 
 
