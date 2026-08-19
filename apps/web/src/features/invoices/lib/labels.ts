@@ -1,4 +1,9 @@
-import type { DateFormat, InvoiceData, Locale } from "@opusline/api-client";
+import type {
+  DateFormat,
+  InvoiceData,
+  InvoiceListItemData,
+  Locale,
+} from "@opusline/api-client";
 
 import {
   calendarDateNumericLabel,
@@ -67,6 +72,21 @@ export function invoiceRowDetail(
   const state = invoiceState(dateFormat, invoice, accountToday);
 
   return period === null ? state : `${period} · ${state}`;
+}
+
+/**
+ * The same line for a list that spans missions: which one comes first, because
+ * on a client's fiche that is what tells two invoices of the same month apart.
+ */
+export function invoiceRowDetailWithMission(
+  locale: Locale,
+  dateFormat: DateFormat,
+  item: InvoiceListItemData,
+  accountToday: string,
+): string {
+  const mission = item.mission?.name ?? m.invoices_no_mission();
+
+  return `${mission} · ${invoiceRowDetail(locale, dateFormat, item.invoice, accountToday)}`;
 }
 
 /**

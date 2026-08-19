@@ -23,7 +23,7 @@ export const RELEASES: Release[] = [
       },
       {
         kind: "new",
-        text: "Week view: tracked time still waiting on an invoice now wears a ring, and a \"Current month\" tile tracks the days you have worked against the month's business days.",
+        text: 'Week view: tracked time still waiting on an invoice now wears a ring, and a "Current month" tile tracks the days you have worked against the month\'s business days.',
       },
     ],
   },

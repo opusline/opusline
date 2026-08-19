@@ -16,6 +16,7 @@ import { useEffect } from "react";
 import { AddressAutocompleteProvider } from "@/components/address-autocomplete-provider";
 import { AppSidebar } from "@/components/app-sidebar";
 import { MoneyFormatProvider } from "@/components/money-format-provider";
+import { InvoiceDrawerProvider } from "@/features/invoices/components/invoice-drawer-provider";
 import { ModeToggle } from "@/features/theme/components/mode-toggle";
 import {
   useThemeControl,
@@ -100,27 +101,29 @@ function AuthedLayout() {
     >
       <AddressAutocompleteProvider businessCountry={user.businessCountry}>
         <TimerProvider workdayMinutes={user.workdayMinutes}>
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-              <header className="flex h-14 items-center gap-4 border-b px-4">
-                <ExpandSidebarButton />
-                {pageTitle ? (
-                  <span className="font-medium text-sm">{pageTitle}</span>
-                ) : null}
-                <div className="flex-1" />
-                <ModeToggle
-                  onChange={setTheme}
-                  resolvedTheme={resolvedTheme}
-                  theme={theme}
-                />
-                <TimerContainer workdayMinutes={user.workdayMinutes} />
-              </header>
-              <div className="p-6">
-                <Outlet />
-              </div>
-            </SidebarInset>
-          </SidebarProvider>
+          <InvoiceDrawerProvider timezone={user.timezone}>
+            <SidebarProvider>
+              <AppSidebar />
+              <SidebarInset>
+                <header className="flex h-14 items-center gap-4 border-b px-4">
+                  <ExpandSidebarButton />
+                  {pageTitle ? (
+                    <span className="font-medium text-sm">{pageTitle}</span>
+                  ) : null}
+                  <div className="flex-1" />
+                  <ModeToggle
+                    onChange={setTheme}
+                    resolvedTheme={resolvedTheme}
+                    theme={theme}
+                  />
+                  <TimerContainer workdayMinutes={user.workdayMinutes} />
+                </header>
+                <div className="p-6">
+                  <Outlet />
+                </div>
+              </SidebarInset>
+            </SidebarProvider>
+          </InvoiceDrawerProvider>
         </TimerProvider>
       </AddressAutocompleteProvider>
     </MoneyFormatProvider>

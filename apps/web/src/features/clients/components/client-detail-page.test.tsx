@@ -1,4 +1,7 @@
-import type { ClientWithMissionsData } from "@opusline/api-client";
+import type {
+  ClientWithMissionsData,
+  InvoiceListItemData,
+} from "@opusline/api-client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -6,7 +9,7 @@ import { afterEach, expect, it, vi } from "vitest";
 
 import { getRouter } from "@/router";
 import { seedCurrentUser } from "@/test/current-user";
-import { clientRevenueDetailPayload } from "@/test/fixtures";
+import { clientRevenueDetailPayload, invoiceItem } from "@/test/fixtures";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -76,6 +79,7 @@ type RecordedRequest = {
 function stubApi(
   client: ClientWithMissionsData,
   overrides?: (request: Request) => Response | null,
+  invoices: InvoiceListItemData[] = [],
 ): RecordedRequest[] {
   const requests: RecordedRequest[] = [];
 
@@ -110,6 +114,10 @@ function stubApi(
 
       if (url.pathname.endsWith("/documents")) {
         return jsonResponse(200, { documents: [] });
+      }
+
+      if (url.pathname.endsWith("/invoices")) {
+        return jsonResponse(200, { invoices, clientTotals: [] });
       }
 
       return jsonResponse(200, client);
@@ -148,6 +156,30 @@ it("shows the client header, stats and missions", async () => {
   expect(screen.getByText("Callisto front")).toBeInTheDocument();
   expect(screen.getByText("550 €/j")).toBeInTheDocument();
   expect(screen.getByRole("tab", { name: "Missions" })).toBeInTheDocument();
+});
+
+it("lists the client's invoices across missions in the invoices tab", async () => {
+  stubApi(clientPayload(), undefined, [
+    invoiceItem({ id: 7, number: "2026-014" }),
+    invoiceItem({ id: 8, number: "2026-011" }, { mission: null }),
+  ]);
+  await renderDetailPage();
+
+  fireEvent.click(screen.getByRole("tab", { name: "Factures" }));
+
+  expect(await screen.findByText("2026-014")).toBeInTheDocument();
+  // The list spans missions, so each row leads with the one it covers.
+  expect(screen.getByText(/Refonte catalogue/)).toBeInTheDocument();
+  expect(screen.getByText(/Sans mission/)).toBeInTheDocument();
+});
+
+it("keeps the empty card for a client that has never been invoiced", async () => {
+  stubApi(clientPayload());
+  await renderDetailPage();
+
+  fireEvent.click(screen.getByRole("tab", { name: "Factures" }));
+
+  expect(await screen.findByText("Aucune facture")).toBeInTheDocument();
 });
 
 it("shows the coordinates in the dedicated tab", async () => {

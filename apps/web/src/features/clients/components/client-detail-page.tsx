@@ -93,6 +93,7 @@ function CoordRow({
 type ClientDetailPageProps = {
   client: ClientWithMissionsData;
   documentsTab: ReactNode;
+  invoicesTab: ReactNode;
   onUpdate: (body: UpdateClientData) => Promise<FormSubmitResult>;
   onToggleArchive: () => void;
   logoSrc: string;
@@ -116,6 +117,7 @@ type ClientDetailPageProps = {
 export function ClientDetailPage({
   client,
   documentsTab,
+  invoicesTab,
   onUpdate,
   onToggleArchive,
   logoSrc,
@@ -427,16 +429,7 @@ export function ClientDetailPage({
             )}
           </TabsContent>
 
-          <TabsContent value="factures">
-            <div className="rounded-md border bg-card px-7 py-9 text-center">
-              <div className="mb-2 font-heading font-semibold text-base text-foreground-hi">
-                {m.common_no_invoices_title()}
-              </div>
-              <p className="mx-auto max-w-md text-pretty text-muted-foreground-3 text-sm leading-relaxed">
-                {m.clients_invoices_empty_hint()}
-              </p>
-            </div>
-          </TabsContent>
+          <TabsContent value="factures">{invoicesTab}</TabsContent>
 
           <TabsContent keepMounted value="documents">
             {documentsTab}

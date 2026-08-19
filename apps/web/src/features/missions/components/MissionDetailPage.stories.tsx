@@ -3,6 +3,12 @@ import type {
   MissionData,
   MissionRevenueData,
 } from "@opusline/api-client";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@opusline/ui/components/empty";
 import type { Meta, StoryObj } from "@storybook/react";
 import { DocumentsTab } from "@/components/documents-tab";
 import { isClientDocument } from "@/lib/documents";
@@ -88,6 +94,40 @@ const documentsTab = (
   />
 );
 
+/*
+ * The empty state, which is what the page shows until the mission is
+ * invoiced. The populated list is documented by Web/InvoiceListPanel; a story
+ * must not reach into another feature, and the route composes the real tab.
+ */
+const invoicesTab = (
+  <Empty className="rounded-md border border-solid bg-card px-7 py-9">
+    <EmptyHeader className="gap-2">
+      <EmptyTitle className="font-heading font-semibold text-base text-foreground-hi">
+        Aucune facture
+      </EmptyTitle>
+      <EmptyDescription className="text-muted-foreground-3 text-sm leading-relaxed">
+        Les factures apparaîtront ici dès que du temps facturable aura été saisi
+        sur cette mission.
+      </EmptyDescription>
+    </EmptyHeader>
+  </Empty>
+);
+
+/** A non-billable mission never produces one, and the empty card says why. */
+const unbillableInvoicesTab = (
+  <Empty className="rounded-md border border-solid bg-card px-7 py-9">
+    <EmptyHeader className="gap-2">
+      <EmptyTitle className="font-heading font-semibold text-base text-foreground-hi">
+        Aucune facture
+      </EmptyTitle>
+      <EmptyDescription className="text-muted-foreground-3 text-sm leading-relaxed">
+        Cette mission n&apos;est pas facturable — son temps ne produit pas de
+        facture.
+      </EmptyDescription>
+    </EmptyHeader>
+  </Empty>
+);
+
 const meta = {
   title: "Web/MissionDetailPage",
   component: MissionDetailPage,
@@ -119,6 +159,7 @@ export const Default: Story = {
     mission,
     client,
     documentsTab,
+    invoicesTab,
     revenue,
     onUpdate: async () => ({ status: "success" }) as const,
     onSetStatus: () => {},
@@ -130,6 +171,7 @@ export const NonBillable: Story = {
     mission: { ...mission, rate: null, endClientName: null },
     client: { ...client, type: 2, name: "Perso", slug: "perso" },
     documentsTab,
+    invoicesTab: unbillableInvoicesTab,
     onUpdate: async () => ({ status: "success" }) as const,
     onSetStatus: () => {},
   },
@@ -140,6 +182,7 @@ export const Done: Story = {
     mission: { ...mission, status: 2 },
     client,
     documentsTab,
+    invoicesTab,
     onUpdate: async () => ({ status: "success" }) as const,
     onSetStatus: () => {},
   },
@@ -155,6 +198,7 @@ export const RevenueUnavailable: Story = {
     mission,
     client,
     documentsTab,
+    invoicesTab,
     revenueFailed: true,
     onUpdate: async () => ({ status: "success" }) as const,
     onSetStatus: () => {},

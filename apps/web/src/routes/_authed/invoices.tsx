@@ -2,42 +2,29 @@ import type { InvoiceTodoData } from "@opusline/api-client";
 import {
   createInvoiceMutation,
   listInvoicesOptions,
-  listInvoicesQueryKey,
-  payInvoiceMutation,
   remindInvoiceMutation,
-  sendInvoiceMutation,
   showBankAccountOptions,
-  showInvoiceOptions,
-  showInvoiceQueryKey,
   showInvoiceSummaryOptions,
-  showInvoiceSummaryQueryKey,
   showNextInvoiceNumberOptions,
-  showNextInvoiceNumberQueryKey,
-  updateInvoiceMutation,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import {
   CreateInvoiceDialog,
   type CreateInvoiceSubmit,
 } from "@/features/invoices/components/create-invoice-dialog";
-import { InvoiceDrawer } from "@/features/invoices/components/invoice-drawer";
+import { useOpenInvoice } from "@/features/invoices/components/invoice-drawer-provider";
 import { InvoiceForecastCard } from "@/features/invoices/components/invoice-forecast-card";
-import { InvoiceLifecycleActions } from "@/features/invoices/components/invoice-lifecycle-actions";
 import { InvoiceMonthCard } from "@/features/invoices/components/invoice-month-card";
 import { InvoiceSummaryTiles } from "@/features/invoices/components/invoice-summary-tiles";
 import { InvoiceTodoPanel } from "@/features/invoices/components/invoice-todo-panel";
 import { InvoicesTable } from "@/features/invoices/components/invoices-table";
 import { accountTodayCalendarDate } from "@/lib/dates";
-import {
-  missionTimeEntriesFilter,
-  revenueFilter,
-  weekTimeEntriesFilter,
-} from "@/lib/query-invalidation";
+import { invalidateInvoiceWrites } from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -68,104 +55,39 @@ function FacturesPage() {
     enabled: user.hasFrenchFiscality,
   });
 
-  // `?invoice=` IS the open fiche — the Compte pro suggestions deep-link
-  // here, and refresh, back and shared links all reopen the same one.
-  const openInvoiceId = search.invoice ?? null;
+  const openInvoice = useOpenInvoice();
   const [creatingFor, setCreatingFor] = useState<InvoiceTodoData | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
+  const [remindError, setRemindError] = useState<string | null>(null);
 
-  const detail = useQuery({
-    ...showInvoiceOptions({ path: { invoice: openInvoiceId ?? 0 } }),
-    enabled: openInvoiceId !== null,
-    // A deep-linked id can be stale (deleted invoice, foreign account); its
-    // 404 is deterministic, so retrying only stretches the loading state.
-    retry: false,
-  });
-
-  const detailFailed = openInvoiceId !== null && detail.isError;
-
-  const openInvoice = (invoiceId: number) => {
-    // Re-picking the invoice whose fiche just failed must retry the fetch —
-    // the query key does not change, so nothing else would trigger one.
-    if (invoiceId === openInvoiceId && detail.isError) {
-      void detail.refetch();
-
+  // `?invoice=` is how the other screens deep-link a fiche — the Compte pro
+  // suggestions, a shared link. The drawer owns it from there, so the parameter
+  // is consumed rather than mirrored, and back does not walk every fiche viewed.
+  useEffect(() => {
+    if (search.invoice === undefined) {
       return;
     }
 
-    navigate({ to: "/invoices", search: { invoice: invoiceId } });
-  };
-
-  const closeInvoice = () => {
-    // Replace, so back does not walk through every fiche viewed.
-    navigate({ to: "/invoices", search: {}, replace: true });
-  };
+    openInvoice(search.invoice);
+    void navigate({ to: "/invoices", search: {}, replace: true });
+  }, [search.invoice, openInvoice, navigate]);
 
   const nextNumber = useQuery({
     ...showNextInvoiceNumberOptions(),
     enabled: creatingFor !== null,
   });
 
-  // The next free reference is derived from the numbers already taken, so creating an
-  // invoice invalidates it — otherwise the following one is prefilled with a reference
-  // that was just used and the save is refused as a duplicate.
-  const refreshInvoices = async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: listInvoicesQueryKey() }),
-      queryClient.invalidateQueries({ queryKey: showInvoiceSummaryQueryKey() }),
-      queryClient.invalidateQueries({
-        queryKey: showNextInvoiceNumberQueryKey(),
-      }),
-      // Issuing, paying or deleting an invoice moves the client and mission
-      // figures the other pages read.
-      queryClient.invalidateQueries(revenueFilter()),
-      // Creating an invoice links time entries to it and deleting one unlinks
-      // them, which flips the invoiced badge on the mission's history and the
-      // "to invoice" ring on the week grid's cells.
-      queryClient.invalidateQueries(missionTimeEntriesFilter()),
-      queryClient.invalidateQueries(weekTimeEntriesFilter()),
-      ...(openInvoiceId === null
-        ? []
-        : [
-            queryClient.invalidateQueries({
-              queryKey: showInvoiceQueryKey({
-                path: { invoice: openInvoiceId },
-              }),
-            }),
-          ]),
-    ]);
-  };
+  const refreshInvoices = () => invalidateInvoiceWrites(queryClient);
 
-  /** Every lifecycle write reports through one message, wherever it was triggered. */
-  const reportFailure = (fallback: string) => (error: unknown) => {
-    setActionError(serverErrorMessage(error, fallback));
-  };
-
+  // Noting a reminder from the "à traiter" panel reports here rather than in the
+  // drawer, which is not open when the panel triggers it.
   const remind = useMutation({
     ...remindInvoiceMutation(),
-    onMutate: () => setActionError(null),
+    onMutate: () => setRemindError(null),
     onSuccess: refreshInvoices,
-    onError: reportFailure(m.invoices_remind_failed()),
-  });
-
-  const send = useMutation({
-    ...sendInvoiceMutation(),
-    onMutate: () => setActionError(null),
-    onSuccess: refreshInvoices,
-    onError: reportFailure(m.invoices_send_failed()),
-  });
-
-  const setReference = useMutation({
-    ...updateInvoiceMutation(),
-    onError: reportFailure(m.invoices_reference_failed()),
-  });
-
-  const pay = useMutation({
-    ...payInvoiceMutation(),
-    onMutate: () => setActionError(null),
-    onSuccess: refreshInvoices,
-    onError: reportFailure(m.invoices_pay_failed()),
+    onError: (error) => {
+      setRemindError(serverErrorMessage(error, m.invoices_remind_failed()));
+    },
   });
 
   const create = useMutation({
@@ -179,6 +101,13 @@ function FacturesPage() {
       setCreateError(serverErrorMessage(error, m.invoices_create_failed()));
     },
   });
+
+  const noteReminder = (invoiceId: number) => {
+    remind.mutate({
+      path: { invoice: invoiceId },
+      body: { occurredOn: accountTodayCalendarDate(user.timezone), note: null },
+    });
+  };
 
   const submitInvoice = (input: CreateInvoiceSubmit) => {
     setCreateError(null);
@@ -200,48 +129,6 @@ function FacturesPage() {
         timeEntryIds: input.timeEntryIds,
       },
     });
-  };
-
-  const noteReminder = (invoiceId: number) => {
-    remind.mutate({
-      path: { invoice: invoiceId },
-      body: { occurredOn: accountTodayCalendarDate(user.timezone), note: null },
-    });
-  };
-
-  /**
-   * A draft with no reference cannot be sent — the API refuses an issued invoice
-   * without one — so the reference is written first and the transition follows.
-   */
-  const markSent = async (invoiceId: number, reference: string | null) => {
-    setActionError(null);
-
-    const invoice = detail.data?.invoice;
-
-    if (reference !== null && invoice !== undefined) {
-      try {
-        await setReference.mutateAsync({
-          path: { invoice: invoiceId },
-          body: {
-            clientId: invoice.clientId,
-            missionId: invoice.missionId,
-            number: reference,
-            issuedOn: invoice.issuedOn,
-            dueOn: invoice.dueOn,
-            periodStart: invoice.periodStart,
-            periodEnd: invoice.periodEnd,
-            amountHt: invoice.amountHt,
-            amountTtc: invoice.ttcOverridden ? invoice.amountTtc : null,
-            vatRateBp: invoice.vatRateBp,
-            notes: invoice.notes,
-          },
-        });
-      } catch {
-        return;
-      }
-    }
-
-    send.mutate({ path: { invoice: invoiceId } });
   };
 
   return (
@@ -275,17 +162,12 @@ function FacturesPage() {
           <AlertDescription>{m.bank_load_failed()}</AlertDescription>
         </Alert>
       )}
-      {detailFailed && (
-        <Alert variant="destructive">
-          <AlertDescription>{m.invoices_open_failed()}</AlertDescription>
-        </Alert>
-      )}
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
         <div className="flex flex-col gap-5">
-          {actionError !== null && openInvoiceId === null && (
+          {remindError !== null && (
             <Alert variant="destructive">
-              <AlertDescription>{actionError}</AlertDescription>
+              <AlertDescription>{remindError}</AlertDescription>
             </Alert>
           )}
 
@@ -343,38 +225,6 @@ function FacturesPage() {
           }
         }}
         onSubmit={submitInvoice}
-      />
-
-      <InvoiceDrawer
-        detail={detail.data}
-        actions={
-          detail.data === undefined ? null : (
-            <InvoiceLifecycleActions
-              accountToday={accountTodayCalendarDate(user.timezone)}
-              invoice={detail.data.invoice}
-              isPending={
-                send.isPending || setReference.isPending || pay.isPending
-              }
-              error={actionError}
-              onSend={(reference) =>
-                markSent(detail.data.invoice.id, reference)
-              }
-              onPay={(paidOn) =>
-                pay.mutate({
-                  path: { invoice: detail.data.invoice.id },
-                  body: { paidOn },
-                })
-              }
-              onRemind={() => noteReminder(detail.data.invoice.id)}
-            />
-          )
-        }
-        open={openInvoiceId !== null && !detail.isError}
-        onOpenChange={(open) => {
-          if (!open) {
-            closeInvoice();
-          }
-        }}
       />
     </div>
   );

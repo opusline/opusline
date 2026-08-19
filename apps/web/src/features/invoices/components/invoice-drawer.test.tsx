@@ -88,3 +88,19 @@ it("puts the most recent history entry first", () => {
   expect(within(entries[0]).getByText("Encaissement")).toBeInTheDocument();
   expect(within(entries[2]).getByText("Facture créée")).toBeInTheDocument();
 });
+
+it("reports a failed fetch instead of waiting on a fiche that will not come", () => {
+  render(
+    <InvoiceDrawer
+      detail={undefined}
+      error="Impossible d'ouvrir la facture."
+      open
+      onOpenChange={() => {}}
+    />,
+  );
+
+  expect(screen.getByRole("alert")).toHaveTextContent(
+    "Impossible d'ouvrir la facture.",
+  );
+  expect(screen.queryByText("Chargement…")).not.toBeInTheDocument();
+});

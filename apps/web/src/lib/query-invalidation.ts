@@ -1,3 +1,8 @@
+import {
+  listInvoicesQueryKey,
+  showInvoiceSummaryQueryKey,
+  showNextInvoiceNumberQueryKey,
+} from "@opusline/api-client/react-query";
 import type { Query, QueryClient, QueryFilters } from "@tanstack/react-query";
 
 /**
@@ -93,4 +98,31 @@ export function revenueFilter(): { predicate: (query: Query) => boolean } {
     "showClientRevenue",
     "showMissionRevenue",
   );
+}
+
+/**
+ * The fan-out every invoice write owes the rest of the app. Beyond the lists,
+ * the open fiche and the summary: the next free reference is derived from the
+ * numbers already taken, the revenue figures move with what is issued and
+ * collected, and linking entries to an invoice flips the invoiced badge on the
+ * mission's history and the "to invoice" ring on the week grid.
+ *
+ * The bare `listInvoices` key matches every parameterisation of it — the ledger
+ * and the per-client and per-mission lists alike — so a write does not have to
+ * know which ones happen to be mounted.
+ */
+export async function invalidateInvoiceWrites(
+  queryClient: QueryClient,
+): Promise<void> {
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: listInvoicesQueryKey() }),
+    queryClient.invalidateQueries(operationFilter("showInvoice")),
+    queryClient.invalidateQueries({ queryKey: showInvoiceSummaryQueryKey() }),
+    queryClient.invalidateQueries({
+      queryKey: showNextInvoiceNumberQueryKey(),
+    }),
+    queryClient.invalidateQueries(revenueFilter()),
+    queryClient.invalidateQueries(missionTimeEntriesFilter()),
+    queryClient.invalidateQueries(weekTimeEntriesFilter()),
+  ]);
 }

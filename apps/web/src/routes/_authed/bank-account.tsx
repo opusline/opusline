@@ -2,10 +2,8 @@ import type { BankAccountData } from "@opusline/api-client";
 import {
   dismissBankMatchMutation,
   importBankStatementMutation,
-  listInvoicesQueryKey,
   showBankAccountOptions,
   showBankAccountQueryKey,
-  showInvoiceSummaryQueryKey,
   updateBankBalanceMutation,
   validateBankMatchMutation,
 } from "@opusline/api-client/react-query";
@@ -30,7 +28,7 @@ import {
   type ImportStatementSubmit,
 } from "@/features/bank/components/import-statement-dialog";
 import { requireFrenchFiscality } from "@/lib/fiscality";
-import { revenueFilter } from "@/lib/query-invalidation";
+import { invalidateInvoiceWrites } from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -64,17 +62,9 @@ function BankRoute() {
     queryClient.setQueryData(showBankAccountQueryKey(), account);
   };
 
-  // Validating a suggestion marked an invoice paid, so the invoice screens are
-  // stale too — and with them the client and mission revenue figures.
-  const refreshInvoices = async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: listInvoicesQueryKey() }),
-      queryClient.invalidateQueries({
-        queryKey: showInvoiceSummaryQueryKey(),
-      }),
-      queryClient.invalidateQueries(revenueFilter()),
-    ]);
-  };
+  // Validating a suggestion marks an invoice paid, so it owes the same fan-out
+  // as any other invoice write.
+  const refreshInvoices = () => invalidateInvoiceWrites(queryClient);
 
   const importStatement = useMutation({
     ...importBankStatementMutation(),

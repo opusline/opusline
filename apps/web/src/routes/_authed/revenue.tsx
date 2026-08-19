@@ -1,5 +1,4 @@
 import {
-  showInvoiceOptions,
   showInvoiceSummaryOptions,
   showRevenueOptions,
 } from "@opusline/api-client/react-query";
@@ -7,9 +6,8 @@ import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
 
-import { InvoiceDrawer } from "@/features/invoices/components/invoice-drawer";
+import { useOpenInvoice } from "@/features/invoices/components/invoice-drawer-provider";
 import { RevenuePage } from "@/features/revenue/components/revenue-page";
 import {
   REVENUE_BASIS_VALUES,
@@ -49,12 +47,7 @@ function RevenusRoute() {
   });
 
   const summary = useQuery(showInvoiceSummaryOptions());
-
-  const [openInvoiceId, setOpenInvoiceId] = useState<number | null>(null);
-  const detail = useQuery({
-    ...showInvoiceOptions({ path: { invoice: openInvoiceId ?? 0 } }),
-    enabled: openInvoiceId !== null,
-  });
+  const openInvoice = useOpenInvoice();
 
   const showPeriod = (period: string) => {
     navigate({ to: "/revenue", search: { ...search, period } });
@@ -71,20 +64,6 @@ function RevenusRoute() {
         basis: nextBasis === "collected" ? "collected" : undefined,
       },
     });
-  };
-
-  const detailFailed = openInvoiceId !== null && detail.isError;
-
-  const openInvoice = (invoiceId: number) => {
-    // Re-picking the invoice whose fiche just failed must retry the fetch —
-    // the query key does not change, so nothing else would trigger one.
-    if (invoiceId === openInvoiceId && detail.isError) {
-      void detail.refetch();
-
-      return;
-    }
-
-    setOpenInvoiceId(invoiceId);
   };
 
   if (revenue.isPending) {
@@ -119,11 +98,6 @@ function RevenusRoute() {
           <AlertDescription>{m.invoices_load_failed()}</AlertDescription>
         </Alert>
       )}
-      {detailFailed && (
-        <Alert variant="destructive">
-          <AlertDescription>{m.revenue_invoice_open_failed()}</AlertDescription>
-        </Alert>
-      )}
 
       <RevenuePage
         accountToday={accountTodayCalendarDate(user.timezone)}
@@ -136,19 +110,6 @@ function RevenusRoute() {
         requestedBasis={basis}
         requestedPeriod={search.period ?? revenue.data.period}
         summary={summary.data}
-      />
-
-      {/* The fiche opens over the figures; acting on an invoice (payment,
-          reminder…) stays on the Factures screen. */}
-      <InvoiceDrawer
-        detail={detail.data}
-        actions={null}
-        open={openInvoiceId !== null && !detail.isError}
-        onOpenChange={(open) => {
-          if (!open) {
-            setOpenInvoiceId(null);
-          }
-        }}
       />
     </div>
   );

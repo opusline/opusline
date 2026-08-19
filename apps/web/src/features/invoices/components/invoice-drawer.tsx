@@ -24,6 +24,8 @@ type InvoiceDrawerProps = {
   detail: InvoiceDetailData | undefined;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** The fiche could not be fetched — reported in place of the body. */
+  error?: string | null;
   /** What can be done to this invoice next — composed by the page that owns the writes. */
   actions?: ReactNode;
 };
@@ -40,6 +42,7 @@ export function InvoiceDrawer({
   detail,
   open,
   onOpenChange,
+  error,
   actions,
 }: InvoiceDrawerProps) {
   return (
@@ -48,17 +51,48 @@ export function InvoiceDrawer({
         side="right"
         className="w-[30rem] gap-0 overflow-y-auto sm:max-w-[30rem]"
       >
-        {detail === undefined ? (
-          <SheetHeader>
-            <SheetTitle>{m.invoices_drawer_title()}</SheetTitle>
-            <SheetDescription>{m.invoices_loading()}</SheetDescription>
-          </SheetHeader>
-        ) : (
-          <InvoiceDrawerBody actions={actions} detail={detail} />
-        )}
+        <InvoiceDrawerContents
+          actions={actions}
+          detail={detail}
+          error={error ?? null}
+        />
       </SheetContent>
     </Sheet>
   );
+}
+
+function InvoiceDrawerContents({
+  detail,
+  error,
+  actions,
+}: {
+  detail: InvoiceDetailData | undefined;
+  error: string | null;
+  actions?: ReactNode;
+}) {
+  if (error !== null) {
+    return (
+      <SheetHeader>
+        <SheetTitle>{m.invoices_drawer_title()}</SheetTitle>
+        {/* Its own node rather than the description: the sheet announces the
+            description on open, so an alert there would be read twice. */}
+        <p className="text-destructive text-sm" role="alert">
+          {error}
+        </p>
+      </SheetHeader>
+    );
+  }
+
+  if (detail === undefined) {
+    return (
+      <SheetHeader>
+        <SheetTitle>{m.invoices_drawer_title()}</SheetTitle>
+        <SheetDescription>{m.invoices_loading()}</SheetDescription>
+      </SheetHeader>
+    );
+  }
+
+  return <InvoiceDrawerBody actions={actions} detail={detail} />;
 }
 
 function InvoiceDrawerBody({

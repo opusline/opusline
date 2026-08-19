@@ -1,5 +1,6 @@
 import {
   listClientRevenueQueryKey,
+  listInvoicesQueryKey,
   listMissionDocumentsQueryKey,
   listMissionTimeEntriesQueryKey,
   listTimeEntriesQueryKey,
@@ -7,7 +8,7 @@ import {
   showInvoiceSummaryQueryKey,
   showMissionRevenueQueryKey,
 } from "@opusline/api-client/react-query";
-import type { Query } from "@tanstack/react-query";
+import { type Query, QueryClient } from "@tanstack/react-query";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -136,5 +137,31 @@ describe("missionTimeEntriesFilter", () => {
         ),
       ),
     ).toBe(false);
+  });
+});
+
+/**
+ * `invalidateInvoiceWrites` invalidates the invoice list by its bare key rather
+ * than a filter, which only reaches the client and mission fiches because the
+ * cache matches keys partially. That is the property it leans on.
+ */
+describe("the bare listInvoices key", () => {
+  it("reaches every parameterisation of the list", () => {
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(listInvoicesQueryKey(), { invoices: [] });
+    queryClient.setQueryData(listInvoicesQueryKey({ query: { clientId: 3 } }), {
+      invoices: [],
+    });
+    queryClient.setQueryData(
+      listInvoicesQueryKey({ query: { missionId: 10 } }),
+      {
+        invoices: [],
+      },
+    );
+    queryClient.setQueryData(showInvoiceSummaryQueryKey(), {});
+
+    expect(
+      queryClient.getQueryCache().findAll({ queryKey: listInvoicesQueryKey() }),
+    ).toHaveLength(3);
   });
 });

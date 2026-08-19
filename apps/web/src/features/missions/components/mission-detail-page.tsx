@@ -63,6 +63,7 @@ type MissionDetailPageProps = {
   mission: MissionData;
   client: ClientWithMissionsData;
   documentsTab: ReactNode;
+  invoicesTab: ReactNode;
   onUpdate: (body: UpdateMissionData) => Promise<FormSubmitResult>;
   onSetStatus: (status: MissionStatus) => void;
   onOpenCra: () => void;
@@ -82,6 +83,7 @@ export function MissionDetailPage({
   mission,
   client,
   documentsTab,
+  invoicesTab,
   onUpdate,
   onSetStatus,
   onOpenCra,
@@ -99,7 +101,6 @@ export function MissionDetailPage({
 
   const barColor = mission.color ?? client.color;
   const isDone = mission.status === 2;
-  const isBillable = mission.rate !== null;
 
   const handleUpdate = async (body: UpdateMissionData) => {
     const result = await onUpdate(body);
@@ -311,18 +312,7 @@ export function MissionDetailPage({
             />
           </TabsContent>
 
-          <TabsContent value="invoices">
-            <div className="rounded-md border bg-card px-7 py-9 text-center">
-              <div className="mb-2 font-heading font-semibold text-base text-foreground-hi">
-                {m.common_no_invoices_title()}
-              </div>
-              <p className="mx-auto max-w-md text-pretty text-muted-foreground-3 text-sm leading-relaxed">
-                {isBillable
-                  ? m.missions_no_invoices_billable_hint()
-                  : m.missions_no_invoices_unbillable_hint()}
-              </p>
-            </div>
-          </TabsContent>
+          <TabsContent value="invoices">{invoicesTab}</TabsContent>
 
           {mission.craRequired && (
             <TabsContent value="cra">
@@ -349,7 +339,7 @@ export function MissionDetailPage({
                 <div className={`${EYEBROW_CLASSES} mb-4`}>
                   {m.missions_config_pricing()}
                 </div>
-                {isBillable && mission.rate !== null ? (
+                {mission.rate !== null ? (
                   <div>
                     <div className="mb-1.5 text-muted-foreground-3 text-sm">
                       {m.missions_rate_ht()}
