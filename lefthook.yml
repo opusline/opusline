@@ -53,7 +53,7 @@ pre-push:
             run: pnpm exec turbo run test check-types lint --filter=@opusline/api --output-logs=errors-only
 
           - name: everything
-            run: pnpm exec turbo run test check-types lint format-and-lint --output-logs=errors-only
+            run: pnpm exec turbo run build test check-types lint format-and-lint --output-logs=errors-only
 
 commit-msg:
   jobs:

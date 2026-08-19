@@ -53,8 +53,8 @@ jobs:
       - run: pnpm format-and-lint
       - run: pnpm exec turbo run test check-types build "--filter=!@opusline/api"
 
-  api:
-    name: API (pint, rector, phpstan, pest)
+  api-static:
+    name: API static analysis (pint, rector, phpstan)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -88,6 +88,85 @@ jobs:
       - run: vendor/bin/pint --test --parallel --cache-file=.cache/pint.json
       - run: vendor/bin/rector process --dry-run
       - run: vendor/bin/phpstan analyse --memory-limit=512M --no-progress
+
+  api-tests:
+    name: API tests (${{ matrix.database }})
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - database: sqlite
+            DB_CONNECTION: sqlite
+            DB_DATABASE: ":memory:"
+          - database: mysql
+            DB_CONNECTION: mysql
+            DB_HOST: 127.0.0.1
+            DB_PORT: "3306"
+            DB_DATABASE: testing
+            DB_USERNAME: root
+            DB_PASSWORD: password
+          - database: pgsql
+            DB_CONNECTION: pgsql
+            DB_HOST: 127.0.0.1
+            DB_PORT: "5432"
+            DB_DATABASE: testing
+            DB_USERNAME: postgres
+            DB_PASSWORD: password
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: testing
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -ppassword"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: testing
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      DB_CONNECTION: ${{ matrix.DB_CONNECTION }}
+      DB_HOST: ${{ matrix.DB_HOST }}
+      DB_PORT: ${{ matrix.DB_PORT }}
+      DB_DATABASE: ${{ matrix.DB_DATABASE }}
+      DB_USERNAME: ${{ matrix.DB_USERNAME }}
+      DB_PASSWORD: ${{ matrix.DB_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          extensions: exif, gd, pdo_mysql, pdo_pgsql
+          coverage: none
+      - name: Resolve composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v6
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ hashFiles('apps/api/composer.lock') }}
+          restore-keys: composer-
+      - run: composer install --no-interaction --no-progress --prefer-dist
+      - run: cp .env.example .env && php artisan key:generate
       - run: php artisan config:clear --quiet && php artisan test --ci --parallel
 
   spec-drift:
