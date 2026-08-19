@@ -20,7 +20,7 @@ class DeleteClient
         try {
             DB::transaction(fn () => $client->delete());
         } catch (QueryException $exception) {
-            if (ConstraintViolations::on($client->getConnection())->isForeignKeyViolation($exception)) {
+            if (ConstraintViolations::isForeignKeyViolation($exception)) {
                 abort(409, Invoice::query()->where('client_id', $client->id)->exists()
                     ? __('invoices.cannot_delete_client_with_invoices')
                     : __('clients.cannot_delete_with_missions'));

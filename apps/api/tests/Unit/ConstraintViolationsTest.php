@@ -8,7 +8,6 @@ use App\Domain\Shared\Database\DriverConstraintViolations;
 use App\Domain\Shared\Database\MySqlConstraintViolations;
 use App\Domain\Shared\Database\PostgresConstraintViolations;
 use App\Domain\Shared\Database\SqliteConstraintViolations;
-use Illuminate\Database\Connection;
 use Illuminate\Database\QueryException;
 
 /**
@@ -61,10 +60,9 @@ test('an untested engine falls back to the standard integrity constraint class',
 ]);
 
 test('the driver in use decides which mapping answers', function (string $driver, string $expected): void {
-    $connection = Mockery::mock(Connection::class);
-    $connection->shouldReceive('getDriverName')->andReturn($driver);
-
-    expect(ConstraintViolations::on($connection))->toBeInstanceOf($expected);
+    expect(ConstraintViolations::forDriver($driver))
+        ->toBeInstanceOf($expected)
+        ->toBeInstanceOf(DriverConstraintViolations::class);
 })->with([
     'mysql' => ['mysql', MySqlConstraintViolations::class],
     'mariadb' => ['mariadb', MySqlConstraintViolations::class],
@@ -72,10 +70,3 @@ test('the driver in use decides which mapping answers', function (string $driver
     'sqlite' => ['sqlite', SqliteConstraintViolations::class],
     'anything else' => ['sqlsrv', AnsiConstraintViolations::class],
 ]);
-
-test('every mapping honours the contract callers code against', function (string $driver): void {
-    $connection = Mockery::mock(Connection::class);
-    $connection->shouldReceive('getDriverName')->andReturn($driver);
-
-    expect(ConstraintViolations::on($connection))->toBeInstanceOf(DriverConstraintViolations::class);
-})->with(['mysql', 'mariadb', 'pgsql', 'sqlite', 'sqlsrv']);
