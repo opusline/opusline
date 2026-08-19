@@ -12,28 +12,6 @@ use Tests\TestCase;
 // booted application — unlike the rest of tests/Unit, which stays container-free.
 uses(TestCase::class);
 
-function rejects(ValidationRule $rule, mixed $value): bool
-{
-    $rejected = false;
-
-    $rule->validate('identifier', $value, function () use (&$rejected): void {
-        $rejected = true;
-    });
-
-    return $rejected;
-}
-
-function failureMessage(ValidationRule $rule, mixed $value): ?string
-{
-    $message = null;
-
-    $rule->validate('identifier', $value, function (string $failure) use (&$message): void {
-        $message = $failure;
-    });
-
-    return $message;
-}
-
 test('accepts a SIRET with a valid Luhn checksum', function (string $siret): void {
     expect(rejects(new Siret, $siret))->toBeFalse();
 })->with([

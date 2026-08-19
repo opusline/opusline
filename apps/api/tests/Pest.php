@@ -25,6 +25,7 @@ use App\Domain\Timers\Factories\RunningTimerFactory;
 use App\Domain\Timers\Models\RunningTimer;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -44,6 +45,37 @@ use Tests\TestCase;
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');
+
+pest()->printer()->compact();
+
+/**
+ * Whether the rule rejected the value.
+ *
+ * Lives here rather than beside the validation tests because two test files
+ * share it, and under `--parallel` each worker only loads the files it runs.
+ */
+function rejects(ValidationRule $rule, mixed $value): bool
+{
+    $rejected = false;
+
+    $rule->validate('identifier', $value, function () use (&$rejected): void {
+        $rejected = true;
+    });
+
+    return $rejected;
+}
+
+/** The message the rule failed with, or null when it accepted the value. */
+function failureMessage(ValidationRule $rule, mixed $value): ?string
+{
+    $message = null;
+
+    $rule->validate('identifier', $value, function (string $failure) use (&$message): void {
+        $message = $failure;
+    });
+
+    return $message;
+}
 
 /**
  * The shape mon-entreprise really returns: a rate as a percentage, and the

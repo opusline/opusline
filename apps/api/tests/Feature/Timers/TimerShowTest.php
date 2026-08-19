@@ -7,6 +7,8 @@ use App\Domain\Timers\Enums\TimerState;
 use App\Domain\Timers\Models\RunningTimer;
 use App\Domain\Users\Models\User;
 
+beforeEach(fn () => test()->freezeTime());
+
 test('reports no timer rather than a 404 when none is running', function (): void {
     $user = User::factory()->create();
 

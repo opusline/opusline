@@ -3,6 +3,7 @@ includes:
 
 parameters:
     level: max
+    tmpDir: .cache/phpstan
     stubFiles:
         - phpstan-stubs/GeneratesParametersFromRules.stub
         - phpstan-stubs/ValidateableData.stub

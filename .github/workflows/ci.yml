@@ -41,11 +41,15 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - id: playwright-version
         run: echo "version=$(pnpm --filter @opusline/storybook exec playwright --version | tr ' ' '-')" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@v6
+      - id: playwright-cache
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
-      - run: pnpm --filter @opusline/storybook exec playwright install chromium --with-deps
+      - if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm --filter @opusline/storybook exec playwright install-deps chromium
+      - if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm --filter @opusline/storybook exec playwright install chromium --with-deps
       - run: pnpm format-and-lint
       - run: pnpm exec turbo run test check-types build "--filter=!@opusline/api"
 
@@ -74,10 +78,17 @@ jobs:
           restore-keys: composer-
       - run: composer install --no-interaction --no-progress --prefer-dist
       - run: cp .env.example .env && php artisan key:generate
-      - run: vendor/bin/pint --test
+      - uses: actions/cache@v6
+        with:
+          path: apps/api/.cache
+          key: php-tools-${{ hashFiles('apps/api/composer.lock') }}-${{ github.sha }}
+          restore-keys: |
+            php-tools-${{ hashFiles('apps/api/composer.lock') }}-
+            php-tools-
+      - run: vendor/bin/pint --test --parallel --cache-file=.cache/pint.json
       - run: vendor/bin/rector process --dry-run
       - run: vendor/bin/phpstan analyse --memory-limit=512M --no-progress
-      - run: php artisan config:clear --quiet && php artisan test --compact
+      - run: php artisan config:clear --quiet && php artisan test --ci --parallel
 
   spec-drift:
     name: Generated artifacts drift
