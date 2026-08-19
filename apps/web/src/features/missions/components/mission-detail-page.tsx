@@ -33,7 +33,7 @@ import {
 import { type ReactNode, useState } from "react";
 import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { useMoneyFormat } from "@/components/money-format-provider";
-import { formatAmount, paymentTermsLabel } from "@/lib/billing";
+import { formatAmount, missionBills, paymentTermsLabel } from "@/lib/billing";
 import { formatRevenue, formatTrackedMonth } from "@/lib/client-revenue";
 import { clientTypeLabel } from "@/lib/client-types";
 import { calendarDateLabel, calendarMonthYearLabel } from "@/lib/dates";
@@ -339,7 +339,7 @@ export function MissionDetailPage({
                 <div className={`${EYEBROW_CLASSES} mb-4`}>
                   {m.missions_config_pricing()}
                 </div>
-                {mission.rate !== null ? (
+                {missionBills(mission) ? (
                   <div>
                     <div className="mb-1.5 text-muted-foreground-3 text-sm">
                       {m.missions_rate_ht()}

@@ -116,8 +116,12 @@ function stubApi(
         return jsonResponse(200, { documents: [] });
       }
 
+      // Answered only for this client's slice: a tab that dropped the filter
+      // would read the whole ledger, and an empty list would not say so.
       if (url.pathname.endsWith("/invoices")) {
-        return jsonResponse(200, { invoices, clientTotals: [] });
+        return url.searchParams.get("clientId") === String(client.id)
+          ? jsonResponse(200, { invoices, clientTotals: [] })
+          : jsonResponse(422, { message: "clientId manquant" });
       }
 
       return jsonResponse(200, client);

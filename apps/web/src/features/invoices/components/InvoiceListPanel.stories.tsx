@@ -11,6 +11,7 @@ const meta = {
     accountToday: "2026-08-14",
     emptyHint:
       "Les factures apparaîtront ici dès que du temps facturable aura été saisi sur une mission de ce client.",
+    onOpen: () => {},
   },
 } satisfies Meta<typeof InvoiceListPanel>;
 

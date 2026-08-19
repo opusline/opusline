@@ -103,8 +103,12 @@ export function InvoiceDrawerProvider({
     onError: reportFailure(m.invoices_send_failed()),
   });
 
+  // The reference lands even when the send that follows it fails, so it owes
+  // the same refresh as any other write — otherwise the lists keep showing a
+  // draft with no reference until a reload.
   const setReference = useMutation({
     ...updateInvoiceMutation(),
+    onSuccess: refresh,
     onError: reportFailure(m.invoices_reference_failed()),
   });
 

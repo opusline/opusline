@@ -1,10 +1,13 @@
-import { listInvoicesOptions } from "@opusline/api-client/react-query";
+import {
+  listInvoicesOptions,
+  showInvoiceOptions,
+} from "@opusline/api-client/react-query";
 import type { Meta, StoryObj } from "@storybook/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { StoryRouter } from "@/test/story-router";
 
-import { invoiceItem } from "../lib/fixtures";
+import { invoiceDetail, invoiceItem } from "../lib/fixtures";
 import { InvoiceDrawerProvider } from "./invoice-drawer-provider";
 import { InvoiceListTab } from "./invoice-list-tab";
 
@@ -21,6 +24,15 @@ function Example({ invoices }: { invoices: ReturnType<typeof invoiceItem>[] }) {
       invoices,
       clientTotals: [],
     });
+
+    // The fiche each row opens, so picking one resolves from the cache and the
+    // story needs no request handler.
+    for (const { invoice } of invoices) {
+      client.setQueryData(
+        showInvoiceOptions({ path: { invoice: invoice.id } }).queryKey,
+        invoiceDetail(invoice),
+      );
+    }
 
     return client;
   });

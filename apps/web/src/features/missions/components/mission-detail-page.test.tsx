@@ -105,8 +105,12 @@ function stubApi(
         return jsonResponse(200, missionRevenueDetailPayload());
       }
 
+      // Answered only for this mission's slice: a tab that dropped the filter
+      // would read the whole ledger, and an empty list would not say so.
       if (url.pathname.endsWith("/invoices")) {
-        return jsonResponse(200, { invoices, clientTotals: [] });
+        return url.searchParams.get("missionId") === String(mission.id)
+          ? jsonResponse(200, { invoices, clientTotals: [] })
+          : jsonResponse(422, { message: "missionId manquant" });
       }
 
       if (url.pathname.endsWith("/documents")) {
