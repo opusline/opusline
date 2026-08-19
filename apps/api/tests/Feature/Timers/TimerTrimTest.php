@@ -6,6 +6,8 @@ use App\Domain\Timers\Enums\TimerState;
 use App\Domain\Timers\Models\RunningTimer;
 use App\Domain\Users\Models\User;
 
+beforeEach(fn () => test()->freezeTime());
+
 test('subtracts an idle span and keeps running', function (): void {
     $user = User::factory()->create();
     runningTimerFor($user);

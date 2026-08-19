@@ -24,6 +24,7 @@ export default defineConfig({
   plugins: [viteReact()],
   resolve: { tsconfigPaths: true },
   test: {
+    isolate: false,
     projects: [
       {
         extends: true,

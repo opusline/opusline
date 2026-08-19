@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Domain\Timers\Enums\TimerState;
 use App\Domain\Users\Models\User;
 
+beforeEach(fn () => test()->freezeTime());
+
 test('pausing banks the segment in flight', function (): void {
     $user = User::factory()->create();
     runningTimerFor($user);

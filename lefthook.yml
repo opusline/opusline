@@ -24,7 +24,7 @@ pre-commit:
           - name: pint
             root: "apps/api/"
             glob: "*.php"
-            run: sh scripts/php.sh php vendor/bin/pint {staged_files}
+            run: sh scripts/php.sh php vendor/bin/pint --cache-file=.cache/pint.json {staged_files}
             stage_fixed: true
 
 pre-push:
@@ -46,7 +46,14 @@ pre-push:
       run: sh scripts/release-notes-guard.sh
 
     - name: quality
-      run: pnpm exec turbo run test check-types lint format-and-lint --output-logs=errors-only
+      group:
+        piped: true
+        jobs:
+          - name: api
+            run: pnpm exec turbo run test check-types lint --filter=@opusline/api --output-logs=errors-only
+
+          - name: everything
+            run: pnpm exec turbo run test check-types lint format-and-lint --output-logs=errors-only
 
 commit-msg:
   jobs:
