@@ -14,6 +14,20 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.14.0",
+    date: "2026-08-19",
+    items: [
+      {
+        kind: "new",
+        text: "Clients you do not charge VAT — abroad, or under reverse charge — can now be set to their own rate, which every new invoice for them starts on and you can still change invoice by invoice.",
+      },
+      {
+        kind: "new",
+        text: "Week view: tracked time still waiting on an invoice now wears a ring, and a \"Current month\" tile tracks the days you have worked against the month's business days.",
+      },
+    ],
+  },
+  {
     version: "0.13.0",
     date: "2026-08-17",
     items: [
