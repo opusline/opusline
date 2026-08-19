@@ -2,6 +2,12 @@ import type {
   ClientRevenueData,
   ClientWithMissionsData,
 } from "@opusline/api-client";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@opusline/ui/components/empty";
 import type { Meta, StoryObj } from "@storybook/react";
 import { DocumentsTab } from "@/components/documents-tab";
 import { SAMPLE_LOGO_SRC } from "@/lib/logo-fixture";
@@ -93,6 +99,25 @@ const documentsTab = (
   />
 );
 
+/*
+ * The empty state, which is what the page shows until a client is invoiced.
+ * The populated list is documented by Web/InvoiceListPanel; a story must not
+ * reach into another feature, and the route composes the real tab.
+ */
+const invoicesTab = (
+  <Empty className="rounded-md border border-solid bg-card px-7 py-9">
+    <EmptyHeader className="gap-2">
+      <EmptyTitle className="font-heading font-semibold text-base text-foreground-hi">
+        Aucune facture
+      </EmptyTitle>
+      <EmptyDescription className="text-muted-foreground-3 text-sm leading-relaxed">
+        Les factures apparaîtront ici dès que du temps facturable aura été saisi
+        sur une mission de ce client.
+      </EmptyDescription>
+    </EmptyHeader>
+  </Empty>
+);
+
 const meta = {
   title: "Web/ClientDetailPage",
   component: ClientDetailPage,
@@ -136,6 +161,7 @@ export const Default: Story = {
   args: {
     client,
     documentsTab,
+    invoicesTab,
     revenue,
     revenueYear: 2026,
     onUpdate: async () => ({ status: "success" }) as const,
@@ -151,6 +177,7 @@ export const Archived: Story = {
       missions: [],
     },
     documentsTab,
+    invoicesTab,
     onUpdate: async () => ({ status: "success" }) as const,
     onToggleArchive: () => {},
   },
@@ -173,6 +200,7 @@ export const WithoutCoordinates: Story = {
       missions: [],
     },
     documentsTab,
+    invoicesTab,
     onUpdate: async () => ({ status: "success" }) as const,
     onToggleArchive: () => {},
   },
@@ -187,6 +215,7 @@ export const RevenueUnavailable: Story = {
   args: {
     client,
     documentsTab,
+    invoicesTab,
     revenueFailed: true,
     onUpdate: async () => ({ status: "success" }) as const,
     onToggleArchive: () => {},
@@ -198,6 +227,7 @@ export const ClientWithoutVat: Story = {
   args: {
     client: { ...client, defaultVatRateBp: 0 },
     documentsTab,
+    invoicesTab,
     revenue,
     revenueYear: 2026,
     onUpdate: async () => ({ status: "success" }) as const,

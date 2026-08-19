@@ -747,7 +747,6 @@
   "revenue_empty_cta": "See {period}",
   "revenue_empty_title_collected": "Nothing collected in {period}",
   "revenue_empty_title_invoiced": "Nothing invoiced in {period}",
-  "revenue_invoice_open_failed": "The invoice could not be opened. Try again in a moment.",
   "revenue_invoices_empty_collected": "Nothing collected in {period}.",
   "revenue_invoices_empty_invoiced": "Nothing issued in {period}.",
   "revenue_invoices_link": "All invoices",

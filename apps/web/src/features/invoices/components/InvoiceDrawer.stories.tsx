@@ -33,3 +33,13 @@ export const Paid: Story = {
 export const Loading: Story = {
   args: { open: true, onOpenChange: () => {}, detail: undefined },
 };
+
+/** The fiche could not be fetched — a stale deep link, a deleted invoice. */
+export const Failed: Story = {
+  args: {
+    open: true,
+    onOpenChange: () => {},
+    detail: undefined,
+    error: "La facture n'a pas pu être ouverte. Réessayez dans un instant.",
+  },
+};

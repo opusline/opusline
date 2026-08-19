@@ -1,6 +1,7 @@
 import type {
   ClientWithMissionsData,
   DocumentData,
+  InvoiceListItemData,
   MissionData,
 } from "@opusline/api-client";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -10,7 +11,7 @@ import { afterEach, expect, it, vi } from "vitest";
 
 import { getRouter } from "@/router";
 import { seedCurrentUser } from "@/test/current-user";
-import { missionRevenueDetailPayload } from "@/test/fixtures";
+import { invoiceItem, missionRevenueDetailPayload } from "@/test/fixtures";
 
 function missionPayload(overrides: Partial<MissionData> = {}): MissionData {
   return {
@@ -77,6 +78,7 @@ type RecordedRequest = { method: string; path: string; body: unknown };
 function stubApi(
   mission: MissionData,
   documents: DocumentData[] = [],
+  invoices: InvoiceListItemData[] = [],
 ): RecordedRequest[] {
   const requests: RecordedRequest[] = [];
 
@@ -101,6 +103,14 @@ function stubApi(
 
       if (url.pathname.endsWith("/revenue")) {
         return jsonResponse(200, missionRevenueDetailPayload());
+      }
+
+      // Answered only for this mission's slice: a tab that dropped the filter
+      // would read the whole ledger, and an empty list would not say so.
+      if (url.pathname.endsWith("/invoices")) {
+        return url.searchParams.get("missionId") === String(mission.id)
+          ? jsonResponse(200, { invoices, clientTotals: [] })
+          : jsonResponse(422, { message: "missionId manquant" });
       }
 
       if (url.pathname.endsWith("/documents")) {
@@ -190,6 +200,21 @@ it("explains a non billable mission in the invoices tab", async () => {
       "Cette mission n'est pas facturable — son temps ne produit pas de facture.",
     ),
   ).toBeInTheDocument();
+});
+
+it("lists the mission's own invoices in the invoices tab", async () => {
+  stubApi(
+    missionPayload(),
+    [],
+    [invoiceItem({ id: 7, number: "2026-014", periodStart: "2026-07-01" })],
+  );
+  await renderMissionDetail();
+
+  fireEvent.click(screen.getByRole("tab", { name: "Factures" }));
+
+  expect(await screen.findByText("2026-014")).toBeInTheDocument();
+  // The rows are all on this mission, so none of them repeats its name.
+  expect(screen.queryByText(/Refonte catalogue/)).not.toBeInTheDocument();
 });
 
 it("saves an edit and returns to reading mode", async () => {

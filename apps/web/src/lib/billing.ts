@@ -3,6 +3,7 @@ import type {
   Currency,
   Locale,
   MissionData,
+  MoneyData,
 } from "@opusline/api-client";
 
 import { m } from "@/paraglide/messages.js";
@@ -305,7 +306,10 @@ export function parseSignedAmountToCents(
   return Math.round(amount * 100) * (isNegative ? -1 : 1);
 }
 
-export function missionBills(mission: MissionData): boolean {
+/** A rate is what makes a mission billable, and having one is what proves it. */
+export function missionBills(
+  mission: MissionData,
+): mission is MissionData & { rate: MoneyData } {
   return mission.rate !== null;
 }
 

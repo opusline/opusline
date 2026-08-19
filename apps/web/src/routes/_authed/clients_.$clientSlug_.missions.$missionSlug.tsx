@@ -19,7 +19,10 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 
 import { DocumentsTab } from "@/components/documents-tab";
+import { InvoiceListTab } from "@/features/invoices/components/invoice-list-tab";
 import { MissionDetailPage } from "@/features/missions/components/mission-detail-page";
+import { missionBills } from "@/lib/billing";
+import { accountTodayCalendarDate } from "@/lib/dates";
 import {
   documentHandlers,
   isClientDocument,
@@ -36,6 +39,7 @@ export const Route = createFileRoute(
 });
 
 function MissionDetailRoute() {
+  const { user } = Route.useRouteContext();
   const { clientSlug, missionSlug } = Route.useParams();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -211,6 +215,18 @@ function MissionDetailRoute() {
     />
   );
 
+  const invoicesTab = (
+    <InvoiceListTab
+      accountToday={accountTodayCalendarDate(user.timezone)}
+      emptyHint={
+        missionBills(missionQuery.data)
+          ? m.missions_no_invoices_billable_hint()
+          : m.missions_no_invoices_unbillable_hint()
+      }
+      query={{ missionId: missionQuery.data.id }}
+    />
+  );
+
   return (
     <MissionDetailPage
       client={clientQuery.data}
@@ -220,6 +236,7 @@ function MissionDetailRoute() {
           ? m.common_action_failed()
           : null
       }
+      invoicesTab={invoicesTab}
       isStatusPending={isMutating}
       isUpdatePending={isMutating}
       mission={missionQuery.data}

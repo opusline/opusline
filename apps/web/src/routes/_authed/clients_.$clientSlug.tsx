@@ -22,6 +22,8 @@ import { useState } from "react";
 
 import { DocumentsTab } from "@/components/documents-tab";
 import { ClientDetailPage } from "@/features/clients/components/client-detail-page";
+import { InvoiceListTab } from "@/features/invoices/components/invoice-list-tab";
+import { accountTodayCalendarDate } from "@/lib/dates";
 import { clientDocumentDownloadHref, documentHandlers } from "@/lib/documents";
 import type { FormSubmitResult } from "@/lib/form";
 import { clientLogoHref, logoHandlers } from "@/lib/logos";
@@ -188,12 +190,22 @@ function ClientDetailRoute() {
     />
   );
 
+  const invoicesTab = (
+    <InvoiceListTab
+      accountToday={accountTodayCalendarDate(user.timezone)}
+      emptyHint={m.clients_invoices_empty_hint()}
+      query={{ clientId: data.id }}
+      withMission
+    />
+  );
+
   return (
     <ClientDetailPage
       accountVatRateBp={user.effectiveVatRateBp}
       client={data}
       documentsTab={documentsTab}
       error={genericError}
+      invoicesTab={invoicesTab}
       isArchivePending={archiveClient.isPending || unarchiveClient.isPending}
       isUpdatePending={updateClient.isPending}
       logoSrc={clientLogoHref(client, logoVersion)}

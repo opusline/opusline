@@ -747,7 +747,6 @@
   "revenue_empty_cta": "Voir {period}",
   "revenue_empty_title_collected": "Rien d'encaissé sur {period}",
   "revenue_empty_title_invoiced": "Rien de facturé sur {period}",
-  "revenue_invoice_open_failed": "La facture n'a pas pu être ouverte. Réessayez dans un instant.",
   "revenue_invoices_empty_collected": "Aucun encaissement sur {period}.",
   "revenue_invoices_empty_invoiced": "Rien d'émis sur {period}.",
   "revenue_invoices_link": "Toutes les factures",
