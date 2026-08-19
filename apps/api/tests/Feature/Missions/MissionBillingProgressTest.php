@@ -51,11 +51,12 @@ test('answers null for a mission billed by the day', function (): void {
     ]));
 
     // A day rate has no agreed total, so there is no progress to report — and a
-    // zero would read as "nothing billed" rather than "not applicable".
+    // zero would read as "nothing billed" rather than "not applicable". Literally
+    // null, not `{}`: an empty object would read as a forfait missing its figures.
     $this->actingAs($user)
         ->getJson(missionBillingUrl($mission))
         ->assertOk()
-        ->assertExactJson([]);
+        ->assertContent('null');
 });
 
 test('adds up instalments billed against the agreed price', function (): void {

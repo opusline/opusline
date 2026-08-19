@@ -77,6 +77,8 @@ type MissionDetailPageProps = {
   revenueFailed?: boolean;
   /** Null for a mission not sold at a fixed price. */
   billingProgress?: MissionBillingProgressData | null;
+  /** The forfait figures could not be fetched — silence would read as "not a forfait". */
+  billingFailed?: boolean;
   entries?: TimeEntryData[];
   isEntriesPending?: boolean;
   isEntriesError?: boolean;
@@ -95,6 +97,7 @@ export function MissionDetailPage({
   revenue,
   revenueFailed,
   billingProgress = null,
+  billingFailed,
   entries = [],
   isEntriesPending,
   isEntriesError,
@@ -258,6 +261,13 @@ export function MissionDetailPage({
         <Alert className="mb-5" variant="warn">
           <CircleAlert />
           <AlertDescription>{m.revenue_load_failed()}</AlertDescription>
+        </Alert>
+      ) : null}
+
+      {billingFailed ? (
+        <Alert className="mb-5" variant="warn">
+          <CircleAlert />
+          <AlertDescription>{m.forfait_load_failed()}</AlertDescription>
         </Alert>
       ) : null}
 

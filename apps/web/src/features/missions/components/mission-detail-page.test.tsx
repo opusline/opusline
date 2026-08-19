@@ -77,6 +77,7 @@ type RecordedRequest = { method: string; path: string; body: unknown };
 function stubApi(
   mission: MissionData,
   documents: DocumentData[] = [],
+  { failBilling = false }: { failBilling?: boolean } = {},
 ): RecordedRequest[] {
   const requests: RecordedRequest[] = [];
 
@@ -100,7 +101,9 @@ function stubApi(
       }
 
       if (url.pathname.endsWith("/billing")) {
-        return jsonResponse(200, null);
+        return failBilling
+          ? jsonResponse(500, { message: "Server Error" })
+          : jsonResponse(200, null);
       }
 
       if (url.pathname.endsWith("/revenue")) {
@@ -129,6 +132,11 @@ async function renderMissionDetail() {
     "/clients/nordlys/missions/callisto-front",
   );
   const router = getRouter();
+  // A failing query would otherwise back off three times before it settles,
+  // which outlasts the test timeout.
+  router.options.context.queryClient.setDefaultOptions({
+    queries: { retry: false, staleTime: 30_000 },
+  });
   seedCurrentUser(router.options.context.queryClient);
 
   render(
@@ -221,6 +229,37 @@ it("saves an edit and returns to reading mode", async () => {
     rate: { amount: 55_000, currency: "EUR" },
     endClientName: "Callisto",
     craRequired: true,
+  });
+});
+
+it("warns when the forfait progress could not be loaded", async () => {
+  stubApi(missionPayload({ billingMode: 2 }), [], { failBilling: true });
+  await renderMissionDetail();
+
+  // A silent absence would read as a mission not sold at a fixed price.
+  expect(
+    await screen.findByText(
+      "Le suivi du forfait n'a pas pu être chargé. Réessayez dans un instant.",
+    ),
+  ).toBeInTheDocument();
+});
+
+it("refetches the forfait progress after an edit", async () => {
+  const requests = stubApi(missionPayload({ billingMode: 2 }));
+  await renderMissionDetail();
+
+  fireEvent.click(screen.getByRole("button", { name: "Modifier" }));
+  fireEvent.change(await screen.findByLabelText("Nom de la mission"), {
+    target: { value: "Callisto front v2" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+
+  // The rate and the billing mode are edited here, so the totals they feed
+  // cannot stay on the copy fetched before the save.
+  await waitFor(() => {
+    expect(
+      requests.filter((request) => request.path.endsWith("/billing")),
+    ).toHaveLength(2);
   });
 });
 

@@ -160,3 +160,19 @@ export const RevenueUnavailable: Story = {
     onSetStatus: () => {},
   },
 };
+
+/**
+ * The forfait endpoint answered with an error. Without the warning, the missing
+ * progress bar would read as a mission that is not sold at a fixed price.
+ */
+export const BillingUnavailable: Story = {
+  args: {
+    mission,
+    client,
+    documentsTab,
+    revenue,
+    billingFailed: true,
+    onUpdate: async () => ({ status: "success" }) as const,
+    onSetStatus: () => {},
+  },
+};

@@ -7,6 +7,7 @@ import {
   listMissionTimeEntriesOptions,
   showClientOptions,
   showMissionBillingOptions,
+  showMissionBillingQueryKey,
   showMissionOptions,
   showMissionQueryKey,
   showMissionRevenueOptions,
@@ -88,6 +89,9 @@ function MissionDetailRoute() {
     await Promise.all([
       queryClient.invalidateQueries({
         queryKey: showMissionQueryKey({ path: missionPath }),
+      }),
+      queryClient.invalidateQueries({
+        queryKey: showMissionBillingQueryKey({ path: missionPath }),
       }),
       queryClient.invalidateQueries({
         queryKey: showClientOptions({ path: { client: clientSlug } }).queryKey,
@@ -217,6 +221,7 @@ function MissionDetailRoute() {
 
   return (
     <MissionDetailPage
+      billingFailed={billingQuery.isError}
       billingProgress={billingQuery.data ?? null}
       client={clientQuery.data}
       documentsTab={documentsTab}
