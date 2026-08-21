@@ -14,6 +14,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.17.0",
+    date: "2026-08-21",
+    items: [
+      {
+        kind: "new",
+        text: "Transfer screen: see how much of your business account is really yours, VAT, URSSAF and buffer deducted, and record what you pay yourself.",
+      },
+    ],
+  },
+  {
     version: "0.16.0",
     date: "2026-08-21",
     items: [
