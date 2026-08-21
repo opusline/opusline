@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.0](https://github.com/opusline/opusline/compare/v0.15.0...v0.16.0) (2026-08-21)
+
+
+### Features
+
+* **web:** add documents page with personal pieces ([#200](https://github.com/opusline/opusline/issues/200)) ([fb640a2](https://github.com/opusline/opusline/commit/fb640a2541f2e1a904ae53df1933d6c7dd587779))
+
 ## [0.15.0](https://github.com/opusline/opusline/compare/v0.14.0...v0.15.0) (2026-08-21)
 
 
