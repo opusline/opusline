@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.0](https://github.com/opusline/opusline/compare/v0.16.0...v0.17.0) (2026-08-21)
+
+
+### Features
+
+* **web:** add treasury transfer calculator ([#203](https://github.com/opusline/opusline/issues/203)) ([4831aa6](https://github.com/opusline/opusline/commit/4831aa67b3c350dce97da8e0545f9e5e5430341e))
+
 ## [0.16.0](https://github.com/opusline/opusline/compare/v0.15.0...v0.16.0) (2026-08-21)
 
 
