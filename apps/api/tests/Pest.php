@@ -208,6 +208,37 @@ function missionOwnedBy(User $user, ?callable $configure = null): Mission
 }
 
 /**
+ * A forfait priced at $forfaitCents with a reference TJM of $referenceCents, carrying
+ * $days full workdays of tracked time — enough to read a budget off.
+ *
+ * Lives here rather than beside one test file because two share it, and under
+ * `--parallel` each worker only loads the files it runs.
+ */
+function forfaitWith(User $user, int $forfaitCents, int $referenceCents, int $days, ?Client $client = null, ?string $name = null): Mission
+{
+    $mission = Mission::factory()
+        ->for($client ?? Client::factory()->for($user)->create(), 'client')
+        ->fixed()
+        ->withReferenceDailyRate($referenceCents)
+        ->create(array_filter([
+            'user_id' => $user->id,
+            'rate_cents' => $forfaitCents,
+            'name' => $name,
+        ], static fn (mixed $value): bool => $value !== null));
+
+    $day = CarbonImmutable::parse('2026-08-01');
+
+    for ($tracked = 0; $tracked < $days; $tracked++) {
+        TimeEntry::factory()->for($mission, 'mission')->create([
+            'user_id' => $user->id,
+            'date' => $day->addDays($tracked)->toDateString(),
+        ]);
+    }
+
+    return $mission;
+}
+
+/**
  * Put the account on a TVA-liable regime. Settings default to the franchise en
  * base, where the effective rate is 0 and every invoice is net-equals-gross.
  */

@@ -5,20 +5,25 @@ declare(strict_types=1);
 namespace App\Domain\Invoices\Actions;
 
 use App\Domain\Clients\Enums\ClientType;
+use App\Domain\Invoices\Data\FixedPriceBudgetData;
+use App\Domain\Invoices\Data\FixedPriceConsumptionData;
 use App\Domain\Invoices\Data\InvoiceCountsData;
 use App\Domain\Invoices\Data\InvoiceForecastData;
 use App\Domain\Invoices\Data\InvoiceOverdueData;
 use App\Domain\Invoices\Data\InvoiceSummaryData;
+use App\Domain\Invoices\Data\InvoiceTodoBudgetData;
 use App\Domain\Invoices\Data\InvoiceTodoData;
 use App\Domain\Invoices\Data\InvoiceTodoOverdueData;
 use App\Domain\Invoices\Data\InvoiceTodoWorkData;
 use App\Domain\Invoices\Data\InvoiceTotalData;
 use App\Domain\Invoices\Data\SummarizeInvoicesData;
+use App\Domain\Invoices\Enums\FixedPriceBudgetState;
 use App\Domain\Invoices\Enums\InvoiceForecastBucket;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Enums\InvoiceTodoKind;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Enums\BillingMode;
+use App\Domain\Missions\Enums\MissionStatus;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Shared\Data\MoneyData;
@@ -39,7 +44,10 @@ class SummarizeInvoices
 
     private const int BASIS_POINTS = 10_000;
 
-    public function __construct(private readonly ValueTrackedTime $valueTrackedTime) {}
+    public function __construct(
+        private readonly ValueTrackedTime $valueTrackedTime,
+        private readonly SummarizeFixedPriceBudgets $summarizeFixedPriceBudgets,
+    ) {}
 
     public function handle(User $user, SummarizeInvoicesData $data): InvoiceSummaryData
     {
@@ -51,6 +59,7 @@ class SummarizeInvoices
         $outstanding = $this->outstanding($user);
         $overdue = $outstanding->filter(fn (Invoice $invoice): bool => $invoice->due_on->isBefore($today))->values();
         $unbilled = $this->unbilledByMission($user, $month, $settings->workday_minutes);
+        $budgets = $this->budgetRows($user, $settings);
 
         return new InvoiceSummaryData(
             month: $month->format('Y-m'),
@@ -60,8 +69,8 @@ class SummarizeInvoices
             monthUnbilled: $this->unbilledIn($unbilled, $currency),
             unbilled: $this->unbilledTotal($unbilled, $currency),
             counts: $this->counts($user, $today),
-            todo: $this->todo($overdue, $unbilled, $today, $settings),
-            todoTotal: $overdue->count() + count($unbilled),
+            todo: $this->todo($overdue, $budgets, $unbilled, $today, $settings),
+            todoTotal: $overdue->count() + count($budgets) + count($unbilled),
         );
     }
 
@@ -299,25 +308,125 @@ class SummarizeInvoices
     }
 
     /**
-     * Overdue first, then time that should have been invoiced — the order in which
-     * each costs money to ignore.
+     * A forfait whose time is running out, or has already run over. One row per
+     * mission, and never both kinds for the same one — past the price, the overrun is
+     * the news, not the balance left to bill.
+     *
+     * A comfortable forfait says nothing: this list is what costs money to ignore,
+     * and a mission at 30 % is not that. Neither does a finished one — its overrun is
+     * history, and no action on this list would clear the row.
+     *
+     * @return list<InvoiceTodoData>
+     */
+    private function budgetRows(User $user, UserSettings $settings): array
+    {
+        $missions = $user->missions()
+            ->with('client')
+            ->where('billing_mode', BillingMode::Fixed)
+            ->where('status', '!=', MissionStatus::Done)
+            ->get()
+            ->reject(fn (Mission $mission): bool => $mission->client->type === ClientType::Internal);
+
+        $budgets = $this->summarizeFixedPriceBudgets->forMissions($user, $missions);
+        $candidates = [];
+
+        foreach ($missions as $mission) {
+            $budget = $budgets[$mission->id] ?? null;
+
+            if (! $budget instanceof FixedPriceBudgetData) {
+                continue;
+            }
+
+            $consumption = $budget->consumption;
+
+            if (! $consumption instanceof FixedPriceConsumptionData) {
+                continue;
+            }
+
+            $kind = $this->budgetKindFor($consumption, $budget);
+
+            if ($kind instanceof InvoiceTodoKind) {
+                $candidates[] = ['mission' => $mission, 'budget' => $budget, 'consumption' => $consumption, 'kind' => $kind];
+            }
+        }
+
+        // Worst first: the list is capped, and a forfait at 180 % must not be dropped
+        // for one at 81 % that happens to sort earlier by name.
+        usort(
+            $candidates,
+            static fn (array $a, array $b): int => $b['consumption']->consumedShareBp <=> $a['consumption']->consumedShareBp,
+        );
+
+        return array_map(
+            fn (array $candidate): InvoiceTodoData => $this->budgetRow($candidate, $settings),
+            $candidates,
+        );
+    }
+
+    /**
+     * @param  array{mission: Mission, budget: FixedPriceBudgetData, consumption: FixedPriceConsumptionData, kind: InvoiceTodoKind}  $candidate
+     */
+    private function budgetRow(array $candidate, UserSettings $settings): InvoiceTodoData
+    {
+        $mission = $candidate['mission'];
+        $budget = $candidate['budget'];
+
+        return new InvoiceTodoData(
+            kind: $candidate['kind'],
+            amount: $candidate['kind'] === InvoiceTodoKind::FixedPriceOverrun
+                ? $candidate['consumption']->overrun
+                : MoneyData::fromMoney($budget->remaining->toMoney()),
+            clientId: $mission->client_id,
+            clientName: $mission->client->name,
+            budget: new InvoiceTodoBudgetData(
+                missionId: $mission->id,
+                missionName: $mission->name,
+                missionSlug: $mission->slug,
+                clientSlug: $mission->client->slug,
+                budget: $budget,
+                vatRateBp: $settings->effectiveVatRateBp($mission->client->default_vat_rate_bp),
+            ),
+        );
+    }
+
+    /**
+     * Null when the forfait has nothing to say: still comfortable, or already fully
+     * invoiced and within budget — a row with no figure on it is noise.
+     */
+    private function budgetKindFor(FixedPriceConsumptionData $consumption, FixedPriceBudgetData $budget): ?InvoiceTodoKind
+    {
+        if ($consumption->state === FixedPriceBudgetState::Exceeded) {
+            return InvoiceTodoKind::FixedPriceOverrun;
+        }
+
+        if ($consumption->state === FixedPriceBudgetState::Warning && $budget->remaining->amount > 0) {
+            return InvoiceTodoKind::FixedPriceBudget;
+        }
+
+        return null;
+    }
+
+    /**
+     * Overdue first, then forfaits about to cost you money, then time that should have
+     * been invoiced — the order in which each costs money to ignore.
      *
      * @param  Collection<int, Invoice>  $overdue
+     * @param  list<InvoiceTodoData>  $budgets
      * @param  list<UnbilledWork>  $unbilled
      * @return list<InvoiceTodoData>
      */
     private function todo(
         Collection $overdue,
+        array $budgets,
         array $unbilled,
         CarbonImmutable $today,
         UserSettings $settings,
     ): array {
-        // Each kind is guaranteed half the list and may spill into whatever the other
-        // leaves free. Filling the list overdue-first would let a long backlog hide
-        // every invoice waiting to be written — and that row's button is the only way
-        // to write one.
-        $half = intdiv(self::TODO_LIMIT, 2);
-        $overdueTake = min($overdue->count(), max($half, self::TODO_LIMIT - count($unbilled)));
+        [$overdueTake, $budgetTake, $unbilledTake] = $this->allocateSlots([
+            $overdue->count(),
+            count($budgets),
+            count($unbilled),
+        ]);
 
         $items = [];
 
@@ -336,7 +445,11 @@ class SummarizeInvoices
             );
         }
 
-        foreach (array_slice($unbilled, 0, self::TODO_LIMIT - $overdueTake) as $row) {
+        foreach (array_slice($budgets, 0, $budgetTake) as $row) {
+            $items[] = $row;
+        }
+
+        foreach (array_slice($unbilled, 0, $unbilledTake) as $row) {
             $entries = $row['entries'];
 
             $items[] = new InvoiceTodoData(
@@ -359,6 +472,32 @@ class SummarizeInvoices
         }
 
         return $items;
+    }
+
+    /**
+     * How many rows each kind gets out of TODO_LIMIT: an equal floor each, then the
+     * slots nobody claimed handed down in the order given.
+     *
+     * Filling the list in priority order alone would let a long overdue backlog hide
+     * every invoice waiting to be written — and that row's button is the only way to
+     * write one — or every forfait about to cost money.
+     *
+     * @param  list<int>  $available  How many rows each kind could contribute, most urgent first.
+     * @return list<int>
+     */
+    private function allocateSlots(array $available): array
+    {
+        $floor = intdiv(self::TODO_LIMIT, count($available));
+        $takes = array_map(static fn (int $count): int => min($count, $floor), $available);
+        $spare = self::TODO_LIMIT - array_sum($takes);
+
+        foreach ($available as $index => $count) {
+            $extra = min($spare, $count - $takes[$index]);
+            $takes[$index] += $extra;
+            $spare -= $extra;
+        }
+
+        return array_values($takes);
     }
 
     /**

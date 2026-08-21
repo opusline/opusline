@@ -104,17 +104,19 @@ export function currencySymbol(format: MoneyFormat): string {
 /**
  * A basis-point rate as the figure beside a "%": 2000 -> "20", 550 -> "5,5".
  *
- * `minimumFractionDigits` is the caller's call: an invoice reads "TVA 20 %", while
- * the settings form pins one decimal so the figure does not jump as it is typed.
+ * The fraction digits are the caller's call: an invoice reads "TVA 20 %", the settings
+ * form pins one decimal so the figure does not jump as it is typed, and a consumed
+ * share is read to the whole percent.
  */
 export function formatPercentFromBp(
   locale: Locale,
   basisPoints: number,
   minimumFractionDigits = 0,
+  maximumFractionDigits = 2,
 ): string {
   return cachedFormatter(locale, {
     minimumFractionDigits,
-    maximumFractionDigits: 2,
+    maximumFractionDigits,
   }).format(basisPoints / 100);
 }
 

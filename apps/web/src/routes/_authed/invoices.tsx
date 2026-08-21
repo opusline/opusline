@@ -1,6 +1,10 @@
-import type { InvoiceTodoData } from "@opusline/api-client";
+import type {
+  InvoiceTodoBudgetData,
+  InvoiceTodoData,
+} from "@opusline/api-client";
 import {
   createInvoiceMutation,
+  listClientsOptions,
   listInvoicesOptions,
   remindInvoiceMutation,
   showBankAccountOptions,
@@ -8,11 +12,18 @@ import {
   showNextInvoiceNumberOptions,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
+import { Button } from "@opusline/ui/components/button";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { PlusIcon } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { useMoneyFormat } from "@/components/money-format-provider";
+import {
+  AddInvoiceDialog,
+  type AddInvoiceMission,
+  type AddInvoiceSubmit,
+} from "@/features/invoices/components/add-invoice-dialog";
 import {
   CreateInvoiceDialog,
   type CreateInvoiceSubmit,
@@ -24,7 +35,9 @@ import { InvoiceSummaryTiles } from "@/features/invoices/components/invoice-summ
 import { InvoiceTodoPanel } from "@/features/invoices/components/invoice-todo-panel";
 import { InvoicesTable } from "@/features/invoices/components/invoices-table";
 import { accountTodayCalendarDate } from "@/lib/dates";
+import { isMissionOpenForInvoicing } from "@/lib/mission-status";
 import { invalidateInvoiceWrites } from "@/lib/query-invalidation";
+import { useMissionBudgets } from "@/lib/use-mission-budgets";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -57,6 +70,11 @@ function FacturesPage() {
 
   const openInvoice = useOpenInvoice();
   const [creatingFor, setCreatingFor] = useState<InvoiceTodoData | null>(null);
+  // Null while closed; the mission id is the one « Facturer le reste » preselects.
+  const [adding, setAdding] = useState<{ missionId: number | null } | null>(
+    null,
+  );
+  const isAdding = adding !== null;
   const [createError, setCreateError] = useState<string | null>(null);
   const [remindError, setRemindError] = useState<string | null>(null);
 
@@ -72,9 +90,28 @@ function FacturesPage() {
     void navigate({ to: "/invoices", search: {}, replace: true });
   }, [search.invoice, openInvoice, navigate]);
 
+  // Only the add dialog needs the mission list and their forfait figures, so both
+  // are fetched lazily: the page itself reads neither.
+  const clients = useQuery({ ...listClientsOptions(), enabled: isAdding });
+  const budgets = useMissionBudgets(isAdding);
+
+  const addableMissions = useMemo(
+    (): AddInvoiceMission[] =>
+      (clients.data?.clients ?? []).flatMap((client) =>
+        client.missions
+          .filter((mission) => isMissionOpenForInvoicing(mission, client))
+          .map((mission) => ({
+            budget: budgets.get(mission.id) ?? null,
+            client,
+            mission,
+          })),
+      ),
+    [clients.data, budgets],
+  );
+
   const nextNumber = useQuery({
     ...showNextInvoiceNumberOptions(),
-    enabled: creatingFor !== null,
+    enabled: creatingFor !== null || isAdding,
   });
 
   const refreshInvoices = () => invalidateInvoiceWrites(queryClient);
@@ -94,6 +131,7 @@ function FacturesPage() {
     ...createInvoiceMutation(),
     onSuccess: async () => {
       setCreatingFor(null);
+      setAdding(null);
       setCreateError(null);
       await refreshInvoices();
     },
@@ -106,6 +144,28 @@ function FacturesPage() {
     remind.mutate({
       path: { invoice: invoiceId },
       body: { occurredOn: accountTodayCalendarDate(user.timezone), note: null },
+    });
+  };
+
+  const submitAddedInvoice = (input: AddInvoiceSubmit) => {
+    setCreateError(null);
+    create.mutate({
+      body: {
+        amountHt: { amount: input.amountHtCents, currency: format.currency },
+        clientId: input.clientId,
+        dueOn: input.dueOn,
+        issuedOn: input.issuedOn,
+        missionId: input.missionId,
+        number: input.number,
+        paidOn: input.paidOn,
+        periodEnd: input.periodEnd,
+        periodStart: input.periodStart,
+        status: input.status,
+        vatRateBp: input.vatRateBp,
+        // A forfait invoice bills the price, never a count of days: its entries stay
+        // unlinked, which is also what keeps the budget reading them.
+        timeEntryIds: [],
+      },
     });
   };
 
@@ -133,13 +193,25 @@ function FacturesPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div>
-        <h1 className="font-heading font-semibold text-2xl text-foreground-hi">
-          {m.nav_invoices()}
-        </h1>
-        <p className="mt-1 max-w-[60ch] text-muted-foreground-3 text-sm text-pretty">
-          {m.invoices_page_intro()}
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="font-heading font-semibold text-2xl text-foreground-hi">
+            {m.nav_invoices()}
+          </h1>
+          <p className="mt-1 max-w-[60ch] text-muted-foreground-3 text-sm text-pretty">
+            {m.invoices_page_intro()}
+          </p>
+        </div>
+        <Button
+          onClick={() => {
+            setCreateError(null);
+            setAdding({ missionId: null });
+          }}
+          size="xl"
+        >
+          <PlusIcon aria-hidden />
+          {m.invoices_add_title()}
+        </Button>
       </div>
 
       {summary.isPending && <Skeleton className="h-24 w-full" />}
@@ -179,6 +251,19 @@ function FacturesPage() {
                 remind.isPending ? remind.variables?.path.invoice : null
               }
               onRemind={noteReminder}
+              onOpenMission={(budget: InvoiceTodoBudgetData) => {
+                navigate({
+                  params: {
+                    clientSlug: budget.clientSlug,
+                    missionSlug: budget.missionSlug,
+                  },
+                  to: "/clients/$clientSlug/missions/$missionSlug",
+                });
+              }}
+              onBillForfait={(budget: InvoiceTodoBudgetData) => {
+                setCreateError(null);
+                setAdding({ missionId: budget.missionId });
+              }}
               onCreateInvoice={(todo) => {
                 setCreateError(null);
                 setCreatingFor(todo);
@@ -211,6 +296,26 @@ function FacturesPage() {
           </div>
         )}
       </div>
+
+      <AddInvoiceDialog
+        accountToday={accountTodayCalendarDate(user.timezone)}
+        defaultVatRateBp={user.effectiveVatRateBp}
+        isLoading={clients.isPending}
+        error={createError}
+        initialMissionId={adding?.missionId ?? null}
+        isSaving={create.isPending}
+        missions={addableMissions}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) {
+            setAdding(null);
+            setCreateError(null);
+          }
+        }}
+        onSubmit={submitAddedInvoice}
+        open={isAdding}
+        suggestedNumber={nextNumber.data?.number ?? null}
+        vatLiable={user.vatLiable}
+      />
 
       <CreateInvoiceDialog
         todo={creatingFor}

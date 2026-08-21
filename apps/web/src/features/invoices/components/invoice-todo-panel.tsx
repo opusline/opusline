@@ -1,4 +1,5 @@
 import type {
+  InvoiceTodoBudgetData,
   InvoiceTodoData,
   InvoiceTodoOverdueData,
   InvoiceTodoWorkData,
@@ -14,6 +15,8 @@ import { formatWholeAmount } from "@/lib/billing";
 import { m } from "@/paraglide/messages.js";
 
 import {
+  budgetRowDetail,
+  budgetRowTitle,
   overdueDetail,
   unbilledWorkDetail,
   unbilledWorkTitle,
@@ -24,6 +27,9 @@ type InvoiceTodoPanelProps = {
   todoTotal: number;
   onRemind: (invoiceId: number) => void;
   onCreateInvoice: (todo: InvoiceTodoData) => void;
+  onOpenMission: (budget: InvoiceTodoBudgetData) => void;
+  /** Opens the add-invoice dialog on that forfait, prefilled with its balance. */
+  onBillForfait: (budget: InvoiceTodoBudgetData) => void;
   pendingInvoiceId?: number | null;
 };
 
@@ -32,6 +38,8 @@ export function InvoiceTodoPanel({
   todoTotal,
   onRemind,
   onCreateInvoice,
+  onOpenMission,
+  onBillForfait,
   pendingInvoiceId,
 }: InvoiceTodoPanelProps) {
   return (
@@ -70,6 +78,14 @@ export function InvoiceTodoPanel({
                   onCreateInvoice={onCreateInvoice}
                 />
               )}
+              {item.budget != null && (
+                <BudgetRow
+                  todo={item}
+                  budget={item.budget}
+                  onOpenMission={onOpenMission}
+                  onBillForfait={onBillForfait}
+                />
+              )}
             </li>
           ))}
         </ul>
@@ -84,9 +100,12 @@ export function InvoiceTodoPanel({
   );
 }
 
-/** Two kinds share the list and neither id is unique across it on its own. */
+/** Several kinds share the list and no id is unique across it on its own. */
 function todoKey(todo: InvoiceTodoData): string {
-  return `${todo.kind}-${todo.overdue?.invoiceId ?? todo.work?.missionId}`;
+  const id =
+    todo.overdue?.invoiceId ?? todo.work?.missionId ?? todo.budget?.missionId;
+
+  return `${todo.kind}-${id}`;
 }
 
 function Row({
@@ -174,6 +193,61 @@ function UnbilledWorkRow({
         <Button size="lg" onClick={() => onCreateInvoice(todo)}>
           {m.invoices_create_title()}
         </Button>
+      }
+    />
+  );
+}
+
+function BudgetRow({
+  todo,
+  budget,
+  onOpenMission,
+  onBillForfait,
+}: {
+  todo: InvoiceTodoData;
+  budget: InvoiceTodoBudgetData;
+  onOpenMission: (budget: InvoiceTodoBudgetData) => void;
+  onBillForfait: (budget: InvoiceTodoBudgetData) => void;
+}) {
+  const format = useMoneyFormat();
+  const isOverrun = todo.kind === 3;
+
+  return (
+    <Row
+      badge={
+        <Badge variant={isOverrun ? "warn" : "brand"}>
+          {isOverrun
+            ? m.invoices_todo_budget_exceeded_badge()
+            : m.invoices_todo_budget_badge()}
+        </Badge>
+      }
+      title={budgetRowTitle(format.locale, budget)}
+      detail={budgetRowDetail(format, budget)}
+      amount={
+        isOverrun
+          ? `\u2212 ${formatWholeAmount(format, todo.amount.amount)}`
+          : m.invoices_todo_amount_to_invoice({
+              amount: formatWholeAmount(format, todo.amount.amount),
+            })
+      }
+      action={
+        <div className="flex gap-2">
+          <Button
+            onClick={() => onOpenMission(budget)}
+            size="lg"
+            variant="outline"
+          >
+            {m.invoices_todo_open_mission()}
+          </Button>
+          <Button
+            disabled={budget.budget.remaining.amount <= 0}
+            onClick={() => onBillForfait(budget)}
+            size="lg"
+            variant="outline"
+          >
+            {m.invoices_todo_bill_remainder()}
+          </Button>
+        </div>
       }
     />
   );

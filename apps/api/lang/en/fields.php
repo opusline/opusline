@@ -67,6 +67,7 @@ return [
     'periodEnd' => 'period end',
     'periodStart' => 'period start',
     'rate' => 'rate',
+    'referenceDailyRate' => 'reference TJM',
     'rounding' => 'rounding',
     'seconds' => 'seconds',
     'sentOn' => 'sent date',

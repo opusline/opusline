@@ -29,12 +29,13 @@ import {
   accountTodayCalendarDate,
   browserTodayCalendarDate,
 } from "@/lib/dates";
-import { provisionalBilledLabel } from "@/lib/durations";
+import { isFixedPrice, provisionalBilledLabel } from "@/lib/durations";
 import { findMissionById } from "@/lib/missions";
 import {
   invalidateTimeEntries,
   operationFilter,
 } from "@/lib/query-invalidation";
+import { useMissionBudgets } from "@/lib/use-mission-budgets";
 import { serverErrorMessage } from "@/lib/validation";
 import { isIsoWeek, isoWeekOf, isoWeekRange, shiftIsoWeek } from "@/lib/weeks";
 import { m } from "@/paraglide/messages.js";
@@ -79,6 +80,14 @@ function SemaineRoute() {
   } = useTimer();
 
   const clients = useQuery(listClientsOptions());
+  // Only the forfait badges read this, and every grid write invalidates it — so an
+  // account with no fixed-price mission never pays for it. A slow or failed fold
+  // leaves the grid intact either way: the rows simply carry no consumption pill.
+  const budgets = useMissionBudgets(
+    clients.data?.clients.some((client) =>
+      client.missions.some((mission) => isFixedPrice(mission.billingMode)),
+    ) === true,
+  );
   const entries = useQuery({
     ...listTimeEntriesOptions({ query: isoWeekRange(week) }),
     placeholderData: keepPreviousData,
@@ -338,6 +347,7 @@ function SemaineRoute() {
       )}
       {clients.data !== undefined && entries.data !== undefined && (
         <WeekPage
+          budgets={budgets}
           clients={clients.data.clients}
           error={error}
           isRefreshing={entries.isPlaceholderData}

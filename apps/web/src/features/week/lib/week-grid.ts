@@ -1,6 +1,8 @@
 import type {
   BillingMode,
   ClientWithMissionsData,
+  EntryRounding,
+  FixedPriceBudgetData,
   Locale,
   MissionData,
   TimeEntryData,
@@ -76,6 +78,8 @@ export type WeekRow = {
   colorClass: string;
   billingMode: BillingMode;
   hasRate: boolean;
+  /** Set on a fixed-price mission, so the row can say how much of it is spent. */
+  budget: FixedPriceBudgetData | null;
   cells: WeekCell[];
   totalLabel: string;
 };
@@ -87,6 +91,9 @@ export type MissionOption = {
   colorClass: string;
   billingMode: BillingMode;
   hasRate: boolean;
+  /** Set on a fixed-price mission, so a new entry can be projected against it. */
+  budget: FixedPriceBudgetData | null;
+  rounding: EntryRounding | null;
   isInGrid: boolean;
 };
 
@@ -227,6 +234,8 @@ export function buildWeekGrid(input: {
   weekendShown: boolean;
   format: MoneyFormat;
   liveMissionId?: number | null;
+  /** Keyed by mission id; missing for anything not billed as a fixed price. */
+  budgets?: Map<number, FixedPriceBudgetData>;
 }): WeekGridModel {
   const columns = buildColumns(
     input.format.locale,
@@ -263,6 +272,7 @@ export function buildWeekGrid(input: {
   ).map(({ mission, client }) => {
     const dayBilled = !isHourly(mission.billingMode);
     const hasRate = missionBills(mission);
+    const budget = input.budgets?.get(mission.id) ?? null;
     // Who could ever receive a bill for this time. Forfait is out — its invoice
     // carries a price, never a count of days — and so is an internal client:
     // there is nobody to invoice. Mirrors what SummarizeInvoices leaves out of
@@ -364,6 +374,7 @@ export function buildWeekGrid(input: {
       colorClass: COLOR_CLASSES[mission.color ?? client.color],
       billingMode: mission.billingMode,
       hasRate,
+      budget,
       cells,
       totalLabel: billedFigure(
         input.format.locale,
@@ -384,6 +395,7 @@ export function buildWeekGrid(input: {
       input.format,
       input.clients,
       gridMissionIds,
+      input.budgets,
     ),
     dayTotals: dayTotals.map((total) =>
       formatBilledTotal(input.format.locale, total),
@@ -401,6 +413,7 @@ function buildMissionOptions(
   format: MoneyFormat,
   clients: ClientWithMissionsData[],
   gridMissionIds: Set<number>,
+  budgets: Map<number, FixedPriceBudgetData> | undefined,
 ): MissionOption[] {
   return clients
     .flatMap((client) =>
@@ -408,8 +421,10 @@ function buildMissionOptions(
         .filter((mission) => isMissionOpenForTime(mission, client))
         .map((mission) => ({
           billingMode: mission.billingMode,
+          budget: budgets?.get(mission.id) ?? null,
           colorClass: COLOR_CLASSES[mission.color ?? client.color],
           hasRate: missionBills(mission),
+          rounding: mission.rounding,
           isInGrid: gridMissionIds.has(mission.id),
           missionId: mission.id,
           name: mission.name,

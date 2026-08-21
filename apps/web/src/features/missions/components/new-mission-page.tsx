@@ -140,7 +140,7 @@ export function NewMissionPage({
               : // A stale render-context currency is refused by the API (422);
                 // see settings-form.ts for the one case needing the snapshot.
                 { amount: rateCents, currency: format.currency },
-          rounding: isForfait ? null : rounding,
+          rounding,
           craRequired: isEsn ? craRequired : null,
           endClientName:
             isEsn && value.endClientName.trim() !== ""
@@ -322,7 +322,7 @@ export function NewMissionPage({
             <div className="grid items-start gap-4 sm:grid-cols-[minmax(0,1fr)_auto]">
               <MissionRateField
                 billingMode={billingMode}
-                className={cn("min-w-0", isForfait && "sm:col-span-2")}
+                className="min-w-0"
                 id="mission-rate"
                 isRateMissing={isRateMissing}
                 labelClassName="text-foreground-3"
@@ -332,43 +332,41 @@ export function NewMissionPage({
                 }}
                 rateDraft={rateDraft}
               />
-              {!isForfait && (
-                <Field className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <FieldLabel
-                      className="text-foreground-3"
-                      htmlFor="mission-rounding"
-                    >
-                      {m.missions_rounding_label()}
-                    </FieldLabel>
-                    <HelpTip label={m.missions_rounding_help()}>
-                      {entryRoundingHint(billingMode)}
-                    </HelpTip>
-                  </div>
-                  <ChipGroup
-                    aria-label={m.missions_rounding_label()}
-                    id="mission-rounding"
-                    value={[String(rounding)]}
-                    onValueChange={(value) => {
-                      const next = value[0];
-
-                      if (typeof next === "string") {
-                        setRounding(Number(next) as EntryRounding);
-                      }
-                    }}
+              <Field className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <FieldLabel
+                    className="text-foreground-3"
+                    htmlFor="mission-rounding"
                   >
-                    {entryRoundingOrder(billingMode).map((entryRounding) => (
-                      <Chip
-                        key={entryRounding}
-                        size="xl"
-                        value={String(entryRounding)}
-                      >
-                        {entryRoundingLabel(entryRounding, billingMode)}
-                      </Chip>
-                    ))}
-                  </ChipGroup>
-                </Field>
-              )}
+                    {m.missions_rounding_label()}
+                  </FieldLabel>
+                  <HelpTip label={m.missions_rounding_help()}>
+                    {entryRoundingHint(billingMode)}
+                  </HelpTip>
+                </div>
+                <ChipGroup
+                  aria-label={m.missions_rounding_label()}
+                  id="mission-rounding"
+                  value={[String(rounding)]}
+                  onValueChange={(value) => {
+                    const next = value[0];
+
+                    if (typeof next === "string") {
+                      setRounding(Number(next) as EntryRounding);
+                    }
+                  }}
+                >
+                  {entryRoundingOrder(billingMode).map((entryRounding) => (
+                    <Chip
+                      key={entryRounding}
+                      size="xl"
+                      value={String(entryRounding)}
+                    >
+                      {entryRoundingLabel(entryRounding, billingMode)}
+                    </Chip>
+                  ))}
+                </ChipGroup>
+              </Field>
             </div>
           )}
 

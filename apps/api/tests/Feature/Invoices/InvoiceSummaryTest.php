@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Domain\Clients\Enums\ClientType;
+use App\Domain\Clients\Models\Client;
 use App\Domain\Invoices\Enums\InvoiceForecastBucket;
 use App\Domain\Invoices\Enums\InvoiceTodoKind;
 use App\Domain\Missions\Enums\EntryRounding;
+use App\Domain\Missions\Enums\MissionStatus;
 use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
@@ -459,4 +462,156 @@ test('rejects a malformed month', function (): void {
         ->getJson('/api/invoices/summary?month=aout-2026')
         ->assertUnprocessable()
         ->assertJsonValidationErrors('month');
+});
+
+test('puts a forfait past its warning threshold in front of you, with the balance left to bill', function (): void {
+    $user = User::factory()->create();
+    $mission = forfaitWith($user, forfaitCents: 1_000_000, referenceCents: 48_000, days: 18);
+    invoiceForMission($user, $mission, fn ($factory) => $factory->sent()->state(['amount_ht_cents' => 288_000]));
+    invoiceForMission($user, $mission, fn ($factory) => $factory->state(['amount_ht_cents' => 144_000]));
+
+    $todo = $this->actingAs($user)
+        ->getJson('/api/invoices/summary')
+        ->assertOk()
+        ->json('todo.0');
+
+    expect($todo['kind'])->toBe(InvoiceTodoKind::FixedPriceBudget->value)
+        ->and($todo['amount']['amount'])->toBe(568_000)
+        ->and($todo['budget']['missionId'])->toBe($mission->id)
+        ->and($todo['budget']['missionSlug'])->toBe($mission->slug)
+        ->and($todo['budget']['clientSlug'])->toBe($mission->client->slug)
+        ->and($todo['budget']['budget']['consumption']['consumedShareBp'])->toBe(8_640)
+        ->and($todo['work'])->toBeNull();
+});
+
+test('reports an overrun forfait as what it costs rather than what is left to bill', function (): void {
+    $user = User::factory()->create();
+    $mission = forfaitWith($user, forfaitCents: 480_000, referenceCents: 55_000, days: 11);
+
+    $todo = $this->actingAs($user)
+        ->getJson('/api/invoices/summary')
+        ->assertOk()
+        ->assertJsonPath('todoTotal', 1)
+        ->json('todo.0');
+
+    expect($todo['kind'])->toBe(InvoiceTodoKind::FixedPriceOverrun->value)
+        ->and($todo['amount']['amount'])->toBe(125_000);
+});
+
+test('says nothing about a forfait that is neither running out nor left to bill', function (callable $arrange): void {
+    $user = User::factory()->create();
+    $arrange($user);
+
+    $this->actingAs($user)
+        ->getJson('/api/invoices/summary')
+        ->assertOk()
+        ->assertJsonPath('todoTotal', 0);
+})->with([
+    'comfortably within budget' => [function (User $user): void {
+        forfaitWith($user, 1_000_000, 48_000, days: 5);
+    }],
+    'warned but fully invoiced' => [function (User $user): void {
+        $mission = forfaitWith($user, 1_000_000, 48_000, days: 18);
+        invoiceForMission($user, $mission, fn ($factory) => $factory->sent()->state(['amount_ht_cents' => 1_000_000]));
+    }],
+    'with no reference rate to read it against' => [function (User $user): void {
+        $mission = missionOwnedBy($user, fn ($factory) => $factory->fixed());
+        TimeEntry::factory()->for($mission, 'mission')->create(['user_id' => $user->id]);
+    }],
+    'on an internal client' => [function (User $user): void {
+        $client = Client::factory()->for($user)->create(['type' => ClientType::Internal]);
+        forfaitWith($user, 480_000, 55_000, days: 11, client: $client);
+    }],
+]);
+
+test('ranks overdue money, then forfaits, then time left to bill', function (): void {
+    $user = User::factory()->create();
+    invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
+        'due_on' => '2026-06-30',
+        'amount_ttc_cents' => 122_400,
+    ]));
+    forfaitWith($user, forfaitCents: 480_000, referenceCents: 55_000, days: 11);
+    $daily = missionOwnedBy($user, fn ($factory) => $factory->state([
+        'rate_cents' => 55_000,
+        'rounding' => EntryRounding::Half,
+    ]));
+    TimeEntry::factory()->for($daily, 'mission')->create([
+        'user_id' => $user->id,
+        'date' => '2026-08-03',
+        'duration_minutes' => 420,
+    ]);
+
+    $todo = $this->actingAs($user)
+        ->getJson('/api/invoices/summary')
+        ->assertOk()
+        ->assertJsonPath('todoTotal', 3)
+        ->json('todo');
+
+    expect(array_column($todo, 'kind'))->toBe([
+        InvoiceTodoKind::Overdue->value,
+        InvoiceTodoKind::FixedPriceOverrun->value,
+        InvoiceTodoKind::UnbilledWork->value,
+    ]);
+});
+
+test('puts the worst forfait first, whatever the missions are called', function (): void {
+    $user = User::factory()->create();
+    forfaitWith($user, 1_000_000, 48_000, days: 18, name: 'Alpha refonte');
+    forfaitWith($user, 480_000, 55_000, days: 11, name: 'Zephyr vitrine');
+
+    $todo = $this->actingAs($user)
+        ->getJson('/api/invoices/summary')
+        ->assertOk()
+        ->json('todo');
+
+    expect(array_column(array_column($todo, 'budget'), 'missionName'))
+        ->toBe(['Zephyr vitrine', 'Alpha refonte']);
+});
+
+test('drops a finished forfait from the list, however far it ran over', function (): void {
+    $user = User::factory()->create();
+    $mission = forfaitWith($user, 480_000, 55_000, days: 11);
+    $mission->update(['status' => MissionStatus::Done]);
+
+    $this->actingAs($user)
+        ->getJson('/api/invoices/summary')
+        ->assertOk()
+        ->assertJsonPath('todoTotal', 0);
+});
+
+test('splits a full list evenly, then hands the spare rows to the most urgent kind', function (): void {
+    $user = User::factory()->create();
+
+    // Eight of each: past the even third, so every kind is capped and the two rows
+    // left over by the 20-row limit go to what costs most to ignore.
+    for ($index = 0; $index < 8; $index++) {
+        invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
+            'due_on' => '2026-06-30',
+            'amount_ttc_cents' => 100_000,
+        ]));
+
+        forfaitWith($user, 100_000, 90_000, days: 1);
+
+        $daily = missionOwnedBy($user, fn ($factory) => $factory->state([
+            'rate_cents' => 55_000,
+            'rounding' => EntryRounding::Half,
+        ]));
+        TimeEntry::factory()->for($daily, 'mission')->create([
+            'user_id' => $user->id,
+            'date' => '2026-08-03',
+            'duration_minutes' => 420,
+        ]);
+    }
+
+    $todo = $this->actingAs($user)
+        ->getJson('/api/invoices/summary')
+        ->assertOk()
+        ->json('todo');
+
+    $byKind = array_count_values(array_column($todo, 'kind'));
+
+    expect($todo)->toHaveCount(20)
+        ->and($byKind[InvoiceTodoKind::Overdue->value])->toBe(8)
+        ->and($byKind[InvoiceTodoKind::FixedPriceBudget->value])->toBe(6)
+        ->and($byKind[InvoiceTodoKind::UnbilledWork->value])->toBe(6);
 });

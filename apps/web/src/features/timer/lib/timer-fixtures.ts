@@ -17,6 +17,7 @@ const baseMission = {
   endClientName: null,
   endDate: null,
   notes: null,
+  referenceDailyRate: null,
   rounding: 0,
   startDate: null,
   status: 0,

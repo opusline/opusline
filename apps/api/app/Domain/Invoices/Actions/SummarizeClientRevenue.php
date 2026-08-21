@@ -8,6 +8,7 @@ use App\Domain\Clients\Models\Client;
 use App\Domain\Invoices\Data\ClientRevenueData;
 use App\Domain\Invoices\Data\ClientRevenueDetailData;
 use App\Domain\Invoices\Data\ClientRevenueListData;
+use App\Domain\Invoices\Data\FixedPriceBudgetData;
 use App\Domain\Invoices\Data\MissionRevenueData;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
@@ -35,7 +36,10 @@ use Money\Money as MoneyPhp;
  */
 class SummarizeClientRevenue
 {
-    public function __construct(private readonly ValueTrackedTime $valueTrackedTime) {}
+    public function __construct(
+        private readonly ValueTrackedTime $valueTrackedTime,
+        private readonly SummarizeFixedPriceBudgets $summarizeFixedPriceBudgets,
+    ) {}
 
     /**
      * @var list<string>
@@ -67,6 +71,7 @@ class SummarizeClientRevenue
         // Currency must precede rate_cents: MoneyIntegerCast reads it to build the rate.
         'currency',
         'rate_cents',
+        'reference_daily_rate_cents',
     ];
 
     public function handle(User $user): ClientRevenueListData
@@ -81,10 +86,16 @@ class SummarizeClientRevenue
             ->orderBy('name')
             ->get(['id']);
 
+        $budgets = $this->summarizeFixedPriceBudgets->forMissions(
+            $user,
+            $clients->flatMap(fn (Client $client): iterable => $client->missions),
+        );
+
         $rows = $clients->map(fn (Client $client): ClientRevenueData => $this->forClient(
             $client,
             $invoicesByClient->get($client->id) ?? new Collection,
             $entriesByMission,
+            $budgets,
             $window,
         ));
 
@@ -118,6 +129,7 @@ class SummarizeClientRevenue
                 $client,
                 $invoices,
                 $this->entriesThisMonth($user, $window, $missionIds),
+                $this->summarizeFixedPriceBudgets->forMissions($user, $client->missions),
                 $window,
             ),
         );
@@ -135,6 +147,7 @@ class SummarizeClientRevenue
             $mission,
             $invoices,
             $this->entriesThisMonth($user, $window, [$mission->id])->get($mission->id) ?? new Collection,
+            $this->summarizeFixedPriceBudgets->forMissions($user, [$mission])[$mission->id] ?? null,
             $window,
         );
     }
@@ -160,8 +173,9 @@ class SummarizeClientRevenue
     /**
      * @param  Collection<int, Invoice>  $invoices
      * @param  Collection<int|string, EloquentCollection<int, TimeEntry>>  $entriesByMission
+     * @param  array<int, FixedPriceBudgetData>  $budgets
      */
-    private function forClient(Client $client, Collection $invoices, Collection $entriesByMission, RevenueWindow $window): ClientRevenueData
+    private function forClient(Client $client, Collection $invoices, Collection $entriesByMission, array $budgets, RevenueWindow $window): ClientRevenueData
     {
         $byMission = $invoices->groupBy('mission_id');
 
@@ -169,6 +183,7 @@ class SummarizeClientRevenue
             $mission,
             $byMission->get($mission->id) ?? new Collection,
             $entriesByMission->get($mission->id) ?? new Collection,
+            $budgets[$mission->id] ?? null,
             $window,
         ));
 
@@ -185,7 +200,7 @@ class SummarizeClientRevenue
      * @param  Collection<int, Invoice>  $invoices
      * @param  Collection<int, TimeEntry>  $entries  tracked this month
      */
-    private function forMission(Mission $mission, Collection $invoices, Collection $entries, RevenueWindow $window): MissionRevenueData
+    private function forMission(Mission $mission, Collection $invoices, Collection $entries, ?FixedPriceBudgetData $budget, RevenueWindow $window): MissionRevenueData
     {
         $total = $this->sumHt($invoices, $window);
         $tracked = $this->trackedThisMonth($mission, $entries, $window);
@@ -198,6 +213,7 @@ class SummarizeClientRevenue
             monthlyAverage: $this->monthlyAverage($mission, $invoices, $total, $window),
             currentMonthDays: $tracked['days'],
             currentMonthMinutes: $tracked['minutes'],
+            fixedPrice: $budget,
         );
     }
 

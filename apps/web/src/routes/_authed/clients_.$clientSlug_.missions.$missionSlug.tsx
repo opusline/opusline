@@ -138,6 +138,7 @@ function MissionDetailRoute() {
           billingMode: mission.billingMode,
           status,
           rate: mission.rate,
+          referenceDailyRate: mission.referenceDailyRate,
           rounding: mission.rounding,
           craRequired: mission.craRequired,
           endClientName: mission.endClientName,

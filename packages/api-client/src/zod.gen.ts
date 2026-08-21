@@ -308,6 +308,10 @@ export const zCreateMissionData = z.object({
         amount: z.int().check(z.gte(1)),
         currency: zCurrency
     })),
+    referenceDailyRate: z.nullish(z.object({
+        amount: z.int().check(z.gte(1)),
+        currency: zCurrency
+    })),
     endClientName: z.nullish(z.string().check(z.minLength(1), z.maxLength(255))),
     rounding: z.nullish(zEntryRounding),
     craRequired: z.nullish(z.boolean()),
@@ -316,6 +320,18 @@ export const zCreateMissionData = z.object({
     startDate: z.nullish(z.iso.date()),
     endDate: z.nullish(z.iso.date())
 });
+
+/**
+ * FixedPriceBudgetState
+ *
+ * How much of a forfait its tracked time has eaten, as three states rather than a raw percentage: the threshold that separates them is a product decision, and resolving it here keeps every screen — banner, tile, badge, « À traiter » — reading the same one. Labels live on the frontend, like every other enum here.
+ *
+ */
+export const zFixedPriceBudgetState = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
 
 /**
  * ImportBankStatementData
@@ -404,10 +420,15 @@ export const zCreateInvoiceData = z.object({
 /**
  * InvoiceTodoKind
  *
- * What the "À traiter" list can put in front of you: money that was billed and has not come in, and money that was worked and has not been billed. Drafts are not here — an unsent draft is a note to self, not a debt. Labels live on the frontend, like every other enum here.
+ * What the "À traiter" list can put in front of you: money that was billed and has not come in, money that was worked and has not been billed, and a forfait whose time is running out or has already run over. Drafts are not here — an unsent draft is a note to self, not a debt. Labels live on the frontend, like every other enum here.
  *
  */
-export const zInvoiceTodoKind = z.union([z.literal(0), z.literal(1)]);
+export const zInvoiceTodoKind = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3)
+]);
 
 /**
  * InvoiceTodoOverdueData
@@ -517,6 +538,20 @@ export const zCraData = z.object({
 });
 
 /**
+ * FixedPriceConsumptionData
+ */
+export const zFixedPriceConsumptionData = z.object({
+    referenceDailyRate: zMoneyData,
+    trackedDays: z.number(),
+    consumed: zMoneyData,
+    consumedShareBp: z.int(),
+    coveredDays: z.number(),
+    remainingDays: z.number(),
+    overrun: zMoneyData,
+    state: zFixedPriceBudgetState
+});
+
+/**
  * InvoiceClientTotalsData
  */
 export const zInvoiceClientTotalsData = z.object({
@@ -570,38 +605,11 @@ export const zInvoiceOverdueData = z.object({
 });
 
 /**
- * InvoiceTodoData
- */
-export const zInvoiceTodoData = z.object({
-    kind: zInvoiceTodoKind,
-    amount: zMoneyData,
-    clientId: z.int(),
-    clientName: z.string(),
-    overdue: z.nullish(zInvoiceTodoOverdueData),
-    work: z.nullish(zInvoiceTodoWorkData)
-});
-
-/**
  * InvoiceTotalData
  */
 export const zInvoiceTotalData = z.object({
     amount: zMoneyData,
     count: z.int()
-});
-
-/**
- * InvoiceSummaryData
- */
-export const zInvoiceSummaryData = z.object({
-    month: z.string(),
-    toCollect: zInvoiceTotalData,
-    overdue: zInvoiceOverdueData,
-    forecast: z.array(zInvoiceForecastData),
-    monthUnbilled: zInvoiceTotalData,
-    unbilled: zInvoiceTotalData,
-    counts: zInvoiceCountsData,
-    todo: z.array(zInvoiceTodoData),
-    todoTotal: z.int()
 });
 
 /**
@@ -615,6 +623,7 @@ export const zMissionData = z.object({
     endClientName: z.nullable(z.string()),
     billingMode: zBillingMode,
     rate: z.nullable(zMoneyData),
+    referenceDailyRate: z.nullable(zMoneyData),
     rounding: z.nullable(zEntryRounding),
     status: zMissionStatus,
     craRequired: z.boolean(),
@@ -692,46 +701,6 @@ export const zInvoiceListItemData = z.object({
 export const zInvoiceListData = z.object({
     invoices: z.array(zInvoiceListItemData),
     clientTotals: z.array(zInvoiceClientTotalsData)
-});
-
-/**
- * MissionRevenueData
- */
-export const zMissionRevenueData = z.object({
-    missionId: z.int(),
-    yearToDate: zMoneyData,
-    currentMonth: zMoneyData,
-    total: zMoneyData,
-    monthlyAverage: z.nullable(zMoneyData),
-    currentMonthDays: z.nullable(z.number()),
-    currentMonthMinutes: z.nullable(z.int())
-});
-
-/**
- * ClientRevenueData
- */
-export const zClientRevenueData = z.object({
-    clientId: z.int(),
-    yearToDate: zMoneyData,
-    pending: zMoneyData,
-    averagePaymentDelayDays: z.nullable(z.int()),
-    missions: z.array(zMissionRevenueData)
-});
-
-/**
- * ClientRevenueDetailData
- */
-export const zClientRevenueDetailData = z.object({
-    year: z.int(),
-    revenue: zClientRevenueData
-});
-
-/**
- * ClientRevenueListData
- */
-export const zClientRevenueListData = z.object({
-    year: z.int(),
-    clients: z.array(zClientRevenueData)
 });
 
 /**
@@ -912,6 +881,99 @@ export const zBankImportData = z.object({
 });
 
 /**
+ * FixedPriceBudgetData
+ */
+export const zFixedPriceBudgetData = z.object({
+    forfait: zMoneyData,
+    invoiced: zMoneyData,
+    draft: zMoneyData,
+    remaining: zSignedMoneyData,
+    invoicedShareBp: z.int(),
+    consumption: z.nullable(zFixedPriceConsumptionData)
+});
+
+/**
+ * InvoiceTodoBudgetData
+ */
+export const zInvoiceTodoBudgetData = z.object({
+    missionId: z.int(),
+    missionName: z.string(),
+    missionSlug: z.string(),
+    clientSlug: z.string(),
+    budget: zFixedPriceBudgetData,
+    vatRateBp: z.int()
+});
+
+/**
+ * InvoiceTodoData
+ */
+export const zInvoiceTodoData = z.object({
+    kind: zInvoiceTodoKind,
+    amount: zMoneyData,
+    clientId: z.int(),
+    clientName: z.string(),
+    overdue: z.nullish(zInvoiceTodoOverdueData),
+    work: z.nullish(zInvoiceTodoWorkData),
+    budget: z.nullish(zInvoiceTodoBudgetData)
+});
+
+/**
+ * InvoiceSummaryData
+ */
+export const zInvoiceSummaryData = z.object({
+    month: z.string(),
+    toCollect: zInvoiceTotalData,
+    overdue: zInvoiceOverdueData,
+    forecast: z.array(zInvoiceForecastData),
+    monthUnbilled: zInvoiceTotalData,
+    unbilled: zInvoiceTotalData,
+    counts: zInvoiceCountsData,
+    todo: z.array(zInvoiceTodoData),
+    todoTotal: z.int()
+});
+
+/**
+ * MissionRevenueData
+ */
+export const zMissionRevenueData = z.object({
+    missionId: z.int(),
+    yearToDate: zMoneyData,
+    currentMonth: zMoneyData,
+    total: zMoneyData,
+    monthlyAverage: z.nullable(zMoneyData),
+    currentMonthDays: z.nullable(z.number()),
+    currentMonthMinutes: z.nullable(z.int()),
+    fixedPrice: z.nullish(zFixedPriceBudgetData)
+});
+
+/**
+ * ClientRevenueData
+ */
+export const zClientRevenueData = z.object({
+    clientId: z.int(),
+    yearToDate: zMoneyData,
+    pending: zMoneyData,
+    averagePaymentDelayDays: z.nullable(z.int()),
+    missions: z.array(zMissionRevenueData)
+});
+
+/**
+ * ClientRevenueDetailData
+ */
+export const zClientRevenueDetailData = z.object({
+    year: z.int(),
+    revenue: zClientRevenueData
+});
+
+/**
+ * ClientRevenueListData
+ */
+export const zClientRevenueListData = z.object({
+    year: z.int(),
+    clients: z.array(zClientRevenueData)
+});
+
+/**
  * StartTimerData
  */
 export const zStartTimerData = z.object({
@@ -1087,6 +1149,10 @@ export const zUpdateMissionData = z.object({
     billingMode: zBillingMode,
     status: zMissionStatus,
     rate: z.nullish(z.object({
+        amount: z.int().check(z.gte(1)),
+        currency: zCurrency
+    })),
+    referenceDailyRate: z.nullish(z.object({
         amount: z.int().check(z.gte(1)),
         currency: zCurrency
     })),

@@ -12,6 +12,7 @@ import {
 import type { Meta, StoryObj } from "@storybook/react";
 import { DocumentsTab } from "@/components/documents-tab";
 import { isClientDocument } from "@/lib/documents";
+import { fixedPriceBudget, overrunFixedPriceBudget } from "@/test/fixtures";
 import { StoryRouter } from "@/test/story-router";
 import { MissionDetailPage } from "./mission-detail-page";
 
@@ -23,6 +24,7 @@ const mission: MissionData = {
   endClientName: "Callisto",
   billingMode: 0,
   rate: { amount: 55_000, currency: "EUR" },
+  referenceDailyRate: null,
   rounding: 0,
   status: 0,
   craRequired: true,
@@ -202,5 +204,68 @@ export const RevenueUnavailable: Story = {
     revenueFailed: true,
     onUpdate: async () => ({ status: "success" }) as const,
     onSetStatus: () => {},
+  },
+};
+
+const forfaitMission: MissionData = {
+  ...mission,
+  billingMode: 2,
+  craRequired: false,
+  endClientName: null,
+  id: 3,
+  name: "Lunaprint refonte boutique",
+  rate: { amount: 1_000_000, currency: "EUR" },
+  referenceDailyRate: { amount: 48_000, currency: "EUR" },
+  slug: "lunaprint-refonte-boutique",
+};
+
+const forfaitClient: ClientWithMissionsData = {
+  ...client,
+  missions: [forfaitMission],
+  name: "Lunaprint",
+  slug: "lunaprint",
+  type: 0,
+};
+
+/** A forfait at 86 %: the tiles read the price, and the banner counts what is left. */
+export const FixedPriceWithinBudget: Story = {
+  args: {
+    client: forfaitClient,
+    documentsTab,
+    mission: forfaitMission,
+    onSetStatus: () => {},
+    onUpdate: async () => ({ status: "success" }) as const,
+    revenue: { ...revenue, fixedPrice: fixedPriceBudget() },
+  },
+};
+
+/** Past the price: the overrun is what the header leads with. */
+export const FixedPriceOverrun: Story = {
+  args: {
+    client: forfaitClient,
+    documentsTab,
+    mission: {
+      ...forfaitMission,
+      rate: { amount: 480_000, currency: "EUR" },
+      referenceDailyRate: { amount: 55_000, currency: "EUR" },
+    },
+    onSetStatus: () => {},
+    onUpdate: async () => ({ status: "success" }) as const,
+    revenue: { ...revenue, fixedPrice: overrunFixedPriceBudget() },
+  },
+};
+
+/** No reference TJM: the price is followed, the margin is not. */
+export const FixedPriceWithoutReferenceRate: Story = {
+  args: {
+    client: forfaitClient,
+    documentsTab,
+    mission: { ...forfaitMission, referenceDailyRate: null },
+    onSetStatus: () => {},
+    onUpdate: async () => ({ status: "success" }) as const,
+    revenue: {
+      ...revenue,
+      fixedPrice: fixedPriceBudget({ consumption: null }),
+    },
   },
 };

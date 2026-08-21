@@ -1,7 +1,12 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
-import { invoiceSummary, unbilledTodoRow } from "../lib/fixtures";
+import {
+  BUDGET_OVERRUN_TODO,
+  BUDGET_TODO,
+  invoiceSummary,
+  unbilledTodoRow,
+} from "../lib/fixtures";
 import { InvoiceTodoPanel } from "./invoice-todo-panel";
 
 const summary = invoiceSummary();
@@ -11,6 +16,9 @@ function renderPanel(
 ) {
   const onRemind = vi.fn();
   const onCreateInvoice = vi.fn();
+  const onBillForfait = vi.fn();
+
+  const onOpenMission = vi.fn();
 
   render(
     <InvoiceTodoPanel
@@ -18,11 +26,13 @@ function renderPanel(
       todoTotal={summary.todoTotal}
       onRemind={onRemind}
       onCreateInvoice={onCreateInvoice}
+      onOpenMission={onOpenMission}
+      onBillForfait={onBillForfait}
       {...props}
     />,
   );
 
-  return { onRemind, onCreateInvoice };
+  return { onRemind, onCreateInvoice, onOpenMission, onBillForfait };
 }
 
 it("offers a reminder on money that is owed and late", () => {
@@ -126,4 +136,25 @@ it("says so when there is nothing to act on", () => {
   renderPanel({ todo: [], todoTotal: 0 });
 
   expect(screen.getByText("Tout est facturé et encaissé.")).toBeInTheDocument();
+});
+
+it("offers the mission and its balance on a forfait running out", () => {
+  const { onBillForfait, onOpenMission } = renderPanel({
+    todo: [BUDGET_TODO],
+    todoTotal: 1,
+  });
+
+  expect(screen.getByText(/forfait consommé à 86/)).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Ouvrir la mission" }));
+  fireEvent.click(screen.getByRole("button", { name: "Facturer le reste" }));
+
+  expect(onOpenMission).toHaveBeenCalledWith(BUDGET_TODO.budget);
+  expect(onBillForfait).toHaveBeenCalledWith(BUDGET_TODO.budget);
+});
+
+it("states the overrun rather than a balance once the price is blown", () => {
+  renderPanel({ todo: [BUDGET_OVERRUN_TODO], todoTotal: 1 });
+
+  expect(screen.getByText("Budget dépassé")).toBeInTheDocument();
+  expect(screen.getByText(/de temps sur un forfait de/)).toBeInTheDocument();
 });

@@ -4,6 +4,7 @@ import type {
   Color,
   EntryRounding,
   MissionData,
+  MoneyData,
   UpdateMissionData,
 } from "@opusline/api-client";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
@@ -48,12 +49,11 @@ type MissionEditFormValues = {
   endDate: string;
 };
 
-function initialRateDraft(format: MoneyFormat, mission: MissionData): string {
-  if (mission.rate === null) {
-    return "";
-  }
-
-  return formatAmount(format, mission.rate.amount);
+function initialRateDraft(
+  format: MoneyFormat,
+  money: MoneyData | null,
+): string {
+  return money === null ? "" : formatAmount(format, money.amount);
 }
 
 type MissionEditFormProps = {
@@ -81,9 +81,12 @@ export function MissionEditForm({
     mission.billingMode,
   );
   const [rateDraft, setRateDraft] = useState(() =>
-    initialRateDraft(format, mission),
+    initialRateDraft(format, mission.rate),
   );
   const [isRateMissing, setIsRateMissing] = useState(false);
+  const [referenceRateDraft, setReferenceRateDraft] = useState(() =>
+    initialRateDraft(format, mission.referenceDailyRate),
+  );
   const [rounding, setRounding] = useState<EntryRounding>(
     mission.rounding ?? 0,
   );
@@ -94,6 +97,11 @@ export function MissionEditForm({
   const rateCents = isInternal
     ? null
     : parseRateToCents(format.locale, rateDraft);
+  // Only a forfait carries one, and only a filled one is sent: an unreadable draft
+  // clears the rate rather than failing the save, because it prices nothing.
+  const referenceRateCents = isForfait
+    ? parseRateToCents(format.locale, referenceRateDraft)
+    : null;
   const displayedColor = color ?? client.color;
 
   const form = useForm({
@@ -120,7 +128,11 @@ export function MissionEditForm({
               : // A stale render-context currency is refused by the API (422);
                 // see settings-form.ts for the one case needing the snapshot.
                 { amount: rateCents, currency: format.currency },
-          rounding: isForfait ? null : rounding,
+          referenceDailyRate:
+            referenceRateCents === null
+              ? null
+              : { amount: referenceRateCents, currency: format.currency },
+          rounding,
           craRequired: isEsn ? craRequired : null,
           endClientName:
             isEsn && value.endClientName.trim() !== ""
@@ -241,6 +253,7 @@ export function MissionEditForm({
                       if (typeof next === "string") {
                         setBillingMode(Number(next) as BillingMode);
                         setRateDraft("");
+                        setReferenceRateDraft("");
                         setIsRateMissing(false);
                       }
                     }}
@@ -265,43 +278,54 @@ export function MissionEditForm({
                   rateDraft={rateDraft}
                 />
 
-                {!isForfait && (
-                  <Field>
-                    <div className="flex items-center gap-1.5">
-                      <FieldLabel
-                        className={EDIT_LABEL_CLASSES}
-                        htmlFor="mission-edit-rounding"
-                      >
-                        {m.missions_rounding_label()}
-                      </FieldLabel>
-                      <HelpTip label={m.missions_rounding_help()}>
-                        {entryRoundingHint(billingMode)}
-                      </HelpTip>
-                    </div>
-                    <ChipGroup
-                      aria-label={m.missions_rounding_label()}
-                      id="mission-edit-rounding"
-                      value={[String(rounding)]}
-                      onValueChange={(value) => {
-                        const next = value[0];
-
-                        if (typeof next === "string") {
-                          setRounding(Number(next) as EntryRounding);
-                        }
-                      }}
-                    >
-                      {entryRoundingOrder(billingMode).map((entryRounding) => (
-                        <Chip
-                          key={entryRounding}
-                          size="lg"
-                          value={String(entryRounding)}
-                        >
-                          {entryRoundingLabel(entryRounding, billingMode)}
-                        </Chip>
-                      ))}
-                    </ChipGroup>
-                  </Field>
+                {isForfait && (
+                  <MissionRateField
+                    billingMode={0}
+                    hint={m.missions_reference_rate_hint()}
+                    id="mission-edit-reference-rate"
+                    label={m.missions_reference_rate_label()}
+                    labelClassName={EDIT_LABEL_CLASSES}
+                    onDraftChange={setReferenceRateDraft}
+                    placeholder={m.missions_reference_rate_placeholder()}
+                    rateDraft={referenceRateDraft}
+                  />
                 )}
+
+                <Field>
+                  <div className="flex items-center gap-1.5">
+                    <FieldLabel
+                      className={EDIT_LABEL_CLASSES}
+                      htmlFor="mission-edit-rounding"
+                    >
+                      {m.missions_rounding_label()}
+                    </FieldLabel>
+                    <HelpTip label={m.missions_rounding_help()}>
+                      {entryRoundingHint(billingMode)}
+                    </HelpTip>
+                  </div>
+                  <ChipGroup
+                    aria-label={m.missions_rounding_label()}
+                    id="mission-edit-rounding"
+                    value={[String(rounding)]}
+                    onValueChange={(value) => {
+                      const next = value[0];
+
+                      if (typeof next === "string") {
+                        setRounding(Number(next) as EntryRounding);
+                      }
+                    }}
+                  >
+                    {entryRoundingOrder(billingMode).map((entryRounding) => (
+                      <Chip
+                        key={entryRounding}
+                        size="lg"
+                        value={String(entryRounding)}
+                      >
+                        {entryRoundingLabel(entryRounding, billingMode)}
+                      </Chip>
+                    ))}
+                  </ChipGroup>
+                </Field>
               </>
             )}
           </div>

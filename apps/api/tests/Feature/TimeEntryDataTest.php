@@ -45,11 +45,11 @@ test('values an hourly mission entry in minutes only', function (): void {
         ->and($data->valuedDayFraction)->toBeNull();
 });
 
-test('values a fixed price mission entry in quarter days', function (): void {
+test('values a fixed price mission entry at its own rounding', function (): void {
     $mission = missionOwnedBy(User::factory()->create(), fn ($factory) => $factory->fixed());
     $data = TimeEntryData::from(entryOn($mission, 100));
 
-    expect($data->valuedDayFraction)->toBe(0.25)
+    expect($data->valuedDayFraction)->toBe(0.5)
         ->and($data->valuedMinutes)->toBeNull();
 });
 
@@ -75,4 +75,17 @@ test('carries the entry billable flag', function (): void {
 
     expect(TimeEntryData::from($billable)->billable)->toBeTrue()
         ->and(TimeEntryData::from($tracked)->billable)->toBeFalse();
+});
+
+test('values an entry on a mission with no rounding at half a day', function (): void {
+    // No row reaches this since the backfill, but the fallback is what a mission
+    // written before the invariant would be valued on — and it has to agree with
+    // what BillingMode::resolveRounding() writes today.
+    $mission = missionOwnedBy(
+        User::factory()->create(),
+        fn ($factory) => $factory->state(['rounding' => null]),
+    );
+    $data = TimeEntryData::from(entryOn($mission, 100));
+
+    expect($data->valuedDayFraction)->toBe(0.5);
 });

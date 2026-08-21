@@ -5,6 +5,7 @@ import type { ComponentProps, KeyboardEvent, RefCallback } from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { fromPromise } from "xstate";
 
+import { BudgetShareBadge } from "@/components/budget-share-badge";
 import { isHourly } from "@/lib/durations";
 import { m } from "@/paraglide/messages.js";
 import {
@@ -406,15 +407,20 @@ export function WeekGrid({
                   {row.name}
                 </span>
               </span>
-              <span
-                className={cn(
-                  "truncate pl-3 text-xs",
-                  row.hasRate
-                    ? "text-muted-foreground-2"
-                    : "text-muted-foreground-3",
+              <span className="flex min-w-0 items-center gap-2 pl-3">
+                <span
+                  className={cn(
+                    "truncate text-xs",
+                    row.hasRate
+                      ? "text-muted-foreground-2"
+                      : "text-muted-foreground-3",
+                  )}
+                >
+                  {row.subtitle}
+                </span>
+                {row.budget === null ? null : (
+                  <BudgetShareBadge budget={row.budget} />
                 )}
-              >
-                {row.subtitle}
               </span>
             </RowHeader>
             {row.cells.map((cell, columnIndex) => (

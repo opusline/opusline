@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 
 import { MoneyFormatProvider } from "@/components/money-format-provider";
+import { m } from "@/paraglide/messages.js";
 import { MissionRateField } from "./mission-rate-field";
 
 function MissionRateFieldExample({
@@ -56,5 +57,24 @@ export const UsAccount: Story = {
     <MoneyFormatProvider currency="USD" locale="en-US">
       <MissionRateFieldExample billingMode={0} initialDraft="1,234.5" />
     </MoneyFormatProvider>
+  ),
+};
+
+/**
+ * A forfait's « TJM de référence »: the same money draft, relabelled, with the hint
+ * that explains why a fixed price carries a daily rate at all.
+ */
+export const AsAReferenceDailyRate: Story = {
+  // The messages are read at render, not at module load: an args object is
+  // evaluated once, which would pin the copy to whatever locale booted first.
+  render: (args) => (
+    <MissionRateField
+      {...args}
+      billingMode={0}
+      hint={m.missions_reference_rate_hint()}
+      label={m.missions_reference_rate_label()}
+      placeholder={m.missions_reference_rate_placeholder()}
+      rateDraft="480"
+    />
   ),
 };

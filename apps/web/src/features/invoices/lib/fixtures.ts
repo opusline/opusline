@@ -10,15 +10,29 @@ import type {
 } from "@opusline/api-client";
 
 import {
+  BUDGET_OVERRUN_TODO,
+  BUDGET_TODO,
   CLIENT_FIXTURE,
   eur,
+  fixedPriceBudget,
   invoiceItem,
   invoiceSummary,
+  MISSION_FIXTURE,
   OVERDUE_TODO,
+  overrunFixedPriceBudget,
   UNBILLED_TODO,
 } from "@/test/fixtures";
 
-export { invoiceItem, invoiceSummary };
+export {
+  BUDGET_OVERRUN_TODO,
+  BUDGET_TODO,
+  CLIENT_FIXTURE,
+  fixedPriceBudget,
+  invoiceItem,
+  invoiceSummary,
+  MISSION_FIXTURE,
+  overrunFixedPriceBudget,
+};
 
 export const secondClient = {
   ...CLIENT_FIXTURE,

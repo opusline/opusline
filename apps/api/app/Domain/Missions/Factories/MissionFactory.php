@@ -36,6 +36,7 @@ class MissionFactory extends Factory
             'billing_mode' => BillingMode::Daily,
             'currency' => 'EUR',
             'rate_cents' => 55_000,
+            'reference_daily_rate_cents' => null,
             'rounding' => EntryRounding::Half,
             'status' => MissionStatus::Active,
             'cra_required' => false,
@@ -65,7 +66,17 @@ class MissionFactory extends Factory
         return $this->state(fn (array $attributes): array => [
             'billing_mode' => BillingMode::Fixed,
             'rate_cents' => 1_200_000,
-            'rounding' => null,
+        ]);
+    }
+
+    /**
+     * Give the fixed price a reference daily rate, which is what turns tracked time
+     * into a consumption figure. Cents, so a test can state the design's numbers.
+     */
+    public function withReferenceDailyRate(int $cents): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'reference_daily_rate_cents' => $cents,
         ]);
     }
 
