@@ -3,7 +3,12 @@ import { useState } from "react";
 
 import { DateField } from "./date-field";
 
-function Example(props: { value?: string; min?: string; max?: string }) {
+function Example(props: {
+  value?: string;
+  min?: string;
+  max?: string;
+  size?: "sm" | "default";
+}) {
   const [value, setValue] = useState(props.value ?? "");
 
   return (
@@ -12,6 +17,7 @@ function Example(props: { value?: string; min?: string; max?: string }) {
         max={props.max}
         min={props.min}
         onChange={setValue}
+        size={props.size}
         value={value}
       />
     </div>
@@ -45,11 +51,7 @@ export const Bounded: Story = {
 
 export const Small: Story = {
   args: { size: "sm" },
-  render: () => (
-    <div className="w-56">
-      <DateField onChange={() => {}} size="sm" value="2026-08-21" />
-    </div>
-  ),
+  render: (args) => <Example size={args.size} value="2026-08-21" />,
 };
 
 export const Disabled: Story = {

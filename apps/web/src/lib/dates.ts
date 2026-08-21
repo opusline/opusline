@@ -139,14 +139,17 @@ export function parseNumericDate(
     return isCalendarDate(trimmed) ? trimmed : null;
   }
 
-  const parts = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(trimmed);
+  // One digit is allowed for the day and the month — "1/8/2026" is what people
+  // type — but the year stays four, so a two-digit year is an error rather than
+  // a silent guess at the century.
+  const parts = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(trimmed);
 
   if (parts === null) {
     return null;
   }
 
   const [, day, month, year] = parts;
-  const candidate = `${year}-${month}-${day}`;
+  const candidate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
 
   return isCalendarDate(candidate) ? candidate : null;
 }

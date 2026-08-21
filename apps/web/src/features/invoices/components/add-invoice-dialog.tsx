@@ -187,10 +187,13 @@ function AddInvoiceForm({
   const isNumberMissing = status !== 0 && number.trim() === "";
   // The API refuses a paid invoice with no payment date, and the field is clearable.
   const isPaidOnMissing = status === 2 && paidOn === "";
+  // So is the issue date, and unlike the due date it has no null to fall back on.
+  const isIssuedOnMissing = issuedOn === "";
   const canSubmit =
     amountHtCents !== null &&
     !isVatInvalid &&
     !isNumberMissing &&
+    !isIssuedOnMissing &&
     !isPaidOnMissing &&
     !isSaving;
 
@@ -304,6 +307,7 @@ function AddInvoiceForm({
               <DateField
                 aria-invalid={isPaidOnMissing}
                 id={paidFieldId}
+                max={accountToday}
                 onChange={setPaidOn}
                 value={paidOn}
               />

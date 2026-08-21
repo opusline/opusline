@@ -82,7 +82,7 @@ it("never books a payment before the invoice existed", () => {
   });
   fireEvent.click(screen.getByRole("button", { name: "Marquer encaissée" }));
 
-  expect(onPay).not.toHaveBeenCalledWith("2026-06-30");
+  expect(onPay).not.toHaveBeenCalled();
 });
 
 it("chases an invoice that is out but unpaid", () => {

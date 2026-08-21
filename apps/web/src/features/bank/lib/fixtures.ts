@@ -146,6 +146,7 @@ export function bankData(
       bankStatement({
         id: 2,
         fileName: "releve-compte-pro-juillet-2026.csv",
+        periodStart: "2026-07-01",
         periodEnd: "2026-07-31",
         lineCount: 9,
         importedAt: "2026-08-01",

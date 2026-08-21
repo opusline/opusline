@@ -111,6 +111,17 @@ export function treasuryFilter(): { predicate: (query: Query) => boolean } {
 }
 
 /**
+ * Refresh the Virement figure. Keep every writer that moves it going through
+ * this rather than reaching for the filter, so the list of things that move it
+ * stays findable from one name.
+ */
+export async function invalidateTreasury(
+  queryClient: QueryClient,
+): Promise<void> {
+  await queryClient.invalidateQueries(treasuryFilter());
+}
+
+/**
  * The fan-out every invoice write owes the rest of the app. Beyond the lists,
  * the open fiche and the summary: the next free reference is derived from the
  * numbers already taken, the revenue figures move with what is issued and
@@ -128,7 +139,7 @@ export async function invalidateInvoiceWrites(
   // this is the one filter here that always issues a request — and it is the
   // most expensive one. Marking a background tile stale should not hold the
   // spinner on « Marquer payée ».
-  void queryClient.invalidateQueries(treasuryFilter());
+  void invalidateTreasury(queryClient);
 
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: listInvoicesQueryKey() }),

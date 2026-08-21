@@ -36,7 +36,7 @@ import {
 } from "@/features/settings/lib/settings-form";
 import { signatureHref } from "@/features/settings/lib/signature";
 import type { FormSubmitResult } from "@/lib/form";
-import { treasuryFilter } from "@/lib/query-invalidation";
+import { invalidateTreasury } from "@/lib/query-invalidation";
 import { serverErrorMessage, serverFieldErrors } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -109,7 +109,7 @@ function ReglagesRoute() {
     patchCurrentUser(queryClient, data);
     // The matelas, the contribution rate and the TVA régime are all terms of
     // the Virement figure the sidebar shows on every screen.
-    void queryClient.invalidateQueries(treasuryFilter());
+    void invalidateTreasury(queryClient);
   };
 
   const updateSettings = useMutation({

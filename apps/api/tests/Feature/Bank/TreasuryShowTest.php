@@ -100,7 +100,7 @@ test('covers the balance through the later of the anchor date and the last movem
         ->assertJsonPath('coveredThrough', '2026-08-13');
 });
 
-test('ignores a movement dated in the future when deciding what the balance covers', function (): void {
+test('clamps what the balance covers to today when a movement is dated in the future', function (): void {
     $user = canvasAccount();
     bankMovementFor($user, configure: fn (BankMovementFactory $factory): BankMovementFactory => $factory->debit(10_000)->on('2026-09-30'));
 

@@ -30,7 +30,7 @@ import {
 import { requireFrenchFiscality } from "@/lib/fiscality";
 import {
   invalidateInvoiceWrites,
-  treasuryFilter,
+  invalidateTreasury,
 } from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
@@ -69,11 +69,6 @@ function BankRoute() {
   // as any other invoice write.
   const refreshInvoices = () => invalidateInvoiceWrites(queryClient);
 
-  // The balance is the Virement figure's starting point, and the sidebar shows
-  // that figure on every screen. The other writes here go through
-  // invalidateInvoiceWrites, which already carries it.
-  const refreshTreasury = () => queryClient.invalidateQueries(treasuryFilter());
-
   const importStatement = useMutation({
     ...importBankStatementMutation(),
     onMutate: () => setImportError(null),
@@ -97,7 +92,9 @@ function BankRoute() {
     onSuccess: async (account) => {
       setEditingBalance(false);
       acceptSummary(account);
-      await refreshTreasury();
+      // The balance is the Virement figure's starting point; the other writes
+      // here go through invalidateInvoiceWrites, which already carries it.
+      await invalidateTreasury(queryClient);
     },
     onError: (error) => {
       setBalanceError(serverErrorMessage(error, m.bank_balance_save_failed()));
