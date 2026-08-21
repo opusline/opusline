@@ -39,6 +39,7 @@ import {
   Database,
   Download,
   FileCheck,
+  FolderClosed,
   History,
   Landmark,
   LogOut,
@@ -190,6 +191,16 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                 </>
               )}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={pathname.startsWith("/documents")}
+                  render={<Link to="/documents" />}
+                  tooltip={m.nav_documents()}
+                >
+                  <FolderClosed />
+                  <span>{m.nav_documents()}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={pathname.startsWith("/settings")}

@@ -1640,6 +1640,29 @@
                 }
             }
         },
+        "/documents": {
+            "get": {
+                "operationId": "listDocumentLibrary",
+                "tags": [
+                    "DocumentLibrary"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentLibraryData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/invoices": {
             "get": {
                 "operationId": "listInvoices",
@@ -3490,6 +3513,172 @@
                     }
                 }
             }
+        },
+        "/user/documents": {
+            "get": {
+                "operationId": "listUserDocuments",
+                "tags": [
+                    "UserDocument"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentListData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "uploadUserDocument",
+                "tags": [
+                    "UserDocument"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UploadDocumentData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/user/documents/{document}": {
+            "put": {
+                "operationId": "updateUserDocument",
+                "tags": [
+                    "UserDocument"
+                ],
+                "parameters": [
+                    {
+                        "name": "document",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateDocumentData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteUserDocument",
+                "tags": [
+                    "UserDocument"
+                ],
+                "parameters": [
+                    {
+                        "name": "document",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/user/documents/{document}/download": {
+            "get": {
+                "operationId": "downloadUserDocument",
+                "tags": [
+                    "UserDocument"
+                ],
+                "parameters": [
+                    {
+                        "name": "document",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Transfer-Encoding": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "chunked"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -4931,14 +5120,19 @@
             },
             "DocumentCategory": {
                 "type": "integer",
-                "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/>  |\n| `3` <br/>  |\n| `4` <br/>  |\n| `5` <br/> The CRA Opusline generated, filed next to the signed return it comes back as. |",
+                "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/>  |\n| `3` <br/>  |\n| `4` <br/>  |\n| `5` <br/> The CRA Opusline generated, filed next to the signed return it comes back as. |\n| `6` <br/>  |\n| `7` <br/>  |\n| `8` <br/>  |\n| `9` <br/>  |\n| `10` <br/>  |",
                 "enum": [
                     0,
                     1,
                     2,
                     3,
                     4,
-                    5
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10
                 ],
                 "x-enum-varnames": [
                     "Contract",
@@ -4946,7 +5140,12 @@
                     "SignedCra",
                     "ReceivedInvoice",
                     "Other",
-                    "Cra"
+                    "Cra",
+                    "Kbis",
+                    "Certificate",
+                    "Insurance",
+                    "BankDetails",
+                    "TermsOfSale"
                 ],
                 "title": "DocumentCategory"
             },
@@ -4983,6 +5182,64 @@
                 ],
                 "title": "DocumentData"
             },
+            "DocumentGroupData": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "color": {
+                        "$ref": "#/components/schemas/Color"
+                    },
+                    "clientName": {
+                        "type": "string"
+                    },
+                    "clientSlug": {
+                        "type": "string"
+                    },
+                    "missionSlug": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "lastAddedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "documents": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DocumentData"
+                        }
+                    }
+                },
+                "required": [
+                    "name",
+                    "color",
+                    "clientName",
+                    "clientSlug",
+                    "missionSlug",
+                    "lastAddedAt",
+                    "documents"
+                ],
+                "title": "DocumentGroupData"
+            },
+            "DocumentLibraryData": {
+                "type": "object",
+                "properties": {
+                    "groups": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DocumentGroupData"
+                        }
+                    }
+                },
+                "required": [
+                    "groups"
+                ],
+                "title": "DocumentLibraryData"
+            },
             "DocumentListData": {
                 "type": "object",
                 "properties": {
@@ -5002,11 +5259,13 @@
                 "type": "integer",
                 "enum": [
                     0,
-                    1
+                    1,
+                    2
                 ],
                 "x-enum-varnames": [
                     "Mission",
-                    "Client"
+                    "Client",
+                    "User"
                 ],
                 "title": "DocumentSource"
             },

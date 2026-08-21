@@ -11,7 +11,10 @@ import {
 } from "@opusline/ui/components/empty";
 import type { Meta, StoryObj } from "@storybook/react";
 import { DocumentsTab } from "@/components/documents-tab";
-import { isClientDocument } from "@/lib/documents";
+import {
+  ASSIGNABLE_DOCUMENT_CATEGORIES,
+  isClientDocument,
+} from "@/lib/documents";
 import { fixedPriceBudget, overrunFixedPriceBudget } from "@/test/fixtures";
 import { StoryRouter } from "@/test/story-router";
 import { MissionDetailPage } from "./mission-detail-page";
@@ -69,6 +72,7 @@ const client: ClientWithMissionsData = {
 
 const documentsTab = (
   <DocumentsTab
+    assignableCategories={ASSIGNABLE_DOCUMENT_CATEGORIES}
     canRemove={(document) => !isClientDocument(document)}
     documents={[
       {
@@ -141,6 +145,10 @@ const meta = {
       </StoryRouter>
     ),
   ],
+  args: {
+    tab: "entries",
+    onTabChange: () => {},
+  },
 } satisfies Meta<typeof MissionDetailPage>;
 
 export default meta;

@@ -2,6 +2,7 @@ import {
   currentUserQueryKey,
   loginMutation,
 } from "@opusline/api-client/react-query";
+import { Button } from "@opusline/ui/components/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
@@ -9,6 +10,18 @@ import { AuthCard } from "@/features/auth/components/auth-card";
 import { LoginForm } from "@/features/auth/components/login-form";
 import { serverFieldErrors } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
+
+/*
+ * DatabaseSeeder's account, so working on a screen does not start by typing
+ * credentials. Vite drops this and the button below from a production build; the
+ * credentials are the ones apps/api/database/seeders publishes anyway. English on
+ * purpose — it is never shipped.
+ */
+const DEMO_ACCOUNT = {
+  email: "test@example.com",
+  password: "password",
+  remember: false,
+};
 
 export const Route = createFileRoute("/_guest/login")({
   validateSearch: (search: Record<string, unknown>): { redirect?: string } => ({
@@ -60,6 +73,15 @@ function LoginPage() {
         isPending={login.isPending}
         onSubmit={handleSubmit}
       />
+      {import.meta.env.DEV && (
+        <Button
+          className="mt-4 w-full"
+          onClick={() => void handleSubmit(DEMO_ACCOUNT)}
+          variant="outline"
+        >
+          Sign in as the seeded demo account
+        </Button>
+      )}
     </AuthCard>
   );
 }

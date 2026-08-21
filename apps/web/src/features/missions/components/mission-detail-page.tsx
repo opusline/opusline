@@ -65,8 +65,8 @@ import type { FormSubmitResult } from "@/lib/form";
 import { COLOR_CLASSES } from "@/lib/palette";
 
 import { m } from "@/paraglide/messages.js";
-
 import { billingModeAmountLabel, billingModeAmountUnit } from "../lib/labels";
+import type { MissionTab } from "../lib/tabs";
 import { MissionEditForm } from "./mission-edit-form";
 import { MissionEntriesTable } from "./mission-entries-table";
 
@@ -155,6 +155,8 @@ function ForfaitTiles({
 type MissionDetailPageProps = {
   mission: MissionData;
   client: ClientWithMissionsData;
+  tab: MissionTab;
+  onTabChange: (tab: MissionTab) => void;
   documentsTab: ReactNode;
   invoicesTab: ReactNode;
   onUpdate: (body: UpdateMissionData) => Promise<FormSubmitResult>;
@@ -175,6 +177,8 @@ type MissionDetailPageProps = {
 export function MissionDetailPage({
   mission,
   client,
+  tab,
+  onTabChange,
   documentsTab,
   invoicesTab,
   onUpdate,
@@ -193,6 +197,8 @@ export function MissionDetailPage({
   const [isEditing, setIsEditing] = useState(false);
 
   const barColor = mission.color ?? client.color;
+  // A mission that stopped requiring a CRA loses the tab; a stale ?tab=cra lands on entries.
+  const activeTab = tab === "cra" && !mission.craRequired ? "entries" : tab;
   const isDone = mission.status === 2;
   const isForfait = isFixedPrice(mission.billingMode);
   const budget = revenue?.fixedPrice ?? null;
@@ -378,7 +384,10 @@ export function MissionDetailPage({
           onSubmit={handleUpdate}
         />
       ) : (
-        <Tabs defaultValue="entries">
+        <Tabs
+          onValueChange={(value) => onTabChange(value as MissionTab)}
+          value={activeTab}
+        >
           <TabsList className="mb-5" variant="underline">
             <TabsTrigger value="entries">
               {m.missions_tab_entries()}

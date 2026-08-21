@@ -58,6 +58,7 @@ import type { LogoUploadResult } from "@/lib/logos";
 import { COLOR_CLASSES } from "@/lib/palette";
 import { m } from "@/paraglide/messages.js";
 import { formatPostalAddress } from "../lib/client-form";
+import type { ClientTab } from "../lib/tabs";
 
 import { ClientEditForm } from "./client-edit-form";
 
@@ -92,6 +93,8 @@ function CoordRow({
 
 type ClientDetailPageProps = {
   client: ClientWithMissionsData;
+  tab: ClientTab;
+  onTabChange: (tab: ClientTab) => void;
   documentsTab: ReactNode;
   invoicesTab: ReactNode;
   onUpdate: (body: UpdateClientData) => Promise<FormSubmitResult>;
@@ -116,6 +119,8 @@ type ClientDetailPageProps = {
 
 export function ClientDetailPage({
   client,
+  tab,
+  onTabChange,
   documentsTab,
   invoicesTab,
   onUpdate,
@@ -295,7 +300,10 @@ export function ClientDetailPage({
           vatLiable={vatLiable}
         />
       ) : (
-        <Tabs defaultValue="missions">
+        <Tabs
+          onValueChange={(value) => onTabChange(value as ClientTab)}
+          value={tab}
+        >
           <TabsList className="mb-5" variant="underline">
             <TabsTrigger value="missions">
               {m.clients_missions_title()}

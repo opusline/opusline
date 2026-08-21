@@ -252,6 +252,11 @@ export const zDateFormat = z.union([z.literal(0), z.literal(1)]);
  * | `3` <br/>  |
  * | `4` <br/>  |
  * | `5` <br/> The CRA Opusline generated, filed next to the signed return it comes back as. |
+ * | `6` <br/>  |
+ * | `7` <br/>  |
+ * | `8` <br/>  |
+ * | `9` <br/>  |
+ * | `10` <br/>  |
  */
 export const zDocumentCategory = z.union([
     z.literal(0),
@@ -259,13 +264,22 @@ export const zDocumentCategory = z.union([
     z.literal(2),
     z.literal(3),
     z.literal(4),
-    z.literal(5)
+    z.literal(5),
+    z.literal(6),
+    z.literal(7),
+    z.literal(8),
+    z.literal(9),
+    z.literal(10)
 ]);
 
 /**
  * DocumentSource
  */
-export const zDocumentSource = z.union([z.literal(0), z.literal(1)]);
+export const zDocumentSource = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
 
 /**
  * DocumentData
@@ -277,6 +291,26 @@ export const zDocumentData = z.object({
     source: zDocumentSource,
     sizeBytes: z.int(),
     createdAt: z.iso.datetime()
+});
+
+/**
+ * DocumentGroupData
+ */
+export const zDocumentGroupData = z.object({
+    name: z.string(),
+    color: zColor,
+    clientName: z.string(),
+    clientSlug: z.string(),
+    missionSlug: z.nullable(z.string()),
+    lastAddedAt: z.iso.datetime(),
+    documents: z.array(zDocumentData)
+});
+
+/**
+ * DocumentLibraryData
+ */
+export const zDocumentLibraryData = z.object({
+    groups: z.array(zDocumentGroupData)
 });
 
 /**
@@ -1589,6 +1623,8 @@ export const zDownloadCraPdfQuery = z.object({
 
 export const zDownloadCraPdfResponse = z.string();
 
+export const zListDocumentLibraryResponse = zDocumentLibraryData;
+
 export const zListInvoicesQuery = z.object({
     status: z.nullish(zInvoiceStatus),
     clientId: z.nullish(z.int()),
@@ -1836,3 +1872,32 @@ export const zTrimTimerResponse = zTimerData;
 export const zStopTimerBody = zStopTimerData;
 
 export const zStopTimerResponse = zTimeEntryData;
+
+export const zListUserDocumentsResponse = zDocumentListData;
+
+export const zUploadUserDocumentBody = zUploadDocumentData;
+
+export const zUploadUserDocumentResponse = zDocumentData;
+
+export const zDeleteUserDocumentPath = z.object({
+    document: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteUserDocumentResponse = z.void();
+
+export const zUpdateUserDocumentBody = zUpdateDocumentData;
+
+export const zUpdateUserDocumentPath = z.object({
+    document: z.int()
+});
+
+export const zUpdateUserDocumentResponse = zDocumentData;
+
+export const zDownloadUserDocumentPath = z.object({
+    document: z.int()
+});
+
+export const zDownloadUserDocumentResponse = z.string();

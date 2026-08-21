@@ -6,6 +6,7 @@ namespace App\Domain\Clients\Models;
 
 use App\Domain\Clients\Enums\ClientType;
 use App\Domain\Clients\Factories\ClientFactory;
+use App\Domain\Documents\Concerns\InteractsWithDocuments;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Enums\Color;
@@ -70,6 +71,7 @@ class Client extends Model implements HasMedia
     use HasFactory;
 
     use HasSlug;
+    use InteractsWithDocuments;
     use InteractsWithMedia;
 
     protected static function newFactory(): ClientFactory
@@ -80,7 +82,7 @@ class Client extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('logo')->singleFile();
-        $this->addMediaCollection('documents');
+        $this->addMediaCollection(self::DOCUMENT_COLLECTION);
     }
 
     public function getSlugOptions(): SlugOptions

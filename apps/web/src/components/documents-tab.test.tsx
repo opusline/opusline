@@ -9,7 +9,11 @@ import {
 import type { ComponentProps } from "react";
 import { expect, it, vi } from "vitest";
 
-import { MAX_DOCUMENT_BYTES } from "@/lib/documents";
+import {
+  ASSIGNABLE_DOCUMENT_CATEGORIES,
+  MAX_DOCUMENT_BYTES,
+  PERSONAL_DOCUMENT_CATEGORIES,
+} from "@/lib/documents";
 import { DocumentsTab } from "./documents-tab";
 
 function documentPayload(overrides: Partial<DocumentData> = {}): DocumentData {
@@ -28,6 +32,7 @@ function renderTab(
   overrides: Partial<ComponentProps<typeof DocumentsTab>> = {},
 ) {
   const props: ComponentProps<typeof DocumentsTab> = {
+    assignableCategories: ASSIGNABLE_DOCUMENT_CATEGORIES,
     documents: [],
     emptyLabel: "Aucun document pour ce client.",
     onUpload: vi.fn(async () => ({ status: "success" }) as const),
@@ -260,5 +265,30 @@ it("uploads under the name typed into the rename field", async () => {
 
   await waitFor(() => {
     expect(onUpload).toHaveBeenCalledWith(file, 4, "Contrat Nordlys");
+  });
+});
+
+it("offers only the categories it was given, and guesses within them", async () => {
+  const { onUpload } = renderTab({
+    assignableCategories: PERSONAL_DOCUMENT_CATEGORIES,
+  });
+  const file = new File(["x"], "attestation-vigilance.pdf", {
+    type: "application/pdf",
+  });
+
+  pickFiles([file]);
+
+  const types = screen.getByLabelText("Type de attestation-vigilance.pdf");
+
+  expect(
+    within(types)
+      .getAllByRole("option")
+      .map((option) => option.textContent),
+  ).toEqual(["Kbis", "Attestation", "Assurance", "RIB", "CGV", "Autre"]);
+
+  fireEvent.click(screen.getByRole("button", { name: "Envoyer 1 document" }));
+
+  await waitFor(() => {
+    expect(onUpload).toHaveBeenCalledWith(file, 7, "attestation-vigilance");
   });
 });

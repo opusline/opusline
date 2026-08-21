@@ -6,6 +6,7 @@ namespace App\Domain\Missions\Models;
 
 use App\Domain\Clients\Models\Client;
 use App\Domain\Cra\Models\Cra;
+use App\Domain\Documents\Concerns\InteractsWithDocuments;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Enums\BillingMode;
 use App\Domain\Missions\Enums\EntryRounding;
@@ -76,6 +77,7 @@ class Mission extends Model implements HasMedia
     use HasFactory;
 
     use HasSlug;
+    use InteractsWithDocuments;
     use InteractsWithMedia;
 
     protected static function newFactory(): MissionFactory
@@ -85,7 +87,7 @@ class Mission extends Model implements HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('documents');
+        $this->addMediaCollection(self::DOCUMENT_COLLECTION);
     }
 
     #[\Override]

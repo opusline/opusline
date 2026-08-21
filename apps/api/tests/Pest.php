@@ -28,6 +28,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -132,6 +133,34 @@ function freezeTodayAtUtcNoon(): void
 function fromSpa(): TestCase
 {
     return test()->withHeader('Referer', 'http://localhost:3000');
+}
+
+/**
+ * A document filed on a client, uploaded through the endpoint so it goes through
+ * the same naming and category defaults the app applies.
+ */
+function uploadClientDocument(User $user, Client $client, string $fileName): int
+{
+    return test()->actingAs($user)->post("/api/clients/{$client->slug}/documents", [
+        'file' => UploadedFile::fake()->create($fileName, 100, 'application/pdf'),
+    ])->json('id');
+}
+
+/** A document filed on a mission, uploaded the same way. */
+function uploadMissionDocument(User $user, Client $client, Mission $mission, string $fileName): int
+{
+    return test()->actingAs($user)->post("/api/clients/{$client->slug}/missions/{$mission->slug}/documents", [
+        'file' => UploadedFile::fake()->create($fileName, 100, 'application/pdf'),
+    ])->json('id');
+}
+
+/** An administrative piece filed on the user, uploaded the same way. */
+function uploadUserDocument(User $user, string $fileName, ?int $category = null): int
+{
+    return test()->actingAs($user)->post('/api/user/documents', array_filter([
+        'file' => UploadedFile::fake()->create($fileName, 100, 'application/pdf'),
+        'category' => $category,
+    ], static fn (mixed $value): bool => $value !== null))->json('id');
 }
 
 /** The raw bytes of a bank-statement fixture file. */

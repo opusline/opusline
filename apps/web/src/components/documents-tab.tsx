@@ -2,28 +2,25 @@ import type { DocumentCategory, DocumentData } from "@opusline/api-client";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Badge } from "@opusline/ui/components/badge";
 import { Button } from "@opusline/ui/components/button";
-import { Chip, ChipCount, ChipGroup } from "@opusline/ui/components/chip";
 import { Input } from "@opusline/ui/components/input";
 import { NativeSelect } from "@opusline/ui/components/native-select";
 import { cn } from "@opusline/ui/lib/utils";
 import {
   ArrowUpIcon,
   CircleAlert,
-  DownloadIcon,
-  FileIcon,
-  SearchIcon,
   Trash2Icon,
   UploadIcon,
   XIcon,
 } from "lucide-react";
 import { useRef, useState } from "react";
+import { DocumentFilterBar } from "@/components/document-filter-bar";
+import { DocumentDownloadButton, DocumentRow } from "@/components/document-row";
 import { useLocale } from "@/components/money-format-provider";
-import { fullDateLabel } from "@/lib/dates";
 import {
-  ASSIGNABLE_DOCUMENT_CATEGORIES,
   baseName,
+  countByCategory,
   DOCUMENT_ACCEPT,
-  DOCUMENT_CATEGORIES,
+  type DocumentCategoryFilter,
   type DocumentUploadResult,
   documentCategoryLabel,
   extensionOf,
@@ -32,6 +29,7 @@ import {
   guessDocumentCategory,
   isClientDocument,
   isDocumentCategory,
+  matchesDocumentSearch,
   rejectDocumentReason,
 } from "@/lib/documents";
 import { m } from "@/paraglide/messages.js";
@@ -52,8 +50,6 @@ type QueuedUpload = {
   message?: string;
 };
 
-type CategoryFilter = DocumentCategory | "all";
-
 type DocumentsTabProps = {
   documents: DocumentData[];
   emptyLabel: string;
@@ -66,6 +62,8 @@ type DocumentsTabProps = {
   downloadHref: (document: DocumentData) => string;
   canRemove?: (document: DocumentData) => boolean;
   showSourceBadge?: boolean;
+  /** The types offered when classifying an upload. */
+  assignableCategories: readonly DocumentCategory[];
 };
 
 export function DocumentsTab({
@@ -76,6 +74,7 @@ export function DocumentsTab({
   downloadHref,
   canRemove,
   showSourceBadge,
+  assignableCategories,
 }: DocumentsTabProps) {
   const locale = useLocale();
   const nextKey = useRef(0);
@@ -85,7 +84,7 @@ export function DocumentsTab({
   const [hasDeleteError, setHasDeleteError] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<CategoryFilter>("all");
+  const [filter, setFilter] = useState<DocumentCategoryFilter>("all");
 
   const addFiles = (files: Iterable<File>) => {
     const accepted: PendingDocument[] = [];
@@ -101,7 +100,7 @@ export function DocumentsTab({
         accepted.push({
           key: nextKey.current,
           file,
-          category: guessDocumentCategory(file.name),
+          category: guessDocumentCategory(file.name, assignableCategories),
           name: baseName(file.name),
         });
       }
@@ -179,21 +178,13 @@ export function DocumentsTab({
     }
   };
 
-  const categoryCounts = documents.reduce(
-    (counts, document) => {
-      counts[document.category] += 1;
-      return counts;
-    },
-    { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } as Record<DocumentCategory, number>,
-  );
+  const categoryCounts = countByCategory(documents);
   const normalizedSearch = foldAccents(search.trim().toLowerCase());
   const visibleDocuments = documents.filter(
     (document) =>
       (filter === "all" || document.category === filter) &&
       (normalizedSearch === "" ||
-        foldAccents(document.fileName.toLowerCase()).includes(
-          normalizedSearch,
-        )),
+        matchesDocumentSearch(document, normalizedSearch)),
   );
 
   return (
@@ -370,7 +361,7 @@ export function DocumentsTab({
                     size="sm"
                     value={String(item.category)}
                   >
-                    {ASSIGNABLE_DOCUMENT_CATEGORIES.map((category) => (
+                    {assignableCategories.map((category) => (
                       <option key={category} value={String(category)}>
                         {documentCategoryLabel(category)}
                       </option>
@@ -420,106 +411,35 @@ export function DocumentsTab({
 
       {documents.length > 0 ? (
         <>
-          <div className="flex flex-wrap items-center gap-2.5">
-            <span className="flex h-8 min-w-47.5 max-w-70 flex-1 items-center gap-2.5 rounded-full border border-border-2 bg-muted px-3 transition-colors focus-within:border-primary focus-within:ring-3 focus-within:ring-primary/20">
-              <SearchIcon
-                aria-hidden
-                className="size-3.25 shrink-0 text-muted-foreground-5"
-              />
-              <input
-                aria-label={m.documents_search_aria()}
-                className="min-w-0 flex-1 bg-transparent text-foreground-hi text-sm outline-none placeholder:text-muted-foreground-5"
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder={m.documents_search_placeholder()}
-                value={search}
-              />
-            </span>
-            <ChipGroup
-              aria-label={m.documents_filter_aria()}
-              onValueChange={(value) => {
-                const [nextFilter] = value;
-
-                if (nextFilter === "all") {
-                  setFilter("all");
-                  return;
-                }
-
-                const category = Number(nextFilter);
-                if (isDocumentCategory(category)) {
-                  setFilter(category);
-                }
-              }}
-              value={[filter === "all" ? "all" : String(filter)]}
-            >
-              <Chip
-                aria-label={`${m.common_all()} (${documents.length})`}
-                shape="pill"
-                value="all"
-              >
-                {m.common_all()}
-                <ChipCount aria-hidden>{documents.length}</ChipCount>
-              </Chip>
-              {DOCUMENT_CATEGORIES.filter(
-                (category) => categoryCounts[category] > 0,
-              ).map((category) => (
-                <Chip
-                  aria-label={`${documentCategoryLabel(category)} (${categoryCounts[category]})`}
-                  key={category}
-                  shape="pill"
-                  value={String(category)}
-                >
-                  {documentCategoryLabel(category)}
-                  <ChipCount aria-hidden>{categoryCounts[category]}</ChipCount>
-                </Chip>
-              ))}
-            </ChipGroup>
-          </div>
+          <DocumentFilterBar
+            counts={categoryCounts}
+            filter={filter}
+            onFilterChange={setFilter}
+            onSearchChange={setSearch}
+            search={search}
+            searchPlaceholder={m.documents_search_placeholder()}
+            total={documents.length}
+          />
 
           {visibleDocuments.length > 0 ? (
             <div className="divide-y overflow-hidden rounded-md border bg-card">
               {visibleDocuments.map((document) => (
-                <div
-                  className="flex items-center gap-3 px-4 py-3"
+                <DocumentRow
+                  badges={
+                    showSourceBadge &&
+                    isClientDocument(document) && (
+                      <Badge variant="quiet">
+                        {m.documents_source_client_badge()}
+                      </Badge>
+                    )
+                  }
+                  document={document}
                   key={document.id}
                 >
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-md border border-border-2 bg-secondary text-muted-foreground-2">
-                    <FileIcon aria-hidden className="size-3.75" />
-                  </span>
-                  <span className="flex min-w-0 flex-col gap-1">
-                    <span className="flex min-w-0 flex-wrap items-center gap-2">
-                      <span className="min-w-0 truncate text-foreground-hi text-sm">
-                        {document.fileName}
-                      </span>
-                      <Badge>{documentCategoryLabel(document.category)}</Badge>
-                      {showSourceBadge && isClientDocument(document) && (
-                        <Badge variant="quiet">
-                          {m.documents_source_client_badge()}
-                        </Badge>
-                      )}
-                    </span>
-                    <span className="text-muted-foreground-3 text-xs">
-                      {m.documents_added_on({
-                        size: formatFileSize(locale, document.sizeBytes),
-                        date: fullDateLabel(locale, document.createdAt),
-                      })}
-                    </span>
-                  </span>
-                  <span className="flex-1" />
-                  <Button
-                    render={
-                      <a
-                        aria-label={m.documents_download_aria({
-                          name: document.fileName,
-                        })}
-                        download
-                        href={downloadHref(document)}
-                      />
-                    }
-                    size="icon-lg"
-                    variant="ghost"
-                  >
-                    <DownloadIcon aria-hidden />
-                  </Button>
+                  <DocumentDownloadButton
+                    document={document}
+                    href={downloadHref(document)}
+                  />
                   {(canRemove?.(document) ?? true) && (
                     <Button
                       aria-label={m.documents_delete_aria({
@@ -532,7 +452,7 @@ export function DocumentsTab({
                       <Trash2Icon aria-hidden />
                     </Button>
                   )}
-                </div>
+                </DocumentRow>
               ))}
             </div>
           ) : (

@@ -2,7 +2,7 @@
 
 import { type Client, type ClientMeta, formDataBodySerializer, type Options as Options2, type RequestResult, type TDataShape } from './client';
 import { client } from './client.gen';
-import type { ArchiveClientData, ArchiveClientErrors, ArchiveClientResponses, CreateClientData2, CreateClientErrors, CreateClientResponses, CreateCraData2, CreateCraErrors, CreateCraResponses, CreateInvoiceData2, CreateInvoiceErrors, CreateInvoiceResponses, CreateMissionData2, CreateMissionErrors, CreateMissionResponses, CreateTimeEntryData, CreateTimeEntryErrors, CreateTimeEntryResponses, CurrentUserData, CurrentUserErrors, CurrentUserResponses, DeleteClientData, DeleteClientDocumentData, DeleteClientDocumentErrors, DeleteClientDocumentResponses, DeleteClientErrors, DeleteClientLogoData, DeleteClientLogoErrors, DeleteClientLogoResponses, DeleteClientResponses, DeleteCraData, DeleteCraErrors, DeleteCraResponses, DeleteInvoiceData, DeleteInvoiceErrors, DeleteInvoiceResponses, DeleteMissionData, DeleteMissionDocumentData, DeleteMissionDocumentErrors, DeleteMissionDocumentResponses, DeleteMissionErrors, DeleteMissionResponses, DeleteTimeEntryData, DeleteTimeEntryErrors, DeleteTimeEntryResponses, DeleteUserSignatureData, DeleteUserSignatureErrors, DeleteUserSignatureResponses, DiscardTimerData, DiscardTimerErrors, DiscardTimerResponses, DismissBankMatchData, DismissBankMatchErrors, DismissBankMatchResponses, DownloadClientDocumentData, DownloadClientDocumentErrors, DownloadClientDocumentResponses, DownloadCraPdfData, DownloadCraPdfErrors, DownloadCraPdfResponses, DownloadMissionDocumentData, DownloadMissionDocumentErrors, DownloadMissionDocumentResponses, GetPingData, GetPingResponses, ImportBankStatementData2, ImportBankStatementErrors, ImportBankStatementResponses, ListClientDocumentsData, ListClientDocumentsErrors, ListClientDocumentsResponses, ListClientRevenueData, ListClientRevenueErrors, ListClientRevenueResponses, ListClientsData, ListClientsErrors, ListClientsResponses, ListCrasData, ListCrasErrors, ListCrasResponses, ListInvoicesData, ListInvoicesErrors, ListInvoicesResponses, ListMissionDocumentsData, ListMissionDocumentsErrors, ListMissionDocumentsResponses, ListMissionTimeEntriesData, ListMissionTimeEntriesErrors, ListMissionTimeEntriesResponses, ListTimeEntriesData, ListTimeEntriesErrors, ListTimeEntriesResponses, LoginData2, LoginErrors, LoginResponses, LogoutData, LogoutErrors, LogoutResponses, PauseTimerData, PauseTimerErrors, PauseTimerResponses, PayInvoiceData2, PayInvoiceErrors, PayInvoiceResponses, RefreshSettingsRatesData, RefreshSettingsRatesErrors, RefreshSettingsRatesResponses, RegisterData, RegisterResponses, RemindInvoiceData2, RemindInvoiceErrors, RemindInvoiceResponses, ReopenCraData, ReopenCraErrors, ReopenCraResponses, ResetCraData, ResetCraErrors, ResetCraResponses, ResumeTimerData, ResumeTimerErrors, ResumeTimerResponses, SendCraData2, SendCraErrors, SendCraResponses, SendInvoiceData, SendInvoiceErrors, SendInvoiceResponses, ShowBankAccountData, ShowBankAccountErrors, ShowBankAccountResponses, ShowClientData, ShowClientErrors, ShowClientLogoData, ShowClientLogoErrors, ShowClientLogoResponses, ShowClientResponses, ShowClientRevenueData, ShowClientRevenueErrors, ShowClientRevenueResponses, ShowCraData, ShowCraErrors, ShowCraResponses, ShowInvoiceData, ShowInvoiceErrors, ShowInvoiceResponses, ShowInvoiceSummaryData, ShowInvoiceSummaryErrors, ShowInvoiceSummaryResponses, ShowMissionData, ShowMissionErrors, ShowMissionResponses, ShowMissionRevenueData, ShowMissionRevenueErrors, ShowMissionRevenueResponses, ShowNextInvoiceNumberData, ShowNextInvoiceNumberErrors, ShowNextInvoiceNumberResponses, ShowRevenueData, ShowRevenueErrors, ShowRevenueResponses, ShowSettingsData, ShowSettingsErrors, ShowSettingsResponses, ShowTimerData, ShowTimerErrors, ShowTimerResponses, ShowUserSignatureData, ShowUserSignatureErrors, ShowUserSignatureResponses, StartTimerData2, StartTimerErrors, StartTimerResponses, StopTimerData2, StopTimerErrors, StopTimerResponses, SummarizeMonthWorkloadData, SummarizeMonthWorkloadErrors, SummarizeMonthWorkloadResponses, TrimTimerData2, TrimTimerErrors, TrimTimerResponses, UnarchiveClientData, UnarchiveClientErrors, UnarchiveClientResponses, UpdateBankBalanceData2, UpdateBankBalanceErrors, UpdateBankBalanceResponses, UpdateClientData2, UpdateClientDocumentData, UpdateClientDocumentErrors, UpdateClientDocumentResponses, UpdateClientErrors, UpdateClientResponses, UpdateCraDaysData2, UpdateCraDaysErrors, UpdateCraDaysResponses, UpdateInvoiceData2, UpdateInvoiceErrors, UpdateInvoiceResponses, UpdateMissionData2, UpdateMissionDocumentData, UpdateMissionDocumentErrors, UpdateMissionDocumentResponses, UpdateMissionErrors, UpdateMissionResponses, UpdateSettingsCurrencyData2, UpdateSettingsCurrencyErrors, UpdateSettingsCurrencyResponses, UpdateSettingsData2, UpdateSettingsErrors, UpdateSettingsResponses, UpdateTimeEntryData, UpdateTimeEntryErrors, UpdateTimeEntryResponses, UpdateTimerData2, UpdateTimerErrors, UpdateTimerResponses, UpdateUserReleaseNotesSeenData, UpdateUserReleaseNotesSeenErrors, UpdateUserReleaseNotesSeenResponses, UpdateUserThemeData2, UpdateUserThemeErrors, UpdateUserThemeResponses, UploadClientDocumentData, UploadClientDocumentErrors, UploadClientDocumentResponses, UploadClientLogoData2, UploadClientLogoErrors, UploadClientLogoResponses, UploadMissionDocumentData, UploadMissionDocumentErrors, UploadMissionDocumentResponses, UploadSignedCraData2, UploadSignedCraErrors, UploadSignedCraResponses, UploadUserSignatureData, UploadUserSignatureErrors, UploadUserSignatureResponses, ValidateBankMatchData, ValidateBankMatchErrors, ValidateBankMatchResponses } from './types.gen';
+import type { ArchiveClientData, ArchiveClientErrors, ArchiveClientResponses, CreateClientData2, CreateClientErrors, CreateClientResponses, CreateCraData2, CreateCraErrors, CreateCraResponses, CreateInvoiceData2, CreateInvoiceErrors, CreateInvoiceResponses, CreateMissionData2, CreateMissionErrors, CreateMissionResponses, CreateTimeEntryData, CreateTimeEntryErrors, CreateTimeEntryResponses, CurrentUserData, CurrentUserErrors, CurrentUserResponses, DeleteClientData, DeleteClientDocumentData, DeleteClientDocumentErrors, DeleteClientDocumentResponses, DeleteClientErrors, DeleteClientLogoData, DeleteClientLogoErrors, DeleteClientLogoResponses, DeleteClientResponses, DeleteCraData, DeleteCraErrors, DeleteCraResponses, DeleteInvoiceData, DeleteInvoiceErrors, DeleteInvoiceResponses, DeleteMissionData, DeleteMissionDocumentData, DeleteMissionDocumentErrors, DeleteMissionDocumentResponses, DeleteMissionErrors, DeleteMissionResponses, DeleteTimeEntryData, DeleteTimeEntryErrors, DeleteTimeEntryResponses, DeleteUserDocumentData, DeleteUserDocumentErrors, DeleteUserDocumentResponses, DeleteUserSignatureData, DeleteUserSignatureErrors, DeleteUserSignatureResponses, DiscardTimerData, DiscardTimerErrors, DiscardTimerResponses, DismissBankMatchData, DismissBankMatchErrors, DismissBankMatchResponses, DownloadClientDocumentData, DownloadClientDocumentErrors, DownloadClientDocumentResponses, DownloadCraPdfData, DownloadCraPdfErrors, DownloadCraPdfResponses, DownloadMissionDocumentData, DownloadMissionDocumentErrors, DownloadMissionDocumentResponses, DownloadUserDocumentData, DownloadUserDocumentErrors, DownloadUserDocumentResponses, GetPingData, GetPingResponses, ImportBankStatementData2, ImportBankStatementErrors, ImportBankStatementResponses, ListClientDocumentsData, ListClientDocumentsErrors, ListClientDocumentsResponses, ListClientRevenueData, ListClientRevenueErrors, ListClientRevenueResponses, ListClientsData, ListClientsErrors, ListClientsResponses, ListCrasData, ListCrasErrors, ListCrasResponses, ListDocumentLibraryData, ListDocumentLibraryErrors, ListDocumentLibraryResponses, ListInvoicesData, ListInvoicesErrors, ListInvoicesResponses, ListMissionDocumentsData, ListMissionDocumentsErrors, ListMissionDocumentsResponses, ListMissionTimeEntriesData, ListMissionTimeEntriesErrors, ListMissionTimeEntriesResponses, ListTimeEntriesData, ListTimeEntriesErrors, ListTimeEntriesResponses, ListUserDocumentsData, ListUserDocumentsErrors, ListUserDocumentsResponses, LoginData2, LoginErrors, LoginResponses, LogoutData, LogoutErrors, LogoutResponses, PauseTimerData, PauseTimerErrors, PauseTimerResponses, PayInvoiceData2, PayInvoiceErrors, PayInvoiceResponses, RefreshSettingsRatesData, RefreshSettingsRatesErrors, RefreshSettingsRatesResponses, RegisterData, RegisterResponses, RemindInvoiceData2, RemindInvoiceErrors, RemindInvoiceResponses, ReopenCraData, ReopenCraErrors, ReopenCraResponses, ResetCraData, ResetCraErrors, ResetCraResponses, ResumeTimerData, ResumeTimerErrors, ResumeTimerResponses, SendCraData2, SendCraErrors, SendCraResponses, SendInvoiceData, SendInvoiceErrors, SendInvoiceResponses, ShowBankAccountData, ShowBankAccountErrors, ShowBankAccountResponses, ShowClientData, ShowClientErrors, ShowClientLogoData, ShowClientLogoErrors, ShowClientLogoResponses, ShowClientResponses, ShowClientRevenueData, ShowClientRevenueErrors, ShowClientRevenueResponses, ShowCraData, ShowCraErrors, ShowCraResponses, ShowInvoiceData, ShowInvoiceErrors, ShowInvoiceResponses, ShowInvoiceSummaryData, ShowInvoiceSummaryErrors, ShowInvoiceSummaryResponses, ShowMissionData, ShowMissionErrors, ShowMissionResponses, ShowMissionRevenueData, ShowMissionRevenueErrors, ShowMissionRevenueResponses, ShowNextInvoiceNumberData, ShowNextInvoiceNumberErrors, ShowNextInvoiceNumberResponses, ShowRevenueData, ShowRevenueErrors, ShowRevenueResponses, ShowSettingsData, ShowSettingsErrors, ShowSettingsResponses, ShowTimerData, ShowTimerErrors, ShowTimerResponses, ShowUserSignatureData, ShowUserSignatureErrors, ShowUserSignatureResponses, StartTimerData2, StartTimerErrors, StartTimerResponses, StopTimerData2, StopTimerErrors, StopTimerResponses, SummarizeMonthWorkloadData, SummarizeMonthWorkloadErrors, SummarizeMonthWorkloadResponses, TrimTimerData2, TrimTimerErrors, TrimTimerResponses, UnarchiveClientData, UnarchiveClientErrors, UnarchiveClientResponses, UpdateBankBalanceData2, UpdateBankBalanceErrors, UpdateBankBalanceResponses, UpdateClientData2, UpdateClientDocumentData, UpdateClientDocumentErrors, UpdateClientDocumentResponses, UpdateClientErrors, UpdateClientResponses, UpdateCraDaysData2, UpdateCraDaysErrors, UpdateCraDaysResponses, UpdateInvoiceData2, UpdateInvoiceErrors, UpdateInvoiceResponses, UpdateMissionData2, UpdateMissionDocumentData, UpdateMissionDocumentErrors, UpdateMissionDocumentResponses, UpdateMissionErrors, UpdateMissionResponses, UpdateSettingsCurrencyData2, UpdateSettingsCurrencyErrors, UpdateSettingsCurrencyResponses, UpdateSettingsData2, UpdateSettingsErrors, UpdateSettingsResponses, UpdateTimeEntryData, UpdateTimeEntryErrors, UpdateTimeEntryResponses, UpdateTimerData2, UpdateTimerErrors, UpdateTimerResponses, UpdateUserDocumentData, UpdateUserDocumentErrors, UpdateUserDocumentResponses, UpdateUserReleaseNotesSeenData, UpdateUserReleaseNotesSeenErrors, UpdateUserReleaseNotesSeenResponses, UpdateUserThemeData2, UpdateUserThemeErrors, UpdateUserThemeResponses, UploadClientDocumentData, UploadClientDocumentErrors, UploadClientDocumentResponses, UploadClientLogoData2, UploadClientLogoErrors, UploadClientLogoResponses, UploadMissionDocumentData, UploadMissionDocumentErrors, UploadMissionDocumentResponses, UploadSignedCraData2, UploadSignedCraErrors, UploadSignedCraResponses, UploadUserDocumentData, UploadUserDocumentErrors, UploadUserDocumentResponses, UploadUserSignatureData, UploadUserSignatureErrors, UploadUserSignatureResponses, ValidateBankMatchData, ValidateBankMatchErrors, ValidateBankMatchResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -472,6 +472,16 @@ export const downloadCraPdf = <ThrowOnError extends boolean = false>(options: Op
             type: 'apiKey'
         }],
     url: '/cras/{cra}/pdf',
+    ...options
+});
+
+export const listDocumentLibrary = <ThrowOnError extends boolean = false>(options?: Options<ListDocumentLibraryData, ThrowOnError>): RequestResult<ListDocumentLibraryResponses, ListDocumentLibraryErrors, ThrowOnError> => (options?.client ?? client).get<ListDocumentLibraryResponses, ListDocumentLibraryErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/documents',
     ...options
 });
 
@@ -953,4 +963,63 @@ export const stopTimer = <ThrowOnError extends boolean = false>(options: Options
         'Content-Type': 'application/json',
         ...options.headers
     }
+});
+
+export const listUserDocuments = <ThrowOnError extends boolean = false>(options?: Options<ListUserDocumentsData, ThrowOnError>): RequestResult<ListUserDocumentsResponses, ListUserDocumentsErrors, ThrowOnError> => (options?.client ?? client).get<ListUserDocumentsResponses, ListUserDocumentsErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/user/documents',
+    ...options
+});
+
+export const uploadUserDocument = <ThrowOnError extends boolean = false>(options: Options<UploadUserDocumentData, ThrowOnError>): RequestResult<UploadUserDocumentResponses, UploadUserDocumentErrors, ThrowOnError> => (options.client ?? client).post<UploadUserDocumentResponses, UploadUserDocumentErrors, ThrowOnError>({
+    ...formDataBodySerializer,
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/user/documents',
+    ...options,
+    headers: {
+        'Content-Type': null,
+        ...options.headers
+    }
+});
+
+export const deleteUserDocument = <ThrowOnError extends boolean = false>(options: Options<DeleteUserDocumentData, ThrowOnError>): RequestResult<DeleteUserDocumentResponses, DeleteUserDocumentErrors, ThrowOnError> => (options.client ?? client).delete<DeleteUserDocumentResponses, DeleteUserDocumentErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/user/documents/{document}',
+    ...options
+});
+
+export const updateUserDocument = <ThrowOnError extends boolean = false>(options: Options<UpdateUserDocumentData, ThrowOnError>): RequestResult<UpdateUserDocumentResponses, UpdateUserDocumentErrors, ThrowOnError> => (options.client ?? client).put<UpdateUserDocumentResponses, UpdateUserDocumentErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/user/documents/{document}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const downloadUserDocument = <ThrowOnError extends boolean = false>(options: Options<DownloadUserDocumentData, ThrowOnError>): RequestResult<DownloadUserDocumentResponses, DownloadUserDocumentErrors, ThrowOnError> => (options.client ?? client).get<DownloadUserDocumentResponses, DownloadUserDocumentErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/user/documents/{document}/download',
+    ...options
 });
