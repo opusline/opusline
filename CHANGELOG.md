@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.15.0](https://github.com/opusline/opusline/compare/v0.14.0...v0.15.0) (2026-08-21)
+
+
+### Features
+
+* **api:** add mission forfait budget support ([#197](https://github.com/opusline/opusline/issues/197)) ([137640c](https://github.com/opusline/opusline/commit/137640c9c0c459bab761e50f44e75073f96ff496))
+* **ui:** add reusable invoice tabs and drawer actions ([#195](https://github.com/opusline/opusline/issues/195)) ([1a0c6d1](https://github.com/opusline/opusline/commit/1a0c6d180743e06ecf436860f2776818dd04397c))
+
 ## [0.14.0](https://github.com/opusline/opusline/compare/v0.13.0...v0.14.0) (2026-08-19)
 
 
