@@ -64,8 +64,16 @@ export function bankData(
       asOf: "2026-08-10",
     },
     provisions: {
-      vat: { amount: eur(199_400), rateBp: null },
-      urssaf: { amount: eur(271_700), rateBp: 2560 },
+      vat: {
+        amount: eur(199_400),
+        rateBp: null,
+        periodEnd: "2026-08-31",
+      },
+      urssaf: {
+        amount: eur(271_700),
+        rateBp: 2560,
+        periodEnd: "2026-08-31",
+      },
       buffer: eur(150_000),
       total: eur(621_100),
     },
@@ -138,7 +146,6 @@ export function bankData(
       bankStatement({
         id: 2,
         fileName: "releve-compte-pro-juillet-2026.csv",
-        periodStart: "2026-07-01",
         periodEnd: "2026-07-31",
         lineCount: 9,
         importedAt: "2026-08-01",
@@ -235,7 +242,11 @@ export function emptyBankData(): BankAccountData {
     balance: null,
     provisions: {
       vat: null,
-      urssaf: { amount: eur(0), rateBp: 2560 },
+      urssaf: {
+        amount: eur(0),
+        rateBp: 2560,
+        periodEnd: "2026-08-31",
+      },
       buffer: null,
       total: eur(0),
     },

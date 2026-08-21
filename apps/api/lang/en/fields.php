@@ -81,6 +81,7 @@ return [
     'timezone' => 'timezone',
     'to' => 'end date',
     'tradeName' => 'trade name',
+    'transferredOn' => 'transfer date',
     'treasuryBuffer' => 'treasury buffer',
     'urssafPeriodicity' => 'URSSAF periodicity',
     'vatNumber' => 'VAT number',

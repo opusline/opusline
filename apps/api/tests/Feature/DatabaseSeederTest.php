@@ -120,6 +120,26 @@ test('the demo account opens the Revenus screen on real figures', function (): v
         ->and($revenue['previous']['changeBp'])->not->toBeNull();
 });
 
+test('the demo account opens the Virement screen on real figures', function (): void {
+    $this->seed();
+
+    $user = User::query()->where('email', 'test@example.com')->firstOrFail();
+
+    $treasury = $this->actingAs($user)
+        ->getJson('/api/treasury')
+        ->assertOk()
+        // Read off the seeded relevé, not derived from the movements alone.
+        ->assertJsonPath('balance.source', 1)
+        // The salary taken since the relevé closed is still waiting on one.
+        ->assertJsonPath('pendingTransfers.amount', 80_000)
+        ->assertJsonPath('transfers.0.reflectedInBalance', false)
+        ->assertJsonPath('transfers.1.reflectedInBalance', true)
+        ->json();
+
+    expect($treasury['transferable']['amount'])->toBeGreaterThan(0)
+        ->and($treasury['provisions']['total']['amount'])->toBeGreaterThan(0);
+});
+
 test('the demo account flags exactly one late invoice', function (): void {
     $this->seed();
 

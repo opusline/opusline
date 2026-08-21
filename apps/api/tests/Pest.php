@@ -5,9 +5,11 @@ declare(strict_types=1);
 use App\Domain\Bank\Factories\BankMatchFactory;
 use App\Domain\Bank\Factories\BankMovementFactory;
 use App\Domain\Bank\Factories\BankStatementFactory;
+use App\Domain\Bank\Factories\PersonalTransferFactory;
 use App\Domain\Bank\Models\BankMatch;
 use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Bank\Models\BankStatement;
+use App\Domain\Bank\Models\PersonalTransfer;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Cra\Factories\CraFactory;
 use App\Domain\Cra\Models\Cra;
@@ -189,6 +191,52 @@ function bankMovementFor(User $user, ?BankStatement $statement = null, ?callable
     $factory = BankMovement::factory()->for($statement ?? bankStatementOwnedBy($user), 'statement');
 
     return configuredFactory($factory, $configure)->create(['user_id' => $user->id]);
+}
+
+/**
+ * An invoice of the given user, collected on $paidOn — the arrangement every
+ * cash-basis assertion (provisions, treasury) starts from.
+ */
+function paidInvoiceOn(User $user, string $paidOn, int $htCents = 165_000, int $ttcCents = 198_000): void
+{
+    invoiceOwnedBy($user, configure: fn (InvoiceFactory $factory): InvoiceFactory => $factory->paid()->state([
+        'issued_on' => '2026-01-05',
+        'due_on' => '2026-02-05',
+        'paid_on' => $paidOn,
+        'currency' => 'EUR',
+        'amount_ht_cents' => $htCents,
+        'amount_ttc_cents' => $ttcCents,
+    ]));
+}
+
+/**
+ * An account whose pro balance was last confirmed by hand on $recordedOn, with
+ * no provisions of its own — established abroad, no matelas — so a treasury
+ * assertion reads the transfer arithmetic and nothing else.
+ */
+function accountWithBankBalance(string $recordedOn = '2026-08-10', int $cents = 1_000_000): User
+{
+    $user = User::factory()->create();
+
+    $user->settings()->sole()->update([
+        'business_country' => 'DE',
+        'currency' => 'EUR',
+        'treasury_buffer_cents' => null,
+        'bank_balance_cents' => $cents,
+        'bank_balance_recorded_on' => $recordedOn,
+    ]);
+
+    return $user;
+}
+
+/**
+ * A transfer the given user recorded towards their personal account.
+ *
+ * @param  (callable(PersonalTransferFactory): PersonalTransferFactory)|null  $configure
+ */
+function personalTransferFor(User $user, ?callable $configure = null): PersonalTransfer
+{
+    return configuredFactory(PersonalTransfer::factory(), $configure)->create(['user_id' => $user->id]);
 }
 
 /**

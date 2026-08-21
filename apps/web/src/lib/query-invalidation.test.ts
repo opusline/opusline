@@ -4,9 +4,11 @@ import {
   listMissionDocumentsQueryKey,
   listMissionTimeEntriesQueryKey,
   listTimeEntriesQueryKey,
+  showBankAccountQueryKey,
   showClientRevenueQueryKey,
   showInvoiceSummaryQueryKey,
   showMissionRevenueQueryKey,
+  showTreasuryQueryKey,
 } from "@opusline/api-client/react-query";
 import { type Query, QueryClient } from "@tanstack/react-query";
 import { describe, expect, it } from "vitest";
@@ -15,6 +17,7 @@ import {
   missionTimeEntriesFilter,
   operationFilter,
   revenueFilter,
+  treasuryFilter,
 } from "./query-invalidation";
 
 function queryWithKey(queryKey: unknown): Query {
@@ -110,6 +113,25 @@ describe("revenueFilter", () => {
   it("leaves the other invoice reads alone", () => {
     expect(
       revenueFilter().predicate(queryWithKey(showInvoiceSummaryQueryKey())),
+    ).toBe(false);
+  });
+});
+
+/**
+ * Pins treasuryFilter to the real generated key. The sidebar tile reads it on
+ * every screen, so a rename that silently turned this into a no-op would leave
+ * a stale figure in front of the user app-wide.
+ */
+describe("treasuryFilter", () => {
+  it("matches the treasury read the page and the sidebar tile share", () => {
+    expect(
+      treasuryFilter().predicate(queryWithKey(showTreasuryQueryKey())),
+    ).toBe(true);
+  });
+
+  it("leaves the bank account read alone", () => {
+    expect(
+      treasuryFilter().predicate(queryWithKey(showBankAccountQueryKey())),
     ).toBe(false);
   });
 });

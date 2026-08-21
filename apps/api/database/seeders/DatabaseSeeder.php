@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Domain\Bank\Models\BankMovement;
+use App\Domain\Bank\Models\BankStatement;
+use App\Domain\Bank\Models\PersonalTransfer;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Cra\Actions\MaterializeCraDays;
 use App\Domain\Cra\Actions\WriteCraDays;
@@ -112,6 +115,7 @@ class DatabaseSeeder extends Seeder
         );
         $this->seedPreviousMonthCra($user, $callistoFront);
         $this->seedInvoiceHistory($user, $nordlys, $callistoFront, $lunaprint, $lunaprintMaintenance);
+        $this->seedProAccount($user);
 
         RunningTimer::factory()
             ->for($lunaprintMaintenance, 'mission')
@@ -329,6 +333,60 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->numberIssuedInvoices($user);
+    }
+
+    /**
+     * A pro account the Virement screen can be read on: a relevé closing three
+     * days ago, one salary the relevé already shows and one taken since, which
+     * the demo therefore reports as still pending.
+     */
+    private function seedProAccount(User $user): void
+    {
+        $today = CarbonImmutable::today();
+        $closedOn = $today->subDays(3);
+        $firstBookedOn = $closedOn->subDays(9);
+
+        $statement = BankStatement::factory()->for($user)->create([
+            'file_name' => 'releve-compte-pro.csv',
+            // Anchored on the first movement rather than the calendar month:
+            // seeded near a month boundary the two would not overlap.
+            'period_start' => $firstBookedOn,
+            'period_end' => $closedOn,
+            'line_count' => 2,
+            'currency' => 'EUR',
+            'closing_balance_cents' => 1_482_000,
+            'closing_balance_on' => $closedOn,
+        ]);
+
+        BankMovement::factory()->for($statement, 'statement')->create([
+            'user_id' => $user->id,
+            'booked_on' => $firstBookedOn,
+            'label' => 'VIR SEPA NORDLYS FACTURE',
+            'currency' => 'EUR',
+            'amount_cents' => 1_254_000,
+        ]);
+
+        BankMovement::factory()->for($statement, 'statement')->create([
+            'user_id' => $user->id,
+            'booked_on' => $firstBookedOn->addDay(),
+            'label' => 'VIR COMPTE PERSO',
+            'currency' => 'EUR',
+            'amount_cents' => -250_000,
+        ]);
+
+        PersonalTransfer::factory()->for($user)->create([
+            'transferred_on' => $firstBookedOn->addDay(),
+            'currency' => 'EUR',
+            'amount_cents' => 250_000,
+            'note' => 'Salaire',
+        ]);
+
+        PersonalTransfer::factory()->for($user)->create([
+            'transferred_on' => $today->subDay(),
+            'currency' => 'EUR',
+            'amount_cents' => 80_000,
+            'note' => 'Avance',
+        ]);
     }
 
     /**

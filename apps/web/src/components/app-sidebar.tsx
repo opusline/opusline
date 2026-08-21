@@ -1,6 +1,7 @@
 import {
   currentUserOptions,
   logoutMutation,
+  showTreasuryOptions,
 } from "@opusline/api-client/react-query";
 import { Avatar, AvatarFallback } from "@opusline/ui/components/avatar";
 import {
@@ -24,6 +25,7 @@ import {
 } from "@opusline/ui/components/sidebar";
 import {
   useMutation,
+  useQuery,
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
@@ -48,6 +50,8 @@ import {
   SlidersHorizontal,
   Users,
 } from "lucide-react";
+import { useMoneyFormat } from "@/components/money-format-provider";
+import { formatWholeAmount } from "@/lib/billing";
 import { initials } from "@/lib/initials";
 import { unreadReleaseCount } from "@/lib/releases";
 import { APP_VERSION } from "@/lib/version";
@@ -55,11 +59,27 @@ import { m } from "@/paraglide/messages.js";
 
 export function AppSidebar() {
   const { pathname } = useLocation();
-  const { toggleSidebar } = useSidebar();
+  const { isMobile, state, toggleSidebar } = useSidebar();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: user } = useSuspenseQuery(currentUserOptions());
   const unreadReleaseNotes = unreadReleaseCount(user.releaseNotesSeenVersion);
+  const format = useMoneyFormat();
+
+  // The tile mirrors the Virement screen's headline figure. Undefined while it
+  // loads and null on an account with no balance both render a dash — a zero
+  // there would read as "nothing to take".
+  // Mounted on every authed screen, for a summary that reads the whole movement
+  // history — so it is fetched only when the tile below is actually on screen
+  // (the rail hides it when collapsed, and the mobile sidebar lives in a sheet),
+  // and kept warm far longer than the router default. The writes that move the
+  // figure invalidate it anyway.
+  const treasury = useQuery({
+    ...showTreasuryOptions(),
+    enabled: user.hasFrenchFiscality && state === "expanded" && !isMobile,
+    staleTime: 10 * 60_000,
+  });
+  const transferable = treasury.data?.transferable?.amount;
 
   const logout = useMutation({
     ...logoutMutation(),
@@ -221,15 +241,13 @@ export function AppSidebar() {
                 className="block rounded-lg border border-primary/30 bg-primary/10 px-3.5 py-3 transition-colors hover:bg-primary/15"
                 to="/treasury"
               >
-                {/*
-                No treasury endpoint exists yet — the figure arrives with the
-                treasury screen. A dash keeps the tile honest until then.
-              */}
                 <div className="font-medium text-ring/70 text-xs uppercase tracking-wider-2">
                   {m.treasury_tile_title()}
                 </div>
                 <div className="mt-2 font-mono text-2xl text-ring leading-none tabular-nums">
-                  —
+                  {transferable === undefined
+                    ? "—"
+                    : formatWholeAmount(format, transferable)}
                 </div>
                 <div className="mt-1.5 text-muted-foreground text-xs">
                   {m.treasury_tile_caption()}

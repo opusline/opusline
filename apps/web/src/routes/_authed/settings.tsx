@@ -36,6 +36,7 @@ import {
 } from "@/features/settings/lib/settings-form";
 import { signatureHref } from "@/features/settings/lib/signature";
 import type { FormSubmitResult } from "@/lib/form";
+import { treasuryFilter } from "@/lib/query-invalidation";
 import { serverErrorMessage, serverFieldErrors } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -106,6 +107,9 @@ function ReglagesRoute() {
   const applySettingsResponse = (data: SettingsData) => {
     queryClient.setQueryData(showSettingsQueryKey(), data);
     patchCurrentUser(queryClient, data);
+    // The matelas, the contribution rate and the TVA régime are all terms of
+    // the Virement figure the sidebar shows on every screen.
+    void queryClient.invalidateQueries(treasuryFilter());
   };
 
   const updateSettings = useMutation({
@@ -130,7 +134,7 @@ function ReglagesRoute() {
     ...refreshSettingsRatesMutation(),
     onSuccess: (data) => {
       setRatesError(null);
-      queryClient.setQueryData(showSettingsQueryKey(), data);
+      applySettingsResponse(data);
     },
     onError: (error) =>
       setRatesError(serverErrorMessage(error, m.settings_rates_failed())),

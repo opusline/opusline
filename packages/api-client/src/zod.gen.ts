@@ -234,6 +234,18 @@ export const zCurrency = z.enum([
 ]);
 
 /**
+ * CreatePersonalTransferData
+ */
+export const zCreatePersonalTransferData = z.object({
+    amount: z.object({
+        amount: z.int().check(z.gte(1)),
+        currency: zCurrency
+    }),
+    transferredOn: z.iso.date(),
+    note: z.nullish(z.string().check(z.maxLength(255)))
+});
+
+/**
  * DateFormat
  *
  * The numeric layout calendar dates are displayed in — 31/08/2026 or 2026-08-31. Only digit-only dates follow this preference; weekday and month names follow the account locale.
@@ -538,7 +550,8 @@ export const zBankMatchData = z.object({
  */
 export const zBankProvisionData = z.object({
     amount: zMoneyData,
-    rateBp: z.nullable(z.int())
+    rateBp: z.nullable(z.int()),
+    periodEnd: z.iso.date()
 });
 
 /**
@@ -759,6 +772,17 @@ export const zNextInvoiceNumberData = z.object({
  */
 export const zPayInvoiceData = z.object({
     paidOn: z.iso.date()
+});
+
+/**
+ * PersonalTransferData
+ */
+export const zPersonalTransferData = z.object({
+    id: z.int(),
+    transferredOn: z.iso.date(),
+    amount: zMoneyData,
+    note: z.nullable(z.string()),
+    reflectedInBalance: z.boolean()
 });
 
 /**
@@ -1094,6 +1118,18 @@ export const zTimerData = z.object({
 export const zTimerStateData = z.object({
     timer: z.nullable(zTimerData),
     lastMissionId: z.nullable(z.int())
+});
+
+/**
+ * TreasuryData
+ */
+export const zTreasuryData = z.object({
+    balance: z.nullable(zBankBalanceData),
+    pendingTransfers: zMoneyData,
+    coveredThrough: z.nullable(z.iso.date()),
+    provisions: zBankProvisionsData,
+    transferable: z.nullable(zSignedMoneyData),
+    transfers: z.array(zPersonalTransferData)
 });
 
 /**
@@ -1872,6 +1908,18 @@ export const zTrimTimerResponse = zTimerData;
 export const zStopTimerBody = zStopTimerData;
 
 export const zStopTimerResponse = zTimeEntryData;
+
+export const zShowTreasuryResponse = zTreasuryData;
+
+export const zCreatePersonalTransferBody = zCreatePersonalTransferData;
+
+export const zCreatePersonalTransferResponse = zTreasuryData;
+
+export const zDeletePersonalTransferPath = z.object({
+    transfer: z.int()
+});
+
+export const zDeletePersonalTransferResponse = zTreasuryData;
 
 export const zListUserDocumentsResponse = zDocumentListData;
 

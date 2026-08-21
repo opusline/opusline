@@ -9,18 +9,6 @@ use App\Domain\Users\Models\User;
 
 beforeEach(fn () => freezeTodayAtUtcNoon());
 
-function paidInvoiceOn(User $user, string $paidOn, int $htCents = 165_000, int $ttcCents = 198_000): void
-{
-    invoiceOwnedBy($user, configure: fn ($factory) => $factory->paid()->state([
-        'issued_on' => '2026-01-05',
-        'due_on' => '2026-02-05',
-        'paid_on' => $paidOn,
-        'currency' => 'EUR',
-        'amount_ht_cents' => $htCents,
-        'amount_ttc_cents' => $ttcCents,
-    ]));
-}
-
 function fiscDebitOn(User $user, string $bookedOn, int $cents, string $label): void
 {
     bankMovementFor($user, configure: fn (BankMovementFactory $factory) => $factory

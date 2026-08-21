@@ -102,6 +102,7 @@ export type BankMovementInvoiceData = {
 export type BankProvisionData = {
     amount: MoneyData;
     rateBp: number | null;
+    periodEnd: string;
 };
 
 /**
@@ -385,6 +386,18 @@ export type CreateMissionData = {
     notes?: string | null;
     startDate?: string | null;
     endDate?: string | null;
+};
+
+/**
+ * CreatePersonalTransferData
+ */
+export type CreatePersonalTransferData = {
+    amount: {
+        amount: number;
+        currency: Currency;
+    };
+    transferredOn: string;
+    note?: string | null;
 };
 
 /**
@@ -807,6 +820,17 @@ export type PayInvoiceData = {
 };
 
 /**
+ * PersonalTransferData
+ */
+export type PersonalTransferData = {
+    id: number;
+    transferredOn: string;
+    amount: MoneyData;
+    note: string | null;
+    reflectedInBalance: boolean;
+};
+
+/**
  * RegisterUserData
  */
 export type RegisterUserData = {
@@ -1046,6 +1070,18 @@ export type TimerState = 0 | 1;
 export type TimerStateData = {
     timer: TimerData | null;
     lastMissionId: number | null;
+};
+
+/**
+ * TreasuryData
+ */
+export type TreasuryData = {
+    balance: BankBalanceData | null;
+    pendingTransfers: MoneyData;
+    coveredThrough: string | null;
+    provisions: BankProvisionsData;
+    transferable: SignedMoneyData | null;
+    transfers: Array<PersonalTransferData>;
 };
 
 /**
@@ -4458,6 +4494,101 @@ export type StopTimerResponses = {
 };
 
 export type StopTimerResponse = StopTimerResponses[keyof StopTimerResponses];
+
+export type ShowTreasuryData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/treasury';
+};
+
+export type ShowTreasuryErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowTreasuryError = ShowTreasuryErrors[keyof ShowTreasuryErrors];
+
+export type ShowTreasuryResponses = {
+    200: TreasuryData;
+};
+
+export type ShowTreasuryResponse = ShowTreasuryResponses[keyof ShowTreasuryResponses];
+
+export type CreatePersonalTransferData2 = {
+    body: CreatePersonalTransferData;
+    path?: never;
+    query?: never;
+    url: '/treasury/transfers';
+};
+
+export type CreatePersonalTransferErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreatePersonalTransferError = CreatePersonalTransferErrors[keyof CreatePersonalTransferErrors];
+
+export type CreatePersonalTransferResponses = {
+    201: TreasuryData;
+};
+
+export type CreatePersonalTransferResponse = CreatePersonalTransferResponses[keyof CreatePersonalTransferResponses];
+
+export type DeletePersonalTransferData = {
+    body?: never;
+    path: {
+        /**
+         * The transfer ID
+         */
+        transfer: number;
+    };
+    query?: never;
+    url: '/treasury/transfers/{transfer}';
+};
+
+export type DeletePersonalTransferErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeletePersonalTransferError = DeletePersonalTransferErrors[keyof DeletePersonalTransferErrors];
+
+export type DeletePersonalTransferResponses = {
+    200: TreasuryData;
+};
+
+export type DeletePersonalTransferResponse = DeletePersonalTransferResponses[keyof DeletePersonalTransferResponses];
 
 export type ListUserDocumentsData = {
     body?: never;

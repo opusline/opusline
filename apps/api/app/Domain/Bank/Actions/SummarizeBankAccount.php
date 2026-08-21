@@ -5,18 +5,14 @@ declare(strict_types=1);
 namespace App\Domain\Bank\Actions;
 
 use App\Domain\Bank\Data\BankAccountData;
-use App\Domain\Bank\Data\BankBalanceData;
 use App\Domain\Bank\Data\BankMatchData;
 use App\Domain\Bank\Data\BankMovementData;
 use App\Domain\Bank\Data\BankStatementData;
-use App\Domain\Bank\Enums\BankBalanceSource;
 use App\Domain\Bank\Enums\BankMatchStatus;
 use App\Domain\Bank\Models\BankMatch;
 use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Bank\Models\BankStatement;
-use App\Domain\Shared\Data\SignedMoneyData;
 use App\Domain\Users\Models\User;
-use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -26,7 +22,7 @@ class SummarizeBankAccount
     public function __construct(
         private readonly ResolveBankBalance $resolveBankBalance,
         private readonly ComputeBankProvisions $computeBankProvisions,
-        private readonly ComputeRunningBalances $computeRunningBalances,
+        private readonly ResolveCurrentBalance $resolveCurrentBalance,
     ) {}
 
     public function handle(User $user): BankAccountData
@@ -50,10 +46,11 @@ class SummarizeBankAccount
             ->get();
 
         $anchor = $this->resolveBankBalance->handle($user, $statements, $movements);
-        $runningBalances = $this->runningBalances($anchor, $movements);
+        ['balance' => $balance, 'runningBalances' => $runningBalances] = $this->resolveCurrentBalance
+            ->handle($anchor, $movements, $currency);
 
         return new BankAccountData(
-            balance: $this->balance($anchor, $runningBalances, $currency),
+            balance: $balance,
             provisions: $this->computeBankProvisions->handle($user, $movements),
             pendingMatches: $this->pendingMatches($user, $movements),
             movements: array_values($movements
@@ -65,52 +62,6 @@ class SummarizeBankAccount
                 ->all()),
             statements: $this->statements($user, $statements),
         );
-    }
-
-    /**
-     * @param  ?array{cents: int, source: BankBalanceSource, asOf: CarbonImmutable}  $anchor
-     * @param  list<?int>  $runningBalances  aligned with $movements
-     */
-    private function balance(?array $anchor, array $runningBalances, string $currency): ?BankBalanceData
-    {
-        if ($anchor === null) {
-            return null;
-        }
-
-        // The tile shows the anchor rolled forward through later movements —
-        // exactly the newest row's running balance when there are movements.
-        $current = $runningBalances[0] ?? $anchor['cents'];
-
-        return new BankBalanceData(
-            amount: SignedMoneyData::fromMoney(new Money($current, $currency)),
-            source: $anchor['source'],
-            // A derived balance has no anchor date to cite — the internal one
-            // only exists to seat the running-balance walk.
-            asOf: $anchor['source'] === BankBalanceSource::Derived ? null : $anchor['asOf'],
-        );
-    }
-
-    /**
-     * @param  ?array{cents: int, source: BankBalanceSource, asOf: CarbonImmutable}  $anchor
-     * @param  Collection<int, BankMovement>  $movements  newest first
-     * @return list<?int> aligned with $movements
-     */
-    private function runningBalances(?array $anchor, Collection $movements): array
-    {
-        $chronological = $movements->reverse()->values();
-
-        $balances = $this->computeRunningBalances->handle(
-            $anchor['cents'] ?? null,
-            $anchor['asOf'] ?? null,
-            array_values($chronological
-                ->map(static fn (BankMovement $movement): array => [
-                    $movement->booked_on,
-                    (int) $movement->amount_cents->getAmount(),
-                ])
-                ->all()),
-        );
-
-        return array_reverse($balances);
     }
 
     /**
