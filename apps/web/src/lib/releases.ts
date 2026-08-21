@@ -14,6 +14,20 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.15.0",
+    date: "2026-08-21",
+    items: [
+      {
+        kind: "new",
+        text: "Client and mission pages: the Invoices tab now lists what has been invoiced there, and opening one shows its details without leaving the page.",
+      },
+      {
+        kind: "new",
+        text: "Fixed-price missions now track their budget: set a reference TJM and the mission tells you how much of the price the time tracked has eaten, warns you before you run out, and lists what is left to invoice.",
+      },
+    ],
+  },
+  {
     version: "0.14.0",
     date: "2026-08-19",
     items: [

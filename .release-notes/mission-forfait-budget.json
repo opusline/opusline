@@ -1,4 +1,0 @@
-{
-  "kind": "new",
-  "text": "Fixed-price missions now track their budget: set a reference TJM and the mission tells you how much of the price the time tracked has eaten, warns you before you run out, and lists what is left to invoice."
-}
