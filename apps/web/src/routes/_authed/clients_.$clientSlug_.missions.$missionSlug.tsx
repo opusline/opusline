@@ -3,7 +3,6 @@ import {
   deleteMissionDocumentMutation,
   listClientsQueryKey,
   listMissionDocumentsOptions,
-  listMissionDocumentsQueryKey,
   listMissionTimeEntriesOptions,
   showClientOptions,
   showMissionOptions,
@@ -21,26 +20,35 @@ import { useRef, useState } from "react";
 import { DocumentsTab } from "@/components/documents-tab";
 import { InvoiceListTab } from "@/features/invoices/components/invoice-list-tab";
 import { MissionDetailPage } from "@/features/missions/components/mission-detail-page";
+import { isMissionTab, type MissionTab } from "@/features/missions/lib/tabs";
 import { missionBills } from "@/lib/billing";
 import { accountTodayCalendarDate } from "@/lib/dates";
 import {
+  ASSIGNABLE_DOCUMENT_CATEGORIES,
   documentHandlers,
   isClientDocument,
   missionDocumentDownloadHref,
 } from "@/lib/documents";
 import type { FormSubmitResult } from "@/lib/form";
+import { invalidateDocumentWrites } from "@/lib/query-invalidation";
 import { serverFieldErrors } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
+
+type MissionSearch = { tab?: MissionTab };
 
 export const Route = createFileRoute(
   "/_authed/clients_/$clientSlug_/missions/$missionSlug",
 )({
+  validateSearch: (search: Record<string, unknown>): MissionSearch => ({
+    tab: isMissionTab(search.tab) ? search.tab : undefined,
+  }),
   component: MissionDetailRoute,
 });
 
 function MissionDetailRoute() {
   const { user } = Route.useRouteContext();
   const { clientSlug, missionSlug } = Route.useParams();
+  const { tab } = Route.useSearch();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -94,12 +102,6 @@ function MissionDetailRoute() {
       }),
       queryClient.invalidateQueries({ queryKey: listClientsQueryKey() }),
     ]);
-  };
-
-  const invalidateDocuments = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: listMissionDocumentsQueryKey({ path: missionPath }),
-    });
   };
 
   const handleUpdate = async (
@@ -170,7 +172,7 @@ function MissionDetailRoute() {
       deleteDocument.mutateAsync({
         path: { ...missionPath, document: document.id },
       }),
-    invalidate: invalidateDocuments,
+    invalidate: () => invalidateDocumentWrites(queryClient),
   });
 
   if (clientQuery.isPending || missionQuery.isPending) {
@@ -204,6 +206,7 @@ function MissionDetailRoute() {
     </Alert>
   ) : (
     <DocumentsTab
+      assignableCategories={ASSIGNABLE_DOCUMENT_CATEGORIES}
       canRemove={(document) => !isClientDocument(document)}
       documents={documentsQuery.data.documents}
       downloadHref={(document) =>
@@ -243,7 +246,15 @@ function MissionDetailRoute() {
       mission={missionQuery.data}
       onOpenCra={() => void navigate({ to: "/cra" })}
       onSetStatus={(status) => void handleSetStatus(status)}
+      onTabChange={(next) =>
+        void navigate({
+          replace: true,
+          search: (current) => ({ ...current, tab: next }),
+          to: ".",
+        })
+      }
       onUpdate={handleUpdate}
+      tab={tab ?? "entries"}
       entries={entriesQuery.data?.timeEntries}
       isEntriesError={entriesQuery.isError}
       isEntriesPending={entriesQuery.isPending}

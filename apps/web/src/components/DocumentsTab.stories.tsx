@@ -1,6 +1,9 @@
 import type { DocumentData } from "@opusline/api-client";
 import type { Meta, StoryObj } from "@storybook/react";
-import { isClientDocument } from "@/lib/documents";
+import {
+  isClientDocument,
+  PERSONAL_DOCUMENT_CATEGORIES,
+} from "@/lib/documents";
 import { DocumentsTab } from "./documents-tab";
 
 const documents: DocumentData[] = [
@@ -92,5 +95,44 @@ export const SlowUpload: Story = {
       await new Promise((resolve) => setTimeout(resolve, 5000));
       return { status: "success" } as const;
     },
+  },
+};
+
+/**
+ * The freelance's own administrative pieces use their own vocabulary: the type
+ * select offers Kbis, attestation, assurance, RIB and CGV instead of the
+ * contract/quote/CRA set a client fiche shows.
+ */
+export const PersonalPieces: Story = {
+  args: {
+    ...Default.args,
+    assignableCategories: PERSONAL_DOCUMENT_CATEGORIES,
+    emptyLabel: "Aucune pièce administrative pour l'instant.",
+    documents: [
+      {
+        id: 1,
+        fileName: "avis-de-situation-sirene.pdf",
+        category: 6,
+        source: 2,
+        sizeBytes: 90_112,
+        createdAt: "2026-01-14T09:12:00+00:00",
+      },
+      {
+        id: 2,
+        fileName: "attestation-vigilance-t2-2026.pdf",
+        category: 7,
+        source: 2,
+        sizeBytes: 98_304,
+        createdAt: "2026-05-02T08:30:00+00:00",
+      },
+      {
+        id: 3,
+        fileName: "cgv-2026.pdf",
+        category: 10,
+        source: 2,
+        sizeBytes: 167_936,
+        createdAt: "2026-01-11T16:20:00+00:00",
+      },
+    ],
   },
 };

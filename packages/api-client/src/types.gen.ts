@@ -414,8 +414,13 @@ export type DateFormat = 0 | 1;
  * | `3` <br/>  |
  * | `4` <br/>  |
  * | `5` <br/> The CRA Opusline generated, filed next to the signed return it comes back as. |
+ * | `6` <br/>  |
+ * | `7` <br/>  |
+ * | `8` <br/>  |
+ * | `9` <br/>  |
+ * | `10` <br/>  |
  */
-export type DocumentCategory = 0 | 1 | 2 | 3 | 4 | 5;
+export type DocumentCategory = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
 /**
  * DocumentData
@@ -430,6 +435,26 @@ export type DocumentData = {
 };
 
 /**
+ * DocumentGroupData
+ */
+export type DocumentGroupData = {
+    name: string;
+    color: Color;
+    clientName: string;
+    clientSlug: string;
+    missionSlug: string | null;
+    lastAddedAt: string;
+    documents: Array<DocumentData>;
+};
+
+/**
+ * DocumentLibraryData
+ */
+export type DocumentLibraryData = {
+    groups: Array<DocumentGroupData>;
+};
+
+/**
  * DocumentListData
  */
 export type DocumentListData = {
@@ -439,7 +464,7 @@ export type DocumentListData = {
 /**
  * DocumentSource
  */
-export type DocumentSource = 0 | 1;
+export type DocumentSource = 0 | 1 | 2;
 
 /**
  * EntryRounding
@@ -2780,6 +2805,33 @@ export type DownloadCraPdfResponses = {
 
 export type DownloadCraPdfResponse = DownloadCraPdfResponses[keyof DownloadCraPdfResponses];
 
+export type ListDocumentLibraryData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/documents';
+};
+
+export type ListDocumentLibraryErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListDocumentLibraryError = ListDocumentLibraryErrors[keyof ListDocumentLibraryErrors];
+
+export type ListDocumentLibraryResponses = {
+    200: DocumentLibraryData;
+};
+
+export type ListDocumentLibraryResponse = ListDocumentLibraryResponses[keyof ListDocumentLibraryResponses];
+
 export type ListInvoicesData = {
     body?: never;
     path?: never;
@@ -4406,3 +4458,147 @@ export type StopTimerResponses = {
 };
 
 export type StopTimerResponse = StopTimerResponses[keyof StopTimerResponses];
+
+export type ListUserDocumentsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/documents';
+};
+
+export type ListUserDocumentsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListUserDocumentsError = ListUserDocumentsErrors[keyof ListUserDocumentsErrors];
+
+export type ListUserDocumentsResponses = {
+    200: DocumentListData;
+};
+
+export type ListUserDocumentsResponse = ListUserDocumentsResponses[keyof ListUserDocumentsResponses];
+
+export type UploadUserDocumentData = {
+    body: UploadDocumentData;
+    path?: never;
+    query?: never;
+    url: '/user/documents';
+};
+
+export type UploadUserDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UploadUserDocumentError = UploadUserDocumentErrors[keyof UploadUserDocumentErrors];
+
+export type UploadUserDocumentResponses = {
+    201: DocumentData;
+};
+
+export type UploadUserDocumentResponse = UploadUserDocumentResponses[keyof UploadUserDocumentResponses];
+
+export type DeleteUserDocumentData = {
+    body?: never;
+    path: {
+        document: number;
+    };
+    query?: never;
+    url: '/user/documents/{document}';
+};
+
+export type DeleteUserDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteUserDocumentError = DeleteUserDocumentErrors[keyof DeleteUserDocumentErrors];
+
+export type DeleteUserDocumentResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteUserDocumentResponse = DeleteUserDocumentResponses[keyof DeleteUserDocumentResponses];
+
+export type UpdateUserDocumentData = {
+    body: UpdateDocumentData;
+    path: {
+        document: number;
+    };
+    query?: never;
+    url: '/user/documents/{document}';
+};
+
+export type UpdateUserDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateUserDocumentError = UpdateUserDocumentErrors[keyof UpdateUserDocumentErrors];
+
+export type UpdateUserDocumentResponses = {
+    200: DocumentData;
+};
+
+export type UpdateUserDocumentResponse = UpdateUserDocumentResponses[keyof UpdateUserDocumentResponses];
+
+export type DownloadUserDocumentData = {
+    body?: never;
+    path: {
+        document: number;
+    };
+    query?: never;
+    url: '/user/documents/{document}/download';
+};
+
+export type DownloadUserDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DownloadUserDocumentError = DownloadUserDocumentErrors[keyof DownloadUserDocumentErrors];
+
+export type DownloadUserDocumentResponses = {
+    200: Blob | File;
+};
+
+export type DownloadUserDocumentResponse = DownloadUserDocumentResponses[keyof DownloadUserDocumentResponses];

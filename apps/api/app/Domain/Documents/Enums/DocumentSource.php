@@ -8,4 +8,5 @@ enum DocumentSource: int
 {
     case Mission = 0;
     case Client = 1;
+    case User = 2;
 }

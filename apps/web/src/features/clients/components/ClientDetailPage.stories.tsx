@@ -10,6 +10,7 @@ import {
 } from "@opusline/ui/components/empty";
 import type { Meta, StoryObj } from "@storybook/react";
 import { DocumentsTab } from "@/components/documents-tab";
+import { ASSIGNABLE_DOCUMENT_CATEGORIES } from "@/lib/documents";
 import { SAMPLE_LOGO_SRC } from "@/lib/logo-fixture";
 import { StoryRouter } from "@/test/story-router";
 import { ClientDetailPage } from "./client-detail-page";
@@ -75,6 +76,7 @@ const client: ClientWithMissionsData = {
 
 const documentsTab = (
   <DocumentsTab
+    assignableCategories={ASSIGNABLE_DOCUMENT_CATEGORIES}
     documents={[
       {
         id: 1,
@@ -131,6 +133,8 @@ const meta = {
     ),
   ],
   args: {
+    tab: "missions",
+    onTabChange: () => {},
     logoSrc: SAMPLE_LOGO_SRC,
     onUploadLogo: async () => ({ status: "success" }) as const,
     onRemoveLogo: async () => true,

@@ -23,14 +23,8 @@ class ClientDocumentController extends Controller
 {
     public function index(Client $client): JsonResponse
     {
-        $documents = $client->media()
-            ->where('collection_name', 'documents')
-            ->latest()
-            ->get()
-            ->all();
-
         return response()->json(new DocumentListData(
-            documents: array_values(DocumentData::collect($documents, 'array')),
+            documents: array_values(DocumentData::collect($client->documents, 'array')),
         ));
     }
 
@@ -62,9 +56,6 @@ class ClientDocumentController extends Controller
 
     private function documentOf(Client $client, int $documentId): Media
     {
-        return $client->media()
-            ->where('collection_name', 'documents')
-            ->whereKey($documentId)
-            ->firstOrFail();
+        return $client->documents()->whereKey($documentId)->firstOrFail();
     }
 }

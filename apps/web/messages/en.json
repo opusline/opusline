@@ -383,21 +383,45 @@
   "declarations_placeholder": "Filing helpers land here — URSSAF and VAT, figures ready to copy.",
   "documents_add_aria": "Add documents",
   "documents_added_on": "{size} · added on {date}",
+  "documents_category_bank_details": "Bank details",
+  "documents_category_certificate": "Certificate",
   "documents_category_contract": "Contract",
   "documents_category_cra": "CRA",
+  "documents_category_insurance": "Insurance",
+  "documents_category_kbis": "Kbis",
   "documents_category_other": "Other",
   "documents_category_quote": "Quote",
   "documents_category_received_invoice": "Received invoice",
   "documents_category_signed_cra": "Signed CRA",
+  "documents_category_terms_of_sale": "Terms of sale",
   "documents_check_confirm": "Check the type, then confirm",
   "documents_delete_aria": "Delete {name}",
   "documents_download_aria": "Download {name}",
   "documents_drop_formats": "PDF, images or Office documents — 20 MB max",
   "documents_drop_hint": "Drag files here or click to browse",
   "documents_filter_aria": "Filter by document type",
+  "documents_group_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} document",
+        "countPlural=other": "{count} documents"
+      }
+    }
+  ],
+  "documents_library_empty": "No document received yet. Everything you file on a client or a mission shows up here.",
+  "documents_library_heading": "Received from clients and missions",
+  "documents_library_last_added": "last filed on {date}",
+  "documents_library_search_placeholder": "Search a document",
   "documents_load_failed": "The documents could not be loaded. Try again in a moment.",
   "documents_name_aria": "Name of document {name}",
   "documents_no_match": "No document matches the search.",
+  "documents_open_fiche": "Open the record",
+  "documents_owner_client": "client",
+  "documents_owner_mission": "mission",
+  "documents_page_subtitle": "The pieces your clients ask for before signing. Keep them up to date here.",
+  "documents_page_title": "My documents",
   "documents_pending_count": [
     {
       "declarations": ["input count", "local countPlural = count: plural"],
@@ -408,6 +432,8 @@
       }
     }
   ],
+  "documents_personal_empty": "No administrative piece yet. Kbis, certificate, insurance, bank details and terms of sale belong here.",
+  "documents_personal_heading": "My administrative pieces",
   "documents_reject_size": "too heavy (max 20 MB)",
   "documents_reject_type": "unsupported file type",
   "documents_rejected_list": "Ignored files: {files}.",
@@ -427,6 +453,7 @@
     }
   ],
   "documents_source_client_badge": "client",
+  "documents_toggle_group": "Show or hide the documents of {name}",
   "documents_type_aria": "Type of {name}",
   "documents_uploading_status": "{size} · uploading…",
   "documents_uploading_title": "Uploads in progress",
@@ -712,6 +739,7 @@
   "nav_cra": "CRA",
   "nav_deadlines": "Deadlines",
   "nav_declarations": "Filings",
+  "nav_documents": "Documents",
   "nav_invoices": "Invoices",
   "nav_revenue": "Revenue",
   "nav_settings": "Settings",
@@ -725,6 +753,7 @@
   "page_title_cra": "Activity report (CRA)",
   "page_title_deadlines": "Obligations",
   "page_title_declarations": "Filings",
+  "page_title_documents": "Documents",
   "page_title_release_notes": "Release notes",
   "page_title_revenue": "Revenue",
   "page_title_settings": "Settings",

@@ -13,4 +13,11 @@ enum DocumentCategory: int
     case Other = 4;
     /** The CRA Opusline generated, filed next to the signed return it comes back as. */
     case Cra = 5;
+
+    /* The pieces a client asks for before signing, filed on the user. */
+    case Kbis = 6;
+    case Certificate = 7;
+    case Insurance = 8;
+    case BankDetails = 9;
+    case TermsOfSale = 10;
 }

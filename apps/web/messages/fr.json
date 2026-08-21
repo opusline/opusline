@@ -383,21 +383,45 @@
   "declarations_placeholder": "Les aides à la déclaration arrivent ici — URSSAF et TVA, chiffres prêts à copier.",
   "documents_add_aria": "Ajouter des documents",
   "documents_added_on": "{size} · ajouté le {date}",
+  "documents_category_bank_details": "RIB",
+  "documents_category_certificate": "Attestation",
   "documents_category_contract": "Contrat",
   "documents_category_cra": "CRA",
+  "documents_category_insurance": "Assurance",
+  "documents_category_kbis": "Kbis",
   "documents_category_other": "Autre",
   "documents_category_quote": "Devis",
   "documents_category_received_invoice": "Facture reçue",
   "documents_category_signed_cra": "CRA signé",
+  "documents_category_terms_of_sale": "CGV",
   "documents_check_confirm": "Vérifiez le type, puis confirmez",
   "documents_delete_aria": "Supprimer {name}",
   "documents_download_aria": "Télécharger {name}",
   "documents_drop_formats": "PDF, images ou documents Office — 20 Mo max",
   "documents_drop_hint": "Glissez des fichiers ici ou cliquez pour parcourir",
   "documents_filter_aria": "Filtrer par type de document",
+  "documents_group_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} document",
+        "countPlural=other": "{count} documents"
+      }
+    }
+  ],
+  "documents_library_empty": "Aucun document reçu pour l'instant. Tout ce que vous classez sur un client ou une mission apparaît ici.",
+  "documents_library_heading": "Reçus des clients et missions",
+  "documents_library_last_added": "dernier dépôt le {date}",
+  "documents_library_search_placeholder": "Rechercher un document",
   "documents_load_failed": "Impossible de charger les documents. Réessayez dans un instant.",
   "documents_name_aria": "Nom du document {name}",
   "documents_no_match": "Aucun document ne correspond à la recherche.",
+  "documents_open_fiche": "Ouvrir la fiche",
+  "documents_owner_client": "client",
+  "documents_owner_mission": "mission",
+  "documents_page_subtitle": "Les pièces que vos clients réclament avant de signer. Gardez-les à jour ici.",
+  "documents_page_title": "Mes documents",
   "documents_pending_count": [
     {
       "declarations": ["input count", "local countPlural = count: plural"],
@@ -408,6 +432,8 @@
       }
     }
   ],
+  "documents_personal_empty": "Aucune pièce administrative pour l'instant. Kbis, attestation, assurance, RIB et CGV ont leur place ici.",
+  "documents_personal_heading": "Mes pièces administratives",
   "documents_reject_size": "trop lourd (max 20 Mo)",
   "documents_reject_type": "type de fichier non pris en charge",
   "documents_rejected_list": "Fichiers ignorés : {files}.",
@@ -427,6 +453,7 @@
     }
   ],
   "documents_source_client_badge": "client",
+  "documents_toggle_group": "Afficher ou masquer les documents de {name}",
   "documents_type_aria": "Type de {name}",
   "documents_uploading_status": "{size} · envoi en cours…",
   "documents_uploading_title": "Envois en cours",
@@ -712,6 +739,7 @@
   "nav_cra": "CRA",
   "nav_deadlines": "Échéances",
   "nav_declarations": "Déclarations",
+  "nav_documents": "Documents",
   "nav_invoices": "Factures",
   "nav_revenue": "Revenus",
   "nav_settings": "Réglages",
@@ -725,6 +753,7 @@
   "page_title_cra": "Compte rendu d'activité",
   "page_title_deadlines": "Obligations",
   "page_title_declarations": "Déclarations",
+  "page_title_documents": "Documents",
   "page_title_release_notes": "Notes de version",
   "page_title_revenue": "Revenus",
   "page_title_settings": "Réglages",

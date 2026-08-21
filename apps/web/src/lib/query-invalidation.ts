@@ -126,3 +126,24 @@ export async function invalidateInvoiceWrites(
     queryClient.invalidateQueries(weekTimeEntriesFilter()),
   ]);
 }
+
+/**
+ * Three surfaces list the same documents: the client fiche, the mission fiche —
+ * which merges its client's pieces in — and the global library on /documents. A
+ * document filed or deleted on one of them moves all three.
+ *
+ * Keep every client- or mission-document write going through this rather than
+ * invalidating one list directly, or the library shows a file that is gone (or
+ * misses one that is not) for as long as its data stays fresh.
+ */
+export async function invalidateDocumentWrites(
+  queryClient: QueryClient,
+): Promise<void> {
+  await queryClient.invalidateQueries(
+    operationFilter(
+      "listClientDocuments",
+      "listMissionDocuments",
+      "listDocumentLibrary",
+    ),
+  );
+}

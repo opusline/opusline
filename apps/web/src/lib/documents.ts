@@ -9,20 +9,6 @@ import { fileRejector } from "@/lib/files";
 import { serverFieldErrors } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
-/** Every category a document can carry, including the ones only the server assigns. */
-export const DOCUMENT_CATEGORIES: readonly DocumentCategory[] = [
-  0, 1, 2, 3, 4, 5,
-];
-
-/**
- * The subset a user may pick when uploading. "CRA" is absent: Opusline files the CRA
- * it generates itself, and offering it would only invite confusion with "CRA signé",
- * which is the one people upload.
- */
-export const ASSIGNABLE_DOCUMENT_CATEGORIES: readonly DocumentCategory[] = [
-  0, 1, 2, 3, 4,
-];
-
 const DOCUMENT_CATEGORY_MESSAGES: Record<DocumentCategory, () => string> = {
   0: m.documents_category_contract,
   1: m.documents_category_quote,
@@ -30,7 +16,49 @@ const DOCUMENT_CATEGORY_MESSAGES: Record<DocumentCategory, () => string> = {
   3: m.documents_category_received_invoice,
   4: m.documents_category_other,
   5: m.documents_category_cra,
+  6: m.documents_category_kbis,
+  7: m.documents_category_certificate,
+  8: m.documents_category_insurance,
+  9: m.documents_category_bank_details,
+  10: m.documents_category_terms_of_sale,
 };
+
+/**
+ * Every category a document can carry, including the ones only the server assigns.
+ * Derived from the label map so a new enum case is one edit, not two that can drift.
+ */
+export const DOCUMENT_CATEGORIES: readonly DocumentCategory[] = Object.keys(
+  DOCUMENT_CATEGORY_MESSAGES,
+).map(Number) as DocumentCategory[];
+
+/** What an unrecognised file is filed as: "Other". */
+const FALLBACK_DOCUMENT_CATEGORY: DocumentCategory = 4;
+
+/**
+ * The subset a user may pick when uploading to a client or a mission. "CRA" is absent:
+ * Opusline files the CRA it generates itself, and offering it would only invite confusion
+ * with "CRA signé", which is the one people upload.
+ */
+export const ASSIGNABLE_DOCUMENT_CATEGORIES: readonly DocumentCategory[] = [
+  0,
+  1,
+  2,
+  3,
+  FALLBACK_DOCUMENT_CATEGORY,
+];
+
+/** The vocabulary of the freelance's own administrative pieces. */
+export const PERSONAL_DOCUMENT_CATEGORIES: readonly DocumentCategory[] = [
+  6,
+  7,
+  8,
+  9,
+  10,
+  FALLBACK_DOCUMENT_CATEGORY,
+];
+
+/** A chip row selection: one category, or every one of them. */
+export type DocumentCategoryFilter = DocumentCategory | "all";
 
 export function documentCategoryLabel(category: DocumentCategory): string {
   return DOCUMENT_CATEGORY_MESSAGES[category]();
@@ -38,6 +66,33 @@ export function documentCategoryLabel(category: DocumentCategory): string {
 
 export function isDocumentCategory(value: number): value is DocumentCategory {
   return (DOCUMENT_CATEGORIES as readonly number[]).includes(value);
+}
+
+export function countByCategory(
+  documents: DocumentData[],
+): Record<DocumentCategory, number> {
+  const counts = Object.fromEntries(
+    DOCUMENT_CATEGORIES.map((category) => [category, 0]),
+  ) as Record<DocumentCategory, number>;
+
+  for (const document of documents) {
+    counts[document.category] += 1;
+  }
+
+  return counts;
+}
+
+/** Whether a document answers a search, on its name or on its type. */
+export function matchesDocumentSearch(
+  document: DocumentData,
+  foldedNeedle: string,
+): boolean {
+  return (
+    foldAccents(document.fileName.toLowerCase()).includes(foldedNeedle) ||
+    foldAccents(
+      documentCategoryLabel(document.category).toLowerCase(),
+    ).includes(foldedNeedle)
+  );
 }
 
 export const DOCUMENT_ACCEPT =
@@ -55,23 +110,29 @@ export const rejectDocumentReason = fileRejector({
   rejectSize: m.documents_reject_size,
 });
 
-export function guessDocumentCategory(fileName: string): DocumentCategory {
-  const name = fileName.toLowerCase();
+const CATEGORY_HINTS: ReadonlyArray<[DocumentCategory, RegExp]> = [
+  [0, /contrat|contract/],
+  [1, /devis|quote/],
+  [2, /(^|[^a-z])cra([^a-z]|$)/],
+  [3, /facture|invoice/],
+  [6, /kbis|sirene/],
+  [7, /attestation|vigilance|urssaf/],
+  [8, /assurance|rc[\s._-]?pro|insurance/],
+  [9, /(^|[^a-z])rib([^a-z]|$)|iban/],
+  [10, /(^|[^a-z])cgv([^a-z]|$)|conditions/],
+];
 
-  if (name.includes("contrat") || name.includes("contract")) {
-    return 0;
-  }
-  if (name.includes("devis")) {
-    return 1;
-  }
-  if (/(^|[^a-z])cra([^a-z]|$)/.test(name)) {
-    return 2;
-  }
-  if (name.includes("facture") || name.includes("invoice")) {
-    return 3;
-  }
+export function guessDocumentCategory(
+  fileName: string,
+  assignable: readonly DocumentCategory[],
+): DocumentCategory {
+  const name = foldAccents(fileName.toLowerCase());
+  const hit = CATEGORY_HINTS.find(
+    ([category, pattern]) =>
+      assignable.includes(category) && pattern.test(name),
+  );
 
-  return 4;
+  return hit?.[0] ?? FALLBACK_DOCUMENT_CATEGORY;
 }
 
 export function formatFileSize(locale: Locale, bytes: number): string {
@@ -137,6 +198,13 @@ export function documentHandlers({
 
 export function isClientDocument(document: DocumentData): boolean {
   return document.source === 1;
+}
+
+export function userDocumentDownloadHref(documentId: number): string {
+  return apiClient.buildUrl({
+    url: "/user/documents/{document}/download",
+    path: { document: documentId },
+  });
 }
 
 export function clientDocumentDownloadHref(

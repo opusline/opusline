@@ -24,15 +24,8 @@ class MissionDocumentController extends Controller
 {
     public function index(Client $client, Mission $mission): JsonResponse
     {
-        $documents = $mission->media()
-            ->where('collection_name', 'documents')
-            ->get()
-            ->concat(
-                $client->media()
-                    ->where('collection_name', 'documents')
-                    ->get()
-                    ->all(),
-            )
+        $documents = $mission->documents
+            ->concat($client->documents->all())
             ->sortByDesc('created_at')
             ->values()
             ->all();
@@ -70,9 +63,6 @@ class MissionDocumentController extends Controller
 
     private function documentOf(Mission $mission, int $documentId): Media
     {
-        return $mission->media()
-            ->where('collection_name', 'documents')
-            ->whereKey($documentId)
-            ->firstOrFail();
+        return $mission->documents()->whereKey($documentId)->firstOrFail();
     }
 }

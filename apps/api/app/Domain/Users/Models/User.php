@@ -9,6 +9,7 @@ use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Bank\Models\BankStatement;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Cra\Models\Cra;
+use App\Domain\Documents\Concerns\InteractsWithDocuments;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Settings\Models\UserSettings;
@@ -45,6 +46,7 @@ class User extends Authenticatable implements HasMedia
     /** @use HasFactory<UserFactory> */
     use HasFactory;
 
+    use InteractsWithDocuments;
     use InteractsWithMedia;
     use Notifiable;
 

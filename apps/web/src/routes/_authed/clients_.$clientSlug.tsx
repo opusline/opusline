@@ -4,7 +4,6 @@ import {
   deleteClientDocumentMutation,
   deleteClientLogoMutation,
   listClientDocumentsOptions,
-  listClientDocumentsQueryKey,
   listClientsQueryKey,
   showClientOptions,
   showClientQueryKey,
@@ -22,29 +21,37 @@ import { useState } from "react";
 
 import { DocumentsTab } from "@/components/documents-tab";
 import { ClientDetailPage } from "@/features/clients/components/client-detail-page";
+import { type ClientTab, isClientTab } from "@/features/clients/lib/tabs";
 import { InvoiceListTab } from "@/features/invoices/components/invoice-list-tab";
 import { accountTodayCalendarDate } from "@/lib/dates";
-import { clientDocumentDownloadHref, documentHandlers } from "@/lib/documents";
+import {
+  ASSIGNABLE_DOCUMENT_CATEGORIES,
+  clientDocumentDownloadHref,
+  documentHandlers,
+} from "@/lib/documents";
 import type { FormSubmitResult } from "@/lib/form";
 import { clientLogoHref, logoHandlers } from "@/lib/logos";
-import { operationFilter } from "@/lib/query-invalidation";
+import { invalidateDocumentWrites } from "@/lib/query-invalidation";
 import { serverFieldErrors } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
+type ClientSearch = { logoFailed?: boolean; tab?: ClientTab };
+
 export const Route = createFileRoute("/_authed/clients_/$clientSlug")({
-  validateSearch: (
-    search: Record<string, unknown>,
-  ): { logoFailed?: boolean } =>
-    search.logoFailed === true || search.logoFailed === "true"
-      ? { logoFailed: true }
-      : {},
+  validateSearch: (search: Record<string, unknown>): ClientSearch => ({
+    logoFailed:
+      search.logoFailed === true || search.logoFailed === "true"
+        ? true
+        : undefined,
+    tab: isClientTab(search.tab) ? search.tab : undefined,
+  }),
   component: ClientDetailRoute,
 });
 
 function ClientDetailRoute() {
   const { user } = Route.useRouteContext();
   const { clientSlug: client } = Route.useParams();
-  const { logoFailed } = Route.useSearch();
+  const { logoFailed, tab } = Route.useSearch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -70,15 +77,6 @@ function ClientDetailRoute() {
         queryKey: showClientQueryKey({ path: { client } }),
       }),
       queryClient.invalidateQueries({ queryKey: listClientsQueryKey() }),
-    ]);
-  };
-
-  const invalidateDocuments = async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({
-        queryKey: listClientDocumentsQueryKey({ path: { client } }),
-      }),
-      queryClient.invalidateQueries(operationFilter("listMissionDocuments")),
     ]);
   };
 
@@ -120,7 +118,11 @@ function ClientDetailRoute() {
         setLogoVersion((version) => version + 1);
 
         if (logoFailed) {
-          await navigate({ replace: true, search: {}, to: "." });
+          await navigate({
+            replace: true,
+            search: ({ tab }) => ({ tab }),
+            to: ".",
+          });
         }
 
         await invalidateClient();
@@ -140,7 +142,7 @@ function ClientDetailRoute() {
       deleteDocument.mutateAsync({
         path: { client, document: document.id },
       }),
-    invalidate: invalidateDocuments,
+    invalidate: () => invalidateDocumentWrites(queryClient),
   });
 
   if (isPending) {
@@ -180,6 +182,7 @@ function ClientDetailRoute() {
     </Alert>
   ) : (
     <DocumentsTab
+      assignableCategories={ASSIGNABLE_DOCUMENT_CATEGORIES}
       documents={documentsQuery.data.documents}
       downloadHref={(document) =>
         clientDocumentDownloadHref(client, document.id)
@@ -211,8 +214,16 @@ function ClientDetailRoute() {
       logoSrc={clientLogoHref(client, logoVersion)}
       onRemoveLogo={handleRemoveLogo}
       onToggleArchive={() => void handleToggleArchive()}
+      onTabChange={(next) =>
+        void navigate({
+          replace: true,
+          search: (current) => ({ ...current, tab: next }),
+          to: ".",
+        })
+      }
       onUpdate={handleUpdate}
       onUploadLogo={handleUploadLogo}
+      tab={tab ?? "missions"}
       revenue={revenueQuery.data?.revenue}
       revenueFailed={revenueQuery.isError}
       revenueYear={revenueQuery.data?.year}

@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { archiveClient, createClient, createCra, createInvoice, createMission, createTimeEntry, currentUser, deleteClient, deleteClientDocument, deleteClientLogo, deleteCra, deleteInvoice, deleteMission, deleteMissionDocument, deleteTimeEntry, deleteUserSignature, discardTimer, dismissBankMatch, downloadClientDocument, downloadCraPdf, downloadMissionDocument, getPing, importBankStatement, listClientDocuments, listClientRevenue, listClients, listCras, listInvoices, listMissionDocuments, listMissionTimeEntries, listTimeEntries, login, logout, type Options, pauseTimer, payInvoice, refreshSettingsRates, register, remindInvoice, reopenCra, resetCra, resumeTimer, sendCra, sendInvoice, showBankAccount, showClient, showClientLogo, showClientRevenue, showCra, showInvoice, showInvoiceSummary, showMission, showMissionRevenue, showNextInvoiceNumber, showRevenue, showSettings, showTimer, showUserSignature, startTimer, stopTimer, summarizeMonthWorkload, trimTimer, unarchiveClient, updateBankBalance, updateClient, updateClientDocument, updateCraDays, updateInvoice, updateMission, updateMissionDocument, updateSettings, updateSettingsCurrency, updateTimeEntry, updateTimer, updateUserReleaseNotesSeen, updateUserTheme, uploadClientDocument, uploadClientLogo, uploadMissionDocument, uploadSignedCra, uploadUserSignature, validateBankMatch } from '../sdk.gen';
-import type { ArchiveClientData, ArchiveClientError, ArchiveClientResponse, CreateClientData2, CreateClientError, CreateClientResponse, CreateCraData2, CreateCraError, CreateCraResponse, CreateInvoiceData2, CreateInvoiceError, CreateInvoiceResponse, CreateMissionData2, CreateMissionError, CreateMissionResponse, CreateTimeEntryData, CreateTimeEntryError, CreateTimeEntryResponse, CurrentUserData, CurrentUserError, CurrentUserResponse, DeleteClientData, DeleteClientDocumentData, DeleteClientDocumentError, DeleteClientDocumentResponse, DeleteClientError, DeleteClientLogoData, DeleteClientLogoError, DeleteClientLogoResponse, DeleteClientResponse, DeleteCraData, DeleteCraError, DeleteCraResponse, DeleteInvoiceData, DeleteInvoiceError, DeleteInvoiceResponse, DeleteMissionData, DeleteMissionDocumentData, DeleteMissionDocumentError, DeleteMissionDocumentResponse, DeleteMissionError, DeleteMissionResponse, DeleteTimeEntryData, DeleteTimeEntryError, DeleteTimeEntryResponse, DeleteUserSignatureData, DeleteUserSignatureError, DeleteUserSignatureResponse, DiscardTimerData, DiscardTimerError, DiscardTimerResponse, DismissBankMatchData, DismissBankMatchError, DismissBankMatchResponse, DownloadClientDocumentData, DownloadClientDocumentError, DownloadClientDocumentResponse, DownloadCraPdfData, DownloadCraPdfError, DownloadCraPdfResponse, DownloadMissionDocumentData, DownloadMissionDocumentError, DownloadMissionDocumentResponse, GetPingData, GetPingResponse, ImportBankStatementData2, ImportBankStatementError, ImportBankStatementResponse, ListClientDocumentsData, ListClientDocumentsError, ListClientDocumentsResponse, ListClientRevenueData, ListClientRevenueError, ListClientRevenueResponse, ListClientsData, ListClientsError, ListClientsResponse, ListCrasData, ListCrasError, ListCrasResponse, ListInvoicesData, ListInvoicesError, ListInvoicesResponse, ListMissionDocumentsData, ListMissionDocumentsError, ListMissionDocumentsResponse, ListMissionTimeEntriesData, ListMissionTimeEntriesError, ListMissionTimeEntriesResponse, ListTimeEntriesData, ListTimeEntriesError, ListTimeEntriesResponse, LoginData2, LoginError, LoginResponse, LogoutData, LogoutError, LogoutResponse, PauseTimerData, PauseTimerError, PauseTimerResponse, PayInvoiceData2, PayInvoiceError, PayInvoiceResponse, RefreshSettingsRatesData, RefreshSettingsRatesError, RefreshSettingsRatesResponse, RegisterData, RegisterResponse, RemindInvoiceData2, RemindInvoiceError, RemindInvoiceResponse, ReopenCraData, ReopenCraError, ReopenCraResponse, ResetCraData, ResetCraError, ResetCraResponse, ResumeTimerData, ResumeTimerError, ResumeTimerResponse, SendCraData2, SendCraError, SendCraResponse, SendInvoiceData, SendInvoiceError, SendInvoiceResponse, ShowBankAccountData, ShowBankAccountError, ShowBankAccountResponse, ShowClientData, ShowClientError, ShowClientLogoData, ShowClientLogoError, ShowClientLogoResponse, ShowClientResponse, ShowClientRevenueData, ShowClientRevenueError, ShowClientRevenueResponse, ShowCraData, ShowCraError, ShowCraResponse, ShowInvoiceData, ShowInvoiceError, ShowInvoiceResponse, ShowInvoiceSummaryData, ShowInvoiceSummaryError, ShowInvoiceSummaryResponse, ShowMissionData, ShowMissionError, ShowMissionResponse, ShowMissionRevenueData, ShowMissionRevenueError, ShowMissionRevenueResponse, ShowNextInvoiceNumberData, ShowNextInvoiceNumberError, ShowNextInvoiceNumberResponse, ShowRevenueData, ShowRevenueError, ShowRevenueResponse, ShowSettingsData, ShowSettingsError, ShowSettingsResponse, ShowTimerData, ShowTimerError, ShowTimerResponse, ShowUserSignatureData, ShowUserSignatureError, ShowUserSignatureResponse, StartTimerData2, StartTimerError, StartTimerResponse, StopTimerData2, StopTimerError, StopTimerResponse, SummarizeMonthWorkloadData, SummarizeMonthWorkloadError, SummarizeMonthWorkloadResponse, TrimTimerData2, TrimTimerError, TrimTimerResponse, UnarchiveClientData, UnarchiveClientError, UnarchiveClientResponse, UpdateBankBalanceData2, UpdateBankBalanceError, UpdateBankBalanceResponse, UpdateClientData2, UpdateClientDocumentData, UpdateClientDocumentError, UpdateClientDocumentResponse, UpdateClientError, UpdateClientResponse, UpdateCraDaysData2, UpdateCraDaysError, UpdateCraDaysResponse, UpdateInvoiceData2, UpdateInvoiceError, UpdateInvoiceResponse, UpdateMissionData2, UpdateMissionDocumentData, UpdateMissionDocumentError, UpdateMissionDocumentResponse, UpdateMissionError, UpdateMissionResponse, UpdateSettingsCurrencyData2, UpdateSettingsCurrencyError, UpdateSettingsCurrencyResponse, UpdateSettingsData2, UpdateSettingsError, UpdateSettingsResponse, UpdateTimeEntryData, UpdateTimeEntryError, UpdateTimeEntryResponse, UpdateTimerData2, UpdateTimerError, UpdateTimerResponse, UpdateUserReleaseNotesSeenData, UpdateUserReleaseNotesSeenError, UpdateUserReleaseNotesSeenResponse, UpdateUserThemeData2, UpdateUserThemeError, UpdateUserThemeResponse, UploadClientDocumentData, UploadClientDocumentError, UploadClientDocumentResponse, UploadClientLogoData2, UploadClientLogoError, UploadClientLogoResponse, UploadMissionDocumentData, UploadMissionDocumentError, UploadMissionDocumentResponse, UploadSignedCraData2, UploadSignedCraError, UploadSignedCraResponse, UploadUserSignatureData, UploadUserSignatureError, UploadUserSignatureResponse, ValidateBankMatchData, ValidateBankMatchError, ValidateBankMatchResponse } from '../types.gen';
+import { archiveClient, createClient, createCra, createInvoice, createMission, createTimeEntry, currentUser, deleteClient, deleteClientDocument, deleteClientLogo, deleteCra, deleteInvoice, deleteMission, deleteMissionDocument, deleteTimeEntry, deleteUserDocument, deleteUserSignature, discardTimer, dismissBankMatch, downloadClientDocument, downloadCraPdf, downloadMissionDocument, downloadUserDocument, getPing, importBankStatement, listClientDocuments, listClientRevenue, listClients, listCras, listDocumentLibrary, listInvoices, listMissionDocuments, listMissionTimeEntries, listTimeEntries, listUserDocuments, login, logout, type Options, pauseTimer, payInvoice, refreshSettingsRates, register, remindInvoice, reopenCra, resetCra, resumeTimer, sendCra, sendInvoice, showBankAccount, showClient, showClientLogo, showClientRevenue, showCra, showInvoice, showInvoiceSummary, showMission, showMissionRevenue, showNextInvoiceNumber, showRevenue, showSettings, showTimer, showUserSignature, startTimer, stopTimer, summarizeMonthWorkload, trimTimer, unarchiveClient, updateBankBalance, updateClient, updateClientDocument, updateCraDays, updateInvoice, updateMission, updateMissionDocument, updateSettings, updateSettingsCurrency, updateTimeEntry, updateTimer, updateUserDocument, updateUserReleaseNotesSeen, updateUserTheme, uploadClientDocument, uploadClientLogo, uploadMissionDocument, uploadSignedCra, uploadUserDocument, uploadUserSignature, validateBankMatch } from '../sdk.gen';
+import type { ArchiveClientData, ArchiveClientError, ArchiveClientResponse, CreateClientData2, CreateClientError, CreateClientResponse, CreateCraData2, CreateCraError, CreateCraResponse, CreateInvoiceData2, CreateInvoiceError, CreateInvoiceResponse, CreateMissionData2, CreateMissionError, CreateMissionResponse, CreateTimeEntryData, CreateTimeEntryError, CreateTimeEntryResponse, CurrentUserData, CurrentUserError, CurrentUserResponse, DeleteClientData, DeleteClientDocumentData, DeleteClientDocumentError, DeleteClientDocumentResponse, DeleteClientError, DeleteClientLogoData, DeleteClientLogoError, DeleteClientLogoResponse, DeleteClientResponse, DeleteCraData, DeleteCraError, DeleteCraResponse, DeleteInvoiceData, DeleteInvoiceError, DeleteInvoiceResponse, DeleteMissionData, DeleteMissionDocumentData, DeleteMissionDocumentError, DeleteMissionDocumentResponse, DeleteMissionError, DeleteMissionResponse, DeleteTimeEntryData, DeleteTimeEntryError, DeleteTimeEntryResponse, DeleteUserDocumentData, DeleteUserDocumentError, DeleteUserDocumentResponse, DeleteUserSignatureData, DeleteUserSignatureError, DeleteUserSignatureResponse, DiscardTimerData, DiscardTimerError, DiscardTimerResponse, DismissBankMatchData, DismissBankMatchError, DismissBankMatchResponse, DownloadClientDocumentData, DownloadClientDocumentError, DownloadClientDocumentResponse, DownloadCraPdfData, DownloadCraPdfError, DownloadCraPdfResponse, DownloadMissionDocumentData, DownloadMissionDocumentError, DownloadMissionDocumentResponse, DownloadUserDocumentData, DownloadUserDocumentError, DownloadUserDocumentResponse, GetPingData, GetPingResponse, ImportBankStatementData2, ImportBankStatementError, ImportBankStatementResponse, ListClientDocumentsData, ListClientDocumentsError, ListClientDocumentsResponse, ListClientRevenueData, ListClientRevenueError, ListClientRevenueResponse, ListClientsData, ListClientsError, ListClientsResponse, ListCrasData, ListCrasError, ListCrasResponse, ListDocumentLibraryData, ListDocumentLibraryError, ListDocumentLibraryResponse, ListInvoicesData, ListInvoicesError, ListInvoicesResponse, ListMissionDocumentsData, ListMissionDocumentsError, ListMissionDocumentsResponse, ListMissionTimeEntriesData, ListMissionTimeEntriesError, ListMissionTimeEntriesResponse, ListTimeEntriesData, ListTimeEntriesError, ListTimeEntriesResponse, ListUserDocumentsData, ListUserDocumentsError, ListUserDocumentsResponse, LoginData2, LoginError, LoginResponse, LogoutData, LogoutError, LogoutResponse, PauseTimerData, PauseTimerError, PauseTimerResponse, PayInvoiceData2, PayInvoiceError, PayInvoiceResponse, RefreshSettingsRatesData, RefreshSettingsRatesError, RefreshSettingsRatesResponse, RegisterData, RegisterResponse, RemindInvoiceData2, RemindInvoiceError, RemindInvoiceResponse, ReopenCraData, ReopenCraError, ReopenCraResponse, ResetCraData, ResetCraError, ResetCraResponse, ResumeTimerData, ResumeTimerError, ResumeTimerResponse, SendCraData2, SendCraError, SendCraResponse, SendInvoiceData, SendInvoiceError, SendInvoiceResponse, ShowBankAccountData, ShowBankAccountError, ShowBankAccountResponse, ShowClientData, ShowClientError, ShowClientLogoData, ShowClientLogoError, ShowClientLogoResponse, ShowClientResponse, ShowClientRevenueData, ShowClientRevenueError, ShowClientRevenueResponse, ShowCraData, ShowCraError, ShowCraResponse, ShowInvoiceData, ShowInvoiceError, ShowInvoiceResponse, ShowInvoiceSummaryData, ShowInvoiceSummaryError, ShowInvoiceSummaryResponse, ShowMissionData, ShowMissionError, ShowMissionResponse, ShowMissionRevenueData, ShowMissionRevenueError, ShowMissionRevenueResponse, ShowNextInvoiceNumberData, ShowNextInvoiceNumberError, ShowNextInvoiceNumberResponse, ShowRevenueData, ShowRevenueError, ShowRevenueResponse, ShowSettingsData, ShowSettingsError, ShowSettingsResponse, ShowTimerData, ShowTimerError, ShowTimerResponse, ShowUserSignatureData, ShowUserSignatureError, ShowUserSignatureResponse, StartTimerData2, StartTimerError, StartTimerResponse, StopTimerData2, StopTimerError, StopTimerResponse, SummarizeMonthWorkloadData, SummarizeMonthWorkloadError, SummarizeMonthWorkloadResponse, TrimTimerData2, TrimTimerError, TrimTimerResponse, UnarchiveClientData, UnarchiveClientError, UnarchiveClientResponse, UpdateBankBalanceData2, UpdateBankBalanceError, UpdateBankBalanceResponse, UpdateClientData2, UpdateClientDocumentData, UpdateClientDocumentError, UpdateClientDocumentResponse, UpdateClientError, UpdateClientResponse, UpdateCraDaysData2, UpdateCraDaysError, UpdateCraDaysResponse, UpdateInvoiceData2, UpdateInvoiceError, UpdateInvoiceResponse, UpdateMissionData2, UpdateMissionDocumentData, UpdateMissionDocumentError, UpdateMissionDocumentResponse, UpdateMissionError, UpdateMissionResponse, UpdateSettingsCurrencyData2, UpdateSettingsCurrencyError, UpdateSettingsCurrencyResponse, UpdateSettingsData2, UpdateSettingsError, UpdateSettingsResponse, UpdateTimeEntryData, UpdateTimeEntryError, UpdateTimeEntryResponse, UpdateTimerData2, UpdateTimerError, UpdateTimerResponse, UpdateUserDocumentData, UpdateUserDocumentError, UpdateUserDocumentResponse, UpdateUserReleaseNotesSeenData, UpdateUserReleaseNotesSeenError, UpdateUserReleaseNotesSeenResponse, UpdateUserThemeData2, UpdateUserThemeError, UpdateUserThemeResponse, UploadClientDocumentData, UploadClientDocumentError, UploadClientDocumentResponse, UploadClientLogoData2, UploadClientLogoError, UploadClientLogoResponse, UploadMissionDocumentData, UploadMissionDocumentError, UploadMissionDocumentResponse, UploadSignedCraData2, UploadSignedCraError, UploadSignedCraResponse, UploadUserDocumentData, UploadUserDocumentError, UploadUserDocumentResponse, UploadUserSignatureData, UploadUserSignatureError, UploadUserSignatureResponse, ValidateBankMatchData, ValidateBankMatchError, ValidateBankMatchResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -624,6 +624,21 @@ export const downloadCraPdfOptions = (options: Options<DownloadCraPdfData>) => q
     queryKey: downloadCraPdfQueryKey(options)
 });
 
+export const listDocumentLibraryQueryKey = (options?: Options<ListDocumentLibraryData>) => createQueryKey('listDocumentLibrary', options);
+
+export const listDocumentLibraryOptions = (options?: Options<ListDocumentLibraryData>) => queryOptions<ListDocumentLibraryResponse, ListDocumentLibraryError, ListDocumentLibraryResponse, ReturnType<typeof listDocumentLibraryQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await listDocumentLibrary({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: listDocumentLibraryQueryKey(options)
+});
+
 export const listInvoicesQueryKey = (options?: Options<ListInvoicesData>) => createQueryKey('listInvoices', options);
 
 export const listInvoicesOptions = (options?: Options<ListInvoicesData>) => queryOptions<ListInvoicesResponse, ListInvoicesError, ListInvoicesResponse, ReturnType<typeof listInvoicesQueryKey>>({
@@ -1211,3 +1226,75 @@ export const stopTimerMutation = (options?: Partial<Options<StopTimerData2>>): U
     };
     return mutationOptions;
 };
+
+export const listUserDocumentsQueryKey = (options?: Options<ListUserDocumentsData>) => createQueryKey('listUserDocuments', options);
+
+export const listUserDocumentsOptions = (options?: Options<ListUserDocumentsData>) => queryOptions<ListUserDocumentsResponse, ListUserDocumentsError, ListUserDocumentsResponse, ReturnType<typeof listUserDocumentsQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await listUserDocuments({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: listUserDocumentsQueryKey(options)
+});
+
+export const uploadUserDocumentMutation = (options?: Partial<Options<UploadUserDocumentData>>): UseMutationOptions<UploadUserDocumentResponse, UploadUserDocumentError, Options<UploadUserDocumentData>> => {
+    const mutationOptions: UseMutationOptions<UploadUserDocumentResponse, UploadUserDocumentError, Options<UploadUserDocumentData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await uploadUserDocument({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const deleteUserDocumentMutation = (options?: Partial<Options<DeleteUserDocumentData>>): UseMutationOptions<DeleteUserDocumentResponse, DeleteUserDocumentError, Options<DeleteUserDocumentData>> => {
+    const mutationOptions: UseMutationOptions<DeleteUserDocumentResponse, DeleteUserDocumentError, Options<DeleteUserDocumentData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteUserDocument({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const updateUserDocumentMutation = (options?: Partial<Options<UpdateUserDocumentData>>): UseMutationOptions<UpdateUserDocumentResponse, UpdateUserDocumentError, Options<UpdateUserDocumentData>> => {
+    const mutationOptions: UseMutationOptions<UpdateUserDocumentResponse, UpdateUserDocumentError, Options<UpdateUserDocumentData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await updateUserDocument({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const downloadUserDocumentQueryKey = (options: Options<DownloadUserDocumentData>) => createQueryKey('downloadUserDocument', options);
+
+export const downloadUserDocumentOptions = (options: Options<DownloadUserDocumentData>) => queryOptions<DownloadUserDocumentResponse, DownloadUserDocumentError, DownloadUserDocumentResponse, ReturnType<typeof downloadUserDocumentQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await downloadUserDocument({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: downloadUserDocumentQueryKey(options)
+});
