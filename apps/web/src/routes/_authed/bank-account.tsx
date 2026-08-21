@@ -28,7 +28,10 @@ import {
   type ImportStatementSubmit,
 } from "@/features/bank/components/import-statement-dialog";
 import { requireFrenchFiscality } from "@/lib/fiscality";
-import { invalidateInvoiceWrites } from "@/lib/query-invalidation";
+import {
+  invalidateInvoiceWrites,
+  invalidateTreasury,
+} from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -86,9 +89,12 @@ function BankRoute() {
   const updateBalance = useMutation({
     ...updateBankBalanceMutation(),
     onMutate: () => setBalanceError(null),
-    onSuccess: (account) => {
+    onSuccess: async (account) => {
       setEditingBalance(false);
       acceptSummary(account);
+      // The balance is the Virement figure's starting point; the other writes
+      // here go through invalidateInvoiceWrites, which already carries it.
+      await invalidateTreasury(queryClient);
     },
     onError: (error) => {
       setBalanceError(serverErrorMessage(error, m.bank_balance_save_failed()));

@@ -101,6 +101,27 @@ export function revenueFilter(): { predicate: (query: Query) => boolean } {
 }
 
 /**
+ * The Virement figure and the sidebar tile that mirrors it. It is balance minus
+ * provisions, so it moves with the bank account, with every invoice that gets
+ * paid, and with the fiscal settings — three features that would otherwise each
+ * invent their own key for it.
+ */
+export function treasuryFilter(): { predicate: (query: Query) => boolean } {
+  return operationFilter("showTreasury");
+}
+
+/**
+ * Refresh the Virement figure. Keep every writer that moves it going through
+ * this rather than reaching for the filter, so the list of things that move it
+ * stays findable from one name.
+ */
+export async function invalidateTreasury(
+  queryClient: QueryClient,
+): Promise<void> {
+  await queryClient.invalidateQueries(treasuryFilter());
+}
+
+/**
  * The fan-out every invoice write owes the rest of the app. Beyond the lists,
  * the open fiche and the summary: the next free reference is derived from the
  * numbers already taken, the revenue figures move with what is issued and
@@ -114,6 +135,12 @@ export function revenueFilter(): { predicate: (query: Query) => boolean } {
 export async function invalidateInvoiceWrites(
   queryClient: QueryClient,
 ): Promise<void> {
+  // Not awaited: the sidebar's treasury observer is mounted on every screen, so
+  // this is the one filter here that always issues a request — and it is the
+  // most expensive one. Marking a background tile stale should not hold the
+  // spinner on « Marquer payée ».
+  void invalidateTreasury(queryClient);
+
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: listInvoicesQueryKey() }),
     queryClient.invalidateQueries(operationFilter("showInvoice")),

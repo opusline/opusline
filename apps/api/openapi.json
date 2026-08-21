@@ -3514,6 +3514,99 @@
                 }
             }
         },
+        "/treasury": {
+            "get": {
+                "operationId": "showTreasury",
+                "tags": [
+                    "Treasury"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TreasuryData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/treasury/transfers": {
+            "post": {
+                "operationId": "createPersonalTransfer",
+                "tags": [
+                    "Treasury"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreatePersonalTransferData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TreasuryData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/treasury/transfers/{transfer}": {
+            "delete": {
+                "operationId": "deletePersonalTransfer",
+                "tags": [
+                    "Treasury"
+                ],
+                "parameters": [
+                    {
+                        "name": "transfer",
+                        "in": "path",
+                        "required": true,
+                        "description": "The transfer ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TreasuryData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/user/documents": {
             "get": {
                 "operationId": "listUserDocuments",
@@ -3956,11 +4049,16 @@
                             "integer",
                             "null"
                         ]
+                    },
+                    "periodEnd": {
+                        "type": "string",
+                        "format": "date"
                     }
                 },
                 "required": [
                     "amount",
-                    "rateBp"
+                    "rateBp",
+                    "periodEnd"
                 ],
                 "title": "BankProvisionData"
             },
@@ -5049,6 +5147,43 @@
                     "billingMode"
                 ],
                 "title": "CreateMissionData"
+            },
+            "CreatePersonalTransferData": {
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "transferredOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "note": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    }
+                },
+                "required": [
+                    "amount",
+                    "transferredOn"
+                ],
+                "title": "CreatePersonalTransferData"
             },
             "Currency": {
                 "type": "string",
@@ -6297,6 +6432,38 @@
                 ],
                 "title": "PayInvoiceData"
             },
+            "PersonalTransferData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "transferredOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "note": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "reflectedInBalance": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "id",
+                    "transferredOn",
+                    "amount",
+                    "note",
+                    "reflectedInBalance"
+                ],
+                "title": "PersonalTransferData"
+            },
             "RegisterUserData": {
                 "type": "object",
                 "properties": {
@@ -7089,6 +7256,59 @@
                     "lastMissionId"
                 ],
                 "title": "TimerStateData"
+            },
+            "TreasuryData": {
+                "type": "object",
+                "properties": {
+                    "balance": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BankBalanceData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "pendingTransfers": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "coveredThrough": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "provisions": {
+                        "$ref": "#/components/schemas/BankProvisionsData"
+                    },
+                    "transferable": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/SignedMoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "transfers": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PersonalTransferData"
+                        }
+                    }
+                },
+                "required": [
+                    "balance",
+                    "pendingTransfers",
+                    "coveredThrough",
+                    "provisions",
+                    "transferable",
+                    "transfers"
+                ],
+                "title": "TreasuryData"
             },
             "TrimTimerData": {
                 "type": "object",

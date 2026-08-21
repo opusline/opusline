@@ -17,6 +17,7 @@ import { Switch } from "@opusline/ui/components/switch";
 import { useForm } from "@tanstack/react-form";
 import { CircleAlert, PencilIcon } from "lucide-react";
 import { useState } from "react";
+import { FormDateField } from "@/components/form-date-field";
 import { FormTextField } from "@/components/form-text-field";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import {
@@ -374,23 +375,19 @@ export function MissionEditForm({
             <div className="grid gap-3.5 sm:grid-cols-2">
               <form.Field name="startDate">
                 {(field) => (
-                  <FormTextField
+                  <FormDateField
                     field={field}
-                    font="mono"
                     label={m.missions_start_label()}
                     labelClassName={EDIT_LABEL_CLASSES}
-                    type="date"
                   />
                 )}
               </form.Field>
               <form.Field name="endDate">
                 {(field) => (
-                  <FormTextField
+                  <FormDateField
                     field={field}
-                    font="mono"
                     label={m.missions_end_label()}
                     labelClassName={EDIT_LABEL_CLASSES}
-                    type="date"
                   />
                 )}
               </form.Field>

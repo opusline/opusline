@@ -22,6 +22,8 @@ import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
 import { CircleAlert, InfoIcon } from "lucide-react";
 import { useState } from "react";
+import { DateField } from "@/components/date-field";
+import { FormDateField } from "@/components/form-date-field";
 import { FormTextField } from "@/components/form-text-field";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { RichMessage } from "@/components/rich-message";
@@ -424,12 +426,10 @@ export function NewMissionPage({
           <div className="grid gap-4 sm:grid-cols-2">
             <form.Field name="startDate">
               {(field) => (
-                <FormTextField
+                <FormDateField
                   field={field}
-                  font="mono"
                   label={m.missions_start_label()}
                   labelClassName="text-foreground-3"
-                  type="date"
                 />
               )}
             </form.Field>
@@ -447,15 +447,11 @@ export function NewMissionPage({
                         {m.missions_optional_hint()}
                       </span>
                     </FieldLabel>
-                    <Input
+                    <DateField
                       aria-invalid={isInvalid}
-                      font="mono"
                       id={field.name}
                       onBlur={field.handleBlur}
-                      onChange={(event) =>
-                        field.handleChange(event.target.value)
-                      }
-                      type="date"
+                      onChange={field.handleChange}
                       value={field.state.value}
                     />
                     {isInvalid ? (

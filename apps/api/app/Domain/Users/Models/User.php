@@ -7,6 +7,7 @@ namespace App\Domain\Users\Models;
 use App\Domain\Bank\Models\BankMatch;
 use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Bank\Models\BankStatement;
+use App\Domain\Bank\Models\PersonalTransfer;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Cra\Models\Cra;
 use App\Domain\Documents\Concerns\InteractsWithDocuments;
@@ -136,6 +137,12 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(BankMatch::class);
     }
 
+    /** @return HasMany<PersonalTransfer, $this> */
+    public function personalTransfers(): HasMany
+    {
+        return $this->hasMany(PersonalTransfer::class);
+    }
+
     /**
      * Serialize an account-level invariant on the user row. Every write that
      * checks-then-writes across an account's rows — one timer per user, the
@@ -165,9 +172,10 @@ class User extends Authenticatable implements HasMedia
 
     /**
      * Whether the account currency can still change. It is fixed the moment any
-     * amount is stored in it — a priced mission, an invoice or an imported bank
-     * statement — so every stored amount provably shares one currency and
-     * aggregations never have to guard against a mix.
+     * amount is stored in it — a priced mission, an invoice, an imported bank
+     * statement or a recorded personal transfer — so every stored amount
+     * provably shares one currency and aggregations never have to guard
+     * against a mix.
      */
     public function hasLockedCurrency(): bool
     {
@@ -181,6 +189,10 @@ class User extends Authenticatable implements HasMedia
 
         // Movements imply statements (their statement key is required), so
         // checking statements covers every imported bank amount.
-        return $this->bankStatements()->exists();
+        if ($this->bankStatements()->exists()) {
+            return true;
+        }
+
+        return $this->personalTransfers()->exists();
     }
 }

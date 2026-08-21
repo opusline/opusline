@@ -10,12 +10,14 @@ import type {
   MissionData,
   MissionRevenueData,
   MoneyData,
+  PersonalTransferData,
+  TreasuryData,
 } from "@opusline/api-client";
 
 /**
- * The base API-shape fixtures shared by the invoices and revenue features.
- * Features must not import each other, so the shapes both specialize live
- * here, next to the other cross-feature test helpers.
+ * The base API-shape fixtures more than one place needs. Features must not
+ * import each other, and `src/components` may not import a feature at all, so
+ * the shapes they each specialize live here.
  */
 
 export function eur(amount: number): MoneyData {
@@ -258,6 +260,59 @@ export function invoiceSummary(
     counts: { all: 9, draft: 1, sent: 5, late: 3, paid: 3 },
     todo: [OVERDUE_TODO, UNBILLED_TODO],
     todoTotal: 2,
+    ...overrides,
+  };
+}
+
+export function personalTransfer(
+  overrides: Partial<PersonalTransferData> = {},
+): PersonalTransferData {
+  return {
+    id: 1,
+    transferredOn: "2026-07-28",
+    amount: eur(680_000),
+    note: "Salaire juillet",
+    reflectedInBalance: true,
+    ...overrides,
+  };
+}
+
+/**
+ * The pro account the design canvas is drawn from: 14 820 € held, 8 513 € the
+ * user's. Read by the Virement feature and by the sidebar tile that mirrors its
+ * headline figure, which sits below features and cannot reach into one.
+ */
+export function treasuryData(
+  overrides: Partial<TreasuryData> = {},
+): TreasuryData {
+  return {
+    balance: { amount: eur(1_482_000), source: 1, asOf: "2026-08-10" },
+    pendingTransfers: eur(0),
+    coveredThrough: "2026-08-10",
+    provisions: {
+      vat: {
+        amount: eur(209_000),
+        rateBp: null,
+        periodEnd: "2026-08-31",
+      },
+      urssaf: {
+        amount: eur(271_700),
+        rateBp: 2600,
+        periodEnd: "2026-08-31",
+      },
+      buffer: eur(150_000),
+      total: eur(630_700),
+    },
+    transferable: eur(851_300),
+    transfers: [
+      personalTransfer(),
+      personalTransfer({
+        id: 2,
+        transferredOn: "2026-06-28",
+        amount: eur(650_000),
+        note: "Salaire juin",
+      }),
+    ],
     ...overrides,
   };
 }

@@ -21,7 +21,22 @@ use Illuminate\Support\Collection;
  * one — exact once the full history is imported, corrected with the pencil
  * otherwise.
  *
- * @phpstan-type BalanceAnchor array{cents: int, source: BankBalanceSource, asOf: CarbonImmutable}
+ * Beyond the figure, the anchor carries what it is authoritative for, because
+ * this is the only place that knows how each one was obtained:
+ *
+ * - `coversThrough` — the last day it provably accounts for. A statement
+ *   closing balance is a day's *close*, so it covers its own day. A typed one
+ *   is a snapshot from a moment inside the day, so it only covers the day
+ *   before: the app invites the user to read their balance and then pay
+ *   themselves, and treating that transfer as already known would overstate
+ *   what is theirs.
+ * - `citableAsOf` — the date to show the user, null for a derived balance,
+ *   whose anchor date is an internal fiction that only seats the walk.
+ *
+ * Consumers read those instead of re-deriving them from the source, so a new
+ * source is described once, here.
+ *
+ * @phpstan-type BalanceAnchor array{cents: int, source: BankBalanceSource, asOf: CarbonImmutable, coversThrough: CarbonImmutable, citableAsOf: ?CarbonImmutable}
  */
 class ResolveBankBalance
 {
@@ -41,6 +56,8 @@ class ResolveBankBalance
                 'cents' => (int) $settings->bank_balance_cents->getAmount(),
                 'source' => BankBalanceSource::Manual,
                 'asOf' => $settings->bank_balance_recorded_on,
+                'coversThrough' => $settings->bank_balance_recorded_on->subDay(),
+                'citableAsOf' => $settings->bank_balance_recorded_on,
             ];
         }
 
@@ -83,6 +100,8 @@ class ResolveBankBalance
             'cents' => (int) $latestStatement->closing_balance_cents->getAmount(),
             'source' => BankBalanceSource::Statement,
             'asOf' => $latestStatement->closing_balance_on,
+            'coversThrough' => $latestStatement->closing_balance_on,
+            'citableAsOf' => $latestStatement->closing_balance_on,
         ];
     }
 
@@ -104,6 +123,8 @@ class ResolveBankBalance
             'cents' => 0,
             'source' => BankBalanceSource::Derived,
             'asOf' => $firstBookedOn->subDay(),
+            'coversThrough' => $firstBookedOn->subDay(),
+            'citableAsOf' => null,
         ];
     }
 }

@@ -81,6 +81,7 @@ return [
     'timezone' => 'fuseau horaire',
     'to' => 'date de fin',
     'tradeName' => 'nom commercial',
+    'transferredOn' => 'date du virement',
     'treasuryBuffer' => 'matelas de trésorerie',
     'urssafPeriodicity' => 'périodicité URSSAF',
     'vatNumber' => 'numéro de TVA',

@@ -75,7 +75,7 @@ class ComputeBankProvisions
     }
 
     /**
-     * @return ?array{start: CarbonImmutable, previousStart: CarbonImmutable}
+     * @return ?array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}
      */
     private function vatPeriod(UserSettings $settings, CarbonImmutable $today): ?array
     {
@@ -83,20 +83,18 @@ class ComputeBankProvisions
             return null;
         }
 
-        $start = $settings->vat_regime === VatRegime::ReelSimplifie
-            ? $today->startOfYear()
-            : $today->startOfMonth();
+        $annual = $settings->vat_regime === VatRegime::ReelSimplifie;
+        $start = $annual ? $today->startOfYear() : $today->startOfMonth();
 
         return [
             'start' => $start,
-            'previousStart' => $settings->vat_regime === VatRegime::ReelSimplifie
-                ? $start->subYear()
-                : $start->subMonth(),
+            'end' => $annual ? $today->endOfYear() : $today->endOfMonth(),
+            'previousStart' => $annual ? $start->subYear() : $start->subMonth(),
         ];
     }
 
     /**
-     * @return ?array{start: CarbonImmutable, previousStart: CarbonImmutable}
+     * @return ?array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}
      */
     private function urssafPeriod(UserSettings $settings, CarbonImmutable $today): ?array
     {
@@ -104,15 +102,13 @@ class ComputeBankProvisions
             return null;
         }
 
-        $start = $settings->urssaf_periodicity === UrssafPeriodicity::Quarterly
-            ? $today->firstOfQuarter()
-            : $today->startOfMonth();
+        $quarterly = $settings->urssaf_periodicity === UrssafPeriodicity::Quarterly;
+        $start = $quarterly ? $today->firstOfQuarter() : $today->startOfMonth();
 
         return [
             'start' => $start,
-            'previousStart' => $settings->urssaf_periodicity === UrssafPeriodicity::Quarterly
-                ? $start->subMonths(3)
-                : $start->subMonth(),
+            'end' => $quarterly ? $today->lastOfQuarter() : $today->endOfMonth(),
+            'previousStart' => $quarterly ? $start->subMonths(3) : $start->subMonth(),
         ];
     }
 
@@ -120,8 +116,8 @@ class ComputeBankProvisions
      * One query over the widest window either component looks at; the
      * per-period sums are bucketed from this set in PHP.
      *
-     * @param  ?array{start: CarbonImmutable, previousStart: CarbonImmutable}  $vatPeriod
-     * @param  ?array{start: CarbonImmutable, previousStart: CarbonImmutable}  $urssafPeriod
+     * @param  ?array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}  $vatPeriod
+     * @param  ?array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}  $urssafPeriod
      * @return Collection<int, Invoice>
      */
     private function collectedInvoices(
@@ -143,7 +139,7 @@ class ComputeBankProvisions
     }
 
     /**
-     * @param  array{start: CarbonImmutable, previousStart: CarbonImmutable}  $period
+     * @param  array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}  $period
      * @param  Collection<int, Invoice>  $collected
      * @param  Collection<int, BankMovement>  $movements
      */
@@ -164,11 +160,12 @@ class ComputeBankProvisions
         return new BankProvisionData(
             amount: MoneyData::fromMoney(new Money($current + $carried, $currency)),
             rateBp: null,
+            periodEnd: $period['end'],
         );
     }
 
     /**
-     * @param  array{start: CarbonImmutable, previousStart: CarbonImmutable}  $period
+     * @param  array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}  $period
      * @param  Collection<int, Invoice>  $collected
      * @param  Collection<int, BankMovement>  $movements
      */
@@ -192,6 +189,7 @@ class ComputeBankProvisions
         return new BankProvisionData(
             amount: MoneyData::fromMoney(new Money($current + $carried, $currency)),
             rateBp: $rateBp,
+            periodEnd: $period['end'],
         );
     }
 
