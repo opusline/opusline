@@ -17,6 +17,7 @@ import {
 } from "@opusline/ui/components/input-group";
 import { Label } from "@opusline/ui/components/label";
 import { useId, useState } from "react";
+import { DateField } from "@/components/date-field";
 
 import {
   useDateFormat,
@@ -24,6 +25,7 @@ import {
 } from "@/components/money-format-provider";
 import {
   currencySymbol,
+  formatAmount,
   formatRateDraft,
   parseRateToCents,
 } from "@/lib/billing";
@@ -43,6 +45,8 @@ type RecordTransferDialogProps = {
   accountToday: string;
   /** The date the known balance covers; the dialog only opens once there is one. */
   coveredThrough: string;
+  /** What is safe to transfer — seeds the field, since taking all of it is the point. */
+  transferableCents: number;
   isSaving: boolean;
   error: string | null;
   onOpenChange: (open: boolean) => void;
@@ -53,6 +57,7 @@ export function RecordTransferDialog({
   open,
   accountToday,
   coveredThrough,
+  transferableCents,
   isSaving,
   error,
   onOpenChange,
@@ -68,6 +73,7 @@ export function RecordTransferDialog({
             error={error}
             isSaving={isSaving}
             onSubmit={onSubmit}
+            transferableCents={transferableCents}
           />
         )}
       </DialogContent>
@@ -83,6 +89,7 @@ type RecordTransferFormProps = Omit<
 function RecordTransferForm({
   accountToday,
   coveredThrough,
+  transferableCents,
   isSaving,
   error,
   onSubmit,
@@ -96,7 +103,20 @@ function RecordTransferForm({
   const invalidId = `${fieldId}-invalid`;
   const errorId = `${fieldId}-error`;
 
-  const [amountDraft, setAmountDraft] = useState("");
+  // Seeded with the whole safe amount: the dialog is reached from a figure the
+  // user has just read, and "take all of it" is the common answer. Nothing to
+  // seed when the provisions already outgrow the account. The form remounts on
+  // each open, so the seed follows the figure.
+  //
+  // Rounded DOWN to whole units, both because nobody transfers themselves four
+  // cents and because rounding up would seed more than is actually safe — the
+  // hero's own figure is rounded to the nearest, so the two can differ by one
+  // unit, always in the conservative direction.
+  const [amountDraft, setAmountDraft] = useState(() =>
+    transferableCents > 0
+      ? formatAmount(format, Math.floor(transferableCents / 100) * 100)
+      : "",
+  );
   const [transferredOn, setTransferredOn] = useState(accountToday);
   const [note, setNote] = useState("");
 
@@ -143,6 +163,8 @@ function RecordTransferForm({
               className="flex-1 font-mono"
               id={amountId}
               inputMode="decimal"
+              // Seeded, so focusing means "confirm or replace", not "append".
+              onFocus={(event) => event.target.select()}
               onChange={(event) =>
                 setAmountDraft(
                   formatRateDraft(format.locale, event.target.value),
@@ -163,11 +185,10 @@ function RecordTransferForm({
           <Label size="md" htmlFor={dateId}>
             {m.treasury_date_label()}
           </Label>
-          <Input
+          <DateField
             id={dateId}
             max={accountToday}
-            onChange={(event) => setTransferredOn(event.target.value)}
-            type="date"
+            onChange={setTransferredOn}
             value={transferredOn}
           />
         </div>

@@ -11,6 +11,7 @@ const meta = {
     open: true,
     accountToday: "2026-08-13",
     coveredThrough: "2026-08-10",
+    transferableCents: 851_300,
     isSaving: false,
     error: null,
     onOpenChange: () => {},
@@ -29,4 +30,9 @@ export const Saving: Story = {
 
 export const WithError: Story = {
   args: { error: "Le virement n'a pas pu être enregistré." },
+};
+
+/** Nothing safe to take: the field opens empty rather than seeded with a debt. */
+export const NothingTransferable: Story = {
+  args: { transferableCents: -588_700 },
 };

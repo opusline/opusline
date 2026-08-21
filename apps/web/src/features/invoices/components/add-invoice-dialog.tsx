@@ -20,6 +20,7 @@ import { NativeSelect } from "@opusline/ui/components/native-select";
 import { cn } from "@opusline/ui/lib/utils";
 import { useId, useState } from "react";
 
+import { DateField } from "@/components/date-field";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import {
   formatAmount,
@@ -287,33 +288,23 @@ function AddInvoiceForm({
             <Label htmlFor={issuedFieldId}>
               {m.invoices_add_issued_label()}
             </Label>
-            <Input
-              font="mono"
+            <DateField
               id={issuedFieldId}
-              onChange={(event) => setIssuedOn(event.target.value)}
-              type="date"
+              onChange={setIssuedOn}
               value={issuedOn}
             />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor={dueFieldId}>{m.invoices_add_due_label()}</Label>
-            <Input
-              font="mono"
-              id={dueFieldId}
-              onChange={(event) => setDueOn(event.target.value)}
-              type="date"
-              value={dueOn}
-            />
+            <DateField id={dueFieldId} onChange={setDueOn} value={dueOn} />
           </div>
           {status === 2 && (
             <div className="flex flex-col gap-1.5">
               <Label htmlFor={paidFieldId}>{m.invoices_add_paid_label()}</Label>
-              <Input
+              <DateField
                 aria-invalid={isPaidOnMissing}
-                font="mono"
                 id={paidFieldId}
-                onChange={(event) => setPaidOn(event.target.value)}
-                type="date"
+                onChange={setPaidOn}
                 value={paidOn}
               />
               {isPaidOnMissing && (

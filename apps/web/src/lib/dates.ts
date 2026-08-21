@@ -123,6 +123,34 @@ export function calendarDateNumericLabel(
   return dateFormat === 1 ? date : numericDate.format(fromCalendarDate(date));
 }
 
+/**
+ * The inverse of {@link calendarDateNumericLabel}: what the user typed in their
+ * own layout, back to the `Y-m-d` the API speaks. Null while the draft is not
+ * yet a real day, so a half-typed date is simply "no date" rather than an error
+ * on every keystroke.
+ */
+export function parseNumericDate(
+  dateFormat: DateFormat,
+  draft: string,
+): string | null {
+  const trimmed = draft.trim();
+
+  if (dateFormat === 1) {
+    return isCalendarDate(trimmed) ? trimmed : null;
+  }
+
+  const parts = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(trimmed);
+
+  if (parts === null) {
+    return null;
+  }
+
+  const [, day, month, year] = parts;
+  const candidate = `${year}-${month}-${day}`;
+
+  return isCalendarDate(candidate) ? candidate : null;
+}
+
 /** Whole days between two `Y-m-d`, ignoring clocks and timezones. */
 export function calendarDaysBetween(from: string, to: string): number {
   const DAY_MS = 24 * 60 * 60 * 1000;

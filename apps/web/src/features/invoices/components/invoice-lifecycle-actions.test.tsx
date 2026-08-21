@@ -63,8 +63,9 @@ it("refuses to send a referenceless draft on an empty field", () => {
 it("banks a payment on the date the money landed", () => {
   const { onPay } = renderActions();
 
+  // Typed in the account's own layout, sent as the Y-m-d the API speaks.
   fireEvent.change(screen.getByLabelText("Encaissée le"), {
-    target: { value: "2026-07-24" },
+    target: { value: "24/07/2026" },
   });
   fireEvent.click(screen.getByRole("button", { name: "Marquer encaissée" }));
 
@@ -72,14 +73,16 @@ it("banks a payment on the date the money landed", () => {
 });
 
 it("never books a payment before the invoice existed", () => {
-  renderActions({
+  const { onPay } = renderActions({
     invoice: invoiceDetail({ status: 1, issuedOn: "2026-07-01" }).invoice,
   });
 
-  expect(screen.getByLabelText("Encaissée le")).toHaveAttribute(
-    "min",
-    "2026-07-01",
-  );
+  fireEvent.change(screen.getByLabelText("Encaissée le"), {
+    target: { value: "30/06/2026" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Marquer encaissée" }));
+
+  expect(onPay).not.toHaveBeenCalledWith("2026-06-30");
 });
 
 it("chases an invoice that is out but unpaid", () => {

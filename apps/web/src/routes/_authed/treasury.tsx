@@ -94,8 +94,9 @@ function VirementRoute() {
   // The API sets these two together, and TreasuryPage renders the hero — which
   // carries the record button — off the first. Reading both here keeps the
   // button and the dialog it opens from ever disagreeing.
-  const { balance, coveredThrough } = treasury.data;
-  const canRecord = balance !== null && coveredThrough !== null;
+  const { balance, coveredThrough, transferable } = treasury.data;
+  const canRecord =
+    balance !== null && coveredThrough !== null && transferable !== null;
 
   return (
     <div className="flex flex-col gap-3.5">
@@ -141,6 +142,7 @@ function VirementRoute() {
             })
           }
           open={recordOpen}
+          transferableCents={transferable.amount}
         />
       )}
     </div>

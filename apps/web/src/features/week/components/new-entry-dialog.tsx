@@ -11,6 +11,7 @@ import { Input } from "@opusline/ui/components/input";
 import { Label } from "@opusline/ui/components/label";
 import { cn } from "@opusline/ui/lib/utils";
 import { useEffect, useId, useState } from "react";
+import { DateField } from "@/components/date-field";
 import { ForfaitProjectionNote } from "@/components/forfait-projection-note";
 import { useLocale } from "@/components/money-format-provider";
 import { matchingNotes, NoteSuggestions } from "@/components/note-suggestions";
@@ -296,16 +297,14 @@ function EntryStep({
               </Chip>
             ))}
           </ChipGroup>
-          <Input
+          <DateField
             className="w-fit"
-            font="mono"
             id={dateId}
-            onChange={(event) => {
-              setDate(event.target.value);
+            onChange={(next) => {
+              setDate(next);
               setReplaceExisting(false);
             }}
             size="sm"
-            type="date"
             value={date}
           />
           <p className="text-muted-foreground-3 text-sm">

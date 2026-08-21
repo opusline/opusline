@@ -128,8 +128,9 @@ it("asks when a paid invoice was paid, and sends it", () => {
 
   fireEvent.change(amountField(), { target: { value: "1000" } });
   fireEvent.click(screen.getByRole("button", { name: "Payée" }));
+  // Typed in the account's own layout, sent as the Y-m-d the API speaks.
   fireEvent.change(screen.getByLabelText("Payée le"), {
-    target: { value: "2026-08-10" },
+    target: { value: "10/08/2026" },
   });
   fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
 
@@ -143,7 +144,7 @@ it("records the date the invoice was issued, not the day it is entered", () => {
 
   fireEvent.change(amountField(), { target: { value: "1000" } });
   fireEvent.change(screen.getByLabelText("Émise le"), {
-    target: { value: "2026-07-05" },
+    target: { value: "05/07/2026" },
   });
   fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
 

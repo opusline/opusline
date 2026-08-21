@@ -4,6 +4,7 @@ import { Input } from "@opusline/ui/components/input";
 import { Label } from "@opusline/ui/components/label";
 import { useId, useState } from "react";
 
+import { DateField } from "@/components/date-field";
 import { m } from "@/paraglide/messages.js";
 
 type InvoiceLifecycleActionsProps = {
@@ -138,13 +139,12 @@ function CollectStep({
     >
       <div className="flex flex-col gap-1.5">
         <Label htmlFor={paidOnFieldId}>{m.invoices_paid_on_label()}</Label>
-        <Input
+        <DateField
           id={paidOnFieldId}
-          type="date"
-          value={paidOn}
-          min={invoice.issuedOn}
           max={accountToday}
-          onChange={(event) => setPaidOn(event.target.value)}
+          min={invoice.issuedOn}
+          onChange={setPaidOn}
+          value={paidOn}
         />
         <p className="text-muted-foreground-3 text-xs">
           {m.invoices_paid_on_hint()}

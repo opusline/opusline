@@ -3,7 +3,7 @@ import { Button } from "@opusline/ui/components/button";
 import { Switch } from "@opusline/ui/components/switch";
 import { cn } from "@opusline/ui/lib/utils";
 import { RefreshCw } from "lucide-react";
-import { FormTextField } from "@/components/form-text-field";
+import { FormDateField } from "@/components/form-date-field";
 import { useLocale } from "@/components/money-format-provider";
 import { fullDateLabel } from "@/lib/dates";
 import { m } from "@/paraglide/messages.js";
@@ -145,12 +145,10 @@ export function RateSource({
                   }}
                 >
                   {(field) => (
-                    <FormTextField
+                    <FormDateField
                       field={field}
-                      font="mono"
                       label={m.settings_business_started_label()}
                       labelClassName="text-muted-foreground-2 text-xs"
-                      type="date"
                     />
                   )}
                 </form.Field>
