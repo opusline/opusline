@@ -26,8 +26,10 @@ class UpdateMission
 
             $this->validateMission->handle($client, $data, $mission);
 
-            if ($data->rate instanceof MoneyData) {
-                AccountCurrency::assertMatchesAccountUnderLock($mission->user_id, $data->rate);
+            foreach ([$data->rate, $data->referenceDailyRate] as $money) {
+                if ($money instanceof MoneyData) {
+                    AccountCurrency::assertMatchesAccountUnderLock($mission->user_id, $money);
+                }
             }
 
             $mission->update([
@@ -35,6 +37,7 @@ class UpdateMission
                 'end_client_name' => $data->endClientName,
                 'billing_mode' => $data->billingMode,
                 'rate_cents' => $data->rate?->toMoney(),
+                'reference_daily_rate_cents' => $data->referenceDailyRate?->toMoney(),
                 'rounding' => $data->billingMode->resolveRounding($data->rounding),
                 'status' => $data->status,
                 'cra_required' => $data->billingMode->resolveCraRequired(

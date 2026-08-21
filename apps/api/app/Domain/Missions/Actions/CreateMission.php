@@ -22,8 +22,10 @@ class CreateMission
         $this->validateMission->handle($client, $data);
 
         return DB::transaction(function () use ($user, $client, $data): Mission {
-            if ($data->rate instanceof MoneyData) {
-                AccountCurrency::assertMatchesAccountUnderLock($user->id, $data->rate);
+            foreach ([$data->rate, $data->referenceDailyRate] as $money) {
+                if ($money instanceof MoneyData) {
+                    AccountCurrency::assertMatchesAccountUnderLock($user->id, $money);
+                }
             }
 
             return $user->missions()->create([
@@ -32,6 +34,7 @@ class CreateMission
                 'end_client_name' => $data->endClientName,
                 'billing_mode' => $data->billingMode,
                 'rate_cents' => $data->rate?->toMoney(),
+                'reference_daily_rate_cents' => $data->referenceDailyRate?->toMoney(),
                 'rounding' => $data->billingMode->resolveRounding($data->rounding),
                 'status' => MissionStatus::Active,
                 'cra_required' => $data->billingMode->resolveCraRequired(

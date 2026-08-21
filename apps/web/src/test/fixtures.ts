@@ -2,6 +2,7 @@ import type {
   ClientData,
   ClientRevenueData,
   ClientRevenueDetailData,
+  FixedPriceBudgetData,
   InvoiceData,
   InvoiceListItemData,
   InvoiceSummaryData,
@@ -59,6 +60,54 @@ export function missionRevenueDetailPayload(): MissionRevenueData {
   return missionRevenue();
 }
 
+/**
+ * A forfait as the design states it: 10 000 € priced, a 480 € reference TJM, 18 days
+ * tracked — 86 % consumed, with 2 880 € invoiced and 1 440 € held by a draft.
+ */
+export function fixedPriceBudget(
+  overrides: Partial<FixedPriceBudgetData> = {},
+): FixedPriceBudgetData {
+  return {
+    forfait: eur(1_000_000),
+    invoiced: eur(288_000),
+    draft: eur(144_000),
+    remaining: eur(568_000),
+    invoicedShareBp: 2_880,
+    consumption: {
+      referenceDailyRate: eur(48_000),
+      trackedDays: 18,
+      consumed: eur(864_000),
+      consumedShareBp: 8_640,
+      coveredDays: 20.833_333,
+      remainingDays: 2.833_333,
+      overrun: eur(0),
+      state: 1,
+    },
+    ...overrides,
+  };
+}
+
+/** The same forfait once the time tracked has eaten past its price. */
+export function overrunFixedPriceBudget(): FixedPriceBudgetData {
+  return fixedPriceBudget({
+    forfait: eur(480_000),
+    invoiced: eur(240_000),
+    draft: eur(0),
+    remaining: eur(240_000),
+    invoicedShareBp: 5_000,
+    consumption: {
+      referenceDailyRate: eur(55_000),
+      trackedDays: 11,
+      consumed: eur(605_000),
+      consumedShareBp: 12_604,
+      coveredDays: 8.727_272,
+      remainingDays: -2.272_727,
+      overrun: eur(125_000),
+      state: 2,
+    },
+  });
+}
+
 export const CLIENT_FIXTURE = {
   id: 1,
   slug: "vesterhus",
@@ -89,6 +138,7 @@ export const MISSION_FIXTURE = {
   endClientName: null,
   billingMode: 0,
   rate: eur(55_000),
+  referenceDailyRate: null,
   rounding: 0,
   status: 0,
   craRequired: false,
@@ -162,6 +212,30 @@ export const UNBILLED_TODO = {
     timeEntryIds: [101, 102, 103],
     vatRateBp: 2000,
   },
+} satisfies InvoiceTodoData;
+
+/** A forfait row: still within budget, with a balance left to invoice. */
+export const BUDGET_TODO = {
+  kind: 2,
+  amount: eur(568_000),
+  clientId: 2,
+  clientName: "Orvella",
+  budget: {
+    missionId: 21,
+    missionName: "Orvella refonte boutique",
+    missionSlug: "orvella-refonte-boutique",
+    clientSlug: "orvella",
+    budget: fixedPriceBudget(),
+    vatRateBp: 2000,
+  },
+} satisfies InvoiceTodoData;
+
+/** The same forfait once the time tracked has eaten past its price. */
+export const BUDGET_OVERRUN_TODO = {
+  ...BUDGET_TODO,
+  kind: 3,
+  amount: eur(125_000),
+  budget: { ...BUDGET_TODO.budget, budget: overrunFixedPriceBudget() },
 } satisfies InvoiceTodoData;
 
 export function invoiceSummary(

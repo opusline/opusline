@@ -40,6 +40,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property ?string $end_client_name
  * @property BillingMode $billing_mode
  * @property ?Money $rate_cents
+ * @property ?Money $reference_daily_rate_cents
  * @property string $currency
  * @property ?EntryRounding $rounding
  * @property MissionStatus $status
@@ -59,6 +60,7 @@ use Spatie\Sluggable\SlugOptions;
     'end_client_name',
     'billing_mode',
     'rate_cents',
+    'reference_daily_rate_cents',
     'currency',
     'rounding',
     'status',
@@ -136,6 +138,7 @@ class Mission extends Model implements HasMedia
             'cra_required' => 'boolean',
             'color' => Color::class,
             'rate_cents' => MoneyIntegerCast::class.':currency',
+            'reference_daily_rate_cents' => MoneyIntegerCast::class.':currency',
             'start_date' => 'date',
             'end_date' => 'date',
         ];
@@ -181,9 +184,14 @@ class Mission extends Model implements HasMedia
         return $this->hasOne(RunningTimer::class);
     }
 
+    /**
+     * Every mission is written with a rounding — see BillingMode::resolveRounding(),
+     * and the backfill that gave the fixed-price rows theirs. The fallback agrees with
+     * it so a row that somehow predates both is not valued on a different increment.
+     */
     public function effectiveRounding(): EntryRounding
     {
-        return $this->rounding ?? EntryRounding::Quarter;
+        return $this->rounding ?? EntryRounding::Half;
     }
 
     public function effectiveColor(): Color

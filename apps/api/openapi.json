@@ -4781,6 +4781,25 @@
                             "currency"
                         ]
                     },
+                    "referenceDailyRate": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
                     "endClientName": {
                         "type": [
                             "string",
@@ -5005,6 +5024,100 @@
                     "Minute"
                 ],
                 "title": "EntryRounding"
+            },
+            "FixedPriceBudgetData": {
+                "type": "object",
+                "properties": {
+                    "forfait": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "invoiced": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "draft": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "remaining": {
+                        "$ref": "#/components/schemas/SignedMoneyData"
+                    },
+                    "invoicedShareBp": {
+                        "type": "integer"
+                    },
+                    "consumption": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/FixedPriceConsumptionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "forfait",
+                    "invoiced",
+                    "draft",
+                    "remaining",
+                    "invoicedShareBp",
+                    "consumption"
+                ],
+                "title": "FixedPriceBudgetData"
+            },
+            "FixedPriceBudgetState": {
+                "type": "integer",
+                "description": "How much of a forfait its tracked time has eaten, as three states rather than a raw percentage: the threshold that separates them is a product decision, and resolving it here keeps every screen — banner, tile, badge, « À traiter » — reading the same one. Labels live on the frontend, like every other enum here.\n",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "Ok",
+                    "Warning",
+                    "Exceeded"
+                ],
+                "title": "FixedPriceBudgetState"
+            },
+            "FixedPriceConsumptionData": {
+                "type": "object",
+                "properties": {
+                    "referenceDailyRate": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "trackedDays": {
+                        "type": "number"
+                    },
+                    "consumed": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "consumedShareBp": {
+                        "type": "integer"
+                    },
+                    "coveredDays": {
+                        "type": "number"
+                    },
+                    "remainingDays": {
+                        "type": "number"
+                    },
+                    "overrun": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "state": {
+                        "$ref": "#/components/schemas/FixedPriceBudgetState"
+                    }
+                },
+                "required": [
+                    "referenceDailyRate",
+                    "trackedDays",
+                    "consumed",
+                    "consumedShareBp",
+                    "coveredDays",
+                    "remainingDays",
+                    "overrun",
+                    "state"
+                ],
+                "title": "FixedPriceConsumptionData"
             },
             "ImportBankStatementData": {
                 "type": "object",
@@ -5442,6 +5555,38 @@
                 ],
                 "title": "InvoiceSummaryData"
             },
+            "InvoiceTodoBudgetData": {
+                "type": "object",
+                "properties": {
+                    "missionId": {
+                        "type": "integer"
+                    },
+                    "missionName": {
+                        "type": "string"
+                    },
+                    "missionSlug": {
+                        "type": "string"
+                    },
+                    "clientSlug": {
+                        "type": "string"
+                    },
+                    "budget": {
+                        "$ref": "#/components/schemas/FixedPriceBudgetData"
+                    },
+                    "vatRateBp": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "missionId",
+                    "missionName",
+                    "missionSlug",
+                    "clientSlug",
+                    "budget",
+                    "vatRateBp"
+                ],
+                "title": "InvoiceTodoBudgetData"
+            },
             "InvoiceTodoData": {
                 "type": "object",
                 "properties": {
@@ -5476,6 +5621,16 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "budget": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/InvoiceTodoBudgetData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -5488,14 +5643,18 @@
             },
             "InvoiceTodoKind": {
                 "type": "integer",
-                "description": "What the \"À traiter\" list can put in front of you: money that was billed and has not come in, and money that was worked and has not been billed. Drafts are not here — an unsent draft is a note to self, not a debt. Labels live on the frontend, like every other enum here.\n",
+                "description": "What the \"À traiter\" list can put in front of you: money that was billed and has not come in, money that was worked and has not been billed, and a forfait whose time is running out or has already run over. Drafts are not here — an unsent draft is a note to self, not a debt. Labels live on the frontend, like every other enum here.\n",
                 "enum": [
                     0,
-                    1
+                    1,
+                    2,
+                    3
                 ],
                 "x-enum-varnames": [
                     "Overdue",
-                    "UnbilledWork"
+                    "UnbilledWork",
+                    "FixedPriceBudget",
+                    "FixedPriceOverrun"
                 ],
                 "title": "InvoiceTodoKind"
             },
@@ -5665,6 +5824,16 @@
                             }
                         ]
                     },
+                    "referenceDailyRate": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "rounding": {
                         "anyOf": [
                             {
@@ -5720,6 +5889,7 @@
                     "endClientName",
                     "billingMode",
                     "rate",
+                    "referenceDailyRate",
                     "rounding",
                     "status",
                     "craRequired",
@@ -5765,6 +5935,16 @@
                         "type": [
                             "integer",
                             "null"
+                        ]
+                    },
+                    "fixedPrice": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/FixedPriceBudgetData"
+                            },
+                            {
+                                "type": "null"
+                            }
                         ]
                     }
                 },
@@ -6962,6 +7142,25 @@
                         "$ref": "#/components/schemas/MissionStatus"
                     },
                     "rate": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "referenceDailyRate": {
                         "type": [
                             "object",
                             "null"

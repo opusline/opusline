@@ -2,8 +2,9 @@ import { Popover, PopoverContent } from "@opusline/ui/components/popover";
 import { useRef } from "react";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { calendarDateLabel } from "@/lib/dates";
-import { formatWorkedTime } from "@/lib/durations";
+import { formatWorkedTime, isFixedPrice } from "@/lib/durations";
 import { entryRoundingLabel } from "@/lib/entry-rounding";
+import { useMissionBudgets } from "@/lib/use-mission-budgets";
 import { m } from "@/paraglide/messages.js";
 import { formatClock } from "../lib/elapsed";
 import { quickDurations } from "../lib/long-run";
@@ -147,6 +148,12 @@ function StopDialog({
 }) {
   const format = useMoneyFormat();
   const running = timer.timer;
+  // Read here rather than in the layout: this whole-account fold is only worth its
+  // cost while an entry is actually being written against a forfait, and this
+  // component only mounts then.
+  const budgets = useMissionBudgets(
+    timer.mission !== null && isFixedPrice(timer.mission.billingMode),
+  );
 
   if (running === null) {
     return null;
@@ -189,7 +196,9 @@ function StopDialog({
       workdayMinutes={workdayMinutes}
       error={timer.error}
       isSaving={timer.isSaving}
+      missionBudget={budgets.get(running.missionId) ?? null}
       missionName={running.missionName}
+      missionRounding={timer.mission?.rounding ?? null}
       missionRoundingLabel={
         timer.mission === null
           ? null

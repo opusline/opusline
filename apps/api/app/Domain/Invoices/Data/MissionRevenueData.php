@@ -43,5 +43,10 @@ class MissionRevenueData extends Data
          */
         public ?float $currentMonthDays,
         public ?int $currentMonthMinutes,
+        /**
+         * Where the fixed price stands — invoiced, drafted, consumed. Null on a
+         * mission billed by the day or the hour, which has no price to run out of.
+         */
+        public ?FixedPriceBudgetData $fixedPrice = null,
     ) {}
 }

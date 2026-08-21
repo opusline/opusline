@@ -1,5 +1,7 @@
+import type { FixedPriceBudgetData } from "@opusline/api-client";
 import type { Meta, StoryObj } from "@storybook/react";
 import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
+import { overrunFixedPriceBudget } from "@/test/fixtures";
 import {
   DEMO_CLIENTS,
   DEMO_TIME_ENTRIES,
@@ -14,9 +16,11 @@ function model(
   overrides: {
     weekendShown?: boolean;
     entries?: typeof DEMO_TIME_ENTRIES;
+    budgets?: Map<number, FixedPriceBudgetData>;
   } = {},
 ) {
   return buildWeekGrid({
+    budgets: overrides.budgets,
     clients: DEMO_CLIENTS,
     format: DEFAULT_MONEY_FORMAT,
     timeEntries: overrides.entries ?? DEMO_TIME_ENTRIES,
@@ -65,4 +69,13 @@ export const EmptyWeek: Story = {
 
 export const Saving: Story = {
   args: { pendingCellKeys: new Set(["1:2026-07-29"]) },
+};
+
+/** A mission on a forfait carries its consumption beside the row's subtitle. */
+export const WithAForfaitRow: Story = {
+  args: {
+    model: model({
+      budgets: new Map([[1, overrunFixedPriceBudget()]]),
+    }),
+  },
 };

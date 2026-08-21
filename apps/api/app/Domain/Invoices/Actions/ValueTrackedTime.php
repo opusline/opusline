@@ -69,11 +69,41 @@ class ValueTrackedTime
     }
 
     /**
+     * What one entry costs a forfait's budget, valued at the reference daily rate the
+     * caller has already resolved.
+     *
+     * Deliberately not part of measure(): this figure never bills anything. It exists
+     * so a fixed price can be read against the time it is eating.
+     *
+     * @return array{value: Money, days: float}
+     */
+    public function consumeAtReferenceRate(Mission $mission, TimeEntry $entry, int $workdayMinutes, Money $referenceRate): array
+    {
+        return $this->pricedDayFraction($referenceRate, $this->roundingFor($mission, $entry), $entry, $workdayMinutes);
+    }
+
+    /**
+     * A day-billed entry at a given rate. The value never goes through the day count:
+     * it is derived from the exact fraction, because 1/3 of a day has no float to
+     * round from.
+     *
+     * @return array{value: Money, days: float}
+     */
+    private function pricedDayFraction(Money $rate, EntryRounding $rounding, TimeEntry $entry, int $workdayMinutes): array
+    {
+        [$numerator, $denominator] = $rounding->billedDayFraction($entry->duration_minutes, $workdayMinutes);
+
+        return [
+            'value' => $rate->multiply($numerator)->divide($denominator, MoneyPhp::ROUND_HALF_UP),
+            'days' => $numerator / $denominator,
+        ];
+    }
+
+    /**
      * What the entry bills: its value, and the quantity behind it in the mission's own
      * unit — days on a day-billed mission, minutes on an hourly one.
      *
-     * The quantities are for display. The value never goes through them: it is derived
-     * from an exact fraction, because 1/3 of a day has no float to round from.
+     * The quantities are for display.
      *
      * @return array{value: Money, days: float, minutes: int}
      */
@@ -97,12 +127,8 @@ class ValueTrackedTime
             ];
         }
 
-        [$numerator, $denominator] = $rounding->billedDayFraction($entry->duration_minutes, $workdayMinutes);
+        $priced = $this->pricedDayFraction($rate, $rounding, $entry, $workdayMinutes);
 
-        return [
-            'value' => $rate->multiply($numerator)->divide($denominator, MoneyPhp::ROUND_HALF_UP),
-            'days' => $numerator / $denominator,
-            'minutes' => 0,
-        ];
+        return ['value' => $priced['value'], 'days' => $priced['days'], 'minutes' => 0];
     }
 }

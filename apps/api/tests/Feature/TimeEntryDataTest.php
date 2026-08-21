@@ -45,11 +45,11 @@ test('values an hourly mission entry in minutes only', function (): void {
         ->and($data->valuedDayFraction)->toBeNull();
 });
 
-test('values a fixed price mission entry in quarter days', function (): void {
+test('values a fixed price mission entry at its own rounding', function (): void {
     $mission = missionOwnedBy(User::factory()->create(), fn ($factory) => $factory->fixed());
     $data = TimeEntryData::from(entryOn($mission, 100));
 
-    expect($data->valuedDayFraction)->toBe(0.25)
+    expect($data->valuedDayFraction)->toBe(0.5)
         ->and($data->valuedMinutes)->toBeNull();
 });
 

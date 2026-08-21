@@ -16,7 +16,9 @@ use Spatie\LaravelData\Data;
  * construction rather than by convention.
  *
  * The amounts differ in nature: an overdue invoice is owed gross, unbilled time is
- * worth its net value.
+ * worth its net value, a forfait row carries what is left to invoice — or, once the
+ * budget is blown, what the overrun costs. Always a positive figure: which of the two
+ * it is, and whether it reads as a loss, follows from the kind.
  */
 class InvoiceTodoData extends Data
 {
@@ -27,5 +29,6 @@ class InvoiceTodoData extends Data
         public string $clientName,
         public ?InvoiceTodoOverdueData $overdue = null,
         public ?InvoiceTodoWorkData $work = null,
+        public ?InvoiceTodoBudgetData $budget = null,
     ) {}
 }

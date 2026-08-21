@@ -16,6 +16,7 @@ import { cn } from "@opusline/ui/lib/utils";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 import { useMemo, useState } from "react";
+import { BudgetShareBadge } from "@/components/budget-share-badge";
 import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatMissionRate } from "@/lib/billing";
@@ -209,6 +210,7 @@ export function ClientsTable({ clients, revenue }: ClientsTableProps) {
                 </TableRow>
                 {client.missions.map((mission) => {
                   const missionRevenue = revenueByMission.get(mission.id);
+                  const budget = missionRevenue?.fixedPrice ?? null;
 
                   return (
                     <TableRow
@@ -255,7 +257,11 @@ export function ClientsTable({ clients, revenue }: ClientsTableProps) {
                       <TableCell className="py-2.5 text-right font-mono text-foreground-3 tabular-nums">
                         {formatRevenue(format, missionRevenue?.yearToDate)}
                       </TableCell>
-                      <TableCell />
+                      <TableCell className="py-2.5 text-right">
+                        {budget === null ? null : (
+                          <BudgetShareBadge budget={budget} />
+                        )}
+                      </TableCell>
                       <TableCell className="py-2.5 pr-5 text-right">
                         <MissionStatusBadge
                           clientType={client.type}

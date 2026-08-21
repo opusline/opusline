@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
+import { fixedPriceBudget } from "@/test/fixtures";
 import {
   DEMO_CLIENTS,
   DEMO_TIME_ENTRIES,
@@ -49,12 +50,36 @@ export const WithAMissionOffTheGrid: Story = {
       ...missionOptions,
       {
         billingMode: 0,
+        budget: null,
         colorClass: "bg-palette-sage",
         hasRate: true,
         isInGrid: false,
         missionId: 99,
         name: "Vesterhus refonte boutique",
+        rounding: 0,
         subtitle: "Client direct · 480 €/j",
+      },
+    ],
+  },
+};
+
+/**
+ * A forfait mission: the duration typed is projected against the price it eats,
+ * before the entry is saved.
+ */
+export const OnAForfaitMission: Story = {
+  args: {
+    missionOptions: [
+      {
+        billingMode: 2,
+        budget: fixedPriceBudget(),
+        colorClass: "bg-palette-amber",
+        hasRate: true,
+        isInGrid: false,
+        missionId: 42,
+        name: "Lunaprint refonte boutique",
+        rounding: 0,
+        subtitle: "Client direct · 10 000 € forfait",
       },
     ],
   },

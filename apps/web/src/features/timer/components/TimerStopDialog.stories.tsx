@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
+import { fixedPriceBudget, overrunFixedPriceBudget } from "@/test/fixtures";
 import { defaultStopOption, stopChoices } from "../lib/rounding";
 import {
   DEMO_ELAPSED_SECONDS,
@@ -88,4 +89,25 @@ export const Saving: Story = {
 
 export const SaveRefused: Story = {
   args: { error: "Le suivi n'existe plus." },
+};
+
+/**
+ * The mission is a forfait: the entry bills nothing on its own, and what it does
+ * do is eat the price — so the dialog says how much of it this one takes.
+ */
+export const OnAForfaitMission: Story = {
+  args: {
+    missionBudget: fixedPriceBudget(),
+    missionName: "Lunaprint refonte boutique",
+    missionRounding: 0,
+  },
+};
+
+/** The same entry once the forfait has already been overrun. */
+export const OnAnOverrunForfait: Story = {
+  args: {
+    missionBudget: overrunFixedPriceBudget(),
+    missionName: "Ateliers Ruche vitrine",
+    missionRounding: 0,
+  },
 };

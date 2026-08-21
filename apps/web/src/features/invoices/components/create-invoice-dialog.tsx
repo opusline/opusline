@@ -11,14 +11,8 @@ import {
   DialogTitle,
 } from "@opusline/ui/components/dialog";
 import { Input } from "@opusline/ui/components/input";
-import {
-  InputGroup,
-  InputGroupInput,
-  InputGroupSuffix,
-} from "@opusline/ui/components/input-group";
 import { Label } from "@opusline/ui/components/label";
-import { cn } from "@opusline/ui/lib/utils";
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 
 import {
   useDateFormat,
@@ -35,7 +29,9 @@ import { calendarRangeLabel } from "@/lib/dates";
 import { m } from "@/paraglide/messages.js";
 
 import { unbilledWorkTitle } from "../lib/summary-labels";
+import { useSuggestedNumber } from "../lib/use-suggested-number";
 import { Fact } from "./invoice-fact";
+import { InvoiceVatField } from "./invoice-vat-field";
 
 export type CreateInvoiceSubmit = {
   clientId: number;
@@ -118,22 +114,13 @@ function CreateInvoiceForm({
   const dateFormat = useDateFormat();
   const numberFieldId = useId();
   const amountFieldId = useId();
-  const vatFieldId = useId();
-  const vatHintId = useId();
-  const [number, setNumber] = useState("");
+  const [number, setNumber] = useSuggestedNumber(suggestedNumber);
   const [amountDraft, setAmountDraft] = useState(() =>
     formatAmount(format, todo.amount.amount),
   );
   const [vatDraft, setVatDraft] = useState(() =>
     formatPercentFromBp(format.locale, work.vatRateBp),
   );
-
-  // The suggestion arrives after the dialog opens, and must not overwrite typing.
-  useEffect(() => {
-    if (suggestedNumber !== null) {
-      setNumber((current) => (current === "" ? suggestedNumber : current));
-    }
-  }, [suggestedNumber]);
 
   const amountHtCents = parseRateToCents(format.locale, amountDraft);
   // With no field to read, the rate goes back to the API rather than being invented
@@ -215,36 +202,12 @@ function CreateInvoiceForm({
           />
         </div>
 
-        {vatLiable ? (
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor={vatFieldId}>{m.invoices_vat_label()}</Label>
-            <InputGroup>
-              <InputGroupInput
-                aria-describedby={vatHintId}
-                aria-invalid={isVatInvalid}
-                className="flex-1"
-                id={vatFieldId}
-                inputMode="decimal"
-                onChange={(event) => setVatDraft(event.target.value)}
-                value={vatDraft}
-              />
-              <InputGroupSuffix>%</InputGroupSuffix>
-            </InputGroup>
-            <p
-              className={cn(
-                "text-xs",
-                isVatInvalid ? "text-destructive" : "text-muted-foreground-3",
-              )}
-              id={vatHintId}
-            >
-              {isVatInvalid ? m.common_rate_invalid() : m.invoices_vat_hint()}
-            </p>
-          </div>
-        ) : (
-          <p className="text-muted-foreground-3 text-xs">
-            {m.invoices_vat_franchise_hint()}
-          </p>
-        )}
+        <InvoiceVatField
+          draft={vatDraft}
+          isInvalid={isVatInvalid}
+          onDraftChange={setVatDraft}
+          vatLiable={vatLiable}
+        />
       </div>
 
       {error !== null && (

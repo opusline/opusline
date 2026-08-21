@@ -1,5 +1,6 @@
 import type {
   ClientWithMissionsData,
+  FixedPriceBudgetData,
   MonthWorkloadData,
   TimeEntryData,
 } from "@opusline/api-client";
@@ -30,6 +31,11 @@ import { WeekToolbar } from "./week-toolbar";
 export type WeekPageProps = {
   live: LiveCell | null;
   clients: ClientWithMissionsData[];
+  /**
+   * The forfait budgets of the account, keyed by mission id — what the rows read
+   * their consumption badge off, and what a new entry is projected against.
+   */
+  budgets?: Map<number, FixedPriceBudgetData>;
   timeEntries: TimeEntryData[];
   previousWeekEntries: TimeEntryData[];
   week: string;
@@ -67,6 +73,7 @@ function isTypingTarget(target: EventTarget | null): boolean {
 }
 
 export function WeekPage({
+  budgets,
   clients,
   timeEntries,
   previousWeekEntries,
@@ -105,6 +112,7 @@ export function WeekPage({
   const model = useMemo(
     () =>
       buildWeekGrid({
+        budgets,
         clients,
         format,
         liveMissionId: liveHere?.missionId ?? null,
@@ -114,6 +122,7 @@ export function WeekPage({
         weekendShown,
       }),
     [
+      budgets,
       clients,
       format,
       liveHere?.missionId,

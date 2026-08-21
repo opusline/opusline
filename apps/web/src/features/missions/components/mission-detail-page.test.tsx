@@ -11,7 +11,12 @@ import { afterEach, expect, it, vi } from "vitest";
 
 import { getRouter } from "@/router";
 import { seedCurrentUser } from "@/test/current-user";
-import { invoiceItem, missionRevenueDetailPayload } from "@/test/fixtures";
+import {
+  fixedPriceBudget,
+  invoiceItem,
+  missionRevenueDetailPayload,
+  overrunFixedPriceBudget,
+} from "@/test/fixtures";
 
 function missionPayload(overrides: Partial<MissionData> = {}): MissionData {
   return {
@@ -22,6 +27,7 @@ function missionPayload(overrides: Partial<MissionData> = {}): MissionData {
     endClientName: "Callisto",
     billingMode: 0,
     rate: { amount: 55_000, currency: "EUR" },
+    referenceDailyRate: null,
     rounding: 0,
     status: 0,
     craRequired: true,
@@ -79,6 +85,7 @@ function stubApi(
   mission: MissionData,
   documents: DocumentData[] = [],
   invoices: InvoiceListItemData[] = [],
+  revenue = missionRevenueDetailPayload(),
 ): RecordedRequest[] {
   const requests: RecordedRequest[] = [];
 
@@ -102,7 +109,7 @@ function stubApi(
       }
 
       if (url.pathname.endsWith("/revenue")) {
-        return jsonResponse(200, missionRevenueDetailPayload());
+        return jsonResponse(200, revenue);
       }
 
       // Answered only for this mission's slice: a tab that dropped the filter
@@ -438,4 +445,50 @@ it("fills the header tiles with the mission's revenue figures", async () => {
   expect(await screen.findByText("6 050 €")).toBeInTheDocument();
   expect(screen.getByText("71 500 €")).toBeInTheDocument();
   expect(screen.getByText("4 470 €")).toBeInTheDocument();
+});
+
+it("reads a forfait against its price rather than its revenue", async () => {
+  stubApi(
+    missionPayload({
+      billingMode: 2,
+      rate: { amount: 1_000_000, currency: "EUR" },
+      referenceDailyRate: { amount: 48_000, currency: "EUR" },
+    }),
+    [],
+    [],
+    { ...missionRevenueDetailPayload(), fixedPrice: fixedPriceBudget() },
+  );
+  await renderMissionDetail();
+
+  expect(screen.getByText("Forfait")).toBeInTheDocument();
+  expect(screen.getByText("Reste à facturer")).toBeInTheDocument();
+  expect(screen.getByText("Consommé")).toBeInTheDocument();
+  expect(screen.getByText(/Forfait consommé à 86/)).toBeInTheDocument();
+});
+
+it("warns loudly once the time tracked has eaten past the price", async () => {
+  stubApi(
+    missionPayload({
+      billingMode: 2,
+      rate: { amount: 480_000, currency: "EUR" },
+      referenceDailyRate: { amount: 55_000, currency: "EUR" },
+    }),
+    [],
+    [],
+    {
+      ...missionRevenueDetailPayload(),
+      fixedPrice: overrunFixedPriceBudget(),
+    },
+  );
+  await renderMissionDetail();
+
+  expect(screen.getByText(/Forfait dépassé de/)).toBeInTheDocument();
+});
+
+it("keeps the usual revenue tiles on a mission billed by the day", async () => {
+  stubApi(missionPayload());
+  await renderMissionDetail();
+
+  expect(screen.getByText("CA ce mois")).toBeInTheDocument();
+  expect(screen.queryByText("Consommé")).not.toBeInTheDocument();
 });

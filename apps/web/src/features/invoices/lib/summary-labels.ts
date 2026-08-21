@@ -2,17 +2,20 @@ import type {
   DateFormat,
   InvoiceForecastBucket,
   InvoiceOverdueData,
+  InvoiceTodoBudgetData,
   InvoiceTodoOverdueData,
   InvoiceTodoWorkData,
   InvoiceTotalData,
   Locale,
 } from "@opusline/api-client";
+import { formatWholeAmount, type MoneyFormat } from "@/lib/billing";
 import {
   cachedDateFormatter,
   calendarDateNumericLabel,
   fromCalendarDate,
 } from "@/lib/dates";
-import { billedQuantityLabel } from "@/lib/durations";
+import { billedQuantityLabel, formatWorkedDays } from "@/lib/durations";
+import { budgetShareFigure } from "@/lib/fixed-price-budget";
 import { m } from "@/paraglide/messages.js";
 
 export function openInvoicesLabel(toCollect: InvoiceTotalData): string {
@@ -107,5 +110,47 @@ export function overdueDetail(
   return m.invoices_overdue_detail({
     date: calendarDateNumericLabel(dateFormat, overdue.dueOn),
     days: overdue.daysLate,
+  });
+}
+
+/** "HartPrint refonte boutique · forfait consommé à 86 %" */
+export function budgetRowTitle(
+  locale: Locale,
+  budget: InvoiceTodoBudgetData,
+): string {
+  const { consumption } = budget.budget;
+
+  return m.invoices_todo_budget_title({
+    mission: budget.missionName,
+    share:
+      consumption === null
+        ? "—"
+        : budgetShareFigure(locale, consumption.consumedShareBp),
+  });
+}
+
+/**
+ * What the forfait row states under its title: the runway left before the price is
+ * eaten, or once it is, what the overrun costs.
+ */
+export function budgetRowDetail(
+  format: MoneyFormat,
+  budget: InvoiceTodoBudgetData,
+): string {
+  const { consumption } = budget.budget;
+
+  if (consumption !== null && consumption.state === 2) {
+    return m.invoices_todo_budget_exceeded_detail({
+      consumed: formatWholeAmount(format, consumption.consumed.amount),
+      forfait: formatWholeAmount(format, budget.budget.forfait.amount),
+      over: formatWorkedDays(format.locale, -consumption.remainingDays),
+    });
+  }
+
+  return m.invoices_todo_budget_detail({
+    remaining:
+      consumption === null
+        ? "—"
+        : formatWorkedDays(format.locale, consumption.remainingDays),
   });
 }

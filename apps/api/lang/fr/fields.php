@@ -67,6 +67,7 @@ return [
     'periodEnd' => 'fin de période',
     'periodStart' => 'début de période',
     'rate' => 'tarif',
+    'referenceDailyRate' => 'TJM de référence',
     'rounding' => 'arrondi',
     'seconds' => 'secondes',
     'sentOn' => 'date d\'envoi',

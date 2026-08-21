@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
+import { BUDGET_OVERRUN_TODO, BUDGET_TODO } from "@/test/fixtures";
 import { invoiceSummary, unbilledTodoRow } from "../lib/fixtures";
 import { InvoiceTodoPanel } from "./invoice-todo-panel";
 
@@ -14,6 +15,8 @@ const meta = {
     todoTotal: summary.todoTotal,
     onRemind: () => {},
     onCreateInvoice: () => {},
+    onBillForfait: () => {},
+    onOpenMission: () => {},
   },
 } satisfies Meta<typeof InvoiceTodoPanel>;
 
@@ -44,4 +47,14 @@ export const Capped: Story = {
 
 export const Empty: Story = {
   args: { todo: [], todoTotal: 0 },
+};
+
+/** A forfait past its warning threshold, with a balance still to invoice. */
+export const ForfaitRunningOut: Story = {
+  args: { todo: [BUDGET_TODO], todoTotal: 1 },
+};
+
+/** Past the price: the row states the overrun rather than what is left to bill. */
+export const ForfaitOverrun: Story = {
+  args: { todo: [BUDGET_OVERRUN_TODO], todoTotal: 1 },
 };

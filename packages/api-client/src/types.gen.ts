@@ -374,6 +374,10 @@ export type CreateMissionData = {
         amount: number;
         currency: Currency;
     } | null;
+    referenceDailyRate?: {
+        amount: number;
+        currency: Currency;
+    } | null;
     endClientName?: string | null;
     rounding?: EntryRounding | null;
     craRequired?: boolean | null;
@@ -444,6 +448,40 @@ export type DocumentSource = 0 | 1;
  *
  */
 export type EntryRounding = 0 | 1 | 2;
+
+/**
+ * FixedPriceBudgetData
+ */
+export type FixedPriceBudgetData = {
+    forfait: MoneyData;
+    invoiced: MoneyData;
+    draft: MoneyData;
+    remaining: SignedMoneyData;
+    invoicedShareBp: number;
+    consumption: FixedPriceConsumptionData | null;
+};
+
+/**
+ * FixedPriceBudgetState
+ *
+ * How much of a forfait its tracked time has eaten, as three states rather than a raw percentage: the threshold that separates them is a product decision, and resolving it here keeps every screen — banner, tile, badge, « À traiter » — reading the same one. Labels live on the frontend, like every other enum here.
+ *
+ */
+export type FixedPriceBudgetState = 0 | 1 | 2;
+
+/**
+ * FixedPriceConsumptionData
+ */
+export type FixedPriceConsumptionData = {
+    referenceDailyRate: MoneyData;
+    trackedDays: number;
+    consumed: MoneyData;
+    consumedShareBp: number;
+    coveredDays: number;
+    remainingDays: number;
+    overrun: MoneyData;
+    state: FixedPriceBudgetState;
+};
 
 /**
  * ImportBankStatementData
@@ -592,6 +630,18 @@ export type InvoiceSummaryData = {
 };
 
 /**
+ * InvoiceTodoBudgetData
+ */
+export type InvoiceTodoBudgetData = {
+    missionId: number;
+    missionName: string;
+    missionSlug: string;
+    clientSlug: string;
+    budget: FixedPriceBudgetData;
+    vatRateBp: number;
+};
+
+/**
  * InvoiceTodoData
  */
 export type InvoiceTodoData = {
@@ -601,15 +651,16 @@ export type InvoiceTodoData = {
     clientName: string;
     overdue?: InvoiceTodoOverdueData | null;
     work?: InvoiceTodoWorkData | null;
+    budget?: InvoiceTodoBudgetData | null;
 };
 
 /**
  * InvoiceTodoKind
  *
- * What the "À traiter" list can put in front of you: money that was billed and has not come in, and money that was worked and has not been billed. Drafts are not here — an unsent draft is a note to self, not a debt. Labels live on the frontend, like every other enum here.
+ * What the "À traiter" list can put in front of you: money that was billed and has not come in, money that was worked and has not been billed, and a forfait whose time is running out or has already run over. Drafts are not here — an unsent draft is a note to self, not a debt. Labels live on the frontend, like every other enum here.
  *
  */
-export type InvoiceTodoKind = 0 | 1;
+export type InvoiceTodoKind = 0 | 1 | 2 | 3;
 
 /**
  * InvoiceTodoOverdueData
@@ -669,6 +720,7 @@ export type MissionData = {
     endClientName: string | null;
     billingMode: BillingMode;
     rate: MoneyData | null;
+    referenceDailyRate: MoneyData | null;
     rounding: EntryRounding | null;
     status: MissionStatus;
     craRequired: boolean;
@@ -689,6 +741,7 @@ export type MissionRevenueData = {
     monthlyAverage: MoneyData | null;
     currentMonthDays: number | null;
     currentMonthMinutes: number | null;
+    fixedPrice?: FixedPriceBudgetData | null;
 };
 
 /**
@@ -1057,6 +1110,10 @@ export type UpdateMissionData = {
     billingMode: BillingMode;
     status: MissionStatus;
     rate?: {
+        amount: number;
+        currency: Currency;
+    } | null;
+    referenceDailyRate?: {
         amount: number;
         currency: Currency;
     } | null;

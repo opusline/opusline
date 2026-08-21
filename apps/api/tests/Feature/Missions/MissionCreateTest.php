@@ -53,7 +53,7 @@ test('creates an hourly mission', function (): void {
         ->assertJsonPath('rate.amount', 8_500);
 });
 
-test('creates a fixed price mission without rounding', function (): void {
+test('creates a fixed price mission with a rounding and a reference daily rate', function (): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
 
@@ -62,27 +62,35 @@ test('creates a fixed price mission without rounding', function (): void {
             'name' => 'Lunaprint site',
             'billingMode' => BillingMode::Fixed->value,
             'rate' => ['amount' => 480_000, 'currency' => 'EUR'],
+            'referenceDailyRate' => ['amount' => 55_000, 'currency' => 'EUR'],
+            'rounding' => EntryRounding::Half->value,
         ])
         ->assertCreated()
         ->assertJsonPath('billingMode', BillingMode::Fixed->value)
         ->assertJsonPath('rate.amount', 480_000)
-        ->assertJsonPath('rounding', null);
+        ->assertJsonPath('referenceDailyRate.amount', 55_000)
+        ->assertJsonPath('rounding', EntryRounding::Half->value);
 
-    $this->assertDatabaseHas('missions', ['name' => 'Lunaprint site', 'rounding' => null]);
+    $this->assertDatabaseHas('missions', [
+        'name' => 'Lunaprint site',
+        'rounding' => EntryRounding::Half->value,
+        'reference_daily_rate_cents' => 55_000,
+    ]);
 });
 
-test('rejects a rounding for a fixed price mission', function (): void {
+test('rejects a reference daily rate on a mission that is not a fixed price', function (): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
 
     $this->actingAs($user)
         ->postJson("/api/clients/{$client->slug}/missions", [
-            'name' => 'Lunaprint site',
-            'billingMode' => BillingMode::Fixed->value,
-            'rounding' => EntryRounding::Half->value,
+            'name' => 'Callisto front',
+            'billingMode' => BillingMode::Daily->value,
+            'rate' => ['amount' => 55_000, 'currency' => 'EUR'],
+            'referenceDailyRate' => ['amount' => 55_000, 'currency' => 'EUR'],
         ])
         ->assertUnprocessable()
-        ->assertJsonValidationErrors(['rounding']);
+        ->assertJsonValidationErrors(['referenceDailyRate']);
 });
 
 test('defaults the rounding to half a unit for time based missions', function (): void {

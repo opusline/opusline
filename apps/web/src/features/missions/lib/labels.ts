@@ -23,11 +23,16 @@ export function billingModeRatePlaceholder(mode: BillingMode): string {
   return RATE_PLACEHOLDER_MESSAGES[mode]();
 }
 
-const UNIT_SHORT_MESSAGES: Record<BillingMode, () => string> = {
-  0: m.missions_unit_short_daily,
-  1: m.missions_unit_short_hourly,
-  2: () => "",
+const AMOUNT_LABEL_MESSAGES: Record<BillingMode, () => string> = {
+  0: m.missions_rate_ht,
+  1: m.missions_rate_ht,
+  2: m.missions_forfait_amount_label,
 };
+
+/** What the amount field is called: a rate on time, a price on a forfait. */
+export function billingModeAmountLabel(mode: BillingMode): string {
+  return AMOUNT_LABEL_MESSAGES[mode]();
+}
 
 const UNIT_MESSAGES: Record<BillingMode, () => string> = {
   0: m.missions_unit_daily,
@@ -35,16 +40,26 @@ const UNIT_MESSAGES: Record<BillingMode, () => string> = {
   2: m.missions_unit_fixed_total,
 };
 
-export function billingModeUnitShort(
-  format: MoneyFormat,
-  mode: BillingMode,
-): string {
-  return currencySymbol(format) + UNIT_SHORT_MESSAGES[mode]();
-}
-
 export function billingModeUnit(
   format: MoneyFormat,
   mode: BillingMode,
 ): string {
   return currencySymbol(format) + UNIT_MESSAGES[mode]();
+}
+
+const AMOUNT_UNIT_MESSAGES: Record<BillingMode, () => string> = {
+  0: m.missions_unit_short_daily,
+  1: m.missions_unit_short_hourly,
+  2: m.missions_unit_fixed_total,
+};
+
+/**
+ * What sits beside a mission's amount when it is read rather than typed: the short
+ * unit for a rate, the long "HT au total" for a price that is the whole contract.
+ */
+export function billingModeAmountUnit(
+  format: MoneyFormat,
+  mode: BillingMode,
+): string {
+  return currencySymbol(format) + AMOUNT_UNIT_MESSAGES[mode]();
 }

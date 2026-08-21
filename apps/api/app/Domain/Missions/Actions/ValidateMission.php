@@ -9,7 +9,6 @@ use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Data\CreateMissionData;
 use App\Domain\Missions\Data\UpdateMissionData;
 use App\Domain\Missions\Enums\BillingMode;
-use App\Domain\Missions\Enums\EntryRounding;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Data\MoneyData;
 use Illuminate\Validation\ValidationException;
@@ -40,9 +39,12 @@ class ValidateMission
             ]);
         }
 
-        if ($data->billingMode === BillingMode::Fixed && $data->rounding instanceof EntryRounding) {
+        // A reference rate values tracked time against a fixed price. Anywhere else
+        // there is already a rate doing that, and a second one would only be a way to
+        // read two different numbers for the same day.
+        if ($data->billingMode !== BillingMode::Fixed && $data->referenceDailyRate instanceof MoneyData) {
             throw ValidationException::withMessages([
-                'rounding' => __('missions.rounding_forbidden_for_fixed'),
+                'referenceDailyRate' => __('missions.reference_daily_rate_only_for_fixed'),
             ]);
         }
 

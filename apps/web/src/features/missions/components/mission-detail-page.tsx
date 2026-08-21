@@ -1,12 +1,17 @@
 import type {
   ClientWithMissionsData,
+  FixedPriceBudgetData,
   MissionData,
   MissionRevenueData,
   MissionStatus,
   TimeEntryData,
   UpdateMissionData,
 } from "@opusline/api-client";
-import { Alert, AlertDescription } from "@opusline/ui/components/alert";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
 import {
   DropdownMenu,
@@ -29,21 +34,39 @@ import {
   CircleAlert,
   MoreHorizontalIcon,
   PlusIcon,
+  TriangleAlertIcon,
 } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { useMoneyFormat } from "@/components/money-format-provider";
-import { formatAmount, missionBills, paymentTermsLabel } from "@/lib/billing";
-import { formatRevenue, formatTrackedMonth } from "@/lib/client-revenue";
+import {
+  formatAmount,
+  formatAmountWithCents,
+  formatWholeAmount,
+  type MoneyFormat,
+  missionBills,
+  paymentTermsLabel,
+} from "@/lib/billing";
+import {
+  formatRevenue,
+  formatTrackedMonth,
+  REVENUE_PLACEHOLDER,
+} from "@/lib/client-revenue";
 import { clientTypeLabel } from "@/lib/client-types";
 import { calendarDateLabel, calendarMonthYearLabel } from "@/lib/dates";
+import { isFixedPrice } from "@/lib/durations";
 import { entryRoundingLabel } from "@/lib/entry-rounding";
+import {
+  budgetAlert,
+  budgetShareLabel,
+  budgetTone,
+} from "@/lib/fixed-price-budget";
 import type { FormSubmitResult } from "@/lib/form";
 import { COLOR_CLASSES } from "@/lib/palette";
 
 import { m } from "@/paraglide/messages.js";
 
-import { billingModeUnitShort } from "../lib/labels";
+import { billingModeAmountLabel, billingModeAmountUnit } from "../lib/labels";
 import { MissionEditForm } from "./mission-edit-form";
 import { MissionEntriesTable } from "./mission-entries-table";
 
@@ -56,6 +79,76 @@ function FacturationRow({ label, value }: { label: string; value: string }) {
       <span className="text-muted-foreground-3 text-sm">{label}</span>
       <span className="text-right text-foreground-2 text-sm">{value}</span>
     </div>
+  );
+}
+
+function RevenueTiles({
+  format,
+  revenue,
+}: {
+  format: MoneyFormat;
+  revenue: MissionRevenueData | undefined;
+}) {
+  return (
+    <>
+      <StatTile
+        label={m.missions_stat_this_month()}
+        value={formatTrackedMonth(format.locale, revenue)}
+        tone="strong"
+      />
+      <StatTile
+        label={m.missions_stat_revenue_month()}
+        value={formatRevenue(format, revenue?.currentMonth)}
+        tone="brand"
+      />
+      <StatTile
+        label={m.missions_stat_revenue_total()}
+        value={formatRevenue(format, revenue?.total)}
+      />
+      <StatTile
+        label={m.missions_stat_monthly_average()}
+        value={formatRevenue(format, revenue?.monthlyAverage)}
+      />
+    </>
+  );
+}
+
+/** A forfait is read against its price, not against what it has earned this month. */
+function ForfaitTiles({
+  budget,
+  format,
+}: {
+  budget: FixedPriceBudgetData;
+  format: MoneyFormat;
+}) {
+  const { consumption } = budget;
+
+  return (
+    <>
+      <StatTile
+        label={m.missions_stat_forfait()}
+        value={formatWholeAmount(format, budget.forfait.amount)}
+        tone="strong"
+      />
+      <StatTile
+        label={m.missions_stat_invoiced()}
+        value={formatWholeAmount(format, budget.invoiced.amount)}
+        tone="brand"
+      />
+      <StatTile
+        label={m.missions_stat_left_to_invoice()}
+        value={formatWholeAmount(format, budget.remaining.amount)}
+      />
+      <StatTile
+        label={m.missions_stat_consumed()}
+        tone={consumption === null ? "quiet" : budgetTone(consumption.state)}
+        value={
+          consumption === null
+            ? REVENUE_PLACEHOLDER
+            : budgetShareLabel(format.locale, consumption.consumedShareBp)
+        }
+      />
+    </>
   );
 }
 
@@ -101,6 +194,9 @@ export function MissionDetailPage({
 
   const barColor = mission.color ?? client.color;
   const isDone = mission.status === 2;
+  const isForfait = isFixedPrice(mission.billingMode);
+  const budget = revenue?.fixedPrice ?? null;
+  const alert = budget === null ? null : budgetAlert(format, budget);
 
   const handleUpdate = async (body: UpdateMissionData) => {
     const result = await onUpdate(body);
@@ -257,25 +353,20 @@ export function MissionDetailPage({
         </Alert>
       ) : null}
 
+      {alert !== null && (
+        <Alert className="mb-5" variant={alert.tone}>
+          <TriangleAlertIcon />
+          <AlertTitle>{alert.title}</AlertTitle>
+          <AlertDescription>{alert.body}</AlertDescription>
+        </Alert>
+      )}
+
       <StatTileRow className="mb-5 grid-cols-2 md:grid-cols-4">
-        <StatTile
-          label={m.missions_stat_this_month()}
-          value={formatTrackedMonth(format.locale, revenue)}
-          tone="strong"
-        />
-        <StatTile
-          label={m.missions_stat_revenue_month()}
-          value={formatRevenue(format, revenue?.currentMonth)}
-          tone="brand"
-        />
-        <StatTile
-          label={m.missions_stat_revenue_total()}
-          value={formatRevenue(format, revenue?.total)}
-        />
-        <StatTile
-          label={m.missions_stat_monthly_average()}
-          value={formatRevenue(format, revenue?.monthlyAverage)}
-        />
+        {budget === null ? (
+          <RevenueTiles format={format} revenue={revenue} />
+        ) : (
+          <ForfaitTiles budget={budget} format={format} />
+        )}
       </StatTileRow>
 
       {isEditing ? (
@@ -342,29 +433,42 @@ export function MissionDetailPage({
                 {missionBills(mission) ? (
                   <div>
                     <div className="mb-1.5 text-muted-foreground-3 text-sm">
-                      {m.missions_rate_ht()}
+                      {billingModeAmountLabel(mission.billingMode)}
                     </div>
                     <div className="inline-flex items-baseline gap-2">
                       <span className="font-mono text-foreground-hi text-xl tabular-nums">
                         {formatAmount(format, mission.rate.amount)}
                       </span>
                       <span className="text-muted-foreground-2 text-sm">
-                        {billingModeUnitShort(format, mission.billingMode)}
+                        {billingModeAmountUnit(format, mission.billingMode)}
                       </span>
                     </div>
-                    {mission.billingMode !== 2 && (
+                    {isForfait && mission.referenceDailyRate !== null && (
                       <>
                         <div className="mt-3.5 mb-1.5 text-muted-foreground-3 text-sm">
-                          {m.missions_rounding_label()}
+                          {m.missions_reference_rate_label()}
                         </div>
-                        <div className="inline-flex h-9 items-center rounded-md border border-border-4 bg-secondary px-3 font-mono text-foreground-hi text-sm">
-                          {entryRoundingLabel(
-                            mission.rounding ?? 0,
-                            mission.billingMode,
+                        <div className="font-mono text-foreground-hi text-sm">
+                          {formatAmountWithCents(
+                            format,
+                            mission.referenceDailyRate.amount,
                           )}
+                          {m.missions_unit_daily()}
                         </div>
+                        <p className="mt-1.5 max-w-[46ch] text-pretty text-muted-foreground-3 text-xs leading-relaxed">
+                          {m.missions_reference_rate_hint()}
+                        </p>
                       </>
                     )}
+                    <div className="mt-3.5 mb-1.5 text-muted-foreground-3 text-sm">
+                      {m.missions_rounding_label()}
+                    </div>
+                    <div className="inline-flex h-9 items-center rounded-md border border-border-4 bg-secondary px-3 font-mono text-foreground-hi text-sm">
+                      {entryRoundingLabel(
+                        mission.rounding ?? 0,
+                        mission.billingMode,
+                      )}
+                    </div>
                     <div className="mt-3.5 mb-1.5 text-muted-foreground-3 text-sm">
                       {m.clients_payment_terms_label()}
                     </div>

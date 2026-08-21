@@ -1,3 +1,4 @@
+import type { EntryRounding, FixedPriceBudgetData } from "@opusline/api-client";
 import { Button } from "@opusline/ui/components/button";
 import { Checkbox } from "@opusline/ui/components/checkbox";
 import { ChipGroup, ChipOption } from "@opusline/ui/components/chip";
@@ -11,6 +12,7 @@ import { Input } from "@opusline/ui/components/input";
 import { Kbd } from "@opusline/ui/components/kbd";
 import { Label } from "@opusline/ui/components/label";
 import { useId } from "react";
+import { ForfaitProjectionNote } from "@/components/forfait-projection-note";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { matchingNotes, NoteSuggestions } from "@/components/note-suggestions";
 import { formatDurationInput, formatWorkedTime } from "@/lib/durations";
@@ -33,6 +35,9 @@ export type TimerStopDialogProps = {
   isSaving: boolean;
   missionName: string;
   missionRoundingLabel: string | null;
+  /** The forfait this entry lands on, when it lands on one. */
+  missionBudget?: FixedPriceBudgetData | null;
+  missionRounding?: EntryRounding | null;
   note: string;
   noteSuggestions: string[];
   onChangeBillable: (billable: boolean) => void;
@@ -59,6 +64,8 @@ export function TimerStopDialog({
   isSaving,
   missionName,
   missionRoundingLabel,
+  missionBudget = null,
+  missionRounding = null,
   note,
   noteSuggestions,
   onChangeBillable,
@@ -221,6 +228,25 @@ export function TimerStopDialog({
               {m.timer_non_billable()}
             </Label>
           </div>
+
+          {missionBudget !== null && (
+            <>
+              <div className="flex items-baseline justify-between gap-3 border-t pt-3.5">
+                <span className="text-muted-foreground-3 text-xs">
+                  {m.timer_billable_amount_label()}
+                </span>
+                <span className="text-foreground-3 text-xs">
+                  {m.timer_included_in_forfait()}
+                </span>
+              </div>
+              <ForfaitProjectionNote
+                budget={missionBudget}
+                minutes={selected.minutes}
+                rounding={selected.rounding ?? missionRounding}
+                workdayMinutes={workdayMinutes}
+              />
+            </>
+          )}
 
           {error !== null && (
             <p className="text-destructive text-xs" role="alert">

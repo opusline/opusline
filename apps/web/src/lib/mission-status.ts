@@ -6,6 +6,7 @@ import type {
 } from "@opusline/api-client";
 
 import { m } from "@/paraglide/messages.js";
+import { missionBills } from "./billing";
 import { isInternalClient } from "./client-types";
 
 const MISSION_STATUS_MESSAGES: Record<MissionStatus, () => string> = {
@@ -36,6 +37,23 @@ export function isMissionOpenForTime(
   client: ClientWithMissionsData,
 ): boolean {
   return !isMissionCompleted(mission.status) && client.archivedAt === null;
+}
+
+/**
+ * Whether an invoice can be recorded against this mission. Unlike tracking time, a
+ * finished mission still bills — the invoice usually comes after the work — but an
+ * internal client has nobody to invoice, and a mission with no rate is not billable
+ * by construction.
+ */
+export function isMissionOpenForInvoicing(
+  mission: MissionData,
+  client: ClientWithMissionsData,
+): boolean {
+  return (
+    missionBills(mission) &&
+    !isInternalClient(client.type) &&
+    client.archivedAt === null
+  );
 }
 
 export function missionStatusBadge(

@@ -11,6 +11,7 @@ import { Input } from "@opusline/ui/components/input";
 import { Label } from "@opusline/ui/components/label";
 import { cn } from "@opusline/ui/lib/utils";
 import { useEffect, useId, useState } from "react";
+import { ForfaitProjectionNote } from "@/components/forfait-projection-note";
 import { useLocale } from "@/components/money-format-provider";
 import { matchingNotes, NoteSuggestions } from "@/components/note-suggestions";
 import { addCalendarDays, isCalendarDate } from "@/lib/dates";
@@ -224,6 +225,12 @@ function EntryStep({
     )
     .join(" + ");
 
+  const typed = parseDuration(duration, {
+    billingMode: mission.billingMode,
+    workdayMinutes,
+  });
+  const typedMinutes = typed.kind === "minutes" ? typed.minutes : null;
+
   const submit = () => {
     if (!isDateValid) {
       setError(m.week_date_required());
@@ -231,16 +238,11 @@ function EntryStep({
       return;
     }
 
-    const parsed = parseDuration(duration, {
-      billingMode: mission.billingMode,
-      workdayMinutes,
-    });
-
-    if (parsed.kind !== "minutes") {
+    if (typed.kind !== "minutes") {
       setError(
-        parsed.kind === "clear"
+        typed.kind === "clear"
           ? m.week_duration_required()
-          : durationErrorHint(parsed.reason),
+          : durationErrorHint(typed.reason),
       );
 
       return;
@@ -249,7 +251,7 @@ function EntryStep({
     onSubmit({
       billable,
       date,
-      durationMinutes: parsed.minutes,
+      durationMinutes: typed.minutes,
       missionId: mission.missionId,
       note: note.trim() === "" ? null : note.trim(),
       replaceEntryIds: replaceExisting ? existing.map((entry) => entry.id) : [],
@@ -362,6 +364,12 @@ function EntryStep({
               {error}
             </p>
           )}
+          <ForfaitProjectionNote
+            budget={mission.budget}
+            minutes={typedMinutes}
+            rounding={mission.rounding}
+            workdayMinutes={workdayMinutes}
+          />
         </div>
 
         <div className="flex flex-col gap-2">

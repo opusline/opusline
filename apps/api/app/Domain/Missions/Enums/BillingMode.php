@@ -15,12 +15,12 @@ enum BillingMode: int
         return $this !== self::Hourly;
     }
 
-    public function resolveRounding(?EntryRounding $requested): ?EntryRounding
+    /**
+     * A forfait rounds like any other mission: it bills no time, but the increment is
+     * what its tracked days — and so its budget consumption — are measured in.
+     */
+    public function resolveRounding(?EntryRounding $requested): EntryRounding
     {
-        if ($this === self::Fixed) {
-            return null;
-        }
-
         return $requested ?? EntryRounding::Half;
     }
 

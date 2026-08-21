@@ -184,7 +184,7 @@ it("preselects the client from the search param", async () => {
   expect(screen.queryByText("CRA mensuel requis")).not.toBeInTheDocument();
 });
 
-it("hides the rounding and explains the forfait mode", async () => {
+it("keeps the rounding and explains the forfait mode", async () => {
   stubApi();
   await renderNewMissionPage();
 
@@ -195,7 +195,9 @@ it("hides the rounding and explains the forfait mode", async () => {
 
   fireEvent.click(screen.getByRole("button", { name: "Forfait" }));
 
-  expect(screen.queryByText("Arrondi des entrées")).not.toBeInTheDocument();
+  // The rounding stays: a forfait bills no time, but the increment is what its
+  // budget consumption is measured in.
+  expect(screen.getByText("Arrondi des entrées")).toBeInTheDocument();
   expect(
     screen.getByText(/le temps est suivi pour votre marge/),
   ).toBeInTheDocument();

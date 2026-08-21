@@ -21,6 +21,11 @@ class CreateMissionData extends Data
         public string $name,
         public BillingMode $billingMode,
         public ?MoneyData $rate = null,
+        /**
+         * The « TJM de référence »: what a tracked day is worth when reading a
+         * forfait's consumption. It prices nothing and reaches no invoice.
+         */
+        public ?MoneyData $referenceDailyRate = null,
         #[Min(1), Max(255)]
         public ?string $endClientName = null,
         public ?EntryRounding $rounding = null,

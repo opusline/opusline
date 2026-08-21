@@ -60,7 +60,7 @@ test('refuses to change the billing mode once time entries exist', function (Bil
     $mission = Mission::factory()->for($client, 'client')->create([
         'user_id' => $user->id,
         'billing_mode' => $from,
-        'rounding' => $from === BillingMode::Fixed ? null : EntryRounding::Half,
+        'rounding' => EntryRounding::Half,
     ]);
     trackedDay($user, $mission, '2026-08-03');
 
@@ -100,7 +100,7 @@ test('still updates a mission with time entries when the billing mode is unchang
         ->assertJsonPath('name', 'Renamed');
 });
 
-test('switches to fixed price and clears the rounding', function (): void {
+test('switches to fixed price and keeps a rounding to measure the budget with', function (): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
@@ -111,15 +111,35 @@ test('switches to fixed price and clears the rounding', function (): void {
             'billingMode' => BillingMode::Fixed->value,
             'status' => MissionStatus::Active->value,
             'rate' => ['amount' => 480_000, 'currency' => 'EUR'],
+            'rounding' => EntryRounding::Half->value,
         ])
         ->assertOk()
         ->assertJsonPath('billingMode', BillingMode::Fixed->value)
-        ->assertJsonPath('rounding', null);
+        ->assertJsonPath('rounding', EntryRounding::Half->value);
 
-    $this->assertDatabaseHas('missions', ['id' => $mission->id, 'rounding' => null]);
+    $this->assertDatabaseHas('missions', ['id' => $mission->id, 'rounding' => EntryRounding::Half->value]);
 });
 
-test('rejects a rounding when switching to fixed price', function (): void {
+test('sets a reference daily rate on a fixed price mission', function (): void {
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+    $mission = Mission::factory()->for($client, 'client')->fixed()->create(['user_id' => $user->id]);
+
+    $this->actingAs($user)
+        ->putJson("/api/clients/{$client->slug}/missions/{$mission->slug}", [
+            'name' => $mission->name,
+            'billingMode' => BillingMode::Fixed->value,
+            'status' => MissionStatus::Active->value,
+            'rate' => ['amount' => 480_000, 'currency' => 'EUR'],
+            'referenceDailyRate' => ['amount' => 55_000, 'currency' => 'EUR'],
+        ])
+        ->assertOk()
+        ->assertJsonPath('referenceDailyRate.amount', 55_000);
+
+    $this->assertDatabaseHas('missions', ['id' => $mission->id, 'reference_daily_rate_cents' => 55_000]);
+});
+
+test('rejects a reference daily rate when the mission is not a fixed price', function (): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
     $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
@@ -127,12 +147,13 @@ test('rejects a rounding when switching to fixed price', function (): void {
     $this->actingAs($user)
         ->putJson("/api/clients/{$client->slug}/missions/{$mission->slug}", [
             'name' => $mission->name,
-            'billingMode' => BillingMode::Fixed->value,
+            'billingMode' => BillingMode::Daily->value,
             'status' => MissionStatus::Active->value,
-            'rounding' => EntryRounding::Half->value,
+            'rate' => ['amount' => 55_000, 'currency' => 'EUR'],
+            'referenceDailyRate' => ['amount' => 55_000, 'currency' => 'EUR'],
         ])
         ->assertUnprocessable()
-        ->assertJsonValidationErrors(['rounding']);
+        ->assertJsonValidationErrors(['referenceDailyRate']);
 });
 
 test('resets an omitted rounding to half a unit', function (): void {

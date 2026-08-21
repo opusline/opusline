@@ -3,6 +3,7 @@ import type {
   ClientWithMissionsData,
 } from "@opusline/api-client";
 import type { Meta, StoryObj } from "@storybook/react";
+import { fixedPriceBudget } from "@/test/fixtures";
 import { StoryRouter } from "@/test/story-router";
 import { ClientsTable } from "./clients-table";
 
@@ -43,6 +44,7 @@ const baseClient = {
 
 const baseMission = {
   endClientName: null,
+  referenceDailyRate: null,
   rounding: 0,
   craRequired: false,
   color: null,
@@ -209,5 +211,56 @@ export const RevenuePending: Story = {
 export const Empty: Story = {
   args: {
     clients: [],
+  },
+};
+
+/**
+ * A forfait mission carries a consumption pill in the « en attente » column: the
+ * one figure that says whether the price is still covering the work.
+ */
+export const WithAForfaitMission: Story = {
+  args: {
+    clients: [
+      {
+        ...clients[0],
+        missions: [
+          ...clients[0].missions,
+          {
+            ...baseMission,
+            billingMode: 2,
+            clientId: clients[0].id,
+            id: 90,
+            name: "Nordlys refonte boutique",
+            rate: { amount: 1_000_000, currency: "EUR" },
+            referenceDailyRate: { amount: 48_000, currency: "EUR" },
+            slug: "nordlys-refonte-boutique",
+            status: 0,
+          },
+        ],
+      },
+      ...clients.slice(1),
+    ],
+    revenue: {
+      ...revenue,
+      clients: [
+        {
+          ...revenue.clients[0],
+          missions: [
+            ...revenue.clients[0].missions,
+            {
+              missionId: 90,
+              yearToDate: { amount: 288_000, currency: "EUR" },
+              currentMonth: { amount: 0, currency: "EUR" },
+              total: { amount: 288_000, currency: "EUR" },
+              monthlyAverage: null,
+              currentMonthDays: 6.5,
+              currentMonthMinutes: null,
+              fixedPrice: fixedPriceBudget(),
+            },
+          ],
+        },
+        ...revenue.clients.slice(1),
+      ],
+    },
   },
 };
