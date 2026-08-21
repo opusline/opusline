@@ -184,8 +184,14 @@ function AddInvoiceForm({
   // The API refuses an issued invoice without one, and the reference is the only
   // proof the document exists outside Opusline.
   const isNumberMissing = status !== 0 && number.trim() === "";
+  // The API refuses a paid invoice with no payment date, and the field is clearable.
+  const isPaidOnMissing = status === 2 && paidOn === "";
   const canSubmit =
-    amountHtCents !== null && !isVatInvalid && !isNumberMissing && !isSaving;
+    amountHtCents !== null &&
+    !isVatInvalid &&
+    !isNumberMissing &&
+    !isPaidOnMissing &&
+    !isSaving;
 
   return (
     <form
@@ -303,12 +309,18 @@ function AddInvoiceForm({
             <div className="flex flex-col gap-1.5">
               <Label htmlFor={paidFieldId}>{m.invoices_add_paid_label()}</Label>
               <Input
+                aria-invalid={isPaidOnMissing}
                 font="mono"
                 id={paidFieldId}
                 onChange={(event) => setPaidOn(event.target.value)}
                 type="date"
                 value={paidOn}
               />
+              {isPaidOnMissing && (
+                <p className="text-destructive text-xs">
+                  {m.invoices_add_paid_required()}
+                </p>
+              )}
             </div>
           )}
         </div>

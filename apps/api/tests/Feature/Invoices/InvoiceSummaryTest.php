@@ -578,3 +578,40 @@ test('drops a finished forfait from the list, however far it ran over', function
         ->assertOk()
         ->assertJsonPath('todoTotal', 0);
 });
+
+test('splits a full list evenly, then hands the spare rows to the most urgent kind', function (): void {
+    $user = User::factory()->create();
+
+    // Eight of each: past the even third, so every kind is capped and the two rows
+    // left over by the 20-row limit go to what costs most to ignore.
+    for ($index = 0; $index < 8; $index++) {
+        invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
+            'due_on' => '2026-06-30',
+            'amount_ttc_cents' => 100_000,
+        ]));
+
+        forfaitWith($user, 100_000, 90_000, days: 1);
+
+        $daily = missionOwnedBy($user, fn ($factory) => $factory->state([
+            'rate_cents' => 55_000,
+            'rounding' => EntryRounding::Half,
+        ]));
+        TimeEntry::factory()->for($daily, 'mission')->create([
+            'user_id' => $user->id,
+            'date' => '2026-08-03',
+            'duration_minutes' => 420,
+        ]);
+    }
+
+    $todo = $this->actingAs($user)
+        ->getJson('/api/invoices/summary')
+        ->assertOk()
+        ->json('todo');
+
+    $byKind = array_count_values(array_column($todo, 'kind'));
+
+    expect($todo)->toHaveCount(20)
+        ->and($byKind[InvoiceTodoKind::Overdue->value])->toBe(8)
+        ->and($byKind[InvoiceTodoKind::FixedPriceBudget->value])->toBe(6)
+        ->and($byKind[InvoiceTodoKind::UnbilledWork->value])->toBe(6);
+});

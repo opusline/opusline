@@ -8,7 +8,6 @@ use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Data\CreateMissionData;
 use App\Domain\Missions\Enums\MissionStatus;
 use App\Domain\Missions\Models\Mission;
-use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Validation\AccountCurrency;
 use App\Domain\Users\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -22,11 +21,7 @@ class CreateMission
         $this->validateMission->handle($client, $data);
 
         return DB::transaction(function () use ($user, $client, $data): Mission {
-            foreach ([$data->rate, $data->referenceDailyRate] as $money) {
-                if ($money instanceof MoneyData) {
-                    AccountCurrency::assertMatchesAccountUnderLock($user->id, $money);
-                }
-            }
+            AccountCurrency::assertAllMatchAccountUnderLock($user->id, $data->rate, $data->referenceDailyRate);
 
             return $user->missions()->create([
                 'client_id' => $client->id,

@@ -1,8 +1,12 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
-import { BUDGET_OVERRUN_TODO, BUDGET_TODO } from "@/test/fixtures";
-import { invoiceSummary, unbilledTodoRow } from "../lib/fixtures";
+import {
+  BUDGET_OVERRUN_TODO,
+  BUDGET_TODO,
+  invoiceSummary,
+  unbilledTodoRow,
+} from "../lib/fixtures";
 import { InvoiceTodoPanel } from "./invoice-todo-panel";
 
 const summary = invoiceSummary();

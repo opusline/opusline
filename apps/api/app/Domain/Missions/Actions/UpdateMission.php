@@ -7,7 +7,6 @@ namespace App\Domain\Missions\Actions;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Data\UpdateMissionData;
 use App\Domain\Missions\Models\Mission;
-use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Validation\AccountCurrency;
 use App\Domain\Users\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -26,11 +25,7 @@ class UpdateMission
 
             $this->validateMission->handle($client, $data, $mission);
 
-            foreach ([$data->rate, $data->referenceDailyRate] as $money) {
-                if ($money instanceof MoneyData) {
-                    AccountCurrency::assertMatchesAccountUnderLock($mission->user_id, $money);
-                }
-            }
+            AccountCurrency::assertAllMatchAccountUnderLock($mission->user_id, $data->rate, $data->referenceDailyRate);
 
             $mission->update([
                 'name' => $data->name,

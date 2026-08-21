@@ -5,7 +5,7 @@ import {
   fixedPriceBudget,
   MISSION_FIXTURE,
   overrunFixedPriceBudget,
-} from "@/test/fixtures";
+} from "../lib/fixtures";
 import { AddInvoiceDialog, type AddInvoiceMission } from "./add-invoice-dialog";
 
 const client = { ...CLIENT_FIXTURE, missions: [] };

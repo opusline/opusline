@@ -34,6 +34,12 @@ return new class extends Migration
 
     public function down(): void
     {
+        // The rule this migration relaxed forbade a rounding on a forfait, so leaving
+        // one behind would hand the old validation a row it refuses to update.
+        DB::table('missions')
+            ->where('billing_mode', BillingMode::Fixed->value)
+            ->update(['rounding' => null]);
+
         Schema::table('missions', function (Blueprint $table): void {
             $table->dropColumn('reference_daily_rate_cents');
         });

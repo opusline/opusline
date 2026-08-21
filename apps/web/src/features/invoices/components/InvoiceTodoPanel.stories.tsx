@@ -1,7 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { BUDGET_OVERRUN_TODO, BUDGET_TODO } from "@/test/fixtures";
-import { invoiceSummary, unbilledTodoRow } from "../lib/fixtures";
+import {
+  BUDGET_OVERRUN_TODO,
+  BUDGET_TODO,
+  invoiceSummary,
+  unbilledTodoRow,
+} from "../lib/fixtures";
 import { InvoiceTodoPanel } from "./invoice-todo-panel";
 
 const summary = invoiceSummary();

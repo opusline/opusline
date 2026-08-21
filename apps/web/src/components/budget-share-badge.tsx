@@ -20,9 +20,12 @@ export function BudgetShareBadge({ budget }: BudgetShareBadgeProps) {
     return null;
   }
 
+  const context = budgetShareTitle(format.locale, budget) ?? undefined;
+
   return (
     <Badge
-      title={budgetShareTitle(format.locale, budget) ?? undefined}
+      aria-label={context}
+      title={context}
       variant={budgetTone(consumption.state)}
     >
       {budgetShareLabel(format.locale, consumption.consumedShareBp)}

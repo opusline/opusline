@@ -65,11 +65,16 @@ export const UsAccount: Story = {
  * that explains why a fixed price carries a daily rate at all.
  */
 export const AsAReferenceDailyRate: Story = {
-  args: {
-    billingMode: 0,
-    hint: m.missions_reference_rate_hint(),
-    label: m.missions_reference_rate_label(),
-    placeholder: m.missions_reference_rate_placeholder(),
-    rateDraft: "480",
-  },
+  // The messages are read at render, not at module load: an args object is
+  // evaluated once, which would pin the copy to whatever locale booted first.
+  render: (args) => (
+    <MissionRateField
+      {...args}
+      billingMode={0}
+      hint={m.missions_reference_rate_hint()}
+      label={m.missions_reference_rate_label()}
+      placeholder={m.missions_reference_rate_placeholder()}
+      rateDraft="480"
+    />
+  ),
 };

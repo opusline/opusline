@@ -5,7 +5,7 @@ import {
   CLIENT_FIXTURE,
   fixedPriceBudget,
   MISSION_FIXTURE,
-} from "@/test/fixtures";
+} from "../lib/fixtures";
 import { AddInvoiceDialog, type AddInvoiceMission } from "./add-invoice-dialog";
 
 const client = { ...CLIENT_FIXTURE, missions: [] };
@@ -180,4 +180,20 @@ it("becomes usable when the missions land after the dialog opened", () => {
   expect(onSubmit).toHaveBeenCalledWith(
     expect.objectContaining({ missionId: daily.mission.id }),
   );
+});
+
+it("refuses a paid invoice whose payment date was cleared", () => {
+  const { onSubmit } = renderDialog();
+
+  fireEvent.change(amountField(), { target: { value: "1000" } });
+  fireEvent.click(screen.getByRole("button", { name: "Payée" }));
+  fireEvent.change(screen.getByLabelText("Payée le"), {
+    target: { value: "" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+
+  expect(onSubmit).not.toHaveBeenCalled();
+  expect(
+    screen.getByText(/Une facture payée porte la date/),
+  ).toBeInTheDocument();
 });

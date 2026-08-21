@@ -465,6 +465,7 @@
   "invoices_add_number_required": "Une facture envoyée ou payée porte la référence du document émis.",
   "invoices_add_over_note": "Ce montant dépasse de {amount} ce qu'il reste à facturer sur le forfait.",
   "invoices_add_paid_label": "Payée le",
+  "invoices_add_paid_required": "Une facture payée porte la date à laquelle l'argent est arrivé.",
   "invoices_add_period_label": "Période",
   "invoices_add_status_label": "Statut",
   "invoices_add_title": "Ajouter une facture",

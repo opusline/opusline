@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { fixedPriceBudget } from "@/test/fixtures";
+import { fixedPriceBudget, overrunFixedPriceBudget } from "@/test/fixtures";
 import { ForfaitProjectionNote } from "./forfait-projection-note";
 
 const meta = {
@@ -21,7 +21,13 @@ type Story = StoryObj<typeof meta>;
 /** Half a day on a forfait at 86 %: still inside the price. */
 export const WithinBudget: Story = {};
 
-/** Four days at once takes the same forfait past what it pays for. */
-export const PastTheForfait: Story = { args: { minutes: 420 * 4 } };
+/**
+ * A forfait with less than a day of runway left: one more entry takes it past the
+ * price. The entry itself is capped at a day, so the overrun has to come from what
+ * the mission has already eaten.
+ */
+export const PastTheForfait: Story = {
+  args: { budget: overrunFixedPriceBudget(), minutes: 420 },
+};
 
 export const NothingTypedYet: Story = { args: { minutes: null } };

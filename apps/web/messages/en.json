@@ -465,6 +465,7 @@
   "invoices_add_number_required": "A sent or paid invoice carries the reference of the document that was issued.",
   "invoices_add_over_note": "This amount goes {amount} past what is left to invoice on the fixed price.",
   "invoices_add_paid_label": "Paid on",
+  "invoices_add_paid_required": "A paid invoice carries the date the money landed.",
   "invoices_add_period_label": "Period",
   "invoices_add_status_label": "Status",
   "invoices_add_title": "Add an invoice",

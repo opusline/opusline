@@ -74,4 +74,29 @@ class AccountCurrency implements ValidationRule
 
         self::assertMatchesAccount($user, $money);
     }
+
+    /**
+     * The same for a write carrying several money fields, any of which may be absent:
+     * one lock and one settings read whatever the caller happens to hold, so a second
+     * amount cannot arrive with its own spelling of the check.
+     *
+     * @throws ValidationException
+     */
+    public static function assertAllMatchAccountUnderLock(int $userId, MoneyData|SignedMoneyData|null ...$amounts): void
+    {
+        $present = array_filter(
+            $amounts,
+            static fn (MoneyData|SignedMoneyData|null $money): bool => $money !== null,
+        );
+
+        if ($present === []) {
+            return;
+        }
+
+        $settings = User::lockRow($userId)->settings()->sole();
+
+        foreach ($present as $money) {
+            self::assertMatchesSettings($settings, $money);
+        }
+    }
 }
