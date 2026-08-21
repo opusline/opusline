@@ -14,6 +14,24 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.16.0",
+    date: "2026-08-21",
+    items: [
+      {
+        kind: "new",
+        text: "Every document filed on a client or a mission is now listed together on the Documents page, grouped by the one it belongs to, with a search that matches the file, its type or the client's name.",
+      },
+      {
+        kind: "new",
+        text: "Your own administrative pieces now have a home: file your Kbis, certificate, insurance, bank details and terms of sale on the new Documents page, ready for the next client who asks for them.",
+      },
+      {
+        kind: "improved",
+        text: "Client and mission pages now keep the open tab in the address bar, so a link opens on the right tab and the back button returns to the one you came from.",
+      },
+    ],
+  },
+  {
     version: "0.15.0",
     date: "2026-08-21",
     items: [
