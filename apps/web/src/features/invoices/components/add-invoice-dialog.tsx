@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@opusline/ui/components/dialog";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { Input } from "@opusline/ui/components/input";
 import { Label } from "@opusline/ui/components/label";
 import { NativeSelect } from "@opusline/ui/components/native-select";
@@ -28,6 +29,7 @@ import {
   formatWholeAmount,
   parseRateBp,
   parseRateToCents,
+  percentOfCents,
 } from "@/lib/billing";
 import { budgetShareLabel } from "@/lib/fixed-price-budget";
 import { invoiceStatusLabel } from "@/lib/invoice-status";
@@ -392,9 +394,7 @@ function ForfaitPanel({
 
   return (
     <div className="flex flex-col gap-3 rounded-md border bg-muted px-4 py-3.5">
-      <div className="font-medium text-muted-foreground-2 text-xs uppercase tracking-widest">
-        {m.invoices_add_forfait_title()}
-      </div>
+      <div className={eyebrowVariants()}>{m.invoices_add_forfait_title()}</div>
 
       <dl className="flex flex-col gap-2 text-sm">
         <PanelRow
@@ -427,7 +427,7 @@ function ForfaitPanel({
             <Button
               key={share}
               onClick={() =>
-                onFill(Math.round((budget.forfait.amount * share) / 100))
+                onFill(percentOfCents(budget.forfait.amount, share))
               }
               size="sm"
               type="button"
