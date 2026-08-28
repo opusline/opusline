@@ -17,6 +17,7 @@ require __DIR__.'/api/bank.php';
 require __DIR__.'/api/clients.php';
 require __DIR__.'/api/cra.php';
 require __DIR__.'/api/deadlines.php';
+require __DIR__.'/api/declarations.php';
 require __DIR__.'/api/documents.php';
 require __DIR__.'/api/invoices.php';
 require __DIR__.'/api/missions.php';

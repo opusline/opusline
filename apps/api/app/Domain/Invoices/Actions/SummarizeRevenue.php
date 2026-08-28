@@ -15,6 +15,7 @@ use App\Domain\Invoices\Data\SummarizeRevenueData;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Enums\RevenueBasis;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Revenue\CollectedInvoices;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Users\Models\User;
@@ -219,21 +220,12 @@ class SummarizeRevenue
             $total = $total->add($invoice->vatAmount());
         }
 
-        // A period with nothing in it reads as the account's rate rather than as
-        // "several rates", which is what an empty unique() would otherwise caption.
-        $rates = $invoices
-            ->map(static fn (Invoice $invoice): int => $invoice->vat_rate_bp)
-            ->unique();
-
-        $rateBp = match ($rates->count()) {
-            0 => $settings->default_vat_rate_bp,
-            1 => $rates->first(),
-            default => null,
-        };
-
         return new RevenueVatData(
             amount: MoneyData::fromMoney($total),
-            rateBp: $rateBp,
+            rateBp: CollectedInvoices::consensusRateBp(
+                $invoices->map(static fn (Invoice $invoice): int => $invoice->vat_rate_bp),
+                $settings->default_vat_rate_bp,
+            ),
         );
     }
 
