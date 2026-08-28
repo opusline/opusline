@@ -23,7 +23,7 @@ return new class extends Migration
         });
 
         // Rounding used to be forbidden on a forfait, so existing ones carry null and
-        // would fall back to the quarter-day default. A forfait now rounds like any
+        // would fall back to the default. A forfait now rounds like any
         // day-billed mission, and its budget is read through that increment, so they
         // are pinned to what a mission created today would get.
         DB::table('missions')
