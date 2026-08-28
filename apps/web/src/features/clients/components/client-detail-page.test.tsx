@@ -227,10 +227,13 @@ it("saves an edit and returns to reading mode", async () => {
   expect(update?.body).toMatchObject({ name: "Nordlys Conseil", type: 1 });
 });
 
-it("keeps the edit form open when the update fails without field errors", async () => {
+it("keeps the edit form open when the update fails, and says what the API said", async () => {
+  // The API localizes its refusals; « L'action a échoué » throws that away.
   stubApi(clientPayload(), (request) =>
     request.method === "PUT"
-      ? jsonResponse(500, { message: "Server Error" })
+      ? jsonResponse(409, {
+          message: "Ce client porte des heures facturées.",
+        })
       : null,
   );
   await renderDetailPage();
@@ -242,7 +245,7 @@ it("keeps the edit form open when the update fails without field errors", async 
   fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
 
   expect(
-    await screen.findByText("L'action a échoué. Réessayez dans un instant."),
+    await screen.findByText("Ce client porte des heures facturées."),
   ).toBeInTheDocument();
   expect(screen.getByLabelText("Raison sociale")).toHaveValue(
     "Nordlys Conseil",

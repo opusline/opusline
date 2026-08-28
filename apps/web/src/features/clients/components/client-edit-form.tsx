@@ -7,6 +7,7 @@ import type {
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
 import { Chip, ChipGroup } from "@opusline/ui/components/chip";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { Field, FieldError, FieldLabel } from "@opusline/ui/components/field";
 import { Swatch, SwatchGroup } from "@opusline/ui/components/swatch";
 import { useForm } from "@tanstack/react-form";
@@ -35,8 +36,6 @@ import {
   ClientVatRateField,
 } from "./client-vat-rate-field";
 
-const EYEBROW_CLASSES =
-  "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
 const EDIT_LABEL_CLASSES = "text-muted-foreground-3 text-xs";
 
 type ClientEditFormProps = {
@@ -154,7 +153,7 @@ export function ClientEditForm({
 
       <div className="grid items-start gap-3.5 md:grid-cols-2">
         <div className="rounded-md border bg-card p-5">
-          <div className={`${EYEBROW_CLASSES} mb-4`}>
+          <div className={`${eyebrowVariants()} mb-4`}>
             {m.clients_identity_title()}
           </div>
           <div className="flex flex-col gap-3.5">
@@ -318,7 +317,7 @@ export function ClientEditForm({
         </div>
 
         <div className="rounded-md border bg-card p-5">
-          <div className={`${EYEBROW_CLASSES} mb-4`}>
+          <div className={`${eyebrowVariants()} mb-4`}>
             {m.common_billing_title()}
           </div>
           <div className="flex flex-col gap-3.5">

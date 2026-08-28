@@ -108,11 +108,9 @@ const documentsTab = (
  * reach into another feature, and the route composes the real tab.
  */
 const invoicesTab = (
-  <Empty className="rounded-md border border-solid bg-card px-7 py-9">
+  <Empty className="px-7 py-9">
     <EmptyHeader className="gap-2">
-      <EmptyTitle className="font-heading font-semibold text-base text-foreground-hi">
-        Aucune facture
-      </EmptyTitle>
+      <EmptyTitle variant="strong">Aucune facture</EmptyTitle>
       <EmptyDescription className="text-muted-foreground-3 text-sm leading-relaxed">
         Les factures apparaîtront ici dès que du temps facturable aura été saisi
         sur une mission de ce client.

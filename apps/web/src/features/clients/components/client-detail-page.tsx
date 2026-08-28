@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@opusline/ui/components/dropdown-menu";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { StatTile, StatTileRow } from "@opusline/ui/components/stat-tile";
 import {
   Table,
@@ -61,11 +62,6 @@ import { formatPostalAddress } from "../lib/client-form";
 import type { ClientTab } from "../lib/tabs";
 
 import { ClientEditForm } from "./client-edit-form";
-
-const EYEBROW_CLASSES =
-  "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
-const HEAD_CLASSES =
-  "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
 
 function CoordRow({
   label,
@@ -324,24 +320,24 @@ export function ClientDetailPage({
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
                       <TableHead
-                        className={cn(HEAD_CLASSES, "w-1/3 py-3 pl-5")}
+                        className={cn(eyebrowVariants(), "w-1/3 py-3 pl-5")}
                       >
-                        Mission
+                        {m.clients_head_mission()}
                       </TableHead>
-                      <TableHead className={cn(HEAD_CLASSES, "w-1/6")}>
+                      <TableHead className={cn(eyebrowVariants(), "w-1/6")}>
                         {m.clients_head_rate()}
                       </TableHead>
-                      <TableHead className={cn(HEAD_CLASSES, "w-1/6")}>
+                      <TableHead className={cn(eyebrowVariants(), "w-1/6")}>
                         {m.missions_stat_this_month()}
                       </TableHead>
                       <TableHead
-                        className={cn(HEAD_CLASSES, "w-1/6 text-right")}
+                        className={cn(eyebrowVariants(), "w-1/6 text-right")}
                       >
                         {m.clients_head_revenue_short()}
                       </TableHead>
                       <TableHead
                         className={cn(
-                          HEAD_CLASSES,
+                          eyebrowVariants(),
                           "w-28 py-3 pr-5 text-right",
                         )}
                       >
@@ -447,7 +443,7 @@ export function ClientDetailPage({
             {hasCoordinates ? (
               <div className="grid items-start gap-3.5 md:grid-cols-2">
                 <div className="rounded-md border bg-card p-5">
-                  <div className={`${EYEBROW_CLASSES} mb-4`}>
+                  <div className={`${eyebrowVariants()} mb-4`}>
                     {m.clients_identity_title()}
                   </div>
                   <div className="flex flex-col gap-3.5">
@@ -475,7 +471,7 @@ export function ClientDetailPage({
                   </div>
                 </div>
                 <div className="rounded-md border bg-card p-5">
-                  <div className={`${EYEBROW_CLASSES} mb-4`}>
+                  <div className={`${eyebrowVariants()} mb-4`}>
                     {m.common_billing_title()}
                   </div>
                   <div className="flex flex-col gap-3.5">
@@ -483,7 +479,10 @@ export function ClientDetailPage({
                       label={m.clients_contact_title()}
                       value={client.billingContactName}
                     />
-                    <CoordRow label="Email" value={client.billingEmail} />
+                    <CoordRow
+                      label={m.common_email()}
+                      value={client.billingEmail}
+                    />
                     <CoordRow
                       label={m.clients_payment_terms_label()}
                       value={paymentTermsLabel(client.paymentTermsDays)}

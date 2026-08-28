@@ -4,6 +4,7 @@ import type {
 } from "@opusline/api-client";
 import { Badge } from "@opusline/ui/components/badge";
 import { Chip, ChipCount, ChipGroup } from "@opusline/ui/components/chip";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import {
   Table,
   TableBody,
@@ -38,9 +39,6 @@ import {
   isNewClient,
 } from "../lib/labels";
 import { ClientsEmptyState } from "./clients-empty-state";
-
-const HEAD_CLASSES =
-  "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
 
 const CLIENT_SCOPES = ["active", "archived", "all"] as const;
 
@@ -116,20 +114,24 @@ export function ClientsTable({ clients, revenue }: ClientsTableProps) {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className={cn(HEAD_CLASSES, "w-1/4 py-3 pl-5")}>
-                Client
+              <TableHead className={cn(eyebrowVariants(), "w-1/4 py-3 pl-5")}>
+                {m.clients_head_client()}
               </TableHead>
-              <TableHead className={cn(HEAD_CLASSES, "w-3/16")}>Type</TableHead>
-              <TableHead className={cn(HEAD_CLASSES, "w-1/9")}>
-                Missions
+              <TableHead className={cn(eyebrowVariants(), "w-3/16")}>
+                {m.clients_head_type()}
               </TableHead>
-              <TableHead className={cn(HEAD_CLASSES, "w-1/6 text-right")}>
+              <TableHead className={cn(eyebrowVariants(), "w-1/9")}>
+                {m.clients_missions_title()}
+              </TableHead>
+              <TableHead className={cn(eyebrowVariants(), "w-1/6 text-right")}>
                 {revenueYearLabel(revenue?.year)}
               </TableHead>
-              <TableHead className={cn(HEAD_CLASSES, "w-1/6 text-right")}>
+              <TableHead className={cn(eyebrowVariants(), "w-1/6 text-right")}>
                 {m.clients_head_pending()}
               </TableHead>
-              <TableHead className={cn(HEAD_CLASSES, "py-3 pr-5 text-right")}>
+              <TableHead
+                className={cn(eyebrowVariants(), "py-3 pr-5 text-right")}
+              >
                 {m.clients_head_average_delay()}
               </TableHead>
             </TableRow>
