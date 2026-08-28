@@ -4,23 +4,34 @@ declare(strict_types=1);
 
 namespace App\Domain\Settings\Actions;
 
+use App\Domain\Deadlines\Actions\GenerateFiscalDeadlines;
+use App\Domain\Deadlines\Actions\ResetDeadlineReminders;
+use App\Domain\Deadlines\Actions\ResolveExpectedCfe;
 use App\Domain\Settings\Data\UpdateSettingsData;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Settings\Rates\RateSituation;
 use App\Domain\Settings\Rates\RatesUnavailable;
-use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Validation\AccountCurrency;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class UpdateSettings
 {
-    public function __construct(private readonly RefreshOfficialRates $refreshOfficialRates) {}
+    public function __construct(
+        private readonly RefreshOfficialRates $refreshOfficialRates,
+        private readonly GenerateFiscalDeadlines $generateFiscalDeadlines,
+        private readonly ResolveExpectedCfe $resolveExpectedCfe,
+        private readonly ResetDeadlineReminders $resetDeadlineReminders,
+    ) {}
 
     public function handle(UserSettings $settings, UpdateSettingsData $data): UserSettings
     {
         $situationBefore = RateSituation::fromSettings($settings)->signature();
+        $calendarBefore = $this->generateFiscalDeadlines->signature(
+            $settings,
+            $this->resolveExpectedCfe->handle($settings)?->amount,
+        );
         $wasFollowingOfficialRates = $settings->auto_rates;
         // Gate on the country being saved, not the stored one: moving the
         // business out of France must strip the French flags in the same write.
@@ -34,9 +45,11 @@ class UpdateSettings
             // MoneyCast writes the currency column as a side effect of writing
             // the buffer, so a stale-currency buffer slipping past the request
             // rule would silently re-label the whole account.
-            if ($data->treasuryBuffer instanceof MoneyData) {
-                AccountCurrency::assertMatchesAccountUnderLock($settings->user_id, $data->treasuryBuffer);
-            }
+            AccountCurrency::assertAllMatchAccountUnderLock(
+                $settings->user_id,
+                $data->treasuryBuffer,
+                $data->cfeExpected,
+            );
 
             $settings->update([
                 'business_country' => $data->businessCountry,
@@ -79,8 +92,20 @@ class UpdateSettings
                 'default_payment_terms_days' => $data->defaultPaymentTermsDays,
                 'invoice_number_format' => $data->invoiceNumberFormat,
                 'treasury_buffer_cents' => $data->treasuryBuffer?->toMoney(),
+                // The CFE is a French tax like the rest: outside France it is
+                // dropped, not carried dormant.
+                'cfe_expected_cents' => $hasFrenchFiscality ? $data->cfeExpected?->toMoney() : null,
             ]);
         });
+
+        $calendarAfter = $this->generateFiscalDeadlines->signature(
+            $settings,
+            $this->resolveExpectedCfe->handle($settings)?->amount,
+        );
+
+        if ($calendarAfter !== $calendarBefore) {
+            $this->resetDeadlineReminders->handle($settings);
+        }
 
         if ($this->needsFreshRates($settings, $situationBefore, $wasFollowingOfficialRates)) {
             $this->applyOfficialRates($settings);

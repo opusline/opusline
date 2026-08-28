@@ -382,7 +382,207 @@
   "date_field_hint_dmy": "DD/MM/YYYY",
   "date_field_hint_iso": "YYYY-MM-DD",
   "date_field_open_calendar": "Open the calendar",
-  "deadlines_placeholder": "Deadlines land here — URSSAF, CA3, CFE, reminders.",
+  "deadline_category_all": "All",
+  "deadline_category_invoices": "Invoices",
+  "deadline_category_other": "Other",
+  "deadline_category_reminders": "Reminders",
+  "deadline_category_urssaf": "URSSAF",
+  "deadline_category_vat": "TVA",
+  "deadline_kind_cfe": "CFE",
+  "deadline_kind_cfe_instalment": "CFE — acompte",
+  "deadline_kind_urssaf": "Déclaration URSSAF",
+  "deadline_kind_vat_ca12": "TVA — CA12",
+  "deadline_kind_vat_ca3": "TVA — CA3",
+  "deadlines_calendar_copied": "Address copied.",
+  "deadlines_calendar_copy": "Copy the address",
+  "deadlines_calendar_copy_failed": "The address could not be copied. Select it and copy it by hand.",
+  "deadlines_calendar_rotate": "Regenerate the address",
+  "deadlines_calendar_rotate_failed": "The address could not be renewed.",
+  "deadlines_cfe_sub_estimate": "Estimate — notice available in November on your espace professionnel",
+  "deadlines_cfe_sub_notice": "Notice available in November on your espace professionnel",
+  "deadlines_chip_done": "Done",
+  "deadlines_chip_in": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "In {count} d",
+        "countPlural=other": "In {count} d"
+      }
+    }
+  ],
+  "deadlines_chip_late": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} d ago",
+        "countPlural=other": "{count} d ago"
+      }
+    }
+  ],
+  "deadlines_chip_today": "Today",
+  "deadlines_chip_todo": "To send",
+  "deadlines_complete_failed": "This deadline could not be updated.",
+  "deadlines_completed_on": "Done on {date}",
+  "deadlines_dialog_added": "I have added the address",
+  "deadlines_dialog_address_label": "Subscription address",
+  "deadlines_dialog_intro": "Add this address to your calendar once. It will poll it several times a day: the coming months' deadlines arrive on their own, a moved date corrects itself, a collected invoice takes its reminder away.",
+  "deadlines_dialog_intro_subscribed": "Your calendar polls this address several times a day. New deadlines, moved dates and collected invoices carry over without doing anything.",
+  "deadlines_dialog_password_warning": "Treat it like a password: whoever holds it can read your deadlines. Regenerate it if it has been passed around.",
+  "deadlines_dialog_receives_title": "What the calendar receives",
+  "deadlines_dialog_title": "Subscribe to the calendar",
+  "deadlines_dialog_title_subscribed": "Calendar subscription",
+  "deadlines_done_at": "on {date}",
+  "deadlines_due_at": "due {date}",
+  "deadlines_due_in": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "in {count} day",
+        "countPlural=other": "in {count} days"
+      }
+    }
+  ],
+  "deadlines_due_on": "Due {date}",
+  "deadlines_due_today": "today",
+  "deadlines_feed_invoices_desc": "One entry per open invoice, on its due date. Disappears as soon as it is collected.",
+  "deadlines_feed_invoices_label": "Invoice deadlines",
+  "deadlines_feed_other_desc": "CFE and other annual notices, as soon as the date is known.",
+  "deadlines_feed_other_label": "Other fiscal deadlines",
+  "deadlines_feed_reminders_desc": "A nudge three days after an unpaid invoice's due date.",
+  "deadlines_feed_reminders_label": "Reminders to send",
+  "deadlines_feed_save_failed": "The calendar choices could not be saved.",
+  "deadlines_feed_types_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} deadline type published at this address.",
+        "countPlural=other": "{count} deadline types published at this address."
+      }
+    }
+  ],
+  "deadlines_feed_urssaf_desc": "The contribution deadlines, declaration and payment.",
+  "deadlines_feed_urssaf_label": "URSSAF contributions",
+  "deadlines_feed_vat_desc": "The CA3 dates for your régime, the whole year ahead.",
+  "deadlines_feed_vat_label": "TVA declarations",
+  "deadlines_filter_aria": "Filter the deadlines",
+  "deadlines_fiscal_pending_sub": "Computed from the period's collections",
+  "deadlines_interrupt": "Stop",
+  "deadlines_interrupt_failed": "The subscription could not be stopped.",
+  "deadlines_invoice_late_suffix": "past due",
+  "deadlines_load_failed": "Deadlines could not be loaded.",
+  "deadlines_manage_button": "Manage the subscription",
+  "deadlines_mark_done": "Mark as done",
+  "deadlines_mark_not_done": "Mark as not done",
+  "deadlines_overdue_by": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} day late",
+        "countPlural=other": "{count} days late"
+      }
+    }
+  ],
+  "deadlines_reminder_due_at": "due on {date}",
+  "deadlines_reminder_never_sent": "no reminder sent yet",
+  "deadlines_reminder_sent_times": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "already reminded once",
+        "countPlural=other": "already reminded {count} times"
+      }
+    }
+  ],
+  "deadlines_reminder_title": "Remind {client}",
+  "deadlines_reminder_unpaid": "{number} unpaid for {days} d",
+  "deadlines_reminders_failed": "The reminders could not be marked as read.",
+  "deadlines_subscribe_button": "Subscribe to the calendar",
+  "deadlines_subscribe_confirm_failed": "The subscription could not be recorded.",
+  "deadlines_subscribed_badge": "Subscribed",
+  "deadlines_summary_late": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} late",
+        "countPlural=other": "{count} late"
+      }
+    }
+  ],
+  "deadlines_summary_reminders": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} reminder to send",
+        "countPlural=other": "{count} reminders to send"
+      }
+    }
+  ],
+  "deadlines_summary_upcoming": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} coming up",
+        "countPlural=other": "{count} coming up"
+      }
+    }
+  ],
+  "deadlines_sync_added": "added on {date}",
+  "deadlines_sync_days": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Last synchronised {count} d ago",
+        "countPlural=other": "Last synchronised {count} d ago"
+      }
+    }
+  ],
+  "deadlines_sync_hours": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Last synchronised {count} h ago",
+        "countPlural=other": "Last synchronised {count} h ago"
+      }
+    }
+  ],
+  "deadlines_sync_just_now": "Last synchronised just now",
+  "deadlines_sync_minutes": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Last synchronised {count} min ago",
+        "countPlural=other": "Last synchronised {count} min ago"
+      }
+    }
+  ],
+  "deadlines_sync_waiting": "Waiting for the first synchronisation",
+  "deadlines_title": "Deadlines",
+  "deadlines_unread_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} unread reminder",
+        "countPlural=other": "{count} unread reminders"
+      }
+    }
+  ],
+  "deadlines_upcoming_empty": "Nothing on the calendar. Check your fiscal settings if that surprises you.",
+  "deadlines_upcoming_empty_title": "Nothing on the calendar",
+  "deadlines_urssaf_sub": "Declare {amount} collected → contributions at {rate} %",
+  "deadlines_vat_sub": "TVA collected {amount} · télérèglement impots.gouv.fr",
   "declarations_placeholder": "Filing helpers land here — URSSAF and VAT, figures ready to copy.",
   "documents_add_aria": "Add documents",
   "documents_added_on": "{size} · added on {date}",
@@ -883,6 +1083,8 @@
   "settings_buffer_invalid": "Enter an amount, or leave it empty.",
   "settings_buffer_label": "Treasury buffer",
   "settings_business_started_label": "Business start date",
+  "settings_cfe_expected_hint": "Your commune sets it — take last year's notice. Without it, Opusline estimates from last year's bank payment, or failing that from the statutory barème and your revenue; entering it overrides the estimate and feeds the treasury provision.",
+  "settings_cfe_expected_label": "Expected annual CFE",
   "settings_company_address_hint": "Shown on documents",
   "settings_company_address_title": "Company address",
   "settings_contribution_rate_hint": "BNC service-provider rate, read from the URSSAF.",
@@ -895,6 +1097,8 @@
   "settings_currency_label": "Business currency",
   "settings_currency_locked": "Locked: a priced mission or an invoice already exists in this currency.",
   "settings_date_format_label": "Date format",
+  "settings_deadlines_intro": "The one figure Opusline cannot work out: the CFE your commune bills. Everything else on the deadlines calendar is derived.",
+  "settings_deadlines_title": "Deadlines",
   "settings_default_rate_description": "Rate applied by default to new invoices.",
   "settings_email_placeholder": "contact@example.com",
   "settings_eu_vat_exempt": "Not VAT-liable · franchise en base",
@@ -1029,6 +1233,8 @@
   "treasury_amount_unreadable": "Enter an amount.",
   "treasury_band_buffer": "Treasury buffer",
   "treasury_band_buffer_sub": "set in Settings",
+  "treasury_band_cfe": "CFE to set aside",
+  "treasury_band_cfe_sub": "built up monthly · CFE {year}",
   "treasury_band_transferable": "Transferable",
   "treasury_band_transferable_sub": "to your personal account",
   "treasury_band_urssaf": "URSSAF provision",
@@ -1125,6 +1331,10 @@
   "week_date_shortcuts_label": "Date shortcuts",
   "week_day_before_yesterday": "Two days ago",
   "week_day_total": "Day total",
+  "week_deadline_none": "Nothing due",
+  "week_deadline_none_sub": "no fiscal deadline on the calendar",
+  "week_deadline_title": "Next deadline",
+  "week_deadline_unavailable": "could not be loaded",
   "week_delete_entry": "Delete this entry",
   "week_duration_cell_label": "Duration — {cell}",
   "week_duration_format_hint": "Format: 1 · 0.5 · 2h · 1h30 · 90m",

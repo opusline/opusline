@@ -7,7 +7,9 @@
   "license": "AGPL-3.0-only",
   "require": {
     "php": "^8.3",
+    "ext-libxml": "*",
     "ext-mbstring": "*",
+    "ext-simplexml": "*",
     "cknow/laravel-money": "^8.5",
     "dedoc/scramble": "^0.13.37",
     "dompdf/dompdf": "^3.1",
@@ -17,11 +19,10 @@
     "laravel/sanctum": "^4.3",
     "laravel/tinker": "^3.0",
     "league/flysystem-aws-s3-v3": "^3.35",
+    "spatie/icalendar-generator": "^3.3",
     "spatie/laravel-data": "^4.23",
     "spatie/laravel-medialibrary": "^11.23",
-    "spatie/laravel-sluggable": "^4.0",
-    "ext-simplexml": "*",
-    "ext-libxml": "*"
+    "spatie/laravel-sluggable": "^4.0"
   },
   "require-dev": {
     "driftingly/rector-laravel": "^2.5",

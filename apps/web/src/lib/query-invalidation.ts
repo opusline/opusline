@@ -122,6 +122,27 @@ export async function invalidateTreasury(
 }
 
 /**
+ * The fiscal calendar: the Échéances screen, the sidebar's unread badge and the
+ * week's « Prochaine échéance » tile all read this one entry. Its amounts are
+ * estimated from what the account collected and its dates come from the fiscal
+ * profile, so an invoice paid and a settings save both move it.
+ */
+export function deadlinesFilter(): { predicate: (query: Query) => boolean } {
+  return operationFilter("listDeadlines");
+}
+
+/**
+ * Refresh the fiscal calendar. Keep every writer that moves it going through
+ * this rather than reaching for the filter, so the list of things that move it
+ * stays findable from one name.
+ */
+export async function invalidateDeadlines(
+  queryClient: QueryClient,
+): Promise<void> {
+  await queryClient.invalidateQueries(deadlinesFilter());
+}
+
+/**
  * The fan-out every invoice write owes the rest of the app. Beyond the lists,
  * the open fiche and the summary: the next free reference is derived from the
  * numbers already taken, the revenue figures move with what is issued and
@@ -135,11 +156,12 @@ export async function invalidateTreasury(
 export async function invalidateInvoiceWrites(
   queryClient: QueryClient,
 ): Promise<void> {
-  // Not awaited: the sidebar's treasury observer is mounted on every screen, so
-  // this is the one filter here that always issues a request — and it is the
-  // most expensive one. Marking a background tile stale should not hold the
-  // spinner on « Marquer payée ».
+  // Not awaited: the sidebar's treasury and deadlines observers are mounted on
+  // every screen, so these are the filters here that always issue a request —
+  // and the most expensive ones. Marking a background tile stale should not
+  // hold the spinner on « Marquer payée ».
   void invalidateTreasury(queryClient);
+  void invalidateDeadlines(queryClient);
 
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: listInvoicesQueryKey() }),

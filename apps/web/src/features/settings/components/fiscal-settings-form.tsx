@@ -20,6 +20,7 @@ import {
 import { Switch } from "@opusline/ui/components/switch";
 import { FormTextField } from "@/components/form-text-field";
 import { useMoneyFormat } from "@/components/money-format-provider";
+import { currencySymbol } from "@/lib/billing";
 import {
   abroadTaxTerms,
   URSSAF_PERIODICITIES,
@@ -28,7 +29,11 @@ import {
   VAT_REGIMES,
 } from "@/lib/fiscality";
 import { m } from "@/paraglide/messages.js";
-import { formatRateBp, ratePercentValidator } from "../lib/settings-form";
+import {
+  formatRateBp,
+  optionalAmountValidator,
+  ratePercentValidator,
+} from "../lib/settings-form";
 import type { SettingsForm } from "../lib/use-settings-form";
 import { RateSource } from "./rate-source";
 import { SettingsSection } from "./settings-section";
@@ -221,6 +226,49 @@ export function FiscalSettingsForm({
           )}
         </form.Field>
       </div>
+    </SettingsSection>
+  );
+}
+
+/**
+ * The one figure the fiscal calendar cannot derive: the CFE the commune sets.
+ * Even this is optional twice over — without it, Opusline estimates from what
+ * the bank paid for it last year, and the field simply overrides that.
+ */
+export function DeadlineSettingsFields({ form }: { form: SettingsForm }) {
+  const format = useMoneyFormat();
+
+  return (
+    <SettingsSection
+      className="mt-4"
+      description={m.settings_deadlines_intro()}
+      title={m.settings_deadlines_title()}
+    >
+      <form.Field
+        name="cfeExpected"
+        validators={{ onChange: optionalAmountValidator(format.locale) }}
+      >
+        {(field) => (
+          <FormTextField
+            adornment={currencySymbol(format)}
+            beside={
+              <span
+                className="min-w-50 flex-1 text-muted-foreground-3 text-xs"
+                id={`${field.name}-hint`}
+              >
+                {m.settings_cfe_expected_hint()}
+              </span>
+            }
+            controlClassName="w-37.5 shrink-0"
+            describedBy={`${field.name}-hint`}
+            field={field}
+            font="mono"
+            inputMode="decimal"
+            label={m.settings_cfe_expected_label()}
+            labelClassName="text-foreground-3 text-sm"
+          />
+        )}
+      </form.Field>
     </SettingsSection>
   );
 }

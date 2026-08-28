@@ -180,3 +180,33 @@ export const WithAction: Story = {
     </StatTileRow>
   ),
 };
+
+/**
+ * `render` turns the whole tile into the target — a link here, so it is
+ * reachable by keyboard and carries a focus ring the click handler alone
+ * would not give it.
+ */
+export const Interactive: Story = {
+  render: () => (
+    <StatTileRow className="grid-cols-1 sm:grid-cols-2" variant="cards">
+      <StatTile
+        label="Mois en cours"
+        value="19 j"
+        meter={19 / 22}
+        sub="sur 22 jours ouvrés"
+        tone="strong"
+        size="lg"
+      />
+      <StatTile
+        label="Prochaine échéance"
+        lead="Déclaration URSSAF"
+        meter={0.62}
+        render={<a href="#deadlines" />}
+        size="lg"
+        sub="dans 9 jours · 31/08"
+        tone="brand"
+        value="1 240,00 €"
+      />
+    </StatTileRow>
+  ),
+};

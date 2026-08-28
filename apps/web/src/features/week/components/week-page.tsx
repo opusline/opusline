@@ -21,7 +21,7 @@ import { NewEntryDialog, type NewEntrySubmit } from "./new-entry-dialog";
 import { WeekEmptyBanner } from "./week-empty-banner";
 import { WeekGrid, type WeekGridProps } from "./week-grid";
 import { WEEK_SKINS, WeekLegend } from "./week-legend";
-import { WeekSummaryTiles } from "./week-summary-tiles";
+import { type NextDeadline, WeekSummaryTiles } from "./week-summary-tiles";
 
 const LIVE_SKINS: PillSkin[] = [...WEEK_SKINS, "live"];
 
@@ -58,6 +58,8 @@ export type WeekPageProps = {
   onSubmitNewEntry: (input: NewEntrySubmit) => Promise<boolean>;
   /** The civil month today sits in: null while it loads, "unavailable" when it failed. */
   monthWorkload: MonthWorkloadData | "unavailable" | null;
+  /** What falls due next; "none" for an account the fiscal calendar does not apply to. */
+  nextDeadline: NextDeadline;
   /** Entries across every loaded week, and the range they cover. */
   knownEntries: TimeEntryData[];
   knownEntryRange: { from: string; to: string };
@@ -94,6 +96,7 @@ export function WeekPage({
   onDelete,
   onSubmitNewEntry,
   monthWorkload,
+  nextDeadline,
   knownEntries,
   knownEntryRange,
 }: WeekPageProps) {
@@ -221,7 +224,12 @@ export function WeekPage({
         skins={liveHere === null ? WEEK_SKINS : LIVE_SKINS}
         uninvoicedTotal={model.uninvoicedTotal}
       />
-      <WeekSummaryTiles monthWorkload={monthWorkload} summary={billable} />
+      <WeekSummaryTiles
+        monthWorkload={monthWorkload}
+        nextDeadline={nextDeadline}
+        summary={billable}
+        today={today}
+      />
       <NewEntryDialog
         isSaving={pendingCellKeys.size > 0}
         knownRange={knownEntryRange}

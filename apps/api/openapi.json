@@ -1640,6 +1640,277 @@
                 }
             }
         },
+        "/deadlines": {
+            "get": {
+                "operationId": "listDeadlines",
+                "tags": [
+                    "Deadline"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeadlineBoardData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/deadlines/completions": {
+            "post": {
+                "operationId": "completeDeadline",
+                "tags": [
+                    "Deadline"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CompleteFiscalDeadlineData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeadlineBoardData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/deadlines/completions/{kind}/{periodKey}": {
+            "delete": {
+                "operationId": "uncompleteDeadline",
+                "tags": [
+                    "Deadline"
+                ],
+                "parameters": [
+                    {
+                        "name": "kind",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "periodKey",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeadlineBoardData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/deadlines/reminders/read": {
+            "post": {
+                "operationId": "markDeadlineRemindersRead",
+                "tags": [
+                    "Deadline"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeadlineBoardData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/deadlines/calendar": {
+            "patch": {
+                "operationId": "updateCalendarFeed",
+                "tags": [
+                    "Deadline"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateCalendarFeedData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeadlineBoardData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/deadlines/calendar/token": {
+            "post": {
+                "operationId": "regenerateCalendarToken",
+                "tags": [
+                    "Deadline"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeadlineBoardData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/deadlines/calendar/subscription": {
+            "post": {
+                "operationId": "confirmCalendarSubscription",
+                "tags": [
+                    "Deadline"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeadlineBoardData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "interruptCalendarSubscription",
+                "tags": [
+                    "Deadline"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeadlineBoardData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/calendar/{token}.ics": {
+            "get": {
+                "operationId": "showDeadlineCalendar",
+                "tags": [
+                    "DeadlineCalendar"
+                ],
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "text/calendar; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Content-Disposition": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "inline; filename=\"opusline.ics\""
+                                }
+                            },
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store, private"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                },
+                "security": []
+            }
+        },
         "/documents": {
             "get": {
                 "operationId": "listDocumentLibrary",
@@ -4085,6 +4356,16 @@
                             }
                         ]
                     },
+                    "cfe": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BankProvisionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "buffer": {
                         "anyOf": [
                             {
@@ -4102,6 +4383,7 @@
                 "required": [
                     "vat",
                     "urssaf",
+                    "cfe",
                     "buffer",
                     "total"
                 ],
@@ -4163,6 +4445,34 @@
                     "Fixed"
                 ],
                 "title": "BillingMode"
+            },
+            "CalendarFeedData": {
+                "type": "object",
+                "properties": {
+                    "invoices": {
+                        "type": "boolean"
+                    },
+                    "reminders": {
+                        "type": "boolean"
+                    },
+                    "vat": {
+                        "type": "boolean"
+                    },
+                    "urssaf": {
+                        "type": "boolean"
+                    },
+                    "other": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "invoices",
+                    "reminders",
+                    "vat",
+                    "urssaf",
+                    "other"
+                ],
+                "title": "CalendarFeedData"
             },
             "ClientData": {
                 "type": "object",
@@ -4536,6 +4846,24 @@
                     "Stone"
                 ],
                 "title": "Color"
+            },
+            "CompleteFiscalDeadlineData": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "$ref": "#/components/schemas/FiscalDeadlineKind"
+                    },
+                    "periodKey": {
+                        "type": "string",
+                        "pattern": "^\\d{4}(-(0[1-9]|1[0-2]|Q[1-4]))?$",
+                        "maxLength": 16
+                    }
+                },
+                "required": [
+                    "kind",
+                    "periodKey"
+                ],
+                "title": "CompleteFiscalDeadlineData"
             },
             "CraCountsData": {
                 "type": "object",
@@ -5253,6 +5581,192 @@
                 ],
                 "title": "DateFormat"
             },
+            "DeadlineBoardData": {
+                "type": "object",
+                "properties": {
+                    "next": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeadlineItemData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DeadlineItemData"
+                        }
+                    },
+                    "reminders": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DeadlineReminderData"
+                        }
+                    },
+                    "calendarToken": {
+                        "type": "string"
+                    },
+                    "calendarFeed": {
+                        "$ref": "#/components/schemas/CalendarFeedData"
+                    },
+                    "calendarSubscribedOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "calendarLastSyncedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "next",
+                    "items",
+                    "reminders",
+                    "calendarToken",
+                    "calendarFeed",
+                    "calendarSubscribedOn",
+                    "calendarLastSyncedAt"
+                ],
+                "title": "DeadlineBoardData"
+            },
+            "DeadlineInvoiceData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "number": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "clientName": {
+                        "type": "string"
+                    },
+                    "missionName": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "periodStart": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "dueOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "remindersSent": {
+                        "type": "integer"
+                    },
+                    "lastRemindedOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "id",
+                    "number",
+                    "clientName",
+                    "missionName",
+                    "periodStart",
+                    "amount",
+                    "dueOn",
+                    "remindersSent",
+                    "lastRemindedOn"
+                ],
+                "title": "DeadlineInvoiceData"
+            },
+            "DeadlineItemData": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "$ref": "#/components/schemas/DeadlineItemType"
+                    },
+                    "dueOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "invoice": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeadlineInvoiceData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "fiscal": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/FiscalDeadlineData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "type",
+                    "dueOn",
+                    "invoice",
+                    "fiscal"
+                ],
+                "title": "DeadlineItemData"
+            },
+            "DeadlineItemType": {
+                "type": "integer",
+                "description": "What one line of the Échéances timeline is. The order of the cases is also the order two lines sharing a due date sort in: an invoice first, then the relance it calls for, then the fisc.\n",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "InvoiceDue",
+                    "InvoiceReminder",
+                    "Fiscal"
+                ],
+                "title": "DeadlineItemType"
+            },
+            "DeadlineReminderData": {
+                "type": "object",
+                "properties": {
+                    "deadline": {
+                        "$ref": "#/components/schemas/FiscalDeadlineData"
+                    },
+                    "isRead": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "deadline",
+                    "isRead"
+                ],
+                "title": "DeadlineReminderData"
+            },
             "DocumentCategory": {
                 "type": "integer",
                 "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/>  |\n| `3` <br/>  |\n| `4` <br/>  |\n| `5` <br/> The CRA Opusline generated, filed next to the signed return it comes back as. |\n| `6` <br/>  |\n| `7` <br/>  |\n| `8` <br/>  |\n| `9` <br/>  |\n| `10` <br/>  |",
@@ -5418,6 +5932,86 @@
                     "Minute"
                 ],
                 "title": "EntryRounding"
+            },
+            "FiscalDeadlineData": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "$ref": "#/components/schemas/FiscalDeadlineKind"
+                    },
+                    "periodKey": {
+                        "type": "string"
+                    },
+                    "periodStart": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "periodEnd": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "dueOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "amount": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "rateBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "isEstimate": {
+                        "type": "boolean"
+                    },
+                    "completedOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "periodKey",
+                    "periodStart",
+                    "periodEnd",
+                    "dueOn",
+                    "amount",
+                    "rateBp",
+                    "isEstimate",
+                    "completedOn"
+                ],
+                "title": "FiscalDeadlineData"
+            },
+            "FiscalDeadlineKind": {
+                "type": "integer",
+                "description": "The recurring French fiscal deadlines the app tracks. Declaration and payment share a case wherever they share a date, which is every case here: URSSAF télépaie on the declaration date, and the CA3 is due and paid the same day.\n",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4
+                ],
+                "x-enum-varnames": [
+                    "UrssafDeclaration",
+                    "VatCa3",
+                    "VatCa12",
+                    "Cfe",
+                    "CfeInstalment"
+                ],
+                "title": "FiscalDeadlineKind"
             },
             "FixedPriceBudgetData": {
                 "type": "object",
@@ -6903,6 +7497,16 @@
                             }
                         ]
                     },
+                    "cfeExpected": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "currency": {
                         "$ref": "#/components/schemas/Currency"
                     },
@@ -6960,6 +7564,7 @@
                     "defaultPaymentTermsDays",
                     "invoiceNumberFormat",
                     "treasuryBuffer",
+                    "cfeExpected",
                     "currency",
                     "currencyLocked",
                     "locale",
@@ -7347,6 +7952,34 @@
                     }
                 },
                 "title": "UpdateBankBalanceData"
+            },
+            "UpdateCalendarFeedData": {
+                "type": "object",
+                "properties": {
+                    "invoices": {
+                        "type": "boolean"
+                    },
+                    "reminders": {
+                        "type": "boolean"
+                    },
+                    "vat": {
+                        "type": "boolean"
+                    },
+                    "urssaf": {
+                        "type": "boolean"
+                    },
+                    "other": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "invoices",
+                    "reminders",
+                    "vat",
+                    "urssaf",
+                    "other"
+                ],
+                "title": "UpdateCalendarFeedData"
             },
             "UpdateClientData": {
                 "type": "object",
@@ -7916,6 +8549,25 @@
                         "format": "date"
                     },
                     "treasuryBuffer": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "cfeExpected": {
                         "type": [
                             "object",
                             "null"

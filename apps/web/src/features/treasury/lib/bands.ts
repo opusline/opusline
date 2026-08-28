@@ -1,6 +1,11 @@
 import type { TreasuryData } from "@opusline/api-client";
 
-export type TreasuryBandKey = "vat" | "urssaf" | "buffer" | "transferable";
+export type TreasuryBandKey =
+  | "vat"
+  | "urssaf"
+  | "cfe"
+  | "buffer"
+  | "transferable";
 
 export type TreasuryBand = {
   key: TreasuryBandKey;
@@ -11,7 +16,7 @@ export type TreasuryBand = {
 
 /**
  * The stacked bar under the hero figure: what the account holds, split into the
- * three provisions and what is left.
+ * provisions and what is left.
  *
  * Shares are taken over the larger of the effective balance and the provisions
  * themselves, so an account whose provisions outgrow it fills the bar with them
@@ -26,6 +31,7 @@ export function treasuryBands(data: TreasuryData): TreasuryBand[] {
   const provisions: [TreasuryBandKey, number][] = [
     ["vat", data.provisions.vat?.amount.amount ?? 0],
     ["urssaf", data.provisions.urssaf?.amount.amount ?? 0],
+    ["cfe", data.provisions.cfe?.amount.amount ?? 0],
     ["buffer", data.provisions.buffer?.amount ?? 0],
   ];
 

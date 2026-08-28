@@ -46,6 +46,7 @@ it("draws no bar when everything on the account is zero", () => {
         provisions: {
           vat: null,
           urssaf: null,
+          cfe: null,
           buffer: null,
           total: { amount: 0, currency: "EUR" },
         },

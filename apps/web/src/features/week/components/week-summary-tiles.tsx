@@ -1,9 +1,23 @@
-import type { Locale, MonthWorkloadData } from "@opusline/api-client";
+import type {
+  DeadlineItemData,
+  Locale,
+  MonthWorkloadData,
+} from "@opusline/api-client";
 import { StatTile, StatTileRow } from "@opusline/ui/components/stat-tile";
-
-import { useMoneyFormat } from "@/components/money-format-provider";
+import { cn } from "@opusline/ui/lib/utils";
+import { Link } from "@tanstack/react-router";
+import {
+  useDateFormat,
+  useMoneyFormat,
+} from "@/components/money-format-provider";
 import { formatWholeAmount } from "@/lib/billing";
 import { REVENUE_PLACEHOLDER } from "@/lib/client-revenue";
+import {
+  deadlineDueLabel,
+  deadlineItemAmountCents,
+  deadlineItemTitle,
+  deadlineProgress,
+} from "@/lib/deadlines";
 import { formatWorkedDays } from "@/lib/durations";
 import { m } from "@/paraglide/messages.js";
 
@@ -71,6 +85,81 @@ function monthTileOf(
   );
 }
 
+/**
+ * The design's third tile: what falls due next, and how far through its period
+ * today sits. Clickable through to the Échéances screen — the whole tile is the
+ * target, not a link buried in it.
+ */
+function nextDeadlineTileOf(
+  format: ReturnType<typeof useMoneyFormat>,
+  dateFormat: ReturnType<typeof useDateFormat>,
+  today: string,
+  nextDeadline: NextDeadline,
+) {
+  if (nextDeadline === null) {
+    return null;
+  }
+
+  if (nextDeadline === "unavailable") {
+    return (
+      <StatTile
+        className="lg:col-span-2"
+        label={m.week_deadline_title()}
+        size="lg"
+        sub={m.week_deadline_unavailable()}
+        tone="quiet"
+        value={REVENUE_PLACEHOLDER}
+      />
+    );
+  }
+
+  if (nextDeadline === "none") {
+    return (
+      <StatTile
+        className="lg:col-span-2"
+        label={m.week_deadline_title()}
+        render={<Link to="/deadlines" />}
+        size="lg"
+        sub={m.week_deadline_none_sub()}
+        tone="quiet"
+        value={m.week_deadline_none()}
+      />
+    );
+  }
+
+  const amountCents = deadlineItemAmountCents(nextDeadline);
+
+  return (
+    <StatTile
+      className="lg:col-span-2"
+      label={m.week_deadline_title()}
+      lead={deadlineItemTitle(nextDeadline)}
+      meter={
+        nextDeadline.fiscal === null
+          ? undefined
+          : deadlineProgress(nextDeadline.fiscal, today)
+      }
+      render={<Link to="/deadlines" />}
+      size="lg"
+      sub={deadlineDueLabel(dateFormat, nextDeadline, today)}
+      tone="brand"
+      value={
+        amountCents === null
+          ? REVENUE_PLACEHOLDER
+          : formatWholeAmount(format, amountCents)
+      }
+    />
+  );
+}
+
+/**
+ * What falls due next — an invoice, a relance or a fiscal deadline: null while
+ * it loads, "unavailable" when the request failed, "none" for an account with
+ * an empty board. One value rather than a pair, so "loaded and also failed"
+ * cannot be expressed in the first place.
+ */
+export type NextDeadline = DeadlineItemData | "none" | "unavailable" | null;
+
 type WeekSummaryTilesProps = {
   summary: WeekBillableSummary;
   /**
@@ -79,26 +168,43 @@ type WeekSummaryTilesProps = {
    * cannot be expressed in the first place.
    */
   monthWorkload: MonthWorkloadData | "unavailable" | null;
+  nextDeadline: NextDeadline;
+  /** The account's own calendar date, so the tile's countdown matches the API's. */
+  today: string;
 };
 
 /**
- * The design's row holds three tiles — these two and "Prochaine échéance" (#75).
- * Until that one lands the row is two columns: the row's hairline background
- * paints empty columns as a grey slab.
+ * The design's row: what the week is worth, how full the month is, and what
+ * falls due next — the last one twice as wide as the other two, and only for
+ * an account the French fiscal calendar applies to.
  */
 export function WeekSummaryTiles({
   summary,
   monthWorkload,
+  nextDeadline,
+  today,
 }: WeekSummaryTilesProps) {
   const format = useMoneyFormat();
+  const dateFormat = useDateFormat();
   const hasBillableTime = summary.valuedEntryCount > 0;
   const monthTile = monthTileOf(format.locale, monthWorkload);
+  const deadlineTile = nextDeadlineTileOf(
+    format,
+    dateFormat,
+    today,
+    nextDeadline,
+  );
 
   return (
     <StatTileRow
-      className={
-        monthTile === null ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2"
-      }
+      // The deadline tile is two columns wide, so the count follows what is
+      // actually there: an opened column no tile fills paints as a grey slab.
+      className={cn(
+        "grid-cols-1",
+        monthTile !== null && "sm:grid-cols-2",
+        deadlineTile !== null &&
+          (monthTile === null ? "lg:grid-cols-3" : "lg:grid-cols-4"),
+      )}
       variant="cards"
     >
       <StatTile
@@ -116,6 +222,7 @@ export function WeekSummaryTiles({
         }
       />
       {monthTile}
+      {deadlineTile}
     </StatTileRow>
   );
 }

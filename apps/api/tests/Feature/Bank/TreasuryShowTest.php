@@ -54,8 +54,11 @@ test('subtracts the provisions from the balance to answer what is transferable',
         ->assertJsonPath('provisions.urssaf.amount.amount', 271_700)
         ->assertJsonPath('provisions.urssaf.rateBp', 2600)
         ->assertJsonPath('provisions.buffer.amount', 150_000)
-        ->assertJsonPath('provisions.total.amount', 630_700)
-        ->assertJsonPath('transferable.amount', 851_300);
+        // Eight elapsed twelfths of the ~190 € barème CFE guess the account's
+        // own collections produce — the same figure the Échéances screen shows.
+        ->assertJsonPath('provisions.cfe.amount.amount', 12_666)
+        ->assertJsonPath('provisions.total.amount', 643_366)
+        ->assertJsonPath('transferable.amount', 838_634);
 });
 
 test('dates each provision to the period it accrued over', function (): void {
@@ -73,7 +76,7 @@ test('reports a negative transferable amount when the provisions outgrow the acc
     $this->actingAs($user)
         ->getJson('/api/treasury')
         ->assertOk()
-        ->assertJsonPath('transferable.amount', -610_700);
+        ->assertJsonPath('transferable.amount', -623_366);
 });
 
 test('answers with the same balance the compte pro screen shows', function (): void {
@@ -130,8 +133,8 @@ test('drops the tva provision under franchise en base', function (): void {
         ->getJson('/api/treasury')
         ->assertOk()
         ->assertJsonPath('provisions.vat', null)
-        ->assertJsonPath('provisions.total.amount', 421_700)
-        ->assertJsonPath('transferable.amount', 1_060_300);
+        ->assertJsonPath('provisions.total.amount', 434_366)
+        ->assertJsonPath('transferable.amount', 1_047_634);
 });
 
 test('drops the urssaf provision for an account established outside France', function (): void {

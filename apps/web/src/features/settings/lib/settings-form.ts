@@ -1,6 +1,7 @@
 import type {
   DateFormat,
   Locale,
+  MoneyData,
   SettingsData,
   UpdateSettingsData,
   UrssafPeriodicity,
@@ -85,6 +86,7 @@ export type SettingsFormValues = {
   defaultPaymentTermsDays: number;
   invoiceNumberFormat: string;
   treasuryBuffer: string;
+  cfeExpected: string;
   workdayMinutes: number;
 };
 
@@ -140,6 +142,10 @@ export function toSettingsValues(
       settings.treasuryBuffer === null
         ? ""
         : formatAmount(format, settings.treasuryBuffer.amount),
+    cfeExpected:
+      settings.cfeExpected === null
+        ? ""
+        : formatAmount(format, settings.cfeExpected.amount),
     workdayMinutes: settings.workdayMinutes,
   };
 }
@@ -161,7 +167,19 @@ export function toSettingsPayload(
   regional: RegionalOverrides = {},
 ): UpdateSettingsData {
   const businessCountry = regional.businessCountry ?? settings.businessCountry;
-  const buffer = parseBufferCents(format.locale, values.treasuryBuffer);
+  // An amount only exists once the user gives one, and a zero says the same
+  // thing as an empty field — the API's Min(1) agrees.
+  const moneyOrNull = (draft: string, appliesHere = true): MoneyData | null => {
+    const cents = parseBufferCents(format.locale, draft);
+
+    return !appliesHere || cents === null || cents === 0
+      ? null
+      : // settings.currency, not format.currency: the payload must be
+        // denominated in the same snapshot it is built from, while the format
+        // context is a render-time copy that can lag one render behind a
+        // currency change and 422 on a field the user never touched.
+        { amount: cents, currency: settings.currency };
+  };
   // Mirrors the API's gate: outside France the French flags are forced off and
   // the régime pinned. Sending the already-normalized values keeps the saved
   // echo identical to the draft, so the unsaved-changes bar settles at zero.
@@ -204,15 +222,9 @@ export function toSettingsPayload(
     homeAddressLine2: valueOrNull(values.homeAddressLine2),
     homePostalCode: valueOrNull(values.homePostalCode),
     homeCity: valueOrNull(values.homeCity),
-    treasuryBuffer:
-      // settings.currency, not format.currency: the payload must be denominated
-      // in the same snapshot it is built from, while the format context is a
-      // render-time copy that can lag one render behind a currency change and
-      // 422 on a field the user never touched.
-      // A zero matelas means no matelas — the API's Min(1) says the same.
-      buffer === null || buffer === 0
-        ? null
-        : { amount: buffer, currency: settings.currency },
+    treasuryBuffer: moneyOrNull(values.treasuryBuffer),
+    // Outside France these two French taxes do not apply at all.
+    cfeExpected: moneyOrNull(values.cfeExpected, isFrench),
   };
 }
 
@@ -261,8 +273,20 @@ const FIELD_TAB: Record<keyof SettingsFormValues, SettingsTab> = {
   defaultPaymentTermsDays: "facturation",
   invoiceNumberFormat: "facturation",
   treasuryBuffer: "facturation",
+  cfeExpected: "fiscalite",
   workdayMinutes: "facturation",
 };
+
+/**
+ * The onChange validator every optional money draft shares: empty means unset,
+ * anything else has to parse in the account's notation.
+ */
+export function optionalAmountValidator(locale: Locale) {
+  return ({ value }: { value: string }): { message: string } | undefined =>
+    value.trim() === "" || parseBufferCents(locale, value) !== null
+      ? undefined
+      : { message: m.settings_buffer_invalid() };
+}
 
 /** The onChange validator every percent-rate draft field shares. */
 export function ratePercentValidator(locale: Locale) {
