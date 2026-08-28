@@ -88,7 +88,7 @@ class SpatieDataParametersExtractor implements ParameterExtractor
      */
     private function correctNestedDataOptionality(string $dataClassName, array $parameters, array $rules): array
     {
-        $parameters = (new DeepParametersMerger(collect($parameters)))->handle();
+        $parameters = new DeepParametersMerger(collect($parameters))->handle();
 
         foreach ($this->dataConfig->getDataClass($dataClassName)->properties as $property) {
             $kind = $property->type->kind;

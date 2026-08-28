@@ -4,6 +4,7 @@ import type {
   SignedMoneyData,
 } from "@opusline/api-client";
 import { Button } from "@opusline/ui/components/button";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { cn } from "@opusline/ui/lib/utils";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
@@ -29,9 +30,7 @@ export function TreasuryHero({
 
   return (
     <section className="rounded-md border bg-card px-6 py-9 text-center">
-      <div className="font-medium text-muted-foreground-2 text-xs uppercase tracking-widest">
-        {m.treasury_hero_label()}
-      </div>
+      <div className={eyebrowVariants()}>{m.treasury_hero_label()}</div>
       <div
         className={cn(
           "mt-4 whitespace-nowrap font-mono font-medium text-5xl leading-none tracking-tight tabular-nums",

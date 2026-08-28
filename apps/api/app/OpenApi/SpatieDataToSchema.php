@@ -96,7 +96,7 @@ class SpatieDataToSchema extends TypeToSchemaExtension
             throw new LogicException('Schema::fromType returned an unexpected value.');
         }
 
-        return (new Response(200))->setContent('application/json', $schema);
+        return new Response(200)->setContent('application/json', $schema);
     }
 
     /**

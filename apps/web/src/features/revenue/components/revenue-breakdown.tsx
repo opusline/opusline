@@ -11,6 +11,7 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@opusline/ui/components/empty";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { cn } from "@opusline/ui/lib/utils";
 
 import {
@@ -54,9 +55,7 @@ export function RevenueBreakdown({
   return (
     <section className="overflow-hidden rounded-md border bg-card">
       <header className="flex flex-wrap items-baseline justify-between gap-3 border-b px-5 py-4">
-        <h2 className="font-medium text-muted-foreground-2 text-xs uppercase tracking-widest">
-          {m.revenue_breakdown_title()}
-        </h2>
+        <h2 className={eyebrowVariants()}>{m.revenue_breakdown_title()}</h2>
         {clients.length > 0 && (
           <span className="text-muted-foreground-3 text-xs">
             {m.revenue_breakdown_clients({ count: clients.length })} ·{" "}
@@ -66,9 +65,9 @@ export function RevenueBreakdown({
       </header>
 
       {clients.length === 0 ? (
-        <Empty className="border-0 py-9">
+        <Empty surface="plain" className="py-9">
           <EmptyHeader>
-            <EmptyTitle className="font-semibold text-base text-foreground-hi">
+            <EmptyTitle variant="strong">
               {basisText(basis).emptyTitle({ period: periodLabel })}
             </EmptyTitle>
             <EmptyDescription>{basisText(basis).emptyBody()}</EmptyDescription>

@@ -1,5 +1,6 @@
 import type { InvoiceListItemData, Locale } from "@opusline/api-client";
 import { Badge } from "@opusline/ui/components/badge";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { Link } from "@tanstack/react-router";
 
 import { useLocale, useMoneyFormat } from "@/components/money-format-provider";
@@ -33,7 +34,7 @@ export function RevenueInvoicesCard({
   return (
     <section className="flex-1 rounded-md border bg-card px-5 py-4">
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="font-medium text-muted-foreground-2 text-xs uppercase tracking-widest">
+        <h2 className={eyebrowVariants()}>
           {basisText(basis).invoicesTitle()}
         </h2>
         <Link

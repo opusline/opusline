@@ -72,6 +72,7 @@ function settingsDerivedUserFields(
     hasFrenchFiscality: settings.hasFrenchFiscality,
     vatLiable: settings.vatLiable,
     effectiveVatRateBp: settings.effectiveVatRateBp,
+    effectiveContributionRateBp: settings.effectiveContributionRateBp,
     locale: settings.locale,
     dateFormat: settings.dateFormat,
     timezone: settings.timezone,

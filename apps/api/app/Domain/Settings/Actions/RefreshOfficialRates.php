@@ -26,12 +26,18 @@ class RefreshOfficialRates
      * @param  bool  $force  Bypass the shared cache and read URSSAF again. Set
      *                       for « Vérifier maintenant », which promises the user
      *                       a check rather than a repeat of someone else's.
+     * @param  bool  $retryTransientFailures  Cleared by the settings save, where this
+     *                                        call is a side effect of pressing
+     *                                        Enregistrer rather than the thing that
+     *                                        was asked for — see MonEntrepriseClient.
+     *                                        The nightly command and « Vérifier
+     *                                        maintenant » both keep it.
      *
      * @throws RatesUnavailable
      */
-    public function handle(UserSettings $settings, bool $force = false): UserSettings
+    public function handle(UserSettings $settings, bool $force = false, bool $retryTransientFailures = true): UserSettings
     {
-        $rates = $this->read(RateSituation::fromSettings($settings), $force);
+        $rates = $this->read(RateSituation::fromSettings($settings), $force, $retryTransientFailures);
 
         $settings->update([
             'contribution_rate_bp' => $rates->contributionRateBp,
@@ -43,7 +49,7 @@ class RefreshOfficialRates
         return $settings;
     }
 
-    private function read(RateSituation $situation, bool $force): OfficialRates
+    private function read(RateSituation $situation, bool $force, bool $retryTransientFailures): OfficialRates
     {
         $key = "official-rates:{$situation->signature()}";
 
@@ -55,13 +61,13 @@ class RefreshOfficialRates
         $cached = Cache::remember(
             $key,
             CarbonImmutable::now()->addHours(self::CACHE_HOURS),
-            function () use ($situation): array {
+            function () use ($situation, $retryTransientFailures): array {
                 if (Cache::has(self::UNAVAILABLE_KEY)) {
                     throw new RatesUnavailable('The official rate source was unreachable moments ago.');
                 }
 
                 try {
-                    $fetched = $this->client->fetch($situation);
+                    $fetched = $this->client->fetch($situation, $retryTransientFailures);
                 } catch (RatesUnavailable $exception) {
                     Cache::put(self::UNAVAILABLE_KEY, true, CarbonImmutable::now()->addMinutes(self::UNAVAILABLE_MINUTES));
 

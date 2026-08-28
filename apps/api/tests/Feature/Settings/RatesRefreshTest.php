@@ -158,7 +158,7 @@ test('caches the barème as plain values, so a serialized cache cannot poison it
         ->assertOk();
 
     $cached = collect(Cache::get(
-        'official-rates:'.(new RateSituation(false, null))->signature(),
+        'official-rates:'.new RateSituation(false, null)->signature(),
     ));
 
     expect($cached->except('readAt')->all())->toBe([
@@ -181,6 +181,18 @@ test('lets an explicit check retry a source that just refused', function (): voi
 
     // Two reads, each retried once by the client.
     Http::assertSentCount(4);
+});
+
+test('a settings save pays the timeout once, never twice', function (): void {
+    // The user pressed Enregistrer, not « Vérifier maintenant »: retrying a
+    // refusing source here doubles the wait on a request that was about saving
+    // settings, and the save already degrades to keeping the stored rates.
+    Sleep::fake();
+    Http::fake(['*/evaluate' => Http::response(status: 500)]);
+
+    adoptOfficialRates(User::factory()->create())->assertOk();
+
+    Http::assertSentCount(1);
 });
 
 test('still serves a barème held in cache while the source is refusing', function (): void {

@@ -12,6 +12,7 @@ use App\Domain\Missions\Enums\BillingMode;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Data\SignedMoneyData;
+use App\Domain\Shared\Money\Rate;
 use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Users\Models\User;
 use Cknow\Money\Money;
@@ -32,8 +33,6 @@ use Illuminate\Support\Collection;
  */
 class SummarizeFixedPriceBudgets
 {
-    private const int BASIS_POINTS = 10_000;
-
     /**
      * Currency must precede the money columns: MoneyIntegerCast reads it to build them.
      *
@@ -226,8 +225,6 @@ class SummarizeFixedPriceBudgets
 
     private function shareBp(Money $part, Money $whole): int
     {
-        $divisor = (int) $whole->getAmount();
-
-        return $divisor === 0 ? 0 : intdiv((int) $part->getAmount() * self::BASIS_POINTS, $divisor);
+        return Rate::shareBp((int) $part->getAmount(), (int) $whole->getAmount());
     }
 }

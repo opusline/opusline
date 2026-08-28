@@ -1,5 +1,6 @@
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { cn } from "@opusline/ui/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps, ReactNode } from "react";
@@ -102,9 +103,7 @@ function StatTile({
   const body = (
     <>
       <div className="flex items-start justify-between gap-2">
-        <div className="font-medium text-muted-foreground-2 text-xs uppercase tracking-widest">
-          {label}
-        </div>
+        <div className={eyebrowVariants()}>{label}</div>
         {action}
       </div>
       <div className={cn(statTileValueVariants({ tone, size }))}>

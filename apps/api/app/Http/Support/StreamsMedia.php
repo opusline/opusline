@@ -17,7 +17,13 @@ trait StreamsMedia
 
         abort_if(! $media instanceof Media, 404);
 
-        return Storage::disk($media->disk)->response(
+        $disk = Storage::disk($media->disk);
+
+        // See DownloadDocument: the row is not proof the object is still there,
+        // and a missing one breaks the stream after the headers have gone out.
+        abort_if($disk->missing($media->getPathRelativeToRoot()), 404);
+
+        return $disk->response(
             $media->getPathRelativeToRoot(),
             $media->file_name,
             [

@@ -28,6 +28,7 @@ use App\Domain\Missions\Models\Mission;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Enums\Currency;
+use App\Domain\Shared\Money\Rate;
 use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
@@ -41,8 +42,6 @@ class SummarizeInvoices
 {
     /** Long enough to be worth acting on, short enough to stay a list. */
     private const int TODO_LIMIT = 20;
-
-    private const int BASIS_POINTS = 10_000;
 
     public function __construct(
         private readonly ValueTrackedTime $valueTrackedTime,
@@ -268,7 +267,7 @@ class SummarizeInvoices
             $bars[] = new InvoiceForecastData(
                 bucket: $bucket,
                 amount: MoneyData::fromMoney($totals[$bucket->value]),
-                shareBp: $largest === 0 ? 0 : intdiv($amount * self::BASIS_POINTS, $largest),
+                shareBp: Rate::shareBp($amount, $largest),
             );
         }
 
