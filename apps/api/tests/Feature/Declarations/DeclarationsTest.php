@@ -131,6 +131,23 @@ test('offers nothing outside french fiscality', function (): void {
         ->assertJsonPath('vat', null);
 });
 
+test('never counts another account collections', function (): void {
+    $user = User::factory()->create();
+    vatLiable($user);
+    $other = User::factory()->create();
+    vatLiable($other);
+
+    paidInvoiceOn($user, '2026-07-10');
+    paidInvoiceOn($other, '2026-07-12');
+    paidInvoiceOn($other, '2026-07-20');
+
+    $this->actingAs($user)
+        ->getJson('/api/declarations')
+        ->assertOk()
+        ->assertJsonPath('urssaf.base.amount', 165_000)
+        ->assertJsonPath('vat.salesHt.amount', 165_000);
+});
+
 test('requires authentication', function (): void {
     $this->getJson('/api/declarations')->assertUnauthorized();
 });

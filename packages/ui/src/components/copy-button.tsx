@@ -18,18 +18,30 @@ const PRESETS = {
   },
 } as const;
 
+type CopyButtonOwnProps = {
+  /** What lands on the clipboard, verbatim. */
+  value: string;
+  size?: keyof typeof PRESETS;
+  label?: string;
+  /** Both outcomes are required: they replace the visible label, so an absent
+   *  one would leave the button wordless the moment it is pressed. */
+  copiedLabel: string;
+  failedLabel: string;
+};
+
+/**
+ * `default` shows its label, `icon` shows none — so the union makes each preset
+ * demand whatever gives it an accessible name.
+ */
 type CopyButtonProps = Omit<
   React.ComponentProps<typeof Button>,
   "size" | "variant"
-> & {
-  /** What lands on the clipboard, verbatim. */
-  value: string;
-  /** `icon` drops the text — give it an aria-label. */
-  size?: keyof typeof PRESETS;
-  label?: string;
-  copiedLabel?: string;
-  failedLabel?: string;
-};
+> &
+  CopyButtonOwnProps &
+  (
+    | { size?: "default"; label: string }
+    | { size: "icon"; "aria-label": string }
+  );
 
 /** Copies its value and flashes the outcome for a moment. */
 function CopyButton({
@@ -76,38 +88,38 @@ function CopyButton({
   };
 
   const preset = PRESETS[size];
-  const currentLabel = {
-    idle: label,
-    copied: copiedLabel,
-    failed: failedLabel,
-  }[outcome?.state ?? "idle"];
+  const outcomeLabel =
+    outcome === null
+      ? null
+      : { copied: copiedLabel, failed: failedLabel }[outcome.state];
 
   return (
-    <Button
-      className={cn(
-        "cursor-pointer hover:border-primary hover:text-primary-text data-[state=failed]:border-destructive data-[state=failed]:text-destructive",
-        preset.className,
-        className,
-      )}
-      data-state={outcome?.state ?? "idle"}
-      onClick={(event) => {
-        onClick?.(event);
-        copy();
-      }}
-      size={preset.size}
-      variant={preset.variant}
-      {...props}
-    >
-      {outcome?.state === "copied" ? <CheckIcon /> : <CopyIcon />}
-      {size === "default" && currentLabel}
-      {/* With a visible label the swap already carries the outcome; announcing
-          it again would put it in the button's accessible name twice. */}
-      {size === "icon" && (
-        <span aria-live="polite" className="sr-only">
-          {outcome === null ? null : currentLabel}
-        </span>
-      )}
-    </Button>
+    <>
+      <Button
+        className={cn(
+          "cursor-pointer hover:border-primary hover:text-primary-text data-[state=failed]:border-destructive data-[state=failed]:text-destructive",
+          preset.className,
+          className,
+        )}
+        data-state={outcome?.state ?? "idle"}
+        onClick={(event) => {
+          onClick?.(event);
+          copy();
+        }}
+        size={preset.size}
+        variant={preset.variant}
+        {...props}
+      >
+        {outcome?.state === "copied" ? <CheckIcon /> : <CopyIcon />}
+        {size === "default" && (outcomeLabel ?? label)}
+      </Button>
+      {/* A sibling, never a child: inside the button its text would join the
+          accessible name. `sr-only` is absolutely positioned, so it stays out
+          of the flex flow of whatever row holds the button. */}
+      <span aria-live="polite" className="sr-only">
+        {outcomeLabel}
+      </span>
+    </>
   );
 }
 

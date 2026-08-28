@@ -71,5 +71,14 @@ it("copies each box as whole euros without spaces", () => {
     }),
   );
 
-  expect(clipboard.writeText).toHaveBeenCalledWith("10450");
+  expect(clipboard.writeText).toHaveBeenLastCalledWith("10450");
+
+  // The rate line copies the base, not the tax — its « Taxe due » column is
+  // computed by the form.
+  fireEvent.click(
+    screen.getByRole("button", { name: "Copier Taux normal 20 %" }),
+  );
+
+  expect(clipboard.writeText).toHaveBeenLastCalledWith("10450");
+  expect(clipboard.writeText).toHaveBeenCalledTimes(2);
 });
