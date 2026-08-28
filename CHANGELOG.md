@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.0](https://github.com/opusline/opusline/compare/v0.17.0...v0.18.0) (2026-08-28)
+
+
+### Features
+
+* **web:** add deadline reminders and calendar feed ([#208](https://github.com/opusline/opusline/issues/208)) ([0f39ac1](https://github.com/opusline/opusline/commit/0f39ac1a31ded16b82d1c29dedc792ac20913e9a))
+
 ## [0.17.0](https://github.com/opusline/opusline/compare/v0.16.0...v0.17.0) (2026-08-21)
 
 
