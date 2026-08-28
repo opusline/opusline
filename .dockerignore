@@ -1,0 +1,28 @@
+# The build installs its own dependencies; a host `node_modules` or `vendor`
+# copied in would be the wrong platform and would silently win.
+node_modules
+**/node_modules
+apps/api/vendor
+apps/api/storage/framework
+apps/api/storage/logs
+apps/api/storage/app
+apps/api/.env
+# XDG_CONFIG_HOME / XDG_DATA_HOME point the dev Sail container at these, so they
+# fill with root-owned Caddy and Composer state that Laravel then tries to read
+# as configuration. Gitignored, but a Docker build context is not a git tree.
+apps/api/config/caddy
+apps/api/config/composer
+apps/api/config/psysh
+apps/api/data
+apps/web/dist
+apps/storybook/storybook-static
+.git
+.github
+.turbo
+**/.turbo
+**/.cache
+docs
+*.md
+.env
+.env.*
+!.env.production.example
