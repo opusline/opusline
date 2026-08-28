@@ -6,11 +6,11 @@ namespace App\Domain\Invoices\Revenue;
 
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Shared\Money\Rate;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
 use Illuminate\Support\Collection;
-use Money\Money as MoneyPhp;
 
 /**
  * The invoices an account collected over a span, loaded once and reduced up
@@ -31,8 +31,6 @@ use Money\Money as MoneyPhp;
  */
 final readonly class CollectedInvoices
 {
-    private const int BASIS_POINTS = 10_000;
-
     /**
      * @param  list<CollectedRow>  $collected
      */
@@ -82,9 +80,7 @@ final readonly class CollectedInvoices
         int $rateBp,
         string $currency,
     ): int {
-        return (int) new Money($this->sumBetween($from, $to, 'ht'), $currency)
-            ->multiply($rateBp)
-            ->divide(self::BASIS_POINTS, MoneyPhp::ROUND_HALF_UP)
+        return (int) Rate::of(new Money($this->sumBetween($from, $to, 'ht'), $currency), $rateBp)
             ->getAmount();
     }
 
