@@ -1911,6 +1911,29 @@
                 "security": []
             }
         },
+        "/declarations": {
+            "get": {
+                "operationId": "showDeclarations",
+                "tags": [
+                    "Declaration"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeclarationsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/documents": {
             "get": {
                 "operationId": "listDocumentLibrary",
@@ -5767,6 +5790,36 @@
                 ],
                 "title": "DeadlineReminderData"
             },
+            "DeclarationsData": {
+                "type": "object",
+                "properties": {
+                    "urssaf": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/UrssafDeclarationData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "vat": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/VatDeclarationData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "urssaf",
+                    "vat"
+                ],
+                "title": "DeclarationsData"
+            },
             "DocumentCategory": {
                 "type": "integer",
                 "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/>  |\n| `3` <br/>  |\n| `4` <br/>  |\n| `5` <br/> The CRA Opusline generated, filed next to the signed return it comes back as. |\n| `6` <br/>  |\n| `7` <br/>  |\n| `8` <br/>  |\n| `9` <br/>  |\n| `10` <br/>  |",
@@ -8719,6 +8772,26 @@
                 ],
                 "title": "UploadSignedCraData"
             },
+            "UrssafDeclarationData": {
+                "type": "object",
+                "properties": {
+                    "period": {
+                        "type": "string"
+                    },
+                    "periodicity": {
+                        "$ref": "#/components/schemas/UrssafPeriodicity"
+                    },
+                    "base": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "period",
+                    "periodicity",
+                    "base"
+                ],
+                "title": "UrssafDeclarationData"
+            },
             "UrssafPeriodicity": {
                 "type": "integer",
                 "enum": [
@@ -8797,6 +8870,37 @@
                     "workdayMinutes"
                 ],
                 "title": "UserData"
+            },
+            "VatDeclarationData": {
+                "type": "object",
+                "properties": {
+                    "period": {
+                        "type": "string"
+                    },
+                    "regime": {
+                        "$ref": "#/components/schemas/VatRegime"
+                    },
+                    "salesHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "collected": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "rateBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "period",
+                    "regime",
+                    "salesHt",
+                    "collected",
+                    "rateBp"
+                ],
+                "title": "VatDeclarationData"
             },
             "VatRegime": {
                 "type": "integer",

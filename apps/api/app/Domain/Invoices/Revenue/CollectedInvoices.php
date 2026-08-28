@@ -27,7 +27,7 @@ use Money\Money as MoneyPhp;
  * date string and a Money per invoice per window is what would make that
  * quadratic.
  *
- * @phpstan-type CollectedRow array{date: string, ht: int, vat: int}
+ * @phpstan-type CollectedRow array{date: string, ht: int, vat: int, rateBp: int}
  */
 final readonly class CollectedInvoices
 {
@@ -53,7 +53,7 @@ final readonly class CollectedInvoices
         $invoices = $user->invoices()
             ->where('status', InvoiceStatus::Paid)
             ->whereBetween('paid_on', [$from->toDateString(), $to->toDateString()])
-            ->get(['paid_on', 'amount_ht_cents', 'amount_ttc_cents', 'currency']);
+            ->get(['paid_on', 'amount_ht_cents', 'amount_ttc_cents', 'vat_rate_bp', 'currency']);
 
         return new self(self::rows($invoices));
     }
@@ -65,6 +65,12 @@ final readonly class CollectedInvoices
     public function vatCents(CarbonImmutable $from, CarbonImmutable $to): int
     {
         return $this->sumBetween($from, $to, 'vat');
+    }
+
+    /** The HT actually collected in the window — the URSSAF declaration's base. */
+    public function htCents(CarbonImmutable $from, CarbonImmutable $to): int
+    {
+        return $this->sumBetween($from, $to, 'ht');
     }
 
     /**
@@ -80,6 +86,51 @@ final readonly class CollectedInvoices
             ->multiply($rateBp)
             ->divide(self::BASIS_POINTS, MoneyPhp::ROUND_HALF_UP)
             ->getAmount();
+    }
+
+    /**
+     * The one VAT rate every invoice collected in the window carries — caption
+     * context, not an input to any sum.
+     */
+    public function uniqueRateBp(CarbonImmutable $from, CarbonImmutable $to, int $default): ?int
+    {
+        $fromDate = $from->toDateString();
+        $toDate = $to->toDateString();
+        $rates = [];
+
+        foreach ($this->collected as $row) {
+            if ($row['date'] >= $fromDate && $row['date'] <= $toDate) {
+                $rates[] = $row['rateBp'];
+            }
+        }
+
+        return self::consensusRateBp($rates, $default);
+    }
+
+    /**
+     * The single rate a set of invoices can be captioned with.
+     *
+     * A set with nothing in it reads as the account's own rate rather than as
+     * "several rates", which is what an empty unique() would otherwise caption;
+     * disagreement returns null, because no one figure describes a mixed set
+     * honestly. Shared so the invoiced and collected bases cannot drift — the
+     * Revenus screen reduces Eloquent models, this class reduces flat rows.
+     *
+     * @param  iterable<int>  $rateBps
+     */
+    public static function consensusRateBp(iterable $rateBps, int $default): ?int
+    {
+        $distinct = [];
+
+        foreach ($rateBps as $rateBp) {
+            $distinct[$rateBp] = true;
+        }
+
+        return match (count($distinct)) {
+            0 => $default,
+            1 => array_key_first($distinct),
+            default => null,
+        };
     }
 
     /**
@@ -101,6 +152,7 @@ final readonly class CollectedInvoices
                 'date' => $invoice->paid_on->toDateString(),
                 'ht' => (int) $invoice->amount_ht_cents->getAmount(),
                 'vat' => (int) $invoice->vatAmount()->getAmount(),
+                'rateBp' => $invoice->vat_rate_bp,
             ];
         }
 

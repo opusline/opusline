@@ -65,6 +65,19 @@ export function formatAmount(format: MoneyFormat, amountCents: number): string {
 }
 
 /**
+ * The bare whole-unit figure a fisc form's box shows back — grouped for
+ * reading, no symbol, no cents.
+ */
+export function formatWholeFigure(
+  format: MoneyFormat,
+  amountCents: number,
+): string {
+  return cachedFormatter(format.locale, { maximumFractionDigits: 0 }).format(
+    amountCents / 100,
+  );
+}
+
+/**
  * Whole units, the way invoice lists show them: "1 224 €". Rounded on purpose —
  * the list is scanned, not reconciled, and the exact figure to the cent is on the
  * invoice's own panel.

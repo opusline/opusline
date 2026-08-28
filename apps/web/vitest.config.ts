@@ -22,6 +22,8 @@ const DATE_SENSITIVE = [
   "src/features/week/components/week-summary-tiles.test.tsx",
   "src/features/deadlines/components/deadline-timeline.test.tsx",
   "src/features/deadlines/components/deadlines-page.test.tsx",
+  "src/features/declarations/components/urssaf-declaration-card.test.tsx",
+  "src/features/declarations/components/vat-declaration-card.test.tsx",
 ];
 
 export default defineConfig({

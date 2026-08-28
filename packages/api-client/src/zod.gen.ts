@@ -1418,6 +1418,15 @@ export const zUploadSignedCraData = z.object({
 export const zUrssafPeriodicity = z.union([z.literal(0), z.literal(1)]);
 
 /**
+ * UrssafDeclarationData
+ */
+export const zUrssafDeclarationData = z.object({
+    period: z.string(),
+    periodicity: zUrssafPeriodicity,
+    base: zMoneyData
+});
+
+/**
  * UserData
  */
 export const zUserData = z.object({
@@ -1537,6 +1546,25 @@ export const zUpdateSettingsData = z.object({
         amount: z.int().check(z.gte(1)),
         currency: zCurrency
     }))
+});
+
+/**
+ * VatDeclarationData
+ */
+export const zVatDeclarationData = z.object({
+    period: z.string(),
+    regime: zVatRegime,
+    salesHt: zMoneyData,
+    collected: zMoneyData,
+    rateBp: z.nullable(z.int())
+});
+
+/**
+ * DeclarationsData
+ */
+export const zDeclarationsData = z.object({
+    urssaf: z.nullable(zUrssafDeclarationData),
+    vat: z.nullable(zVatDeclarationData)
 });
 
 export const zGetPingResponse = z.object({
@@ -1812,6 +1840,8 @@ export const zShowDeadlineCalendarPath = z.object({
 });
 
 export const zShowDeadlineCalendarResponse = z.string();
+
+export const zShowDeclarationsResponse = zDeclarationsData;
 
 export const zListDocumentLibraryResponse = zDocumentLibraryData;
 

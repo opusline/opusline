@@ -491,6 +491,14 @@ export type DeadlineReminderData = {
 };
 
 /**
+ * DeclarationsData
+ */
+export type DeclarationsData = {
+    urssaf: UrssafDeclarationData | null;
+    vat: VatDeclarationData | null;
+};
+
+/**
  * DocumentCategory
  *
  * | |
@@ -1413,6 +1421,15 @@ export type UploadSignedCraData = {
 };
 
 /**
+ * UrssafDeclarationData
+ */
+export type UrssafDeclarationData = {
+    period: string;
+    periodicity: UrssafPeriodicity;
+    base: MoneyData;
+};
+
+/**
  * UrssafPeriodicity
  */
 export type UrssafPeriodicity = 0 | 1;
@@ -1435,6 +1452,17 @@ export type UserData = {
     effectiveVatRateBp: number;
     timezone: string;
     workdayMinutes: number;
+};
+
+/**
+ * VatDeclarationData
+ */
+export type VatDeclarationData = {
+    period: string;
+    regime: VatRegime;
+    salesHt: MoneyData;
+    collected: MoneyData;
+    rateBp: number | null;
 };
 
 /**
@@ -3210,6 +3238,33 @@ export type ShowDeadlineCalendarResponses = {
 };
 
 export type ShowDeadlineCalendarResponse = ShowDeadlineCalendarResponses[keyof ShowDeadlineCalendarResponses];
+
+export type ShowDeclarationsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/declarations';
+};
+
+export type ShowDeclarationsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowDeclarationsError = ShowDeclarationsErrors[keyof ShowDeclarationsErrors];
+
+export type ShowDeclarationsResponses = {
+    200: DeclarationsData;
+};
+
+export type ShowDeclarationsResponse = ShowDeclarationsResponses[keyof ShowDeclarationsResponses];
 
 export type ListDocumentLibraryData = {
     body?: never;
