@@ -1,4 +1,0 @@
-{
-  "kind": "improved",
-  "text": "The bank movements and mission entries tables are now real tables to a screen reader, so each figure is announced with the column it belongs to, and a reconciliation you validate no longer drops your keyboard focus."
-}

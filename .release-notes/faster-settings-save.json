@@ -1,4 +1,0 @@
-{
-  "kind": "improved",
-  "text": "Saving your settings no longer waits through a retry when the official barème source is slow — it saves, keeps the rates you had, and the daily refresh picks them up."
-}
