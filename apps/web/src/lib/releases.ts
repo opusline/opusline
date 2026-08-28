@@ -23,7 +23,7 @@ export const RELEASES: Release[] = [
       },
       {
         kind: "improved",
-        text: "When your CFE is a guess rather than a bill you have seen, the Transfer screen now says so — the « safe to transfer » figure no longer quietly deducts an estimate the Deadlines screen labels as one.",
+        text: "When your CFE is a guess rather than a bill you have seen, the Transfer screen now says so — the « safe to transfer » figure no longer quietly deducts an estimate the Deadlines screen labels as one.", // i18n-ignore
       },
       {
         kind: "improved",
