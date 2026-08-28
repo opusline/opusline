@@ -2,6 +2,7 @@ import type { ClientType, Color, CreateClientData } from "@opusline/api-client";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
 import { ChipGroup, ChipOption } from "@opusline/ui/components/chip";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { Field, FieldError, FieldLabel } from "@opusline/ui/components/field";
 import { Separator } from "@opusline/ui/components/separator";
 import { Swatch, SwatchGroup } from "@opusline/ui/components/swatch";
@@ -37,9 +38,6 @@ import {
   ClientVatRateExempt,
   ClientVatRateField,
 } from "./client-vat-rate-field";
-
-const EYEBROW_CLASSES =
-  "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
 
 type NewClientPageProps = {
   onSubmit: (
@@ -409,7 +407,7 @@ export function NewClientPage({
         {(values) => (
           <div className="flex min-w-0 flex-col gap-3.5">
             <div>
-              <div className={cn(EYEBROW_CLASSES, "mb-2.5")}>
+              <div className={cn(eyebrowVariants(), "mb-2.5")}>
                 {m.clients_preview_title()}
               </div>
               <div className="flex items-center gap-3 rounded-md border bg-card px-5 py-4">
@@ -469,7 +467,7 @@ export function NewClientPage({
             )}
 
             <div className="rounded-md border bg-card px-5 py-4">
-              <div className={cn(EYEBROW_CLASSES, "mb-3")}>
+              <div className={cn(eyebrowVariants(), "mb-3")}>
                 {m.clients_todo_title()}
               </div>
               <div className="flex flex-col gap-3">

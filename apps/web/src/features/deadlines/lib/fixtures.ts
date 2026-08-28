@@ -23,6 +23,7 @@ const DEMO_URSSAF_DONE = fiscalItem({
   periodEnd: "2026-06-30",
   dueOn: "2026-07-31",
   amount: eur(98_600),
+  base: eur(379_231),
   completedOn: "2026-07-29",
 });
 
@@ -35,6 +36,7 @@ const DEMO_CFE = fiscalItem({
   dueOn: "2026-12-15",
   amount: eur(48_000),
   rateBp: null,
+  base: null,
 });
 
 /** A period that has not started: no collections to estimate from yet. */
@@ -44,6 +46,7 @@ const DEMO_UNPRICED = fiscalItem({
   periodEnd: "2026-09-30",
   dueOn: "2026-10-31",
   amount: null,
+  base: null,
 });
 
 /** An invoice already past due, and the relance it calls for. */

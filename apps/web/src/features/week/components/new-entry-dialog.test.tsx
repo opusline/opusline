@@ -160,6 +160,7 @@ it("replaces every entry on the day, not just the first", () => {
         rounding: null,
         valuedDayFraction: 0.5,
         valuedMinutes: null,
+        value: null,
       },
       {
         billable: true,
@@ -172,6 +173,7 @@ it("replaces every entry on the day, not just the first", () => {
         rounding: null,
         valuedDayFraction: 0.5,
         valuedMinutes: null,
+        value: null,
       },
     ],
   });

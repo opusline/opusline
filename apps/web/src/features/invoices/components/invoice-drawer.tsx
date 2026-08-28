@@ -1,5 +1,6 @@
 import type { InvoiceDetailData } from "@opusline/api-client";
 import { Badge } from "@opusline/ui/components/badge";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import {
   Sheet,
   SheetContent,
@@ -31,11 +32,7 @@ type InvoiceDrawerProps = {
 };
 
 function SectionTitle({ children }: { children: string }) {
-  return (
-    <h3 className="font-medium text-muted-foreground-2 text-xs uppercase tracking-widest">
-      {children}
-    </h3>
-  );
+  return <h3 className={eyebrowVariants()}>{children}</h3>;
 }
 
 export function InvoiceDrawer({

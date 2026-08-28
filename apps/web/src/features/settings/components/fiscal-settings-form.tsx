@@ -291,9 +291,9 @@ export function FiscalAbroadPanel({
 
   return (
     <>
-      <Empty className="rounded-md border border-solid bg-card px-7 py-9">
+      <Empty className="px-7 py-9">
         <EmptyHeader>
-          <EmptyTitle className="font-semibold text-base text-foreground-hi">
+          <EmptyTitle variant="strong">
             {m.settings_fiscality_abroad_title()}
           </EmptyTitle>
           <EmptyDescription className="text-muted-foreground-3 text-sm">

@@ -10,10 +10,12 @@ use App\Domain\Bank\Parsing\ParseBankStatement;
 use App\Domain\Bank\Parsing\ParsedMovement;
 use App\Domain\Bank\Parsing\ParsedStatement;
 use App\Domain\Bank\Parsing\StatementParseException;
+use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Shared\Data\SignedMoneyData;
 use App\Domain\Shared\Enums\Currency;
 use App\Domain\Shared\Validation\AccountCurrency;
 use App\Domain\Users\Models\User;
+use Cknow\Money\Money;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -65,7 +67,7 @@ class ImportBankStatement
                 'period_end' => $parsed->periodEnd,
                 'line_count' => count($parsed->movements),
                 'currency' => $settings->currency->value,
-                'closing_balance_cents' => $data->balanceAmount ?? $parsed->closingBalanceCents,
+                'closing_balance_cents' => $this->cents($data->balanceAmount ?? $parsed->closingBalanceCents, $settings),
                 'closing_balance_on' => $data->balanceAmount !== null
                     ? $parsed->periodEnd
                     : ($parsed->closingBalanceOn ?? $parsed->periodEnd),
@@ -92,7 +94,7 @@ class ImportBankStatement
                     'booked_on' => $movement->bookedOn,
                     'label' => mb_strcut($movement->label, 0, 255),
                     'currency' => $settings->currency->value,
-                    'amount_cents' => $movement->amountCents,
+                    'amount_cents' => $this->cents($movement->amountCents, $settings),
                     'dedup_hash' => $hashes[$index],
                 ]);
                 $importedCount++;
@@ -124,6 +126,16 @@ class ImportBankStatement
         $name = trim(basename(str_replace('\\', '/', $original)));
 
         return mb_strcut($name === '' ? 'releve' : $name, 0, 255);
+    }
+
+    /**
+     * Minor units as a Money in the account's currency. Money::parse() reads a
+     * bare int as minor units but a decimal-looking string as major ones, so the
+     * cast is only ever handed the typed value.
+     */
+    private function cents(?int $cents, UserSettings $settings): ?Money
+    {
+        return $cents === null ? null : new Money($cents, $settings->currency->value);
     }
 
     /**

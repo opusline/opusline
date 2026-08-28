@@ -1,14 +1,32 @@
 import { cn } from "@opusline/ui/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 
-function Empty({ className, ...props }: React.ComponentProps<"div">) {
+const emptyVariants = cva(
+  "flex w-full min-w-0 flex-1 flex-col items-center justify-center gap-4 p-6 text-center text-balance",
+  {
+    variants: {
+      /** The chrome around the message; `card` is what the app draws by default. */
+      surface: {
+        card: "rounded-md border bg-card",
+        dashed: "rounded-xl border border-dashed",
+        plain: "",
+      },
+    },
+    defaultVariants: {
+      surface: "card",
+    },
+  },
+);
+
+function Empty({
+  className,
+  surface,
+  ...props
+}: React.ComponentProps<"div"> & VariantProps<typeof emptyVariants>) {
   return (
     <div
       data-slot="empty"
-      className={cn(
-        "flex w-full min-w-0 flex-1 flex-col items-center justify-center gap-4 rounded-xl border-dashed p-6 text-center text-balance",
-        className,
-      )}
+      className={cn(emptyVariants({ surface, className }))}
       {...props}
     />
   );

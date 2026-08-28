@@ -1,6 +1,6 @@
 import type { Locale, RevenueBasis } from "@opusline/api-client";
 
-import { cachedFormatter } from "@/lib/billing";
+import { cachedFormatter, formatPercentFromBp } from "@/lib/billing";
 import type { PeriodKind } from "@/lib/periods";
 import { m } from "@/paraglide/messages.js";
 
@@ -115,7 +115,9 @@ export function thousandsLabel(locale: Locale, amountCents: number): string {
 
 /** "92 %" — a client's share, rounded: the column is scanned, not reconciled. */
 export function shareLabel(locale: Locale, shareBp: number): string {
-  return `${cachedFormatter(locale, { maximumFractionDigits: 0 }).format(shareBp / 100)} %`;
+  return m.common_percent({
+    value: formatPercentFromBp(locale, shareBp, 0, 0),
+  });
 }
 
 /** "-3" or "+12" — the signed percent beside the trend arrow. */

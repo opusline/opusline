@@ -6,9 +6,11 @@ import type {
 } from "@opusline/api-client";
 
 import {
+  daysAtRate,
   formatPercentFromBp,
   formatWholeAmount,
   type MoneyFormat,
+  shareBp,
 } from "@/lib/billing";
 import { indexMissionRevenue } from "@/lib/client-revenue";
 import { formatBilledDays, formatWorkedDays } from "@/lib/durations";
@@ -124,16 +126,15 @@ export function projectedBudget(
   const forfaitCents = budget.forfait.amount;
   const consumedCents =
     consumption.consumed.amount +
-    Math.round(consumption.referenceDailyRate.amount * addedDays);
-  const shareBp =
-    forfaitCents === 0 ? 0 : (consumedCents * 10_000) / forfaitCents;
+    daysAtRate(consumption.referenceDailyRate.amount, addedDays);
+  const projectedShareBp = shareBp(consumedCents, forfaitCents);
 
   if (consumedCents <= forfaitCents) {
     return {
       tone: "brand",
       note: m.week_forfait_projection({
         entry: formatBilledDays(format.locale, addedDays),
-        share: budgetShareFigure(format.locale, shareBp),
+        share: budgetShareFigure(format.locale, projectedShareBp),
         consumed: formatWholeAmount(format, consumedCents),
         forfait: formatWholeAmount(format, forfaitCents),
       }),
@@ -143,7 +144,7 @@ export function projectedBudget(
   return {
     tone: "warn",
     note: m.week_forfait_over_projection({
-      share: budgetShareFigure(format.locale, shareBp),
+      share: budgetShareFigure(format.locale, projectedShareBp),
       tracked: formatWorkedDays(
         format.locale,
         consumption.trackedDays + addedDays,

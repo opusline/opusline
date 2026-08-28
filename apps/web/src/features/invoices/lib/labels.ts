@@ -19,8 +19,15 @@ function periodLabel(locale: Locale, invoice: InvoiceData): string | null {
     : capitalizedMonthLabel(locale, invoice.periodStart);
 }
 
+/**
+ * How long an invoice took to pay, or null when it has not been.
+ *
+ * Paid status *and* a payment date, the pair
+ * SummarizeClientRevenue::averagePaymentDelayDays() counts — a draft can carry
+ * a paidOn without ever having been one.
+ */
 function daysToPay(invoice: InvoiceData): number | null {
-  return invoice.paidOn === null
+  return invoice.status !== 2 || invoice.paidOn === null
     ? null
     : calendarDaysBetween(invoice.issuedOn, invoice.paidOn);
 }

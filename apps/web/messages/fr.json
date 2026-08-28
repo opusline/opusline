@@ -114,6 +114,16 @@
   "bank_reconciled_title": "Tout est rapproché",
   "bank_reconciled_unlinked_body": "Certains encaissements restent sans facture liée — ils sont visibles dans les mouvements. Un prochain import pourra proposer de nouveaux rapprochements.",
   "bank_reconciled_unlinked_title": "Aucune suggestion en attente",
+  "bank_reconciliation_status": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} rapprochement restant à valider",
+        "countPlural=other": "{count} rapprochements restants à valider"
+      }
+    }
+  ],
   "bank_reconciliation_title": "Rapprochement",
   "bank_statement_detail": [
     {
@@ -189,10 +199,13 @@
   "clients_esn_card_title": "Facturation via intermédiaire",
   "clients_filter_aria": "Filtrer les clients",
   "clients_head_average_delay": "Délai moyen",
+  "clients_head_client": "Client",
+  "clients_head_mission": "Mission",
   "clients_head_pending": "En attente",
   "clients_head_rate": "Tarif",
   "clients_head_revenue": "CA {year}",
   "clients_head_revenue_short": "CA",
+  "clients_head_type": "Type",
   "clients_identity_title": "Identité",
   "clients_invoices_empty_hint": "Les factures apparaîtront ici dès que du temps facturable aura été saisi sur une mission de ce client.",
   "clients_load_failed": "Impossible de charger les clients. Réessayez dans un instant.",
@@ -271,6 +284,7 @@
   "common_all": "Tous",
   "common_back": "Retour",
   "common_billing_title": "Facturation",
+  "common_bytes": "{value} o",
   "common_cancel": "Annuler",
   "common_close": "Fermer",
   "common_copied": "Copié",
@@ -281,7 +295,10 @@
   "common_documents_title": "Documents",
   "common_duration": "Durée",
   "common_edit": "Modifier",
+  "common_email": "E-mail",
   "common_ht": "HT",
+  "common_kilobytes": "{value} Ko",
+  "common_megabytes": "{value} Mo",
   "common_more_actions": "Plus d'actions",
   "common_no_invoices_title": "Aucune facture",
   "common_note_label": "Note",
@@ -427,7 +444,6 @@
   "deadlines_chip_today": "Aujourd'hui",
   "deadlines_chip_todo": "À faire",
   "deadlines_complete_failed": "Cette échéance n’a pas pu être mise à jour.",
-  "deadlines_completed_on": "Faite le {date}",
   "deadlines_dialog_added": "J'ai ajouté l'adresse",
   "deadlines_dialog_address_label": "Adresse d'abonnement",
   "deadlines_dialog_intro": "Ajoutez cette adresse à votre agenda une seule fois. Il l'interrogera plusieurs fois par jour : les échéances des prochains mois arriveront d'elles-mêmes, une date modifiée se corrigera, une facture encaissée fera disparaître son rappel.",
@@ -901,6 +917,7 @@
   "missions_entries_header_quantity": "Quantité",
   "missions_entries_header_state": "État",
   "missions_entries_load_failed": "Impossible de charger les entrées de cette mission.",
+  "missions_entries_table_label": "Saisies de temps",
   "missions_entry_state_billable": "À facturer",
   "missions_entry_state_invoiced": "Facturé",
   "missions_entry_state_non_billable": "Non facturable",
@@ -1344,9 +1361,12 @@
       }
     }
   ],
+  "week_cell_add": "Ajouter",
   "week_cell_empty_label": "{mission}, {day} : aucune entrée",
   "week_cell_label": "{mission}, {day} : {value}",
   "week_change_mission": "Changer",
+  "week_column_mission": "Mission",
+  "week_column_total": "Total",
   "week_cumulate": "Cumuler",
   "week_date_incomplete": "Date incomplète",
   "week_date_label": "Date",
@@ -1402,7 +1422,9 @@
   "week_new_entry": "Nouvelle entrée",
   "week_next": "Semaine suivante",
   "week_no_activity": "Sans activité",
+  "week_non_billable": "Non facturable",
   "week_off_grid_pill": "hors grille",
+  "week_page_title": "Semaine",
   "week_previous": "Semaine précédente",
   "week_previous_load_failed": "La semaine précédente n'a pas pu être chargée. Réessayez dans un instant.",
   "week_previous_loading": "La semaine précédente est encore en cours de chargement. Réessayez dans un instant.",
@@ -1451,6 +1473,7 @@
   "week_weekend_collapsed": "Week-end replié",
   "week_weekend_hide": "Masquer le week-end",
   "week_weekend_lock_reason": "Le week-end reste ouvert : il contient des entrées cette semaine.",
+  "week_weekend_short": "S-D",
   "week_weekend_show": "Afficher le week-end",
   "week_yesterday": "Hier",
   "zod_email_invalid": "Adresse e-mail invalide.",

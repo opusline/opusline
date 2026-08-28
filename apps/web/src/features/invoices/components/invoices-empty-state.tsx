@@ -14,11 +14,9 @@ type InvoicesEmptyStateProps = {
 
 export function InvoicesEmptyState({ hasInvoices }: InvoicesEmptyStateProps) {
   return (
-    <Empty className="rounded-md border border-solid bg-card px-6 py-10">
+    <Empty className="px-6 py-10">
       <EmptyHeader className="gap-2">
-        <EmptyTitle className="font-heading font-semibold text-base text-foreground-hi">
-          {m.invoices_empty_title()}
-        </EmptyTitle>
+        <EmptyTitle variant="strong">{m.invoices_empty_title()}</EmptyTitle>
         <EmptyDescription className="text-muted-foreground-3 text-sm">
           {hasInvoices ? m.invoices_empty_filtered() : m.invoices_empty_none()}
         </EmptyDescription>

@@ -6,6 +6,7 @@ use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Enums\BillingMode;
 use App\Domain\Missions\Enums\EntryRounding;
 use App\Domain\Missions\Enums\MissionStatus;
+use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Enums\Color;
 use App\Domain\Users\Models\User;
 
@@ -327,6 +328,9 @@ test('rejects an invalid payload', function (array $payload, string $expectedErr
     'a currency other than the account one' => [['name' => 'M', 'billingMode' => BillingMode::Daily->value, 'rate' => ['amount' => 100, 'currency' => 'USD']], 'rate.currency'],
     'a currency no account supports' => [['name' => 'M', 'billingMode' => BillingMode::Daily->value, 'rate' => ['amount' => 100, 'currency' => 'JPY']], 'rate.currency'],
     'end before start' => [['name' => 'M', 'billingMode' => BillingMode::Daily->value, 'startDate' => '2026-08-02', 'endDate' => '2026-08-01'], 'endDate'],
+    'a rate above the money ceiling' => [['name' => 'M', 'billingMode' => BillingMode::Daily->value, 'rate' => ['amount' => MoneyData::MAX_AMOUNT + 1, 'currency' => 'EUR']], 'rate.amount'],
+    // The column is `text`: unbounded it is a 500 on MySQL's 65,535-byte limit.
+    'notes too long' => [['name' => 'M', 'billingMode' => BillingMode::Daily->value, 'notes' => str_repeat('a', 2001)], 'notes'],
 ]);
 
 test('rejects a client belonging to another user', function (): void {

@@ -14,7 +14,7 @@ import { useState } from "react";
 import { NewMissionPage } from "@/features/missions/components/new-mission-page";
 import type { FormSubmitResult } from "@/lib/form";
 import { revenueFilter } from "@/lib/query-invalidation";
-import { serverFieldErrors } from "@/lib/validation";
+import { serverFieldErrors, writeErrorBanner } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute("/_authed/missions_/new")({
@@ -109,16 +109,14 @@ function NewMissionRoute() {
   return (
     <NewMissionPage
       clients={data.clients}
+      contributionRateBp={user.effectiveContributionRateBp}
       hasFrenchFiscality={user.hasFrenchFiscality}
-      error={
-        createMission.error && !serverFieldErrors(createMission.error)
-          ? m.missions_create_failed()
-          : null
-      }
+      error={writeErrorBanner(createMission.error, m.missions_create_failed())}
       initialClientSlug={initialClientSlug}
       isPending={isSubmitting}
       onCancel={() => void navigate({ to: "/clients" })}
       onSubmit={handleSubmit}
+      workdayMinutes={user.workdayMinutes}
     />
   );
 }

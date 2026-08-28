@@ -202,8 +202,8 @@ describe("provisional valuation", () => {
     },
   );
 
-  it("falls back to quarter rounding when the mission sets none", () => {
-    expect(valueAsMinutes(67, null)).toBe(valueAsMinutes(67, 1));
+  it("falls back to the same rounding the API would have applied", () => {
+    expect(valueAsMinutes(67, null)).toBe(valueAsMinutes(67, 0));
   });
 
   it("labels a day-billed timer in day fractions", () => {

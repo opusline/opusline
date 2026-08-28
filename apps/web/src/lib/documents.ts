@@ -137,13 +137,18 @@ export function guessDocumentCategory(
 
 export function formatFileSize(locale: Locale, bytes: number): string {
   if (bytes < 1024) {
-    return `${bytes} o`;
-  }
-  if (bytes < 1024 * 1024) {
-    return `${Math.round(bytes / 1024)} Ko`;
+    return m.common_bytes({ value: bytes });
   }
 
-  return `${cachedFormatter(locale, { maximumFractionDigits: 1 }).format(bytes / (1024 * 1024))} Mo`;
+  if (bytes < 1024 * 1024) {
+    return m.common_kilobytes({ value: Math.round(bytes / 1024) });
+  }
+
+  return m.common_megabytes({
+    value: cachedFormatter(locale, { maximumFractionDigits: 1 }).format(
+      bytes / (1024 * 1024),
+    ),
+  });
 }
 
 /** Strips diacritics so a search for "cafe" also matches "café", and vice versa. */

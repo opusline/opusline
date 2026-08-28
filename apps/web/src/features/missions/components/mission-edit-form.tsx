@@ -10,6 +10,7 @@ import type {
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
 import { Chip, ChipGroup } from "@opusline/ui/components/chip";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { Field, FieldLabel } from "@opusline/ui/components/field";
 import { HelpTip } from "@opusline/ui/components/help-tip";
 import { Swatch, SwatchGroup } from "@opusline/ui/components/swatch";
@@ -37,8 +38,6 @@ import { m } from "@/paraglide/messages.js";
 import { billingModeLabel } from "../lib/labels";
 import { MissionRateField } from "./mission-rate-field";
 
-const EYEBROW_CLASSES =
-  "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
 const EDIT_LABEL_CLASSES = "text-muted-foreground-3 text-xs";
 
 const BILLING_MODES: BillingMode[] = [0, 1, 2];
@@ -185,7 +184,7 @@ export function MissionEditForm({
 
       <div className="grid items-start gap-3.5 md:grid-cols-2">
         <div className="rounded-md border bg-card p-5">
-          <div className={`${EYEBROW_CLASSES} mb-4`}>Mission</div>
+          <div className={`${eyebrowVariants()} mb-4`}>Mission</div>
           <div className="flex flex-col gap-3.5">
             <form.Field name="name">
               {(field) => (
@@ -333,7 +332,7 @@ export function MissionEditForm({
         </div>
 
         <div className="rounded-md border bg-card p-5">
-          <div className={`${EYEBROW_CLASSES} mb-4`}>
+          <div className={`${eyebrowVariants()} mb-4`}>
             {m.common_billing_title()}
           </div>
           <div className="flex flex-col gap-3.5">

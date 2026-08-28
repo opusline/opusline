@@ -1,4 +1,5 @@
 import type { InvoiceSummaryData } from "@opusline/api-client";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatWholeAmount } from "@/lib/billing";
@@ -23,9 +24,7 @@ export function InvoiceForecastCard({
 
   return (
     <section className="rounded-md border bg-card px-5 py-4">
-      <h2 className="font-medium text-muted-foreground-2 text-xs uppercase tracking-widest">
-        {m.invoices_forecast_title()}
-      </h2>
+      <h2 className={eyebrowVariants()}>{m.invoices_forecast_title()}</h2>
 
       <ul className="mt-3.5 flex flex-col gap-3">
         {summary.forecast.map((bar) => (

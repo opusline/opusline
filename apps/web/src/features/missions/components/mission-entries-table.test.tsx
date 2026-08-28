@@ -19,6 +19,7 @@ function entry(overrides: Partial<TimeEntryData> = {}): TimeEntryData {
     rounding: null,
     valuedMinutes: null,
     valuedDayFraction: null,
+    value: null,
     billable: true,
     invoiced: false,
     note: null,
@@ -34,6 +35,7 @@ it("shows an entry with its date, quantity and note", async () => {
           note: "Refonte du tunnel",
           durationMinutes: 450,
           valuedMinutes: 450,
+          value: null,
         }),
       ]}
     />,

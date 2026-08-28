@@ -6,10 +6,6 @@ import { m } from "@/paraglide/messages.js";
 
 import { FULL_DAY_BP } from "./day-fraction";
 
-/** The repo's eyebrow: a small caps label above a group. */
-export const EYEBROW =
-  "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
-
 /** "2,5 j" — a day count, in the unit the whole app uses for days. */
 export const daysLabel = formatBilledDays;
 
