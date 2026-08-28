@@ -19,6 +19,11 @@ updates:
     groups:
       npm:
         patterns: ["*"]
+    ignore:
+      # @hey-api/openapi-ts needs the TS 5.x compiler API (packages/api-client
+      # pins ^5.9.0); a grouped major bump to TS 7 breaks `pnpm generate-api`.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /
