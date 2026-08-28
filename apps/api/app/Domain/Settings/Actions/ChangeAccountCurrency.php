@@ -34,14 +34,10 @@ class ChangeAccountCurrency
                 ]);
             }
 
-            // The buffer and the hand-typed bank balance are re-enterable figures,
-            // not records; carrying their cents into the new currency would
-            // silently re-denominate them.
             $settings->update([
                 'currency' => $data->currency,
-                'treasury_buffer_cents' => null,
-                'bank_balance_cents' => null,
                 'bank_balance_recorded_on' => null,
+                ...array_fill_keys(UserSettings::CURRENCY_SCOPED_COLUMNS, null),
             ]);
 
             return $settings;
