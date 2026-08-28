@@ -1,4 +1,5 @@
 import { Button } from "@opusline/ui/components/button";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { cn } from "@opusline/ui/lib/utils";
 import {
   type ComponentProps,
@@ -21,7 +22,7 @@ import {
 } from "../lib/cra-grid";
 import { nextCell } from "../lib/cra-keyboard";
 
-import { EYEBROW, reportedAgainstTrackedLabel } from "../lib/labels";
+import { reportedAgainstTrackedLabel } from "../lib/labels";
 
 /** The worked cell's own look, so its legend swatch cannot drift from it. */
 const WORKED_CELL_CLASSES = "border border-primary/40 bg-primary/14";
@@ -171,6 +172,7 @@ export function CraMonthGrid({
       <div
         aria-colcount={7}
         aria-label={m.cra_grid_aria()}
+        aria-readonly={!editable || undefined}
         aria-rowcount={model.weeks.length + 1}
         className="grid grid-cols-7 gap-1.5"
         role="grid"
@@ -182,7 +184,7 @@ export function CraMonthGrid({
           {model.weekdayLabels.map((label, index) => (
             <ColumnHeader
               aria-colindex={index + 1}
-              className={cn("pb-1.5 text-center", EYEBROW)}
+              className={cn("pb-1.5 text-center", eyebrowVariants())}
               key={label}
             >
               {label}
@@ -292,7 +294,9 @@ function DayCell({
               : cell.isHoliday
                 ? "bg-muted"
                 : "border border-border-3 border-dashed",
-        isPending && "opacity-80",
+        // A tint rather than opacity, which would drag the cell's contrast
+        // under AA; aria-busy above carries the state.
+        isPending && "bg-muted-2",
       )}
       data-cell={cell.key}
       onClick={onActivate}
@@ -322,7 +326,7 @@ function DayCell({
           "mt-auto pb-1 text-center",
           isWorked
             ? "font-mono text-base text-primary-text tabular-nums"
-            : EYEBROW,
+            : eyebrowVariants(),
         )}
       >
         {isWorked

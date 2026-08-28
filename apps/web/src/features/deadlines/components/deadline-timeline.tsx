@@ -13,7 +13,11 @@ import {
   useDateFormat,
   useMoneyFormat,
 } from "@/components/money-format-provider";
-import { formatWholeAmount, type MoneyFormat } from "@/lib/billing";
+import {
+  formatPercentFromBp,
+  formatWholeAmount,
+  type MoneyFormat,
+} from "@/lib/billing";
 import { calendarDateNumericLabel, capitalizedMonthLabel } from "@/lib/dates";
 import {
   daysUntilDue,
@@ -50,7 +54,7 @@ export function DeadlineTimeline({
 }: DeadlineTimelineProps) {
   if (items.length === 0) {
     return (
-      <Empty className="rounded-md border bg-card px-6 py-9">
+      <Empty className="px-6 py-9">
         <EmptyHeader className="gap-2">
           <EmptyTitle variant="strong">
             {m.deadlines_upcoming_empty_title()}
@@ -285,19 +289,17 @@ function subLineOf(
 
   switch (fiscal.kind) {
     case 0: {
-      if (fiscal.amount === null || fiscal.rateBp === null) {
+      if (
+        fiscal.amount === null ||
+        fiscal.base === null ||
+        fiscal.rateBp === null
+      ) {
         return m.deadlines_fiscal_pending_sub();
       }
 
-      // The estimate is HT collected × rate; reading the HT back out keeps
-      // the sentence's two numbers provably consistent with each other.
-      const collectedCents = Math.round(
-        (fiscal.amount.amount * 10_000) / fiscal.rateBp,
-      );
-
       return m.deadlines_urssaf_sub({
-        amount: formatWholeAmount(format, collectedCents),
-        rate: String(fiscal.rateBp / 100),
+        amount: formatWholeAmount(format, fiscal.base.amount),
+        rate: formatPercentFromBp(format.locale, fiscal.rateBp),
       });
     }
     case 1:

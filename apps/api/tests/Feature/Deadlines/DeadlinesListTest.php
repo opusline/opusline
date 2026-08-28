@@ -130,7 +130,23 @@ test('estimates URSSAF from what the period actually collected', function (): vo
     // paidInvoiceOn bills 1 650 € HT each; a closed period is summed whole.
     expect($july['amount']['amount'])->toBe(82_500)
         ->and($july['rateBp'])->toBe(2500)
+        // The base the rate was applied to, carried rather than left to the screen
+        // to divide back out of an amount that was rounded on the way in.
+        ->and($july['base']['amount'])->toBe(330_000)
         ->and($july['isEstimate'])->toBeTrue();
+});
+
+test('carries no base for the figures no rate produced', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['vat_regime' => VatRegime::ReelNormal]);
+
+    paidInvoiceOn($user, '2026-07-10');
+
+    $july = fiscalItems($user->fresh())
+        ->firstWhere(fn (array $deadline): bool => $deadline['kind'] === FiscalDeadlineKind::VatCa3->value
+            && $deadline['periodKey'] === '2026-07');
+
+    expect($july['base'])->toBeNull();
 });
 
 test('says nothing about a period that has not started', function (): void {

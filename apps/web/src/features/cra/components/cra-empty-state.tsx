@@ -25,7 +25,7 @@ export function CraEmptyState({
   onGoToClients: () => void;
 }) {
   return (
-    <Empty className="rounded-md border border-solid bg-card px-6 py-10">
+    <Empty className="px-6 py-10">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <FileCheckIcon />
