@@ -31,7 +31,7 @@ import {
 } from "@/lib/documents";
 import type { FormSubmitResult } from "@/lib/form";
 import { invalidateDocumentWrites } from "@/lib/query-invalidation";
-import { serverFieldErrors } from "@/lib/validation";
+import { serverFieldErrors, writeErrorBanner } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
 type MissionSearch = { tab?: MissionTab };
@@ -235,11 +235,7 @@ function MissionDetailRoute() {
     <MissionDetailPage
       client={clientQuery.data}
       documentsTab={documentsTab}
-      error={
-        updateMission.error && !serverFieldErrors(updateMission.error)
-          ? m.common_action_failed()
-          : null
-      }
+      error={writeErrorBanner(updateMission.error, m.common_action_failed())}
       invoicesTab={invoicesTab}
       isStatusPending={isMutating}
       isUpdatePending={isMutating}

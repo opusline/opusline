@@ -8,6 +8,7 @@ import type {
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
 import { Chip, ChipGroup } from "@opusline/ui/components/chip";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { Field, FieldError, FieldLabel } from "@opusline/ui/components/field";
 import { HelpTip } from "@opusline/ui/components/help-tip";
 import { Input } from "@opusline/ui/components/input";
@@ -27,7 +28,14 @@ import { FormDateField } from "@/components/form-date-field";
 import { FormTextField } from "@/components/form-text-field";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { RichMessage } from "@/components/rich-message";
-import { formatRate, formatWholeAmount, parseRateToCents } from "@/lib/billing";
+import {
+  formatRate,
+  formatWholeAmount,
+  MONTHLY_BILLABLE_DAYS,
+  monthlyBillableHours,
+  parseRateToCents,
+  projectMissionMonth,
+} from "@/lib/billing";
 import { isInternalClient } from "@/lib/client-types";
 import { browserTodayCalendarDate, capitalizeFirst } from "@/lib/dates";
 import {
@@ -47,14 +55,7 @@ import { m } from "@/paraglide/messages.js";
 import { billingModeLabel } from "../lib/labels";
 import { MissionRateField } from "./mission-rate-field";
 
-const EYEBROW_CLASSES =
-  "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
-
 const BILLING_MODES: BillingMode[] = [0, 1, 2];
-
-const MONTHLY_BILLABLE_DAYS = 20;
-const MONTHLY_BILLABLE_HOURS = 140;
-const URSSAF_PROVISION_RATE = 0.26;
 
 type MissionFormValues = {
   name: string;
@@ -66,6 +67,9 @@ type MissionFormValues = {
 type NewMissionPageProps = {
   clients: ClientWithMissionsData[];
   hasFrenchFiscality: boolean;
+  /** The account's own URSSAF rate — see projectMissionMonth. */
+  contributionRateBp: number;
+  workdayMinutes: number;
   initialClientSlug?: string;
   onSubmit: (
     clientSlug: string,
@@ -79,6 +83,8 @@ type NewMissionPageProps = {
 export function NewMissionPage({
   clients,
   hasFrenchFiscality,
+  contributionRateBp,
+  workdayMinutes,
   initialClientSlug,
   onSubmit,
   onCancel,
@@ -192,18 +198,12 @@ export function NewMissionPage({
   }
 
   const barColor = color ?? selectedClient?.color ?? 0;
-  const monthlyCents =
-    rateCents === null
-      ? null
-      : isForfait
-        ? rateCents
-        : billingMode === 0
-          ? rateCents * MONTHLY_BILLABLE_DAYS
-          : rateCents * MONTHLY_BILLABLE_HOURS;
-  const provisionCents =
-    monthlyCents === null
-      ? null
-      : Math.round(monthlyCents * URSSAF_PROVISION_RATE);
+  const { monthlyCents, provisionCents, netCents } = projectMissionMonth(
+    rateCents,
+    billingMode,
+    contributionRateBp,
+    workdayMinutes,
+  );
 
   return (
     <div className="grid max-w-270 items-start gap-4 md:grid-cols-2">
@@ -552,17 +552,19 @@ export function NewMissionPage({
         {(missionName) => (
           <div className="flex min-w-0 flex-col gap-3.5">
             <div>
-              <div className={cn(EYEBROW_CLASSES, "mb-2.5")}>
+              <div className={cn(eyebrowVariants(), "mb-2.5")}>
                 {m.missions_preview_week_title()}
               </div>
               <div className="overflow-hidden rounded-md border bg-card">
                 <div className="grid grid-cols-[1fr_6rem_6rem]">
-                  <div className={cn(EYEBROW_CLASSES, "border-b px-4 py-3.5")}>
+                  <div
+                    className={cn(eyebrowVariants(), "border-b px-4 py-3.5")}
+                  >
                     Mission
                   </div>
                   <div
                     className={cn(
-                      EYEBROW_CLASSES,
+                      eyebrowVariants(),
                       "border-b border-l px-2.5 py-3.5",
                     )}
                   >
@@ -572,7 +574,7 @@ export function NewMissionPage({
                   </div>
                   <div
                     className={cn(
-                      EYEBROW_CLASSES,
+                      eyebrowVariants(),
                       "border-b border-l px-2.5 py-3.5",
                     )}
                   >
@@ -626,7 +628,7 @@ export function NewMissionPage({
             </div>
 
             <div className="rounded-md border bg-card p-5">
-              <div className={cn(EYEBROW_CLASSES, "mb-3")}>
+              <div className={cn(eyebrowVariants(), "mb-3")}>
                 {isForfait
                   ? m.missions_preview_amount_title()
                   : m.missions_preview_monthly_title()}
@@ -647,7 +649,7 @@ export function NewMissionPage({
                         days: MONTHLY_BILLABLE_DAYS,
                       })
                     : m.missions_preview_hours_hint({
-                        hours: MONTHLY_BILLABLE_HOURS,
+                        hours: monthlyBillableHours(workdayMinutes),
                       })}
               </div>
               {/*
@@ -674,12 +676,9 @@ export function NewMissionPage({
                       </span>
                     </span>
                     <span className="whitespace-nowrap font-mono text-foreground-hi tabular-nums">
-                      {monthlyCents === null || provisionCents === null
+                      {netCents === null
                         ? "—"
-                        : formatWholeAmount(
-                            format,
-                            monthlyCents - provisionCents,
-                          )}
+                        : formatWholeAmount(format, netCents)}
                     </span>
                   </div>
                 </>

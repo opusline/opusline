@@ -1122,7 +1122,8 @@
                             "type": [
                                 "string",
                                 "null"
-                            ]
+                            ],
+                            "pattern": "^(19|20)\\d{2}-(0[1-9]|1[0-2])$"
                         }
                     }
                 ],
@@ -2093,7 +2094,8 @@
                             "type": [
                                 "string",
                                 "null"
-                            ]
+                            ],
+                            "pattern": "^(19|20)\\d{2}-(0[1-9]|1[0-2])$"
                         }
                     }
                 ],
@@ -4347,6 +4349,9 @@
                     "periodEnd": {
                         "type": "string",
                         "format": "date"
+                    },
+                    "isEstimate": {
+                        "type": "boolean"
                     }
                 },
                 "required": [
@@ -5156,7 +5161,8 @@
                         "type": [
                             "string",
                             "null"
-                        ]
+                        ],
+                        "maxLength": 2000
                     },
                     "siret": {
                         "type": [
@@ -5252,7 +5258,8 @@
                         "type": "integer"
                     },
                     "month": {
-                        "type": "string"
+                        "type": "string",
+                        "pattern": "^(19|20)\\d{2}-(0[1-9]|1[0-2])$"
                     }
                 },
                 "required": [
@@ -5272,7 +5279,8 @@
                         "properties": {
                             "amount": {
                                 "type": "integer",
-                                "minimum": 1
+                                "minimum": 1,
+                                "maximum": 100000000000
                             },
                             "currency": {
                                 "$ref": "#/components/schemas/Currency"
@@ -5350,7 +5358,8 @@
                         "properties": {
                             "amount": {
                                 "type": "integer",
-                                "minimum": 1
+                                "minimum": 1,
+                                "maximum": 100000000000
                             },
                             "currency": {
                                 "$ref": "#/components/schemas/Currency"
@@ -5408,7 +5417,8 @@
                         "properties": {
                             "amount": {
                                 "type": "integer",
-                                "minimum": 1
+                                "minimum": 1,
+                                "maximum": 100000000000
                             },
                             "currency": {
                                 "$ref": "#/components/schemas/Currency"
@@ -5427,7 +5437,8 @@
                         "properties": {
                             "amount": {
                                 "type": "integer",
-                                "minimum": 1
+                                "minimum": 1,
+                                "maximum": 100000000000
                             },
                             "currency": {
                                 "$ref": "#/components/schemas/Currency"
@@ -5476,7 +5487,8 @@
                         "type": [
                             "string",
                             "null"
-                        ]
+                        ],
+                        "maxLength": 2000
                     },
                     "startDate": {
                         "type": [
@@ -5507,7 +5519,8 @@
                         "properties": {
                             "amount": {
                                 "type": "integer",
-                                "minimum": 1
+                                "minimum": 1,
+                                "maximum": 100000000000
                             },
                             "currency": {
                                 "$ref": "#/components/schemas/Currency"
@@ -6023,6 +6036,16 @@
                             "null"
                         ]
                     },
+                    "base": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "isEstimate": {
                         "type": "boolean"
                     },
@@ -6042,6 +6065,7 @@
                     "dueOn",
                     "amount",
                     "rateBp",
+                    "base",
                     "isEstimate",
                     "completedOn"
                 ],
@@ -7748,6 +7772,16 @@
                             "null"
                         ]
                     },
+                    "value": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "billable": {
                         "type": "boolean"
                     },
@@ -7769,6 +7803,7 @@
                     "rounding",
                     "valuedMinutes",
                     "valuedDayFraction",
+                    "value",
                     "billable",
                     "invoiced",
                     "note"
@@ -7992,7 +8027,9 @@
                         ],
                         "properties": {
                             "amount": {
-                                "type": "integer"
+                                "type": "integer",
+                                "minimum": -100000000000,
+                                "maximum": 100000000000
                             },
                             "currency": {
                                 "$ref": "#/components/schemas/Currency"
@@ -8049,7 +8086,8 @@
                         "type": [
                             "string",
                             "null"
-                        ]
+                        ],
+                        "maxLength": 2000
                     },
                     "siret": {
                         "type": [
@@ -8191,7 +8229,8 @@
                         "properties": {
                             "amount": {
                                 "type": "integer",
-                                "minimum": 1
+                                "minimum": 1,
+                                "maximum": 100000000000
                             },
                             "currency": {
                                 "$ref": "#/components/schemas/Currency"
@@ -8259,7 +8298,8 @@
                         "properties": {
                             "amount": {
                                 "type": "integer",
-                                "minimum": 1
+                                "minimum": 1,
+                                "maximum": 100000000000
                             },
                             "currency": {
                                 "$ref": "#/components/schemas/Currency"
@@ -8314,7 +8354,8 @@
                         "properties": {
                             "amount": {
                                 "type": "integer",
-                                "minimum": 1
+                                "minimum": 1,
+                                "maximum": 100000000000
                             },
                             "currency": {
                                 "$ref": "#/components/schemas/Currency"
@@ -8333,7 +8374,8 @@
                         "properties": {
                             "amount": {
                                 "type": "integer",
-                                "minimum": 1
+                                "minimum": 1,
+                                "maximum": 100000000000
                             },
                             "currency": {
                                 "$ref": "#/components/schemas/Currency"
@@ -8382,7 +8424,8 @@
                         "type": [
                             "string",
                             "null"
-                        ]
+                        ],
+                        "maxLength": 2000
                     },
                     "startDate": {
                         "type": [
@@ -8609,7 +8652,8 @@
                         "properties": {
                             "amount": {
                                 "type": "integer",
-                                "minimum": 1
+                                "minimum": 1,
+                                "maximum": 100000000000
                             },
                             "currency": {
                                 "$ref": "#/components/schemas/Currency"
@@ -8628,7 +8672,8 @@
                         "properties": {
                             "amount": {
                                 "type": "integer",
-                                "minimum": 1
+                                "minimum": 1,
+                                "maximum": 100000000000
                             },
                             "currency": {
                                 "$ref": "#/components/schemas/Currency"
@@ -8851,6 +8896,9 @@
                     },
                     "workdayMinutes": {
                         "type": "integer"
+                    },
+                    "effectiveContributionRateBp": {
+                        "type": "integer"
                     }
                 },
                 "required": [
@@ -8867,7 +8915,8 @@
                     "vatLiable",
                     "effectiveVatRateBp",
                     "timezone",
-                    "workdayMinutes"
+                    "workdayMinutes",
+                    "effectiveContributionRateBp"
                 ],
                 "title": "UserData"
             },

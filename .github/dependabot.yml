@@ -7,8 +7,9 @@ updates:
     commit-message:
       prefix: "chore(deps)"
     groups:
-      composer:
+      composer-minor:
         patterns: ["*"]
+        update-types: ["minor", "patch"]
 
   - package-ecosystem: npm
     directory: /
@@ -17,8 +18,9 @@ updates:
     commit-message:
       prefix: "chore(deps)"
     groups:
-      npm:
+      npm-minor:
         patterns: ["*"]
+        update-types: ["minor", "patch"]
     ignore:
       # @hey-api/openapi-ts needs the TS 5.x compiler API (packages/api-client
       # pins ^5.9.0); a grouped major bump to TS 7 breaks `pnpm generate-api`.
@@ -32,5 +34,6 @@ updates:
     commit-message:
       prefix: "ci"
     groups:
-      actions:
+      actions-minor:
         patterns: ["*"]
+        update-types: ["minor", "patch"]

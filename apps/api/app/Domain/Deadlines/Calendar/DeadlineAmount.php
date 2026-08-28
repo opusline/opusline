@@ -19,5 +19,14 @@ final readonly class DeadlineAmount
         public ?int $rateBp,
         /** Derived from the account's collections rather than told to us by the user. */
         public bool $isEstimate,
+        /**
+         * The HT the amount was computed from — the URSSAF declaration's base —
+         * or null for the figures that have none.
+         *
+         * Carried rather than left to the reader to divide back out of the
+         * amount: contributions = base × rate rounds half up to the cent, so
+         * the division is not invertible and reconstructing it drifts.
+         */
+        public ?Money $base = null,
     ) {}
 }

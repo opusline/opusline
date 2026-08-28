@@ -70,6 +70,7 @@ const MONDAY_TJM_ENTRY = {
   rounding: null,
   valuedDayFraction: 1,
   valuedMinutes: null,
+  value: null,
 };
 
 /** The Monday cell of the TJM mission — "1 j, Sprint 24 · specs". */
@@ -484,6 +485,7 @@ it("opens the detail popover rather than the inline editor when a cell holds sev
         rounding: null,
         valuedDayFraction: 0.5,
         valuedMinutes: null,
+        value: null,
       },
       {
         billable: true,
@@ -496,6 +498,7 @@ it("opens the detail popover rather than the inline editor when a cell holds sev
         rounding: null,
         valuedDayFraction: 0.5,
         valuedMinutes: null,
+        value: null,
       },
     ],
   });

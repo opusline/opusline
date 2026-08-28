@@ -132,6 +132,19 @@ class UserSettings extends Model
     public const string FRENCH_FISCALITY_COUNTRY = 'FR';
 
     /**
+     * The account's own money columns: re-enterable figures rather than records,
+     * so a currency change clears them instead of locking on them — carrying
+     * their cents into the new currency would silently re-denominate them.
+     *
+     * @var list<string>
+     */
+    public const array CURRENCY_SCOPED_COLUMNS = [
+        'treasury_buffer_cents',
+        'bank_balance_cents',
+        'cfe_expected_cents',
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

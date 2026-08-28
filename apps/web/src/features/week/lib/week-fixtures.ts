@@ -7,7 +7,7 @@ import type {
 } from "@opusline/api-client";
 
 import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
-import { fiscalDeadlineItem } from "@/test/fixtures";
+import { eur, fiscalDeadlineItem } from "@/test/fixtures";
 
 import { buildWeekGrid, type WeekRow } from "./week-grid";
 
@@ -123,11 +123,24 @@ export const DEMO_CLIENTS: ClientWithMissionsData[] = [
   },
 ];
 
+/** Orvella's 550 €/j, priced per fraction. */
+const DEMO_DAY_VALUE_CENTS = {
+  0.5: 27_500,
+  1: 55_000,
+} as const;
+
+/** Vesterhus's 85 €/h, priced per duration. */
+const DEMO_HOUR_VALUE_CENTS = {
+  60: 8_500,
+  90: 12_750,
+  120: 17_000,
+} as const;
+
 function billedDay(
   id: number,
   date: string,
   note: string,
-  dayFraction = 1,
+  dayFraction: keyof typeof DEMO_DAY_VALUE_CENTS = 1,
 ): TimeEntryData {
   return {
     billable: true,
@@ -140,6 +153,7 @@ function billedDay(
     rounding: null,
     valuedDayFraction: dayFraction,
     valuedMinutes: null,
+    value: eur(DEMO_DAY_VALUE_CENTS[dayFraction]),
   };
 }
 
@@ -147,7 +161,7 @@ function billedHours(
   id: number,
   missionId: number,
   date: string,
-  minutes: number,
+  minutes: keyof typeof DEMO_HOUR_VALUE_CENTS,
   note: string,
   billable = true,
 ): TimeEntryData {
@@ -162,6 +176,10 @@ function billedHours(
     rounding: null,
     valuedDayFraction: null,
     valuedMinutes: minutes,
+    value:
+      missionId === DEMO_MISSIONS.vesterhus.id
+        ? eur(DEMO_HOUR_VALUE_CENTS[minutes])
+        : null,
   };
 }
 

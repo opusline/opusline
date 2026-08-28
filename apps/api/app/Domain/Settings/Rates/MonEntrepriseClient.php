@@ -28,7 +28,20 @@ class MonEntrepriseClient
 
     private const string LIBERATING_PAYMENT_AMOUNT = 'dirigeant . auto-entrepreneur . impôt . versement libératoire . montant';
 
-    public function fetch(RateSituation $situation): OfficialRates
+    /**
+     * @param  bool  $retryTransientFailures  Set only for « Vérifier maintenant »,
+     *                                        where the user asked for this round-trip
+     *                                        and is watching it. A settings save also
+     *                                        reaches here, as a side effect of pressing
+     *                                        Enregistrer: retrying a timeout there turns
+     *                                        a ~10 s worst case into ~20 s on an
+     *                                        interactive request, and the caller already
+     *                                        degrades gracefully to « saved without
+     *                                        re-reading the barème ».
+     *
+     * @throws RatesUnavailable
+     */
+    public function fetch(RateSituation $situation, bool $retryTransientFailures = false): OfficialRates
     {
         if (! config()->boolean('services.mon_entreprise.enabled')) {
             throw new RatesUnavailable('The official rate source is disabled.');
@@ -36,11 +49,16 @@ class MonEntrepriseClient
 
         $probeRevenue = config()->integer('fiscality.liberating_payment_probe_revenue');
 
+        $request = Http::baseUrl(config()->string('services.mon_entreprise.url'))
+            ->timeout(config()->integer('services.mon_entreprise.timeout'))
+            ->acceptJson();
+
+        if ($retryTransientFailures) {
+            $request = $request->retry(2, 200, throw: false);
+        }
+
         try {
-            $response = Http::baseUrl(config()->string('services.mon_entreprise.url'))
-                ->timeout(config()->integer('services.mon_entreprise.timeout'))
-                ->retry(2, 200, throw: false)
-                ->acceptJson()
+            $response = $request
                 ->post('/evaluate', [
                     'expressions' => [self::CONTRIBUTION_RATE, self::LIBERATING_PAYMENT_AMOUNT],
                     'situation' => [

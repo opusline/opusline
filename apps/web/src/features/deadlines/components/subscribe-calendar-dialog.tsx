@@ -9,12 +9,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@opusline/ui/components/dialog";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import {
   InputGroup,
   InputGroupInput,
 } from "@opusline/ui/components/input-group";
 import { Label } from "@opusline/ui/components/label";
 import { Separator } from "@opusline/ui/components/separator";
+import { cn } from "@opusline/ui/lib/utils";
 import { RefreshCwIcon } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 
@@ -187,7 +189,7 @@ export function SubscribeCalendarDialog({
         <Separator />
 
         <fieldset className="flex flex-col gap-4">
-          <legend className="mb-2 font-medium text-muted-foreground-2 text-xs uppercase tracking-widest">
+          <legend className={cn("mb-2", eyebrowVariants())}>
             {m.deadlines_dialog_receives_title()}
           </legend>
           {FEED_TOGGLES.map(({ key, label, description }) => (

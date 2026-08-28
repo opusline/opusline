@@ -75,7 +75,7 @@ function requestDataFields(): array
 
         $fqcn = 'App\\Domain\\'.basename(dirname($path, 2)).'\\Data\\'.$class;
 
-        foreach ((new ReflectionClass($fqcn))->getConstructor()?->getParameters() ?? [] as $parameter) {
+        foreach (new ReflectionClass($fqcn)->getConstructor()?->getParameters() ?? [] as $parameter) {
             $fields[$parameter->getName()] = true;
         }
     }

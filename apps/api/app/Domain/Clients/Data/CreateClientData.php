@@ -26,6 +26,7 @@ class CreateClientData extends Data
         #[Unique('clients', 'name', where: new WhereConstraint('user_id', new AuthenticatedUserId))]
         public string $name,
         public ClientType $type,
+        #[Max(2000)]
         public ?string $notes = null,
         #[Max(255), Rule(new Siret)]
         public ?string $siret = null,

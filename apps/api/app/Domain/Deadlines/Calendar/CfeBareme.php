@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Deadlines\Calendar;
 
+use App\Domain\Shared\Money\Rate;
 use Cknow\Money\Money;
+use Money\Money as MoneyPhp;
 
 /**
  * A rough CFE from the statutory barème, for an account with nothing better to
@@ -68,12 +70,10 @@ final readonly class CfeBareme
             }
         }
 
-        $base = intdiv(self::BASE_FLOOR_CENTS + $baseCeiling, 2);
-        $cfe = intdiv($base * self::RATE_BP, 10_000);
+        $base = new Money(intdiv(self::BASE_FLOOR_CENTS + $baseCeiling, 2), $currency);
 
-        return new Money(
-            intdiv($cfe + intdiv(self::ROUNDING_CENTS, 2), self::ROUNDING_CENTS) * self::ROUNDING_CENTS,
-            $currency,
-        );
+        return Rate::of($base, self::RATE_BP)
+            ->divide(self::ROUNDING_CENTS, MoneyPhp::ROUND_HALF_UP)
+            ->multiply(self::ROUNDING_CENTS);
     }
 }

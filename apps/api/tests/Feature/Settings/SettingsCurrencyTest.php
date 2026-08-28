@@ -69,6 +69,25 @@ test('locks the currency once an invoice exists', function (): void {
         ->assertJsonValidationErrors(['currency']);
 });
 
+test('locks the currency once a fixed mission carries only a reference daily rate', function (): void {
+    $user = User::factory()->create();
+    missionOwnedBy($user, fn ($factory) => $factory->state([
+        'billing_mode' => BillingMode::Fixed,
+        'rate_cents' => null,
+        'reference_daily_rate_cents' => 55_000,
+    ]));
+
+    $this->actingAs($user)
+        ->putJson('/api/settings/currency', ['currency' => Currency::USD->value])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['currency']);
+
+    $this->assertDatabaseHas('user_settings', [
+        'user_id' => $user->id,
+        'currency' => Currency::EUR->value,
+    ]);
+});
+
 test('an unpriced mission does not lock the currency', function (): void {
     $user = User::factory()->create();
     missionOwnedBy($user, fn ($factory) => $factory->state([
@@ -113,6 +132,21 @@ test('changing the currency clears the hand-typed bank balance too', function ()
         'user_id' => $user->id,
         'bank_balance_cents' => null,
         'bank_balance_recorded_on' => null,
+    ]);
+});
+
+test('changing the currency clears the expected CFE too', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['cfe_expected_cents' => 48_000]);
+
+    $this->actingAs($user)
+        ->putJson('/api/settings/currency', ['currency' => Currency::USD->value])
+        ->assertOk()
+        ->assertJsonPath('cfeExpected', null);
+
+    $this->assertDatabaseHas('user_settings', [
+        'user_id' => $user->id,
+        'cfe_expected_cents' => null,
     ]);
 });
 

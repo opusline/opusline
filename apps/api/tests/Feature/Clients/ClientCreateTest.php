@@ -161,6 +161,8 @@ test('rejects an invalid payload', function (array $payload, string $expectedErr
     'non integer payment terms' => [['name' => 'Nordlys', 'type' => ClientType::Direct->value, 'paymentTermsDays' => 'soon'], 'paymentTermsDays'],
     'negative vat rate' => [['name' => 'Nordlys', 'type' => ClientType::Direct->value, 'defaultVatRateBp' => -1], 'defaultVatRateBp'],
     'vat rate above 100 percent' => [['name' => 'Nordlys', 'type' => ClientType::Direct->value, 'defaultVatRateBp' => 10001], 'defaultVatRateBp'],
+    // The column is `text`: unbounded it is a 500 on MySQL's 65,535-byte limit.
+    'notes too long' => [['name' => 'Nordlys', 'type' => ClientType::Direct->value, 'notes' => str_repeat('a', 2001)], 'notes'],
 ]);
 
 test('returns 401 for guests', function (): void {

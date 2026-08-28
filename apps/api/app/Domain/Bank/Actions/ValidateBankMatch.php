@@ -34,7 +34,10 @@ class ValidateBankMatch
 
             abort_if($match->status !== BankMatchStatus::Pending, 409, __('bank.match_already_settled'));
 
-            $movement = $match->movement;
+            // Nothing at the storage layer ties a match's invoice to its own
+            // user_id, so the account is what resolves both rows.
+            $movement = $user->bankMovements()->whereKey($match->bank_movement_id)->sole();
+            $invoice = $user->invoices()->whereKey($match->invoice_id)->sole();
 
             // PayInvoiceData is built here, not from a request, so the
             // not-in-the-future rule never ran — a statement with a future
@@ -46,11 +49,11 @@ class ValidateBankMatch
             );
 
             $this->payInvoice->handle(
-                $match->invoice,
+                $invoice,
                 PayInvoiceData::from(['paidOn' => $movement->booked_on->toDateString()]),
             );
 
-            $movement->update(['invoice_id' => $match->invoice_id]);
+            $movement->update(['invoice_id' => $invoice->id]);
             $match->update(['status' => BankMatchStatus::Validated]);
 
             return $match;

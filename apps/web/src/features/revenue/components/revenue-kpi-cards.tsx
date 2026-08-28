@@ -1,5 +1,6 @@
 import type { RevenueData } from "@opusline/api-client";
 import { Badge } from "@opusline/ui/components/badge";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { ArrowDownRightIcon, ArrowUpRightIcon } from "lucide-react";
 
 import { useLocale, useMoneyFormat } from "@/components/money-format-provider";
@@ -27,9 +28,7 @@ export function RevenueKpiCards({
   return (
     <div className="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-3.5">
       <section className="rounded-md border bg-card p-5">
-        <h2 className="font-medium text-muted-foreground-2 text-xs uppercase tracking-widest">
-          {basisText(basis).kpiTitle()}
-        </h2>
+        <h2 className={eyebrowVariants()}>{basisText(basis).kpiTitle()}</h2>
         <p className="mt-3 whitespace-nowrap font-mono text-4xl text-primary-text leading-none tabular-nums">
           {formatWholeAmount(format, data.total.amount)}
         </p>
@@ -41,9 +40,7 @@ export function RevenueKpiCards({
       {data.vat !== null && (
         <section className="rounded-md border border-dashed border-border-2 bg-muted p-5">
           <div className="flex items-center gap-1.5">
-            <h2 className="font-medium text-muted-foreground-2 text-xs uppercase tracking-widest">
-              {m.revenue_vat_title()}
-            </h2>
+            <h2 className={eyebrowVariants()}>{m.revenue_vat_title()}</h2>
             <Badge variant="quiet">{m.revenue_vat_chip()}</Badge>
           </div>
           <p className="mt-3 whitespace-nowrap font-mono text-4xl text-muted-foreground-3 leading-none tabular-nums">
@@ -61,9 +58,7 @@ export function RevenueKpiCards({
 
       {data.net !== null && (
         <section className="rounded-md border bg-card p-5">
-          <h2 className="font-medium text-muted-foreground-2 text-xs uppercase tracking-widest">
-            {m.revenue_net_title()}
-          </h2>
+          <h2 className={eyebrowVariants()}>{m.revenue_net_title()}</h2>
           <p className="mt-3 whitespace-nowrap font-mono text-4xl text-foreground-hi leading-none tabular-nums">
             {formatWholeAmount(format, data.net.amount.amount)}
           </p>

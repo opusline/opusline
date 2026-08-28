@@ -29,6 +29,12 @@ class FiscalDeadlineData extends Data
         /** Null when nothing can be said yet; see DeadlineAmount. */
         public ?MoneyData $amount,
         public ?int $rateBp,
+        /**
+         * What the rate was applied to — the HT collected over the period — so the
+         * screen can name both numbers of « X € encaissés × Y % » without dividing
+         * the rate back out of an amount that was rounded on the way in.
+         */
+        public ?MoneyData $base,
         /** Whether the amount was derived from collections rather than entered by the user. */
         public bool $isEstimate,
         /** The day the user ticked it off, null while it is still owed. */
@@ -49,6 +55,7 @@ class FiscalDeadlineData extends Data
             dueOn: $deadline->dueOn,
             amount: $price->amount instanceof Money ? MoneyData::fromMoney($price->amount) : null,
             rateBp: $price->rateBp,
+            base: $price->base instanceof Money ? MoneyData::fromMoney($price->base) : null,
             isEstimate: $price->isEstimate,
             completedOn: $completedOn,
         );

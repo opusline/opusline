@@ -90,6 +90,23 @@ test('downloads a mission document as an attachment', function (): void {
         ->and($response->headers->get('Cache-Control'))->toContain('no-store');
 });
 
+test('answers 404 when the stored object is gone from the disk', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+    $mission = Mission::factory()->for($client, 'client')->create(['user_id' => $user->id]);
+    $documentId = $this->actingAs($user)->post("/api/clients/{$client->slug}/missions/{$mission->slug}/documents", [
+        'file' => UploadedFile::fake()->create('Devis.pdf', 12, 'application/pdf'),
+    ])->json('id');
+
+    // A database restored without its bucket leaves exactly this: the row, no object.
+    Storage::disk('local')->deleteDirectory((string) $documentId);
+
+    $this->actingAs($user)
+        ->get("/api/clients/{$client->slug}/missions/{$mission->slug}/documents/{$documentId}/download")
+        ->assertNotFound();
+});
+
 test('deletes a mission document', function (): void {
     Storage::fake('local');
     $user = User::factory()->create();

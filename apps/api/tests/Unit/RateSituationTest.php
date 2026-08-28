@@ -10,10 +10,10 @@ use Carbon\CarbonImmutable;
  */
 function situation(bool $acre = false, ?string $startedOn = null): array
 {
-    return (new RateSituation(
+    return new RateSituation(
         acre: $acre,
         businessStartedOn: $startedOn === null ? null : CarbonImmutable::parse($startedOn),
-    ))->toArray();
+    )->toArray();
 }
 
 test('describes an auto-entrepreneur in a non-regulated liberal profession', function (): void {

@@ -43,18 +43,25 @@ jobs:
             echo "::warning::No pending fragments to assemble for $version — write the entry by hand (see .release-notes/README.md). The release-notes guard keeps the release PR red until it exists."
             exit 0
           fi
-          node scripts/assemble-release-notes.mjs "$version"
           branch="assemble-release-notes/$version"
+          # release-please force-pushes its branch on every push to main, and each
+          # of those fires `synchronize` here. The idempotence check above reads
+          # main, which still lacks the entry while the assembly PR is open — so
+          # without this the job would rebuild the branch from scratch and force
+          # away the headline the PR body asks the maintainer to add.
+          if git ls-remote --exit-code --heads origin "$branch" > /dev/null 2>&1; then
+            echo "$branch already exists — leaving it and any edits on it alone."
+            exit 0
+          fi
+          node scripts/assemble-release-notes.mjs "$version"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$branch"
           git add apps/web/src/lib/releases.ts .release-notes
           git commit -m "docs(web): assemble release notes for $version"
-          git push -f origin "$branch"
-          if [ -z "$(gh pr list --head "$branch" --state open --json number --jq '.[].number')" ]; then
-            gh pr create \
-              --base "$BASE_REF" \
-              --head "$branch" \
-              --title "docs(web): assemble release notes for $version" \
-              --body "Folds the pending .release-notes/ fragments into the in-app release notes for $version. Review, optionally add a headline, and merge; release-please then refreshes the release PR and its release-notes guard goes green."
-          fi
+          git push origin "$branch"
+          gh pr create \
+            --base "$BASE_REF" \
+            --head "$branch" \
+            --title "docs(web): assemble release notes for $version" \
+            --body "Folds the pending .release-notes/ fragments into the in-app release notes for $version. Review, optionally add a headline, and merge; release-please then refreshes the release PR and its release-notes guard goes green."

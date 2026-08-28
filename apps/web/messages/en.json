@@ -114,6 +114,16 @@
   "bank_reconciled_title": "Everything is reconciled",
   "bank_reconciled_unlinked_body": "Some payments still have no linked invoice — they stay visible in the movements. A future import can suggest new matches.",
   "bank_reconciled_unlinked_title": "No suggestions waiting",
+  "bank_reconciliation_status": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} reconciliation left to validate",
+        "countPlural=other": "{count} reconciliations left to validate"
+      }
+    }
+  ],
   "bank_reconciliation_title": "Reconciliation",
   "bank_statement_detail": [
     {
@@ -189,10 +199,13 @@
   "clients_esn_card_title": "Billing through an intermediary",
   "clients_filter_aria": "Filter clients",
   "clients_head_average_delay": "Average delay",
+  "clients_head_client": "Client",
+  "clients_head_mission": "Mission",
   "clients_head_pending": "Outstanding",
   "clients_head_rate": "Rate",
   "clients_head_revenue": "Revenue {year}",
   "clients_head_revenue_short": "Revenue",
+  "clients_head_type": "Type",
   "clients_identity_title": "Identity",
   "clients_invoices_empty_hint": "Invoices will appear here as soon as billable time is tracked on one of this client's missions.",
   "clients_load_failed": "The clients could not be loaded. Try again in a moment.",
@@ -271,6 +284,7 @@
   "common_all": "All",
   "common_back": "Back",
   "common_billing_title": "Billing",
+  "common_bytes": "{value} B",
   "common_cancel": "Cancel",
   "common_close": "Close",
   "common_copied": "Copied",
@@ -281,7 +295,10 @@
   "common_documents_title": "Documents",
   "common_duration": "Duration",
   "common_edit": "Edit",
+  "common_email": "Email",
   "common_ht": "HT",
+  "common_kilobytes": "{value} kB",
+  "common_megabytes": "{value} MB",
   "common_more_actions": "More actions",
   "common_no_invoices_title": "No invoices",
   "common_note_label": "Note",
@@ -427,7 +444,6 @@
   "deadlines_chip_today": "Today",
   "deadlines_chip_todo": "To send",
   "deadlines_complete_failed": "This deadline could not be updated.",
-  "deadlines_completed_on": "Done on {date}",
   "deadlines_dialog_added": "I have added the address",
   "deadlines_dialog_address_label": "Subscription address",
   "deadlines_dialog_intro": "Add this address to your calendar once. It will poll it several times a day: the coming months' deadlines arrive on their own, a moved date corrects itself, a collected invoice takes its reminder away.",
@@ -901,6 +917,7 @@
   "missions_entries_header_quantity": "Quantity",
   "missions_entries_header_state": "State",
   "missions_entries_load_failed": "Could not load this mission's entries.",
+  "missions_entries_table_label": "Time entries",
   "missions_entry_state_billable": "To invoice",
   "missions_entry_state_invoiced": "Invoiced",
   "missions_entry_state_non_billable": "Non-billable",
@@ -1344,9 +1361,12 @@
       }
     }
   ],
+  "week_cell_add": "Add",
   "week_cell_empty_label": "{mission}, {day}: no entries",
   "week_cell_label": "{mission}, {day}: {value}",
   "week_change_mission": "Change",
+  "week_column_mission": "Mission",
+  "week_column_total": "Total",
   "week_cumulate": "Add on top",
   "week_date_incomplete": "Incomplete date",
   "week_date_label": "Date",
@@ -1402,7 +1422,9 @@
   "week_new_entry": "New entry",
   "week_next": "Next week",
   "week_no_activity": "No activity",
+  "week_non_billable": "Non-billable",
   "week_off_grid_pill": "not in the grid",
+  "week_page_title": "Week",
   "week_previous": "Previous week",
   "week_previous_load_failed": "Last week could not be loaded. Try again in a moment.",
   "week_previous_loading": "Last week is still loading. Try again in a moment.",
@@ -1451,6 +1473,7 @@
   "week_weekend_collapsed": "Weekend collapsed",
   "week_weekend_hide": "Hide the weekend",
   "week_weekend_lock_reason": "The weekend stays open: it has entries this week.",
+  "week_weekend_short": "S-S",
   "week_weekend_show": "Show the weekend",
   "week_yesterday": "Yesterday",
   "zod_email_invalid": "Invalid email address.",

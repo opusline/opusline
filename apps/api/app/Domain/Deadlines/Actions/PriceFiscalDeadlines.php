@@ -11,6 +11,7 @@ use App\Domain\Deadlines\Calendar\FiscalDeadline;
 use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
 use App\Domain\Invoices\Revenue\CollectedInvoices;
 use App\Domain\Settings\Models\UserSettings;
+use App\Domain\Shared\Money\Rate;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
@@ -66,17 +67,12 @@ class PriceFiscalDeadlines
         $rateBp = $settings->effectiveContributionRateBp();
 
         return match ($deadline->kind) {
-            FiscalDeadlineKind::UrssafDeclaration => $this->estimate(
+            FiscalDeadlineKind::UrssafDeclaration => $this->onCollectedBase(
                 $deadline,
                 $today,
                 $currency,
                 $rateBp,
-                static fn (CarbonImmutable $through): int => $collected->contributionsCents(
-                    $deadline->periodStart,
-                    $through,
-                    $rateBp,
-                    $currency,
-                ),
+                static fn (CarbonImmutable $through): int => $collected->htCents($deadline->periodStart, $through),
             ),
             FiscalDeadlineKind::VatCa3, FiscalDeadlineKind::VatCa12 => $this->estimate(
                 $deadline,
@@ -109,13 +105,45 @@ class PriceFiscalDeadlines
             return new DeadlineAmount(amount: null, rateBp: $rateBp, isEstimate: true);
         }
 
-        $through = $deadline->periodEnd->lessThan($today) ? $deadline->periodEnd : $today;
-
         return new DeadlineAmount(
-            amount: new Money($sum($through), $currency),
+            amount: new Money($sum($this->through($deadline, $today)), $currency),
             rateBp: $rateBp,
             isEstimate: true,
         );
+    }
+
+    /**
+     * A rate applied to a base the window collected, carrying both figures: the
+     * screen names them together, and contributions = base × rate rounds, so the
+     * base cannot be divided back out of the amount.
+     *
+     * @param  callable(CarbonImmutable): int  $base
+     */
+    private function onCollectedBase(
+        FiscalDeadline $deadline,
+        CarbonImmutable $today,
+        string $currency,
+        int $rateBp,
+        callable $base,
+    ): DeadlineAmount {
+        if ($deadline->periodStart->greaterThan($today)) {
+            return new DeadlineAmount(amount: null, rateBp: $rateBp, isEstimate: true);
+        }
+
+        $collected = new Money($base($this->through($deadline, $today)), $currency);
+
+        return new DeadlineAmount(
+            amount: Rate::of($collected, $rateBp),
+            rateBp: $rateBp,
+            isEstimate: true,
+            base: $collected,
+        );
+    }
+
+    /** A running period is summed up to today; a closed one, to its own end. */
+    private function through(FiscalDeadline $deadline, CarbonImmutable $today): CarbonImmutable
+    {
+        return $deadline->periodEnd->lessThan($today) ? $deadline->periodEnd : $today;
     }
 
     /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Deadlines\Controllers;
 
 use App\Domain\Deadlines\Actions\BuildDeadlineCalendar;
+use App\Domain\Deadlines\Actions\RecordCalendarFetch;
 use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
@@ -17,8 +18,11 @@ use Illuminate\Http\Response;
  */
 class DeadlineCalendarController extends Controller
 {
-    public function show(string $token, BuildDeadlineCalendar $buildDeadlineCalendar): Response
-    {
+    public function show(
+        string $token,
+        BuildDeadlineCalendar $buildDeadlineCalendar,
+        RecordCalendarFetch $recordCalendarFetch,
+    ): Response {
         $user = User::query()
             ->with('settings')
             ->whereRelation('settings', 'calendar_token', $token)
@@ -26,10 +30,7 @@ class DeadlineCalendarController extends Controller
 
         abort_if($user === null, 404);
 
-        // The fetch itself is the heartbeat the dialog reports as « dernière
-        // synchronisation » — written quietly, a read should stay a read for
-        // everything else.
-        $user->settingsOrFail()->update(['calendar_last_synced_at' => now()]);
+        $recordCalendarFetch->handle($user);
 
         return response($buildDeadlineCalendar->handle($user), 200, [
             'Content-Type' => 'text/calendar; charset=utf-8',

@@ -32,7 +32,7 @@ import {
 import type { FormSubmitResult } from "@/lib/form";
 import { clientLogoHref, logoHandlers } from "@/lib/logos";
 import { invalidateDocumentWrites } from "@/lib/query-invalidation";
-import { serverFieldErrors } from "@/lib/validation";
+import { serverFieldErrors, writeErrorBanner } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
 type ClientSearch = { logoFailed?: boolean; tab?: ClientTab };
@@ -163,16 +163,13 @@ function ClientDetailRoute() {
     );
   }
 
-  const hasActionFailed =
-    (updateClient.error && !serverFieldErrors(updateClient.error)) ||
-    archiveClient.error ||
-    unarchiveClient.error;
+  const actionError =
+    writeErrorBanner(updateClient.error, m.common_action_failed()) ??
+    writeErrorBanner(archiveClient.error, m.common_action_failed()) ??
+    writeErrorBanner(unarchiveClient.error, m.common_action_failed());
 
-  const genericError = hasActionFailed
-    ? m.common_action_failed()
-    : logoFailed
-      ? m.clients_logo_failed_note()
-      : null;
+  const genericError =
+    actionError ?? (logoFailed ? m.clients_logo_failed_note() : null);
 
   const documentsTab = documentsQuery.isPending ? (
     <Skeleton className="h-40 w-full" />

@@ -73,6 +73,7 @@ function entry(overrides: Partial<TimeEntryData> = {}): TimeEntryData {
     valuedMinutes: null,
     rounding: null,
     valuedDayFraction: 1,
+    value: null,
     note: null,
     ...overrides,
   };
@@ -341,6 +342,7 @@ describe("cells", () => {
         entry({
           valuedDayFraction: null,
           valuedMinutes: 90,
+          value: null,
           durationMinutes: 90,
         }),
       ],
@@ -392,6 +394,7 @@ describe("totals", () => {
           durationMinutes: 120,
           valuedDayFraction: null,
           valuedMinutes: 120,
+          value: null,
         }),
       ],
     });
@@ -424,6 +427,7 @@ describe("totals", () => {
           durationMinutes: 120,
           valuedDayFraction: null,
           valuedMinutes: 120,
+          value: null,
         }),
       ],
     });
@@ -445,6 +449,7 @@ describe("totals", () => {
           billable: false,
           invoiced: false,
           valuedDayFraction: 0.5,
+          value: null,
         }),
       ],
     });

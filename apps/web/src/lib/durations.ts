@@ -10,7 +10,8 @@ import { m } from "@/paraglide/messages.js";
 
 export const MAX_MINUTES_PER_DAY = 1440;
 
-export const DEFAULT_ROUNDING: EntryRounding = 1;
+/** Half a day, the same fallback Mission::effectiveRounding() applies. */
+export const DEFAULT_ROUNDING: EntryRounding = 0;
 
 export const EXACT_ROUNDING: EntryRounding = 2;
 

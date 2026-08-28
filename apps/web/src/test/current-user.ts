@@ -17,6 +17,7 @@ export const CURRENT_USER_FIXTURE: UserData = {
   hasFrenchFiscality: true,
   vatLiable: true,
   effectiveVatRateBp: 2000,
+  effectiveContributionRateBp: 2600,
   timezone: "Europe/Paris",
   workdayMinutes: 420,
 };

@@ -1,10 +1,11 @@
 import type { CraDetailData, SettingsData } from "@opusline/api-client";
 import { Button } from "@opusline/ui/components/button";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { Switch } from "@opusline/ui/components/switch";
 import { PenLineIcon } from "lucide-react";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
-import { formatMissionRate } from "@/lib/billing";
+import { cachedFormatter, formatMissionRate } from "@/lib/billing";
 import { accountTodayCalendarDate, calendarDateLabel } from "@/lib/dates";
 import { monthTitle } from "@/lib/months";
 import { PAPER } from "@/lib/paper";
@@ -13,7 +14,6 @@ import { m } from "@/paraglide/messages.js";
 
 import type { CraGridModel } from "../lib/cra-grid";
 import { formatDayFraction, weekdayLabels } from "../lib/cra-grid";
-import { EYEBROW } from "../lib/labels";
 
 // The printed artifact stays French whatever the UI language; the
 // interactive grid keeps following the account locale.
@@ -64,7 +64,7 @@ export function CraDocument({
   return (
     <section className="min-w-0 flex-1">
       <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
-        <span className={EYEBROW}>{m.cra_document_preview()}</span>
+        <span className={eyebrowVariants()}>{m.cra_document_preview()}</span>
         {settings.hasSignature ? (
           // biome-ignore lint/a11y/noLabelWithoutControl: Base UI's Switch renders a hidden input beside its span, so the wrapping label is its control
           <label className="flex cursor-pointer items-center gap-2 text-muted-foreground-3 text-sm">
@@ -223,9 +223,9 @@ export function CraDocument({
                 className="py-2.5 pl-1 text-right font-semibold tabular-nums"
                 style={{ borderTop: `2px solid ${PAPER.ink}` }}
               >
-                {cra.totalDays.toLocaleString(format.locale, {
+                {cachedFormatter(format.locale, {
                   maximumFractionDigits: 2,
-                })}
+                }).format(cra.totalDays)}
               </td>
             </tr>
           </tfoot>

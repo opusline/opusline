@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Clients\Models\Client;
 use App\Domain\Invoices\Enums\InvoiceEventKind;
 use App\Domain\Invoices\Enums\InvoiceStatus;
+use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 
@@ -197,6 +198,11 @@ test('rejects an invalid payload', function (array $payload, string $expectedErr
         'paidOn' => '2026-05-20',
     ], 'paidOn'],
     'due date before the issue date' => [['issuedOn' => '2026-08-13', 'dueOn' => '2026-08-12'], 'dueOn'],
+    // Uncapped, this multiplied by the TVA rate and overflowed an unsignedBigInteger:
+    // a driver 500 on MySQL and Postgres, a silently truncated row on SQLite.
+    'an amount above the money ceiling' => [[
+        'amountHt' => ['amount' => MoneyData::MAX_AMOUNT + 1, 'currency' => 'EUR'],
+    ], 'amountHt.amount'],
 ]);
 
 test('refuses a mission belonging to another client', function (): void {

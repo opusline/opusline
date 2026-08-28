@@ -106,11 +106,9 @@ const documentsTab = (
  * must not reach into another feature, and the route composes the real tab.
  */
 const invoicesTab = (
-  <Empty className="rounded-md border border-solid bg-card px-7 py-9">
+  <Empty className="px-7 py-9">
     <EmptyHeader className="gap-2">
-      <EmptyTitle className="font-heading font-semibold text-base text-foreground-hi">
-        Aucune facture
-      </EmptyTitle>
+      <EmptyTitle variant="strong">Aucune facture</EmptyTitle>
       <EmptyDescription className="text-muted-foreground-3 text-sm leading-relaxed">
         Les factures apparaîtront ici dès que du temps facturable aura été saisi
         sur cette mission.
@@ -121,11 +119,9 @@ const invoicesTab = (
 
 /** A non-billable mission never produces one, and the empty card says why. */
 const unbillableInvoicesTab = (
-  <Empty className="rounded-md border border-solid bg-card px-7 py-9">
+  <Empty className="px-7 py-9">
     <EmptyHeader className="gap-2">
-      <EmptyTitle className="font-heading font-semibold text-base text-foreground-hi">
-        Aucune facture
-      </EmptyTitle>
+      <EmptyTitle variant="strong">Aucune facture</EmptyTitle>
       <EmptyDescription className="text-muted-foreground-3 text-sm leading-relaxed">
         Cette mission n&apos;est pas facturable — son temps ne produit pas de
         facture.

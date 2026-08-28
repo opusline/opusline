@@ -189,7 +189,7 @@ export const zCraListData = z.object({
 export const zCreateClientData = z.object({
     name: z.string().check(z.minLength(1), z.maxLength(255)),
     type: zClientType,
-    notes: z.nullish(z.string()),
+    notes: z.nullish(z.string().check(z.maxLength(2000))),
     siret: z.nullish(z.string().check(z.maxLength(255))),
     vatNumber: z.nullish(z.string().check(z.maxLength(255))),
     defaultVatRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
@@ -209,7 +209,7 @@ export const zCreateClientData = z.object({
  */
 export const zCreateCraData = z.object({
     missionId: z.int(),
-    month: z.string()
+    month: z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/))
 });
 
 /**
@@ -249,7 +249,7 @@ export const zCurrency = z.enum([
  */
 export const zCreatePersonalTransferData = z.object({
     amount: z.object({
-        amount: z.int().check(z.gte(1)),
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
         currency: zCurrency
     }),
     transferredOn: z.iso.date(),
@@ -374,18 +374,18 @@ export const zCreateMissionData = z.object({
     name: z.string().check(z.minLength(1), z.maxLength(255)),
     billingMode: zBillingMode,
     rate: z.nullish(z.object({
-        amount: z.int().check(z.gte(1)),
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
         currency: zCurrency
     })),
     referenceDailyRate: z.nullish(z.object({
-        amount: z.int().check(z.gte(1)),
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
         currency: zCurrency
     })),
     endClientName: z.nullish(z.string().check(z.minLength(1), z.maxLength(255))),
     rounding: z.nullish(zEntryRounding),
     craRequired: z.nullish(z.boolean()),
     color: z.nullish(zColor),
-    notes: z.nullish(z.string()),
+    notes: z.nullish(z.string().check(z.maxLength(2000))),
     startDate: z.nullish(z.iso.date()),
     endDate: z.nullish(z.iso.date())
 });
@@ -488,7 +488,7 @@ export const zInvoiceStatus = z.union([
 export const zCreateInvoiceData = z.object({
     clientId: z.int(),
     amountHt: z.object({
-        amount: z.int().check(z.gte(1)),
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
         currency: zCurrency
     }),
     missionId: z.nullish(z.int()),
@@ -500,7 +500,7 @@ export const zCreateInvoiceData = z.object({
     periodStart: z.nullish(z.iso.date()),
     periodEnd: z.nullish(z.iso.date()),
     amountTtc: z.nullish(z.object({
-        amount: z.int().check(z.gte(1)),
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
         currency: zCurrency
     })),
     vatRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
@@ -596,7 +596,8 @@ export const zBankMatchData = z.object({
 export const zBankProvisionData = z.object({
     amount: zMoneyData,
     rateBp: z.nullable(z.int()),
-    periodEnd: z.iso.date()
+    periodEnd: z.iso.date(),
+    isEstimate: z.optional(z.boolean())
 });
 
 /**
@@ -656,6 +657,7 @@ export const zFiscalDeadlineData = z.object({
     dueOn: z.iso.date(),
     amount: z.nullable(zMoneyData),
     rateBp: z.nullable(z.int()),
+    base: z.nullable(zMoneyData),
     isEstimate: z.boolean(),
     completedOn: z.nullable(z.iso.date())
 });
@@ -1176,6 +1178,7 @@ export const zTimeEntryData = z.object({
     rounding: z.nullable(zEntryRounding),
     valuedMinutes: z.nullable(z.int()),
     valuedDayFraction: z.nullable(z.number()),
+    value: z.nullable(zMoneyData),
     billable: z.boolean(),
     invoiced: z.boolean(),
     note: z.nullable(z.string())
@@ -1251,7 +1254,7 @@ export const zTrimTimerData = z.object({
  */
 export const zUpdateBankBalanceData = z.object({
     balance: z.nullish(z.object({
-        amount: z.int(),
+        amount: z.int().check(z.gte(-100000000000), z.lte(100000000000)),
         currency: zCurrency
     }))
 });
@@ -1273,7 +1276,7 @@ export const zUpdateCalendarFeedData = z.object({
 export const zUpdateClientData = z.object({
     name: z.string().check(z.minLength(1), z.maxLength(255)),
     type: zClientType,
-    notes: z.nullish(z.string()),
+    notes: z.nullish(z.string().check(z.maxLength(2000))),
     siret: z.nullish(z.string().check(z.maxLength(255))),
     vatNumber: z.nullish(z.string().check(z.maxLength(255))),
     defaultVatRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
@@ -1311,7 +1314,7 @@ export const zUpdateDocumentData = z.object({
 export const zUpdateInvoiceData = z.object({
     clientId: z.int(),
     amountHt: z.object({
-        amount: z.int().check(z.gte(1)),
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
         currency: zCurrency
     }),
     missionId: z.nullish(z.int()),
@@ -1322,7 +1325,7 @@ export const zUpdateInvoiceData = z.object({
     periodStart: z.nullish(z.iso.date()),
     periodEnd: z.nullish(z.iso.date()),
     amountTtc: z.nullish(z.object({
-        amount: z.int().check(z.gte(1)),
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
         currency: zCurrency
     })),
     vatRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
@@ -1337,18 +1340,18 @@ export const zUpdateMissionData = z.object({
     billingMode: zBillingMode,
     status: zMissionStatus,
     rate: z.nullish(z.object({
-        amount: z.int().check(z.gte(1)),
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
         currency: zCurrency
     })),
     referenceDailyRate: z.nullish(z.object({
-        amount: z.int().check(z.gte(1)),
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
         currency: zCurrency
     })),
     endClientName: z.nullish(z.string().check(z.minLength(1), z.maxLength(255))),
     rounding: z.nullish(zEntryRounding),
     craRequired: z.nullish(z.boolean()),
     color: z.nullish(zColor),
-    notes: z.nullish(z.string()),
+    notes: z.nullish(z.string().check(z.maxLength(2000))),
     startDate: z.nullish(z.iso.date()),
     endDate: z.nullish(z.iso.date())
 });
@@ -1443,7 +1446,8 @@ export const zUserData = z.object({
     vatLiable: z.boolean(),
     effectiveVatRateBp: z.int(),
     timezone: z.string(),
-    workdayMinutes: z.int()
+    workdayMinutes: z.int(),
+    effectiveContributionRateBp: z.int()
 });
 
 /**
@@ -1539,11 +1543,11 @@ export const zUpdateSettingsData = z.object({
     homeCity: z.nullish(z.string().check(z.maxLength(255))),
     businessStartedOn: z.nullish(z.iso.date()),
     treasuryBuffer: z.nullish(z.object({
-        amount: z.int().check(z.gte(1)),
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
         currency: zCurrency
     })),
     cfeExpected: z.nullish(z.object({
-        amount: z.int().check(z.gte(1)),
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
         currency: zCurrency
     }))
 });
@@ -1740,7 +1744,7 @@ export const zShowMissionRevenueResponse = zMissionRevenueData;
 export const zListClientRevenueResponse = zClientRevenueListData;
 
 export const zListCrasQuery = z.object({
-    month: z.nullish(z.string())
+    month: z.nullish(z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/)))
 });
 
 export const zListCrasResponse = zCraListData;
@@ -1861,7 +1865,7 @@ export const zCreateInvoiceBody = zCreateInvoiceData;
 export const zCreateInvoiceResponse = zInvoiceDetailData;
 
 export const zShowInvoiceSummaryQuery = z.object({
-    month: z.nullish(z.string())
+    month: z.nullish(z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/)))
 });
 
 export const zShowInvoiceSummaryResponse = zInvoiceSummaryData;

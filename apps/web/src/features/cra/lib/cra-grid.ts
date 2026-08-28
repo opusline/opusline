@@ -1,9 +1,8 @@
 import type { CraDayData, Locale } from "@opusline/api-client";
-
+import { cachedFormatter } from "@/lib/billing";
 import { capitalizeFirst } from "@/lib/dates";
 import { monthGridDates } from "@/lib/months";
 import { weekdayShortLabel } from "@/lib/weeks";
-
 import { FULL_DAY_BP, HALF_DAY_BP } from "./day-fraction";
 import { cellAriaLabel } from "./labels";
 
@@ -59,9 +58,9 @@ export function formatDayFraction(locale: Locale, basisPoints: number): string {
     return "";
   }
 
-  return (basisPoints / FULL_DAY_BP).toLocaleString(locale, {
-    maximumFractionDigits: 2,
-  });
+  return cachedFormatter(locale, { maximumFractionDigits: 2 }).format(
+    basisPoints / FULL_DAY_BP,
+  );
 }
 
 export function buildCraGrid(input: {

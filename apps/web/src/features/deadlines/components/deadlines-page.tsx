@@ -75,6 +75,7 @@ export function DeadlinesPage({
 
   return (
     <div
+      aria-busy={isRefreshing || undefined}
       className={cn(
         "mx-auto flex w-full max-w-4xl flex-col gap-4 transition-opacity",
         isRefreshing && "opacity-60",

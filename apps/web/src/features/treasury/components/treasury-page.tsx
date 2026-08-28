@@ -36,6 +36,7 @@ export function TreasuryPage({
 
   return (
     <div
+      aria-busy={isRefreshing || undefined}
       className={cn(
         "mx-auto flex w-full max-w-4xl flex-col gap-3.5 transition-opacity",
         isRefreshing && "opacity-60",
@@ -51,7 +52,7 @@ export function TreasuryPage({
       </div>
 
       {balance === null || transferable === null ? (
-        <Empty className="rounded-md border bg-card">
+        <Empty>
           <EmptyHeader>
             <EmptyTitle>{m.treasury_empty_title()}</EmptyTitle>
             <EmptyDescription>{m.treasury_empty_body()}</EmptyDescription>

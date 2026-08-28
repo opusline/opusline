@@ -71,6 +71,8 @@ export function fiscalDeadline(
     dueOn: "2026-08-31",
     amount: eur(124_000),
     rateBp: 2600,
+    // 476 923 × 26 % rounds to the 124 000 above.
+    base: eur(476_923),
     isEstimate: true,
     completedOn: null,
     ...overrides,

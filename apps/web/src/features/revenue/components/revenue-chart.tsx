@@ -1,4 +1,5 @@
 import type { Locale, RevenueMonthData } from "@opusline/api-client";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { cn } from "@opusline/ui/lib/utils";
 
 import { useLocale, useMoneyFormat } from "@/components/money-format-provider";
@@ -37,9 +38,7 @@ export function RevenueChart({
   return (
     <section className="flex flex-col rounded-md border bg-card p-5">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <h2 className="font-medium text-muted-foreground-2 text-xs uppercase tracking-widest">
-          {basisText(basis).chartTitle()}
-        </h2>
+        <h2 className={eyebrowVariants()}>{basisText(basis).chartTitle()}</h2>
         <span className="text-muted-foreground-3 text-xs">
           {m.revenue_chart_note()}
         </span>

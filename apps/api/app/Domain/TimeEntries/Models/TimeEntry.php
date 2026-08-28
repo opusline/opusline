@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\TimeEntries\Models;
 
+use App\Domain\Invoices\Actions\ValueTrackedTime;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Enums\EntryRounding;
 use App\Domain\Missions\Models\Mission;
@@ -13,6 +14,7 @@ use App\Domain\Shared\Routing\OwnedRouteBinding;
 use App\Domain\TimeEntries\Factories\TimeEntryFactory;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
+use Cknow\Money\Money;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -100,6 +102,30 @@ class TimeEntry extends Model
             $this->duration_minutes,
             $this->accountSettings()->workday_minutes,
         );
+    }
+
+    /**
+     * What the entry bills at its mission's rate, or null when the mission
+     * prices no time — no rate yet, or a fixed price that bills its price
+     * rather than its hours.
+     *
+     * Read here rather than recomputed from valuedDayFraction(): that fraction
+     * is a float for display, and multiplying a rate by it is exactly what
+     * EntryRounding::billedDayFraction() exists to make unnecessary.
+     */
+    public function value(): ?Money
+    {
+        $valueTrackedTime = new ValueTrackedTime;
+
+        if (! $valueTrackedTime->pricesTime($this->mission)) {
+            return null;
+        }
+
+        return $valueTrackedTime->measure(
+            $this->mission,
+            $this,
+            $this->accountSettings()->workday_minutes,
+        )['value'];
     }
 
     public function isInvoiced(): bool

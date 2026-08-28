@@ -200,13 +200,38 @@ test('adds the treasury buffer verbatim', function (): void {
         ->assertJsonPath('provisions.total.amount', 150_000);
 });
 
-test('provisions nothing for the CFE until the user names an amount', function (): void {
+test('provisions nothing for the CFE on an account with nothing to go on', function (): void {
+    // No entered amount, no CFE debit on the statements, and revenue under the
+    // cotisation minimum's exemption floor — so the barème has nothing to say either.
     $user = User::factory()->create();
 
     $this->actingAs($user)
         ->getJson('/api/bank')
         ->assertOk()
         ->assertJsonPath('provisions.cfe', null);
+});
+
+test('provisions a barème guess once the account has collected enough, and says it is one', function (): void {
+    $user = User::factory()->create();
+    paidInvoiceOn($user, '2026-08-03', htCents: 900_000, ttcCents: 1_080_000);
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        // The barème's ballpark for that bracket is 110 €; frozen in August the
+        // account owes eight twelfths of it.
+        ->assertJsonPath('provisions.cfe.amount.amount', 7_333)
+        ->assertJsonPath('provisions.cfe.isEstimate', true);
+});
+
+test('an entered CFE is not flagged as a guess', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['cfe_expected_cents' => 48_000]);
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.cfe.isEstimate', false);
 });
 
 test('provisions a twelfth of the expected CFE per elapsed month', function (): void {

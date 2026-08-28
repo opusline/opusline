@@ -26,6 +26,44 @@ test('values an entry at its mission rounding when it sets none', function (): v
         ->assertJsonPath('valuedDayFraction', 1);
 });
 
+test('carries what the entry bills, derived from the exact fraction', function (): void {
+    // The browser used to multiply a float day fraction by the rate; 222/420 has
+    // no float to round from, so the figure has to come from here.
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user, fn ($factory) => $factory->state([
+        'billing_mode' => BillingMode::Daily,
+        'rounding' => EntryRounding::Minute,
+        'rate_cents' => 55_000,
+    ]));
+
+    $this->actingAs($user)
+        ->postJson('/api/time-entries', [
+            'missionId' => $mission->id,
+            'date' => '2026-08-03',
+            'durationMinutes' => 222,
+        ])
+        ->assertCreated()
+        ->assertJsonPath('value.amount', 29_071)
+        ->assertJsonPath('value.currency', 'EUR');
+});
+
+test('bills nothing per entry on a mission that prices no time', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user, fn ($factory) => $factory->state([
+        'billing_mode' => BillingMode::Fixed,
+        'rate_cents' => 1_000_000,
+    ]));
+
+    $this->actingAs($user)
+        ->postJson('/api/time-entries', [
+            'missionId' => $mission->id,
+            'date' => '2026-08-03',
+            'durationMinutes' => 222,
+        ])
+        ->assertCreated()
+        ->assertJsonPath('value', null);
+});
+
 test('values an entry at its own rounding when it overrides the mission', function (): void {
     $user = User::factory()->create();
     $mission = missionOwnedBy($user, fn ($factory) => $factory->state([

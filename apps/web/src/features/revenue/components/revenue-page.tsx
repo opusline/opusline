@@ -49,6 +49,7 @@ export function RevenuePage({
 
   return (
     <div
+      aria-busy={isRefreshing || undefined}
       className={cn(
         "flex flex-col gap-3.5 transition-opacity",
         isRefreshing && "opacity-60",

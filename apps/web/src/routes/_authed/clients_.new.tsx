@@ -12,7 +12,7 @@ import { useState } from "react";
 import { NewClientPage } from "@/features/clients/components/new-client-page";
 import type { FormSubmitResult } from "@/lib/form";
 import { revenueFilter } from "@/lib/query-invalidation";
-import { serverFieldErrors } from "@/lib/validation";
+import { serverFieldErrors, writeErrorBanner } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute("/_authed/clients_/new")({
@@ -90,11 +90,7 @@ function NewClientRoute() {
   return (
     <NewClientPage
       accountVatRateBp={user.effectiveVatRateBp}
-      error={
-        createClient.error && !serverFieldErrors(createClient.error)
-          ? m.clients_create_failed()
-          : null
-      }
+      error={writeErrorBanner(createClient.error, m.clients_create_failed())}
       isPending={isSubmitting}
       onCancel={() => void navigate({ to: "/clients" })}
       onSubmit={handleSubmit}

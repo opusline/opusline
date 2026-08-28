@@ -47,7 +47,10 @@ class LinkInvoiceTimeEntries
             $this->assertCoverable($invoice, $entry);
         }
 
-        TimeEntry::query()->whereKey($ids)->update(['invoice_id' => $invoice->id]);
+        TimeEntry::query()
+            ->where('user_id', $invoice->user_id)
+            ->whereKey($ids)
+            ->update(['invoice_id' => $invoice->id]);
     }
 
     private function assertCoverable(Invoice $invoice, TimeEntry $entry): void

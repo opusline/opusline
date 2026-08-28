@@ -31,6 +31,7 @@ class CreateMissionData extends Data
         public ?EntryRounding $rounding = null,
         public ?bool $craRequired = null,
         public ?Color $color = null,
+        #[Max(2000)]
         public ?string $notes = null,
         #[DateFormat('Y-m-d')]
         public ?string $startDate = null,

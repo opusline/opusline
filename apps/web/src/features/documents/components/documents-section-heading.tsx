@@ -1,3 +1,4 @@
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { Separator } from "@opusline/ui/components/separator";
 
 type DocumentsSectionHeadingProps = {
@@ -9,9 +10,7 @@ export function DocumentsSectionHeading({
 }: DocumentsSectionHeadingProps) {
   return (
     <div className="flex items-center gap-3">
-      <h2 className="font-medium text-muted-foreground-2 text-xs uppercase tracking-widest">
-        {children}
-      </h2>
+      <h2 className={eyebrowVariants()}>{children}</h2>
       <Separator className="flex-1" />
     </div>
   );

@@ -56,7 +56,6 @@ it("counts how late a late line is", async () => {
 it("explains the URSSAF figure by what it was computed from", async () => {
   renderTimeline();
 
-  // 1 240 € at 26 % reads back as 4 769 € collected.
   expect(
     await screen.findByText("Déclarer 4 769 € encaissés → cotisations à 26 %"),
   ).toBeInTheDocument();

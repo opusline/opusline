@@ -30,7 +30,7 @@ class UpdateBankBalance
             AccountCurrency::assertMatchesSettings($settings, $data->balance);
 
             $settings->update([
-                'bank_balance_cents' => $data->balance->amount,
+                'bank_balance_cents' => $data->balance->toMoney(),
                 'bank_balance_recorded_on' => $settings->today(),
             ]);
         });

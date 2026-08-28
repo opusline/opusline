@@ -19,6 +19,9 @@ export const DEFAULT_MONEY_FORMAT: MoneyFormat = {
   currency: "EUR",
 };
 
+/** A rate of 100 %: every rate crossing the API is an int share of this. */
+const BASIS_POINTS = 10_000;
+
 const formatters = new Map<string, Intl.NumberFormat>();
 
 export function cachedFormatter(
@@ -337,6 +340,106 @@ export function formatMissionRate(
   }
 
   return formatRate(format, mission.rate.amount, mission.billingMode);
+}
+
+/**
+ * The typical billable month the mission projection assumes. A convention:
+ * nothing on a mission form says how many days will actually be worked.
+ */
+export const MONTHLY_BILLABLE_DAYS = 20;
+
+const MINUTES_PER_HOUR = 60;
+
+export type MissionMonthProjection = {
+  /** What a typical month bills, HT. Null until a rate is typed. */
+  monthlyCents: number | null;
+  /** What the account should set aside for URSSAF out of it. */
+  provisionCents: number | null;
+  /** What is left — the figure the panel calls « net estimé ». */
+  netCents: number | null;
+};
+
+/**
+ * What a month on this mission would look like at the rate being typed.
+ *
+ * The browser computes this one because there is no server figure to ask for —
+ * the rate does not exist yet. What it must not invent arrives as arguments:
+ * contributionRateBp is the account's own, so an ACRE freelance sees theirs.
+ */
+export function projectMissionMonth(
+  rateCents: number | null,
+  billingMode: BillingMode,
+  contributionRateBp: number,
+  workdayMinutes: number,
+): MissionMonthProjection {
+  if (rateCents === null) {
+    return { monthlyCents: null, provisionCents: null, netCents: null };
+  }
+
+  const monthlyCents = missionMonthlyCents(
+    rateCents,
+    billingMode,
+    workdayMinutes,
+  );
+  const provisionCents = Math.round(
+    (monthlyCents * contributionRateBp) / BASIS_POINTS,
+  );
+
+  return {
+    monthlyCents,
+    provisionCents,
+    netCents: monthlyCents - provisionCents,
+  };
+}
+
+function missionMonthlyCents(
+  rateCents: number,
+  billingMode: BillingMode,
+  workdayMinutes: number,
+): number {
+  switch (billingMode) {
+    // A forfait bills its price, whatever the days.
+    case 2:
+      return rateCents;
+    case 0:
+      return rateCents * MONTHLY_BILLABLE_DAYS;
+    case 1:
+      return Math.round(
+        (rateCents * MONTHLY_BILLABLE_DAYS * workdayMinutes) / MINUTES_PER_HOUR,
+      );
+  }
+}
+
+/** The hours the projection's monthly figure assumes, for the hint beside it. */
+export function monthlyBillableHours(workdayMinutes: number): number {
+  return (MONTHLY_BILLABLE_DAYS * workdayMinutes) / MINUTES_PER_HOUR;
+}
+
+/**
+ * `partCents` as a share of `wholeCents`, in basis points. Truncates like the
+ * API's Rate::shareBp(), so a share computed here reads like one off a DTO.
+ */
+export function shareBp(partCents: number, wholeCents: number): number {
+  return wholeCents === 0
+    ? 0
+    : Math.trunc((partCents * BASIS_POINTS) / wholeCents);
+}
+
+/**
+ * A whole percentage of an amount, for the « remplir » shortcuts. A seed for a
+ * field, not a figure: the API recomputes everything from what is submitted.
+ */
+export function percentOfCents(amountCents: number, percent: number): number {
+  return Math.round((amountCents * percent) / 100);
+}
+
+/**
+ * What `days` at `dailyRateCents` costs, for the what-if a forfait dialog shows
+ * against the day being typed. Rounded half up like the API's day pricing, but
+ * without its exact fraction: the entry does not exist yet.
+ */
+export function daysAtRate(dailyRateCents: number, days: number): number {
+  return Math.round(dailyRateCents * days);
 }
 
 export function paymentTermsLabel(days: number): string {

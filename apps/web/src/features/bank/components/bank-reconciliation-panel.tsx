@@ -10,6 +10,7 @@ import {
 } from "@opusline/ui/components/empty";
 import { cn } from "@opusline/ui/lib/utils";
 import { ArrowRightIcon } from "lucide-react";
+import { useEffect, useId, useRef } from "react";
 
 import {
   useDateFormat,
@@ -44,21 +45,50 @@ export function BankReconciliationPanel({
   onImport,
 }: BankReconciliationPanelProps) {
   const dateFormat = useDateFormat();
+  const headingId = useId();
   const matches = data.pendingMatches;
+  const panelRef = useRef<HTMLElement>(null);
+  const settledCount = useRef(matches.length);
   const hasStatement = data.statements.length > 0;
   // "Tout est rapproché" is a factual claim — it only holds when no credit is
   // left without a linked invoice, not merely when no suggestion is pending.
   const fullyLinked = hasStatement && !hasUnlinkedCredits(data);
 
+  useEffect(() => {
+    const settled = matches.length < settledCount.current;
+
+    settledCount.current = matches.length;
+
+    if (!settled || panelRef.current === null) {
+      return;
+    }
+
+    // The next row's primary action, or the panel itself once the last
+    // suggestion is gone and the empty state has replaced the list.
+    const next = panelRef.current.querySelector<HTMLElement>(
+      "[data-settle-target]",
+    );
+
+    (next ?? panelRef.current).focus();
+  }, [matches.length]);
+
   return (
     <section
+      aria-labelledby={headingId}
       className={cn(
         "overflow-hidden rounded-md border bg-card",
         matches.length > 0 && "border-primary/35",
       )}
+      ref={panelRef}
+      // Focus lands here when the last suggestion is settled and there is no
+      // next row to move to; it is not in the tab order otherwise.
+      tabIndex={-1}
     >
       <div className="flex flex-wrap items-center gap-2.5 border-b px-5 py-3.5">
-        <h2 className="font-heading font-semibold text-base text-foreground-hi">
+        <h2
+          className="font-heading font-semibold text-base text-foreground-hi"
+          id={headingId}
+        >
           {m.bank_reconciliation_title()}
         </h2>
         {hasStatement ? (
@@ -77,19 +107,25 @@ export function BankReconciliationPanel({
         </span>
       </div>
 
-      {matches.map((match) => (
-        <SuggestionRow
-          isActing={pendingMatchId !== null}
-          key={match.id}
-          match={match}
-          onDismiss={onDismiss}
-          onOpenInvoice={onOpenInvoice}
-          onValidate={onValidate}
-        />
-      ))}
+      <span aria-live="polite" className="sr-only">
+        {m.bank_reconciliation_status({ count: matches.length })}
+      </span>
+
+      <div>
+        {matches.map((match) => (
+          <SuggestionRow
+            isActing={pendingMatchId === match.id}
+            key={match.id}
+            match={match}
+            onDismiss={onDismiss}
+            onOpenInvoice={onOpenInvoice}
+            onValidate={onValidate}
+          />
+        ))}
+      </div>
 
       {matches.length === 0 && (
-        <Empty className="px-6 py-9">
+        <Empty surface="plain" className="px-6 py-9">
           <EmptyHeader className="gap-2">
             <EmptyTitle variant="strong">
               {hasStatement
@@ -171,6 +207,7 @@ function SuggestionRow({
       </button>
       <div className="flex shrink-0 gap-1.5">
         <Button
+          data-settle-target
           disabled={isActing}
           onClick={() => onValidate(match.id)}
           size="lg"

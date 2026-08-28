@@ -14,7 +14,7 @@ import { m } from "@/paraglide/messages.js";
 
 export function ClientsEmptyState() {
   return (
-    <Empty className="rounded-md border border-solid bg-card px-7 py-8">
+    <Empty className="px-7 py-8">
       <EmptyHeader className="max-w-none gap-2">
         <EmptyMedia className="mb-2.5">
           <div
@@ -27,9 +27,7 @@ export function ClientsEmptyState() {
             />
           </div>
         </EmptyMedia>
-        <EmptyTitle className="font-heading font-semibold text-base text-foreground-hi">
-          {m.clients_empty_title()}
-        </EmptyTitle>
+        <EmptyTitle variant="strong">{m.clients_empty_title()}</EmptyTitle>
         <EmptyDescription className="text-muted-foreground-3">
           {m.clients_empty_hint()}
         </EmptyDescription>

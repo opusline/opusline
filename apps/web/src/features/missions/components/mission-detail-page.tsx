@@ -19,6 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@opusline/ui/components/dropdown-menu";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { StatTile, StatTileRow } from "@opusline/ui/components/stat-tile";
 import { Switch } from "@opusline/ui/components/switch";
 import {
@@ -69,9 +70,6 @@ import { billingModeAmountLabel, billingModeAmountUnit } from "../lib/labels";
 import type { MissionTab } from "../lib/tabs";
 import { MissionEditForm } from "./mission-edit-form";
 import { MissionEntriesTable } from "./mission-entries-table";
-
-const EYEBROW_CLASSES =
-  "font-medium text-muted-foreground-2 text-xs uppercase tracking-widest";
 
 function FacturationRow({ label, value }: { label: string; value: string }) {
   return (
@@ -436,7 +434,7 @@ export function MissionDetailPage({
           <TabsContent value="config">
             <div className="grid items-start gap-3.5 md:grid-cols-2">
               <div className="rounded-md border bg-card p-5">
-                <div className={`${EYEBROW_CLASSES} mb-4`}>
+                <div className={`${eyebrowVariants()} mb-4`}>
                   {m.missions_config_pricing()}
                 </div>
                 {missionBills(mission) ? (
@@ -493,7 +491,7 @@ export function MissionDetailPage({
               </div>
 
               <div className="rounded-md border bg-card p-5">
-                <div className={`${EYEBROW_CLASSES} mb-4`}>
+                <div className={`${eyebrowVariants()} mb-4`}>
                   {m.common_billing_title()}
                 </div>
                 <div className="flex flex-col gap-3.5">

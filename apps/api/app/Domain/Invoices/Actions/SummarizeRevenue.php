@@ -18,20 +18,18 @@ use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Revenue\CollectedInvoices;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Shared\Data\MoneyData;
+use App\Domain\Shared\Money\Rate;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
-use Money\Money as MoneyPhp;
 
 /**
  * @phpstan-type Period array{kind: 'month'|'quarter'|'year', key: string, start: CarbonImmutable, end: CarbonImmutable}
  */
 class SummarizeRevenue
 {
-    private const int BASIS_POINTS = 10_000;
-
     private const int CHART_MONTHS = 8;
 
     public function handle(User $user, SummarizeRevenueData $data): RevenueData
@@ -176,7 +174,7 @@ class SummarizeRevenue
             total: MoneyData::fromMoney($previousTotal),
             changeBp: $previousAmount === 0
                 ? null
-                : intdiv(((int) $total->getAmount() - $previousAmount) * self::BASIS_POINTS, $previousAmount),
+                : Rate::shareBp((int) $total->getAmount() - $previousAmount, $previousAmount),
         );
     }
 
@@ -236,7 +234,7 @@ class SummarizeRevenue
         }
 
         $rateBp = $settings->effectiveContributionRateBp();
-        $contributions = $total->multiply($rateBp)->divide(self::BASIS_POINTS, MoneyPhp::ROUND_HALF_UP);
+        $contributions = Rate::of($total, $rateBp);
 
         return new RevenueNetData(
             amount: MoneyData::fromMoney($total->subtract($contributions)),
@@ -295,7 +293,7 @@ class SummarizeRevenue
                 month: $month,
                 total: MoneyData::fromMoney($total),
                 inPeriod: $month >= $periodStart && $month <= $periodEnd,
-                shareBp: $largest === 0 ? 0 : intdiv($amount * self::BASIS_POINTS, $largest),
+                shareBp: Rate::shareBp($amount, $largest),
             );
         }
 
@@ -323,7 +321,7 @@ class SummarizeRevenue
                     color: $client->color,
                     invoiceCount: $group->count(),
                     total: MoneyData::fromMoney($groupTotal),
-                    shareBp: $grandTotal === 0 ? 0 : intdiv($amount * self::BASIS_POINTS, $grandTotal),
+                    shareBp: Rate::shareBp($amount, $grandTotal),
                 );
             })
             ->sortByDesc(static fn (RevenueClientData $row): int => $row->total->amount)

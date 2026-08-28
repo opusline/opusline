@@ -6,7 +6,9 @@
   "keywords": ["laravel", "freelance", "time-tracking", "cra"],
   "license": "AGPL-3.0-only",
   "require": {
-    "php": "^8.3",
+    "php": "^8.4",
+    "ext-exif": "*",
+    "ext-gd": "*",
     "ext-libxml": "*",
     "ext-mbstring": "*",
     "ext-simplexml": "*",

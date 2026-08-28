@@ -1,0 +1,101 @@
+# A self-hosted Opusline: the SPA, the API, Postgres and Redis.
+#
+# Copy .env.production.example to .env, fill it in, then:
+#
+#   docker compose -f compose.prod.yaml up -d
+#
+# This is not apps/api/compose.yaml. That one is the development Sail stack — it
+# builds from the host's vendor directory, bind-mounts the whole tree and ships
+# hardcoded credentials. It was never a deployment and this is why.
+
+name: opusline
+
+# The API image, run three ways: the HTTP server, the scheduler, and the queue
+# worker. Only the first serves requests, so only the first keeps the image's
+# healthcheck.
+x-api: &api
+  image: ghcr.io/opusline/opusline-api:${OPUSLINE_VERSION:-latest}
+  restart: unless-stopped
+  env_file: .env
+  volumes:
+    # Uploaded documents, signatures and client logos, when MEDIA_DISK=local.
+    - opusline-storage:/app/storage/app
+
+x-api-worker: &api-worker
+  <<: *api
+  depends_on:
+    api:
+      condition: service_healthy
+  # The API container migrates on boot; a second one racing it would be the only
+  # way this stack could corrupt a schema.
+  environment:
+    OPUSLINE_SKIP_MIGRATIONS: "1"
+  healthcheck:
+    disable: true
+
+services:
+  web:
+    image: ghcr.io/opusline/opusline-web:${OPUSLINE_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      # Plain HTTP on purpose: terminate TLS in the proxy that already holds your
+      # certificate and forward here. See docs/self-hosting.md.
+      - "${HTTP_PORT:-8080}:80"
+
+  api:
+    <<: *api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # The nightly URSSAF barème refresh.
+  scheduler:
+    <<: *api-worker
+    command: ["php", "artisan", "schedule:work"]
+
+  # Every uploaded document, logo and signature is moved to its final disk by a
+  # queued job. Without this the jobs accumulate and the files stay on the
+  # staging disk forever.
+  queue:
+    <<: *api-worker
+    command: ["php", "artisan", "queue:work", "--tries=3", "--max-time=3600"]
+
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-opusline}
+      POSTGRES_USER: ${DB_USERNAME:-opusline}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+    volumes:
+      # /var/lib/postgresql, not .../data: Postgres 18 keeps its cluster in a
+      # versioned subdirectory so `pg_upgrade --link` can work across a mount
+      # point, and refuses to start on a volume mounted the old way.
+      - opusline-postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-opusline} -d ${DB_DATABASE:-opusline}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:8-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - opusline-redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  opusline-postgres:
+  opusline-redis:
+  opusline-storage:

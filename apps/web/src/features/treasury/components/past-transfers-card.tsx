@@ -1,6 +1,7 @@
 import type { PersonalTransferData } from "@opusline/api-client";
 import { Badge } from "@opusline/ui/components/badge";
 import { Button } from "@opusline/ui/components/button";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { Link } from "@tanstack/react-router";
 import { Trash2Icon } from "lucide-react";
 
@@ -30,9 +31,7 @@ export function PastTransfersCard({
   return (
     <section className="rounded-md border bg-card px-6 py-5">
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="font-medium text-muted-foreground-2 text-xs uppercase tracking-widest">
-          {m.treasury_past_title()}
-        </h2>
+        <h2 className={eyebrowVariants()}>{m.treasury_past_title()}</h2>
         <Link
           className="text-primary-text text-xs hover:underline"
           to="/bank-account"

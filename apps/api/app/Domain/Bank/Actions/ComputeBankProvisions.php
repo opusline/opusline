@@ -9,6 +9,7 @@ use App\Domain\Bank\Data\BankProvisionsData;
 use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Deadlines\Actions\ResolveExpectedCfe;
 use App\Domain\Deadlines\Calendar\CfeSchedule;
+use App\Domain\Deadlines\Calendar\ExpectedCfe;
 use App\Domain\Invoices\Revenue\CollectedInvoices;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
@@ -18,6 +19,7 @@ use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
 use Illuminate\Support\Collection;
+use Money\Money as MoneyPhp;
 
 /**
  * What the fisc is still owed, computed on collections (encaissements)
@@ -192,9 +194,11 @@ class ComputeBankProvisions
     }
 
     /**
-     * The commune sets the CFE, so there is nothing to provision until the user
-     * has said what to expect — and nothing at all in an exempt year; see
-     * CfeSchedule, which the Échéances calendar reads too.
+     * The commune sets the CFE, so what to expect is resolved from the best
+     * source available — entered amount, last year's detected payment, or the
+     * statutory barème — and nothing at all in an exempt year; see CfeSchedule,
+     * which the Échéances calendar reads too. The last two sources carry
+     * isEstimate onto the provision so the guess is labelled where it lands.
      *
      * Built a twelfth a month rather than locked whole in January: the bill only
      * lands on 15 December, and until then the account owes the elapsed share.
@@ -213,23 +217,27 @@ class ComputeBankProvisions
 
         // The entered amount, or last year's payment standing in for it — the
         // same resolution the Échéances screen shows, so the two never disagree.
-        $expected = $this->resolveExpectedCfe->handle($settings)?->amount;
+        $expectedCfe = $this->resolveExpectedCfe->handle($settings);
 
-        if (! $expected instanceof Money) {
+        if (! $expectedCfe instanceof ExpectedCfe) {
             return null;
         }
+
+        $expected = $expectedCfe->amount;
 
         if (CfeSchedule::isExemptYear($settings, $today->year)) {
             return null;
         }
 
-        $accrued = intdiv((int) $expected->getAmount() * $today->month, 12);
+        $accrued = $expected->multiply($today->month)->divide(12, MoneyPhp::ROUND_HALF_UP);
         $paid = $this->paymentsBetween($movements, $today->startOfYear(), $today, DetectFiscPayments::isCfe(...));
+        $owed = (int) $accrued->getAmount() - $paid;
 
         return new BankProvisionData(
-            amount: MoneyData::fromMoney(new Money(max(0, $accrued - $paid), $currency)),
+            amount: MoneyData::fromMoney(new Money(max(0, $owed), $currency)),
             rateBp: null,
             periodEnd: $today->endOfYear(),
+            isEstimate: $expectedCfe->isEstimate,
         );
     }
 

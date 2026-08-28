@@ -43,7 +43,10 @@ const preview: Preview = {
         light: "light",
         dark: "dark",
       },
-      defaultTheme: "dark",
+      // Set per Vitest project so the a11y gate measures both palettes; the
+      // toolbar still switches themes interactively.
+      defaultTheme:
+        import.meta.env.OPUSLINE_THEME === "light" ? "light" : "dark",
     }),
     (Story, context) => {
       overwriteGetLocale(() => (context.globals.locale === "en" ? "en" : "fr"));

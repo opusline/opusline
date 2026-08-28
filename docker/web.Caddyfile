@@ -1,0 +1,43 @@
+# The one origin the browser talks to.
+#
+# Session auth rides an XSRF cookie, so the SPA and the API have to look like the
+# same site — apps/web/src/lib/api.ts calls `/api` and `/sanctum` with no
+# configurable base URL, deliberately. That makes this file part of the product,
+# not deployment garnish: point the SPA at a second hostname and login stops
+# working with intermittent 419s.
+#
+# TLS is not terminated here. Put this behind whatever already holds your
+# certificate (a Caddy, an nginx, a Traefik, a tunnel) and forward to :80; see
+# docs/self-hosting.md for the two headers that reverse proxy has to send.
+
+:80 {
+	log {
+		output stdout
+		format console
+	}
+
+	encode zstd gzip
+
+	# /up is Laravel's health endpoint, reachable through the same origin as
+	# everything else so an orchestrator has one address to probe.
+	@api path /api/* /sanctum/* /up
+
+	handle @api {
+		reverse_proxy {$API_UPSTREAM:api:8000}
+	}
+
+	handle {
+		root * /srv
+
+		# Hashed filenames, so they can be cached for a year. index.html must not
+		# be — it is what points at the current hashes.
+		@immutable path /assets/*
+		header @immutable Cache-Control "public, max-age=31536000, immutable"
+		header /index.html Cache-Control "no-cache"
+
+		# Client-side routing: every unknown path is a route the SPA knows, not a
+		# missing file.
+		try_files {path} /index.html
+		file_server
+	}
+}

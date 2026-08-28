@@ -1,4 +1,5 @@
 import type { CraCountsData, CraListItemData } from "@opusline/api-client";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { Input } from "@opusline/ui/components/input";
 import { cn } from "@opusline/ui/lib/utils";
 import { SearchIcon } from "lucide-react";
@@ -12,8 +13,6 @@ import {
   craItemKey,
   groupCras,
 } from "../lib/cra-picker";
-
-import { EYEBROW } from "../lib/labels";
 
 type CraPickerProps = {
   items: CraListItemData[];
@@ -39,7 +38,7 @@ export function CraPicker({
   return (
     <aside className="flex w-full shrink-0 flex-col self-stretch lg:w-72">
       <div className="mb-3.5 flex items-baseline justify-between gap-2">
-        <span className={EYEBROW}>{m.cra_list_title()}</span>
+        <span className={eyebrowVariants()}>{m.cra_list_title()}</span>
         {counts.toProduce > 0 && (
           <span className="text-primary-text text-xs">
             {m.cra_to_produce({ count: counts.toProduce })}
@@ -78,7 +77,7 @@ export function CraPicker({
                     CRA_GROUP_DOT_CLASSES[group.key],
                   )}
                 />
-                <span className={EYEBROW}>{group.label}</span>
+                <span className={eyebrowVariants()}>{group.label}</span>
                 <span className="font-mono text-muted-foreground-4 text-xs tabular-nums">
                   {group.items.length}
                 </span>
