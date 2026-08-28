@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.19.0](https://github.com/opusline/opusline/compare/v0.18.0...v0.19.0) (2026-08-28)
+
+
+### Features
+
+* **api:** add declarations API and web cards ([#213](https://github.com/opusline/opusline/issues/213)) ([1574739](https://github.com/opusline/opusline/commit/1574739632b53c919a9a523bdca681d98855bb1a))
+
 ## [0.18.0](https://github.com/opusline/opusline/compare/v0.17.0...v0.18.0) (2026-08-28)
 
 
