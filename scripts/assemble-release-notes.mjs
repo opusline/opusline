@@ -72,6 +72,13 @@ for (const item of items) {
 }
 
 const quote = (text) => JSON.stringify(text);
+
+// Release notes are English prose that still names French things — « Prochaine
+// échéance », Déclarations, a CRA. They are content, not UI copy, so they never
+// belong in the catalogs; the accented ones carry the guard's named opt-out so
+// scripts/i18n-guard.sh does not fail on the next assembly.
+const ACCENTED = /[À-ü]/;
+const guardOptOut = (text) => (ACCENTED.test(text) ? " // i18n-ignore" : "");
 const now = new Date();
 const pad = (part) => String(part).padStart(2, "0");
 const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
@@ -83,7 +90,7 @@ const entry = [
   ...items.flatMap((item) => [
     "      {",
     `        kind: ${quote(item.kind)},`,
-    `        text: ${quote(item.text)},`,
+    `        text: ${quote(item.text)},${guardOptOut(item.text)}`,
     "      },",
   ]),
   "    ],",
