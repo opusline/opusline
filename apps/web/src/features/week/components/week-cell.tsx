@@ -129,7 +129,9 @@ export function WeekCell({
           "text-transparent hover:bg-accent hover:text-muted-foreground-2",
         // Focus has moved into the popover, so the cell says so itself.
         isActive && "outline-2 -outline-offset-2 outline-primary-text",
-        isPending && "opacity-80",
+        // A tint rather than opacity, which would drag the note's contrast
+        // under AA; aria-busy above carries the state.
+        isPending && "bg-muted-2",
       )}
       data-cell={cell.key}
       onClick={editor === null ? () => onActivate(cell.key) : undefined}
@@ -148,7 +150,7 @@ export function WeekCell({
               )}
             >
               <PlusIcon aria-hidden className="size-3" strokeWidth={2.2} />
-              Ajouter
+              {m.week_cell_add()}
             </span>
           ) : (
             <div

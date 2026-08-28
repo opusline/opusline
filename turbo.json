@@ -7,7 +7,7 @@
       "dependsOn": ["^transit"]
     },
     "build": {
-      "description": "Bundles the application with Vite",
+      "description": "Bundles the application with Vite from the committed API client; no generate edge, so CI's JS lane never needs PHP — pre-push and the spec-drift CI job guard freshness",
       "dependsOn": ["^build", "transit"],
       "inputs": ["$TURBO_DEFAULT$", ".env*", "!**/*.stories.{tsx,jsx,mdx}"],
       "outputs": ["dist/**"]
@@ -33,12 +33,6 @@
       "persistent": true,
       "with": ["@opusline/api#dev"],
       "dependsOn": ["@opusline/api-client#generate"]
-    },
-    "@opusline/web#build": {
-      "description": "Bundles the web app from the committed API client; no generate edge so CI's JS lane never needs PHP — pre-push and the spec-drift CI job guard freshness",
-      "dependsOn": ["^build", "transit"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*", "!**/*.stories.{tsx,jsx,mdx}"],
-      "outputs": ["dist/**"]
     },
     "@opusline/api#generate": {
       "description": "Exports the OpenAPI spec from the Laravel app; uncached because openapi.json is committed source a cache restore must never overwrite",

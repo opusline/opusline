@@ -14,35 +14,44 @@ const dirname =
     ? __dirname
     : path.dirname(fileURLToPath(import.meta.url));
 
+/**
+ * One run of every story per theme, so the a11y gate measures both palettes.
+ *
+ * The theme reaches the preview decorator through a define rather than a
+ * Storybook global, which is per-story where this has to hold for a whole run.
+ */
+function themedStorybook(theme: "light" | "dark") {
+  return {
+    extends: true as const,
+    define: { "import.meta.env.OPUSLINE_THEME": JSON.stringify(theme) },
+    plugins: [
+      // The plugin will run tests for the stories defined in your Storybook config
+      // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
+      storybookTest({
+        configDir: path.join(dirname, ".storybook"),
+      }),
+    ],
+    test: {
+      name: `storybook-${theme}`,
+      isolate: false,
+      browser: {
+        enabled: true,
+        headless: true,
+        provider: playwright({}),
+        instances: [
+          {
+            browser: "chromium",
+          },
+        ],
+      },
+    },
+  };
+}
+
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   test: {
-    projects: [
-      {
-        extends: true,
-        plugins: [
-          // The plugin will run tests for the stories defined in your Storybook config
-          // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
-          storybookTest({
-            configDir: path.join(dirname, ".storybook"),
-          }),
-        ],
-        test: {
-          name: "storybook",
-          isolate: false,
-          browser: {
-            enabled: true,
-            headless: true,
-            provider: playwright({}),
-            instances: [
-              {
-                browser: "chromium",
-              },
-            ],
-          },
-        },
-      },
-    ],
+    projects: [themedStorybook("dark"), themedStorybook("light")],
   },
 });

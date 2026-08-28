@@ -330,7 +330,7 @@ export function WeekGrid({
             aria-colindex={1}
             className={cn(HEAD_CLASSES, "border-b px-3.5 py-3")}
           >
-            Mission
+            {m.week_column_mission()}
           </ColumnHeader>
           {model.columns.map((column, columnIndex) =>
             column.kind === "day" ? (
@@ -362,7 +362,7 @@ export function WeekGrid({
                 className="flex flex-col gap-1.5 border-b bg-muted px-2 py-3"
                 key="collapsed-weekend"
               >
-                <span className={HEAD_CLASSES}>S-D</span>
+                <span className={HEAD_CLASSES}>{m.week_weekend_short()}</span>
                 <span className="font-mono text-muted-foreground-5 text-sm">
                   –
                 </span>
@@ -376,7 +376,7 @@ export function WeekGrid({
               "border-b border-l px-3.5 py-3 text-right",
             )}
           >
-            Total
+            {m.week_column_total()}
           </ColumnHeader>
         </GridRow>
 

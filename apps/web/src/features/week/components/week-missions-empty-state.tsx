@@ -13,7 +13,7 @@ import { m } from "@/paraglide/messages.js";
 
 export function WeekMissionsEmptyState() {
   return (
-    <Empty className="rounded-md border border-solid bg-card px-8 py-11">
+    <Empty className="px-8 py-11">
       <EmptyHeader className="max-w-none gap-2">
         <EmptyMedia className="mb-2.5">
           <div
@@ -26,7 +26,7 @@ export function WeekMissionsEmptyState() {
             />
           </div>
         </EmptyMedia>
-        <EmptyTitle className="font-heading font-semibold text-base text-foreground-hi">
+        <EmptyTitle variant="strong">
           {m.week_missions_empty_title()}
         </EmptyTitle>
         <EmptyDescription className="max-w-[46ch] text-muted-foreground-3">

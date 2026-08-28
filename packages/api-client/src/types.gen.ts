@@ -103,6 +103,7 @@ export type BankProvisionData = {
     amount: MoneyData;
     rateBp: number | null;
     periodEnd: string;
+    isEstimate?: boolean;
 };
 
 /**
@@ -580,6 +581,7 @@ export type FiscalDeadlineData = {
     dueOn: string;
     amount: MoneyData | null;
     rateBp: number | null;
+    base: MoneyData | null;
     isEstimate: boolean;
     completedOn: string | null;
 };
@@ -1127,6 +1129,7 @@ export type TimeEntryData = {
     rounding: EntryRounding | null;
     valuedMinutes: number | null;
     valuedDayFraction: number | null;
+    value: MoneyData | null;
     billable: boolean;
     invoiced: boolean;
     note: string | null;
@@ -1452,6 +1455,7 @@ export type UserData = {
     effectiveVatRateBp: number;
     timezone: string;
     workdayMinutes: number;
+    effectiveContributionRateBp: number;
 };
 
 /**

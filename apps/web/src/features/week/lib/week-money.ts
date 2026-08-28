@@ -3,10 +3,8 @@ import type {
   TimeEntryData,
 } from "@opusline/api-client";
 
-import { isFixedPrice, isHourly } from "@/lib/durations";
+import { isFixedPrice } from "@/lib/durations";
 import { findMissionById } from "@/lib/missions";
-
-const MINUTES_PER_HOUR = 60;
 
 export type WeekBillableSummary = {
   /** What the week's billable time is worth, HT, in cents of the account currency. */
@@ -22,17 +20,17 @@ export type WeekBillableSummary = {
    */
   fixedPriceEntryCount: number;
   /**
-   * Billable entries the week cannot value: their mission carries no rate yet,
-   * or is missing from the loaded clients. Counted rather than dropped so the
-   * detail line accounts for every entry of the week.
+   * Billable entries the API put no figure on, their mission carrying no rate
+   * yet. Counted rather than dropped so the detail line accounts for every entry.
    */
   unratedEntryCount: number;
 };
 
 /**
- * Values a week of tracked time against the rate of the mission each entry sits
- * on. Reads the API's already-rounded `valued*` quantities rather than the raw
- * duration, so the tile agrees with the figures in the grid cells above it.
+ * Classifies and sums a week of tracked time.
+ *
+ * Every figure is the API's own `value`: a day fraction is a float, and 1/3 of a
+ * day has no float to round a rate from — see EntryRounding::billedDayFraction().
  */
 export function summarizeWeekBillable(
   clients: ClientWithMissionsData[],
@@ -61,16 +59,12 @@ export function summarizeWeekBillable(
       continue;
     }
 
-    if (mission === null || mission.rate === null) {
+    if (entry.value === null) {
       summary.unratedEntryCount += 1;
       continue;
     }
 
-    const value = isHourly(mission.billingMode)
-      ? ((entry.valuedMinutes ?? 0) / MINUTES_PER_HOUR) * mission.rate.amount
-      : (entry.valuedDayFraction ?? 0) * mission.rate.amount;
-
-    summary.amountCents += Math.round(value);
+    summary.amountCents += entry.value.amount;
     summary.valuedEntryCount += 1;
   }
 

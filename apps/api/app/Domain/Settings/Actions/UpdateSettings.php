@@ -130,7 +130,7 @@ class UpdateSettings
     private function applyOfficialRates(UserSettings $settings): void
     {
         try {
-            $this->refreshOfficialRates->handle($settings);
+            $this->refreshOfficialRates->handle($settings, retryTransientFailures: false);
         } catch (RatesUnavailable $exception) {
             $settings->update(['rates_checked_at' => null, 'rates_year' => null]);
 

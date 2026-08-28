@@ -32,6 +32,7 @@ class UpdateClientData extends Data
         )]
         public string $name,
         public ClientType $type,
+        #[Max(2000)]
         public ?string $notes = null,
         #[Max(255), Rule(new Siret)]
         public ?string $siret = null,

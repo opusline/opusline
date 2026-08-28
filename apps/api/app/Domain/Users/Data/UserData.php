@@ -28,6 +28,13 @@ class UserData extends Data
         public int $effectiveVatRateBp,
         public string $timezone,
         public int $workdayMinutes,
+        /**
+         * The account's own URSSAF rate, versement libératoire included — what the
+         * mission projection has to price a provision with. An ACRE account pays
+         * roughly 15 % less than the national default, so a constant in the browser
+         * is wrong for exactly the people the projection matters most to.
+         */
+        public int $effectiveContributionRateBp,
     ) {}
 
     public static function fromModel(User $user): self
@@ -49,6 +56,7 @@ class UserData extends Data
             effectiveVatRateBp: $settings->effectiveVatRateBp(),
             timezone: $settings->timezone,
             workdayMinutes: $settings->workday_minutes,
+            effectiveContributionRateBp: $settings->effectiveContributionRateBp(),
         );
     }
 }

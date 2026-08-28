@@ -95,7 +95,8 @@ class ValueTrackedTime
 
         return [
             'value' => $rate->multiply($numerator)->divide($denominator, MoneyPhp::ROUND_HALF_UP),
-            'days' => $numerator / $denominator,
+            // PHP's / hands back an int when the division comes out even.
+            'days' => (float) ($numerator / $denominator),
         ];
     }
 

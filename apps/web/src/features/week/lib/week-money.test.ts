@@ -5,6 +5,8 @@ import type {
 } from "@opusline/api-client";
 import { expect, it } from "vitest";
 
+import { eur } from "@/test/fixtures";
+
 import {
   DEMO_CLIENTS,
   DEMO_MISSIONS,
@@ -36,7 +38,10 @@ it("values a day-billed entry at the mission's daily rate", () => {
 
 it("values a half day at half the daily rate", () => {
   const summary = summarizeWeekBillable(clients([mission({})]), [
-    entry({ valuedDayFraction: 0.5 }),
+    entry({
+      valuedDayFraction: 0.5,
+      value: eur(27_500),
+    }),
   ]);
 
   expect(summary.amountCents).toBe(27_500);
@@ -47,7 +52,13 @@ it("values an hourly entry by its minutes", () => {
     clients([
       mission({ billingMode: 1, rate: { amount: 8_500, currency: "EUR" } }),
     ]),
-    [entry({ valuedDayFraction: null, valuedMinutes: 90 })],
+    [
+      entry({
+        valuedDayFraction: null,
+        valuedMinutes: 90,
+        value: eur(12_750),
+      }),
+    ],
   );
 
   expect(summary.amountCents).toBe(12_750);
@@ -56,7 +67,11 @@ it("values an hourly entry by its minutes", () => {
 it("adds up every entry of the week", () => {
   const summary = summarizeWeekBillable(clients([mission({})]), [
     entry({ id: 1, valuedDayFraction: 1 }),
-    entry({ id: 2, valuedDayFraction: 0.5 }),
+    entry({
+      id: 2,
+      valuedDayFraction: 0.5,
+      value: eur(27_500),
+    }),
   ]);
 
   expect(summary.amountCents).toBe(82_500);
@@ -85,9 +100,9 @@ it("counts forfait time separately instead of inventing revenue for it", () => {
   expect(summary.fixedPriceEntryCount).toBe(1);
 });
 
-it("counts a mission that carries no rate at all as unrated", () => {
+it("counts an entry the API put no figure on as unrated", () => {
   const summary = summarizeWeekBillable(clients([mission({ rate: null })]), [
-    entry(),
+    entry({ value: null }),
   ]);
 
   expect(summary.amountCents).toBe(0);
@@ -95,19 +110,19 @@ it("counts a mission that carries no rate at all as unrated", () => {
   expect(summary.unratedEntryCount).toBe(1);
 });
 
-it("counts an entry whose mission is not in the loaded clients as unrated", () => {
+it("still counts the API's figure when the mission is not in the loaded clients", () => {
   const summary = summarizeWeekBillable(clients([mission({})]), [
     entry({ missionId: 999 }),
   ]);
 
-  expect(summary.amountCents).toBe(0);
-  expect(summary.unratedEntryCount).toBe(1);
+  expect(summary.amountCents).toBe(55_000);
+  expect(summary.valuedEntryCount).toBe(1);
 });
 
 it("counts forfait time as forfait even before its price is set", () => {
   const summary = summarizeWeekBillable(
     clients([mission({ billingMode: 2, rate: null })]),
-    [entry()],
+    [entry({ value: null })],
   );
 
   expect(summary.fixedPriceEntryCount).toBe(1);

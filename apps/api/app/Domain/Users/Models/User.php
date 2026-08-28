@@ -22,6 +22,7 @@ use App\Domain\Users\Factories\UserFactory;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -178,6 +179,25 @@ class User extends Authenticatable implements HasMedia
     }
 
     /**
+     * Every money column that fixes the account currency once it holds a value,
+     * as owning table => columns. A column belongs here when it is a record the
+     * account cannot simply retype; the re-enterable figures are in
+     * UserSettings::CURRENCY_SCOPED_COLUMNS and are cleared instead.
+     *
+     * CurrencyCoverageTest asserts every money-cast column appears in one list
+     * or the other.
+     *
+     * @var array<string, list<string>>
+     */
+    public const array CURRENCY_LOCKING_COLUMNS = [
+        'missions' => ['rate_cents', 'reference_daily_rate_cents'],
+        'invoices' => ['amount_ht_cents', 'amount_ttc_cents'],
+        'bank_statements' => ['closing_balance_cents'],
+        'bank_movements' => ['amount_cents'],
+        'personal_transfers' => ['amount_cents'],
+    ];
+
+    /**
      * Whether the account currency can still change. It is fixed the moment any
      * amount is stored in it — a priced mission, an invoice, an imported bank
      * statement or a recorded personal transfer — so every stored amount
@@ -186,7 +206,13 @@ class User extends Authenticatable implements HasMedia
      */
     public function hasLockedCurrency(): bool
     {
-        if ($this->missions()->whereNotNull('rate_cents')->exists()) {
+        $hasPricedMission = $this->missions()
+            ->where(fn (Builder $mission) => $mission
+                ->whereNotNull('rate_cents')
+                ->orWhereNotNull('reference_daily_rate_cents'))
+            ->exists();
+
+        if ($hasPricedMission) {
             return true;
         }
 

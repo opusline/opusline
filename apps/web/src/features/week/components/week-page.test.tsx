@@ -113,6 +113,7 @@ it("locks the weekend toggle when the weekend has to stay open", async () => {
         rounding: null,
         valuedDayFraction: 0.5,
         valuedMinutes: null,
+        value: null,
       },
     ],
   });
@@ -247,6 +248,7 @@ it("opens the weekend when the week carries weekend entries", async () => {
         rounding: null,
         valuedDayFraction: 0.5,
         valuedMinutes: null,
+        value: null,
       },
     ],
   });
