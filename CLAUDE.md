@@ -18,7 +18,13 @@ apps/
 packages/
   ui/         # Design system — shadcn/ui components (raw TS source, no build step)
   api-client/ # TS client generated from the Laravel OpenAPI spec (flat into src/, incl. index.ts)
+docker/       # Production image bits: the API entrypoint and the web Caddyfile
 ```
+
+Deployment lives at the root: `Dockerfile` (targets `api` and `web`),
+`compose.prod.yaml`, `.env.production.example`, `docs/self-hosting.md`. Do not
+confuse `apps/api/compose.yaml` with it — that is the development Sail stack,
+which builds from the host's `vendor/` and bind-mounts the repository.
 
 ## Commands
 
@@ -55,8 +61,8 @@ sh scripts/php.sh php vendor/bin/pint
 
 ## Conventions
 
-- **Commits**: Conventional Commits, enforced by commitlint via Lefthook. Types: feat, fix, refactor, perf, style, test, docs, build, ci, chore, revert. Scopes (closed list): `api`, `web`, `ui`, `storybook`, `deps`, `repo`. Subject: imperative, lowercase, ≤50 chars, no trailing period. Body explains the WHY.
-- **Hooks**: single `lefthook.yml` at root. Pre-commit runs Biome (staged JS/TS/JSON/CSS) and, on staged PHP, Rector then Pint — all auto-fix and re-stage. Commit-msg runs commitlint. Pre-push regenerates the OpenAPI spec, API client, and route tree and fails on drift (`scripts/generated-artifacts.sh`), then runs `turbo test check-types lint format-and-lint`. Don't add Turbo tasks to pre-commit.
+- **Commits**: Conventional Commits, enforced by commitlint via Lefthook. Types: feat, fix, refactor, perf, style, test, docs, build, ci, chore, revert. Scopes (closed list): `api`, `web`, `ui`, `storybook`, `deps`, `repo`. Subject: imperative, lowercase, ≤50 chars (encoded in `commitlint.config.mjs`, so the PR title check enforces it too), no trailing period. Body explains the WHY.
+- **Hooks**: single `lefthook.yml` at root. Pre-commit runs Biome (staged JS/TS/JSON/CSS) and, on staged PHP, Rector then Pint — all auto-fix and re-stage. Commit-msg runs commitlint. Pre-push, in order: regenerates the OpenAPI spec, then the API client, route tree and compiled message catalogs, failing on drift in any of them (`scripts/generated-artifacts.sh`); `i18n-guard`; `release-notes-guard`; then `turbo run test check-types lint` filtered to `@opusline/api`, and `turbo run build test check-types lint format-and-lint` across everything. Don't add Turbo tasks to pre-commit.
 - **Formatting/linting JS**: Biome (`biome.jsonc` at the root, extended by `apps/web`, `apps/api`, `packages/api-client`). No ESLint, no Prettier.
 - **PHP style**: Pint (Laravel preset) + Rector; both run through the Docker wrapper.
 - **TypeScript**: strict. No `any` without justification. Prefer inferred types over redundant annotations.
@@ -92,7 +98,7 @@ sh scripts/php.sh php vendor/bin/pint
 - Don't swap Base UI for Radix (or vice versa) in individual components — the repo is Base UI everywhere.
 - Don't introduce localStorage-based state for anything important; server state belongs in TanStack Query, ephemeral UI state in React state.
 - Don't install alternative UI/icon/styling libraries (MUI, styled-components, react-icons, etc.).
-- Don't edit generated files: `apps/api/openapi.json`, `packages/api-client/src/` (the whole directory — regenerated flat, including `index.ts`), `apps/web/src/routeTree.gen.ts`. Canonical list: `scripts/generated-artifacts.sh`.
+- Don't edit generated files. `scripts/generated-artifacts.sh` is the canonical list, and it is the list — do not keep a second copy here that can drift from it. As of writing it guards four paths, the easiest to hand-edit by accident being the committed `apps/web/src/paraglide` output.
 - Don't commit directly — always leave commits to the human unless explicitly asked.
 
 ## Testing
