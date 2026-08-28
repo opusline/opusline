@@ -292,7 +292,7 @@ export function AppSidebar() {
                 className="block rounded-lg border border-primary/30 bg-primary/10 px-3.5 py-3 transition-colors hover:bg-primary/15"
                 to="/treasury"
               >
-                <div className="font-medium text-ring/70 text-xs uppercase tracking-wider-2">
+                <div className="font-medium text-primary-text text-xs uppercase tracking-wider-2">
                   {m.treasury_tile_title()}
                 </div>
                 <div className="mt-2 font-mono text-2xl text-ring leading-none tabular-nums">
