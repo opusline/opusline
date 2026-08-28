@@ -3,6 +3,7 @@ import { StoryRouter } from "@/test/story-router";
 import {
   DEMO_CLIENTS,
   DEMO_MONTH_WORKLOAD,
+  DEMO_NEXT_DEADLINE,
   DEMO_TIME_ENTRIES,
   DEMO_TODAY,
   DEMO_WEEK,
@@ -24,6 +25,7 @@ const meta = {
     isRefreshing: false,
     isRepeating: false,
     monthWorkload: DEMO_MONTH_WORKLOAD,
+    nextDeadline: DEMO_NEXT_DEADLINE,
     onCreate: () => Promise.resolve(true),
     onDelete: () => Promise.resolve(true),
     onRepeatPreviousWeek: () => {},

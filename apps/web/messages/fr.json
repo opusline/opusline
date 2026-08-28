@@ -382,7 +382,207 @@
   "date_field_hint_dmy": "JJ/MM/AAAA",
   "date_field_hint_iso": "AAAA-MM-JJ",
   "date_field_open_calendar": "Ouvrir le calendrier",
-  "deadlines_placeholder": "Les échéances arrivent ici — URSSAF, CA3, CFE, rappels.",
+  "deadline_category_all": "Tout",
+  "deadline_category_invoices": "Factures",
+  "deadline_category_other": "Autres",
+  "deadline_category_reminders": "Relances",
+  "deadline_category_urssaf": "URSSAF",
+  "deadline_category_vat": "TVA",
+  "deadline_kind_cfe": "CFE",
+  "deadline_kind_cfe_instalment": "CFE — acompte",
+  "deadline_kind_urssaf": "Déclaration URSSAF",
+  "deadline_kind_vat_ca12": "TVA — CA12",
+  "deadline_kind_vat_ca3": "TVA — CA3",
+  "deadlines_calendar_copied": "Adresse copiée.",
+  "deadlines_calendar_copy": "Copier l’adresse",
+  "deadlines_calendar_copy_failed": "L’adresse n’a pas pu être copiée. Sélectionnez-la et copiez-la à la main.",
+  "deadlines_calendar_rotate": "Régénérer l'adresse",
+  "deadlines_calendar_rotate_failed": "L’adresse n’a pas pu être renouvelée.",
+  "deadlines_cfe_sub_estimate": "Estimation — avis disponible en novembre sur votre espace professionnel",
+  "deadlines_cfe_sub_notice": "Avis disponible en novembre sur votre espace professionnel",
+  "deadlines_chip_done": "Faite",
+  "deadlines_chip_in": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Dans {count} j",
+        "countPlural=other": "Dans {count} j"
+      }
+    }
+  ],
+  "deadlines_chip_late": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Il y a {count} j",
+        "countPlural=other": "Il y a {count} j"
+      }
+    }
+  ],
+  "deadlines_chip_today": "Aujourd'hui",
+  "deadlines_chip_todo": "À faire",
+  "deadlines_complete_failed": "Cette échéance n’a pas pu être mise à jour.",
+  "deadlines_completed_on": "Faite le {date}",
+  "deadlines_dialog_added": "J'ai ajouté l'adresse",
+  "deadlines_dialog_address_label": "Adresse d'abonnement",
+  "deadlines_dialog_intro": "Ajoutez cette adresse à votre agenda une seule fois. Il l'interrogera plusieurs fois par jour : les échéances des prochains mois arriveront d'elles-mêmes, une date modifiée se corrigera, une facture encaissée fera disparaître son rappel.",
+  "deadlines_dialog_intro_subscribed": "Votre calendrier interroge cette adresse plusieurs fois par jour. Les nouvelles échéances, les dates modifiées et les factures encaissées s'y répercutent sans rien faire.",
+  "deadlines_dialog_password_warning": "Traitez-la comme un mot de passe : qui la détient peut lire vos échéances. Régénérez-la si elle a circulé.",
+  "deadlines_dialog_receives_title": "Ce que le calendrier reçoit",
+  "deadlines_dialog_title": "S'abonner au calendrier",
+  "deadlines_dialog_title_subscribed": "Abonnement au calendrier",
+  "deadlines_done_at": "le {date}",
+  "deadlines_due_at": "au {date}",
+  "deadlines_due_in": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "dans {count} jour",
+        "countPlural=other": "dans {count} jours"
+      }
+    }
+  ],
+  "deadlines_due_on": "Échéance {date}",
+  "deadlines_due_today": "aujourd’hui",
+  "deadlines_feed_invoices_desc": "Une entrée par facture ouverte, à sa date d'échéance. Disparaît dès qu'elle est encaissée.",
+  "deadlines_feed_invoices_label": "Échéances de factures",
+  "deadlines_feed_other_desc": "CFE et autres avis annuels, dès que la date est connue.",
+  "deadlines_feed_other_label": "Autres échéances fiscales",
+  "deadlines_feed_reminders_desc": "Un rappel trois jours après l'échéance d'une facture non réglée.",
+  "deadlines_feed_reminders_label": "Relances à envoyer",
+  "deadlines_feed_save_failed": "Les choix du calendrier n'ont pas pu être enregistrés.",
+  "deadlines_feed_types_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} type d'échéances publié sur cette adresse.",
+        "countPlural=other": "{count} types d'échéances publiés sur cette adresse."
+      }
+    }
+  ],
+  "deadlines_feed_urssaf_desc": "Les échéances de cotisations, déclaration et prélèvement.",
+  "deadlines_feed_urssaf_label": "Cotisations URSSAF",
+  "deadlines_feed_vat_desc": "Les dates de CA3 selon votre régime, l'année entière à l'avance.",
+  "deadlines_feed_vat_label": "Déclarations de TVA",
+  "deadlines_filter_aria": "Filtrer les échéances",
+  "deadlines_fiscal_pending_sub": "Calculée sur les encaissements de la période",
+  "deadlines_interrupt": "Interrompre",
+  "deadlines_interrupt_failed": "L'abonnement n'a pas pu être interrompu.",
+  "deadlines_invoice_late_suffix": "échéance dépassée",
+  "deadlines_load_failed": "Les échéances n’ont pas pu être chargées.",
+  "deadlines_manage_button": "Gérer l'abonnement",
+  "deadlines_mark_done": "Marquer comme faite",
+  "deadlines_mark_not_done": "Marquer comme non faite",
+  "deadlines_overdue_by": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "en retard d’{count} jour",
+        "countPlural=other": "en retard de {count} jours"
+      }
+    }
+  ],
+  "deadlines_reminder_due_at": "échéance au {date}",
+  "deadlines_reminder_never_sent": "aucune relance envoyée",
+  "deadlines_reminder_sent_times": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "déjà relancée une fois",
+        "countPlural=other": "déjà relancée {count} fois"
+      }
+    }
+  ],
+  "deadlines_reminder_title": "Relancer {client}",
+  "deadlines_reminder_unpaid": "{number} impayée depuis {days} j",
+  "deadlines_reminders_failed": "Les rappels n’ont pas pu être marqués comme lus.",
+  "deadlines_subscribe_button": "S'abonner au calendrier",
+  "deadlines_subscribe_confirm_failed": "L'abonnement n'a pas pu être enregistré.",
+  "deadlines_subscribed_badge": "Abonné",
+  "deadlines_summary_late": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} en retard",
+        "countPlural=other": "{count} en retard"
+      }
+    }
+  ],
+  "deadlines_summary_reminders": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} relance à envoyer",
+        "countPlural=other": "{count} relances à envoyer"
+      }
+    }
+  ],
+  "deadlines_summary_upcoming": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} à venir",
+        "countPlural=other": "{count} à venir"
+      }
+    }
+  ],
+  "deadlines_sync_added": "ajoutée le {date}",
+  "deadlines_sync_days": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Dernière synchronisation il y a {count} j",
+        "countPlural=other": "Dernière synchronisation il y a {count} j"
+      }
+    }
+  ],
+  "deadlines_sync_hours": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Dernière synchronisation il y a {count} h",
+        "countPlural=other": "Dernière synchronisation il y a {count} h"
+      }
+    }
+  ],
+  "deadlines_sync_just_now": "Dernière synchronisation à l'instant",
+  "deadlines_sync_minutes": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Dernière synchronisation il y a {count} min",
+        "countPlural=other": "Dernière synchronisation il y a {count} min"
+      }
+    }
+  ],
+  "deadlines_sync_waiting": "En attente de la première synchronisation",
+  "deadlines_title": "Échéances",
+  "deadlines_unread_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} rappel non lu",
+        "countPlural=other": "{count} rappels non lus"
+      }
+    }
+  ],
+  "deadlines_upcoming_empty": "Rien au calendrier. Vérifiez vos réglages fiscaux si cela vous surprend.",
+  "deadlines_upcoming_empty_title": "Rien au calendrier",
+  "deadlines_urssaf_sub": "Déclarer {amount} encaissés → cotisations à {rate} %",
+  "deadlines_vat_sub": "TVA collectée {amount} · télérèglement impots.gouv.fr",
   "declarations_placeholder": "Les aides à la déclaration arrivent ici — URSSAF et TVA, chiffres prêts à copier.",
   "documents_add_aria": "Ajouter des documents",
   "documents_added_on": "{size} · ajouté le {date}",
@@ -883,6 +1083,8 @@
   "settings_buffer_invalid": "Indiquez un montant, ou laissez vide.",
   "settings_buffer_label": "Matelas de trésorerie",
   "settings_business_started_label": "Début d'activité",
+  "settings_cfe_expected_hint": "Votre commune la fixe : reprenez l'avis de l'an dernier. Sans montant, Opusline estime d'après le prélèvement de l'an dernier, sinon d'après le barème légal et votre chiffre d'affaires ; le renseigner corrige l'estimation et alimente la provision de trésorerie.",
+  "settings_cfe_expected_label": "CFE annuelle attendue",
   "settings_company_address_hint": "Figure sur les documents",
   "settings_company_address_title": "Adresse de la société",
   "settings_contribution_rate_hint": "Taux BNC prestations de service, repris de l'URSSAF.",
@@ -895,6 +1097,8 @@
   "settings_currency_label": "Devise de l'activité",
   "settings_currency_locked": "Fixée : une mission tarifée ou une facture existe déjà dans cette devise.",
   "settings_date_format_label": "Format des dates",
+  "settings_deadlines_intro": "Le seul montant qu'Opusline ne peut pas déduire : la CFE que votre commune facture. Tout le reste du calendrier des échéances est dérivé.",
+  "settings_deadlines_title": "Échéances",
   "settings_default_rate_description": "Taux appliqué par défaut aux nouvelles factures.",
   "settings_email_placeholder": "contact@exemple.fr",
   "settings_eu_vat_exempt": "Non assujetti · franchise en base",
@@ -1029,6 +1233,8 @@
   "treasury_amount_unreadable": "Indiquez un montant.",
   "treasury_band_buffer": "Matelas de trésorerie",
   "treasury_band_buffer_sub": "réglable dans Réglages",
+  "treasury_band_cfe": "CFE à provisionner",
+  "treasury_band_cfe_sub": "constituée mois par mois · CFE {year}",
   "treasury_band_transferable": "Virable",
   "treasury_band_transferable_sub": "vers compte perso",
   "treasury_band_urssaf": "Provision URSSAF",
@@ -1125,6 +1331,10 @@
   "week_date_shortcuts_label": "Raccourcis de date",
   "week_day_before_yesterday": "Avant-hier",
   "week_day_total": "Total jour",
+  "week_deadline_none": "Rien à venir",
+  "week_deadline_none_sub": "aucune échéance fiscale au calendrier",
+  "week_deadline_title": "Prochaine échéance",
+  "week_deadline_unavailable": "n’a pas pu être chargée",
   "week_delete_entry": "Supprimer cette entrée",
   "week_duration_cell_label": "Durée — {cell}",
   "week_duration_format_hint": "Format : 1 · 0,5 · 2h · 1h30 · 90m",

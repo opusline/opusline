@@ -42,6 +42,7 @@ async function renderPage(overrides: Partial<WeekPageProps> = {}) {
       knownEntryRange={{ from: "2026-07-20", to: "2026-08-02" }}
       live={null}
       monthWorkload={null}
+      nextDeadline="none"
       error={null}
       isRefreshing={false}
       isRepeating={false}

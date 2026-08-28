@@ -54,6 +54,7 @@ class SettingsData extends Data
         public int $defaultPaymentTermsDays,
         public string $invoiceNumberFormat,
         public ?MoneyData $treasuryBuffer,
+        public ?MoneyData $cfeExpected,
         public Currency $currency,
         public bool $currencyLocked,
         public Locale $locale,
@@ -102,6 +103,9 @@ class SettingsData extends Data
             treasuryBuffer: $settings->treasury_buffer_cents === null
                 ? null
                 : MoneyData::fromMoney($settings->treasury_buffer_cents),
+            cfeExpected: $settings->cfe_expected_cents === null
+                ? null
+                : MoneyData::fromMoney($settings->cfe_expected_cents),
             currency: $settings->currency,
             currencyLocked: $currencyLocked,
             locale: $settings->locale,

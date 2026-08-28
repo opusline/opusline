@@ -2,20 +2,11 @@
 
 declare(strict_types=1);
 
-use App\Domain\Bank\Factories\BankMovementFactory;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Users\Models\User;
 
 beforeEach(fn () => freezeTodayAtUtcNoon());
-
-function fiscDebitOn(User $user, string $bookedOn, int $cents, string $label): void
-{
-    bankMovementFor($user, configure: fn (BankMovementFactory $factory) => $factory
-        ->debit($cents)
-        ->on($bookedOn)
-        ->state(['label' => $label]));
-}
 
 test('provisions urssaf on this month plus the unpaid previous month', function (): void {
     $user = User::factory()->create();
@@ -207,4 +198,64 @@ test('adds the treasury buffer verbatim', function (): void {
         ->assertJsonPath('provisions.buffer.amount', 150_000)
         ->assertJsonPath('provisions.urssaf.amount.amount', 0)
         ->assertJsonPath('provisions.total.amount', 150_000);
+});
+
+test('provisions nothing for the CFE until the user names an amount', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.cfe', null);
+});
+
+test('provisions a twelfth of the expected CFE per elapsed month', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['cfe_expected_cents' => 48_000]);
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        // Frozen in August: eight twelfths of 480 €, due on the 15th of December.
+        ->assertJsonPath('provisions.cfe.amount.amount', 32_000)
+        ->assertJsonPath('provisions.cfe.rateBp', null)
+        ->assertJsonPath('provisions.cfe.periodEnd', '2026-12-31')
+        ->assertJsonPath('provisions.total.amount', 32_000);
+});
+
+test('a detected CFE debit settles what had accrued', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['cfe_expected_cents' => 48_000]);
+
+    fiscDebitOn($user, '2026-07-04', 20_000, 'DGFIP CFE 2026');
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.cfe.amount.amount', 12_000);
+});
+
+test('a CFE overpayment never turns into a negative provision', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['cfe_expected_cents' => 48_000]);
+
+    fiscDebitOn($user, '2026-07-04', 48_000, 'DGFIP CFE 2026');
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.cfe.amount.amount', 0);
+});
+
+test('the creation year is exempt from the CFE provision', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update([
+        'cfe_expected_cents' => 48_000,
+        'business_started_on' => '2026-02-01',
+    ]);
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.cfe', null);
 });

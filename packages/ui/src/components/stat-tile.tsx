@@ -1,3 +1,5 @@
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 import { cn } from "@opusline/ui/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps, ReactNode } from "react";
@@ -57,7 +59,7 @@ function StatTileRow({
   );
 }
 
-type StatTileProps = ComponentProps<"div"> &
+type StatTileProps = useRender.ComponentProps<"div"> &
   VariantProps<typeof statTileValueVariants> & {
     label: string;
     value: ReactNode;
@@ -71,32 +73,52 @@ type StatTileProps = ComponentProps<"div"> &
     meter?: number;
     /** An affordance sitting right of the label, e.g. an edit icon button. */
     action?: ReactNode;
+    /**
+     * A name the figure belongs to, on the figure's own baseline and in the
+     * body face — for a tile answering "which one, and how much" rather than
+     * "how much". The figure moves to the end of the row.
+     */
+    lead?: ReactNode;
   };
 
+/**
+ * `render` makes the whole tile the target — pass `render={<Link to="…" />}` and
+ * it becomes a link, hover and focus ring included, rather than a div with a
+ * click handler nobody can tab to.
+ */
 function StatTile({
   label,
   value,
   sub,
   meter,
   action,
+  lead,
   tone,
   size,
   className,
+  render,
   ...props
 }: StatTileProps) {
-  return (
-    <div
-      data-slot="stat-tile"
-      className={cn("bg-card p-3.5", className)}
-      {...props}
-    >
+  const body = (
+    <>
       <div className="flex items-start justify-between gap-2">
         <div className="font-medium text-muted-foreground-2 text-xs uppercase tracking-widest">
           {label}
         </div>
         {action}
       </div>
-      <div className={cn(statTileValueVariants({ tone, size }))}>{value}</div>
+      <div className={cn(statTileValueVariants({ tone, size }))}>
+        {lead === undefined ? (
+          value
+        ) : (
+          <span className="flex items-baseline justify-between gap-3.5">
+            <span className="min-w-0 truncate font-sans text-base text-foreground-hi">
+              {lead}
+            </span>
+            <span>{value}</span>
+          </span>
+        )}
+      </div>
       {meter === undefined || !Number.isFinite(meter) ? null : (
         <div
           aria-hidden
@@ -111,8 +133,29 @@ function StatTile({
       {sub === undefined ? null : (
         <div className="mt-1.5 text-muted-foreground-3 text-xs">{sub}</div>
       )}
-    </div>
+    </>
   );
+
+  return useRender({
+    defaultTagName: "div",
+    props: mergeProps<"div">(
+      {
+        className: cn(
+          "block bg-card p-3.5 text-left",
+          render === undefined
+            ? undefined
+            : "cursor-pointer transition-colors hover:border-border-4 focus-visible:outline-2 focus-visible:outline-primary-text focus-visible:outline-offset-2",
+          className,
+        ),
+        children: body,
+      },
+      props,
+    ),
+    render,
+    // Emitted as data-slot: StatTileRow's `cards` variant selects on it to
+    // paint the border and radius.
+    state: { slot: "stat-tile" },
+  });
 }
 
 export { StatTile, StatTileRow, statTileRowVariants, statTileValueVariants };

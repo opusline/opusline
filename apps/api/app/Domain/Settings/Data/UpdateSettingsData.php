@@ -83,6 +83,12 @@ class UpdateSettingsData extends Data
         public ?string $homeCity = null,
         public ?string $businessStartedOn = null,
         public ?MoneyData $treasuryBuffer = null,
+        /**
+         * What the commune is expected to bill. Optional twice over: without it
+         * the app estimates from last year's detected CFE payment, and entering
+         * it simply overrides that estimate.
+         */
+        public ?MoneyData $cfeExpected = null,
     ) {}
 
     /**

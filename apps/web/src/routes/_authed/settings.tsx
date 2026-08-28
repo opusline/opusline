@@ -36,7 +36,10 @@ import {
 } from "@/features/settings/lib/settings-form";
 import { signatureHref } from "@/features/settings/lib/signature";
 import type { FormSubmitResult } from "@/lib/form";
-import { invalidateTreasury } from "@/lib/query-invalidation";
+import {
+  invalidateDeadlines,
+  invalidateTreasury,
+} from "@/lib/query-invalidation";
 import { serverErrorMessage, serverFieldErrors } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -108,8 +111,11 @@ function ReglagesRoute() {
     queryClient.setQueryData(showSettingsQueryKey(), data);
     patchCurrentUser(queryClient, data);
     // The matelas, the contribution rate and the TVA régime are all terms of
-    // the Virement figure the sidebar shows on every screen.
+    // the Virement figure the sidebar shows on every screen — and the régime,
+    // the periodicity, the CA3 day and the expected CFE rewrite the whole
+    // fiscal calendar behind the Échéances badge.
     void invalidateTreasury(queryClient);
+    void invalidateDeadlines(queryClient);
   };
 
   const updateSettings = useMutation({

@@ -14,6 +14,7 @@ use Carbon\CarbonImmutable;
 use Cknow\Money\Casts\MoneyIntegerCast;
 use Cknow\Money\Money;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -53,6 +54,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property ?Money $treasury_buffer_cents
  * @property ?Money $bank_balance_cents
  * @property ?CarbonImmutable $bank_balance_recorded_on
+ * @property ?Money $cfe_expected_cents
+ * @property ?string $calendar_token
+ * @property ?CarbonImmutable $deadline_reminders_read_at
+ * @property bool $calendar_feed_invoices
+ * @property bool $calendar_feed_reminders
+ * @property bool $calendar_feed_vat
+ * @property bool $calendar_feed_urssaf
+ * @property bool $calendar_feed_other
+ * @property ?CarbonImmutable $calendar_subscribed_on
+ * @property ?CarbonImmutable $calendar_last_synced_at
  * @property Currency $currency
  * @property Locale $locale
  * @property DateFormat $date_format
@@ -94,12 +105,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'treasury_buffer_cents',
     'bank_balance_cents',
     'bank_balance_recorded_on',
+    'cfe_expected_cents',
+    'calendar_feed_invoices',
+    'calendar_feed_reminders',
+    'calendar_feed_vat',
+    'calendar_feed_urssaf',
+    'calendar_feed_other',
+    'calendar_subscribed_on',
+    'calendar_last_synced_at',
     'currency',
     'locale',
     'date_format',
     'timezone',
     'workday_minutes',
 ])]
+#[Hidden(['calendar_token'])]
 #[Table('user_settings')]
 class UserSettings extends Model
 {
@@ -136,6 +156,15 @@ class UserSettings extends Model
             'treasury_buffer_cents' => MoneyIntegerCast::class.':currency',
             'bank_balance_cents' => MoneyIntegerCast::class.':currency',
             'bank_balance_recorded_on' => 'date',
+            'cfe_expected_cents' => MoneyIntegerCast::class.':currency',
+            'deadline_reminders_read_at' => 'datetime',
+            'calendar_feed_invoices' => 'boolean',
+            'calendar_feed_reminders' => 'boolean',
+            'calendar_feed_vat' => 'boolean',
+            'calendar_feed_urssaf' => 'boolean',
+            'calendar_feed_other' => 'boolean',
+            'calendar_subscribed_on' => 'date',
+            'calendar_last_synced_at' => 'datetime',
             'currency' => Currency::class,
             'locale' => Locale::class,
             'date_format' => DateFormat::class,

@@ -194,6 +194,7 @@ export const DEMO_SETTINGS = {
   defaultPaymentTermsDays: 45,
   invoiceNumberFormat: "AAAA-NNN",
   treasuryBuffer: null,
+  cfeExpected: null,
   businessCountry: "FR",
   hasFrenchFiscality: true,
   currency: "EUR",

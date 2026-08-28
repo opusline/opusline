@@ -52,10 +52,50 @@ import {
 } from "lucide-react";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatWholeAmount } from "@/lib/billing";
+import { deadlinesQueryOptions, unreadReminderCount } from "@/lib/deadlines";
 import { initials } from "@/lib/initials";
 import { unreadReleaseCount } from "@/lib/releases";
 import { APP_VERSION } from "@/lib/version";
 import { m } from "@/paraglide/messages.js";
+
+/**
+ * The count a nav item carries, announced as part of the link's own accessible
+ * name — the visible badge is aria-hidden, and a span outside the button would
+ * never be read out on focus.
+ */
+function UnreadLabel({
+  count,
+  label,
+}: {
+  count: number;
+  label: (input: { count: number }) => string;
+}) {
+  return count === 0 ? null : (
+    <span className="sr-only">{label({ count })}</span>
+  );
+}
+
+/** The pill, and the dot that stands in for it once the nav is a rail. */
+function UnreadBadge({ count }: { count: number }) {
+  if (count === 0) {
+    return null;
+  }
+
+  return (
+    <>
+      <SidebarMenuBadge
+        aria-hidden
+        className="right-3.5 rounded-full bg-primary font-mono text-2xs text-primary-foreground peer-data-active/menu-button:text-primary-foreground peer-hover/menu-button:text-primary-foreground"
+      >
+        {count}
+      </SidebarMenuBadge>
+      <span
+        aria-hidden
+        className="absolute top-1 right-1 hidden size-1.5 rounded-full bg-primary group-data-[collapsible=icon]:block"
+      />
+    </>
+  );
+}
 
 export function AppSidebar() {
   const { pathname } = useLocation();
@@ -79,6 +119,12 @@ export function AppSidebar() {
     enabled: user.hasFrenchFiscality && state === "expanded" && !isMobile,
     staleTime: 10 * 60_000,
   });
+
+  // Unlike the trésorerie tile this one is wanted in the rail too: a badge is
+  // the whole point of collapsing the nav to icons.
+  const deadlines = useQuery(deadlinesQueryOptions(user.hasFrenchFiscality));
+
+  const unreadReminders = unreadReminderCount(deadlines.data?.reminders ?? []);
   const transferable = treasury.data?.transferable?.amount;
 
   const logout = useMutation({
@@ -197,7 +243,12 @@ export function AppSidebar() {
                     >
                       <Bell />
                       <span>{m.nav_deadlines()}</span>
+                      <UnreadLabel
+                        count={unreadReminders}
+                        label={m.deadlines_unread_count}
+                      />
                     </SidebarMenuButton>
+                    <UnreadBadge count={unreadReminders} />
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton
@@ -273,26 +324,12 @@ export function AppSidebar() {
                 </span>
                 <span className="text-xs">{m.release_notes_title()}</span>
               </span>
+              <UnreadLabel
+                count={unreadReleaseNotes}
+                label={m.release_notes_unread_count}
+              />
             </SidebarMenuButton>
-            {unreadReleaseNotes > 0 && (
-              <>
-                <SidebarMenuBadge
-                  aria-hidden
-                  className="right-3.5 rounded-full bg-primary font-mono text-2xs text-primary-foreground peer-data-active/menu-button:text-primary-foreground peer-hover/menu-button:text-primary-foreground"
-                >
-                  {unreadReleaseNotes}
-                </SidebarMenuBadge>
-                <span
-                  aria-hidden
-                  className="absolute top-1 right-1 hidden size-1.5 rounded-full bg-primary group-data-[collapsible=icon]:block"
-                />
-                <span className="sr-only">
-                  {m.release_notes_unread_count({
-                    count: unreadReleaseNotes,
-                  })}
-                </span>
-              </>
-            )}
+            <UnreadBadge count={unreadReleaseNotes} />
           </SidebarMenuItem>
           <SidebarMenuItem>
             <DropdownMenu>

@@ -40,6 +40,8 @@ function requestDataFields(): array
         'BankMovementInvoiceData', 'BankProvisionData', 'BankProvisionsData',
         'BankStatementData', 'PersonalTransferData', 'TreasuryData',
         'SignedMoneyData',
+        'CalendarFeedData', 'DeadlineBoardData', 'DeadlineInvoiceData',
+        'DeadlineItemData', 'DeadlineReminderData', 'FiscalDeadlineData',
         'ClientData', 'ClientListData', 'ClientRevenueData',
         'ClientRevenueDetailData', 'ClientRevenueListData',
         'ClientWithMissionsData',

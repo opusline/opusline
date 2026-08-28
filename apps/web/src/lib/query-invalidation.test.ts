@@ -1,5 +1,6 @@
 import {
   listClientRevenueQueryKey,
+  listDeadlinesQueryKey,
   listInvoicesQueryKey,
   listMissionDocumentsQueryKey,
   listMissionTimeEntriesQueryKey,
@@ -14,6 +15,7 @@ import { type Query, QueryClient } from "@tanstack/react-query";
 import { describe, expect, it } from "vitest";
 
 import {
+  deadlinesFilter,
   missionTimeEntriesFilter,
   operationFilter,
   revenueFilter,
@@ -132,6 +134,25 @@ describe("treasuryFilter", () => {
   it("leaves the bank account read alone", () => {
     expect(
       treasuryFilter().predicate(queryWithKey(showBankAccountQueryKey())),
+    ).toBe(false);
+  });
+});
+
+/**
+ * Pins deadlinesFilter to the real generated key. The sidebar's unread badge
+ * reads it on every screen, so a rename that silently turned this into a no-op
+ * would leave a stale count in front of the user app-wide.
+ */
+describe("deadlinesFilter", () => {
+  it("matches the fiscal calendar the screen, the badge and the week tile share", () => {
+    expect(
+      deadlinesFilter().predicate(queryWithKey(listDeadlinesQueryKey())),
+    ).toBe(true);
+  });
+
+  it("leaves the treasury read alone", () => {
+    expect(
+      deadlinesFilter().predicate(queryWithKey(showTreasuryQueryKey())),
     ).toBe(false);
   });
 });
