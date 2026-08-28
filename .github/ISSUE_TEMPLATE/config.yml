@@ -1,1 +1,8 @@
 blank_issues_enabled: true
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/opusline/opusline/security/advisories/new
+    about: Privately, to the maintainer. Never as an issue — issues are public the moment they are filed.
+  - name: Self-hosting help
+    url: https://github.com/opusline/opusline/blob/main/docs/self-hosting.md
+    about: TLS, backups, upgrades and the settings behind the usual 419s.
