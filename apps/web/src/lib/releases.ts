@@ -14,6 +14,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.18.0",
+    date: "2026-08-28",
+    items: [
+      {
+        kind: "new",
+        text: "Deadlines: URSSAF, TVA and the CFE everyone forgets now have their own screen — in-app reminders, a « Prochaine échéance » tile on your week, a CFE estimated from last year's bank payment, and a calendar you can subscribe to from any calendar app.",
+      },
+    ],
+  },
+  {
     version: "0.17.0",
     date: "2026-08-21",
     items: [
