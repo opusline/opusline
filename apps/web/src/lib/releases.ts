@@ -14,6 +14,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.19.0",
+    date: "2026-08-28",
+    items: [
+      {
+        kind: "new",
+        text: "Déclarations page: your URSSAF and CA3 figures for the month, ready to copy into the official forms.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.18.0",
     date: "2026-08-28",
     items: [
