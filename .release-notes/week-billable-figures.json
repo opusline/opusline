@@ -1,0 +1,4 @@
+{
+  "kind": "fixed",
+  "text": "The week's billable total and the URSSAF figure on the Deadlines timeline were re-derived in the browser and could drift by a few cents from what an invoice or a declaration would say. Both now come straight from the same figures the rest of the app uses."
+}

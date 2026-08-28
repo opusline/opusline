@@ -1,0 +1,4 @@
+{
+  "kind": "fixed",
+  "text": "The light theme was hard to read: buttons, quiet labels, placeholders and the outline around every input sat below the accessibility contrast threshold. All of them are darker now, in both themes."
+}

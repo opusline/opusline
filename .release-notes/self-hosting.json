@@ -1,0 +1,4 @@
+{
+  "kind": "new",
+  "text": "Opusline now ships as two Docker images with a compose file, so you can run it on your own server, home box or NAS in one command — backups, upgrades and TLS are written up in the self-hosting guide."
+}

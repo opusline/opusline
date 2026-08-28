@@ -1,0 +1,4 @@
+{
+  "kind": "fixed",
+  "text": "Changing the account currency could leave an expected CFE, or a mission carrying only a reference TJM, silently relabelled in the new currency. Those amounts are now either protected or cleared with the rest."
+}
