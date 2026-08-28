@@ -1,4 +1,5 @@
 import type { BankAccountData, BankStatementData } from "@opusline/api-client";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { FileTextIcon } from "lucide-react";
 
 import { useDateFormat } from "@/components/money-format-provider";
@@ -12,9 +13,7 @@ type BankStatementsCardProps = {
 export function BankStatementsCard({ data }: BankStatementsCardProps) {
   return (
     <section className="rounded-md border bg-card p-5">
-      <h2 className="font-medium text-muted-foreground-2 text-xs uppercase tracking-widest">
-        {m.bank_statements_title()}
-      </h2>
+      <h2 className={eyebrowVariants()}>{m.bank_statements_title()}</h2>
 
       {data.statements.length === 0 ? (
         <p className="pt-6 pb-2 text-center text-pretty text-muted-foreground-3 text-sm">

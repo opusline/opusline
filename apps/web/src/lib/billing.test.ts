@@ -9,8 +9,10 @@ import {
   formatSignedDraft,
   formatWholeAmount,
   type MoneyFormat,
+  monthlyBillableHours,
   parseRateToCents,
   parseSignedAmountToCents,
+  projectMissionMonth,
 } from "./billing";
 
 const NARROW_NBSP = " ";
@@ -210,5 +212,65 @@ describe("US rate drafts", () => {
     expect(parseRateToCents("en-US", formatRateDraft("en-US", "1234.5"))).toBe(
       123_450,
     );
+  });
+});
+
+describe("projectMissionMonth", () => {
+  const ACRE_RATE_BP = 1_230;
+  const STANDARD_RATE_BP = 2_600;
+  const SEVEN_HOUR_DAY = 420;
+
+  it("has nothing to project before a rate is typed", () => {
+    expect(
+      projectMissionMonth(null, 0, STANDARD_RATE_BP, SEVEN_HOUR_DAY),
+    ).toEqual({ monthlyCents: null, provisionCents: null, netCents: null });
+  });
+
+  it("projects a daily rate over a typical month", () => {
+    const projection = projectMissionMonth(
+      55_000,
+      0,
+      STANDARD_RATE_BP,
+      SEVEN_HOUR_DAY,
+    );
+
+    expect(projection.monthlyCents).toBe(1_100_000);
+    expect(projection.provisionCents).toBe(286_000);
+    expect(projection.netCents).toBe(814_000);
+  });
+
+  it("projects an hourly rate over the account's own workday", () => {
+    expect(
+      projectMissionMonth(8_500, 1, STANDARD_RATE_BP, SEVEN_HOUR_DAY)
+        .monthlyCents,
+    ).toBe(1_190_000);
+
+    expect(
+      projectMissionMonth(8_500, 1, STANDARD_RATE_BP, 480).monthlyCents,
+    ).toBe(1_360_000);
+  });
+
+  it("bills a forfait its price, whatever the days", () => {
+    expect(
+      projectMissionMonth(900_000, 2, STANDARD_RATE_BP, SEVEN_HOUR_DAY)
+        .monthlyCents,
+    ).toBe(900_000);
+  });
+
+  it("provisions at the account's own rate, not a national default", () => {
+    const projection = projectMissionMonth(
+      55_000,
+      0,
+      ACRE_RATE_BP,
+      SEVEN_HOUR_DAY,
+    );
+
+    expect(projection.provisionCents).toBe(135_300);
+    expect(projection.netCents).toBe(964_700);
+  });
+
+  it("reports the hours its monthly figure assumed", () => {
+    expect(monthlyBillableHours(SEVEN_HOUR_DAY)).toBe(140);
+    expect(monthlyBillableHours(480)).toBe(160);
   });
 });

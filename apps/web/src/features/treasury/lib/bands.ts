@@ -36,7 +36,9 @@ export function treasuryBands(data: TreasuryData): TreasuryBand[] {
   ];
 
   const transferable = Math.max(data.transferable.amount, 0);
-  const held = provisions.reduce((sum, [, amount]) => sum + amount, 0);
+  // The API's total rather than a re-sum of the tuple above, which a fifth kind
+  // of provision would silently fall out of.
+  const held = data.provisions.total.amount;
   const total = held + transferable;
 
   if (total <= 0) {

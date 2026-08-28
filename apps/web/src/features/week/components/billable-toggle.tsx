@@ -2,6 +2,8 @@ import { Checkbox } from "@opusline/ui/components/checkbox";
 import { Label } from "@opusline/ui/components/label";
 import { useId } from "react";
 
+import { m } from "@/paraglide/messages.js";
+
 type BillableToggleProps = {
   billable: boolean;
   onChange: (billable: boolean) => void;
@@ -18,7 +20,7 @@ export function BillableToggle({ billable, onChange }: BillableToggleProps) {
         onCheckedChange={(checked) => onChange(!checked)}
       />
       <Label tone="quiet" htmlFor={id}>
-        Non facturable
+        {m.week_non_billable()}
       </Label>
     </div>
   );

@@ -66,11 +66,17 @@ it("validates and dismisses through the row buttons", () => {
   expect(onDismiss).toHaveBeenCalledWith(12);
 });
 
-it("freezes the row buttons while an action is in flight", () => {
+it("freezes only the row whose action is in flight", () => {
   renderPanel({ pendingMatchId: 11 });
 
-  for (const button of screen.getAllByRole("button", { name: "Valider" })) {
-    expect(button).toBeDisabled();
+  const [acting, ...others] = screen.getAllByRole("button", {
+    name: "Valider",
+  });
+
+  expect(acting).toBeDisabled();
+
+  for (const button of others) {
+    expect(button).toBeEnabled();
   }
 });
 

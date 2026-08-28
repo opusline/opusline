@@ -18,7 +18,8 @@ const buttonVariants = cva(
           "text-muted-foreground-3 hover:text-foreground-hi aria-expanded:bg-muted aria-expanded:text-foreground",
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
-        link: "text-primary underline-offset-4 hover:underline",
+        // --primary is a fill colour: as light-mode text it reads at 3.42:1.
+        link: "text-link underline-offset-4 hover:text-link-hover hover:underline",
       },
       surface: {
         flat: "",
