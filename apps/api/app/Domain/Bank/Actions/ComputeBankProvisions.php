@@ -7,8 +7,9 @@ namespace App\Domain\Bank\Actions;
 use App\Domain\Bank\Data\BankProvisionData;
 use App\Domain\Bank\Data\BankProvisionsData;
 use App\Domain\Bank\Models\BankMovement;
-use App\Domain\Invoices\Enums\InvoiceStatus;
-use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Deadlines\Actions\ResolveExpectedCfe;
+use App\Domain\Deadlines\Calendar\CfeSchedule;
+use App\Domain\Invoices\Revenue\CollectedInvoices;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Settings\Models\UserSettings;
@@ -17,7 +18,6 @@ use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
 use Illuminate\Support\Collection;
-use Money\Money as MoneyPhp;
 
 /**
  * What the fisc is still owed, computed on collections (encaissements)
@@ -35,11 +35,13 @@ use Money\Money as MoneyPhp;
  *   priced at today's contribution rate — no rate history is stored, so a
  *   rate change at a period boundary (an ACRE step ending) re-prices the
  *   carried period until its payment lands;
+ * - plus a twelfth of the expected CFE per elapsed month, netted the same way
+ *   against detected CFE debits;
  * - plus the matelas as configured, verbatim.
  */
 class ComputeBankProvisions
 {
-    private const int BASIS_POINTS = 10_000;
+    public function __construct(private readonly ResolveExpectedCfe $resolveExpectedCfe) {}
 
     /**
      * @param  Collection<int, BankMovement>  $movements  every movement of $user, any order
@@ -56,11 +58,12 @@ class ComputeBankProvisions
 
         $vat = $vatPeriod === null ? null : $this->vat($vatPeriod, $collected, $movements, $today, $currency);
         $urssaf = $urssafPeriod === null ? null : $this->urssaf($settings, $urssafPeriod, $collected, $movements, $today, $currency);
+        $cfe = $this->cfe($settings, $movements, $today, $currency);
         $buffer = $settings->treasury_buffer_cents;
 
         $total = new Money(0, $currency);
 
-        foreach ([$vat?->amount->toMoney(), $urssaf?->amount->toMoney(), $buffer] as $component) {
+        foreach ([$vat?->amount->toMoney(), $urssaf?->amount->toMoney(), $cfe?->amount->toMoney(), $buffer] as $component) {
             if ($component !== null) {
                 $total = $total->add($component);
             }
@@ -69,6 +72,7 @@ class ComputeBankProvisions
         return new BankProvisionsData(
             vat: $vat,
             urssaf: $urssaf,
+            cfe: $cfe,
             buffer: $buffer === null ? null : MoneyData::fromMoney($buffer),
             total: MoneyData::fromMoney($total),
         );
@@ -118,42 +122,37 @@ class ComputeBankProvisions
      *
      * @param  ?array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}  $vatPeriod
      * @param  ?array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}  $urssafPeriod
-     * @return Collection<int, Invoice>
      */
     private function collectedInvoices(
         User $user,
         CarbonImmutable $today,
         ?array $vatPeriod,
         ?array $urssafPeriod,
-    ): Collection {
+    ): CollectedInvoices {
         $starts = array_filter([$vatPeriod['previousStart'] ?? null, $urssafPeriod['previousStart'] ?? null]);
 
         if ($starts === []) {
-            return new Collection;
+            return CollectedInvoices::none();
         }
 
-        return $user->invoices()
-            ->where('status', InvoiceStatus::Paid)
-            ->whereBetween('paid_on', [min($starts)->toDateString(), $today->toDateString()])
-            ->get(['paid_on', 'amount_ht_cents', 'amount_ttc_cents', 'currency']);
+        return CollectedInvoices::paidBetween($user, min($starts), $today);
     }
 
     /**
      * @param  array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}  $period
-     * @param  Collection<int, Invoice>  $collected
      * @param  Collection<int, BankMovement>  $movements
      */
     private function vat(
         array $period,
-        Collection $collected,
+        CollectedInvoices $collected,
         Collection $movements,
         CarbonImmutable $today,
         string $currency,
     ): BankProvisionData {
-        $current = $this->vatAccruedBetween($collected, $period['start'], $today);
+        $current = $collected->vatCents($period['start'], $today);
         $carried = max(
             0,
-            $this->vatAccruedBetween($collected, $period['previousStart'], $period['start']->subDay())
+            $collected->vatCents($period['previousStart'], $period['start']->subDay())
                 - $this->paymentsBetween($movements, $period['start'], $today, DetectFiscPayments::isVat(...)),
         );
 
@@ -166,23 +165,22 @@ class ComputeBankProvisions
 
     /**
      * @param  array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}  $period
-     * @param  Collection<int, Invoice>  $collected
      * @param  Collection<int, BankMovement>  $movements
      */
     private function urssaf(
         UserSettings $settings,
         array $period,
-        Collection $collected,
+        CollectedInvoices $collected,
         Collection $movements,
         CarbonImmutable $today,
         string $currency,
     ): BankProvisionData {
         $rateBp = $settings->effectiveContributionRateBp();
 
-        $current = $this->contributionsAccruedBetween($collected, $period['start'], $today, $rateBp, $currency);
+        $current = $collected->contributionsCents($period['start'], $today, $rateBp, $currency);
         $carried = max(
             0,
-            $this->contributionsAccruedBetween($collected, $period['previousStart'], $period['start']->subDay(), $rateBp, $currency)
+            $collected->contributionsCents($period['previousStart'], $period['start']->subDay(), $rateBp, $currency)
                 - $this->paymentsBetween($movements, $period['start'], $today, DetectFiscPayments::isUrssaf(...)),
         );
 
@@ -194,55 +192,44 @@ class ComputeBankProvisions
     }
 
     /**
-     * The TVA is per-invoice actuals, and ttc − ht is exactly vatAmount().
+     * The commune sets the CFE, so there is nothing to provision until the user
+     * has said what to expect — and nothing at all in an exempt year; see
+     * CfeSchedule, which the Échéances calendar reads too.
      *
-     * @param  Collection<int, Invoice>  $collected
+     * Built a twelfth a month rather than locked whole in January: the bill only
+     * lands on 15 December, and until then the account owes the elapsed share.
+     *
+     * @param  Collection<int, BankMovement>  $movements
      */
-    private function vatAccruedBetween(Collection $collected, CarbonImmutable $start, CarbonImmutable $end): int
-    {
-        return (int) $this->paidBetween($collected, $start, $end)
-            ->sum(static fn (Invoice $invoice): int => (int) $invoice->amount_ttc_cents->getAmount()
-                - (int) $invoice->amount_ht_cents->getAmount());
-    }
-
-    /**
-     * @param  Collection<int, Invoice>  $collected
-     */
-    private function contributionsAccruedBetween(
-        Collection $collected,
-        CarbonImmutable $start,
-        CarbonImmutable $end,
-        int $rateBp,
+    private function cfe(
+        UserSettings $settings,
+        Collection $movements,
+        CarbonImmutable $today,
         string $currency,
-    ): int {
-        $collectedHt = new Money(
-            (int) $this->paidBetween($collected, $start, $end)
-                ->sum(static fn (Invoice $invoice): int => (int) $invoice->amount_ht_cents->getAmount()),
-            $currency,
-        );
+    ): ?BankProvisionData {
+        if (! $settings->hasFrenchFiscality()) {
+            return null;
+        }
 
-        return (int) $collectedHt
-            ->multiply($rateBp)
-            ->divide(self::BASIS_POINTS, MoneyPhp::ROUND_HALF_UP)
-            ->getAmount();
-    }
+        // The entered amount, or last year's payment standing in for it — the
+        // same resolution the Échéances screen shows, so the two never disagree.
+        $expected = $this->resolveExpectedCfe->handle($settings)?->amount;
 
-    /**
-     * Date-string bounds so the bucketing matches what a whereBetween on the
-     * date column would have returned.
-     *
-     * @param  Collection<int, Invoice>  $collected
-     * @return Collection<int, Invoice>
-     */
-    private function paidBetween(Collection $collected, CarbonImmutable $start, CarbonImmutable $end): Collection
-    {
-        $startDate = $start->toDateString();
-        $endDate = $end->toDateString();
+        if (! $expected instanceof Money) {
+            return null;
+        }
 
-        return $collected->filter(
-            static fn (Invoice $invoice): bool => $invoice->paid_on !== null
-                && $invoice->paid_on->toDateString() >= $startDate
-                && $invoice->paid_on->toDateString() <= $endDate,
+        if (CfeSchedule::isExemptYear($settings, $today->year)) {
+            return null;
+        }
+
+        $accrued = intdiv((int) $expected->getAmount() * $today->month, 12);
+        $paid = $this->paymentsBetween($movements, $today->startOfYear(), $today, DetectFiscPayments::isCfe(...));
+
+        return new BankProvisionData(
+            amount: MoneyData::fromMoney(new Money(max(0, $accrued - $paid), $currency)),
+            rateBp: null,
+            periodEnd: $today->endOfYear(),
         );
     }
 

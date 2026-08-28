@@ -10,6 +10,7 @@ use App\Domain\Bank\Models\BankStatement;
 use App\Domain\Bank\Models\PersonalTransfer;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Cra\Models\Cra;
+use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
 use App\Domain\Documents\Concerns\InteractsWithDocuments;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Models\Mission;
@@ -141,6 +142,12 @@ class User extends Authenticatable implements HasMedia
     public function personalTransfers(): HasMany
     {
         return $this->hasMany(PersonalTransfer::class);
+    }
+
+    /** @return HasMany<FiscalDeadlineCompletion, $this> */
+    public function fiscalDeadlineCompletions(): HasMany
+    {
+        return $this->hasMany(FiscalDeadlineCompletion::class);
     }
 
     /**

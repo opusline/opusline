@@ -24,7 +24,11 @@ import {
 } from "../lib/settings-form";
 import { type SettingsForm, useSettingsForm } from "../lib/use-settings-form";
 import { BillingSettingsForm } from "./billing-settings-form";
-import { FiscalAbroadPanel, FiscalSettingsForm } from "./fiscal-settings-form";
+import {
+  DeadlineSettingsFields,
+  FiscalAbroadPanel,
+  FiscalSettingsForm,
+} from "./fiscal-settings-form";
 import { IdentitySettingsForm } from "./identity-settings-form";
 import {
   type LocalisationDraft,
@@ -42,7 +46,11 @@ const FORM_ID = "settings-form";
  */
 function useReseededDraft(
   form: SettingsForm,
-  name: "contributionRate" | "defaultVatRate" | "treasuryBuffer",
+  name:
+    | "contributionRate"
+    | "defaultVatRate"
+    | "treasuryBuffer"
+    | "cfeExpected",
   value: string,
 ): void {
   useEffect(() => {
@@ -106,6 +114,7 @@ export function SettingsPage({
   useReseededDraft(form, "contributionRate", savedValues.contributionRate);
   useReseededDraft(form, "defaultVatRate", savedValues.defaultVatRate);
   useReseededDraft(form, "treasuryBuffer", savedValues.treasuryBuffer);
+  useReseededDraft(form, "cfeExpected", savedValues.cfeExpected);
 
   const isEuVat = hasEuVat(settings.businessCountry);
   const fiscaliteHint = settings.hasFrenchFiscality
@@ -163,21 +172,24 @@ export function SettingsPage({
             </TabsContent>
             <TabsContent keepMounted value="fiscalite">
               {settings.hasFrenchFiscality ? (
-                <FiscalSettingsForm
-                  contributionRateBp={settings.contributionRateBp}
-                  effectiveContributionRateBp={
-                    settings.effectiveContributionRateBp
-                  }
-                  form={form}
-                  isRefreshingRates={rates.isRefreshing}
-                  liberatingPaymentRateBp={settings.liberatingPaymentRateBp}
-                  onRefreshRates={rates.onRefresh}
-                  ratesCheckedAt={settings.ratesCheckedAt}
-                  ratesError={rates.error}
-                  ratesYear={settings.ratesYear}
-                  savedAcre={settings.acre}
-                  savedBusinessStartedOn={settings.businessStartedOn}
-                />
+                <>
+                  <FiscalSettingsForm
+                    contributionRateBp={settings.contributionRateBp}
+                    effectiveContributionRateBp={
+                      settings.effectiveContributionRateBp
+                    }
+                    form={form}
+                    isRefreshingRates={rates.isRefreshing}
+                    liberatingPaymentRateBp={settings.liberatingPaymentRateBp}
+                    onRefreshRates={rates.onRefresh}
+                    ratesCheckedAt={settings.ratesCheckedAt}
+                    ratesError={rates.error}
+                    ratesYear={settings.ratesYear}
+                    savedAcre={settings.acre}
+                    savedBusinessStartedOn={settings.businessStartedOn}
+                  />
+                  <DeadlineSettingsFields form={form} />
+                </>
               ) : (
                 <FiscalAbroadPanel form={form} isEuVat={isEuVat} />
               )}

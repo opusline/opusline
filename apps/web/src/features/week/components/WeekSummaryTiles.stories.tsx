@@ -1,12 +1,26 @@
 import type { MonthWorkloadData } from "@opusline/api-client";
 import type { Meta, StoryObj } from "@storybook/react";
 
+import { StoryRouter } from "@/test/story-router";
+
+import { DEMO_NEXT_DEADLINE } from "../lib/week-fixtures";
 import { WeekSummaryTiles } from "./week-summary-tiles";
 
 const meta = {
   title: "Web/Week/WeekSummaryTiles",
   component: WeekSummaryTiles,
   tags: ["autodocs"],
+  args: {
+    nextDeadline: DEMO_NEXT_DEADLINE,
+    today: "2026-08-13",
+  },
+  decorators: [
+    (Story) => (
+      <StoryRouter>
+        <Story />
+      </StoryRouter>
+    ),
+  ],
 } satisfies Meta<typeof WeekSummaryTiles>;
 
 export default meta;
@@ -63,6 +77,7 @@ export const NothingBillable: Story = {
 export const WithoutMonth: Story = {
   args: {
     monthWorkload: null,
+    nextDeadline: null,
     summary: {
       amountCents: 275_000,
       valuedEntryCount: 5,
@@ -80,6 +95,36 @@ export const MonthOverrun: Story = {
     summary: {
       amountCents: 412_500,
       valuedEntryCount: 8,
+      nonBillableEntryCount: 0,
+      fixedPriceEntryCount: 0,
+      unratedEntryCount: 0,
+    },
+  },
+};
+
+/** A business the French fiscal calendar does not apply to. */
+export const WithoutDeadline: Story = {
+  args: {
+    monthWorkload: AUGUST,
+    nextDeadline: "none",
+    summary: {
+      amountCents: 275_000,
+      valuedEntryCount: 5,
+      nonBillableEntryCount: 0,
+      fixedPriceEntryCount: 0,
+      unratedEntryCount: 0,
+    },
+  },
+};
+
+/** Read three weeks later, once the URSSAF declaration has slipped. */
+export const WithLateDeadline: Story = {
+  args: {
+    monthWorkload: AUGUST,
+    today: "2026-09-04",
+    summary: {
+      amountCents: 275_000,
+      valuedEntryCount: 5,
       nonBillableEntryCount: 0,
       fixedPriceEntryCount: 0,
       unratedEntryCount: 0,

@@ -2,6 +2,8 @@ import type {
   ClientData,
   ClientRevenueData,
   ClientRevenueDetailData,
+  DeadlineItemData,
+  FiscalDeadlineData,
   FixedPriceBudgetData,
   InvoiceData,
   InvoiceListItemData,
@@ -53,6 +55,37 @@ function clientRevenue(): ClientRevenueData {
 }
 
 /** GET /api/clients/{client}/revenue */
+/**
+ * July's URSSAF, the account's most ordinary obligation. Shared because the
+ * week tile, the Échéances screen and their tests all need the same shape and
+ * features must not import each other.
+ */
+export function fiscalDeadline(
+  overrides: Partial<FiscalDeadlineData> = {},
+): FiscalDeadlineData {
+  return {
+    kind: 0,
+    periodKey: "2026-07",
+    periodStart: "2026-07-01",
+    periodEnd: "2026-07-31",
+    dueOn: "2026-08-31",
+    amount: eur(124_000),
+    rateBp: 2600,
+    isEstimate: true,
+    completedOn: null,
+    ...overrides,
+  };
+}
+
+/** The board line the week tile and the timeline both consume. */
+export function fiscalDeadlineItem(
+  overrides: Partial<FiscalDeadlineData> = {},
+): DeadlineItemData {
+  const fiscal = fiscalDeadline(overrides);
+
+  return { type: 2, dueOn: fiscal.dueOn, invoice: null, fiscal };
+}
+
 export function clientRevenueDetailPayload(): ClientRevenueDetailData {
   return { year: 2026, revenue: clientRevenue() };
 }
@@ -300,6 +333,7 @@ export function treasuryData(
         rateBp: 2600,
         periodEnd: "2026-08-31",
       },
+      cfe: null,
       buffer: eur(150_000),
       total: eur(630_700),
     },

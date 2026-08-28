@@ -14,7 +14,7 @@ import { formatWorkedTime } from "@/lib/durations";
 import { m } from "@/paraglide/messages.js";
 import {
   hasInvoiceNumberCounter,
-  parseBufferCents,
+  optionalAmountValidator,
   previewInvoiceNumber,
 } from "../lib/settings-form";
 import type { SettingsForm } from "../lib/use-settings-form";
@@ -124,13 +124,7 @@ export function BillingSettingsForm({
 
       <form.Field
         name="treasuryBuffer"
-        validators={{
-          onChange: ({ value }: { value: string }) =>
-            value.trim() === "" ||
-            parseBufferCents(format.locale, value) !== null
-              ? undefined
-              : { message: m.settings_buffer_invalid() },
-        }}
+        validators={{ onChange: optionalAmountValidator(format.locale) }}
       >
         {(field) => (
           <FormTextField

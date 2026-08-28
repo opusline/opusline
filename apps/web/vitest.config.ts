@@ -18,6 +18,10 @@ const DATE_SENSITIVE = [
   "src/lib/months.test.ts",
   "src/features/week/lib/repeat-week.test.ts",
   "src/features/week/lib/week-grid.test.ts",
+  "src/lib/deadlines.test.ts",
+  "src/features/week/components/week-summary-tiles.test.tsx",
+  "src/features/deadlines/components/deadline-timeline.test.tsx",
+  "src/features/deadlines/components/deadlines-page.test.tsx",
 ];
 
 export default defineConfig({

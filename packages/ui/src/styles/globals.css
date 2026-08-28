@@ -270,3 +270,12 @@
     var(--hatch-2) 4px 8px
   );
 }
+
+/* The mirror of bg-hatch, for a second hatched slice in the same legend. */
+@utility bg-hatch-reverse {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--hatch-1) 0 4px,
+    var(--hatch-2) 4px 8px
+  );
+}

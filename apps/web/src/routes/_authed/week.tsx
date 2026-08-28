@@ -1,4 +1,4 @@
-import type { TimeEntryData } from "@opusline/api-client";
+import type { DeadlineBoardData, TimeEntryData } from "@opusline/api-client";
 import {
   createTimeEntryMutation,
   deleteTimeEntryMutation,
@@ -23,12 +23,14 @@ import { useTimer } from "@/features/timer/components/timer-provider";
 import { formatClock } from "@/features/timer/lib/elapsed";
 import type { NewEntrySubmit } from "@/features/week/components/new-entry-dialog";
 import { WeekPage } from "@/features/week/components/week-page";
+import type { NextDeadline } from "@/features/week/components/week-summary-tiles";
 import { planWeekRepeat } from "@/features/week/lib/repeat-week";
 import { cellKeyFor, type LiveCell } from "@/features/week/lib/week-grid";
 import {
   accountTodayCalendarDate,
   browserTodayCalendarDate,
 } from "@/lib/dates";
+import { deadlinesQueryOptions } from "@/lib/deadlines";
 import { isFixedPrice, provisionalBilledLabel } from "@/lib/durations";
 import { findMissionById } from "@/lib/missions";
 import {
@@ -53,6 +55,25 @@ export const Route = createFileRoute("/_authed/week")({
 
 function writeErrorMessage(error: unknown): string {
   return serverErrorMessage(error, m.common_save_failed());
+}
+
+/**
+ * What the week tile should show, given the query and whether the French fiscal
+ * calendar applies to the account at all.
+ */
+function resolveNextDeadline(
+  hasFrenchFiscality: boolean,
+  deadlines: { data: DeadlineBoardData | undefined; isError: boolean },
+): NextDeadline {
+  if (!hasFrenchFiscality) {
+    return "none";
+  }
+
+  if (deadlines.data !== undefined) {
+    return deadlines.data.next ?? "none";
+  }
+
+  return deadlines.isError ? "unavailable" : null;
 }
 
 function SemaineRoute() {
@@ -105,6 +126,19 @@ function SemaineRoute() {
     summarizeMonthWorkloadOptions({
       query: { month: accountTodayCalendarDate(user.timezone).slice(0, 7) },
     }),
+  );
+
+  // The fiscal calendar only exists for a business established in France, and
+  // the week route is not gated the way the fiscal screens are, so the tile is
+  // gated by the query's own `enabled`.
+  const deadlines = useQuery(deadlinesQueryOptions(user.hasFrenchFiscality));
+
+  // Three-way on the query, not on `next`: a French account that owes nothing
+  // answers `next: null`, and collapsing that into the loading state would hide
+  // the tile forever instead of saying so.
+  const nextDeadline: NextDeadline = resolveNextDeadline(
+    user.hasFrenchFiscality,
+    deadlines,
   );
 
   const createEntry = useMutation(createTimeEntryMutation());
@@ -361,6 +395,7 @@ function SemaineRoute() {
           monthWorkload={
             monthWorkload.data ?? (monthWorkload.isError ? "unavailable" : null)
           }
+          nextDeadline={nextDeadline}
           onSubmitNewEntry={handleSubmitNewEntry}
           onUpdate={handleUpdate}
           onWeekChange={(nextWeek) =>

@@ -111,6 +111,7 @@ export type BankProvisionData = {
 export type BankProvisionsData = {
     vat: BankProvisionData | null;
     urssaf: BankProvisionData | null;
+    cfe: BankProvisionData | null;
     buffer: MoneyData | null;
     total: MoneyData;
 };
@@ -133,6 +134,17 @@ export type BankStatementData = {
  * BillingMode
  */
 export type BillingMode = 0 | 1 | 2;
+
+/**
+ * CalendarFeedData
+ */
+export type CalendarFeedData = {
+    invoices: boolean;
+    reminders: boolean;
+    vat: boolean;
+    urssaf: boolean;
+    other: boolean;
+};
 
 /**
  * ClientData
@@ -228,6 +240,14 @@ export type ClientWithMissionsData = {
  * Color
  */
 export type Color = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+/**
+ * CompleteFiscalDeadlineData
+ */
+export type CompleteFiscalDeadlineData = {
+    kind: FiscalDeadlineKind;
+    periodKey: string;
+};
 
 /**
  * CraCountsData
@@ -417,6 +437,60 @@ export type Currency = 'EUR' | 'USD' | 'GBP' | 'CHF' | 'CAD' | 'AUD' | 'NZD' | '
 export type DateFormat = 0 | 1;
 
 /**
+ * DeadlineBoardData
+ */
+export type DeadlineBoardData = {
+    next: DeadlineItemData | null;
+    items: Array<DeadlineItemData>;
+    reminders: Array<DeadlineReminderData>;
+    calendarToken: string;
+    calendarFeed: CalendarFeedData;
+    calendarSubscribedOn: string | null;
+    calendarLastSyncedAt: string | null;
+};
+
+/**
+ * DeadlineInvoiceData
+ */
+export type DeadlineInvoiceData = {
+    id: number;
+    number: string | null;
+    clientName: string;
+    missionName: string | null;
+    periodStart: string | null;
+    amount: MoneyData;
+    dueOn: string;
+    remindersSent: number;
+    lastRemindedOn: string | null;
+};
+
+/**
+ * DeadlineItemData
+ */
+export type DeadlineItemData = {
+    type: DeadlineItemType;
+    dueOn: string;
+    invoice: DeadlineInvoiceData | null;
+    fiscal: FiscalDeadlineData | null;
+};
+
+/**
+ * DeadlineItemType
+ *
+ * What one line of the Échéances timeline is. The order of the cases is also the order two lines sharing a due date sort in: an invoice first, then the relance it calls for, then the fisc.
+ *
+ */
+export type DeadlineItemType = 0 | 1 | 2;
+
+/**
+ * DeadlineReminderData
+ */
+export type DeadlineReminderData = {
+    deadline: FiscalDeadlineData;
+    isRead: boolean;
+};
+
+/**
  * DocumentCategory
  *
  * | |
@@ -486,6 +560,29 @@ export type DocumentSource = 0 | 1 | 2;
  *
  */
 export type EntryRounding = 0 | 1 | 2;
+
+/**
+ * FiscalDeadlineData
+ */
+export type FiscalDeadlineData = {
+    kind: FiscalDeadlineKind;
+    periodKey: string;
+    periodStart: string;
+    periodEnd: string;
+    dueOn: string;
+    amount: MoneyData | null;
+    rateBp: number | null;
+    isEstimate: boolean;
+    completedOn: string | null;
+};
+
+/**
+ * FiscalDeadlineKind
+ *
+ * The recurring French fiscal deadlines the app tracks. Declaration and payment share a case wherever they share a date, which is every case here: URSSAF télépaie on the declaration date, and the CA3 is due and paid the same day.
+ *
+ */
+export type FiscalDeadlineKind = 0 | 1 | 2 | 3 | 4;
 
 /**
  * FixedPriceBudgetData
@@ -970,6 +1067,7 @@ export type SettingsData = {
     defaultPaymentTermsDays: number;
     invoiceNumberFormat: string;
     treasuryBuffer: MoneyData | null;
+    cfeExpected: MoneyData | null;
     currency: Currency;
     currencyLocked: boolean;
     locale: Locale;
@@ -1099,6 +1197,17 @@ export type UpdateBankBalanceData = {
         amount: number;
         currency: Currency;
     } | null;
+};
+
+/**
+ * UpdateCalendarFeedData
+ */
+export type UpdateCalendarFeedData = {
+    invoices: boolean;
+    reminders: boolean;
+    vat: boolean;
+    urssaf: boolean;
+    other: boolean;
 };
 
 /**
@@ -1237,6 +1346,10 @@ export type UpdateSettingsData = {
     homeCity?: string | null;
     businessStartedOn?: string | null;
     treasuryBuffer?: {
+        amount: number;
+        currency: Currency;
+    } | null;
+    cfeExpected?: {
         amount: number;
         currency: Currency;
     } | null;
@@ -2840,6 +2953,263 @@ export type DownloadCraPdfResponses = {
 };
 
 export type DownloadCraPdfResponse = DownloadCraPdfResponses[keyof DownloadCraPdfResponses];
+
+export type ListDeadlinesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/deadlines';
+};
+
+export type ListDeadlinesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListDeadlinesError = ListDeadlinesErrors[keyof ListDeadlinesErrors];
+
+export type ListDeadlinesResponses = {
+    200: DeadlineBoardData;
+};
+
+export type ListDeadlinesResponse = ListDeadlinesResponses[keyof ListDeadlinesResponses];
+
+export type CompleteDeadlineData = {
+    body: CompleteFiscalDeadlineData;
+    path?: never;
+    query?: never;
+    url: '/deadlines/completions';
+};
+
+export type CompleteDeadlineErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CompleteDeadlineError = CompleteDeadlineErrors[keyof CompleteDeadlineErrors];
+
+export type CompleteDeadlineResponses = {
+    201: DeadlineBoardData;
+};
+
+export type CompleteDeadlineResponse = CompleteDeadlineResponses[keyof CompleteDeadlineResponses];
+
+export type UncompleteDeadlineData = {
+    body?: never;
+    path: {
+        kind: number;
+        periodKey: string;
+    };
+    query?: never;
+    url: '/deadlines/completions/{kind}/{periodKey}';
+};
+
+export type UncompleteDeadlineErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UncompleteDeadlineError = UncompleteDeadlineErrors[keyof UncompleteDeadlineErrors];
+
+export type UncompleteDeadlineResponses = {
+    200: DeadlineBoardData;
+};
+
+export type UncompleteDeadlineResponse = UncompleteDeadlineResponses[keyof UncompleteDeadlineResponses];
+
+export type MarkDeadlineRemindersReadData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/deadlines/reminders/read';
+};
+
+export type MarkDeadlineRemindersReadErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type MarkDeadlineRemindersReadError = MarkDeadlineRemindersReadErrors[keyof MarkDeadlineRemindersReadErrors];
+
+export type MarkDeadlineRemindersReadResponses = {
+    200: DeadlineBoardData;
+};
+
+export type MarkDeadlineRemindersReadResponse = MarkDeadlineRemindersReadResponses[keyof MarkDeadlineRemindersReadResponses];
+
+export type UpdateCalendarFeedData2 = {
+    body: UpdateCalendarFeedData;
+    path?: never;
+    query?: never;
+    url: '/deadlines/calendar';
+};
+
+export type UpdateCalendarFeedErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateCalendarFeedError = UpdateCalendarFeedErrors[keyof UpdateCalendarFeedErrors];
+
+export type UpdateCalendarFeedResponses = {
+    200: DeadlineBoardData;
+};
+
+export type UpdateCalendarFeedResponse = UpdateCalendarFeedResponses[keyof UpdateCalendarFeedResponses];
+
+export type RegenerateCalendarTokenData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/deadlines/calendar/token';
+};
+
+export type RegenerateCalendarTokenErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type RegenerateCalendarTokenError = RegenerateCalendarTokenErrors[keyof RegenerateCalendarTokenErrors];
+
+export type RegenerateCalendarTokenResponses = {
+    200: DeadlineBoardData;
+};
+
+export type RegenerateCalendarTokenResponse = RegenerateCalendarTokenResponses[keyof RegenerateCalendarTokenResponses];
+
+export type InterruptCalendarSubscriptionData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/deadlines/calendar/subscription';
+};
+
+export type InterruptCalendarSubscriptionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type InterruptCalendarSubscriptionError = InterruptCalendarSubscriptionErrors[keyof InterruptCalendarSubscriptionErrors];
+
+export type InterruptCalendarSubscriptionResponses = {
+    200: DeadlineBoardData;
+};
+
+export type InterruptCalendarSubscriptionResponse = InterruptCalendarSubscriptionResponses[keyof InterruptCalendarSubscriptionResponses];
+
+export type ConfirmCalendarSubscriptionData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/deadlines/calendar/subscription';
+};
+
+export type ConfirmCalendarSubscriptionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ConfirmCalendarSubscriptionError = ConfirmCalendarSubscriptionErrors[keyof ConfirmCalendarSubscriptionErrors];
+
+export type ConfirmCalendarSubscriptionResponses = {
+    200: DeadlineBoardData;
+};
+
+export type ConfirmCalendarSubscriptionResponse = ConfirmCalendarSubscriptionResponses[keyof ConfirmCalendarSubscriptionResponses];
+
+export type ShowDeadlineCalendarData = {
+    body?: never;
+    path: {
+        token: string;
+    };
+    query?: never;
+    url: '/calendar/{token}.ics';
+};
+
+export type ShowDeadlineCalendarErrors = {
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowDeadlineCalendarError = ShowDeadlineCalendarErrors[keyof ShowDeadlineCalendarErrors];
+
+export type ShowDeadlineCalendarResponses = {
+    200: string;
+};
+
+export type ShowDeadlineCalendarResponse = ShowDeadlineCalendarResponses[keyof ShowDeadlineCalendarResponses];
 
 export type ListDocumentLibraryData = {
     body?: never;

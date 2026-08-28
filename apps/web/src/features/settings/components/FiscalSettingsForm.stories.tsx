@@ -7,7 +7,11 @@ import {
   settingsFixture,
 } from "../lib/settings-fixture";
 import { SettingsFormStory } from "../lib/settings-form-story";
-import { FiscalAbroadPanel, FiscalSettingsForm } from "./fiscal-settings-form";
+import {
+  DeadlineSettingsFields,
+  FiscalAbroadPanel,
+  FiscalSettingsForm,
+} from "./fiscal-settings-form";
 
 function Example({
   settings,
@@ -95,6 +99,15 @@ export const AbroadOutsideEu: Story = {
   render: () => (
     <SettingsFormStory settings={nonEuSettingsFixture}>
       {(form) => <FiscalAbroadPanel form={form} isEuVat={false} />}
+    </SettingsFormStory>
+  ),
+};
+
+/** The one figure the calendar cannot derive: the commune's CFE, as an override. */
+export const DeadlineFields: Story = {
+  render: () => (
+    <SettingsFormStory settings={settingsFixture}>
+      {(form) => <DeadlineSettingsFields form={form} />}
     </SettingsFormStory>
   ),
 };

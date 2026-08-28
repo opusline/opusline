@@ -70,6 +70,17 @@ export const zBillingMode = z.union([
 ]);
 
 /**
+ * CalendarFeedData
+ */
+export const zCalendarFeedData = z.object({
+    invoices: z.boolean(),
+    reminders: z.boolean(),
+    vat: z.boolean(),
+    urssaf: z.boolean(),
+    other: z.boolean()
+});
+
+/**
  * ClientType
  */
 export const zClientType = z.union([
@@ -254,6 +265,18 @@ export const zCreatePersonalTransferData = z.object({
 export const zDateFormat = z.union([z.literal(0), z.literal(1)]);
 
 /**
+ * DeadlineItemType
+ *
+ * What one line of the Échéances timeline is. The order of the cases is also the order two lines sharing a due date sort in: an invoice first, then the relance it calls for, then the fisc.
+ *
+ */
+export const zDeadlineItemType = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
  * DocumentCategory
  *
  * | |
@@ -365,6 +388,28 @@ export const zCreateMissionData = z.object({
     notes: z.nullish(z.string()),
     startDate: z.nullish(z.iso.date()),
     endDate: z.nullish(z.iso.date())
+});
+
+/**
+ * FiscalDeadlineKind
+ *
+ * The recurring French fiscal deadlines the app tracks. Declaration and payment share a case wherever they share a date, which is every case here: URSSAF télépaie on the declaration date, and the CA3 is due and paid the same day.
+ *
+ */
+export const zFiscalDeadlineKind = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4)
+]);
+
+/**
+ * CompleteFiscalDeadlineData
+ */
+export const zCompleteFiscalDeadlineData = z.object({
+    kind: zFiscalDeadlineKind,
+    periodKey: z.string().check(z.maxLength(16), z.regex(/^\d{4}(-(0[1-9]|1[0-2]|Q[1-4]))?$/))
 });
 
 /**
@@ -560,6 +605,7 @@ export const zBankProvisionData = z.object({
 export const zBankProvisionsData = z.object({
     vat: z.nullable(zBankProvisionData),
     urssaf: z.nullable(zBankProvisionData),
+    cfe: z.nullable(zBankProvisionData),
     buffer: z.nullable(zMoneyData),
     total: zMoneyData
 });
@@ -582,6 +628,67 @@ export const zCraData = z.object({
     editable: z.boolean(),
     notes: z.nullable(z.string()),
     days: z.array(zCraDayData)
+});
+
+/**
+ * DeadlineInvoiceData
+ */
+export const zDeadlineInvoiceData = z.object({
+    id: z.int(),
+    number: z.nullable(z.string()),
+    clientName: z.string(),
+    missionName: z.nullable(z.string()),
+    periodStart: z.nullable(z.iso.date()),
+    amount: zMoneyData,
+    dueOn: z.iso.date(),
+    remindersSent: z.int(),
+    lastRemindedOn: z.nullable(z.iso.date())
+});
+
+/**
+ * FiscalDeadlineData
+ */
+export const zFiscalDeadlineData = z.object({
+    kind: zFiscalDeadlineKind,
+    periodKey: z.string(),
+    periodStart: z.iso.date(),
+    periodEnd: z.iso.date(),
+    dueOn: z.iso.date(),
+    amount: z.nullable(zMoneyData),
+    rateBp: z.nullable(z.int()),
+    isEstimate: z.boolean(),
+    completedOn: z.nullable(z.iso.date())
+});
+
+/**
+ * DeadlineItemData
+ */
+export const zDeadlineItemData = z.object({
+    type: zDeadlineItemType,
+    dueOn: z.iso.date(),
+    invoice: z.nullable(zDeadlineInvoiceData),
+    fiscal: z.nullable(zFiscalDeadlineData)
+});
+
+/**
+ * DeadlineReminderData
+ */
+export const zDeadlineReminderData = z.object({
+    deadline: zFiscalDeadlineData,
+    isRead: z.boolean()
+});
+
+/**
+ * DeadlineBoardData
+ */
+export const zDeadlineBoardData = z.object({
+    next: z.nullable(zDeadlineItemData),
+    items: z.array(zDeadlineItemData),
+    reminders: z.array(zDeadlineReminderData),
+    calendarToken: z.string(),
+    calendarFeed: zCalendarFeedData,
+    calendarSubscribedOn: z.nullable(z.iso.date()),
+    calendarLastSyncedAt: z.nullable(z.iso.datetime())
 });
 
 /**
@@ -1150,6 +1257,17 @@ export const zUpdateBankBalanceData = z.object({
 });
 
 /**
+ * UpdateCalendarFeedData
+ */
+export const zUpdateCalendarFeedData = z.object({
+    invoices: z.boolean(),
+    reminders: z.boolean(),
+    vat: z.boolean(),
+    urssaf: z.boolean(),
+    other: z.boolean()
+});
+
+/**
  * UpdateClientData
  */
 export const zUpdateClientData = z.object({
@@ -1366,6 +1484,7 @@ export const zSettingsData = z.object({
     defaultPaymentTermsDays: z.int(),
     invoiceNumberFormat: z.string(),
     treasuryBuffer: z.nullable(zMoneyData),
+    cfeExpected: z.nullable(zMoneyData),
     currency: zCurrency,
     currencyLocked: z.boolean(),
     locale: zLocale,
@@ -1411,6 +1530,10 @@ export const zUpdateSettingsData = z.object({
     homeCity: z.nullish(z.string().check(z.maxLength(255))),
     businessStartedOn: z.nullish(z.iso.date()),
     treasuryBuffer: z.nullish(z.object({
+        amount: z.int().check(z.gte(1)),
+        currency: zCurrency
+    })),
+    cfeExpected: z.nullish(z.object({
         amount: z.int().check(z.gte(1)),
         currency: zCurrency
     }))
@@ -1658,6 +1781,37 @@ export const zDownloadCraPdfQuery = z.object({
 });
 
 export const zDownloadCraPdfResponse = z.string();
+
+export const zListDeadlinesResponse = zDeadlineBoardData;
+
+export const zCompleteDeadlineBody = zCompleteFiscalDeadlineData;
+
+export const zCompleteDeadlineResponse = zDeadlineBoardData;
+
+export const zUncompleteDeadlinePath = z.object({
+    kind: z.int(),
+    periodKey: z.string()
+});
+
+export const zUncompleteDeadlineResponse = zDeadlineBoardData;
+
+export const zMarkDeadlineRemindersReadResponse = zDeadlineBoardData;
+
+export const zUpdateCalendarFeedBody = zUpdateCalendarFeedData;
+
+export const zUpdateCalendarFeedResponse = zDeadlineBoardData;
+
+export const zRegenerateCalendarTokenResponse = zDeadlineBoardData;
+
+export const zInterruptCalendarSubscriptionResponse = zDeadlineBoardData;
+
+export const zConfirmCalendarSubscriptionResponse = zDeadlineBoardData;
+
+export const zShowDeadlineCalendarPath = z.object({
+    token: z.string()
+});
+
+export const zShowDeadlineCalendarResponse = z.string();
 
 export const zListDocumentLibraryResponse = zDocumentLibraryData;
 

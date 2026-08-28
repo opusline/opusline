@@ -127,6 +127,15 @@ function settingsPayload(array $overrides = []): array
  * default) and UTC's agree: near midnight they differ, and "today" assertions
  * would flip depending on the hour the suite runs.
  */
+/** A debit with the fisc's own wording on it, for the detection paths. */
+function fiscDebitOn(User $user, string $bookedOn, int $cents, string $label): void
+{
+    bankMovementFor($user, configure: fn (BankMovementFactory $factory) => $factory
+        ->debit($cents)
+        ->on($bookedOn)
+        ->state(['label' => $label]));
+}
+
 function freezeTodayAtUtcNoon(): void
 {
     test()->travelTo(CarbonImmutable::parse('2026-08-13 12:00:00', 'UTC'));
