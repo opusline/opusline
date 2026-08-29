@@ -19,7 +19,7 @@ export const RELEASES: Release[] = [
     items: [
       {
         kind: "improved",
-        text: "The app stays fast as your history grows: bank movements and invoices now load in pages with a \"show older\" button, screens fetch only what they display, and saving your settings no longer waits on the URSSAF barème.", // i18n-ignore
+        text: 'The app stays fast as your history grows: bank movements and invoices now load in pages with a "show older" button, screens fetch only what they display, and saving your settings no longer waits on the URSSAF barème.', // i18n-ignore
       },
     ],
   },
