@@ -14,6 +14,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.20.2",
+    date: "2026-08-29",
+    items: [
+      {
+        kind: "improved",
+        text: "Self-hosted instances can now close sign-ups (REGISTRATION_ENABLED=false) while always allowing the first account, login guessing is throttled per account even across IPs, and every page ships stricter browser security headers.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.20.1",
     date: "2026-08-29",
     items: [
