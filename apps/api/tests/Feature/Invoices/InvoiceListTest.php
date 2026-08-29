@@ -3,8 +3,12 @@
 declare(strict_types=1);
 
 use App\Domain\Clients\Models\Client;
+use App\Domain\Invoices\Actions\ListInvoices;
 use App\Domain\Invoices\Enums\InvoiceStatus;
+use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Users\Models\User;
+use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 
 test('lists invoices with the client and mission they are filed under', function (): void {
     $user = User::factory()->create();
@@ -149,4 +153,34 @@ test('does not treat a paid invoice past its due date as late', function (): voi
         ->getJson('/api/invoices')
         ->assertOk()
         ->assertJsonPath('invoices.0.invoice.isLate', false);
+});
+
+test('windows the ledger to one cursor page, newest first', function (): void {
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    Invoice::factory()
+        ->count(ListInvoices::PAGE_SIZE + 1)
+        ->for($client, 'client')
+        ->sequence(fn (Sequence $sequence): array => [
+            'issued_on' => CarbonImmutable::parse('2026-08-01')->subDays($sequence->index)->toDateString(),
+        ])
+        ->create(['user_id' => $user->id]);
+
+    $firstPage = $this->actingAs($user)
+        ->getJson('/api/invoices')
+        ->assertOk()
+        ->assertJsonCount(ListInvoices::PAGE_SIZE, 'invoices')
+        ->assertJsonPath('invoices.0.invoice.issuedOn', '2026-08-01');
+
+    $cursor = $firstPage->json('nextCursor');
+    expect($cursor)->toBeString();
+
+    $this->actingAs($user)
+        ->getJson('/api/invoices?cursor='.urlencode($cursor))
+        ->assertOk()
+        ->assertJsonCount(1, 'invoices')
+        // The account-wide totals ride on the first page only.
+        ->assertJsonPath('clientTotals', [])
+        ->assertJsonPath('nextCursor', null);
 });

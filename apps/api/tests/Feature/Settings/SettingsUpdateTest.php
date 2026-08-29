@@ -167,7 +167,12 @@ test('re-reads the barème when the saved situation changes', function (): void 
             'businessStartedOn' => now()->subMonths(2)->format('Y-m-d'),
         ]))
         ->assertOk()
-        ->assertJsonPath('contributionRateBp', 1280);
+        // The save answers with the stored rate and schedules the re-read;
+        // the sync test queue has already run it by the time the row is read.
+        ->assertJsonPath('ratesRefreshing', true)
+        ->assertJsonPath('contributionRateBp', 2560);
+
+    expect($user->settings()->sole()->contribution_rate_bp)->toBe(1280);
 });
 
 test('adopts the barème when the official source is switched on', function (): void {
@@ -178,7 +183,10 @@ test('adopts the barème when the official source is switched on', function (): 
     $this->actingAs($user)
         ->putJson('/api/settings', settingsPayload(['autoRates' => true]))
         ->assertOk()
-        ->assertJsonPath('contributionRateBp', 2560);
+        ->assertJsonPath('ratesRefreshing', true)
+        ->assertJsonPath('contributionRateBp', 2000);
+
+    expect($user->settings()->sole()->contribution_rate_bp)->toBe(2560);
 });
 
 test('leaves the barème alone when the situation is untouched', function (): void {

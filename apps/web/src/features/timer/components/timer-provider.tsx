@@ -36,6 +36,7 @@ import {
 } from "@/lib/dates";
 import { findMissionById } from "@/lib/missions";
 import { invalidateTimeEntries } from "@/lib/query-invalidation";
+import { TimerClockContext } from "@/lib/timer-clock";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 import { type IdleNotice, idleNotice, trimSeconds } from "../lib/idle";
@@ -45,7 +46,8 @@ import { trackableMissions } from "../lib/mission-options";
 import { createNoteQueue } from "../lib/note-queue";
 import { timerMachine } from "../lib/timer-machine";
 import { useActivity } from "../lib/use-activity";
-import { useLiveTimer } from "../lib/use-live-timer";
+import { useLiveTimer, useTimerSnapshot } from "../lib/use-live-timer";
+import { TimerAlertsContext } from "./timer-alerts";
 
 const NOTE_DEBOUNCE_MS = 600;
 const SUGGESTION_WINDOW_DAYS = 60;
@@ -55,16 +57,17 @@ export type StopSubmission = {
   rounding: EntryRounding | null;
 };
 
+// The 1 Hz values live elsewhere — the clock in @/lib/timer-clock, the
+// idle/long-run notices in ./timer-alerts — so the tick never re-renders
+// every consumer of this context.
 export type TimerContextValue = {
   billable: boolean;
-  longRunHours: string | null;
   correctedMinutes: number | null;
   correctionDraft: string;
-  elapsedSeconds: number;
   error: string | null;
-  idle: IdleNotice | null;
   isBusy: boolean;
   isConfirmingDiscard: boolean;
+  isLoadingMissions: boolean;
   isRunning: boolean;
   isSaving: boolean;
   isStarting: boolean;
@@ -117,12 +120,27 @@ export function TimerProvider({
   const format = useMoneyFormat();
   const queryClient = useQueryClient();
 
-  const { elapsedSeconds, isRunning, lastMissionId, now, timer } =
-    useLiveTimer();
-  const clientsQuery = useQuery(listClientsOptions());
+  const { elapsedSecondsAt, isRunning, lastMissionId, timer } =
+    useTimerSnapshot();
 
   const [state, send] = useMachine(timerMachine);
   const { clearIdleSpan, idleSpan, lastActivityAt } = useActivity();
+
+  const overlay = state.matches("start")
+    ? "start"
+    : state.matches("stopping")
+      ? "stopping"
+      : state.matches("detail")
+        ? "detail"
+        : "closed";
+
+  // The full client+mission tree backs the mission picker and the running
+  // timer's mission lookup — not the settings or documents screens, so those
+  // pages must not pay for it on every load.
+  const clientsQuery = useQuery({
+    ...listClientsOptions(),
+    enabled: timer !== null || overlay !== "closed",
+  });
 
   const timerId = timer?.id ?? null;
   const latestServerNote = useEffectEvent(() => timer?.note ?? "");
@@ -236,21 +254,19 @@ export function TimerProvider({
   const mission =
     timer === null ? null : findMissionById(clients, timer.missionId);
 
-  const idle =
+  // One definition of the notice for both readers: the handlers call it at
+  // click time, and TimerTicker calls it with the ticked clock to feed the
+  // displayed notice in TimerAlertsContext.
+  const idleNoticeAt = (at: number) =>
     timer === null
       ? null
       : idleNotice({
           dismissedIdleAt: state.context.dismissedIdleAt,
           isRunning,
           lastActivityAt: lastActivityAt(),
-          now,
+          now: at,
           recordedSpan: idleSpan,
         });
-
-  const looksForgotten =
-    timer !== null &&
-    !state.context.keptLongRun &&
-    isLongRun(elapsedSeconds, workdayMinutes);
 
   const missionId = timer?.missionId ?? null;
   const noteSuggestions = useMemo(
@@ -286,13 +302,17 @@ export function TimerProvider({
   };
 
   const trimIdle = async () => {
+    const idle = idleNoticeAt(Date.now());
+
     if (idle === null) {
       return;
     }
 
     const trimmed = await run(() =>
       trim.mutateAsync({
-        body: { seconds: trimSeconds(idle.idleSeconds, elapsedSeconds) },
+        body: {
+          seconds: trimSeconds(idle.idleSeconds, elapsedSecondsAt(Date.now())),
+        },
       }),
     );
 
@@ -331,14 +351,6 @@ export function TimerProvider({
     }
   };
 
-  const overlay = state.matches("start")
-    ? "start"
-    : state.matches("stopping")
-      ? "stopping"
-      : state.matches("detail")
-        ? "detail"
-        : "closed";
-
   const value: TimerContextValue = {
     billable: state.context.billable,
     correctDuration: (draft) =>
@@ -350,7 +362,6 @@ export function TimerProvider({
     correctedMinutes: state.context.correctedMinutes,
     correctionDraft: state.context.correctionDraft,
     keepLongRun: () => send({ type: "KEEP_LONG_RUN" }),
-    longRunHours: looksForgotten ? longRunHours(elapsedSeconds) : null,
     cancelDiscard: () => send({ type: "CANCEL" }),
     changeNote,
     close: () => send({ type: "CLOSE" }),
@@ -362,17 +373,20 @@ export function TimerProvider({
     },
     discard: () => send({ type: "DISCARD" }),
     dismissIdle: () => {
+      const idle = idleNoticeAt(Date.now());
+
       if (idle !== null) {
         send({ type: "DISMISS_IDLE", lastActivityAt: idle.key });
       }
 
       clearIdleSpan();
     },
-    elapsedSeconds,
     error: state.context.error,
-    idle,
     isBusy,
     isConfirmingDiscard: state.matches({ detail: "confirming" }),
+    // isLoading, not isPending: gated off, the query idles as "pending"
+    // forever without ever fetching.
+    isLoadingMissions: clientsQuery.isLoading,
     isRunning,
     isSaving: stopTimer.isPending,
     isStarting: start.isPending,
@@ -401,5 +415,51 @@ export function TimerProvider({
     trimIdle: () => void trimIdle(),
   };
 
-  return <TimerContext value={value}>{children}</TimerContext>;
+  return (
+    <TimerContext value={value}>
+      <TimerTicker
+        idleNoticeAt={idleNoticeAt}
+        keptLongRun={state.context.keptLongRun}
+        workdayMinutes={workdayMinutes}
+      >
+        {children}
+      </TimerTicker>
+    </TimerContext>
+  );
+}
+
+/**
+ * The only component that subscribes to the 1 Hz tick above the leaves: it
+ * re-renders every second while a timer runs, but its children element is
+ * stable, so the tick reaches exactly the components reading the clock
+ * context — not the whole tree under the provider.
+ */
+function TimerTicker({
+  children,
+  idleNoticeAt,
+  keptLongRun,
+  workdayMinutes,
+}: {
+  children: ReactNode;
+  idleNoticeAt: (at: number) => IdleNotice | null;
+  keptLongRun: boolean;
+  workdayMinutes: number;
+}) {
+  const { elapsedSeconds, now, timer } = useLiveTimer();
+
+  const looksForgotten =
+    timer !== null && !keptLongRun && isLongRun(elapsedSeconds, workdayMinutes);
+
+  return (
+    <TimerClockContext value={{ elapsedSeconds }}>
+      <TimerAlertsContext
+        value={{
+          idle: idleNoticeAt(now),
+          longRunHours: looksForgotten ? longRunHours(elapsedSeconds) : null,
+        }}
+      >
+        {children}
+      </TimerAlertsContext>
+    </TimerClockContext>
+  );
 }

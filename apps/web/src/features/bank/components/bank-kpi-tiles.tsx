@@ -11,8 +11,6 @@ import { bankBalanceSubLabel, bankBalanceTileValue } from "@/lib/bank";
 import { formatWholeAmount } from "@/lib/billing";
 import { m } from "@/paraglide/messages.js";
 
-import { hasUnlinkedCredits } from "../lib/labels";
-
 type BankKpiTilesProps = {
   data: BankAccountData;
   onEditBalance: () => void;
@@ -62,7 +60,7 @@ export function BankKpiTiles({ data, onEditBalance }: BankKpiTilesProps) {
             ? m.bank_pending_none_statement()
             : pendingCount > 0
               ? m.bank_pending_sub()
-              : hasUnlinkedCredits(data)
+              : data.hasUnlinkedCredits
                 ? m.bank_pending_none_suggested()
                 : m.bank_pending_done()
         }

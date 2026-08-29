@@ -260,6 +260,42 @@
                 }
             }
         },
+        "/bank/movements": {
+            "get": {
+                "operationId": "listBankMovements",
+                "tags": [
+                    "Bank"
+                ],
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "maxLength": 1024
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BankMovementPageData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/bank/balance": {
             "put": {
                 "operationId": "updateBankBalance",
@@ -1897,10 +1933,15 @@
                                     "const": "inline; filename=\"opusline.ics\""
                                 }
                             },
+                            "ETag": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
                             "Cache-Control": {
                                 "schema": {
                                     "type": "string",
-                                    "const": "no-store, private"
+                                    "const": "private, max-age=1800"
                                 }
                             }
                         }
@@ -2029,6 +2070,17 @@
                                 "null"
                             ],
                             "format": "date"
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "maxLength": 1024
                         }
                     }
                 ],
@@ -3048,9 +3100,6 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             },
@@ -3082,9 +3131,6 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -3119,9 +3165,6 @@
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
                     },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    },
                     "422": {
                         "$ref": "#/components/responses/ValidationException"
                     }
@@ -3147,9 +3190,6 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
                     },
                     "409": {
                         "description": "An error\n\nAn error\n\nAn error",
@@ -4107,6 +4147,15 @@
                             "$ref": "#/components/schemas/BankMovementData"
                         }
                     },
+                    "nextMovementsCursor": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "hasUnlinkedCredits": {
+                        "type": "boolean"
+                    },
                     "statements": {
                         "type": "array",
                         "items": {
@@ -4119,6 +4168,8 @@
                     "provisions",
                     "pendingMatches",
                     "movements",
+                    "nextMovementsCursor",
+                    "hasUnlinkedCredits",
                     "statements"
                 ],
                 "title": "BankAccountData"
@@ -4333,6 +4384,28 @@
                     "number"
                 ],
                 "title": "BankMovementInvoiceData"
+            },
+            "BankMovementPageData": {
+                "type": "object",
+                "properties": {
+                    "movements": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BankMovementData"
+                        }
+                    },
+                    "nextCursor": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "movements",
+                    "nextCursor"
+                ],
+                "title": "BankMovementPageData"
             },
             "BankProvisionData": {
                 "type": "object",
@@ -6501,11 +6574,18 @@
                         "items": {
                             "$ref": "#/components/schemas/InvoiceClientTotalsData"
                         }
+                    },
+                    "nextCursor": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 },
                 "required": [
                     "invoices",
-                    "clientTotals"
+                    "clientTotals",
+                    "nextCursor"
                 ],
                 "title": "InvoiceListData"
             },
@@ -7534,6 +7614,9 @@
                             "null"
                         ]
                     },
+                    "ratesRefreshing": {
+                        "type": "boolean"
+                    },
                     "contributionRateBp": {
                         "type": "integer"
                     },
@@ -7630,6 +7713,7 @@
                     "acre",
                     "ratesCheckedAt",
                     "ratesYear",
+                    "ratesRefreshing",
                     "contributionRateBp",
                     "liberatingPayment",
                     "liberatingPaymentRateBp",

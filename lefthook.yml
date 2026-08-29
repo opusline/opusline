@@ -45,6 +45,9 @@ pre-push:
     - name: release-notes-guard
       run: sh scripts/release-notes-guard.sh
 
+    - name: compose-doc-guard
+      run: sh scripts/compose-doc-guard.sh
+
     - name: quality
       group:
         piped: true

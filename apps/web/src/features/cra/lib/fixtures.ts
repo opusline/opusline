@@ -183,6 +183,7 @@ export const DEMO_SETTINGS = {
   acre: false,
   ratesCheckedAt: null,
   ratesYear: null,
+  ratesRefreshing: false,
   contributionRateBp: 2_600,
   liberatingPayment: false,
   liberatingPaymentRateBp: 220,

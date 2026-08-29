@@ -27,6 +27,7 @@ function Example({
           contributionRateBp={settings.contributionRateBp}
           effectiveContributionRateBp={settings.effectiveContributionRateBp}
           form={form}
+          isBackgroundRefresh={false}
           isRefreshingRates={false}
           liberatingPaymentRateBp={settings.liberatingPaymentRateBp}
           onRefreshRates={() => {}}

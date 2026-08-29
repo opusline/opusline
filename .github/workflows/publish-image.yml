@@ -17,6 +17,11 @@ on:
         description: The version to tag the images with, without the leading v.
         required: true
         type: string
+      move_latest:
+        description: Also move the latest tag to this version.
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: publish-image-${{ inputs.version }}
@@ -60,10 +65,16 @@ jobs:
           images: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}
           # `value=` rather than the ref: this runs on the push to main that cut
           # the release, so there is no tag ref to read the version from.
+          # A release always moves `latest` (event_name is the caller's push).
+          # A manual rebuild of an old version must not — it opts in with
+          # move_latest, for the base-image-refresh-of-the-current-version case.
+          # A manual rebuild of a non-tip patch does still move {major}.{minor}
+          # backwards; a release lookup to prevent that isn't worth it when
+          # every dispatch is the maintainer's own hand.
           tags: |
             type=semver,pattern={{version}},value=${{ inputs.version }}
             type=semver,pattern={{major}}.{{minor}},value=${{ inputs.version }}
-            type=raw,value=latest
+            type=raw,value=latest,enable=${{ github.event_name != 'workflow_dispatch' || inputs.move_latest == true }}
           labels: |
             org.opencontainers.image.title=${{ matrix.image }}
             org.opencontainers.image.description=Opusline — time tracking, notes and mission management for freelancers

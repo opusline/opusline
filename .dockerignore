@@ -14,6 +14,9 @@ apps/api/config/caddy
 apps/api/config/composer
 apps/api/config/psysh
 apps/api/data
+# The gitignored dev FrankenPHP binary (~167 MB) — without this it is copied
+# into any locally built image.
+apps/api/frankenphp
 apps/web/dist
 apps/storybook/storybook-static
 .git

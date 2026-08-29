@@ -1,5 +1,5 @@
 import {
-  listInvoicesOptions,
+  listInvoicesInfiniteQueryKey,
   showInvoiceOptions,
 } from "@opusline/api-client/react-query";
 import type { Meta, StoryObj } from "@storybook/react";
@@ -20,9 +20,11 @@ function Example({ invoices }: { invoices: ReturnType<typeof invoiceItem>[] }) {
       defaultOptions: { queries: { retry: false, staleTime: Infinity } },
     });
 
-    client.setQueryData(listInvoicesOptions({ query: CLIENT_QUERY }).queryKey, {
-      invoices,
-      clientTotals: [],
+    // The tab reads an infinite query, so the seed must be InfiniteData under
+    // the infinite variant of the key.
+    client.setQueryData(listInvoicesInfiniteQueryKey({ query: CLIENT_QUERY }), {
+      pages: [{ invoices, clientTotals: [], nextCursor: null }],
+      pageParams: [{}],
     });
 
     // The fiche each row opens, so picking one resolves from the cache and the

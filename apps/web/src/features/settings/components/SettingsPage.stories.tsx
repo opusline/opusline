@@ -25,7 +25,12 @@ const meta = {
       onSave: async () => true,
       onRemove: () => {},
     },
-    rates: { isRefreshing: false, error: null, onRefresh: () => {} },
+    rates: {
+      isBackgroundRefresh: false,
+      isRefreshing: false,
+      error: null,
+      onRefresh: () => {},
+    },
     localisation: {
       saved: {
         businessCountry: "FR",

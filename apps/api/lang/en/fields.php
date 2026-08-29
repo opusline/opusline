@@ -32,6 +32,7 @@ return [
     'companyPostalCode' => 'company postal code',
     'contactEmail' => 'contact email',
     'contributionRateBp' => 'contribution rate',
+    'cursor' => 'page cursor',
     'craRequired' => 'CRA required',
     'dateFormat' => 'date format',
     'dayFractionBp' => 'day fraction',

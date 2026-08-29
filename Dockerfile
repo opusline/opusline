@@ -83,6 +83,12 @@ WORKDIR /app
 
 COPY --from=vendor /src /app
 
+# Octane's worker script is gitignored, so a CI checkout builds an image
+# without it — and at boot Octane would then try to copy it into the
+# root-owned public/ as the app user and die. Install it from the very vendor
+# tree the image ships, so the file always matches the Octane version.
+RUN cp vendor/laravel/octane/src/Commands/stubs/frankenphp-worker.php public/frankenphp-worker.php
+
 # Laravel's writable tree is gitignored, so it does not exist in the build
 # context and has to be created here. Octane writes nowhere else at runtime.
 RUN mkdir -p \
@@ -94,6 +100,10 @@ RUN mkdir -p \
 
 COPY docker/api-entrypoint.sh /usr/local/bin/opusline-entrypoint
 RUN chmod +x /usr/local/bin/opusline-entrypoint
+
+# OPcache sized for the ~12,600-file app+vendor tree; kept out of
+# apps/api/php.ini so the dev binary keeps validating timestamps.
+COPY docker/api-php.ini /usr/local/etc/php/conf.d/opusline-opcache.ini
 
 ENV APP_ENV=production \
     APP_DEBUG=false \

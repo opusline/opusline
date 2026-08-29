@@ -23,7 +23,7 @@ import {
 } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CircleAlert } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
 import type { LocalisationDraft } from "@/features/settings/components/localisation-settings";
@@ -102,13 +102,55 @@ function ReglagesRoute() {
   const [signatureVersion, setSignatureVersion] = useState(0);
   const [signatureError, setSignatureError] = useState<string | null>(null);
   const [ratesError, setRatesError] = useState<string | null>(null);
+  // Set between a save that scheduled a background barème read and the fetch
+  // that shows its outcome; carries the check stamp as it stood at the save so
+  // the outcome is recognizable. Only a scheduling save arms it — another
+  // card's save landing in between must not disarm a pending read.
+  const [pendingRatesRefresh, setPendingRatesRefresh] = useState<{
+    checkedAtBefore: string | null;
+  } | null>(null);
   const [localisationError, setLocalisationError] = useState<string | null>(
     null,
   );
 
-  const settings = useQuery(showSettingsOptions());
+  const settings = useQuery({
+    ...showSettingsOptions(),
+    // While a background barème read is pending, poll gently for its outcome;
+    // React Query pauses the interval in hidden tabs.
+    refetchInterval: pendingRatesRefresh === null ? false : 5000,
+  });
+
+  // The job usually lands within seconds, but a refusing upstream holds it
+  // for its 10-second timeout plus a retry — the horizon outlives the worst
+  // case, then settles into showing whatever the row says (a failure clears
+  // the check stamp).
+  useEffect(() => {
+    if (pendingRatesRefresh === null) {
+      return;
+    }
+
+    const horizon = setTimeout(() => setPendingRatesRefresh(null), 30_000);
+
+    return () => clearTimeout(horizon);
+  }, [pendingRatesRefresh]);
+
+  const refreshedCheckedAt = settings.data?.ratesCheckedAt;
+
+  useEffect(() => {
+    if (
+      pendingRatesRefresh !== null &&
+      refreshedCheckedAt !== undefined &&
+      refreshedCheckedAt !== pendingRatesRefresh.checkedAtBefore
+    ) {
+      setPendingRatesRefresh(null);
+    }
+  }, [pendingRatesRefresh, refreshedCheckedAt]);
 
   const applySettingsResponse = (data: SettingsData) => {
+    if (data.ratesRefreshing) {
+      setPendingRatesRefresh({ checkedAtBefore: data.ratesCheckedAt });
+    }
+
     queryClient.setQueryData(showSettingsQueryKey(), data);
     patchCurrentUser(queryClient, data);
     // The matelas, the contribution rate and the TVA régime are all terms of
@@ -306,6 +348,7 @@ function ReglagesRoute() {
         }}
         rates={{
           isRefreshing: refreshRates.isPending,
+          isBackgroundRefresh: pendingRatesRefresh !== null,
           error: ratesError,
           onRefresh: () => refreshRates.mutate({}),
         }}

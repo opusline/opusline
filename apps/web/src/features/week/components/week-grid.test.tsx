@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
-
 import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
+import { STOPPED_TIMER_CLOCK, TimerClockContext } from "@/lib/timer-clock";
 import {
   DEMO_CLIENTS,
   DEMO_TIME_ENTRIES,
@@ -29,22 +29,28 @@ function renderGrid(
   };
 
   const gridFor = (timeEntries: typeof DEMO_TIME_ENTRIES) => (
-    <WeekGrid
-      live={overrides.live ?? null}
-      model={buildWeekGrid({
-        format: DEFAULT_MONEY_FORMAT,
-        clients: DEMO_CLIENTS,
-        liveMissionId: overrides.live?.missionId ?? null,
-        timeEntries,
-        today: DEMO_TODAY,
-        week: DEMO_WEEK,
-        weekendShown: overrides.weekendShown ?? false,
-      })}
-      noteSuggestions={[]}
-      pendingCellKeys={new Set()}
-      workdayMinutes={DEMO_WORKDAY_MINUTES}
-      {...handlers}
-    />
+    // The pill derives its labels from the clock context — 03:22:18 of a
+    // 420-minute workday on half-day rounding reads as "0,5 j".
+    <TimerClockContext
+      value={{ ...STOPPED_TIMER_CLOCK, elapsedSeconds: 12_138 }}
+    >
+      <WeekGrid
+        live={overrides.live ?? null}
+        model={buildWeekGrid({
+          format: DEFAULT_MONEY_FORMAT,
+          clients: DEMO_CLIENTS,
+          liveMissionId: overrides.live?.missionId ?? null,
+          timeEntries,
+          today: DEMO_TODAY,
+          week: DEMO_WEEK,
+          weekendShown: overrides.weekendShown ?? false,
+        })}
+        noteSuggestions={[]}
+        pendingCellKeys={new Set()}
+        workdayMinutes={DEMO_WORKDAY_MINUTES}
+        {...handlers}
+      />
+    </TimerClockContext>
   );
 
   const { rerender } = render(
@@ -519,19 +525,21 @@ it("totals a day across both units, billable time only", () => {
 });
 
 const RUNNING_ON_MONDAY: LiveCell = {
-  billedLabel: "0,5 j",
-  clockLabel: "03:42:18",
+  billingMode: 0,
   date: "2026-07-27",
   isRunning: true,
+  locale: "fr-FR",
   missionId: 1,
   onStop: () => undefined,
+  rounding: 0,
+  workdayMinutes: DEMO_WORKDAY_MINUTES,
 };
 
 it("shows the running timer as a provisional value on its own day", () => {
   renderGrid({ live: RUNNING_ON_MONDAY });
 
   expect(mondayTjmCell()).toHaveTextContent("0,5 j");
-  expect(mondayTjmCell()).toHaveTextContent("en cours · 03:42:18");
+  expect(mondayTjmCell()).toHaveTextContent("en cours · 03:22:18");
 });
 
 it("shows the timer alongside the entry already on that day", () => {
@@ -551,14 +559,14 @@ it("leaves every other day of that mission alone", () => {
 it("says the timer is paused when it is", () => {
   renderGrid({ live: { ...RUNNING_ON_MONDAY, isRunning: false } });
 
-  expect(mondayTjmCell()).toHaveTextContent("en pause · 03:42:18");
+  expect(mondayTjmCell()).toHaveTextContent("en pause · 03:22:18");
 });
 
 it("names the running timer in the cell's accessible label", () => {
   renderGrid({ live: RUNNING_ON_MONDAY });
 
   expect(
-    screen.getByRole("gridcell", { name: /en cours · 03:42:18/ }),
+    screen.getByRole("gridcell", { name: /lundi 27 juillet.*en cours/ }),
   ).toBeInTheDocument();
 });
 
@@ -577,5 +585,5 @@ it("renders the live pill on a weekend day", () => {
 
   expect(
     screen.getByRole("gridcell", { name: /Orvella front, samedi 1 août/ }),
-  ).toHaveTextContent("en cours · 03:42:18");
+  ).toHaveTextContent("en cours · 03:22:18");
 });

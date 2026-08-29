@@ -1,6 +1,8 @@
 import type { BankAccountData } from "@opusline/api-client";
 import { cn } from "@opusline/ui/lib/utils";
 
+import type { OlderMovements } from "../lib/use-older-movements";
+
 import { BankHeader } from "./bank-header";
 import { BankKpiTiles } from "./bank-kpi-tiles";
 import { BankMovementsCard } from "./bank-movements-card";
@@ -12,6 +14,7 @@ type BankPageProps = {
   isRefreshing: boolean;
   /** The suggestion a validate/dismiss request is in flight for. */
   pendingMatchId: number | null;
+  olderMovements?: OlderMovements;
   onImport: () => void;
   onEditBalance: () => void;
   onValidateMatch: (matchId: number) => void;
@@ -23,6 +26,7 @@ export function BankPage({
   data,
   isRefreshing,
   pendingMatchId,
+  olderMovements,
   onImport,
   onEditBalance,
   onValidateMatch,
@@ -47,7 +51,7 @@ export function BankPage({
         onValidate={onValidateMatch}
         pendingMatchId={pendingMatchId}
       />
-      <BankMovementsCard data={data} />
+      <BankMovementsCard data={data} olderMovements={olderMovements} />
       <BankStatementsCard data={data} />
     </div>
   );

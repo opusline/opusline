@@ -24,11 +24,8 @@ use Cknow\Money\Money;
  * top of it. Once the statement lands, the movement lowers the balance and the
  * same transfer stops being counted — the figure does not move.
  *
- * It reads the whole movement history because ResolveBankBalance and
- * ComputeBankProvisions both take collections. If that ever shows up in a
- * profile, the fix is to let those two query for themselves (the balance anchor
- * and the fisc debits are both index-backed lookups) rather than to filter here
- * against their internals.
+ * Every movement-derived figure here is an index-backed aggregate; the
+ * movement history itself is never hydrated, whatever the account's age.
  */
 class SummarizeTreasury
 {
@@ -44,19 +41,17 @@ class SummarizeTreasury
         $settings = $user->settingsOrFail();
         $currency = $settings->currency->value;
 
-        $movements = $user->bankMovements()
-            ->orderByDesc('booked_on')
-            ->orderByDesc('id')
-            ->get();
-
         $statements = $user->bankStatements()->get();
 
-        $anchor = $this->resolveBankBalance->handle($user, $statements, $movements);
-        $balance = $this->resolveCurrentBalance->handle($anchor, $movements, $currency)['balance'];
+        $anchor = $this->resolveBankBalance->handle($user, $statements);
+        $balance = $this->resolveCurrentBalance->handle($user, $anchor, $currency);
+
+        // value() hydrates through the CalendarDate cast, unlike max().
+        $lastBookedOn = $user->bankMovements()->orderByDesc('booked_on')->value('booked_on');
 
         $coveredThrough = $this->resolveBalanceCoverage->handle(
             $anchor,
-            $movements->first()?->booked_on,
+            $lastBookedOn instanceof CarbonImmutable ? $lastBookedOn : null,
             $settings->today(),
         );
 
@@ -69,7 +64,7 @@ class SummarizeTreasury
             ->filter(fn (PersonalTransfer $transfer): bool => $this->isPending($transfer, $coveredThrough))
             ->sum(static fn (PersonalTransfer $transfer): int => (int) $transfer->amount_cents->getAmount());
 
-        $provisions = $this->computeBankProvisions->handle($user, $movements);
+        $provisions = $this->computeBankProvisions->handle($user);
 
         // What is left once the transfers the balance cannot know about are
         // taken off it — the figure the provisions then come out of.

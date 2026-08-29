@@ -22,6 +22,7 @@ export const settingsFixture: SettingsData = {
   businessStartedOn: null,
   ratesCheckedAt: "2026-08-11T03:00:00+00:00",
   ratesYear: 2026,
+  ratesRefreshing: false,
   contributionRateBp: 2600,
   liberatingPayment: false,
   liberatingPaymentRateBp: 220,

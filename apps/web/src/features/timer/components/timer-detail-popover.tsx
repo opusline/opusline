@@ -5,8 +5,9 @@ import { Clock, TriangleAlert } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 import { useLocale } from "@/components/money-format-provider";
+import { formatClock } from "@/lib/timer-clock";
 import { m } from "@/paraglide/messages.js";
-import { formatClock, formatStartedAt, isRunning } from "../lib/elapsed";
+import { formatStartedAt, isRunning } from "../lib/elapsed";
 import type { IdleNotice } from "../lib/idle";
 
 export type TimerDetailPopoverProps = {

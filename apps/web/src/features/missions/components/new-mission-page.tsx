@@ -548,7 +548,7 @@ export function NewMissionPage({
         </form>
       </div>
 
-      <form.Subscribe selector={(state) => state.values.name}>
+      <form.Subscribe<string> selector={(state) => state.values.name}>
         {(missionName) => (
           <div className="flex min-w-0 flex-col gap-3.5">
             <div>

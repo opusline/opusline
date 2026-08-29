@@ -48,6 +48,7 @@ type FiscalSettingsFormProps = {
   savedAcre: boolean;
   savedBusinessStartedOn: string | null;
   isRefreshingRates: boolean;
+  isBackgroundRefresh: boolean;
   ratesError: string | null;
   onRefreshRates: () => void;
 };
@@ -62,6 +63,7 @@ export function FiscalSettingsForm({
   savedAcre,
   savedBusinessStartedOn,
   isRefreshingRates,
+  isBackgroundRefresh,
   ratesError,
   onRefreshRates,
 }: FiscalSettingsFormProps) {
@@ -127,7 +129,9 @@ export function FiscalSettingsForm({
             validators={{ onChange: ratePercentValidator(format.locale) }}
           >
             {(field) => (
-              <form.Subscribe selector={(state) => state.values.autoRates}>
+              <form.Subscribe<boolean>
+                selector={(state) => state.values.autoRates}
+              >
                 {(autoRates) => (
                   <FormTextField
                     adornment="%"
@@ -162,6 +166,7 @@ export function FiscalSettingsForm({
 
         <RateSource
           form={form}
+          isBackgroundRefresh={isBackgroundRefresh}
           isRefreshing={isRefreshingRates}
           onRefresh={onRefreshRates}
           ratesCheckedAt={ratesCheckedAt}

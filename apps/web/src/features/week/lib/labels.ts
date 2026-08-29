@@ -49,8 +49,12 @@ export function cellAriaLabel(input: {
   });
 }
 
+export function liveStateLabel(isRunning: boolean): string {
+  return isRunning ? m.week_live_running() : m.week_live_paused();
+}
+
 export function liveCellLabel(isRunning: boolean, clock: string): string {
-  return `${isRunning ? m.week_live_running() : m.week_live_paused()} · ${clock}`;
+  return `${liveStateLabel(isRunning)} · ${clock}`;
 }
 
 export function weekendToggleLabel(weekendShown: boolean): string {

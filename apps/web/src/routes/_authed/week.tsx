@@ -20,7 +20,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { useTimer } from "@/features/timer/components/timer-provider";
-import { formatClock } from "@/features/timer/lib/elapsed";
 import type { NewEntrySubmit } from "@/features/week/components/new-entry-dialog";
 import { WeekPage } from "@/features/week/components/week-page";
 import type { NextDeadline } from "@/features/week/components/week-summary-tiles";
@@ -31,7 +30,7 @@ import {
   browserTodayCalendarDate,
 } from "@/lib/dates";
 import { deadlinesQueryOptions } from "@/lib/deadlines";
-import { isFixedPrice, provisionalBilledLabel } from "@/lib/durations";
+import { isFixedPrice } from "@/lib/durations";
 import { findMissionById } from "@/lib/missions";
 import {
   invalidateTimeEntries,
@@ -93,7 +92,6 @@ function SemaineRoute() {
   const [isRepeating, setIsRepeating] = useState(false);
 
   const {
-    elapsedSeconds,
     isRunning: isTimerRunning,
     openStop,
     startDate: timerStartDate,
@@ -346,24 +344,21 @@ function SemaineRoute() {
       ? null
       : findMissionById(clients.data?.clients ?? [], timer.missionId);
 
+  // The moving labels are derived from the timer clock inside the live pill
+  // itself; handing them out from here would re-render the whole screen at
+  // 1 Hz for two text nodes.
   const live: LiveCell | null =
     timer === null || liveMission === null
       ? null
       : {
-          billedLabel: provisionalBilledLabel(
-            user.locale,
-            Math.round(elapsedSeconds / 60),
-            {
-              billingMode: liveMission.billingMode,
-              workdayMinutes: user.workdayMinutes,
-            },
-            liveMission.rounding,
-          ),
-          clockLabel: formatClock(elapsedSeconds),
+          billingMode: liveMission.billingMode,
           date: timerStartDate ?? today,
           isRunning: isTimerRunning,
+          locale: user.locale,
           missionId: timer.missionId,
           onStop: openStop,
+          rounding: liveMission.rounding,
+          workdayMinutes: user.workdayMinutes,
         };
 
   return (

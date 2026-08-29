@@ -16,10 +16,61 @@
       document.documentElement.style.colorScheme = prefersDark
         ? "dark"
         : "light";
+      // The static shell below sketches the authed chrome; the guest screens
+      // (login, register) have none, so they get a blank page instead of a
+      // sidebar that vanishes.
+      if (/^\/(login|register)(\/|$)/.test(location.pathname)) {
+        document.documentElement.classList.add("guest");
+      }
     </script>
+    <style>
+      /*
+       * First paint: the app chrome as inert boxes, replaced wholesale when
+       * React mounts. Colors are copies of --background/--sidebar/--border in
+       * packages/ui/src/styles/globals.css — inline, because this must paint
+       * before any stylesheet or script arrives.
+       */
+      #app-shell {
+        display: flex;
+        min-height: 100vh;
+        background: #f7f5f2;
+      }
+      .dark #app-shell {
+        background: #171412;
+      }
+      #app-shell .shell-rail {
+        display: none;
+        width: 16rem;
+        background: #ffffff;
+        border-right: 1px solid #e3ded6;
+      }
+      .dark #app-shell .shell-rail {
+        background: #1c1917;
+        border-right-color: #302b27;
+      }
+      @media (min-width: 768px) {
+        #app-shell .shell-rail {
+          display: block;
+        }
+      }
+      #app-shell .shell-main {
+        flex: 1;
+      }
+      #app-shell .shell-bar {
+        height: 3.5rem;
+        border-bottom: 1px solid #e3ded6;
+      }
+      .dark #app-shell .shell-bar {
+        border-bottom-color: #302b27;
+      }
+      .guest #app-shell .shell-rail,
+      .guest #app-shell .shell-bar {
+        display: none;
+      }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app"><div id="app-shell" aria-hidden="true"><div class="shell-rail"></div><div class="shell-main"><div class="shell-bar"></div></div></div></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -1,3 +1,4 @@
+import type { VatRegime } from "@opusline/api-client";
 import { Switch } from "@opusline/ui/components/switch";
 import { House } from "lucide-react";
 
@@ -75,7 +76,9 @@ export function IdentitySettingsForm({
         )}
 
         {showEuVatNumber && (
-          <form.Subscribe selector={(state) => state.values.vatRegime}>
+          <form.Subscribe<VatRegime>
+            selector={(state) => state.values.vatRegime}
+          >
             {(vatRegime) =>
               vatRegime === 0 ? (
                 <ExemptField
@@ -170,7 +173,7 @@ export function IdentitySettingsForm({
         </form.Field>
       </div>
 
-      <form.Subscribe
+      <form.Subscribe<boolean>
         selector={(state) => state.values.homeAddressSameAsCompany}
       >
         {(isSame) =>
@@ -202,7 +205,7 @@ export function IdentitySettingsForm({
         }
       </form.Subscribe>
 
-      <form.Subscribe selector={(state) => state.values.signatureCity}>
+      <form.Subscribe<string> selector={(state) => state.values.signatureCity}>
         {(city) => (
           <p className="mt-4.5 text-muted-foreground-3 text-xs">
             {m.settings_made_at_note({

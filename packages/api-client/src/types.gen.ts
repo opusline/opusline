@@ -12,6 +12,8 @@ export type BankAccountData = {
     provisions: BankProvisionsData;
     pendingMatches: Array<BankMatchData>;
     movements: Array<BankMovementData>;
+    nextMovementsCursor: string | null;
+    hasUnlinkedCredits: boolean;
     statements: Array<BankStatementData>;
 };
 
@@ -94,6 +96,14 @@ export type BankMovementData = {
 export type BankMovementInvoiceData = {
     id: number;
     number: string | null;
+};
+
+/**
+ * BankMovementPageData
+ */
+export type BankMovementPageData = {
+    movements: Array<BankMovementData>;
+    nextCursor: string | null;
 };
 
 /**
@@ -734,6 +744,7 @@ export type InvoiceForecastData = {
 export type InvoiceListData = {
     invoices: Array<InvoiceListItemData>;
     clientTotals: Array<InvoiceClientTotalsData>;
+    nextCursor: string | null;
 };
 
 /**
@@ -1066,6 +1077,7 @@ export type SettingsData = {
     acre: boolean;
     ratesCheckedAt: string | null;
     ratesYear: number | null;
+    ratesRefreshing: boolean;
     contributionRateBp: number;
     liberatingPayment: boolean;
     liberatingPaymentRateBp: number;
@@ -1682,6 +1694,35 @@ export type ShowBankAccountResponses = {
 };
 
 export type ShowBankAccountResponse = ShowBankAccountResponses[keyof ShowBankAccountResponses];
+
+export type ListBankMovementsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        cursor?: string | null;
+    };
+    url: '/bank/movements';
+};
+
+export type ListBankMovementsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListBankMovementsError = ListBankMovementsErrors[keyof ListBankMovementsErrors];
+
+export type ListBankMovementsResponses = {
+    200: BankMovementPageData;
+};
+
+export type ListBankMovementsResponse = ListBankMovementsResponses[keyof ListBankMovementsResponses];
 
 export type UpdateBankBalanceData2 = {
     body?: UpdateBankBalanceData;
@@ -3307,6 +3348,7 @@ export type ListInvoicesData = {
         late?: boolean | null;
         from?: string | null;
         to?: string | null;
+        cursor?: string | null;
     };
     url: '/invoices';
 };
@@ -4210,15 +4252,6 @@ export type ShowSettingsErrors = {
          */
         message: string;
     };
-    /**
-     * Not found
-     */
-    404: {
-        /**
-         * Error overview.
-         */
-        message: string;
-    };
 };
 
 export type ShowSettingsError = ShowSettingsErrors[keyof ShowSettingsErrors];
@@ -4246,15 +4279,6 @@ export type UpdateSettingsErrors = {
          */
         message: string;
     };
-    /**
-     * Not found
-     */
-    404: {
-        /**
-         * Error overview.
-         */
-        message: string;
-    };
 };
 
 export type UpdateSettingsError = UpdateSettingsErrors[keyof UpdateSettingsErrors];
@@ -4277,15 +4301,6 @@ export type UpdateSettingsCurrencyErrors = {
      * Unauthenticated
      */
     401: {
-        /**
-         * Error overview.
-         */
-        message: string;
-    };
-    /**
-     * Not found
-     */
-    404: {
         /**
          * Error overview.
          */
@@ -4328,15 +4343,6 @@ export type RefreshSettingsRatesErrors = {
      * Unauthenticated
      */
     401: {
-        /**
-         * Error overview.
-         */
-        message: string;
-    };
-    /**
-     * Not found
-     */
-    404: {
         /**
          * Error overview.
          */

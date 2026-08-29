@@ -11,6 +11,7 @@ import {
 } from "@opusline/ui/components/table";
 import { cn } from "@opusline/ui/lib/utils";
 
+import { LoadMoreButton } from "@/components/load-more-button";
 import {
   useDateFormat,
   useMoneyFormat,
@@ -20,15 +21,30 @@ import { calendarDateNumericLabel } from "@/lib/dates";
 import { m } from "@/paraglide/messages.js";
 
 import { movementsSourceNote, signedAmountLabel } from "../lib/labels";
+import type { OlderMovements } from "../lib/use-older-movements";
 
 const HEAD_CLASSES = "sticky top-0 z-10 bg-card px-0 pt-3 pb-2 font-normal";
 
 type BankMovementsCardProps = {
   data: BankAccountData;
+  olderMovements?: OlderMovements;
 };
 
-export function BankMovementsCard({ data }: BankMovementsCardProps) {
+export function BankMovementsCard({
+  data,
+  olderMovements,
+}: BankMovementsCardProps) {
   const dateFormat = useDateFormat();
+
+  // The summary window and the appended pages can briefly overlap while a
+  // write refreshes one before the other — a movement must never render twice.
+  const windowIds = new Set(data.movements.map((movement) => movement.id));
+  const movements = [
+    ...data.movements,
+    ...(olderMovements?.movements ?? []).filter(
+      (movement) => !windowIds.has(movement.id),
+    ),
+  ];
 
   return (
     <section className="rounded-md border bg-card p-5">
@@ -39,7 +55,7 @@ export function BankMovementsCard({ data }: BankMovementsCardProps) {
         </span>
       </div>
 
-      {data.movements.length === 0 ? (
+      {movements.length === 0 ? (
         <p className="pt-6 pb-2 text-center text-muted-foreground-3 text-sm">
           {m.bank_movements_empty()}
         </p>
@@ -84,11 +100,20 @@ export function BankMovementsCard({ data }: BankMovementsCardProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.movements.map((movement) => (
+            {movements.map((movement) => (
               <MovementRow key={movement.id} movement={movement} />
             ))}
           </TableBody>
         </Table>
+      )}
+
+      {olderMovements?.hasMore && (
+        <LoadMoreButton
+          className="pt-3"
+          isLoading={olderMovements.isLoading}
+          label={m.bank_movements_show_more()}
+          onClick={olderMovements.onShowMore}
+        />
       )}
     </section>
   );

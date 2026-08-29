@@ -30,19 +30,6 @@ export function signedAmountLabel(format: MoneyFormat, cents: number): string {
   return cents < 0 ? `− ${magnitude}` : `+ ${magnitude}`;
 }
 
-/**
- * Credits nobody linked: no invoice attached and no suggestion pending. The
- * page must never claim "tout est rapproché" while any of these exist.
- */
-export function hasUnlinkedCredits(data: BankAccountData): boolean {
-  return data.movements.some(
-    (movement) =>
-      movement.amount.amount > 0 &&
-      movement.invoice === null &&
-      movement.pendingMatchId === null,
-  );
-}
-
 /** The newest import — the API sends statements newest first. */
 export function latestStatement(
   data: BankAccountData,

@@ -36,7 +36,7 @@ import {
   MoreHorizontalIcon,
   PlusIcon,
 } from "lucide-react";
-import { type ReactNode, useMemo, useState } from "react";
+import { type MouseEvent, type ReactNode, useMemo, useState } from "react";
 import { ClientLogo } from "@/components/client-logo";
 import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { useMoneyFormat } from "@/components/money-format-provider";
@@ -374,7 +374,9 @@ export function ClientDetailPage({
                               />
                               <Link
                                 className="truncate text-foreground-hi text-sm"
-                                onClick={(event) => event.stopPropagation()}
+                                onClick={(event: MouseEvent) =>
+                                  event.stopPropagation()
+                                }
                                 params={{
                                   clientSlug: client.slug,
                                   missionSlug: mission.slug,

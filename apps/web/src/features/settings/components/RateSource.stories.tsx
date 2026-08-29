@@ -21,6 +21,7 @@ function Example({
       {(form) => (
         <RateSource
           form={form}
+          isBackgroundRefresh={false}
           isRefreshing={isRefreshing}
           onRefresh={() => {}}
           ratesCheckedAt={settings.ratesCheckedAt}

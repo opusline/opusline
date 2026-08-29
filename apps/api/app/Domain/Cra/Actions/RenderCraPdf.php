@@ -49,6 +49,31 @@ class RenderCraPdf
     {
         $cra->loadMissing(['days', 'mission.client', 'user.settings']);
 
+        return $this->render(View::make('cra.document', $this->viewData($cra, $applySignature))->render());
+    }
+
+    /**
+     * Renders one line per face the document uses, so dompdf extracts and
+     * caches the TTF metrics now. The entrypoint calls this once per boot —
+     * metric extraction is what made the first render after a deploy take
+     * seconds, inside a request.
+     */
+    public function warmFontCache(): void
+    {
+        $fontFaces = View::make('cra.fonts', ['fontPath' => resource_path('fonts')])->render();
+
+        $this->render(<<<HTML
+            <html lang="fr"><head><style>{$fontFaces}</style></head><body>
+            <span style="font-family: 'Geist'; font-weight: 400;">a</span>
+            <span style="font-family: 'Geist'; font-weight: 600;">a</span>
+            <span style="font-family: 'Lora'; font-weight: 400;">a</span>
+            <span style="font-family: 'Lora'; font-weight: 600;">a</span>
+            </body></html>
+            HTML);
+    }
+
+    private function render(string $html): string
+    {
         $options = new Options;
         // The template loads its fonts and the signature from disk and from data URIs;
         // nothing it renders should ever reach the network.
@@ -65,7 +90,7 @@ class RenderCraPdf
 
         $dompdf = new Dompdf($options);
         $dompdf->setPaper('A4');
-        $dompdf->loadHtml(View::make('cra.document', $this->viewData($cra, $applySignature))->render());
+        $dompdf->loadHtml($html);
         $dompdf->render();
 
         return (string) $dompdf->output();
@@ -73,7 +98,10 @@ class RenderCraPdf
 
     private function fontCachePath(): string
     {
-        $path = storage_path('app/dompdf-fonts');
+        // Under framework/, not app/: storage/app is the user-data volume in
+        // production, and font metrics are an artifact of the image's own TTF
+        // files — they must version with the container, not outlive it.
+        $path = storage_path('framework/cache/dompdf-fonts');
 
         // Two Octane workers can clear is_dir() at the same time, so the loser's mkdir
         // fails on a directory that now exists. Only that race is silenced; the recheck

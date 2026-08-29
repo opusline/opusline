@@ -8,6 +8,7 @@ return [
     'month_is_in_the_future' => 'Impossible de produire le CRA d\'un mois qui n\'a pas commencé.',
     'already_exists' => 'Un CRA existe déjà pour cette mission et ce mois.',
     'already_issued' => 'Ce CRA est déjà transmis au client : ses journées ne peuvent plus changer.',
+    'changed_while_sending' => 'La grille a changé pendant la préparation du document : rien n\'a été envoyé. Vérifiez les journées, puis renvoyez.',
     'day_outside_month' => 'Cette journée ne fait pas partie du mois du CRA.',
     'day_listed_twice' => 'Cette journée figure deux fois dans la grille.',
     'nothing_to_send' => 'Ce CRA ne comporte aucune journée : renseignez la grille avant de l\'envoyer.',

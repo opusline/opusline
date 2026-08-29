@@ -7,7 +7,7 @@ import {
   EmptyTitle,
 } from "@opusline/ui/components/empty";
 import { Skeleton } from "@opusline/ui/components/skeleton";
-
+import { LoadMoreButton } from "@/components/load-more-button";
 import {
   useDateFormat,
   useMoneyFormat,
@@ -26,6 +26,10 @@ type InvoiceListPanelProps = {
   withMission?: boolean;
   isPending?: boolean;
   isError?: boolean;
+  /** Older rows exist past the fetched window. */
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
+  onShowMore?: () => void;
   /** Why the list is empty — a client with no billable time, an unbillable mission. */
   emptyHint: string;
   onOpen: (invoiceId: number) => void;
@@ -37,6 +41,9 @@ export function InvoiceListPanel({
   withMission,
   isPending,
   isError,
+  hasMore = false,
+  isLoadingMore = false,
+  onShowMore,
   emptyHint,
   onOpen,
 }: InvoiceListPanelProps) {
@@ -130,6 +137,14 @@ export function InvoiceListPanel({
             );
           })}
         </ul>
+        {hasMore && onShowMore !== undefined && (
+          <LoadMoreButton
+            className="border-accent border-t py-2"
+            isLoading={isLoadingMore}
+            label={m.invoices_show_more()}
+            onClick={onShowMore}
+          />
+        )}
       </div>
 
       {isError && (

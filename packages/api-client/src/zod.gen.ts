@@ -856,7 +856,8 @@ export const zInvoiceListItemData = z.object({
  */
 export const zInvoiceListData = z.object({
     invoices: z.array(zInvoiceListItemData),
-    clientTotals: z.array(zInvoiceClientTotalsData)
+    clientTotals: z.array(zInvoiceClientTotalsData),
+    nextCursor: z.nullable(z.string())
 });
 
 /**
@@ -1034,6 +1035,8 @@ export const zBankAccountData = z.object({
     provisions: zBankProvisionsData,
     pendingMatches: z.array(zBankMatchData),
     movements: z.array(zBankMovementData),
+    nextMovementsCursor: z.nullable(z.string()),
+    hasUnlinkedCredits: z.boolean(),
     statements: z.array(zBankStatementData)
 });
 
@@ -1045,6 +1048,14 @@ export const zBankImportData = z.object({
     importedCount: z.int(),
     suggestionCount: z.int(),
     account: zBankAccountData
+});
+
+/**
+ * BankMovementPageData
+ */
+export const zBankMovementPageData = z.object({
+    movements: z.array(zBankMovementData),
+    nextCursor: z.nullable(z.string())
 });
 
 /**
@@ -1486,6 +1497,7 @@ export const zSettingsData = z.object({
     acre: z.boolean(),
     ratesCheckedAt: z.nullable(z.string()),
     ratesYear: z.nullable(z.int()),
+    ratesRefreshing: z.boolean(),
     contributionRateBp: z.int(),
     liberatingPayment: z.boolean(),
     liberatingPaymentRateBp: z.int(),
@@ -1600,6 +1612,12 @@ export const zUpdateUserReleaseNotesSeenBody = zUpdateReleaseNotesSeenData;
 export const zUpdateUserReleaseNotesSeenResponse = zUserData;
 
 export const zShowBankAccountResponse = zBankAccountData;
+
+export const zListBankMovementsQuery = z.object({
+    cursor: z.nullish(z.string().check(z.maxLength(1024)))
+});
+
+export const zListBankMovementsResponse = zBankMovementPageData;
 
 export const zUpdateBankBalanceBody = zUpdateBankBalanceData;
 
@@ -1855,7 +1873,8 @@ export const zListInvoicesQuery = z.object({
     missionId: z.nullish(z.int()),
     late: z.nullish(z.boolean()),
     from: z.nullish(z.iso.date()),
-    to: z.nullish(z.iso.date())
+    to: z.nullish(z.iso.date()),
+    cursor: z.nullish(z.string().check(z.maxLength(1024)))
 });
 
 export const zListInvoicesResponse = zInvoiceListData;

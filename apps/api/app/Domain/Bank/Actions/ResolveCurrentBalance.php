@@ -5,62 +5,41 @@ declare(strict_types=1);
 namespace App\Domain\Bank\Actions;
 
 use App\Domain\Bank\Data\BankBalanceData;
-use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Shared\Data\SignedMoneyData;
+use App\Domain\Users\Models\User;
 use Cknow\Money\Money;
-use Illuminate\Support\Collection;
 
 /**
  * The balance every screen shows: the anchor rolled forward through the
- * movements booked after it, plus the running balance behind each movement row.
+ * movements booked after it — one indexed SUM, never the hydrated history.
  *
  * Both aggregators go through here so the Compte pro tile and the Virement
- * hero can never quote different figures for the same account.
+ * hero can never quote different figures for the same account. The per-row
+ * running balances of the movement table walk backwards from this same figure
+ * in ListBankMovements.
  *
  * @phpstan-import-type BalanceAnchor from ResolveBankBalance
  */
 class ResolveCurrentBalance
 {
-    public function __construct(private readonly ComputeRunningBalances $computeRunningBalances) {}
-
     /**
      * @param  ?BalanceAnchor  $anchor
-     * @param  Collection<int, BankMovement>  $movements  newest first
-     * @return array{balance: ?BankBalanceData, runningBalances: list<?int>} running balances aligned with $movements
      */
-    public function handle(?array $anchor, Collection $movements, string $currency): array
+    public function handle(User $user, ?array $anchor, string $currency): ?BankBalanceData
     {
-        $chronological = $movements->reverse();
+        if ($anchor === null) {
+            return null;
+        }
 
-        $balances = array_reverse($this->computeRunningBalances->handle(
-            $anchor['cents'] ?? null,
-            $anchor['asOf'] ?? null,
-            array_values($chronological
-                ->map(static fn (BankMovement $movement): array => [
-                    $movement->booked_on,
-                    (int) $movement->amount_cents->getAmount(),
-                ])
-                ->all()),
-        ));
-
-        return [
-            'balance' => $anchor === null ? null : $this->balance($anchor, $balances, $currency),
-            'runningBalances' => $balances,
-        ];
-    }
-
-    /**
-     * @param  BalanceAnchor  $anchor
-     * @param  list<?int>  $runningBalances  newest first
-     */
-    private function balance(array $anchor, array $runningBalances, string $currency): BankBalanceData
-    {
-        // The anchor rolled forward through later movements — exactly the
-        // newest row's running balance when there are movements.
-        $current = $runningBalances[0] ?? $anchor['cents'];
+        // The anchor is a day's close, so it already accounts for everything
+        // booked on or before its own date; only strictly later movements move
+        // the figure.
+        $bookedAfterAnchor = (int) $user->bankMovements()
+            ->where('booked_on', '>', $anchor['asOf']->toDateString())
+            ->sum('amount_cents');
 
         return new BankBalanceData(
-            amount: SignedMoneyData::fromMoney(new Money($current, $currency)),
+            amount: SignedMoneyData::fromMoney(new Money($anchor['cents'] + $bookedAfterAnchor, $currency)),
             source: $anchor['source'],
             asOf: $anchor['citableAsOf'],
         );

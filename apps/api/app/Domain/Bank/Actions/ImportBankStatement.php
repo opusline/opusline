@@ -28,6 +28,8 @@ use Illuminate\Validation\ValidationException;
  */
 class ImportBankStatement
 {
+    public const int INSERT_CHUNK = 500;
+
     public function __construct(
         private readonly ParseBankStatement $parseBankStatement,
         private readonly SuggestBankMatches $suggestBankMatches,
@@ -82,23 +84,36 @@ class ImportBankStatement
                 ->all();
             $alreadyImported = array_flip($existingHashes);
 
-            $importedCount = 0;
+            // Bulk-inserted in chunks rather than one create() per row: a first
+            // import carries years of history, and N round trips under the user
+            // row lock can outlive Octane's max_execution_time. Raw rows, so the
+            // casts don't apply — cents and date strings are written directly.
+            $now = now();
+            $rows = [];
 
             foreach ($parsed->movements as $index => $movement) {
                 if (isset($alreadyImported[$hashes[$index]])) {
                     continue;
                 }
 
-                $locked->bankMovements()->create([
+                $rows[] = [
+                    'user_id' => $locked->id,
                     'bank_statement_id' => $statement->id,
-                    'booked_on' => $movement->bookedOn,
+                    'booked_on' => $movement->bookedOn->toDateString(),
                     'label' => mb_strcut($movement->label, 0, 255),
                     'currency' => $settings->currency->value,
-                    'amount_cents' => $this->cents($movement->amountCents, $settings),
+                    'amount_cents' => $movement->amountCents,
                     'dedup_hash' => $hashes[$index],
-                ]);
-                $importedCount++;
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
             }
+
+            foreach (array_chunk($rows, self::INSERT_CHUNK) as $chunk) {
+                $locked->bankMovements()->insert($chunk);
+            }
+
+            $importedCount = count($rows);
 
             // Every movement still awaiting a suggestion is re-evaluated, not
             // just the new rows: an invoice sent after an earlier import

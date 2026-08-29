@@ -45,10 +45,7 @@ class ComputeBankProvisions
 {
     public function __construct(private readonly ResolveExpectedCfe $resolveExpectedCfe) {}
 
-    /**
-     * @param  Collection<int, BankMovement>  $movements  every movement of $user, any order
-     */
-    public function handle(User $user, Collection $movements): BankProvisionsData
+    public function handle(User $user): BankProvisionsData
     {
         $settings = $user->settingsOrFail();
         $currency = $settings->currency->value;
@@ -57,10 +54,11 @@ class ComputeBankProvisions
         $vatPeriod = $this->vatPeriod($settings, $today);
         $urssafPeriod = $this->urssafPeriod($settings, $today);
         $collected = $this->collectedInvoices($user, $today, $vatPeriod, $urssafPeriod);
+        $fiscDebits = $this->fiscDebits($user, $settings, $vatPeriod, $urssafPeriod, $today);
 
-        $vat = $vatPeriod === null ? null : $this->vat($vatPeriod, $collected, $movements, $today, $currency);
-        $urssaf = $urssafPeriod === null ? null : $this->urssaf($settings, $urssafPeriod, $collected, $movements, $today, $currency);
-        $cfe = $this->cfe($settings, $movements, $today, $currency);
+        $vat = $vatPeriod === null ? null : $this->vat($vatPeriod, $collected, $fiscDebits, $today, $currency);
+        $urssaf = $urssafPeriod === null ? null : $this->urssaf($settings, $urssafPeriod, $collected, $fiscDebits, $today, $currency);
+        $cfe = $this->cfe($settings, $fiscDebits, $today, $currency);
         $buffer = $settings->treasury_buffer_cents;
 
         $total = new Money(0, $currency);
@@ -141,13 +139,47 @@ class ComputeBankProvisions
     }
 
     /**
+     * The debit movements the nettings below read, fetched once over the
+     * widest window any component looks at — never the whole history. The
+     * label matching stays in PHP: DetectFiscPayments owns those patterns.
+     *
+     * @param  ?array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}  $vatPeriod
+     * @param  ?array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}  $urssafPeriod
+     * @return Collection<int, BankMovement>
+     */
+    private function fiscDebits(
+        User $user,
+        UserSettings $settings,
+        ?array $vatPeriod,
+        ?array $urssafPeriod,
+        CarbonImmutable $today,
+    ): Collection {
+        $starts = array_filter([
+            $vatPeriod['start'] ?? null,
+            $urssafPeriod['start'] ?? null,
+            // The CFE netting reads the elapsed year.
+            $settings->hasFrenchFiscality() ? $today->startOfYear() : null,
+        ]);
+
+        if ($starts === []) {
+            return new Collection;
+        }
+
+        return $user->bankMovements()
+            ->where('amount_cents', '<', 0)
+            ->whereBetween('booked_on', [min($starts)->toDateString(), $today->toDateString()])
+            ->get(['id', 'booked_on', 'label', 'currency', 'amount_cents'])
+            ->toBase();
+    }
+
+    /**
      * @param  array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}  $period
-     * @param  Collection<int, BankMovement>  $movements
+     * @param  Collection<int, BankMovement>  $fiscDebits
      */
     private function vat(
         array $period,
         CollectedInvoices $collected,
-        Collection $movements,
+        Collection $fiscDebits,
         CarbonImmutable $today,
         string $currency,
     ): BankProvisionData {
@@ -155,7 +187,7 @@ class ComputeBankProvisions
         $carried = max(
             0,
             $collected->vatCents($period['previousStart'], $period['start']->subDay())
-                - $this->paymentsBetween($movements, $period['start'], $today, DetectFiscPayments::isVat(...)),
+                - $this->paymentsBetween($fiscDebits, $period['start'], $today, DetectFiscPayments::isVat(...)),
         );
 
         return new BankProvisionData(
@@ -167,13 +199,13 @@ class ComputeBankProvisions
 
     /**
      * @param  array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}  $period
-     * @param  Collection<int, BankMovement>  $movements
+     * @param  Collection<int, BankMovement>  $fiscDebits
      */
     private function urssaf(
         UserSettings $settings,
         array $period,
         CollectedInvoices $collected,
-        Collection $movements,
+        Collection $fiscDebits,
         CarbonImmutable $today,
         string $currency,
     ): BankProvisionData {
@@ -183,7 +215,7 @@ class ComputeBankProvisions
         $carried = max(
             0,
             $collected->contributionsCents($period['previousStart'], $period['start']->subDay(), $rateBp, $currency)
-                - $this->paymentsBetween($movements, $period['start'], $today, DetectFiscPayments::isUrssaf(...)),
+                - $this->paymentsBetween($fiscDebits, $period['start'], $today, DetectFiscPayments::isUrssaf(...)),
         );
 
         return new BankProvisionData(
@@ -203,11 +235,11 @@ class ComputeBankProvisions
      * Built a twelfth a month rather than locked whole in January: the bill only
      * lands on 15 December, and until then the account owes the elapsed share.
      *
-     * @param  Collection<int, BankMovement>  $movements
+     * @param  Collection<int, BankMovement>  $fiscDebits
      */
     private function cfe(
         UserSettings $settings,
-        Collection $movements,
+        Collection $fiscDebits,
         CarbonImmutable $today,
         string $currency,
     ): ?BankProvisionData {
@@ -230,7 +262,7 @@ class ComputeBankProvisions
         }
 
         $accrued = $expected->multiply($today->month)->divide(12, MoneyPhp::ROUND_HALF_UP);
-        $paid = $this->paymentsBetween($movements, $today->startOfYear(), $today, DetectFiscPayments::isCfe(...));
+        $paid = $this->paymentsBetween($fiscDebits, $today->startOfYear(), $today, DetectFiscPayments::isCfe(...));
         $owed = (int) $accrued->getAmount() - $paid;
 
         return new BankProvisionData(
@@ -245,7 +277,7 @@ class ComputeBankProvisions
      * The fisc's debits detected in the imported movements over the window,
      * as positive cents.
      *
-     * @param  Collection<int, BankMovement>  $movements
+     * @param  Collection<int, BankMovement>  $movements  debits covering at least [$start, $end]
      * @param  callable(string): bool  $matchesLabel
      */
     private function paymentsBetween(

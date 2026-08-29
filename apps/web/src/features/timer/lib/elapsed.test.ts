@@ -1,6 +1,8 @@
 import { expect, it } from "vitest";
 
-import { displayedElapsedSeconds, formatClock } from "./elapsed";
+import { formatClock } from "@/lib/timer-clock";
+
+import { displayedElapsedSeconds } from "./elapsed";
 import { DEMO_PAUSED_TIMER, DEMO_TIMER } from "./timer-fixtures";
 
 it("adds the wall-clock gap since the response landed", () => {

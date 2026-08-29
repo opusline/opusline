@@ -16,7 +16,10 @@ class InvoiceListData extends Data
     public function __construct(
         #[DataCollectionOf(InvoiceListItemData::class)]
         public array $invoices,
+        /** Carried by the ledger's first page only — empty on cursor pages and fiche slices. */
         #[DataCollectionOf(InvoiceClientTotalsData::class)]
         public array $clientTotals,
+        /** Cursor for the next (older) page of `invoices`; null on the last one. */
+        public ?string $nextCursor,
     ) {}
 }

@@ -21,7 +21,6 @@ import { m } from "@/paraglide/messages.js";
 
 import {
   bankMatchReasonLabel,
-  hasUnlinkedCredits,
   reconciliationNote,
   signedAmountLabel,
 } from "../lib/labels";
@@ -52,7 +51,7 @@ export function BankReconciliationPanel({
   const hasStatement = data.statements.length > 0;
   // "Tout est rapproché" is a factual claim — it only holds when no credit is
   // left without a linked invoice, not merely when no suggestion is pending.
-  const fullyLinked = hasStatement && !hasUnlinkedCredits(data);
+  const fullyLinked = hasStatement && !data.hasUnlinkedCredits;
 
   useEffect(() => {
     const settled = matches.length < settledCount.current;

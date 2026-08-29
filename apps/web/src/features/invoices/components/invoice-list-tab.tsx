@@ -1,5 +1,6 @@
-import { listInvoicesOptions } from "@opusline/api-client/react-query";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
+
+import { invoicePagesOptions } from "@/lib/invoice-pages";
 
 import { useOpenInvoice } from "./invoice-drawer-provider";
 import { InvoiceListPanel } from "./invoice-list-panel";
@@ -27,16 +28,19 @@ export function InvoiceListTab({
   withMission,
 }: InvoiceListTabProps) {
   const openInvoice = useOpenInvoice();
-  const invoices = useQuery(listInvoicesOptions({ query }));
+  const invoices = useInfiniteQuery(invoicePagesOptions(query));
 
   return (
     <InvoiceListPanel
       accountToday={accountToday}
       emptyHint={emptyHint}
-      invoices={invoices.data?.invoices ?? []}
+      hasMore={invoices.hasNextPage}
+      invoices={invoices.data?.pages.flatMap((page) => page.invoices) ?? []}
       isError={invoices.isError}
+      isLoadingMore={invoices.isFetchingNextPage}
       isPending={invoices.isPending}
       onOpen={openInvoice}
+      onShowMore={() => void invoices.fetchNextPage()}
       withMission={withMission}
     />
   );

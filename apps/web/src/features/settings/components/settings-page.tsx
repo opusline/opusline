@@ -13,6 +13,7 @@ import { hasEuVat } from "@/lib/countries";
 import { abroadTaxTerms } from "@/lib/fiscality";
 import type { FormSubmitResult } from "@/lib/form";
 import { m } from "@/paraglide/messages.js";
+import type { SettingsFormValues } from "../lib/settings-form";
 import {
   countChanges,
   SETTINGS_TAB_DETAILS,
@@ -71,6 +72,8 @@ type SignatureProps = {
 
 type RatesProps = {
   isRefreshing: boolean;
+  /** A save scheduled a background barème read that has not landed yet. */
+  isBackgroundRefresh: boolean;
   error: string | null;
   onRefresh: () => void;
 };
@@ -179,6 +182,7 @@ export function SettingsPage({
                       settings.effectiveContributionRateBp
                     }
                     form={form}
+                    isBackgroundRefresh={rates.isBackgroundRefresh}
                     isRefreshingRates={rates.isRefreshing}
                     liberatingPaymentRateBp={settings.liberatingPaymentRateBp}
                     onRefreshRates={rates.onRefresh}
@@ -223,7 +227,11 @@ export function SettingsPage({
             />
           </TabsContent>
 
-          <form.Subscribe
+          <form.Subscribe<{
+            values: SettingsFormValues;
+            isSubmitting: boolean;
+            invalidField: string | undefined;
+          }>
             selector={(state) => ({
               values: state.values,
               isSubmitting: state.isSubmitting,

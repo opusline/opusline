@@ -8,6 +8,7 @@ return [
     'month_is_in_the_future' => 'A month that has not started yet cannot be reported on.',
     'already_exists' => 'A CRA already exists for that mission and month.',
     'already_issued' => 'This CRA is already with the client: its days can no longer change.',
+    'changed_while_sending' => 'The grid changed while the document was being prepared: nothing was sent. Check the days, then send again.',
     'day_outside_month' => 'That day is not part of the CRA\'s month.',
     'day_listed_twice' => 'That day appears twice in the grid.',
     'nothing_to_send' => 'This CRA reports no day at all: fill the grid before sending it.',

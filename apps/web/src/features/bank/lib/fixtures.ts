@@ -142,6 +142,8 @@ export function bankData(
         invoice: null,
       }),
     ],
+    nextMovementsCursor: null,
+    hasUnlinkedCredits: false,
     statements: [
       bankStatement(),
       bankStatement({
@@ -213,7 +215,7 @@ export function reconciledBankData(): BankAccountData {
 
 /** No suggestions pending, but credits the matcher found nothing for. */
 export function unlinkedCreditsBankData(): BankAccountData {
-  const data = bankData({ pendingMatches: [] });
+  const data = bankData({ hasUnlinkedCredits: true, pendingMatches: [] });
 
   return {
     ...data,
@@ -255,6 +257,8 @@ export function emptyBankData(): BankAccountData {
     },
     pendingMatches: [],
     movements: [],
+    nextMovementsCursor: null,
+    hasUnlinkedCredits: false,
     statements: [],
   };
 }

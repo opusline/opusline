@@ -1,9 +1,12 @@
+import { Skeleton } from "@opusline/ui/components/skeleton";
 import { cn } from "@opusline/ui/lib/utils";
 import { m } from "@/paraglide/messages.js";
 import type { TimerMissionOption } from "../lib/mission-options";
 
 export type TimerStartPopoverProps = {
   error: string | null;
+  /** The mission list is fetched when the popover opens; sketch it meanwhile. */
+  isLoading?: boolean;
   isStarting: boolean;
   missions: TimerMissionOption[];
   onPick: (missionId: number) => void;
@@ -11,6 +14,7 @@ export type TimerStartPopoverProps = {
 
 export function TimerStartPopover({
   error,
+  isLoading = false,
   isStarting,
   missions,
   onPick,
@@ -21,7 +25,12 @@ export function TimerStartPopover({
         {m.timer_start_title()}
       </p>
 
-      {missions.length === 0 ? (
+      {isLoading && missions.length === 0 ? (
+        <div aria-busy className="flex flex-col gap-1">
+          <Skeleton className="h-14 w-full" />
+          <Skeleton className="h-14 w-full" />
+        </div>
+      ) : missions.length === 0 ? (
         <p className="px-2.5 pb-2.5 text-muted-foreground-3 text-sm">
           {m.timer_start_empty()}
         </p>

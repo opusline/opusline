@@ -43,6 +43,8 @@ class SettingsData extends Data
         public bool $acre,
         public ?string $ratesCheckedAt,
         public ?int $ratesYear,
+        /** True when this answer to a save scheduled a background barème read: the rates below are the stored ones. */
+        public bool $ratesRefreshing,
         public int $contributionRateBp,
         public bool $liberatingPayment,
         public int $liberatingPaymentRateBp,
@@ -64,8 +66,12 @@ class SettingsData extends Data
         public bool $hasSignature,
     ) {}
 
-    public static function fromModel(UserSettings $settings, bool $hasSignature, bool $currencyLocked): self
-    {
+    public static function fromModel(
+        UserSettings $settings,
+        bool $hasSignature,
+        bool $currencyLocked,
+        bool $ratesRefreshing = false,
+    ): self {
         return new self(
             tradeName: $settings->trade_name,
             siret: $settings->siret,
@@ -90,6 +96,7 @@ class SettingsData extends Data
             acre: $settings->acre,
             ratesCheckedAt: $settings->rates_checked_at?->toIso8601String(),
             ratesYear: $settings->rates_year,
+            ratesRefreshing: $ratesRefreshing,
             contributionRateBp: $settings->contribution_rate_bp,
             liberatingPayment: $settings->liberating_payment,
             liberatingPaymentRateBp: $settings->liberating_payment_rate_bp,
