@@ -68,7 +68,7 @@ class BuildDeadlineCalendar
             'select count(*) as total, max(updated_at) as touched from invoices where user_id = ?
             union all select count(*), max(updated_at) from clients where user_id = ?
             union all select count(*), max(updated_at) from fiscal_deadline_completions where user_id = ?
-            union all select count(*), max(id) from bank_movements where user_id = ?',
+            union all select count(*), max(updated_at) from bank_movements where user_id = ?',
             [$user->id, $user->id, $user->id, $user->id],
         );
 
