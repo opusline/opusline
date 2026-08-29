@@ -314,6 +314,12 @@ the tables ship in the migrations. One less container, a slower app. The `queue`
 worker stays either way — it is what moves an uploaded document to its final
 disk, so without it uploads sit on the staging disk forever.
 
+**Registration.** `REGISTRATION_ENABLED=false` closes self-registration: the
+register endpoint answers 404, except while the instance has zero users, so
+your own account can always be created first. The example env ships it closed;
+leave it out (or set `true`) only if strangers signing up is what you want —
+each account is isolated, but every account can upload files.
+
 **Fiscal rates.** `MON_ENTREPRISE_ENABLED=false` stops the daily call to
 `mon-entreprise.urssaf.fr`, for an air-gapped install. Contribution rates then
 stay whatever you set in Réglages.

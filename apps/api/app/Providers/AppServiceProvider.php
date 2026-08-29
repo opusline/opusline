@@ -68,6 +68,17 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('api', fn (Request $request): Limit => Limit::perMinute(120)->by($caller($request)));
         RateLimiter::for('uploads', fn (Request $request): Limit => Limit::perMinute(20)->by($caller($request)));
 
+        // Login is limited per email as well as per IP, so an attacker
+        // rotating IPs still hits a per-account wall.
+        RateLimiter::for('login', function (Request $request): array {
+            $email = $request->input('email');
+
+            return [
+                Limit::perMinute(6)->by('ip:'.($request->ip() ?? 'unknown')),
+                Limit::perMinute(6)->by('email:'.(is_string($email) ? mb_strtolower($email) : 'invalid')),
+            ];
+        });
+
         Scramble::configure()->withParametersExtractors(
             fn (ParametersExtractors $extractors): ParametersExtractors => $extractors->prepend(SpatieDataParametersExtractor::class),
         );

@@ -18,6 +18,20 @@
 
 	encode zstd gzip
 
+	# Baseline hardening on every response, API included. HSTS is not set here
+	# on purpose: it belongs at the TLS proxy in front, the thing that actually
+	# speaks https. frame-ancestors covers what X-Frame-Options does in current
+	# browsers; both are sent for older ones. The CSP is a `?` default so the
+	# API's own, stricter policies (default-src 'none' on served uploads) pass
+	# through untouched; a full CSP on the SPA would need the inline theme
+	# script in apps/web/index.html hashed or externalized first.
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		?Content-Security-Policy "frame-ancestors 'none'"
+		Referrer-Policy "same-origin"
+	}
+
 	# /up is Laravel's health endpoint, reachable through the same origin as
 	# everything else so an orchestrator has one address to probe.
 	@api path /api/* /sanctum/* /up

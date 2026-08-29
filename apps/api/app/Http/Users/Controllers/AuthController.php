@@ -20,6 +20,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -38,6 +39,14 @@ class AuthController extends Controller
     public function login(LoginData $data, Request $request): JsonResponse
     {
         if (! Auth::attempt(['email' => $data->email, 'password' => $data->password], $data->remember)) {
+            if (! User::query()->where('email', $data->email)->exists()) {
+                // Auth::attempt skips the bcrypt comparison when the email is
+                // unknown, so that branch answers measurably faster — a timing
+                // oracle for which addresses have accounts. Burn an equivalent
+                // hash so both failures cost the same.
+                Hash::make($data->password);
+            }
+
             throw ValidationException::withMessages(['email' => __('auth.failed')]);
         }
 
