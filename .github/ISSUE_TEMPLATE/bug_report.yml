@@ -21,7 +21,7 @@ body:
     attributes:
       label: Opusline version
       description: Shown in the app footer, or the release tag you deployed.
-      placeholder: 0.20.1 # x-release-please-version
+      placeholder: 0.20.2 # x-release-please-version
     validations:
       required: true
   - type: dropdown

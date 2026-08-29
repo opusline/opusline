@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.2](https://github.com/opusline/opusline/compare/v0.20.1...v0.20.2) (2026-08-29)
+
+
+### Bug Fixes
+
+* **repo:** harden auth and add security guardrails ([#234](https://github.com/opusline/opusline/issues/234)) ([04d4ab4](https://github.com/opusline/opusline/commit/04d4ab416cff09840020d43b9580a8400aba3471))
+
 ## [0.20.1](https://github.com/opusline/opusline/compare/v0.20.0...v0.20.1) (2026-08-29)
 
 

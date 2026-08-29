@@ -27,7 +27,7 @@ return [
     |
     */
 
-    'version' => '0.20.1', // x-release-please-version
+    'version' => '0.20.2', // x-release-please-version
 
     /*
     |--------------------------------------------------------------------------
