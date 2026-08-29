@@ -14,6 +14,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.20.1",
+    date: "2026-08-29",
+    items: [
+      {
+        kind: "improved",
+        text: 'The app stays fast as your history grows: bank movements and invoices now load in pages with a "show older" button, screens fetch only what they display, and saving your settings no longer waits on the URSSAF barème.', // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.20.0",
     date: "2026-08-28",
     items: [
