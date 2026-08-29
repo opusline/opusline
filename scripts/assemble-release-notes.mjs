@@ -71,7 +71,21 @@ for (const item of items) {
   seenTexts.add(item.text);
 }
 
-const quote = (text) => JSON.stringify(text);
+// Biome's quoteStyle "double" is a preference, not absolute: a string holding
+// more double quotes than single quotes is printed single-quoted (fewer
+// escapes). Mirror that choice so the assembled entry is already
+// formatter-clean and the assembly PR does not fail its own CI.
+const quote = (text) => {
+  const countOf = (character) => text.split(character).length - 1;
+  if (countOf('"') <= countOf("'")) {
+    return JSON.stringify(text);
+  }
+  const escaped = JSON.stringify(text)
+    .slice(1, -1)
+    .replaceAll('\\"', '"')
+    .replaceAll("'", "\\'");
+  return `'${escaped}'`;
+};
 
 // Release notes are English prose that still names French things — « Prochaine
 // échéance », Déclarations, a CRA. They are content, not UI copy, so they never
