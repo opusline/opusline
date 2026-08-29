@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.0](https://github.com/opusline/opusline/compare/v0.19.0...v0.20.0) (2026-08-29)
+
+
+### Features
+
+* **repo:** ship self-hosting and close the audit ([#217](https://github.com/opusline/opusline/issues/217)) ([b9af4db](https://github.com/opusline/opusline/commit/b9af4dbb0bc82435af648b4b5c90e22d7331e8c0))
+
 ## [0.19.0](https://github.com/opusline/opusline/compare/v0.18.0...v0.19.0) (2026-08-28)
 
 
