@@ -243,9 +243,10 @@ docker compose -f compose.prod.yaml up -d
 Migrations run on start, so that is the whole upgrade. Take the database backup
 first anyway — a migration is the one thing a rollback cannot undo.
 
-By default the stack follows `latest`. To decide upgrades yourself, pin
-`OPUSLINE_VERSION` in `.env` to a released version and raise it when you mean
-to. The `edge` tag tracks `main` and is not supported.
+Images are built only when a release is cut, so every tag corresponds to one:
+`latest`, the exact version (`0.20.0`) and the minor series (`0.20`). Nothing is
+published from `main`. By default the stack follows `latest`; to decide upgrades
+yourself, pin `OPUSLINE_VERSION` in `.env` and raise it when you mean to.
 
 ## Choices you can change
 
