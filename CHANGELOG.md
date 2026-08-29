@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.1](https://github.com/opusline/opusline/compare/v0.20.0...v0.20.1) (2026-08-29)
+
+
+### Performance Improvements
+
+* **repo:** implement the full performance audit ([#231](https://github.com/opusline/opusline/issues/231)) ([3cc6ca6](https://github.com/opusline/opusline/commit/3cc6ca6466fac52a2c938a26bc8e14b29e0518c8))
+
 ## [0.20.0](https://github.com/opusline/opusline/compare/v0.19.0...v0.20.0) (2026-08-29)
 
 
