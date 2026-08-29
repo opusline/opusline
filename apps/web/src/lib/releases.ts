@@ -14,6 +14,48 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.20.0",
+    date: "2026-08-28",
+    items: [
+      {
+        kind: "new",
+        text: "Opusline now ships as two Docker images with a compose file, so you can run it on your own server, home box or NAS in one command — backups, upgrades and TLS are written up in the self-hosting guide.",
+      },
+      {
+        kind: "improved",
+        text: "When your CFE is a guess rather than a bill you have seen, the Transfer screen now says so — the « safe to transfer » figure no longer quietly deducts an estimate the Deadlines screen labels as one.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "The bank movements and mission entries tables are now real tables to a screen reader, so each figure is announced with the column it belongs to, and a reconciliation you validate no longer drops your keyboard focus.",
+      },
+      {
+        kind: "improved",
+        text: "Saving your settings no longer waits through a retry when the official barème source is slow — it saves, keeps the rates you had, and the daily refresh picks them up.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "Changing the account currency could leave an expected CFE, or a mission carrying only a reference TJM, silently relabelled in the new currency. Those amounts are now either protected or cleared with the rest.",
+      },
+      {
+        kind: "fixed",
+        text: "The light theme was hard to read: buttons, quiet labels, placeholders and the outline around every input sat below the accessibility contrast threshold. All of them are darker now, in both themes.",
+      },
+      {
+        kind: "fixed",
+        text: "The projection on a new mission set its URSSAF aside at a fixed 26 %, so an ACRE account saw a « net estimé » roughly 15 % too low. It now uses your own contribution rate and your own workday length.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "The week's billable total and the URSSAF figure on the Deadlines timeline were re-derived in the browser and could drift by a few cents from what an invoice or a declaration would say. Both now come straight from the same figures the rest of the app uses.",
+      },
+      {
+        kind: "fixed",
+        text: "Parts of the week screen stayed in French for accounts set to English — the Today button, the column headers and the non-billable toggle now follow your language.",
+      },
+    ],
+  },
+  {
     version: "0.19.0",
     date: "2026-08-28",
     items: [
