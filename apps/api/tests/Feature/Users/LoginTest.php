@@ -57,3 +57,19 @@ test('login attempts are rate limited', function (): void {
         'password' => 'wrong-password',
     ])->assertTooManyRequests();
 });
+
+test('login attempts are rate limited per email even when the IP rotates', function (): void {
+    $user = User::factory()->create();
+
+    foreach (range(1, 6) as $attempt) {
+        fromSpa()->withServerVariables(['REMOTE_ADDR' => "10.0.0.{$attempt}"])->postJson('/api/login', [
+            'email' => $user->email,
+            'password' => 'wrong-password',
+        ])->assertUnprocessable();
+    }
+
+    fromSpa()->withServerVariables(['REMOTE_ADDR' => '10.0.0.100'])->postJson('/api/login', [
+        'email' => $user->email,
+        'password' => 'wrong-password',
+    ])->assertTooManyRequests();
+});

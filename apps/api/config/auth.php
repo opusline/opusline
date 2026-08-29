@@ -116,4 +116,17 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Self-Registration
+    |--------------------------------------------------------------------------
+    |
+    | Whether POST /api/register is open. When disabled, registration still
+    | works while the instance has zero users, so the operator can always
+    | create the first account; after that the endpoint answers 404.
+    |
+    */
+
+    'registration_enabled' => env('REGISTRATION_ENABLED', true),
+
 ];

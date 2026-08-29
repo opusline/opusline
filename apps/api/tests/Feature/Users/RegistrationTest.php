@@ -68,3 +68,38 @@ test('registration fails when the email is already taken', function (): void {
         ->assertUnprocessable()
         ->assertJsonValidationErrors('email');
 });
+
+test('registration returns 404 when disabled and an account already exists', function (): void {
+    config()->set('auth.registration_enabled', false);
+    User::factory()->create();
+
+    fromSpa()->postJson('/api/register', [
+        'name' => 'Test User',
+        'email' => 'test@example.com',
+        'password' => 'secret-password',
+        'password_confirmation' => 'secret-password',
+    ])->assertNotFound();
+
+    $this->assertGuest();
+    $this->assertDatabaseMissing('users', ['email' => 'test@example.com']);
+});
+
+test('a disabled register endpoint 404s before validating the payload', function (): void {
+    config()->set('auth.registration_enabled', false);
+    User::factory()->create();
+
+    fromSpa()->postJson('/api/register', ['email' => 'not-an-email'])->assertNotFound();
+});
+
+test('the first account can be created even when registration is disabled', function (): void {
+    config()->set('auth.registration_enabled', false);
+
+    fromSpa()->postJson('/api/register', [
+        'name' => 'Test User',
+        'email' => 'test@example.com',
+        'password' => 'secret-password',
+        'password_confirmation' => 'secret-password',
+    ])->assertCreated();
+
+    $this->assertAuthenticated();
+});

@@ -1,0 +1,11 @@
+# Config for the secret-scan CI job (.github/workflows/ci.yml): the default
+# gitleaks ruleset plus allowlisted known false positives.
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Vendored skill doc showing a STRIPE_SECRET placeholder (sk_live_abc123) as a config anti-pattern example — not a real key"
+paths = [
+  '''apps/api/\.(agents|claude)/skills/laravel-best-practices/rules/config\.md''',
+]

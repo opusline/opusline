@@ -40,6 +40,7 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm audit --prod
       - id: playwright-version
         run: echo "version=$(pnpm --filter @opusline/storybook exec playwright --version | tr ' ' '-')" >> "$GITHUB_OUTPUT"
       - id: playwright-cache
@@ -54,6 +55,20 @@ jobs:
       - run: pnpm format-and-lint
       - run: pnpm exec turbo run test check-types build "--filter=!@opusline/api"
       - run: node apps/web/scripts/check-bundle-budget.mjs
+
+  secret-scan:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Full history: leaked-then-deleted secrets still live in old commits.
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Run gitleaks over the working tree and git history
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz | tar -xz gitleaks
+          ./gitleaks detect --source . --no-banner --redact
 
   api-static:
     name: API static analysis (pint, rector, phpstan)
@@ -79,6 +94,7 @@ jobs:
           key: composer-${{ hashFiles('apps/api/composer.lock') }}
           restore-keys: composer-
       - run: composer install --no-interaction --no-progress --prefer-dist
+      - run: composer audit
       - run: cp .env.example .env && php artisan key:generate
       - uses: actions/cache@v6
         with:
@@ -168,6 +184,7 @@ jobs:
           key: composer-${{ hashFiles('apps/api/composer.lock') }}
           restore-keys: composer-
       - run: composer install --no-interaction --no-progress --prefer-dist
+      - run: composer audit
       - run: cp .env.example .env && php artisan key:generate
       - run: php artisan config:clear --quiet && php artisan test --ci --parallel
 
