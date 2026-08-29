@@ -7,6 +7,7 @@
       "initial-version": "0.1.0",
       "bump-minor-pre-major": true,
       "extra-files": [
+        ".github/ISSUE_TEMPLATE/bug_report.yml",
         "apps/api/config/app.php",
         "apps/api/config/scramble.php",
         "apps/web/src/lib/version.ts",
