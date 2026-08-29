@@ -1,20 +1,26 @@
 name: Publish Images
 
-# The self-hosting story: every release, and every push to main, produces the
-# two images compose.prod.yaml runs. A tag build is what a self-hoster pins to;
-# `edge` is what they follow to try what is coming.
+# Only for a release. release-please calls this from its own run once it has cut
+# one, because it creates the release with GITHUB_TOKEN and GitHub does not fire
+# `release` events for those — a `release: published` trigger here would look
+# right and never run.
 on:
-  push:
-    branches: [main]
-    tags: ["v*"]
+  workflow_call:
+    inputs:
+      version:
+        description: The released version, without the leading v.
+        required: true
+        type: string
   workflow_dispatch:
-
-permissions:
-  contents: read
+    inputs:
+      version:
+        description: The version to tag the images with, without the leading v.
+        required: true
+        type: string
 
 concurrency:
-  group: publish-image-${{ github.ref }}
-  cancel-in-progress: true
+  group: publish-image-${{ inputs.version }}
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -52,16 +58,17 @@ jobs:
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}
+          # `value=` rather than the ref: this runs on the push to main that cut
+          # the release, so there is no tag ref to read the version from.
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
-            type=raw,value=edge,enable={{is_default_branch}}
-            type=sha,format=long
+            type=semver,pattern={{version}},value=${{ inputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ inputs.version }}
+            type=raw,value=latest
           labels: |
             org.opencontainers.image.title=${{ matrix.image }}
             org.opencontainers.image.description=Opusline — time tracking, notes and mission management for freelancers
             org.opencontainers.image.licenses=AGPL-3.0-only
+            org.opencontainers.image.version=${{ inputs.version }}
 
       - id: build
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
