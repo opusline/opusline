@@ -76,8 +76,10 @@ export function IdentitySettingsForm({
         )}
 
         {showEuVatNumber && (
-          <form.Subscribe selector={(state) => state.values.vatRegime}>
-            {(vatRegime: VatRegime) =>
+          <form.Subscribe<VatRegime>
+            selector={(state) => state.values.vatRegime}
+          >
+            {(vatRegime) =>
               vatRegime === 0 ? (
                 <ExemptField
                   label={m.settings_eu_vat_label()}
@@ -171,10 +173,10 @@ export function IdentitySettingsForm({
         </form.Field>
       </div>
 
-      <form.Subscribe
+      <form.Subscribe<boolean>
         selector={(state) => state.values.homeAddressSameAsCompany}
       >
-        {(isSame: boolean) =>
+        {(isSame) =>
           isSame ? (
             <div className="rounded-md border bg-muted px-3.5 py-3 text-muted-foreground-3 text-sm leading-relaxed">
               {m.settings_home_same_note()}
@@ -203,8 +205,8 @@ export function IdentitySettingsForm({
         }
       </form.Subscribe>
 
-      <form.Subscribe selector={(state) => state.values.signatureCity}>
-        {(city: string) => (
+      <form.Subscribe<string> selector={(state) => state.values.signatureCity}>
+        {(city) => (
           <p className="mt-4.5 text-muted-foreground-3 text-xs">
             {m.settings_made_at_note({
               city: city.trim() === "" ? "…" : city,

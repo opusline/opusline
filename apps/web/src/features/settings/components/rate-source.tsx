@@ -95,7 +95,7 @@ export function RateSource({
         )}
       </form.Field>
 
-      <form.Subscribe
+      <form.Subscribe<{ autoRates: boolean; isSituationUnsaved: boolean }>
         selector={(state) => ({
           autoRates: state.values.autoRates,
           isSituationUnsaved:
@@ -105,13 +105,7 @@ export function RateSource({
               : state.values.businessStartedOn) !== savedBusinessStartedOn,
         })}
       >
-        {({
-          autoRates,
-          isSituationUnsaved,
-        }: {
-          autoRates: boolean;
-          isSituationUnsaved: boolean;
-        }) =>
+        {({ autoRates, isSituationUnsaved }) =>
           autoRates ? (
             <>
               <div className="mt-3.5 flex flex-wrap items-center gap-3 rounded-md border bg-muted px-4 py-3">

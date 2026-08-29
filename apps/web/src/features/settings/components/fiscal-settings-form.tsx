@@ -129,8 +129,10 @@ export function FiscalSettingsForm({
             validators={{ onChange: ratePercentValidator(format.locale) }}
           >
             {(field) => (
-              <form.Subscribe selector={(state) => state.values.autoRates}>
-                {(autoRates: boolean) => (
+              <form.Subscribe<boolean>
+                selector={(state) => state.values.autoRates}
+              >
+                {(autoRates) => (
                   <FormTextField
                     adornment="%"
                     description={m.settings_contribution_rate_hint()}

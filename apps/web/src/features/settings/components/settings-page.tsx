@@ -227,7 +227,11 @@ export function SettingsPage({
             />
           </TabsContent>
 
-          <form.Subscribe
+          <form.Subscribe<{
+            values: SettingsFormValues;
+            isSubmitting: boolean;
+            invalidField: string | undefined;
+          }>
             selector={(state) => ({
               values: state.values,
               isSubmitting: state.isSubmitting,
@@ -238,15 +242,7 @@ export function SettingsPage({
               ),
             })}
           >
-            {({
-              values,
-              isSubmitting,
-              invalidField,
-            }: {
-              values: SettingsFormValues;
-              isSubmitting: boolean;
-              invalidField: string | undefined;
-            }) => {
+            {({ values, isSubmitting, invalidField }) => {
               const changes = countChanges(
                 format,
                 savedValues,

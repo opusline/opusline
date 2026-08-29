@@ -403,8 +403,8 @@ export function NewClientPage({
         </form>
       </div>
 
-      <form.Subscribe selector={(state) => state.values}>
-        {(values: ClientFormValues) => (
+      <form.Subscribe<ClientFormValues> selector={(state) => state.values}>
+        {(values) => (
           <div className="flex min-w-0 flex-col gap-3.5">
             <div>
               <div className={cn(eyebrowVariants(), "mb-2.5")}>
