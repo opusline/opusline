@@ -13,6 +13,7 @@ import { hasEuVat } from "@/lib/countries";
 import { abroadTaxTerms } from "@/lib/fiscality";
 import type { FormSubmitResult } from "@/lib/form";
 import { m } from "@/paraglide/messages.js";
+import type { SettingsFormValues } from "../lib/settings-form";
 import {
   countChanges,
   SETTINGS_TAB_DETAILS,
@@ -237,7 +238,15 @@ export function SettingsPage({
               ),
             })}
           >
-            {({ values, isSubmitting, invalidField }) => {
+            {({
+              values,
+              isSubmitting,
+              invalidField,
+            }: {
+              values: SettingsFormValues;
+              isSubmitting: boolean;
+              invalidField: string | undefined;
+            }) => {
               const changes = countChanges(
                 format,
                 savedValues,

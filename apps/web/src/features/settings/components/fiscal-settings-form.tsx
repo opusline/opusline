@@ -130,7 +130,7 @@ export function FiscalSettingsForm({
           >
             {(field) => (
               <form.Subscribe selector={(state) => state.values.autoRates}>
-                {(autoRates) => (
+                {(autoRates: boolean) => (
                   <FormTextField
                     adornment="%"
                     description={m.settings_contribution_rate_hint()}

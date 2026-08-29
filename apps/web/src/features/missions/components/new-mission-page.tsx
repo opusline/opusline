@@ -549,7 +549,7 @@ export function NewMissionPage({
       </div>
 
       <form.Subscribe selector={(state) => state.values.name}>
-        {(missionName) => (
+        {(missionName: string) => (
           <div className="flex min-w-0 flex-col gap-3.5">
             <div>
               <div className={cn(eyebrowVariants(), "mb-2.5")}>

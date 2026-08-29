@@ -89,8 +89,15 @@ x-api-worker: &api-worker
   # way this stack could corrupt a schema.
   environment:
     OPUSLINE_SKIP_MIGRATIONS: "1"
+  # The image's healthcheck probes HTTP, which a worker does not serve. It is
+  # replaced rather than disabled — `up --wait` refuses a container left with
+  # no check at all — by process liveness: artisan is PID 1 via exec, so a
+  # dead worker is a dead container, and this check simply says so.
   healthcheck:
-    disable: true
+    test: ["CMD-SHELL", "pgrep -f artisan || exit 1"]
+    interval: 30s
+    timeout: 5s
+    retries: 3
 
 services:
   web:

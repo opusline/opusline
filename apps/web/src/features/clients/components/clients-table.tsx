@@ -16,7 +16,7 @@ import {
 import { cn } from "@opusline/ui/lib/utils";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { type MouseEvent, useMemo, useState } from "react";
 import { BudgetShareBadge } from "@/components/budget-share-badge";
 import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { useMoneyFormat } from "@/components/money-format-provider";
@@ -170,7 +170,9 @@ export function ClientsTable({ clients, revenue }: ClientsTableProps) {
                         />
                         <Link
                           className="truncate font-medium text-foreground-hi text-sm"
-                          onClick={(event) => event.stopPropagation()}
+                          onClick={(event: MouseEvent) =>
+                            event.stopPropagation()
+                          }
                           params={{ clientSlug: client.slug }}
                           to="/clients/$clientSlug"
                         >
@@ -239,7 +241,9 @@ export function ClientsTable({ clients, revenue }: ClientsTableProps) {
                           />
                           <Link
                             className="truncate text-sm text-foreground-3"
-                            onClick={(event) => event.stopPropagation()}
+                            onClick={(event: MouseEvent) =>
+                              event.stopPropagation()
+                            }
                             params={{
                               clientSlug: client.slug,
                               missionSlug: mission.slug,

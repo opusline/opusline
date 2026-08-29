@@ -105,7 +105,13 @@ export function RateSource({
               : state.values.businessStartedOn) !== savedBusinessStartedOn,
         })}
       >
-        {({ autoRates, isSituationUnsaved }) =>
+        {({
+          autoRates,
+          isSituationUnsaved,
+        }: {
+          autoRates: boolean;
+          isSituationUnsaved: boolean;
+        }) =>
           autoRates ? (
             <>
               <div className="mt-3.5 flex flex-wrap items-center gap-3 rounded-md border bg-muted px-4 py-3">
