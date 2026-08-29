@@ -8,9 +8,10 @@ An open-source alternative to Kimai, built freelance-first for the French market
 missions, TJM, CRA, URSSAF, TVA, and the one question that actually matters —
 *how much can I pay myself this month?*
 
+[![CI](https://github.com/opusline/opusline/actions/workflows/ci.yml/badge.svg)](https://github.com/opusline/opusline/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/opusline/opusline?color=orange)](https://github.com/opusline/opusline/releases)
 [![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 [![Self-hosted](https://img.shields.io/badge/self--hosted-docker-2496ED.svg)](docs/self-hosting.md)
-![Pre-1.0](https://img.shields.io/badge/status-pre--1.0-orange.svg)
 
 </div>
 
@@ -122,7 +123,7 @@ app compiles to static files — there is no second server runtime to operate.
 
 ## Working on Opusline
 
-Prerequisites: Node.js >= 22 with pnpm, and Docker (PHP only runs in containers,
+Prerequisites: Node.js 22.12+ (or 20.19+) with pnpm, and Docker (PHP only runs in containers,
 through `apps/api/scripts/php.sh`).
 
 ```bash
