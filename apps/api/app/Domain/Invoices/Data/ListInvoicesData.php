@@ -12,6 +12,8 @@ use Spatie\LaravelData\Attributes\Validation\DateFormat;
 use Spatie\LaravelData\Attributes\Validation\Enum;
 use Spatie\LaravelData\Attributes\Validation\Exists;
 use Spatie\LaravelData\Attributes\Validation\IntegerType;
+use Spatie\LaravelData\Attributes\Validation\Max;
+use Spatie\LaravelData\Attributes\Validation\StringType;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Validation\Constraints\WhereConstraint;
 
@@ -36,5 +38,14 @@ class ListInvoicesData extends Data
         public ?string $from = null,
         #[DateFormat('Y-m-d'), AfterOrEqual('from')]
         public ?string $to = null,
+        /** Opaque, from a previous page's `nextCursor`; omit for the first page. */
+        #[StringType, Max(1024)]
+        public ?string $cursor = null,
     ) {}
+
+    /** A client or mission fiche's slice, as opposed to the Factures ledger. */
+    public function isFicheSlice(): bool
+    {
+        return $this->clientId !== null || $this->missionId !== null;
+    }
 }

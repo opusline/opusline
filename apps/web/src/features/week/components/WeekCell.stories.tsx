@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useRef } from "react";
+import { STOPPED_TIMER_CLOCK, TimerClockContext } from "@/lib/timer-clock";
 import { demoRowNamed } from "../lib/week-fixtures";
 import type {
   LiveCell,
@@ -22,27 +23,32 @@ function CellPreview(props: {
   const editorRef = useRef<HTMLInputElement>(null);
 
   return (
+    // The live pill reads its clock from context; 26 424 s shows "07:20:24".
     // biome-ignore lint/a11y/useSemanticElements: mirrors the ARIA grid the cell lives in.
     <div className="w-44 rounded-md border bg-card" role="grid">
       {/* biome-ignore lint/a11y/useSemanticElements: mirrors the ARIA grid the cell lives in. */}
       <div role="row" tabIndex={-1}>
-        <WeekCell
-          cell={props.cell}
-          cellRef={() => undefined}
-          columnIndex={0}
-          editor={props.editor ?? null}
-          live={props.live ?? null}
-          editorRef={editorRef}
-          isActive={false}
-          isFocused={false}
-          isPending={false}
-          onActivate={() => {}}
-          onCellKeyDown={() => {}}
-          onDraftBlur={() => {}}
-          onDraftChange={() => {}}
-          onDraftKeyDown={() => {}}
-          row={props.row}
-        />
+        <TimerClockContext
+          value={{ ...STOPPED_TIMER_CLOCK, elapsedSeconds: 26_424 }}
+        >
+          <WeekCell
+            cell={props.cell}
+            cellRef={() => undefined}
+            columnIndex={0}
+            editor={props.editor ?? null}
+            live={props.live ?? null}
+            editorRef={editorRef}
+            isActive={false}
+            isFocused={false}
+            isPending={false}
+            onActivate={() => {}}
+            onCellKeyDown={() => {}}
+            onDraftBlur={() => {}}
+            onDraftChange={() => {}}
+            onDraftKeyDown={() => {}}
+            row={props.row}
+          />
+        </TimerClockContext>
       </div>
     </div>
   );
@@ -90,12 +96,14 @@ export const EditingInvalid: Story = {
 };
 
 const runningTimer: LiveCell = {
-  billedLabel: "0,5 j",
-  clockLabel: "07:20:24",
+  billingMode: hourlyRow.billingMode,
   date: "2026-07-27",
   isRunning: true,
+  locale: "fr-FR",
   missionId: hourlyRow.missionId,
   onStop: () => undefined,
+  rounding: null,
+  workdayMinutes: 420,
 };
 
 export const TimerRunning: Story = {
@@ -105,7 +113,7 @@ export const TimerRunning: Story = {
 export const TimerPaused: Story = {
   args: {
     cell: hourlyRow.cells[0],
-    live: { ...runningTimer, clockLabel: "07:20:38", isRunning: false },
+    live: { ...runningTimer, isRunning: false },
     row: hourlyRow,
   },
 };
@@ -113,7 +121,11 @@ export const TimerPaused: Story = {
 export const TimerAlongsideAnEntry: Story = {
   args: {
     cell: billedDayRow.cells[0],
-    live: { ...runningTimer, missionId: billedDayRow.missionId },
+    live: {
+      ...runningTimer,
+      billingMode: billedDayRow.billingMode,
+      missionId: billedDayRow.missionId,
+    },
     row: billedDayRow,
   },
 };

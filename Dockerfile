@@ -95,6 +95,10 @@ RUN mkdir -p \
 COPY docker/api-entrypoint.sh /usr/local/bin/opusline-entrypoint
 RUN chmod +x /usr/local/bin/opusline-entrypoint
 
+# OPcache sized for the ~12,600-file app+vendor tree; kept out of
+# apps/api/php.ini so the dev binary keeps validating timestamps.
+COPY docker/api-php.ini /usr/local/etc/php/conf.d/opusline-opcache.ini
+
 ENV APP_ENV=production \
     APP_DEBUG=false \
     OCTANE_SERVER=frankenphp \

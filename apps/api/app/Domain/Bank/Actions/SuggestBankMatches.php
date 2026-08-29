@@ -34,6 +34,7 @@ class SuggestBankMatches
             return 0;
         }
 
+        $candidateIdsByAmount = $this->candidateIdsByAmount($candidates);
         $sentCountsByAmount = $this->sentCountsByAmount($user);
         $today = $user->settingsOrFail()->today();
 
@@ -41,10 +42,11 @@ class SuggestBankMatches
             ->filter(fn (BankMovement $movement): bool => $movement->isCredit() && $movement->invoice_id === null)
             ->sortBy([['booked_on', 'asc'], ['id', 'asc']]);
 
-        $created = 0;
+        $now = now();
+        $rows = [];
 
         foreach ($ordered as $movement) {
-            $match = $this->bestCandidate($movement, $candidates, $sentCountsByAmount, $today);
+            $match = $this->bestCandidate($movement, $candidates, $candidateIdsByAmount, $sentCountsByAmount, $today);
 
             if ($match === null) {
                 continue;
@@ -52,18 +54,47 @@ class SuggestBankMatches
 
             [$invoice, $reason] = $match;
 
-            $user->bankMatches()->create([
+            $rows[] = [
+                'user_id' => $user->id,
                 'bank_movement_id' => $movement->id,
                 'invoice_id' => $invoice->id,
-                'status' => BankMatchStatus::Pending,
-                'reason' => $reason,
-            ]);
+                'status' => BankMatchStatus::Pending->value,
+                'reason' => $reason->value,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
 
             $candidates->forget($invoice->id);
-            $created++;
         }
 
-        return $created;
+        // Bulk-inserted: this runs inside the import's user row lock, and a
+        // re-import over years of history can raise hundreds of suggestions.
+        foreach (array_chunk($rows, ImportBankStatement::INSERT_CHUNK) as $chunk) {
+            $user->bankMatches()->insert($chunk);
+        }
+
+        return count($rows);
+    }
+
+    /**
+     * Candidate invoice ids bucketed by TTC cents. The exact amount is the
+     * first gate every pairing must pass, so only the same-amount bucket is
+     * ever worth scoring — O(movements + invoices) instead of a full cross
+     * product. Ids claimed later are forgotten from $candidates, not from
+     * these buckets; bestCandidate() skips them on lookup.
+     *
+     * @param  Collection<int, array{invoice: Invoice, invoiceNeedle: ?string, clientNeedle: ?string}>  $candidates
+     * @return array<int, list<int>>
+     */
+    private function candidateIdsByAmount(Collection $candidates): array
+    {
+        $idsByAmount = [];
+
+        foreach ($candidates as $invoiceId => $candidate) {
+            $idsByAmount[(int) $candidate['invoice']->amount_ttc_cents->getAmount()][] = $invoiceId;
+        }
+
+        return $idsByAmount;
     }
 
     /**
@@ -112,12 +143,14 @@ class SuggestBankMatches
 
     /**
      * @param  Collection<int, array{invoice: Invoice, invoiceNeedle: ?string, clientNeedle: ?string}>  $candidates
+     * @param  array<int, list<int>>  $candidateIdsByAmount
      * @param  array<int, int>  $sentCountsByAmount
      * @return ?array{0: Invoice, 1: BankMatchReason}
      */
     private function bestCandidate(
         BankMovement $movement,
         Collection $candidates,
+        array $candidateIdsByAmount,
         array $sentCountsByAmount,
         CarbonImmutable $today,
     ): ?array {
@@ -126,14 +159,16 @@ class SuggestBankMatches
 
         $best = null;
 
-        foreach ($candidates as $candidate) {
-            $invoice = $candidate['invoice'];
+        foreach ($candidateIdsByAmount[$movementCents] ?? [] as $invoiceId) {
+            $candidate = $candidates->get($invoiceId);
 
-            if ($invoice->currency !== $movement->currency) {
+            if ($candidate === null) {
                 continue;
             }
 
-            if ((int) $invoice->amount_ttc_cents->getAmount() !== $movementCents) {
+            $invoice = $candidate['invoice'];
+
+            if ($invoice->currency !== $movement->currency) {
                 continue;
             }
 

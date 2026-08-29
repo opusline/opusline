@@ -32,6 +32,7 @@ return [
     'companyPostalCode' => 'code postal de la société',
     'contactEmail' => 'e-mail de contact',
     'contributionRateBp' => 'taux de cotisations',
+    'cursor' => 'curseur de page',
     'craRequired' => 'CRA requis',
     'dateFormat' => 'format des dates',
     'dayFractionBp' => 'fraction de journée',

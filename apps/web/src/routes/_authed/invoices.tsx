@@ -5,7 +5,6 @@ import type {
 import {
   createInvoiceMutation,
   listClientsOptions,
-  listInvoicesOptions,
   remindInvoiceMutation,
   showBankAccountOptions,
   showInvoiceSummaryOptions,
@@ -14,10 +13,16 @@ import {
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
 import { Skeleton } from "@opusline/ui/components/skeleton";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { LoadMoreButton } from "@/components/load-more-button";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import {
   AddInvoiceDialog,
@@ -35,6 +40,7 @@ import { InvoiceSummaryTiles } from "@/features/invoices/components/invoice-summ
 import { InvoiceTodoPanel } from "@/features/invoices/components/invoice-todo-panel";
 import { InvoicesTable } from "@/features/invoices/components/invoices-table";
 import { accountTodayCalendarDate } from "@/lib/dates";
+import { invoicePagesOptions } from "@/lib/invoice-pages";
 import { isMissionOpenForInvoicing } from "@/lib/mission-status";
 import { invalidateInvoiceWrites } from "@/lib/query-invalidation";
 import { useMissionBudgets } from "@/lib/use-mission-budgets";
@@ -58,7 +64,9 @@ function FacturesPage() {
   const navigate = useNavigate();
   const format = useMoneyFormat();
   const queryClient = useQueryClient();
-  const invoices = useQuery(listInvoicesOptions());
+  // The ledger is cursor-windowed; deeper pages load on demand. clientTotals
+  // is page-independent on the API, so the first page's copy is the truth.
+  const invoices = useInfiniteQuery(invoicePagesOptions());
   const summary = useQuery(showInvoiceSummaryOptions());
 
   // The Compte pro balance tile; the endpoint exists for every account, but the
@@ -280,12 +288,21 @@ function FacturesPage() {
             </div>
           )}
           {invoices.data !== undefined && (
-            <InvoicesTable
-              accountToday={accountTodayCalendarDate(user.timezone)}
-              clientTotals={invoices.data.clientTotals}
-              invoices={invoices.data.invoices}
-              onOpen={openInvoice}
-            />
+            <>
+              <InvoicesTable
+                accountToday={accountTodayCalendarDate(user.timezone)}
+                clientTotals={invoices.data.pages[0]?.clientTotals ?? []}
+                invoices={invoices.data.pages.flatMap((page) => page.invoices)}
+                onOpen={openInvoice}
+              />
+              {invoices.hasNextPage && (
+                <LoadMoreButton
+                  isLoading={invoices.isFetchingNextPage}
+                  label={m.invoices_show_more()}
+                  onClick={() => void invoices.fetchNextPage()}
+                />
+              )}
+            </>
           )}
         </div>
 

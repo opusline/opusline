@@ -9,6 +9,7 @@ use App\Domain\Invoices\Data\ListInvoicesData;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Shared\Data\MoneyData;
+use App\Domain\Shared\Database\DatePageCursor;
 use App\Domain\Users\Models\User;
 use Cknow\Money\Money;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,7 +18,15 @@ use Illuminate\Support\Collection;
 class ListInvoices
 {
     /**
-     * @return array<int, Invoice>
+     * The ledger grows for the life of the account, so the list is windowed:
+     * one cursor page per request, newest first. clientTotals() below is
+     * page-independent by design, so the chips keep their meaning whatever
+     * window is on screen.
+     */
+    public const int PAGE_SIZE = 100;
+
+    /**
+     * @return array{invoices: list<Invoice>, nextCursor: ?string}
      */
     public function handle(User $user, ListInvoicesData $data): array
     {
@@ -56,11 +65,15 @@ class ListInvoices
             $data->late ? $query->where($overdue) : $query->whereNot($overdue);
         }
 
-        return $query
-            ->orderByDesc('issued_on')
-            ->orderByDesc('id')
-            ->get()
-            ->all();
+        /** @var list<Invoice> $invoices */
+        [$invoices, $nextCursor] = DatePageCursor::window(
+            $query,
+            'issued_on',
+            self::PAGE_SIZE,
+            DatePageCursor::decode($data->cursor),
+        );
+
+        return ['invoices' => $invoices, 'nextCursor' => $nextCursor];
     }
 
     /**

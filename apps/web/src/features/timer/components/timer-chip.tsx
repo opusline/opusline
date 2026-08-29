@@ -1,8 +1,9 @@
 import type { TimerState } from "@opusline/api-client";
 import { cn } from "@opusline/ui/lib/utils";
 import { ChevronDown, Pause, Play, Square } from "lucide-react";
+import { formatClock } from "@/lib/timer-clock";
 import { m } from "@/paraglide/messages.js";
-import { formatClock, isRunning } from "../lib/elapsed";
+import { isRunning } from "../lib/elapsed";
 
 export type TimerChipProps = {
   elapsedSeconds: number;

@@ -65,9 +65,16 @@ export type WeekCell = {
 export type LiveCell = {
   missionId: number;
   date: string;
-  billedLabel: string;
-  clockLabel: string;
   isRunning: boolean;
+  /**
+   * What prices the live minutes. The moving labels themselves are computed
+   * inside the cell from the timer clock context, so the 1 Hz tick repaints
+   * one pill instead of the whole grid.
+   */
+  billingMode: BillingMode;
+  rounding: EntryRounding | null;
+  workdayMinutes: number;
+  locale: Locale;
   onStop: () => void;
 };
 

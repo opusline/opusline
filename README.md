@@ -83,11 +83,11 @@ never talks to your bank.
 Two images, published to GHCR on every release. On a VPS, a home server or a NAS:
 
 ```bash
-curl -O https://raw.githubusercontent.com/opusline/opusline/main/compose.prod.yaml
-curl -o .env https://raw.githubusercontent.com/opusline/opusline/main/.env.production.example
+curl -fsSLO https://github.com/opusline/opusline/releases/latest/download/compose.prod.yaml
+curl -fsSL -o .env https://github.com/opusline/opusline/releases/latest/download/example.env
 
 # The one secret you must not lose.
-docker run --rm ghcr.io/opusline/opusline-api php artisan key:generate --show
+docker run --rm ghcr.io/opusline/opusline-api:latest php artisan key:generate --show
 ```
 
 Put that key in `APP_KEY`, set `DB_PASSWORD`, point `APP_URL` at your hostname,

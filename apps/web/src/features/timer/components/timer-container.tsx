@@ -1,18 +1,20 @@
+import type { TimerData } from "@opusline/api-client";
 import { Popover, PopoverContent } from "@opusline/ui/components/popover";
 import { useRef } from "react";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { calendarDateLabel } from "@/lib/dates";
 import { formatWorkedTime, isFixedPrice } from "@/lib/durations";
 import { entryRoundingLabel } from "@/lib/entry-rounding";
+import { formatClock, useTimerClock } from "@/lib/timer-clock";
 import { useMissionBudgets } from "@/lib/use-mission-budgets";
 import { m } from "@/paraglide/messages.js";
-import { formatClock } from "../lib/elapsed";
 import { quickDurations } from "../lib/long-run";
 import {
   defaultStopOption,
   type StopOption,
   stopChoices,
 } from "../lib/rounding";
+import { useTimerAlerts } from "./timer-alerts";
 import { TimerChip } from "./timer-chip";
 import { TimerDetailPopover } from "./timer-detail-popover";
 import { useTimer } from "./timer-provider";
@@ -51,17 +53,7 @@ export function TimerContainer({ workdayMinutes }: { workdayMinutes: number }) {
         {running === null ? (
           <TimerStartButton onClick={timer.openStart} />
         ) : (
-          <TimerChip
-            elapsedSeconds={timer.elapsedSeconds}
-            isBusy={timer.isBusy}
-            isDetailsOpen={timer.overlay === "detail"}
-            isLongRun={timer.longRunHours !== null}
-            missionName={running.missionName}
-            onOpenDetails={timer.toggleDetail}
-            onStop={timer.openStop}
-            onTogglePause={timer.togglePause}
-            state={running.state}
-          />
+          <LiveChip running={running} />
         )}
       </div>
 
@@ -77,6 +69,7 @@ export function TimerContainer({ workdayMinutes }: { workdayMinutes: number }) {
         >
           <TimerStartPopover
             error={timer.error}
+            isLoading={timer.isLoadingMissions}
             isStarting={timer.isStarting}
             missions={timer.missions}
             onPick={timer.pick}
@@ -96,32 +89,7 @@ export function TimerContainer({ workdayMinutes }: { workdayMinutes: number }) {
             className="w-84 p-4"
             surface="raised"
           >
-            <TimerDetailPopover
-              elapsedSeconds={timer.elapsedSeconds}
-              error={timer.error}
-              idle={timer.idle}
-              isBusy={timer.isBusy}
-              longRunHours={timer.longRunHours}
-              isConfirmingDiscard={timer.isConfirmingDiscard}
-              missionName={running.missionName}
-              missionSubtitle={
-                timer.missions.find(
-                  (option) => option.missionId === running.missionId,
-                )?.subtitle ?? ""
-              }
-              note={timer.noteDraft}
-              onCancelDiscard={timer.cancelDiscard}
-              onChangeNote={timer.changeNote}
-              onConfirmDiscard={timer.confirmDiscard}
-              onDiscard={timer.discard}
-              onDismissIdle={timer.dismissIdle}
-              onKeepLongRun={timer.keepLongRun}
-              onStop={timer.openStop}
-              onTogglePause={timer.togglePause}
-              onTrimIdle={timer.trimIdle}
-              startedAt={running.startedAt}
-              state={running.state}
-            />
+            <LiveDetailPopover running={running} />
           </PopoverContent>
         </Popover>
       )}
@@ -137,6 +105,64 @@ export function TimerContainer({ workdayMinutes }: { workdayMinutes: number }) {
   );
 }
 
+/**
+ * The clock consumers, split out so the 1 Hz tick re-renders these leaves and
+ * nothing above them; each mounts only while its surface is on screen.
+ */
+function LiveChip({ running }: { running: TimerData }) {
+  const timer = useTimer();
+  const { elapsedSeconds } = useTimerClock();
+  const { longRunHours } = useTimerAlerts();
+
+  return (
+    <TimerChip
+      elapsedSeconds={elapsedSeconds}
+      isBusy={timer.isBusy}
+      isDetailsOpen={timer.overlay === "detail"}
+      isLongRun={longRunHours !== null}
+      missionName={running.missionName}
+      onOpenDetails={timer.toggleDetail}
+      onStop={timer.openStop}
+      onTogglePause={timer.togglePause}
+      state={running.state}
+    />
+  );
+}
+
+function LiveDetailPopover({ running }: { running: TimerData }) {
+  const timer = useTimer();
+  const { elapsedSeconds } = useTimerClock();
+  const { idle, longRunHours } = useTimerAlerts();
+
+  return (
+    <TimerDetailPopover
+      elapsedSeconds={elapsedSeconds}
+      error={timer.error}
+      idle={idle}
+      isBusy={timer.isBusy}
+      longRunHours={longRunHours}
+      isConfirmingDiscard={timer.isConfirmingDiscard}
+      missionName={running.missionName}
+      missionSubtitle={
+        timer.missions.find((option) => option.missionId === running.missionId)
+          ?.subtitle ?? ""
+      }
+      note={timer.noteDraft}
+      onCancelDiscard={timer.cancelDiscard}
+      onChangeNote={timer.changeNote}
+      onConfirmDiscard={timer.confirmDiscard}
+      onDiscard={timer.discard}
+      onDismissIdle={timer.dismissIdle}
+      onKeepLongRun={timer.keepLongRun}
+      onStop={timer.openStop}
+      onTogglePause={timer.togglePause}
+      onTrimIdle={timer.trimIdle}
+      startedAt={running.startedAt}
+      state={running.state}
+    />
+  );
+}
+
 function StopDialog({
   startDate,
   timer,
@@ -147,6 +173,8 @@ function StopDialog({
   workdayMinutes: number;
 }) {
   const format = useMoneyFormat();
+  const { elapsedSeconds } = useTimerClock();
+  const { longRunHours } = useTimerAlerts();
   const running = timer.timer;
   // Read here rather than in the layout: this whole-account fold is only worth its
   // cost while an entry is actually being written against a forfait, and this
@@ -159,7 +187,7 @@ function StopDialog({
     return null;
   }
 
-  const measuredSeconds = timer.elapsedSeconds;
+  const measuredSeconds = elapsedSeconds;
   const recordedSeconds =
     timer.correctedMinutes === null
       ? measuredSeconds
@@ -187,7 +215,7 @@ function StopDialog({
       dateLabel={calendarDateLabel(format.locale, startDate)}
       droppedMinutes={droppedMinutes}
       measuredLabel={
-        timer.longRunHours === null
+        longRunHours === null
           ? null
           : formatWorkedTime(Math.round(measuredSeconds / 60))
       }

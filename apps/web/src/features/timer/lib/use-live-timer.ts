@@ -5,24 +5,51 @@ import { useEffect, useState } from "react";
 
 import { displayedElapsedSeconds, isRunning } from "./elapsed";
 
+export type TimerSnapshot = {
+  timer: TimerData | null;
+  isRunning: boolean;
+  lastMissionId: number | null;
+  /**
+   * The seconds the clock reads at the given instant — for event handlers
+   * that need the figure once, without subscribing the caller to the tick.
+   */
+  elapsedSecondsAt: (atMs: number) => number;
+};
+
+/** The timer's server state, without the 1 Hz tick — see useLiveTimer for that. */
+export function useTimerSnapshot(): TimerSnapshot {
+  const query = useQuery({ ...showTimerOptions(), staleTime: 0 });
+
+  const timer = query.data?.timer ?? null;
+  const dataUpdatedAt = query.dataUpdatedAt;
+
+  return {
+    elapsedSecondsAt: (atMs) =>
+      timer === null ? 0 : displayedElapsedSeconds(timer, dataUpdatedAt, atMs),
+    isRunning: timer !== null && isRunning(timer.state),
+    lastMissionId: query.data?.lastMissionId ?? null,
+    timer,
+  };
+}
+
 export type LiveTimer = {
   elapsedSeconds: number;
   isRunning: boolean;
-  lastMissionId: number | null;
   now: number;
   timer: TimerData | null;
 };
 
+/**
+ * The ticking variant: re-renders its caller every second while a timer runs.
+ * Reserved for the components that actually paint the moving clock.
+ */
 export function useLiveTimer(): LiveTimer {
-  const query = useQuery({ ...showTimerOptions(), staleTime: 0 });
-
-  const timer = query.data?.timer ?? null;
-  const running = timer !== null && isRunning(timer.state);
+  const snapshot = useTimerSnapshot();
 
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
-    if (!running) {
+    if (!snapshot.isRunning) {
       return;
     }
 
@@ -30,16 +57,12 @@ export function useLiveTimer(): LiveTimer {
     const id = setInterval(() => setNow(Date.now()), 1000);
 
     return () => clearInterval(id);
-  }, [running]);
+  }, [snapshot.isRunning]);
 
   return {
-    elapsedSeconds:
-      timer === null
-        ? 0
-        : displayedElapsedSeconds(timer, query.dataUpdatedAt, now),
-    isRunning: running,
-    lastMissionId: query.data?.lastMissionId ?? null,
+    elapsedSeconds: snapshot.elapsedSecondsAt(now),
+    isRunning: snapshot.isRunning,
     now,
-    timer,
+    timer: snapshot.timer,
   };
 }

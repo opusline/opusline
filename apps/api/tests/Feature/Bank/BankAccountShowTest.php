@@ -191,6 +191,32 @@ test('never leaks another account\'s rows', function (): void {
         ->assertJsonPath('statements', []);
 });
 
+test('flags a credit nobody linked, wherever it sits in the history', function (): void {
+    $user = User::factory()->create();
+    bankMovementFor($user, configure: fn (BankMovementFactory $factory): BankMovementFactory => $factory->credit(50_000)->on('2026-08-10'));
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('hasUnlinkedCredits', true);
+});
+
+test('reports all clear when every credit is linked or suggested', function (): void {
+    $user = User::factory()->create();
+    $statement = bankStatementOwnedBy($user);
+    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent());
+    $linked = bankMovementFor($user, $statement, fn (BankMovementFactory $factory): BankMovementFactory => $factory->credit(50_000)->on('2026-08-10'));
+    $linked->update(['invoice_id' => $invoice->id]);
+    $suggested = bankMovementFor($user, $statement, fn (BankMovementFactory $factory): BankMovementFactory => $factory->credit(30_000)->on('2026-08-11'));
+    bankMatchFor($user, movement: $suggested);
+    bankMovementFor($user, $statement, fn (BankMovementFactory $factory): BankMovementFactory => $factory->debit(20_000)->on('2026-08-12'));
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('hasUnlinkedCredits', false);
+});
+
 test('requires authentication', function (): void {
     $this->getJson('/api/bank')->assertUnauthorized();
 });

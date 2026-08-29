@@ -14,26 +14,7 @@
 <head>
     <meta charset="utf-8">
     <style>
-        @font-face {
-            font-family: 'Geist';
-            font-weight: 400;
-            src: url("{{ $fontPath }}/Geist-Regular.ttf") format('truetype');
-        }
-        @font-face {
-            font-family: 'Geist';
-            font-weight: 600;
-            src: url("{{ $fontPath }}/Geist-Medium.ttf") format('truetype');
-        }
-        @font-face {
-            font-family: 'Lora';
-            font-weight: 400;
-            src: url("{{ $fontPath }}/Lora-Regular.ttf") format('truetype');
-        }
-        @font-face {
-            font-family: 'Lora';
-            font-weight: 600;
-            src: url("{{ $fontPath }}/Lora-SemiBold.ttf") format('truetype');
-        }
+        @include('cra.fonts')
 
         @page { margin: 28px 26px; }
 

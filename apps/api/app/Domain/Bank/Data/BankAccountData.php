@@ -24,8 +24,13 @@ class BankAccountData extends Data
         /** Most recent movement first. */
         #[DataCollectionOf(BankMatchData::class)]
         public array $pendingMatches,
+        /** The most recent movements only — older pages come from GET /bank/movements. */
         #[DataCollectionOf(BankMovementData::class)]
         public array $movements,
+        /** Cursor for the page after `movements`; null when nothing older exists. */
+        public ?string $nextMovementsCursor,
+        /** A credit with no invoice and no pending suggestion, anywhere in the history. */
+        public bool $hasUnlinkedCredits,
         /** Newest import first. */
         #[DataCollectionOf(BankStatementData::class)]
         public array $statements,

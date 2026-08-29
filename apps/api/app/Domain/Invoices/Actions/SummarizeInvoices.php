@@ -33,6 +33,7 @@ use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 /**
@@ -123,6 +124,18 @@ class SummarizeInvoices
             ->with('mission.client')
             ->whereNull('invoice_id')
             ->where('billable', true)
+            // The query is the single home of the billability predicate: it
+            // mirrors ValueTrackedTime::pricesTime() plus the internal-client
+            // rule. Widening it can only over-fetch rows that measure() then
+            // values at zero; there is no PHP re-check to drift from.
+            ->whereHas('mission', function (Builder $mission): void {
+                $mission
+                    ->whereNotNull('rate_cents')
+                    ->where('billing_mode', '!=', BillingMode::Fixed)
+                    ->whereHas('client', function (Builder $client): void {
+                        $client->where('type', '!=', ClientType::Internal);
+                    });
+            })
             ->orderBy('date')
             ->get();
 
@@ -131,15 +144,6 @@ class SummarizeInvoices
 
         foreach ($entries as $entry) {
             $mission = $entry->mission;
-
-            if (! $this->valueTrackedTime->pricesTime($mission)) {
-                continue;
-            }
-
-            if ($mission->client->type === ClientType::Internal) {
-                continue;
-            }
-
             $grouped[$mission->id]['mission'] = $mission;
             $grouped[$mission->id]['entries'][] = $entry;
         }
@@ -294,15 +298,33 @@ class SummarizeInvoices
 
     private function counts(User $user, CarbonImmutable $today): InvoiceCountsData
     {
+        // One conditional-SUM pass instead of five COUNTs over the same rows —
+        // the idiom ListInvoices::clientTotals() already uses.
+        /** @var object{all_count: int|string, draft_count: int|string|null, sent_count: int|string|null, late_count: int|string|null, paid_count: int|string|null} $row */
+        $row = $user->invoices()
+            ->toBase()
+            ->selectRaw(
+                'count(*) as all_count,
+                sum(case when status = ? then 1 else 0 end) as draft_count,
+                sum(case when status = ? then 1 else 0 end) as sent_count,
+                sum(case when status = ? and due_on < ? then 1 else 0 end) as late_count,
+                sum(case when status = ? then 1 else 0 end) as paid_count',
+                [
+                    InvoiceStatus::Draft->value,
+                    InvoiceStatus::Sent->value,
+                    InvoiceStatus::Sent->value,
+                    $today->toDateString(),
+                    InvoiceStatus::Paid->value,
+                ],
+            )
+            ->sole();
+
         return new InvoiceCountsData(
-            all: $user->invoices()->count(),
-            draft: $user->invoices()->where('status', InvoiceStatus::Draft)->count(),
-            sent: $user->invoices()->where('status', InvoiceStatus::Sent)->count(),
-            late: $user->invoices()
-                ->where('status', InvoiceStatus::Sent)
-                ->where('due_on', '<', $today->toDateString())
-                ->count(),
-            paid: $user->invoices()->where('status', InvoiceStatus::Paid)->count(),
+            all: (int) $row->all_count,
+            draft: (int) ($row->draft_count ?? 0),
+            sent: (int) ($row->sent_count ?? 0),
+            late: (int) ($row->late_count ?? 0),
+            paid: (int) ($row->paid_count ?? 0),
         );
     }
 

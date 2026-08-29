@@ -25,7 +25,12 @@ function renderPage(
       onSave: vi.fn(),
       onRemove: vi.fn(),
     },
-    rates: { isRefreshing: false, error: null, onRefresh: vi.fn() },
+    rates: {
+      isBackgroundRefresh: false,
+      isRefreshing: false,
+      error: null,
+      onRefresh: vi.fn(),
+    },
     localisation: {
       saved: {
         businessCountry: "FR",
@@ -487,6 +492,7 @@ it("reports a barème that could not be read, without hiding the rate", () => {
   renderPage({
     activeTab: "fiscalite",
     rates: {
+      isBackgroundRefresh: false,
       isRefreshing: false,
       error: "Barème injoignable.",
       onRefresh: vi.fn(),

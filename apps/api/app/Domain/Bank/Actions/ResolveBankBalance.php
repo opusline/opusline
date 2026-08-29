@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Domain\Bank\Actions;
 
 use App\Domain\Bank\Enums\BankBalanceSource;
-use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Bank\Models\BankStatement;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
@@ -42,10 +41,9 @@ class ResolveBankBalance
 {
     /**
      * @param  Collection<int, BankStatement>  $statements  every statement of $user
-     * @param  Collection<int, BankMovement>  $movements  every movement of $user
      * @return ?BalanceAnchor
      */
-    public function handle(User $user, Collection $statements, Collection $movements): ?array
+    public function handle(User $user, Collection $statements): ?array
     {
         $settings = $user->settingsOrFail();
 
@@ -64,7 +62,7 @@ class ResolveBankBalance
         $statement = $this->statementAnchor($statements);
 
         if ($manual === null && $statement === null) {
-            return $this->derived($movements);
+            return $this->derived($user);
         }
 
         if ($manual === null || $statement === null) {
@@ -106,24 +104,26 @@ class ResolveBankBalance
     }
 
     /**
-     * @param  Collection<int, BankMovement>  $movements
      * @return ?BalanceAnchor
      */
-    private function derived(Collection $movements): ?array
+    private function derived(User $user): ?array
     {
-        $firstBookedOn = $movements->min('booked_on');
+        // value() hydrates through the CalendarDate cast, unlike min().
+        $firstBookedOn = $user->bankMovements()->orderBy('booked_on')->value('booked_on');
 
         if (! $firstBookedOn instanceof CarbonImmutable) {
             return null;
         }
+
+        $dayBeforeFirstMovement = $firstBookedOn->subDay();
 
         return [
             // The implied empty account: zero just before the first movement.
             // Rolling forward from it makes the shown balance Σ movements.
             'cents' => 0,
             'source' => BankBalanceSource::Derived,
-            'asOf' => $firstBookedOn->subDay(),
-            'coversThrough' => $firstBookedOn->subDay(),
+            'asOf' => $dayBeforeFirstMovement,
+            'coversThrough' => $dayBeforeFirstMovement,
             'citableAsOf' => null,
         ];
     }

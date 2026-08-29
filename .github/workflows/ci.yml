@@ -33,6 +33,7 @@ jobs:
           persist-credentials: false
       - run: sh scripts/i18n-guard.sh
       - run: sh scripts/release-notes-guard.sh
+      - run: sh scripts/compose-doc-guard.sh
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
       - uses: actions/setup-node@v7
         with:
@@ -52,6 +53,7 @@ jobs:
         run: pnpm --filter @opusline/storybook exec playwright install chromium --with-deps
       - run: pnpm format-and-lint
       - run: pnpm exec turbo run test check-types build "--filter=!@opusline/api"
+      - run: node apps/web/scripts/check-bundle-budget.mjs
 
   api-static:
     name: API static analysis (pint, rector, phpstan)
@@ -130,7 +132,7 @@ jobs:
           --health-timeout=5s
           --health-retries=10
       postgres:
-        image: postgres:17
+        image: postgres:18
         env:
           POSTGRES_PASSWORD: password
           POSTGRES_DB: testing
@@ -168,6 +170,55 @@ jobs:
       - run: composer install --no-interaction --no-progress --prefer-dist
       - run: cp .env.example .env && php artisan key:generate
       - run: php artisan config:clear --quiet && php artisan test --ci --parallel
+
+  # The images are otherwise first built by publish-image.yml, after the release
+  # tag already exists — and the entrypoint is where migrations run. Build both
+  # targets single-arch and boot the real stack once, so that failure mode is a
+  # red PR instead of a broken release.
+  docker:
+    name: Prod images (build + boot)
+    runs-on: ubuntu-latest
+    env:
+      # The workflow-level test env would win over the .env file in compose
+      # interpolation and hand postgres a database named ":memory:".
+      DB_DATABASE: opusline
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      # Free, and proves the example env file still satisfies the compose file's
+      # required variables.
+      - run: |
+          cp .env.production.example .env
+          DB_PASSWORD=ci docker compose -f compose.prod.yaml config --quiet
+      - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+      # Reads the caches publish-image.yml writes on each release; no cache-to,
+      # so this job never evicts the composer/pnpm/playwright caches.
+      - uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          target: api
+          load: true
+          tags: ghcr.io/opusline/opusline-api:ci
+          cache-from: type=gha,scope=opusline-api
+      - uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          target: web
+          load: true
+          tags: ghcr.io/opusline/opusline-web:ci
+          cache-from: type=gha,scope=opusline-web
+      # The docker run takes the entrypoint's one-off path, --wait holds until
+      # the api healthcheck passes (so migrations and Octane both ran), and the
+      # curl proves Caddy serves the SPA.
+      - run: |
+          key=$(docker run --rm ghcr.io/opusline/opusline-api:ci php artisan key:generate --show)
+          sed -i "s|^APP_KEY=.*|APP_KEY=${key}|; s|^DB_PASSWORD=.*|DB_PASSWORD=ci|" .env
+          echo "OPUSLINE_VERSION=ci" >> .env
+          docker compose -f compose.prod.yaml up -d --wait --wait-timeout 180
+          curl -fsS http://localhost:8080/ > /dev/null
+      - if: failure()
+        run: docker compose -f compose.prod.yaml logs
 
   spec-drift:
     name: Generated artifacts drift

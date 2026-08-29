@@ -38,7 +38,7 @@ class ValidateCra
         }
 
         $exists = $mission->cras()
-            ->whereDate('month', $month->startOfMonth()->toDateString())
+            ->where('month', $month->startOfMonth()->toDateString())
             ->exists();
 
         if ($exists) {

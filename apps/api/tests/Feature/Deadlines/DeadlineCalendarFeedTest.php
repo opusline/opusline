@@ -226,6 +226,90 @@ test('a calendar coming to fetch stamps the last synchronisation', function (): 
         ->assertJsonPath('calendarLastSyncedAt', fn ($value): bool => $value !== null);
 });
 
+test('serves validators a calendar client can revalidate with', function (): void {
+    $user = User::factory()->create();
+
+    $response = $this->get(calendarUrlFor($user))->assertOk();
+
+    expect($response->headers->get('ETag'))->toStartWith('"')
+        ->and($response->headers->get('Cache-Control'))->toContain('private')
+        ->and($response->headers->get('Cache-Control'))->toContain('max-age=1800');
+});
+
+test('answers a repeat poll with 304 and no body', function (): void {
+    $user = User::factory()->create();
+    $url = calendarUrlFor($user);
+
+    $etag = $this->get($url)->assertOk()->headers->get('ETag');
+
+    $repeat = $this->get($url, ['If-None-Match' => $etag]);
+
+    $repeat->assertStatus(304);
+    expect($repeat->content())->toBe('')
+        ->and($repeat->headers->get('ETag'))->toBe($etag);
+});
+
+test('a weak validator still matches', function (): void {
+    // Calendar clients commonly echo the tag back as W/"..." on a GET.
+    $user = User::factory()->create();
+    $url = calendarUrlFor($user);
+
+    $etag = $this->get($url)->assertOk()->headers->get('ETag');
+
+    $this->get($url, ['If-None-Match' => 'W/'.$etag])->assertStatus(304);
+});
+
+test('rebuilds the feed when a client is renamed', function (): void {
+    // Every invoice event prints the client name, so a rename must invalidate
+    // the validator even though no invoice row moved.
+    $user = User::factory()->create();
+    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent());
+    $url = calendarUrlFor($user);
+
+    $etag = $this->get($url)->assertOk()->headers->get('ETag');
+
+    // Off the frozen instant: updated_at only moves when the clock does.
+    $this->travelTo(now()->addMinute());
+    $invoice->client->update(['name' => 'Vesterhus']);
+
+    $rebuilt = $this->get($url, ['If-None-Match' => $etag])->assertOk();
+
+    expect($rebuilt->headers->get('ETag'))->not->toBe($etag)
+        ->and($rebuilt->content())->toContain('Vesterhus');
+});
+
+test('the heartbeat never invalidates the feed it stamps', function (): void {
+    // The stamp is written without touching updated_at: an ETag fed by its own
+    // side effect would turn every second poll into a full rebuild.
+    $user = User::factory()->create();
+    $url = calendarUrlFor($user);
+    $updatedAtBefore = $user->fresh()->settingsOrFail()->updated_at;
+
+    $etag = $this->get($url)->assertOk()->headers->get('ETag');
+
+    $settings = $user->fresh()->settingsOrFail();
+    expect($settings->calendar_last_synced_at)->not->toBeNull()
+        ->and($settings->updated_at->equalTo($updatedAtBefore))->toBeTrue();
+
+    $this->get($url, ['If-None-Match' => $etag])->assertStatus(304);
+});
+
+test('the heartbeat is stamped coarsely, not per poll', function (): void {
+    $user = User::factory()->create();
+    $url = calendarUrlFor($user);
+
+    $this->get($url)->assertOk();
+    $firstStamp = $user->fresh()->settingsOrFail()->calendar_last_synced_at;
+
+    $this->travelTo(now()->addMinutes(5));
+    $this->get($url);
+    expect($user->fresh()->settingsOrFail()->calendar_last_synced_at->equalTo($firstStamp))->toBeTrue();
+
+    $this->travelTo(now()->addMinutes(20));
+    $this->get($url);
+    expect($user->fresh()->settingsOrFail()->calendar_last_synced_at->greaterThan($firstStamp))->toBeTrue();
+});
+
 test('interrupting retires the address and clears the subscription', function (): void {
     $user = User::factory()->create();
     $before = calendarUrlFor($user);

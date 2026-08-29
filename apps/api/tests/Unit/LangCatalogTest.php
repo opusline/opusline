@@ -37,7 +37,8 @@ function requestDataFields(): array
     $responseOnly = [
         'BankAccountData', 'BankBalanceData', 'BankImportData',
         'BankMatchData', 'BankMatchInvoiceData', 'BankMovementData',
-        'BankMovementInvoiceData', 'BankProvisionData', 'BankProvisionsData',
+        'BankMovementInvoiceData', 'BankMovementPageData',
+        'BankProvisionData', 'BankProvisionsData',
         'BankStatementData', 'PersonalTransferData', 'TreasuryData',
         'SignedMoneyData',
         'CalendarFeedData', 'DeadlineBoardData', 'DeadlineInvoiceData',

@@ -14,7 +14,7 @@ esac
 
 if [ -z "${APP_KEY:-}" ]; then
   echo "APP_KEY is empty. Generate one with:" >&2
-  echo "  docker run --rm ghcr.io/opusline/opusline-api php artisan key:generate --show" >&2
+  echo "  docker run --rm ghcr.io/opusline/opusline-api:latest php artisan key:generate --show" >&2
   echo "and put it in your .env — it is what decrypts existing sessions and cookies," >&2
   echo "so it must stay the same across upgrades." >&2
   exit 1
@@ -37,5 +37,11 @@ fi
 # for a container that refuses to start.
 php artisan route:cache
 php artisan event:cache
+
+# Extracting TTF metrics is what made the first CRA render after a boot take
+# seconds inside a request; pay it here instead. Allowed to fail: a font
+# problem should break CRA downloads, not the whole API.
+php artisan cra:warm-pdf-fonts \
+  || echo "WARN: dompdf font cache warm-up failed; the first CRA render will pay it." >&2
 
 exec "$@"

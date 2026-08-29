@@ -34,11 +34,19 @@ class InvoiceController extends Controller
 {
     public function index(ListInvoicesData $data, #[CurrentUser] User $user, ListInvoices $listInvoices): JsonResponse
     {
-        $invoices = $listInvoices->handle($user, $data);
+        ['invoices' => $invoices, 'nextCursor' => $nextCursor] = $listInvoices->handle($user, $data);
 
         return response()->json(new InvoiceListData(
             invoices: array_values(InvoiceListItemData::collect($invoices, 'array')),
-            clientTotals: $listInvoices->clientTotals($user),
+            // The account-wide grouped SUM rides on the Factures ledger's first
+            // page only: deeper pages would recompute a figure the screen
+            // already holds, and the fiche tabs slice by client or mission and
+            // never read it. Status and date filters keep it — totals must not
+            // change meaning per scope chip.
+            clientTotals: $data->cursor === null && ! $data->isFicheSlice()
+                ? $listInvoices->clientTotals($user)
+                : [],
+            nextCursor: $nextCursor,
         ));
     }
 

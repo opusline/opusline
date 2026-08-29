@@ -9,23 +9,25 @@ use App\Domain\Deadlines\Actions\ResetDeadlineReminders;
 use App\Domain\Deadlines\Actions\ResolveExpectedCfe;
 use App\Domain\Settings\Data\UpdateSettingsData;
 use App\Domain\Settings\Enums\VatRegime;
+use App\Domain\Settings\Jobs\RefreshOfficialRatesJob;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Settings\Rates\RateSituation;
-use App\Domain\Settings\Rates\RatesUnavailable;
 use App\Domain\Shared\Validation\AccountCurrency;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class UpdateSettings
 {
     public function __construct(
-        private readonly RefreshOfficialRates $refreshOfficialRates,
         private readonly GenerateFiscalDeadlines $generateFiscalDeadlines,
         private readonly ResolveExpectedCfe $resolveExpectedCfe,
         private readonly ResetDeadlineReminders $resetDeadlineReminders,
     ) {}
 
-    public function handle(UserSettings $settings, UpdateSettingsData $data): UserSettings
+    /**
+     * Mutates $settings in place; returns whether an official-rates refresh
+     * was scheduled — the answer then still carries the stored rates.
+     */
+    public function handle(UserSettings $settings, UpdateSettingsData $data): bool
     {
         $situationBefore = RateSituation::fromSettings($settings)->signature();
         $calendarBefore = $this->generateFiscalDeadlines->signature(
@@ -107,11 +109,17 @@ class UpdateSettings
             $this->resetDeadlineReminders->handle($settings);
         }
 
-        if ($this->needsFreshRates($settings, $situationBefore, $wasFollowingOfficialRates)) {
-            $this->applyOfficialRates($settings);
+        // Scheduled, not awaited: the cache key derives from the very settings
+        // that just changed, so this refresh is structurally always a cache
+        // miss — a live call to URSSAF with a 10-second timeout that no save
+        // should sit behind.
+        $ratesRefreshing = $this->needsFreshRates($settings, $situationBefore, $wasFollowingOfficialRates);
+
+        if ($ratesRefreshing) {
+            RefreshOfficialRatesJob::dispatch($settings);
         }
 
-        return $settings;
+        return $ratesRefreshing;
     }
 
     private function needsFreshRates(
@@ -125,19 +133,5 @@ class UpdateSettings
 
         return ! $wasFollowingOfficialRates
             || RateSituation::fromSettings($settings)->signature() !== $situationBefore;
-    }
-
-    private function applyOfficialRates(UserSettings $settings): void
-    {
-        try {
-            $this->refreshOfficialRates->handle($settings, retryTransientFailures: false);
-        } catch (RatesUnavailable $exception) {
-            $settings->update(['rates_checked_at' => null, 'rates_year' => null]);
-
-            Log::warning('Settings saved without re-reading the barème.', [
-                'user_id' => $settings->user_id,
-                'reason' => $exception->getMessage(),
-            ]);
-        }
     }
 }

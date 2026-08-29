@@ -13,18 +13,24 @@ import type { SettingsForm } from "../lib/use-settings-form";
 function rateStatusLabel({
   locale,
   refreshError,
+  isBackgroundRefresh,
   isSituationUnsaved,
   ratesCheckedAt,
   ratesYear,
 }: {
   locale: Locale;
   refreshError: string | null;
+  isBackgroundRefresh: boolean;
   isSituationUnsaved: boolean;
   ratesCheckedAt: string | null;
   ratesYear: number | null;
 }): string {
   if (refreshError !== null) {
     return refreshError;
+  }
+
+  if (isBackgroundRefresh) {
+    return m.settings_rates_refreshing();
   }
 
   if (isSituationUnsaved) {
@@ -48,6 +54,8 @@ type RateSourceProps = {
   savedAcre: boolean;
   savedBusinessStartedOn: string | null;
   isRefreshing: boolean;
+  /** A save scheduled a background barème read that has not landed yet. */
+  isBackgroundRefresh: boolean;
   refreshError: string | null;
   onRefresh: () => void;
 };
@@ -59,6 +67,7 @@ export function RateSource({
   savedAcre,
   savedBusinessStartedOn,
   isRefreshing,
+  isBackgroundRefresh,
   refreshError,
   onRefresh,
 }: RateSourceProps) {
@@ -116,13 +125,16 @@ export function RateSource({
                   {rateStatusLabel({
                     locale,
                     refreshError,
+                    isBackgroundRefresh,
                     isSituationUnsaved,
                     ratesCheckedAt,
                     ratesYear,
                   })}
                 </span>
                 <Button
-                  disabled={isRefreshing || isSituationUnsaved}
+                  disabled={
+                    isRefreshing || isBackgroundRefresh || isSituationUnsaved
+                  }
                   onClick={onRefresh}
                   size="lg"
                   type="button"

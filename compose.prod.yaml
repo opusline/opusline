@@ -68,6 +68,9 @@ services:
   postgres:
     image: postgres:18-alpine
     restart: unless-stopped
+    # Surface slow queries in `docker compose logs postgres` — unbounded-growth
+    # regressions should show up in the field, not stay invisible.
+    command: ["postgres", "-c", "log_min_duration_statement=${PG_SLOW_QUERY:-200ms}"]
     environment:
       POSTGRES_DB: ${DB_DATABASE:-opusline}
       POSTGRES_USER: ${DB_USERNAME:-opusline}

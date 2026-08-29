@@ -9,6 +9,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/bank', [BankController::class, 'show'])
         ->name('showBankAccount');
 
+    Route::get('/bank/movements', [BankController::class, 'movements'])
+        ->name('listBankMovements');
+
     Route::put('/bank/balance', [BankController::class, 'updateBalance'])
         ->name('updateBankBalance');
 

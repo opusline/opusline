@@ -29,11 +29,17 @@
 	handle {
 		root * /srv
 
-		# Hashed filenames, so they can be cached for a year. index.html must not
-		# be — it is what points at the current hashes.
+		# Hashed filenames, so they can be cached for a year. Everything else —
+		# index.html above all, since it points at the current hashes — must
+		# revalidate. Matched with a negated path matcher, not `/index.html`:
+		# a navigation to /clients is only rewritten to /index.html by
+		# try_files AFTER header directives ran, so a request-path match never
+		# fires and the response would ship with no Cache-Control at all,
+		# leaving stale post-deploy copies to browser heuristics.
 		@immutable path /assets/*
+		@html not path /assets/*
 		header @immutable Cache-Control "public, max-age=31536000, immutable"
-		header /index.html Cache-Control "no-cache"
+		header @html Cache-Control "no-cache"
 
 		# Client-side routing: every unknown path is a route the SPA knows, not a
 		# missing file.

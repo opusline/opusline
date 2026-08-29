@@ -21,13 +21,18 @@ has no server runtime of its own.
 ## First boot
 
 ```sh
-curl -O https://raw.githubusercontent.com/opusline/opusline/main/compose.prod.yaml
-curl -o .env https://raw.githubusercontent.com/opusline/opusline/main/.env.production.example
+curl -fsSLO https://github.com/opusline/opusline/releases/latest/download/compose.prod.yaml
+curl -fsSL -o .env https://github.com/opusline/opusline/releases/latest/download/example.env
 
 # The one secret you must not lose: it decrypts every session, cookie and
 # calendar token the instance ever issues.
-docker run --rm ghcr.io/opusline/opusline-api php artisan key:generate --show
+docker run --rm ghcr.io/opusline/opusline-api:latest php artisan key:generate --show
 ```
+
+Both files come from the release, not from `main`, so they always match the
+images `latest` points at. To pin a version instead, take the same two files
+from that release's page — its `example.env` names its own tag — and use that
+tag in the command above.
 
 Put that key in `APP_KEY`, set `DB_PASSWORD` to something of your own, and point
 `APP_URL`, `SESSION_DOMAIN` and `SANCTUM_STATEFUL_DOMAINS` at the hostname you
@@ -47,8 +52,21 @@ single-tenant, so registration is for you.
 a file, or into whatever box your host gives you (Portainer, Synology's Container
 Manager, QNAP's Container Station, Unraid's Compose Manager all take it as-is).
 Keep it and `.env` in the same directory: compose reads `.env` from beside itself.
+The exact copy for your version is attached to
+[its release](https://github.com/opusline/opusline/releases).
 
+<!-- compose-prod-begin — generated from compose.prod.yaml by scripts/compose-doc-guard.sh; edit the file, not this block -->
 ```yaml
+# A self-hosted Opusline: the SPA, the API, Postgres and Redis.
+#
+# Copy .env.production.example to .env, fill it in, then:
+#
+#   docker compose -f compose.prod.yaml up -d
+#
+# This is not apps/api/compose.yaml. That one is the development Sail stack — it
+# builds from the host's vendor directory, bind-mounts the whole tree and ships
+# hardcoded credentials. It was never a deployment and this is why.
+
 name: opusline
 
 # The API image, run three ways: the HTTP server, the scheduler, and the queue
@@ -109,6 +127,9 @@ services:
   postgres:
     image: postgres:18-alpine
     restart: unless-stopped
+    # Surface slow queries in `docker compose logs postgres` — unbounded-growth
+    # regressions should show up in the field, not stay invisible.
+    command: ["postgres", "-c", "log_min_duration_statement=${PG_SLOW_QUERY:-200ms}"]
     environment:
       POSTGRES_DB: ${DB_DATABASE:-opusline}
       POSTGRES_USER: ${DB_USERNAME:-opusline}
@@ -141,6 +162,7 @@ volumes:
   opusline-redis:
   opusline-storage:
 ```
+<!-- compose-prod-end -->
 
 Six services: `web` serves the SPA and proxies `/api`, `api` is Laravel,
 `scheduler` runs the nightly barème refresh, `queue` moves uploaded files to
@@ -248,11 +270,32 @@ Images are built only when a release is cut, so every tag corresponds to one:
 published from `main`. By default the stack follows `latest`; to decide upgrades
 yourself, pin `OPUSLINE_VERSION` in `.env` and raise it when you mean to.
 
+## Taking it down
+
+```sh
+docker compose -f compose.prod.yaml down
+```
+
+stops and removes the containers. The data stays in the volumes; the next
+`up -d` continues where it left off.
+
+```sh
+docker compose -f compose.prod.yaml down --volumes
+```
+
+is the uninstall: it destroys the database, the uploads and the Redis state.
+`APP_KEY` is in neither — it lives in `.env`, beside the compose file — so
+deleting that directory deletes the one thing no backup can be restored
+without.
+
 ## Choices you can change
 
-**Database.** Postgres in `compose.prod.yaml`; MySQL 8.4 and SQLite also work
-and are covered by the test matrix. For MySQL, swap the service and set
-`DB_CONNECTION=mysql`, `DB_PORT=3306`.
+**Database.** Postgres in `compose.prod.yaml`; MySQL 8.4 also works — swap the
+service and set `DB_CONNECTION=mysql`, `DB_PORT=3306`. SQLite passes the same
+test matrix but is not a supported shape for this stack: three containers would
+be sharing one database file over a volume, and the backup story above is
+`pg_dump`, not a file copy. Run it only if you are prepared to own that
+topology yourself.
 
 **Uploads.** `MEDIA_DISK=local` keeps files in the volume. For object storage,
 set `MEDIA_DISK=s3` and the `AWS_*` block — any S3-compatible endpoint works,
@@ -288,6 +331,18 @@ Six services run: `web` (the SPA and the proxy), `api`, `queue` and `scheduler`
 | `The MAC is invalid` | `APP_KEY` changed. Put the old one in `APP_PREVIOUS_KEYS` |
 | Login throttled instantly for everyone | `TRUSTED_PROXIES` unset, so every request looks like it comes from the proxy |
 | `no such table: sessions` | An older image. Upgrade — the migration ships now |
+| Forgot the password | There is no reset email. Set a new one from the shell, below |
+
+Opusline never sends email — there is no reset route and nothing configured to
+send one — so a forgotten password is fixed where you already have root:
+
+```sh
+docker compose -f compose.prod.yaml exec api php artisan tinker \
+  --execute 'App\Domain\Users\Models\User::first()->update(["password" => "a-new-password"]);'
+```
+
+The model hashes the password on assignment, and the instance is single-tenant,
+so the first user is you.
 
 Found something this page does not cover? Open an issue with the "Self-hosting /
 Docker" area — that template exists for exactly this.

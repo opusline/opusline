@@ -3,10 +3,11 @@ import { cn } from "@opusline/ui/lib/utils";
 import { PlusIcon } from "lucide-react";
 import type { KeyboardEvent, RefCallback, RefObject } from "react";
 
-import { isHourly } from "@/lib/durations";
+import { isHourly, provisionalBilledLabel } from "@/lib/durations";
+import { formatClock, useTimerClock } from "@/lib/timer-clock";
 import { m } from "@/paraglide/messages.js";
 
-import { liveCellLabel } from "../lib/labels";
+import { liveCellLabel, liveStateLabel } from "../lib/labels";
 import { PILL_SKINS, type PillSkin, UNINVOICED_RING } from "../lib/pill-skins";
 import type {
   LiveCell,
@@ -43,6 +44,17 @@ function skinOf(row: WeekRow, cell: WeekCellModel): PillSkin {
 }
 
 function LivePill({ live }: { live: LiveCell }) {
+  // The only tick subscriber in the grid: the moving labels are derived here,
+  // so each second repaints this pill and nothing else.
+  const { elapsedSeconds } = useTimerClock();
+
+  const billedLabel = provisionalBilledLabel(
+    live.locale,
+    Math.round(elapsedSeconds / 60),
+    { billingMode: live.billingMode, workdayMinutes: live.workdayMinutes },
+    live.rounding,
+  );
+
   return (
     <button
       aria-label={m.week_stop_tracking()}
@@ -67,11 +79,11 @@ function LivePill({ live }: { live: LiveCell }) {
           )}
         />
         <span className="whitespace-nowrap font-mono text-sm tabular-nums">
-          {live.billedLabel}
+          {billedLabel}
         </span>
       </div>
       <div className={cn("mt-0.5 truncate text-xs", PILL_SKINS.live.note)}>
-        {liveCellLabel(live.isRunning, live.clockLabel)}
+        {liveCellLabel(live.isRunning, formatClock(elapsedSeconds))}
       </div>
     </button>
   );
@@ -112,10 +124,13 @@ export function WeekCell({
     <div
       aria-busy={isPending || undefined}
       aria-colindex={columnIndex + 2}
+      // Running/paused only, no ticking clock: a label that changed every
+      // second would chatter at screen readers, and the moving figure is
+      // already inside the pill.
       aria-label={
         live === null
           ? cell.ariaLabel
-          : `${cell.ariaLabel} — ${liveCellLabel(live.isRunning, live.clockLabel)}`
+          : `${cell.ariaLabel} — ${liveStateLabel(live.isRunning)}`
       }
       className={cn(
         "group relative border-secondary border-b border-l border-card-2 p-2.5 outline-none focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-primary-text",

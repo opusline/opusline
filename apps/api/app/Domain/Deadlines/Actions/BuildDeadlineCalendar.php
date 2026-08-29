@@ -18,6 +18,7 @@ use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Users\Models\User;
 use Cknow\Money\Money;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Spatie\IcalendarGenerator\Components\Calendar;
 use Spatie\IcalendarGenerator\Components\Event;
 
@@ -45,6 +46,41 @@ class BuildDeadlineCalendar
         private readonly ResolveExpectedCfe $resolveExpectedCfe,
         private readonly ListInvoiceDeadlines $listInvoiceDeadlines,
     ) {}
+
+    /**
+     * A cheap stand-in for the feed's content, so the controller can answer a
+     * poll with 304 without running the pipeline below. Lives here, next to
+     * handle(), because it must enumerate exactly what the feed prints: the
+     * settings row (window, checkboxes, locale, rates, expected CFE), the
+     * invoices (due and relance events, the prices), the clients (every event
+     * names one), the completions (the « fait » line), the movements (the CFE
+     * estimate can read last year's debits), and the account's calendar date,
+     * since the window slides daily. Feed a new source into handle() and its
+     * aggregate belongs in this list too. One UNION query: the feed is the
+     * only machine-polled route in the app.
+     */
+    public function fingerprint(User $user): string
+    {
+        $settings = $user->settingsOrFail();
+
+        /** @var list<object{total: int|string, touched: int|string|null}> $aggregates */
+        $aggregates = DB::select(
+            'select count(*) as total, max(updated_at) as touched from invoices where user_id = ?
+            union all select count(*), max(updated_at) from clients where user_id = ?
+            union all select count(*), max(updated_at) from fiscal_deadline_completions where user_id = ?
+            union all select count(*), max(id) from bank_movements where user_id = ?',
+            [$user->id, $user->id, $user->id, $user->id],
+        );
+
+        $facts = [$settings->updated_at->getTimestamp(), $settings->today()->toDateString()];
+
+        foreach ($aggregates as $aggregate) {
+            $facts[] = (int) $aggregate->total;
+            $facts[] = (string) $aggregate->touched;
+        }
+
+        return hash('sha256', implode('|', $facts));
+    }
 
     public function handle(User $user): string
     {

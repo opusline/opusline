@@ -114,13 +114,17 @@ test('reports when the barème was actually read, not when the cache was consult
     $this->actingAs(User::factory()->create())->postJson('/api/settings/rates/refresh')->assertOk();
     $this->travelBack();
 
-    // A save re-reads through the cache; the stamp must stay at the real read.
+    // A save's queued re-read goes through the cache; the stamp must stay at
+    // the real read, not at the moment the cache was consulted.
     $later = User::factory()->create();
     $later->settings()->sole()->update(['auto_rates' => false]);
     $this->actingAs($later)
         ->putJson('/api/settings', settingsPayload(['autoRates' => true]))
         ->assertOk()
-        ->assertJsonPath('ratesCheckedAt', $readAt->toIso8601String());
+        ->assertJsonPath('ratesRefreshing', true);
+
+    expect($later->settings()->sole()->rates_checked_at?->toIso8601String())
+        ->toBe($readAt->toIso8601String());
 });
 
 test('never touches another account', function (): void {
@@ -183,16 +187,24 @@ test('lets an explicit check retry a source that just refused', function (): voi
     Http::assertSentCount(4);
 });
 
-test('a settings save pays the timeout once, never twice', function (): void {
-    // The user pressed Enregistrer, not « Vérifier maintenant »: retrying a
-    // refusing source here doubles the wait on a request that was about saving
-    // settings, and the save already degrades to keeping the stored rates.
+test('a settings save schedules the barème read instead of blocking on it', function (): void {
+    // The user pressed Enregistrer, not « Vérifier maintenant »: the save
+    // answers with the stored rates at once and a queued job catches the
+    // account up, so a refusing source costs a queue worker, never the save.
     Sleep::fake();
     Http::fake(['*/evaluate' => Http::response(status: 500)]);
+    $user = User::factory()->create();
 
-    adoptOfficialRates(User::factory()->create())->assertOk();
+    adoptOfficialRates($user)
+        ->assertOk()
+        ->assertJsonPath('ratesRefreshing', true)
+        ->assertJsonPath('ratesCheckedAt', null);
 
-    Http::assertSentCount(1);
+    // The sync test queue ran the job inline: one read, retried once — the
+    // background job retries transient refusals where the old inline call
+    // could not afford to — then degraded to keeping the stored rates.
+    Http::assertSentCount(2);
+    expect($user->settings()->sole()->rates_checked_at)->toBeNull();
 });
 
 test('still serves a barème held in cache while the source is refusing', function (): void {
@@ -203,19 +215,22 @@ test('still serves a barème held in cache while the source is refusing', functi
         ? Http::response(status: 500)
         : Http::response(['evaluate' => [['nodeValue' => 25.6], ['nodeValue' => 220]]]));
 
-    adoptOfficialRates(User::factory()->create())
-        ->assertOk()
-        ->assertJsonPath('contributionRateBp', 2560);
+    $first = User::factory()->create();
+    adoptOfficialRates($first)->assertOk();
+    expect($first->settings()->sole()->contribution_rate_bp)->toBe(2560);
 
-    adoptOfficialRates(User::factory()->create(), [
+    $underAcre = User::factory()->create();
+    adoptOfficialRates($underAcre, [
         'acre' => true,
         'businessStartedOn' => now()->subMonths(2)->format('Y-m-d'),
-    ])->assertOk()->assertJsonPath('ratesCheckedAt', null);
+    ])->assertOk();
+    expect($underAcre->settings()->sole()->rates_checked_at)->toBeNull();
 
-    adoptOfficialRates(User::factory()->create())
-        ->assertOk()
-        ->assertJsonPath('contributionRateBp', 2560)
-        ->assertJsonPath('ratesYear', now()->year);
+    $third = User::factory()->create();
+    adoptOfficialRates($third)->assertOk();
+    $thirdSettings = $third->settings()->sole();
+    expect($thirdSettings->contribution_rate_bp)->toBe(2560)
+        ->and($thirdSettings->rates_year)->toBe(now()->year);
 });
 
 /**

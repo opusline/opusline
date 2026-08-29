@@ -21,17 +21,20 @@ class SettingsController extends Controller
 {
     public function show(#[CurrentUser] User $user): JsonResponse
     {
-        return $this->respond($user->settings()->sole(), $user);
+        return $this->respond($user->settingsOrFail(), $user);
     }
 
     public function update(UpdateSettingsData $data, #[CurrentUser] User $user, UpdateSettings $updateSettings): JsonResponse
     {
-        return $this->respond($updateSettings->handle($user->settings()->sole(), $data), $user);
+        $settings = $user->settingsOrFail();
+        $ratesRefreshing = $updateSettings->handle($settings, $data);
+
+        return $this->respond($settings, $user, $ratesRefreshing);
     }
 
     public function updateCurrency(UpdateSettingsCurrencyData $data, #[CurrentUser] User $user, ChangeAccountCurrency $changeAccountCurrency): JsonResponse
     {
-        return $this->respond($changeAccountCurrency->handle($user->settings()->sole(), $data), $user);
+        return $this->respond($changeAccountCurrency->handle($user->settingsOrFail(), $data), $user);
     }
 
     /**
@@ -39,7 +42,7 @@ class SettingsController extends Controller
      */
     public function refreshRates(#[CurrentUser] User $user, RefreshOfficialRates $refreshOfficialRates): JsonResponse
     {
-        $settings = $user->settings()->sole();
+        $settings = $user->settingsOrFail();
 
         abort_if(! $settings->hasFrenchFiscality(), 409, __('settings.rates_foreign_country'));
         abort_if(! $settings->auto_rates, 409, __('settings.rates_manual'));
@@ -47,10 +50,13 @@ class SettingsController extends Controller
         return $this->respond($refreshOfficialRates->handle($settings, force: true), $user);
     }
 
-    private function respond(UserSettings $settings, User $user): JsonResponse
+    private function respond(UserSettings $settings, User $user, bool $ratesRefreshing = false): JsonResponse
     {
-        return response()->json(
-            SettingsData::fromModel($settings, $user->hasMedia('signature'), $user->hasLockedCurrency()),
-        );
+        return response()->json(SettingsData::fromModel(
+            $settings,
+            $user->hasMedia('signature'),
+            $user->hasLockedCurrency(),
+            $ratesRefreshing,
+        ));
     }
 }

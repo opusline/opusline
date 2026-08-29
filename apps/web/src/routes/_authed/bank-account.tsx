@@ -27,10 +27,12 @@ import {
   ImportStatementDialog,
   type ImportStatementSubmit,
 } from "@/features/bank/components/import-statement-dialog";
+import { useOlderMovements } from "@/features/bank/lib/use-older-movements";
 import { requireFrenchFiscality } from "@/lib/fiscality";
 import {
   invalidateInvoiceWrites,
   invalidateTreasury,
+  operationFilter,
 } from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
@@ -52,6 +54,8 @@ function BankRoute() {
     placeholderData: keepPreviousData,
   });
 
+  const olderMovements = useOlderMovements(bank.data);
+
   const [importOpen, setImportOpen] = useState(false);
   const [editingBalance, setEditingBalance] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
@@ -60,9 +64,12 @@ function BankRoute() {
   const [actionError, setActionError] = useState<string | null>(null);
 
   // Every mutation answers with the freshly computed account summary — writing
-  // it straight into the cache spares a second identical GET per action.
+  // it straight into the cache spares a second identical GET per action. The
+  // loaded older pages derive their running balances from that summary, and a
+  // write can move the figures without moving the cursor — refetch them too.
   const acceptSummary = (account: BankAccountData) => {
     queryClient.setQueryData(showBankAccountQueryKey(), account);
+    void queryClient.invalidateQueries(operationFilter("listBankMovements"));
   };
 
   // Validating a suggestion marks an invoice paid, so it owes the same fan-out
@@ -195,6 +202,7 @@ function BankRoute() {
       <BankPage
         data={bank.data}
         isRefreshing={bank.isPlaceholderData}
+        olderMovements={olderMovements}
         onDismissMatch={(matchId) =>
           dismiss.mutate({ path: { match: matchId } })
         }

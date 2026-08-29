@@ -71,6 +71,8 @@ type SignatureProps = {
 
 type RatesProps = {
   isRefreshing: boolean;
+  /** A save scheduled a background barème read that has not landed yet. */
+  isBackgroundRefresh: boolean;
   error: string | null;
   onRefresh: () => void;
 };
@@ -179,6 +181,7 @@ export function SettingsPage({
                       settings.effectiveContributionRateBp
                     }
                     form={form}
+                    isBackgroundRefresh={rates.isBackgroundRefresh}
                     isRefreshingRates={rates.isRefreshing}
                     liberatingPaymentRateBp={settings.liberatingPaymentRateBp}
                     onRefreshRates={rates.onRefresh}
