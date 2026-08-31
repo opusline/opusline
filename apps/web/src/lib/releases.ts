@@ -14,6 +14,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.20.3",
+    date: "2026-08-31",
+    items: [
+      {
+        kind: "fixed",
+        text: "The sidebar logo sat off-center when the menu was collapsed and led to a placeholder page — it is now centered and opens the week view, and empty-state cards no longer keep dead space where a button would have been.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.20.2",
     date: "2026-08-29",
     items: [
