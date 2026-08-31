@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.3](https://github.com/opusline/opusline/compare/v0.20.2...v0.20.3) (2026-08-31)
+
+
+### Bug Fixes
+
+* **web:** polish sidebar logo and empty states ([#238](https://github.com/opusline/opusline/issues/238)) ([0a93400](https://github.com/opusline/opusline/commit/0a93400534d4ec58d55187676b74be36258e8cb8))
+
 ## [0.20.2](https://github.com/opusline/opusline/compare/v0.20.1...v0.20.2) (2026-08-29)
 
 
