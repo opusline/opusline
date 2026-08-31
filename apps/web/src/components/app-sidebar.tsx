@@ -139,7 +139,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center">
-          <SidebarMenuButton render={<Link to="/dashboard" />} size="lg">
+          <SidebarMenuButton render={<Link to="/week" />} size="lg">
             <img alt="" className="size-6 rounded" src="/logo.svg" />
             <span className="font-heading font-semibold text-lg">Opusline</span>
           </SidebarMenuButton>

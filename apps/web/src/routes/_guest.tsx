@@ -8,7 +8,7 @@ export const Route = createFileRoute("/_guest")({
       .catch(() => null);
 
     if (user) {
-      throw redirect({ to: "/dashboard" });
+      throw redirect({ to: "/week" });
     }
   },
   component: () => <Outlet />,

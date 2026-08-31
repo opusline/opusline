@@ -39,10 +39,6 @@ it("redirects authenticated users away from the login page", async () => {
   );
 
   expect(
-    await screen.findByRole(
-      "heading",
-      { name: /bonjour, theo/i },
-      { timeout: 5000 },
-    ),
+    await screen.findByRole("link", { name: /semaine/i }, { timeout: 5000 }),
   ).toBeInTheDocument();
 });

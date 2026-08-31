@@ -398,8 +398,6 @@
   "cra_steps_aria": "Étapes du compte rendu",
   "cra_to_produce": "{count} à produire",
   "cra_weekend": "week-end",
-  "dashboard_greeting": "Bonjour, {name}",
-  "dashboard_placeholder": "Le tableau de bord arrive ici — activité de la semaine et prochaines échéances.",
   "date_field_hint_dmy": "JJ/MM/AAAA",
   "date_field_hint_iso": "AAAA-MM-JJ",
   "date_field_open_calendar": "Ouvrir le calendrier",
