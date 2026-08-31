@@ -1,5 +1,5 @@
 import viteReact from "@vitejs/plugin-react";
-import { defineConfig } from "vitest/config";
+import { coverageConfigDefaults, defineConfig } from "vitest/config";
 
 const shared = {
   environment: "jsdom" as const,
@@ -31,6 +31,28 @@ export default defineConfig({
   resolve: { tsconfigPaths: true },
   test: {
     isolate: false,
+    coverage: {
+      // CI-only (COVERAGE=1): pre-push runs the full suite on every push and
+      // does not need reports.
+      enabled: process.env.COVERAGE === "1",
+      provider: "v8",
+      // Explicit include so files no test imports still count against project
+      // coverage — Vitest 4 otherwise reports only files that tests touched.
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: [
+        ...coverageConfigDefaults.exclude,
+        "src/paraglide/**",
+        "src/routeTree.gen.ts",
+        // Declarative createFileRoute wiring: import side effects mark lines
+        // covered while never-rendered component closures fail the patch gate.
+        // router.test.tsx and the spec-drift job already guard this layer.
+        "src/routes/**",
+        "src/test/**",
+        "src/**/*.stories.tsx",
+        "src/main.tsx",
+      ],
+      reporter: ["text-summary", "lcov"],
+    },
     projects: [
       {
         extends: true,

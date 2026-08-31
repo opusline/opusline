@@ -1,0 +1,34 @@
+codecov:
+  require_ci_to_pass: true
+
+coverage:
+  status:
+    project:
+      default:
+        informational: true
+    patch:
+      api:
+        target: 80%
+        flags: [api]
+      web:
+        target: 80%
+        flags: [web]
+
+flags:
+  api:
+    paths:
+      - apps/api/app/
+    carryforward: true
+  web:
+    paths:
+      - apps/web/src/
+    carryforward: true
+
+comment:
+  layout: "condensed_header, diff, flags, condensed_files"
+  after_n_builds: 2
+  require_changes: true
+
+ignore:
+  - packages/api-client
+  - apps/web/src/paraglide

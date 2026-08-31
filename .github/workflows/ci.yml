@@ -54,7 +54,15 @@ jobs:
         run: pnpm --filter @opusline/storybook exec playwright install chromium --with-deps
       - run: pnpm format-and-lint
       - run: pnpm exec turbo run test check-types build "--filter=!@opusline/api"
+        env:
+          COVERAGE: "1"
       - run: node apps/web/scripts/check-bundle-budget.mjs
+      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          files: apps/web/coverage/lcov.info
+          flags: web
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
 
   secret-scan:
     name: Secret scan (gitleaks)
@@ -120,6 +128,7 @@ jobs:
           - database: sqlite
             DB_CONNECTION: sqlite
             DB_DATABASE: ":memory:"
+            coverage: pcov
           - database: mysql
             DB_CONNECTION: mysql
             DB_HOST: 127.0.0.1
@@ -127,6 +136,7 @@ jobs:
             DB_DATABASE: testing
             DB_USERNAME: root
             DB_PASSWORD: password
+            coverage: none
           - database: pgsql
             DB_CONNECTION: pgsql
             DB_HOST: 127.0.0.1
@@ -134,6 +144,7 @@ jobs:
             DB_DATABASE: testing
             DB_USERNAME: postgres
             DB_PASSWORD: password
+            coverage: none
     services:
       mysql:
         image: mysql:8.4
@@ -174,7 +185,8 @@ jobs:
         with:
           php-version: "8.5"
           extensions: exif, gd, pdo_mysql, pdo_pgsql
-          coverage: none
+          coverage: ${{ matrix.coverage }}
+          ini-values: pcov.directory=${{ github.workspace }}/apps/api/app
       - name: Resolve composer cache directory
         id: composer-cache
         run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
@@ -186,7 +198,17 @@ jobs:
       - run: composer install --no-interaction --no-progress --prefer-dist
       - run: composer audit
       - run: cp .env.example .env && php artisan key:generate
-      - run: php artisan config:clear --quiet && php artisan test --ci --parallel
+      - if: matrix.coverage == 'none'
+        run: php artisan config:clear --quiet && php artisan test --ci --parallel
+      - if: matrix.coverage == 'pcov'
+        run: php artisan config:clear --quiet && php artisan test --ci --parallel --coverage-clover=coverage/clover.xml
+      - if: matrix.coverage == 'pcov'
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          files: apps/api/coverage/clover.xml
+          flags: api
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
 
   # The images are otherwise first built by publish-image.yml, after the release
   # tag already exists — and the entrypoint is where migrations run. Build both
