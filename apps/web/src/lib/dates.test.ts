@@ -122,16 +122,17 @@ it("round-trips every layout through its own parser", () => {
 });
 
 it("answers today in the account's timezone, not the browser's", () => {
-  // Two zones a whole day apart: whatever the runner's clock says, at least one
-  // of the three answers has to differ from the others at some hour, and none
-  // may ever be malformed.
-  for (const timezone of ["UTC", "Pacific/Kiritimati", "Pacific/Niue"]) {
+  // Kiritimati (UTC+14) and Honolulu (UTC-10) are exactly 24 hours apart and
+  // neither observes DST, so whatever the runner's clock or TZ says, the two
+  // answers differ by exactly one calendar day — and none may be malformed.
+  // (Niue, the previous west pick, is UTC-11: 25 hours from Kiritimati, which
+  // made the gap hit 2 for one hour every day and flake the suite.)
+  for (const timezone of ["UTC", "Pacific/Kiritimati", "Pacific/Honolulu"]) {
     expect(accountTodayCalendarDate(timezone)).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   }
 
   const east = accountTodayCalendarDate("Pacific/Kiritimati");
-  const west = accountTodayCalendarDate("Pacific/Niue");
+  const west = accountTodayCalendarDate("Pacific/Honolulu");
 
-  expect(calendarDaysBetween(west, east)).toBeGreaterThanOrEqual(0);
-  expect(calendarDaysBetween(west, east)).toBeLessThanOrEqual(1);
+  expect(calendarDaysBetween(west, east)).toBe(1);
 });
