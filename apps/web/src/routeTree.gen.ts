@@ -16,7 +16,6 @@ import { Route as HealthRouteImport } from './routes/health'
 import { Route as AuthedBankAccountRouteImport } from './routes/_authed/bank-account'
 import { Route as AuthedClientsRouteImport } from './routes/_authed/clients'
 import { Route as AuthedCraRouteImport } from './routes/_authed/cra'
-import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
 import { Route as AuthedDeadlinesRouteImport } from './routes/_authed/deadlines'
 import { Route as AuthedDeclarationsRouteImport } from './routes/_authed/declarations'
 import { Route as AuthedDocumentsRouteImport } from './routes/_authed/documents'
@@ -64,11 +63,6 @@ const AuthedClientsRoute = AuthedClientsRouteImport.update({
 const AuthedCraRoute = AuthedCraRouteImport.update({
   id: '/cra',
   path: '/cra',
-  getParentRoute: () => AuthedRoute,
-} as any)
-const AuthedDashboardRoute = AuthedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedDeadlinesRoute = AuthedDeadlinesRouteImport.update({
@@ -154,7 +148,6 @@ export interface FileRoutesByFullPath {
   '/bank-account': typeof AuthedBankAccountRoute
   '/clients': typeof AuthedClientsRoute
   '/cra': typeof AuthedCraRoute
-  '/dashboard': typeof AuthedDashboardRoute
   '/deadlines': typeof AuthedDeadlinesRoute
   '/declarations': typeof AuthedDeclarationsRoute
   '/documents': typeof AuthedDocumentsRoute
@@ -177,7 +170,6 @@ export interface FileRoutesByTo {
   '/bank-account': typeof AuthedBankAccountRoute
   '/clients': typeof AuthedClientsRoute
   '/cra': typeof AuthedCraRoute
-  '/dashboard': typeof AuthedDashboardRoute
   '/deadlines': typeof AuthedDeadlinesRoute
   '/declarations': typeof AuthedDeclarationsRoute
   '/documents': typeof AuthedDocumentsRoute
@@ -203,7 +195,6 @@ export interface FileRoutesById {
   '/_authed/bank-account': typeof AuthedBankAccountRoute
   '/_authed/clients': typeof AuthedClientsRoute
   '/_authed/cra': typeof AuthedCraRoute
-  '/_authed/dashboard': typeof AuthedDashboardRoute
   '/_authed/deadlines': typeof AuthedDeadlinesRoute
   '/_authed/declarations': typeof AuthedDeclarationsRoute
   '/_authed/documents': typeof AuthedDocumentsRoute
@@ -228,7 +219,6 @@ export interface FileRouteTypes {
     | '/bank-account'
     | '/clients'
     | '/cra'
-    | '/dashboard'
     | '/deadlines'
     | '/declarations'
     | '/documents'
@@ -251,7 +241,6 @@ export interface FileRouteTypes {
     | '/bank-account'
     | '/clients'
     | '/cra'
-    | '/dashboard'
     | '/deadlines'
     | '/declarations'
     | '/documents'
@@ -276,7 +265,6 @@ export interface FileRouteTypes {
     | '/_authed/bank-account'
     | '/_authed/clients'
     | '/_authed/cra'
-    | '/_authed/dashboard'
     | '/_authed/deadlines'
     | '/_authed/declarations'
     | '/_authed/documents'
@@ -350,13 +338,6 @@ declare module '@tanstack/react-router' {
       path: '/cra'
       fullPath: '/cra'
       preLoaderRoute: typeof AuthedCraRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/dashboard': {
-      id: '/_authed/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthedDashboardRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/deadlines': {
@@ -471,7 +452,6 @@ interface AuthedRouteChildren {
   AuthedBankAccountRoute: typeof AuthedBankAccountRoute
   AuthedClientsRoute: typeof AuthedClientsRoute
   AuthedCraRoute: typeof AuthedCraRoute
-  AuthedDashboardRoute: typeof AuthedDashboardRoute
   AuthedDeadlinesRoute: typeof AuthedDeadlinesRoute
   AuthedDeclarationsRoute: typeof AuthedDeclarationsRoute
   AuthedDocumentsRoute: typeof AuthedDocumentsRoute
@@ -491,7 +471,6 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedBankAccountRoute: AuthedBankAccountRoute,
   AuthedClientsRoute: AuthedClientsRoute,
   AuthedCraRoute: AuthedCraRoute,
-  AuthedDashboardRoute: AuthedDashboardRoute,
   AuthedDeadlinesRoute: AuthedDeadlinesRoute,
   AuthedDeclarationsRoute: AuthedDeclarationsRoute,
   AuthedDocumentsRoute: AuthedDocumentsRoute,

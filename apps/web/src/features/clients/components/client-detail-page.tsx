@@ -12,6 +12,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@opusline/ui/components/dropdown-menu";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@opusline/ui/components/empty";
 import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { StatTile, StatTileRow } from "@opusline/ui/components/stat-tile";
 import {
@@ -409,29 +416,33 @@ export function ClientDetailPage({
                 </Table>
               </div>
             ) : (
-              <div className="rounded-md border bg-card px-7 py-9 text-center">
-                <div className="mb-2 font-heading font-semibold text-base text-foreground-hi">
-                  {m.clients_no_missions()}
-                </div>
-                <p className="mb-5 text-muted-foreground-3 text-sm leading-relaxed">
-                  {isArchived
-                    ? m.clients_archived_row_note()
-                    : m.clients_missions_empty_hint()}
-                </p>
+              <Empty className="px-7 py-9">
+                <EmptyHeader className="max-w-none gap-2">
+                  <EmptyTitle variant="strong">
+                    {m.clients_no_missions()}
+                  </EmptyTitle>
+                  <EmptyDescription className="text-muted-foreground-3 text-sm leading-relaxed">
+                    {isArchived
+                      ? m.clients_archived_row_note()
+                      : m.clients_missions_empty_hint()}
+                  </EmptyDescription>
+                </EmptyHeader>
                 {!isArchived && (
-                  <Button
-                    render={
-                      <Link
-                        search={{ client: client.slug }}
-                        to="/missions/new"
-                      />
-                    }
-                    size="xl"
-                  >
-                    {m.clients_create_mission()}
-                  </Button>
+                  <EmptyContent>
+                    <Button
+                      render={
+                        <Link
+                          search={{ client: client.slug }}
+                          to="/missions/new"
+                        />
+                      }
+                      size="xl"
+                    >
+                      {m.clients_create_mission()}
+                    </Button>
+                  </EmptyContent>
                 )}
-              </div>
+              </Empty>
             )}
           </TabsContent>
 
@@ -493,17 +504,21 @@ export function ClientDetailPage({
                 </div>
               </div>
             ) : (
-              <div className="rounded-md border bg-card px-7 py-9 text-center">
-                <div className="mb-2 font-heading font-semibold text-base text-foreground-hi">
-                  {m.clients_details_empty_title()}
-                </div>
-                <p className="mx-auto mb-5 max-w-md text-pretty text-muted-foreground-3 text-sm leading-relaxed">
-                  {m.clients_details_empty_hint()}
-                </p>
-                <Button onClick={() => setIsEditing(true)} size="xl">
-                  {m.clients_details_fill()}
-                </Button>
-              </div>
+              <Empty className="px-7 py-9">
+                <EmptyHeader className="max-w-none gap-2">
+                  <EmptyTitle variant="strong">
+                    {m.clients_details_empty_title()}
+                  </EmptyTitle>
+                  <EmptyDescription className="max-w-md text-pretty text-muted-foreground-3 text-sm leading-relaxed">
+                    {m.clients_details_empty_hint()}
+                  </EmptyDescription>
+                </EmptyHeader>
+                <EmptyContent>
+                  <Button onClick={() => setIsEditing(true)} size="xl">
+                    {m.clients_details_fill()}
+                  </Button>
+                </EmptyContent>
+              </Empty>
             )}
           </TabsContent>
         </Tabs>

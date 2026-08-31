@@ -29,7 +29,7 @@ function RegisterPage() {
     try {
       const user = await register.mutateAsync({ body: values });
       queryClient.setQueryData(currentUserQueryKey(), user);
-      await navigate({ to: "/dashboard" });
+      await navigate({ to: "/week" });
       return null;
     } catch (error) {
       return serverFieldErrors(error);

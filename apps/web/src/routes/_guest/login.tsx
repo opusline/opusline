@@ -45,7 +45,7 @@ function LoginPage() {
     try {
       const user = await login.mutateAsync({ body: values });
       queryClient.setQueryData(currentUserQueryKey(), user);
-      await navigate({ to: redirect ?? "/dashboard" });
+      await navigate({ to: redirect ?? "/week" });
       return null;
     } catch (error) {
       return serverFieldErrors(error);

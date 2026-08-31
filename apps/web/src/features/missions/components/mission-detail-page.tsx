@@ -19,6 +19,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@opusline/ui/components/dropdown-menu";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@opusline/ui/components/empty";
 import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { StatTile, StatTileRow } from "@opusline/ui/components/stat-tile";
 import { Switch } from "@opusline/ui/components/switch";
@@ -414,15 +421,19 @@ export function MissionDetailPage({
 
           {mission.craRequired && (
             <TabsContent value="cra">
-              <div className="rounded-md border bg-card px-7 py-9 text-center">
-                <div className="mb-2 font-heading font-semibold text-base text-foreground-hi">
-                  {m.missions_cra_title()}
-                </div>
-                <p className="mx-auto mb-4.5 max-w-md text-pretty text-muted-foreground-3 text-sm leading-relaxed">
-                  {m.missions_cra_hint()}
-                </p>
-                <Button onClick={onOpenCra}>{m.missions_open_cras()}</Button>
-              </div>
+              <Empty className="px-7 py-9">
+                <EmptyHeader className="max-w-none gap-2">
+                  <EmptyTitle variant="strong">
+                    {m.missions_cra_title()}
+                  </EmptyTitle>
+                  <EmptyDescription className="max-w-md text-pretty text-muted-foreground-3 text-sm leading-relaxed">
+                    {m.missions_cra_hint()}
+                  </EmptyDescription>
+                </EmptyHeader>
+                <EmptyContent>
+                  <Button onClick={onOpenCra}>{m.missions_open_cras()}</Button>
+                </EmptyContent>
+              </Empty>
             </TabsContent>
           )}
 

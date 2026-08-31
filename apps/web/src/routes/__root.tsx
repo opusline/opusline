@@ -36,9 +36,7 @@ function NotFoundPage() {
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <p className="text-muted-foreground text-sm">{m.not_found_hint()}</p>
-          <Button render={<Link to="/dashboard" />}>
-            {m.not_found_home()}
-          </Button>
+          <Button render={<Link to="/week" />}>{m.not_found_home()}</Button>
         </CardContent>
       </Card>
     </main>
