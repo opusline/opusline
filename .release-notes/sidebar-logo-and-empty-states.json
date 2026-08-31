@@ -1,4 +1,0 @@
-{
-  "kind": "fixed",
-  "text": "The sidebar logo sat off-center when the menu was collapsed and led to a placeholder page — it is now centered and opens the week view, and empty-state cards no longer keep dead space where a button would have been."
-}
