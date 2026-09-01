@@ -11,11 +11,11 @@
     "generate-api": "turbo run generate"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.10",
+    "@biomejs/biome": "2.5.11",
     "@commitlint/cli": "^21.2.2",
     "@commitlint/config-conventional": "^21.2.2",
-    "lefthook": "^2.1.10",
-    "turbo": "^2.10.11",
+    "lefthook": "^2.1.12",
+    "turbo": "^2.10.12",
     "typescript": "^7"
   },
   "packageManager": "pnpm@10.33.4",
