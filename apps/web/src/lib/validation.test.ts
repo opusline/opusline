@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { serverErrorMessage, serverFieldErrors } from "./validation";
+import {
+  serverErrorMessage,
+  serverFieldErrors,
+  serverStatus,
+} from "./validation";
 
 const laravel422 = {
   message: "The given data was invalid.",
@@ -49,5 +53,19 @@ describe("serverErrorMessage", () => {
     );
     expect(serverErrorMessage(null, "Échec.")).toBe("Échec.");
     expect(serverErrorMessage({ message: 42 }, "Échec.")).toBe("Échec.");
+  });
+});
+
+describe("serverStatus", () => {
+  it("reads the status the api client stamped on the body", () => {
+    expect(serverStatus({ message: "Confirmez.", status: 423 })).toBe(423);
+  });
+
+  it.each([
+    ["a network failure", new TypeError("fetch failed")],
+    ["a body without a status", { message: "Conflit." }],
+    ["null", null],
+  ])("returns null for %s", (_label, error) => {
+    expect(serverStatus(error)).toBeNull();
   });
 });

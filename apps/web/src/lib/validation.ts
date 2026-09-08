@@ -1,5 +1,19 @@
 type FieldErrorMap = Record<string, { message: string }>;
 
+/** The HTTP status the api client stamped on a thrown error, if it came from a response. */
+export function serverStatus(error: unknown): number | null {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "status" in error &&
+    typeof error.status === "number"
+  ) {
+    return error.status;
+  }
+
+  return null;
+}
+
 /**
  * Extracts Laravel's 422 validation body ({ message, errors: { field: [msgs] } })
  * from a thrown api-client error.

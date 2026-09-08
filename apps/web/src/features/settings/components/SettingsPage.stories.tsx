@@ -1,13 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
-
+import { twoFactorOnFixture } from "../lib/security-fixture";
 import {
   abroadSettingsFixture,
   nonEuSettingsFixture,
   settingsFixture,
 } from "../lib/settings-fixture";
 import type { SettingsTab } from "../lib/settings-form";
+import { AuthenticatorAppCard } from "./authenticator-app-card";
 import { SettingsPage } from "./settings-page";
+import { TrustedBrowsersCard } from "./trusted-browsers-card";
 
 const meta = {
   title: "Web/SettingsPage",
@@ -44,6 +46,31 @@ const meta = {
       onSave: () => {},
       onCancel: () => {},
     },
+    security: (
+      <div className="flex flex-col gap-6">
+        <AuthenticatorAppCard
+          error={null}
+          isPending={false}
+          onAcknowledgeRecoveryCodes={() => {}}
+          onCancelSetup={() => {}}
+          onConfirmSetup={async () => ({ status: "success" }) as const}
+          onDisable={() => {}}
+          onRegenerateRecoveryCodes={() => {}}
+          onStartSetup={() => {}}
+          recoveryCodesRemaining={twoFactorOnFixture.recoveryCodesRemaining}
+          setup={{ step: "idle" }}
+          totpEnabled={twoFactorOnFixture.totpEnabled}
+        />
+        <TrustedBrowsersCard
+          devices={twoFactorOnFixture.trustedDevices}
+          error={null}
+          isPending={false}
+          locale="fr-FR"
+          onRevoke={() => {}}
+          onRevokeAll={() => {}}
+        />
+      </div>
+    ),
   },
 } satisfies Meta<typeof SettingsPage>;
 
@@ -69,6 +96,10 @@ export const Billing: Story = {
 
 export const Localisation: Story = {
   args: { activeTab: "regional" },
+};
+
+export const Security: Story = {
+  args: { activeTab: "securite" },
 };
 
 export const CurrencyLocked: Story = {
