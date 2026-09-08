@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.20.4](https://github.com/opusline/opusline/compare/v0.20.3...v0.20.4) (2026-09-08)
+
+
+### Dependencies
+
+* **deps:** bump the npm-minor group across 1 directory with 25 updates ([#255](https://github.com/opusline/opusline/issues/255)) ([6223877](https://github.com/opusline/opusline/commit/6223877b30e552cf79aa9b00d754bdd96f7611d1))
+
+
+### Bug Fixes
+
+* **repo:** read auto-merge state correctly ([#256](https://github.com/opusline/opusline/issues/256)) ([be3a92d](https://github.com/opusline/opusline/commit/be3a92d3a52c61592f956ccc3a45ad91e518e485))
+
 ## [0.20.3](https://github.com/opusline/opusline/compare/v0.20.2...v0.20.3) (2026-08-31)
 
 
