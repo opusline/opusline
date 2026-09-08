@@ -14,7 +14,10 @@ concurrency:
 jobs:
   auto-merge:
     name: Enable auto-merge on minor and patch bumps
-    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'opusline/opusline'
+    if: >-
+      github.event.pull_request.user.login == 'dependabot[bot]'
+      && github.repository == 'opusline/opusline'
+      && github.event.pull_request.auto_merge == null
     runs-on: ubuntu-latest
     env:
       # A grouped PR reports the highest bump in the group, so the *-minor
@@ -41,10 +44,6 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          if [ "$(gh pr view "$PR_NUMBER" --json autoMergeRequest --jq '.autoMergeRequest')" != "null" ]; then
-            echo "Auto-merge is already enabled on #$PR_NUMBER."
-            exit 0
-          fi
           # The repository squashes with the PR body, and Dependabot's PR body
           # quotes upstream changelogs: a literal "BREAKING CHANGE:" line in
           # there would be read by release-please as a breaking change of
