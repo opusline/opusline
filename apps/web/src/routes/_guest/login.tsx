@@ -43,8 +43,13 @@ function LoginPage() {
     remember: boolean;
   }) => {
     try {
-      const user = await login.mutateAsync({ body: values });
-      queryClient.setQueryData(currentUserQueryKey(), user);
+      const result = await login.mutateAsync({ body: values });
+      if ("twoFactorRequired" in result) {
+        // Answered by the challenge step that ships with the security
+        // settings; an account cannot enrol a second factor before then.
+        return null;
+      }
+      queryClient.setQueryData(currentUserQueryKey(), result);
       await navigate({ to: redirect ?? "/week" });
       return null;
     } catch (error) {

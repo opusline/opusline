@@ -8,6 +8,7 @@ use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Validation\LocalizedValidator;
 use App\Domain\Users\Models\User;
+use App\Http\Users\Support\PendingLogin;
 use App\OpenApi\SpatieDataParametersExtractor;
 use Carbon\CarbonImmutable;
 use Dedoc\Scramble\Configuration\ParametersExtractors;
@@ -71,6 +72,19 @@ class AppServiceProvider extends ServiceProvider
         // six tries a minute keeps guessing hopeless without hurting a typo.
         RateLimiter::for('confirm-password', fn (Request $request): Limit => Limit::perMinute(6)->by('confirm:'.$caller($request)));
         RateLimiter::for('two-factor-setup', fn (Request $request): Limit => Limit::perMinute(6)->by('2fa-setup:'.$caller($request)));
+
+        // The challenge answers for a guest who has proven the password: keyed
+        // on the pending account so one attacker cannot spend another
+        // account's tries, with an IP ceiling for callers with no pending login.
+        RateLimiter::for('two-factor-challenge', function (Request $request): array {
+            $pendingUserId = $request->hasSession() ? $request->session()->get(PendingLogin::KEY_USER_ID) : null;
+            $ip = $request->ip() ?? 'unknown';
+
+            return [
+                Limit::perMinute(10)->by('2fa:'.(is_int($pendingUserId) ? $pendingUserId : 'none').':'.$ip),
+                Limit::perMinute(20)->by('2fa-ip:'.$ip),
+            ];
+        });
 
         // Login is limited per email as well as per IP, so an attacker
         // rotating IPs still hits a per-account wall.

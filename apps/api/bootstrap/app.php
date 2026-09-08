@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Settings\Rates\RatesUnavailable;
+use App\Domain\TwoFactor\Models\TrustedDevice;
 use App\Http\Support\SetLocale;
 use App\Http\Users\Support\ThemeCookie;
 use Illuminate\Console\Scheduling\Schedule;
@@ -25,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withSchedule(function (Schedule $schedule): void {
         $schedule->command('rates:refresh')->dailyAt('03:00')->withoutOverlapping();
+        $schedule->command('model:prune', ['--model' => [TrustedDevice::class]])->daily();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(fn (): true => true);

@@ -79,6 +79,7 @@
         "/login": {
             "post": {
                 "operationId": "login",
+                "summary": "Signs the user in, or answers 202 with the second-factor challenge when\nthe account has one and this browser is not trusted",
                 "tags": [
                     "Auth"
                 ],
@@ -99,6 +100,16 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/UserData"
+                                }
+                            }
+                        }
+                    },
+                    "202": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TwoFactorChallengeData"
                                 }
                             }
                         }
@@ -124,6 +135,9 @@
                                 }
                             }
                         }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     }
                 },
                 "security": []
@@ -4184,6 +4198,52 @@
                 }
             }
         },
+        "/user/trusted-devices": {
+            "delete": {
+                "operationId": "revokeAllTrustedDevices",
+                "tags": [
+                    "TrustedDevice"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/user/trusted-devices/{trustedDevice}": {
+            "delete": {
+                "operationId": "revokeTrustedDevice",
+                "tags": [
+                    "TrustedDevice"
+                ],
+                "parameters": [
+                    {
+                        "name": "trustedDevice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The trusted device ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/user/two-factor": {
             "get": {
                 "operationId": "showTwoFactor",
@@ -4205,6 +4265,78 @@
                         "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
+            }
+        },
+        "/two-factor-challenge": {
+            "post": {
+                "operationId": "answerTwoFactorChallenge",
+                "summary": "Finishes a login whose password was accepted by POST /login",
+                "tags": [
+                    "TwoFactorChallenge"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TwoFactorChallengeAnswerData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserData"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "An error\n\nAn error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "description": "Error overview.",
+                                                    "examples": [
+                                                        "This sign-in attempt has expired. Enter your password again."
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "message"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "description": "Error overview."
+                                                }
+                                            },
+                                            "required": [
+                                                "message"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                },
+                "security": []
             }
         },
         "/user/documents": {
@@ -8420,6 +8552,97 @@
                 ],
                 "title": "TrimTimerData"
             },
+            "TrustedDeviceData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "browser": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "platform": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "lastUsedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "expiresAt": {
+                        "type": "string"
+                    },
+                    "current": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "id",
+                    "browser",
+                    "platform",
+                    "lastUsedAt",
+                    "expiresAt",
+                    "current"
+                ],
+                "title": "TrustedDeviceData"
+            },
+            "TwoFactorChallengeAnswerData": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "recoveryCode": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "pattern": "^[A-Za-z0-9]{10}-[A-Za-z0-9]{10}$"
+                    },
+                    "trustDevice": {
+                        "type": "boolean"
+                    }
+                },
+                "title": "TwoFactorChallengeAnswerData"
+            },
+            "TwoFactorChallengeData": {
+                "type": "object",
+                "properties": {
+                    "methods": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TwoFactorMethod"
+                        }
+                    },
+                    "twoFactorRequired": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "methods"
+                ],
+                "title": "TwoFactorChallengeData"
+            },
+            "TwoFactorMethod": {
+                "type": "integer",
+                "enum": [
+                    0
+                ],
+                "x-enum-varnames": [
+                    "Totp"
+                ],
+                "title": "TwoFactorMethod"
+            },
             "TwoFactorStatusData": {
                 "type": "object",
                 "properties": {
@@ -8434,12 +8657,19 @@
                     },
                     "recoveryCodesRemaining": {
                         "type": "integer"
+                    },
+                    "trustedDevices": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TrustedDeviceData"
+                        }
                     }
                 },
                 "required": [
                     "totpEnabled",
                     "totpConfirmedAt",
-                    "recoveryCodesRemaining"
+                    "recoveryCodesRemaining",
+                    "trustedDevices"
                 ],
                 "title": "TwoFactorStatusData"
             },
@@ -9393,25 +9623,6 @@
             }
         },
         "responses": {
-            "AuthenticationException": {
-                "description": "Unauthenticated",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "message": {
-                                    "type": "string",
-                                    "description": "Error overview."
-                                }
-                            },
-                            "required": [
-                                "message"
-                            ]
-                        }
-                    }
-                }
-            },
             "ValidationException": {
                 "description": "Validation error",
                 "content": {
@@ -9437,6 +9648,25 @@
                             "required": [
                                 "message",
                                 "errors"
+                            ]
+                        }
+                    }
+                }
+            },
+            "AuthenticationException": {
+                "description": "Unauthenticated",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Error overview."
+                                }
+                            },
+                            "required": [
+                                "message"
                             ]
                         }
                     }

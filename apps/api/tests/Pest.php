@@ -28,6 +28,7 @@ use App\Domain\Timers\Models\RunningTimer;
 use App\Domain\TwoFactor\Recovery\RecoveryCodes;
 use App\Domain\TwoFactor\Totp\TotpSecret;
 use App\Domain\Users\Models\User;
+use App\Http\TwoFactor\Support\TrustedDeviceCookie;
 use App\Http\Users\Support\RequirePasswordConfirmation;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -35,6 +36,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 /*
@@ -144,9 +146,13 @@ function freezeTodayAtUtcNoon(): void
     test()->travelTo(CarbonImmutable::parse('2026-08-13 12:00:00', 'UTC'));
 }
 
+/**
+ * A request as the SPA sends it: from the stateful origin, cookies included
+ * (Laravel's JSON helpers drop them unless credentials are opted in).
+ */
 function fromSpa(): TestCase
 {
-    return test()->withHeader('Referer', 'http://localhost:3000');
+    return test()->withHeader('Referer', 'http://localhost:3000')->withCredentials();
 }
 
 /**
@@ -163,6 +169,19 @@ function withConfirmedPassword(User $user): TestCase
 function totpCodeFor(string $secret, ?int $timestamp = null): string
 {
     return TotpSecret::totp($secret)->at($timestamp ?? now()->getTimestamp());
+}
+
+/**
+ * The clear trusted-device token a response just set, as the browser would
+ * send it back through withCookie().
+ */
+function trustedDeviceTokenFrom(TestResponse $response): string
+{
+    $cookie = $response->getCookie(TrustedDeviceCookie::NAME);
+
+    expect($cookie)->not->toBeNull();
+
+    return (string) $cookie?->getValue();
 }
 
 /**

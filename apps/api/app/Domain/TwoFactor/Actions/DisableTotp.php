@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\DB;
 class DisableTotp
 {
     /**
-     * Also cancels a setup that was started but never confirmed.
+     * Also cancels a setup that was started but never confirmed. Trusted
+     * browsers go with it: they were only ever a shortcut past the challenge.
      */
     public function handle(User $user): void
     {
@@ -22,6 +23,8 @@ class DisableTotp
             $locked->totp_last_used_step = null;
             $locked->two_factor_recovery_codes = null;
             $locked->save();
+
+            $locked->trustedDevices()->delete();
         });
     }
 }

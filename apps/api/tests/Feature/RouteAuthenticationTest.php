@@ -19,12 +19,15 @@ const PUBLIC_API_ROUTES = [
     'api/ping',
     'api/login',
     'api/register',
+    // The caller has proven the password but is not signed in yet; the
+    // account it answers for lives in the guest session. See PendingLogin.
+    'api/two-factor-challenge',
     // A calendar app sends no cookie; the opaque token in the path is the
     // credential. See DeadlineCalendarController.
     'api/calendar/{token}.ics',
 ];
 
-test('every API route but the four documented public ones is behind auth:sanctum', function (): void {
+test('every API route but the five documented public ones is behind auth:sanctum', function (): void {
     $unauthenticated = collect(Route::getRoutes()->getRoutes())
         ->filter(fn (RoutingRoute $route): bool => str_starts_with($route->uri(), 'api/'))
         ->reject(fn (RoutingRoute $route): bool => in_array(

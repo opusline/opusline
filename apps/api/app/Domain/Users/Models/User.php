@@ -17,6 +17,7 @@ use App\Domain\Missions\Models\Mission;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Timers\Models\RunningTimer;
+use App\Domain\TwoFactor\Models\TrustedDevice;
 use App\Domain\Users\Enums\Theme;
 use App\Domain\Users\Factories\UserFactory;
 use Carbon\CarbonImmutable;
@@ -161,6 +162,12 @@ class User extends Authenticatable implements HasMedia
     public function fiscalDeadlineCompletions(): HasMany
     {
         return $this->hasMany(FiscalDeadlineCompletion::class);
+    }
+
+    /** @return HasMany<TrustedDevice, $this> */
+    public function trustedDevices(): HasMany
+    {
+        return $this->hasMany(TrustedDevice::class);
     }
 
     /**
