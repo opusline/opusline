@@ -5,9 +5,13 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
-  pull-requests: write
-  issues: write
+  contents: read
+
+# The npm and composer Dependabot groups can merge minutes apart; two runs
+# racing each other would open two release PRs.
+concurrency:
+  group: release-please
+  cancel-in-progress: false
 
 jobs:
   release-please:
@@ -17,15 +21,48 @@ jobs:
       version: ${{ steps.release.outputs.version }}
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
+      # Anything GITHUB_TOKEN creates fires no workflows: a release PR opened
+      # with it gets no CI run and the assembly workflow never sees it. The
+      # App is an ordinary actor, so its PRs run CI and its merges re-enter
+      # this workflow.
+      - id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.OPUSLINE_BOT_APP_ID }}
+          private-key: ${{ secrets.OPUSLINE_BOT_PRIVATE_KEY }}
       - id: release
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5
         with:
-          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          token: ${{ steps.app-token.outputs.token }}
+      - if: steps.release.outputs.pr
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      # A release made of nothing but dependency bumps has nothing left for a
+      # human to check that the Dependabot PRs did not already pass, so it
+      # merges on its own once the assembly PR has landed and CI is green. The
+      # moment a feat or fix joins it, the release needs a human again.
+      - name: Auto-merge the release PR when it only ships dependency bumps
+        if: steps.release.outputs.pr
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_JSON: ${{ steps.release.outputs.pr }}
+        run: |
+          number=$(printf '%s' "$PR_JSON" | jq -r '.number')
+          auto_merge=$(gh pr view "$number" --json autoMergeRequest --jq '.autoMergeRequest')
+          if gh pr view "$number" --json body --jq '.body' | sh scripts/release-is-deps-only.sh; then
+            if [ "$auto_merge" = "null" ]; then
+              gh pr merge "$number" --auto --squash
+            fi
+          elif [ "$auto_merge" != "null" ]; then
+            gh pr merge "$number" --disable-auto
+          fi
 
   # Every push to main runs the job above; only the one that merges the release
   # PR sets release_created, so the images are built for releases and nothing
-  # else. Chained here rather than triggered by the release event because the
-  # release is created with GITHUB_TOKEN, which fires no workflows.
+  # else. Chained here rather than triggered by the release event so the
+  # version travels as a job output instead of being parsed back out of a tag.
   publish-images:
     needs: release-please
     if: needs.release-please.outputs.release_created == 'true'

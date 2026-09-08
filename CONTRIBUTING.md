@@ -94,6 +94,21 @@ that survives it merges green.
 - **No hand-edited generated files.** `scripts/generated-artifacts.sh` is
   the list of what gets regenerated instead.
 
+## How a release ships
+
+release-please watches `main`. Every `feat`, `fix`, `perf`, `revert` or
+`chore(deps)` commit makes it open, or refresh, a release PR carrying the
+version bump and the changelog; merging that PR tags the release, publishes
+the images and attaches the compose and env files. Before it can merge, an
+assembly PR folds the pending `.release-notes/` fragments into the in-app
+notes.
+
+Dependabot's minor and patch groups need nobody: once the required checks
+are green the bot merges them, and a release whose changelog holds nothing
+but dependency bumps merges its assembly PR and its release PR on its own.
+A release with a `feat` or `fix` in it waits for a maintainer on both PRs,
+and a major bump always waits.
+
 ## Questions
 
 Open an issue — questions that seem obvious are explicitly welcome. If what

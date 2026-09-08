@@ -5,7 +5,8 @@
 //
 // The inserted entry is normal reviewed source — reorder items or add a
 // headline by hand before committing. scripts/release-notes-guard.sh keeps the
-// release red until the entry exists.
+// release red until the entry exists, so a release with no fragments pending
+// (dependency bumps only) gets a single generic line instead of nothing.
 import { readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -39,11 +40,8 @@ if (source.includes(`version: "${version}"`)) {
 const fragmentFiles = readdirSync(fragmentsDir)
   .filter((name) => name.endsWith(".json"))
   .sort();
-if (fragmentFiles.length === 0) {
-  fail(`No fragments in ${fragmentsDir} — nothing to assemble.`);
-}
 
-const items = fragmentFiles.map((name) => {
+const fragments = fragmentFiles.map((name) => {
   const path = join(fragmentsDir, name);
   let fragment;
   try {
@@ -59,17 +57,25 @@ const items = fragmentFiles.map((name) => {
   }
   return { kind: fragment.kind, text: fragment.text.trim(), path };
 });
-items.sort((a, b) => kindOrder.indexOf(a.kind) - kindOrder.indexOf(b.kind));
+fragments.sort((a, b) => kindOrder.indexOf(a.kind) - kindOrder.indexOf(b.kind));
 
 const seenTexts = new Set();
-for (const item of items) {
-  if (seenTexts.has(item.text)) {
+for (const fragment of fragments) {
+  if (seenTexts.has(fragment.text)) {
     fail(
-      `Two fragments carry the same text ("${item.text}") — merge or reword one before assembling.`,
+      `Two fragments carry the same text ("${fragment.text}") — merge or reword one before assembling.`,
     );
   }
-  seenTexts.add(item.text);
+  seenTexts.add(fragment.text);
 }
+
+// Dependency bumps merge without a fragment, and a release may hold nothing
+// else. The entry still has to exist for the guard, so it says this instead.
+const fallbackItem = {
+  kind: "improved",
+  text: "Updated the third-party libraries Opusline is built on.",
+};
+const items = fragments.length > 0 ? fragments : [fallbackItem];
 
 // Biome's quoteStyle "double" is a preference, not absolute: a string holding
 // more double quotes than single quotes is printed single-quoted (fewer
@@ -119,12 +125,14 @@ writeFileSync(
   releasesModule,
   source.replace(insertMarker, () => `${insertMarker}\n${entry}`),
 );
-for (const item of items) {
-  rmSync(item.path);
+for (const fragment of fragments) {
+  rmSync(fragment.path);
 }
 
 console.log(
-  `Added ${version} (${items.length} item${items.length === 1 ? "" : "s"}) to ${releasesModule} and removed the fragments.`,
+  fragments.length === 0
+    ? `No fragments were pending: added ${version} to ${releasesModule} with the generic line.`
+    : `Added ${version} (${fragments.length} item${fragments.length === 1 ? "" : "s"}) to ${releasesModule} and removed the fragments.`,
 );
 console.log(
   "Review the entry, optionally add a headline, then commit both changes.",

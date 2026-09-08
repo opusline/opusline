@@ -5,8 +5,7 @@ on:
     types: [opened, synchronize, reopened]
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 concurrency:
   group: assemble-release-notes-${{ github.ref }}
@@ -18,17 +17,25 @@ jobs:
     if: startsWith(github.head_ref, 'release-please--')
     runs-on: ubuntu-latest
     steps:
+      # The assembly PR must run CI and, when it merges, re-enter
+      # release-please; PRs and merges made with GITHUB_TOKEN do neither.
+      - id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.OPUSLINE_BOT_APP_ID }}
+          private-key: ${{ secrets.OPUSLINE_BOT_PRIVATE_KEY }}
       - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.base.ref }}
-          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          token: ${{ steps.app-token.outputs.token }}
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
       - name: Assemble the pending fragments and open the PR
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
           BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
           version=$(printf '%s' "$PR_TITLE" | grep -oE '[0-9]+(\.[0-9]+){2}$') || {
@@ -37,10 +44,6 @@ jobs:
           }
           if grep -q "version: \"$version\"" apps/web/src/lib/releases.ts; then
             echo "Release $version is already assembled."
-            exit 0
-          fi
-          if ! ls .release-notes/*.json > /dev/null 2>&1; then
-            echo "::warning::No pending fragments to assemble for $version — write the entry by hand (see .release-notes/README.md). The release-notes guard keeps the release PR red until it exists."
             exit 0
           fi
           branch="assemble-release-notes/$version"
@@ -60,8 +63,17 @@ jobs:
           git add apps/web/src/lib/releases.ts .release-notes
           git commit -m "docs(web): assemble release notes for $version"
           git push origin "$branch"
-          gh pr create \
-            --base "$BASE_REF" \
-            --head "$branch" \
-            --title "docs(web): assemble release notes for $version" \
-            --body "Folds the pending .release-notes/ fragments into the in-app release notes for $version. Review, optionally add a headline, and merge; release-please then refreshes the release PR and its release-notes guard goes green."
+          if printf '%s' "$PR_BODY" | sh scripts/release-is-deps-only.sh; then
+            gh pr create \
+              --base "$BASE_REF" \
+              --head "$branch" \
+              --title "docs(web): assemble release notes for $version" \
+              --body "Adds the generic in-app release-notes entry for $version, a release made of dependency bumps only. It merges on its own once CI is green, and release-please then merges the release PR the same way."
+            gh pr merge "$branch" --auto --squash
+          else
+            gh pr create \
+              --base "$BASE_REF" \
+              --head "$branch" \
+              --title "docs(web): assemble release notes for $version" \
+              --body "Folds the pending .release-notes/ fragments into the in-app release notes for $version. Review, optionally add a headline, and merge; release-please then refreshes the release PR and its release-notes guard goes green."
+          fi

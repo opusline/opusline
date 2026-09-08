@@ -1,0 +1,54 @@
+name: Dependabot Auto-merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependabot-auto-merge-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  auto-merge:
+    name: Enable auto-merge on minor and patch bumps
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'opusline/opusline'
+    runs-on: ubuntu-latest
+    env:
+      # A grouped PR reports the highest bump in the group, so the *-minor
+      # groups always qualify and a major, which Dependabot opens on its own,
+      # never does.
+      AUTO_MERGE_UPDATE_TYPES: '["version-update:semver-minor", "version-update:semver-patch"]'
+    steps:
+      - id: metadata
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+      # A merge queued with GITHUB_TOKEN fires no push workflows, so neither CI
+      # nor release-please would run on main afterwards. The App is an ordinary
+      # actor. Its secrets live in the Dependabot store: workflows started by
+      # Dependabot cannot read Actions secrets.
+      - id: app-token
+        if: contains(fromJSON(env.AUTO_MERGE_UPDATE_TYPES), steps.metadata.outputs.update-type)
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.OPUSLINE_BOT_APP_ID }}
+          private-key: ${{ secrets.OPUSLINE_BOT_PRIVATE_KEY }}
+      - if: contains(fromJSON(env.AUTO_MERGE_UPDATE_TYPES), steps.metadata.outputs.update-type)
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ "$(gh pr view "$PR_NUMBER" --json autoMergeRequest --jq '.autoMergeRequest')" != "null" ]; then
+            echo "Auto-merge is already enabled on #$PR_NUMBER."
+            exit 0
+          fi
+          # The repository squashes with the PR body, and Dependabot's PR body
+          # quotes upstream changelogs: a literal "BREAKING CHANGE:" line in
+          # there would be read by release-please as a breaking change of
+          # Opusline. Dependabot's own commit body carries the bump table
+          # without the quotes.
+          body=$(gh pr view "$PR_NUMBER" --json commits --jq '.commits[0].messageBody')
+          gh pr merge "$PR_NUMBER" --auto --squash --match-head-commit "$HEAD_SHA" --body "$body"
