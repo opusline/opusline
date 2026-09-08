@@ -50,12 +50,20 @@ jobs:
           PR_JSON: ${{ steps.release.outputs.pr }}
         run: |
           number=$(printf '%s' "$PR_JSON" | jq -r '.number')
-          auto_merge=$(gh pr view "$number" --json autoMergeRequest --jq '.autoMergeRequest')
+          # gh prints nothing, not "null", for a null field: ask for a boolean.
+          auto_merge=$(gh pr view "$number" --json autoMergeRequest --jq '.autoMergeRequest != null')
+          case "$auto_merge" in
+            true | false) ;;
+            *)
+              echo "::error::Could not read the auto-merge state of #$number."
+              exit 1
+              ;;
+          esac
           if gh pr view "$number" --json body --jq '.body' | sh scripts/release-is-deps-only.sh; then
-            if [ "$auto_merge" = "null" ]; then
+            if [ "$auto_merge" = false ]; then
               gh pr merge "$number" --auto --squash
             fi
-          elif [ "$auto_merge" != "null" ]; then
+          elif [ "$auto_merge" = true ]; then
             gh pr merge "$number" --disable-auto
           fi
 
