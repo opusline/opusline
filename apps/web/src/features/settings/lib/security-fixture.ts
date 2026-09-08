@@ -1,4 +1,5 @@
 import type {
+  PasskeyData,
   TrustedDeviceData,
   TwoFactorStatusData,
 } from "@opusline/api-client";
@@ -30,6 +31,23 @@ export const trustedDevicesFixture: TrustedDeviceData[] = [
   },
 ];
 
+export const passkeysFixture: PasskeyData[] = [
+  {
+    id: 1,
+    name: "MacBook de Théo",
+    createdAt: "2026-08-20T14:03:00+00:00",
+    lastUsedAt: "2026-09-08T09:12:00+00:00",
+    backedUp: true,
+  },
+  {
+    id: 2,
+    name: "Clé de secours",
+    createdAt: "2026-08-21T10:00:00+00:00",
+    lastUsedAt: null,
+    backedUp: false,
+  },
+];
+
 export const twoFactorOffFixture: TwoFactorStatusData = {
   totpEnabled: false,
   totpConfirmedAt: null,
@@ -42,7 +60,7 @@ export const twoFactorOnFixture: TwoFactorStatusData = {
   totpEnabled: true,
   totpConfirmedAt: "2026-08-20T14:03:00+00:00",
   recoveryCodesRemaining: 8,
-  passkeys: [],
+  passkeys: passkeysFixture,
   trustedDevices: trustedDevicesFixture,
 };
 

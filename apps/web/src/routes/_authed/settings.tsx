@@ -27,6 +27,11 @@ import { useEffect, useState } from "react";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { usePasswordConfirmation } from "@/features/auth/lib/use-password-confirmation";
+import {
+  createPasskey,
+  isWebAuthnSupported,
+  webAuthnFailure,
+} from "@/features/auth/lib/webauthn";
 import type { LocalisationDraft } from "@/features/settings/components/localisation-settings";
 import { SecuritySettings } from "@/features/settings/components/security-settings";
 import { SettingsPage } from "@/features/settings/components/settings-page";
@@ -362,7 +367,17 @@ function ReglagesRoute() {
           onSave: (draft) => void saveLocalisation(draft),
           onCancel: () => setLocalisationError(null),
         }}
-        security={<SecuritySettings guarded={passwordConfirmation.guarded} />}
+        security={
+          <SecuritySettings
+            guarded={passwordConfirmation.guarded}
+            webAuthn={{
+              isSupported: isWebAuthnSupported(),
+              createPasskey: async (options) =>
+                JSON.stringify(await createPasskey(options)),
+              failure: webAuthnFailure,
+            }}
+          />
+        }
       />
       {passwordConfirmation.dialog}
     </>

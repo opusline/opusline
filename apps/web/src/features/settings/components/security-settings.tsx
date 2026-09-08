@@ -1,7 +1,11 @@
 import {
   confirmTotpMutation,
+  deletePasskeyMutation,
   disableTotpMutation,
+  passkeyRegistrationOptionsMutation,
   regenerateRecoveryCodesMutation,
+  registerPasskeyMutation,
+  renamePasskeyMutation,
   revokeAllTrustedDevicesMutation,
   revokeTrustedDeviceMutation,
   showTwoFactorOptions,
@@ -21,15 +25,29 @@ import { serverErrorMessage, serverFieldErrors } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 import { AuthenticatorAppCard } from "./authenticator-app-card";
 import type { TotpSetupState } from "./authenticator-setup-dialog";
+import { PasskeyNameDialog } from "./passkey-name-dialog";
+import { PasskeysCard } from "./passkeys-card";
 import { TrustedBrowsersCard } from "./trusted-browsers-card";
+
+type WebAuthn = {
+  isSupported: boolean;
+  /** Runs the browser's registration ceremony on the API's options; resolves to the JSON the API stores. */
+  createPasskey: (options: Record<string, unknown>) => Promise<string>;
+  /** Names the browser-side failure, or null when the error is the API's. */
+  failure: (
+    error: unknown,
+  ) => "cancelled" | "duplicate" | "unsupported" | "failed" | null;
+};
 
 type SecuritySettingsProps = {
   /** The route's password gate; the dialog it drives is rendered by the route. */
   guarded: PasswordGuard;
+  /** The browser ceremony, injected so the tab stays a feature the route composes. */
+  webAuthn: WebAuthn;
 };
 
 /** The Sécurité tab: owns the two-factor status and every write against it. */
-export function SecuritySettings({ guarded }: SecuritySettingsProps) {
+export function SecuritySettings({ guarded, webAuthn }: SecuritySettingsProps) {
   const queryClient = useQueryClient();
   const { locale } = useMoneyFormat();
   const status = useQuery(showTwoFactorOptions());
@@ -37,6 +55,11 @@ export function SecuritySettings({ guarded }: SecuritySettingsProps) {
   const [setup, setSetup] = useState<TotpSetupState>({ step: "idle" });
   const [totpError, setTotpError] = useState<string | null>(null);
   const [devicesError, setDevicesError] = useState<string | null>(null);
+  const [passkeysError, setPasskeysError] = useState<string | null>(null);
+  // The browser has minted a credential and the API is waiting for its name.
+  const [pendingCredential, setPendingCredential] = useState<string | null>(
+    null,
+  );
 
   const startTotp = useMutation(startTotpSetupMutation());
   const confirmTotp = useMutation(confirmTotpMutation());
@@ -44,6 +67,10 @@ export function SecuritySettings({ guarded }: SecuritySettingsProps) {
   const regenerateCodes = useMutation(regenerateRecoveryCodesMutation());
   const revokeDevice = useMutation(revokeTrustedDeviceMutation());
   const revokeAllDevices = useMutation(revokeAllTrustedDevicesMutation());
+  const registrationOptions = useMutation(passkeyRegistrationOptionsMutation());
+  const registerPasskey = useMutation(registerPasskeyMutation());
+  const renamePasskey = useMutation(renamePasskeyMutation());
+  const deletePasskey = useMutation(deletePasskeyMutation());
 
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: showTwoFactorQueryKey() });
@@ -112,6 +139,102 @@ export function SecuritySettings({ guarded }: SecuritySettingsProps) {
     }
   };
 
+  const addPasskey = async () => {
+    setPasskeysError(null);
+
+    try {
+      const outcome = await guarded(() => registrationOptions.mutateAsync({}));
+
+      if (outcome.status === "cancelled") {
+        return;
+      }
+
+      setPendingCredential(await webAuthn.createPasskey(outcome.value.options));
+    } catch (error) {
+      const failure = webAuthn.failure(error);
+
+      if (failure === "cancelled") {
+        return;
+      }
+
+      setPasskeysError(
+        failure === "duplicate"
+          ? m.security_passkey_duplicate()
+          : failure === null
+            ? serverErrorMessage(error, m.common_action_failed())
+            : m.security_passkey_failed(),
+      );
+    }
+  };
+
+  const savePasskey = async (name: string): Promise<FormSubmitResult> => {
+    if (pendingCredential === null) {
+      return { status: "failed" };
+    }
+
+    try {
+      const outcome = await guarded(() =>
+        registerPasskey.mutateAsync({
+          body: { name, credential: pendingCredential },
+        }),
+      );
+
+      if (outcome.status === "cancelled") {
+        return { status: "failed" };
+      }
+
+      setPendingCredential(null);
+      await refresh();
+
+      return { status: "success" };
+    } catch (error) {
+      const fieldErrors = serverFieldErrors(error);
+
+      // Only the name is the dialog's to fix; a refused credential is the
+      // card's news, and the ceremony has to start over.
+      if (fieldErrors !== null && fieldErrors.credential === undefined) {
+        return { status: "invalid", fieldErrors };
+      }
+
+      setPasskeysError(serverErrorMessage(error, m.common_action_failed()));
+      setPendingCredential(null);
+
+      return { status: "failed" };
+    }
+  };
+
+  const rename = async (
+    id: number,
+    name: string,
+  ): Promise<FormSubmitResult> => {
+    try {
+      await renamePasskey.mutateAsync({
+        path: { passkey: id },
+        body: { name },
+      });
+      await refresh();
+
+      return { status: "success" };
+    } catch (error) {
+      const fieldErrors = serverFieldErrors(error);
+
+      return fieldErrors === null
+        ? { status: "failed" }
+        : { status: "invalid", fieldErrors };
+    }
+  };
+
+  const removePasskey = async (id: number) => {
+    setPasskeysError(null);
+
+    try {
+      await guarded(() => deletePasskey.mutateAsync({ path: { passkey: id } }));
+      await refresh();
+    } catch (error) {
+      setPasskeysError(serverErrorMessage(error, m.common_delete_failed()));
+    }
+  };
+
   if (status.isPending) {
     return <Skeleton className="h-96 w-full" />;
   }
@@ -147,6 +270,29 @@ export function SecuritySettings({ guarded }: SecuritySettingsProps) {
         recoveryCodesRemaining={status.data.recoveryCodesRemaining}
         setup={setup}
         totpEnabled={status.data.totpEnabled}
+      />
+      <PasskeysCard
+        error={passkeysError}
+        isPending={
+          registrationOptions.isPending ||
+          registerPasskey.isPending ||
+          renamePasskey.isPending ||
+          deletePasskey.isPending
+        }
+        isSupported={webAuthn.isSupported}
+        locale={locale}
+        onAdd={() => void addPasskey()}
+        onDelete={(id) => void removePasskey(id)}
+        onRename={rename}
+        passkeys={status.data.passkeys}
+      />
+      <PasskeyNameDialog
+        initialName={m.security_passkey_default_name()}
+        isPending={registerPasskey.isPending}
+        onCancel={() => setPendingCredential(null)}
+        onSubmit={savePasskey}
+        open={pendingCredential !== null}
+        title={m.security_passkey_name_title()}
       />
       <TrustedBrowsersCard
         devices={status.data.trustedDevices}

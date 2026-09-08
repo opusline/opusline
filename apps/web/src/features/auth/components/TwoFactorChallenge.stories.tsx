@@ -36,6 +36,20 @@ export const InvalidCode: Story = {
   },
 };
 
+export const WithPasskey: Story = {
+  args: {
+    methods: [0, 1],
+    onUsePasskey: async () => ({ status: "success" }) as const,
+  },
+};
+
+export const PasskeyOnly: Story = {
+  args: {
+    methods: [1],
+    onUsePasskey: async () => ({ status: "success" }) as const,
+  },
+};
+
 export const Throttled: Story = {
   args: {
     error: "Trop de tentatives. Patientez une minute avant de réessayer.",

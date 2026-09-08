@@ -107,3 +107,25 @@ it("shows the error message", () => {
     "Identifiants invalides.",
   );
 });
+
+it("offers a passkey sign-in that carries the remember choice", () => {
+  const onSignIn = vi.fn();
+  render(
+    <LoginForm onSubmit={vi.fn()} passkey={{ onSignIn, isPending: false }} />,
+  );
+
+  fireEvent.click(screen.getByRole("checkbox", { name: /rester connecté/i }));
+  fireEvent.click(
+    screen.getByRole("button", { name: /se connecter avec une clé d'accès/i }),
+  );
+
+  expect(onSignIn).toHaveBeenCalledWith(true);
+});
+
+it("shows no passkey button when the browser cannot use one", () => {
+  render(<LoginForm onSubmit={vi.fn()} />);
+
+  expect(
+    screen.queryByRole("button", { name: /clé d'accès/i }),
+  ).not.toBeInTheDocument();
+});

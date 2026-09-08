@@ -30,6 +30,11 @@ function Example({ status }: { status: typeof twoFactorOnFixture }) {
             status: "done",
             value: await action(),
           })}
+          webAuthn={{
+            isSupported: true,
+            createPasskey: async () => "{}",
+            failure: () => "failed",
+          }}
         />
       </MoneyFormatProvider>
     </QueryClientProvider>
