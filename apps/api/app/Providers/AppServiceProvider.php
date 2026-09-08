@@ -67,6 +67,10 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('api', fn (Request $request): Limit => Limit::perMinute(120)->by($caller($request)));
         RateLimiter::for('uploads', fn (Request $request): Limit => Limit::perMinute(20)->by($caller($request)));
+        // Both take a password or a six-digit code from a logged-in caller:
+        // six tries a minute keeps guessing hopeless without hurting a typo.
+        RateLimiter::for('confirm-password', fn (Request $request): Limit => Limit::perMinute(6)->by('confirm:'.$caller($request)));
+        RateLimiter::for('two-factor-setup', fn (Request $request): Limit => Limit::perMinute(6)->by('2fa-setup:'.$caller($request)));
 
         // Login is limited per email as well as per IP, so an attacker
         // rotating IPs still hits a per-account wall.

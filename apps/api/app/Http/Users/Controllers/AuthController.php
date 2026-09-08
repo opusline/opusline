@@ -7,6 +7,7 @@ namespace App\Http\Users\Controllers;
 use App\Domain\Users\Actions\MarkReleaseNotesSeen;
 use App\Domain\Users\Actions\RegisterUser;
 use App\Domain\Users\Actions\UpdateUserTheme;
+use App\Domain\Users\Data\ConfirmPasswordData;
 use App\Domain\Users\Data\LoginData;
 use App\Domain\Users\Data\RegisterUserData;
 use App\Domain\Users\Data\UpdateReleaseNotesSeenData;
@@ -31,6 +32,7 @@ class AuthController extends Controller
 
         Auth::login($user);
         $request->session()->regenerate();
+        $request->session()->passwordConfirmed();
 
         return response()->json(UserData::from($user), 201)
             ->withCookie(ThemeCookie::for($user->theme));
@@ -51,11 +53,24 @@ class AuthController extends Controller
         }
 
         $request->session()->regenerate();
+        // A password typed seconds ago is as good as a confirmation: the
+        // security settings should not ask for it again right away.
+        $request->session()->passwordConfirmed();
 
         $user = $request->user() ?? abort(401);
 
         return response()->json(UserData::from($user))
             ->withCookie(ThemeCookie::for($user->theme));
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function confirmPassword(ConfirmPasswordData $data, Request $request): Response
+    {
+        $request->session()->passwordConfirmed();
+
+        return response()->noContent();
     }
 
     public function logout(Request $request): Response

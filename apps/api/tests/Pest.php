@@ -25,7 +25,10 @@ use App\Domain\TimeEntries\Factories\TimeEntryFactory;
 use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Timers\Factories\RunningTimerFactory;
 use App\Domain\Timers\Models\RunningTimer;
+use App\Domain\TwoFactor\Recovery\RecoveryCodes;
+use App\Domain\TwoFactor\Totp\TotpSecret;
 use App\Domain\Users\Models\User;
+use App\Http\Users\Support\RequirePasswordConfirmation;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -144,6 +147,38 @@ function freezeTodayAtUtcNoon(): void
 function fromSpa(): TestCase
 {
     return test()->withHeader('Referer', 'http://localhost:3000');
+}
+
+/**
+ * A stateful request from a user whose password confirmation window is open,
+ * as it would be right after POST /api/user/confirm-password.
+ */
+function withConfirmedPassword(User $user): TestCase
+{
+    return fromSpa()
+        ->actingAs($user)
+        ->withSession([RequirePasswordConfirmation::SESSION_KEY => now()->getTimestamp()]);
+}
+
+function totpCodeFor(string $secret, ?int $timestamp = null): string
+{
+    return TotpSecret::totp($secret)->at($timestamp ?? now()->getTimestamp());
+}
+
+/**
+ * Enables the authenticator app directly on the row, the way a completed
+ * setup leaves it, and hands back the shared secret.
+ */
+function enableTotp(User $user): string
+{
+    $secret = TotpSecret::mint();
+
+    $user->totp_secret = $secret;
+    $user->totp_confirmed_at = now();
+    $user->two_factor_recovery_codes = RecoveryCodes::mint();
+    $user->save();
+
+    return $secret;
 }
 
 /**

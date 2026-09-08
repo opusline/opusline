@@ -39,11 +39,15 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property string $password
  * @property Theme $theme
  * @property ?string $release_notes_seen_version
+ * @property ?string $totp_secret
+ * @property ?CarbonImmutable $totp_confirmed_at
+ * @property ?int $totp_last_used_step
+ * @property ?list<string> $two_factor_recovery_codes
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  */
 #[Fillable(['name', 'email', 'password', 'release_notes_seen_version'])]
-#[Hidden(['password', 'remember_token'])]
+#[Hidden(['password', 'remember_token', 'totp_secret', 'totp_confirmed_at', 'totp_last_used_step', 'two_factor_recovery_codes'])]
 class User extends Authenticatable implements HasMedia
 {
     /** @use HasFactory<UserFactory> */
@@ -82,7 +86,15 @@ class User extends Authenticatable implements HasMedia
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'theme' => Theme::class,
+            'totp_secret' => 'encrypted',
+            'totp_confirmed_at' => 'datetime',
+            'two_factor_recovery_codes' => 'encrypted:array',
         ];
+    }
+
+    public function hasTotpEnabled(): bool
+    {
+        return $this->totp_confirmed_at !== null;
     }
 
     /** @return HasMany<Client, $this> */

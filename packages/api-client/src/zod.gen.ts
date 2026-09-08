@@ -129,6 +129,20 @@ export const zClientData = z.object({
 });
 
 /**
+ * ConfirmPasswordData
+ */
+export const zConfirmPasswordData = z.object({
+    password: z.string()
+});
+
+/**
+ * ConfirmTotpData
+ */
+export const zConfirmTotpData = z.object({
+    code: z.string()
+});
+
+/**
  * CraCountsData
  */
 export const zCraCountsData = z.object({
@@ -896,6 +910,13 @@ export const zPersonalTransferData = z.object({
 });
 
 /**
+ * RecoveryCodesData
+ */
+export const zRecoveryCodesData = z.object({
+    codes: z.array(z.string())
+});
+
+/**
  * RegisterUserData
  */
 export const zRegisterUserData = z.object({
@@ -1242,6 +1263,14 @@ export const zTimerStateData = z.object({
 });
 
 /**
+ * TotpSetupData
+ */
+export const zTotpSetupData = z.object({
+    secret: z.string(),
+    otpauthUri: z.string()
+});
+
+/**
  * TreasuryData
  */
 export const zTreasuryData = z.object({
@@ -1258,6 +1287,15 @@ export const zTreasuryData = z.object({
  */
 export const zTrimTimerData = z.object({
     seconds: z.int().check(z.gte(1), z.lte(86400))
+});
+
+/**
+ * TwoFactorStatusData
+ */
+export const zTwoFactorStatusData = z.object({
+    totpEnabled: z.boolean(),
+    totpConfirmedAt: z.nullable(z.string()),
+    recoveryCodesRemaining: z.int()
 });
 
 /**
@@ -1602,6 +1640,13 @@ export const zLoginResponse = zUserData;
 export const zLogoutResponse = z.void();
 
 export const zCurrentUserResponse = zUserData;
+
+export const zConfirmPasswordBody = zConfirmPasswordData;
+
+/**
+ * No content
+ */
+export const zConfirmPasswordResponse = z.void();
 
 export const zUpdateUserThemeBody = zUpdateUserThemeData;
 
@@ -2022,6 +2067,10 @@ export const zListMissionTimeEntriesPath = z.object({
 
 export const zListMissionTimeEntriesResponse = zTimeEntryListData;
 
+export const zShowRecoveryCodesResponse = zRecoveryCodesData;
+
+export const zRegenerateRecoveryCodesResponse = zRecoveryCodesData;
+
 export const zShowRevenueQuery = z.object({
     period: z.nullish(z.string().check(z.regex(/^\d{4}(-(0[1-9]|1[0-2])|-Q[1-4])?$/))),
     basis: z.nullish(zRevenueBasis)
@@ -2116,6 +2165,17 @@ export const zStopTimerBody = zStopTimerData;
 
 export const zStopTimerResponse = zTimeEntryData;
 
+/**
+ * No content
+ */
+export const zDisableTotpResponse = z.void();
+
+export const zStartTotpSetupResponse = zTotpSetupData;
+
+export const zConfirmTotpBody = zConfirmTotpData;
+
+export const zConfirmTotpResponse = zRecoveryCodesData;
+
 export const zShowTreasuryResponse = zTreasuryData;
 
 export const zCreatePersonalTransferBody = zCreatePersonalTransferData;
@@ -2127,6 +2187,8 @@ export const zDeletePersonalTransferPath = z.object({
 });
 
 export const zDeletePersonalTransferResponse = zTreasuryData;
+
+export const zShowTwoFactorResponse = zTwoFactorStatusData;
 
 export const zListUserDocumentsResponse = zDocumentListData;
 

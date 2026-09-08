@@ -26,6 +26,7 @@ return [
     'category' => 'catégorie',
     'cfeExpected' => 'CFE attendue',
     'clientId' => 'client',
+    'code' => 'code',
     'companyAddressLine1' => 'adresse de la société (ligne 1)',
     'companyAddressLine2' => 'adresse de la société (ligne 2)',
     'companyCity' => 'ville de la société',
