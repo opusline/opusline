@@ -19,6 +19,7 @@
   "auth_login_failed": "Identifiants invalides.",
   "auth_login_submit": "Se connecter",
   "auth_login_title": "Connexion",
+  "auth_method_passkey": "Clé d'accès",
   "auth_method_totp": "Application d'authentification",
   "auth_name_label": "Nom",
   "auth_no_account": "Pas encore de compte ?",

@@ -19,7 +19,7 @@ class RecoveryCodeController extends Controller
      */
     public function show(#[CurrentUser] User $user): JsonResponse
     {
-        abort_if(! $user->hasTotpEnabled(), 409, __('two-factor.not_enabled'));
+        abort_if(! $user->hasTwoFactorEnabled(), 409, __('two-factor.not_enabled'));
 
         return response()->json(new RecoveryCodesData($user->two_factor_recovery_codes ?? []));
     }

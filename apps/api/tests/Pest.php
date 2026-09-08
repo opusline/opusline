@@ -17,6 +17,8 @@ use App\Domain\Invoices\Factories\InvoiceFactory;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Factories\MissionFactory;
 use App\Domain\Missions\Models\Mission;
+use App\Domain\Passkeys\Models\Passkey;
+use App\Domain\Passkeys\Webauthn\PasskeyCeremony;
 use App\Domain\Settings\Enums\DateFormat;
 use App\Domain\Settings\Enums\Locale;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
@@ -37,6 +39,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Testing\TestResponse;
+use Tests\Support\FakePasskeyCeremony;
 use Tests\TestCase;
 
 /*
@@ -182,6 +185,46 @@ function trustedDeviceTokenFrom(TestResponse $response): string
     expect($cookie)->not->toBeNull();
 
     return (string) $cookie?->getValue();
+}
+
+/**
+ * Swaps the WebAuthn library for the fake for the current test.
+ */
+function fakePasskeyCeremony(): FakePasskeyCeremony
+{
+    $ceremony = new FakePasskeyCeremony;
+
+    app()->instance(PasskeyCeremony::class, $ceremony);
+
+    return $ceremony;
+}
+
+/**
+ * The credential the fake ceremony accepts as an answer to the options a
+ * response just issued, JSON-encoded the way the browser's answer travels.
+ *
+ * @param  array<string, mixed>  $overrides
+ */
+function fakeCredentialFor(TestResponse $optionsResponse, string $credentialId, array $overrides = []): string
+{
+    return json_encode([
+        'id' => $credentialId,
+        'challenge' => $optionsResponse->json('options.challenge'),
+        ...$overrides,
+    ], JSON_THROW_ON_ERROR);
+}
+
+/**
+ * A registered passkey on the row, the way a completed enrolment leaves it,
+ * with the recovery codes it minted.
+ */
+function registerPasskey(User $user, ?callable $configure = null): Passkey
+{
+    $user->passkey_user_handle ??= 'handle-'.$user->id;
+    $user->two_factor_recovery_codes ??= RecoveryCodes::mint();
+    $user->save();
+
+    return configuredFactory(Passkey::factory()->for($user), $configure)->create();
 }
 
 /**

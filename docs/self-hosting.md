@@ -320,6 +320,15 @@ your own account can always be created first. The example env ships it closed;
 leave it out (or set `true`) only if strangers signing up is what you want —
 each account is isolated, but every account can upload files.
 
+**Passkeys.** Two-factor authentication needs nothing from you: authenticator
+apps and recovery codes work out of the box. Passkeys additionally need a
+secure context — browsers only offer WebAuthn over `https` (or on
+`localhost`) — and are bound to the host in `APP_URL`; assertions are accepted
+from `APP_URL` and the `SANCTUM_STATEFUL_DOMAINS`. Serving the app under a
+different name than `APP_URL` is the one case for `PASSKEYS_RP_ID` and
+`PASSKEYS_ORIGINS` (comma-separated origins). Changing the relying-party id
+later invalidates every registered passkey.
+
 **Fiscal rates.** `MON_ENTREPRISE_ENABLED=false` stops the daily call to
 `mon-entreprise.urssaf.fr`, for an air-gapped install. Contribution rates then
 stay whatever you set in Réglages.

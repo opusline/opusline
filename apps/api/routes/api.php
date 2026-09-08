@@ -21,6 +21,7 @@ require __DIR__.'/api/declarations.php';
 require __DIR__.'/api/documents.php';
 require __DIR__.'/api/invoices.php';
 require __DIR__.'/api/missions.php';
+require __DIR__.'/api/passkeys.php';
 require __DIR__.'/api/revenue.php';
 require __DIR__.'/api/settings.php';
 require __DIR__.'/api/time-entries.php';

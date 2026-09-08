@@ -20,7 +20,7 @@ class GenerateRecoveryCodes
         return DB::transaction(function () use ($user): array {
             $locked = User::lockRow($user->id);
 
-            abort_if(! $locked->hasTotpEnabled(), 409, __('two-factor.not_enabled'));
+            abort_if(! $locked->hasTwoFactorEnabled(), 409, __('two-factor.not_enabled'));
 
             $codes = RecoveryCodes::mint();
 

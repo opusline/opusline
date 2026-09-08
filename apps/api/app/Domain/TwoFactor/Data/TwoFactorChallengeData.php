@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\TwoFactor\Data;
 
 use App\Domain\TwoFactor\Enums\TwoFactorMethod;
+use App\Domain\Users\Models\User;
 use Spatie\LaravelData\Data;
 
 /**
@@ -20,4 +21,19 @@ class TwoFactorChallengeData extends Data
         public array $methods,
         public bool $twoFactorRequired = true,
     ) {}
+
+    public static function forUser(User $user): self
+    {
+        $methods = [];
+
+        if ($user->hasTotpEnabled()) {
+            $methods[] = TwoFactorMethod::Totp;
+        }
+
+        if ($user->passkeys()->exists()) {
+            $methods[] = TwoFactorMethod::Passkey;
+        }
+
+        return new self($methods);
+    }
 }

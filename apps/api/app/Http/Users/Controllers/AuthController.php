@@ -6,7 +6,6 @@ namespace App\Http\Users\Controllers;
 
 use App\Domain\TwoFactor\Actions\RecognizeTrustedDevice;
 use App\Domain\TwoFactor\Data\TwoFactorChallengeData;
-use App\Domain\TwoFactor\Enums\TwoFactorMethod;
 use App\Domain\TwoFactor\Models\TrustedDevice;
 use App\Domain\Users\Actions\MarkReleaseNotesSeen;
 use App\Domain\Users\Actions\RegisterUser;
@@ -74,13 +73,13 @@ class AuthController extends Controller
             abort(401);
         }
 
-        $isChallenged = $user->hasTotpEnabled()
+        $isChallenged = $user->hasTwoFactorEnabled()
             && ! $recognizeTrustedDevice->handle($user, TrustedDeviceCookie::tokenFrom($request)) instanceof TrustedDevice;
 
         if ($isChallenged) {
             PendingLogin::start($request->session(), $user, $data->remember);
 
-            return response()->json(new TwoFactorChallengeData(methods: [TwoFactorMethod::Totp]), 202);
+            return response()->json(TwoFactorChallengeData::forUser($user), 202);
         }
 
         $guard->login($user, $data->remember);

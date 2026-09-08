@@ -3074,6 +3074,195 @@
                 }
             }
         },
+        "/user/passkeys/options": {
+            "post": {
+                "operationId": "passkeyRegistrationOptions",
+                "tags": [
+                    "Passkey"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PasskeyOptionsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/user/passkeys": {
+            "post": {
+                "operationId": "registerPasskey",
+                "tags": [
+                    "Passkey"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterPasskeyData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PasskeyData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/user/passkeys/{passkey}": {
+            "put": {
+                "operationId": "renamePasskey",
+                "tags": [
+                    "Passkey"
+                ],
+                "parameters": [
+                    {
+                        "name": "passkey",
+                        "in": "path",
+                        "required": true,
+                        "description": "The passkey ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RenamePasskeyData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PasskeyData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deletePasskey",
+                "tags": [
+                    "Passkey"
+                ],
+                "parameters": [
+                    {
+                        "name": "passkey",
+                        "in": "path",
+                        "required": true,
+                        "description": "The passkey ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/passkeys/login/options": {
+            "post": {
+                "operationId": "passkeyLoginOptions",
+                "tags": [
+                    "PasskeyLogin"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PasskeyOptionsData"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/passkeys/login": {
+            "post": {
+                "operationId": "loginWithPasskey",
+                "tags": [
+                    "PasskeyLogin"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasskeyLoginData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserData"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                },
+                "security": []
+            }
+        },
         "/user/two-factor/recovery-codes": {
             "get": {
                 "operationId": "showRecoveryCodes",
@@ -4334,6 +4523,66 @@
                     },
                     "422": {
                         "$ref": "#/components/responses/ValidationException"
+                    }
+                },
+                "security": []
+            }
+        },
+        "/two-factor-challenge/passkey-options": {
+            "post": {
+                "operationId": "twoFactorPasskeyOptions",
+                "summary": "Assertion options scoped to the pending account's own passkeys",
+                "tags": [
+                    "TwoFactorChallenge"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PasskeyOptionsData"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "An error\n\nAn error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "description": "Error overview.",
+                                                    "examples": [
+                                                        "This sign-in attempt has expired. Enter your password again."
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "message"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "description": "Error overview."
+                                                }
+                                            },
+                                            "required": [
+                                                "message"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     }
                 },
                 "security": []
@@ -7590,6 +7839,65 @@
                 ],
                 "title": "NextInvoiceNumberData"
             },
+            "PasskeyData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string"
+                    },
+                    "lastUsedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "backedUp": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "createdAt",
+                    "lastUsedAt",
+                    "backedUp"
+                ],
+                "title": "PasskeyData"
+            },
+            "PasskeyLoginData": {
+                "type": "object",
+                "properties": {
+                    "credential": {
+                        "type": "string"
+                    },
+                    "remember": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "credential"
+                ],
+                "title": "PasskeyLoginData"
+            },
+            "PasskeyOptionsData": {
+                "type": "object",
+                "properties": {
+                    "options": {
+                        "type": "object",
+                        "additionalProperties": {}
+                    }
+                },
+                "required": [
+                    "options"
+                ],
+                "title": "PasskeyOptionsData"
+            },
             "PayInvoiceData": {
                 "type": "object",
                 "properties": {
@@ -7650,6 +7958,24 @@
                 ],
                 "title": "RecoveryCodesData"
             },
+            "RegisterPasskeyData": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                    },
+                    "credential": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name",
+                    "credential"
+                ],
+                "title": "RegisterPasskeyData"
+            },
             "RegisterUserData": {
                 "type": "object",
                 "properties": {
@@ -7699,6 +8025,20 @@
                     }
                 },
                 "title": "RemindInvoiceData"
+            },
+            "RenamePasskeyData": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                    }
+                },
+                "required": [
+                    "name"
+                ],
+                "title": "RenamePasskeyData"
             },
             "RevenueBasis": {
                 "type": "integer",
@@ -8609,6 +8949,12 @@
                         ],
                         "pattern": "^[A-Za-z0-9]{10}-[A-Za-z0-9]{10}$"
                     },
+                    "passkey": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
                     "trustDevice": {
                         "type": "boolean"
                     }
@@ -8636,10 +8982,12 @@
             "TwoFactorMethod": {
                 "type": "integer",
                 "enum": [
-                    0
+                    0,
+                    1
                 ],
                 "x-enum-varnames": [
-                    "Totp"
+                    "Totp",
+                    "Passkey"
                 ],
                 "title": "TwoFactorMethod"
             },
@@ -8658,6 +9006,12 @@
                     "recoveryCodesRemaining": {
                         "type": "integer"
                     },
+                    "passkeys": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PasskeyData"
+                        }
+                    },
                     "trustedDevices": {
                         "type": "array",
                         "items": {
@@ -8669,6 +9023,7 @@
                     "totpEnabled",
                     "totpConfirmedAt",
                     "recoveryCodesRemaining",
+                    "passkeys",
                     "trustedDevices"
                 ],
                 "title": "TwoFactorStatusData"
