@@ -18,7 +18,7 @@ jobs:
     if: >-
       github.actor != 'dependabot[bot]'
       && !(startsWith(github.head_ref, 'release-please--')
-      && github.event.pull_request.user.login == 'github-actions[bot]')
+      && github.event.pull_request.user.type == 'Bot')
       && !contains(github.event.pull_request.labels.*.name, 'no-release-note')
       && (startsWith(github.event.pull_request.title, 'feat')
       || startsWith(github.event.pull_request.title, 'fix'))

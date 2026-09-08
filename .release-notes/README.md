@@ -13,6 +13,12 @@ entry lands on `main` through its own PR — never on the release-please branch,
 which the bot force-pushes on every push to `main`, wiping anything committed
 there.
 
+A release with no fragments pending — dependency bumps and other changes that
+needed no sentence — gets one generic line instead, "Updated the third-party
+libraries Opusline is built on.", so the guard can go green. When the release
+changelog holds nothing but a Dependencies section, the assembly PR and the
+release PR merge on their own; anything else waits for a maintainer on both.
+
 One JSON file per note, named with a short descriptive slug:
 
 ```json
