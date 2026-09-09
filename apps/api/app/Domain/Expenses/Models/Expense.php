@@ -18,10 +18,16 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * A purchase made for the business: what the journal lists, what the CA3
  * deducts, what the micro-BNC comparison counts as real charges.
+ *
+ * The receipt is a single-file media collection: the fisc wants one
+ * justificatif per purchase, and without it the TVA is not deductible.
  *
  * @property int $id
  * @property int $user_id
@@ -51,10 +57,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'amount_ttc_cents',
     'amount_ht_cents',
 ])]
-class Expense extends Model
+class Expense extends Model implements HasMedia
 {
     /** @use HasFactory<ExpenseFactory> */
     use HasFactory;
+
+    use InteractsWithMedia;
+
+    public const string RECEIPT_COLLECTION = 'receipt';
 
     protected static function newFactory(): ExpenseFactory
     {
@@ -93,6 +103,16 @@ class Expense extends Model
             $field ?? $this->getRouteKeyName(),
             $value,
         );
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection(self::RECEIPT_COLLECTION)->singleFile();
+    }
+
+    public function receipt(): ?Media
+    {
+        return $this->getFirstMedia(self::RECEIPT_COLLECTION);
     }
 
     /** @return BelongsTo<User, $this> */

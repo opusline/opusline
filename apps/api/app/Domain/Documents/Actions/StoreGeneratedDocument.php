@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Domain\Documents\Actions;
 
 use App\Domain\Documents\Enums\DocumentCategory;
-use App\Domain\Documents\Jobs\MoveDocumentToMediaDisk;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
@@ -18,6 +17,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  */
 class StoreGeneratedDocument
 {
+    public function __construct(private readonly StoreMediaFile $storeMediaFile) {}
+
     /**
      * @param  array<string, scalar>  $customProperties  Extra properties the calling domain
      *                                                   needs to find this document again.
@@ -41,15 +42,12 @@ class StoreGeneratedDocument
             throw new \RuntimeException('Could not write the generated document to a temporary file.');
         }
 
-        $document = $model
-            ->addMedia($source)
-            ->usingName(pathinfo($fileName, PATHINFO_FILENAME))
-            ->usingFileName($fileName)
-            ->withCustomProperties(['category' => $category->value, ...$customProperties])
-            ->toMediaCollection('documents', 'local');
-
-        MoveDocumentToMediaDisk::dispatch($document);
-
-        return $document;
+        return $this->storeMediaFile->handle(
+            $model,
+            $source,
+            $fileName,
+            'documents',
+            ['category' => $category->value, ...$customProperties],
+        );
     }
 }

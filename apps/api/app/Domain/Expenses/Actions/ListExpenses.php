@@ -41,6 +41,7 @@ class ListExpenses
 
         $expenses = $user->expenses()
             ->whereBetween('spent_on', [$monthStart->toDateString(), $monthStart->endOfMonth()->toDateString()])
+            ->with('media')
             ->orderByDesc('spent_on')
             ->orderByDesc('id')
             ->get();
