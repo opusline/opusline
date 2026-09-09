@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.21.0](https://github.com/opusline/opusline/compare/v0.20.4...v0.21.0) (2026-09-09)
+
+
+### Features
+
+* **api:** add passkeys for sign-in and two-factor ([#266](https://github.com/opusline/opusline/issues/266)) ([df48d6d](https://github.com/opusline/opusline/commit/df48d6d00cbd7088b36586f3c7bb980928d1d9f1))
+* **api:** add totp enrolment and password confirmation ([#263](https://github.com/opusline/opusline/issues/263)) ([d0f5c4b](https://github.com/opusline/opusline/commit/d0f5c4b7dbbe24f947df9cf38397dcbbb3cebbee))
+* **api:** challenge logins and remember trusted browsers ([#264](https://github.com/opusline/opusline/issues/264)) ([7b9a4a1](https://github.com/opusline/opusline/commit/7b9a4a19088d81a112fac1f836e8878a6e14f344))
+* **web:** add passkeys for sign-in and two-factor ([#267](https://github.com/opusline/opusline/issues/267)) ([0b1612d](https://github.com/opusline/opusline/commit/0b1612d09740572b45c10a86797144c8653bd4f8))
+* **web:** add two-factor settings and login challenge ([#265](https://github.com/opusline/opusline/issues/265)) ([1f62a76](https://github.com/opusline/opusline/commit/1f62a76a6dc03cf3553f2fc83205686e4be49b4a))
+
 ## [0.20.4](https://github.com/opusline/opusline/compare/v0.20.3...v0.20.4) (2026-09-08)
 
 
