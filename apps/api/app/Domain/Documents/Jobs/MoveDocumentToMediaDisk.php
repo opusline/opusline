@@ -70,6 +70,16 @@ class MoveDocumentToMediaDisk implements ShouldQueue, ShouldQueueAfterCommit
             throw new UnexpectedValueException("Failed to write document [{$this->document->id}] to disk [{$targetDisk}].");
         }
 
+        // The row may have been deleted under a running move — a document
+        // removed, a receipt replaced, its expense deleted. The deletion
+        // cleaned the staging copy; the one just written would stay behind
+        // with nothing pointing at it.
+        if (! Media::query()->whereKey($this->document->id)->exists()) {
+            Storage::disk($targetDisk)->delete($path);
+
+            return;
+        }
+
         $this->document->disk = $targetDisk;
         $this->document->conversions_disk = $targetDisk;
         $this->document->save();

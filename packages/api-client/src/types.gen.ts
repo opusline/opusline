@@ -644,6 +644,7 @@ export type ExpenseData = {
     vatTreatment: ExpenseVatTreatment;
     vatRateBp: number;
     proShareBp: number;
+    receipt: ExpenseReceiptData | null;
 };
 
 /**
@@ -670,6 +671,15 @@ export type ExpenseMonthPointData = {
     month: string;
     ht: MoneyData;
     ttc: MoneyData;
+};
+
+/**
+ * ExpenseReceiptData
+ */
+export type ExpenseReceiptData = {
+    id: number;
+    fileName: string;
+    sizeBytes: number;
 };
 
 /**
@@ -1697,6 +1707,16 @@ export type UploadDocumentData = {
     file: Blob | File;
     category?: DocumentCategory | null;
     fileName?: string | null;
+};
+
+/**
+ * UploadExpenseReceiptData
+ */
+export type UploadExpenseReceiptData = {
+    /**
+     * Maximum file size: 20480 kilobytes.
+     */
+    file: Blob | File;
 };
 
 /**
@@ -3874,6 +3894,129 @@ export type UpdateExpenseResponses = {
 };
 
 export type UpdateExpenseResponse = UpdateExpenseResponses[keyof UpdateExpenseResponses];
+
+export type DetachExpenseReceiptData = {
+    body?: never;
+    path: {
+        /**
+         * The expense ID
+         */
+        expense: number;
+    };
+    query?: never;
+    url: '/expenses/{expense}/receipt';
+};
+
+export type DetachExpenseReceiptErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DetachExpenseReceiptError = DetachExpenseReceiptErrors[keyof DetachExpenseReceiptErrors];
+
+export type DetachExpenseReceiptResponses = {
+    200: ExpensesMonthData;
+};
+
+export type DetachExpenseReceiptResponse = DetachExpenseReceiptResponses[keyof DetachExpenseReceiptResponses];
+
+export type DownloadExpenseReceiptData = {
+    body?: never;
+    path: {
+        /**
+         * The expense ID
+         */
+        expense: number;
+    };
+    query?: never;
+    url: '/expenses/{expense}/receipt';
+};
+
+export type DownloadExpenseReceiptErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DownloadExpenseReceiptError = DownloadExpenseReceiptErrors[keyof DownloadExpenseReceiptErrors];
+
+export type DownloadExpenseReceiptResponses = {
+    200: Blob | File;
+};
+
+export type DownloadExpenseReceiptResponse = DownloadExpenseReceiptResponses[keyof DownloadExpenseReceiptResponses];
+
+export type AttachExpenseReceiptData = {
+    body: UploadExpenseReceiptData;
+    path: {
+        /**
+         * The expense ID
+         */
+        expense: number;
+    };
+    query?: never;
+    url: '/expenses/{expense}/receipt';
+};
+
+export type AttachExpenseReceiptErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type AttachExpenseReceiptError = AttachExpenseReceiptErrors[keyof AttachExpenseReceiptErrors];
+
+export type AttachExpenseReceiptResponses = {
+    201: ExpensesMonthData;
+};
+
+export type AttachExpenseReceiptResponse = AttachExpenseReceiptResponses[keyof AttachExpenseReceiptResponses];
 
 export type ShowInstanceData = {
     body?: never;

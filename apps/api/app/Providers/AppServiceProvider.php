@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Domain\Clients\Models\Client;
+use App\Domain\Expenses\Models\Expense;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Passkeys\Webauthn\PasskeyCeremony;
 use App\Domain\Passkeys\Webauthn\RelyingParty;
@@ -82,6 +83,7 @@ class AppServiceProvider extends ServiceProvider
 
         Relation::enforceMorphMap([
             'client' => Client::class,
+            'expense' => Expense::class,
             'mission' => Mission::class,
             'user' => User::class,
         ]);

@@ -12,6 +12,7 @@ use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Attributes\WithTransformer;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class ExpenseData extends Data
 {
@@ -31,11 +32,14 @@ class ExpenseData extends Data
         public ExpenseVatTreatment $vatTreatment,
         public int $vatRateBp,
         public int $proShareBp,
+        /** Null until a justificatif is attached; the TVA is not deductible before. */
+        public ?ExpenseReceiptData $receipt,
     ) {}
 
     public static function fromModel(Expense $expense): self
     {
         $amounts = $expense->amounts();
+        $receipt = $expense->receipt();
 
         return new self(
             id: $expense->id,
@@ -50,6 +54,7 @@ class ExpenseData extends Data
             vatTreatment: $expense->vat_treatment,
             vatRateBp: $expense->vat_rate_bp,
             proShareBp: $expense->pro_share_bp,
+            receipt: $receipt instanceof Media ? ExpenseReceiptData::fromMedia($receipt) : null,
         );
     }
 }
