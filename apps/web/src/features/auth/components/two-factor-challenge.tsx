@@ -9,7 +9,7 @@ import {
   FieldLabel,
 } from "@opusline/ui/components/field";
 import { Input } from "@opusline/ui/components/input";
-import { CircleAlert } from "lucide-react";
+import { CircleAlert, Fingerprint } from "lucide-react";
 import { useId, useState } from "react";
 
 import { TOTP_CODE_LENGTH, TotpCodeField } from "@/components/totp-code-field";
@@ -30,15 +30,24 @@ type TwoFactorChallengeProps = {
     code: string,
     rememberDevice: boolean,
   ) => Promise<ChallengeOutcome>;
+  /** Present when this browser can answer with a passkey. */
+  onUsePasskey?: (rememberDevice: boolean) => Promise<ChallengeOutcome>;
   onBack: () => void;
   isPending: boolean;
   error: string | null;
 };
 
+type Mode = "code" | "recovery" | "passkey";
+
+const TOTP: TwoFactorMethod = 0;
+const PASSKEY: TwoFactorMethod = 1;
+
 /** The second step of a login: a six-digit code, or a recovery code instead. */
 export function TwoFactorChallenge({
+  methods,
   onSubmitCode,
   onSubmitRecoveryCode,
+  onUsePasskey,
   onBack,
   isPending,
   error,
@@ -46,7 +55,13 @@ export function TwoFactorChallenge({
   const codeId = useId();
   const recoveryId = useId();
   const rememberId = useId();
-  const [mode, setMode] = useState<"code" | "recovery">("code");
+  const hasTotp = methods.includes(TOTP);
+  const hasPasskey = methods.includes(PASSKEY) && onUsePasskey !== undefined;
+  // An account without an authenticator app leads with its passkey; the
+  // recovery code stays one click away either way.
+  const [mode, setMode] = useState<Mode>(
+    hasTotp ? "code" : hasPasskey ? "passkey" : "recovery",
+  );
   const [code, setCode] = useState("");
   const [recoveryCode, setRecoveryCode] = useState("");
   const [rememberDevice, setRememberDevice] = useState(false);
@@ -79,7 +94,16 @@ export function TwoFactorChallenge({
     handleOutcome(await onSubmitRecoveryCode(trimmed, rememberDevice));
   };
 
-  const switchMode = (nextMode: "code" | "recovery") => {
+  const continueWithPasskey = async () => {
+    if (onUsePasskey === undefined || isPending) {
+      return;
+    }
+
+    setFieldError(null);
+    handleOutcome(await onUsePasskey(rememberDevice));
+  };
+
+  const switchMode = (nextMode: Mode) => {
     setMode(nextMode);
     setFieldError(null);
     setCode("");
@@ -93,7 +117,11 @@ export function TwoFactorChallenge({
       className="flex flex-col gap-4"
       onSubmit={(event) => {
         event.preventDefault();
-        void (mode === "code" ? submitCode(code) : submitRecoveryCode());
+        void (mode === "code"
+          ? submitCode(code)
+          : mode === "recovery"
+            ? submitRecoveryCode()
+            : continueWithPasskey());
       }}
     >
       {error ? (
@@ -123,6 +151,13 @@ export function TwoFactorChallenge({
             <FieldDescription>{m.auth_two_factor_code_hint()}</FieldDescription>
           )}
         </Field>
+      ) : mode === "passkey" ? (
+        <div className="flex flex-col gap-2">
+          <p className="text-muted-foreground-3 text-sm leading-relaxed">
+            {m.auth_two_factor_passkey_hint()}
+          </p>
+          {isInvalid ? <FieldError>{fieldError}</FieldError> : null}
+        </div>
       ) : (
         <Field data-invalid={isInvalid}>
           <FieldLabel htmlFor={recoveryId}>
@@ -167,26 +202,57 @@ export function TwoFactorChallenge({
           isPending ||
           (mode === "code"
             ? code.length !== TOTP_CODE_LENGTH
-            : recoveryCode.trim() === "")
+            : mode === "recovery"
+              ? recoveryCode.trim() === ""
+              : false)
         }
         size="2xl"
         type="submit"
       >
-        {m.auth_two_factor_submit()}
+        {mode === "passkey" ? (
+          <>
+            <Fingerprint data-icon="inline-start" />
+            {m.auth_two_factor_passkey_submit()}
+          </>
+        ) : (
+          m.auth_two_factor_submit()
+        )}
       </Button>
 
       <div className="flex flex-col items-center gap-1">
-        <Button
-          disabled={isPending}
-          onClick={() => switchMode(mode === "code" ? "recovery" : "code")}
-          size="sm"
-          type="button"
-          variant="ghost"
-        >
-          {mode === "code"
-            ? m.auth_two_factor_use_recovery()
-            : m.auth_two_factor_use_code()}
-        </Button>
+        {hasTotp && mode !== "code" ? (
+          <Button
+            disabled={isPending}
+            onClick={() => switchMode("code")}
+            size="sm"
+            type="button"
+            variant="ghost"
+          >
+            {m.auth_two_factor_use_code()}
+          </Button>
+        ) : null}
+        {hasPasskey && mode !== "passkey" ? (
+          <Button
+            disabled={isPending}
+            onClick={() => switchMode("passkey")}
+            size="sm"
+            type="button"
+            variant="ghost"
+          >
+            {m.auth_two_factor_use_passkey()}
+          </Button>
+        ) : null}
+        {mode !== "recovery" ? (
+          <Button
+            disabled={isPending}
+            onClick={() => switchMode("recovery")}
+            size="sm"
+            type="button"
+            variant="ghost"
+          >
+            {m.auth_two_factor_use_recovery()}
+          </Button>
+        ) : null}
         <Button
           disabled={isPending}
           onClick={onBack}

@@ -26,3 +26,9 @@ export const WithError: Story = {
     error: "Identifiants invalides.",
   },
 };
+
+export const WithPasskey: Story = {
+  args: {
+    passkey: { onSignIn: () => {}, isPending: false },
+  },
+};

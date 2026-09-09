@@ -3,6 +3,9 @@ import {
   answerTwoFactorChallengeMutation,
   currentUserQueryKey,
   loginMutation,
+  loginWithPasskeyMutation,
+  passkeyLoginOptionsMutation,
+  twoFactorPasskeyOptionsMutation,
 } from "@opusline/api-client/react-query";
 import { Button } from "@opusline/ui/components/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -19,7 +22,12 @@ import {
   classifyChallengeError,
   isTwoFactorChallenge,
 } from "@/features/auth/lib/two-factor";
-import { serverFieldErrors } from "@/lib/validation";
+import {
+  assertPasskey,
+  isWebAuthnSupported,
+  webAuthnFailure,
+} from "@/features/auth/lib/webauthn";
+import { serverErrorMessage, serverFieldErrors } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
 /*
@@ -44,6 +52,7 @@ export const Route = createFileRoute("/_guest/login")({
 type ChallengeAnswer = {
   code?: string;
   recoveryCode?: string;
+  passkey?: string;
   trustDevice: boolean;
 };
 
@@ -54,6 +63,11 @@ function LoginPage() {
 
   const login = useMutation(loginMutation());
   const answerChallenge = useMutation(answerTwoFactorChallengeMutation());
+  const passkeyLoginOptions = useMutation(passkeyLoginOptionsMutation());
+  const loginWithPasskey = useMutation(loginWithPasskeyMutation());
+  const challengePasskeyOptions = useMutation(
+    twoFactorPasskeyOptionsMutation(),
+  );
 
   // The pending login lives in the server session; this only remembers that
   // the password step is done, and forgets it when the server does.
@@ -64,6 +78,7 @@ function LoginPage() {
   const [passwordStepNotice, setPasswordStepNotice] = useState<string | null>(
     null,
   );
+  const [passkeyError, setPasskeyError] = useState<string | null>(null);
 
   const signIn = async (user: UserData) => {
     queryClient.setQueryData(currentUserQueryKey(), user);
@@ -76,6 +91,7 @@ function LoginPage() {
     remember: boolean;
   }) => {
     setPasswordStepNotice(null);
+    setPasskeyError(null);
 
     try {
       const result = await login.mutateAsync({ body: values });
@@ -93,6 +109,25 @@ function LoginPage() {
     }
   };
 
+  const failChallenge = (error: unknown): ChallengeOutcome => {
+    const failure = classifyChallengeError(error);
+
+    switch (failure.status) {
+      case "invalid":
+        return { status: "invalid", message: failure.message };
+      case "expired":
+        setChallenge(null);
+        setPasswordStepNotice(failure.message);
+        return { status: "failed" };
+      case "throttled":
+        setChallengeError(failure.message);
+        return { status: "failed" };
+      default:
+        setChallengeError(m.auth_two_factor_failed());
+        return { status: "failed" };
+    }
+  };
+
   const answer = async (body: ChallengeAnswer): Promise<ChallengeOutcome> => {
     setChallengeError(null);
 
@@ -100,22 +135,59 @@ function LoginPage() {
       await signIn(await answerChallenge.mutateAsync({ body }));
       return { status: "success" };
     } catch (error) {
-      const failure = classifyChallengeError(error);
+      return failChallenge(error);
+    }
+  };
 
-      switch (failure.status) {
-        case "invalid":
-          return { status: "invalid", message: failure.message };
-        case "expired":
-          setChallenge(null);
-          setPasswordStepNotice(failure.message);
-          return { status: "failed" };
-        case "throttled":
-          setChallengeError(failure.message);
-          return { status: "failed" };
-        default:
-          setChallengeError(m.auth_two_factor_failed());
-          return { status: "failed" };
+  const answerWithPasskey = async (
+    trustDevice: boolean,
+  ): Promise<ChallengeOutcome> => {
+    setChallengeError(null);
+
+    let credential: string;
+
+    try {
+      const { options } = await challengePasskeyOptions.mutateAsync({});
+      credential = JSON.stringify(await assertPasskey(options));
+    } catch (error) {
+      const failure = webAuthnFailure(error);
+
+      if (failure === "cancelled") {
+        return { status: "failed" };
       }
+
+      return failure === null
+        ? failChallenge(error)
+        : { status: "invalid", message: m.auth_passkey_failed() };
+    }
+
+    return answer({ passkey: credential, trustDevice });
+  };
+
+  const signInWithPasskey = async (remember: boolean) => {
+    setPasswordStepNotice(null);
+    setPasskeyError(null);
+
+    try {
+      const { options } = await passkeyLoginOptions.mutateAsync({});
+      const credential = JSON.stringify(await assertPasskey(options));
+      await signIn(
+        await loginWithPasskey.mutateAsync({
+          body: { credential, remember },
+        }),
+      );
+    } catch (error) {
+      const failure = webAuthnFailure(error);
+
+      if (failure === "cancelled") {
+        return;
+      }
+
+      setPasskeyError(
+        failure === null
+          ? serverErrorMessage(error, m.auth_passkey_failed())
+          : m.auth_passkey_failed(),
+      );
     }
   };
 
@@ -136,6 +208,7 @@ function LoginPage() {
           onSubmitRecoveryCode={(recoveryCode, trustDevice) =>
             answer({ recoveryCode, trustDevice })
           }
+          onUsePasskey={isWebAuthnSupported() ? answerWithPasskey : undefined}
         />
       </AuthCard>
     );
@@ -159,9 +232,18 @@ function LoginPage() {
       title={m.auth_login_title()}
     >
       <LoginForm
-        error={passwordStepNotice ?? loginError}
+        error={passkeyError ?? passwordStepNotice ?? loginError}
         isPending={login.isPending}
         onSubmit={handleSubmit}
+        passkey={
+          isWebAuthnSupported()
+            ? {
+                onSignIn: (remember) => void signInWithPasskey(remember),
+                isPending:
+                  passkeyLoginOptions.isPending || loginWithPasskey.isPending,
+              }
+            : undefined
+        }
       />
       {import.meta.env.DEV && (
         <Button

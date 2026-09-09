@@ -60,6 +60,7 @@ type TabProps = React.ComponentProps<typeof SecuritySettings>;
 
 function renderTab(
   status: typeof twoFactorOnFixture | null,
+  webAuthn: Partial<TabProps["webAuthn"]> = {},
   guarded: TabProps["guarded"] = async (action) => ({
     status: "done",
     value: await action(),
@@ -76,7 +77,15 @@ function renderTab(
   render(
     <QueryClientProvider client={queryClient}>
       <MoneyFormatProvider currency="EUR" dateFormat={0} locale="fr-FR">
-        <SecuritySettings guarded={guarded} />
+        <SecuritySettings
+          guarded={guarded}
+          webAuthn={{
+            isSupported: true,
+            createPasskey: vi.fn().mockResolvedValue('{"id":"cred"}'),
+            failure: () => null,
+            ...webAuthn,
+          }}
+        />
       </MoneyFormatProvider>
     </QueryClientProvider>,
   );
@@ -225,7 +234,7 @@ it("closes the setup and reports on the card when the confirm is refused outrigh
 
 it("does nothing when the password dialog is dismissed before the setup", async () => {
   const api = stubApi([]);
-  renderTab(twoFactorOffFixture, async () => ({ status: "cancelled" }));
+  renderTab(twoFactorOffFixture, {}, async () => ({ status: "cancelled" }));
 
   fireEvent.click(screen.getByRole("button", { name: "Activer" }));
 
@@ -340,6 +349,340 @@ it("reports a failed revocation on its card", async () => {
 
   fireEvent.click(screen.getAllByRole("button", { name: "Révoquer" })[0]);
   confirmAlertDialog(await screen.findByRole("alertdialog"));
+
+  expect(await screen.findByRole("alert")).toHaveTextContent("Boom");
+});
+
+it("adds a passkey: options, browser ceremony, then the name", async () => {
+  const createPasskey = vi.fn().mockResolvedValue('{"id":"cred-new"}');
+  const api = stubApi([
+    {
+      method: "POST",
+      path: "/user/passkeys/options",
+      status: 200,
+      body: { options: { challenge: "abc" } },
+    },
+    {
+      method: "POST",
+      path: "/user/passkeys",
+      status: 201,
+      body: { id: 3, name: "Ma clé d'accès" },
+    },
+    {
+      method: "GET",
+      path: "/user/two-factor",
+      status: 200,
+      body: twoFactorOnFixture,
+    },
+  ]);
+  renderTab(twoFactorOffFixture, { createPasskey });
+
+  fireEvent.click(
+    screen.getByRole("button", { name: /ajouter une clé d'accès/i }),
+  );
+
+  const input = await screen.findByLabelText("Nom");
+  expect(createPasskey).toHaveBeenCalledWith({ challenge: "abc" });
+  expect(input).toHaveValue("Ma clé d'accès");
+
+  fireEvent.change(input, { target: { value: "MacBook de Théo" } });
+  fireEvent.submit(screen.getByRole("button", { name: "Enregistrer" }));
+
+  await waitFor(() =>
+    expect(api.calls()).toEqual(
+      expect.arrayContaining([
+        "POST /api/user/passkeys",
+        "GET /api/user/two-factor",
+      ]),
+    ),
+  );
+  await waitFor(() =>
+    expect(screen.queryByLabelText("Nom")).not.toBeInTheDocument(),
+  );
+});
+
+it("stays quiet when the browser ceremony is cancelled", async () => {
+  stubApi([
+    {
+      method: "POST",
+      path: "/user/passkeys/options",
+      status: 200,
+      body: { options: {} },
+    },
+  ]);
+  renderTab(twoFactorOffFixture, {
+    createPasskey: vi.fn().mockRejectedValue(new Error("aborted")),
+    failure: () => "cancelled",
+  });
+
+  fireEvent.click(
+    screen.getByRole("button", { name: /ajouter une clé d'accès/i }),
+  );
+
+  await waitFor(() =>
+    expect(screen.queryByLabelText("Nom")).not.toBeInTheDocument(),
+  );
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+});
+
+it("names a passkey the browser already holds", async () => {
+  stubApi([
+    {
+      method: "POST",
+      path: "/user/passkeys/options",
+      status: 200,
+      body: { options: {} },
+    },
+  ]);
+  renderTab(twoFactorOffFixture, {
+    createPasskey: vi.fn().mockRejectedValue(new Error("dup")),
+    failure: () => "duplicate",
+  });
+
+  fireEvent.click(
+    screen.getByRole("button", { name: /ajouter une clé d'accès/i }),
+  );
+
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "Cette clé d'accès est déjà enregistrée.",
+  );
+});
+
+it("surfaces the server's refusal of the credential on the card", async () => {
+  stubApi([
+    {
+      method: "POST",
+      path: "/user/passkeys/options",
+      status: 200,
+      body: { options: {} },
+    },
+    {
+      method: "POST",
+      path: "/user/passkeys",
+      status: 422,
+      body: {
+        message: "Cette clé d'accès n'a pas pu être vérifiée.",
+        errors: { credential: ["Cette clé d'accès n'a pas pu être vérifiée."] },
+      },
+    },
+  ]);
+  renderTab(twoFactorOffFixture);
+
+  fireEvent.click(
+    screen.getByRole("button", { name: /ajouter une clé d'accès/i }),
+  );
+  fireEvent.submit(await screen.findByRole("button", { name: "Enregistrer" }));
+
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "Cette clé d'accès n'a pas pu être vérifiée.",
+  );
+  await waitFor(() =>
+    expect(screen.queryByLabelText("Nom")).not.toBeInTheDocument(),
+  );
+});
+
+it("renames and deletes through the API and refreshes the status", async () => {
+  const api = stubApi([
+    {
+      method: "PUT",
+      path: "/user/passkeys/1",
+      status: 200,
+      body: { id: 1, name: "Bureau" },
+    },
+    { method: "DELETE", path: "/user/passkeys/2", status: 204 },
+    {
+      method: "GET",
+      path: "/user/two-factor",
+      status: 200,
+      body: twoFactorOnFixture,
+    },
+  ]);
+  renderTab(twoFactorOnFixture);
+
+  fireEvent.click(screen.getAllByRole("button", { name: "Renommer" })[0]);
+  fireEvent.change(await screen.findByLabelText("Nom"), {
+    target: { value: "Bureau" },
+  });
+  fireEvent.submit(screen.getByRole("button", { name: "Enregistrer" }));
+
+  await waitFor(() =>
+    expect(api.calls()).toContain("PUT /api/user/passkeys/1"),
+  );
+
+  fireEvent.click(screen.getAllByRole("button", { name: "Supprimer" })[1]);
+  const dialog = await screen.findByRole("alertdialog");
+  fireEvent.click(
+    dialog.querySelector("[data-slot=alert-dialog-action]") as HTMLElement,
+  );
+
+  await waitFor(() =>
+    expect(api.calls()).toContain("DELETE /api/user/passkeys/2"),
+  );
+  await waitFor(() =>
+    expect(
+      api.calls().filter((call) => call === "GET /api/user/two-factor").length,
+    ).toBeGreaterThanOrEqual(2),
+  );
+});
+
+it("does nothing when the password dialog is dismissed before the options", async () => {
+  const api = stubApi([]);
+  renderTab(twoFactorOffFixture, {}, async () => ({ status: "cancelled" }));
+
+  fireEvent.click(
+    screen.getByRole("button", { name: /ajouter une clé d'accès/i }),
+  );
+
+  await waitFor(() =>
+    expect(api.calls()).not.toContain("POST /api/user/passkeys/options"),
+  );
+  expect(screen.queryByLabelText("Nom")).not.toBeInTheDocument();
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+});
+
+it("keeps the naming dialog open when the password dialog is dismissed at save", async () => {
+  stubApi([
+    {
+      method: "POST",
+      path: "/user/passkeys/options",
+      status: 200,
+      body: { options: {} },
+    },
+  ]);
+  let call = 0;
+  renderTab(twoFactorOffFixture, {}, async (action) => {
+    call += 1;
+    return call === 1
+      ? { status: "done", value: await action() }
+      : { status: "cancelled" };
+  });
+
+  fireEvent.click(
+    screen.getByRole("button", { name: /ajouter une clé d'accès/i }),
+  );
+  fireEvent.submit(await screen.findByRole("button", { name: "Enregistrer" }));
+
+  await waitFor(() => expect(call).toBe(2));
+  expect(screen.getByLabelText("Nom")).toBeInTheDocument();
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+});
+
+it("reports a browser failure on the card", async () => {
+  stubApi([
+    {
+      method: "POST",
+      path: "/user/passkeys/options",
+      status: 200,
+      body: { options: {} },
+    },
+  ]);
+  renderTab(twoFactorOffFixture, {
+    createPasskey: vi.fn().mockRejectedValue(new Error("nope")),
+    failure: () => "failed",
+  });
+
+  fireEvent.click(
+    screen.getByRole("button", { name: /ajouter une clé d'accès/i }),
+  );
+
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "La clé d'accès n'a pas pu être créée. Réessayez.",
+  );
+});
+
+it("shows the server's objection to the options on the card", async () => {
+  stubApi([
+    {
+      method: "POST",
+      path: "/user/passkeys/options",
+      status: 409,
+      body: { message: "Pas maintenant." },
+    },
+  ]);
+  renderTab(twoFactorOffFixture);
+
+  fireEvent.click(
+    screen.getByRole("button", { name: /ajouter une clé d'accès/i }),
+  );
+
+  expect(await screen.findByRole("alert")).toHaveTextContent("Pas maintenant.");
+});
+
+it("puts a refused name back in the dialog", async () => {
+  stubApi([
+    {
+      method: "POST",
+      path: "/user/passkeys/options",
+      status: 200,
+      body: { options: {} },
+    },
+    {
+      method: "POST",
+      path: "/user/passkeys",
+      status: 422,
+      body: { message: "x", errors: { name: ["Ce nom est déjà pris."] } },
+    },
+  ]);
+  renderTab(twoFactorOffFixture);
+
+  fireEvent.click(
+    screen.getByRole("button", { name: /ajouter une clé d'accès/i }),
+  );
+  fireEvent.submit(await screen.findByRole("button", { name: "Enregistrer" }));
+
+  expect(await screen.findByText("Ce nom est déjà pris.")).toBeInTheDocument();
+  expect(screen.getByLabelText("Nom")).toBeInTheDocument();
+});
+
+it("shows a refused rename in its dialog and a failed one silently", async () => {
+  stubApi([
+    {
+      method: "PUT",
+      path: "/user/passkeys/1",
+      status: 422,
+      body: { message: "x", errors: { name: ["Trop long."] } },
+    },
+    {
+      method: "PUT",
+      path: "/user/passkeys/2",
+      status: 500,
+      body: { message: "Boom" },
+    },
+  ]);
+  renderTab(twoFactorOnFixture);
+
+  fireEvent.click(screen.getAllByRole("button", { name: "Renommer" })[0]);
+  fireEvent.submit(await screen.findByRole("button", { name: "Enregistrer" }));
+  expect(await screen.findByText("Trop long.")).toBeInTheDocument();
+
+  fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" });
+  await waitFor(() =>
+    expect(screen.queryByLabelText("Nom")).not.toBeInTheDocument(),
+  );
+
+  fireEvent.click(screen.getAllByRole("button", { name: "Renommer" })[1]);
+  fireEvent.submit(await screen.findByRole("button", { name: "Enregistrer" }));
+
+  await waitFor(() => expect(screen.getByLabelText("Nom")).toBeInTheDocument());
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+});
+
+it("reports a failed deletion on the card", async () => {
+  stubApi([
+    {
+      method: "DELETE",
+      path: "/user/passkeys/2",
+      status: 500,
+      body: { message: "Boom" },
+    },
+  ]);
+  renderTab(twoFactorOnFixture);
+
+  fireEvent.click(screen.getAllByRole("button", { name: "Supprimer" })[1]);
+  const dialog = await screen.findByRole("alertdialog");
+  fireEvent.click(
+    dialog.querySelector("[data-slot=alert-dialog-action]") as HTMLElement,
+  );
 
   expect(await screen.findByRole("alert")).toHaveTextContent("Boom");
 });

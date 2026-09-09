@@ -4,8 +4,9 @@ import { Button } from "@opusline/ui/components/button";
 import { Checkbox } from "@opusline/ui/components/checkbox";
 import { Field, FieldError, FieldLabel } from "@opusline/ui/components/field";
 import { Input } from "@opusline/ui/components/input";
+import { Separator } from "@opusline/ui/components/separator";
 import { useForm } from "@tanstack/react-form";
-import { CircleAlert } from "lucide-react";
+import { CircleAlert, Fingerprint } from "lucide-react";
 import * as z from "zod/mini";
 
 import { m } from "@/paraglide/messages.js";
@@ -22,9 +23,19 @@ type LoginFormProps = {
     | undefined;
   isPending?: boolean;
   error?: string | null;
+  /** Present when this browser can sign in with a passkey instead of the password. */
+  passkey?: {
+    onSignIn: (remember: boolean) => void;
+    isPending: boolean;
+  };
 };
 
-export function LoginForm({ onSubmit, isPending, error }: LoginFormProps) {
+export function LoginForm({
+  onSubmit,
+  isPending,
+  error,
+  passkey,
+}: LoginFormProps) {
   const form = useForm({
     defaultValues: { email: "", password: "", remember: false },
     validators: {
@@ -61,6 +72,7 @@ export function LoginForm({ onSubmit, isPending, error }: LoginFormProps) {
               </FieldLabel>
               <Input
                 aria-invalid={isInvalid}
+                autoComplete="username webauthn"
                 id={field.name}
                 onBlur={field.handleBlur}
                 onChange={(event) => field.handleChange(event.target.value)}
@@ -120,6 +132,32 @@ export function LoginForm({ onSubmit, isPending, error }: LoginFormProps) {
       >
         {m.auth_login_submit()}
       </Button>
+      {passkey ? (
+        <form.Subscribe selector={(state) => state.values.remember}>
+          {(remember) => (
+            <>
+              <div className="flex items-center gap-3">
+                <Separator className="flex-1" />
+                <span className="text-muted-foreground-3 text-xs">
+                  {m.auth_or()}
+                </span>
+                <Separator className="flex-1" />
+              </div>
+              <Button
+                className="w-full"
+                disabled={isPending || passkey.isPending}
+                onClick={() => passkey.onSignIn(remember)}
+                size="2xl"
+                type="button"
+                variant="outline"
+              >
+                <Fingerprint data-icon="inline-start" />
+                {m.auth_passkey_sign_in()}
+              </Button>
+            </>
+          )}
+        </form.Subscribe>
+      ) : null}
     </form>
   );
 }
