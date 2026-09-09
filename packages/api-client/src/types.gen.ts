@@ -614,6 +614,109 @@ export type DocumentSource = 0 | 1 | 2;
 export type EntryRounding = 0 | 1 | 2;
 
 /**
+ * ExpenseCategory
+ */
+export type ExpenseCategory = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+
+/**
+ * ExpenseCategoryTotalData
+ */
+export type ExpenseCategoryTotalData = {
+    category: ExpenseCategory;
+    ht: MoneyData;
+    ttc: MoneyData;
+    shareBp: number;
+};
+
+/**
+ * ExpenseData
+ */
+export type ExpenseData = {
+    id: number;
+    supplier: string;
+    spentOn: string;
+    category: ExpenseCategory;
+    description: string | null;
+    amountHt: MoneyData;
+    vat: MoneyData;
+    amountTtc: MoneyData;
+    recoverableVat: MoneyData;
+    vatTreatment: ExpenseVatTreatment;
+    vatRateBp: number;
+    proShareBp: number;
+};
+
+/**
+ * ExpenseInputData
+ */
+export type ExpenseInputData = {
+    supplier: string;
+    spentOn: string;
+    category: ExpenseCategory;
+    amountTtc: {
+        amount: number;
+        currency: Currency;
+    };
+    vatTreatment: ExpenseVatTreatment;
+    vatRateBp: number;
+    proShareBp?: number;
+    description?: string | null;
+};
+
+/**
+ * ExpenseMonthPointData
+ */
+export type ExpenseMonthPointData = {
+    month: string;
+    ht: MoneyData;
+    ttc: MoneyData;
+};
+
+/**
+ * ExpenseRegimeProjectionData
+ */
+export type ExpenseRegimeProjectionData = {
+    projectedChargesHt: MoneyData;
+    annualRevenueHt: MoneyData;
+    abatement: MoneyData;
+    microIsFavourable: boolean;
+};
+
+/**
+ * ExpenseVatTreatment
+ *
+ * How the TVA on a purchase reaches the CA3. The receipt decides, never the supplier's country: a foreign SaaS billing through a European entity with 20 % on the invoice is Domestic.
+ * | |
+ * |---|
+ * | `0` <br/> A French invoice carrying TVA at the stated rate. |
+ * | `1` <br/> An EU supplier who invoiced without TVA against the intra-community number (autoliquidation). |
+ * | `2` <br/> A non-EU supplier who invoiced without TVA (autoliquidation). |
+ * | `3` <br/> No TVA at all: insurance, bank fees, stamps, CFE. |
+ */
+export type ExpenseVatTreatment = 0 | 1 | 2 | 3;
+
+/**
+ * ExpensesMonthData
+ */
+export type ExpensesMonthData = {
+    month: string;
+    totals: ExpensesTotalsData;
+    categories: Array<ExpenseCategoryTotalData>;
+    series: Array<ExpenseMonthPointData>;
+    projection: ExpenseRegimeProjectionData | null;
+    expenses: Array<ExpenseData>;
+};
+
+/**
+ * ExpensesTotalsData
+ */
+export type ExpensesTotalsData = {
+    ht: MoneyData;
+    ttc: MoneyData;
+    count: number;
+};
+
+/**
  * FiscalDeadlineData
  */
 export type FiscalDeadlineData = {
@@ -1026,6 +1129,14 @@ export type PingData = {
     status: string;
     version: string;
     sentry: SentryWebData | null;
+};
+
+/**
+ * RecategorizeExpensesData
+ */
+export type RecategorizeExpensesData = {
+    expenseIds: Array<number>;
+    category: ExpenseCategory;
 };
 
 /**
@@ -3580,6 +3691,189 @@ export type ListDocumentLibraryResponses = {
 };
 
 export type ListDocumentLibraryResponse = ListDocumentLibraryResponses[keyof ListDocumentLibraryResponses];
+
+export type ListExpensesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        month?: string | null;
+    };
+    url: '/expenses';
+};
+
+export type ListExpensesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListExpensesError = ListExpensesErrors[keyof ListExpensesErrors];
+
+export type ListExpensesResponses = {
+    200: ExpensesMonthData;
+};
+
+export type ListExpensesResponse = ListExpensesResponses[keyof ListExpensesResponses];
+
+export type CreateExpenseData = {
+    body: ExpenseInputData;
+    path?: never;
+    query?: never;
+    url: '/expenses';
+};
+
+export type CreateExpenseErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateExpenseError = CreateExpenseErrors[keyof CreateExpenseErrors];
+
+export type CreateExpenseResponses = {
+    201: ExpensesMonthData;
+};
+
+export type CreateExpenseResponse = CreateExpenseResponses[keyof CreateExpenseResponses];
+
+export type RecategorizeExpensesData2 = {
+    body: RecategorizeExpensesData;
+    path?: never;
+    query?: never;
+    url: '/expenses/category';
+};
+
+export type RecategorizeExpensesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type RecategorizeExpensesError = RecategorizeExpensesErrors[keyof RecategorizeExpensesErrors];
+
+export type RecategorizeExpensesResponses = {
+    200: ExpensesMonthData;
+};
+
+export type RecategorizeExpensesResponse = RecategorizeExpensesResponses[keyof RecategorizeExpensesResponses];
+
+export type DeleteExpenseData = {
+    body?: never;
+    path: {
+        /**
+         * The expense ID
+         */
+        expense: number;
+    };
+    query?: never;
+    url: '/expenses/{expense}';
+};
+
+export type DeleteExpenseErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteExpenseError = DeleteExpenseErrors[keyof DeleteExpenseErrors];
+
+export type DeleteExpenseResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteExpenseResponse = DeleteExpenseResponses[keyof DeleteExpenseResponses];
+
+export type UpdateExpenseData = {
+    body: ExpenseInputData;
+    path: {
+        /**
+         * The expense ID
+         */
+        expense: number;
+    };
+    query?: never;
+    url: '/expenses/{expense}';
+};
+
+export type UpdateExpenseErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateExpenseError = UpdateExpenseErrors[keyof UpdateExpenseErrors];
+
+export type UpdateExpenseResponses = {
+    200: ExpensesMonthData;
+};
+
+export type UpdateExpenseResponse = UpdateExpenseResponses[keyof UpdateExpenseResponses];
 
 export type ShowInstanceData = {
     body?: never;

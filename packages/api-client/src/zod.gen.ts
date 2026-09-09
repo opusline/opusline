@@ -425,6 +425,60 @@ export const zCreateMissionData = z.object({
 });
 
 /**
+ * ExpenseCategory
+ */
+export const zExpenseCategory = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4),
+    z.literal(5),
+    z.literal(6),
+    z.literal(7),
+    z.literal(8),
+    z.literal(9),
+    z.literal(10),
+    z.literal(11),
+    z.literal(12)
+]);
+
+/**
+ * ExpenseVatTreatment
+ *
+ * How the TVA on a purchase reaches the CA3. The receipt decides, never the supplier's country: a foreign SaaS billing through a European entity with 20 % on the invoice is Domestic.
+ * | |
+ * |---|
+ * | `0` <br/> A French invoice carrying TVA at the stated rate. |
+ * | `1` <br/> An EU supplier who invoiced without TVA against the intra-community number (autoliquidation). |
+ * | `2` <br/> A non-EU supplier who invoiced without TVA (autoliquidation). |
+ * | `3` <br/> No TVA at all: insurance, bank fees, stamps, CFE. |
+ */
+export const zExpenseVatTreatment = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3)
+]);
+
+/**
+ * ExpenseInputData
+ */
+export const zExpenseInputData = z.object({
+    supplier: z.string().check(z.minLength(1), z.maxLength(120)),
+    spentOn: z.iso.date(),
+    category: zExpenseCategory,
+    amountTtc: z.object({
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
+        currency: zCurrency
+    }),
+    vatTreatment: zExpenseVatTreatment,
+    vatRateBp: z.int().check(z.gte(0), z.lte(10000)),
+    proShareBp: z.optional(z.int().check(z.gte(0), z.lte(10000))),
+    description: z.nullish(z.string().check(z.maxLength(255)))
+});
+
+/**
  * FiscalDeadlineKind
  *
  * The recurring French fiscal deadlines the app tracks. Declaration and payment share a case wherever they share a date, which is every case here: URSSAF télépaie on the declaration date, and the CA3 is due and paid the same day.
@@ -687,6 +741,74 @@ export const zDeadlineInvoiceData = z.object({
     dueOn: z.iso.date(),
     remindersSent: z.int(),
     lastRemindedOn: z.nullable(z.iso.date())
+});
+
+/**
+ * ExpenseCategoryTotalData
+ */
+export const zExpenseCategoryTotalData = z.object({
+    category: zExpenseCategory,
+    ht: zMoneyData,
+    ttc: zMoneyData,
+    shareBp: z.int()
+});
+
+/**
+ * ExpenseData
+ */
+export const zExpenseData = z.object({
+    id: z.int(),
+    supplier: z.string(),
+    spentOn: z.iso.date(),
+    category: zExpenseCategory,
+    description: z.nullable(z.string()),
+    amountHt: zMoneyData,
+    vat: zMoneyData,
+    amountTtc: zMoneyData,
+    recoverableVat: zMoneyData,
+    vatTreatment: zExpenseVatTreatment,
+    vatRateBp: z.int(),
+    proShareBp: z.int()
+});
+
+/**
+ * ExpenseMonthPointData
+ */
+export const zExpenseMonthPointData = z.object({
+    month: z.string(),
+    ht: zMoneyData,
+    ttc: zMoneyData
+});
+
+/**
+ * ExpenseRegimeProjectionData
+ */
+export const zExpenseRegimeProjectionData = z.object({
+    projectedChargesHt: zMoneyData,
+    annualRevenueHt: zMoneyData,
+    abatement: zMoneyData,
+    microIsFavourable: z.boolean()
+});
+
+/**
+ * ExpensesTotalsData
+ */
+export const zExpensesTotalsData = z.object({
+    ht: zMoneyData,
+    ttc: zMoneyData,
+    count: z.int()
+});
+
+/**
+ * ExpensesMonthData
+ */
+export const zExpensesMonthData = z.object({
+    month: z.string(),
+    totals: zExpensesTotalsData,
+    categories: z.array(zExpenseCategoryTotalData),
+    series: z.array(zExpenseMonthPointData),
+    projection: z.nullable(zExpenseRegimeProjectionData),
+    expenses: z.array(zExpenseData)
 });
 
 /**
@@ -963,6 +1085,14 @@ export const zPersonalTransferData = z.object({
     amount: zMoneyData,
     note: z.nullable(z.string()),
     reflectedInBalance: z.boolean()
+});
+
+/**
+ * RecategorizeExpensesData
+ */
+export const zRecategorizeExpensesData = z.object({
+    expenseIds: z.array(z.int()).check(z.minLength(1)),
+    category: zExpenseCategory
 });
 
 /**
@@ -2054,6 +2184,37 @@ export const zShowDeadlineCalendarResponse = z.string();
 export const zShowDeclarationsResponse = zDeclarationsData;
 
 export const zListDocumentLibraryResponse = zDocumentLibraryData;
+
+export const zListExpensesQuery = z.object({
+    month: z.nullish(z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/)))
+});
+
+export const zListExpensesResponse = zExpensesMonthData;
+
+export const zCreateExpenseBody = zExpenseInputData;
+
+export const zCreateExpenseResponse = zExpensesMonthData;
+
+export const zRecategorizeExpensesBody = zRecategorizeExpensesData;
+
+export const zRecategorizeExpensesResponse = zExpensesMonthData;
+
+export const zDeleteExpensePath = z.object({
+    expense: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteExpenseResponse = z.void();
+
+export const zUpdateExpenseBody = zExpenseInputData;
+
+export const zUpdateExpensePath = z.object({
+    expense: z.int()
+});
+
+export const zUpdateExpenseResponse = zExpensesMonthData;
 
 export const zShowInstanceResponse = zInstanceData;
 

@@ -12,6 +12,9 @@ use App\Domain\Cra\Actions\MaterializeCraDays;
 use App\Domain\Cra\Actions\WriteCraDays;
 use App\Domain\Cra\Calendar\FrenchHolidays;
 use App\Domain\Cra\Enums\CraStatus;
+use App\Domain\Expenses\Enums\ExpenseCategory;
+use App\Domain\Expenses\Enums\ExpenseVatTreatment;
+use App\Domain\Expenses\Models\Expense;
 use App\Domain\Invoices\Actions\ComputeInvoiceAmounts;
 use App\Domain\Invoices\Actions\ValueTrackedTime;
 use App\Domain\Invoices\Enums\InvoiceEventKind;
@@ -116,6 +119,7 @@ class DatabaseSeeder extends Seeder
         $this->seedPreviousMonthCra($user, $callistoFront);
         $this->seedInvoiceHistory($user, $nordlys, $callistoFront, $lunaprint, $lunaprintMaintenance);
         $this->seedProAccount($user);
+        $this->seedExpenses($user);
 
         RunningTimer::factory()
             ->for($lunaprintMaintenance, 'mission')
@@ -386,6 +390,64 @@ class DatabaseSeeder extends Seeder
             'currency' => 'EUR',
             'amount_cents' => 80_000,
             'note' => 'Avance',
+        ]);
+    }
+
+    /**
+     * Three months of purchases: the running subscriptions every freelance has,
+     * plus a few one-offs so the journal shows each TVA treatment and a
+     * category bar worth looking at.
+     */
+    private function seedExpenses(User $user): void
+    {
+        $thisMonth = CarbonImmutable::today()->startOfMonth();
+
+        foreach ([2, 1, 0] as $monthsAgo) {
+            $month = $thisMonth->subMonths($monthsAgo);
+
+            $this->expense($user, $month->setDay(2), 'Tessaline Télécom', ExpenseCategory::Internet, 'Fibre pro', 4_000);
+            $this->expense($user, $month->setDay(5), 'Callisto Télécom', ExpenseCategory::Phone, 'Forfait mobile', 2_900, proShareBp: 7_000);
+            $this->expense($user, $month->setDay(8), 'Brouillard Hébergement', ExpenseCategory::Hosting, 'VPS + domaine', 1_439);
+            $this->expense($user, $month->setDay(15), 'Kestrel Devtools', ExpenseCategory::Software, 'Organisation · 2 sièges', 4_800, ExpenseVatTreatment::ReverseChargeNonEu);
+        }
+
+        $this->expense($user, $thisMonth->subMonth()->setDay(16), 'Lignes du Nord', ExpenseCategory::Travel, 'Paris → Lyon', 8_900, rateBp: 1_000);
+        $this->expense($user, $thisMonth->subMonth()->setDay(24), 'Maison Vesterhus', ExpenseCategory::Meal, 'Déjeuner Nordlys', 4_600, rateBp: 1_000);
+        $this->expense($user, $thisMonth->subMonths(2)->setDay(19), 'Papeterie Lorem', ExpenseCategory::Other, 'Carnets, stylos', 1_850);
+        $this->expense($user, $thisMonth->subMonths(2)->setDay(12), 'Orvella Assurances', ExpenseCategory::Insurance, 'RC Pro · échéance annuelle', 31_200, ExpenseVatTreatment::Exempt, rateBp: 0);
+
+        $this->expense($user, $thisMonth->subMonth()->setDay(21), 'Lunaprint', ExpenseCategory::Equipment, 'Écran 27"', 42_900);
+    }
+
+    private function expense(
+        User $user,
+        CarbonImmutable $spentOn,
+        string $supplier,
+        ExpenseCategory $category,
+        string $description,
+        int $ttcCents,
+        ExpenseVatTreatment $treatment = ExpenseVatTreatment::Domestic,
+        int $rateBp = 2_000,
+        int $proShareBp = 10_000,
+    ): void {
+        // The current month is seeded up to today only: a purchase dated after
+        // today would fail the very rule the endpoint enforces.
+        if ($spentOn->greaterThan(CarbonImmutable::today())) {
+            return;
+        }
+
+        $factory = Expense::factory()->for($user)->on($spentOn->toDateString())->proShare($proShareBp);
+
+        $factory = match ($treatment) {
+            ExpenseVatTreatment::Domestic => $factory->ttc($ttcCents, $rateBp),
+            ExpenseVatTreatment::Exempt => $factory->exempt($ttcCents),
+            default => $factory->reverseCharged($ttcCents, $treatment, $rateBp),
+        };
+
+        $factory->create([
+            'supplier' => $supplier,
+            'category' => $category,
+            'description' => $description,
         ]);
     }
 

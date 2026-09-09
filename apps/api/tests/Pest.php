@@ -13,6 +13,8 @@ use App\Domain\Bank\Models\PersonalTransfer;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Cra\Factories\CraFactory;
 use App\Domain\Cra\Models\Cra;
+use App\Domain\Expenses\Factories\ExpenseFactory;
+use App\Domain\Expenses\Models\Expense;
 use App\Domain\Invoices\Factories\InvoiceFactory;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Factories\MissionFactory;
@@ -343,6 +345,16 @@ function accountWithBankBalance(string $recordedOn = '2026-08-10', int $cents = 
 function personalTransferFor(User $user, ?callable $configure = null): PersonalTransfer
 {
     return configuredFactory(PersonalTransfer::factory(), $configure)->create(['user_id' => $user->id]);
+}
+
+/**
+ * An expense of the given user.
+ *
+ * @param  (callable(ExpenseFactory): ExpenseFactory)|null  $configure
+ */
+function expenseOwnedBy(User $user, ?callable $configure = null): Expense
+{
+    return configuredFactory(Expense::factory(), $configure)->create(['user_id' => $user->id]);
 }
 
 /**
