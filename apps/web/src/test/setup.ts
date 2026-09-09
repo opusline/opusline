@@ -78,3 +78,9 @@ import { cleanup } from "@testing-library/react";
 import { afterEach } from "vitest";
 
 afterEach(cleanup);
+
+// input-otp locates the pressed slot with elementFromPoint from a timer;
+// jsdom has no layout, so it answers nothing rather than throwing.
+if (typeof document.elementFromPoint !== "function") {
+  document.elementFromPoint = () => null;
+}

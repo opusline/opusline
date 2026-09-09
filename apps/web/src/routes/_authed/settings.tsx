@@ -26,7 +26,9 @@ import { CircleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
+import { usePasswordConfirmation } from "@/features/auth/lib/use-password-confirmation";
 import type { LocalisationDraft } from "@/features/settings/components/localisation-settings";
+import { SecuritySettings } from "@/features/settings/components/security-settings";
 import { SettingsPage } from "@/features/settings/components/settings-page";
 import {
   isSettingsTab,
@@ -98,6 +100,7 @@ function ReglagesRoute() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const format = useMoneyFormat();
+  const passwordConfirmation = usePasswordConfirmation();
 
   const [signatureVersion, setSignatureVersion] = useState(0);
   const [signatureError, setSignatureError] = useState<string | null>(null);
@@ -359,7 +362,9 @@ function ReglagesRoute() {
           onSave: (draft) => void saveLocalisation(draft),
           onCancel: () => setLocalisationError(null),
         }}
+        security={<SecuritySettings guarded={passwordConfirmation.guarded} />}
       />
+      {passwordConfirmation.dialog}
     </>
   );
 }

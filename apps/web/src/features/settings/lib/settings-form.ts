@@ -25,6 +25,7 @@ export const SETTINGS_TABS = [
   "fiscalite",
   "facturation",
   "regional",
+  "securite",
 ] as const;
 
 export type SettingsTab = (typeof SETTINGS_TABS)[number];
@@ -52,6 +53,10 @@ export const SETTINGS_TAB_DETAILS: Record<
   regional: {
     label: m.settings_tab_regional_label,
     hint: m.settings_tab_regional_hint,
+  },
+  securite: {
+    label: m.settings_tab_security_label,
+    hint: m.settings_tab_security_hint,
   },
 };
 

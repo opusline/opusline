@@ -6,7 +6,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@opusline/ui/components/tabs";
-import { useEffect, useMemo } from "react";
+import { type ReactNode, useEffect, useMemo } from "react";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { hasEuVat } from "@/lib/countries";
@@ -94,6 +94,8 @@ type SettingsPageProps = {
   signature: SignatureProps;
   rates: RatesProps;
   localisation: LocalisationProps;
+  /** The Sécurité tab owns its own data, so it arrives ready to render. */
+  security: ReactNode;
 };
 
 export function SettingsPage({
@@ -104,6 +106,7 @@ export function SettingsPage({
   signature,
   rates,
   localisation,
+  security,
 }: SettingsPageProps) {
   const format = useMoneyFormat();
   const form = useSettingsForm(settings, onSubmit);
@@ -226,6 +229,7 @@ export function SettingsPage({
               saved={localisation.saved}
             />
           </TabsContent>
+          <TabsContent value="securite">{security}</TabsContent>
 
           <form.Subscribe<{
             values: SettingsFormValues;

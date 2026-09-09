@@ -40,23 +40,38 @@ function DialogOverlay({
   );
 }
 
+const dialogContentVariants = cva(
+  "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-popover text-xs/relaxed text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+  {
+    variants: {
+      /** `lg` is the roomier anatomy of a flow dialog: a form or a step with copy. */
+      size: {
+        default: "gap-4 p-4 sm:max-w-sm",
+        lg: "gap-5 p-6 sm:max-w-md",
+      },
+    },
+    defaultVariants: {
+      size: "default",
+    },
+  },
+);
+
 function DialogContent({
   className,
   children,
   showCloseButton = true,
+  size = "default",
   ...props
-}: DialogPrimitive.Popup.Props & {
-  showCloseButton?: boolean;
-}) {
+}: DialogPrimitive.Popup.Props &
+  VariantProps<typeof dialogContentVariants> & {
+    showCloseButton?: boolean;
+  }) {
   return (
     <DialogPortal>
       <DialogOverlay />
       <DialogPrimitive.Popup
         data-slot="dialog-content"
-        className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-xs/relaxed text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
-          className,
-        )}
+        className={cn(dialogContentVariants({ size }), className)}
         {...props}
       >
         {children}
@@ -90,21 +105,33 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+const dialogFooterVariants = cva("flex gap-2", {
+  variants: {
+    /** `inline` keeps the actions on one row, primary first, the way a flow dialog reads. */
+    layout: {
+      default: "flex-col-reverse sm:flex-row sm:justify-end",
+      inline: "flex-row items-center sm:justify-start",
+    },
+  },
+  defaultVariants: {
+    layout: "default",
+  },
+});
+
 function DialogFooter({
   className,
   showCloseButton = false,
+  layout = "default",
   children,
   ...props
-}: React.ComponentProps<"div"> & {
-  showCloseButton?: boolean;
-}) {
+}: React.ComponentProps<"div"> &
+  VariantProps<typeof dialogFooterVariants> & {
+    showCloseButton?: boolean;
+  }) {
   return (
     <div
       data-slot="dialog-footer"
-      className={cn(
-        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
-        className,
-      )}
+      className={cn(dialogFooterVariants({ layout }), className)}
       {...props}
     >
       {children}
@@ -143,17 +170,31 @@ function DialogTitle({
   );
 }
 
+const dialogDescriptionVariants = cva(
+  "*:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
+  {
+    variants: {
+      size: {
+        default: "text-xs/relaxed text-muted-foreground",
+        lg: "text-pretty text-muted-foreground-2 text-sm leading-relaxed",
+      },
+    },
+    defaultVariants: {
+      size: "default",
+    },
+  },
+);
+
 function DialogDescription({
   className,
+  size = "default",
   ...props
-}: DialogPrimitive.Description.Props) {
+}: DialogPrimitive.Description.Props &
+  VariantProps<typeof dialogDescriptionVariants>) {
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
-      className={cn(
-        "text-xs/relaxed text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
-        className,
-      )}
+      className={cn(dialogDescriptionVariants({ size }), className)}
       {...props}
     />
   );
@@ -170,4 +211,8 @@ export {
   DialogPortal,
   DialogTitle,
   DialogTrigger,
+  dialogContentVariants,
+  dialogDescriptionVariants,
+  dialogFooterVariants,
+  dialogTitleVariants,
 };
