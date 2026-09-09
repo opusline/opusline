@@ -14,6 +14,20 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.21.0",
+    date: "2026-09-09",
+    items: [
+      {
+        kind: "new",
+        text: "Sign in with a passkey (Touch ID, Windows Hello, a security key or your password manager) instead of a password, or use it as your second factor.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "Protect your account with two-factor authentication: an authenticator app, recovery codes, and the option to trust a browser for 30 days.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.20.4",
     date: "2026-09-08",
     items: [
