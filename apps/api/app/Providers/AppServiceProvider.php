@@ -6,6 +6,9 @@ namespace App\Providers;
 
 use App\Domain\Clients\Models\Client;
 use App\Domain\Missions\Models\Mission;
+use App\Domain\Passkeys\Webauthn\PasskeyCeremony;
+use App\Domain\Passkeys\Webauthn\RelyingParty;
+use App\Domain\Passkeys\Webauthn\WebauthnLibCeremony;
 use App\Domain\Shared\Validation\LocalizedValidator;
 use App\Domain\Users\Models\User;
 use App\Http\Users\Support\PendingLogin;
@@ -34,7 +37,8 @@ class AppServiceProvider extends ServiceProvider
     #[\Override]
     public function register(): void
     {
-        //
+        $this->app->singleton(RelyingParty::class, fn (): RelyingParty => RelyingParty::fromConfig());
+        $this->app->bind(PasskeyCeremony::class, WebauthnLibCeremony::class);
     }
 
     /**
@@ -76,6 +80,8 @@ class AppServiceProvider extends ServiceProvider
         // The challenge answers for a guest who has proven the password: keyed
         // on the pending account so one attacker cannot spend another
         // account's tries, with an IP ceiling for callers with no pending login.
+        RateLimiter::for('passkey-login', fn (Request $request): Limit => Limit::perMinute(10)->by('passkey:'.($request->ip() ?? 'unknown')));
+
         RateLimiter::for('two-factor-challenge', function (Request $request): array {
             $pendingUserId = $request->hasSession() ? $request->session()->get(PendingLogin::KEY_USER_ID) : null;
             $ip = $request->ip() ?? 'unknown';

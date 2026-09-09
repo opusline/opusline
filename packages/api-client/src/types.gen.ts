@@ -945,6 +945,34 @@ export type NextInvoiceNumberData = {
 };
 
 /**
+ * PasskeyData
+ */
+export type PasskeyData = {
+    id: number;
+    name: string;
+    createdAt: string;
+    lastUsedAt: string | null;
+    backedUp: boolean;
+};
+
+/**
+ * PasskeyLoginData
+ */
+export type PasskeyLoginData = {
+    credential: string;
+    remember?: boolean;
+};
+
+/**
+ * PasskeyOptionsData
+ */
+export type PasskeyOptionsData = {
+    options: {
+        [key: string]: unknown;
+    };
+};
+
+/**
  * PayInvoiceData
  */
 export type PayInvoiceData = {
@@ -970,6 +998,14 @@ export type RecoveryCodesData = {
 };
 
 /**
+ * RegisterPasskeyData
+ */
+export type RegisterPasskeyData = {
+    name: string;
+    credential: string;
+};
+
+/**
  * RegisterUserData
  */
 export type RegisterUserData = {
@@ -985,6 +1021,13 @@ export type RegisterUserData = {
 export type RemindInvoiceData = {
     occurredOn?: string | null;
     note?: string | null;
+};
+
+/**
+ * RenamePasskeyData
+ */
+export type RenamePasskeyData = {
+    name: string;
 };
 
 /**
@@ -1259,6 +1302,7 @@ export type TrustedDeviceData = {
 export type TwoFactorChallengeAnswerData = {
     code?: string | null;
     recoveryCode?: string | null;
+    passkey?: string | null;
     trustDevice?: boolean;
 };
 
@@ -1273,7 +1317,7 @@ export type TwoFactorChallengeData = {
 /**
  * TwoFactorMethod
  */
-export type TwoFactorMethod = 0;
+export type TwoFactorMethod = 0 | 1;
 
 /**
  * TwoFactorStatusData
@@ -1282,6 +1326,7 @@ export type TwoFactorStatusData = {
     totpEnabled: boolean;
     totpConfirmedAt: string | null;
     recoveryCodesRemaining: number;
+    passkeys: Array<PasskeyData>;
     trustedDevices: Array<TrustedDeviceData>;
 };
 
@@ -4339,6 +4384,206 @@ export type ListMissionTimeEntriesResponses = {
 
 export type ListMissionTimeEntriesResponse = ListMissionTimeEntriesResponses[keyof ListMissionTimeEntriesResponses];
 
+export type PasskeyRegistrationOptionsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/passkeys/options';
+};
+
+export type PasskeyRegistrationOptionsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type PasskeyRegistrationOptionsError = PasskeyRegistrationOptionsErrors[keyof PasskeyRegistrationOptionsErrors];
+
+export type PasskeyRegistrationOptionsResponses = {
+    200: PasskeyOptionsData;
+};
+
+export type PasskeyRegistrationOptionsResponse = PasskeyRegistrationOptionsResponses[keyof PasskeyRegistrationOptionsResponses];
+
+export type RegisterPasskeyData2 = {
+    body: RegisterPasskeyData;
+    path?: never;
+    query?: never;
+    url: '/user/passkeys';
+};
+
+export type RegisterPasskeyErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type RegisterPasskeyError = RegisterPasskeyErrors[keyof RegisterPasskeyErrors];
+
+export type RegisterPasskeyResponses = {
+    201: PasskeyData;
+};
+
+export type RegisterPasskeyResponse = RegisterPasskeyResponses[keyof RegisterPasskeyResponses];
+
+export type DeletePasskeyData = {
+    body?: never;
+    path: {
+        /**
+         * The passkey ID
+         */
+        passkey: number;
+    };
+    query?: never;
+    url: '/user/passkeys/{passkey}';
+};
+
+export type DeletePasskeyErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeletePasskeyError = DeletePasskeyErrors[keyof DeletePasskeyErrors];
+
+export type DeletePasskeyResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeletePasskeyResponse = DeletePasskeyResponses[keyof DeletePasskeyResponses];
+
+export type RenamePasskeyData2 = {
+    body: RenamePasskeyData;
+    path: {
+        /**
+         * The passkey ID
+         */
+        passkey: number;
+    };
+    query?: never;
+    url: '/user/passkeys/{passkey}';
+};
+
+export type RenamePasskeyErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type RenamePasskeyError = RenamePasskeyErrors[keyof RenamePasskeyErrors];
+
+export type RenamePasskeyResponses = {
+    200: PasskeyData;
+};
+
+export type RenamePasskeyResponse = RenamePasskeyResponses[keyof RenamePasskeyResponses];
+
+export type PasskeyLoginOptionsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/passkeys/login/options';
+};
+
+export type PasskeyLoginOptionsResponses = {
+    200: PasskeyOptionsData;
+};
+
+export type PasskeyLoginOptionsResponse = PasskeyLoginOptionsResponses[keyof PasskeyLoginOptionsResponses];
+
+export type LoginWithPasskeyData = {
+    body: PasskeyLoginData;
+    path?: never;
+    query?: never;
+    url: '/passkeys/login';
+};
+
+export type LoginWithPasskeyErrors = {
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type LoginWithPasskeyError = LoginWithPasskeyErrors[keyof LoginWithPasskeyErrors];
+
+export type LoginWithPasskeyResponses = {
+    200: UserData;
+};
+
+export type LoginWithPasskeyResponse = LoginWithPasskeyResponses[keyof LoginWithPasskeyResponses];
+
 export type ShowRecoveryCodesData = {
     body?: never;
     path?: never;
@@ -5504,6 +5749,40 @@ export type AnswerTwoFactorChallengeResponses = {
 };
 
 export type AnswerTwoFactorChallengeResponse = AnswerTwoFactorChallengeResponses[keyof AnswerTwoFactorChallengeResponses];
+
+export type TwoFactorPasskeyOptionsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/two-factor-challenge/passkey-options';
+};
+
+export type TwoFactorPasskeyOptionsErrors = {
+    /**
+     * An error
+     *
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    } | {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type TwoFactorPasskeyOptionsError = TwoFactorPasskeyOptionsErrors[keyof TwoFactorPasskeyOptionsErrors];
+
+export type TwoFactorPasskeyOptionsResponses = {
+    200: PasskeyOptionsData;
+};
+
+export type TwoFactorPasskeyOptionsResponse = TwoFactorPasskeyOptionsResponses[keyof TwoFactorPasskeyOptionsResponses];
 
 export type ListUserDocumentsData = {
     body?: never;

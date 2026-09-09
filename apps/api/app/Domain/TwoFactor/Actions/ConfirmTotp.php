@@ -15,7 +15,8 @@ class ConfirmTotp
     public function __construct(private readonly TotpVerifier $verifier) {}
 
     /**
-     * Enables the authenticator and returns the freshly minted recovery codes.
+     * Enables the authenticator and returns the account's recovery codes,
+     * minting them unless a passkey already did.
      *
      * @param  non-empty-string  $code
      * @return list<string>
@@ -37,7 +38,7 @@ class ConfirmTotp
                 throw ValidationException::withMessages(['code' => __('two-factor.invalid_code')]);
             }
 
-            $codes = RecoveryCodes::mint();
+            $codes = $locked->two_factor_recovery_codes ?? RecoveryCodes::mint();
 
             $locked->totp_confirmed_at = now();
             $locked->totp_last_used_step = $step;

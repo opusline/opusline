@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Route;
 Route::post('/two-factor-challenge', [TwoFactorChallengeController::class, 'store'])
     ->middleware('throttle:two-factor-challenge')
     ->name('answerTwoFactorChallenge');
+Route::post('/two-factor-challenge/passkey-options', [TwoFactorChallengeController::class, 'passkeyOptions'])
+    ->middleware('throttle:two-factor-challenge')
+    ->name('twoFactorPasskeyOptions');
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/user/two-factor', [TwoFactorController::class, 'show'])->name('showTwoFactor');

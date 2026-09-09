@@ -14,6 +14,7 @@ use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
 use App\Domain\Documents\Concerns\InteractsWithDocuments;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Models\Mission;
+use App\Domain\Passkeys\Models\Passkey;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Timers\Models\RunningTimer;
@@ -44,11 +45,12 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property ?CarbonImmutable $totp_confirmed_at
  * @property ?int $totp_last_used_step
  * @property ?list<string> $two_factor_recovery_codes
+ * @property ?string $passkey_user_handle
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  */
 #[Fillable(['name', 'email', 'password', 'release_notes_seen_version'])]
-#[Hidden(['password', 'remember_token', 'totp_secret', 'totp_confirmed_at', 'totp_last_used_step', 'two_factor_recovery_codes'])]
+#[Hidden(['password', 'remember_token', 'totp_secret', 'totp_confirmed_at', 'totp_last_used_step', 'two_factor_recovery_codes', 'passkey_user_handle'])]
 class User extends Authenticatable implements HasMedia
 {
     /** @use HasFactory<UserFactory> */
@@ -96,6 +98,16 @@ class User extends Authenticatable implements HasMedia
     public function hasTotpEnabled(): bool
     {
         return $this->totp_confirmed_at !== null;
+    }
+
+    /** Whether a password login is challenged: any enrolled method counts. */
+    public function hasTwoFactorEnabled(): bool
+    {
+        if ($this->hasTotpEnabled()) {
+            return true;
+        }
+
+        return $this->passkeys()->exists();
     }
 
     /** @return HasMany<Client, $this> */
@@ -168,6 +180,12 @@ class User extends Authenticatable implements HasMedia
     public function trustedDevices(): HasMany
     {
         return $this->hasMany(TrustedDevice::class);
+    }
+
+    /** @return HasMany<Passkey, $this> */
+    public function passkeys(): HasMany
+    {
+        return $this->hasMany(Passkey::class);
     }
 
     /**

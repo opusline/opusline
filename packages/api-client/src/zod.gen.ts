@@ -892,6 +892,32 @@ export const zNextInvoiceNumberData = z.object({
 });
 
 /**
+ * PasskeyData
+ */
+export const zPasskeyData = z.object({
+    id: z.int(),
+    name: z.string(),
+    createdAt: z.string(),
+    lastUsedAt: z.nullable(z.string()),
+    backedUp: z.boolean()
+});
+
+/**
+ * PasskeyLoginData
+ */
+export const zPasskeyLoginData = z.object({
+    credential: z.string(),
+    remember: z.optional(z.boolean())
+});
+
+/**
+ * PasskeyOptionsData
+ */
+export const zPasskeyOptionsData = z.object({
+    options: z.record(z.string(), z.unknown())
+});
+
+/**
  * PayInvoiceData
  */
 export const zPayInvoiceData = z.object({
@@ -917,6 +943,14 @@ export const zRecoveryCodesData = z.object({
 });
 
 /**
+ * RegisterPasskeyData
+ */
+export const zRegisterPasskeyData = z.object({
+    name: z.string().check(z.minLength(1), z.maxLength(100)),
+    credential: z.string()
+});
+
+/**
  * RegisterUserData
  */
 export const zRegisterUserData = z.object({
@@ -932,6 +966,13 @@ export const zRegisterUserData = z.object({
 export const zRemindInvoiceData = z.object({
     occurredOn: z.nullish(z.iso.date()),
     note: z.nullish(z.string().check(z.maxLength(2000)))
+});
+
+/**
+ * RenamePasskeyData
+ */
+export const zRenamePasskeyData = z.object({
+    name: z.string().check(z.minLength(1), z.maxLength(100))
 });
 
 /**
@@ -1307,13 +1348,14 @@ export const zTrustedDeviceData = z.object({
 export const zTwoFactorChallengeAnswerData = z.object({
     code: z.nullish(z.string()),
     recoveryCode: z.nullish(z.string().check(z.regex(/^[A-Za-z0-9]{10}-[A-Za-z0-9]{10}$/))),
+    passkey: z.nullish(z.string()),
     trustDevice: z.optional(z.boolean())
 });
 
 /**
  * TwoFactorMethod
  */
-export const zTwoFactorMethod = z.literal(0);
+export const zTwoFactorMethod = z.union([z.literal(0), z.literal(1)]);
 
 /**
  * TwoFactorChallengeData
@@ -1330,6 +1372,7 @@ export const zTwoFactorStatusData = z.object({
     totpEnabled: z.boolean(),
     totpConfirmedAt: z.nullable(z.string()),
     recoveryCodesRemaining: z.int(),
+    passkeys: z.array(zPasskeyData),
     trustedDevices: z.array(zTrustedDeviceData)
 });
 
@@ -2105,6 +2148,35 @@ export const zListMissionTimeEntriesPath = z.object({
 
 export const zListMissionTimeEntriesResponse = zTimeEntryListData;
 
+export const zPasskeyRegistrationOptionsResponse = zPasskeyOptionsData;
+
+export const zRegisterPasskeyBody = zRegisterPasskeyData;
+
+export const zRegisterPasskeyResponse = zPasskeyData;
+
+export const zDeletePasskeyPath = z.object({
+    passkey: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeletePasskeyResponse = z.void();
+
+export const zRenamePasskeyBody = zRenamePasskeyData;
+
+export const zRenamePasskeyPath = z.object({
+    passkey: z.int()
+});
+
+export const zRenamePasskeyResponse = zPasskeyData;
+
+export const zPasskeyLoginOptionsResponse = zPasskeyOptionsData;
+
+export const zLoginWithPasskeyBody = zPasskeyLoginData;
+
+export const zLoginWithPasskeyResponse = zUserData;
+
 export const zShowRecoveryCodesResponse = zRecoveryCodesData;
 
 export const zRegenerateRecoveryCodesResponse = zRecoveryCodesData;
@@ -2245,6 +2317,8 @@ export const zShowTwoFactorResponse = zTwoFactorStatusData;
 export const zAnswerTwoFactorChallengeBody = zTwoFactorChallengeAnswerData;
 
 export const zAnswerTwoFactorChallengeResponse = zUserData;
+
+export const zTwoFactorPasskeyOptionsResponse = zPasskeyOptionsData;
 
 export const zListUserDocumentsResponse = zDocumentListData;
 

@@ -34,6 +34,7 @@ export const twoFactorOffFixture: TwoFactorStatusData = {
   totpEnabled: false,
   totpConfirmedAt: null,
   recoveryCodesRemaining: 0,
+  passkeys: [],
   trustedDevices: [],
 };
 
@@ -41,6 +42,7 @@ export const twoFactorOnFixture: TwoFactorStatusData = {
   totpEnabled: true,
   totpConfirmedAt: "2026-08-20T14:03:00+00:00",
   recoveryCodesRemaining: 8,
+  passkeys: [],
   trustedDevices: trustedDevicesFixture,
 };
 

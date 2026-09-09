@@ -64,7 +64,7 @@ function requestDataFields(): array
         'TimeEntryListData', 'TimerData', 'TimerStateData', 'UserData',
         'InvoiceListData',
         'RecoveryCodesData', 'TotpSetupData', 'TwoFactorStatusData',
-        'TrustedDeviceData', 'TwoFactorChallengeData',
+        'TrustedDeviceData', 'TwoFactorChallengeData', 'PasskeyData', 'PasskeyOptionsData',
     ];
 
     $fields = [];

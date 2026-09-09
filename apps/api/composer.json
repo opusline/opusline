@@ -25,7 +25,8 @@
     "spatie/laravel-data": "^4.23",
     "spatie/laravel-medialibrary": "^11.23",
     "spatie/laravel-sluggable": "^4.0",
-    "spomky-labs/otphp": "^11.5"
+    "spomky-labs/otphp": "^11.5",
+    "web-auth/webauthn-lib": "^5.3"
   },
   "require-dev": {
     "driftingly/rector-laravel": "^2.5",

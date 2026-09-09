@@ -41,6 +41,7 @@ class UserFactory extends Factory
             'totp_confirmed_at' => null,
             'totp_last_used_step' => null,
             'two_factor_recovery_codes' => null,
+            'passkey_user_handle' => null,
         ];
     }
 
