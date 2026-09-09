@@ -24,7 +24,8 @@
     "spatie/icalendar-generator": "^3.3",
     "spatie/laravel-data": "^4.23",
     "spatie/laravel-medialibrary": "^11.23",
-    "spatie/laravel-sluggable": "^4.0"
+    "spatie/laravel-sluggable": "^4.0",
+    "spomky-labs/otphp": "^11.5"
   },
   "require-dev": {
     "driftingly/rector-laravel": "^2.5",

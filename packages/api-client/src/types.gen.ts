@@ -261,6 +261,20 @@ export type CompleteFiscalDeadlineData = {
 };
 
 /**
+ * ConfirmPasswordData
+ */
+export type ConfirmPasswordData = {
+    password: string;
+};
+
+/**
+ * ConfirmTotpData
+ */
+export type ConfirmTotpData = {
+    code: string;
+};
+
+/**
  * CraCountsData
  */
 export type CraCountsData = {
@@ -949,6 +963,13 @@ export type PersonalTransferData = {
 };
 
 /**
+ * RecoveryCodesData
+ */
+export type RecoveryCodesData = {
+    codes: Array<string>;
+};
+
+/**
  * RegisterUserData
  */
 export type RegisterUserData = {
@@ -1194,6 +1215,14 @@ export type TimerStateData = {
 };
 
 /**
+ * TotpSetupData
+ */
+export type TotpSetupData = {
+    secret: string;
+    otpauthUri: string;
+};
+
+/**
  * TreasuryData
  */
 export type TreasuryData = {
@@ -1210,6 +1239,15 @@ export type TreasuryData = {
  */
 export type TrimTimerData = {
     seconds: number;
+};
+
+/**
+ * TwoFactorStatusData
+ */
+export type TwoFactorStatusData = {
+    totpEnabled: boolean;
+    totpConfirmedAt: string | null;
+    recoveryCodesRemaining: number;
 };
 
 /**
@@ -1598,6 +1636,51 @@ export type CurrentUserResponses = {
 };
 
 export type CurrentUserResponse = CurrentUserResponses[keyof CurrentUserResponses];
+
+export type ConfirmPasswordData2 = {
+    body: ConfirmPasswordData;
+    path?: never;
+    query?: never;
+    url: '/user/confirm-password';
+};
+
+export type ConfirmPasswordErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type ConfirmPasswordError = ConfirmPasswordErrors[keyof ConfirmPasswordErrors];
+
+export type ConfirmPasswordResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type ConfirmPasswordResponse = ConfirmPasswordResponses[keyof ConfirmPasswordResponses];
 
 export type UpdateUserThemeData2 = {
     body: UpdateUserThemeData;
@@ -4205,6 +4288,85 @@ export type ListMissionTimeEntriesResponses = {
 
 export type ListMissionTimeEntriesResponse = ListMissionTimeEntriesResponses[keyof ListMissionTimeEntriesResponses];
 
+export type ShowRecoveryCodesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/two-factor/recovery-codes';
+};
+
+export type ShowRecoveryCodesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     *
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    } | {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowRecoveryCodesError = ShowRecoveryCodesErrors[keyof ShowRecoveryCodesErrors];
+
+export type ShowRecoveryCodesResponses = {
+    200: RecoveryCodesData;
+};
+
+export type ShowRecoveryCodesResponse = ShowRecoveryCodesResponses[keyof ShowRecoveryCodesResponses];
+
+export type RegenerateRecoveryCodesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/two-factor/recovery-codes';
+};
+
+export type RegenerateRecoveryCodesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type RegenerateRecoveryCodesError = RegenerateRecoveryCodesErrors[keyof RegenerateRecoveryCodesErrors];
+
+export type RegenerateRecoveryCodesResponses = {
+    200: RecoveryCodesData;
+};
+
+export type RegenerateRecoveryCodesResponse = RegenerateRecoveryCodesResponses[keyof RegenerateRecoveryCodesResponses];
+
 export type ShowRevenueData = {
     body?: never;
     path?: never;
@@ -4930,6 +5092,123 @@ export type StopTimerResponses = {
 
 export type StopTimerResponse = StopTimerResponses[keyof StopTimerResponses];
 
+export type DisableTotpData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/two-factor/totp';
+};
+
+export type DisableTotpErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DisableTotpError = DisableTotpErrors[keyof DisableTotpErrors];
+
+export type DisableTotpResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DisableTotpResponse = DisableTotpResponses[keyof DisableTotpResponses];
+
+export type StartTotpSetupData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/two-factor/totp';
+};
+
+export type StartTotpSetupErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type StartTotpSetupError = StartTotpSetupErrors[keyof StartTotpSetupErrors];
+
+export type StartTotpSetupResponses = {
+    200: TotpSetupData;
+};
+
+export type StartTotpSetupResponse = StartTotpSetupResponses[keyof StartTotpSetupResponses];
+
+export type ConfirmTotpData2 = {
+    body: ConfirmTotpData;
+    path?: never;
+    query?: never;
+    url: '/user/two-factor/totp/confirm';
+};
+
+export type ConfirmTotpErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type ConfirmTotpError = ConfirmTotpErrors[keyof ConfirmTotpErrors];
+
+export type ConfirmTotpResponses = {
+    200: RecoveryCodesData;
+};
+
+export type ConfirmTotpResponse = ConfirmTotpResponses[keyof ConfirmTotpResponses];
+
 export type ShowTreasuryData = {
     body?: never;
     path?: never;
@@ -5024,6 +5303,33 @@ export type DeletePersonalTransferResponses = {
 };
 
 export type DeletePersonalTransferResponse = DeletePersonalTransferResponses[keyof DeletePersonalTransferResponses];
+
+export type ShowTwoFactorData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/two-factor';
+};
+
+export type ShowTwoFactorErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowTwoFactorError = ShowTwoFactorErrors[keyof ShowTwoFactorErrors];
+
+export type ShowTwoFactorResponses = {
+    200: TwoFactorStatusData;
+};
+
+export type ShowTwoFactorResponse = ShowTwoFactorResponses[keyof ShowTwoFactorResponses];
 
 export type ListUserDocumentsData = {
     body?: never;

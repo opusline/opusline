@@ -168,6 +168,35 @@
                 }
             }
         },
+        "/user/confirm-password": {
+            "post": {
+                "operationId": "confirmPassword",
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ConfirmPasswordData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/user/theme": {
             "put": {
                 "operationId": "updateUserTheme",
@@ -3031,6 +3060,107 @@
                 }
             }
         },
+        "/user/two-factor/recovery-codes": {
+            "get": {
+                "operationId": "showRecoveryCodes",
+                "tags": [
+                    "RecoveryCode"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RecoveryCodesData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "409": {
+                        "description": "An error\n\nAn error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "description": "Error overview.",
+                                                    "examples": [
+                                                        "Two-factor authentication is not enabled."
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "message"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "description": "Error overview."
+                                                }
+                                            },
+                                            "required": [
+                                                "message"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "operationId": "regenerateRecoveryCodes",
+                "tags": [
+                    "RecoveryCode"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RecoveryCodesData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/revenue": {
             "get": {
                 "operationId": "showRevenue",
@@ -3850,6 +3980,117 @@
                 }
             }
         },
+        "/user/two-factor/totp": {
+            "post": {
+                "operationId": "startTotpSetup",
+                "tags": [
+                    "Totp"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TotpSetupData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "disableTotp",
+                "tags": [
+                    "Totp"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/user/two-factor/totp/confirm": {
+            "post": {
+                "operationId": "confirmTotp",
+                "tags": [
+                    "Totp"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ConfirmTotpData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RecoveryCodesData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/treasury": {
             "get": {
                 "operationId": "showTreasury",
@@ -3939,6 +4180,29 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/user/two-factor": {
+            "get": {
+                "operationId": "showTwoFactor",
+                "tags": [
+                    "TwoFactor"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TwoFactorStatusData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -4965,6 +5229,30 @@
                     "periodKey"
                 ],
                 "title": "CompleteFiscalDeadlineData"
+            },
+            "ConfirmPasswordData": {
+                "type": "object",
+                "properties": {
+                    "password": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "password"
+                ],
+                "title": "ConfirmPasswordData"
+            },
+            "ConfirmTotpData": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "code"
+                ],
+                "title": "ConfirmTotpData"
             },
             "CraCountsData": {
                 "type": "object",
@@ -7215,6 +7503,21 @@
                 ],
                 "title": "PersonalTransferData"
             },
+            "RecoveryCodesData": {
+                "type": "object",
+                "properties": {
+                    "codes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "codes"
+                ],
+                "title": "RecoveryCodesData"
+            },
             "RegisterUserData": {
                 "type": "object",
                 "properties": {
@@ -8034,6 +8337,22 @@
                 ],
                 "title": "TimerStateData"
             },
+            "TotpSetupData": {
+                "type": "object",
+                "properties": {
+                    "secret": {
+                        "type": "string"
+                    },
+                    "otpauthUri": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "secret",
+                    "otpauthUri"
+                ],
+                "title": "TotpSetupData"
+            },
             "TreasuryData": {
                 "type": "object",
                 "properties": {
@@ -8100,6 +8419,29 @@
                     "seconds"
                 ],
                 "title": "TrimTimerData"
+            },
+            "TwoFactorStatusData": {
+                "type": "object",
+                "properties": {
+                    "totpEnabled": {
+                        "type": "boolean"
+                    },
+                    "totpConfirmedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "recoveryCodesRemaining": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "totpEnabled",
+                    "totpConfirmedAt",
+                    "recoveryCodesRemaining"
+                ],
+                "title": "TwoFactorStatusData"
             },
             "UpdateBankBalanceData": {
                 "type": "object",

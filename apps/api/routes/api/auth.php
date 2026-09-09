@@ -17,6 +17,9 @@ Route::post('/login', [AuthController::class, 'login'])
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/user', [AuthController::class, 'currentUser'])->name('currentUser');
+    Route::post('/user/confirm-password', [AuthController::class, 'confirmPassword'])
+        ->middleware('throttle:confirm-password')
+        ->name('confirmPassword');
     Route::put('/user/theme', [AuthController::class, 'updateTheme'])->name('updateUserTheme');
     Route::put('/user/release-notes-seen', [AuthController::class, 'updateReleaseNotesSeen'])->name('updateUserReleaseNotesSeen');
 });

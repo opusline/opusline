@@ -35,6 +35,12 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'release_notes_seen_version' => config()->string('app.version'),
             'remember_token' => Str::random(10),
+            // actingAs() marks the instance as not recently created, after which
+            // strict mode throws on any column the factory did not insert.
+            'totp_secret' => null,
+            'totp_confirmed_at' => null,
+            'totp_last_used_step' => null,
+            'two_factor_recovery_codes' => null,
         ];
     }
 
