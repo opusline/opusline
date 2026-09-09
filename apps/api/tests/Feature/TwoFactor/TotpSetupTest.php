@@ -68,6 +68,7 @@ test('confirming with the current code enables the authenticator and returns the
         'totpEnabled' => true,
         'totpConfirmedAt' => now()->toIso8601String(),
         'recoveryCodesRemaining' => 8,
+        'trustedDevices' => [],
     ]);
 });
 
@@ -169,6 +170,7 @@ test('disabling clears the secret and the recovery codes', function (): void {
         'totpEnabled' => false,
         'totpConfirmedAt' => null,
         'recoveryCodesRemaining' => 0,
+        'trustedDevices' => [],
     ]);
 });
 

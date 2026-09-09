@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Users\Controllers;
 
+use App\Domain\TwoFactor\Actions\RecognizeTrustedDevice;
+use App\Domain\TwoFactor\Data\TwoFactorChallengeData;
+use App\Domain\TwoFactor\Enums\TwoFactorMethod;
+use App\Domain\TwoFactor\Models\TrustedDevice;
 use App\Domain\Users\Actions\MarkReleaseNotesSeen;
 use App\Domain\Users\Actions\RegisterUser;
 use App\Domain\Users\Actions\UpdateUserTheme;
@@ -15,7 +19,10 @@ use App\Domain\Users\Data\UpdateUserThemeData;
 use App\Domain\Users\Data\UserData;
 use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
+use App\Http\TwoFactor\Support\TrustedDeviceCookie;
+use App\Http\Users\Support\PendingLogin;
 use App\Http\Users\Support\ThemeCookie;
+use Illuminate\Auth\SessionGuard;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -38,11 +45,20 @@ class AuthController extends Controller
             ->withCookie(ThemeCookie::for($user->theme));
     }
 
-    public function login(LoginData $data, Request $request): JsonResponse
+    /**
+     * Signs the user in, or answers 202 with the second-factor challenge when
+     * the account has one and this browser is not trusted.
+     *
+     * @throws ValidationException
+     */
+    public function login(LoginData $data, Request $request, RecognizeTrustedDevice $recognizeTrustedDevice): JsonResponse
     {
-        if (! Auth::attempt(['email' => $data->email, 'password' => $data->password], $data->remember)) {
+        /** @var SessionGuard $guard */
+        $guard = Auth::guard('web');
+
+        if (! $guard->validate(['email' => $data->email, 'password' => $data->password])) {
             if (! User::query()->where('email', $data->email)->exists()) {
-                // Auth::attempt skips the bcrypt comparison when the email is
+                // The guard skips the bcrypt comparison when the email is
                 // unknown, so that branch answers measurably faster — a timing
                 // oracle for which addresses have accounts. Burn an equivalent
                 // hash so both failures cost the same.
@@ -52,12 +68,26 @@ class AuthController extends Controller
             throw ValidationException::withMessages(['email' => __('auth.failed')]);
         }
 
+        $user = $guard->getLastAttempted();
+
+        if (! $user instanceof User) {
+            abort(401);
+        }
+
+        $isChallenged = $user->hasTotpEnabled()
+            && ! $recognizeTrustedDevice->handle($user, TrustedDeviceCookie::tokenFrom($request)) instanceof TrustedDevice;
+
+        if ($isChallenged) {
+            PendingLogin::start($request->session(), $user, $data->remember);
+
+            return response()->json(new TwoFactorChallengeData(methods: [TwoFactorMethod::Totp]), 202);
+        }
+
+        $guard->login($user, $data->remember);
         $request->session()->regenerate();
         // A password typed seconds ago is as good as a confirmation: the
         // security settings should not ask for it again right away.
         $request->session()->passwordConfirmed();
-
-        $user = $request->user() ?? abort(401);
 
         return response()->json(UserData::from($user))
             ->withCookie(ThemeCookie::for($user->theme));

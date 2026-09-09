@@ -7,6 +7,7 @@ namespace App\OpenApi;
 use BackedEnum;
 use DateTimeInterface;
 use Dedoc\Scramble\Extensions\TypeToSchemaExtension;
+use Dedoc\Scramble\Infer\Services\FileNameResolver;
 use Dedoc\Scramble\PhpDoc\PhpDocTypeHelper;
 use Dedoc\Scramble\Support\Generator\ClassBasedReference;
 use Dedoc\Scramble\Support\Generator\Reference;
@@ -62,7 +63,7 @@ class SpatieDataToSchema extends TypeToSchemaExtension
                     $arrayType->items = $itemsType;
                     $property = $arrayType;
                 } else {
-                    $property = $this->documentedArray($constructor?->getDocComment(), $parameter->getName())
+                    $property = $this->documentedArray($reflectionClass, $constructor?->getDocComment(), $parameter->getName())
                         ?? $property;
                 }
             }
@@ -124,14 +125,22 @@ class SpatieDataToSchema extends TypeToSchemaExtension
      *
      * Scramble's own phpDoc parser reads it, so every shape the codebase writes is
      * understood rather than the handful a local pattern would recognise.
+     *
+     * @param  ReflectionClass<Data>  $reflectionClass
      */
-    private function documentedArray(string|false|null $docComment, string $propertyName): ?OpenApi\Type
+    private function documentedArray(ReflectionClass $reflectionClass, string|false|null $docComment, string $propertyName): ?OpenApi\Type
     {
-        if ($docComment === false || $docComment === null) {
+        $fileName = $reflectionClass->getFileName();
+
+        if ($docComment === false || $docComment === null || $fileName === false) {
             return null;
         }
 
-        foreach (PhpDoc::parse($docComment)->getParamTagValues() as $tag) {
+        // Resolved against the file's own imports, so `list<SomeEnum>` names
+        // the class the way the code does instead of needing a FQCN.
+        $nameResolver = FileNameResolver::createForFile($fileName);
+
+        foreach (PhpDoc::parse($docComment, $nameResolver)->getParamTagValues() as $tag) {
             if ($tag->parameterName === '$'.$propertyName) {
                 return $this->openApiTransformer->transform(PhpDocTypeHelper::toType($tag->type));
             }

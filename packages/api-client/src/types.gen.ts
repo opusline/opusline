@@ -1242,12 +1242,47 @@ export type TrimTimerData = {
 };
 
 /**
+ * TrustedDeviceData
+ */
+export type TrustedDeviceData = {
+    id: number;
+    browser: string | null;
+    platform: string | null;
+    lastUsedAt: string | null;
+    expiresAt: string;
+    current: boolean;
+};
+
+/**
+ * TwoFactorChallengeAnswerData
+ */
+export type TwoFactorChallengeAnswerData = {
+    code?: string | null;
+    recoveryCode?: string | null;
+    trustDevice?: boolean;
+};
+
+/**
+ * TwoFactorChallengeData
+ */
+export type TwoFactorChallengeData = {
+    methods: Array<TwoFactorMethod>;
+    twoFactorRequired?: boolean;
+};
+
+/**
+ * TwoFactorMethod
+ */
+export type TwoFactorMethod = 0;
+
+/**
  * TwoFactorStatusData
  */
 export type TwoFactorStatusData = {
     totpEnabled: boolean;
     totpConfirmedAt: string | null;
     recoveryCodesRemaining: number;
+    trustedDevices: Array<TrustedDeviceData>;
 };
 
 /**
@@ -1570,12 +1605,28 @@ export type LoginErrors = {
          */
         message: string;
     };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
 };
 
 export type LoginError = LoginErrors[keyof LoginErrors];
 
 export type LoginResponses = {
     200: UserData;
+    202: TwoFactorChallengeData;
 };
 
 export type LoginResponse = LoginResponses[keyof LoginResponses];
@@ -5304,6 +5355,80 @@ export type DeletePersonalTransferResponses = {
 
 export type DeletePersonalTransferResponse = DeletePersonalTransferResponses[keyof DeletePersonalTransferResponses];
 
+export type RevokeAllTrustedDevicesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/trusted-devices';
+};
+
+export type RevokeAllTrustedDevicesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type RevokeAllTrustedDevicesError = RevokeAllTrustedDevicesErrors[keyof RevokeAllTrustedDevicesErrors];
+
+export type RevokeAllTrustedDevicesResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type RevokeAllTrustedDevicesResponse = RevokeAllTrustedDevicesResponses[keyof RevokeAllTrustedDevicesResponses];
+
+export type RevokeTrustedDeviceData = {
+    body?: never;
+    path: {
+        /**
+         * The trusted device ID
+         */
+        trustedDevice: number;
+    };
+    query?: never;
+    url: '/user/trusted-devices/{trustedDevice}';
+};
+
+export type RevokeTrustedDeviceErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type RevokeTrustedDeviceError = RevokeTrustedDeviceErrors[keyof RevokeTrustedDeviceErrors];
+
+export type RevokeTrustedDeviceResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type RevokeTrustedDeviceResponse = RevokeTrustedDeviceResponses[keyof RevokeTrustedDeviceResponses];
+
 export type ShowTwoFactorData = {
     body?: never;
     path?: never;
@@ -5330,6 +5455,55 @@ export type ShowTwoFactorResponses = {
 };
 
 export type ShowTwoFactorResponse = ShowTwoFactorResponses[keyof ShowTwoFactorResponses];
+
+export type AnswerTwoFactorChallengeData = {
+    body?: TwoFactorChallengeAnswerData;
+    path?: never;
+    query?: never;
+    url: '/two-factor-challenge';
+};
+
+export type AnswerTwoFactorChallengeErrors = {
+    /**
+     * An error
+     *
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    } | {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type AnswerTwoFactorChallengeError = AnswerTwoFactorChallengeErrors[keyof AnswerTwoFactorChallengeErrors];
+
+export type AnswerTwoFactorChallengeResponses = {
+    200: UserData;
+};
+
+export type AnswerTwoFactorChallengeResponse = AnswerTwoFactorChallengeResponses[keyof AnswerTwoFactorChallengeResponses];
 
 export type ListUserDocumentsData = {
     body?: never;

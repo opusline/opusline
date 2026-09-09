@@ -1290,12 +1290,47 @@ export const zTrimTimerData = z.object({
 });
 
 /**
+ * TrustedDeviceData
+ */
+export const zTrustedDeviceData = z.object({
+    id: z.int(),
+    browser: z.nullable(z.string()),
+    platform: z.nullable(z.string()),
+    lastUsedAt: z.nullable(z.string()),
+    expiresAt: z.string(),
+    current: z.boolean()
+});
+
+/**
+ * TwoFactorChallengeAnswerData
+ */
+export const zTwoFactorChallengeAnswerData = z.object({
+    code: z.nullish(z.string()),
+    recoveryCode: z.nullish(z.string().check(z.regex(/^[A-Za-z0-9]{10}-[A-Za-z0-9]{10}$/))),
+    trustDevice: z.optional(z.boolean())
+});
+
+/**
+ * TwoFactorMethod
+ */
+export const zTwoFactorMethod = z.literal(0);
+
+/**
+ * TwoFactorChallengeData
+ */
+export const zTwoFactorChallengeData = z.object({
+    methods: z.array(zTwoFactorMethod),
+    twoFactorRequired: z.optional(z.boolean())
+});
+
+/**
  * TwoFactorStatusData
  */
 export const zTwoFactorStatusData = z.object({
     totpEnabled: z.boolean(),
     totpConfirmedAt: z.nullable(z.string()),
-    recoveryCodesRemaining: z.int()
+    recoveryCodesRemaining: z.int(),
+    trustedDevices: z.array(zTrustedDeviceData)
 });
 
 /**
@@ -1632,7 +1667,10 @@ export const zRegisterResponse = zUserData;
 
 export const zLoginBody = zLoginData;
 
-export const zLoginResponse = zUserData;
+export const zLoginResponse = z.union([
+    zUserData,
+    zTwoFactorChallengeData
+]);
 
 /**
  * No content
@@ -2188,7 +2226,25 @@ export const zDeletePersonalTransferPath = z.object({
 
 export const zDeletePersonalTransferResponse = zTreasuryData;
 
+/**
+ * No content
+ */
+export const zRevokeAllTrustedDevicesResponse = z.void();
+
+export const zRevokeTrustedDevicePath = z.object({
+    trustedDevice: z.int()
+});
+
+/**
+ * No content
+ */
+export const zRevokeTrustedDeviceResponse = z.void();
+
 export const zShowTwoFactorResponse = zTwoFactorStatusData;
+
+export const zAnswerTwoFactorChallengeBody = zTwoFactorChallengeAnswerData;
+
+export const zAnswerTwoFactorChallengeResponse = zUserData;
 
 export const zListUserDocumentsResponse = zDocumentListData;
 
