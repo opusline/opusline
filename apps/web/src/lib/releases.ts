@@ -29,12 +29,6 @@ export const RELEASES: Release[] = [
         kind: "improved",
         text: "The billed period on a new invoice is now picked from a month grid in your own language, instead of the browser's own month box.", // i18n-ignore
       },
-    ],
-  },
-  {
-    version: "0.21.3",
-    date: "2026-09-10",
-    items: [
       {
         kind: "fixed",
         text: "Loading placeholders are visible again on the dark theme, instead of blending into the page while a screen loads.", // i18n-ignore
