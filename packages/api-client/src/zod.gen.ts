@@ -143,6 +143,14 @@ export const zConfirmTotpData = z.object({
 });
 
 /**
+ * CorrectInvoiceDatesData
+ */
+export const zCorrectInvoiceDatesData = z.object({
+    sentOn: z.nullish(z.iso.date()),
+    paidOn: z.nullish(z.iso.date())
+});
+
+/**
  * CraCountsData
  */
 export const zCraCountsData = z.object({
@@ -1056,6 +1064,13 @@ export const zRevenueData = z.object({
  */
 export const zSendCraData = z.object({
     applySignature: z.optional(z.boolean()),
+    sentOn: z.nullish(z.iso.date())
+});
+
+/**
+ * SendInvoiceData
+ */
+export const zSendInvoiceData = z.object({
     sentOn: z.nullish(z.iso.date())
 });
 
@@ -2040,6 +2055,8 @@ export const zUpdateInvoicePath = z.object({
 
 export const zUpdateInvoiceResponse = zInvoiceDetailData;
 
+export const zSendInvoiceBody = zSendInvoiceData;
+
 export const zSendInvoicePath = z.object({
     invoice: z.int()
 });
@@ -2061,6 +2078,14 @@ export const zRemindInvoicePath = z.object({
 });
 
 export const zRemindInvoiceResponse = zInvoiceDetailData;
+
+export const zCorrectInvoiceDatesBody = zCorrectInvoiceDatesData;
+
+export const zCorrectInvoiceDatesPath = z.object({
+    invoice: z.int()
+});
+
+export const zCorrectInvoiceDatesResponse = zInvoiceDetailData;
 
 export const zDeleteMissionPath = z.object({
     client: z.string(),
