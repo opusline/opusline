@@ -1,0 +1,4 @@
+{
+  "kind": "new",
+  "text": "The browser tab icon now shows whether a timer is running or paused, so a window buried behind your editor still tells you at a glance."
+}
