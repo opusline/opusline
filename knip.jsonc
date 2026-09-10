@@ -1,0 +1,25 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  // Generated: the API client, the paraglide catalogs and the route tree are
+  // rewritten wholesale by their generators, so an unused export there is a
+  // fact about the source they come from, not something to delete.
+  "ignore": ["apps/web/src/paraglide/**", "packages/api-client/src/**"],
+  "ignoreDependencies": [
+    // Read out of project.inlang/settings.json by its node_modules path, which
+    // no import graph can see.
+    "@inlang/plugin-message-format"
+  ],
+  "workspaces": {
+    "apps/storybook": {
+      "ignoreDependencies": [
+        // Storybook globs the web app's stories by relative path rather than by
+        // specifier; the dependency is what puts @opusline/web in Turbo's graph,
+        // so a story never builds against a stale web workspace.
+        "@opusline/web"
+      ]
+    }
+  },
+  // An export a module only uses itself is a private helper that happens to be
+  // reachable — usually so a test can drive it. Renaming it is not this tool's job.
+  "ignoreExportsUsedInFile": true
+}
