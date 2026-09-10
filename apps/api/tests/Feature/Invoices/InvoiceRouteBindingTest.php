@@ -22,6 +22,8 @@ test('another user invoice is invisible on every route', function (string $metho
     'send' => ['POST', '/send', []],
     'pay' => ['POST', '/pay', ['paidOn' => '2026-08-01']],
     'remind' => ['POST', '/reminders', []],
+    'download document' => ['GET', '/document', []],
+    'delete document' => ['DELETE', '/document', []],
 ]);
 
 test('the invoice list never leaks another user rows', function (): void {

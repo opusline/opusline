@@ -2550,6 +2550,147 @@
                 }
             }
         },
+        "/invoices/{invoice}/document": {
+            "post": {
+                "operationId": "uploadInvoiceDocument",
+                "tags": [
+                    "Invoice"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UploadInvoiceDocumentData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "operationId": "downloadInvoiceDocument",
+                "tags": [
+                    "Invoice"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Transfer-Encoding": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "chunked"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteInvoiceDocument",
+                "tags": [
+                    "Invoice"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/clients/{client}/missions/{mission}": {
             "get": {
                 "operationId": "showMission",
@@ -6577,7 +6718,7 @@
             },
             "DocumentCategory": {
                 "type": "integer",
-                "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/>  |\n| `3` <br/>  |\n| `4` <br/>  |\n| `5` <br/> The CRA Opusline generated, filed next to the signed return it comes back as. |\n| `6` <br/>  |\n| `7` <br/>  |\n| `8` <br/>  |\n| `9` <br/>  |\n| `10` <br/>  |",
+                "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/>  |\n| `3` <br/>  |\n| `4` <br/>  |\n| `5` <br/> The CRA Opusline generated, filed next to the signed return it comes back as. |\n| `6` <br/>  |\n| `7` <br/>  |\n| `8` <br/>  |\n| `9` <br/>  |\n| `10` <br/>  |\n| `11` <br/> The document the user's billing tool issued, filed against the invoice it is. |",
                 "enum": [
                     0,
                     1,
@@ -6589,7 +6730,8 @@
                     7,
                     8,
                     9,
-                    10
+                    10,
+                    11
                 ],
                 "x-enum-varnames": [
                     "Contract",
@@ -6602,7 +6744,8 @@
                     "Certificate",
                     "Insurance",
                     "BankDetails",
-                    "TermsOfSale"
+                    "TermsOfSale",
+                    "IssuedInvoice"
                 ],
                 "title": "DocumentCategory"
             },
@@ -7140,13 +7283,24 @@
                         "items": {
                             "$ref": "#/components/schemas/InvoiceEventData"
                         }
+                    },
+                    "document": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DocumentData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
                     "invoice",
                     "client",
                     "mission",
-                    "history"
+                    "history",
+                    "document"
                 ],
                 "title": "InvoiceDetailData"
             },
@@ -9790,6 +9944,21 @@
                     "file"
                 ],
                 "title": "UploadDocumentData"
+            },
+            "UploadInvoiceDocumentData": {
+                "type": "object",
+                "properties": {
+                    "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "contentMediaType": "application/octet-stream",
+                        "description": "Maximum file size: 20480 kilobytes."
+                    }
+                },
+                "required": [
+                    "file"
+                ],
+                "title": "UploadInvoiceDocumentData"
             },
             "UploadSignatureData": {
                 "type": "object",

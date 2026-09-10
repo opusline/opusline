@@ -539,8 +539,9 @@ export type DeclarationsData = {
  * | `8` <br/>  |
  * | `9` <br/>  |
  * | `10` <br/>  |
+ * | `11` <br/> The document the user's billing tool issued, filed against the invoice it is. |
  */
-export type DocumentCategory = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+export type DocumentCategory = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
 
 /**
  * DocumentData
@@ -718,6 +719,7 @@ export type InvoiceDetailData = {
     client: ClientData;
     mission: MissionData | null;
     history: Array<InvoiceEventData>;
+    document: DocumentData | null;
 };
 
 /**
@@ -1530,6 +1532,16 @@ export type UploadDocumentData = {
     file: Blob | File;
     category?: DocumentCategory | null;
     fileName?: string | null;
+};
+
+/**
+ * UploadInvoiceDocumentData
+ */
+export type UploadInvoiceDocumentData = {
+    /**
+     * Maximum file size: 20480 kilobytes.
+     */
+    file: Blob | File;
 };
 
 /**
@@ -3919,6 +3931,141 @@ export type RemindInvoiceResponses = {
 };
 
 export type RemindInvoiceResponse = RemindInvoiceResponses[keyof RemindInvoiceResponses];
+
+export type DeleteInvoiceDocumentData = {
+    body?: never;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoices/{invoice}/document';
+};
+
+export type DeleteInvoiceDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteInvoiceDocumentError = DeleteInvoiceDocumentErrors[keyof DeleteInvoiceDocumentErrors];
+
+export type DeleteInvoiceDocumentResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteInvoiceDocumentResponse = DeleteInvoiceDocumentResponses[keyof DeleteInvoiceDocumentResponses];
+
+export type DownloadInvoiceDocumentData = {
+    body?: never;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoices/{invoice}/document';
+};
+
+export type DownloadInvoiceDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DownloadInvoiceDocumentError = DownloadInvoiceDocumentErrors[keyof DownloadInvoiceDocumentErrors];
+
+export type DownloadInvoiceDocumentResponses = {
+    200: Blob | File;
+};
+
+export type DownloadInvoiceDocumentResponse = DownloadInvoiceDocumentResponses[keyof DownloadInvoiceDocumentResponses];
+
+export type UploadInvoiceDocumentData2 = {
+    body: UploadInvoiceDocumentData;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoices/{invoice}/document';
+};
+
+export type UploadInvoiceDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UploadInvoiceDocumentError = UploadInvoiceDocumentErrors[keyof UploadInvoiceDocumentErrors];
+
+export type UploadInvoiceDocumentResponses = {
+    201: InvoiceDetailData;
+};
+
+export type UploadInvoiceDocumentResponse = UploadInvoiceDocumentResponses[keyof UploadInvoiceDocumentResponses];
 
 export type DeleteMissionData = {
     body?: never;

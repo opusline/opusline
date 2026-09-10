@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Invoices\Controllers;
 
+use App\Domain\Documents\Actions\DownloadDocument;
+use App\Domain\Invoices\Actions\AttachInvoiceDocument;
 use App\Domain\Invoices\Actions\CreateInvoice;
 use App\Domain\Invoices\Actions\DeleteInvoice;
+use App\Domain\Invoices\Actions\DetachInvoiceDocument;
 use App\Domain\Invoices\Actions\ListInvoices;
 use App\Domain\Invoices\Actions\PayInvoice;
 use App\Domain\Invoices\Actions\RemindInvoice;
@@ -22,12 +25,15 @@ use App\Domain\Invoices\Data\PayInvoiceData;
 use App\Domain\Invoices\Data\RemindInvoiceData;
 use App\Domain\Invoices\Data\SummarizeInvoicesData;
 use App\Domain\Invoices\Data\UpdateInvoiceData;
+use App\Domain\Invoices\Data\UploadInvoiceDocumentData;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class InvoiceController extends Controller
@@ -107,6 +113,38 @@ class InvoiceController extends Controller
         $remindInvoice->handle($invoice, $data);
 
         return response()->json($this->detail($invoice), 201);
+    }
+
+    /**
+     * @throws HttpException<409>
+     */
+    public function storeDocument(UploadInvoiceDocumentData $data, Invoice $invoice, AttachInvoiceDocument $attachInvoiceDocument): JsonResponse
+    {
+        $attachInvoiceDocument->handle($invoice, $data);
+
+        return response()->json($this->detail($invoice), 201);
+    }
+
+    /**
+     * @throws HttpException<404>
+     */
+    public function downloadDocument(Invoice $invoice, DownloadDocument $downloadDocument): StreamedResponse
+    {
+        $document = $invoice->load('client')->attachedDocument();
+
+        abort_if(! $document instanceof Media, 404);
+
+        return $downloadDocument->handle($document);
+    }
+
+    /**
+     * @throws HttpException<404>
+     */
+    public function destroyDocument(Invoice $invoice, DetachInvoiceDocument $detachInvoiceDocument): Response
+    {
+        $detachInvoiceDocument->handle($invoice);
+
+        return response()->noContent();
     }
 
     public function summary(SummarizeInvoicesData $data, #[CurrentUser] User $user, SummarizeInvoices $summarizeInvoices): JsonResponse
