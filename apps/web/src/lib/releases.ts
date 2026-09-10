@@ -26,6 +26,10 @@ export const RELEASES: Release[] = [
         text: "The browser tab icon now shows whether a timer is running or paused, so a window buried behind your editor still tells you at a glance.", // i18n-ignore
       },
       {
+        kind: "new",
+        text: "File the invoice itself against the record of it: drop the PDF your billing tool issued into the invoice, and find it again there or in your documents, filed under the client.", // i18n-ignore
+      },
+      {
         kind: "improved",
         text: "The billed period on a new invoice is now picked from a month grid in your own language, instead of the browser's own month box.", // i18n-ignore
       },
