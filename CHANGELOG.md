@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.22.0](https://github.com/opusline/opusline/compare/v0.21.2...v0.22.0) (2026-09-10)
+
+
+### Features
+
+* **repo:** correct invoice send and payment dates ([#295](https://github.com/opusline/opusline/issues/295)) ([100d895](https://github.com/opusline/opusline/commit/100d895363a272811b084a389ba64bd50059a0b8))
+* **repo:** file the invoice document on the invoice ([#297](https://github.com/opusline/opusline/issues/297)) ([9fd9d38](https://github.com/opusline/opusline/commit/9fd9d38683d8404ce170b25f34523f0b25e1941b))
+
+
+### Bug Fixes
+
+* **ui:** make loading skeletons read on both themes ([#290](https://github.com/opusline/opusline/issues/290)) ([7a4e2dd](https://github.com/opusline/opusline/commit/7a4e2dd5f34321f371308ceb23d3826297bae516))
+
 ## [0.21.2](https://github.com/opusline/opusline/compare/v0.21.1...v0.21.2) (2026-09-10)
 
 
