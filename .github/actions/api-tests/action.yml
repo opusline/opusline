@@ -1,0 +1,75 @@
+name: API tests
+description: >-
+  Installs the API's toolchain and runs the Pest suite against whatever database
+  the calling job's DB_* environment points at. Split out of ci.yml so the three
+  database jobs — which have to be jobs, not a matrix, to report their check
+  names when they skip — cannot drift apart.
+
+inputs:
+  php-version:
+    description: PHP version to run the suite on.
+    required: false
+    default: "8.5"
+  coverage:
+    description: >-
+      `pcov` instruments the suite and publishes the report, `none` runs it bare.
+    required: true
+  codecov-token:
+    description: Codecov upload token. Required when coverage is `pcov`.
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+      with:
+        php-version: ${{ inputs.php-version }}
+        extensions: exif, gd, pdo_mysql, pdo_pgsql
+        coverage: ${{ inputs.coverage }}
+        ini-values: pcov.directory=${{ github.workspace }}/apps/api/app
+
+    # Composite steps do not inherit the caller's `defaults`, so every run step
+    # below carries the working directory itself.
+    - name: Resolve composer cache directory
+      id: composer-cache
+      shell: bash
+      working-directory: apps/api
+      run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+    - uses: actions/cache@v6
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: composer-${{ hashFiles('apps/api/composer.lock') }}
+        restore-keys: composer-
+    - shell: bash
+      working-directory: apps/api
+      run: composer install --no-interaction --no-progress --prefer-dist
+    - shell: bash
+      working-directory: apps/api
+      run: cp .env.example .env && php artisan key:generate
+
+    - if: inputs.coverage == 'none'
+      shell: bash
+      working-directory: apps/api
+      run: php artisan config:clear --quiet && php artisan test --ci --parallel
+    - if: inputs.coverage == 'pcov'
+      shell: bash
+      working-directory: apps/api
+      run: php artisan config:clear --quiet && php artisan test --ci --parallel --coverage-clover=coverage/clover.xml
+
+    - if: inputs.coverage == 'pcov'
+      uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+      with:
+        files: apps/api/coverage/clover.xml
+        flags: api
+        token: ${{ inputs.codecov-token }}
+        fail_ci_if_error: false
+    # Kept so the push that merges the PR can hand the same report to Codecov
+    # under the commit that lands on main (see coverage-carry in ci.yml).
+    - if: inputs.coverage == 'pcov'
+      uses: actions/upload-artifact@v7
+      with:
+        name: coverage-api
+        path: apps/api/coverage/clover.xml
+        if-no-files-found: error
+        retention-days: 7

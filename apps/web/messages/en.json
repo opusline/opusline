@@ -19,8 +19,6 @@
   "auth_login_failed": "Invalid credentials.",
   "auth_login_submit": "Sign in",
   "auth_login_title": "Sign in",
-  "auth_method_passkey": "Passkey",
-  "auth_method_totp": "Authenticator app",
   "auth_name_label": "Name",
   "auth_no_account": "No account yet?",
   "auth_or": "or",

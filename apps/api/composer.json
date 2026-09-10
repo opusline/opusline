@@ -31,6 +31,7 @@
   "require-dev": {
     "driftingly/rector-laravel": "^2.5",
     "fakerphp/faker": "^1.23",
+    "icanhazstring/composer-unused": "^0.9.6",
     "larastan/larastan": "^3.10",
     "laravel-lang/common": "^6.8",
     "laravel/boost": "^2.2",
