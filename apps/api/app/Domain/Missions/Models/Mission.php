@@ -71,6 +71,7 @@ use Spatie\Sluggable\SlugOptions;
     'start_date',
     'end_date',
 ])]
+#[\Illuminate\Database\Eloquent\Attributes\RouteKey('slug')]
 class Mission extends Model implements HasMedia
 {
     /** @use HasFactory<MissionFactory> */
@@ -88,12 +89,6 @@ class Mission extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection(self::DOCUMENT_COLLECTION);
-    }
-
-    #[\Override]
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
     }
 
     /**

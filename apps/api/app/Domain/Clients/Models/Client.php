@@ -65,6 +65,7 @@ use Spatie\Sluggable\SlugOptions;
     'payment_terms_days',
     'archived_at',
 ])]
+#[\Illuminate\Database\Eloquent\Attributes\RouteKey('slug')]
 class Client extends Model implements HasMedia
 {
     /** @use HasFactory<ClientFactory> */
@@ -130,12 +131,6 @@ class Client extends Model implements HasMedia
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
-    }
-
-    #[\Override]
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
     }
 
     /**
