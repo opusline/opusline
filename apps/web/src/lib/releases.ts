@@ -14,6 +14,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.21.2",
+    date: "2026-09-10",
+    items: [
+      {
+        kind: "improved",
+        text: "Updated the third-party libraries Opusline is built on.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.21.1",
     date: "2026-09-10",
     items: [
