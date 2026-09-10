@@ -96,7 +96,7 @@ final readonly class PasskeyAuthenticatorSimulator
             attested: false,
         );
 
-        if (!openssl_sign($authenticatorData.hash('sha256', $clientDataJson, true), $signature, $this->key, OPENSSL_ALGO_SHA256)) {
+        if (! openssl_sign($authenticatorData.hash('sha256', $clientDataJson, true), $signature, $this->key, OPENSSL_ALGO_SHA256)) {
             throw new RuntimeException('Could not sign the assertion.');
         }
 

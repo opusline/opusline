@@ -21,6 +21,7 @@ use Carbon\CarbonImmutable;
 use Cknow\Money\Casts\MoneyIntegerCast;
 use Cknow\Money\Money;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\RouteKey;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -71,7 +72,7 @@ use Spatie\Sluggable\SlugOptions;
     'start_date',
     'end_date',
 ])]
-#[\Illuminate\Database\Eloquent\Attributes\RouteKey('slug')]
+#[RouteKey('slug')]
 class Mission extends Model implements HasMedia
 {
     /** @use HasFactory<MissionFactory> */
