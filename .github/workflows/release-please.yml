@@ -67,6 +67,31 @@ jobs:
             gh pr merge "$number" --disable-auto
           fi
 
+      # release-please force-pushes its branch onto main only when the release
+      # PR body changes, so a commit of a hidden type — the assembly PR's
+      # `docs(web)`, a `ci:` Actions bump — leaves the release PR behind main.
+      # The ruleset requires branches to be up to date, and the release PR's
+      # tree is still missing the entry the assembly PR added, so it sits red
+      # and unmergeable until someone clicks "Update branch". The assembly PR
+      # falls behind the same way when a Dependabot group lands while it is open.
+      - name: Update the bot branches that main has left behind
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_REPO: ${{ github.repository }}
+          BASE: ${{ github.ref_name }}
+        run: |
+          gh pr list --state open --base "$BASE" --json number,headRefName \
+            --jq '.[] | select(.headRefName | startswith("release-please--") or startswith("assemble-release-notes/")) | "\(.number) \(.headRefName)"' |
+            while read -r number head; do
+              behind=$(gh api "repos/$GH_REPO/compare/$BASE...$head" --jq '.behind_by')
+              [ "$behind" -gt 0 ] || continue
+              echo "#$number ($head) is $behind commit(s) behind $BASE."
+              # The App, not GITHUB_TOKEN: a head pushed by GITHUB_TOKEN fires
+              # no workflows, so the required checks would never report on the
+              # new commit and auto-merge would stay stuck all the same.
+              gh pr update-branch "$number"
+            done
+
   # Every push to main runs the job above; only the one that merges the release
   # PR sets release_created, so the images are built for releases and nothing
   # else. Chained here rather than triggered by the release event so the
