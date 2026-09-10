@@ -14,6 +14,24 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.22.0",
+    date: "2026-09-10",
+    items: [
+      {
+        kind: "new",
+        text: "Correct an invoice's dates after the fact: the day it went out, and the day it was collected — the one that decides which period the revenue is declared in.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "The browser tab icon now shows whether a timer is running or paused, so a window buried behind your editor still tells you at a glance.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "The billed period on a new invoice is now picked from a month grid in your own language, instead of the browser's own month box.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.21.3",
     date: "2026-09-10",
     items: [
