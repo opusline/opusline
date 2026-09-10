@@ -2,7 +2,10 @@ name: Assemble Release Notes
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    # `edited` too: release-please retitles its PR when the version it predicts
+    # changes, and a retitle without a force-push would otherwise leave the
+    # notes assembled under the version main has just invalidated.
+    types: [opened, synchronize, reopened, edited]
 
 permissions:
   contents: read
@@ -31,47 +34,82 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
+      # One branch, not one per version. The version in the release PR title is
+      # a prediction release-please recomputes on every push to main: a 0.21.3
+      # becomes a 0.22.0 the moment a feat lands behind it, and fragments keep
+      # arriving after the notes were assembled. A branch per version left the
+      # superseded one to merge anyway, stranding notes on a version that never
+      # got tagged. So there is a single pending branch, rebuilt from main every
+      # run, and the assembler folds whatever is already pending into the entry
+      # it writes.
       - name: Assemble the pending fragments and open the PR
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_REPO: ${{ github.repository }}
           PR_TITLE: ${{ github.event.pull_request.title }}
           BASE_REF: ${{ github.event.pull_request.base.ref }}
+          BRANCH: assemble-release-notes/pending
         run: |
           version=$(printf '%s' "$PR_TITLE" | grep -oE '[0-9]+(\.[0-9]+){2}$') || {
             echo "::error::Could not read a version from the release PR title: $PR_TITLE"
             exit 1
           }
-          if grep -q "version: \"$version\"" apps/web/src/lib/releases.ts; then
-            echo "Release $version is already assembled."
-            exit 0
-          fi
-          branch="assemble-release-notes/$version"
-          # release-please force-pushes its branch on every push to main, and each
-          # of those fires `synchronize` here. The idempotence check above reads
-          # main, which still lacks the entry while the assembly PR is open — so
-          # without this the job would try to rebuild a branch that already has
-          # an open PR waiting to auto-merge, and fail on the push.
-          if git ls-remote --exit-code --heads origin "$branch" > /dev/null 2>&1; then
-            echo "$branch already exists — leaving it alone."
-            exit 0
-          fi
           node scripts/assemble-release-notes.mjs "$version"
+          # The idempotence check is the tree itself. release-please force-pushes
+          # its branch on every push to main and each of those fires
+          # `synchronize` here, so most runs legitimately have nothing to do —
+          # and unlike a grep for the version, this still fires when the version
+          # is unchanged but a fragment has landed since.
+          if git diff --quiet; then
+            echo "The assembled notes already match main and the pending fragments."
+            exit 0
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -b "$branch"
+          git checkout -b "$BRANCH"
           git add apps/web/src/lib/releases.ts .release-notes
           git commit -m "docs(web): assemble release notes for $version"
-          git push origin "$branch"
+          # Rebuilding from main gives a fresh commit every run even when it says
+          # the same thing, and pushing that would restart the PR's checks for
+          # nothing. Push only when the content actually differs.
+          if git ls-remote --exit-code --heads origin "$BRANCH" > /dev/null 2>&1; then
+            git fetch --depth=1 origin "$BRANCH"
+            pushed=$(git rev-parse FETCH_HEAD^{tree})
+          else
+            pushed=""
+          fi
+          if [ "$(git rev-parse HEAD^{tree})" != "$pushed" ]; then
+            git push --force origin "$BRANCH"
+          else
+            echo "$BRANCH already carries this tree."
+          fi
+          title="docs(web): assemble release notes for $version"
+          body=$(cat <<EOF
+          Folds the pending \`.release-notes/\` fragments into the in-app release notes for $version.
+
+          Rebuilt from \`$BASE_REF\` whenever main moves, so the version on this PR follows whatever release-please currently predicts — seeing it change is expected. It merges on its own once CI is green, and release-please then refreshes the release PR so its release-notes guard goes green.
+
+          To reword a line or add a headline, edit \`apps/web/src/lib/releases.ts\` on \`$BASE_REF\` once this has merged — re-assembly reclaims the entry and carries your wording through. Editing this branch would be undone by the next rebuild.
+          EOF
+          )
           # Merged without a human whatever the release ships. The fragments were
           # each reviewed on the PR that added them and the script only folds
           # them into one file, so there is nothing here a review would catch —
           # and every release paid for the wait, because the release PR's
           # release-notes guard stays red until this lands. A headline still goes
-          # in by hand afterwards: edit apps/web/src/lib/releases.ts on the
-          # release PR, whose guard only asks that the version be present.
-          gh pr create \
-            --base "$BASE_REF" \
-            --head "$branch" \
-            --title "docs(web): assemble release notes for $version" \
-            --body "Folds the pending .release-notes/ fragments into the in-app release notes for $version. It merges on its own once CI is green, and release-please then refreshes the release PR so its release-notes guard goes green. To reword an entry or add a headline, edit apps/web/src/lib/releases.ts on the release PR."
-          gh pr merge "$branch" --auto --squash
+          # in by hand afterwards, on main once this has merged: the assembler
+          # reclaims the pending entry rather than rewriting it from scratch, so
+          # the wording survives every later re-assembly.
+          number=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')
+          if [ -z "$number" ]; then
+            gh pr create --base "$BASE_REF" --head "$BRANCH" --title "$title" --body "$body"
+            gh pr merge "$BRANCH" --auto --squash
+            exit 0
+          fi
+          # Retitled in place rather than superseded, so a version bump never
+          # leaves a second assembly PR open behind this one.
+          gh pr edit "$number" --title "$title" --body "$body"
+          # gh prints nothing, not "null", for a null field: ask for a boolean.
+          if [ "$(gh pr view "$number" --json autoMergeRequest --jq '.autoMergeRequest != null')" = false ]; then
+            gh pr merge "$number" --auto --squash
+          fi
