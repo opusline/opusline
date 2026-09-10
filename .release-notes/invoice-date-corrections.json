@@ -1,0 +1,4 @@
+{
+  "kind": "new",
+  "text": "Correct an invoice's dates after the fact: the day it went out, and the day it was collected — the one that decides which period the revenue is declared in."
+}

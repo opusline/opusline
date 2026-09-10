@@ -34,7 +34,7 @@ it("sends a draft that already carries its reference", () => {
 
   fireEvent.click(screen.getByRole("button", { name: "Marquer envoyée" }));
 
-  expect(onSend).toHaveBeenCalledWith(null);
+  expect(onSend).toHaveBeenCalledWith(null, "2026-07-01");
 });
 
 it("collects the reference first when the draft has none", () => {
@@ -47,7 +47,37 @@ it("collects the reference first when the draft has none", () => {
   });
   fireEvent.click(screen.getByRole("button", { name: "Marquer envoyée" }));
 
-  expect(onSend).toHaveBeenCalledWith("F-2026-041");
+  expect(onSend).toHaveBeenCalledWith("F-2026-041", "2026-07-01");
+});
+
+it("sends on the day the document actually left", () => {
+  const { onSend } = renderActions({
+    invoice: invoiceDetail({ status: 0, number: "2026-014" }).invoice,
+  });
+
+  fireEvent.change(screen.getByLabelText("Envoyée le"), {
+    target: { value: "04/07/2026" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Marquer envoyée" }));
+
+  expect(onSend).toHaveBeenCalledWith(null, "2026-07-04");
+});
+
+it("never sends a draft before the date it carries", () => {
+  const { onSend } = renderActions({
+    invoice: invoiceDetail({
+      status: 0,
+      number: "2026-014",
+      issuedOn: "2026-07-01",
+    }).invoice,
+  });
+
+  fireEvent.change(screen.getByLabelText("Envoyée le"), {
+    target: { value: "30/06/2026" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Marquer envoyée" }));
+
+  expect(onSend).not.toHaveBeenCalled();
 });
 
 it("refuses to send a referenceless draft on an empty field", () => {

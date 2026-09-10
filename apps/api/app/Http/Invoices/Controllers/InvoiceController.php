@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Invoices\Controllers;
 
+use App\Domain\Invoices\Actions\CorrectInvoiceDates;
 use App\Domain\Invoices\Actions\CreateInvoice;
 use App\Domain\Invoices\Actions\DeleteInvoice;
 use App\Domain\Invoices\Actions\ListInvoices;
@@ -13,6 +14,7 @@ use App\Domain\Invoices\Actions\SendInvoice;
 use App\Domain\Invoices\Actions\SuggestInvoiceNumber;
 use App\Domain\Invoices\Actions\SummarizeInvoices;
 use App\Domain\Invoices\Actions\UpdateInvoice;
+use App\Domain\Invoices\Data\CorrectInvoiceDatesData;
 use App\Domain\Invoices\Data\CreateInvoiceData;
 use App\Domain\Invoices\Data\InvoiceDetailData;
 use App\Domain\Invoices\Data\InvoiceListData;
@@ -20,6 +22,7 @@ use App\Domain\Invoices\Data\InvoiceListItemData;
 use App\Domain\Invoices\Data\ListInvoicesData;
 use App\Domain\Invoices\Data\PayInvoiceData;
 use App\Domain\Invoices\Data\RemindInvoiceData;
+use App\Domain\Invoices\Data\SendInvoiceData;
 use App\Domain\Invoices\Data\SummarizeInvoicesData;
 use App\Domain\Invoices\Data\UpdateInvoiceData;
 use App\Domain\Invoices\Models\Invoice;
@@ -82,9 +85,9 @@ class InvoiceController extends Controller
     /**
      * @throws HttpException<409>
      */
-    public function send(Invoice $invoice, SendInvoice $sendInvoice): JsonResponse
+    public function send(SendInvoiceData $data, Invoice $invoice, SendInvoice $sendInvoice): JsonResponse
     {
-        $sendInvoice->handle($invoice);
+        $sendInvoice->handle($invoice, $data);
 
         return response()->json($this->detail($invoice));
     }
@@ -107,6 +110,16 @@ class InvoiceController extends Controller
         $remindInvoice->handle($invoice, $data);
 
         return response()->json($this->detail($invoice), 201);
+    }
+
+    /**
+     * @throws HttpException<409>
+     */
+    public function correctDates(CorrectInvoiceDatesData $data, Invoice $invoice, CorrectInvoiceDates $correctInvoiceDates): JsonResponse
+    {
+        $correctInvoiceDates->handle($invoice, $data);
+
+        return response()->json($this->detail($invoice));
     }
 
     public function summary(SummarizeInvoicesData $data, #[CurrentUser] User $user, SummarizeInvoices $summarizeInvoices): JsonResponse

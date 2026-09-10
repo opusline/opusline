@@ -23,6 +23,7 @@ import { useId, useState } from "react";
 
 import { DateField } from "@/components/date-field";
 import { useMoneyFormat } from "@/components/money-format-provider";
+import { MonthField } from "@/components/month-field";
 import {
   formatAmount,
   formatPercentFromBp,
@@ -269,11 +270,10 @@ function AddInvoiceForm({
             <Label htmlFor={periodFieldId}>
               {m.invoices_add_period_label()}
             </Label>
-            <Input
-              font="mono"
+            <MonthField
+              defaultMonth={accountToday.slice(0, 7)}
               id={periodFieldId}
-              onChange={(event) => setPeriod(event.target.value)}
-              type="month"
+              onChange={setPeriod}
               value={period}
             />
           </div>

@@ -1,4 +1,5 @@
 import {
+  correctInvoiceDatesMutation,
   payInvoiceMutation,
   remindInvoiceMutation,
   sendInvoiceMutation,
@@ -21,6 +22,9 @@ import { invalidateInvoiceWrites } from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
+import { sentOnFrom } from "../lib/history";
+import type { InvoiceDateCorrection } from "./invoice-date-corrections";
+import { InvoiceDateCorrections } from "./invoice-date-corrections";
 import { InvoiceDrawer } from "./invoice-drawer";
 import { InvoiceLifecycleActions } from "./invoice-lifecycle-actions";
 
@@ -48,6 +52,9 @@ export function InvoiceDrawerProvider({
   const router = useRouter();
   const [openInvoiceId, setOpenInvoiceId] = useState<number | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  // Its own channel: the corrections form is a second form in the same drawer,
+  // and a refused correction must not read as a refused transition.
+  const [correctionError, setCorrectionError] = useState<string | null>(null);
 
   const detail = useQuery({
     ...showInvoiceOptions({ path: { invoice: openInvoiceId ?? 0 } }),
@@ -60,10 +67,12 @@ export function InvoiceDrawerProvider({
   const closeInvoice = () => {
     setOpenInvoiceId(null);
     setActionError(null);
+    setCorrectionError(null);
   };
 
   const openInvoice = useCallback((invoiceId: number) => {
     setActionError(null);
+    setCorrectionError(null);
     setOpenInvoiceId(invoiceId);
   }, []);
 
@@ -77,6 +86,7 @@ export function InvoiceDrawerProvider({
         if (event.pathChanged) {
           setOpenInvoiceId(null);
           setActionError(null);
+          setCorrectionError(null);
         }
       }),
     [router],
@@ -87,6 +97,12 @@ export function InvoiceDrawerProvider({
   /** Every lifecycle write reports through one message, wherever it was triggered. */
   const reportFailure = (fallback: string) => (error: unknown) => {
     setActionError(serverErrorMessage(error, fallback));
+  };
+
+  const reportCorrectionFailure = (error: unknown) => {
+    setCorrectionError(
+      serverErrorMessage(error, m.invoices_correct_dates_failed()),
+    );
   };
 
   const remind = useMutation({
@@ -119,11 +135,18 @@ export function InvoiceDrawerProvider({
     onError: reportFailure(m.invoices_pay_failed()),
   });
 
+  const correctDates = useMutation({
+    ...correctInvoiceDatesMutation(),
+    onMutate: () => setCorrectionError(null),
+    onSuccess: refresh,
+    onError: reportCorrectionFailure,
+  });
+
   /**
    * A draft with no reference cannot be sent — the API refuses an issued invoice
    * without one — so the reference is written first and the transition follows.
    */
-  const markSent = async (reference: string | null) => {
+  const markSent = async (reference: string | null, sentOn: string) => {
     const invoice = detail.data?.invoice;
 
     if (invoice === undefined) {
@@ -155,7 +178,7 @@ export function InvoiceDrawerProvider({
       }
     }
 
-    send.mutate({ path: { invoice: invoice.id } });
+    send.mutate({ path: { invoice: invoice.id }, body: { sentOn } });
   };
 
   const accountToday = accountTodayCalendarDate(timezone);
@@ -167,30 +190,49 @@ export function InvoiceDrawerProvider({
       <InvoiceDrawer
         actions={
           detail.data === undefined ? null : (
-            <InvoiceLifecycleActions
-              accountToday={accountToday}
-              error={actionError}
-              invoice={detail.data.invoice}
-              isPending={
-                send.isPending ||
-                setReference.isPending ||
-                pay.isPending ||
-                remind.isPending
-              }
-              onPay={(paidOn) =>
-                pay.mutate({
-                  path: { invoice: detail.data.invoice.id },
-                  body: { paidOn },
-                })
-              }
-              onRemind={() =>
-                remind.mutate({
-                  path: { invoice: detail.data.invoice.id },
-                  body: { occurredOn: accountToday, note: null },
-                })
-              }
-              onSend={(reference) => void markSent(reference)}
-            />
+            <>
+              <InvoiceLifecycleActions
+                accountToday={accountToday}
+                error={actionError}
+                invoice={detail.data.invoice}
+                isPending={
+                  send.isPending ||
+                  setReference.isPending ||
+                  pay.isPending ||
+                  remind.isPending
+                }
+                onPay={(paidOn) =>
+                  pay.mutate({
+                    path: { invoice: detail.data.invoice.id },
+                    body: { paidOn },
+                  })
+                }
+                onRemind={() =>
+                  remind.mutate({
+                    path: { invoice: detail.data.invoice.id },
+                    body: { occurredOn: accountToday, note: null },
+                  })
+                }
+                onSend={(reference, sentOn) => void markSent(reference, sentOn)}
+              />
+              {/* Keyed on the invoice: the drawer stays mounted when a row
+                  behind it opens another one, and the drafts must re-seed
+                  from the invoice now on screen. */}
+              <InvoiceDateCorrections
+                accountToday={accountToday}
+                error={correctionError}
+                invoice={detail.data.invoice}
+                isPending={correctDates.isPending}
+                key={detail.data.invoice.id}
+                onSubmit={(correction: InvoiceDateCorrection) =>
+                  correctDates.mutate({
+                    path: { invoice: detail.data.invoice.id },
+                    body: correction,
+                  })
+                }
+                sentOn={sentOnFrom(detail.data)}
+              />
+            </>
           )
         }
         detail={detail.data}

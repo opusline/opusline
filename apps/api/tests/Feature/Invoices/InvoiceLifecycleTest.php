@@ -30,6 +30,58 @@ test('refuses to send a draft that has no reference', function (): void {
         ->assertJsonPath('message', __('invoices.number_required_once_issued'));
 });
 
+test('stamps the send date the caller gives', function (): void {
+    $user = User::factory()->create();
+    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->state([
+        'number' => '2026-008',
+        'issued_on' => '2026-08-01',
+    ]));
+
+    $this->actingAs($user)
+        ->postJson("/api/invoices/{$invoice->id}/send", ['sentOn' => '2026-08-06'])
+        ->assertOk()
+        ->assertJsonPath('history.0.kind', InvoiceEventKind::Sent->value)
+        ->assertJsonPath('history.0.occurredOn', '2026-08-06');
+});
+
+test('sends on the issue date when no send date is given', function (): void {
+    $user = User::factory()->create();
+    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->state([
+        'number' => '2026-009',
+        'issued_on' => '2026-08-02',
+    ]));
+
+    $this->actingAs($user)
+        ->postJson("/api/invoices/{$invoice->id}/send")
+        ->assertOk()
+        ->assertJsonPath('history.0.occurredOn', '2026-08-02');
+});
+
+test('refuses a send date before the issue date', function (): void {
+    $user = User::factory()->create();
+    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->state([
+        'number' => '2026-010',
+        'issued_on' => '2026-08-05',
+    ]));
+
+    $this->actingAs($user)
+        ->postJson("/api/invoices/{$invoice->id}/send", ['sentOn' => '2026-08-04'])
+        ->assertConflict()
+        ->assertJsonPath('message', __('invoices.sent_on_before_issued'));
+});
+
+test('refuses a send date in the future', function (): void {
+    $user = User::factory()->create();
+    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->state(['number' => '2026-011']));
+
+    $this->actingAs($user)
+        ->postJson("/api/invoices/{$invoice->id}/send", [
+            'sentOn' => CarbonImmutable::today()->addDay()->toDateString(),
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('sentOn');
+});
+
 test('refuses to send an invoice that is already sent', function (): void {
     $user = User::factory()->create();
     $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent());
