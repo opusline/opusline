@@ -47,6 +47,7 @@ import { createNoteQueue } from "../lib/note-queue";
 import { timerMachine } from "../lib/timer-machine";
 import { useActivity } from "../lib/use-activity";
 import { useLiveTimer, useTimerSnapshot } from "../lib/use-live-timer";
+import { useTimerFavicon } from "../lib/use-timer-favicon";
 import { TimerAlertsContext } from "./timer-alerts";
 
 const NOTE_DEBOUNCE_MS = 600;
@@ -122,6 +123,8 @@ export function TimerProvider({
 
   const { elapsedSecondsAt, isRunning, lastMissionId, timer } =
     useTimerSnapshot();
+
+  useTimerFavicon(timer === null ? "idle" : isRunning ? "running" : "paused");
 
   const [state, send] = useMachine(timerMachine);
   const { clearIdleSpan, idleSpan, lastActivityAt } = useActivity();
