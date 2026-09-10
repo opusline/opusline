@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
 import {
@@ -85,13 +85,13 @@ it("warns when the amount typed goes past what is left to invoice", () => {
   expect(screen.getByText(/dépasse de/)).toBeInTheDocument();
 });
 
-it("submits the period as the month it covers", () => {
+it("submits the period as the month it covers", async () => {
   const { onSubmit } = renderDialog({ initialMissionId: forfait.mission.id });
 
   fireEvent.change(amountField(), { target: { value: "1000" } });
-  fireEvent.change(screen.getByLabelText("Période"), {
-    target: { value: "2026-08" },
-  });
+  fireEvent.click(screen.getByLabelText("Période"));
+  const months = await screen.findByRole("dialog", { name: "" });
+  fireEvent.click(within(months).getByRole("button", { name: "Août 2026" }));
   fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
 
   expect(onSubmit).toHaveBeenCalledWith(

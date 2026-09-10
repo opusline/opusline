@@ -2380,6 +2380,15 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SendInvoiceData"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "",
@@ -2513,6 +2522,71 @@
                 },
                 "responses": {
                     "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/invoices/{invoice}/dates": {
+            "patch": {
+                "operationId": "correctInvoiceDates",
+                "tags": [
+                    "Invoice"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CorrectInvoiceDatesData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
                         "description": "",
                         "content": {
                             "application/json": {
@@ -5776,6 +5850,26 @@
                 ],
                 "title": "ConfirmTotpData"
             },
+            "CorrectInvoiceDatesData": {
+                "type": "object",
+                "properties": {
+                    "sentOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "paidOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    }
+                },
+                "title": "CorrectInvoiceDatesData"
+            },
             "CraCountsData": {
                 "type": "object",
                 "properties": {
@@ -8418,6 +8512,19 @@
                     }
                 },
                 "title": "SendCraData"
+            },
+            "SendInvoiceData": {
+                "type": "object",
+                "properties": {
+                    "sentOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    }
+                },
+                "title": "SendInvoiceData"
             },
             "SettingsData": {
                 "type": "object",

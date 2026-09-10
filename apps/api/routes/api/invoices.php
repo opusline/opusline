@@ -38,6 +38,13 @@ Route::middleware('auth:sanctum')->group(function (): void {
         ->whereNumber('invoice')
         ->name('remindInvoice');
 
+    // PATCH, not another PUT on the invoice: this touches the two dates the
+    // lifecycle wrote and nothing else, so a correction never has to resend the
+    // amounts it is not changing.
+    Route::patch('/invoices/{invoice}/dates', [InvoiceController::class, 'correctDates'])
+        ->whereNumber('invoice')
+        ->name('correctInvoiceDates');
+
     // One document per invoice, so the path names the invoice's document rather
     // than a member of a collection it does not have.
     Route::post('/invoices/{invoice}/document', [InvoiceController::class, 'storeDocument'])

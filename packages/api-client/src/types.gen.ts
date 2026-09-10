@@ -275,6 +275,14 @@ export type ConfirmTotpData = {
 };
 
 /**
+ * CorrectInvoiceDatesData
+ */
+export type CorrectInvoiceDatesData = {
+    sentOn?: string | null;
+    paidOn?: string | null;
+};
+
+/**
  * CraCountsData
  */
 export type CraCountsData = {
@@ -1113,6 +1121,13 @@ export type RevenueVatData = {
  */
 export type SendCraData = {
     applySignature?: boolean;
+    sentOn?: string | null;
+};
+
+/**
+ * SendInvoiceData
+ */
+export type SendInvoiceData = {
     sentOn?: string | null;
 };
 
@@ -3782,8 +3797,8 @@ export type UpdateInvoiceResponses = {
 
 export type UpdateInvoiceResponse = UpdateInvoiceResponses[keyof UpdateInvoiceResponses];
 
-export type SendInvoiceData = {
-    body?: never;
+export type SendInvoiceData2 = {
+    body?: SendInvoiceData;
     path: {
         /**
          * The invoice ID
@@ -3931,6 +3946,56 @@ export type RemindInvoiceResponses = {
 };
 
 export type RemindInvoiceResponse = RemindInvoiceResponses[keyof RemindInvoiceResponses];
+
+export type CorrectInvoiceDatesData2 = {
+    body?: CorrectInvoiceDatesData;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoices/{invoice}/dates';
+};
+
+export type CorrectInvoiceDatesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CorrectInvoiceDatesError = CorrectInvoiceDatesErrors[keyof CorrectInvoiceDatesErrors];
+
+export type CorrectInvoiceDatesResponses = {
+    200: InvoiceDetailData;
+};
+
+export type CorrectInvoiceDatesResponse = CorrectInvoiceDatesResponses[keyof CorrectInvoiceDatesResponses];
 
 export type DeleteInvoiceDocumentData = {
     body?: never;

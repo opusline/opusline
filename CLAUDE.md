@@ -37,8 +37,9 @@ turbo dev                 # api (Sail stack + Octane/FrankenPHP via apps/api/scr
                           #   + storybook (:6006)
 turbo build               # build everything
 turbo test                # Pest (api, inside Docker) + Vitest (web, storybook story tests)
-turbo lint                # PHP only: Pint --test + Rector --dry-run (inside Docker)
+turbo lint                # PHP only: Pint --test + Rector --dry-run + composer-unused (inside Docker)
 pnpm format-and-lint      # Biome across the repo (root //#format-and-lint task; :fix writes)
+pnpm knip                 # unused files, exports and dependencies across the JS workspaces
 pnpm generate-api         # export OpenAPI spec + regenerate packages/api-client
 
 # Scoped
@@ -62,8 +63,9 @@ sh scripts/php.sh php vendor/bin/pint
 ## Conventions
 
 - **Commits**: Conventional Commits, enforced by commitlint via Lefthook. Types: feat, fix, refactor, perf, style, test, docs, build, ci, chore, revert. Scopes (closed list): `api`, `web`, `ui`, `storybook`, `deps`, `repo`. Subject: imperative, lowercase, ≤50 chars (encoded in `commitlint.config.mjs`, so the PR title check enforces it too), no trailing period. Body explains the WHY.
-- **Hooks**: single `lefthook.yml` at root. Pre-commit runs Biome (staged JS/TS/JSON/CSS) and, on staged PHP, Rector then Pint — all auto-fix and re-stage. Commit-msg runs commitlint. Pre-push, in order: regenerates the OpenAPI spec, then the API client, route tree and compiled message catalogs, failing on drift in any of them (`scripts/generated-artifacts.sh`); `i18n-guard`; `release-notes-guard`; then `turbo run test check-types lint` filtered to `@opusline/api`, and `turbo run build test check-types lint format-and-lint` across everything. Don't add Turbo tasks to pre-commit.
+- **Hooks**: single `lefthook.yml` at root. Pre-commit runs Biome (staged JS/TS/JSON/CSS) and, on staged PHP, Rector then Pint — all auto-fix and re-stage. Commit-msg runs commitlint. Pre-push, in order: regenerates the OpenAPI spec, then the API client, route tree and compiled message catalogs, failing on drift in any of them (`scripts/generated-artifacts.sh`); `i18n-guard`; `release-notes-guard`; `knip`; then `turbo run test check-types lint` filtered to `@opusline/api`, and `turbo run build test check-types lint format-and-lint` across everything. Don't add Turbo tasks to pre-commit.
 - **Formatting/linting JS**: Biome (`biome.jsonc` at the root, extended by `apps/web`, `apps/api`, `packages/api-client`). No ESLint, no Prettier.
+- **Unused code**: knip (`knip.jsonc`) on the JS side — unused files, exports and dependencies, in `pnpm knip`, pre-push and CI. On the PHP side, Rector's `deadCode` set already removes what is dead *inside* a file, and `composer-unused` (`apps/api/composer-unused.php`) catches dependencies nothing requires; both run in `turbo lint`. Anything either tool cannot see is silenced by name, in the config, with the reason written next to it.
 - **PHP style**: Pint (Laravel preset) + Rector; both run through the Docker wrapper.
 - **TypeScript**: strict. No `any` without justification. Prefer inferred types over redundant annotations.
 - **Language**: code, comments, commits, and docs in English. UI copy may have French strings (target market includes FR freelances) — keep user-facing strings ready for i18n, don't hardcode.

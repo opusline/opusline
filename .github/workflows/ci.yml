@@ -59,6 +59,7 @@ jobs:
           filters: |
             ci: &ci
               - '.github/workflows/ci.yml'
+              - '.github/actions/**'
             manifests: &manifests
               - 'package.json'
               - 'pnpm-lock.yaml'
@@ -70,6 +71,7 @@ jobs:
               - *manifests
               - 'turbo.json'
               - 'biome.jsonc'
+              - 'knip.jsonc'
               - '.nvmrc'
               - '.npmrc'
             api:
@@ -183,6 +185,7 @@ jobs:
       - if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm --filter @opusline/storybook exec playwright install chromium --with-deps
       - run: pnpm format-and-lint
+      - run: pnpm knip
       - run: pnpm exec turbo run test check-types build "--filter=!@opusline/api"
         env:
           COVERAGE: "1"
@@ -253,39 +256,36 @@ jobs:
       - run: vendor/bin/pint --test --parallel --cache-file=.cache/pint.json
       - run: vendor/bin/rector process --dry-run
       - run: vendor/bin/phpstan analyse --memory-limit=512M --no-progress
+      - run: vendor/bin/composer-unused --no-progress
 
-  api-tests:
-    name: API tests (${{ matrix.database }})
+  # Three jobs and not a matrix: a job skipped by an `if:` never expands its
+  # matrix, so a gated matrix reports a single check named after the raw
+  # `${{ matrix.database }}` template and the ruleset's per-leg contexts never
+  # report at all — the pull request then waits on them forever. A named job
+  # reports its own name when it skips. Each one also boots only the database it
+  # uses, which the matrix could not do: `services` cannot be conditional.
+  api-tests-sqlite:
+    name: API tests (sqlite)
     needs: changes
     if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/api
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - database: sqlite
-            DB_CONNECTION: sqlite
-            DB_DATABASE: ":memory:"
-            coverage: pcov
-          - database: mysql
-            DB_CONNECTION: mysql
-            DB_HOST: 127.0.0.1
-            DB_PORT: "3306"
-            DB_DATABASE: testing
-            DB_USERNAME: root
-            DB_PASSWORD: password
-            coverage: none
-          - database: pgsql
-            DB_CONNECTION: pgsql
-            DB_HOST: 127.0.0.1
-            DB_PORT: "5432"
-            DB_DATABASE: testing
-            DB_USERNAME: postgres
-            DB_PASSWORD: password
-            coverage: none
+    env:
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ":memory:"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/api-tests
+        with:
+          coverage: pcov
+          codecov-token: ${{ secrets.CODECOV_TOKEN }}
+
+  api-tests-mysql:
+    name: API tests (mysql)
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
     services:
       mysql:
         image: mysql:8.4
@@ -299,6 +299,27 @@ jobs:
           --health-interval=5s
           --health-timeout=5s
           --health-retries=10
+    env:
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: "3306"
+      DB_DATABASE: testing
+      DB_USERNAME: root
+      DB_PASSWORD: password
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/api-tests
+        with:
+          coverage: none
+
+  api-tests-pgsql:
+    name: API tests (pgsql)
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    services:
       postgres:
         image: postgres:18
         env:
@@ -312,50 +333,19 @@ jobs:
           --health-timeout=5s
           --health-retries=10
     env:
-      DB_CONNECTION: ${{ matrix.DB_CONNECTION }}
-      DB_HOST: ${{ matrix.DB_HOST }}
-      DB_PORT: ${{ matrix.DB_PORT }}
-      DB_DATABASE: ${{ matrix.DB_DATABASE }}
-      DB_USERNAME: ${{ matrix.DB_USERNAME }}
-      DB_PASSWORD: ${{ matrix.DB_PASSWORD }}
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: "5432"
+      DB_DATABASE: testing
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+      - uses: ./.github/actions/api-tests
         with:
-          php-version: "8.5"
-          extensions: exif, gd, pdo_mysql, pdo_pgsql
-          coverage: ${{ matrix.coverage }}
-          ini-values: pcov.directory=${{ github.workspace }}/apps/api/app
-      - name: Resolve composer cache directory
-        id: composer-cache
-        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@v6
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: composer-${{ hashFiles('apps/api/composer.lock') }}
-          restore-keys: composer-
-      - run: composer install --no-interaction --no-progress --prefer-dist
-      - run: cp .env.example .env && php artisan key:generate
-      - if: matrix.coverage == 'none'
-        run: php artisan config:clear --quiet && php artisan test --ci --parallel
-      - if: matrix.coverage == 'pcov'
-        run: php artisan config:clear --quiet && php artisan test --ci --parallel --coverage-clover=coverage/clover.xml
-      - if: matrix.coverage == 'pcov'
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
-        with:
-          files: apps/api/coverage/clover.xml
-          flags: api
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: false
-      - if: matrix.coverage == 'pcov'
-        uses: actions/upload-artifact@v7
-        with:
-          name: coverage-api
-          path: apps/api/coverage/clover.xml
-          if-no-files-found: error
-          retention-days: 7
+          coverage: none
 
   # The images are otherwise first built by publish-image.yml, after the release
   # tag already exists — and the entrypoint is where migrations run. Build both
