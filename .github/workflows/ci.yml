@@ -71,6 +71,7 @@ jobs:
               - *manifests
               - 'turbo.json'
               - 'biome.jsonc'
+              - 'knip.jsonc'
               - '.nvmrc'
               - '.npmrc'
             api:
@@ -184,6 +185,7 @@ jobs:
       - if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm --filter @opusline/storybook exec playwright install chromium --with-deps
       - run: pnpm format-and-lint
+      - run: pnpm knip
       - run: pnpm exec turbo run test check-types build "--filter=!@opusline/api"
         env:
           COVERAGE: "1"
@@ -254,6 +256,7 @@ jobs:
       - run: vendor/bin/pint --test --parallel --cache-file=.cache/pint.json
       - run: vendor/bin/rector process --dry-run
       - run: vendor/bin/phpstan analyse --memory-limit=512M --no-progress
+      - run: vendor/bin/composer-unused --no-progress
 
   # Three jobs and not a matrix: a job skipped by an `if:` never expands its
   # matrix, so a gated matrix reports a single check named after the raw

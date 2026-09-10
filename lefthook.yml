@@ -39,6 +39,9 @@ pre-push:
           - name: client-routes-and-drift
             run: sh scripts/generated-artifacts.sh
 
+    - name: knip
+      run: pnpm exec knip --no-progress
+
     - name: i18n-guard
       run: sh scripts/i18n-guard.sh
 

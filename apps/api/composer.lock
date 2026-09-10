@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "126a5ecdb97c93012d583e93f109007c",
+    "content-hash": "eee7dea6c21690d791b831b95d4a6343",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -9866,6 +9866,124 @@
             "time": "2024-03-02T12:51:17+00:00"
         },
         {
+            "name": "composer-unused/contracts",
+            "version": "0.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/composer-unused/contracts.git",
+                "reference": "5ec448d3ee80735dccad6a21a3266c377d0845ae"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/composer-unused/contracts/zipball/5ec448d3ee80735dccad6a21a3266c377d0845ae",
+                "reference": "5ec448d3ee80735dccad6a21a3266c377d0845ae",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.4 || ^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "ComposerUnused\\Contracts\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Andreas Frömer",
+                    "email": "composer-unused@icanhazstring.com"
+                }
+            ],
+            "description": "Contract repository for composer-unused",
+            "support": {
+                "issues": "https://github.com/composer-unused/contracts/issues",
+                "source": "https://github.com/composer-unused/contracts/tree/0.3.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/icanhazstring",
+                    "type": "github"
+                }
+            ],
+            "time": "2023-03-17T00:41:49+00:00"
+        },
+        {
+            "name": "composer-unused/symbol-parser",
+            "version": "0.3.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/composer-unused/symbol-parser.git",
+                "reference": "afa62007cca768bd1ecbc0e8ed347c675c239410"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/composer-unused/symbol-parser/zipball/afa62007cca768bd1ecbc0e8ed347c675c239410",
+                "reference": "afa62007cca768bd1ecbc0e8ed347c675c239410",
+                "shasum": ""
+            },
+            "require": {
+                "composer-unused/contracts": "^0.3",
+                "nikic/php-parser": "^5.0",
+                "php": "^7.4 || ^8.0",
+                "phpstan/phpdoc-parser": "^1.25 || ^2",
+                "psr/container": "^1.0 || ^2.0",
+                "psr/log": "^1.1 || ^2 || ^3",
+                "symfony/finder": "^5.3 || ^6.0 || ^7.0 || ^8.0"
+            },
+            "require-dev": {
+                "ergebnis/composer-normalize": "^2.49",
+                "ext-ds": "*",
+                "phpstan/phpstan": "^2.1",
+                "phpunit/phpunit": "^10.5",
+                "roave/security-advisories": "dev-master",
+                "squizlabs/php_codesniffer": "^4.0.1",
+                "symfony/property-access": "^5.4 || ^6.0 || ^7.0 || ^8.0",
+                "symfony/serializer": "^5.4 || ^6.0 || ^7.0 || ^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "ComposerUnused\\SymbolParser\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Andreas Frömer",
+                    "email": "composer-unused@icanhazstring.com"
+                }
+            ],
+            "description": "Toolkit to parse symbols from a composer package",
+            "homepage": "https://github.com/composer-unused/symbol-parser",
+            "keywords": [
+                "composer",
+                "parser",
+                "symbol"
+            ],
+            "support": {
+                "issues": "https://github.com/composer-unused/symbol-parser/issues",
+                "source": "https://github.com/composer-unused/symbol-parser"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sponsors/icanhazstring",
+                    "type": "github"
+                },
+                {
+                    "url": "https://paypal.me/icanhazstring",
+                    "type": "other"
+                }
+            ],
+            "time": "2026-01-29T13:38:57+00:00"
+        },
+        {
             "name": "composer/class-map-generator",
             "version": "1.7.3",
             "source": {
@@ -10009,6 +10127,72 @@
                 }
             ],
             "time": "2026-06-07T11:47:49+00:00"
+        },
+        {
+            "name": "composer/xdebug-handler",
+            "version": "3.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/composer/xdebug-handler.git",
+                "reference": "6c1925561632e83d60a44492e0b344cf48ab85ef"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/composer/xdebug-handler/zipball/6c1925561632e83d60a44492e0b344cf48ab85ef",
+                "reference": "6c1925561632e83d60a44492e0b344cf48ab85ef",
+                "shasum": ""
+            },
+            "require": {
+                "composer/pcre": "^1 || ^2 || ^3",
+                "php": "^7.2.5 || ^8.0",
+                "psr/log": "^1 || ^2 || ^3"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^1.0",
+                "phpstan/phpstan-strict-rules": "^1.1",
+                "phpunit/phpunit": "^8.5 || ^9.6 || ^10.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Composer\\XdebugHandler\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "John Stevenson",
+                    "email": "john-stevenson@blueyonder.co.uk"
+                }
+            ],
+            "description": "Restarts a process without Xdebug.",
+            "keywords": [
+                "Xdebug",
+                "performance"
+            ],
+            "support": {
+                "irc": "ircs://irc.libera.chat:6697/composer",
+                "issues": "https://github.com/composer/xdebug-handler/issues",
+                "source": "https://github.com/composer/xdebug-handler/tree/3.0.5"
+            },
+            "funding": [
+                {
+                    "url": "https://packagist.com",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/composer",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/composer/composer",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2024-05-06T16:37:16+00:00"
         },
         {
             "name": "dragon-code/contracts",
@@ -10585,6 +10769,107 @@
                 "source": "https://github.com/iamcal/SQLParser/tree/v0.7"
             },
             "time": "2026-01-28T22:20:33+00:00"
+        },
+        {
+            "name": "icanhazstring/composer-unused",
+            "version": "0.9.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/composer-unused/composer-unused.git",
+                "reference": "c60030af7954a528746dd2180c10b5e0871e84c7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/composer-unused/composer-unused/zipball/c60030af7954a528746dd2180c10b5e0871e84c7",
+                "reference": "c60030af7954a528746dd2180c10b5e0871e84c7",
+                "shasum": ""
+            },
+            "require": {
+                "composer-runtime-api": "^2.0",
+                "composer-unused/contracts": "^0.3",
+                "composer-unused/symbol-parser": "^0.3.1",
+                "composer/xdebug-handler": "^3.0",
+                "ext-json": "*",
+                "nikic/php-parser": "^5.0",
+                "ondram/ci-detector": "^4.1",
+                "php": "^8.1",
+                "phpstan/phpdoc-parser": "^1.25 || ^2",
+                "psr/container": "^1.0 || ^2.0",
+                "psr/log": "^1.1 || ^2 || ^3",
+                "symfony/config": "^6.0 || ^7.0 || ^8.0",
+                "symfony/console": "^6.0 || ^7.0 || ^8.0",
+                "symfony/dependency-injection": "^6.0 || ^7.0 || ^8.0",
+                "symfony/property-access": "^6.0 || ^7.0 || ^8.0",
+                "symfony/serializer": "^6.0 || ^7.0 || ^8.0",
+                "webmozart/assert": "^1.10 || ^2.0",
+                "webmozart/glob": "^4.4"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8",
+                "codeception/verify": "^3.1",
+                "dg/bypass-finals": "^1.6",
+                "ergebnis/composer-normalize": "^2.49",
+                "ext-ds": "*",
+                "ext-zend-opcache": "*",
+                "jangregor/phpstan-prophecy": "^2.1.1",
+                "mikey179/vfsstream": "^1.6.10",
+                "php-ds/php-ds": "^1.5",
+                "phpspec/prophecy-phpunit": "^2.2.0",
+                "phpstan/extension-installer": "^1.3",
+                "phpstan/phpstan": "^2.1.37",
+                "phpstan/phpstan-phpunit": "^2.0.12",
+                "phpunit/phpunit": "^9.6.34",
+                "roave/security-advisories": "dev-master",
+                "squizlabs/php_codesniffer": "^3.13"
+            },
+            "bin": [
+                "bin/composer-unused"
+            ],
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "bin-links": true,
+                    "forward-command": true
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "ComposerUnused\\ComposerUnused\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Andreas Frömer",
+                    "email": "composer-unused@icanhazstring.com"
+                }
+            ],
+            "description": "Show unused packages by scanning your code",
+            "homepage": "https://github.com/composer-unused/composer-unused",
+            "keywords": [
+                "composer",
+                "php-parser",
+                "static analysis",
+                "unused"
+            ],
+            "support": {
+                "issues": "https://github.com/composer-unused/composer-unused/issues",
+                "source": "https://github.com/composer-unused/composer-unused"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sponsors/icanhazstring",
+                    "type": "github"
+                },
+                {
+                    "url": "https://paypal.me/icanhazstring",
+                    "type": "other"
+                }
+            ],
+            "time": "2026-01-30T05:52:24+00:00"
         },
         {
             "name": "jean85/pretty-package-versions",
@@ -12836,6 +13121,84 @@
                 }
             ],
             "time": "2026-07-15T19:09:14+00:00"
+        },
+        {
+            "name": "ondram/ci-detector",
+            "version": "4.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/OndraM/ci-detector.git",
+                "reference": "8b0223b5ed235fd377c75fdd1bfcad05c0f168b8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/OndraM/ci-detector/zipball/8b0223b5ed235fd377c75fdd1bfcad05c0f168b8",
+                "reference": "8b0223b5ed235fd377c75fdd1bfcad05c0f168b8",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "ergebnis/composer-normalize": "^2.13.2",
+                "lmc/coding-standard": "^3.0.0",
+                "php-parallel-lint/php-parallel-lint": "^1.2",
+                "phpstan/extension-installer": "^1.1.0",
+                "phpstan/phpstan": "^1.2.0",
+                "phpstan/phpstan-phpunit": "^1.0.0",
+                "phpunit/phpunit": "^9.6.13"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "OndraM\\CiDetector\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ondřej Machulda",
+                    "email": "ondrej.machulda@gmail.com"
+                }
+            ],
+            "description": "Detect continuous integration environment and provide unified access to properties of current build",
+            "keywords": [
+                "CircleCI",
+                "Codeship",
+                "Wercker",
+                "adapter",
+                "appveyor",
+                "aws",
+                "aws codebuild",
+                "azure",
+                "azure devops",
+                "azure pipelines",
+                "bamboo",
+                "bitbucket",
+                "buddy",
+                "ci-info",
+                "codebuild",
+                "continuous integration",
+                "continuousphp",
+                "devops",
+                "drone",
+                "github",
+                "gitlab",
+                "interface",
+                "jenkins",
+                "pipelines",
+                "sourcehut",
+                "teamcity",
+                "travis"
+            ],
+            "support": {
+                "issues": "https://github.com/OndraM/ci-detector/issues",
+                "source": "https://github.com/OndraM/ci-detector/tree/4.2.0"
+            },
+            "time": "2024-03-12T13:22:30+00:00"
         },
         {
             "name": "pestphp/pest",
@@ -15189,6 +15552,335 @@
             "time": "2024-10-20T05:08:20+00:00"
         },
         {
+            "name": "symfony/config",
+            "version": "v8.1.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/config.git",
+                "reference": "ec711a6c14ae287d9618fbd2c9de4e223a1a4b02"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/config/zipball/ec711a6c14ae287d9618fbd2c9de4e223a1a4b02",
+                "reference": "ec711a6c14ae287d9618fbd2c9de4e223a1a4b02",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4.1",
+                "symfony/deprecation-contracts": "^2.5|^3",
+                "symfony/filesystem": "^7.4|^8.0",
+                "symfony/polyfill-ctype": "^1.8"
+            },
+            "conflict": {
+                "symfony/service-contracts": "<2.5"
+            },
+            "require-dev": {
+                "symfony/event-dispatcher": "^7.4|^8.0",
+                "symfony/finder": "^7.4|^8.0",
+                "symfony/messenger": "^7.4|^8.0",
+                "symfony/service-contracts": "^2.5|^3",
+                "symfony/yaml": "^7.4|^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Config\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Helps you find, load, combine, autofill and validate configuration values of any kind",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/config/tree/v8.1.5"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-08-20T09:59:12+00:00"
+        },
+        {
+            "name": "symfony/dependency-injection",
+            "version": "v8.1.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/dependency-injection.git",
+                "reference": "e79d512848b75f92374e473f8e9ead4202c965c5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/dependency-injection/zipball/e79d512848b75f92374e473f8e9ead4202c965c5",
+                "reference": "e79d512848b75f92374e473f8e9ead4202c965c5",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4.1",
+                "psr/container": "^1.1|^2.0",
+                "symfony/deprecation-contracts": "^2.5|^3",
+                "symfony/service-contracts": "^3.6",
+                "symfony/var-exporter": "^8.1"
+            },
+            "conflict": {
+                "ext-psr": "<1.1|>=2"
+            },
+            "provide": {
+                "psr/container-implementation": "1.1|2.0",
+                "symfony/service-implementation": "1.1|2.0|3.0"
+            },
+            "require-dev": {
+                "symfony/config": "^7.4|^8.0",
+                "symfony/expression-language": "^7.4|^8.0",
+                "symfony/yaml": "^7.4|^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\DependencyInjection\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Allows you to standardize and centralize the way objects are constructed in your application",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/dependency-injection/tree/v8.1.5"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-08-21T17:47:34+00:00"
+        },
+        {
+            "name": "symfony/polyfill-deepclone",
+            "version": "v1.42.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-deepclone.git",
+                "reference": "70ba0627efc68e97ea392843458a2dd9d6dbd156"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-deepclone/zipball/70ba0627efc68e97ea392843458a2dd9d6dbd156",
+                "reference": "70ba0627efc68e97ea392843458a2dd9d6dbd156",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1"
+            },
+            "provide": {
+                "ext-deepclone": "*"
+            },
+            "suggest": {
+                "ext-deepclone": "For best performance"
+            },
+            "type": "library",
+            "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "bootstrap.php"
+                ],
+                "psr-4": {
+                    "Symfony\\Polyfill\\DeepClone\\": ""
+                },
+                "classmap": [
+                    "Resources/stubs"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill for the deepclone extension",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "deepclone",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/polyfill-deepclone/tree/v1.42.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-08-07T06:33:24+00:00"
+        },
+        {
+            "name": "symfony/var-exporter",
+            "version": "v8.1.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/var-exporter.git",
+                "reference": "802362f41128c430fd6685491e1fb72127fae78a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/var-exporter/zipball/802362f41128c430fd6685491e1fb72127fae78a",
+                "reference": "802362f41128c430fd6685491e1fb72127fae78a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.4.1",
+                "symfony/deprecation-contracts": "^2.5|^3",
+                "symfony/polyfill-deepclone": "^1.40"
+            },
+            "require-dev": {
+                "symfony/property-access": "^7.4|^8.0",
+                "symfony/serializer": "^7.4|^8.0",
+                "symfony/var-dumper": "^7.4|^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\VarExporter\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Provides tools to export, instantiate, hydrate, clone and lazy-load PHP objects",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "clone",
+                "construct",
+                "deep-clone",
+                "export",
+                "hydrate",
+                "instantiate",
+                "lazy-loading",
+                "proxy",
+                "serialize"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/var-exporter/tree/v8.1.6"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-08-29T06:30:03+00:00"
+        },
+        {
             "name": "symfony/yaml",
             "version": "v8.1.6",
             "source": {
@@ -15431,6 +16123,55 @@
                 }
             ],
             "time": "2025-12-08T11:19:18+00:00"
+        },
+        {
+            "name": "webmozart/glob",
+            "version": "4.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/webmozarts/glob.git",
+                "reference": "8a2842112d6916e61e0e15e316465b611f3abc17"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/webmozarts/glob/zipball/8a2842112d6916e61e0e15e316465b611f3abc17",
+                "reference": "8a2842112d6916e61e0e15e316465b611f3abc17",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.3 || ^8.0.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5",
+                "symfony/filesystem": "^5.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Webmozart\\Glob\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bernhard Schussek",
+                    "email": "bschussek@gmail.com"
+                }
+            ],
+            "description": "A PHP implementation of Ant's glob.",
+            "support": {
+                "issues": "https://github.com/webmozarts/glob/issues",
+                "source": "https://github.com/webmozarts/glob/tree/4.7.0"
+            },
+            "time": "2024-03-07T20:33:40+00:00"
         }
     ],
     "aliases": [],
