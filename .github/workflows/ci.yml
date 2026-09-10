@@ -4,6 +4,14 @@ on:
   push:
     branches: [main]
   pull_request:
+  # A push to main re-tests nothing (see `changes`), so this weekly run is what
+  # catches the failures no diff can predict: a CVE published against a lockfile
+  # nobody touched, a moved base image, a flake. Mondays, right after
+  # cache-cleanup.yml's Sunday prune, so it also re-warms the composer, pnpm,
+  # playwright and buildx caches for the week.
+  schedule:
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -21,8 +29,134 @@ env:
   BROADCAST_CONNECTION: "null"
 
 jobs:
+  # Which lanes the change touches. Every job below except the guards and the
+  # secret scan hangs off this one, because a job skipped by an `if:` reports
+  # success to the ruleset — a workflow-level `paths:` filter would instead
+  # leave its required checks pending forever, which is why there is none here.
+  # A failure in this job skips the rest, so it is a required check itself.
+  changes:
+    name: Changed areas
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      api: ${{ steps.lanes.outputs.api }}
+      web: ${{ steps.lanes.outputs.web }}
+      generated: ${{ steps.lanes.outputs.generated }}
+      docker: ${{ steps.lanes.outputs.docker }}
+      deps: ${{ steps.lanes.outputs.deps }}
+    steps:
+      # The lanes follow the real coupling, not the directory names: `generated`
+      # lists the inputs of the four artifacts generated-artifacts.sh diffs, and
+      # `docker` the COPY sets of the root Dockerfile — including every
+      # workspace package.json, which all feed the web image's install layer.
+      # No checkout: on pull_request the action reads the file list from the API.
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        if: github.event_name == 'pull_request'
+        with:
+          filters: |
+            ci: &ci
+              - '.github/workflows/ci.yml'
+            manifests: &manifests
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'apps/*/package.json'
+              - 'packages/*/package.json'
+            js-toolchain: &js-toolchain
+              - *ci
+              - *manifests
+              - 'turbo.json'
+              - 'biome.jsonc'
+              - '.nvmrc'
+              - '.npmrc'
+            api:
+              - *ci
+              - 'apps/api/**'
+            web:
+              - *js-toolchain
+              - 'apps/web/**'
+              - 'apps/storybook/**'
+              - 'packages/ui/**'
+              - 'packages/api-client/**'
+            generated:
+              - *ci
+              - 'pnpm-lock.yaml'
+              - 'apps/api/**'
+              - 'packages/api-client/**'
+              - 'apps/web/src/routes/**'
+              - 'apps/web/src/routeTree.gen.ts'
+              - 'apps/web/src/paraglide/**'
+              - 'apps/web/messages/**'
+              - 'apps/web/project.inlang/**'
+              - 'apps/web/tsr.config.json'
+              - 'apps/web/paraglide.config.mjs'
+              - 'apps/web/scripts/compile-messages.mjs'
+            docker:
+              - *ci
+              - *manifests
+              - 'apps/api/**'
+              - 'Dockerfile'
+              - '.dockerignore'
+              - 'docker/**'
+              - 'compose.prod.yaml'
+              - '.env.production.example'
+            deps:
+              - *ci
+              - *manifests
+              - 'apps/api/composer.json'
+              - 'apps/api/composer.lock'
+
+      # A push to main carries a tree its pull request already proved: the
+      # ruleset squash-merges, forbids direct pushes and requires branches to be
+      # up to date, so re-running the suite would test the same tree twice — the
+      # coverage report is carried over instead (see coverage-carry). The bot
+      # release branches carry release-please's version bumps and the assembled
+      # notes, generated diffs with no logic in them, and the guards below are
+      # what those PRs are actually waiting on. Everything else — the weekly
+      # schedule, a manual dispatch — runs the whole suite.
+      - name: Decide which lanes run
+        id: lanes
+        env:
+          FILTERED: ${{ toJSON(steps.filter.outputs) }}
+          BOT_BRANCH: ${{ startsWith(github.head_ref, 'release-please--') || startsWith(github.head_ref, 'assemble-release-notes/') }}
+        run: |
+          for lane in api web generated docker deps; do
+            case "$GITHUB_EVENT_NAME" in
+              pull_request)
+                if [ "$BOT_BRANCH" = true ]; then
+                  run=false
+                else
+                  run=$(printf '%s' "$FILTERED" | jq -r --arg lane "$lane" '.[$lane] // "false"')
+                fi
+                ;;
+              push) run=false ;;
+              *) run=true ;;
+            esac
+            echo "$lane=$run" | tee -a "$GITHUB_OUTPUT"
+          done
+
+  # Repo-wide invariants, cheap enough to never gate: three shell scripts over a
+  # bare checkout. release-notes-guard.sh is what holds a release PR red until
+  # its notes are assembled, and it gates the deps-only auto-merge, so it has to
+  # run on exactly the PRs whose lanes are all off.
+  guards:
+    name: Repo guards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - run: sh scripts/i18n-guard.sh
+      - run: sh scripts/release-notes-guard.sh
+      - run: sh scripts/compose-doc-guard.sh
+
   js:
     name: JS (biome, vitest, tsc)
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-latest
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -31,16 +165,12 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - run: sh scripts/i18n-guard.sh
-      - run: sh scripts/release-notes-guard.sh
-      - run: sh scripts/compose-doc-guard.sh
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm audit --prod
       - id: playwright-version
         run: echo "version=$(pnpm --filter @opusline/storybook exec playwright --version | tr ' ' '-')" >> "$GITHUB_OUTPUT"
       - id: playwright-cache
@@ -63,6 +193,14 @@ jobs:
           flags: web
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
+      # Kept so the push that merges this PR can hand the same report to Codecov
+      # under the commit that lands on main, instead of re-running the suite.
+      - uses: actions/upload-artifact@v7
+        with:
+          name: coverage-web
+          path: apps/web/coverage/lcov.info
+          if-no-files-found: error
+          retention-days: 7
 
   secret-scan:
     name: Secret scan (gitleaks)
@@ -80,6 +218,8 @@ jobs:
 
   api-static:
     name: API static analysis (pint, rector, phpstan)
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -102,7 +242,6 @@ jobs:
           key: composer-${{ hashFiles('apps/api/composer.lock') }}
           restore-keys: composer-
       - run: composer install --no-interaction --no-progress --prefer-dist
-      - run: composer audit
       - run: cp .env.example .env && php artisan key:generate
       - uses: actions/cache@v6
         with:
@@ -117,6 +256,8 @@ jobs:
 
   api-tests:
     name: API tests (${{ matrix.database }})
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -196,7 +337,6 @@ jobs:
           key: composer-${{ hashFiles('apps/api/composer.lock') }}
           restore-keys: composer-
       - run: composer install --no-interaction --no-progress --prefer-dist
-      - run: composer audit
       - run: cp .env.example .env && php artisan key:generate
       - if: matrix.coverage == 'none'
         run: php artisan config:clear --quiet && php artisan test --ci --parallel
@@ -209,13 +349,25 @@ jobs:
           flags: api
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
+      - if: matrix.coverage == 'pcov'
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-api
+          path: apps/api/coverage/clover.xml
+          if-no-files-found: error
+          retention-days: 7
 
   # The images are otherwise first built by publish-image.yml, after the release
   # tag already exists — and the entrypoint is where migrations run. Build both
   # targets single-arch and boot the real stack once, so that failure mode is a
-  # red PR instead of a broken release.
+  # red PR instead of a broken release. A change confined to the frontend source
+  # is not in the `docker` lane: the web image only compiles `vite build`, which
+  # the js job above already runs, and publish-image.yml rebuilds both targets
+  # on release anyway.
   docker:
     name: Prod images (build + boot)
+    needs: changes
+    if: needs.changes.outputs.docker == 'true'
     runs-on: ubuntu-latest
     env:
       # The workflow-level test env would win over the .env file in compose
@@ -261,6 +413,8 @@ jobs:
 
   spec-drift:
     name: Generated artifacts drift
+    needs: changes
+    if: needs.changes.outputs.generated == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -297,6 +451,8 @@ jobs:
 
   storybook:
     name: Storybook build
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-latest
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -313,8 +469,14 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec turbo run build:storybook
 
+  # The only home for the audits: the jobs above used to re-run `composer audit`
+  # four more times and `pnpm audit` once more between them. Gated on the
+  # manifests, so the weekly schedule above is what surfaces an advisory
+  # published against a lockfile nobody touched.
   audits:
     name: Dependency audits
+    needs: changes
+    if: needs.changes.outputs.deps == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -330,4 +492,62 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
+      # Production dependencies at any severity, every dependency at high.
+      - run: pnpm audit --prod
       - run: pnpm audit --audit-level high
+
+  # No lane runs on a push to main, so nothing here recomputes coverage: the
+  # report the merged PR already produced is handed to Codecov again under the
+  # commit that landed, which is what keeps the badge tracking reality. A run
+  # with no coverage artifact is normal — a backend-only PR uploads no web
+  # report, and codecov.yml carries each flag forward.
+  coverage-carry:
+    name: Carry coverage onto main
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Download the coverage the merged pull request produced
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          head=$(gh api "repos/$GH_REPO/commits/$GITHUB_SHA/pulls" --jq '.[0].head.sha // empty')
+          if [ -z "$head" ]; then
+            echo "::error::no pull request is associated with $GITHUB_SHA"
+            exit 1
+          fi
+          # A pull_request run reports against the head commit, not the merge
+          # commit, so the head sha is what finds it.
+          run=$(gh run list --commit "$head" --workflow ci.yml --limit 1 --json databaseId --jq '.[0].databaseId // empty')
+          if [ -z "$run" ]; then
+            echo "::error::no CI run found for $head"
+            exit 1
+          fi
+          uploaded=$(gh api "repos/$GH_REPO/actions/runs/$run/artifacts" --jq '.artifacts[].name')
+          for name in coverage-api coverage-web; do
+            if printf '%s\n' "$uploaded" | grep -qx "$name"; then
+              gh run download "$run" --name "$name" --dir "$name"
+            else
+              echo "run $run uploaded no $name."
+            fi
+          done
+      - if: hashFiles('coverage-api/clover.xml') != ''
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          files: coverage-api/clover.xml
+          flags: api
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+      - if: hashFiles('coverage-web/lcov.info') != ''
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          files: coverage-web/lcov.info
+          flags: web
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
