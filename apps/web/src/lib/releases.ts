@@ -14,6 +14,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.21.3",
+    date: "2026-09-10",
+    items: [
+      {
+        kind: "fixed",
+        text: "Loading placeholders are visible again on the dark theme, instead of blending into the page while a screen loads.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.21.2",
     date: "2026-09-10",
     items: [
