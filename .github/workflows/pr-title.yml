@@ -28,7 +28,9 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      # commitlint and its config are root devDependencies, so the five
+      # workspaces have nothing to contribute to linting one string.
+      - run: pnpm install --frozen-lockfile --filter=opusline
       - run: echo "$PR_TITLE" | pnpm exec commitlint
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}

@@ -65,6 +65,11 @@ Any PHP command goes through the wrapper, from `apps/api/`:
 sh scripts/php.sh php artisan test
 ```
 
+CI is narrower than the hooks: it runs only the lanes your diff touches, so a
+frontend-only PR reports the backend jobs as *skipped*, and a docs-only PR skips
+nearly everything. Skipped counts as passing — the lane table lives in the
+`Changed areas` job at the top of `.github/workflows/ci.yml`.
+
 ## The hooks
 
 `pnpm install` installed them. Pre-commit formats what you staged — Biome on
