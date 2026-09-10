@@ -1,5 +1,6 @@
 import type {
   ClientData,
+  DocumentData,
   InvoiceClientTotalsData,
   InvoiceData,
   InvoiceDetailData,
@@ -34,6 +35,16 @@ export {
   overrunFixedPriceBudget,
 };
 
+/** The PDF a billing tool issued, once it has been filed against the invoice. */
+export const INVOICE_DOCUMENT: DocumentData = {
+  id: 77,
+  fileName: "F-2026-014.pdf",
+  category: 11,
+  source: 1,
+  sizeBytes: 184_320,
+  createdAt: "2026-07-01T09:12:00+00:00",
+};
+
 export const secondClient = {
   ...CLIENT_FIXTURE,
   id: 2,
@@ -63,6 +74,7 @@ export function clientTotals(
 
 export function invoiceDetail(
   overrides: Partial<InvoiceData> = {},
+  document: DocumentData | null = null,
 ): InvoiceDetailData {
   const item = invoiceItem(overrides);
 
@@ -70,6 +82,7 @@ export function invoiceDetail(
     invoice: item.invoice,
     client: item.client,
     mission: item.mission,
+    document,
     history: [
       { id: 1, kind: 0, occurredOn: "2026-06-30", note: null },
       { id: 2, kind: 1, occurredOn: "2026-06-30", note: null },

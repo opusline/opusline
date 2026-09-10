@@ -1,9 +1,11 @@
 import {
+  deleteInvoiceDocumentMutation,
   payInvoiceMutation,
   remindInvoiceMutation,
   sendInvoiceMutation,
   showInvoiceOptions,
   updateInvoiceMutation,
+  uploadInvoiceDocumentMutation,
 } from "@opusline/api-client/react-query";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
@@ -21,6 +23,7 @@ import { invalidateInvoiceWrites } from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
+import { InvoiceDocumentPanel } from "./invoice-document-panel";
 import { InvoiceDrawer } from "./invoice-drawer";
 import { InvoiceLifecycleActions } from "./invoice-lifecycle-actions";
 
@@ -48,6 +51,9 @@ export function InvoiceDrawerProvider({
   const router = useRouter();
   const [openInvoiceId, setOpenInvoiceId] = useState<number | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  // Its own channel: filing the document is a second form in the same drawer, and
+  // a refused upload must not read as a refused transition.
+  const [documentError, setDocumentError] = useState<string | null>(null);
 
   const detail = useQuery({
     ...showInvoiceOptions({ path: { invoice: openInvoiceId ?? 0 } }),
@@ -60,10 +66,12 @@ export function InvoiceDrawerProvider({
   const closeInvoice = () => {
     setOpenInvoiceId(null);
     setActionError(null);
+    setDocumentError(null);
   };
 
   const openInvoice = useCallback((invoiceId: number) => {
     setActionError(null);
+    setDocumentError(null);
     setOpenInvoiceId(invoiceId);
   }, []);
 
@@ -77,6 +85,7 @@ export function InvoiceDrawerProvider({
         if (event.pathChanged) {
           setOpenInvoiceId(null);
           setActionError(null);
+          setDocumentError(null);
         }
       }),
     [router],
@@ -117,6 +126,24 @@ export function InvoiceDrawerProvider({
     onMutate: () => setActionError(null),
     onSuccess: refresh,
     onError: reportFailure(m.invoices_pay_failed()),
+  });
+
+  const reportDocumentFailure = (fallback: string) => (error: unknown) => {
+    setDocumentError(serverErrorMessage(error, fallback));
+  };
+
+  const fileDocument = useMutation({
+    ...uploadInvoiceDocumentMutation(),
+    onMutate: () => setDocumentError(null),
+    onSuccess: refresh,
+    onError: reportDocumentFailure(m.invoices_document_failed()),
+  });
+
+  const unfileDocument = useMutation({
+    ...deleteInvoiceDocumentMutation(),
+    onMutate: () => setDocumentError(null),
+    onSuccess: refresh,
+    onError: reportDocumentFailure(m.invoices_document_remove_failed()),
   });
 
   /**
@@ -167,30 +194,49 @@ export function InvoiceDrawerProvider({
       <InvoiceDrawer
         actions={
           detail.data === undefined ? null : (
-            <InvoiceLifecycleActions
-              accountToday={accountToday}
-              error={actionError}
-              invoice={detail.data.invoice}
-              isPending={
-                send.isPending ||
-                setReference.isPending ||
-                pay.isPending ||
-                remind.isPending
-              }
-              onPay={(paidOn) =>
-                pay.mutate({
-                  path: { invoice: detail.data.invoice.id },
-                  body: { paidOn },
-                })
-              }
-              onRemind={() =>
-                remind.mutate({
-                  path: { invoice: detail.data.invoice.id },
-                  body: { occurredOn: accountToday, note: null },
-                })
-              }
-              onSend={(reference) => void markSent(reference)}
-            />
+            <>
+              <InvoiceLifecycleActions
+                accountToday={accountToday}
+                error={actionError}
+                invoice={detail.data.invoice}
+                isPending={
+                  send.isPending ||
+                  setReference.isPending ||
+                  pay.isPending ||
+                  remind.isPending
+                }
+                onPay={(paidOn) =>
+                  pay.mutate({
+                    path: { invoice: detail.data.invoice.id },
+                    body: { paidOn },
+                  })
+                }
+                onRemind={() =>
+                  remind.mutate({
+                    path: { invoice: detail.data.invoice.id },
+                    body: { occurredOn: accountToday, note: null },
+                  })
+                }
+                onSend={(reference) => void markSent(reference)}
+              />
+              <InvoiceDocumentPanel
+                document={detail.data.document}
+                error={documentError}
+                invoice={detail.data.invoice}
+                isPending={fileDocument.isPending || unfileDocument.isPending}
+                onRemove={() =>
+                  unfileDocument.mutate({
+                    path: { invoice: detail.data.invoice.id },
+                  })
+                }
+                onUpload={(file) =>
+                  fileDocument.mutate({
+                    path: { invoice: detail.data.invoice.id },
+                    body: { file },
+                  })
+                }
+              />
+            </>
           )
         }
         detail={detail.data}
