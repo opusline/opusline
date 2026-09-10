@@ -14,7 +14,7 @@ type InvoiceLifecycleActionsProps = {
   /** Today in the account's timezone — the date the API's fiscal rules accept. */
   accountToday: string;
   /** The reference is only supplied when the draft does not carry one yet. */
-  onSend: (reference: string | null) => void;
+  onSend: (reference: string | null, sentOn: string) => void;
   onPay: (paidOn: string) => void;
   onRemind: () => void;
 };
@@ -24,8 +24,8 @@ type InvoiceLifecycleActionsProps = {
  *
  * Each step is its own endpoint rather than a status field, so each one lands in the
  * invoice's history — which is the record that matters when a client asks when they
- * were chased. Paid is the end of the road here: correcting a payment date shifts
- * revenue between declaration periods and goes through an edit, not a transition.
+ * were chased. Paid is the end of the road here: once the money is in, the dates are
+ * corrected in InvoiceDateCorrections rather than transitioned again.
  */
 export function InvoiceLifecycleActions({
   invoice,
@@ -43,7 +43,12 @@ export function InvoiceLifecycleActions({
   return (
     <section className="border-t px-4 py-5">
       {invoice.status === 0 ? (
-        <SendStep invoice={invoice} isPending={isPending} onSend={onSend} />
+        <SendStep
+          accountToday={accountToday}
+          invoice={invoice}
+          isPending={isPending}
+          onSend={onSend}
+        />
       ) : (
         <CollectStep
           accountToday={accountToday}
@@ -64,16 +69,22 @@ export function InvoiceLifecycleActions({
 }
 
 function SendStep({
+  accountToday,
   invoice,
   isPending,
   onSend,
 }: {
+  accountToday: string;
   invoice: InvoiceData;
   isPending: boolean;
-  onSend: (reference: string | null) => void;
+  onSend: (reference: string | null, sentOn: string) => void;
 }) {
   const referenceFieldId = useId();
+  const sentOnFieldId = useId();
   const [reference, setReference] = useState("");
+  // The invoice's own date, because most go out the day they are written; a
+  // draft prepared on Friday and posted on Monday says so instead.
+  const [sentOn, setSentOn] = useState(invoice.issuedOn);
   const needsReference = invoice.number === null;
   const trimmed = reference.trim();
 
@@ -82,7 +93,7 @@ function SendStep({
       className="flex flex-col gap-3"
       onSubmit={(event) => {
         event.preventDefault();
-        onSend(needsReference ? trimmed : null);
+        onSend(needsReference ? trimmed : null, sentOn);
       }}
     >
       {needsReference && (
@@ -102,10 +113,26 @@ function SendStep({
         </div>
       )}
 
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor={sentOnFieldId}>{m.invoices_sent_on_label()}</Label>
+        <DateField
+          id={sentOnFieldId}
+          max={accountToday}
+          min={invoice.issuedOn}
+          onChange={setSentOn}
+          value={sentOn}
+        />
+        <p className="text-muted-foreground-3 text-xs">
+          {m.invoices_sent_on_hint()}
+        </p>
+      </div>
+
       <Button
         type="submit"
         className="self-start"
-        disabled={isPending || (needsReference && trimmed === "")}
+        disabled={
+          isPending || sentOn === "" || (needsReference && trimmed === "")
+        }
       >
         {isPending ? m.common_saving() : m.invoices_mark_sent()}
       </Button>
