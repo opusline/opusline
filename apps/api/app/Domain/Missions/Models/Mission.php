@@ -21,6 +21,7 @@ use Carbon\CarbonImmutable;
 use Cknow\Money\Casts\MoneyIntegerCast;
 use Cknow\Money\Money;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\RouteKey;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -71,6 +72,7 @@ use Spatie\Sluggable\SlugOptions;
     'start_date',
     'end_date',
 ])]
+#[RouteKey('slug')]
 class Mission extends Model implements HasMedia
 {
     /** @use HasFactory<MissionFactory> */
@@ -88,12 +90,6 @@ class Mission extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection(self::DOCUMENT_COLLECTION);
-    }
-
-    #[\Override]
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
     }
 
     /**

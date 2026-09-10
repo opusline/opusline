@@ -14,6 +14,7 @@ use App\Domain\Shared\Routing\OwnedRouteBinding;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\RouteKey;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -65,6 +66,7 @@ use Spatie\Sluggable\SlugOptions;
     'payment_terms_days',
     'archived_at',
 ])]
+#[RouteKey('slug')]
 class Client extends Model implements HasMedia
 {
     /** @use HasFactory<ClientFactory> */
@@ -130,12 +132,6 @@ class Client extends Model implements HasMedia
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
-    }
-
-    #[\Override]
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
     }
 
     /**
