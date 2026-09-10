@@ -1,7 +1,6 @@
 import type {
   LoginResponse,
   TwoFactorChallengeData,
-  TwoFactorMethod,
 } from "@opusline/api-client";
 
 import {
@@ -10,15 +9,6 @@ import {
   serverStatus,
 } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
-
-const METHOD_LABELS: Record<TwoFactorMethod, () => string> = {
-  0: m.auth_method_totp,
-  1: m.auth_method_passkey,
-};
-
-export function twoFactorMethodLabel(method: TwoFactorMethod): string {
-  return METHOD_LABELS[method]();
-}
 
 /** POST /login answers 200 with the user or 202 with the challenge; only the body tells them apart. */
 export function isTwoFactorChallenge(

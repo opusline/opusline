@@ -4,7 +4,6 @@ import type {
   InvoiceData,
   InvoiceDetailData,
   InvoiceTodoData,
-  InvoiceTodoOverdueData,
   InvoiceTodoWorkData,
   MoneyData,
 } from "@opusline/api-client";
@@ -18,7 +17,6 @@ import {
   invoiceItem,
   invoiceSummary,
   MISSION_FIXTURE,
-  OVERDUE_TODO,
   overrunFixedPriceBudget,
   UNBILLED_TODO,
 } from "@/test/fixtures";
@@ -75,16 +73,6 @@ export function invoiceDetail(
       { id: 2, kind: 1, occurredOn: "2026-06-30", note: null },
       { id: 3, kind: 3, occurredOn: "2026-07-24", note: null },
     ],
-  };
-}
-
-/** An overdue row, or — with `work` overrides — a row of work waiting to be billed. */
-export function overdueTodoRow(
-  overrides: Partial<InvoiceTodoOverdueData> = {},
-): InvoiceTodoData {
-  return {
-    ...OVERDUE_TODO,
-    overdue: { ...OVERDUE_TODO.overdue, ...overrides },
   };
 }
 
