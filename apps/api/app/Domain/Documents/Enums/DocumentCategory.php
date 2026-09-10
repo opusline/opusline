@@ -20,4 +20,7 @@ enum DocumentCategory: int
     case Insurance = 8;
     case BankDetails = 9;
     case TermsOfSale = 10;
+
+    /** The document the user's billing tool issued, filed against the invoice it is. */
+    case IssuedInvoice = 11;
 }

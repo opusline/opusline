@@ -21,6 +21,7 @@ return [
     'cannot_send_unless_draft' => 'Only a draft can be marked as sent.',
     'cannot_pay_unless_sent' => 'Only a sent invoice can be marked as paid.',
     'cannot_remind' => 'A reminder can only be logged on a sent, unpaid invoice.',
+    'cannot_attach_document_unless_issued' => 'A draft has no document to file yet. Mark the invoice as sent first.',
     'cannot_change_invoiced_time_entry' => 'This time is billed: its mission, date, duration, rounding and billable flag can no longer change.',
     'cannot_delete_invoiced_time_entry' => 'This time is billed by an invoice. Detach it from the invoice before deleting it.',
     'link_requires_mission' => 'Attach the invoice to a mission before covering tracked time with it.',

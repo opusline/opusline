@@ -44,4 +44,17 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::patch('/invoices/{invoice}/dates', [InvoiceController::class, 'correctDates'])
         ->whereNumber('invoice')
         ->name('correctInvoiceDates');
+
+    // One document per invoice, so the path names the invoice's document rather
+    // than a member of a collection it does not have.
+    Route::post('/invoices/{invoice}/document', [InvoiceController::class, 'storeDocument'])
+        ->whereNumber('invoice')
+        ->middleware('throttle:uploads')
+        ->name('uploadInvoiceDocument');
+    Route::get('/invoices/{invoice}/document', [InvoiceController::class, 'downloadDocument'])
+        ->whereNumber('invoice')
+        ->name('downloadInvoiceDocument');
+    Route::delete('/invoices/{invoice}/document', [InvoiceController::class, 'destroyDocument'])
+        ->whereNumber('invoice')
+        ->name('deleteInvoiceDocument');
 });

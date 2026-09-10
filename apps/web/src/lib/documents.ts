@@ -21,6 +21,7 @@ const DOCUMENT_CATEGORY_MESSAGES: Record<DocumentCategory, () => string> = {
   8: m.documents_category_insurance,
   9: m.documents_category_bank_details,
   10: m.documents_category_terms_of_sale,
+  11: m.documents_category_issued_invoice,
 };
 
 /**
@@ -209,6 +210,13 @@ export function userDocumentDownloadHref(documentId: number): string {
   return apiClient.buildUrl({
     url: "/user/documents/{document}/download",
     path: { document: documentId },
+  });
+}
+
+export function invoiceDocumentDownloadHref(invoiceId: number): string {
+  return apiClient.buildUrl({
+    url: "/invoices/{invoice}/document",
+    path: { invoice: invoiceId },
   });
 }
 

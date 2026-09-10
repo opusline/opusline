@@ -22,6 +22,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * @property int $id
@@ -64,6 +66,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 ])]
 class Invoice extends Model
 {
+    /**
+     * An invoice's own document is filed on its client, next to everything else that
+     * client sends or receives, so the document library finds it without knowing what
+     * an invoice is. The property is what tells the client's pile which file belongs
+     * to which invoice.
+     */
+    public const string DOCUMENT_INVOICE_PROPERTY = 'invoiceId';
+
     /** @use HasFactory<InvoiceFactory> */
     use HasFactory;
 
@@ -147,6 +157,40 @@ class Invoice extends Model
         return $this->hasMany(InvoiceEvent::class)
             ->orderBy('occurred_on')
             ->orderBy('id');
+    }
+
+    /**
+     * The custom properties the document filed for this invoice carries.
+     *
+     * @return array<string, int>
+     */
+    public function documentProperties(): array
+    {
+        return [self::DOCUMENT_INVOICE_PROPERTY => $this->id];
+    }
+
+    /**
+     * The invoice's own document, as a relation on the client's pile.
+     *
+     * Matched on the invoice id alone, not on the category too: the client's Documents
+     * tab lets a category be corrected, and that must not lose the invoice its file.
+     *
+     * @return MorphMany<Media, Client>
+     */
+    public function document(): MorphMany
+    {
+        return $this->client
+            ->media()
+            ->where('collection_name', Client::DOCUMENT_COLLECTION)
+            ->where('custom_properties->'.self::DOCUMENT_INVOICE_PROPERTY, $this->id);
+    }
+
+    /** The one document filed for this invoice, or null while it carries none. */
+    public function attachedDocument(): ?Media
+    {
+        $this->loadMissing('client');
+
+        return $this->document()->first();
     }
 
     /** @return HasMany<TimeEntry, $this> */

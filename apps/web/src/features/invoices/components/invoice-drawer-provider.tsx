@@ -1,10 +1,12 @@
 import {
   correctInvoiceDatesMutation,
+  deleteInvoiceDocumentMutation,
   payInvoiceMutation,
   remindInvoiceMutation,
   sendInvoiceMutation,
   showInvoiceOptions,
   updateInvoiceMutation,
+  uploadInvoiceDocumentMutation,
 } from "@opusline/api-client/react-query";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
@@ -25,6 +27,7 @@ import { m } from "@/paraglide/messages.js";
 import { sentOnFrom } from "../lib/history";
 import type { InvoiceDateCorrection } from "./invoice-date-corrections";
 import { InvoiceDateCorrections } from "./invoice-date-corrections";
+import { InvoiceDocumentPanel } from "./invoice-document-panel";
 import { InvoiceDrawer } from "./invoice-drawer";
 import { InvoiceLifecycleActions } from "./invoice-lifecycle-actions";
 
@@ -52,9 +55,11 @@ export function InvoiceDrawerProvider({
   const router = useRouter();
   const [openInvoiceId, setOpenInvoiceId] = useState<number | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-  // Its own channel: the corrections form is a second form in the same drawer,
-  // and a refused correction must not read as a refused transition.
+  // Their own channels: the corrections form and the document panel are further
+  // forms in the same drawer, and neither a refused correction nor a refused
+  // upload must read as a refused transition.
   const [correctionError, setCorrectionError] = useState<string | null>(null);
+  const [documentError, setDocumentError] = useState<string | null>(null);
 
   const detail = useQuery({
     ...showInvoiceOptions({ path: { invoice: openInvoiceId ?? 0 } }),
@@ -68,11 +73,13 @@ export function InvoiceDrawerProvider({
     setOpenInvoiceId(null);
     setActionError(null);
     setCorrectionError(null);
+    setDocumentError(null);
   };
 
   const openInvoice = useCallback((invoiceId: number) => {
     setActionError(null);
     setCorrectionError(null);
+    setDocumentError(null);
     setOpenInvoiceId(invoiceId);
   }, []);
 
@@ -87,6 +94,7 @@ export function InvoiceDrawerProvider({
           setOpenInvoiceId(null);
           setActionError(null);
           setCorrectionError(null);
+          setDocumentError(null);
         }
       }),
     [router],
@@ -140,6 +148,24 @@ export function InvoiceDrawerProvider({
     onMutate: () => setCorrectionError(null),
     onSuccess: refresh,
     onError: reportCorrectionFailure,
+  });
+
+  const reportDocumentFailure = (fallback: string) => (error: unknown) => {
+    setDocumentError(serverErrorMessage(error, fallback));
+  };
+
+  const fileDocument = useMutation({
+    ...uploadInvoiceDocumentMutation(),
+    onMutate: () => setDocumentError(null),
+    onSuccess: refresh,
+    onError: reportDocumentFailure(m.invoices_document_failed()),
+  });
+
+  const unfileDocument = useMutation({
+    ...deleteInvoiceDocumentMutation(),
+    onMutate: () => setDocumentError(null),
+    onSuccess: refresh,
+    onError: reportDocumentFailure(m.invoices_document_remove_failed()),
   });
 
   /**
@@ -231,6 +257,23 @@ export function InvoiceDrawerProvider({
                   })
                 }
                 sentOn={sentOnFrom(detail.data)}
+              />
+              <InvoiceDocumentPanel
+                document={detail.data.document}
+                error={documentError}
+                invoice={detail.data.invoice}
+                isPending={fileDocument.isPending || unfileDocument.isPending}
+                onRemove={() =>
+                  unfileDocument.mutate({
+                    path: { invoice: detail.data.invoice.id },
+                  })
+                }
+                onUpload={(file) =>
+                  fileDocument.mutate({
+                    path: { invoice: detail.data.invoice.id },
+                    body: { file },
+                  })
+                }
               />
             </>
           )

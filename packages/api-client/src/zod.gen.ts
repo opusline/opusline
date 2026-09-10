@@ -314,6 +314,7 @@ export const zDeadlineItemType = z.union([
  * | `8` <br/>  |
  * | `9` <br/>  |
  * | `10` <br/>  |
+ * | `11` <br/> The document the user's billing tool issued, filed against the invoice it is. |
  */
 export const zDocumentCategory = z.union([
     z.literal(0),
@@ -326,7 +327,8 @@ export const zDocumentCategory = z.union([
     z.literal(7),
     z.literal(8),
     z.literal(9),
-    z.literal(10)
+    z.literal(10),
+    z.literal(11)
 ]);
 
 /**
@@ -861,7 +863,8 @@ export const zInvoiceDetailData = z.object({
     invoice: zInvoiceData,
     client: zClientData,
     mission: z.nullable(zMissionData),
-    history: z.array(zInvoiceEventData)
+    history: z.array(zInvoiceEventData),
+    document: z.nullable(zDocumentData)
 });
 
 /**
@@ -1543,6 +1546,13 @@ export const zUploadDocumentData = z.object({
 });
 
 /**
+ * UploadInvoiceDocumentData
+ */
+export const zUploadInvoiceDocumentData = z.object({
+    file: z.string()
+});
+
+/**
  * UploadSignatureData
  */
 export const zUploadSignatureData = z.object({
@@ -2086,6 +2096,29 @@ export const zCorrectInvoiceDatesPath = z.object({
 });
 
 export const zCorrectInvoiceDatesResponse = zInvoiceDetailData;
+
+export const zDeleteInvoiceDocumentPath = z.object({
+    invoice: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteInvoiceDocumentResponse = z.void();
+
+export const zDownloadInvoiceDocumentPath = z.object({
+    invoice: z.int()
+});
+
+export const zDownloadInvoiceDocumentResponse = z.string();
+
+export const zUploadInvoiceDocumentBody = zUploadInvoiceDocumentData;
+
+export const zUploadInvoiceDocumentPath = z.object({
+    invoice: z.int()
+});
+
+export const zUploadInvoiceDocumentResponse = zInvoiceDetailData;
 
 export const zDeleteMissionPath = z.object({
     client: z.string(),

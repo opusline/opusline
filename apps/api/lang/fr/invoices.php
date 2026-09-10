@@ -21,6 +21,7 @@ return [
     'cannot_send_unless_draft' => 'Seul un brouillon peut être marqué comme envoyé.',
     'cannot_pay_unless_sent' => 'Seule une facture envoyée peut être marquée comme payée.',
     'cannot_remind' => 'Une relance ne se note que sur une facture envoyée et non encore payée.',
+    'cannot_attach_document_unless_issued' => 'Un brouillon n\'a pas encore de document à classer. Marquez d\'abord la facture comme envoyée.',
     'cannot_change_invoiced_time_entry' => 'Ce temps est facturé : sa mission, sa date, sa durée, son arrondi et son caractère facturable ne peuvent plus changer.',
     'cannot_delete_invoiced_time_entry' => 'Ce temps est rattaché à une facture. Détachez-le de la facture avant de le supprimer.',
     'link_requires_mission' => 'Rattachez la facture à une mission avant d\'y rattacher des temps.',
