@@ -17,7 +17,7 @@ import {
 import { useEffect } from "react";
 import { afterEach, expect, it, vi } from "vitest";
 
-import { invoiceDetail } from "../lib/fixtures";
+import { INVOICE_DOCUMENT, invoiceDetail } from "../lib/fixtures";
 import {
   InvoiceDrawerProvider,
   useOpenInvoice,
@@ -210,6 +210,81 @@ it("does not send when the reference write is refused", async () => {
   );
   expect(requests.some((request) => request.path.endsWith("/send"))).toBe(
     false,
+  );
+});
+
+/** The panel's picker: hidden, and opened by the visible controls. */
+function filePicker(): HTMLInputElement {
+  const input = screen
+    .getByRole("dialog")
+    .querySelector<HTMLInputElement>('input[type="file"]');
+
+  if (input === null) {
+    throw new Error("the fiche renders no file picker");
+  }
+
+  return input;
+}
+
+it("files the document handed to the fiche", async () => {
+  const requests = stubApi();
+  await renderApp();
+
+  fireEvent.click(screen.getByRole("button", { name: "ouvrir" }));
+  await screen.findByText("2026-014");
+
+  fireEvent.change(filePicker(), {
+    target: {
+      files: [
+        new File(["%PDF-1.4"], "facture.pdf", {
+          type: "application/pdf",
+        }),
+      ],
+    },
+  });
+
+  await waitFor(() => {
+    expect(
+      requests.some(
+        (request) =>
+          request.method === "POST" &&
+          request.path === "/api/invoices/1/document",
+      ),
+    ).toBe(true);
+  });
+});
+
+it("unfiles the document on request", async () => {
+  const requests = stubApi(invoiceDetail({}, INVOICE_DOCUMENT));
+  await renderApp();
+
+  fireEvent.click(screen.getByRole("button", { name: "ouvrir" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Retirer" }));
+
+  await waitFor(() => {
+    expect(
+      requests.some(
+        (request) =>
+          request.method === "DELETE" &&
+          request.path === "/api/invoices/1/document",
+      ),
+    ).toBe(true);
+  });
+});
+
+it("reports a refused document without touching the transition", async () => {
+  stubApi(invoiceDetail({}, INVOICE_DOCUMENT), (request) =>
+    request.method === "DELETE"
+      ? jsonResponse(409, { message: "Le document est introuvable." })
+      : null,
+  );
+  await renderApp();
+
+  fireEvent.click(screen.getByRole("button", { name: "ouvrir" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Retirer" }));
+
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "Le document est introuvable.",
   );
 });
 

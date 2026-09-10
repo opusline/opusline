@@ -64,6 +64,52 @@ it("files the picked document", () => {
   expect(onUpload).toHaveBeenCalledWith(file);
 });
 
+it("opens the picker from the dropzone", () => {
+  renderPanel();
+  const opened = vi.spyOn(picker(), "click");
+
+  fireEvent.click(screen.getByRole("button", { name: /Ajouter la facture/ }));
+
+  expect(opened).toHaveBeenCalled();
+});
+
+it("opens the picker from the replace button", () => {
+  renderPanel({ document: INVOICE_DOCUMENT });
+  const opened = vi.spyOn(picker(), "click");
+
+  fireEvent.click(screen.getByRole("button", { name: "Remplacer" }));
+
+  expect(opened).toHaveBeenCalled();
+});
+
+it("files a document dropped onto the zone", () => {
+  const { onUpload } = renderPanel();
+  const file = pdf();
+  const zone = screen.getByRole("button", { name: /Ajouter la facture/ });
+
+  fireEvent.dragOver(zone);
+  fireEvent.drop(zone, { dataTransfer: { files: [file] } });
+
+  expect(onUpload).toHaveBeenCalledWith(file);
+});
+
+it("stops offering the controls while a write is in flight", () => {
+  renderPanel({ document: INVOICE_DOCUMENT, isPending: true });
+
+  expect(screen.getByRole("button", { name: "Remplacer" })).toBeDisabled();
+  expect(screen.getByRole("button", { name: "Retirer" })).toBeDisabled();
+});
+
+it("ignores a drop that carries no file", () => {
+  const { onUpload } = renderPanel();
+  const zone = screen.getByRole("button", { name: /Ajouter la facture/ });
+
+  fireEvent.dragLeave(zone);
+  fireEvent.drop(zone, { dataTransfer: { files: [] } });
+
+  expect(onUpload).not.toHaveBeenCalled();
+});
+
 it("refuses a file an invoice would never be, without calling the API", () => {
   const { onUpload } = renderPanel();
 
