@@ -21,6 +21,7 @@ class UpdateSettings
         private readonly GenerateFiscalDeadlines $generateFiscalDeadlines,
         private readonly ResolveExpectedCfe $resolveExpectedCfe,
         private readonly ResetDeadlineReminders $resetDeadlineReminders,
+        private readonly RecordContributionRate $recordContributionRate,
     ) {}
 
     /**
@@ -35,6 +36,7 @@ class UpdateSettings
             $this->resolveExpectedCfe->handle($settings)?->amount,
         );
         $wasFollowingOfficialRates = $settings->auto_rates;
+        $previousRateBp = $settings->effectiveContributionRateBp();
         // Gate on the country being saved, not the stored one: moving the
         // business out of France must strip the French flags in the same write.
         $hasFrenchFiscality = $data->businessCountry === UserSettings::FRENCH_FISCALITY_COUNTRY;
@@ -100,6 +102,10 @@ class UpdateSettings
                 'cfe_expected_cents' => $hasFrenchFiscality ? $data->cfeExpected?->toMoney() : null,
             ]);
         });
+
+        // After the write, before anything reads a provision: a period that closed
+        // under the old rate has to keep being priced with it.
+        $this->recordContributionRate->handle($settings, $previousRateBp);
 
         $calendarAfter = $this->generateFiscalDeadlines->signature(
             $settings,
