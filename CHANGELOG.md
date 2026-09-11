@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.24.0](https://github.com/opusline/opusline/compare/v0.23.1...v0.24.0) (2026-09-11)
+
+
+### Features
+
+* **web:** show how far an uploaded file has got ([#333](https://github.com/opusline/opusline/issues/333)) ([6bb93cd](https://github.com/opusline/opusline/commit/6bb93cd6572849891fff43327dbb5e17395bf504))
+
+
+### Bug Fixes
+
+* **api:** let the date an invoice bears be corrected ([#331](https://github.com/opusline/opusline/issues/331)) ([415e8aa](https://github.com/opusline/opusline/commit/415e8aa4f38146b5a035d6c9a43bf5197912d8a0))
+* **api:** price a carried URSSAF period at its own rate ([#334](https://github.com/opusline/opusline/issues/334)) ([1b7a32d](https://github.com/opusline/opusline/commit/1b7a32d46cbc3a337c02ee35ff5a3c403ef0f804))
+
 ## [0.23.1](https://github.com/opusline/opusline/compare/v0.23.0...v0.23.1) (2026-09-11)
 
 
