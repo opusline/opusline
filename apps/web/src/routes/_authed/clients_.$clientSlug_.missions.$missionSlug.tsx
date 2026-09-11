@@ -3,6 +3,7 @@ import {
   deleteMissionDocumentMutation,
   listClientsQueryKey,
   listMissionDocumentsOptions,
+  listMissionDocumentsQueryKey,
   listMissionTimeEntriesOptions,
   showClientOptions,
   showMissionOptions,
@@ -18,6 +19,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 
 import { DocumentsTab } from "@/components/documents-tab";
+import { MissionCraTab } from "@/features/cra/components/mission-cra-tab";
 import { InvoiceListTab } from "@/features/invoices/components/invoice-list-tab";
 import { MissionDetailPage } from "@/features/missions/components/mission-detail-page";
 import { isMissionTab, type MissionTab } from "@/features/missions/lib/tabs";
@@ -26,6 +28,7 @@ import { accountTodayCalendarDate } from "@/lib/dates";
 import {
   ASSIGNABLE_DOCUMENT_CATEGORIES,
   documentHandlers,
+  dropDocumentFromCache,
   isClientDocument,
   missionDocumentDownloadHref,
 } from "@/lib/documents";
@@ -173,6 +176,10 @@ function MissionDetailRoute() {
         path: { ...missionPath, document: document.id },
       }),
     invalidate: () => invalidateDocumentWrites(queryClient),
+    dropFromCache: dropDocumentFromCache(
+      queryClient,
+      listMissionDocumentsQueryKey({ path: missionPath }),
+    ),
   });
 
   if (clientQuery.isPending || missionQuery.isPending) {
@@ -219,6 +226,19 @@ function MissionDetailRoute() {
     />
   );
 
+  const craTab = (
+    <MissionCraTab
+      missionId={missionQuery.data.id}
+      onOpen={(row) =>
+        void navigate({
+          search: row.id === null ? {} : { cra: row.id },
+          to: "/cra",
+        })
+      }
+      onOpenAll={() => void navigate({ to: "/cra" })}
+    />
+  );
+
   const invoicesTab = (
     <InvoiceListTab
       accountToday={accountTodayCalendarDate(user.timezone)}
@@ -234,13 +254,13 @@ function MissionDetailRoute() {
   return (
     <MissionDetailPage
       client={clientQuery.data}
+      craTab={craTab}
       documentsTab={documentsTab}
       error={writeErrorBanner(updateMission.error, m.common_action_failed())}
       invoicesTab={invoicesTab}
       isStatusPending={isMutating}
       isUpdatePending={isMutating}
       mission={missionQuery.data}
-      onOpenCra={() => void navigate({ to: "/cra" })}
       onSetStatus={(status) => void handleSetStatus(status)}
       onTabChange={(next) =>
         void navigate({

@@ -891,7 +891,7 @@ export const zInvoiceListData = z.object({
 export const zMonthWorkloadData = z.object({
     month: z.string(),
     businessDays: z.int(),
-    workedDays: z.number()
+    workedDays: z.int()
 });
 
 /**

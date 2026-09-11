@@ -1,0 +1,4 @@
+{
+  "kind": "fixed",
+  "text": "The week view's \u00ab Mois en cours \u00bb tile now counts the days you worked rather than how full each of them was, so a month of short days reads 9 days and not 6.8."
+}

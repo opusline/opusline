@@ -1,4 +1,8 @@
-import type { DeadlineBoardData, DeadlineItemData } from "@opusline/api-client";
+import type {
+  DeadlineBoardData,
+  DeadlineItemData,
+  FiscalDeadlineData,
+} from "@opusline/api-client";
 import {
   completeDeadlineMutation,
   confirmCalendarSubscriptionMutation,
@@ -67,6 +71,37 @@ function DeadlinesRoute() {
     onError: (cause: unknown) =>
       setError(serverErrorMessage(cause, whenItFails)),
   });
+
+  /**
+   * Tick the box before the server answers. Only the line that was clicked moves:
+   * which deadline comes next, and the sidebar badge that follows it, are the
+   * API's to recompute, and the response that replaces this board is a moment
+   * away. Returns the undo, for a write that never lands.
+   */
+  const paintFiscal = (
+    fiscal: FiscalDeadlineData,
+    completedOn: string | null,
+  ) => {
+    const previous = queryClient.getQueryData<DeadlineBoardData>(
+      listDeadlinesQueryKey(),
+    );
+
+    if (previous === undefined) {
+      return () => {};
+    }
+
+    queryClient.setQueryData<DeadlineBoardData>(listDeadlinesQueryKey(), {
+      ...previous,
+      items: previous.items.map((item) =>
+        item.fiscal?.kind === fiscal.kind &&
+        item.fiscal.periodKey === fiscal.periodKey
+          ? { ...item, fiscal: { ...item.fiscal, completedOn } }
+          : item,
+      ),
+    });
+
+    return () => queryClient.setQueryData(listDeadlinesQueryKey(), previous);
+  };
 
   const releasing = { onSettled: () => setPendingKey(null) };
 
@@ -146,17 +181,23 @@ function DeadlinesRoute() {
     setError(null);
     setPendingKey(deadlineItemKey(item));
 
-    if (fiscal.completedOn === null) {
-      complete.mutate({
-        body: { kind: fiscal.kind, periodKey: fiscal.periodKey },
-      });
+    const wasCompleted = fiscal.completedOn !== null;
+    const undo = paintFiscal(fiscal, wasCompleted ? null : today);
+    const onError = { onError: undo };
+
+    if (wasCompleted) {
+      uncomplete.mutate(
+        { path: { kind: fiscal.kind, periodKey: fiscal.periodKey } },
+        onError,
+      );
 
       return;
     }
 
-    uncomplete.mutate({
-      path: { kind: fiscal.kind, periodKey: fiscal.periodKey },
-    });
+    complete.mutate(
+      { body: { kind: fiscal.kind, periodKey: fiscal.periodKey } },
+      onError,
+    );
   };
 
   if (board.isPending) {

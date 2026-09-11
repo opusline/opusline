@@ -130,6 +130,22 @@ const unbillableInvoicesTab = (
   </Empty>
 );
 
+/*
+ * A stand-in, like the invoices tab above: the real one lives in the CRA feature
+ * and is documented by Web/Cra/MissionCraTab. The route composes them both.
+ */
+const craTab = (
+  <Empty className="px-7 py-9">
+    <EmptyHeader className="gap-2">
+      <EmptyTitle variant="strong">Comptes rendus d&apos;activité</EmptyTitle>
+      <EmptyDescription className="text-muted-foreground-3 text-sm leading-relaxed">
+        Les mois de cette mission s&apos;empilent ici, du plus récent au plus
+        ancien.
+      </EmptyDescription>
+    </EmptyHeader>
+  </Empty>
+);
+
 const meta = {
   title: "Web/MissionDetailPage",
   component: MissionDetailPage,
@@ -142,6 +158,7 @@ const meta = {
     ),
   ],
   args: {
+    craTab,
     tab: "entries",
     onTabChange: () => {},
   },
@@ -167,6 +184,20 @@ export const Default: Story = {
     documentsTab,
     invoicesTab,
     revenue,
+    onUpdate: async () => ({ status: "success" }) as const,
+    onSetStatus: () => {},
+  },
+};
+
+/** The CRA tab only exists on a mission whose client expects one. */
+export const CraTab: Story = {
+  args: {
+    mission,
+    client,
+    documentsTab,
+    invoicesTab,
+    revenue,
+    tab: "cra",
     onUpdate: async () => ({ status: "success" }) as const,
     onSetStatus: () => {},
   },

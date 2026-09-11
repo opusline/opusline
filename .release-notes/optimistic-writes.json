@@ -1,0 +1,4 @@
+{
+  "kind": "improved",
+  "text": "Pausing the timer, ticking a day on the CRA, marking an invoice paid, archiving a client, ticking off a deadline and deleting a document now happen on the click instead of after the round trip."
+}

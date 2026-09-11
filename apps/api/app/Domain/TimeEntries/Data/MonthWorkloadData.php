@@ -21,13 +21,12 @@ class MonthWorkloadData extends Data
          */
         public int $businessDays,
         /**
-         * Time tracked in the month expressed in days, counting every entry
-         * whether billable or not.
+         * Days of the month carrying tracked time, billable or not.
          *
-         * Each day is capped at one: a ten-hour day on a seven-hour workday
-         * reports a full day, not 1,43. The tile reads as "how much of the
-         * month is behind you", which overtime cannot push past 100 %.
+         * A count of days, not a sum of day fractions: a four-hour day and a
+         * nine-hour day are both one day behind you, and the tile reads as
+         * "how much of the month is done", not "how full were the days".
          */
-        public float $workedDays,
+        public int $workedDays,
     ) {}
 }

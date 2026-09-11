@@ -934,7 +934,7 @@
   "missions_color_label": "Row color",
   "missions_color_own": "specific to the mission",
   "missions_config_pricing": "Pricing",
-  "missions_cra_hint": "This client expects a monthly CRA. This mission's months stack up on the dedicated screen, with their grid and document.",
+  "missions_cra_none": "No month to report yet. A month appears here as soon as it has tracked time, and the current one as soon as the mission is active.",
   "missions_cra_not_required": "CRA not required",
   "missions_cra_required": "Monthly CRA required",
   "missions_cra_required_hint": "Required by {client} at the end of the month · pre-filled PDF export.",

@@ -934,7 +934,7 @@
   "missions_color_label": "Couleur de la ligne",
   "missions_color_own": "propre à la mission",
   "missions_config_pricing": "Tarification",
-  "missions_cra_hint": "Ce client attend un CRA mensuel. Les mois de cette mission s'empilent sur l'écran dédié, avec leur grille et leur document.",
+  "missions_cra_none": "Aucun mois à reporter pour l'instant. Un mois apparaît ici dès qu'il porte du temps suivi, et le mois en cours dès que la mission est active.",
   "missions_cra_not_required": "CRA non requis",
   "missions_cra_required": "CRA mensuel requis",
   "missions_cra_required_hint": "Exigé par {client} en fin de mois · export PDF pré-rempli.",

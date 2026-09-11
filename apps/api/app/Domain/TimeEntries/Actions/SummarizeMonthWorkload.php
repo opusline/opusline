@@ -9,7 +9,6 @@ use App\Domain\TimeEntries\Data\MonthWorkloadData;
 use App\Domain\TimeEntries\Data\MonthWorkloadQueryData;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Collection as SupportCollection;
 
 class SummarizeMonthWorkload
 {
@@ -22,30 +21,25 @@ class SummarizeMonthWorkload
         return new MonthWorkloadData(
             month: $data->month,
             businessDays: Holidays::businessDaysBetween($settings->business_country, $start, $end),
-            workedDays: $this->workedDays($user, $settings->workday_minutes, $start, $end),
+            workedDays: $this->workedDays($user, $start, $end),
         );
     }
 
-    private function workedDays(User $user, int $workdayMinutes, CarbonImmutable $start, CarbonImmutable $end): float
+    /**
+     * The days of the month that carry any tracked time at all.
+     *
+     * Whole days, not the fraction of a workday each one holds: the tile answers
+     * "how many days of this month are behind me", and a day spent on the job is
+     * behind you whether it ran four hours or nine.
+     */
+    private function workedDays(User $user, CarbonImmutable $start, CarbonImmutable $end): int
     {
-        // Aggregated in SQL rather than hydrated: this runs on every week-view mount
-        // and again after every time-entry write, and only the per-day total matters.
-        /** @var SupportCollection<int, object{date: string, minutes: int|numeric-string}> $rows */
-        $rows = $user->timeEntries()
+        // Counted in SQL rather than hydrated: this runs on every week-view mount
+        // and again after every time-entry write, and only the distinct dates matter.
+        return $user->timeEntries()
             ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
-            ->toBase()
-            ->selectRaw('date, SUM(duration_minutes) as minutes')
-            ->groupBy('date')
-            ->get();
-
-        $days = 0.0;
-
-        foreach ($rows as $row) {
-            // Capped per day: the tile measures how much of the month is behind you,
-            // and a long day cannot buy back a day the calendar never had.
-            $days += min((int) $row->minutes / $workdayMinutes, 1.0);
-        }
-
-        return round($days, 4);
+            ->where('duration_minutes', '>', 0)
+            ->distinct()
+            ->count('date');
     }
 }

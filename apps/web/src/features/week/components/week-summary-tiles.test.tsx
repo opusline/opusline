@@ -27,7 +27,7 @@ function month(overrides: Partial<MonthWorkloadData> = {}): MonthWorkloadData {
   return {
     month: "2026-08",
     businessDays: 21,
-    workedDays: 18.5,
+    workedDays: 18,
     ...overrides,
   };
 }
@@ -106,14 +106,8 @@ it("says nothing billable was tracked rather than showing a bare zero", async ()
 it("reads the month as days worked against its business days", async () => {
   await renderTiles({ monthWorkload: month() });
 
-  expect(screen.getByText("18,5 j")).toBeInTheDocument();
+  expect(screen.getByText("18 j")).toBeInTheDocument();
   expect(screen.getByText("sur 21 jours ouvrés")).toBeInTheDocument();
-});
-
-it("rounds a month of part-days rather than reading it to the hundredth", async () => {
-  await renderTiles({ monthWorkload: month({ workedDays: 12.46 }) });
-
-  expect(screen.getByText("12,5 j")).toBeInTheDocument();
 });
 
 it("fills the meter with the share of the month already worked", async () => {
