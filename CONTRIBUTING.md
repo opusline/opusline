@@ -99,6 +99,11 @@ that survives it merges green.
 - **No hand-edited generated files.** `scripts/generated-artifacts.sh` is
   the list of what gets regenerated instead.
 
+A branch has to be up to date with `main` before it can merge, so every push
+to `main` brings the open PRs along with it — expect a merge commit you did
+not write. Drafts, forks and PRs already conflicting with `main` are left
+alone; those need you.
+
 ## How a release ships
 
 release-please watches `main`. Every `feat`, `fix`, `perf`, `revert` or

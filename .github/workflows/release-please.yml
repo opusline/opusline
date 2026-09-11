@@ -145,57 +145,6 @@ jobs:
             gh pr merge "$NUMBER" --disable-auto
           fi
 
-      # release-please force-pushes its branch onto main only when the release
-      # PR body changes, so a commit of a hidden type — a `ci:` Actions bump, a
-      # `docs:` fix — leaves the release PR behind main. The ruleset requires
-      # branches to be up to date, so it sits unmergeable until someone clicks
-      # "Update branch".
-      #
-      # `!cancelled()` because this is the step that keeps the chain moving: it
-      # has to run on the pushes where release-please itself errored out, which
-      # are the pushes where a release PR stuck behind main is least welcome.
-      - name: Update the release branch that main has left behind
-        if: ${{ !cancelled() }}
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          GH_REPO: ${{ github.repository }}
-          BASE: ${{ github.ref_name }}
-        run: |
-          bots=$(gh pr list --state open --base "$BASE" --json number,headRefName \
-            --jq '.[] | select(.headRefName | startswith("release-please--")) | "\(.number) \(.headRefName)"')
-          if [ -z "$bots" ]; then
-            echo "No bot release branch is open."
-            exit 0
-          fi
-          # Fed in on a here-string rather than a pipe: a pipe would run the loop
-          # in a subshell and lose `stuck` on the way out.
-          stuck=0
-          while read -r number head; do
-            behind=$(gh api "repos/$GH_REPO/compare/$BASE...$head" --jq '.behind_by')
-            # An unreadable answer used to read as "up to date": `[` prints
-            # "integer expected" and an `if` swallows its exit status, so the one
-            # branch that had to be updated was the one silently skipped.
-            case "$behind" in
-              "" | *[!0-9]*)
-                echo "::error::Could not read how far #$number ($head) is behind $BASE."
-                stuck=1
-                continue
-                ;;
-            esac
-            if [ "$behind" -eq 0 ]; then
-              echo "#$number ($head) is up to date with $BASE."
-              continue
-            fi
-            echo "#$number ($head) is $behind commit(s) behind $BASE."
-            # The App, not GITHUB_TOKEN: a head pushed by GITHUB_TOKEN fires
-            # no workflows, so the required checks would never report on the
-            # new commit and auto-merge would stay stuck all the same.
-            if ! gh pr update-branch "$number"; then
-              echo "::error::Could not update #$number ($head) — it needs a hand."
-              stuck=1
-            fi
-          done <<< "$bots"
-          exit "$stuck"
 
   # Every push to main runs the job above; only the one that merges the release
   # PR sets release_created, so the images are built for releases and nothing
