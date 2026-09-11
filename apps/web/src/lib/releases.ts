@@ -13,6 +13,24 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.25.0",
+    date: "2026-09-11",
+    items: [
+      {
+        kind: "new",
+        text: "Instance and backups, in the account menu, now says whether this instance has ever been backed up, when the last archive was taken and where it went — and when it has not, the one command that takes one.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "Opusline now locks itself after half an hour away, and when your session ends: type your password to land back on the page you left, timer and all.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "Every date in Opusline is now picked from a calendar that spells the day out, instead of a box that looked like it wanted digits in an order you had to guess.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.24.0",
     date: "2026-09-11",
     items: [
