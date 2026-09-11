@@ -73,7 +73,17 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
   );
 }
 
-function TableHead({ className, ...props }: React.ComponentProps<"th">) {
+/**
+ * A column header. `scope` defaults to "col" because that is what a header cell
+ * in a `<thead>` is, and a `<th>` without it associates with nothing — a screen
+ * reader then reads the cells of a wide row as bare values. Pass `scope="row"`
+ * for the leading cell of a row instead.
+ */
+function TableHead({
+  className,
+  scope = "col",
+  ...props
+}: React.ComponentProps<"th">) {
   return (
     <th
       data-slot="table-head"
@@ -81,6 +91,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
         "h-10 px-2 text-left align-middle font-medium whitespace-nowrap text-foreground [&:has([role=checkbox])]:pr-0",
         className,
       )}
+      scope={scope}
       {...props}
     />
   );

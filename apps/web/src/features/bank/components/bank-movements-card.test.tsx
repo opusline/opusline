@@ -50,3 +50,14 @@ it("says when there is nothing to show", () => {
     screen.getByText("Aucun mouvement à afficher pour l'instant."),
   ).toBeInTheDocument();
 });
+
+it("scopes every column header to its column", () => {
+  render(<BankMovementsCard data={bankData()} />);
+
+  const headers = screen.getAllByRole("columnheader");
+
+  expect(headers.length).toBeGreaterThan(0);
+  for (const header of headers) {
+    expect(header).toHaveAttribute("scope", "col");
+  }
+});

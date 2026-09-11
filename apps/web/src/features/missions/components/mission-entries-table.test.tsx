@@ -131,3 +131,14 @@ it("points at the week grid as the place entries are created", async () => {
     ),
   ).toBeInTheDocument();
 });
+
+it("scopes every column header to its column", async () => {
+  renderWithRouter(<MissionEntriesTable entries={[entry({})]} />);
+
+  const headers = await screen.findAllByRole("columnheader");
+
+  expect(headers.length).toBeGreaterThan(0);
+  for (const header of headers) {
+    expect(header).toHaveAttribute("scope", "col");
+  }
+});
