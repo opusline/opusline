@@ -728,6 +728,27 @@
   "fiscality_vat_name": "VAT",
   "fiscality_vat_rate_label": "Default VAT",
   "fiscality_vat_zero_hint": "Set 0 if you do not charge VAT.",
+  "instance_backup_days_ago": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} day ago",
+        "countPlural=other": "{count} days ago"
+      }
+    }
+  ],
+  "instance_backup_docs": "Read the backup guide",
+  "instance_backup_failed": "Could not read this instance.",
+  "instance_backup_how": "Run this from the directory holding compose.prod.yaml:",
+  "instance_backup_last_label": "Last backup",
+  "instance_backup_none_body": "Three things hold your state: the database, the uploaded files, and the APP_KEY in your .env. A backup is only a backup when it holds all three, and one command takes all three at once.",
+  "instance_backup_none_title": "No backup recorded",
+  "instance_backup_record_note": "Opusline only knows what the backup command reported. The archive itself lives outside the app — check it is still where this says.",
+  "instance_backup_today": "today",
+  "instance_backups_heading": "Backups",
+  "instance_database_label": "Database",
+  "instance_version_label": "Version",
   "invoice_event_corrected": "Amount corrected",
   "invoice_event_created": "Invoice created",
   "invoice_event_paid": "Payment received",

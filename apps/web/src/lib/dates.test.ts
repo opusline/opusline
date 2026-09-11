@@ -12,6 +12,7 @@ import {
   isCalendarDate,
   localDate,
   toCalendarDate,
+  wholeDaysSince,
 } from "./dates";
 
 it("keeps a calendar date on the day the API sent, not the UTC instant", () => {
@@ -108,4 +109,20 @@ it("answers today in the account's timezone, not the browser's", () => {
   const west = accountTodayCalendarDate("Pacific/Honolulu");
 
   expect(calendarDaysBetween(west, east)).toBe(1);
+});
+
+it("counts whole elapsed days, not calendar boundaries", () => {
+  const now = Date.parse("2026-09-11T09:00:00Z");
+
+  expect(wholeDaysSince("2026-09-11T08:00:00Z", now)).toBe(0);
+  // 23h50: yesterday on the calendar, but not yet a day ago.
+  expect(wholeDaysSince("2026-09-10T09:10:00Z", now)).toBe(0);
+  expect(wholeDaysSince("2026-09-10T08:00:00Z", now)).toBe(1);
+  expect(wholeDaysSince("2026-08-31T09:00:00Z", now)).toBe(11);
+});
+
+it("reads a clock that is behind the backup as no time at all", () => {
+  const now = Date.parse("2026-09-11T09:00:00Z");
+
+  expect(wholeDaysSince("2026-09-12T09:00:00Z", now)).toBe(0);
 });

@@ -29,6 +29,14 @@ const FULL_DATE: Intl.DateTimeFormatOptions = {
   year: "numeric",
 };
 
+const FULL_DATE_TIME: Intl.DateTimeFormatOptions = {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+};
+
 // Invoice screens date everything numerically: an amount and a date sit on the
 // same dense row, and "30 juin 2026" pushes the row wider than the column.
 // Deliberately NOT locale-driven: the digit order is the user's explicit
@@ -46,6 +54,22 @@ export function monthYearLabel(locale: Locale, instant: string): string {
 
 export function fullDateLabel(locale: Locale, instant: string): string {
   return cachedDateFormatter(locale, FULL_DATE).format(new Date(instant));
+}
+
+export function fullDateTimeLabel(locale: Locale, instant: string): string {
+  return cachedDateFormatter(locale, FULL_DATE_TIME).format(new Date(instant));
+}
+
+/**
+ * Whole days between an instant and now, floored, never negative.
+ *
+ * Elapsed time rather than calendar days: "1 day ago" should mean 24 hours, so
+ * a backup taken at 23:50 does not become "1 day ago" ten minutes later.
+ */
+export function wholeDaysSince(instant: string, now = Date.now()): number {
+  const elapsed = now - new Date(instant).getTime();
+
+  return elapsed <= 0 ? 0 : Math.floor(elapsed / 86_400_000);
 }
 
 /**

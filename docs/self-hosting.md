@@ -248,19 +248,44 @@ same time:
 3. **`APP_KEY`, in your `.env`** — without it the database restores fine and
    nobody can log in.
 
-```sh
-# Database
-docker compose -f compose.prod.yaml exec -T postgres \
-  pg_dump -U opusline opusline | gzip > opusline-$(date +%F).sql.gz
+`opusline-backup.sh`, attached to every release beside the compose file, puts
+all three in one archive:
 
-# Uploads
-docker run --rm -v opusline_opusline-storage:/data -v "$PWD":/backup alpine \
-  tar czf /backup/opusline-storage-$(date +%F).tar.gz -C /data .
+```sh
+curl -fsSLO https://github.com/opusline/opusline/releases/latest/download/opusline-backup.sh
+chmod +x opusline-backup.sh
+
+./opusline-backup.sh backup            # one timestamped archive of all three
+./opusline-backup.sh verify FILE       # what is in it, without unpacking it
+./opusline-backup.sh restore FILE      # put it back into a stack that is up
 ```
 
-Restore is the same in reverse, into a stack that is up but has never been
-opened in a browser. Check a restore before you need one: an untested backup is
-a hope.
+It is a shell script and it never talks to Laravel, on purpose: the database is
+dumped through its own container, so a broken migration, a crash-looping API or
+an image that will not boot changes nothing about taking a backup. Run it from
+the directory holding `compose.prod.yaml` and `.env`, or point it elsewhere with
+`OPUSLINE_DIR`. `OPUSLINE_KEEP=7` prunes to the newest seven once the new one is
+written; `OPUSLINE_BACKUP_DIR` moves them off `./backups`.
+
+Nightly, from the host's crontab:
+
+```
+0 3 * * * cd /srv/opusline && OPUSLINE_KEEP=14 ./opusline-backup.sh backup >> backup.log 2>&1
+```
+
+Each backup leaves a note in the uploads volume, which is the one directory the
+app can also see: **Instance and backups**, in the account menu, then names the
+last archive and when it was taken. It is a record of what the script reported,
+not a check — the archive itself is on the host, out of the container's reach —
+so an instance that has never been backed up says exactly that, and shows the
+command.
+
+A restore asks you to type `RESTORE`, replaces the database and the uploads, and
+leaves the archive's `.env` in a temporary directory rather than over yours —
+it carries the `APP_KEY` of the instance it came from, and on a new machine that
+key is the difference between a database that opens and one that does not.
+
+Check a restore before you need one: an untested backup is a hope.
 
 ## Upgrading
 

@@ -2042,6 +2042,29 @@
                 }
             }
         },
+        "/instance": {
+            "get": {
+                "operationId": "showInstance",
+                "tags": [
+                    "Instance"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InstanceData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/invoices": {
             "get": {
                 "operationId": "listInvoices",
@@ -4979,6 +5002,27 @@
             }
         },
         "schemas": {
+            "BackupRecordData": {
+                "type": "object",
+                "properties": {
+                    "takenAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "archive": {
+                        "type": "string"
+                    },
+                    "bytes": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "takenAt",
+                    "archive",
+                    "bytes"
+                ],
+                "title": "BackupRecordData"
+            },
             "BankAccountData": {
                 "type": "object",
                 "properties": {
@@ -7200,6 +7244,33 @@
                     "file"
                 ],
                 "title": "ImportBankStatementData"
+            },
+            "InstanceData": {
+                "type": "object",
+                "properties": {
+                    "version": {
+                        "type": "string"
+                    },
+                    "database": {
+                        "type": "string"
+                    },
+                    "backup": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BackupRecordData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "version",
+                    "database",
+                    "backup"
+                ],
+                "title": "InstanceData"
             },
             "InvoiceClientTotalsData": {
                 "type": "object",

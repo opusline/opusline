@@ -2,11 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Http\Settings\Controllers\InstanceController;
 use App\Http\Settings\Controllers\SettingsController;
 use App\Http\Settings\Controllers\SignatureController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function (): void {
+    Route::get('/instance', [InstanceController::class, 'show'])->name('showInstance');
+
     Route::get('/settings', [SettingsController::class, 'show'])->name('showSettings');
     Route::put('/settings', [SettingsController::class, 'update'])->name('updateSettings');
     Route::put('/settings/currency', [SettingsController::class, 'updateCurrency'])->name('updateSettingsCurrency');
