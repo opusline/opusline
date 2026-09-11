@@ -90,6 +90,7 @@ function NewClientRoute() {
   return (
     <NewClientPage
       accountVatRateBp={user.effectiveVatRateBp}
+      defaultPaymentTermsDays={user.defaultPaymentTermsDays}
       error={writeErrorBanner(createClient.error, m.clients_create_failed())}
       isPending={isSubmitting}
       onCancel={() => void navigate({ to: "/clients" })}

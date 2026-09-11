@@ -10184,6 +10184,9 @@
                     "workdayMinutes": {
                         "type": "integer"
                     },
+                    "defaultPaymentTermsDays": {
+                        "type": "integer"
+                    },
                     "effectiveContributionRateBp": {
                         "type": "integer"
                     }
@@ -10203,6 +10206,7 @@
                     "effectiveVatRateBp",
                     "timezone",
                     "workdayMinutes",
+                    "defaultPaymentTermsDays",
                     "effectiveContributionRateBp"
                 ],
                 "title": "UserData"

@@ -1612,6 +1612,7 @@ export type UserData = {
     effectiveVatRateBp: number;
     timezone: string;
     workdayMinutes: number;
+    defaultPaymentTermsDays: number;
     effectiveContributionRateBp: number;
 };
 
