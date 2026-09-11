@@ -2494,6 +2494,63 @@
                 }
             }
         },
+        "/invoices/{invoice}/reopen": {
+            "post": {
+                "operationId": "reopenInvoice",
+                "summary": "Walk the invoice back one stage: a payment recorded in error, or a send that\nnever happened",
+                "tags": [
+                    "Invoice"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/invoices/{invoice}/reminders": {
             "post": {
                 "operationId": "remindInvoice",
@@ -7433,14 +7490,16 @@
                     1,
                     2,
                     3,
-                    4
+                    4,
+                    5
                 ],
                 "x-enum-varnames": [
                     "Created",
                     "Sent",
                     "Reminded",
                     "Paid",
-                    "Updated"
+                    "Updated",
+                    "Reopened"
                 ],
                 "title": "InvoiceEventKind"
             },

@@ -11,4 +11,5 @@ enum InvoiceEventKind: int
     case Reminded = 2;
     case Paid = 3;
     case Updated = 4;
+    case Reopened = 5;
 }

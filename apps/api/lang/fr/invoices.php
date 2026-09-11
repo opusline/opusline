@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 return [
+    'cannot_reopen_a_draft' => 'Cette facture est déjà un brouillon.',
     'mission_client_mismatch' => 'Cette mission n\'appartient pas au client facturé.',
+    'payment_settled_in_bank' => 'Un mouvement bancaire est rapproché de ce paiement. Annulez d\'abord le rapprochement.',
     'ttc_below_ht' => 'Le montant TTC ne peut pas être inférieur au montant HT.',
     'due_before_issued' => 'L\'échéance ne peut pas précéder la date d\'émission.',
     'period_end_before_start' => 'La fin de période ne peut pas précéder son début.',

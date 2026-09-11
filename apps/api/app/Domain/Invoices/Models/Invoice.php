@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Models;
 
+use App\Domain\Bank\Models\BankMatch;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Invoices\Actions\ComputeInvoiceAmounts;
 use App\Domain\Invoices\Enums\InvoiceStatus;
@@ -157,6 +158,20 @@ class Invoice extends Model
         return $this->hasMany(InvoiceEvent::class)
             ->orderBy('occurred_on')
             ->orderBy('id');
+    }
+
+    /**
+     * The imported movements reconciled against this invoice.
+     *
+     * Lives here rather than only on the bank side because the invoice is what a
+     * reopen has to ask: a payment a statement already settled is not one the
+     * screen may quietly take back.
+     *
+     * @return HasMany<BankMatch, $this>
+     */
+    public function bankMatches(): HasMany
+    {
+        return $this->hasMany(BankMatch::class);
     }
 
     /**

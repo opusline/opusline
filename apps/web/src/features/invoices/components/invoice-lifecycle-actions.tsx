@@ -17,6 +17,8 @@ type InvoiceLifecycleActionsProps = {
   onSend: (reference: string | null, sentOn: string) => void;
   onPay: (paidOn: string) => void;
   onRemind: () => void;
+  /** Walks the invoice back one stage, for the click that should not have happened. */
+  onReopen: () => void;
 };
 
 /**
@@ -24,8 +26,9 @@ type InvoiceLifecycleActionsProps = {
  *
  * Each step is its own endpoint rather than a status field, so each one lands in the
  * invoice's history — which is the record that matters when a client asks when they
- * were chased. Paid is the end of the road here: once the money is in, the dates are
- * corrected in InvoiceDateCorrections rather than transitioned again.
+ * were chased. Forward is the primary action; going back one stage is the quiet one
+ * underneath, for a status clicked by mistake. The dates themselves are corrected in
+ * InvoiceDateCorrections, which is a different question from what stage it is at.
  */
 export function InvoiceLifecycleActions({
   invoice,
@@ -35,21 +38,20 @@ export function InvoiceLifecycleActions({
   onSend,
   onPay,
   onRemind,
+  onReopen,
 }: InvoiceLifecycleActionsProps) {
-  if (invoice.status === 2) {
-    return null;
-  }
-
   return (
     <section className="border-t px-4 py-5">
-      {invoice.status === 0 ? (
+      {invoice.status === 0 && (
         <SendStep
           accountToday={accountToday}
           invoice={invoice}
           isPending={isPending}
           onSend={onSend}
         />
-      ) : (
+      )}
+
+      {invoice.status === 1 && (
         <CollectStep
           accountToday={accountToday}
           invoice={invoice}
@@ -57,6 +59,21 @@ export function InvoiceLifecycleActions({
           onPay={onPay}
           onRemind={onRemind}
         />
+      )}
+
+      {invoice.status !== 0 && (
+        <Button
+          className={invoice.status === 1 ? "mt-3" : undefined}
+          disabled={isPending}
+          onClick={onReopen}
+          size="xl"
+          type="button"
+          variant="ghost"
+        >
+          {invoice.status === 2
+            ? m.invoices_reopen_sent()
+            : m.invoices_reopen_draft()}
+        </Button>
       )}
 
       {error !== null && (

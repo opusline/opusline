@@ -4,6 +4,7 @@ import {
   deleteInvoiceDocumentMutation,
   payInvoiceMutation,
   remindInvoiceMutation,
+  reopenInvoiceMutation,
   sendInvoiceMutation,
   showInvoiceOptions,
   updateInvoiceMutation,
@@ -174,6 +175,13 @@ export function InvoiceDrawerProvider({
     },
   });
 
+  const reopen = useMutation({
+    ...reopenInvoiceMutation(),
+    onMutate: () => setActionError(null),
+    onSuccess: refresh,
+    onError: reportFailure(m.invoices_reopen_failed()),
+  });
+
   const correctDates = useMutation({
     ...correctInvoiceDatesMutation(),
     onMutate: () => setCorrectionError(null),
@@ -256,7 +264,8 @@ export function InvoiceDrawerProvider({
                   send.isPending ||
                   setReference.isPending ||
                   pay.isPending ||
-                  remind.isPending
+                  remind.isPending ||
+                  reopen.isPending
                 }
                 onPay={(paidOn) =>
                   pay.mutate({
@@ -269,6 +278,9 @@ export function InvoiceDrawerProvider({
                     path: { invoice: detail.data.invoice.id },
                     body: { occurredOn: accountToday, note: null },
                   })
+                }
+                onReopen={() =>
+                  reopen.mutate({ path: { invoice: detail.data.invoice.id } })
                 }
                 onSend={(reference, sentOn) => void markSent(reference, sentOn)}
               />

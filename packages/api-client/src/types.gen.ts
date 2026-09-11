@@ -743,7 +743,7 @@ export type InvoiceEventData = {
 /**
  * InvoiceEventKind
  */
-export type InvoiceEventKind = 0 | 1 | 2 | 3 | 4;
+export type InvoiceEventKind = 0 | 1 | 2 | 3 | 4 | 5;
 
 /**
  * InvoiceForecastBucket
@@ -3899,6 +3899,56 @@ export type PayInvoiceResponses = {
 };
 
 export type PayInvoiceResponse = PayInvoiceResponses[keyof PayInvoiceResponses];
+
+export type ReopenInvoiceData = {
+    body?: never;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoices/{invoice}/reopen';
+};
+
+export type ReopenInvoiceErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ReopenInvoiceError = ReopenInvoiceErrors[keyof ReopenInvoiceErrors];
+
+export type ReopenInvoiceResponses = {
+    200: InvoiceDetailData;
+};
+
+export type ReopenInvoiceResponse = ReopenInvoiceResponses[keyof ReopenInvoiceResponses];
 
 export type RemindInvoiceData2 = {
     body?: RemindInvoiceData;

@@ -10,6 +10,7 @@ function renderActions(
   const onSend = vi.fn();
   const onPay = vi.fn();
   const onRemind = vi.fn();
+  const onReopen = vi.fn();
 
   render(
     <InvoiceLifecycleActions
@@ -20,11 +21,12 @@ function renderActions(
       onSend={onSend}
       onPay={onPay}
       onRemind={onRemind}
+      onReopen={onReopen}
       {...props}
     />,
   );
 
-  return { onSend, onPay, onRemind };
+  return { onSend, onPay, onRemind, onReopen };
 }
 
 it("sends a draft that already carries its reference", () => {
@@ -123,10 +125,15 @@ it("chases an invoice that is out but unpaid", () => {
   expect(onRemind).toHaveBeenCalled();
 });
 
-it("offers nothing once the money is in", () => {
+it("offers no way forward once the money is in", () => {
   renderActions({ invoice: invoiceDetail({ status: 2 }).invoice });
 
-  expect(screen.queryByRole("button")).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: "Marquer encaissée" }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: "Noter une relance" }),
+  ).not.toBeInTheDocument();
 });
 
 it("surfaces what the server refused", () => {
@@ -135,4 +142,38 @@ it("surfaces what the server refused", () => {
   expect(screen.getByRole("alert")).toHaveTextContent(
     "Seul un brouillon peut être marqué comme envoyé.",
   );
+});
+
+it("offers a draft no way back: there is nowhere to go", () => {
+  renderActions({
+    invoice: invoiceDetail({ status: 0, number: "2026-014" }).invoice,
+  });
+
+  expect(
+    screen.queryByRole("button", { name: /finalement/ }),
+  ).not.toBeInTheDocument();
+});
+
+it("takes a sent invoice back to a draft", () => {
+  const { onReopen } = renderActions({
+    invoice: invoiceDetail({ status: 1 }).invoice,
+  });
+
+  fireEvent.click(
+    screen.getByRole("button", { name: "Pas envoyée finalement" }),
+  );
+
+  expect(onReopen).toHaveBeenCalled();
+});
+
+it("takes a collected invoice back to sent, where the lifecycle used to end", () => {
+  const { onReopen } = renderActions({
+    invoice: invoiceDetail({ status: 2 }).invoice,
+  });
+
+  fireEvent.click(
+    screen.getByRole("button", { name: "Pas encaissée finalement" }),
+  );
+
+  expect(onReopen).toHaveBeenCalled();
 });

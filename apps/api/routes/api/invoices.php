@@ -34,6 +34,11 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/invoices/{invoice}/pay', [InvoiceController::class, 'pay'])
         ->whereNumber('invoice')
         ->name('payInvoice');
+    // One stage back, not a free jump between statuses: the transitions forward
+    // are one-way and this is their single mirror.
+    Route::post('/invoices/{invoice}/reopen', [InvoiceController::class, 'reopen'])
+        ->whereNumber('invoice')
+        ->name('reopenInvoice');
     Route::post('/invoices/{invoice}/reminders', [InvoiceController::class, 'remind'])
         ->whereNumber('invoice')
         ->name('remindInvoice');

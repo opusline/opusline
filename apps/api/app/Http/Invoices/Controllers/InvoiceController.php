@@ -13,6 +13,7 @@ use App\Domain\Invoices\Actions\DetachInvoiceDocument;
 use App\Domain\Invoices\Actions\ListInvoices;
 use App\Domain\Invoices\Actions\PayInvoice;
 use App\Domain\Invoices\Actions\RemindInvoice;
+use App\Domain\Invoices\Actions\ReopenInvoice;
 use App\Domain\Invoices\Actions\SendInvoice;
 use App\Domain\Invoices\Actions\SuggestInvoiceNumber;
 use App\Domain\Invoices\Actions\SummarizeInvoices;
@@ -104,6 +105,19 @@ class InvoiceController extends Controller
     public function pay(PayInvoiceData $data, Invoice $invoice, PayInvoice $payInvoice): JsonResponse
     {
         $payInvoice->handle($invoice, $data);
+
+        return response()->json($this->detail($invoice));
+    }
+
+    /**
+     * Walk the invoice back one stage: a payment recorded in error, or a send that
+     * never happened.
+     *
+     * @throws HttpException<409>
+     */
+    public function reopen(Invoice $invoice, ReopenInvoice $reopenInvoice): JsonResponse
+    {
+        $reopenInvoice->handle($invoice);
 
         return response()->json($this->detail($invoice));
     }

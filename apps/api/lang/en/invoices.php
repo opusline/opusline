@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 return [
+    'cannot_reopen_a_draft' => 'This invoice is already a draft.',
     'mission_client_mismatch' => 'That mission does not belong to the billed client.',
+    'payment_settled_in_bank' => 'A bank movement is matched to this payment. Undo the match first.',
     'ttc_below_ht' => 'The gross amount cannot be lower than the net amount.',
     'due_before_issued' => 'The due date cannot precede the issue date.',
     'period_end_before_start' => 'The period end cannot precede its start.',

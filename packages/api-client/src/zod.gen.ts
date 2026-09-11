@@ -476,7 +476,8 @@ export const zInvoiceEventKind = z.union([
     z.literal(1),
     z.literal(2),
     z.literal(3),
-    z.literal(4)
+    z.literal(4),
+    z.literal(5)
 ]);
 
 /**
@@ -2083,6 +2084,12 @@ export const zPayInvoicePath = z.object({
 });
 
 export const zPayInvoiceResponse = zInvoiceDetailData;
+
+export const zReopenInvoicePath = z.object({
+    invoice: z.int()
+});
+
+export const zReopenInvoiceResponse = zInvoiceDetailData;
 
 export const zRemindInvoiceBody = zRemindInvoiceData;
 
