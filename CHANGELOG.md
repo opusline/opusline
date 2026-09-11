@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.23.1](https://github.com/opusline/opusline/compare/v0.23.0...v0.23.1) (2026-09-11)
+
+
+### Bug Fixes
+
+* **repo:** drop the duplicate security link ([#321](https://github.com/opusline/opusline/issues/321)) ([0ab0c39](https://github.com/opusline/opusline/commit/0ab0c393bd17aaf1ea890e99e1721fce6c5b8d40))
+* **web:** size the invoice panel's buttons like the rest ([#329](https://github.com/opusline/opusline/issues/329)) ([82a221a](https://github.com/opusline/opusline/commit/82a221ace51f1cbef262d78848b8e66f57c1e525))
+
 ## [0.23.0](https://github.com/opusline/opusline/compare/v0.22.0...v0.23.0) (2026-09-11)
 
 
