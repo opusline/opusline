@@ -1,6 +1,7 @@
 import { client } from "@opusline/api-client/client";
 import { readCookie } from "./cookies";
 import { apiLocaleFor, currentUiLocale } from "./i18n";
+import { reportSessionExpired } from "./session-lock";
 
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
@@ -23,6 +24,18 @@ export function setupApiClient() {
     request.headers.set("Accept-Language", apiLocaleFor(currentUiLocale()));
 
     return request;
+  });
+
+  // A session that died under a screen the user is still looking at: the lock
+  // asks for the password there rather than throwing the page away. Reported
+  // rather than acted on — whether there is a session to lose is something only
+  // the React side knows.
+  client.interceptors.response.use((response) => {
+    if (response.status === 401) {
+      reportSessionExpired();
+    }
+
+    return response;
   });
 
   // The client throws the parsed body alone; the status is what tells a
