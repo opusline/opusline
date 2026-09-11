@@ -19,7 +19,7 @@ export const DEMO_WORKDAY_MINUTES = 420;
 export const DEMO_MONTH_WORKLOAD: MonthWorkloadData = {
   month: "2026-07",
   businessDays: 22,
-  workedDays: 18.5,
+  workedDays: 18,
 };
 
 /** July's URSSAF, declared and paid by the end of August. */
