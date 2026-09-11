@@ -18,6 +18,7 @@ import { CraHeader } from "./cra-header";
 import { CraMonthGrid } from "./cra-month-grid";
 import { CraPicker } from "./cra-picker";
 import { CraReviewPanel } from "./cra-review-panel";
+import { CraSelectPrompt } from "./cra-select-prompt";
 import { CraSignedReturnDialog } from "./cra-signed-return-dialog";
 import { CraStatTiles } from "./cra-stat-tiles";
 import { CraStepTracker } from "./cra-step-tracker";
@@ -122,6 +123,10 @@ export function CraPage({
               <Skeleton className="h-20 w-full" />
               <Skeleton className="h-80 w-full" />
             </div>
+          )}
+
+          {items.length > 0 && detail === null && !isDetailPending && (
+            <CraSelectPrompt />
           )}
 
           {detail !== null && !isDetailPending && (

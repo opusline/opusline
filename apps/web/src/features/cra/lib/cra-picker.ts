@@ -47,6 +47,21 @@ export function craItemKey(
 }
 
 /**
+ * The month the screen opens on when the URL names none.
+ *
+ * Only a month that already has a row qualifies: picking one that does not is a
+ * write (`POST /cras` materialises the grid from tracked time), and arriving on a
+ * page must never create anything. When every month is still owed there is
+ * nothing to open, and the screen asks for a pick instead.
+ */
+export function firstSelectableCra(items: CraListItemData[]): OpenedCra | null {
+  return items.find((item): item is OpenedCra => item.id !== null) ?? null;
+}
+
+/** A row the API has already materialised, so its id is a number and not a promise. */
+export type OpenedCra = CraListItemData & { id: number };
+
+/**
  * Matches on everything the row shows — the design's placeholder promises "Client,
  * mission, mois", and a search that ignored the month would be lying about it.
  */

@@ -18,9 +18,10 @@ import { Skeleton } from "@opusline/ui/components/skeleton";
 import type { QueryClient } from "@tanstack/react-query";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { CraPage } from "@/features/cra/components/cra-page";
+import { firstSelectableCra } from "@/features/cra/lib/cra-picker";
 import { type CraStep, isCraStep } from "@/features/cra/lib/cra-steps";
 import { signatureHref } from "@/features/settings/lib/signature";
 import { serverErrorMessage } from "@/lib/validation";
@@ -89,6 +90,28 @@ function CraRoute() {
   });
 
   const step = search.step ?? "days";
+
+  /**
+   * Arriving on /cra with no month named opens the newest one that already exists,
+   * rather than leaving the whole right-hand column blank next to a full list. Only
+   * an existing month qualifies — `pick` turns a month still owed into a POST, and a
+   * page must not write just because it was visited. `replace` so the blank URL does
+   * not become a step in the back history.
+   */
+  const openable =
+    cras.data === undefined ? null : firstSelectableCra(cras.data.cras);
+
+  useEffect(() => {
+    if (search.cra !== undefined || openable === null) {
+      return;
+    }
+
+    void navigate({
+      replace: true,
+      search: { ...search, cra: openable.id },
+      to: "/cra",
+    });
+  }, [navigate, openable, search]);
 
   /**
    * The list carries the counters and the open CRA carries the grid, so a write that

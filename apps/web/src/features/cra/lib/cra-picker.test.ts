@@ -1,6 +1,11 @@
 import { expect, it } from "vitest";
 
-import { craItemKey, groupCras, matchesQuery } from "./cra-picker";
+import {
+  craItemKey,
+  firstSelectableCra,
+  groupCras,
+  matchesQuery,
+} from "./cra-picker";
 import { craItem } from "./fixtures";
 
 const items = [
@@ -89,4 +94,17 @@ it("tells two months of the same mission apart before either exists", () => {
   const june = craItem({ id: null, month: "2026-06" });
 
   expect(craItemKey(july)).not.toBe(craItemKey(june));
+});
+
+it("opens on the newest month that already exists", () => {
+  expect(firstSelectableCra(items)?.id).toBe(2);
+});
+
+it("opens on nothing when every month is still owed", () => {
+  expect(
+    firstSelectableCra([
+      craItem({ id: null, month: "2026-07" }),
+      craItem({ id: null, month: "2026-06" }),
+    ]),
+  ).toBeNull();
 });

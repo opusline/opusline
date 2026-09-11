@@ -64,6 +64,11 @@ export const Sent: Story = {
 
 export const Loading: Story = { args: { detail: null, isDetailPending: true } };
 
+/** Every month is still owed, so the screen has nothing it may open on its own. */
+export const NothingOpenYet: Story = {
+  args: { detail: null },
+};
+
 export const NothingToProduce: Story = {
   args: {
     counts: { toProduce: 0, sent: 0, signed: 0 },

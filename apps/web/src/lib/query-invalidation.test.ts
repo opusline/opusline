@@ -1,5 +1,6 @@
 import {
   listClientRevenueQueryKey,
+  listCrasQueryKey,
   listDeadlinesQueryKey,
   listInvoicesQueryKey,
   listMissionDocumentsQueryKey,
@@ -7,6 +8,7 @@ import {
   listTimeEntriesQueryKey,
   showBankAccountQueryKey,
   showClientRevenueQueryKey,
+  showCraQueryKey,
   showInvoiceSummaryQueryKey,
   showMissionRevenueQueryKey,
   showTreasuryQueryKey,
@@ -15,6 +17,7 @@ import { type Query, QueryClient } from "@tanstack/react-query";
 import { describe, expect, it } from "vitest";
 
 import {
+  craFilter,
   deadlinesFilter,
   missionTimeEntriesFilter,
   operationFilter,
@@ -173,6 +176,29 @@ describe("missionTimeEntriesFilter", () => {
   it("leaves the week's own entry list alone", () => {
     expect(
       missionTimeEntriesFilter().predicate(
+        queryWithKey(
+          listTimeEntriesQueryKey({
+            query: { from: "2026-08-03", to: "2026-08-09" },
+          }),
+        ),
+      ),
+    ).toBe(false);
+  });
+});
+
+describe("craFilter", () => {
+  it("matches the list the aside draws and whichever month is open", () => {
+    expect(craFilter().predicate(queryWithKey(listCrasQueryKey()))).toBe(true);
+    expect(
+      craFilter().predicate(
+        queryWithKey(showCraQueryKey({ path: { cra: 7 } })),
+      ),
+    ).toBe(true);
+  });
+
+  it("leaves the week's own entry list alone", () => {
+    expect(
+      craFilter().predicate(
         queryWithKey(
           listTimeEntriesQueryKey({
             query: { from: "2026-08-03", to: "2026-08-09" },

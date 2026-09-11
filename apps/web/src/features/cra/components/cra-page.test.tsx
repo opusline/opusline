@@ -157,3 +157,17 @@ it("waits on a skeleton rather than an empty screen", () => {
 
   expect(screen.queryByRole("grid")).not.toBeInTheDocument();
 });
+
+it("asks for a pick when the list has months but none is open", () => {
+  renderPage({ detail: null });
+
+  expect(screen.getByText("Choisissez un mois à gauche")).toBeInTheDocument();
+});
+
+it("keeps the prompt out of the way while a month is loading", () => {
+  renderPage({ detail: null, isDetailPending: true });
+
+  expect(
+    screen.queryByText("Choisissez un mois à gauche"),
+  ).not.toBeInTheDocument();
+});

@@ -393,6 +393,8 @@
   "cra_save_signature": "Enregistrer ma signature",
   "cra_search_aria": "Rechercher un compte rendu",
   "cra_search_placeholder": "Client, mission, mois",
+  "cra_select_description": "Chaque mois dont une mission doit un CRA y est listé, du plus récent au plus ancien. Ouvrir un mois encore dû prépare sa grille à partir du temps que vous avez suivi.",
+  "cra_select_title": "Choisissez un mois à gauche",
   "cra_signed_return_description": "CRA de {month} · {mission}. Le document rejoint les pièces de la mission à côté de l'original.",
   "cra_signed_return_drop": "Déposer le CRA signé",
   "cra_signed_return_hint": "PDF, JPG ou PNG — glissez le fichier ou cliquez pour parcourir",

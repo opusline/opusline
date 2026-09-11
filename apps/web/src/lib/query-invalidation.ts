@@ -44,11 +44,22 @@ export function weekTimeEntriesFilter(): {
 }
 
 /**
- * Four things read a time entry: the week grid's date-range list, the mission
- * page's own history, the revenue figures, and the week view's month workload —
- * the last three all derived from tracked time. Writing one entry invalidates
- * all of them, so a mission opened right after an edit in the grid shows neither
- * a pre-edit history nor pre-edit tiles.
+ * The CRA's read of tracked time: the list's `trackedDays` and the open month's
+ * per-day `trackedDayFractionBp`, `differenceDays` and `dirty` flag. The grid
+ * itself is a snapshot the API takes when the month is opened, so a time-entry
+ * write never moves the reported days — but it does move everything the screen
+ * compares them against, and the drift is the whole point of the comparison.
+ */
+export function craFilter(): { predicate: (query: Query) => boolean } {
+  return operationFilter("listCras", "showCra");
+}
+
+/**
+ * Five things read a time entry: the week grid's date-range list, the mission
+ * page's own history, the revenue figures, the week view's month workload, and
+ * the CRA's tracked-time comparison — the last four all derived from tracked
+ * time. Writing one entry invalidates all of them, so a mission opened right
+ * after an edit in the grid shows neither a pre-edit history nor pre-edit tiles.
  *
  * Keep every time-entry write going through this rather than invalidating
  * listTimeEntries directly, or those surfaces silently go stale again.
@@ -62,6 +73,7 @@ export async function invalidateTimeEntries(
     queryClient.invalidateQueries(missionTimeEntriesFilter()),
     queryClient.invalidateQueries(revenueFilter()),
     queryClient.invalidateQueries(monthWorkloadFilter()),
+    queryClient.invalidateQueries(craFilter()),
   ]);
 }
 
