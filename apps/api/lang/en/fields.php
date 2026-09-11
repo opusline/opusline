@@ -41,6 +41,7 @@ return [
     'days' => 'days',
     'defaultPaymentTermsDays' => 'default payment terms',
     'defaultVatRateBp' => 'default VAT rate',
+    'dormantAfterMonths' => 'dormancy period',
     'dueOn' => 'due date',
     'durationMinutes' => 'duration',
     'endClientName' => 'end client',

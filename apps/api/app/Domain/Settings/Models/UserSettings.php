@@ -69,6 +69,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property DateFormat $date_format
  * @property string $timezone
  * @property int $workday_minutes
+ * @property ?int $dormant_after_months
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  */
@@ -118,6 +119,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'date_format',
     'timezone',
     'workday_minutes',
+    'dormant_after_months',
 ])]
 #[Hidden(['calendar_token'])]
 #[Table('user_settings')]
@@ -182,6 +184,7 @@ class UserSettings extends Model
             'locale' => Locale::class,
             'date_format' => DateFormat::class,
             'workday_minutes' => 'integer',
+            'dormant_after_months' => 'integer',
         ];
     }
 

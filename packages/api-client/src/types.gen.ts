@@ -1177,6 +1177,7 @@ export type SettingsData = {
     dateFormat: DateFormat;
     timezone: string;
     workdayMinutes: number;
+    dormantAfterMonths: number | null;
     hasSignature: boolean;
 };
 
@@ -1494,6 +1495,7 @@ export type UpdateSettingsData = {
     signatureCity?: string | null;
     contactEmail?: string | null;
     phone?: string | null;
+    dormantAfterMonths?: number | null;
     companyAddressLine1?: string | null;
     companyAddressLine2?: string | null;
     companyPostalCode?: string | null;

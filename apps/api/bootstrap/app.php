@@ -26,6 +26,9 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withSchedule(function (Schedule $schedule): void {
         $schedule->command('rates:refresh')->dailyAt('03:00')->withoutOverlapping();
+        // After the rates, before anyone is awake: it moves a mission to done and
+        // a client to archived, and nobody wants to watch that happen mid-morning.
+        $schedule->command('clients:retire-dormant')->dailyAt('03:30')->withoutOverlapping();
         $schedule->command('model:prune', ['--model' => [TrustedDevice::class]])->daily();
     })
     ->withExceptions(function (Exceptions $exceptions): void {

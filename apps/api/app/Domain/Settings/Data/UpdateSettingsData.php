@@ -65,6 +65,13 @@ class UpdateSettingsData extends Data
         public ?string $contactEmail = null,
         #[Max(64)]
         public ?string $phone = null,
+        /**
+         * Months of silence after which a mission is finished and its client
+         * archived. Null is off, and off is the default: nothing retires work
+         * on its own until the account asks for it.
+         */
+        #[IntegerType, Between(1, 60)]
+        public ?int $dormantAfterMonths = null,
         #[Max(255)]
         public ?string $companyAddressLine1 = null,
         #[Max(255)]

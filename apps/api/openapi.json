@@ -8721,6 +8721,12 @@
                     "workdayMinutes": {
                         "type": "integer"
                     },
+                    "dormantAfterMonths": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
                     "hasSignature": {
                         "type": "boolean"
                     }
@@ -8768,6 +8774,7 @@
                     "dateFormat",
                     "timezone",
                     "workdayMinutes",
+                    "dormantAfterMonths",
                     "hasSignature"
                 ],
                 "title": "SettingsData"
@@ -9852,6 +9859,14 @@
                             "null"
                         ],
                         "maxLength": 64
+                    },
+                    "dormantAfterMonths": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 1,
+                        "maximum": 60
                     },
                     "companyAddressLine1": {
                         "type": [

@@ -93,6 +93,8 @@ export type SettingsFormValues = {
   treasuryBuffer: string;
   cfeExpected: string;
   workdayMinutes: number;
+  /** Months of silence before work retires itself; 0 is the form's "never". */
+  dormantAfterMonths: number;
 };
 
 export const COMPANY_ADDRESS_NAMES = {
@@ -152,6 +154,7 @@ export function toSettingsValues(
         ? ""
         : formatAmount(format, settings.cfeExpected.amount),
     workdayMinutes: settings.workdayMinutes,
+    dormantAfterMonths: settings.dormantAfterMonths ?? 0,
   };
 }
 
@@ -196,6 +199,10 @@ export function toSettingsPayload(
     dateFormat: regional.dateFormat ?? settings.dateFormat,
     timezone: regional.timezone ?? settings.timezone,
     workdayMinutes: values.workdayMinutes,
+    // The API reads "retire nothing" as null; the picker has no null to offer,
+    // so its "Jamais" is a zero that is translated back here.
+    dormantAfterMonths:
+      values.dormantAfterMonths === 0 ? null : values.dormantAfterMonths,
     urssafPeriodicity: values.urssafPeriodicity,
     autoRates: isFrench && values.autoRates,
     acre: isFrench && values.acre,
@@ -280,6 +287,7 @@ const FIELD_TAB: Record<keyof SettingsFormValues, SettingsTab> = {
   treasuryBuffer: "facturation",
   cfeExpected: "fiscalite",
   workdayMinutes: "facturation",
+  dormantAfterMonths: "facturation",
 };
 
 /**
