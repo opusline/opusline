@@ -20,6 +20,7 @@ import { PaymentTermsPicker } from "@/components/payment-terms-picker";
 import { RichMessage } from "@/components/rich-message";
 import { paymentTermsLabel } from "@/lib/billing";
 import type { FormSubmitResult } from "@/lib/form";
+import { formatSiret, formatVatNumber } from "@/lib/identifiers";
 import { COLOR_CLASSES, COLORS, colorLabel } from "@/lib/palette";
 import { m } from "@/paraglide/messages.js";
 import {
@@ -225,6 +226,7 @@ export function NewClientPage({
               {(field) => (
                 <FormTextField
                   field={field}
+                  formatOnBlur={formatSiret}
                   label="SIRET"
                   labelClassName="text-foreground-3"
                   font="mono"
@@ -236,6 +238,7 @@ export function NewClientPage({
               {(field) => (
                 <FormTextField
                   field={field}
+                  formatOnBlur={formatVatNumber}
                   label={m.clients_vat_label()}
                   labelClassName="text-foreground-3"
                   font="mono"
