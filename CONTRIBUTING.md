@@ -104,15 +104,14 @@ that survives it merges green.
 release-please watches `main`. Every `feat`, `fix`, `perf`, `revert` or
 `chore(deps)` commit makes it open, or refresh, a release PR carrying the
 version bump and the changelog; merging that PR tags the release, publishes
-the images and attaches the compose and env files. Before it can merge, an
-assembly PR folds the pending `.release-notes/` fragments into the in-app
-notes.
+the images and attaches the compose and env files. The same workflow folds
+the pending `.release-notes/` fragments into the in-app notes and commits
+them onto that PR, so the notes ship with the release they describe.
 
 Dependabot's minor and patch groups need nobody: once the required checks
 are green the bot merges them, and a release whose changelog holds nothing
-but dependency bumps merges its assembly PR and its release PR on its own.
-A release with a `feat` or `fix` in it waits for a maintainer on both PRs,
-and a major bump always waits.
+but dependency bumps merges its release PR on its own. A release with a
+`feat` or `fix` in it waits for a maintainer, and a major bump always waits.
 
 ## Questions
 

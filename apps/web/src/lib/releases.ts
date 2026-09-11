@@ -7,7 +7,6 @@ export type ReleaseItemKind = "new" | "improved" | "fixed";
 export type Release = {
   version: string;
   date: string;
-  headline?: string;
   items: { kind: ReleaseItemKind; text: string }[];
 };
 
@@ -276,8 +275,6 @@ export const RELEASES: Release[] = [
   {
     version: "0.10.0",
     date: "2026-08-15",
-    headline:
-      "Opusline now speaks English and French. The whole interface, including error messages coming from the API, follows the language set in your profile.",
     items: [
       {
         kind: "new",
