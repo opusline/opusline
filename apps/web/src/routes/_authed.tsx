@@ -16,6 +16,7 @@ import { useEffect } from "react";
 import { AddressAutocompleteProvider } from "@/components/address-autocomplete-provider";
 import { AppSidebar } from "@/components/app-sidebar";
 import { MoneyFormatProvider } from "@/components/money-format-provider";
+import { SessionLockProvider } from "@/features/auth/components/session-lock-provider";
 import { InvoiceDrawerProvider } from "@/features/invoices/components/invoice-drawer-provider";
 import { ModeToggle } from "@/features/theme/components/mode-toggle";
 import {
@@ -23,6 +24,7 @@ import {
   useThemeSync,
 } from "@/features/theme/lib/use-theme-preference";
 import { TimerContainer } from "@/features/timer/components/timer-container";
+import { TimerLockStatus } from "@/features/timer/components/timer-lock-status";
 import { TimerProvider } from "@/features/timer/components/timer-provider";
 import { syncLocale } from "@/lib/i18n";
 import { m } from "@/paraglide/messages.js";
@@ -102,29 +104,33 @@ function AuthedLayout() {
     >
       <AddressAutocompleteProvider businessCountry={user.businessCountry}>
         <TimerProvider workdayMinutes={user.workdayMinutes}>
-          <InvoiceDrawerProvider timezone={user.timezone}>
-            <SidebarProvider>
-              <AppSidebar />
-              <SidebarInset>
-                <header className="flex h-14 items-center gap-4 border-b px-4">
-                  <ExpandSidebarButton />
-                  {pageTitle ? (
-                    <span className="font-medium text-sm">{pageTitle}</span>
-                  ) : null}
-                  <div className="flex-1" />
-                  <ModeToggle
-                    onChange={setTheme}
-                    resolvedTheme={resolvedTheme}
-                    theme={theme}
-                  />
-                  <TimerContainer workdayMinutes={user.workdayMinutes} />
-                </header>
-                <div className="p-6">
-                  <Outlet />
-                </div>
-              </SidebarInset>
-            </SidebarProvider>
-          </InvoiceDrawerProvider>
+          {/* Inside the timer so the lock can say a timer is still running;
+              features do not import each other, only a route composes two. */}
+          <SessionLockProvider status={<TimerLockStatus />}>
+            <InvoiceDrawerProvider timezone={user.timezone}>
+              <SidebarProvider>
+                <AppSidebar />
+                <SidebarInset>
+                  <header className="flex h-14 items-center gap-4 border-b px-4">
+                    <ExpandSidebarButton />
+                    {pageTitle ? (
+                      <span className="font-medium text-sm">{pageTitle}</span>
+                    ) : null}
+                    <div className="flex-1" />
+                    <ModeToggle
+                      onChange={setTheme}
+                      resolvedTheme={resolvedTheme}
+                      theme={theme}
+                    />
+                    <TimerContainer workdayMinutes={user.workdayMinutes} />
+                  </header>
+                  <div className="p-6">
+                    <Outlet />
+                  </div>
+                </SidebarInset>
+              </SidebarProvider>
+            </InvoiceDrawerProvider>
+          </SessionLockProvider>
         </TimerProvider>
       </AddressAutocompleteProvider>
     </MoneyFormatProvider>
