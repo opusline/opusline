@@ -13,6 +13,44 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.23.0",
+    date: "2026-09-11",
+    items: [
+      {
+        kind: "new",
+        text: "A mission's page now lists its activity-report months — what is reported, what is still owed, what is signed — and opens any of them in one click.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "Opusline can now tidy up after you: pick a period in your billing settings and a mission nothing has happened on is finished, and a client with nothing running is archived, overnight.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "A SIRET, a French TVA number and a French phone number tidy themselves into their usual spacing when you leave the field, in your settings and on a client.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "The client and mission creation screens give the form more room, so its fields stop crowding into half the page.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "Pausing the timer, ticking a day on the CRA, marking an invoice paid, archiving a client, ticking off a deadline and deleting a document now happen on the click instead of after the round trip.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "A new client now starts on the payment terms set in your billing settings, instead of always 45 days.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "The CRA screen now opens on your most recent month instead of a blank panel, and its tracked-time figures refresh as soon as you change an entry.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "The week view's « Mois en cours » tile now counts the days you worked rather than how full each of them was, so a month of short days reads 9 days and not 6.8.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.22.0",
     date: "2026-09-10",
     items: [

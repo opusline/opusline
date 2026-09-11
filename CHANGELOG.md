@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.23.0](https://github.com/opusline/opusline/compare/v0.22.0...v0.23.0) (2026-09-11)
+
+
+### Features
+
+* **api:** retire the work an account stopped touching ([#320](https://github.com/opusline/opusline/issues/320)) ([c834eed](https://github.com/opusline/opusline/commit/c834eedc2fdea7850e3c5ebcd5fd6e0e47ca05a8))
+* **web:** list a mission's CRA months on its page ([#314](https://github.com/opusline/opusline/issues/314)) ([2a4d9c7](https://github.com/opusline/opusline/commit/2a4d9c7ae6da43bad8250aac185e218d373fa342))
+* **web:** space the French identifiers as they are written ([#319](https://github.com/opusline/opusline/issues/319)) ([f07f292](https://github.com/opusline/opusline/commit/f07f2927f95779037e89d3804c6ad567e8c4e208))
+
+
+### Bug Fixes
+
+* **api:** count a worked day as a whole day ([#318](https://github.com/opusline/opusline/issues/318)) ([01346c8](https://github.com/opusline/opusline/commit/01346c8610ddee55e74d36aa13ceb46a95e37d89))
+* **web:** open the CRA on a month instead of a blank panel ([#313](https://github.com/opusline/opusline/issues/313)) ([4fa8a8a](https://github.com/opusline/opusline/commit/4fa8a8ae04dbf665af96134b7dbcb151935a5f10))
+* **web:** start a client on the account's payment terms ([#311](https://github.com/opusline/opusline/issues/311)) ([d457ddf](https://github.com/opusline/opusline/commit/d457ddf0d463b753136bf2c6ecf48b3e16244b8a))
+
+
+### Performance Improvements
+
+* **web:** apply writes to the screen before the server answers ([#316](https://github.com/opusline/opusline/issues/316)) ([6679208](https://github.com/opusline/opusline/commit/667920891ca445df45d2bdb3c1aca4c467c791dc))
+
 ## [0.22.0](https://github.com/opusline/opusline/compare/v0.21.2...v0.22.0) (2026-09-10)
 
 
