@@ -1,0 +1,92 @@
+name: Update PRs
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# One pass at a time. Two pushes landing together would race each other onto
+# the same PRs, and the loser updates a branch that is no longer behind.
+concurrency:
+  group: update-prs
+  cancel-in-progress: false
+
+jobs:
+  update-prs:
+    name: Bring the open PRs up to date with main
+    runs-on: ubuntu-latest
+    steps:
+      # The ruleset requires branches to be up to date, so every push to main
+      # leaves every open PR unmergeable until someone clicks "Update branch".
+      # The App, not GITHUB_TOKEN: a head pushed by GITHUB_TOKEN fires no
+      # workflows, so the required checks would never report on the new commit
+      # and the PR would sit pending instead of stale — a worse place to be.
+      - id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.OPUSLINE_BOT_APP_ID }}
+          private-key: ${{ secrets.OPUSLINE_BOT_PRIVATE_KEY }}
+      - name: Update every open PR that main has left behind
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_REPO: ${{ github.repository }}
+          BASE: ${{ github.ref_name }}
+        run: |
+          # Drafts are left alone: they cannot merge, so being behind costs them
+          # nothing, and updating one burns a full CI run on work in progress —
+          # including the bottom rung of a stack, where a merge commit is churn
+          # the next rebase throws away. Forks cannot be updated without
+          # maintainer edits, and a PR already conflicting with main needs a
+          # human, not another attempt.
+          prs=$(gh pr list --state open --base "$BASE" --limit 100 \
+            --json number,headRefName,isDraft,isCrossRepository,mergeable \
+            --jq '.[]
+              | select(.isDraft | not)
+              | select(.isCrossRepository | not)
+              | select(.mergeable != "CONFLICTING")
+              | "\(.number) \(.headRefName)"')
+          if [ -z "$prs" ]; then
+            echo "No open PR to update."
+            exit 0
+          fi
+          # Fed in on a here-string rather than a pipe: a pipe would run the loop
+          # in a subshell and lose `stuck` on the way out.
+          stuck=0
+          while read -r number head; do
+            # The release PR is the one on a critical path — its notes and its
+            # version bump are waiting on it — so a failure there is an error
+            # that reddens this run. Everywhere else a stale PR is the author's
+            # business, and failing every push to main over it would make this
+            # workflow the thing that needs a human.
+            case "$head" in
+              release-please--*) loud=1 ;;
+              *) loud=0 ;;
+            esac
+            behind=$(gh api "repos/$GH_REPO/compare/$BASE...$head" --jq '.behind_by')
+            # An unreadable answer must not read as "up to date": `[` prints
+            # "integer expected" and an `if` swallows its exit status, so the one
+            # branch that had to be updated would be the one silently skipped.
+            case "$behind" in
+              "" | *[!0-9]*)
+                echo "::warning::Could not read how far #$number ($head) is behind $BASE."
+                if [ "$loud" -eq 1 ]; then
+                  stuck=1
+                fi
+                continue
+                ;;
+            esac
+            if [ "$behind" -eq 0 ]; then
+              echo "#$number ($head) is up to date with $BASE."
+              continue
+            fi
+            echo "#$number ($head) is $behind commit(s) behind $BASE."
+            if ! gh pr update-branch "$number"; then
+              echo "::warning::Could not update #$number ($head) — it needs a hand."
+              if [ "$loud" -eq 1 ]; then
+                stuck=1
+              fi
+            fi
+          done <<< "$prs"
+          exit "$stuck"
