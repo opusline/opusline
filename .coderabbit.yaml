@@ -5,6 +5,13 @@ reviews:
   request_changes_workflow: false
   high_level_summary: true
   auto_review:
+    # On demand only: ask for a review with `@coderabbitai review` on the PR.
+    # A solo-maintained repo does not need a bot opening every PR with a
+    # walkthrough nobody asked for, and the reviews that matter are the ones
+    # asked for on the diffs that deserve one. The pre-merge checks below run
+    # with the review they belong to; the title rule is enforced independently
+    # by .github/workflows/pr-title.yml on every PR either way.
+    enabled: false
     base_branches:
       - ".*"
   pre_merge_checks:
