@@ -11,7 +11,6 @@ import {
   fromCalendarDate,
   isCalendarDate,
   localDate,
-  parseNumericDate,
   toCalendarDate,
 } from "./dates";
 
@@ -93,32 +92,6 @@ it.each([
 it("shows a date in the layout the account chose", () => {
   expect(calendarDateNumericLabel(0, "2026-08-01")).toBe("01/08/2026");
   expect(calendarDateNumericLabel(1, "2026-08-01")).toBe("2026-08-01");
-});
-
-it.each([
-  [0, "01/08/2026", "2026-08-01"],
-  [0, "1/8/2026", "2026-08-01"],
-  [1, "2026-08-01", "2026-08-01"],
-])("reads %s typed as %s back as %s", (format, draft, expected) => {
-  expect(parseNumericDate(format as 0 | 1, draft)).toBe(expected);
-});
-
-it.each([
-  [0, "01/08"],
-  [0, "1/8/26"],
-  [0, "2026-08-01"],
-  [1, "01/08/2026"],
-  [1, ""],
-])("refuses %s as a half-typed date in layout %s", (format, draft) => {
-  expect(parseNumericDate(format as 0 | 1, draft)).toBeNull();
-});
-
-it("round-trips every layout through its own parser", () => {
-  for (const format of [0, 1] as const) {
-    const shown = calendarDateNumericLabel(format, "2026-08-01");
-
-    expect(parseNumericDate(format, shown)).toBe("2026-08-01");
-  }
 });
 
 it("answers today in the account's timezone, not the browser's", () => {

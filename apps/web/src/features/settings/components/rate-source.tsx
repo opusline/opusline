@@ -158,6 +158,7 @@ export function RateSource({
                 >
                   {(field) => (
                     <FormDateField
+                      clearable
                       field={field}
                       label={m.settings_business_started_label()}
                       labelClassName="text-muted-foreground-2 text-xs"

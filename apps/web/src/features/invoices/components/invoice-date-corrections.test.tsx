@@ -1,6 +1,14 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
+import {
+  calendarDay,
+  openDatePicker,
+  pickDate,
+  queryCalendarDay,
+  showPreviousMonth,
+} from "@/test/date-picker";
+
 import { invoiceDetail } from "../lib/fixtures";
 import { InvoiceDateCorrections } from "./invoice-date-corrections";
 
@@ -38,8 +46,12 @@ it("starts on the dates the invoice already carries", () => {
     invoice: invoiceDetail({ status: 2, paidOn: "2026-07-24" }).invoice,
   });
 
-  expect(screen.getByLabelText("Envoyée le")).toHaveValue("01/07/2026");
-  expect(screen.getByLabelText("Encaissée le")).toHaveValue("24/07/2026");
+  expect(screen.getByLabelText("Envoyée le")).toHaveTextContent(
+    "1 juillet 2026",
+  );
+  expect(screen.getByLabelText("Encaissée le")).toHaveTextContent(
+    "24 juillet 2026",
+  );
 });
 
 it("stays quiet until something actually changes", () => {
@@ -48,12 +60,10 @@ it("stays quiet until something actually changes", () => {
   expect(save()).toBeDisabled();
 });
 
-it("moves the day the invoice went out", () => {
+it("moves the day the invoice went out", async () => {
   const { onSubmit } = renderCorrections();
 
-  fireEvent.change(screen.getByLabelText("Envoyée le"), {
-    target: { value: "04/07/2026" },
-  });
+  await pickDate("Envoyée le", "2026-07-04");
   fireEvent.click(save());
 
   expect(onSubmit).toHaveBeenCalledWith({
@@ -63,14 +73,12 @@ it("moves the day the invoice went out", () => {
   });
 });
 
-it("moves a payment date backwards, where the money actually landed", () => {
+it("moves a payment date backwards, where the money actually landed", async () => {
   const { onSubmit } = renderCorrections({
     invoice: invoiceDetail({ status: 2, paidOn: "2026-07-24" }).invoice,
   });
 
-  fireEvent.change(screen.getByLabelText("Encaissée le"), {
-    target: { value: "18/07/2026" },
-  });
+  await pickDate("Encaissée le", "2026-07-18");
   fireEvent.click(save());
 
   expect(onSubmit).toHaveBeenCalledWith({
@@ -80,16 +88,15 @@ it("moves a payment date backwards, where the money actually landed", () => {
   });
 });
 
-it("never books a payment before the invoice was sent", () => {
+it("never books a payment before the invoice was sent", async () => {
   renderCorrections({
     invoice: invoiceDetail({ status: 2, paidOn: "2026-07-24" }).invoice,
   });
 
-  fireEvent.change(screen.getByLabelText("Encaissée le"), {
-    target: { value: "30/06/2026" },
-  });
+  await openDatePicker("Encaissée le");
 
-  expect(save()).toBeDisabled();
+  // The send date is the floor, so a day before it is not on offer at all.
+  expect(queryCalendarDay("2026-06-30")).not.toBeInTheDocument();
 });
 
 it("surfaces what the server refused", () => {
@@ -102,12 +109,12 @@ it("surfaces what the server refused", () => {
   );
 });
 
-it("moves the day the invoice bears, which the send date stands on", () => {
+it("moves the day the invoice bears, which the send date stands on", async () => {
   const { onSubmit } = renderCorrections();
 
-  fireEvent.change(screen.getByLabelText("Émise le"), {
-    target: { value: "01/06/2026" },
-  });
+  await openDatePicker("Émise le");
+  showPreviousMonth();
+  fireEvent.click(calendarDay("2026-06-01"));
   fireEvent.click(save());
 
   expect(onSubmit).toHaveBeenCalledWith({
@@ -117,17 +124,18 @@ it("moves the day the invoice bears, which the send date stands on", () => {
   });
 });
 
-it("lets the send date follow the issue date back", () => {
+it("lets the send date follow the issue date back", async () => {
   renderCorrections();
 
   // Before: the send date could not go earlier than 01/07, the day the invoice
   // bears. That floor is the field above now, so moving it frees the one below.
-  fireEvent.change(screen.getByLabelText("Émise le"), {
-    target: { value: "01/06/2026" },
-  });
-  fireEvent.change(screen.getByLabelText("Envoyée le"), {
-    target: { value: "15/06/2026" },
-  });
+  await openDatePicker("Émise le");
+  showPreviousMonth();
+  fireEvent.click(calendarDay("2026-06-01"));
+
+  await openDatePicker("Envoyée le");
+  showPreviousMonth();
+  fireEvent.click(calendarDay("2026-06-15"));
 
   expect(save()).toBeEnabled();
 });

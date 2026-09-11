@@ -449,6 +449,7 @@ export function NewMissionPage({
                     </FieldLabel>
                     <DateField
                       aria-invalid={isInvalid}
+                      clearable
                       id={field.name}
                       onBlur={field.handleBlur}
                       onChange={field.handleChange}
