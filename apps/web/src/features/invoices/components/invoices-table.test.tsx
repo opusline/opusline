@@ -94,7 +94,7 @@ it("explains an empty filter differently from an empty account", () => {
   fireEvent.click(screen.getByRole("button", { name: "Payées (1)" }));
   const paid = screen.getByText("Orvella");
   expect(
-    within(paid.closest("section") as HTMLElement).getByText("2026-009"),
+    within(paid.closest("tbody") as HTMLElement).getByText("2026-009"),
   ).toBeInTheDocument();
 
   render(
@@ -174,7 +174,48 @@ it("opens the invoice it was asked to open", () => {
     />,
   );
 
-  fireEvent.click(screen.getByRole("button", { name: /Refonte catalogue/ }));
+  fireEvent.click(
+    screen.getByRole("button", { name: "Ouvrir la facture 2026-014" }),
+  );
 
   expect(onOpen).toHaveBeenCalledWith(7);
+});
+
+it("reads each row against a column header", () => {
+  render(
+    <InvoicesTable
+      accountToday="2026-08-14"
+      clientTotals={totals}
+      invoices={[invoiceItem({ id: 7 })]}
+    />,
+  );
+
+  const headers = screen.getAllByRole("columnheader");
+
+  expect(headers.map((header) => header.textContent)).toEqual([
+    "Numéro de facture",
+    "Mission",
+    "Montant",
+    "Statut",
+  ]);
+  for (const header of headers) {
+    expect(header).toHaveAttribute("scope", "col");
+  }
+});
+
+it("heads each client's rows with the client itself", () => {
+  render(
+    <InvoicesTable
+      accountToday="2026-08-14"
+      clientTotals={totals}
+      invoices={[invoiceItem({ id: 7 })]}
+    />,
+  );
+
+  const group = screen.getByRole("rowheader", { name: /Vesterhus/ });
+
+  expect(group).toHaveAttribute("scope", "rowgroup");
+  expect(
+    within(group.closest("tbody") as HTMLElement).getAllByRole("row"),
+  ).toHaveLength(2);
 });

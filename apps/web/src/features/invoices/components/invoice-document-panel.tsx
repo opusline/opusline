@@ -176,7 +176,7 @@ export function InvoiceDocumentPanel({
             <Button
               disabled={isPending}
               onClick={() => picker.current?.click()}
-              size="lg"
+              size="xl"
               variant="outline"
             >
               {m.invoices_document_replace()}
@@ -184,7 +184,7 @@ export function InvoiceDocumentPanel({
             <Button
               disabled={isPending}
               onClick={onRemove}
-              size="lg"
+              size="xl"
               variant="outline"
             >
               {m.invoices_document_remove()}

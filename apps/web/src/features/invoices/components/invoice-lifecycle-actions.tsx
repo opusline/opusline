@@ -133,6 +133,7 @@ function SendStep({
         disabled={
           isPending || sentOn === "" || (needsReference && trimmed === "")
         }
+        size="xl"
       >
         {isPending ? m.common_saving() : m.invoices_mark_sent()}
       </Button>
@@ -179,7 +180,7 @@ function CollectStep({
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Button type="submit" disabled={isPending || paidOn === ""}>
+        <Button disabled={isPending || paidOn === ""} size="xl" type="submit">
           {isPending ? m.common_saving() : m.invoices_mark_paid()}
         </Button>
         <Button
@@ -187,6 +188,7 @@ function CollectStep({
           variant="outline"
           disabled={isPending}
           onClick={onRemind}
+          size="xl"
         >
           {m.invoices_note_reminder()}
         </Button>

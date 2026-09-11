@@ -6,33 +6,18 @@ import { afterEach, expect, it, vi } from "vitest";
 
 import { getRouter } from "@/router";
 import { seedCurrentUser } from "@/test/current-user";
+import { clientWithMissions } from "@/test/fixtures";
 
 function client(
   overrides: Partial<ClientWithMissionsData>,
 ): ClientWithMissionsData {
-  return {
-    id: 1,
+  return clientWithMissions({
     slug: "nordlys",
     name: "Nordlys",
     type: 1,
-    notes: null,
-    siret: null,
-    vatNumber: null,
-    defaultVatRateBp: null,
-    billingAddressLine1: null,
-    billingAddressLine2: null,
-    billingPostalCode: null,
-    billingCity: null,
-    billingCountry: null,
-    billingContactName: null,
-    billingEmail: null,
-    color: 0,
-    paymentTermsDays: 45,
-    archivedAt: null,
     createdAt: "2025-03-01T00:00:00+00:00",
-    missions: [],
     ...overrides,
-  };
+  });
 }
 
 const CLIENTS = [

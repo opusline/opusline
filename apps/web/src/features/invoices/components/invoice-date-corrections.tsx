@@ -8,6 +8,7 @@ import { DateField } from "@/components/date-field";
 import { m } from "@/paraglide/messages.js";
 
 export type InvoiceDateCorrection = {
+  issuedOn: string;
   sentOn: string;
   /** Null on an invoice that has not been collected — there is no date to move. */
   paidOn: string | null;
@@ -31,6 +32,10 @@ type InvoiceDateCorrectionsProps = {
  * fix a send date typed a week late or a payment noticed on the bank statement
  * days after it landed — and the second of those decides which declaration period
  * the revenue falls in, so it cannot be a write-once field.
+ *
+ * The issue date is here for a reason of its own: it is the floor the other two
+ * stand on, so an invoice recorded under the wrong one leaves its send date stuck
+ * against a date that was never right.
  */
 export function InvoiceDateCorrections({
   invoice,
@@ -40,8 +45,10 @@ export function InvoiceDateCorrections({
   error,
   onSubmit,
 }: InvoiceDateCorrectionsProps) {
+  const issuedOnFieldId = useId();
   const sentOnFieldId = useId();
   const paidOnFieldId = useId();
+  const [issuedOnDraft, setIssuedOnDraft] = useState(invoice.issuedOn);
   const [sentOnDraft, setSentOnDraft] = useState(sentOn);
   const [paidOnDraft, setPaidOnDraft] = useState(invoice.paidOn ?? "");
 
@@ -50,9 +57,14 @@ export function InvoiceDateCorrections({
   }
 
   const isPaid = invoice.status === 2;
-  const isComplete = sentOnDraft !== "" && (!isPaid || paidOnDraft !== "");
+  const isComplete =
+    issuedOnDraft !== "" &&
+    sentOnDraft !== "" &&
+    (!isPaid || paidOnDraft !== "");
   const hasChanges =
-    sentOnDraft !== sentOn || (isPaid && paidOnDraft !== invoice.paidOn);
+    issuedOnDraft !== invoice.issuedOn ||
+    sentOnDraft !== sentOn ||
+    (isPaid && paidOnDraft !== invoice.paidOn);
 
   return (
     <section className="border-t px-4 py-5">
@@ -63,17 +75,32 @@ export function InvoiceDateCorrections({
         onSubmit={(event) => {
           event.preventDefault();
           onSubmit({
+            issuedOn: issuedOnDraft,
             sentOn: sentOnDraft,
             paidOn: isPaid ? paidOnDraft : null,
           });
         }}
       >
         <div className="flex flex-col gap-1.5">
+          <Label htmlFor={issuedOnFieldId}>
+            {m.invoices_issued_on_label()}
+          </Label>
+          <DateField
+            id={issuedOnFieldId}
+            max={accountToday}
+            onChange={setIssuedOnDraft}
+            value={issuedOnDraft}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
           <Label htmlFor={sentOnFieldId}>{m.invoices_sent_on_label()}</Label>
+          {/* Bounded by the draft, not the stored date: correcting both at once is
+              the whole point, and the floor has to follow the field above. */}
           <DateField
             id={sentOnFieldId}
             max={accountToday}
-            min={invoice.issuedOn}
+            min={issuedOnDraft === "" ? undefined : issuedOnDraft}
             onChange={setSentOnDraft}
             value={sentOnDraft}
           />
@@ -85,7 +112,7 @@ export function InvoiceDateCorrections({
             <DateField
               id={paidOnFieldId}
               max={accountToday}
-              min={sentOnDraft === "" ? invoice.issuedOn : sentOnDraft}
+              min={sentOnDraft === "" ? issuedOnDraft : sentOnDraft}
               onChange={setPaidOnDraft}
               value={paidOnDraft}
             />
@@ -98,6 +125,7 @@ export function InvoiceDateCorrections({
         <Button
           className="self-start"
           disabled={isPending || !isComplete || !hasChanges}
+          size="xl"
           type="submit"
           variant="outline"
         >
