@@ -1,9 +1,13 @@
-import type { UpdateClientData } from "@opusline/api-client";
+import type {
+  ClientWithMissionsData,
+  UpdateClientData,
+} from "@opusline/api-client";
 import {
   archiveClientMutation,
   deleteClientDocumentMutation,
   deleteClientLogoMutation,
   listClientDocumentsOptions,
+  listClientDocumentsQueryKey,
   listClientsQueryKey,
   showClientOptions,
   showClientQueryKey,
@@ -28,6 +32,7 @@ import {
   ASSIGNABLE_DOCUMENT_CATEGORIES,
   clientDocumentDownloadHref,
   documentHandlers,
+  dropDocumentFromCache,
 } from "@/lib/documents";
 import type { FormSubmitResult } from "@/lib/form";
 import { clientLogoHref, logoHandlers } from "@/lib/logos";
@@ -96,14 +101,38 @@ function ClientDetailRoute() {
     }
   };
 
+  /**
+   * Flip the badge before the server answers. Only this fiche is painted — the
+   * clients list reads the same flag but is a screen away, and the invalidation
+   * below has it right by the time anyone looks.
+   */
+  const paintArchived = (archivedAt: string | null) => {
+    const queryKey = showClientQueryKey({ path: { client } });
+    const previous = queryClient.getQueryData<ClientWithMissionsData>(queryKey);
+
+    if (previous === undefined) {
+      return () => {};
+    }
+
+    queryClient.setQueryData<ClientWithMissionsData>(queryKey, {
+      ...previous,
+      archivedAt,
+    });
+
+    return () => queryClient.setQueryData(queryKey, previous);
+  };
+
   const handleToggleArchive = async () => {
-    const toggle = data?.archivedAt == null ? archiveClient : unarchiveClient;
+    const wasArchived = data?.archivedAt != null;
+    const toggle = wasArchived ? unarchiveClient : archiveClient;
+    const undo = paintArchived(wasArchived ? null : new Date().toISOString());
 
     try {
       await toggle.mutateAsync({ path: { client } });
       await invalidateClient();
     } catch {
       // The mutation error is surfaced through toggle.error below.
+      undo();
     }
   };
 
@@ -143,6 +172,10 @@ function ClientDetailRoute() {
         path: { client, document: document.id },
       }),
     invalidate: () => invalidateDocumentWrites(queryClient),
+    dropFromCache: dropDocumentFromCache(
+      queryClient,
+      listClientDocumentsQueryKey({ path: { client } }),
+    ),
   });
 
   if (isPending) {

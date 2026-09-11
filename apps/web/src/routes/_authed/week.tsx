@@ -1,4 +1,8 @@
-import type { DeadlineBoardData, TimeEntryData } from "@opusline/api-client";
+import type {
+  DeadlineBoardData,
+  TimeEntryData,
+  TimeEntryListData,
+} from "@opusline/api-client";
 import {
   createTimeEntryMutation,
   deleteTimeEntryMutation,
@@ -151,6 +155,33 @@ function SemaineRoute() {
         : { queryKey: listTimeEntriesQueryKey({ query: isoWeekRange(week) }) },
     );
 
+  /**
+   * Paint an edited entry into the week the grid is showing, so the cell moves
+   * on the click rather than on the round trip. The grid derives its cells, its
+   * day totals and its week tiles from this one list, so patching the entry
+   * moves all of them together. Returns the undo, for a write that never lands.
+   */
+  const paintEntry = (
+    entryId: number,
+    patch: Partial<TimeEntryData>,
+  ): (() => void) => {
+    const queryKey = listTimeEntriesQueryKey({ query: isoWeekRange(week) });
+    const previous = queryClient.getQueryData<TimeEntryListData>(queryKey);
+
+    if (previous === undefined) {
+      return () => undefined;
+    }
+
+    queryClient.setQueryData<TimeEntryListData>(queryKey, {
+      ...previous,
+      timeEntries: previous.timeEntries.map((entry) =>
+        entry.id === entryId ? { ...entry, ...patch } : entry,
+      ),
+    });
+
+    return () => queryClient.setQueryData(queryKey, previous);
+  };
+
   const runWrite = async (
     cellKey: string,
     write: () => Promise<unknown>,
@@ -213,18 +244,23 @@ function SemaineRoute() {
       return Promise.resolve(false);
     }
 
-    return runWrite(input.cellKey, () =>
-      updateEntry.mutateAsync({
-        body: {
-          billable: input.billable ?? entry.billable,
-          date: entry.date,
-          durationMinutes: input.durationMinutes ?? entry.durationMinutes,
-          missionId: entry.missionId,
-          note: input.note === undefined ? entry.note : input.note,
-        },
-        path: { timeEntry: entry.id },
-      }),
-    );
+    const body = {
+      billable: input.billable ?? entry.billable,
+      date: entry.date,
+      durationMinutes: input.durationMinutes ?? entry.durationMinutes,
+      missionId: entry.missionId,
+      note: input.note === undefined ? entry.note : input.note,
+    };
+    const undo = paintEntry(entry.id, body);
+
+    return runWrite(input.cellKey, async () => {
+      try {
+        await updateEntry.mutateAsync({ body, path: { timeEntry: entry.id } });
+      } catch (caught) {
+        undo();
+        throw caught;
+      }
+    });
   };
 
   const handleDelete: React.ComponentProps<typeof WeekPage>["onDelete"] = (

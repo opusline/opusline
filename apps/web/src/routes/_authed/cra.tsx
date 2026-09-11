@@ -156,15 +156,32 @@ function CraRoute() {
    */
   const updateDays = useMutation({
     ...updateCraDaysMutation(),
-    onMutate: ({ path, body }) => {
+    onMutate: async ({ path, body }) => {
       setError(null);
+
+      const queryKey = showCraQueryKey({ path: { cra: path.cra } });
+      // A refetch already in flight answers with a month that predates this
+      // click, and would land on top of it.
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<CraDetailData>(queryKey);
+
       applyDaysToCache(queryClient, path.cra, body.days);
+
+      return { queryKey, previous };
     },
-    // onSettled, not onSuccess: after a refused write the optimistic cache is a
-    // lie, and the grid must not keep showing the day the server rejected next
-    // to the error banner. The refetch restores the server's truth either way.
+    // Put back straight away rather than waiting on the refetch: a refused write
+    // must not leave the grid showing the day the server rejected next to the
+    // error banner for the length of a round trip.
+    onError: (caught, _variables, context) => {
+      if (context?.previous !== undefined) {
+        queryClient.setQueryData(context.queryKey, context.previous);
+      }
+
+      reportFailure(m.common_save_failed())(caught);
+    },
+    // onSettled, not onSuccess: the totals and the drift are the API's, and the
+    // rollback above is only as good as the snapshot it took.
     onSettled: refreshCras,
-    onError: reportFailure(m.common_save_failed()),
   });
   const reset = useMutation({
     ...resetCraMutation(),

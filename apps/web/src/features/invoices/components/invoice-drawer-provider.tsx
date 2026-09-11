@@ -1,3 +1,4 @@
+import type { InvoiceDetailData } from "@opusline/api-client";
 import {
   correctInvoiceDatesMutation,
   deleteInvoiceDocumentMutation,
@@ -136,11 +137,41 @@ export function InvoiceDrawerProvider({
     onError: reportFailure(m.invoices_reference_failed()),
   });
 
+  /**
+   * Mark the open invoice paid in the cache before the server answers. Only the
+   * fiche's own status and date are painted: `invalidateInvoiceWrites` fans out
+   * to seven query sets — the ledger, the summaries, treasury, the fiscal board
+   * — and guessing at money that is derived in four places is how a screen ends
+   * up lying. Those follow on the refetch, as they always did.
+   */
+  const paintPaid = (invoice: number, paidOn: string) => {
+    const queryKey = showInvoiceOptions({ path: { invoice } }).queryKey;
+    const previous = queryClient.getQueryData<InvoiceDetailData>(queryKey);
+
+    if (previous === undefined) {
+      return () => undefined;
+    }
+
+    queryClient.setQueryData<InvoiceDetailData>(queryKey, {
+      ...previous,
+      invoice: { ...previous.invoice, status: 2, paidOn, isLate: false },
+    });
+
+    return () => queryClient.setQueryData(queryKey, previous);
+  };
+
   const pay = useMutation({
     ...payInvoiceMutation(),
-    onMutate: () => setActionError(null),
+    onMutate: ({ path, body }) => {
+      setActionError(null);
+
+      return { undo: paintPaid(path.invoice, body.paidOn) };
+    },
     onSuccess: refresh,
-    onError: reportFailure(m.invoices_pay_failed()),
+    onError: (error, _variables, context) => {
+      context?.undo();
+      reportFailure(m.invoices_pay_failed())(error);
+    },
   });
 
   const correctDates = useMutation({
