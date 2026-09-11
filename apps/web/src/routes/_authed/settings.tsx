@@ -84,6 +84,7 @@ function settingsDerivedUserFields(
     dateFormat: settings.dateFormat,
     timezone: settings.timezone,
     workdayMinutes: settings.workdayMinutes,
+    defaultPaymentTermsDays: settings.defaultPaymentTermsDays,
   };
 }
 

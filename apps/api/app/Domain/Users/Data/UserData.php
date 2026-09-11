@@ -28,6 +28,8 @@ class UserData extends Data
         public int $effectiveVatRateBp,
         public string $timezone,
         public int $workdayMinutes,
+        /** The payment terms a new client starts on, before anyone edits them. */
+        public int $defaultPaymentTermsDays,
         /**
          * The account's own URSSAF rate, versement libératoire included — what the
          * mission projection has to price a provision with. An ACRE account pays
@@ -56,6 +58,7 @@ class UserData extends Data
             effectiveVatRateBp: $settings->effectiveVatRateBp(),
             timezone: $settings->timezone,
             workdayMinutes: $settings->workday_minutes,
+            defaultPaymentTermsDays: $settings->default_payment_terms_days,
             effectiveContributionRateBp: $settings->effectiveContributionRateBp(),
         );
     }

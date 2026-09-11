@@ -29,6 +29,7 @@ test('the current user endpoint returns the authenticated user', function (): vo
             'effectiveVatRateBp' => 0,
             'timezone' => 'Europe/Paris',
             'workdayMinutes' => 420,
+            'defaultPaymentTermsDays' => 45,
             'effectiveContributionRateBp' => 2560,
         ]);
 });

@@ -1599,6 +1599,7 @@ export const zUserData = z.object({
     effectiveVatRateBp: z.int(),
     timezone: z.string(),
     workdayMinutes: z.int(),
+    defaultPaymentTermsDays: z.int(),
     effectiveContributionRateBp: z.int()
 });
 

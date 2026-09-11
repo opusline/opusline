@@ -50,6 +50,8 @@ type NewClientPageProps = {
   vatLiable: boolean;
   /** The rate a client with no rate of its own is billed at. */
   accountVatRateBp: number;
+  /** The payment terms the account starts every new client on. */
+  defaultPaymentTermsDays: number;
   isPending?: boolean;
   error?: string | null;
 };
@@ -59,6 +61,7 @@ export function NewClientPage({
   onCancel,
   vatLiable,
   accountVatRateBp,
+  defaultPaymentTermsDays,
   isPending,
   error,
 }: NewClientPageProps) {
@@ -95,7 +98,7 @@ export function NewClientPage({
       billingContactName: "",
       billingEmail: "",
       color: defaultColor,
-      paymentTermsDays: 45,
+      paymentTermsDays: defaultPaymentTermsDays,
     } as ClientFormValues,
     validators: {
       onSubmitAsync: async ({ value }) => {
@@ -113,7 +116,7 @@ export function NewClientPage({
   });
 
   return (
-    <div className="grid max-w-270 items-start gap-4 md:grid-cols-2">
+    <div className="grid max-w-270 items-start gap-4 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       <div className="min-w-0">
         <div className="mb-2 flex items-center gap-2 text-muted-foreground-2 text-sm">
           <Link
