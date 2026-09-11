@@ -9,7 +9,11 @@ import { afterEach, expect, it, vi } from "vitest";
 
 import { getRouter } from "@/router";
 import { seedCurrentUser } from "@/test/current-user";
-import { clientRevenueDetailPayload, invoiceItem } from "@/test/fixtures";
+import {
+  clientRevenueDetailPayload,
+  clientWithMissions,
+  invoiceItem,
+} from "@/test/fixtures";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -20,25 +24,11 @@ function daysAgo(days: number): string {
 function clientPayload(
   overrides: Partial<ClientWithMissionsData> = {},
 ): ClientWithMissionsData {
-  return {
-    id: 1,
+  return clientWithMissions({
     slug: "nordlys",
     name: "Nordlys",
     type: 1,
-    notes: null,
     siret: "443 061 841 00047",
-    vatNumber: null,
-    defaultVatRateBp: null,
-    billingAddressLine1: null,
-    billingAddressLine2: null,
-    billingPostalCode: null,
-    billingCity: null,
-    billingCountry: null,
-    billingContactName: null,
-    billingEmail: null,
-    color: 0,
-    paymentTermsDays: 45,
-    archivedAt: null,
     createdAt: daysAgo(400),
     missions: [
       {
@@ -60,7 +50,7 @@ function clientPayload(
       },
     ],
     ...overrides,
-  };
+  });
 }
 
 function jsonResponse(status: number, body: unknown): Response {
