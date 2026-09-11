@@ -13,6 +13,20 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.23.1",
+    date: "2026-09-11",
+    items: [
+      {
+        kind: "improved",
+        text: "The buttons in the invoice panel are the size of the ones everywhere else, instead of the smallest the design system offers.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "The invoice ledger is a real table now, so a screen reader reads each figure against its column and its client instead of as a row of bare values.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.23.0",
     date: "2026-09-11",
     items: [
