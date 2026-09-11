@@ -16,6 +16,8 @@ type FormDateFieldProps = {
   /** Earliest and latest selectable days, inclusive, as `Y-m-d`. */
   min?: string;
   max?: string;
+  /** Offers to empty the field. Only for a date the form actually lets go. */
+  clearable?: boolean;
   disabled?: boolean;
   /** Shown under the control while it is valid, replaced by the error when not. */
   description?: React.ReactNode;
@@ -32,6 +34,7 @@ export function FormDateField({
   labelClassName,
   min,
   max,
+  clearable,
   disabled,
   description,
   fieldClassName,
@@ -54,6 +57,7 @@ export function FormDateField({
               : descriptionId
         }
         aria-invalid={isInvalid}
+        clearable={clearable}
         disabled={disabled}
         id={field.name}
         max={max}

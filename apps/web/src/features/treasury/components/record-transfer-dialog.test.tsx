@@ -1,6 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
+import { calendarDay, openDatePicker, pickDate } from "@/test/date-picker";
+
 import { RecordTransferDialog } from "./record-transfer-dialog";
 
 function renderDialog(onSubmit = vi.fn(), transferableCents = 851_300) {
@@ -93,34 +95,18 @@ it("reports a blank note as none rather than an empty string", () => {
   });
 });
 
-it("cannot be saved once the date is cleared", () => {
+it("refuses to post-date a transfer already made", async () => {
   renderDialog();
 
-  fireEvent.change(screen.getByLabelText("Montant"), {
-    target: { value: "1200" },
-  });
-  fireEvent.change(screen.getByLabelText("Date"), { target: { value: "" } });
+  await openDatePicker("Date");
 
-  expect(screen.getByRole("button", { name: "Enregistrer" })).toBeDisabled();
+  expect(calendarDay("2026-08-14")).toBeDisabled();
 });
 
-it("refuses to post-date a transfer already made", () => {
+it("takes the day picked in the calendar", async () => {
   const onSubmit = renderDialog();
 
-  fireEvent.change(screen.getByLabelText("Date"), {
-    target: { value: "14/08/2026" },
-  });
-  fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
-
-  expect(onSubmit).not.toHaveBeenCalled();
-});
-
-it("takes a date typed in the account's own layout", () => {
-  const onSubmit = renderDialog();
-
-  fireEvent.change(screen.getByLabelText("Date"), {
-    target: { value: "09/08/2026" },
-  });
+  await pickDate("Date", "2026-08-09");
   fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
 
   expect(onSubmit).toHaveBeenCalledWith(

@@ -1,6 +1,14 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
+import {
+  calendarDay,
+  openDatePicker,
+  pickDate,
+  queryCalendarDay,
+  showPreviousMonth,
+} from "@/test/date-picker";
+
 import { invoiceDetail } from "../lib/fixtures";
 import { InvoiceLifecycleActions } from "./invoice-lifecycle-actions";
 
@@ -50,21 +58,19 @@ it("collects the reference first when the draft has none", () => {
   expect(onSend).toHaveBeenCalledWith("F-2026-041", "2026-07-01");
 });
 
-it("sends on the day the document actually left", () => {
+it("sends on the day the document actually left", async () => {
   const { onSend } = renderActions({
     invoice: invoiceDetail({ status: 0, number: "2026-014" }).invoice,
   });
 
-  fireEvent.change(screen.getByLabelText("Envoyée le"), {
-    target: { value: "04/07/2026" },
-  });
+  await pickDate("Envoyée le", "2026-07-04");
   fireEvent.click(screen.getByRole("button", { name: "Marquer envoyée" }));
 
   expect(onSend).toHaveBeenCalledWith(null, "2026-07-04");
 });
 
-it("never sends a draft before the date it carries", () => {
-  const { onSend } = renderActions({
+it("never sends a draft before the date it carries", async () => {
+  renderActions({
     invoice: invoiceDetail({
       status: 0,
       number: "2026-014",
@@ -72,12 +78,10 @@ it("never sends a draft before the date it carries", () => {
     }).invoice,
   });
 
-  fireEvent.change(screen.getByLabelText("Envoyée le"), {
-    target: { value: "30/06/2026" },
-  });
-  fireEvent.click(screen.getByRole("button", { name: "Marquer envoyée" }));
+  await openDatePicker("Envoyée le");
 
-  expect(onSend).not.toHaveBeenCalled();
+  // The floor is the issue date, so the calendar does not reach June at all.
+  expect(queryCalendarDay("2026-06-30")).not.toBeInTheDocument();
 });
 
 it("refuses to send a referenceless draft on an empty field", () => {
@@ -90,29 +94,28 @@ it("refuses to send a referenceless draft on an empty field", () => {
   ).toBeDisabled();
 });
 
-it("banks a payment on the date the money landed", () => {
+it("banks a payment on the date the money landed", async () => {
   const { onPay } = renderActions();
 
-  // Typed in the account's own layout, sent as the Y-m-d the API speaks.
-  fireEvent.change(screen.getByLabelText("Encaissée le"), {
-    target: { value: "24/07/2026" },
-  });
+  // The field opens on today, so July is a month back — and the Y-m-d it sends
+  // is the shape the API speaks, whatever the calendar printed.
+  await openDatePicker("Encaissée le");
+  showPreviousMonth();
+  fireEvent.click(calendarDay("2026-07-24"));
   fireEvent.click(screen.getByRole("button", { name: "Marquer encaissée" }));
 
   expect(onPay).toHaveBeenCalledWith("2026-07-24");
 });
 
-it("never books a payment before the invoice existed", () => {
-  const { onPay } = renderActions({
+it("never books a payment before the invoice existed", async () => {
+  renderActions({
     invoice: invoiceDetail({ status: 1, issuedOn: "2026-07-01" }).invoice,
   });
 
-  fireEvent.change(screen.getByLabelText("Encaissée le"), {
-    target: { value: "30/06/2026" },
-  });
-  fireEvent.click(screen.getByRole("button", { name: "Marquer encaissée" }));
+  await openDatePicker("Encaissée le");
+  showPreviousMonth();
 
-  expect(onPay).not.toHaveBeenCalled();
+  expect(queryCalendarDay("2026-06-30")).not.toBeInTheDocument();
 });
 
 it("chases an invoice that is out but unpaid", () => {

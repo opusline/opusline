@@ -1,43 +1,38 @@
 import { Button } from "@opusline/ui/components/button";
 import { Calendar } from "@opusline/ui/components/calendar";
 import {
-  InputGroup,
-  InputGroupInput,
-} from "@opusline/ui/components/input-group";
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@opusline/ui/components/popover";
 import { calendarLocale } from "@opusline/ui/lib/calendar-locale";
+import { cn } from "@opusline/ui/lib/utils";
 import { CalendarIcon } from "lucide-react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
-import { useDateFormat, useLocale } from "@/components/money-format-provider";
+import { useLocale } from "@/components/money-format-provider";
 import {
-  calendarDateNumericLabel,
+  calendarDateLabel,
   fromCalendarDate,
   isCalendarDate,
-  parseNumericDate,
   toCalendarDate,
 } from "@/lib/dates";
 import { m } from "@/paraglide/messages.js";
 
 /**
- * A calendar date, typed or picked, in the layout the account chose.
+ * A calendar date, picked from a grid.
  *
- * The native `<input type="date">` renders in the *browser's* language, which
- * has nothing to do with the account: Chrome shows 08/21/2026 to a French user
- * whose Chrome is in English, and no `lang` attribute changes that. Every other
- * date in the app follows the user's own DateFormat, so this one does too.
+ * The sibling of MonthField, and the same control: a trigger showing what is
+ * chosen, opening the calendar. A date field that looks like a text box reads as
+ * the native `<input type="date">` it replaced — and that one renders in the
+ * *browser's* language, which has nothing to do with the account.
  *
- * It stays a text input rather than becoming a picker-only trigger because
- * typing a date is faster than navigating to it, and because the forms around
- * it rely on a date being clearable — "paid on" has to be able to go empty.
+ * The button spells the date out rather than showing 11/09/2026, because a
+ * numeric date is the one thing that cannot be read without knowing which
+ * layout it is in.
  *
  * The value is always a `Y-m-d` calendar date — the shape the API speaks —
- * never a Date, so no timezone gets a chance to shift the day. A draft that is
- * not yet a real day reads as no date at all, so nothing errors mid-keystroke.
+ * never a Date, so no timezone gets a chance to shift the day.
  */
 type DateFieldProps = {
   id?: string;
@@ -47,6 +42,11 @@ type DateFieldProps = {
   /** Earliest and latest selectable days, inclusive. */
   min?: string;
   max?: string;
+  /**
+   * Offers to empty the field from inside the calendar. Only for a date the
+   * form actually lets go — an optional end date, not an invoice's issue date.
+   */
+  clearable?: boolean;
   disabled?: boolean;
   size?: "sm" | "default";
   className?: string;
@@ -61,6 +61,7 @@ export function DateField({
   onChange,
   min,
   max,
+  clearable = false,
   disabled,
   size = "default",
   className,
@@ -68,98 +69,80 @@ export function DateField({
   ...aria
 }: DateFieldProps) {
   const locale = useLocale();
-  const dateFormat = useDateFormat();
   const [open, setOpen] = useState(false);
-
-  const shown = (date: string) =>
-    date === "" ? "" : calendarDateNumericLabel(dateFormat, date);
-
-  const [draft, setDraft] = useState(() => shown(value));
-
-  // The draft is the user's half-finished text, so it must not be clobbered by
-  // the "" this component itself emits for an incomplete date. Only a value
-  // that changed somewhere else re-seeds it.
-  const emitted = useRef(value);
-
-  if (value !== emitted.current) {
-    emitted.current = value;
-    setDraft(shown(value));
-  }
-
-  const emit = (next: string) => {
-    emitted.current = next;
-    onChange(next);
-  };
-
-  // `Y-m-d` compares lexicographically the way it reads, so the bounds the
-  // calendar greys out hold for a typed date too — otherwise the picker would
-  // refuse a day the keyboard let straight through.
-  const inRange = (date: string) =>
-    (min === undefined || date >= min) && (max === undefined || date <= max);
 
   const selected = isCalendarDate(value) ? fromCalendarDate(value) : undefined;
   const minDay = isCalendarDate(min) ? fromCalendarDate(min) : undefined;
   const maxDay = isCalendarDate(max) ? fromCalendarDate(max) : undefined;
 
   return (
-    <InputGroup className={className} size={size}>
-      <InputGroupInput
-        {...aria}
-        className="flex-1"
-        disabled={disabled}
-        id={id}
-        inputMode="numeric"
-        onBlur={onBlur}
-        onChange={(event) => {
-          setDraft(event.target.value);
-
-          const parsed = parseNumericDate(dateFormat, event.target.value);
-
-          emit(parsed !== null && inRange(parsed) ? parsed : "");
-        }}
-        placeholder={
-          dateFormat === 1 ? m.date_field_hint_iso() : m.date_field_hint_dmy()
-        }
-        value={draft}
-      />
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger
-          render={
-            <Button
-              aria-label={m.date_field_open_calendar()}
-              className="-mr-1.5 shrink-0"
-              disabled={disabled}
-              size="icon-sm"
-              variant="ghost"
-            />
-          }
-        >
-          <CalendarIcon aria-hidden />
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0">
-          <Calendar
-            autoFocus
-            defaultMonth={selected ?? maxDay}
-            disabled={[
-              ...(minDay === undefined ? [] : [{ before: minDay }]),
-              ...(maxDay === undefined ? [] : [{ after: maxDay }]),
-            ]}
-            endMonth={maxDay}
-            locale={calendarLocale(locale)}
-            mode="single"
-            onSelect={(day) => {
-              if (day !== undefined) {
-                const picked = toCalendarDate(day);
-                setDraft(shown(picked));
-                emit(picked);
-                setOpen(false);
-              }
-            }}
-            selected={selected}
-            startMonth={minDay}
+    <Popover onOpenChange={setOpen} open={open}>
+      <PopoverTrigger
+        render={
+          <Button
+            {...aria}
+            className={cn(
+              "w-full justify-between font-normal",
+              disabled && "cursor-not-allowed",
+              className,
+            )}
+            disabled={disabled}
+            id={id}
+            onBlur={onBlur}
+            size={size === "sm" ? "xl" : "2xl"}
+            variant="outline"
           />
-        </PopoverContent>
-      </Popover>
-    </InputGroup>
+        }
+      >
+        {selected === undefined ? (
+          <span className="text-muted-foreground-3">
+            {m.date_field_placeholder()}
+          </span>
+        ) : (
+          <span>{calendarDateLabel(locale, value)}</span>
+        )}
+        <CalendarIcon aria-hidden />
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0">
+        <Calendar
+          autoFocus
+          defaultMonth={selected ?? maxDay}
+          disabled={[
+            ...(minDay === undefined ? [] : [{ before: minDay }]),
+            ...(maxDay === undefined ? [] : [{ after: maxDay }]),
+          ]}
+          endMonth={maxDay}
+          locale={calendarLocale(locale)}
+          mode="single"
+          onSelect={(day) => {
+            if (day !== undefined) {
+              onChange(toCalendarDate(day));
+              setOpen(false);
+            }
+          }}
+          selected={selected}
+          startMonth={minDay}
+        />
+        {/* Inside the calendar rather than beside the trigger: a button that
+            appears next to the field only once a date is set makes the row jump
+            the first time anyone picks one. */}
+        {clearable && selected !== undefined && (
+          <div className="border-t p-1.5">
+            <Button
+              className="w-full"
+              onClick={() => {
+                onChange("");
+                setOpen(false);
+              }}
+              size="lg"
+              type="button"
+              variant="ghost"
+            >
+              {m.date_field_clear()}
+            </Button>
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
   );
 }

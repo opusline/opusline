@@ -40,8 +40,8 @@ type MonthFieldProps = {
  *
  * The sibling of DateField, and there for the same reason: `<input type="month">`
  * renders in the *browser's* language and layout, which has nothing to do with the
- * account. It differs in having no text field — a month is two clicks away in the
- * grid, where a day would be a dozen.
+ * account. It differs only in its grid: twelve months where the other has a
+ * calendar.
  *
  * The value is always `Y-m`, the shape the API speaks for a month.
  */
@@ -85,7 +85,7 @@ export function MonthField({
             className={cn("w-full justify-between font-normal", className)}
             disabled={disabled}
             id={id}
-            size="xl"
+            size="2xl"
             variant="outline"
           />
         }

@@ -2,6 +2,13 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
 import {
+  calendarDay,
+  openDatePicker,
+  pickDate,
+  showPreviousMonth,
+} from "@/test/date-picker";
+
+import {
   CLIENT_FIXTURE,
   fixedPriceBudget,
   MISSION_FIXTURE,
@@ -123,15 +130,13 @@ it("keeps the reference required once the invoice is marked issued", () => {
   ).toBeInTheDocument();
 });
 
-it("asks when a paid invoice was paid, and sends it", () => {
+it("asks when a paid invoice was paid, and sends it", async () => {
   const { onSubmit } = renderDialog();
 
   fireEvent.change(amountField(), { target: { value: "1000" } });
   fireEvent.click(screen.getByRole("button", { name: "Payée" }));
-  // Typed in the account's own layout, sent as the Y-m-d the API speaks.
-  fireEvent.change(screen.getByLabelText("Payée le"), {
-    target: { value: "10/08/2026" },
-  });
+  // Picked from the calendar, sent as the Y-m-d the API speaks.
+  await pickDate("Payée le", "2026-08-10");
   fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
 
   expect(onSubmit).toHaveBeenCalledWith(
@@ -139,13 +144,13 @@ it("asks when a paid invoice was paid, and sends it", () => {
   );
 });
 
-it("records the date the invoice was issued, not the day it is entered", () => {
+it("records the date the invoice was issued, not the day it is entered", async () => {
   const { onSubmit } = renderDialog();
 
   fireEvent.change(amountField(), { target: { value: "1000" } });
-  fireEvent.change(screen.getByLabelText("Émise le"), {
-    target: { value: "05/07/2026" },
-  });
+  await openDatePicker("Émise le");
+  showPreviousMonth();
+  fireEvent.click(calendarDay("2026-07-05"));
   fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
 
   expect(onSubmit).toHaveBeenCalledWith(
@@ -183,18 +188,16 @@ it("becomes usable when the missions land after the dialog opened", () => {
   );
 });
 
-it("refuses a paid invoice whose payment date was cleared", () => {
+it("never lets a paid invoice go out without the day it was paid", () => {
   const { onSubmit } = renderDialog();
 
   fireEvent.change(amountField(), { target: { value: "1000" } });
   fireEvent.click(screen.getByRole("button", { name: "Payée" }));
-  fireEvent.change(screen.getByLabelText("Payée le"), {
-    target: { value: "" },
-  });
   fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
 
-  expect(onSubmit).not.toHaveBeenCalled();
-  expect(
-    screen.getByText(/Une facture payée porte la date/),
-  ).toBeInTheDocument();
+  // Nothing was picked, so the field is still on today — which is the point:
+  // the date cannot be emptied, so a paid invoice always carries one.
+  expect(onSubmit).toHaveBeenCalledWith(
+    expect.objectContaining({ paidOn: "2026-08-19", status: 2 }),
+  );
 });

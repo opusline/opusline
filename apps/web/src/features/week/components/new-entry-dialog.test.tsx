@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
 import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
+import { pickDate } from "@/test/date-picker";
 
 import {
   DEMO_CLIENTS,
@@ -190,31 +191,15 @@ it("replaces every entry on the day, not just the first", () => {
   );
 });
 
-it("says nothing about a day it has no entries for", () => {
+it("says nothing about a day it has no entries for", async () => {
   renderDialog({ knownRange: { from: "2026-07-27", to: "2026-08-02" } });
 
   pickMission("Orvella front");
-  fireEvent.change(screen.getByLabelText("Date"), {
-    target: { value: "2026-03-02" },
-  });
+  await pickDate("Date", "2026-07-20");
 
   // Outside the loaded range the dialog cannot know, so it must not imply the
   // day is empty by silently offering to add.
   expect(screen.queryByText(/existe déjà ce jour-là/)).not.toBeInTheDocument();
-});
-
-it("survives an incomplete date instead of crashing the page", () => {
-  const { onSubmit } = renderDialog({ timeEntries: [] });
-
-  pickMission("Orvella front");
-  fireEvent.change(screen.getByLabelText("Date"), { target: { value: "" } });
-
-  expect(screen.getByText("Date incomplète")).toBeInTheDocument();
-
-  fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
-
-  expect(screen.getByRole("alert")).toHaveTextContent("Indiquez une date");
-  expect(onSubmit).not.toHaveBeenCalled();
 });
 
 it("says a too-long duration is out of range, not malformed", () => {

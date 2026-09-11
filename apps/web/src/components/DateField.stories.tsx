@@ -7,6 +7,7 @@ function Example(props: {
   value?: string;
   min?: string;
   max?: string;
+  clearable?: boolean;
   size?: "sm" | "default";
 }) {
   const [value, setValue] = useState(props.value ?? "");
@@ -14,6 +15,7 @@ function Example(props: {
   return (
     <div className="w-64">
       <DateField
+        clearable={props.clearable}
         max={props.max}
         min={props.min}
         onChange={setValue}
@@ -42,11 +44,16 @@ export const Empty: Story = {
   render: () => <Example />,
 };
 
-/** Days outside the window are greyed out, and typing one is refused too. */
+/** Days outside the window are greyed out, and the months beyond it unreachable. */
 export const Bounded: Story = {
   render: () => (
     <Example max="2026-08-21" min="2026-08-01" value="2026-08-10" />
   ),
+};
+
+/** Only where the form lets the date go: the calendar then offers to empty it. */
+export const Clearable: Story = {
+  render: () => <Example clearable value="2026-08-21" />,
 };
 
 export const Small: Story = {

@@ -384,6 +384,7 @@ export function MissionEditForm({
               <form.Field name="endDate">
                 {(field) => (
                   <FormDateField
+                    clearable
                     field={field}
                     label={m.missions_end_label()}
                     labelClassName={EDIT_LABEL_CLASSES}
