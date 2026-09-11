@@ -5,6 +5,15 @@ export type ClientOptions = {
 };
 
 /**
+ * BackupRecordData
+ */
+export type BackupRecordData = {
+    takenAt: string;
+    archive: string;
+    bytes: number;
+};
+
+/**
  * BankAccountData
  */
 export type BankAccountData = {
@@ -672,6 +681,15 @@ export type ImportBankStatementData = {
     file: Blob | File;
     balanceAmount?: number | null;
     balanceCurrency?: Currency | null;
+};
+
+/**
+ * InstanceData
+ */
+export type InstanceData = {
+    version: string;
+    database: string;
+    backup: BackupRecordData | null;
 };
 
 /**
@@ -3547,6 +3565,33 @@ export type ListDocumentLibraryResponses = {
 };
 
 export type ListDocumentLibraryResponse = ListDocumentLibraryResponses[keyof ListDocumentLibraryResponses];
+
+export type ShowInstanceData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/instance';
+};
+
+export type ShowInstanceErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowInstanceError = ShowInstanceErrors[keyof ShowInstanceErrors];
+
+export type ShowInstanceResponses = {
+    200: InstanceData;
+};
+
+export type ShowInstanceResponse = ShowInstanceResponses[keyof ShowInstanceResponses];
 
 export type ListInvoicesData = {
     body?: never;

@@ -60,7 +60,7 @@ function requestDataFields(): array
         'MonthWorkloadData',
         'NextInvoiceNumberData', 'RevenueClientData', 'RevenueComparisonData',
         'RevenueData', 'RevenueMonthData', 'RevenueNetData', 'RevenueVatData',
-        'SettingsData', 'TimeEntryData',
+        'BackupRecordData', 'InstanceData', 'SettingsData', 'TimeEntryData',
         'TimeEntryListData', 'TimerData', 'TimerStateData', 'UserData',
         'InvoiceListData',
         'RecoveryCodesData', 'TotpSetupData', 'TwoFactorStatusData',
