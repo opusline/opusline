@@ -368,3 +368,14 @@ it("says a client who never paid has no average delay rather than zero days", as
   expect(screen.queryByText("0 jour")).not.toBeInTheDocument();
   expect(screen.getByText("—")).toBeInTheDocument();
 });
+
+it("scopes every column header to its column", async () => {
+  renderWithRouter(<ClientsTable clients={[client({})]} />);
+
+  const headers = await screen.findAllByRole("columnheader");
+
+  expect(headers.length).toBeGreaterThan(0);
+  for (const header of headers) {
+    expect(header).toHaveAttribute("scope", "col");
+  }
+});
