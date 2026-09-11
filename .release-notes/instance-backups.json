@@ -1,4 +1,0 @@
-{
-  "kind": "new",
-  "text": "Instance and backups, in the account menu, now says whether this instance has ever been backed up, when the last archive was taken and where it went — and when it has not, the one command that takes one."
-}
