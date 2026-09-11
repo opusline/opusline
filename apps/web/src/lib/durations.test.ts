@@ -6,6 +6,7 @@ import {
   formatBilledHours,
   formatDecimalHours,
   formatDurationInput,
+  formatWorkedDays,
   formatWorkedTime,
   parseDuration,
   provisionalBilledLabel,
@@ -224,5 +225,15 @@ describe("locale threading", () => {
   it("formats decimal hours in the account locale's notation", () => {
     expect(formatDecimalHours("fr-FR", 90)).toBe("1,50 h");
     expect(formatDecimalHours("en-US", 90)).toBe("1.50 h");
+  });
+});
+
+describe("formatWorkedDays", () => {
+  it("reads a whole day as a whole day", () => {
+    expect(formatWorkedDays("fr-FR", 18)).toBe("18 j");
+  });
+
+  it("stops at the tenth rather than reading a budget to the hundredth", () => {
+    expect(formatWorkedDays("fr-FR", 12.46)).toBe("12,5 j");
   });
 });

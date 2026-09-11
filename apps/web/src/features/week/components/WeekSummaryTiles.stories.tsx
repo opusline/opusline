@@ -30,7 +30,7 @@ type Story = StoryObj<typeof WeekSummaryTiles>;
 const AUGUST: MonthWorkloadData = {
   month: "2026-08",
   businessDays: 21,
-  workedDays: 18.5,
+  workedDays: 18,
 };
 
 export const Default: Story = {

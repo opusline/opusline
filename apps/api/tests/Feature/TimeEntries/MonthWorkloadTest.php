@@ -36,26 +36,26 @@ test('counts plain weekdays for a country with no holiday calendar', function ()
         ->assertJsonPath('businessDays', 23);
 });
 
-test('reports tracked time as day fractions of the account workday', function (): void {
+test('counts a short day as a whole day: the day was worked', function (): void {
     $user = User::factory()->create();
     $mission = missionOwnedBy($user);
 
     TimeEntry::factory()->for($mission, 'mission')->create([
         'date' => '2026-08-03',
-        'duration_minutes' => 210,
+        'duration_minutes' => 30,
     ]);
 
     $this->actingAs($user)
         ->getJson('/api/time-entries/month-workload?month=2026-08')
         ->assertOk()
-        ->assertJsonPath('workedDays', 0.5);
+        ->assertJsonPath('workedDays', 1);
 });
 
-test('adds up the entries sharing a day', function (): void {
+test('counts a day once however many entries share it', function (): void {
     $user = User::factory()->create();
     $mission = missionOwnedBy($user);
 
-    foreach ([105, 105] as $minutes) {
+    foreach ([105, 105, 60] as $minutes) {
         TimeEntry::factory()->for($mission, 'mission')->create([
             'date' => '2026-08-03',
             'duration_minutes' => $minutes,
@@ -65,10 +65,10 @@ test('adds up the entries sharing a day', function (): void {
     $this->actingAs($user)
         ->getJson('/api/time-entries/month-workload?month=2026-08')
         ->assertOk()
-        ->assertJsonPath('workedDays', 0.5);
+        ->assertJsonPath('workedDays', 1);
 });
 
-test('caps a long day at one day, so overtime cannot pass the month', function (): void {
+test('counts a long day as one day, so overtime cannot pass the month', function (): void {
     $user = User::factory()->create();
     $mission = missionOwnedBy($user);
 
@@ -81,6 +81,23 @@ test('caps a long day at one day, so overtime cannot pass the month', function (
         ->getJson('/api/time-entries/month-workload?month=2026-08')
         ->assertOk()
         ->assertJsonPath('workedDays', 1);
+});
+
+test('counts each worked day of the month', function (): void {
+    $user = User::factory()->create();
+    $mission = missionOwnedBy($user);
+
+    foreach (['2026-08-03', '2026-08-04', '2026-08-05'] as $date) {
+        TimeEntry::factory()->for($mission, 'mission')->create([
+            'date' => $date,
+            'duration_minutes' => 120,
+        ]);
+    }
+
+    $this->actingAs($user)
+        ->getJson('/api/time-entries/month-workload?month=2026-08')
+        ->assertOk()
+        ->assertJsonPath('workedDays', 3);
 });
 
 test('counts non-billable time: the day was worked either way', function (): void {
