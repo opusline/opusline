@@ -2,6 +2,7 @@ import type {
   ClientData,
   ClientRevenueData,
   ClientRevenueDetailData,
+  ClientWithMissionsData,
   DeadlineItemData,
   FiscalDeadlineData,
   FixedPriceBudgetData,
@@ -166,6 +167,20 @@ export const CLIENT_FIXTURE = {
   archivedAt: null,
   createdAt: "2026-01-05T09:00:00+00:00",
 } satisfies ClientData;
+
+/**
+ * A client with its missions, as the fiches and the week grid read it.
+ *
+ * Built on CLIENT_FIXTURE rather than beside it, so the DTO's shape has one
+ * definition: a field added to a client fails to compile here instead of in
+ * every test that happened to spell the payload out. Identity — the slug, the
+ * name, the colour a test asserts on — is the caller's to override.
+ */
+export function clientWithMissions(
+  overrides: Partial<ClientWithMissionsData> = {},
+): ClientWithMissionsData {
+  return { ...CLIENT_FIXTURE, missions: [], ...overrides };
+}
 
 export const MISSION_FIXTURE = {
   id: 10,

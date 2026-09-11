@@ -4,6 +4,14 @@ import type {
 } from "@opusline/api-client";
 import { Badge } from "@opusline/ui/components/badge";
 import { Chip, ChipCount, ChipGroup } from "@opusline/ui/components/chip";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@opusline/ui/components/table";
 import { cn } from "@opusline/ui/lib/utils";
 import { useMemo, useState } from "react";
 
@@ -89,78 +97,116 @@ export function InvoicesTable({
       {groups.length === 0 ? (
         <InvoicesEmptyState hasInvoices={invoices.length > 0} />
       ) : (
-        <div className="overflow-hidden rounded-md border bg-card">
+        <Table
+          className="table-fixed"
+          containerClassName="overflow-hidden rounded-md border bg-card"
+        >
+          {/* The widths the CSS grid used to carry. Layout only — a colgroup is
+              invisible to assistive technology, which reads the headers below. */}
+          <colgroup>
+            <col className="w-28" />
+            <col />
+            <col className="w-32" />
+            <col className="w-24" />
+          </colgroup>
+          {/* The design draws no header band, so the names live for screen
+              readers alone; without them a row reads as four bare values. */}
+          <TableHeader>
+            <TableRow className="sr-only">
+              <TableHead>{m.invoices_column_number()}</TableHead>
+              <TableHead>{m.invoices_column_mission()}</TableHead>
+              <TableHead>{m.invoices_column_amount()}</TableHead>
+              <TableHead>{m.invoices_column_status()}</TableHead>
+            </TableRow>
+          </TableHeader>
           {groups.map((group) => (
-            <section key={group.client.id}>
-              <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b bg-muted-2 px-5 py-3">
-                <span className="flex min-w-0 items-center gap-2.25">
-                  <span
-                    aria-hidden
-                    className={cn(
-                      "size-2.5 shrink-0 rounded-sm",
-                      COLOR_CLASSES[group.client.color],
-                    )}
-                  />
-                  <span className="truncate font-medium text-foreground-hi text-sm">
-                    {group.client.name}
+            <TableBody key={group.client.id}>
+              <TableRow className="hover:bg-transparent">
+                <TableHead
+                  className="h-auto border-b bg-muted-2 px-5 py-3 whitespace-normal"
+                  colSpan={4}
+                  scope="rowgroup"
+                >
+                  <span className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                    <span className="flex min-w-0 items-center gap-2.25">
+                      <span
+                        aria-hidden
+                        className={cn(
+                          "size-2.5 shrink-0 rounded-sm",
+                          COLOR_CLASSES[group.client.color],
+                        )}
+                      />
+                      <span className="truncate font-medium text-foreground-hi text-sm">
+                        {group.client.name}
+                      </span>
+                      <span className="whitespace-nowrap font-normal text-muted-foreground-3 text-xs">
+                        {m.invoices_count({ count: group.items.length })}
+                      </span>
+                    </span>
+                    <span className="ml-auto whitespace-nowrap font-normal text-muted-foreground-3 text-xs">
+                      {group.averageDaysToPay === null
+                        ? null
+                        : m.invoices_average_days_to_pay({
+                            days: group.averageDaysToPay,
+                          })}
+                    </span>
+                    <span className="w-32 text-right font-mono text-foreground-hi text-sm tabular-nums">
+                      {formatWholeAmount(format, group.total)}
+                    </span>
                   </span>
-                  <span className="whitespace-nowrap text-muted-foreground-3 text-xs">
-                    {m.invoices_count({ count: group.items.length })}
-                  </span>
-                </span>
-                <span className="ml-auto whitespace-nowrap text-muted-foreground-3 text-xs">
-                  {group.averageDaysToPay === null
-                    ? null
-                    : m.invoices_average_days_to_pay({
-                        days: group.averageDaysToPay,
-                      })}
-                </span>
-                <span className="w-32 text-right font-mono text-foreground-hi text-sm tabular-nums">
-                  {formatWholeAmount(format, group.total)}
-                </span>
-              </div>
+                </TableHead>
+              </TableRow>
 
-              <ul>
-                {group.items.map(({ invoice, mission }) => {
-                  const badge = invoiceStatusBadge(invoice);
+              {group.items.map(({ invoice, mission }) => {
+                const badge = invoiceStatusBadge(invoice);
+                const label = invoice.number ?? mission?.name ?? "";
 
-                  return (
-                    <li key={invoice.id}>
+                return (
+                  <TableRow
+                    className="cursor-pointer"
+                    key={invoice.id}
+                    onClick={() => onOpen?.(invoice.id)}
+                  >
+                    <TableCell className="px-5 py-3 font-mono text-foreground-2 text-sm tabular-nums">
+                      {/* The row follows the mouse, but the keyboard needs a
+                          real control — and one per row, not one per cell. */}
                       <button
+                        aria-label={m.invoices_open_aria({ label })}
+                        className="rounded-sm text-left focus-visible:outline-2 focus-visible:outline-primary-text"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          onOpen?.(invoice.id);
+                        }}
                         type="button"
-                        onClick={() => onOpen?.(invoice.id)}
-                        className="grid w-full grid-cols-[7rem_minmax(0,1fr)_auto_auto] items-center gap-4 border-b px-5 py-3 text-left transition-colors last:border-b-0 hover:bg-accent focus-visible:bg-accent focus-visible:outline-none"
                       >
-                        <span className="font-mono text-foreground-2 text-sm tabular-nums">
-                          {invoice.number ?? "—"}
-                        </span>
-                        <span className="min-w-0">
-                          <span className="block truncate text-foreground-2 text-sm">
-                            {mission?.name ?? m.invoices_no_mission()}
-                          </span>
-                          <span className="mt-0.75 block text-muted-foreground-3 text-xs">
-                            {invoiceRowDetail(
-                              format.locale,
-                              dateFormat,
-                              invoice,
-                              accountToday,
-                            )}
-                          </span>
-                        </span>
-                        <span className="w-32 text-right font-mono text-foreground-hi text-sm tabular-nums">
-                          {formatWholeAmount(format, invoice.amountTtc.amount)}
-                        </span>
-                        <span className="flex justify-end">
-                          <Badge variant={badge.variant}>{badge.label}</Badge>
-                        </span>
+                        {invoice.number ?? "—"}
                       </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
+                    </TableCell>
+                    <TableCell className="min-w-0 px-0 py-3">
+                      <span className="block truncate text-foreground-2 text-sm">
+                        {mission?.name ?? m.invoices_no_mission()}
+                      </span>
+                      <span className="mt-0.75 block text-muted-foreground-3 text-xs">
+                        {invoiceRowDetail(
+                          format.locale,
+                          dateFormat,
+                          invoice,
+                          accountToday,
+                        )}
+                      </span>
+                    </TableCell>
+                    <TableCell className="px-0 py-3 text-right font-mono text-foreground-hi text-sm tabular-nums">
+                      {formatWholeAmount(format, invoice.amountTtc.amount)}
+                    </TableCell>
+                    <TableCell className="px-5 py-3 text-right">
+                      <Badge variant={badge.variant}>{badge.label}</Badge>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
           ))}
-        </div>
+        </Table>
       )}
     </div>
   );

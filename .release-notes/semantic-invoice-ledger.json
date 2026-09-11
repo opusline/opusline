@@ -1,0 +1,4 @@
+{
+  "kind": "improved",
+  "text": "The invoice ledger is a real table now, so a screen reader reads each figure against its column and its client instead of as a row of bare values."
+}
