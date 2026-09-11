@@ -19,13 +19,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@opusline/ui/components/dropdown-menu";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyTitle,
-} from "@opusline/ui/components/empty";
 import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { StatTile, StatTileRow } from "@opusline/ui/components/stat-tile";
 import { Switch } from "@opusline/ui/components/switch";
@@ -162,11 +155,11 @@ type MissionDetailPageProps = {
   client: ClientWithMissionsData;
   tab: MissionTab;
   onTabChange: (tab: MissionTab) => void;
+  craTab: ReactNode;
   documentsTab: ReactNode;
   invoicesTab: ReactNode;
   onUpdate: (body: UpdateMissionData) => Promise<FormSubmitResult>;
   onSetStatus: (status: MissionStatus) => void;
-  onOpenCra: () => void;
   isUpdatePending?: boolean;
   isStatusPending?: boolean;
   error?: string | null;
@@ -184,11 +177,11 @@ export function MissionDetailPage({
   client,
   tab,
   onTabChange,
+  craTab,
   documentsTab,
   invoicesTab,
   onUpdate,
   onSetStatus,
-  onOpenCra,
   isUpdatePending,
   isStatusPending,
   error,
@@ -420,21 +413,7 @@ export function MissionDetailPage({
           <TabsContent value="invoices">{invoicesTab}</TabsContent>
 
           {mission.craRequired && (
-            <TabsContent value="cra">
-              <Empty className="px-7 py-9">
-                <EmptyHeader className="max-w-none gap-2">
-                  <EmptyTitle variant="strong">
-                    {m.missions_cra_title()}
-                  </EmptyTitle>
-                  <EmptyDescription className="max-w-md text-pretty text-muted-foreground-3 text-sm leading-relaxed">
-                    {m.missions_cra_hint()}
-                  </EmptyDescription>
-                </EmptyHeader>
-                <EmptyContent>
-                  <Button onClick={onOpenCra}>{m.missions_open_cras()}</Button>
-                </EmptyContent>
-              </Empty>
-            </TabsContent>
+            <TabsContent value="cra">{craTab}</TabsContent>
           )}
 
           {/* keepMounted preserves the upload queue while browsing other tabs. */}
