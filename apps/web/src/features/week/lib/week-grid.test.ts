@@ -6,6 +6,7 @@ import type {
 import { describe, expect, it } from "vitest";
 
 import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
+import { clientWithMissions } from "@/test/fixtures";
 
 import { buildWeekGrid, shouldShowWeekend } from "./week-grid";
 
@@ -37,29 +38,13 @@ function mission(overrides: Partial<MissionData> = {}): MissionData {
 function client(
   overrides: Partial<ClientWithMissionsData> = {},
 ): ClientWithMissionsData {
-  return {
-    id: 1,
+  return clientWithMissions({
     slug: "nordlys",
     name: "Nordlys",
-    type: 0,
-    notes: null,
-    siret: null,
-    vatNumber: null,
-    defaultVatRateBp: null,
-    billingAddressLine1: null,
-    billingAddressLine2: null,
-    billingPostalCode: null,
-    billingCity: null,
-    billingCountry: null,
-    billingContactName: null,
-    billingEmail: null,
     color: 4,
-    paymentTermsDays: 45,
-    archivedAt: null,
-    createdAt: "2026-01-01T00:00:00+00:00",
     missions: [mission()],
     ...overrides,
-  };
+  });
 }
 
 function entry(overrides: Partial<TimeEntryData> = {}): TimeEntryData {
