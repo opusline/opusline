@@ -393,6 +393,8 @@
   "cra_save_signature": "Save my signature",
   "cra_search_aria": "Search activity reports",
   "cra_search_placeholder": "Client, mission, month",
+  "cra_select_description": "Every month a mission owes a CRA is listed there, newest first. Opening one still owed prepares its grid from the time you tracked.",
+  "cra_select_title": "Pick a month on the left",
   "cra_signed_return_description": "CRA for {month} · {mission}. The document joins the mission's files next to the original.",
   "cra_signed_return_drop": "Drop the signed CRA",
   "cra_signed_return_hint": "PDF, JPG or PNG — drag the file or click to browse",
