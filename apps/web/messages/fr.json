@@ -1254,6 +1254,19 @@
   "settings_deadlines_intro": "Le seul montant qu'Opusline ne peut pas déduire : la CFE que votre commune facture. Tout le reste du calendrier des échéances est dérivé.",
   "settings_deadlines_title": "Échéances",
   "settings_default_rate_description": "Taux appliqué par défaut aux nouvelles factures.",
+  "settings_dormant_hint": "Rien n'est supprimé : une mission terminée redevient active en un clic, et un client archivé se désarchive de même. S'exécute la nuit.",
+  "settings_dormant_label": "Clôturer ce qui n'a pas bougé",
+  "settings_dormant_months": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Au bout d’{count} mois",
+        "countPlural=other": "Au bout de {count} mois"
+      }
+    }
+  ],
+  "settings_dormant_never": "Jamais — je range moi-même",
   "settings_email_placeholder": "contact@exemple.fr",
   "settings_eu_vat_exempt": "Non assujetti · franchise en base",
   "settings_eu_vat_label": "TVA intracommunautaire",

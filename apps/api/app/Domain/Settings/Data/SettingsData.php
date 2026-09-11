@@ -63,6 +63,11 @@ class SettingsData extends Data
         public DateFormat $dateFormat,
         public string $timezone,
         public int $workdayMinutes,
+        /**
+         * Months of silence after which a mission is finished and a client
+         * archived, or null when nothing is retired automatically.
+         */
+        public ?int $dormantAfterMonths,
         public bool $hasSignature,
     ) {}
 
@@ -119,6 +124,7 @@ class SettingsData extends Data
             dateFormat: $settings->date_format,
             timezone: $settings->timezone,
             workdayMinutes: $settings->workday_minutes,
+            dormantAfterMonths: $settings->dormant_after_months,
             hasSignature: $hasSignature,
         );
     }

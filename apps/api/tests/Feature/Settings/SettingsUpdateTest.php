@@ -271,3 +271,33 @@ test('hands both rates back when the official source is switched off', function 
         ->assertJsonPath('contributionRateBp', 2200)
         ->assertJsonPath('liberatingPaymentRateBp', 100);
 });
+
+test('stores the dormancy period the account asked for', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->putJson('/api/settings', settingsPayload(['dormantAfterMonths' => 12]))
+        ->assertOk()
+        ->assertJsonPath('dormantAfterMonths', 12);
+
+    expect($user->settings()->sole()->dormant_after_months)->toBe(12);
+});
+
+test('reads an absent dormancy period as "retire nothing"', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['dormant_after_months' => 6]);
+
+    $this->actingAs($user)
+        ->putJson('/api/settings', settingsPayload())
+        ->assertOk()
+        ->assertJsonPath('dormantAfterMonths', null);
+});
+
+test('rejects a dormancy period outside the months it accepts', function (int $months): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->putJson('/api/settings', settingsPayload(['dormantAfterMonths' => $months]))
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('dormantAfterMonths');
+})->with([0, 61, -1]);

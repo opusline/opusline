@@ -1658,6 +1658,7 @@ export const zSettingsData = z.object({
     dateFormat: zDateFormat,
     timezone: z.string(),
     workdayMinutes: z.int(),
+    dormantAfterMonths: z.nullable(z.int()),
     hasSignature: z.boolean()
 });
 
@@ -1687,6 +1688,7 @@ export const zUpdateSettingsData = z.object({
     signatureCity: z.nullish(z.string().check(z.maxLength(255))),
     contactEmail: z.nullish(z.email().check(z.maxLength(255))),
     phone: z.nullish(z.string().check(z.maxLength(64))),
+    dormantAfterMonths: z.nullish(z.int().check(z.gte(1), z.lte(60))),
     companyAddressLine1: z.nullish(z.string().check(z.maxLength(255))),
     companyAddressLine2: z.nullish(z.string().check(z.maxLength(255))),
     companyPostalCode: z.nullish(z.string().check(z.maxLength(32))),

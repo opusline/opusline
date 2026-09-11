@@ -41,6 +41,7 @@ return [
     'days' => 'jours',
     'defaultPaymentTermsDays' => 'délai de paiement par défaut',
     'defaultVatRateBp' => 'taux de TVA par défaut',
+    'dormantAfterMonths' => 'période d\'inactivité',
     'dueOn' => 'date d\'échéance',
     'durationMinutes' => 'durée',
     'endClientName' => 'client final',

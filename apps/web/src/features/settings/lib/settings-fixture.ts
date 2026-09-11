@@ -43,6 +43,7 @@ export const settingsFixture: SettingsData = {
   dateFormat: 0,
   timezone: "Europe/Paris",
   workdayMinutes: 420,
+  dormantAfterMonths: null,
   hasSignature: false,
 };
 

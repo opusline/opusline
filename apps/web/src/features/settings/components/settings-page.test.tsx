@@ -620,3 +620,28 @@ it("keeps the signature pad open when the upload fails", async () => {
   // The pad holds the only copy of the strokes; closing it would lose them.
   expect(signaturePad()).toBeInTheDocument();
 });
+
+it("offers to retire dormant work, off until it is asked for", () => {
+  renderPage({ activeTab: "facturation" });
+
+  const picker = screen.getByLabelText("Clôturer ce qui n'a pas bougé");
+
+  expect(picker).toHaveValue("0");
+  expect(
+    screen.getByRole("option", { name: "Jamais — je range moi-même" }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole("option", { name: "Au bout de 6 mois" }),
+  ).toBeInTheDocument();
+});
+
+it("shows the period an account already asked for", () => {
+  renderPage({
+    activeTab: "facturation",
+    settings: { ...settingsFixture, dormantAfterMonths: 12 },
+  });
+
+  expect(screen.getByLabelText("Clôturer ce qui n'a pas bougé")).toHaveValue(
+    "12",
+  );
+});

@@ -185,6 +185,46 @@ export function BillingSettingsForm({
           </Field>
         )}
       </form.Field>
+
+      <div className="my-5.5 h-px bg-secondary" />
+
+      <form.Field name="dormantAfterMonths">
+        {(field) => (
+          <Field>
+            <FieldLabel
+              className="text-foreground-3 text-sm"
+              htmlFor={field.name}
+            >
+              {m.settings_dormant_label()}
+            </FieldLabel>
+            <NativeSelect
+              className="w-70"
+              id={field.name}
+              onBlur={field.handleBlur}
+              onChange={(event) =>
+                field.handleChange(Number(event.target.value))
+              }
+              value={String(field.state.value)}
+            >
+              <option value="0">{m.settings_dormant_never()}</option>
+              {DORMANT_MONTH_OPTIONS.map((months) => (
+                <option key={months} value={String(months)}>
+                  {m.settings_dormant_months({ count: months })}
+                </option>
+              ))}
+            </NativeSelect>
+            <FieldDescription>{m.settings_dormant_hint()}</FieldDescription>
+          </Field>
+        )}
+      </form.Field>
     </SettingsSection>
   );
 }
+
+/**
+ * Whole quarters up to two years. Anything finer is a false choice — nobody
+ * knows whether their client went quiet at five months or at six — and the
+ * shortest is three, because a quarter of silence is the least that reads as
+ * "this is over" rather than "we are between contracts".
+ */
+const DORMANT_MONTH_OPTIONS = [3, 6, 9, 12, 18, 24];

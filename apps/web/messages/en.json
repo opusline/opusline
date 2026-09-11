@@ -1254,6 +1254,19 @@
   "settings_deadlines_intro": "The one figure Opusline cannot work out: the CFE your commune bills. Everything else on the deadlines calendar is derived.",
   "settings_deadlines_title": "Deadlines",
   "settings_default_rate_description": "Rate applied by default to new invoices.",
+  "settings_dormant_hint": "Nothing is deleted: a finished mission goes back to active in a click, and an archived client is unarchived in one. Runs overnight.",
+  "settings_dormant_label": "Retire work left untouched",
+  "settings_dormant_months": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "After {count} month",
+        "countPlural=other": "After {count} months"
+      }
+    }
+  ],
+  "settings_dormant_never": "Never — I tidy up myself",
   "settings_email_placeholder": "contact@example.com",
   "settings_eu_vat_exempt": "Not VAT-liable · franchise en base",
   "settings_eu_vat_label": "Intra-community VAT number",

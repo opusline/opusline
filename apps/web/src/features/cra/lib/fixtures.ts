@@ -204,5 +204,6 @@ export const DEMO_SETTINGS = {
   dateFormat: 0,
   timezone: "Europe/Paris",
   workdayMinutes: 420,
+  dormantAfterMonths: null,
   hasSignature: true,
 } satisfies SettingsData;

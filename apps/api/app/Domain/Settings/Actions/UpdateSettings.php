@@ -59,6 +59,7 @@ class UpdateSettings
                 'date_format' => $data->dateFormat,
                 'timezone' => $data->timezone,
                 'workday_minutes' => $data->workdayMinutes,
+                'dormant_after_months' => $data->dormantAfterMonths,
                 'trade_name' => $data->tradeName,
                 'siret' => $data->siret,
                 'vat_number' => $data->vatNumber,
