@@ -7,7 +7,6 @@ import {
   sendInvoiceMutation,
   showInvoiceOptions,
   updateInvoiceMutation,
-  uploadInvoiceDocumentMutation,
 } from "@opusline/api-client/react-query";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
@@ -22,6 +21,7 @@ import {
 
 import { accountTodayCalendarDate } from "@/lib/dates";
 import { invalidateInvoiceWrites } from "@/lib/query-invalidation";
+import { uploadWithProgress } from "@/lib/upload-with-progress";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -185,11 +185,32 @@ export function InvoiceDrawerProvider({
     setDocumentError(serverErrorMessage(error, fallback));
   };
 
+  // Percent while the bytes are moving, null once they are gone and the API is
+  // still storing them, and null again between uploads — the panel reads
+  // "uploading at all" off isPending, not off this.
+  const [uploadPercent, setUploadPercent] = useState<number | null>(null);
+
+  /**
+   * The one call that does not go through the generated client: a 20 MB scan
+   * deserves a figure, and `fetch` has none to give. Everything the SDK would
+   * have done — the path, the cookies, the locale header — it still does.
+   */
   const fileDocument = useMutation({
-    ...uploadInvoiceDocumentMutation(),
-    onMutate: () => setDocumentError(null),
+    mutationFn: (variables: { invoice: number; file: File }) =>
+      uploadWithProgress({
+        url: "/invoices/{invoice}/document",
+        path: { invoice: variables.invoice },
+        field: "file",
+        file: variables.file,
+        onProgress: ({ percent }) => setUploadPercent(percent),
+      }),
+    onMutate: () => {
+      setDocumentError(null);
+      setUploadPercent(0);
+    },
     onSuccess: refresh,
     onError: reportDocumentFailure(m.invoices_document_failed()),
+    onSettled: () => setUploadPercent(null),
   });
 
   const unfileDocument = useMutation({
@@ -294,6 +315,8 @@ export function InvoiceDrawerProvider({
                 error={documentError}
                 invoice={detail.data.invoice}
                 isPending={fileDocument.isPending || unfileDocument.isPending}
+                isUploading={fileDocument.isPending}
+                uploadPercent={uploadPercent}
                 onRemove={() =>
                   unfileDocument.mutate({
                     path: { invoice: detail.data.invoice.id },
@@ -301,8 +324,8 @@ export function InvoiceDrawerProvider({
                 }
                 onUpload={(file) =>
                   fileDocument.mutate({
-                    path: { invoice: detail.data.invoice.id },
-                    body: { file },
+                    invoice: detail.data.invoice.id,
+                    file,
                   })
                 }
               />
