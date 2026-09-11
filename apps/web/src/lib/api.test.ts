@@ -2,6 +2,7 @@ import { client } from "@opusline/api-client/client";
 import { afterEach, expect, it, vi } from "vitest";
 
 import { setupApiClient } from "./api";
+import { onSessionExpired } from "./session-lock";
 
 setupApiClient();
 // The app's base is the relative `/api` the browser resolves; Node's Request
@@ -43,4 +44,34 @@ it("leaves a non-JSON error body alone so the fallback message wins", async () =
   await expect(
     client.get({ url: "/user/two-factor", throwOnError: true }),
   ).rejects.toBe("<html>Bad gateway</html>");
+});
+
+it("reports a 401 so the screen can ask for the password again", async () => {
+  stubResponse(
+    401,
+    JSON.stringify({ message: "Unauthenticated." }),
+    "application/json",
+  );
+  const expired = vi.fn();
+  const unsubscribe = onSessionExpired(expired);
+
+  await expect(
+    client.get({ url: "/user", throwOnError: true }),
+  ).rejects.toBeDefined();
+
+  expect(expired).toHaveBeenCalled();
+  unsubscribe();
+});
+
+it("leaves a refused write alone — only 401 means the session is gone", async () => {
+  stubResponse(422, JSON.stringify({ errors: {} }), "application/json");
+  const expired = vi.fn();
+  const unsubscribe = onSessionExpired(expired);
+
+  await expect(
+    client.post({ url: "/clients", throwOnError: true }),
+  ).rejects.toBeDefined();
+
+  expect(expired).not.toHaveBeenCalled();
+  unsubscribe();
 });
