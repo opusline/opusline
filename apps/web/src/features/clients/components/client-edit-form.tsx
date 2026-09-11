@@ -21,6 +21,7 @@ import { PaymentTermsPicker } from "@/components/payment-terms-picker";
 import { formatPercentFromBp } from "@/lib/billing";
 import { clientTypeLabel } from "@/lib/client-types";
 import type { FormSubmitResult } from "@/lib/form";
+import { formatSiret, formatVatNumber } from "@/lib/identifiers";
 import type { LogoUploadResult } from "@/lib/logos";
 import { COLOR_CLASSES, COLORS, colorLabel } from "@/lib/palette";
 import { m } from "@/paraglide/messages.js";
@@ -266,6 +267,7 @@ export function ClientEditForm({
               {(field) => (
                 <FormTextField
                   field={field}
+                  formatOnBlur={formatSiret}
                   label="SIRET"
                   labelClassName={EDIT_LABEL_CLASSES}
                   font="mono"
@@ -277,6 +279,7 @@ export function ClientEditForm({
               {(field) => (
                 <FormTextField
                   field={field}
+                  formatOnBlur={formatVatNumber}
                   label={m.clients_vat_short_label()}
                   labelClassName={EDIT_LABEL_CLASSES}
                   font="mono"

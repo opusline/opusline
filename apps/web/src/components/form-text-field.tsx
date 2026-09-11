@@ -45,6 +45,13 @@ type FormTextFieldProps = {
   controlClassName?: string;
   /** Rendered on the control's row, wrapping under it when space runs out. */
   beside?: React.ReactNode;
+  /**
+   * Tidies the value once the field is left — spacing an identifier, say.
+   * On blur rather than on every keystroke: regrouping under the cursor fights
+   * whoever is editing the middle of the string, and the value only has to be
+   * right by the time it is read.
+   */
+  formatOnBlur?: (value: string) => string;
 };
 
 export function FormTextField({
@@ -64,6 +71,7 @@ export function FormTextField({
   describedBy,
   controlClassName,
   beside,
+  formatOnBlur,
 }: FormTextFieldProps) {
   const isInvalid = !field.state.meta.isValid;
   const errorId = `${field.name}-error`;
@@ -83,7 +91,15 @@ export function FormTextField({
     disabled,
     id: field.name,
     inputMode,
-    onBlur: field.handleBlur,
+    onBlur: () => {
+      const formatted = formatOnBlur?.(field.state.value);
+
+      if (formatted !== undefined && formatted !== field.state.value) {
+        field.handleChange(formatted);
+      }
+
+      field.handleBlur();
+    },
     onChange: (
       event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     ) => field.handleChange(event.target.value),

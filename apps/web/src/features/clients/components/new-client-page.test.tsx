@@ -72,6 +72,26 @@ it("opens the free-day field when the account default is not a preset", async ()
   expect(screen.getByLabelText("Délai de paiement en jours")).toHaveValue("90");
 });
 
+it("spaces a SIRET once the field is left", async () => {
+  await renderNewClientPage();
+
+  const siret = screen.getByLabelText("SIRET");
+  fireEvent.change(siret, { target: { value: "44306184100047" } });
+  fireEvent.blur(siret);
+
+  await waitFor(() => expect(siret).toHaveValue("443 061 841 00047"));
+});
+
+it("leaves a half-typed SIRET alone rather than grouping it wrongly", async () => {
+  await renderNewClientPage();
+
+  const siret = screen.getByLabelText("SIRET");
+  fireEvent.change(siret, { target: { value: "44306184" } });
+  fireEvent.blur(siret);
+
+  await waitFor(() => expect(siret).toHaveValue("44306184"));
+});
+
 it("explains the end-client rule when picking an intermediary", async () => {
   await renderNewClientPage();
 

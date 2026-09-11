@@ -5,6 +5,11 @@ import { House } from "lucide-react";
 import { AddressFields } from "@/components/address-fields";
 import { ExemptField } from "@/components/exempt-field";
 import { FormTextField } from "@/components/form-text-field";
+import {
+  formatFrenchPhone,
+  formatSiret,
+  formatVatNumber,
+} from "@/lib/identifiers";
 import { m } from "@/paraglide/messages.js";
 import {
   COMPANY_ADDRESS_NAMES,
@@ -67,6 +72,7 @@ export function IdentitySettingsForm({
               <FormTextField
                 field={field}
                 font="mono"
+                formatOnBlur={formatSiret}
                 label="SIRET"
                 labelClassName={LABEL}
                 placeholder="000 000 000 00000"
@@ -92,6 +98,7 @@ export function IdentitySettingsForm({
                     <FormTextField
                       field={field}
                       font="mono"
+                      formatOnBlur={formatVatNumber}
                       label={m.settings_eu_vat_label()}
                       labelClassName={LABEL}
                       placeholder="FR00 000000000"
@@ -130,6 +137,7 @@ export function IdentitySettingsForm({
           {(field) => (
             <FormTextField
               field={field}
+              formatOnBlur={hasFrenchFiscality ? formatFrenchPhone : undefined}
               label={m.settings_phone_label()}
               labelClassName={LABEL}
               placeholder="00 00 00 00 00"
