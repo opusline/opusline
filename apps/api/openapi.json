@@ -2,7 +2,7 @@
     "openapi": "3.1.0",
     "info": {
         "title": "Opusline",
-        "version": "0.23.1"
+        "version": "0.24.0"
     },
     "servers": [
         {

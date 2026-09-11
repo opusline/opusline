@@ -13,6 +13,24 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.24.0",
+    date: "2026-09-11",
+    items: [
+      {
+        kind: "improved",
+        text: "Dropping a PDF onto an invoice now shows how far it has got, instead of a panel that looks frozen while a 20 MB scan crosses the wire.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "The URSSAF still owed for last period is priced at the rate that applied then, so an ACRE step ending no longer repriced the month you have yet to pay.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "The date an invoice bears can be corrected like the others, so a send date recorded against the wrong issue date is no longer stuck behind it.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.23.1",
     date: "2026-09-11",
     items: [
