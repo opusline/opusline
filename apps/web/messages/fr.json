@@ -765,6 +765,10 @@
   "invoices_average_days_to_pay": "{days} j en moyenne pour payer",
   "invoices_bank_balance_sub": "saisi à la main · importer un relevé",
   "invoices_bank_balance_tile": "Solde compte pro",
+  "invoices_column_amount": "Montant",
+  "invoices_column_mission": "Mission",
+  "invoices_column_number": "Numéro de facture",
+  "invoices_column_status": "Statut",
   "invoices_correct_dates_failed": "Les dates n'ont pas pu être corrigées.",
   "invoices_correct_dates_hint": "Déplacer une date d'encaissement d'un mois à l'autre déplace la recette avec elle.",
   "invoices_correct_dates_save": "Enregistrer les dates",
@@ -838,6 +842,7 @@
   "invoices_no_reference": "Sans référence",
   "invoices_none_pending": "rien en attente",
   "invoices_note_reminder": "Noter une relance",
+  "invoices_open_aria": "Ouvrir la facture {label}",
   "invoices_open_count": [
     {
       "declarations": ["input count", "local countPlural = count: plural"],

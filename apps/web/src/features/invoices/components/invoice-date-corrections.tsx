@@ -98,6 +98,7 @@ export function InvoiceDateCorrections({
         <Button
           className="self-start"
           disabled={isPending || !isComplete || !hasChanges}
+          size="xl"
           type="submit"
           variant="outline"
         >
