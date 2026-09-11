@@ -1,9 +1,11 @@
 import type {
   DocumentCategory,
   DocumentData,
+  DocumentListData,
   Locale,
 } from "@opusline/api-client";
 import { client as apiClient } from "@opusline/api-client/client";
+import type { QueryClient, QueryKey } from "@tanstack/react-query";
 import { cachedFormatter } from "@/lib/billing";
 import { fileRejector } from "@/lib/files";
 import { serverFieldErrors } from "@/lib/validation";
@@ -161,6 +163,31 @@ function uploadFailureMessage(error: unknown): string {
   return serverFieldErrors(error)?.file?.message ?? m.common_upload_failed();
 }
 
+/**
+ * Drops a row from a cached document list before the delete lands, and hands back
+ * the undo. Every list the app deletes from has the same shape under a different
+ * key, so the three screens share this rather than each writing the splice.
+ */
+export function dropDocumentFromCache(
+  queryClient: QueryClient,
+  queryKey: QueryKey,
+): (document: DocumentData) => () => void {
+  return (document) => {
+    const previous = queryClient.getQueryData<DocumentListData>(queryKey);
+
+    if (previous === undefined) {
+      return () => undefined;
+    }
+
+    queryClient.setQueryData<DocumentListData>(queryKey, {
+      ...previous,
+      documents: previous.documents.filter((row) => row.id !== document.id),
+    });
+
+    return () => queryClient.setQueryData(queryKey, previous);
+  };
+}
+
 type DocumentHandlerOptions = {
   upload: (
     file: File,
@@ -169,12 +196,18 @@ type DocumentHandlerOptions = {
   ) => Promise<unknown>;
   remove: (document: DocumentData) => Promise<unknown>;
   invalidate: () => Promise<void>;
+  /**
+   * Takes the row off the screen on the click. Optional: a list nobody has loaded
+   * has nothing to drop, and a caller with no cache to paint simply omits it.
+   */
+  dropFromCache?: (document: DocumentData) => () => void;
 };
 
 export function documentHandlers({
   upload,
   remove,
   invalidate,
+  dropFromCache,
 }: DocumentHandlerOptions) {
   return {
     handleUpload: async (
@@ -191,11 +224,14 @@ export function documentHandlers({
       }
     },
     handleDelete: async (document: DocumentData): Promise<boolean> => {
+      const undo = dropFromCache?.(document);
+
       try {
         await remove(document);
         await invalidate();
         return true;
       } catch {
+        undo?.();
         return false;
       }
     },

@@ -43,7 +43,12 @@ type CraMonthGridProps = {
   trackedDays: number;
   editable: boolean;
   isDirty: boolean;
-  /** Dates whose write is still in flight, so the cell can say so. */
+  /**
+   * Dates whose write is still in flight. The cell already shows the value the
+   * click asked for — it is written to the cache before the request goes out —
+   * so this only reaches assistive tech, through aria-busy. Tinting the cell on
+   * top would put a "waiting" back on a screen that no longer waits.
+   */
   pendingDates?: Set<string>;
   onChange: (date: string, dayFractionBp: number) => void;
   onFillWeekdays: () => void;
@@ -294,9 +299,6 @@ function DayCell({
               : cell.isHoliday
                 ? "bg-muted"
                 : "border border-border-3 border-dashed",
-        // A tint rather than opacity, which would drag the cell's contrast
-        // under AA; aria-busy above carries the state.
-        isPending && "bg-muted-2",
       )}
       data-cell={cell.key}
       onClick={onActivate}

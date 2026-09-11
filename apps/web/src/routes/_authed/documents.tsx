@@ -2,6 +2,7 @@ import {
   deleteUserDocumentMutation,
   listDocumentLibraryOptions,
   listUserDocumentsOptions,
+  listUserDocumentsQueryKey,
   uploadUserDocumentMutation,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
@@ -10,7 +11,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { DocumentsPage } from "@/features/documents/components/documents-page";
-import { documentHandlers } from "@/lib/documents";
+import { documentHandlers, dropDocumentFromCache } from "@/lib/documents";
 import { operationFilter } from "@/lib/query-invalidation";
 import { m } from "@/paraglide/messages.js";
 
@@ -34,6 +35,10 @@ function DocumentsRoute() {
       deleteDocument.mutateAsync({ path: { document: document.id } }),
     invalidate: () =>
       queryClient.invalidateQueries(operationFilter("listUserDocuments")),
+    dropFromCache: dropDocumentFromCache(
+      queryClient,
+      listUserDocumentsQueryKey(),
+    ),
   });
 
   if (personalQuery.isPending || libraryQuery.isPending) {

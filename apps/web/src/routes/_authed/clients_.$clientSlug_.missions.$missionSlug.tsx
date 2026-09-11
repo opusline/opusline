@@ -3,6 +3,7 @@ import {
   deleteMissionDocumentMutation,
   listClientsQueryKey,
   listMissionDocumentsOptions,
+  listMissionDocumentsQueryKey,
   listMissionTimeEntriesOptions,
   showClientOptions,
   showMissionOptions,
@@ -27,6 +28,7 @@ import { accountTodayCalendarDate } from "@/lib/dates";
 import {
   ASSIGNABLE_DOCUMENT_CATEGORIES,
   documentHandlers,
+  dropDocumentFromCache,
   isClientDocument,
   missionDocumentDownloadHref,
 } from "@/lib/documents";
@@ -174,6 +176,10 @@ function MissionDetailRoute() {
         path: { ...missionPath, document: document.id },
       }),
     invalidate: () => invalidateDocumentWrites(queryClient),
+    dropFromCache: dropDocumentFromCache(
+      queryClient,
+      listMissionDocumentsQueryKey({ path: missionPath }),
+    ),
   });
 
   if (clientQuery.isPending || missionQuery.isPending) {

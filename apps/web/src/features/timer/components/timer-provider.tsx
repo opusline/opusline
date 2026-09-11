@@ -2,6 +2,7 @@ import type {
   EntryRounding,
   MissionData,
   TimerData,
+  TimerStateData,
 } from "@opusline/api-client";
 import {
   discardTimerMutation,
@@ -201,13 +202,49 @@ export function TimerProvider({
   const discardTimer = useMutation(discardTimerMutation());
   const stopTimer = useMutation(stopTimerMutation());
 
+  // Pause and resume are absent on purpose: they paint before the server answers
+  // (see paintTimerState), so greying the control out would be the one thing
+  // still making them feel like a round trip.
   const isBusy =
     start.isPending ||
-    pause.isPending ||
-    resume.isPending ||
     trim.isPending ||
     discardTimer.isPending ||
     stopTimer.isPending;
+
+  /**
+   * Flip the running state in the cache before the write lands.
+   *
+   * elapsedSeconds has to be the figure on screen rather than the one the cache
+   * holds: the clock draws `elapsedSeconds + (now - dataUpdatedAt)`, and writing
+   * to the cache resets dataUpdatedAt — so reusing the stored figure would make
+   * the display jump back by however long the timer had been running.
+   *
+   * No rollback: `run` refetches the truth either way, on success by
+   * invalidating and on failure by fetching.
+   */
+  const paintTimerState = async (nextIsRunning: boolean) => {
+    await queryClient.cancelQueries({ queryKey: showTimerQueryKey() });
+
+    queryClient.setQueryData<TimerStateData>(showTimerQueryKey(), (current) =>
+      current?.timer == null
+        ? current
+        : {
+            ...current,
+            timer: {
+              ...current.timer,
+              state: nextIsRunning ? 0 : 1,
+              elapsedSeconds: elapsedSecondsAt(Date.now()),
+            },
+          },
+    );
+  };
+
+  const togglePause = async () => {
+    const wasRunning = isRunning;
+
+    await paintTimerState(!wasRunning);
+    await run(() => (wasRunning ? pause : resume).mutateAsync({}));
+  };
 
   const run = async (write: () => Promise<unknown>): Promise<boolean> => {
     const hadTimer = timer !== null;
@@ -411,10 +448,7 @@ export function TimerProvider({
     stopChoice: state.context.stopChoice,
     timer,
     toggleDetail: () => send({ type: "TOGGLE_DETAIL" }),
-    togglePause: () =>
-      void run(() =>
-        isRunning ? pause.mutateAsync({}) : resume.mutateAsync({}),
-      ),
+    togglePause: () => void togglePause(),
     trimIdle: () => void trimIdle(),
   };
 
