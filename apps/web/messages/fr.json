@@ -729,6 +729,27 @@
   "fiscality_vat_name": "TVA",
   "fiscality_vat_rate_label": "TVA par défaut",
   "fiscality_vat_zero_hint": "Mettez 0 si vous ne facturez pas de TVA.",
+  "instance_backup_days_ago": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "il y a {count} jour",
+        "countPlural=other": "il y a {count} jours"
+      }
+    }
+  ],
+  "instance_backup_docs": "Lire le guide de sauvegarde",
+  "instance_backup_failed": "Impossible de lire cette instance.",
+  "instance_backup_how": "Lancez ceci depuis le dossier qui contient compose.prod.yaml :",
+  "instance_backup_last_label": "Dernière sauvegarde",
+  "instance_backup_none_body": "Trois choses portent vos données : la base, les fichiers envoyés et l'APP_KEY de votre .env. Une sauvegarde n'en est une que si elle contient les trois, et une seule commande prend les trois d'un coup.",
+  "instance_backup_none_title": "Aucune sauvegarde enregistrée",
+  "instance_backup_record_note": "Opusline ne connaît que ce que la commande de sauvegarde lui a rapporté. L'archive vit hors de l'application — vérifiez qu'elle est toujours là où c'est indiqué.",
+  "instance_backup_today": "aujourd'hui",
+  "instance_backups_heading": "Sauvegardes",
+  "instance_database_label": "Base de données",
+  "instance_version_label": "Version",
   "invoice_event_corrected": "Montant corrigé",
   "invoice_event_created": "Facture créée",
   "invoice_event_paid": "Encaissement",

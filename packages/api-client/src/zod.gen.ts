@@ -3,6 +3,15 @@
 import * as z from 'zod/mini';
 
 /**
+ * BackupRecordData
+ */
+export const zBackupRecordData = z.object({
+    takenAt: z.iso.datetime(),
+    archive: z.string(),
+    bytes: z.int()
+});
+
+/**
  * BankBalanceSource
  *
  * | |
@@ -456,6 +465,15 @@ export const zImportBankStatementData = z.object({
     file: z.string(),
     balanceAmount: z.nullish(z.int()),
     balanceCurrency: z.nullish(zCurrency)
+});
+
+/**
+ * InstanceData
+ */
+export const zInstanceData = z.object({
+    version: z.string(),
+    database: z.string(),
+    backup: z.nullable(zBackupRecordData)
 });
 
 /**
@@ -2021,6 +2039,8 @@ export const zShowDeadlineCalendarResponse = z.string();
 export const zShowDeclarationsResponse = zDeclarationsData;
 
 export const zListDocumentLibraryResponse = zDocumentLibraryData;
+
+export const zShowInstanceResponse = zInstanceData;
 
 export const zListInvoicesQuery = z.object({
     status: z.nullish(zInvoiceStatus),

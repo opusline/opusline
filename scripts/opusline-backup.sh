@@ -141,6 +141,29 @@ extract_storage() {
     alpine sh -c 'rm -rf /data/* && tar xzf /in/storage.tar.gz -C /data'
 }
 
+# Opusline cannot see the backup directory: it is on the host, and
+# OPUSLINE_BACKUP_DIR can point anywhere. So the one thing that knows a backup
+# succeeded leaves a note in the uploads volume, which the app does mount, and
+# the account menu reads it back. Nothing depends on it — delete the file and
+# the app simply says it has no record.
+record_backup() {
+  volume="$1"
+  taken_at="$2"
+  # A quote or a backslash in the path would produce invalid JSON, which the app
+  # reads as "no record" rather than crashing; escaping keeps it honest anyway.
+  archive_path="$(printf '%s' "$3" | sed 's/\\/\\\\/g; s/"/\\"/g')"
+  bytes="$4"
+
+  printf '{"version":1,"taken_at":"%s","archive":"%s","bytes":%s}\n' \
+    "$taken_at" "$archive_path" "$bytes" \
+    | docker run --rm -i -v "$volume":/data alpine \
+      sh -c 'cat > /data/opusline-backup.json'
+}
+
+manifest_value() {
+  sed -n "s/^$2=//p" "$1" | tail -n 1
+}
+
 prune() {
   [ "$KEEP" -gt 0 ] 2> /dev/null || return 0
 
@@ -157,6 +180,7 @@ backup() {
   require_stack
 
   stamp="$(date +%Y%m%d-%H%M%S)"
+  taken_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   archive="$BACKUP_DIR/opusline-$stamp.tar.gz"
   work="$(mktemp -d)"
   # shellcheck disable=SC2064 # expand now: $work must not change under the trap
@@ -180,7 +204,7 @@ backup() {
 
   cat > "$work/MANIFEST" <<MANIFEST
 opusline-backup 1
-taken_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+taken_at=$taken_at
 db_connection=$(db_connection)
 db_database=$(db_name)
 storage_volume=$volume
@@ -189,6 +213,7 @@ MANIFEST
   tar czf "$archive" -C "$work" MANIFEST database.sql storage.tar.gz env
 
   echo "Wrote $archive ($(du -h "$archive" | cut -f1))"
+  record_backup "$volume" "$taken_at" "$archive" "$(wc -c < "$archive" | tr -d ' ')"
   prune
 }
 
@@ -229,6 +254,11 @@ restore() {
 
   echo "Restoring the uploads into $volume…"
   extract_storage "$volume" "$work"
+
+  # The archive carries the note of the backup *before* it, so the app would
+  # name the wrong one until the next backup. This archive is the truth now.
+  record_backup "$volume" "$(manifest_value "$work/MANIFEST" taken_at)" \
+    "$archive" "$(wc -c < "$archive" | tr -d ' ')"
 
   echo
   echo "Done. The archive's env file is at $work/env — it is NOT copied over"

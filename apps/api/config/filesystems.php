@@ -40,6 +40,17 @@ return [
             'report' => false,
         ],
 
+        // The uploads volume's own root. compose.prod.yaml mounts it at
+        // storage/app, which makes it the one directory both the container and
+        // the host's opusline-backup.sh can see; the script leaves its record
+        // of the last backup there.
+        'instance' => [
+            'driver' => 'local',
+            'root' => storage_path('app'),
+            'throw' => false,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

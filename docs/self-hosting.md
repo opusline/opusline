@@ -273,6 +273,13 @@ Nightly, from the host's crontab:
 0 3 * * * cd /srv/opusline && OPUSLINE_KEEP=14 ./opusline-backup.sh backup >> backup.log 2>&1
 ```
 
+Each backup leaves a note in the uploads volume, which is the one directory the
+app can also see: **Instance and backups**, in the account menu, then names the
+last archive and when it was taken. It is a record of what the script reported,
+not a check — the archive itself is on the host, out of the container's reach —
+so an instance that has never been backed up says exactly that, and shows the
+command.
+
 A restore asks you to type `RESTORE`, replaces the database and the uploads, and
 leaves the archive's `.env` in a temporary directory rather than over yours —
 it carries the `APP_KEY` of the instance it came from, and on a new machine that
