@@ -20,6 +20,7 @@ export const CURRENT_USER_FIXTURE: UserData = {
   effectiveContributionRateBp: 2600,
   timezone: "Europe/Paris",
   workdayMinutes: 420,
+  defaultPaymentTermsDays: 45,
 };
 
 /** Seeds the authed layout's current-user cache; override only what the test is about. */

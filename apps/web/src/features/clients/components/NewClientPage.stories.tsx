@@ -24,6 +24,18 @@ export const Default: Story = {
     onCancel: () => {},
     vatLiable: true,
     accountVatRateBp: 2000,
+    defaultPaymentTermsDays: 45,
+  },
+};
+
+/** The account's own default lands on the form before anyone touches it. */
+export const NinetyDayDefault: Story = {
+  args: {
+    onSubmit: async () => ({ status: "success" }) as const,
+    onCancel: () => {},
+    vatLiable: true,
+    accountVatRateBp: 2000,
+    defaultPaymentTermsDays: 90,
   },
 };
 
@@ -34,6 +46,7 @@ export const FranchiseEnBase: Story = {
     onCancel: () => {},
     vatLiable: false,
     accountVatRateBp: 0,
+    defaultPaymentTermsDays: 45,
   },
 };
 
@@ -43,6 +56,7 @@ export const WithServerError: Story = {
     onCancel: () => {},
     vatLiable: true,
     accountVatRateBp: 2000,
+    defaultPaymentTermsDays: 45,
     error: "Impossible de créer le client. Réessayez dans un instant.",
   },
 };

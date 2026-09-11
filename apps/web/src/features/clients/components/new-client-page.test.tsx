@@ -1,3 +1,4 @@
+import type { UserData } from "@opusline/api-client";
 import { listClientsQueryKey } from "@opusline/api-client/react-query";
 import type { QueryClient } from "@tanstack/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -10,10 +11,11 @@ import { seedCurrentUser } from "@/test/current-user";
 
 async function renderNewClientPage(
   primeCache?: (queryClient: QueryClient) => void,
+  user?: Partial<UserData>,
 ) {
   window.history.replaceState(null, "", "/clients/new");
   const router = getRouter();
-  seedCurrentUser(router.options.context.queryClient);
+  seedCurrentUser(router.options.context.queryClient, user);
   primeCache?.(router.options.context.queryClient);
 
   render(
@@ -50,6 +52,24 @@ it("shows the client form", async () => {
   expect(
     screen.getByRole("button", { name: "Créer le client" }),
   ).toBeInTheDocument();
+});
+
+it("starts on the payment terms the account set as its default", async () => {
+  await renderNewClientPage(undefined, { defaultPaymentTermsDays: 60 });
+
+  expect(
+    screen.getByRole("button", { name: "60 j", pressed: true }),
+  ).toBeInTheDocument();
+  expect(screen.getByText("Paiement à 60 jours")).toBeInTheDocument();
+});
+
+it("opens the free-day field when the account default is not a preset", async () => {
+  await renderNewClientPage(undefined, { defaultPaymentTermsDays: 90 });
+
+  expect(
+    screen.getByRole("button", { name: "Autre…", pressed: true }),
+  ).toBeInTheDocument();
+  expect(screen.getByLabelText("Délai de paiement en jours")).toHaveValue("90");
 });
 
 it("explains the end-client rule when picking an intermediary", async () => {
