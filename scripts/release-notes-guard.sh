@@ -2,8 +2,8 @@
 # A release must ship curated in-app release notes: the version in
 # .release-please-manifest.json needs a matching entry in the web app's
 # releases module. Green during normal development (the last released version
-# is already curated); goes red on the release-please PR until the pending
-# .release-notes/ fragments are assembled with scripts/assemble-release-notes.mjs.
+# is already curated); goes red on the release-please PR for as long as it takes
+# release-please.yml to assemble the pending .release-notes/ fragments onto it.
 set -eu
 
 cd "$(dirname "$0")/.."

@@ -3,6 +3,14 @@
 //
 //   node scripts/assemble-release-notes.mjs 0.11.0
 //
+// The second argument is the last version actually released, and defaults to
+// .release-please-manifest.json. Release Please assembles on its own branch,
+// where that manifest has already been bumped to the version being released —
+// passing main's version instead is what keeps the pending entry recognisable
+// as pending, rather than frozen by its own release.
+//
+//   node scripts/assemble-release-notes.mjs 0.11.0 0.10.3
+//
 // That version is a prediction, not a fact: release-please recomputes it on
 // every push to main, so a 0.21.3 becomes a 0.22.0 the moment a feat lands
 // behind it, and fragments keep arriving after the notes were assembled. So
@@ -50,9 +58,13 @@ function compareVersions(a, b) {
   return 0;
 }
 
+const semver = /^\d+\.\d+\.\d+$/;
 const version = process.argv[2];
-if (!version || !/^\d+\.\d+\.\d+$/.test(version)) {
-  fail("Usage: node scripts/assemble-release-notes.mjs <major.minor.patch>");
+const baseline = process.argv[3];
+if (!version || !semver.test(version) || (baseline && !semver.test(baseline))) {
+  fail(
+    "Usage: node scripts/assemble-release-notes.mjs <major.minor.patch> [<last-released>]",
+  );
 }
 
 let manifest;
@@ -61,13 +73,11 @@ try {
 } catch (error) {
   fail(`${manifestFile} is not valid JSON: ${error.message}`);
 }
-const releasedVersion = manifest["."];
-if (
-  typeof releasedVersion !== "string" ||
-  !/^\d+\.\d+\.\d+$/.test(releasedVersion)
-) {
+const manifestVersion = manifest["."];
+if (typeof manifestVersion !== "string" || !semver.test(manifestVersion)) {
   fail(`Could not read the "." version from ${manifestFile}.`);
 }
+const releasedVersion = baseline ?? manifestVersion;
 if (compareVersions(version, releasedVersion) <= 0) {
   fail(
     `Release ${version} is at or below the last released version (${releasedVersion}) — its notes have shipped and are frozen.`,
@@ -145,7 +155,7 @@ if (cursor === lines.length) {
 }
 const arrayEndIndex = cursor;
 
-const entryField = /^ {4}(version|date|headline): (.+),$/;
+const entryField = /^ {4}(version|date): (.+),$/;
 const itemField = /^ {8}(kind|text): (.+?),(?: \/\/ i18n-ignore)?$/;
 
 function blockVersion(block) {
@@ -158,9 +168,9 @@ function blockVersion(block) {
   fail(`${releasesModule}:${block.start + 1}: release entry has no version.`);
 }
 
-// Biome moves a long value onto its own line after the key, as it did for the
-// 0.10.0 headline. Fold those back so the field regexes see one line, keeping
-// each field's real line number for the error messages.
+// Biome moves a value it cannot fit onto its own line after the key. Fold those
+// back so the field regexes see one line, keeping each field's real line number
+// for the error messages.
 function foldLines(block) {
   const folded = [];
   for (let offset = 0; offset < block.lines.length; offset++) {
@@ -168,25 +178,21 @@ function foldLines(block) {
     const at = block.start + offset + 1;
     if (/^ +\w+:$/.test(line) && offset + 1 < block.lines.length) {
       offset++;
-      folded.push({
-        at,
-        text: `${line} ${block.lines[offset].trim()}`,
-        raw: [line, block.lines[offset]],
-      });
+      folded.push({ at, text: `${line} ${block.lines[offset].trim()}` });
       continue;
     }
-    folded.push({ at, text: line, raw: [line] });
+    folded.push({ at, text: line });
   }
   return folded;
 }
 
 function parseBlock(block) {
   const where = `${releasesModule}:${block.start + 1}`;
-  const entry = { headline: null, items: [] };
+  const entry = { items: [] };
   const folded = foldLines(block);
   let item = null;
 
-  for (const [offset, { at, text: line, raw }] of folded.entries()) {
+  for (const [offset, { at, text: line }] of folded.entries()) {
     const position = `${releasesModule}:${at}`;
     if (offset === 0 || offset === folded.length - 1) {
       continue;
@@ -215,9 +221,6 @@ function parseBlock(block) {
     const field = line.match(entryField);
     if (field && !item) {
       entry[field[1]] = unquote(field[2], position);
-      if (field[1] === "headline") {
-        entry.headlineSource = raw;
-      }
       continue;
     }
     fail(`${position}: unexpected line in a release entry: ${line}`);
@@ -302,12 +305,6 @@ const items =
     : [{ kind: "improved", text: fallbackText }];
 items.sort((a, b) => kindOrder.indexOf(a.kind) - kindOrder.indexOf(b.kind));
 
-// Kept as the source lines it already had rather than re-rendered: a headline
-// is human prose long enough that Biome wraps it after the key, and guessing
-// where would put the assembly PR at odds with its own format check.
-const headlined = reclaimed.find((entry) => entry.headline) ?? null;
-const headline = headlined?.headline ?? null;
-
 const now = new Date();
 const pad = (part) => String(part).padStart(2, "0");
 const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
@@ -316,7 +313,6 @@ const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate
 // no-op run, and the workflow decides whether to push by diffing the tree.
 const sameAs = (entry) =>
   entry.version === version &&
-  (entry.headline ?? null) === headline &&
   entry.items.length === items.length &&
   entry.items.every(
     (item, index) =>
@@ -339,7 +335,6 @@ const entry = [
   "  {",
   `    version: ${quote(version)},`,
   `    date: ${quote(date)},`,
-  ...(headlined ? headlined.headlineSource : []),
   "    items: [",
   ...items.flatMap((item) => [
     "      {",

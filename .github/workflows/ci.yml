@@ -114,16 +114,16 @@ jobs:
       # A push to main carries a tree its pull request already proved: the
       # ruleset squash-merges, forbids direct pushes and requires branches to be
       # up to date, so re-running the suite would test the same tree twice — the
-      # coverage report is carried over instead (see coverage-carry). The bot
-      # release branches carry release-please's version bumps and the assembled
-      # notes, generated diffs with no logic in them, and the guards below are
-      # what those PRs are actually waiting on. Everything else — the weekly
-      # schedule, a manual dispatch — runs the whole suite.
+      # coverage report is carried over instead (see coverage-carry). The release
+      # branch carries release-please's version bumps and the assembled notes,
+      # generated diffs with no logic in them, and the guards below are what that
+      # PR is actually waiting on. Everything else — the weekly schedule, a
+      # manual dispatch — runs the whole suite.
       - name: Decide which lanes run
         id: lanes
         env:
           FILTERED: ${{ toJSON(steps.filter.outputs) }}
-          BOT_BRANCH: ${{ startsWith(github.head_ref, 'release-please--') || startsWith(github.head_ref, 'assemble-release-notes/') }}
+          BOT_BRANCH: ${{ startsWith(github.head_ref, 'release-please--') }}
         run: |
           for lane in api web generated docker deps; do
             case "$GITHUB_EVENT_NAME" in
