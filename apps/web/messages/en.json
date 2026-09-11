@@ -1443,6 +1443,8 @@
   "treasury_tile_caption": "provisions deducted",
   "treasury_tile_title": "Safe to transfer",
   "treasury_title": "How much can I pay myself?",
+  "upload_finishing": "Filing it…",
+  "upload_progress": "Sending {name}",
   "urssaf_periodicity_monthly": "Monthly",
   "urssaf_periodicity_quarterly": "Quarterly",
   "vat_regime_franchise_hint": "I do not charge VAT",

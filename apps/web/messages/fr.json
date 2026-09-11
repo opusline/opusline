@@ -1443,6 +1443,8 @@
   "treasury_tile_caption": "provisions déduites",
   "treasury_tile_title": "Virable en sécurité",
   "treasury_title": "Combien je peux me virer ?",
+  "upload_finishing": "Classement en cours…",
+  "upload_progress": "Envoi de {name}",
   "urssaf_periodicity_monthly": "Mensuelle",
   "urssaf_periodicity_quarterly": "Trimestrielle",
   "vat_regime_franchise_hint": "Je ne facture pas la TVA",

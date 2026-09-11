@@ -10,8 +10,9 @@ function renderPanel(
 ) {
   const onUpload = vi.fn();
   const onRemove = vi.fn();
-
-  render(
+  const panel = (
+    extra: Partial<Parameters<typeof InvoiceDocumentPanel>[0]> = {},
+  ) => (
     <MoneyFormatProvider currency="EUR" dateFormat={0} locale="fr-FR">
       <InvoiceDocumentPanel
         document={null}
@@ -21,11 +22,20 @@ function renderPanel(
         onRemove={onRemove}
         onUpload={onUpload}
         {...props}
+        {...extra}
       />
-    </MoneyFormatProvider>,
+    </MoneyFormatProvider>
   );
 
-  return { onUpload, onRemove };
+  const { rerender } = render(panel());
+
+  return {
+    onUpload,
+    onRemove,
+    /** The upload is the parent's to run, so its state arrives as new props. */
+    uploading: (extra: Partial<Parameters<typeof InvoiceDocumentPanel>[0]>) =>
+      rerender(panel(extra)),
+  };
 }
 
 function picker(): HTMLInputElement {
@@ -154,5 +164,36 @@ it("surfaces what the server refused", () => {
 
   expect(screen.getByRole("alert")).toHaveTextContent(
     "Le document n'a pas pu être classé.",
+  );
+});
+
+it("shows no bar while nothing is uploading", () => {
+  renderPanel();
+
+  expect(document.querySelector('[data-slot="progress"]')).toBeNull();
+});
+
+it("says how far the picked file has got", () => {
+  const { uploading } = renderPanel();
+
+  fireEvent.change(picker(), { target: { files: [pdf()] } });
+  uploading({ isPending: true, isUploading: true, uploadPercent: 40 });
+
+  const bar = document.querySelector('[data-slot="progress"]');
+
+  expect(bar).toHaveAttribute("role", "progressbar");
+  expect(bar).toHaveAttribute("aria-valuenow", "40");
+  expect(screen.getByText(/Envoi de/)).toBeInTheDocument();
+});
+
+it("stops naming a figure once the bytes are gone and the API is still storing them", () => {
+  const { uploading } = renderPanel();
+
+  fireEvent.change(picker(), { target: { files: [pdf()] } });
+  uploading({ isPending: true, isUploading: true, uploadPercent: null });
+
+  expect(screen.getByText("Classement en cours…")).toBeInTheDocument();
+  expect(document.querySelector('[data-slot="progress"]')).not.toHaveAttribute(
+    "aria-valuenow",
   );
 });

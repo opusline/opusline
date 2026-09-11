@@ -1,6 +1,13 @@
 import type { DocumentData, InvoiceData } from "@opusline/api-client";
 import { Button } from "@opusline/ui/components/button";
 import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
+import {
+  Progress,
+  ProgressIndicator,
+  ProgressLabel,
+  ProgressTrack,
+  ProgressValue,
+} from "@opusline/ui/components/progress";
 import { cn } from "@opusline/ui/lib/utils";
 import { UploadIcon } from "lucide-react";
 import { useRef, useState } from "react";
@@ -26,6 +33,10 @@ type InvoiceDocumentPanelProps = {
   /** The filed document, or null while the invoice carries none. */
   document: DocumentData | null;
   isPending: boolean;
+  /** Narrower than isPending: a removal is not an upload and has nothing to show. */
+  isUploading?: boolean;
+  /** Bytes sent, or null once they are gone and the API is still storing them. */
+  uploadPercent?: number | null;
   error: string | null;
   onUpload: (file: File) => void;
   onRemove: () => void;
@@ -42,6 +53,8 @@ export function InvoiceDocumentPanel({
   invoice,
   document,
   isPending,
+  isUploading = false,
+  uploadPercent = null,
   error,
   onUpload,
   onRemove,
@@ -51,6 +64,9 @@ export function InvoiceDocumentPanel({
   const picker = useRef<HTMLInputElement>(null);
   const [rejected, setRejected] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  // Kept here rather than handed down: the panel is what knows which file was
+  // picked, and the name is the only thing that makes the bar mean anything.
+  const [uploadingFile, setUploadingFile] = useState<string | null>(null);
 
   if (invoice.status === 0) {
     return null;
@@ -70,6 +86,7 @@ export function InvoiceDocumentPanel({
     );
 
     if (reason === null) {
+      setUploadingFile(candidate.name);
       onUpload(candidate);
     }
   };
@@ -89,6 +106,22 @@ export function InvoiceDocumentPanel({
         ref={picker}
         type="file"
       />
+
+      {isUploading && uploadingFile !== null && (
+        <Progress className="mt-3" value={uploadPercent}>
+          <div className="mb-1.5 flex items-baseline justify-between gap-3">
+            <ProgressLabel>
+              {uploadPercent === null
+                ? m.upload_finishing()
+                : m.upload_progress({ name: uploadingFile })}
+            </ProgressLabel>
+            {uploadPercent !== null && <ProgressValue />}
+          </div>
+          <ProgressTrack>
+            <ProgressIndicator />
+          </ProgressTrack>
+        </Progress>
+      )}
 
       {document === null ? (
         <>
