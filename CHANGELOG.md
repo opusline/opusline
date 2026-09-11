@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.25.0](https://github.com/opusline/opusline/compare/v0.24.0...v0.25.0) (2026-09-11)
+
+
+### Features
+
+* **repo:** back up and restore an instance with one command ([#335](https://github.com/opusline/opusline/issues/335)) ([54b3185](https://github.com/opusline/opusline/commit/54b318542581fb45223f08c3ca709a77bcc10c92))
+* **web:** lock the app when you step away ([#336](https://github.com/opusline/opusline/issues/336)) ([c1efcb7](https://github.com/opusline/opusline/commit/c1efcb7a72c135e1633cc2b80fd54f7e1700b1a6))
+
+
+### Bug Fixes
+
+* **web:** pick every date from a calendar ([#338](https://github.com/opusline/opusline/issues/338)) ([fbe6f48](https://github.com/opusline/opusline/commit/fbe6f48686dcd4f08873eb7a9031ee192c43f44a))
+
 ## [0.24.0](https://github.com/opusline/opusline/compare/v0.23.1...v0.24.0) (2026-09-11)
 
 
