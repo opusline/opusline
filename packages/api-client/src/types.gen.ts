@@ -278,6 +278,7 @@ export type ConfirmTotpData = {
  * CorrectInvoiceDatesData
  */
 export type CorrectInvoiceDatesData = {
+    issuedOn?: string | null;
     sentOn?: string | null;
     paidOn?: string | null;
 };

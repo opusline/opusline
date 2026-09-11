@@ -57,6 +57,7 @@ it("moves the day the invoice went out", () => {
   fireEvent.click(save());
 
   expect(onSubmit).toHaveBeenCalledWith({
+    issuedOn: "2026-07-01",
     sentOn: "2026-07-04",
     paidOn: null,
   });
@@ -73,6 +74,7 @@ it("moves a payment date backwards, where the money actually landed", () => {
   fireEvent.click(save());
 
   expect(onSubmit).toHaveBeenCalledWith({
+    issuedOn: "2026-07-01",
     sentOn: "2026-07-01",
     paidOn: "2026-07-18",
   });
@@ -98,4 +100,34 @@ it("surfaces what the server refused", () => {
   expect(screen.getByRole("alert")).toHaveTextContent(
     "La date d'envoi ne peut pas précéder la date d'émission.",
   );
+});
+
+it("moves the day the invoice bears, which the send date stands on", () => {
+  const { onSubmit } = renderCorrections();
+
+  fireEvent.change(screen.getByLabelText("Émise le"), {
+    target: { value: "01/06/2026" },
+  });
+  fireEvent.click(save());
+
+  expect(onSubmit).toHaveBeenCalledWith({
+    issuedOn: "2026-06-01",
+    sentOn: "2026-07-01",
+    paidOn: null,
+  });
+});
+
+it("lets the send date follow the issue date back", () => {
+  renderCorrections();
+
+  // Before: the send date could not go earlier than 01/07, the day the invoice
+  // bears. That floor is the field above now, so moving it frees the one below.
+  fireEvent.change(screen.getByLabelText("Émise le"), {
+    target: { value: "01/06/2026" },
+  });
+  fireEvent.change(screen.getByLabelText("Envoyée le"), {
+    target: { value: "15/06/2026" },
+  });
+
+  expect(save()).toBeEnabled();
 });

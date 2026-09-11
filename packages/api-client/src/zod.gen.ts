@@ -146,6 +146,7 @@ export const zConfirmTotpData = z.object({
  * CorrectInvoiceDatesData
  */
 export const zCorrectInvoiceDatesData = z.object({
+    issuedOn: z.nullish(z.iso.date()),
     sentOn: z.nullish(z.iso.date()),
     paidOn: z.nullish(z.iso.date())
 });

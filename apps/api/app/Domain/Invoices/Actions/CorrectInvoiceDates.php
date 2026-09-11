@@ -34,6 +34,7 @@ class CorrectInvoiceDates
 
             $this->assertSomethingToCorrect($data);
 
+            $issuedOn = $data->issuedOn === null ? null : CarbonImmutable::parse($data->issuedOn);
             $sentOn = $data->sentOn === null ? null : CarbonImmutable::parse($data->sentOn);
             $paidOn = $data->paidOn === null ? null : CarbonImmutable::parse($data->paidOn);
 
@@ -43,7 +44,13 @@ class CorrectInvoiceDates
                 __('invoices.paid_on_without_payment'),
             );
 
-            $this->assertDatesStayInOrder($locked, $sentOn, $paidOn);
+            $this->assertDatesStayInOrder($locked, $issuedOn, $sentOn, $paidOn);
+
+            // Before the other two: they are measured against it, and the stamps
+            // below read the invoice back.
+            if ($issuedOn instanceof CarbonImmutable) {
+                $this->stampIssuedOn($locked, $issuedOn);
+            }
 
             if ($sentOn instanceof CarbonImmutable) {
                 $this->stampSentOn($locked, $sentOn);
@@ -59,11 +66,12 @@ class CorrectInvoiceDates
 
     private function assertSomethingToCorrect(CorrectInvoiceDatesData $data): void
     {
-        if ($data->sentOn !== null || $data->paidOn !== null) {
+        if ($data->issuedOn !== null || $data->sentOn !== null || $data->paidOn !== null) {
             return;
         }
 
         throw ValidationException::withMessages([
+            'issuedOn' => __('invoices.correction_needs_a_date'),
             'sentOn' => __('invoices.correction_needs_a_date'),
             'paidOn' => __('invoices.correction_needs_a_date'),
         ]);
@@ -74,13 +82,18 @@ class CorrectInvoiceDates
      * not push it past the neighbours it did not name. The stored values stand in
      * for whatever the request left out.
      */
-    private function assertDatesStayInOrder(Invoice $invoice, ?CarbonImmutable $sentOn, ?CarbonImmutable $paidOn): void
-    {
+    private function assertDatesStayInOrder(
+        Invoice $invoice,
+        ?CarbonImmutable $issuedOn,
+        ?CarbonImmutable $sentOn,
+        ?CarbonImmutable $paidOn,
+    ): void {
+        $effectiveIssuedOn = $issuedOn ?? $invoice->issued_on;
         $effectiveSentOn = $sentOn ?? $this->recordedSentOn($invoice);
         $effectivePaidOn = $paidOn ?? $invoice->paid_on;
 
         abort_if(
-            $effectiveSentOn->isBefore($invoice->issued_on),
+            $effectiveSentOn->isBefore($effectiveIssuedOn),
             409,
             __('invoices.sent_on_before_issued'),
         );
@@ -90,6 +103,31 @@ class CorrectInvoiceDates
             409,
             __('invoices.paid_on_before_sent'),
         );
+    }
+
+    /**
+     * Moving the day the invoice bears moves its due date with it — the terms are
+     * a number of days after issue, and an invoice that is suddenly late because
+     * its issue date moved backward would be a correction with a sting in it.
+     *
+     * A due date the caller had overridden is left alone: it was set deliberately,
+     * and this endpoint corrects dates rather than re-derives them.
+     */
+    private function stampIssuedOn(Invoice $invoice, CarbonImmutable $issuedOn): void
+    {
+        $derivedDueOn = $invoice->issued_on->addDays($invoice->client->payment_terms_days);
+        $wasDerived = $invoice->due_on->equalTo($derivedDueOn);
+
+        $invoice->update([
+            'issued_on' => $issuedOn,
+            'due_on' => $wasDerived
+                ? $issuedOn->addDays($invoice->client->payment_terms_days)
+                : $invoice->due_on,
+        ]);
+
+        // Same rule as the payment date: the issue date is fiscal history, so the
+        // correction is dated the day it was made.
+        $this->recordInvoiceEvent->handle($invoice, InvoiceEventKind::Updated);
     }
 
     /**

@@ -5853,6 +5853,13 @@
             "CorrectInvoiceDatesData": {
                 "type": "object",
                 "properties": {
+                    "issuedOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
                     "sentOn": {
                         "type": [
                             "string",
