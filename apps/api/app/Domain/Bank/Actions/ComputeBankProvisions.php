@@ -14,6 +14,7 @@ use App\Domain\Invoices\Revenue\CollectedInvoices;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Settings\Models\UserSettings;
+use App\Domain\Settings\Rates\ContributionRateHistory;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
@@ -33,17 +34,19 @@ use Money\Money as MoneyPhp;
  * - plus the previous period's accrual, carried until the matching payment
  *   shows up in the imported movements — France pays in arrears, so the
  *   URSSAF prélèvement or TVA télérèglement detected in the current period
- *   settles that carried debt, clamped at zero. Known limit: the carry is
- *   priced at today's contribution rate — no rate history is stored, so a
- *   rate change at a period boundary (an ACRE step ending) re-prices the
- *   carried period until its payment lands;
+ *   settles that carried debt, clamped at zero. The carry is priced at the rate
+ *   that applied when the period closed, not today's: an ACRE step ending in
+ *   January must not reprice the December that is still owed;
  * - plus a twelfth of the expected CFE per elapsed month, netted the same way
  *   against detected CFE debits;
  * - plus the matelas as configured, verbatim.
  */
 class ComputeBankProvisions
 {
-    public function __construct(private readonly ResolveExpectedCfe $resolveExpectedCfe) {}
+    public function __construct(
+        private readonly ResolveExpectedCfe $resolveExpectedCfe,
+        private readonly ContributionRateHistory $contributionRateHistory,
+    ) {}
 
     public function handle(User $user): BankProvisionsData
     {
@@ -210,11 +213,16 @@ class ComputeBankProvisions
         string $currency,
     ): BankProvisionData {
         $rateBp = $settings->effectiveContributionRateBp();
+        // The period that closed was earned under whatever rate applied then — an
+        // ACRE step that ended in January does not reprice December. The rate
+        // history answers for the closed period; the running one is today's.
+        $previousEnd = $period['start']->subDay();
+        $carriedRateBp = $this->contributionRateHistory->onDate($settings, $previousEnd);
 
         $current = $collected->contributionsCents($period['start'], $today, $rateBp, $currency);
         $carried = max(
             0,
-            $collected->contributionsCents($period['previousStart'], $period['start']->subDay(), $rateBp, $currency)
+            $collected->contributionsCents($period['previousStart'], $previousEnd, $carriedRateBp, $currency)
                 - $this->paymentsBetween($fiscDebits, $period['start'], $today, DetectFiscPayments::isUrssaf(...)),
         );
 

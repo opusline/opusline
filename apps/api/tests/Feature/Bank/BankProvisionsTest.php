@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
+use App\Domain\Settings\Models\ContributionRate;
 use App\Domain\Users\Models\User;
 
 beforeEach(fn () => freezeTodayAtUtcNoon());
@@ -283,4 +284,94 @@ test('the creation year is exempt from the CFE provision', function (): void {
         ->getJson('/api/bank')
         ->assertOk()
         ->assertJsonPath('provisions.cfe', null);
+});
+
+test('prices the carried month at the rate that applied when it closed', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['contribution_rate_bp' => 2500]);
+
+    // July closed under 25 %; an ACRE step ends and August runs at 12 %.
+    ContributionRate::query()->create([
+        'user_id' => $user->id,
+        'effective_rate_bp' => 2500,
+        'effective_from' => '2025-01-01',
+    ]);
+    ContributionRate::query()->create([
+        'user_id' => $user->id,
+        'effective_rate_bp' => 1200,
+        'effective_from' => '2026-08-01',
+    ]);
+    $user->settings()->sole()->update(['contribution_rate_bp' => 1200]);
+
+    paidInvoiceOn($user, '2026-08-03');
+    paidInvoiceOn($user, '2026-07-31');
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        // 165 000 HT each month: August at 12 % plus July still at 25 %.
+        ->assertJsonPath('provisions.urssaf.amount.amount', 19_800 + 41_250)
+        ->assertJsonPath('provisions.urssaf.rateBp', 1200);
+});
+
+test('falls back to the settings for an account that never changed its rate', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['contribution_rate_bp' => 2500]);
+
+    paidInvoiceOn($user, '2026-08-03');
+    paidInvoiceOn($user, '2026-07-31');
+
+    expect(ContributionRate::query()->where('user_id', $user->id)->count())->toBe(0);
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.urssaf.amount.amount', 82_500);
+});
+
+test('records what the rate was the first time it moves', function (): void {
+    $user = User::factory()->create();
+    $settings = $user->settings()->sole();
+    $settings->update(['contribution_rate_bp' => 2500]);
+    // An account with some history behind it: a rate changed on the day the
+    // account opened has no earlier period to price, and writes one row.
+    $settings->forceFill(['created_at' => '2025-01-01 09:00:00'])->save();
+
+    $this->actingAs($user)
+        ->putJson('/api/settings', settingsPayload([
+            'autoRates' => false,
+            'contributionRateBp' => 1200,
+        ]))
+        ->assertOk();
+
+    $recorded = ContributionRate::query()
+        ->where('user_id', $user->id)
+        ->orderBy('effective_from')
+        ->pluck('effective_rate_bp')
+        ->all();
+
+    // The rate it was on, dated from the account's beginning, then the new one.
+    expect($recorded)->toBe([2500, 1200]);
+    expect(
+        ContributionRate::query()
+            ->where('user_id', $user->id)
+            ->orderBy('effective_from')
+            ->first()
+            ?->effective_from
+            ->toDateString(),
+    )->toBe('2025-01-01');
+});
+
+test('writes nothing when a save leaves the rate alone', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['contribution_rate_bp' => 2600]);
+
+    $this->actingAs($user)
+        ->putJson('/api/settings', settingsPayload([
+            'autoRates' => false,
+            'contributionRateBp' => 2600,
+        ]))
+        ->assertOk();
+
+    expect(ContributionRate::query()->where('user_id', $user->id)->count())->toBe(0);
 });

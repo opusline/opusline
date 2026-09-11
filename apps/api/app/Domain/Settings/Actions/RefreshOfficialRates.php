@@ -20,7 +20,10 @@ class RefreshOfficialRates
 
     private const int UNAVAILABLE_MINUTES = 15;
 
-    public function __construct(private readonly MonEntrepriseClient $client) {}
+    public function __construct(
+        private readonly MonEntrepriseClient $client,
+        private readonly RecordContributionRate $recordContributionRate,
+    ) {}
 
     /**
      * @param  bool  $force  Bypass the shared cache and read URSSAF again. Set
@@ -38,6 +41,7 @@ class RefreshOfficialRates
     public function handle(UserSettings $settings, bool $force = false, bool $retryTransientFailures = true): UserSettings
     {
         $rates = $this->read(RateSituation::fromSettings($settings), $force, $retryTransientFailures);
+        $previousRateBp = $settings->effectiveContributionRateBp();
 
         $settings->update([
             'contribution_rate_bp' => $rates->contributionRateBp,
@@ -45,6 +49,10 @@ class RefreshOfficialRates
             'rates_year' => $rates->year,
             'rates_checked_at' => $rates->readAt,
         ]);
+
+        // A new barème is a rate change like any other: the period that closed
+        // under the old one must keep being priced with it.
+        $this->recordContributionRate->handle($settings, $previousRateBp);
 
         return $settings;
     }
