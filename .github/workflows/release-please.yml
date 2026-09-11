@@ -162,9 +162,9 @@ jobs:
     with:
       version: ${{ needs.release-please.outputs.version }}
 
-  # The compose file and env example a self-hoster downloads must match the
-  # images the release publishes, so they are attached to the release rather
-  # than read from main — main moves between releases. Not ordered after
+  # The compose file, the env example and the backup script a self-hoster
+  # downloads must match the images the release publishes, so they ride on the
+  # release rather than being read from main — main moves between releases. Not ordered after
   # publish-images: the compose names images only through OPUSLINE_VERSION, so
   # the asset is correct whichever job finishes first. The env example is
   # served as example.env because GitHub delivers dotfile assets as hidden
@@ -195,4 +195,4 @@ jobs:
           # release instead of shipping an asset that silently kept :latest.
           grep -q "opusline-api:${VERSION}" example.env
           grep -q "^# OPUSLINE_VERSION=${VERSION}" example.env
-          gh release upload "$TAG" compose.prod.yaml example.env --clobber
+          gh release upload "$TAG" compose.prod.yaml example.env scripts/opusline-backup.sh --clobber
