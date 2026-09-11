@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Clients\Models\Client;
 use App\Domain\Invoices\Enums\InvoiceEventKind;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
@@ -166,4 +167,85 @@ test('refuses a correction that names no date at all', function (): void {
         ->patchJson("/api/invoices/{$invoice->id}/dates", [])
         ->assertStatus(422)
         ->assertJsonValidationErrors(['sentOn', 'paidOn']);
+});
+
+test('moves the day the invoice bears, which the other two stand on', function (): void {
+    $user = User::factory()->create();
+    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
+        'issued_on' => '2026-08-31',
+    ]));
+
+    $this->actingAs($user)
+        ->patchJson("/api/invoices/{$invoice->id}/dates", [
+            'issuedOn' => '2026-07-31',
+            'sentOn' => '2026-08-02',
+        ])
+        ->assertOk()
+        ->assertJsonPath('invoice.issuedOn', '2026-07-31');
+
+    expect($invoice->refresh()->issued_on->toDateString())->toBe('2026-07-31');
+});
+
+test('carries the due date along when it was derived from the terms', function (): void {
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create([
+        'payment_terms_days' => 30,
+    ]);
+    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
+        'client_id' => $client->id,
+        'issued_on' => '2026-08-31',
+        'due_on' => '2026-09-30',
+    ]));
+
+    $this->actingAs($user)
+        ->patchJson("/api/invoices/{$invoice->id}/dates", ['issuedOn' => '2026-07-31'])
+        ->assertOk()
+        ->assertJsonPath('invoice.dueOn', '2026-08-30');
+});
+
+test('leaves a due date somebody set by hand where it is', function (): void {
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create([
+        'payment_terms_days' => 30,
+    ]);
+    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
+        'client_id' => $client->id,
+        'issued_on' => '2026-08-31',
+        'due_on' => '2026-12-24',
+    ]));
+
+    $this->actingAs($user)
+        ->patchJson("/api/invoices/{$invoice->id}/dates", ['issuedOn' => '2026-07-31'])
+        ->assertOk()
+        ->assertJsonPath('invoice.dueOn', '2026-12-24');
+});
+
+test('refuses an issue date that would leave the send behind it', function (): void {
+    $user = User::factory()->create();
+    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
+        'issued_on' => '2026-08-01',
+    ]));
+
+    $this->actingAs($user)
+        ->patchJson("/api/invoices/{$invoice->id}/dates", ['sentOn' => '2026-08-04'])
+        ->assertOk();
+
+    $this->actingAs($user)
+        ->patchJson("/api/invoices/{$invoice->id}/dates", ['issuedOn' => '2026-08-10'])
+        ->assertConflict()
+        ->assertJsonPath('message', __('invoices.sent_on_before_issued'));
+});
+
+test('records the correction as history, because the issue date is fiscal', function (): void {
+    $user = User::factory()->create();
+    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
+        'issued_on' => '2026-08-31',
+    ]));
+
+    $this->actingAs($user)
+        ->patchJson("/api/invoices/{$invoice->id}/dates", ['issuedOn' => '2026-07-31'])
+        ->assertOk();
+
+    expect($invoice->events()->pluck('kind')->all())
+        ->toContain(InvoiceEventKind::Updated);
 });
