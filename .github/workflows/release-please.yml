@@ -22,9 +22,9 @@ jobs:
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       # Anything GITHUB_TOKEN creates fires no workflows: a release PR opened
-      # with it gets no CI run and the assembly workflow never sees it. The
-      # App is an ordinary actor, so its PRs run CI and its merges re-enter
-      # this workflow.
+      # with it gets no CI run, and neither would the assembly commit this job
+      # pushes onto it. The App is an ordinary actor, so its PRs run CI and its
+      # merges re-enter this workflow.
       - id: app-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
@@ -34,51 +34,127 @@ jobs:
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5
         with:
           token: ${{ steps.app-token.outputs.token }}
-      - if: steps.release.outputs.pr
-        uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      # A release made of nothing but dependency bumps has nothing left for a
-      # human to check that the Dependabot PRs did not already pass, so it
-      # merges on its own once the assembly PR has landed and CI is green. The
-      # moment a feat or fix joins it, the release needs a human again.
-      - name: Auto-merge the release PR when it only ships dependency bumps
-        if: steps.release.outputs.pr
+
+      # Read back from the API rather than from steps.release.outputs.pr, which
+      # is empty on a push that left the release PR untouched. The notes below
+      # have to be assembled on those pushes too — a fragment can land behind a
+      # release PR whose title and body do not move — and on the pushes where
+      # release-please itself errored out, which is why everything from here on
+      # carries `!cancelled()`.
+      - id: release-pr
+        if: ${{ !cancelled() }}
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           GH_REPO: ${{ github.repository }}
-          PR_JSON: ${{ steps.release.outputs.pr }}
+          BASE: ${{ github.ref_name }}
         run: |
-          number=$(printf '%s' "$PR_JSON" | jq -r '.number')
+          pr=$(gh pr list --state open --base "$BASE" --json number,headRefName \
+            --jq 'map(select(.headRefName | startswith("release-please--"))) | first // empty')
+          if [ -z "$pr" ]; then
+            echo "No release PR is open."
+            echo "head=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          printf 'number=%s\nhead=%s\n' \
+            "$(printf '%s' "$pr" | jq -r '.number')" \
+            "$(printf '%s' "$pr" | jq -r '.headRefName')" | tee -a "$GITHUB_OUTPUT"
+
+      # The release branch, not main: this is where the notes are assembled, and
+      # scripts/ is identical there — release-please only writes the changelog,
+      # the manifest and the version stamps. Credentials are persisted on
+      # purpose, that is what the push authenticates with.
+      - if: ${{ !cancelled() && steps.release-pr.outputs.head != '' }}
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.release-pr.outputs.head }}
+          token: ${{ steps.app-token.outputs.token }}
+      - if: ${{ !cancelled() && steps.release-pr.outputs.head != '' }}
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      # The in-app release notes are committed onto the release branch itself
+      # rather than folded in by a PR of their own against main. release-please
+      # force-pushes that branch on every push to main — the very event that
+      # re-runs this job — so an entry it wipes is rebuilt in the same run, and
+      # the assembler reclaims the pending entry instead of appending, which
+      # makes a re-run a no-op. The notes reach main inside the squashed release
+      # commit, and the release PR's release-notes guard goes green without a
+      # second PR, a second CI run and an update-branch round trip.
+      - name: Assemble the pending fragments onto the release PR
+        if: ${{ !cancelled() && steps.release-pr.outputs.head != '' }}
+        env:
+          BASE: ${{ github.ref_name }}
+          HEAD_REF: ${{ steps.release-pr.outputs.head }}
+        run: |
+          version=$(jq -r '."." // empty' .release-please-manifest.json)
+          git fetch --depth=1 origin "$BASE"
+          released=$(git show FETCH_HEAD:.release-please-manifest.json | jq -r '."." // empty')
+          if [ -z "$version" ] || [ -z "$released" ]; then
+            echo "::error::Could not read the version from .release-please-manifest.json."
+            exit 1
+          fi
+          if [ "$version" = "$released" ]; then
+            echo "::error::$HEAD_REF still carries $BASE's version ($released) — release-please did not bump it."
+            exit 1
+          fi
+          # The baseline is main's version, not this branch's: release-please has
+          # already bumped the manifest here, and the assembler reads it to decide
+          # which entries are still unreleased and therefore still its to rewrite.
+          node scripts/assemble-release-notes.mjs "$version" "$released"
+          if git diff --quiet; then
+            echo "$HEAD_REF already carries the assembled notes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/web/src/lib/releases.ts .release-notes
+          git commit -m "docs(web): assemble release notes for $version"
+          # A rejected push means release-please force-pushed underneath this run.
+          # The next push to main re-enters here and rebuilds the entry, so it is
+          # not worth reddening the release PR over.
+          if ! git push origin "HEAD:$HEAD_REF"; then
+            echo "::warning::$HEAD_REF moved while the notes were assembled — the next push to $BASE redoes it."
+          fi
+
+      # A release made of nothing but dependency bumps has nothing left for a
+      # human to check that the Dependabot PRs did not already pass, so it
+      # merges on its own once CI is green. The moment a feat or fix joins it,
+      # the release needs a human again.
+      - name: Auto-merge the release PR when it only ships dependency bumps
+        if: ${{ !cancelled() && steps.release-pr.outputs.head != '' }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ steps.release-pr.outputs.number }}
+        run: |
           # gh prints nothing, not "null", for a null field: ask for a boolean.
-          auto_merge=$(gh pr view "$number" --json autoMergeRequest --jq '.autoMergeRequest != null')
+          auto_merge=$(gh pr view "$NUMBER" --json autoMergeRequest --jq '.autoMergeRequest != null')
           case "$auto_merge" in
             true | false) ;;
             *)
-              echo "::error::Could not read the auto-merge state of #$number."
+              echo "::error::Could not read the auto-merge state of #$NUMBER."
               exit 1
               ;;
           esac
-          if gh pr view "$number" --json body --jq '.body' | sh scripts/release-is-deps-only.sh; then
+          if gh pr view "$NUMBER" --json body --jq '.body' | sh scripts/release-is-deps-only.sh; then
             if [ "$auto_merge" = false ]; then
-              gh pr merge "$number" --auto --squash
+              gh pr merge "$NUMBER" --auto --squash
             fi
           elif [ "$auto_merge" = true ]; then
-            gh pr merge "$number" --disable-auto
+            gh pr merge "$NUMBER" --disable-auto
           fi
 
       # release-please force-pushes its branch onto main only when the release
-      # PR body changes, so a commit of a hidden type — the assembly PR's
-      # `docs(web)`, a `ci:` Actions bump — leaves the release PR behind main.
-      # The ruleset requires branches to be up to date, and the release PR's
-      # tree is still missing the entry the assembly PR added, so it sits red
-      # and unmergeable until someone clicks "Update branch". The assembly PR
-      # falls behind the same way when a Dependabot group lands while it is open.
+      # PR body changes, so a commit of a hidden type — a `ci:` Actions bump, a
+      # `docs:` fix — leaves the release PR behind main. The ruleset requires
+      # branches to be up to date, so it sits unmergeable until someone clicks
+      # "Update branch".
       #
       # `!cancelled()` because this is the step that keeps the chain moving: it
       # has to run on the pushes where release-please itself errored out, which
       # are the pushes where a release PR stuck behind main is least welcome.
-      - name: Update the bot branches that main has left behind
+      - name: Update the release branch that main has left behind
         if: ${{ !cancelled() }}
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
@@ -86,7 +162,7 @@ jobs:
           BASE: ${{ github.ref_name }}
         run: |
           bots=$(gh pr list --state open --base "$BASE" --json number,headRefName \
-            --jq '.[] | select(.headRefName | startswith("release-please--") or startswith("assemble-release-notes/")) | "\(.number) \(.headRefName)"')
+            --jq '.[] | select(.headRefName | startswith("release-please--")) | "\(.number) \(.headRefName)"')
           if [ -z "$bots" ]; then
             echo "No bot release branch is open."
             exit 0
@@ -114,8 +190,6 @@ jobs:
             # The App, not GITHUB_TOKEN: a head pushed by GITHUB_TOKEN fires
             # no workflows, so the required checks would never report on the
             # new commit and auto-merge would stay stuck all the same.
-            # Reported and carried on: the release PR being unupdatable must not
-            # leave the assembly PR behind too.
             if ! gh pr update-branch "$number"; then
               echo "::error::Could not update #$number ($head) — it needs a hand."
               stuck=1

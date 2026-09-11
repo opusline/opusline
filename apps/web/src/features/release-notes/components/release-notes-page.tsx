@@ -91,11 +91,6 @@ export function ReleaseNotesPage({
               </span>
             </div>
             <div className="px-5 pt-4 pb-5">
-              {release.headline && (
-                <p className="mb-4 max-w-prose text-muted-foreground text-pretty text-sm leading-relaxed">
-                  {release.headline}
-                </p>
-              )}
               <div className="flex flex-col gap-3">
                 {release.items.map((item) => (
                   <div
