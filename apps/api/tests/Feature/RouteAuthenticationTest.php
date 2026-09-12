@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Route;
  * `Route::middleware('auth:sanctum')` group.
  */
 const PUBLIC_API_ROUTES = [
-    // A liveness probe: returns the status and the version, reads nothing.
+    // A liveness probe: returns the status, the version and the browser's
+    // Sentry project, reads nothing.
     'api/ping',
     'api/login',
     'api/register',

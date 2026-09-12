@@ -1097,6 +1097,24 @@ export const zSendInvoiceData = z.object({
 });
 
 /**
+ * SentryWebData
+ */
+export const zSentryWebData = z.object({
+    dsn: z.string(),
+    environment: z.string(),
+    tracesSampleRate: z.number()
+});
+
+/**
+ * PingData
+ */
+export const zPingData = z.object({
+    status: z.string(),
+    version: z.string(),
+    sentry: z.nullable(zSentryWebData)
+});
+
+/**
  * SignedMoneyData
  */
 export const zSignedMoneyData = z.object({
@@ -1746,10 +1764,7 @@ export const zDeclarationsData = z.object({
     vat: z.nullable(zVatDeclarationData)
 });
 
-export const zGetPingResponse = z.object({
-    status: z.literal('ok'),
-    version: z.string()
-});
+export const zGetPingResponse = zPingData;
 
 export const zRegisterBody = zRegisterUserData;
 

@@ -358,6 +358,18 @@ later invalidates every registered passkey.
 `mon-entreprise.urssaf.fr`, for an air-gapped install. Contribution rates then
 stay whatever you set in Réglages.
 
+**Error reporting.** Nothing phones home by default. Set `SENTRY_LARAVEL_DSN`
+and the API reports its exceptions and performance traces (slow endpoints, N+1
+queries, lazy-loaded relations) to that Sentry project; set `SENTRY_WEB_DSN`
+and the browser app does the same for crashed screens and failed requests —
+the API hands that DSN to the browser, so the ingest host must be reachable
+from your users' browsers, not only from the server. Both work with sentry.io
+and a self-hosted Sentry. `SENTRY_TRACES_SAMPLE_RATE` and
+`SENTRY_WEB_TRACES_SAMPLE_RATE` (0 to 1, default 1) throttle the traces;
+`SENTRY_ENVIRONMENT` names the environment for both halves (default `APP_ENV`).
+Source maps ship next to the bundle under `/assets`, so stack traces resolve
+to source as long as Sentry can fetch them from your instance.
+
 ## When something is wrong
 
 ```sh

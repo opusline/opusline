@@ -35,15 +35,24 @@ it("stamps the HTTP status on a refused JSON body", async () => {
 
   await expect(
     client.post({ url: "/user/two-factor/totp", throwOnError: true }),
-  ).rejects.toMatchObject({ message: "Confirmez.", status: 423 });
+  ).rejects.toMatchObject({
+    message: "Confirmez.",
+    status: 423,
+    method: "POST",
+    route: "/user/two-factor/totp",
+  });
 });
 
-it("leaves a non-JSON error body alone so the fallback message wins", async () => {
+it("keeps the status of a non-JSON error but drops its body so the fallback message wins", async () => {
   stubResponse(502, "<html>Bad gateway</html>", "text/html");
 
   await expect(
     client.get({ url: "/user/two-factor", throwOnError: true }),
-  ).rejects.toBe("<html>Bad gateway</html>");
+  ).rejects.toStrictEqual({
+    status: 502,
+    method: "GET",
+    route: "/user/two-factor",
+  });
 });
 
 it("reports a 401 so the screen can ask for the password again", async () => {

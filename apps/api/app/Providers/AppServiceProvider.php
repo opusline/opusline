@@ -21,12 +21,14 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\LazyLoadingViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
+use Sentry\Laravel\Integration;
 use Spatie\LaravelData\Data;
 
 class AppServiceProvider extends ServiceProvider
@@ -49,6 +51,26 @@ class AppServiceProvider extends ServiceProvider
         Date::use(CarbonImmutable::class);
 
         Model::shouldBeStrict(! $this->app->isProduction());
+
+        // A lazy load is an N+1 in the making: outside production it throws,
+        // in production Sentry's reporter takes it and the relation still
+        // loads. Laravel skips its own "new or unsaved model" guard once a
+        // handler is registered, hence the copy.
+        $lazyLoadReporter = Integration::lazyLoadingViolationReporter();
+        Model::preventLazyLoading();
+        Model::handleLazyLoadingViolationUsing(function (Model $model, string $relation) use ($lazyLoadReporter): void {
+            if (! $model->exists || $model->wasRecentlyCreated) {
+                return;
+            }
+
+            if ($this->app->isProduction()) {
+                $lazyLoadReporter($model, $relation);
+
+                return;
+            }
+
+            throw new LazyLoadingViolationException($model, $relation);
+        });
 
         Relation::enforceMorphMap([
             'client' => Client::class,

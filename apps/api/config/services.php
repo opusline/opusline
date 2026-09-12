@@ -49,4 +49,15 @@ return [
         'timeout' => 10,
     ],
 
+    /*
+    | The browser app's Sentry project, handed over by GET /api/ping. It lives
+    | here rather than in config/sentry.php because that file is passed to the
+    | PHP SDK's option resolver as-is, and it rejects keys it does not know.
+    */
+
+    'sentry' => [
+        'web_dsn' => env('SENTRY_WEB_DSN'),
+        'web_traces_sample_rate' => (float) env('SENTRY_WEB_TRACES_SAMPLE_RATE', 1.0),
+    ],
+
 ];

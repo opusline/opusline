@@ -65,6 +65,7 @@ function requestDataFields(): array
         'InvoiceListData',
         'RecoveryCodesData', 'TotpSetupData', 'TwoFactorStatusData',
         'TrustedDeviceData', 'TwoFactorChallengeData', 'PasskeyData', 'PasskeyOptionsData',
+        'PingData', 'SentryWebData',
     ];
 
     $fields = [];

@@ -27,6 +27,7 @@ import { TimerContainer } from "@/features/timer/components/timer-container";
 import { TimerLockStatus } from "@/features/timer/components/timer-lock-status";
 import { TimerProvider } from "@/features/timer/components/timer-provider";
 import { syncLocale } from "@/lib/i18n";
+import { setMonitoredUser } from "@/lib/monitoring";
 import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute("/_authed")({
@@ -89,6 +90,11 @@ function AuthedLayout() {
   useEffect(() => {
     syncLocale(user.locale);
   }, [user.locale]);
+
+  useEffect(() => {
+    setMonitoredUser({ id: user.id });
+    return () => setMonitoredUser(null);
+  }, [user.id]);
 
   const { theme, resolvedTheme, setTheme } = useThemeControl();
 

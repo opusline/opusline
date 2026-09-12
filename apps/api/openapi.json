@@ -23,20 +23,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "const": "ok"
-                                        },
-                                        "version": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "status",
-                                        "version"
-                                    ]
+                                    "$ref": "#/components/schemas/PingData"
                                 }
                             }
                         }
@@ -8269,6 +8256,33 @@
                 ],
                 "title": "PersonalTransferData"
             },
+            "PingData": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": "string"
+                    },
+                    "sentry": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/SentryWebData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "status",
+                    "version",
+                    "sentry"
+                ],
+                "title": "PingData"
+            },
             "RecoveryCodesData": {
                 "type": "object",
                 "properties": {
@@ -8603,6 +8617,26 @@
                     }
                 },
                 "title": "SendInvoiceData"
+            },
+            "SentryWebData": {
+                "type": "object",
+                "properties": {
+                    "dsn": {
+                        "type": "string"
+                    },
+                    "environment": {
+                        "type": "string"
+                    },
+                    "tracesSampleRate": {
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "dsn",
+                    "environment",
+                    "tracesSampleRate"
+                ],
+                "title": "SentryWebData"
             },
             "SettingsData": {
                 "type": "object",

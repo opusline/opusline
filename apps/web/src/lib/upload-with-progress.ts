@@ -1,5 +1,6 @@
 import { client as apiClient } from "@opusline/api-client/client";
 
+import { stampApiError } from "./api";
 import { readCookie } from "./cookies";
 import { apiLocaleFor, currentUiLocale } from "./i18n";
 
@@ -90,14 +91,20 @@ export async function uploadWithProgress({
       }
 
       reject(
-        typeof parsed === "object" && parsed !== null
-          ? { ...parsed, status: request.status }
-          : { status: request.status },
+        stampApiError(parsed, {
+          status: request.status,
+          method: "POST",
+          route: url,
+        }),
       );
     });
 
-    request.addEventListener("error", () => reject({ status: 0 }));
-    request.addEventListener("abort", () => reject({ status: 0 }));
+    request.addEventListener("error", () =>
+      reject(new TypeError("Network request failed")),
+    );
+    request.addEventListener("abort", () =>
+      reject(new DOMException("The upload was aborted.", "AbortError")),
+    );
 
     signal?.addEventListener("abort", () => request.abort(), { once: true });
 

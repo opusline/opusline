@@ -1,10 +1,4 @@
 import { Button } from "@opusline/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@opusline/ui/components/card";
 import type { QueryClient } from "@tanstack/react-query";
 import {
   createRootRouteWithContext,
@@ -16,6 +10,7 @@ import { lazy, Suspense } from "react";
 
 import "@opusline/ui/globals.css";
 
+import { FallbackCard } from "@/components/fallback-card";
 import { ThemeProvider } from "@/components/theme-provider";
 import { useUiLocale } from "@/lib/i18n";
 import { m } from "@/paraglide/messages.js";
@@ -30,15 +25,9 @@ export const Route = createRootRouteWithContext<{
 function NotFoundPage() {
   return (
     <main className="flex min-h-screen items-center justify-center px-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>{m.not_found_title()}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <p className="text-muted-foreground text-sm">{m.not_found_hint()}</p>
-          <Button render={<Link to="/week" />}>{m.not_found_home()}</Button>
-        </CardContent>
-      </Card>
+      <FallbackCard hint={m.not_found_hint()} title={m.not_found_title()}>
+        <Button render={<Link to="/week" />}>{m.not_found_home()}</Button>
+      </FallbackCard>
     </main>
   );
 }
