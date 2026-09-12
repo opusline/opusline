@@ -2,10 +2,15 @@ import type { ExpenseData, ExpensesMonthData } from "@opusline/api-client";
 import {
   attachExpenseReceiptMutation,
   createExpenseMutation,
+  deferExpensesVatMutation,
   deleteExpenseMutation,
   detachExpenseReceiptMutation,
+  linkExpenseBankMovementMutation,
   listExpensesOptions,
   listExpensesQueryKey,
+  recategorizeExpensesMutation,
+  reintegrateExpenseVatMutation,
+  unmarkDeclarationFiledMutation,
   updateExpenseMutation,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
@@ -44,6 +49,7 @@ import {
 } from "@/features/expenses/lib/expense-draft";
 import { monthName } from "@/features/expenses/lib/labels";
 import { receiptRejection } from "@/features/expenses/lib/receipts";
+import { formatAmount } from "@/lib/billing";
 import { accountTodayCalendarDate } from "@/lib/dates";
 import { requireFrenchFiscality } from "@/lib/fiscality";
 import {
@@ -106,6 +112,9 @@ function ExpensesRoute() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [sheet, setSheet] = useState<ExpenseSheetState | null>(null);
   const [sheetError, setSheetError] = useState<unknown>(null);
+  // The compte pro debit a « Créer la dépense » card came from: linked to
+  // the row once it exists.
+  const [debitToLink, setDebitToLink] = useState<number | null>(null);
 
   // Every write answers with the month it touched, recomputed: write it
   // straight into the cache, then let the other months and screens refetch.
@@ -124,28 +133,26 @@ function ExpensesRoute() {
     await invalidateExpenseWrites(queryClient);
   };
 
+  // A write from the journal that fails lands in the banner above it, with
+  // the server's own word when it has one.
+  const withActionError = (fallback: () => string) => ({
+    onMutate: () => setActionError(null),
+    onError: (error: unknown) =>
+      setActionError(serverErrorMessage(error, fallback())),
+  });
+
   const attachReceipt = useMutation({
     ...attachExpenseReceiptMutation(),
-    onMutate: () => setActionError(null),
+    ...withActionError(m.expenses_receipt_attach_failed),
     onSuccess: acceptMonth,
-    onError: (error) => {
-      setActionError(
-        serverErrorMessage(error, m.expenses_receipt_attach_failed()),
-      );
-    },
   });
 
   const detachReceipt = useMutation({
     ...detachExpenseReceiptMutation(),
-    onMutate: () => setActionError(null),
+    ...withActionError(m.expenses_receipt_detach_failed),
     onSuccess: async (month) => {
       await acceptMonth(month);
       toast.add({ title: m.expenses_receipt_detached() });
-    },
-    onError: (error) => {
-      setActionError(
-        serverErrorMessage(error, m.expenses_receipt_detach_failed()),
-      );
     },
   });
 
@@ -156,7 +163,14 @@ function ExpensesRoute() {
   const closeSheet = () => {
     setSheet(null);
     setSheetError(null);
+    setDebitToLink(null);
   };
+
+  const linkDebit = useMutation({
+    ...linkExpenseBankMovementMutation(),
+    ...withActionError(m.expenses_link_debit_failed),
+    onSuccess: acceptMonth,
+  });
 
   // The API answers a create with the month, not the row: the new row is the
   // youngest one matching what was sent, which is where a picked receipt goes.
@@ -228,6 +242,13 @@ function ExpensesRoute() {
       closeSheet();
       await acceptMonth(month);
 
+      if (isCreate && row !== null && debitToLink !== null) {
+        linkDebit.mutate({
+          path: { expense: row.id },
+          body: { bankMovementId: debitToLink },
+        });
+      }
+
       if (month.month !== shownMonth) {
         showPeriod(month.month);
       }
@@ -278,6 +299,54 @@ function ExpensesRoute() {
       { onSuccess: (month) => onSaved(month, createdRow(month, draft)) },
     );
   };
+
+  const recategorize = useMutation({
+    ...recategorizeExpensesMutation(),
+    ...withActionError(m.expenses_recategorize_failed),
+    onSuccess: async (month, variables) => {
+      await acceptMonth(month);
+      toast.add({
+        title: m.expenses_recategorized({
+          count: variables.body.expenseIds.length,
+        }),
+        tone: "success",
+      });
+    },
+  });
+
+  const deferVat = useMutation({
+    ...deferExpensesVatMutation(),
+    ...withActionError(m.expenses_vat_action_failed),
+    onSuccess: async (month, variables) => {
+      await acceptMonth(month);
+      toast.add({
+        title: m.expenses_deferred_count({
+          count: variables.body.expenseIds.length,
+        }),
+        tone: "success",
+      });
+    },
+  });
+
+  const reintegrateVat = useMutation({
+    ...reintegrateExpenseVatMutation(),
+    ...withActionError(m.expenses_vat_action_failed),
+    onSuccess: async (month) => {
+      await acceptMonth(month);
+      toast.add({ title: m.expenses_reintegrated(), tone: "success" });
+    },
+  });
+
+  // Un-marking the CA3 lives on the declarations screen; here it only unlocks
+  // the month, so the journal refetches rather than trusting that answer.
+  const undoDeclared = useMutation({
+    ...unmarkDeclarationFiledMutation(),
+    ...withActionError(m.expenses_declared_undo_failed),
+    onSuccess: async () => {
+      await invalidateExpenseWrites(queryClient);
+      toast.add({ title: m.expenses_declared_undone(), tone: "success" });
+    },
+  });
 
   const deleteExpense = useMutation({
     ...deleteExpenseMutation(),
@@ -378,6 +447,7 @@ function ExpensesRoute() {
   // The URL is the anchor: after a failed refetch the figures are the last
   // good month's, but the stepper must still move from the month asked for.
   const month = search.period ?? journal.data.month;
+  const loadedMonth = journal.data.month;
   const isVatLiable = journal.data.vat !== null;
 
   return (
@@ -443,6 +513,7 @@ function ExpensesRoute() {
       >
         <JournalTab
           isRefreshing={journal.isPlaceholderData}
+          key={loadedMonth}
           month={journal.data}
           onAttachReceipt={onAttachReceipt}
           onDelete={setExpenseToDelete}
@@ -456,6 +527,41 @@ function ExpensesRoute() {
             })
           }
           onEdit={(expense) => setSheet({ mode: "edit", expense })}
+          isBulkBusy={recategorize.isPending || deferVat.isPending}
+          isUndoBusy={undoDeclared.isPending}
+          onCreateFromDebit={(todo) => {
+            setDebitToLink(todo.bankMovementId);
+            setSheet({
+              mode: "create",
+              initial: {
+                ...emptyExpenseDraft(today),
+                supplier: todo.label,
+                spentOn: todo.date,
+                ttc: formatAmount(format, todo.amount.amount),
+              },
+            });
+          }}
+          onDeferSelectedVat={(expenseIds) =>
+            deferVat.mutate({ body: { expenseIds } })
+          }
+          onDeferVat={(expense) =>
+            deferVat.mutate({ body: { expenseIds: [expense.id] } })
+          }
+          onLinkReceiptHint={() =>
+            toast.add({ title: m.expenses_bulk_link_hint() })
+          }
+          onRecategorize={(expenseIds, category) =>
+            recategorize.mutate({ body: { expenseIds, category } })
+          }
+          onReintegrateVat={(expense) =>
+            reintegrateVat.mutate({ path: { expense: expense.id } })
+          }
+          onUndoDeclared={() =>
+            undoDeclared.mutate({
+              path: { kind: 1, periodKey: loadedMonth },
+              query: { period: loadedMonth },
+            })
+          }
           unit={isVatLiable ? unit : "ttc"}
           uploadingExpenseId={
             attachReceipt.isPending

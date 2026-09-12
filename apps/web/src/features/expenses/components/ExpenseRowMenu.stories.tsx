@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { blockedExpense, expense } from "../lib/fixtures";
+import { blockedExpense, deferredExpense, expense } from "../lib/fixtures";
 import { ExpenseRowMenu } from "./expense-row-menu";
 
 const meta = {
@@ -9,9 +9,12 @@ const meta = {
   tags: ["autodocs"],
   args: {
     expense: expense(),
+    canMoveVat: true,
     onDetachReceipt: () => {},
     onEdit: () => {},
     onDuplicate: () => {},
+    onDeferVat: () => {},
+    onReintegrateVat: () => {},
     onDelete: () => {},
     className: "opacity-100",
   },
@@ -24,3 +27,9 @@ type Story = StoryObj<typeof ExpenseRowMenu>;
 export const Default: Story = {};
 
 export const WithoutReceipt: Story = { args: { expense: blockedExpense() } };
+
+/** A deferred deduction offers to come back on the CA3 instead. */
+export const Deferred: Story = { args: { expense: deferredExpense() } };
+
+/** Reverse-charged, exempt, deducted or under the franchise: nothing moves. */
+export const WithoutMovableVat: Story = { args: { canMoveVat: false } };

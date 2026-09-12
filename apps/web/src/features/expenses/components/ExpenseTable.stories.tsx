@@ -17,11 +17,15 @@ const meta = {
     month,
     expenses: month.expenses,
     unit: "ht",
+    selectedIds: new Set<number>(),
+    onToggleSelected: () => {},
     uploadingExpenseId: null,
     onAttachReceipt: () => {},
     onDetachReceipt: () => {},
     onEdit: () => {},
     onDuplicate: () => {},
+    onDeferVat: () => {},
+    onReintegrateVat: () => {},
     onDelete: () => {},
   },
   decorators: [
@@ -47,3 +51,5 @@ export const Declared: Story = {
 };
 
 export const Uploading: Story = { args: { uploadingExpenseId: 2 } };
+
+export const Selected: Story = { args: { selectedIds: new Set([1, 3]) } };
