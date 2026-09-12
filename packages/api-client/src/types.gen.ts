@@ -156,6 +156,23 @@ export type BankStatementData = {
 export type BillingMode = 0 | 1 | 2;
 
 /**
+ * Ca3BoxesData
+ */
+export type Ca3BoxesData = {
+    salesHt: MoneyData;
+    intraCommunityPurchasesHt: MoneyData;
+    nonEuPurchasesHt: MoneyData;
+    taxableBase: MoneyData;
+    collected: MoneyData;
+    fixedAssets: MoneyData;
+    goodsAndServices: MoneyData;
+    otherDeductible: MoneyData;
+    creditCarried: MoneyData;
+    credit: MoneyData;
+    due: MoneyData;
+};
+
+/**
  * CalendarFeedData
  */
 export type CalendarFeedData = {
@@ -534,9 +551,28 @@ export type DeadlineReminderData = {
 };
 
 /**
+ * DeclarationCompletionData
+ */
+export type DeclarationCompletionData = {
+    declaredOn: string;
+};
+
+/**
+ * DeclarationDeadlineData
+ */
+export type DeclarationDeadlineData = {
+    dueOn: string;
+    daysLeft: number;
+};
+
+/**
  * DeclarationsData
  */
 export type DeclarationsData = {
+    period: string;
+    previousPeriod: string;
+    nextPeriod: string | null;
+    isDefault: boolean;
     urssaf: UrssafDeclarationData | null;
     vat: VatDeclarationData | null;
 };
@@ -1796,7 +1832,11 @@ export type UploadSignedCraData = {
 export type UrssafDeclarationData = {
     period: string;
     periodicity: UrssafPeriodicity;
+    coversShownMonth: boolean;
     base: MoneyData;
+    invoiceCount: number;
+    deadline: DeclarationDeadlineData | null;
+    completion: DeclarationCompletionData | null;
 };
 
 /**
@@ -1835,6 +1875,13 @@ export type VatDeclarationData = {
     salesHt: MoneyData;
     collected: MoneyData;
     rateBp: number | null;
+    boxes: Ca3BoxesData;
+    invoiceCount: number;
+    expenseCount: number;
+    reverseChargedVat: MoneyData;
+    creditIsRefundable: boolean;
+    deadline: DeclarationDeadlineData | null;
+    completion: DeclarationCompletionData | null;
 };
 
 /**
@@ -3701,7 +3748,9 @@ export type ShowDeadlineCalendarResponse = ShowDeadlineCalendarResponses[keyof S
 export type ShowDeclarationsData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        period?: string | null;
+    };
     url: '/declarations';
 };
 
@@ -3714,6 +3763,21 @@ export type ShowDeclarationsErrors = {
          * Error overview.
          */
         message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
     };
 };
 

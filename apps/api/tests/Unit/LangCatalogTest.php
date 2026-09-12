@@ -44,6 +44,7 @@ function requestDataFields(): array
         'CalendarFeedData', 'DeadlineBoardData', 'DeadlineInvoiceData',
         'DeadlineItemData', 'DeadlineReminderData', 'FiscalDeadlineData',
         'DeclarationsData', 'UrssafDeclarationData', 'VatDeclarationData',
+        'Ca3BoxesData', 'DeclarationDeadlineData', 'DeclarationCompletionData',
         'ExpenseData', 'ExpensesMonthData', 'ExpensesTotalsData',
         'ExpenseCategoryTotalData', 'ExpenseMonthPointData', 'ExpenseRegimeProjectionData',
         'ExpenseReceiptData', 'ExpensesVatSummaryData',

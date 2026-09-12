@@ -309,6 +309,21 @@ export const zDeadlineItemType = z.union([
 ]);
 
 /**
+ * DeclarationCompletionData
+ */
+export const zDeclarationCompletionData = z.object({
+    declaredOn: z.iso.date()
+});
+
+/**
+ * DeclarationDeadlineData
+ */
+export const zDeclarationDeadlineData = z.object({
+    dueOn: z.iso.date(),
+    daysLeft: z.int()
+});
+
+/**
  * DocumentCategory
  *
  * | |
@@ -744,6 +759,23 @@ export const zBankProvisionsData = z.object({
     cfe: z.nullable(zBankProvisionData),
     buffer: z.nullable(zMoneyData),
     total: zMoneyData
+});
+
+/**
+ * Ca3BoxesData
+ */
+export const zCa3BoxesData = z.object({
+    salesHt: zMoneyData,
+    intraCommunityPurchasesHt: zMoneyData,
+    nonEuPurchasesHt: zMoneyData,
+    taxableBase: zMoneyData,
+    collected: zMoneyData,
+    fixedAssets: zMoneyData,
+    goodsAndServices: zMoneyData,
+    otherDeductible: zMoneyData,
+    creditCarried: zMoneyData,
+    credit: zMoneyData,
+    due: zMoneyData
 });
 
 /**
@@ -1809,7 +1841,11 @@ export const zUrssafPeriodicity = z.union([z.literal(0), z.literal(1)]);
 export const zUrssafDeclarationData = z.object({
     period: z.string(),
     periodicity: zUrssafPeriodicity,
-    base: zMoneyData
+    coversShownMonth: z.boolean(),
+    base: zMoneyData,
+    invoiceCount: z.int(),
+    deadline: z.nullable(zDeclarationDeadlineData),
+    completion: z.nullable(zDeclarationCompletionData)
 });
 
 /**
@@ -1947,13 +1983,24 @@ export const zVatDeclarationData = z.object({
     regime: zVatRegime,
     salesHt: zMoneyData,
     collected: zMoneyData,
-    rateBp: z.nullable(z.int())
+    rateBp: z.nullable(z.int()),
+    boxes: zCa3BoxesData,
+    invoiceCount: z.int(),
+    expenseCount: z.int(),
+    reverseChargedVat: zMoneyData,
+    creditIsRefundable: z.boolean(),
+    deadline: z.nullable(zDeclarationDeadlineData),
+    completion: z.nullable(zDeclarationCompletionData)
 });
 
 /**
  * DeclarationsData
  */
 export const zDeclarationsData = z.object({
+    period: z.string(),
+    previousPeriod: z.string(),
+    nextPeriod: z.nullable(z.string()),
+    isDefault: z.boolean(),
     urssaf: z.nullable(zUrssafDeclarationData),
     vat: z.nullable(zVatDeclarationData)
 });
@@ -2244,6 +2291,10 @@ export const zShowDeadlineCalendarPath = z.object({
 });
 
 export const zShowDeadlineCalendarResponse = z.string();
+
+export const zShowDeclarationsQuery = z.object({
+    period: z.nullish(z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/)))
+});
 
 export const zShowDeclarationsResponse = zDeclarationsData;
 

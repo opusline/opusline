@@ -12,9 +12,9 @@ use App\Domain\Expenses\Data\ExpensesMonthData;
 use App\Domain\Expenses\Data\ExpensesTotalsData;
 use App\Domain\Expenses\Data\ExpensesVatSummaryData;
 use App\Domain\Expenses\Enums\ExpenseCategory;
-use App\Domain\Expenses\Enums\ExpenseVatStatus;
 use App\Domain\Expenses\Models\Expense;
 use App\Domain\Expenses\Vat\DeclaredCa3Months;
+use App\Domain\Expenses\Vat\DeductibleExpenses;
 use App\Domain\Invoices\Revenue\CollectedInvoices;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Data\SignedMoneyData;
@@ -74,7 +74,7 @@ class ListExpenses
             month: $monthKey,
             declaredOn: $declared?->declaredOn($monthKey),
             vat: $declared instanceof DeclaredCa3Months
-                ? $this->vat($rows, $monthKey, $declared, $collected->vatCents($monthStart, $monthEnd), $currency)
+                ? $this->vat(new DeductibleExpenses($rows, $declared), $monthKey, $collected->vatCents($monthStart, $monthEnd), $currency)
                 : null,
             totals: new ExpensesTotalsData(ht: $shown->ht, ttc: $shown->ttc, count: $expenses->count()),
             categories: $this->categories($expenses, $currency),
@@ -90,46 +90,24 @@ class ListExpenses
     }
 
     /**
-     * @param  Collection<int, Expense>  $rows  the month's purchases and the rows claimed on its CA3
+     * The month's TVA as its CA3 will show it, read from the same reducer the
+     * Déclarations screen uses so the two never round differently.
+     *
      * @param  int  $collected  TVA collected on the invoices paid that month
      */
-    private function vat(Collection $rows, string $month, DeclaredCa3Months $declared, int $collected, string $currency): ExpensesVatSummaryData
+    private function vat(DeductibleExpenses $expenses, string $month, int $collected, string $currency): ExpensesVatSummaryData
     {
-        $deductible = $blocked = $reverseCharged = $deferred = 0;
-        $blockedCount = 0;
-
-        foreach ($rows as $expense) {
-            $status = $expense->vatStatus($declared);
-            $amounts = $expense->amounts();
-            $recoverable = (int) $amounts->recoverableVat($expense->pro_share_bp)->getAmount();
-            $inMonth = $expense->month() === $month;
-
-            if ($status->isClaimed() && $expense->vat_claim_period === $month) {
-                $deductible += $recoverable;
-            }
-
-            if ($inMonth && $status === ExpenseVatStatus::Blocked) {
-                $blocked += $recoverable;
-                $blockedCount++;
-            }
-
-            if ($inMonth && $status === ExpenseVatStatus::ReverseCharged) {
-                $reverseCharged += (int) $amounts->assessedVat()->getAmount();
-            }
-
-            if ($inMonth && $status === ExpenseVatStatus::Deferred) {
-                $deferred += $recoverable;
-            }
-        }
+        $deductible = $expenses->goodsAndServicesVatCents($month) + $expenses->otherDeductibleVatCents($month);
+        $reverseCharged = $expenses->reverseChargeVatCents($month);
 
         return new ExpensesVatSummaryData(
             deductible: MoneyData::fromMoney(new Money($deductible, $currency)),
-            blocked: MoneyData::fromMoney(new Money($blocked, $currency)),
-            blockedCount: $blockedCount,
+            blocked: MoneyData::fromMoney(new Money($expenses->blockedVatCents($month), $currency)),
+            blockedCount: $expenses->blockedCount($month),
             reverseCharged: MoneyData::fromMoney(new Money($reverseCharged, $currency)),
-            deferred: MoneyData::fromMoney(new Money($deferred, $currency)),
+            deferred: MoneyData::fromMoney(new Money($expenses->deferredVatCents($month), $currency)),
             collected: MoneyData::fromMoney(new Money($collected, $currency)),
-            balance: SignedMoneyData::fromMoney(new Money($collected - $deductible, $currency)),
+            balance: SignedMoneyData::fromMoney(new Money($collected + $reverseCharged - $deductible, $currency)),
         );
     }
 

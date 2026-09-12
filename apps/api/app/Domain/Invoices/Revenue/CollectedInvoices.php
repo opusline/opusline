@@ -65,6 +65,12 @@ final readonly class CollectedInvoices
         return $this->sumBetween($from, $to, 'vat');
     }
 
+    /** How many invoices were collected in the window — the caption under the figure. */
+    public function countBetween(CarbonImmutable $from, CarbonImmutable $to): int
+    {
+        return count($this->rowsBetween($from, $to));
+    }
+
     /** The HT actually collected in the window — the URSSAF declaration's base. */
     public function htCents(CarbonImmutable $from, CarbonImmutable $to): int
     {
@@ -90,17 +96,7 @@ final readonly class CollectedInvoices
      */
     public function uniqueRateBp(CarbonImmutable $from, CarbonImmutable $to, int $default): ?int
     {
-        $fromDate = $from->toDateString();
-        $toDate = $to->toDateString();
-        $rates = [];
-
-        foreach ($this->collected as $row) {
-            if ($row['date'] >= $fromDate && $row['date'] <= $toDate) {
-                $rates[] = $row['rateBp'];
-            }
-        }
-
-        return self::consensusRateBp($rates, $default);
+        return self::consensusRateBp(array_column($this->rowsBetween($from, $to), 'rateBp'), $default);
     }
 
     /**
@@ -163,16 +159,20 @@ final readonly class CollectedInvoices
      */
     private function sumBetween(CarbonImmutable $from, CarbonImmutable $to, string $component): int
     {
+        return array_sum(array_column($this->rowsBetween($from, $to), $component));
+    }
+
+    /**
+     * @return list<CollectedRow>
+     */
+    private function rowsBetween(CarbonImmutable $from, CarbonImmutable $to): array
+    {
         $fromDate = $from->toDateString();
         $toDate = $to->toDateString();
-        $total = 0;
 
-        foreach ($this->collected as $row) {
-            if ($row['date'] >= $fromDate && $row['date'] <= $toDate) {
-                $total += $row[$component];
-            }
-        }
-
-        return $total;
+        return array_values(array_filter(
+            $this->collected,
+            static fn (array $row): bool => $row['date'] >= $fromDate && $row['date'] <= $toDate,
+        ));
     }
 }
