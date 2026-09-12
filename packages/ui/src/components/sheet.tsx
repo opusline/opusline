@@ -129,14 +129,26 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function SheetTitle({ className, ...props }: SheetPrimitive.Title.Props) {
+const sheetTitleVariants = cva("font-heading font-medium text-foreground", {
+  variants: {
+    size: {
+      default: "text-sm",
+      /** A sheet that is a page of its own — a form, a document — titles like one. */
+      lg: "font-semibold text-xl text-foreground-hi",
+    },
+  },
+  defaultVariants: { size: "default" },
+});
+
+function SheetTitle({
+  className,
+  size,
+  ...props
+}: SheetPrimitive.Title.Props & VariantProps<typeof sheetTitleVariants>) {
   return (
     <SheetPrimitive.Title
       data-slot="sheet-title"
-      className={cn(
-        "font-heading text-sm font-medium text-foreground",
-        className,
-      )}
+      className={cn(sheetTitleVariants({ size }), className)}
       {...props}
     />
   );

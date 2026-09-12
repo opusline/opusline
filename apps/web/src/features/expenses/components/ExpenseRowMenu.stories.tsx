@@ -10,6 +10,8 @@ const meta = {
   args: {
     expense: expense(),
     onDetachReceipt: () => {},
+    onEdit: () => {},
+    onDuplicate: () => {},
     onDelete: () => {},
     className: "opacity-100",
   },

@@ -22,6 +22,8 @@ const meta = {
     uploadingExpenseId: null,
     onAttachReceipt: () => {},
     onDetachReceipt: () => {},
+    onEdit: () => {},
+    onDuplicate: () => {},
     onDelete: () => {},
   },
   decorators: [

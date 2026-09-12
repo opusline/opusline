@@ -52,7 +52,7 @@ export const Sizes: Story = {
         />
         <SheetContent size="md">
           <SheetHeader>
-            <SheetTitle>Ajouter une dépense</SheetTitle>
+            <SheetTitle size="lg">Ajouter une dépense</SheetTitle>
             <SheetDescription>
               Un panneau de 30 rem pour un formulaire.
             </SheetDescription>

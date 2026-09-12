@@ -54,6 +54,8 @@ const meta = {
         onAttachReceipt={() => {}}
         onDelete={() => {}}
         onDetachReceipt={() => {}}
+        onDuplicate={() => {}}
+        onEdit={() => {}}
         unit="ht"
         uploadingExpenseId={null}
       />
