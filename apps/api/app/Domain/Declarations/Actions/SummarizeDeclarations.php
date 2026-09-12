@@ -12,6 +12,9 @@ use App\Domain\Declarations\Data\Ca3BoxesData;
 use App\Domain\Declarations\Data\ContributionLineData;
 use App\Domain\Declarations\Data\DeclarationCompletionData;
 use App\Domain\Declarations\Data\DeclarationDeadlineData;
+use App\Domain\Declarations\Data\DeclarationHistoryRowData;
+use App\Domain\Declarations\Data\DeclarationHistoryUrssafData;
+use App\Domain\Declarations\Data\DeclarationHistoryVatData;
 use App\Domain\Declarations\Data\DeclarationsData;
 use App\Domain\Declarations\Data\RevenueCeilingData;
 use App\Domain\Declarations\Data\SummarizeDeclarationsData;
@@ -31,7 +34,9 @@ use App\Domain\Shared\Money\Rate;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
+use Closure;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -47,6 +52,8 @@ use Illuminate\Validation\ValidationException;
  */
 class SummarizeDeclarations
 {
+    private const int HISTORY_MONTHS = 6;
+
     public function __construct(private readonly GenerateFiscalDeadlines $generateFiscalDeadlines) {}
 
     /**
@@ -60,34 +67,46 @@ class SummarizeDeclarations
         $monthStart = $data->period === null
             ? $currentMonth->subMonth()
             : CarbonImmutable::parse($data->period.'-01');
+        $monthEnd = $monthStart->endOfMonth();
 
         if ($monthStart->greaterThanOrEqualTo($currentMonth)) {
             throw ValidationException::withMessages(['period' => __('declarations.future_period')]);
         }
 
         $urssaf = $vat = $cumulative = null;
+        $history = [];
 
         if ($settings->hasFrenchFiscality()) {
             $completions = $user->fiscalDeadlineCompletions()->get();
             $declared = DeclaredCa3Months::fromCompletions($completions);
+            $historyStart = $monthStart->subMonths(self::HISTORY_MONTHS - 1);
             $urssafPeriod = $this->urssafPeriod($settings, $monthStart, $currentMonth);
+            $earliestUrssafPeriod = $this->urssafPeriod($settings, $historyStart, $currentMonth);
             $chainStart = $settings->filesMonthlyCa3() ? $this->chainStart($user, $settings, $declared, $monthStart) : null;
             $collected = CollectedInvoices::paidBetween(
                 $user,
-                min($urssafPeriod['start'], $monthStart->startOfYear(), $chainStart ?? $monthStart),
-                max($urssafPeriod['end'], $monthStart->endOfMonth()),
+                min($earliestUrssafPeriod['start'], $monthStart->startOfYear(), $chainStart ?? $historyStart, $historyStart),
+                max($urssafPeriod['end'], $monthEnd),
             );
             $deadlines = $this->generateFiscalDeadlines->handle(
                 $settings,
                 min($monthStart, $urssafPeriod['start']),
-                max($monthStart->endOfMonth(), $urssafPeriod['end'])->addMonths(2)->endOfMonth(),
+                max($monthEnd, $urssafPeriod['end'])->addMonths(2)->endOfMonth(),
             );
+            $chain = $chainStart instanceof CarbonImmutable
+                ? new Ca3Chain(
+                    $collected,
+                    DeductibleExpenses::spentOrClaimedBetween($user, min($chainStart, $historyStart), $monthEnd, $declared),
+                    $chainStart,
+                )
+                : null;
 
             $urssaf = $this->urssaf($settings, $collected, $urssafPeriod, $monthStart, $deadlines, $completions, $today);
-            $vat = $chainStart instanceof CarbonImmutable
-                ? $this->vat($user, $settings, $collected, $declared, $chainStart, $monthStart, $deadlines, $today)
+            $vat = $chain instanceof Ca3Chain
+                ? $this->vat($settings, $collected, $chain, $monthStart, $deadlines, $completions, $today)
                 : null;
             $cumulative = $this->cumulative($settings, $collected, $monthStart);
+            $history = $this->history($settings, $collected, $chain, $completions, $monthStart, $currentMonth);
         }
 
         $next = $monthStart->addMonth();
@@ -100,7 +119,23 @@ class SummarizeDeclarations
             urssaf: $urssaf,
             vat: $vat,
             cumulative: $cumulative,
+            history: $history,
         );
+    }
+
+    /**
+     * The screen after a tick, in the same transaction as the tick: the
+     * screen refuses the running month, and a 422 must mean nothing happened.
+     *
+     * @throws ValidationException for the running month or a later one
+     */
+    public function handleAfter(User $user, SummarizeDeclarationsData $data, Closure $write): DeclarationsData
+    {
+        return DB::transaction(function () use ($user, $data, $write): DeclarationsData {
+            $write();
+
+            return $this->handle($user, $data);
+        });
     }
 
     /**
@@ -182,7 +217,7 @@ class SummarizeDeclarations
             fn (FiscalDeadlineCompletion $completion): bool => $completion->kind === $kind && $completion->period_key === $periodKey,
         );
 
-        return DeclarationCompletionData::on($completion?->completed_on);
+        return DeclarationCompletionData::fromCompletion($completion);
     }
 
     /**
@@ -231,22 +266,22 @@ class SummarizeDeclarations
 
     /**
      * @param  list<FiscalDeadline>  $deadlines
+     * @param  Collection<int, FiscalDeadlineCompletion>  $completions
      */
     private function vat(
-        User $user,
         UserSettings $settings,
         CollectedInvoices $collected,
-        DeclaredCa3Months $declared,
-        CarbonImmutable $chainStart,
+        Ca3Chain $chain,
         CarbonImmutable $monthStart,
         array $deadlines,
+        Collection $completions,
         CarbonImmutable $today,
     ): VatDeclarationData {
         $month = FiscalDeadline::monthKey($monthStart);
         $monthEnd = $monthStart->endOfMonth();
         $currency = $settings->currency->value;
-        $expenses = DeductibleExpenses::spentOrClaimedBetween($user, $chainStart, $monthEnd, $declared);
-        $boxes = new Ca3Chain($collected, $expenses, $chainStart)->boxes($monthStart);
+        $expenses = $chain->expenses;
+        $boxes = $chain->boxes($monthStart);
 
         return new VatDeclarationData(
             period: $month,
@@ -260,7 +295,60 @@ class SummarizeDeclarations
             reverseChargedVat: MoneyData::fromMoney(new Money($expenses->reverseChargeVatCents($month), $currency)),
             creditIsRefundable: $boxes->creditIsRefundable(),
             deadline: $this->deadline($deadlines, FiscalDeadlineKind::VatCa3, $month, $today),
-            completion: DeclarationCompletionData::on($declared->declaredOn($month)),
+            completion: $this->completion($completions, FiscalDeadlineKind::VatCa3, $month),
         );
+    }
+
+    /**
+     * A month before the chain's anchor is read the way the screen would show
+     * it: as a chain of its own, nothing carried in — the anchor rule is about
+     * what the fisc holds, and no month before the first return can say.
+     *
+     * @param  Collection<int, FiscalDeadlineCompletion>  $completions
+     * @return list<DeclarationHistoryRowData>
+     */
+    private function history(
+        UserSettings $settings,
+        CollectedInvoices $collected,
+        ?Ca3Chain $chain,
+        Collection $completions,
+        CarbonImmutable $monthStart,
+        CarbonImmutable $currentMonth,
+    ): array {
+        $currency = $settings->currency->value;
+        $startedOn = $settings->business_started_on;
+        $rows = [];
+
+        for ($offset = 0; $offset < self::HISTORY_MONTHS; $offset++) {
+            $month = $monthStart->subMonths($offset);
+            $period = $this->urssafPeriod($settings, $month, $currentMonth);
+            $existed = ! $startedOn instanceof CarbonImmutable || $month->endOfMonth()->greaterThanOrEqualTo($startedOn);
+            $urssaf = null;
+            $vat = null;
+
+            if ($existed && $month->betweenIncluded($period['start'], $period['end'])) {
+                $base = new Money($collected->htCents($period['start'], $period['end']), $currency);
+                $urssaf = new DeclarationHistoryUrssafData(
+                    period: $period['key'],
+                    total: MoneyData::fromMoney($settings->urssafContributionsOn($base)),
+                    completion: $this->completion($completions, FiscalDeadlineKind::UrssafDeclaration, $period['key']),
+                );
+            }
+
+            if ($existed && $chain instanceof Ca3Chain) {
+                $boxes = $month->lessThan($chain->firstMonth)
+                    ? new Ca3Chain($collected, $chain->expenses, $month)->boxes($month)
+                    : $chain->boxes($month);
+                $vat = new DeclarationHistoryVatData(
+                    due: MoneyData::fromMoney(new Money($boxes->due, $currency)),
+                    credit: MoneyData::fromMoney(new Money($boxes->credit, $currency)),
+                    completion: $this->completion($completions, FiscalDeadlineKind::VatCa3, FiscalDeadline::monthKey($month)),
+                );
+            }
+
+            $rows[] = new DeclarationHistoryRowData(period: FiscalDeadline::monthKey($month), urssaf: $urssaf, vat: $vat);
+        }
+
+        return $rows;
     }
 }
