@@ -444,6 +444,15 @@ export const zExpenseCategory = z.union([
 ]);
 
 /**
+ * ExpenseReceiptData
+ */
+export const zExpenseReceiptData = z.object({
+    id: z.int(),
+    fileName: z.string(),
+    sizeBytes: z.int()
+});
+
+/**
  * ExpenseVatTreatment
  *
  * How the TVA on a purchase reaches the CA3. The receipt decides, never the supplier's country: a foreign SaaS billing through a European entity with 20 % on the invoice is Domestic.
@@ -768,7 +777,8 @@ export const zExpenseData = z.object({
     recoverableVat: zMoneyData,
     vatTreatment: zExpenseVatTreatment,
     vatRateBp: z.int(),
-    proShareBp: z.int()
+    proShareBp: z.int(),
+    receipt: z.nullable(zExpenseReceiptData)
 });
 
 /**
@@ -1713,6 +1723,13 @@ export const zUploadDocumentData = z.object({
 });
 
 /**
+ * UploadExpenseReceiptData
+ */
+export const zUploadExpenseReceiptData = z.object({
+    file: z.string()
+});
+
+/**
  * UploadInvoiceDocumentData
  */
 export const zUploadInvoiceDocumentData = z.object({
@@ -2215,6 +2232,26 @@ export const zUpdateExpensePath = z.object({
 });
 
 export const zUpdateExpenseResponse = zExpensesMonthData;
+
+export const zDetachExpenseReceiptPath = z.object({
+    expense: z.int()
+});
+
+export const zDetachExpenseReceiptResponse = zExpensesMonthData;
+
+export const zDownloadExpenseReceiptPath = z.object({
+    expense: z.int()
+});
+
+export const zDownloadExpenseReceiptResponse = z.string();
+
+export const zAttachExpenseReceiptBody = zUploadExpenseReceiptData;
+
+export const zAttachExpenseReceiptPath = z.object({
+    expense: z.int()
+});
+
+export const zAttachExpenseReceiptResponse = zExpensesMonthData;
 
 export const zShowInstanceResponse = zInstanceData;
 

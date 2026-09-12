@@ -2207,6 +2207,135 @@
                 }
             }
         },
+        "/expenses/{expense}/receipt": {
+            "post": {
+                "operationId": "attachExpenseReceipt",
+                "tags": [
+                    "ExpenseReceipt"
+                ],
+                "parameters": [
+                    {
+                        "name": "expense",
+                        "in": "path",
+                        "required": true,
+                        "description": "The expense ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UploadExpenseReceiptData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensesMonthData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "get": {
+                "operationId": "downloadExpenseReceipt",
+                "tags": [
+                    "ExpenseReceipt"
+                ],
+                "parameters": [
+                    {
+                        "name": "expense",
+                        "in": "path",
+                        "required": true,
+                        "description": "The expense ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Transfer-Encoding": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "chunked"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "detachExpenseReceipt",
+                "tags": [
+                    "ExpenseReceipt"
+                ],
+                "parameters": [
+                    {
+                        "name": "expense",
+                        "in": "path",
+                        "required": true,
+                        "description": "The expense ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensesMonthData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/instance": {
             "get": {
                 "operationId": "showInstance",
@@ -7294,6 +7423,16 @@
                     },
                     "proShareBp": {
                         "type": "integer"
+                    },
+                    "receipt": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpenseReceiptData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -7308,7 +7447,8 @@
                     "recoverableVat",
                     "vatTreatment",
                     "vatRateBp",
-                    "proShareBp"
+                    "proShareBp",
+                    "receipt"
                 ],
                 "title": "ExpenseData"
             },
@@ -7394,6 +7534,26 @@
                     "ttc"
                 ],
                 "title": "ExpenseMonthPointData"
+            },
+            "ExpenseReceiptData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "fileName": {
+                        "type": "string"
+                    },
+                    "sizeBytes": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "id",
+                    "fileName",
+                    "sizeBytes"
+                ],
+                "title": "ExpenseReceiptData"
             },
             "ExpenseRegimeProjectionData": {
                 "type": "object",
@@ -10686,6 +10846,21 @@
                     "file"
                 ],
                 "title": "UploadDocumentData"
+            },
+            "UploadExpenseReceiptData": {
+                "type": "object",
+                "properties": {
+                    "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "contentMediaType": "application/octet-stream",
+                        "description": "Maximum file size: 20480 kilobytes."
+                    }
+                },
+                "required": [
+                    "file"
+                ],
+                "title": "UploadExpenseReceiptData"
             },
             "UploadInvoiceDocumentData": {
                 "type": "object",

@@ -46,6 +46,7 @@ function requestDataFields(): array
         'DeclarationsData', 'UrssafDeclarationData', 'VatDeclarationData',
         'ExpenseData', 'ExpensesMonthData', 'ExpensesTotalsData',
         'ExpenseCategoryTotalData', 'ExpenseMonthPointData', 'ExpenseRegimeProjectionData',
+        'ExpenseReceiptData',
         'ClientData', 'ClientListData', 'ClientRevenueData',
         'ClientRevenueDetailData', 'ClientRevenueListData',
         'ClientWithMissionsData',

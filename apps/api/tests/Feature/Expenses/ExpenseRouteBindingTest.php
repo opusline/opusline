@@ -17,4 +17,7 @@ test('every expense route answers 404 for another account expense', function (st
 })->with([
     'update' => ['PUT', '/api/expenses/{expense}'],
     'delete' => ['DELETE', '/api/expenses/{expense}'],
+    'attach receipt' => ['POST', '/api/expenses/{expense}/receipt'],
+    'download receipt' => ['GET', '/api/expenses/{expense}/receipt'],
+    'detach receipt' => ['DELETE', '/api/expenses/{expense}/receipt'],
 ]);

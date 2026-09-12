@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Expenses\Controllers\ExpenseController;
+use App\Http\Expenses\Controllers\ExpenseReceiptController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function (): void {
@@ -24,4 +25,17 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])
         ->whereNumber('expense')
         ->name('deleteExpense');
+
+    Route::post('/expenses/{expense}/receipt', [ExpenseReceiptController::class, 'store'])
+        ->whereNumber('expense')
+        ->middleware('throttle:uploads')
+        ->name('attachExpenseReceipt');
+
+    Route::get('/expenses/{expense}/receipt', [ExpenseReceiptController::class, 'show'])
+        ->whereNumber('expense')
+        ->name('downloadExpenseReceipt');
+
+    Route::delete('/expenses/{expense}/receipt', [ExpenseReceiptController::class, 'destroy'])
+        ->whereNumber('expense')
+        ->name('detachExpenseReceipt');
 });
