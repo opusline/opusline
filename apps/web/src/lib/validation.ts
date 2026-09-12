@@ -39,9 +39,12 @@ export function serverRequest(
   return null;
 }
 
-/** Whether a thrown value is a refused request rather than a crash. */
+/**
+ * Whether a thrown value is a refused request rather than a crash: the whole
+ * stamp must be there, so an unrelated `{ status: 500 }` is not mistaken for one.
+ */
 export function isApiClientError(error: unknown): boolean {
-  return serverStatus(error) !== null;
+  return serverStatus(error) !== null && serverRequest(error) !== null;
 }
 
 /**

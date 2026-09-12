@@ -27,7 +27,10 @@ return [
     // all. Profiling stays off — the image ships no excimer extension.
     'traces_sample_rate' => (float) env('SENTRY_TRACES_SAMPLE_RATE', 1.0),
 
+    // Request bodies carry passwords and invoice figures; nothing in an
+    // event needs them.
     'send_default_pii' => false,
+    'max_request_body_size' => 'never',
 
     // Probes read nothing, and the SPA pings on every boot: not worth a trace.
     'ignore_transactions' => [

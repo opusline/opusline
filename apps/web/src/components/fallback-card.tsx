@@ -26,7 +26,7 @@ export function FallbackCard({
         <CardTitle>{title}</CardTitle>
         <CardDescription>{hint}</CardDescription>
       </CardHeader>
-      <CardContent className="flex gap-2">{children}</CardContent>
+      <CardContent className="flex flex-wrap gap-2">{children}</CardContent>
     </Card>
   );
 }

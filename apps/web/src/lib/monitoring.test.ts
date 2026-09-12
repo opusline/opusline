@@ -80,9 +80,23 @@ describe("reportError", () => {
     const monitoring = await freshMonitoring();
     await monitoring.startMonitoring(config, router);
 
-    monitoring.reportError({ message: "Server Error", status: 503 });
+    monitoring.reportError({
+      message: "Server Error",
+      status: 503,
+      method: "GET",
+      route: "/clients",
+    });
 
     expect(sentry.captureException).not.toHaveBeenCalled();
+  });
+
+  it("still reports an unrelated error that merely carries a status", async () => {
+    const monitoring = await freshMonitoring();
+    await monitoring.startMonitoring(config, router);
+
+    monitoring.reportError({ status: 500 });
+
+    expect(sentry.captureException).toHaveBeenCalledOnce();
   });
 });
 

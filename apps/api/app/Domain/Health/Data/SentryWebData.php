@@ -14,7 +14,11 @@ class SentryWebData extends Data
         public float $tracesSampleRate,
     ) {}
 
-    /** Null when the instance has no browser DSN: the SPA then loads no Sentry at all. */
+    /**
+     * Null when the instance has no browser DSN: the SPA then loads no Sentry
+     * at all. The environment falls back to APP_ENV exactly as the PHP SDK
+     * does, so both halves of one instance land in one Sentry environment.
+     */
     public static function fromConfig(): ?self
     {
         $dsn = config('services.sentry.web_dsn');
@@ -27,8 +31,6 @@ class SentryWebData extends Data
 
         return new self(
             dsn: $dsn,
-            // The same fallback the PHP SDK applies, so both halves of one
-            // instance land in one Sentry environment.
             environment: is_string($environment) && $environment !== '' ? $environment : app()->environment(),
             tracesSampleRate: config()->float('services.sentry.web_traces_sample_rate'),
         );

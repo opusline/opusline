@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Sentry\Laravel\Integration;
+use Sentry\Laravel\Integration\ModelViolations\LazyLoadingModelViolationReporter;
 use Spatie\LaravelData\Data;
 
 class AppServiceProvider extends ServiceProvider
@@ -41,6 +42,14 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(RelyingParty::class, fn (): RelyingParty => RelyingParty::fromConfig());
         $this->app->bind(PasskeyCeremony::class, WebauthnLibCeremony::class);
+
+        // Scoped, so the reporter's "already reported" memory is per request
+        // under Octane rather than per worker. Sent at once rather than after
+        // the response: a queue job has no response to wait for.
+        $this->app->scoped(
+            LazyLoadingModelViolationReporter::class,
+            fn (): callable => Integration::lazyLoadingViolationReporter(reportAfterResponse: false),
+        );
     }
 
     /**
@@ -56,15 +65,14 @@ class AppServiceProvider extends ServiceProvider
         // in production Sentry's reporter takes it and the relation still
         // loads. Laravel skips its own "new or unsaved model" guard once a
         // handler is registered, hence the copy.
-        $lazyLoadReporter = Integration::lazyLoadingViolationReporter();
         Model::preventLazyLoading();
-        Model::handleLazyLoadingViolationUsing(function (Model $model, string $relation) use ($lazyLoadReporter): void {
+        Model::handleLazyLoadingViolationUsing(function (Model $model, string $relation): void {
             if (! $model->exists || $model->wasRecentlyCreated) {
                 return;
             }
 
             if ($this->app->isProduction()) {
-                $lazyLoadReporter($model, $relation);
+                $this->app->make(LazyLoadingModelViolationReporter::class)($model, $relation);
 
                 return;
             }
