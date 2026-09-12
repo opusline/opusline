@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.26.0](https://github.com/opusline/opusline/compare/v0.25.0...v0.26.0) (2026-09-12)
+
+
+### Features
+
+* **repo:** report errors and traces to sentry ([#352](https://github.com/opusline/opusline/issues/352)) ([475f70c](https://github.com/opusline/opusline/commit/475f70c0baaefe5d0f429a88854043c2855af1ff))
+
 ## [0.25.0](https://github.com/opusline/opusline/compare/v0.24.0...v0.25.0) (2026-09-11)
 
 
