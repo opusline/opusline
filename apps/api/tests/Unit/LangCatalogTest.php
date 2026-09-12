@@ -47,6 +47,7 @@ function requestDataFields(): array
         'Ca3BoxesData', 'DeclarationDeadlineData', 'DeclarationCompletionData',
         'ContributionLineData', 'RevenueCeilingData',
         'DeclarationHistoryRowData', 'DeclarationHistoryUrssafData', 'DeclarationHistoryVatData',
+        'DeclarationSettlementData',
         'ExpenseData', 'ExpensesMonthData', 'ExpensesTotalsData',
         'ExpenseCategoryTotalData', 'ExpenseMonthPointData', 'ExpenseRegimeProjectionData',
         'ExpenseReceiptData', 'ExpensesVatSummaryData',

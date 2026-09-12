@@ -6,7 +6,6 @@ use App\Domain\Bank\Factories\BankMovementFactory;
 use App\Domain\Expenses\Factories\ExpenseFactory;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Facades\DB;
 
 beforeEach(fn () => freezeTodayAtUtcNoon());
 
@@ -17,19 +16,6 @@ beforeEach(fn () => freezeTodayAtUtcNoon());
  * (an N+1, or a hydrate-everything rewrite) blows past them immediately, while
  * an honest new feature costing a couple of fixed queries only nudges them.
  */
-function queriesDuring(callable $request): int
-{
-    $count = 0;
-
-    DB::listen(function () use (&$count): void {
-        $count++;
-    });
-
-    $request();
-
-    return $count;
-}
-
 /** Thirty movements across July — enough for any per-row regression to blow a ceiling. */
 function accountWithThirtyMovements(User $user, string $kind): void
 {
@@ -43,7 +29,7 @@ function accountWithThirtyMovements(User $user, string $kind): void
 }
 
 test('the bank summary runs a bounded number of queries', function (): void {
-    $user = User::factory()->create();
+    $user = vatLiableUser();
     $user->settings()->sole()->update([
         'bank_balance_cents' => 1_000_000,
         'bank_balance_recorded_on' => '2026-08-13',
@@ -52,7 +38,9 @@ test('the bank summary runs a bounded number of queries', function (): void {
 
     $queries = queriesDuring(fn () => test()->actingAs($user)->getJson('/api/bank')->assertOk());
 
-    expect($queries)->toBeLessThanOrEqual(20);
+    // The réel normal provision walks the CA3 chain: completions, the chain
+    // anchor, the purchases and their receipts, on top of the account itself.
+    expect($queries)->toBeLessThanOrEqual(25);
 });
 
 test('the bank movements page runs a bounded number of queries', function (): void {
@@ -79,6 +67,8 @@ test('the expenses journal runs a bounded number of queries', function (): void 
 
 test('the declarations screen runs a bounded number of queries', function (): void {
     $user = vatLiableUser();
+    $user->settings()->sole()->update(['bank_balance_cents' => 1_000_000, 'bank_balance_recorded_on' => '2026-08-13']);
+    accountWithThirtyMovements($user, 'debit');
 
     foreach (range(1, 30) as $day) {
         expenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory
@@ -87,7 +77,7 @@ test('the declarations screen runs a bounded number of queries', function (): vo
 
     $queries = queriesDuring(fn () => test()->actingAs($user)->getJson('/api/declarations')->assertOk());
 
-    expect($queries)->toBeLessThanOrEqual(15);
+    expect($queries)->toBeLessThanOrEqual(25);
 });
 
 test('the treasury summary runs a bounded number of queries', function (): void {

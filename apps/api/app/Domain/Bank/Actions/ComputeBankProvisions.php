@@ -10,6 +10,10 @@ use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Deadlines\Actions\ResolveExpectedCfe;
 use App\Domain\Deadlines\Calendar\CfeSchedule;
 use App\Domain\Deadlines\Calendar\ExpectedCfe;
+use App\Domain\Declarations\Vat\Ca3Chain;
+use App\Domain\Declarations\Vat\Ca3ChainStart;
+use App\Domain\Expenses\Vat\DeclaredCa3Months;
+use App\Domain\Expenses\Vat\DeductibleExpenses;
 use App\Domain\Invoices\Revenue\CollectedInvoices;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
@@ -27,11 +31,14 @@ use Money\Money as MoneyPhp;
  * What the fisc is still owed, computed on collections (encaissements)
  * because micro-régime TVA and URSSAF are both cash-basis:
  *
- * - the running period's accrual: TVA actually carried by the invoices paid
- *   inside it (calendar month under réel normal, calendar year under réel
- *   simplifié; null under the franchise en base), and the contribution rate
- *   applied to the HT collected inside it (month or quarter per the
- *   settings; null outside French fiscality);
+ * - the running period's accrual: what its CA3 (réel normal) or CA12 (réel
+ *   simplifié) will owe — TVA collected on the invoices paid inside it, less
+ *   the deductions its receipted purchases earn; the CA3 is read off the same
+ *   chain of returns the Déclarations screen shows, so a credit carried from
+ *   the previous month lowers it too (null under the franchise en base; a
+ *   foreign account deducts nothing, as its journal tracks no TVA) — and the
+ *   URSSAF contributions on the HT collected inside it (month or quarter
+ *   per the settings; null outside French fiscality);
  * - plus the previous period's accrual, carried until the matching payment
  *   shows up in the imported movements — France pays in arrears, so the
  *   URSSAF prélèvement or TVA télérèglement detected in the current period
@@ -57,10 +64,16 @@ class ComputeBankProvisions
 
         $vatPeriod = $this->vatPeriod($settings, $today);
         $urssafPeriod = $this->urssafPeriod($settings, $today);
-        $collected = $this->collectedInvoices($user, $today, $vatPeriod, $urssafPeriod);
+        $declared = $vatPeriod !== null && $settings->hasFrenchFiscality() ? DeclaredCa3Months::of($user->id) : null;
+        $chainStart = $declared instanceof DeclaredCa3Months && $settings->filesMonthlyCa3()
+            ? Ca3ChainStart::resolve($user, $settings, $declared, $vatPeriod['previousStart'])
+            : null;
+        $collected = $this->collectedInvoices($user, $today, $vatPeriod, $urssafPeriod, $chainStart);
         $fiscDebits = $this->fiscDebits($user, $settings, $vatPeriod, $urssafPeriod, $today);
 
-        $vat = $vatPeriod === null ? null : $this->vat($vatPeriod, $collected, $fiscDebits, $today, $currency);
+        $vat = $vatPeriod === null
+            ? null
+            : $this->vat($user, $vatPeriod, $collected, $declared, $chainStart, $fiscDebits, $today, $currency);
         $urssaf = $urssafPeriod === null ? null : $this->urssaf($settings, $urssafPeriod, $collected, $fiscDebits, $today, $currency);
         $cfe = $this->cfe($settings, $fiscDebits, $today, $currency);
         $buffer = $settings->treasury_buffer_cents;
@@ -121,8 +134,9 @@ class ComputeBankProvisions
     }
 
     /**
-     * One query over the widest window either component looks at; the
-     * per-period sums are bucketed from this set in PHP.
+     * One query over the widest window any component looks at — back to the
+     * CA3 chain's start under réel normal; the per-period sums are bucketed
+     * from this set in PHP.
      *
      * @param  ?array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}  $vatPeriod
      * @param  ?array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}  $urssafPeriod
@@ -132,8 +146,9 @@ class ComputeBankProvisions
         CarbonImmutable $today,
         ?array $vatPeriod,
         ?array $urssafPeriod,
+        ?CarbonImmutable $chainStart,
     ): CollectedInvoices {
-        $starts = array_filter([$vatPeriod['previousStart'] ?? null, $urssafPeriod['previousStart'] ?? null]);
+        $starts = array_filter([$vatPeriod['previousStart'] ?? null, $urssafPeriod['previousStart'] ?? null, $chainStart]);
 
         if ($starts === []) {
             return CollectedInvoices::none();
@@ -177,26 +192,55 @@ class ComputeBankProvisions
     }
 
     /**
+     * Under réel normal the two periods are two returns of the chain: the
+     * previous month's case 32, and the running month's so far — which the
+     * chain already nets against a credit the previous month built. Under
+     * réel simplifié the CA12 is read the plain way: the year's collected
+     * TVA less what its receipted purchases deduct. A foreign account keeps
+     * its collected TVA whole — its journal tracks no deduction.
+     *
      * @param  array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}  $period
+     * @param  ?DeclaredCa3Months  $declared  null outside French fiscality
+     * @param  ?CarbonImmutable  $chainStart  null unless the account files the monthly CA3
      * @param  Collection<int, BankMovement>  $fiscDebits
      */
     private function vat(
+        User $user,
         array $period,
         CollectedInvoices $collected,
+        ?DeclaredCa3Months $declared,
+        ?CarbonImmutable $chainStart,
         Collection $fiscDebits,
         CarbonImmutable $today,
         string $currency,
     ): BankProvisionData {
-        $current = $collected->vatCents($period['start'], $today);
-        $carried = max(
-            0,
-            $collected->vatCents($period['previousStart'], $period['start']->subDay())
-                - $this->paymentsBetween($fiscDebits, $period['start'], $today, DetectFiscPayments::isVat(...)),
-        );
+        $expenses = $declared instanceof DeclaredCa3Months
+            ? DeductibleExpenses::spentOrClaimedBetween($user, $chainStart ?? $period['previousStart'], $today, $declared)
+            : null;
+
+        if ($chainStart instanceof CarbonImmutable && $expenses instanceof DeductibleExpenses) {
+            $chain = new Ca3Chain($collected, $expenses, $chainStart);
+            $running = $chain->boxes($period['start']);
+            $current = $running->due;
+            $previous = $chain->boxes($period['previousStart'])->due;
+            $deductible = $running->goodsAndServices + $running->otherDeductible;
+        } else {
+            $deductible = $expenses?->receiptedRecoverableCents($period['start'], $today) ?? 0;
+            $current = max(0, $collected->vatCents($period['start'], $today) - $deductible);
+            $previous = max(
+                0,
+                $collected->vatCents($period['previousStart'], $period['start']->subDay())
+                    - ($expenses?->receiptedRecoverableCents($period['previousStart'], $period['start']->subDay()) ?? 0),
+            );
+        }
+
+        $carried = max(0, $previous - DetectFiscPayments::debitedBetween($fiscDebits, $period['start'], $today, DetectFiscPayments::isVat(...)));
 
         return new BankProvisionData(
             amount: MoneyData::fromMoney(new Money($current + $carried, $currency)),
+            carried: MoneyData::fromMoney(new Money($carried, $currency)),
             rateBp: null,
+            deductible: $expenses instanceof DeductibleExpenses ? MoneyData::fromMoney(new Money($deductible, $currency)) : null,
             periodEnd: $period['end'],
         );
     }
@@ -224,12 +268,14 @@ class ComputeBankProvisions
         $carried = max(
             0,
             (int) Rate::of(new Money($collected->htCents($period['previousStart'], $previousEnd), $currency), $carriedRateBp)->getAmount()
-                - $this->paymentsBetween($fiscDebits, $period['start'], $today, DetectFiscPayments::isUrssaf(...)),
+                - DetectFiscPayments::debitedBetween($fiscDebits, $period['start'], $today, DetectFiscPayments::isUrssaf(...)),
         );
 
         return new BankProvisionData(
             amount: MoneyData::fromMoney(new Money($current + $carried, $currency)),
+            carried: MoneyData::fromMoney(new Money($carried, $currency)),
             rateBp: $settings->effectiveContributionRateBp(),
+            deductible: null,
             periodEnd: $period['end'],
         );
     }
@@ -281,48 +327,16 @@ class ComputeBankProvisions
         }
 
         $accrued = $expected->multiply($today->month)->divide(12, MoneyPhp::ROUND_HALF_UP);
-        $paid = $this->paymentsBetween($fiscDebits, $today->startOfYear(), $today, DetectFiscPayments::isCfe(...));
+        $paid = DetectFiscPayments::debitedBetween($fiscDebits, $today->startOfYear(), $today, DetectFiscPayments::isCfe(...));
         $owed = (int) $accrued->getAmount() - $paid;
 
         return new BankProvisionData(
             amount: MoneyData::fromMoney(new Money(max(0, $owed), $currency)),
+            carried: MoneyData::fromMoney(new Money(0, $currency)),
             rateBp: null,
+            deductible: null,
             periodEnd: $today->endOfYear(),
             isEstimate: $expectedCfe->isEstimate,
         );
-    }
-
-    /**
-     * The fisc's debits detected in the imported movements over the window,
-     * as positive cents.
-     *
-     * @param  Collection<int, BankMovement>  $movements  debits covering at least [$start, $end]
-     * @param  callable(string): bool  $matchesLabel
-     */
-    private function paymentsBetween(
-        Collection $movements,
-        CarbonImmutable $start,
-        CarbonImmutable $end,
-        callable $matchesLabel,
-    ): int {
-        $startDate = $start->toDateString();
-        $endDate = $end->toDateString();
-        $total = 0;
-
-        foreach ($movements as $movement) {
-            $cents = (int) $movement->amount_cents->getAmount();
-
-            if ($cents >= 0) {
-                continue;
-            }
-
-            $bookedOn = $movement->booked_on->toDateString();
-
-            if ($bookedOn >= $startDate && $bookedOn <= $endDate && $matchesLabel($movement->label)) {
-                $total += -$cents;
-            }
-        }
-
-        return $total;
     }
 }

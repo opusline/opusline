@@ -42,5 +42,6 @@ class VatDeclarationData extends Data
         /** Null for a month the account did not exist in. */
         public ?DeclarationDeadlineData $deadline,
         public ?DeclarationCompletionData $completion,
+        public DeclarationSettlementData $settlement,
     ) {}
 }

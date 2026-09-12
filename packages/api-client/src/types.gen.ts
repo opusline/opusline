@@ -120,7 +120,9 @@ export type BankMovementPageData = {
  */
 export type BankProvisionData = {
     amount: MoneyData;
+    carried: MoneyData;
     rateBp: number | null;
+    deductible: MoneyData | null;
     periodEnd: string;
     isEstimate?: boolean;
 };
@@ -617,6 +619,16 @@ export type DeclarationHistoryVatData = {
     due: MoneyData;
     credit: MoneyData;
     completion: DeclarationCompletionData | null;
+};
+
+/**
+ * DeclarationSettlementData
+ */
+export type DeclarationSettlementData = {
+    expected: MoneyData;
+    provisioned: MoneyData | null;
+    gap: SignedMoneyData | null;
+    detectedPayments: MoneyData;
 };
 
 /**
@@ -1913,6 +1925,7 @@ export type UrssafDeclarationData = {
     total: MoneyData;
     deadline: DeclarationDeadlineData | null;
     completion: DeclarationCompletionData | null;
+    settlement: DeclarationSettlementData;
 };
 
 /**
@@ -1958,6 +1971,7 @@ export type VatDeclarationData = {
     creditIsRefundable: boolean;
     deadline: DeclarationDeadlineData | null;
     completion: DeclarationCompletionData | null;
+    settlement: DeclarationSettlementData;
 };
 
 /**

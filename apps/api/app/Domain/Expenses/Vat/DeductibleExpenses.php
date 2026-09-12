@@ -120,6 +120,26 @@ final readonly class DeductibleExpenses
         return $this->sumSpentIn($month, ExpenseVatStatus::Deferred);
     }
 
+    /**
+     * The recoverable TVA of the claimable purchases made in the span, on the
+     * purchase date rather than the claim month — the annual CA12 deducts
+     * the year's purchases without a monthly claim period.
+     */
+    public function receiptedRecoverableCents(CarbonImmutable $from, CarbonImmutable $to): int
+    {
+        $total = 0;
+
+        foreach ($this->bySpentMonth as $expenses) {
+            foreach ($expenses as $expense) {
+                if ($expense->spent_on->betweenIncluded($from, $to) && $expense->vatStatus($this->declared)->isClaimed()) {
+                    $total += $this->recoverable($expense);
+                }
+            }
+        }
+
+        return $total;
+    }
+
     public function countSpentIn(string $month): int
     {
         return count($this->spentIn($month));
