@@ -34,7 +34,9 @@ class CompleteFiscalDeadline
 
         abort_if(! $deadline instanceof FiscalDeadline, 404, __('deadlines.unknown_occurrence'));
 
-        $user->fiscalDeadlineCompletions()->updateOrCreate(
+        // A second tick changes nothing: the first date is the filing date,
+        // and a payment recorded since must not end up before it.
+        $user->fiscalDeadlineCompletions()->firstOrCreate(
             ['kind' => $kind, 'period_key' => $periodKey],
             ['due_on' => $deadline->dueOn, 'completed_on' => $settings->today()],
         );
@@ -42,7 +44,7 @@ class CompleteFiscalDeadline
 
     private function find(UserSettings $settings, FiscalDeadlineKind $kind, string $periodKey): ?FiscalDeadline
     {
-        $window = DeadlineWindow::onScreen($settings->today());
+        $window = DeadlineWindow::forTicking($settings->today());
         $expectedCfe = $this->resolveExpectedCfe->handle($settings);
 
         foreach ($this->generateFiscalDeadlines->handle($settings, $window->from, $window->to, $expectedCfe?->amount) as $deadline) {

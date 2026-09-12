@@ -54,4 +54,11 @@ class FiscalDeadlineCompletionFactory extends Factory
             'completed_on' => CarbonImmutable::parse($date),
         ]);
     }
+
+    public function paidOn(string $date): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'paid_on' => CarbonImmutable::parse($date),
+        ]);
+    }
 }

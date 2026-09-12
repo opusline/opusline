@@ -324,7 +324,8 @@ export const zDeadlineItemType = z.union([
  * DeclarationCompletionData
  */
 export const zDeclarationCompletionData = z.object({
-    declaredOn: z.iso.date()
+    declaredOn: z.iso.date(),
+    paidOn: z.nullable(z.iso.date())
 });
 
 /**
@@ -556,6 +557,15 @@ export const zFiscalDeadlineKind = z.union([
     z.literal(3),
     z.literal(4)
 ]);
+
+/**
+ * CompleteDeclarationData
+ */
+export const zCompleteDeclarationData = z.object({
+    kind: zFiscalDeadlineKind,
+    periodKey: z.string().check(z.maxLength(16), z.regex(/^\d{4}(-(0[1-9]|1[0-2]|Q[1-4]))?$/)),
+    period: z.nullish(z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/)))
+});
 
 /**
  * CompleteFiscalDeadlineData
@@ -832,6 +842,33 @@ export const zDeadlineInvoiceData = z.object({
     dueOn: z.iso.date(),
     remindersSent: z.int(),
     lastRemindedOn: z.nullable(z.iso.date())
+});
+
+/**
+ * DeclarationHistoryUrssafData
+ */
+export const zDeclarationHistoryUrssafData = z.object({
+    period: z.string(),
+    total: zMoneyData,
+    completion: z.nullable(zDeclarationCompletionData)
+});
+
+/**
+ * DeclarationHistoryVatData
+ */
+export const zDeclarationHistoryVatData = z.object({
+    due: zMoneyData,
+    credit: zMoneyData,
+    completion: z.nullable(zDeclarationCompletionData)
+});
+
+/**
+ * DeclarationHistoryRowData
+ */
+export const zDeclarationHistoryRowData = z.object({
+    period: z.string(),
+    urssaf: z.nullable(zDeclarationHistoryUrssafData),
+    vat: z.nullable(zDeclarationHistoryVatData)
 });
 
 /**
@@ -1538,6 +1575,13 @@ export const zStopTimerData = z.object({
 });
 
 /**
+ * SummarizeDeclarationsData
+ */
+export const zSummarizeDeclarationsData = z.object({
+    period: z.nullish(z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/)))
+});
+
+/**
  * Theme
  */
 export const zTheme = z.union([
@@ -2037,7 +2081,8 @@ export const zDeclarationsData = z.object({
     isDefault: z.boolean(),
     urssaf: z.nullable(zUrssafDeclarationData),
     vat: z.nullable(zVatDeclarationData),
-    cumulative: z.nullable(zRevenueCeilingData)
+    cumulative: z.nullable(zRevenueCeilingData),
+    history: z.array(zDeclarationHistoryRowData)
 });
 
 export const zGetPingResponse = zPingData;
@@ -2332,6 +2377,41 @@ export const zShowDeclarationsQuery = z.object({
 });
 
 export const zShowDeclarationsResponse = zDeclarationsData;
+
+export const zMarkDeclarationFiledBody = zCompleteDeclarationData;
+
+export const zMarkDeclarationFiledResponse = zDeclarationsData;
+
+export const zUnmarkDeclarationFiledPath = z.object({
+    kind: z.int(),
+    periodKey: z.string()
+});
+
+export const zUnmarkDeclarationFiledQuery = z.object({
+    period: z.nullish(z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/)))
+});
+
+export const zUnmarkDeclarationFiledResponse = zDeclarationsData;
+
+export const zClearDeclarationPaymentPath = z.object({
+    kind: z.int(),
+    periodKey: z.string()
+});
+
+export const zClearDeclarationPaymentQuery = z.object({
+    period: z.nullish(z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/)))
+});
+
+export const zClearDeclarationPaymentResponse = zDeclarationsData;
+
+export const zRecordDeclarationPaymentBody = zSummarizeDeclarationsData;
+
+export const zRecordDeclarationPaymentPath = z.object({
+    kind: z.int(),
+    periodKey: z.string()
+});
+
+export const zRecordDeclarationPaymentResponse = zDeclarationsData;
 
 export const zListDocumentLibraryResponse = zDocumentLibraryData;
 

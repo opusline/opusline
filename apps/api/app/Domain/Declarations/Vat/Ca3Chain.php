@@ -19,9 +19,9 @@ final readonly class Ca3Chain
 {
     public function __construct(
         private CollectedInvoices $invoices,
-        private DeductibleExpenses $expenses,
+        public DeductibleExpenses $expenses,
         /** The first month the chain runs from; nothing is carried into it. */
-        private CarbonImmutable $firstMonth,
+        public CarbonImmutable $firstMonth,
     ) {}
 
     public function boxes(CarbonImmutable $month): Ca3Boxes
