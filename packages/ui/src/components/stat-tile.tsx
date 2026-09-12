@@ -14,11 +14,13 @@ const statTileValueVariants = cva(
         strong: "text-foreground-hi",
         brand: "text-primary-text",
         warn: "text-destructive",
+        attention: "text-attention",
         quiet: "text-muted-foreground-3",
       },
       size: {
         default: "text-xl",
         lg: "text-2xl",
+        xl: "text-3xl",
       },
     },
     defaultVariants: {
@@ -27,6 +29,49 @@ const statTileValueVariants = cva(
     },
   },
 );
+
+const statTileVariants = cva("block bg-card text-left", {
+  variants: {
+    padding: {
+      default: "p-3.5",
+      /** The page-level KPI card: a bigger figure needs more air around it. */
+      roomy: "px-5 py-4.5",
+    },
+  },
+  defaultVariants: { padding: "default" },
+});
+
+const statTileNoteVariants = cva("mt-2 text-sm leading-snug", {
+  variants: {
+    tone: {
+      default: "text-muted-foreground-3",
+      attention: "text-attention",
+      info: "text-info",
+      success: "text-success",
+      quiet: "text-muted-foreground-3",
+    },
+  },
+  defaultVariants: { tone: "default" },
+});
+
+/**
+ * A toned line under the figure — what the figure is missing, or what it
+ * amounts to once something else is counted. Pass as children of the tile,
+ * after `sub` if there is one.
+ */
+function StatTileNote({
+  className,
+  tone,
+  ...props
+}: ComponentProps<"div"> & VariantProps<typeof statTileNoteVariants>) {
+  return (
+    <div
+      data-slot="stat-tile-note"
+      className={cn(statTileNoteVariants({ tone }), className)}
+      {...props}
+    />
+  );
+}
 
 const statTileRowVariants = cva("grid", {
   variants: {
@@ -61,7 +106,8 @@ function StatTileRow({
 }
 
 type StatTileProps = useRender.ComponentProps<"div"> &
-  VariantProps<typeof statTileValueVariants> & {
+  VariantProps<typeof statTileValueVariants> &
+  VariantProps<typeof statTileVariants> & {
     label: string;
     value: ReactNode;
     /** The line under the figure: what it is made of, or where it comes from. */
@@ -96,8 +142,10 @@ function StatTile({
   lead,
   tone,
   size,
+  padding,
   className,
   render,
+  children,
   ...props
 }: StatTileProps) {
   const body = (
@@ -132,6 +180,7 @@ function StatTile({
       {sub === undefined ? null : (
         <div className="mt-1.5 text-muted-foreground-3 text-xs">{sub}</div>
       )}
+      {children}
     </>
   );
 
@@ -140,7 +189,7 @@ function StatTile({
     props: mergeProps<"div">(
       {
         className: cn(
-          "block bg-card p-3.5 text-left",
+          statTileVariants({ padding }),
           render === undefined
             ? undefined
             : "cursor-pointer transition-colors hover:border-border-4 focus-visible:outline-2 focus-visible:outline-primary-text focus-visible:outline-offset-2",
@@ -157,4 +206,12 @@ function StatTile({
   });
 }
 
-export { StatTile, StatTileRow, statTileRowVariants, statTileValueVariants };
+export {
+  StatTile,
+  StatTileNote,
+  StatTileRow,
+  statTileNoteVariants,
+  statTileRowVariants,
+  statTileValueVariants,
+  statTileVariants,
+};
