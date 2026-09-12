@@ -342,12 +342,16 @@ export function treasuryData(
     provisions: {
       vat: {
         amount: eur(209_000),
+        carried: eur(0),
         rateBp: null,
+        deductible: eur(0),
         periodEnd: "2026-08-31",
       },
       urssaf: {
         amount: eur(271_700),
+        carried: eur(0),
         rateBp: 2600,
+        deductible: null,
         periodEnd: "2026-08-31",
       },
       cfe: null,

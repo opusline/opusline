@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace App\Domain\Declarations\Actions;
 
+use App\Domain\Bank\Actions\DetectFiscPayments;
+use App\Domain\Bank\Actions\SummarizeTreasury;
+use App\Domain\Bank\Data\BankBalanceData;
+use App\Domain\Bank\Data\BankProvisionData;
+use App\Domain\Bank\Data\TreasuryData;
+use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Deadlines\Actions\GenerateFiscalDeadlines;
 use App\Domain\Deadlines\Calendar\FiscalDeadline;
 use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
@@ -16,14 +22,15 @@ use App\Domain\Declarations\Data\DeclarationHistoryRowData;
 use App\Domain\Declarations\Data\DeclarationHistoryUrssafData;
 use App\Domain\Declarations\Data\DeclarationHistoryVatData;
 use App\Domain\Declarations\Data\DeclarationsData;
+use App\Domain\Declarations\Data\DeclarationSettlementData;
 use App\Domain\Declarations\Data\RevenueCeilingData;
 use App\Domain\Declarations\Data\SummarizeDeclarationsData;
 use App\Domain\Declarations\Data\UrssafDeclarationData;
 use App\Domain\Declarations\Data\VatDeclarationData;
 use App\Domain\Declarations\Vat\Ca3Chain;
+use App\Domain\Declarations\Vat\Ca3ChainStart;
 use App\Domain\Expenses\Vat\DeclaredCa3Months;
 use App\Domain\Expenses\Vat\DeductibleExpenses;
-use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Revenue\CollectedInvoices;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Models\UserSettings;
@@ -54,7 +61,10 @@ class SummarizeDeclarations
 {
     private const int HISTORY_MONTHS = 6;
 
-    public function __construct(private readonly GenerateFiscalDeadlines $generateFiscalDeadlines) {}
+    public function __construct(
+        private readonly GenerateFiscalDeadlines $generateFiscalDeadlines,
+        private readonly SummarizeTreasury $summarizeTreasury,
+    ) {}
 
     /**
      * @throws ValidationException for the running month or a later one
@@ -82,7 +92,7 @@ class SummarizeDeclarations
             $historyStart = $monthStart->subMonths(self::HISTORY_MONTHS - 1);
             $urssafPeriod = $this->urssafPeriod($settings, $monthStart, $currentMonth);
             $earliestUrssafPeriod = $this->urssafPeriod($settings, $historyStart, $currentMonth);
-            $chainStart = $settings->filesMonthlyCa3() ? $this->chainStart($user, $settings, $declared, $monthStart) : null;
+            $chainStart = $settings->filesMonthlyCa3() ? Ca3ChainStart::resolve($user, $settings, $declared, $monthStart) : null;
             $collected = CollectedInvoices::paidBetween(
                 $user,
                 min($earliestUrssafPeriod['start'], $monthStart->startOfYear(), $chainStart ?? $historyStart, $historyStart),
@@ -100,10 +110,39 @@ class SummarizeDeclarations
                     $chainStart,
                 )
                 : null;
+            $fiscDebits = $this->fiscDebitsAfter($user, $settings, $urssafPeriod['end'], $monthEnd);
 
-            $urssaf = $this->urssaf($settings, $collected, $urssafPeriod, $monthStart, $deadlines, $completions, $today);
+            // The engine holds a provision for the last closed period only:
+            // the treasury is read when a shown period is that one, and each
+            // block is matched against its own kind's provision, or nothing.
+            $carriedMonth = $currentMonth->subMonth();
+            $urssafCarried = $urssafPeriod['key'] === $this->urssafPeriod($settings, $carriedMonth, $currentMonth)['key'];
+            $vatCarried = $chain instanceof Ca3Chain && $monthStart->equalTo($carriedMonth);
+            $treasury = $urssafCarried || $vatCarried ? $this->summarizeTreasury->handle($user) : null;
+
+            $urssaf = $this->urssaf(
+                $settings,
+                $collected,
+                $urssafPeriod,
+                $monthStart,
+                $deadlines,
+                $completions,
+                $fiscDebits,
+                $urssafCarried ? $this->coveredCarry($treasury, $treasury?->provisions->urssaf) : null,
+                $today,
+            );
             $vat = $chain instanceof Ca3Chain
-                ? $this->vat($settings, $collected, $chain, $monthStart, $deadlines, $completions, $today)
+                ? $this->vat(
+                    $settings,
+                    $collected,
+                    $chain,
+                    $monthStart,
+                    $deadlines,
+                    $completions,
+                    $fiscDebits,
+                    $vatCarried ? $this->coveredCarry($treasury, $treasury?->provisions->vat) : null,
+                    $today,
+                )
                 : null;
             $cumulative = $this->cumulative($settings, $collected, $monthStart);
             $history = $this->history($settings, $collected, $chain, $completions, $monthStart, $currentMonth);
@@ -161,40 +200,6 @@ class SummarizeDeclarations
     }
 
     /**
-     * The first month the CA3 chain runs from, and nothing is carried into.
-     *
-     * Once a return has been filed, the chain is anchored on the earliest
-     * one: what came before was either declared by hand or never owed a
-     * CA3, and either way the data cannot say what credit the fisc holds.
-     * Before any return, the chain starts where the account's history does.
-     */
-    private function chainStart(User $user, UserSettings $settings, DeclaredCa3Months $declared, CarbonImmutable $monthStart): CarbonImmutable
-    {
-        $firstDeclared = $declared->earliest();
-
-        if ($firstDeclared !== null) {
-            return min(CarbonImmutable::parse($firstDeclared.'-01'), $monthStart);
-        }
-
-        $candidates = [$monthStart];
-
-        if ($settings->business_started_on instanceof CarbonImmutable) {
-            $candidates[] = $settings->business_started_on->startOfMonth();
-        }
-
-        $firstPaidOn = $user->invoices()->where('status', InvoiceStatus::Paid)->min('paid_on');
-        $firstSpentOn = $user->expenses()->min('spent_on');
-
-        foreach ([$firstPaidOn, $firstSpentOn] as $date) {
-            if (is_string($date)) {
-                $candidates[] = CarbonImmutable::parse($date)->startOfMonth();
-            }
-        }
-
-        return min($candidates);
-    }
-
-    /**
      * @param  list<FiscalDeadline>  $deadlines
      */
     private function deadline(array $deadlines, FiscalDeadlineKind $kind, string $periodKey, CarbonImmutable $today): ?DeclarationDeadlineData
@@ -224,6 +229,8 @@ class SummarizeDeclarations
      * @param  Period  $period
      * @param  list<FiscalDeadline>  $deadlines
      * @param  Collection<int, FiscalDeadlineCompletion>  $completions
+     * @param  Collection<int, BankMovement>  $fiscDebits
+     * @param  ?Money  $coveredCarry  what the compte pro holds for this period, when the engine carries it
      */
     private function urssaf(
         UserSettings $settings,
@@ -232,9 +239,13 @@ class SummarizeDeclarations
         CarbonImmutable $monthStart,
         array $deadlines,
         Collection $completions,
+        Collection $fiscDebits,
+        ?Money $coveredCarry,
         CarbonImmutable $today,
     ): UrssafDeclarationData {
         $base = new Money($collected->htCents($period['start'], $period['end']), $settings->currency->value);
+        $total = $settings->urssafContributionsOn($base);
+        $completion = $this->completion($completions, FiscalDeadlineKind::UrssafDeclaration, $period['key']);
 
         return new UrssafDeclarationData(
             period: $period['key'],
@@ -243,10 +254,60 @@ class SummarizeDeclarations
             base: MoneyData::fromMoney($base),
             invoiceCount: $collected->countBetween($period['start'], $period['end']),
             lines: array_map(ContributionLineData::fromLine(...), $settings->urssafContributionLines($base)),
-            total: MoneyData::fromMoney($settings->urssafContributionsOn($base)),
+            total: MoneyData::fromMoney($total),
             deadline: $this->deadline($deadlines, FiscalDeadlineKind::UrssafDeclaration, $period['key'], $today),
-            completion: $this->completion($completions, FiscalDeadlineKind::UrssafDeclaration, $period['key']),
+            completion: $completion,
+            settlement: DeclarationSettlementData::of(
+                $total,
+                DetectFiscPayments::debitedBetween($fiscDebits, $period['end']->addDay(), $this->nextUrssafPeriodEnd($period['end'], $settings), DetectFiscPayments::isUrssaf(...)),
+                $completion?->paidOn instanceof CarbonImmutable ? null : $coveredCarry,
+            ),
         );
+    }
+
+    /** The end of the URSSAF period after one ending on $periodEnd — the window its payment is debited in. */
+    private function nextUrssafPeriodEnd(CarbonImmutable $periodEnd, UserSettings $settings): CarbonImmutable
+    {
+        return $settings->urssaf_periodicity === UrssafPeriodicity::Quarterly
+            ? $periodEnd->addDay()->lastOfQuarter()
+            : $periodEnd->addDay()->endOfMonth();
+    }
+
+    /**
+     * The debits of the periods that follow the shown ones, where their
+     * payments land. Loaded once for both blocks; nothing for an account
+     * with no compte pro.
+     *
+     * @return Collection<int, BankMovement>
+     */
+    private function fiscDebitsAfter(User $user, UserSettings $settings, CarbonImmutable $urssafEnd, CarbonImmutable $monthEnd): Collection
+    {
+        $from = min($urssafEnd, $monthEnd)->addDay();
+        $to = max($this->nextUrssafPeriodEnd($urssafEnd, $settings), $monthEnd->addDay()->endOfMonth());
+
+        return $user->bankMovements()
+            ->where('amount_cents', '<', 0)
+            ->whereBetween('booked_on', [$from->toDateString(), $to->toDateString()])
+            ->get(['id', 'booked_on', 'label', 'currency', 'amount_cents'])
+            ->toBase();
+    }
+
+    /**
+     * What the balance still covers of a kind's carry once pending transfers
+     * and the other provisions come off — null without a known balance.
+     */
+    private function coveredCarry(?TreasuryData $treasury, ?BankProvisionData $provision): ?Money
+    {
+        if (! $provision instanceof BankProvisionData || ! $treasury?->balance instanceof BankBalanceData) {
+            return null;
+        }
+
+        $otherProvisions = $treasury->provisions->total->toMoney()->subtract($provision->amount->toMoney());
+        $coverable = $treasury->balance->amount->toMoney()
+            ->subtract($treasury->pendingTransfers->toMoney())
+            ->subtract($otherProvisions);
+
+        return Money::max(new Money(0, $coverable->getCurrency()->getCode()), Money::min($provision->carried->toMoney(), $coverable));
     }
 
     private function cumulative(UserSettings $settings, CollectedInvoices $collected, CarbonImmutable $monthStart): RevenueCeilingData
@@ -267,6 +328,8 @@ class SummarizeDeclarations
     /**
      * @param  list<FiscalDeadline>  $deadlines
      * @param  Collection<int, FiscalDeadlineCompletion>  $completions
+     * @param  Collection<int, BankMovement>  $fiscDebits
+     * @param  ?Money  $coveredCarry  what the compte pro holds for this month, when the engine carries it
      */
     private function vat(
         UserSettings $settings,
@@ -275,6 +338,8 @@ class SummarizeDeclarations
         CarbonImmutable $monthStart,
         array $deadlines,
         Collection $completions,
+        Collection $fiscDebits,
+        ?Money $coveredCarry,
         CarbonImmutable $today,
     ): VatDeclarationData {
         $month = FiscalDeadline::monthKey($monthStart);
@@ -282,6 +347,7 @@ class SummarizeDeclarations
         $currency = $settings->currency->value;
         $expenses = $chain->expenses;
         $boxes = $chain->boxes($monthStart);
+        $completion = $this->completion($completions, FiscalDeadlineKind::VatCa3, $month);
 
         return new VatDeclarationData(
             period: $month,
@@ -295,7 +361,12 @@ class SummarizeDeclarations
             reverseChargedVat: MoneyData::fromMoney(new Money($expenses->reverseChargeVatCents($month), $currency)),
             creditIsRefundable: $boxes->creditIsRefundable(),
             deadline: $this->deadline($deadlines, FiscalDeadlineKind::VatCa3, $month, $today),
-            completion: $this->completion($completions, FiscalDeadlineKind::VatCa3, $month),
+            completion: $completion,
+            settlement: DeclarationSettlementData::of(
+                new Money($boxes->due, $currency),
+                DetectFiscPayments::debitedBetween($fiscDebits, $monthEnd->addDay(), $monthEnd->addDay()->endOfMonth(), DetectFiscPayments::isVat(...)),
+                $completion?->paidOn instanceof CarbonImmutable ? null : $coveredCarry,
+            ),
         );
     }
 

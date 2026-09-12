@@ -767,7 +767,9 @@ export const zBankMatchData = z.object({
  */
 export const zBankProvisionData = z.object({
     amount: zMoneyData,
+    carried: zMoneyData,
     rateBp: z.nullable(z.int()),
+    deductible: z.nullable(zMoneyData),
     periodEnd: z.iso.date(),
     isEstimate: z.optional(z.boolean())
 });
@@ -1426,6 +1428,16 @@ export const zBankMovementPageData = z.object({
 });
 
 /**
+ * DeclarationSettlementData
+ */
+export const zDeclarationSettlementData = z.object({
+    expected: zMoneyData,
+    provisioned: z.nullable(zMoneyData),
+    gap: z.nullable(zSignedMoneyData),
+    detectedPayments: zMoneyData
+});
+
+/**
  * ExpensesVatSummaryData
  */
 export const zExpensesVatSummaryData = z.object({
@@ -1923,7 +1935,8 @@ export const zUrssafDeclarationData = z.object({
     lines: z.array(zContributionLineData),
     total: zMoneyData,
     deadline: z.nullable(zDeclarationDeadlineData),
-    completion: z.nullable(zDeclarationCompletionData)
+    completion: z.nullable(zDeclarationCompletionData),
+    settlement: zDeclarationSettlementData
 });
 
 /**
@@ -2068,7 +2081,8 @@ export const zVatDeclarationData = z.object({
     reverseChargedVat: zMoneyData,
     creditIsRefundable: z.boolean(),
     deadline: z.nullable(zDeclarationDeadlineData),
-    completion: z.nullable(zDeclarationCompletionData)
+    completion: z.nullable(zDeclarationCompletionData),
+    settlement: zDeclarationSettlementData
 });
 
 /**
