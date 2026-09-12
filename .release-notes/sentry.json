@@ -1,4 +1,0 @@
-{
-  "kind": "new",
-  "text": "Self-hosters can plug Sentry in with two environment variables to get error reports and performance traces from both the app and the API."
-}
