@@ -228,7 +228,11 @@ export async function invalidateExpenseWrites(
  * A filing flips the journal's statuses and locks, and settles the provision
  * and the deadline it was priced for: the same fan-out as an expense write.
  */
-export const invalidateDeclarationWrites = invalidateExpenseWrites;
+export async function invalidateDeclarationWrites(
+  queryClient: QueryClient,
+): Promise<void> {
+  await invalidateExpenseWrites(queryClient);
+}
 
 /**
  * Three surfaces list the same documents: the client fiche, the mission fiche —
