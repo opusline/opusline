@@ -12,6 +12,8 @@ type ReceiptFieldProps = {
   value: File | null;
   onChange: (file: File | null) => void;
   storedFileName?: string | null;
+  /** Offered while the picked file has not been read yet. */
+  onFill?: () => void;
 };
 
 /**
@@ -22,6 +24,7 @@ export function ReceiptField({
   value,
   onChange,
   storedFileName = null,
+  onFill,
 }: ReceiptFieldProps) {
   const [isReplacing, setIsReplacing] = useState(false);
   const rejection = value === null ? null : receiptRejection(value);
@@ -46,9 +49,16 @@ export function ReceiptField({
             <span className="truncate">{shownFileName}</span>
           </span>
           {value !== null ? (
-            <Button onClick={() => onChange(null)} size="sm" variant="ghost">
-              {m.expenses_receipt_remove()}
-            </Button>
+            <span className="flex shrink-0 items-center gap-1">
+              {onFill !== undefined && (
+                <Button onClick={onFill} size="sm" variant="link">
+                  {m.expenses_receipt_fill()}
+                </Button>
+              )}
+              <Button onClick={() => onChange(null)} size="sm" variant="ghost">
+                {m.expenses_receipt_remove()}
+              </Button>
+            </span>
           ) : (
             <Button
               onClick={() => setIsReplacing(true)}

@@ -1017,6 +1017,7 @@
   "expenses_empty_filter_title": "No expense in this filter",
   "expenses_empty_month_sub": "Subscriptions are created on their debit day.",
   "expenses_empty_month_title": "No expense in {month}",
+  "expenses_entry_mode_aria": "Entry mode",
   "expenses_field_amount_ttc": "Amount TTC",
   "expenses_field_category": "Category",
   "expenses_field_date": "Date",
@@ -1091,6 +1092,8 @@
   "expenses_menu_duplicate": "Duplicate",
   "expenses_menu_edit": "Edit",
   "expenses_menu_reintegrate": "Put back on the CA3",
+  "expenses_mode_scan": "From the receipt",
+  "expenses_mode_type": "Type it",
   "expenses_next_month": "Next month",
   "expenses_per_month": "/ month",
   "expenses_previous_month": "Previous month",
@@ -1117,6 +1120,7 @@
   "expenses_receipt_attached": "Receipt linked · {name}",
   "expenses_receipt_detach_failed": "The receipt could not be detached. Try again in a moment.",
   "expenses_receipt_detached": "Receipt detached",
+  "expenses_receipt_fill": "Fill from the receipt",
   "expenses_receipt_link": "Link the receipt",
   "expenses_receipt_link_aria": "Link the receipt of {supplier}",
   "expenses_receipt_open_aria": "Open the receipt {name}",
@@ -1137,6 +1141,29 @@
   "expenses_reintegrated": "Back on the CA3",
   "expenses_row_menu_aria": "Actions for {supplier}",
   "expenses_save_failed": "The expense could not be saved. Try again in a moment.",
+  "expenses_scan_another": "Another receipt",
+  "expenses_scan_failed": "The receipt could not be read.",
+  "expenses_scan_fields_read": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} field read from {file}",
+        "countPlural=other": "{count} fields read from {file}"
+      }
+    }
+  ],
+  "expenses_scan_hint": "Check the fields, then save.",
+  "expenses_scan_hint_category": "Check the category and the pro share, then save. Every field stays editable.",
+  "expenses_scan_hint_manual": "The receipt stays attached; fill the fields by hand. Photos are not read yet.",
+  "expenses_scan_reading": "Reading {file}…",
+  "expenses_scan_source_read": "· read from the receipt",
+  "expenses_scan_source_suggested": "· suggested, check it",
+  "expenses_scan_step_text": "Extracting the text…",
+  "expenses_scan_throttled": "Too many receipts read in a row. Wait a minute, then try again.",
+  "expenses_scan_unreadable": "No readable text in {file}",
+  "expenses_scan_zone_aria": "Read the receipt",
+  "expenses_scan_zone_sub": "PDF · supplier, date, amounts and TVA are read for you",
   "expenses_select_col_aria": "Select",
   "expenses_select_row_aria": "Select {supplier}",
   "expenses_selected_count": [
@@ -1149,6 +1176,7 @@
       }
     }
   ],
+  "expenses_sheet_create_hint": "Read the receipt, or type it all in one line.",
   "expenses_sheet_edit_hint": "Change what is needed, then save.",
   "expenses_sheet_edit_title": "Edit the expense",
   "expenses_subscription_aria": "Subscription",

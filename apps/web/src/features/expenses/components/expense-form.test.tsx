@@ -1,3 +1,4 @@
+import type { ReceiptSuggestionData } from "@opusline/api-client";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
@@ -20,6 +21,7 @@ function renderForm(
     fieldErrors: null,
     onSubmit: vi.fn(),
     onCancel: vi.fn(),
+    onReadReceipt: vi.fn(async () => ({ textFound: false })),
     ...overrides,
   };
 
@@ -48,6 +50,7 @@ it("keeps « Enregistrer » off until there is a supplier and an amount", () => 
 it("fills the fields from one typed line", () => {
   renderForm();
 
+  fireEvent.click(screen.getByRole("button", { name: "Saisir" }));
   fireEvent.change(screen.getByLabelText("Saisie rapide"), {
     target: { value: "lunaprint 429 écran 20% 12/08" },
   });
@@ -110,6 +113,7 @@ it("puts a server error under its field", () => {
 it("keeps a field the user typed by hand when the quick line changes", () => {
   renderForm();
 
+  fireEvent.click(screen.getByRole("button", { name: "Saisir" }));
   fireEvent.change(screen.getByLabelText("Description"), {
     target: { value: "Écran 27 pouces" },
   });
@@ -169,4 +173,211 @@ it("holds the save while the picked receipt is not one", () => {
   fireEvent.click(screen.getByRole("button", { name: "Retirer" }));
 
   expect(screen.getByRole("button", { name: "Enregistrer" })).toBeEnabled();
+});
+
+function receiptFile(name = "lunaprint-facture.pdf"): File {
+  return new File(["%PDF-1.4"], name, { type: "application/pdf" });
+}
+
+function readingReceipt(suggestion: ReceiptSuggestionData) {
+  return vi.fn(async () => suggestion);
+}
+
+const readLunaprint: ReceiptSuggestionData = {
+  textFound: true,
+  supplier: { value: "Lunaprint", confidence: 2 },
+  amountTtc: { value: { amount: 42_900, currency: "EUR" }, confidence: 2 },
+  category: 0,
+};
+
+it("reads a dropped receipt and tags what it filled", async () => {
+  renderForm({ onReadReceipt: readingReceipt(readLunaprint) });
+
+  fireEvent.change(screen.getByLabelText("Lire la facture"), {
+    target: { files: [receiptFile()] },
+  });
+
+  expect(
+    await screen.findByText("2 champs lus sur lunaprint-facture.pdf"),
+  ).toBeInTheDocument();
+  expect(screen.getByLabelText(/^Fournisseur/)).toHaveValue("Lunaprint");
+  expect(screen.getByLabelText(/^Montant TTC/)).toHaveValue("429");
+  expect(screen.getAllByText("· lu sur la facture")).toHaveLength(2);
+  expect(screen.getByText("· suggérée, à vérifier")).toBeInTheDocument();
+});
+
+it("drops a field's tag once the user edits it", async () => {
+  renderForm({ onReadReceipt: readingReceipt(readLunaprint) });
+
+  fireEvent.change(screen.getByLabelText("Lire la facture"), {
+    target: { files: [receiptFile()] },
+  });
+  await screen.findByText("2 champs lus sur lunaprint-facture.pdf");
+
+  fireEvent.change(screen.getByLabelText(/^Fournisseur/), {
+    target: { value: "Lunaprint SAS" },
+  });
+
+  expect(screen.getAllByText("· lu sur la facture")).toHaveLength(1);
+});
+
+it("keeps what the user typed while the receipt was being read", async () => {
+  let finish: (suggestion: ReceiptSuggestionData) => void = () => {};
+  renderForm({
+    onReadReceipt: vi.fn(
+      () =>
+        new Promise<ReceiptSuggestionData>((resolve) => {
+          finish = resolve;
+        }),
+    ),
+  });
+
+  fireEvent.change(screen.getByLabelText("Lire la facture"), {
+    target: { files: [receiptFile()] },
+  });
+  expect(
+    await screen.findByText("Lecture de lunaprint-facture.pdf…"),
+  ).toBeInTheDocument();
+
+  fireEvent.change(screen.getByLabelText(/^Description/), {
+    target: { value: "Écran 27 pouces" },
+  });
+  finish(readLunaprint);
+
+  await screen.findByText("2 champs lus sur lunaprint-facture.pdf");
+  expect(screen.getByLabelText(/^Description/)).toHaveValue("Écran 27 pouces");
+  expect(screen.getByLabelText(/^Fournisseur/)).toHaveValue("Lunaprint");
+});
+
+it("ignores a read whose file was removed meanwhile", async () => {
+  let finish: (suggestion: ReceiptSuggestionData) => void = () => {};
+  renderForm({
+    onReadReceipt: vi.fn(
+      () =>
+        new Promise<ReceiptSuggestionData>((resolve) => {
+          finish = resolve;
+        }),
+    ),
+  });
+
+  fireEvent.change(screen.getByLabelText("Lire la facture"), {
+    target: { files: [receiptFile()] },
+  });
+  await screen.findByText("Lecture de lunaprint-facture.pdf…");
+  fireEvent.click(screen.getByRole("button", { name: "Retirer" }));
+  finish(readLunaprint);
+
+  await screen.findByLabelText("Lire la facture");
+  expect(screen.getByLabelText(/^Fournisseur/)).toHaveValue("");
+  expect(screen.queryByText("lunaprint-facture.pdf")).not.toBeInTheDocument();
+});
+
+it.each([
+  [
+    { textFound: false } as ReceiptSuggestionData,
+    "photo.png",
+    "Aucun texte lisible dans photo.png",
+  ],
+  [
+    { textFound: true, category: 3 } as ReceiptSuggestionData,
+    "scan.pdf",
+    "Aucun texte lisible dans scan.pdf",
+  ],
+])(
+  "keeps a receipt it read nothing from, and says so",
+  async (suggestion, name, notice) => {
+    renderForm({ onReadReceipt: readingReceipt(suggestion) });
+
+    fireEvent.change(screen.getByLabelText("Lire la facture"), {
+      target: { files: [receiptFile(name)] },
+    });
+
+    expect(await screen.findByText(notice)).toBeInTheDocument();
+    expect(screen.getByText(name)).toBeInTheDocument();
+    expect(
+      screen.queryByText("· suggérée, à vérifier"),
+    ).not.toBeInTheDocument();
+  },
+);
+
+it("tells a throttled read apart from a broken one", async () => {
+  renderForm({
+    onReadReceipt: vi.fn(async () => {
+      throw { status: 429, message: "Too Many Attempts." };
+    }),
+  });
+
+  fireEvent.change(screen.getByLabelText("Lire la facture"), {
+    target: { files: [receiptFile()] },
+  });
+
+  expect(
+    await screen.findByText(/Trop de factures lues d'affilée/),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole("button", { name: "Remplir depuis la facture" }),
+  ).toBeInTheDocument();
+});
+
+it("refuses a file the API would refuse before sending it", () => {
+  const props = renderForm();
+
+  fireEvent.change(screen.getByLabelText("Lire la facture"), {
+    target: {
+      files: [
+        new File(["x"], "setup.exe", { type: "application/octet-stream" }),
+      ],
+    },
+  });
+
+  expect(props.onReadReceipt).not.toHaveBeenCalled();
+  expect(
+    screen.getAllByText(
+      "Une facture est un PDF ou une photo (JPG, PNG, WebP).",
+    ),
+  ).not.toHaveLength(0);
+});
+
+it("reads a receipt picked while typing, and shows the outcome", async () => {
+  const props = renderForm({ onReadReceipt: readingReceipt(readLunaprint) });
+
+  fireEvent.click(screen.getByRole("button", { name: "Saisir" }));
+  fireEvent.change(screen.getByLabelText("Facture"), {
+    target: { files: [receiptFile()] },
+  });
+  fireEvent.click(
+    screen.getByRole("button", { name: "Remplir depuis la facture" }),
+  );
+
+  expect(props.onReadReceipt).toHaveBeenCalled();
+  expect(
+    await screen.findByText("2 champs lus sur lunaprint-facture.pdf"),
+  ).toBeInTheDocument();
+  expect(screen.getByLabelText(/^Fournisseur/)).toHaveValue("Lunaprint");
+  expect(
+    screen.queryByRole("button", { name: "Remplir depuis la facture" }),
+  ).not.toBeInTheDocument();
+});
+
+it("opens a prefilled create on its fields", () => {
+  renderForm({
+    initial: { ...emptyExpenseDraft("2026-08-13"), supplier: "Nordlys Cloud" },
+  });
+
+  expect(screen.getByLabelText("Saisie rapide")).toBeInTheDocument();
+  expect(screen.queryByLabelText("Lire la facture")).not.toBeInTheDocument();
+});
+
+it("offers no entry mode nor fill on an edit", () => {
+  renderForm({
+    initial: expenseToDraft(DEFAULT_MONEY_FORMAT, expense()),
+    mode: "edit",
+  });
+
+  expect(
+    screen.queryByRole("group", { name: "Mode de saisie" }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: "Remplir depuis la facture" }),
+  ).not.toBeInTheDocument();
 });
