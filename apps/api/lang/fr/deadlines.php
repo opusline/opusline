@@ -24,5 +24,6 @@ return [
         'VatCa12' => 'TVA — CA12',
         'Cfe' => 'CFE',
         'CfeInstalment' => 'CFE — acompte',
+        'IncomeTaxReturn' => 'Déclaration de revenus — 2042-C PRO',
     ],
 ];

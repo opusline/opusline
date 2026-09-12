@@ -142,6 +142,12 @@ test('the CA12 declares the year that closed, not the year it is filed in', func
         ->and($deadlines[0]->periodStart->toDateString())->toBe('2026-01-01');
 });
 
+test('the 2042-C PRO of a year is due at the end of the following May, rolled to a working day', function (): void {
+    // 31 May 2026 is a Sunday; 31 May 2027 a Monday.
+    expect(dueDates([], '2026-01-01', '2027-12-31', FiscalDeadlineKind::IncomeTaxReturn))
+        ->toBe(['2026-06-01', '2027-05-31']);
+});
+
 test('the CFE deadline stands whether or not an amount is known', function (): void {
     // The December date is statutory — hiding it until an amount is entered
     // would hide it exactly from the people who forgot it exists.

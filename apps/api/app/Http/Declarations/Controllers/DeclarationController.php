@@ -6,9 +6,9 @@ namespace App\Http\Declarations\Controllers;
 
 use App\Domain\Deadlines\Actions\ClearFiscalDeadlinePayment;
 use App\Domain\Deadlines\Actions\CompleteFiscalDeadline;
-use App\Domain\Deadlines\Actions\RecordFiscalDeadlinePayment;
 use App\Domain\Deadlines\Actions\UncompleteFiscalDeadline;
 use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
+use App\Domain\Declarations\Actions\RecordDeclarationPayment;
 use App\Domain\Declarations\Actions\SummarizeDeclarations;
 use App\Domain\Declarations\Data\CompleteDeclarationData;
 use App\Domain\Declarations\Data\SummarizeDeclarationsData;
@@ -62,9 +62,9 @@ class DeclarationController extends Controller
         string $periodKey,
         SummarizeDeclarationsData $data,
         #[CurrentUser] User $user,
-        RecordFiscalDeadlinePayment $recordFiscalDeadlinePayment,
+        RecordDeclarationPayment $recordDeclarationPayment,
     ): JsonResponse {
-        $screen = $this->summarizeDeclarations->handleAfter($user, $data, fn () => $recordFiscalDeadlinePayment->handle($user, $this->kind($kind), $periodKey));
+        $screen = $this->summarizeDeclarations->handleAfter($user, $data, fn () => $recordDeclarationPayment->handle($user, $this->kind($kind), $periodKey));
 
         return response()->json($screen, 201);
     }

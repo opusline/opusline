@@ -43,10 +43,11 @@ test('lists the fiscal calendar the account profile produces', function (): void
     $kinds = fiscalItems($user)->pluck('kind')->unique()->sort()->values()->all();
 
     // A default account is under the franchise en base: URSSAF every month,
-    // and the statutory December CFE — amount or not.
+    // the statutory December CFE — amount or not — and the spring 2042.
     expect($kinds)->toBe([
         FiscalDeadlineKind::UrssafDeclaration->value,
         FiscalDeadlineKind::Cfe->value,
+        FiscalDeadlineKind::IncomeTaxReturn->value,
     ]);
 });
 
