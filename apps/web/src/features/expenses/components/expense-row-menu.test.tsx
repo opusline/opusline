@@ -12,6 +12,8 @@ it("asks once more before detaching the receipt", async () => {
       expense={expense()}
       onDelete={() => {}}
       onDetachReceipt={onDetachReceipt}
+      onDuplicate={() => {}}
+      onEdit={() => {}}
     />,
   );
 
@@ -39,6 +41,8 @@ it("offers no detachment when there is no receipt", async () => {
       expense={blockedExpense()}
       onDelete={() => {}}
       onDetachReceipt={() => {}}
+      onDuplicate={() => {}}
+      onEdit={() => {}}
     />,
   );
 

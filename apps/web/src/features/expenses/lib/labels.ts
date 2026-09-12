@@ -34,6 +34,11 @@ const EXPENSE_CATEGORY_MESSAGES: Record<ExpenseCategory, () => string> = {
   12: m.expense_category_other,
 };
 
+/** Every category, in the enum's order — derived from the label map so a new case is one edit. */
+export const EXPENSE_CATEGORIES: readonly ExpenseCategory[] = Object.keys(
+  EXPENSE_CATEGORY_MESSAGES,
+).map(Number) as ExpenseCategory[];
+
 export function expenseCategoryLabel(category: ExpenseCategory): string {
   return EXPENSE_CATEGORY_MESSAGES[category]();
 }

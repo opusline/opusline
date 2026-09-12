@@ -6,17 +6,17 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{}} Expense_Category_Warning_FuelInputs */
 
 const en_expense_category_warning_fuel = /** @type {(inputs: Expense_Category_Warning_FuelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`TVA not recoverable`)
+	return /** @type {LocalizedString} */ (`TVA not recoverable.`)
 };
 
 const fr_expense_category_warning_fuel = /** @type {(inputs: Expense_Category_Warning_FuelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`TVA non récupérable`)
+	return /** @type {LocalizedString} */ (`TVA non récupérable.`)
 };
 
 /**
 * | output |
 * | --- |
-* | "TVA not recoverable" |
+* | "TVA not recoverable." |
 *
 * @param {Expense_Category_Warning_FuelInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options
