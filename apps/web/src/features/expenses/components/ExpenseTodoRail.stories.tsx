@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
+import { StoryRouter } from "@/test/story-router";
+
 import { expensesMonth } from "../lib/fixtures";
 import { ExpenseTodoRail } from "./expense-todo-rail";
 
@@ -15,9 +17,11 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <div className="w-66">
-        <Story />
-      </div>
+      <StoryRouter>
+        <div className="w-66">
+          <Story />
+        </div>
+      </StoryRouter>
     ),
   ],
 } satisfies Meta<typeof ExpenseTodoRail>;
