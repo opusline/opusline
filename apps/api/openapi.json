@@ -1989,6 +1989,19 @@
                 "tags": [
                     "Declaration"
                 ],
+                "parameters": [
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "pattern": "^(19|20)\\d{2}-(0[1-9]|1[0-2])$"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -2002,6 +2015,9 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     }
                 }
             }
@@ -5812,6 +5828,58 @@
                 ],
                 "title": "BillingMode"
             },
+            "Ca3BoxesData": {
+                "type": "object",
+                "properties": {
+                    "salesHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "intraCommunityPurchasesHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "nonEuPurchasesHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "taxableBase": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "collected": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "fixedAssets": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "goodsAndServices": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "otherDeductible": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "creditCarried": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "credit": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "due": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "salesHt",
+                    "intraCommunityPurchasesHt",
+                    "nonEuPurchasesHt",
+                    "taxableBase",
+                    "collected",
+                    "fixedAssets",
+                    "goodsAndServices",
+                    "otherDeductible",
+                    "creditCarried",
+                    "credit",
+                    "due"
+                ],
+                "title": "Ca3BoxesData"
+            },
             "CalendarFeedData": {
                 "type": "object",
                 "properties": {
@@ -7192,9 +7260,54 @@
                 ],
                 "title": "DeadlineReminderData"
             },
+            "DeclarationCompletionData": {
+                "type": "object",
+                "properties": {
+                    "declaredOn": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "declaredOn"
+                ],
+                "title": "DeclarationCompletionData"
+            },
+            "DeclarationDeadlineData": {
+                "type": "object",
+                "properties": {
+                    "dueOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "daysLeft": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "dueOn",
+                    "daysLeft"
+                ],
+                "title": "DeclarationDeadlineData"
+            },
             "DeclarationsData": {
                 "type": "object",
                 "properties": {
+                    "period": {
+                        "type": "string"
+                    },
+                    "previousPeriod": {
+                        "type": "string"
+                    },
+                    "nextPeriod": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "isDefault": {
+                        "type": "boolean"
+                    },
                     "urssaf": {
                         "anyOf": [
                             {
@@ -7217,6 +7330,10 @@
                     }
                 },
                 "required": [
+                    "period",
+                    "previousPeriod",
+                    "nextPeriod",
+                    "isDefault",
                     "urssaf",
                     "vat"
                 ],
@@ -11094,14 +11211,44 @@
                     "periodicity": {
                         "$ref": "#/components/schemas/UrssafPeriodicity"
                     },
+                    "coversShownMonth": {
+                        "type": "boolean"
+                    },
                     "base": {
                         "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "invoiceCount": {
+                        "type": "integer"
+                    },
+                    "deadline": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeclarationDeadlineData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "completion": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeclarationCompletionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
                     "period",
                     "periodicity",
-                    "base"
+                    "coversShownMonth",
+                    "base",
+                    "invoiceCount",
+                    "deadline",
+                    "completion"
                 ],
                 "title": "UrssafDeclarationData"
             },
@@ -11212,6 +11359,41 @@
                             "integer",
                             "null"
                         ]
+                    },
+                    "boxes": {
+                        "$ref": "#/components/schemas/Ca3BoxesData"
+                    },
+                    "invoiceCount": {
+                        "type": "integer"
+                    },
+                    "expenseCount": {
+                        "type": "integer"
+                    },
+                    "reverseChargedVat": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "creditIsRefundable": {
+                        "type": "boolean"
+                    },
+                    "deadline": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeclarationDeadlineData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "completion": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeclarationCompletionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -11219,7 +11401,14 @@
                     "regime",
                     "salesHt",
                     "collected",
-                    "rateBp"
+                    "rateBp",
+                    "boxes",
+                    "invoiceCount",
+                    "expenseCount",
+                    "reverseChargedVat",
+                    "creditIsRefundable",
+                    "deadline",
+                    "completion"
                 ],
                 "title": "VatDeclarationData"
             },

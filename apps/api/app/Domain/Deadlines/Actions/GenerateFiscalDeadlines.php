@@ -319,12 +319,12 @@ class GenerateFiscalDeadlines
 
     private function monthKey(CarbonImmutable $start): string
     {
-        return $start->format('Y-m');
+        return FiscalDeadline::monthKey($start);
     }
 
     private function quarterKey(CarbonImmutable $start): string
     {
-        return sprintf('%d-Q%d', $start->year, $start->quarter);
+        return FiscalDeadline::quarterKey($start);
     }
 
     private function date(int $year, int $month, int $day): CarbonImmutable
