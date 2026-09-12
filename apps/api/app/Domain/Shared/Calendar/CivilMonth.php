@@ -16,4 +16,7 @@ namespace App\Domain\Shared\Calendar;
 final readonly class CivilMonth
 {
     public const string EXPRESSION = '/^(19|20)\d{2}-(0[1-9]|1[0-2])$/';
+
+    /** The first day EXPRESSION accepts, for the date fields whose months must stay reachable. */
+    public const string EARLIEST_DAY = '1900-01-01';
 }
