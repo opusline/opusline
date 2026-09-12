@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 return [
     'unknown_occurrence' => 'This deadline is not one your fiscal profile produces.',
+    'not_completed' => 'Mark the return as filed before recording its payment.',
 
     'calendar_name' => 'Opusline — échéances fiscales',
     'calendar_description' => 'URSSAF, TVA and CFE, kept up to date by Opusline.',

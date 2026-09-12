@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $period_key
  * @property CarbonImmutable $due_on
  * @property CarbonImmutable $completed_on
+ * @property ?CarbonImmutable $paid_on
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  * @property-read User $user
@@ -36,6 +37,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'period_key',
     'due_on',
     'completed_on',
+    'paid_on',
 ])]
 #[Table('fiscal_deadline_completions')]
 class FiscalDeadlineCompletion extends Model
@@ -60,6 +62,7 @@ class FiscalDeadlineCompletion extends Model
             'kind' => FiscalDeadlineKind::class,
             'due_on' => CalendarDate::class,
             'completed_on' => CalendarDate::class,
+            'paid_on' => CalendarDate::class,
         ];
     }
 

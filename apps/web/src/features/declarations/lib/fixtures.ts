@@ -77,6 +77,7 @@ export function declarationsData(
       shareBp: 8597,
       margin: { amount: 1_090_000, currency: "EUR" },
     },
+    history: [],
     ...overrides,
   };
 }

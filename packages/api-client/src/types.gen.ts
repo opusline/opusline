@@ -279,6 +279,15 @@ export type ClientWithMissionsData = {
 export type Color = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 /**
+ * CompleteDeclarationData
+ */
+export type CompleteDeclarationData = {
+    kind: FiscalDeadlineKind;
+    periodKey: string;
+    period?: string | null;
+};
+
+/**
  * CompleteFiscalDeadlineData
  */
 export type CompleteFiscalDeadlineData = {
@@ -572,6 +581,7 @@ export type DeadlineReminderData = {
  */
 export type DeclarationCompletionData = {
     declaredOn: string;
+    paidOn: string | null;
 };
 
 /**
@@ -580,6 +590,33 @@ export type DeclarationCompletionData = {
 export type DeclarationDeadlineData = {
     dueOn: string;
     daysLeft: number;
+};
+
+/**
+ * DeclarationHistoryRowData
+ */
+export type DeclarationHistoryRowData = {
+    period: string;
+    urssaf: DeclarationHistoryUrssafData | null;
+    vat: DeclarationHistoryVatData | null;
+};
+
+/**
+ * DeclarationHistoryUrssafData
+ */
+export type DeclarationHistoryUrssafData = {
+    period: string;
+    total: MoneyData;
+    completion: DeclarationCompletionData | null;
+};
+
+/**
+ * DeclarationHistoryVatData
+ */
+export type DeclarationHistoryVatData = {
+    due: MoneyData;
+    credit: MoneyData;
+    completion: DeclarationCompletionData | null;
 };
 
 /**
@@ -593,6 +630,7 @@ export type DeclarationsData = {
     urssaf: UrssafDeclarationData | null;
     vat: VatDeclarationData | null;
     cumulative: RevenueCeilingData | null;
+    history: Array<DeclarationHistoryRowData>;
 };
 
 /**
@@ -1468,6 +1506,13 @@ export type StopTimerData = {
     rounding?: EntryRounding | null;
     note: string | null;
     billable?: boolean;
+};
+
+/**
+ * SummarizeDeclarationsData
+ */
+export type SummarizeDeclarationsData = {
+    period?: string | null;
 };
 
 /**
@@ -3819,6 +3864,187 @@ export type ShowDeclarationsResponses = {
 };
 
 export type ShowDeclarationsResponse = ShowDeclarationsResponses[keyof ShowDeclarationsResponses];
+
+export type MarkDeclarationFiledData = {
+    body: CompleteDeclarationData;
+    path?: never;
+    query?: never;
+    url: '/declarations/completions';
+};
+
+export type MarkDeclarationFiledErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type MarkDeclarationFiledError = MarkDeclarationFiledErrors[keyof MarkDeclarationFiledErrors];
+
+export type MarkDeclarationFiledResponses = {
+    201: DeclarationsData;
+};
+
+export type MarkDeclarationFiledResponse = MarkDeclarationFiledResponses[keyof MarkDeclarationFiledResponses];
+
+export type UnmarkDeclarationFiledData = {
+    body?: never;
+    path: {
+        kind: number;
+        periodKey: string;
+    };
+    query?: {
+        period?: string | null;
+    };
+    url: '/declarations/completions/{kind}/{periodKey}';
+};
+
+export type UnmarkDeclarationFiledErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type UnmarkDeclarationFiledError = UnmarkDeclarationFiledErrors[keyof UnmarkDeclarationFiledErrors];
+
+export type UnmarkDeclarationFiledResponses = {
+    200: DeclarationsData;
+};
+
+export type UnmarkDeclarationFiledResponse = UnmarkDeclarationFiledResponses[keyof UnmarkDeclarationFiledResponses];
+
+export type ClearDeclarationPaymentData = {
+    body?: never;
+    path: {
+        kind: number;
+        periodKey: string;
+    };
+    query?: {
+        period?: string | null;
+    };
+    url: '/declarations/completions/{kind}/{periodKey}/payment';
+};
+
+export type ClearDeclarationPaymentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type ClearDeclarationPaymentError = ClearDeclarationPaymentErrors[keyof ClearDeclarationPaymentErrors];
+
+export type ClearDeclarationPaymentResponses = {
+    200: DeclarationsData;
+};
+
+export type ClearDeclarationPaymentResponse = ClearDeclarationPaymentResponses[keyof ClearDeclarationPaymentResponses];
+
+export type RecordDeclarationPaymentData = {
+    body?: SummarizeDeclarationsData;
+    path: {
+        kind: number;
+        periodKey: string;
+    };
+    query?: never;
+    url: '/declarations/completions/{kind}/{periodKey}/payment';
+};
+
+export type RecordDeclarationPaymentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type RecordDeclarationPaymentError = RecordDeclarationPaymentErrors[keyof RecordDeclarationPaymentErrors];
+
+export type RecordDeclarationPaymentResponses = {
+    201: DeclarationsData;
+};
+
+export type RecordDeclarationPaymentResponse = RecordDeclarationPaymentResponses[keyof RecordDeclarationPaymentResponses];
 
 export type ListDocumentLibraryData = {
     body?: never;
