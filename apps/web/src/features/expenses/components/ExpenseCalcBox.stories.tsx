@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { expenseAmountsFromTtc, vatChoiceTerms } from "../lib/vat";
-import { ExpenseCalcBox } from "./expense-calc-box";
+import { CalcBox, ExpenseCalcBox } from "./expense-calc-box";
 
 const meta = {
   title: "Web/Expenses/ExpenseCalcBox",
@@ -58,4 +58,16 @@ export const Franchise: Story = {
     amounts: expenseAmountsFromTtc(42_900, vatChoiceTerms("exempt"), 10_000),
     isVatLiable: false,
   },
+};
+
+/** The subscription sheet's box: the third cell is « Par an ». */
+export const PerYear: Story = {
+  render: () => (
+    <CalcBox
+      amounts={expenseAmountsFromTtc(2_880, vatChoiceTerms("fr20"), 10_000)}
+      isVatLiable
+      trailing={{ label: "Par an", value: "346 €" }}
+      vatTerms={vatChoiceTerms("fr20")}
+    />
+  ),
 };

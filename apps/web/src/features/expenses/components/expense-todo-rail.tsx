@@ -8,6 +8,7 @@ import { Button } from "@opusline/ui/components/button";
 import { Dropzone } from "@opusline/ui/components/dropzone";
 import { Eyebrow } from "@opusline/ui/components/eyebrow";
 import { cn } from "@opusline/ui/lib/utils";
+import { Link } from "@tanstack/react-router";
 import { PaperclipIcon } from "lucide-react";
 import { useId } from "react";
 
@@ -85,6 +86,13 @@ export function ExpenseTodoRail({
           />
         ))}
       </ul>
+      <Link
+        className="mx-0.5 text-link text-sm transition-colors hover:text-link-hover"
+        search={(current) => ({ ...current, tab: "subscriptions" })}
+        to="/expenses"
+      >
+        {m.expenses_todo_all_subscriptions()}
+      </Link>
     </aside>
   );
 }

@@ -8,6 +8,7 @@ import {
   linkExpenseBankMovementMutation,
   listExpensesOptions,
   listExpensesQueryKey,
+  listSubscriptionsOptions,
   recategorizeExpensesMutation,
   reintegrateExpenseVatMutation,
   unmarkDeclarationFiledMutation,
@@ -15,6 +16,7 @@ import {
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
+import { Chip, ChipGroup } from "@opusline/ui/components/chip";
 import { PeriodNavigator } from "@opusline/ui/components/period-navigator";
 import {
   SegmentedControl,
@@ -29,7 +31,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { PlusIcon } from "lucide-react";
+import { CheckIcon, PlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { useLocale, useMoneyFormat } from "@/components/money-format-provider";
@@ -38,8 +40,13 @@ import {
   ExpenseSheet,
   type ExpenseSheetState,
 } from "@/features/expenses/components/expense-sheet";
-import { ExpensesPage } from "@/features/expenses/components/expenses-page";
+import {
+  ExpensesPage,
+  type ExpensesTab,
+} from "@/features/expenses/components/expenses-page";
 import { JournalTab } from "@/features/expenses/components/journal-tab";
+import type { SubscriptionSheetState } from "@/features/expenses/components/subscription-sheet";
+import { SubscriptionsPanel } from "@/features/expenses/components/subscriptions-panel";
 import { type AmountUnit, isAmountUnit } from "@/features/expenses/lib/amounts";
 import {
   draftToPayload,
@@ -49,6 +56,7 @@ import {
 } from "@/features/expenses/lib/expense-draft";
 import { monthName } from "@/features/expenses/lib/labels";
 import { receiptRejection } from "@/features/expenses/lib/receipts";
+import { emptySubscriptionDraft } from "@/features/expenses/lib/subscription-draft";
 import { formatAmount } from "@/lib/billing";
 import { accountTodayCalendarDate } from "@/lib/dates";
 import { requireFrenchFiscality } from "@/lib/fiscality";
@@ -67,7 +75,11 @@ import {
 } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
-type ExpensesSearch = { period?: string; expense?: number };
+type ExpensesSearch = {
+  period?: string;
+  expense?: number;
+  tab?: "subscriptions";
+};
 
 export const Route = createFileRoute("/_authed/expenses")({
   validateSearch: (search: Record<string, unknown>): ExpensesSearch => {
@@ -79,6 +91,7 @@ export const Route = createFileRoute("/_authed/expenses")({
           ? search.period
           : undefined,
       expense: Number.isInteger(expense) && expense > 0 ? expense : undefined,
+      tab: search.tab === "subscriptions" ? "subscriptions" : undefined,
     };
   },
   beforeLoad: ({ context }) => requireFrenchFiscality(context.user),
@@ -104,6 +117,14 @@ function ExpensesRoute() {
     ),
     placeholderData: keepPreviousData,
   });
+  const tab: ExpensesTab = search.tab ?? "journal";
+  const subscriptions = useQuery({
+    ...listSubscriptionsOptions(),
+    enabled: tab === "subscriptions",
+  });
+  const [showCancelled, setShowCancelled] = useState(false);
+  const [subscriptionSheet, setSubscriptionSheet] =
+    useState<SubscriptionSheetState | null>(null);
 
   const [unit, setUnit] = useState<AmountUnit>("ht");
   const [expenseToDelete, setExpenseToDelete] = useState<ExpenseData | null>(
@@ -465,110 +486,178 @@ function ExpensesRoute() {
 
       <ExpensesPage
         action={
-          <Button
-            onClick={() =>
-              setSheet({ mode: "create", initial: emptyExpenseDraft(today) })
-            }
-            size="xl"
-          >
-            <PlusIcon aria-hidden />
-            {m.expenses_add()}
-          </Button>
+          tab === "journal" ? (
+            <Button
+              onClick={() =>
+                setSheet({ mode: "create", initial: emptyExpenseDraft(today) })
+              }
+              size="xl"
+            >
+              <PlusIcon aria-hidden />
+              {m.expenses_add()}
+            </Button>
+          ) : (
+            <Button
+              onClick={() =>
+                setSubscriptionSheet({
+                  mode: "create",
+                  initial: emptySubscriptionDraft(today),
+                })
+              }
+              size="xl"
+            >
+              <PlusIcon aria-hidden />
+              {m.subscriptions_add()}
+            </Button>
+          )
         }
         controls={
-          <>
-            <PeriodNavigator
-              isNextDisabled={isAtOrAfterCurrent(month, today)}
-              label={periodTitle(locale, month)}
-              nextLabel={m.expenses_next_month()}
-              onNext={() => showPeriod(shiftPeriod(month, 1))}
-              onPrevious={() => showPeriod(shiftPeriod(month, -1))}
-              previousLabel={m.expenses_previous_month()}
-              size="sm"
-            />
-            {isVatLiable && (
-              <SegmentedControl
-                aria-label={m.expenses_unit_aria()}
-                onValueChange={(value) => {
-                  const next = value[0];
-
-                  if (isAmountUnit(next)) {
-                    setUnit(next);
-                  }
-                }}
+          tab === "journal" ? (
+            <>
+              <PeriodNavigator
+                isNextDisabled={isAtOrAfterCurrent(month, today)}
+                label={periodTitle(locale, month)}
+                nextLabel={m.expenses_next_month()}
+                onNext={() => showPeriod(shiftPeriod(month, 1))}
+                onPrevious={() => showPeriod(shiftPeriod(month, -1))}
+                previousLabel={m.expenses_previous_month()}
                 size="sm"
-                value={[unit]}
-                variant="raised"
-              >
-                <SegmentedControlItem value="ht">
-                  {m.common_ht()}
-                </SegmentedControlItem>
-                <SegmentedControlItem value="ttc">
-                  {m.expenses_col_ttc()}
-                </SegmentedControlItem>
-              </SegmentedControl>
-            )}
-          </>
+              />
+              {isVatLiable && (
+                <SegmentedControl
+                  aria-label={m.expenses_unit_aria()}
+                  onValueChange={(value) => {
+                    const next = value[0];
+
+                    if (isAmountUnit(next)) {
+                      setUnit(next);
+                    }
+                  }}
+                  size="sm"
+                  value={[unit]}
+                  variant="raised"
+                >
+                  <SegmentedControlItem value="ht">
+                    {m.common_ht()}
+                  </SegmentedControlItem>
+                  <SegmentedControlItem value="ttc">
+                    {m.expenses_col_ttc()}
+                  </SegmentedControlItem>
+                </SegmentedControl>
+              )}
+            </>
+          ) : (
+            <ChipGroup
+              aria-label={m.subscriptions_cancelled_toggle_aria()}
+              onValueChange={(value) => setShowCancelled(value.length > 0)}
+              value={showCancelled ? ["cancelled"] : []}
+            >
+              <Chip size="sm" value="cancelled">
+                <CheckIcon aria-hidden />
+                {m.subscriptions_cancelled_toggle({
+                  count:
+                    subscriptions.data?.subscriptions.filter(
+                      (subscription) => subscription.cancelledOn !== null,
+                    ).length ?? 0,
+                })}
+              </Chip>
+            </ChipGroup>
+          )
         }
+        onTabChange={(next) => {
+          setSubscriptionSheet(null);
+          navigate({
+            to: "/expenses",
+            search: {
+              period: search.period,
+              tab: next === "subscriptions" ? "subscriptions" : undefined,
+            },
+          });
+        }}
+        tab={tab}
       >
-        <JournalTab
-          isRefreshing={journal.isPlaceholderData}
-          key={loadedMonth}
-          month={journal.data}
-          onAttachReceipt={onAttachReceipt}
-          onDelete={setExpenseToDelete}
-          onDetachReceipt={(expense) =>
-            detachReceipt.mutate({ path: { expense: expense.id } })
-          }
-          onDuplicate={(expense) =>
-            setSheet({
-              mode: "create",
-              initial: { ...expenseToDraft(format, expense), spentOn: today },
-            })
-          }
-          onEdit={(expense) => setSheet({ mode: "edit", expense })}
-          isBulkBusy={recategorize.isPending || deferVat.isPending}
-          isUndoBusy={undoDeclared.isPending}
-          onCreateFromDebit={(todo) => {
-            setDebitToLink(todo.bankMovementId);
-            setSheet({
-              mode: "create",
-              initial: {
-                ...emptyExpenseDraft(today),
-                supplier: todo.label,
-                spentOn: todo.date,
-                ttc: formatAmount(format, todo.amount.amount),
-              },
-            });
-          }}
-          onDeferSelectedVat={(expenseIds) =>
-            deferVat.mutate({ body: { expenseIds } })
-          }
-          onDeferVat={(expense) =>
-            deferVat.mutate({ body: { expenseIds: [expense.id] } })
-          }
-          onLinkReceiptHint={() =>
-            toast.add({ title: m.expenses_bulk_link_hint() })
-          }
-          onRecategorize={(expenseIds, category) =>
-            recategorize.mutate({ body: { expenseIds, category } })
-          }
-          onReintegrateVat={(expense) =>
-            reintegrateVat.mutate({ path: { expense: expense.id } })
-          }
-          onUndoDeclared={() =>
-            undoDeclared.mutate({
-              path: { kind: 1, periodKey: loadedMonth },
-              query: { period: loadedMonth },
-            })
-          }
-          unit={isVatLiable ? unit : "ttc"}
-          uploadingExpenseId={
-            attachReceipt.isPending
-              ? (attachReceipt.variables?.path.expense ?? null)
-              : null
-          }
-        />
+        {tab === "subscriptions" ? (
+          subscriptions.data === undefined ? (
+            subscriptions.isError ? (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  {m.subscriptions_load_failed()}
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <Skeleton className="h-96 w-full" />
+            )
+          ) : (
+            <SubscriptionsPanel
+              data={subscriptions.data}
+              isRefreshing={subscriptions.isFetching}
+              isVatLiable={isVatLiable}
+              onSheetChange={setSubscriptionSheet}
+              sheet={subscriptionSheet}
+              showCancelled={showCancelled}
+              today={today}
+            />
+          )
+        ) : (
+          <JournalTab
+            isRefreshing={journal.isPlaceholderData}
+            key={loadedMonth}
+            month={journal.data}
+            onAttachReceipt={onAttachReceipt}
+            onDelete={setExpenseToDelete}
+            onDetachReceipt={(expense) =>
+              detachReceipt.mutate({ path: { expense: expense.id } })
+            }
+            onDuplicate={(expense) =>
+              setSheet({
+                mode: "create",
+                initial: { ...expenseToDraft(format, expense), spentOn: today },
+              })
+            }
+            onEdit={(expense) => setSheet({ mode: "edit", expense })}
+            isBulkBusy={recategorize.isPending || deferVat.isPending}
+            isUndoBusy={undoDeclared.isPending}
+            onCreateFromDebit={(todo) => {
+              setDebitToLink(todo.bankMovementId);
+              setSheet({
+                mode: "create",
+                initial: {
+                  ...emptyExpenseDraft(today),
+                  supplier: todo.label,
+                  spentOn: todo.date,
+                  ttc: formatAmount(format, todo.amount.amount),
+                },
+              });
+            }}
+            onDeferSelectedVat={(expenseIds) =>
+              deferVat.mutate({ body: { expenseIds } })
+            }
+            onDeferVat={(expense) =>
+              deferVat.mutate({ body: { expenseIds: [expense.id] } })
+            }
+            onLinkReceiptHint={() =>
+              toast.add({ title: m.expenses_bulk_link_hint() })
+            }
+            onRecategorize={(expenseIds, category) =>
+              recategorize.mutate({ body: { expenseIds, category } })
+            }
+            onReintegrateVat={(expense) =>
+              reintegrateVat.mutate({ path: { expense: expense.id } })
+            }
+            onUndoDeclared={() =>
+              undoDeclared.mutate({
+                path: { kind: 1, periodKey: loadedMonth },
+                query: { period: loadedMonth },
+              })
+            }
+            unit={isVatLiable ? unit : "ttc"}
+            uploadingExpenseId={
+              attachReceipt.isPending
+                ? (attachReceipt.variables?.path.expense ?? null)
+                : null
+            }
+          />
+        )}
       </ExpensesPage>
 
       <ExpenseSheet

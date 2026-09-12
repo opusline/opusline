@@ -84,25 +84,35 @@ export function expenseToDraft(
 }
 
 /** The pair the row will carry: the chip's, or the stored one while no chip is picked. */
-export function draftVatTerms(draft: ExpenseDraft): VatTerms {
+export function draftVatTerms(
+  draft: Pick<ExpenseDraft, "vatChoice" | "vatTerms">,
+): VatTerms {
   return draft.vatChoice === null
     ? draft.vatTerms
     : vatChoiceTerms(draft.vatChoice);
+}
+
+/** The typed amount as positive cents, or null while it is not one yet. */
+export function positiveCentsOrNull(
+  format: MoneyFormat,
+  typed: string,
+): number | null {
+  const cents = parseSignedAmountToCents(format.locale, typed);
+
+  return cents === null || cents <= 0 ? null : cents;
 }
 
 export function draftTtcCents(
   format: MoneyFormat,
   draft: ExpenseDraft,
 ): number | null {
-  const cents = parseSignedAmountToCents(format.locale, draft.ttc);
-
-  return cents === null || cents <= 0 ? null : cents;
+  return positiveCentsOrNull(format, draft.ttc);
 }
 
 /** Basis points, or null when the typed share is not a number. */
 export function draftProShareBp(
   format: MoneyFormat,
-  draft: ExpenseDraft,
+  draft: Pick<ExpenseDraft, "proShare">,
 ): number | null {
   const share = parseDecimal(format.locale, draft.proShare);
 
@@ -111,11 +121,16 @@ export function draftProShareBp(
     : Math.round(Math.min(100, Math.max(0, share)) * 100);
 }
 
-/** The day a recurring draft debits on, or null when the switch is on but the day is not one. */
-export function draftRecurringDay(draft: ExpenseDraft): number | null {
-  const day = Number(draft.recurringDay);
+/** 1–31 as typed, or null when it is not a day of a month. */
+export function dayOfMonthOrNull(typed: string): number | null {
+  const day = Number(typed);
 
   return Number.isInteger(day) && day >= 1 && day <= 31 ? day : null;
+}
+
+/** The day a recurring draft debits on, or null when the switch is on but the day is not one. */
+export function draftRecurringDay(draft: ExpenseDraft): number | null {
+  return dayOfMonthOrNull(draft.recurringDay);
 }
 
 /**

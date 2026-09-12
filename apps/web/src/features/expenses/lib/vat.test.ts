@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  expenseAmountsFromHt,
   expenseAmountsFromTtc,
   VAT_CHOICES,
   vatChoiceOf,
@@ -73,4 +74,22 @@ describe("expenseAmountsFromTtc", () => {
         .htCents,
     ).toBe(9_794);
   });
+});
+
+describe("expenseAmountsFromHt", () => {
+  it.each([
+    [2_400, { vatTreatment: 0, vatRateBp: 2_000 }, 10_000, [480, 2_880, 480]],
+    [2_417, { vatTreatment: 1, vatRateBp: 2_000 }, 7_000, [483, 2_417, 338]],
+    [31_200, { vatTreatment: 3, vatRateBp: 0 }, 10_000, [0, 31_200, 0]],
+  ] as const)(
+    "mirrors the API's amounts from %i HT",
+    (ht, terms, shareBp, [vat, ttc, recoverable]) => {
+      expect(expenseAmountsFromHt(ht, terms, shareBp)).toEqual({
+        htCents: ht,
+        vatCents: vat,
+        ttcCents: ttc,
+        recoverableCents: recoverable,
+      });
+    },
+  );
 });

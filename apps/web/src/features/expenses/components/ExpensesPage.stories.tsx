@@ -19,6 +19,8 @@ const meta = {
   tags: ["autodocs"],
   parameters: { layout: "fullscreen" },
   args: {
+    tab: "journal",
+    onTabChange: () => {},
     action: (
       <Button size="xl">
         <PlusIcon aria-hidden />
