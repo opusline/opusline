@@ -34,6 +34,12 @@ class ExpenseFactory extends Factory
             'category' => ExpenseCategory::Phone,
             'description' => 'Forfait mobile',
             'spent_on' => CarbonImmutable::today(),
+            'vat_claim_period' => function (array $attributes): string {
+                $spentOn = $attributes['spent_on'];
+                assert($spentOn instanceof CarbonImmutable || is_string($spentOn));
+
+                return CarbonImmutable::parse($spentOn)->format('Y-m');
+            },
             'vat_treatment' => ExpenseVatTreatment::Domestic,
             'vat_rate_bp' => 2_000,
             'pro_share_bp' => Rate::BASIS_POINTS,

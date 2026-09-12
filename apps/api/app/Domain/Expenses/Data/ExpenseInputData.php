@@ -49,4 +49,10 @@ class ExpenseInputData extends Data
         #[StringType, Max(255)]
         public ?string $description = null,
     ) {}
+
+    /** The `Y-m` journal the purchase is listed in. */
+    public function month(): string
+    {
+        return substr($this->spentOn, 0, 7);
+    }
 }

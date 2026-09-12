@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Domain\Expenses\Models;
 
 use App\Domain\Expenses\Enums\ExpenseCategory;
+use App\Domain\Expenses\Enums\ExpenseVatStatus;
 use App\Domain\Expenses\Enums\ExpenseVatTreatment;
 use App\Domain\Expenses\Factories\ExpenseFactory;
+use App\Domain\Expenses\Vat\DeclaredCa3Months;
 use App\Domain\Expenses\Vat\ExpenseAmounts;
 use App\Domain\Shared\Casts\CalendarDate;
 use App\Domain\Shared\Routing\OwnedRouteBinding;
@@ -35,6 +37,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property ExpenseCategory $category
  * @property ?string $description
  * @property CarbonImmutable $spent_on
+ * @property string $vat_claim_period
  * @property ExpenseVatTreatment $vat_treatment
  * @property int $vat_rate_bp
  * @property int $pro_share_bp
@@ -50,6 +53,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
     'category',
     'description',
     'spent_on',
+    'vat_claim_period',
     'vat_treatment',
     'vat_rate_bp',
     'pro_share_bp',
@@ -125,6 +129,54 @@ class Expense extends Model implements HasMedia
     public function month(): string
     {
         return $this->spent_on->format('Y-m');
+    }
+
+    /** Whether the claim landed on a later month than the purchase, by hand or because its own was declared. */
+    public function isDeferred(): bool
+    {
+        return $this->vat_claim_period !== $this->month();
+    }
+
+    /**
+     * Whether the receipt carries TVA the account may recover: a French
+     * supplier's rate on it. Reverse charge nets to nothing, exemption and an
+     * untracked 0 % carry none.
+     */
+    public function hasDeductibleVat(): bool
+    {
+        return $this->vat_treatment === ExpenseVatTreatment::Domestic && $this->vat_rate_bp > 0;
+    }
+
+    /** @param  ?DeclaredCa3Months  $declared  null for an account that files no CA3 */
+    public function vatStatus(?DeclaredCa3Months $declared): ExpenseVatStatus
+    {
+        if (! $declared instanceof DeclaredCa3Months) {
+            return ExpenseVatStatus::NotApplicable;
+        }
+
+        if ($this->vat_treatment->isReverseCharge()) {
+            return ExpenseVatStatus::ReverseCharged;
+        }
+
+        if (! $this->hasDeductibleVat()) {
+            return ExpenseVatStatus::NotApplicable;
+        }
+
+        if (! $this->receipt() instanceof Media) {
+            return ExpenseVatStatus::Blocked;
+        }
+
+        if ($this->isDeferred()) {
+            return ExpenseVatStatus::Deferred;
+        }
+
+        return $declared->isDeclared($this->vat_claim_period) ? ExpenseVatStatus::Deducted : ExpenseVatStatus::Deductible;
+    }
+
+    /** The purchase month was declared without this row: the CA3 lists it as « autre TVA à déduire » (case 21). */
+    public function isRegularisation(?DeclaredCa3Months $declared): bool
+    {
+        return $declared instanceof DeclaredCa3Months && $declared->isRegularisation($this->month(), $this->vat_claim_period);
     }
 
     public function amounts(): ExpenseAmounts

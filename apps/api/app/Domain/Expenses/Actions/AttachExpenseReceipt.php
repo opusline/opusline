@@ -8,6 +8,7 @@ use App\Domain\Documents\Actions\StoreMediaFile;
 use App\Domain\Documents\Support\StoredFileName;
 use App\Domain\Expenses\Data\UploadExpenseReceiptData;
 use App\Domain\Expenses\Models\Expense;
+use App\Domain\Expenses\Vat\DeclaredCa3Months;
 use Illuminate\Support\Facades\DB;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
@@ -27,6 +28,10 @@ class AttachExpenseReceipt
     {
         return DB::transaction(function () use ($expense, $data): Media {
             $locked = Expense::query()->whereKey($expense->id)->lockForUpdate()->firstOrFail();
+
+            $locked->update([
+                'vat_claim_period' => DeclaredCa3Months::of($locked->user_id)->reclaim($locked->month(), $locked->vat_claim_period),
+            ]);
 
             return $this->storeMediaFile->handle(
                 $locked,

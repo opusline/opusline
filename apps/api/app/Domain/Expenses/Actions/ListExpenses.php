@@ -10,10 +10,14 @@ use App\Domain\Expenses\Data\ExpenseMonthPointData;
 use App\Domain\Expenses\Data\ExpenseRegimeProjectionData;
 use App\Domain\Expenses\Data\ExpensesMonthData;
 use App\Domain\Expenses\Data\ExpensesTotalsData;
+use App\Domain\Expenses\Data\ExpensesVatSummaryData;
 use App\Domain\Expenses\Enums\ExpenseCategory;
+use App\Domain\Expenses\Enums\ExpenseVatStatus;
 use App\Domain\Expenses\Models\Expense;
+use App\Domain\Expenses\Vat\DeclaredCa3Months;
 use App\Domain\Invoices\Revenue\CollectedInvoices;
 use App\Domain\Shared\Data\MoneyData;
+use App\Domain\Shared\Data\SignedMoneyData;
 use App\Domain\Shared\Fiscality\MicroBnc;
 use App\Domain\Shared\Money\Rate;
 use App\Domain\Users\Models\User;
@@ -24,8 +28,10 @@ use Illuminate\Support\Collection;
 /**
  * The journal for one month, plus the year of context around it.
  *
- * Only the shown month is hydrated as models; the trend reads the twelve
- * months ending with it as bare rows, and its last point is the month's total.
+ * One query loads the month's purchases and the rows other months pushed
+ * onto its CA3 — the list shows the former, the TVA summary counts both.
+ * The trend reads the twelve months ending with it as bare rows, and its
+ * last point is the month's total.
  */
 class ListExpenses
 {
@@ -38,27 +44,92 @@ class ListExpenses
         $monthStart = $month === null
             ? $settings->today()->startOfMonth()
             : CarbonImmutable::parse($month.'-01');
+        $monthKey = $monthStart->format('Y-m');
+        $monthEnd = $monthStart->endOfMonth();
 
-        $expenses = $user->expenses()
-            ->whereBetween('spent_on', [$monthStart->toDateString(), $monthStart->endOfMonth()->toDateString()])
+        $rows = $user->expenses()
             ->with('media')
+            ->where(fn ($query) => $query
+                ->whereBetween('spent_on', [$monthStart->toDateString(), $monthEnd->toDateString()])
+                ->orWhere('vat_claim_period', $monthKey))
             ->orderByDesc('spent_on')
             ->orderByDesc('id')
             ->get();
+
+        $expenses = $rows->filter(fn (Expense $expense): bool => $expense->month() === $monthKey)->values();
+        $declared = $settings->filesMonthlyCa3() ? DeclaredCa3Months::of($user->id) : null;
+
+        // One load of the trailing year's collections serves the month's TVA
+        // and the yearly abatement alike.
+        $yearStart = $monthStart->subMonths(self::SERIES_MONTHS - 1);
+        $collected = $settings->hasFrenchFiscality()
+            ? CollectedInvoices::paidBetween($user, $yearStart, $monthEnd)
+            : CollectedInvoices::none();
 
         $series = $this->series($user, $monthStart, $currency);
         $shown = end($series);
         assert($shown instanceof ExpenseMonthPointData);
 
         return new ExpensesMonthData(
-            month: $monthStart->format('Y-m'),
+            month: $monthKey,
+            declaredOn: $declared?->declaredOn($monthKey),
+            vat: $declared instanceof DeclaredCa3Months
+                ? $this->vat($rows, $monthKey, $declared, $collected->vatCents($monthStart, $monthEnd), $currency)
+                : null,
             totals: new ExpensesTotalsData(ht: $shown->ht, ttc: $shown->ttc, count: $expenses->count()),
             categories: $this->categories($expenses, $currency),
             series: $series,
             projection: $settings->hasFrenchFiscality()
-                ? $this->projection($user, $monthStart, $shown->ht->toMoney())
+                ? $this->projection($shown->ht->toMoney(), $collected->htCents($yearStart, $monthEnd))
                 : null,
-            expenses: array_values(ExpenseData::collect($expenses->all(), 'array')),
+            expenses: array_values(array_map(
+                fn (Expense $expense): ExpenseData => ExpenseData::fromModel($expense, $declared),
+                $expenses->all(),
+            )),
+        );
+    }
+
+    /**
+     * @param  Collection<int, Expense>  $rows  the month's purchases and the rows claimed on its CA3
+     * @param  int  $collected  TVA collected on the invoices paid that month
+     */
+    private function vat(Collection $rows, string $month, DeclaredCa3Months $declared, int $collected, string $currency): ExpensesVatSummaryData
+    {
+        $deductible = $blocked = $reverseCharged = $deferred = 0;
+        $blockedCount = 0;
+
+        foreach ($rows as $expense) {
+            $status = $expense->vatStatus($declared);
+            $amounts = $expense->amounts();
+            $recoverable = (int) $amounts->recoverableVat($expense->pro_share_bp)->getAmount();
+            $inMonth = $expense->month() === $month;
+
+            if ($status->isClaimed() && $expense->vat_claim_period === $month) {
+                $deductible += $recoverable;
+            }
+
+            if ($inMonth && $status === ExpenseVatStatus::Blocked) {
+                $blocked += $recoverable;
+                $blockedCount++;
+            }
+
+            if ($inMonth && $status === ExpenseVatStatus::ReverseCharged) {
+                $reverseCharged += (int) $amounts->assessedVat()->getAmount();
+            }
+
+            if ($inMonth && $status === ExpenseVatStatus::Deferred) {
+                $deferred += $recoverable;
+            }
+        }
+
+        return new ExpensesVatSummaryData(
+            deductible: MoneyData::fromMoney(new Money($deductible, $currency)),
+            blocked: MoneyData::fromMoney(new Money($blocked, $currency)),
+            blockedCount: $blockedCount,
+            reverseCharged: MoneyData::fromMoney(new Money($reverseCharged, $currency)),
+            deferred: MoneyData::fromMoney(new Money($deferred, $currency)),
+            collected: MoneyData::fromMoney(new Money($collected, $currency)),
+            balance: SignedMoneyData::fromMoney(new Money($collected - $deductible, $currency)),
         );
     }
 
@@ -144,14 +215,9 @@ class ListExpenses
      * The month's charges as a yearly run rate against the abatement on the
      * trailing year of collections — the same cash basis the URSSAF reads.
      */
-    private function projection(User $user, CarbonImmutable $monthStart, Money $monthHt): ExpenseRegimeProjectionData
+    private function projection(Money $monthHt, int $annualRevenueHtCents): ExpenseRegimeProjectionData
     {
-        $yearStart = $monthStart->subMonths(self::SERIES_MONTHS - 1);
-        $monthEnd = $monthStart->endOfMonth();
-        $revenueHt = new Money(
-            CollectedInvoices::paidBetween($user, $yearStart, $monthEnd)->htCents($yearStart, $monthEnd),
-            $monthHt->getCurrency()->getCode(),
-        );
+        $revenueHt = new Money($annualRevenueHtCents, $monthHt->getCurrency()->getCode());
         $projected = $monthHt->multiply(self::SERIES_MONTHS);
         $abatement = MicroBnc::abatementOf($revenueHt);
 
