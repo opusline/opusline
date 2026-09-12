@@ -6026,6 +6026,29 @@
             }
         },
         "schemas": {
+            "AnnualDeclarationsData": {
+                "type": "object",
+                "properties": {
+                    "incomeTaxReturn": {
+                        "$ref": "#/components/schemas/IncomeTaxReturnData"
+                    },
+                    "cfe": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/CfeReturnData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "incomeTaxReturn",
+                    "cfe"
+                ],
+                "title": "AnnualDeclarationsData"
+            },
             "BackupRecordData": {
                 "type": "object",
                 "properties": {
@@ -6620,6 +6643,75 @@
                     }
                 },
                 "title": "CancelSubscriptionData"
+            },
+            "CfeReturnData": {
+                "type": "object",
+                "properties": {
+                    "year": {
+                        "type": "integer"
+                    },
+                    "dueOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "expected": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "isEstimate": {
+                        "type": "boolean"
+                    },
+                    "provisioned": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "gap": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/SignedMoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "monthsProvisioned": {
+                        "type": "integer"
+                    },
+                    "completion": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeclarationCompletionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "year",
+                    "dueOn",
+                    "expected",
+                    "isEstimate",
+                    "provisioned",
+                    "gap",
+                    "monthsProvisioned",
+                    "completion"
+                ],
+                "title": "CfeReturnData"
             },
             "ChangeSubscriptionAmountData": {
                 "type": "object",
@@ -8276,6 +8368,16 @@
                             }
                         ]
                     },
+                    "annual": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/AnnualDeclarationsData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "history": {
                         "type": "array",
                         "items": {
@@ -8291,6 +8393,7 @@
                     "urssaf",
                     "vat",
                     "cumulative",
+                    "annual",
                     "history"
                 ],
                 "title": "DeclarationsData"
@@ -9210,20 +9313,22 @@
             },
             "FiscalDeadlineKind": {
                 "type": "integer",
-                "description": "The recurring French fiscal deadlines the app tracks. Declaration and payment share a case wherever they share a date, which is every case here: URSSAF télépaie on the declaration date, and the CA3 is due and paid the same day.\n",
+                "description": "The recurring French fiscal deadlines the app tracks. Declaration and payment share a case wherever they share a date, which is every case here: URSSAF télépaie on the declaration date, and the CA3 is due and paid the same day.\n| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/>  |\n| `3` <br/>  |\n| `4` <br/>  |\n| `5` <br/> The 2042-C PRO, keyed by the year of income it declares. |",
                 "enum": [
                     0,
                     1,
                     2,
                     3,
-                    4
+                    4,
+                    5
                 ],
                 "x-enum-varnames": [
                     "UrssafDeclaration",
                     "VatCa3",
                     "VatCa12",
                     "Cfe",
-                    "CfeInstalment"
+                    "CfeInstalment",
+                    "IncomeTaxReturn"
                 ],
                 "title": "FiscalDeadlineKind"
             },
@@ -9351,6 +9456,101 @@
                     "file"
                 ],
                 "title": "ImportBankStatementData"
+            },
+            "IncomeTaxReturnBox": {
+                "type": "integer",
+                "description": "Where the micro-BNC receipts go on the 2042-C PRO.\n| |\n|---|\n| `0` <br/> Case 5TE — the versement libératoire was opted for; the tax is already paid. |\n| `1` <br/> Case 5HQ — no option; the receipts join the household's taxable income after the abatement. |",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "WithLiberatingPayment",
+                    "WithoutLiberatingPayment"
+                ],
+                "title": "IncomeTaxReturnBox"
+            },
+            "IncomeTaxReturnData": {
+                "type": "object",
+                "properties": {
+                    "year": {
+                        "type": "integer"
+                    },
+                    "dueOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "grossReceipts": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "box": {
+                        "$ref": "#/components/schemas/IncomeTaxReturnBox"
+                    },
+                    "periods": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IncomeTaxReturnPeriodData"
+                        }
+                    },
+                    "taxableAfterAbatement": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "liberatingPaymentPaid": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "completion": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeclarationCompletionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "year",
+                    "dueOn",
+                    "grossReceipts",
+                    "box",
+                    "periods",
+                    "taxableAfterAbatement",
+                    "liberatingPaymentPaid",
+                    "completion"
+                ],
+                "title": "IncomeTaxReturnData"
+            },
+            "IncomeTaxReturnPeriodData": {
+                "type": "object",
+                "properties": {
+                    "period": {
+                        "type": "string"
+                    },
+                    "base": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "declaredOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "period",
+                    "base",
+                    "declaredOn"
+                ],
+                "title": "IncomeTaxReturnPeriodData"
             },
             "InstanceData": {
                 "type": "object",

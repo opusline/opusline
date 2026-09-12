@@ -5,6 +5,14 @@ export type ClientOptions = {
 };
 
 /**
+ * AnnualDeclarationsData
+ */
+export type AnnualDeclarationsData = {
+    incomeTaxReturn: IncomeTaxReturnData;
+    cfe: CfeReturnData | null;
+};
+
+/**
  * BackupRecordData
  */
 export type BackupRecordData = {
@@ -200,6 +208,20 @@ export type CalendarFeedData = {
  */
 export type CancelSubscriptionData = {
     cancelledOn?: string | null;
+};
+
+/**
+ * CfeReturnData
+ */
+export type CfeReturnData = {
+    year: number;
+    dueOn: string;
+    expected: MoneyData | null;
+    isEstimate: boolean;
+    provisioned: MoneyData | null;
+    gap: SignedMoneyData | null;
+    monthsProvisioned: number;
+    completion: DeclarationCompletionData | null;
 };
 
 /**
@@ -670,6 +692,7 @@ export type DeclarationsData = {
     urssaf: UrssafDeclarationData | null;
     vat: VatDeclarationData | null;
     cumulative: RevenueCeilingData | null;
+    annual: AnnualDeclarationsData | null;
     history: Array<DeclarationHistoryRowData>;
 };
 
@@ -990,9 +1013,16 @@ export type FiscalDeadlineData = {
  * FiscalDeadlineKind
  *
  * The recurring French fiscal deadlines the app tracks. Declaration and payment share a case wherever they share a date, which is every case here: URSSAF télépaie on the declaration date, and the CA3 is due and paid the same day.
- *
+ * | |
+ * |---|
+ * | `0` <br/>  |
+ * | `1` <br/>  |
+ * | `2` <br/>  |
+ * | `3` <br/>  |
+ * | `4` <br/>  |
+ * | `5` <br/> The 2042-C PRO, keyed by the year of income it declares. |
  */
-export type FiscalDeadlineKind = 0 | 1 | 2 | 3 | 4;
+export type FiscalDeadlineKind = 0 | 1 | 2 | 3 | 4 | 5;
 
 /**
  * FixedPriceBudgetData
@@ -1038,6 +1068,40 @@ export type ImportBankStatementData = {
     file: Blob | File;
     balanceAmount?: number | null;
     balanceCurrency?: Currency | null;
+};
+
+/**
+ * IncomeTaxReturnBox
+ *
+ * Where the micro-BNC receipts go on the 2042-C PRO.
+ * | |
+ * |---|
+ * | `0` <br/> Case 5TE — the versement libératoire was opted for; the tax is already paid. |
+ * | `1` <br/> Case 5HQ — no option; the receipts join the household's taxable income after the abatement. |
+ */
+export type IncomeTaxReturnBox = 0 | 1;
+
+/**
+ * IncomeTaxReturnData
+ */
+export type IncomeTaxReturnData = {
+    year: number;
+    dueOn: string;
+    grossReceipts: MoneyData;
+    box: IncomeTaxReturnBox;
+    periods: Array<IncomeTaxReturnPeriodData>;
+    taxableAfterAbatement: MoneyData;
+    liberatingPaymentPaid: MoneyData | null;
+    completion: DeclarationCompletionData | null;
+};
+
+/**
+ * IncomeTaxReturnPeriodData
+ */
+export type IncomeTaxReturnPeriodData = {
+    period: string;
+    base: MoneyData;
+    declaredOn: string | null;
 };
 
 /**

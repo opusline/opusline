@@ -612,14 +612,22 @@ export const zExpenseInputData = z.object({
  * FiscalDeadlineKind
  *
  * The recurring French fiscal deadlines the app tracks. Declaration and payment share a case wherever they share a date, which is every case here: URSSAF télépaie on the declaration date, and the CA3 is due and paid the same day.
- *
+ * | |
+ * |---|
+ * | `0` <br/>  |
+ * | `1` <br/>  |
+ * | `2` <br/>  |
+ * | `3` <br/>  |
+ * | `4` <br/>  |
+ * | `5` <br/> The 2042-C PRO, keyed by the year of income it declares. |
  */
 export const zFiscalDeadlineKind = z.union([
     z.literal(0),
     z.literal(1),
     z.literal(2),
     z.literal(3),
-    z.literal(4)
+    z.literal(4),
+    z.literal(5)
 ]);
 
 /**
@@ -659,6 +667,17 @@ export const zImportBankStatementData = z.object({
     balanceAmount: z.nullish(z.int()),
     balanceCurrency: z.nullish(zCurrency)
 });
+
+/**
+ * IncomeTaxReturnBox
+ *
+ * Where the micro-BNC receipts go on the 2042-C PRO.
+ * | |
+ * |---|
+ * | `0` <br/> Case 5TE — the versement libératoire was opted for; the tax is already paid. |
+ * | `1` <br/> Case 5HQ — no option; the receipts join the household's taxable income after the abatement. |
+ */
+export const zIncomeTaxReturnBox = z.union([z.literal(0), z.literal(1)]);
 
 /**
  * InstanceData
@@ -1067,6 +1086,29 @@ export const zFixedPriceConsumptionData = z.object({
     remainingDays: z.number(),
     overrun: zMoneyData,
     state: zFixedPriceBudgetState
+});
+
+/**
+ * IncomeTaxReturnPeriodData
+ */
+export const zIncomeTaxReturnPeriodData = z.object({
+    period: z.string(),
+    base: zMoneyData,
+    declaredOn: z.nullable(z.iso.date())
+});
+
+/**
+ * IncomeTaxReturnData
+ */
+export const zIncomeTaxReturnData = z.object({
+    year: z.int(),
+    dueOn: z.iso.date(),
+    grossReceipts: zMoneyData,
+    box: zIncomeTaxReturnBox,
+    periods: z.array(zIncomeTaxReturnPeriodData),
+    taxableAfterAbatement: zMoneyData,
+    liberatingPaymentPaid: z.nullable(zMoneyData),
+    completion: z.nullable(zDeclarationCompletionData)
 });
 
 /**
@@ -1512,6 +1554,28 @@ export const zBankImportData = z.object({
 export const zBankMovementPageData = z.object({
     movements: z.array(zBankMovementData),
     nextCursor: z.nullable(z.string())
+});
+
+/**
+ * CfeReturnData
+ */
+export const zCfeReturnData = z.object({
+    year: z.int(),
+    dueOn: z.iso.date(),
+    expected: z.nullable(zMoneyData),
+    isEstimate: z.boolean(),
+    provisioned: z.nullable(zMoneyData),
+    gap: z.nullable(zSignedMoneyData),
+    monthsProvisioned: z.int(),
+    completion: z.nullable(zDeclarationCompletionData)
+});
+
+/**
+ * AnnualDeclarationsData
+ */
+export const zAnnualDeclarationsData = z.object({
+    incomeTaxReturn: zIncomeTaxReturnData,
+    cfe: z.nullable(zCfeReturnData)
 });
 
 /**
@@ -2378,6 +2442,7 @@ export const zDeclarationsData = z.object({
     urssaf: z.nullable(zUrssafDeclarationData),
     vat: z.nullable(zVatDeclarationData),
     cumulative: z.nullable(zRevenueCeilingData),
+    annual: z.nullable(zAnnualDeclarationsData),
     history: z.array(zDeclarationHistoryRowData)
 });
 

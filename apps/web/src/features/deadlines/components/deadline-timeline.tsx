@@ -309,6 +309,8 @@ function subLineOf(
         : m.deadlines_vat_sub({
             amount: formatWholeAmount(format, fiscal.amount.amount),
           });
+    case 5:
+      return m.deadlines_income_tax_return_sub();
     default:
       return fiscal.isEstimate
         ? m.deadlines_cfe_sub_estimate()

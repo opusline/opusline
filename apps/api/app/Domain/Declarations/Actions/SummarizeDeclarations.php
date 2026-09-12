@@ -64,6 +64,7 @@ class SummarizeDeclarations
     public function __construct(
         private readonly GenerateFiscalDeadlines $generateFiscalDeadlines,
         private readonly SummarizeTreasury $summarizeTreasury,
+        private readonly SummarizeAnnualDeclarations $summarizeAnnualDeclarations,
     ) {}
 
     /**
@@ -83,7 +84,7 @@ class SummarizeDeclarations
             throw ValidationException::withMessages(['period' => __('declarations.future_period')]);
         }
 
-        $urssaf = $vat = $cumulative = null;
+        $urssaf = $vat = $cumulative = $annual = null;
         $history = [];
 
         if ($settings->hasFrenchFiscality()) {
@@ -96,12 +97,13 @@ class SummarizeDeclarations
             $collected = CollectedInvoices::paidBetween(
                 $user,
                 min($earliestUrssafPeriod['start'], $monthStart->startOfYear(), $chainStart ?? $historyStart, $historyStart),
-                max($urssafPeriod['end'], $monthEnd),
+                max($urssafPeriod['end'], $monthEnd, $monthStart->endOfYear()),
             );
             $deadlines = $this->generateFiscalDeadlines->handle(
                 $settings,
                 min($monthStart, $urssafPeriod['start']),
-                max($monthEnd, $urssafPeriod['end'])->addMonths(2)->endOfMonth(),
+                // Through the next spring: the year's 2042 is due the following May.
+                $monthStart->endOfYear()->addYear(),
             );
             $chain = $chainStart instanceof CarbonImmutable
                 ? new Ca3Chain(
@@ -146,6 +148,7 @@ class SummarizeDeclarations
                 : null;
             $cumulative = $this->cumulative($settings, $collected, $monthStart);
             $history = $this->history($settings, $collected, $chain, $completions, $monthStart, $currentMonth);
+            $annual = $this->summarizeAnnualDeclarations->handle($settings, $collected, $completions, $deadlines, $monthStart, $today);
         }
 
         $next = $monthStart->addMonth();
@@ -158,6 +161,7 @@ class SummarizeDeclarations
             urssaf: $urssaf,
             vat: $vat,
             cumulative: $cumulative,
+            annual: $annual,
             history: $history,
         );
     }
@@ -204,13 +208,9 @@ class SummarizeDeclarations
      */
     private function deadline(array $deadlines, FiscalDeadlineKind $kind, string $periodKey, CarbonImmutable $today): ?DeclarationDeadlineData
     {
-        foreach ($deadlines as $deadline) {
-            if ($deadline->is($kind, $periodKey)) {
-                return DeclarationDeadlineData::on($deadline->dueOn, $today);
-            }
-        }
+        $dueOn = FiscalDeadline::find($deadlines, $kind, $periodKey)?->dueOn;
 
-        return null;
+        return $dueOn instanceof CarbonImmutable ? DeclarationDeadlineData::on($dueOn, $today) : null;
     }
 
     /**
@@ -218,11 +218,7 @@ class SummarizeDeclarations
      */
     private function completion(Collection $completions, FiscalDeadlineKind $kind, string $periodKey): ?DeclarationCompletionData
     {
-        $completion = $completions->first(
-            fn (FiscalDeadlineCompletion $completion): bool => $completion->kind === $kind && $completion->period_key === $periodKey,
-        );
-
-        return DeclarationCompletionData::fromCompletion($completion);
+        return DeclarationCompletionData::in($completions, $kind, $periodKey);
     }
 
     /**
