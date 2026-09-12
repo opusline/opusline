@@ -233,13 +233,12 @@ class SummarizeRevenue
             return null;
         }
 
-        $rateBp = $settings->effectiveContributionRateBp();
-        $contributions = Rate::of($total, $rateBp);
+        $contributions = $settings->urssafContributionsOn($total);
 
         return new RevenueNetData(
             amount: MoneyData::fromMoney($total->subtract($contributions)),
             contributions: MoneyData::fromMoney($contributions),
-            rateBp: $rateBp,
+            rateBp: $settings->effectiveContributionRateBp(),
         );
     }
 

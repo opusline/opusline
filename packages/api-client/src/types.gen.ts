@@ -301,6 +301,23 @@ export type ConfirmTotpData = {
 };
 
 /**
+ * ContributionLineData
+ */
+export type ContributionLineData = {
+    kind: ContributionLineKind;
+    rateBp: number;
+    amount: MoneyData;
+};
+
+/**
+ * ContributionLineKind
+ *
+ * The lines a micro-entrepreneur's URSSAF declaration is settled in, each a rate on the same collected base.
+ *
+ */
+export type ContributionLineKind = 0 | 1 | 2;
+
+/**
  * CorrectInvoiceDatesData
  */
 export type CorrectInvoiceDatesData = {
@@ -575,6 +592,7 @@ export type DeclarationsData = {
     isDefault: boolean;
     urssaf: UrssafDeclarationData | null;
     vat: VatDeclarationData | null;
+    cumulative: RevenueCeilingData | null;
 };
 
 /**
@@ -1277,6 +1295,17 @@ export type RenamePasskeyData = {
 export type RevenueBasis = 0 | 1;
 
 /**
+ * RevenueCeilingData
+ */
+export type RevenueCeilingData = {
+    year: number;
+    collectedHt: MoneyData;
+    ceiling: MoneyData;
+    shareBp: number;
+    margin: SignedMoneyData;
+};
+
+/**
  * RevenueClientData
  */
 export type RevenueClientData = {
@@ -1835,6 +1864,8 @@ export type UrssafDeclarationData = {
     coversShownMonth: boolean;
     base: MoneyData;
     invoiceCount: number;
+    lines: Array<ContributionLineData>;
+    total: MoneyData;
     deadline: DeclarationDeadlineData | null;
     completion: DeclarationCompletionData | null;
 };

@@ -239,15 +239,16 @@ test('captions the VAT with the one rate the period agrees on', function (): voi
 test('estimates net after contributions', function (): void {
     $user = User::factory()->create();
     $user->settings()->sole()->update(['contribution_rate_bp' => 2_600]);
-    // 12 345 × 26 % = 3 209,70 — the half cent rounds up.
+    // Each line rounds on its own, as the URSSAF settles it: 12 345 × 26 % =
+    // 3 209,70 → 3 210, plus 12 345 × 0,2 % CFP = 24,69 → 25.
     invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state(['amount_ht_cents' => 12_345]));
 
     $this->actingAs($user)
         ->getJson('/api/revenue')
         ->assertOk()
-        ->assertJsonPath('net.contributions.amount', 3_210)
-        ->assertJsonPath('net.amount.amount', 9_135)
-        ->assertJsonPath('net.rateBp', 2_600);
+        ->assertJsonPath('net.contributions.amount', 3_235)
+        ->assertJsonPath('net.amount.amount', 9_110)
+        ->assertJsonPath('net.rateBp', 2_620);
 });
 
 test('hides the net estimation abroad', function (): void {

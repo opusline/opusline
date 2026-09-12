@@ -21,6 +21,9 @@ final readonly class MicroBnc
     /** The abatement never drops below this, however small the year. */
     public const int ABATEMENT_FLOOR_CENTS = 30_500;
 
+    /** The annual receipts a service provider may collect and stay in the régime — 77 700 €. */
+    public const int CEILING_CENTS = 7_770_000;
+
     public static function abatementOf(Money $annualReceiptsHt): Money
     {
         $rated = Rate::of($annualReceiptsHt, self::ABATEMENT_RATE_BP);

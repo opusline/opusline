@@ -21,10 +21,11 @@ test('provisions urssaf on this month plus the unpaid previous month', function 
         ->getJson('/api/bank')
         ->assertOk()
         // August's accrual plus July's, carried while no payment shows; June
-        // is gone — two periods behind is out of the model's sight.
-        ->assertJsonPath('provisions.urssaf.amount.amount', 82_500)
-        ->assertJsonPath('provisions.urssaf.rateBp', 2500)
-        ->assertJsonPath('provisions.total.amount', 82_500);
+        // is gone — two periods behind is out of the model's sight. Each month
+        // owes 1 650 € × (25 % + 0,2 % CFP) = 415,80 €.
+        ->assertJsonPath('provisions.urssaf.amount.amount', 83_160)
+        ->assertJsonPath('provisions.urssaf.rateBp', 2520)
+        ->assertJsonPath('provisions.total.amount', 83_160);
 });
 
 test('a detected urssaf debit settles the carried month', function (): void {
@@ -33,12 +34,12 @@ test('a detected urssaf debit settles the carried month', function (): void {
 
     paidInvoiceOn($user, '2026-08-03');
     paidInvoiceOn($user, '2026-07-31');
-    fiscDebitOn($user, '2026-08-05', 41_250, 'PRLV URSSAF JUILLET');
+    fiscDebitOn($user, '2026-08-05', 41_580, 'PRLV URSSAF JUILLET');
 
     $this->actingAs($user)
         ->getJson('/api/bank')
         ->assertOk()
-        ->assertJsonPath('provisions.urssaf.amount.amount', 41_250);
+        ->assertJsonPath('provisions.urssaf.amount.amount', 41_580);
 });
 
 test('a partial urssaf payment leaves the rest carried', function (): void {
@@ -52,7 +53,7 @@ test('a partial urssaf payment leaves the rest carried', function (): void {
     $this->actingAs($user)
         ->getJson('/api/bank')
         ->assertOk()
-        ->assertJsonPath('provisions.urssaf.amount.amount', 62_500);
+        ->assertJsonPath('provisions.urssaf.amount.amount', 63_160);
 });
 
 test('an overpayment never eats into the current month', function (): void {
@@ -66,7 +67,7 @@ test('an overpayment never eats into the current month', function (): void {
     $this->actingAs($user)
         ->getJson('/api/bank')
         ->assertOk()
-        ->assertJsonPath('provisions.urssaf.amount.amount', 41_250);
+        ->assertJsonPath('provisions.urssaf.amount.amount', 41_580);
 });
 
 test('only payments inside the current period settle the carry', function (): void {
@@ -76,12 +77,12 @@ test('only payments inside the current period settle the carry', function (): vo
     paidInvoiceOn($user, '2026-08-03');
     paidInvoiceOn($user, '2026-07-31');
     // July's debit settled June, which the window no longer represents.
-    fiscDebitOn($user, '2026-07-28', 41_250, 'PRLV URSSAF JUIN');
+    fiscDebitOn($user, '2026-07-28', 41_580, 'PRLV URSSAF JUIN');
 
     $this->actingAs($user)
         ->getJson('/api/bank')
         ->assertOk()
-        ->assertJsonPath('provisions.urssaf.amount.amount', 82_500);
+        ->assertJsonPath('provisions.urssaf.amount.amount', 83_160);
 });
 
 test('provisions urssaf on the quarter plus the unpaid previous quarter', function (): void {
@@ -98,7 +99,7 @@ test('provisions urssaf on the quarter plus the unpaid previous quarter', functi
     $this->actingAs($user)
         ->getJson('/api/bank')
         ->assertOk()
-        ->assertJsonPath('provisions.urssaf.amount.amount', 123_750);
+        ->assertJsonPath('provisions.urssaf.amount.amount', 124_740);
 });
 
 test('a detected urssaf debit settles the carried quarter', function (): void {
@@ -111,12 +112,25 @@ test('a detected urssaf debit settles the carried quarter', function (): void {
     paidInvoiceOn($user, '2026-08-03');
     paidInvoiceOn($user, '2026-07-31');
     paidInvoiceOn($user, '2026-06-30');
-    fiscDebitOn($user, '2026-07-20', 41_250, 'PRLV URSSAF T2');
+    fiscDebitOn($user, '2026-07-20', 41_580, 'PRLV URSSAF T2');
 
     $this->actingAs($user)
         ->getJson('/api/bank')
         ->assertOk()
-        ->assertJsonPath('provisions.urssaf.amount.amount', 82_500);
+        ->assertJsonPath('provisions.urssaf.amount.amount', 83_160);
+});
+
+test('provisions the lines summed, not the base rated once', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['contribution_rate_bp' => 2600, 'liberating_payment' => false]);
+
+    paidInvoiceOn($user, '2026-08-03', htCents: 12_345, ttcCents: 14_814);
+
+    // 3 210 of cotisations plus 25 of CFP — a single 26,2 % would give 3 234.
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.urssaf.amount.amount', 3_235);
 });
 
 test('folds the versement libératoire into the urssaf rate', function (): void {
@@ -132,8 +146,8 @@ test('folds the versement libératoire into the urssaf rate', function (): void 
     $this->actingAs($user)
         ->getJson('/api/bank')
         ->assertOk()
-        ->assertJsonPath('provisions.urssaf.rateBp', 2720)
-        ->assertJsonPath('provisions.urssaf.amount.amount', 44_880);
+        ->assertJsonPath('provisions.urssaf.rateBp', 2740)
+        ->assertJsonPath('provisions.urssaf.amount.amount', 45_210);
 });
 
 test('provisions the tva of this month plus the unpaid previous month under réel normal', function (): void {
@@ -165,8 +179,8 @@ test('a tva télérèglement settles the carried month and leaves urssaf alone',
         ->assertOk()
         ->assertJsonPath('provisions.vat.amount.amount', 33_000)
         // The TVA label settles nothing on the URSSAF side.
-        ->assertJsonPath('provisions.urssaf.amount.amount', 82_500)
-        ->assertJsonPath('provisions.total.amount', 115_500);
+        ->assertJsonPath('provisions.urssaf.amount.amount', 83_160)
+        ->assertJsonPath('provisions.total.amount', 116_160);
 });
 
 test('provisions the tva collected since january under réel simplifié', function (): void {
@@ -290,15 +304,16 @@ test('prices the carried month at the rate that applied when it closed', functio
     $user = User::factory()->create();
     $user->settings()->sole()->update(['contribution_rate_bp' => 2500]);
 
-    // July closed under 25 %; an ACRE step ends and August runs at 12 %.
+    // July closed under 25 %; an ACRE step ends and August runs at 12 %. The
+    // history holds the effective rate, CFP (0,2 %) included.
     ContributionRate::query()->create([
         'user_id' => $user->id,
-        'effective_rate_bp' => 2500,
+        'effective_rate_bp' => 2520,
         'effective_from' => '2025-01-01',
     ]);
     ContributionRate::query()->create([
         'user_id' => $user->id,
-        'effective_rate_bp' => 1200,
+        'effective_rate_bp' => 1220,
         'effective_from' => '2026-08-01',
     ]);
     $user->settings()->sole()->update(['contribution_rate_bp' => 1200]);
@@ -309,9 +324,9 @@ test('prices the carried month at the rate that applied when it closed', functio
     $this->actingAs($user)
         ->getJson('/api/bank')
         ->assertOk()
-        // 165 000 HT each month: August at 12 % plus July still at 25 %.
-        ->assertJsonPath('provisions.urssaf.amount.amount', 19_800 + 41_250)
-        ->assertJsonPath('provisions.urssaf.rateBp', 1200);
+        // 165 000 HT each month: August at 12,2 % plus July still at 25,2 %.
+        ->assertJsonPath('provisions.urssaf.amount.amount', 20_130 + 41_580)
+        ->assertJsonPath('provisions.urssaf.rateBp', 1220);
 });
 
 test('falls back to the settings for an account that never changed its rate', function (): void {
@@ -326,7 +341,8 @@ test('falls back to the settings for an account that never changed its rate', fu
     $this->actingAs($user)
         ->getJson('/api/bank')
         ->assertOk()
-        ->assertJsonPath('provisions.urssaf.amount.amount', 82_500);
+        // 330 000 HT at 25 % plus the 0,2 % CFP.
+        ->assertJsonPath('provisions.urssaf.amount.amount', 83_160);
 });
 
 test('records what the rate was the first time it moves', function (): void {
@@ -350,8 +366,9 @@ test('records what the rate was the first time it moves', function (): void {
         ->pluck('effective_rate_bp')
         ->all();
 
-    // The rate it was on, dated from the account's beginning, then the new one.
-    expect($recorded)->toBe([2500, 1200]);
+    // The rate it was on, dated from the account's beginning, then the new one —
+    // both as the URSSAF settles them, CFP included.
+    expect($recorded)->toBe([2520, 1220]);
     expect(
         ContributionRate::query()
             ->where('user_id', $user->id)
