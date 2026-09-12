@@ -304,15 +304,16 @@ test('prices the carried month at the rate that applied when it closed', functio
     $user = User::factory()->create();
     $user->settings()->sole()->update(['contribution_rate_bp' => 2500]);
 
-    // July closed under 25 %; an ACRE step ends and August runs at 12 %.
+    // July closed under 25 %; an ACRE step ends and August runs at 12 %. The
+    // history holds the effective rate, CFP (0,2 %) included.
     ContributionRate::query()->create([
         'user_id' => $user->id,
-        'effective_rate_bp' => 2500,
+        'effective_rate_bp' => 2520,
         'effective_from' => '2025-01-01',
     ]);
     ContributionRate::query()->create([
         'user_id' => $user->id,
-        'effective_rate_bp' => 1200,
+        'effective_rate_bp' => 1220,
         'effective_from' => '2026-08-01',
     ]);
     $user->settings()->sole()->update(['contribution_rate_bp' => 1200]);
@@ -323,9 +324,9 @@ test('prices the carried month at the rate that applied when it closed', functio
     $this->actingAs($user)
         ->getJson('/api/bank')
         ->assertOk()
-        // 165 000 HT each month: August at 12 % plus July still at 25 %.
-        ->assertJsonPath('provisions.urssaf.amount.amount', 19_800 + 41_250)
-        ->assertJsonPath('provisions.urssaf.rateBp', 1200);
+        // 165 000 HT each month: August at 12,2 % plus July still at 25,2 %.
+        ->assertJsonPath('provisions.urssaf.amount.amount', 20_130 + 41_580)
+        ->assertJsonPath('provisions.urssaf.rateBp', 1220);
 });
 
 test('falls back to the settings for an account that never changed its rate', function (): void {
@@ -340,7 +341,8 @@ test('falls back to the settings for an account that never changed its rate', fu
     $this->actingAs($user)
         ->getJson('/api/bank')
         ->assertOk()
-        ->assertJsonPath('provisions.urssaf.amount.amount', 82_500);
+        // 330 000 HT at 25 % plus the 0,2 % CFP.
+        ->assertJsonPath('provisions.urssaf.amount.amount', 83_160);
 });
 
 test('records what the rate was the first time it moves', function (): void {
@@ -364,8 +366,9 @@ test('records what the rate was the first time it moves', function (): void {
         ->pluck('effective_rate_bp')
         ->all();
 
-    // The rate it was on, dated from the account's beginning, then the new one.
-    expect($recorded)->toBe([2500, 1200]);
+    // The rate it was on, dated from the account's beginning, then the new one —
+    // both as the URSSAF settles them, CFP included.
+    expect($recorded)->toBe([2520, 1220]);
     expect(
         ContributionRate::query()
             ->where('user_id', $user->id)
