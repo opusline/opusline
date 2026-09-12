@@ -36,6 +36,16 @@ return [
     'liberating_payment_probe_revenue' => 10_000,
 
     /*
+    | The contribution à la formation professionnelle, collected by the URSSAF
+    | on the same base as the cotisations and on the same declaration, yet
+    | absent from the barème rate the official client reads. 0,2 % is the
+    | libéral rate; artisans and commerçants owe another one, hence a config
+    | key rather than a statutory constant.
+    */
+
+    'cfp_rate_bp' => 20,
+
+    /*
     | The TVA rate a new invoice defaults to, for an account that is liable
     | for it. An account under the franchise en base defaults to 0 instead —
     | see UserSettings::effectiveVatRateBp(). The rate is snapshotted on each

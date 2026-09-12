@@ -11,7 +11,6 @@ use App\Domain\Deadlines\Calendar\FiscalDeadline;
 use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
 use App\Domain\Invoices\Revenue\CollectedInvoices;
 use App\Domain\Settings\Models\UserSettings;
-use App\Domain\Shared\Money\Rate;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
@@ -64,16 +63,8 @@ class PriceFiscalDeadlines
         CarbonImmutable $today,
         string $currency,
     ): DeadlineAmount {
-        $rateBp = $settings->effectiveContributionRateBp();
-
         return match ($deadline->kind) {
-            FiscalDeadlineKind::UrssafDeclaration => $this->onCollectedBase(
-                $deadline,
-                $today,
-                $currency,
-                $rateBp,
-                static fn (CarbonImmutable $through): int => $collected->htCents($deadline->periodStart, $through),
-            ),
+            FiscalDeadlineKind::UrssafDeclaration => $this->urssaf($deadline, $settings, $collected, $today, $currency),
             FiscalDeadlineKind::VatCa3, FiscalDeadlineKind::VatCa12 => $this->estimate(
                 $deadline,
                 $today,
@@ -113,30 +104,30 @@ class PriceFiscalDeadlines
     }
 
     /**
-     * A rate applied to a base the window collected, carrying both figures: the
-     * screen names them together, and contributions = base × rate rounds, so the
-     * base cannot be divided back out of the amount.
-     *
-     * @param  callable(CarbonImmutable): int  $base
+     * The contributions on what the window collected, carrying the base too:
+     * the screen names both, and the amount is rounded line by line, so the
+     * base cannot be divided back out of it.
      */
-    private function onCollectedBase(
+    private function urssaf(
         FiscalDeadline $deadline,
+        UserSettings $settings,
+        CollectedInvoices $collected,
         CarbonImmutable $today,
         string $currency,
-        int $rateBp,
-        callable $base,
     ): DeadlineAmount {
+        $rateBp = $settings->effectiveContributionRateBp();
+
         if ($deadline->periodStart->greaterThan($today)) {
             return new DeadlineAmount(amount: null, rateBp: $rateBp, isEstimate: true);
         }
 
-        $collected = new Money($base($this->through($deadline, $today)), $currency);
+        $base = new Money($collected->htCents($deadline->periodStart, $this->through($deadline, $today)), $currency);
 
         return new DeadlineAmount(
-            amount: Rate::of($collected, $rateBp),
+            amount: $settings->urssafContributionsOn($base),
             rateBp: $rateBp,
             isEstimate: true,
-            base: $collected,
+            base: $base,
         );
     }
 

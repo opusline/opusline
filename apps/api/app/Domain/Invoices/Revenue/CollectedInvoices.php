@@ -6,10 +6,8 @@ namespace App\Domain\Invoices\Revenue;
 
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Shared\Money\Rate;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
-use Cknow\Money\Money;
 use Illuminate\Support\Collection;
 
 /**
@@ -75,19 +73,6 @@ final readonly class CollectedInvoices
     public function htCents(CarbonImmutable $from, CarbonImmutable $to): int
     {
         return $this->sumBetween($from, $to, 'ht');
-    }
-
-    /**
-     * What the HT collected in the window owes in contributions at $rateBp.
-     */
-    public function contributionsCents(
-        CarbonImmutable $from,
-        CarbonImmutable $to,
-        int $rateBp,
-        string $currency,
-    ): int {
-        return (int) Rate::of(new Money($this->sumBetween($from, $to, 'ht'), $currency), $rateBp)
-            ->getAmount();
     }
 
     /**

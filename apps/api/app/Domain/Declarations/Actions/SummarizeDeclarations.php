@@ -9,9 +9,11 @@ use App\Domain\Deadlines\Calendar\FiscalDeadline;
 use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
 use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
 use App\Domain\Declarations\Data\Ca3BoxesData;
+use App\Domain\Declarations\Data\ContributionLineData;
 use App\Domain\Declarations\Data\DeclarationCompletionData;
 use App\Domain\Declarations\Data\DeclarationDeadlineData;
 use App\Domain\Declarations\Data\DeclarationsData;
+use App\Domain\Declarations\Data\RevenueCeilingData;
 use App\Domain\Declarations\Data\SummarizeDeclarationsData;
 use App\Domain\Declarations\Data\UrssafDeclarationData;
 use App\Domain\Declarations\Data\VatDeclarationData;
@@ -23,6 +25,9 @@ use App\Domain\Invoices\Revenue\CollectedInvoices;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Shared\Data\MoneyData;
+use App\Domain\Shared\Data\SignedMoneyData;
+use App\Domain\Shared\Fiscality\MicroBnc;
+use App\Domain\Shared\Money\Rate;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
@@ -60,7 +65,7 @@ class SummarizeDeclarations
             throw ValidationException::withMessages(['period' => __('declarations.future_period')]);
         }
 
-        $urssaf = $vat = null;
+        $urssaf = $vat = $cumulative = null;
 
         if ($settings->hasFrenchFiscality()) {
             $completions = $user->fiscalDeadlineCompletions()->get();
@@ -69,7 +74,7 @@ class SummarizeDeclarations
             $chainStart = $settings->filesMonthlyCa3() ? $this->chainStart($user, $settings, $declared, $monthStart) : null;
             $collected = CollectedInvoices::paidBetween(
                 $user,
-                min($urssafPeriod['start'], $chainStart ?? $monthStart),
+                min($urssafPeriod['start'], $monthStart->startOfYear(), $chainStart ?? $monthStart),
                 max($urssafPeriod['end'], $monthStart->endOfMonth()),
             );
             $deadlines = $this->generateFiscalDeadlines->handle(
@@ -82,6 +87,7 @@ class SummarizeDeclarations
             $vat = $chainStart instanceof CarbonImmutable
                 ? $this->vat($user, $settings, $collected, $declared, $chainStart, $monthStart, $deadlines, $today)
                 : null;
+            $cumulative = $this->cumulative($settings, $collected, $monthStart);
         }
 
         $next = $monthStart->addMonth();
@@ -93,6 +99,7 @@ class SummarizeDeclarations
             isDefault: $data->period === null,
             urssaf: $urssaf,
             vat: $vat,
+            cumulative: $cumulative,
         );
     }
 
@@ -192,14 +199,33 @@ class SummarizeDeclarations
         Collection $completions,
         CarbonImmutable $today,
     ): UrssafDeclarationData {
+        $base = new Money($collected->htCents($period['start'], $period['end']), $settings->currency->value);
+
         return new UrssafDeclarationData(
             period: $period['key'],
             periodicity: $settings->urssaf_periodicity,
             coversShownMonth: $monthStart->betweenIncluded($period['start'], $period['end']),
-            base: MoneyData::fromMoney(new Money($collected->htCents($period['start'], $period['end']), $settings->currency->value)),
+            base: MoneyData::fromMoney($base),
             invoiceCount: $collected->countBetween($period['start'], $period['end']),
+            lines: array_map(ContributionLineData::fromLine(...), $settings->urssafContributionLines($base)),
+            total: MoneyData::fromMoney($settings->urssafContributionsOn($base)),
             deadline: $this->deadline($deadlines, FiscalDeadlineKind::UrssafDeclaration, $period['key'], $today),
             completion: $this->completion($completions, FiscalDeadlineKind::UrssafDeclaration, $period['key']),
+        );
+    }
+
+    private function cumulative(UserSettings $settings, CollectedInvoices $collected, CarbonImmutable $monthStart): RevenueCeilingData
+    {
+        $currency = $settings->currency->value;
+        $collectedHt = new Money($collected->htCents($monthStart->startOfYear(), $monthStart->endOfMonth()), $currency);
+        $ceiling = new Money(MicroBnc::CEILING_CENTS, $currency);
+
+        return new RevenueCeilingData(
+            year: $monthStart->year,
+            collectedHt: MoneyData::fromMoney($collectedHt),
+            ceiling: MoneyData::fromMoney($ceiling),
+            shareBp: Rate::shareBp((int) $collectedHt->getAmount(), MicroBnc::CEILING_CENTS),
+            margin: SignedMoneyData::fromMoney($ceiling->subtract($collectedHt)),
         );
     }
 

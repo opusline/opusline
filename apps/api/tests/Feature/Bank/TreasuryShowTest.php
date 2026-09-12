@@ -51,14 +51,14 @@ test('subtracts the provisions from the balance to answer what is transferable',
         ->assertOk()
         ->assertJsonPath('balance.amount.amount', 1_482_000)
         ->assertJsonPath('provisions.vat.amount.amount', 209_000)
-        ->assertJsonPath('provisions.urssaf.amount.amount', 271_700)
-        ->assertJsonPath('provisions.urssaf.rateBp', 2600)
+        ->assertJsonPath('provisions.urssaf.amount.amount', 273_790)
+        ->assertJsonPath('provisions.urssaf.rateBp', 2620)
         ->assertJsonPath('provisions.buffer.amount', 150_000)
         // Eight elapsed twelfths of the ~190 € barème CFE guess the account's
         // own collections produce — the same figure the Échéances screen shows.
         ->assertJsonPath('provisions.cfe.amount.amount', 12_667)
-        ->assertJsonPath('provisions.total.amount', 643_367)
-        ->assertJsonPath('transferable.amount', 838_633);
+        ->assertJsonPath('provisions.total.amount', 645_457)
+        ->assertJsonPath('transferable.amount', 836_543);
 });
 
 test('dates each provision to the period it accrued over', function (): void {
@@ -76,7 +76,7 @@ test('reports a negative transferable amount when the provisions outgrow the acc
     $this->actingAs($user)
         ->getJson('/api/treasury')
         ->assertOk()
-        ->assertJsonPath('transferable.amount', -623_367);
+        ->assertJsonPath('transferable.amount', -625_457);
 });
 
 test('answers with the same balance the compte pro screen shows', function (): void {
@@ -133,8 +133,8 @@ test('drops the tva provision under franchise en base', function (): void {
         ->getJson('/api/treasury')
         ->assertOk()
         ->assertJsonPath('provisions.vat', null)
-        ->assertJsonPath('provisions.total.amount', 434_367)
-        ->assertJsonPath('transferable.amount', 1_047_633);
+        ->assertJsonPath('provisions.total.amount', 436_457)
+        ->assertJsonPath('transferable.amount', 1_045_543);
 });
 
 test('drops the urssaf provision for an account established outside France', function (): void {

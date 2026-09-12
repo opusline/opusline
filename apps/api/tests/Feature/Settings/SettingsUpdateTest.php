@@ -79,7 +79,7 @@ test('saves the fiscal settings and recomputes the effective rate', function ():
         ->assertJsonPath('liberatingPayment', true)
         ->assertJsonPath('vatRegime', VatRegime::ReelSimplifie->value)
         ->assertJsonPath('vatLiable', true)
-        ->assertJsonPath('effectiveContributionRateBp', 2670);
+        ->assertJsonPath('effectiveContributionRateBp', 2690);
 });
 
 test('saves the billing defaults', function (): void {

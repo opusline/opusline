@@ -8,7 +8,10 @@ use App\Domain\Settings\Enums\DateFormat;
 use App\Domain\Settings\Enums\Locale;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
+use App\Domain\Shared\Enums\ContributionLineKind;
 use App\Domain\Shared\Enums\Currency;
+use App\Domain\Shared\Fiscality\ContributionLine;
+use App\Domain\Shared\Money\Rate;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Casts\MoneyIntegerCast;
@@ -210,10 +213,43 @@ class UserSettings extends Model
         return $this->belongsTo(User::class);
     }
 
+    /** The caption rate — the lines' rates summed. Amounts never come from it: see urssafContributionsOn(). */
     public function effectiveContributionRateBp(): int
     {
         return $this->contribution_rate_bp
+            + config()->integer('fiscality.cfp_rate_bp')
             + ($this->liberating_payment ? $this->liberating_payment_rate_bp : 0);
+    }
+
+    /**
+     * What the URSSAF settles $base in, line by line, each rounded on its own
+     * the way the site does — so the sum can differ by a cent from
+     * base × effectiveContributionRateBp(), and every amount reads it here.
+     *
+     * @return list<ContributionLine>
+     */
+    public function urssafContributionLines(Money $base): array
+    {
+        $cfpRateBp = config()->integer('fiscality.cfp_rate_bp');
+        $lines = [
+            new ContributionLine(ContributionLineKind::SocialContributions, $this->contribution_rate_bp, Rate::of($base, $this->contribution_rate_bp)),
+            new ContributionLine(ContributionLineKind::Cfp, $cfpRateBp, Rate::of($base, $cfpRateBp)),
+        ];
+
+        if ($this->liberating_payment) {
+            $lines[] = new ContributionLine(ContributionLineKind::LiberatingPayment, $this->liberating_payment_rate_bp, Rate::of($base, $this->liberating_payment_rate_bp));
+        }
+
+        return $lines;
+    }
+
+    /** The lines summed: what the declaration of $base will debit. */
+    public function urssafContributionsOn(Money $base): Money
+    {
+        return Money::sum(...array_map(
+            static fn (ContributionLine $line): Money => $line->amount,
+            $this->urssafContributionLines($base),
+        ));
     }
 
     /**
