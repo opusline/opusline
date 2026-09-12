@@ -1,5 +1,12 @@
 type FieldErrorMap = Record<string, { message: string }>;
 
+/**
+ * What the api client stamps on a refused request's body before throwing it:
+ * the status, the verb and the unresolved route template (`/clients/{client}`,
+ * never an id).
+ */
+export type ApiErrorStamp = { status: number; method: string; route: string };
+
 /** The HTTP status the api client stamped on a thrown error, if it came from a response. */
 export function serverStatus(error: unknown): number | null {
   if (
@@ -12,6 +19,32 @@ export function serverStatus(error: unknown): number | null {
   }
 
   return null;
+}
+
+/** The request the api client stamped on a thrown error, if it came from a response. */
+export function serverRequest(
+  error: unknown,
+): Pick<ApiErrorStamp, "method" | "route"> | null {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "method" in error &&
+    "route" in error &&
+    typeof error.method === "string" &&
+    typeof error.route === "string"
+  ) {
+    return { method: error.method, route: error.route };
+  }
+
+  return null;
+}
+
+/**
+ * Whether a thrown value is a refused request rather than a crash: the whole
+ * stamp must be there, so an unrelated `{ status: 500 }` is not mistaken for one.
+ */
+export function isApiClientError(error: unknown): boolean {
+  return serverStatus(error) !== null && serverRequest(error) !== null;
 }
 
 /**

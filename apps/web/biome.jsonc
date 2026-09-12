@@ -43,6 +43,14 @@
                       "@mui/icons-material/**"
                     ],
                     "message": "Lucide (lucide-react) is the only icon library."
+                  },
+                  {
+                    "group": [
+                      "@sentry/**",
+                      "@/lib/monitoring.sentry",
+                      "**/lib/monitoring.sentry"
+                    ],
+                    "message": "Sentry stays in its lazy chunk: report through @/lib/monitoring, never import the SDK directly."
                   }
                 ]
               }
@@ -88,10 +96,28 @@
                       "@mui/icons-material/**"
                     ],
                     "message": "Lucide (lucide-react) is the only icon library."
+                  },
+                  {
+                    "group": [
+                      "@sentry/**",
+                      "@/lib/monitoring.sentry",
+                      "**/lib/monitoring.sentry"
+                    ],
+                    "message": "Sentry stays in its lazy chunk: report through @/lib/monitoring, never import the SDK directly."
                   }
                 ]
               }
             }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/lib/monitoring.sentry.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": "off"
           }
         }
       }

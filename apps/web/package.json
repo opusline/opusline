@@ -14,6 +14,7 @@
   "dependencies": {
     "@opusline/api-client": "workspace:*",
     "@opusline/ui": "workspace:*",
+    "@sentry/react": "^10.74.0",
     "@simplewebauthn/browser": "^14.0.0",
     "@tanstack/react-devtools": "^0.10.12",
     "@tanstack/react-form": "^1.33.5",

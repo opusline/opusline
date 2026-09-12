@@ -21,6 +21,7 @@
     "laravel/sanctum": "^4.3",
     "laravel/tinker": "^3.0",
     "league/flysystem-aws-s3-v3": "^3.35",
+    "sentry/sentry-laravel": "^4.27",
     "spatie/icalendar-generator": "^3.3",
     "spatie/laravel-data": "^4.23",
     "spatie/laravel-medialibrary": "^11.23",

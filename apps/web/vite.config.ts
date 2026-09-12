@@ -8,6 +8,9 @@ import { paraglideCompilerOptions } from "./paraglide.config.mjs";
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
+  // The .map files ship in the image next to the bundle, so a Sentry instance
+  // symbolicates from the deployment itself: no upload step, no token.
+  build: { sourcemap: true },
   server: {
     proxy: {
       "/api": "http://localhost",

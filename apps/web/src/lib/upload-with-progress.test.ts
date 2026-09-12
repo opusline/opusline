@@ -155,5 +155,5 @@ it("rejects a connection that never arrived", async () => {
 
   xhr.fail();
 
-  await expect(pending).rejects.toMatchObject({ status: 0 });
+  await expect(pending).rejects.toThrow(TypeError);
 });

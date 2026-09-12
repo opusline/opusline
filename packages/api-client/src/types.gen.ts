@@ -1020,6 +1020,15 @@ export type PersonalTransferData = {
 };
 
 /**
+ * PingData
+ */
+export type PingData = {
+    status: string;
+    version: string;
+    sentry: SentryWebData | null;
+};
+
+/**
  * RecoveryCodesData
  */
 export type RecoveryCodesData = {
@@ -1148,6 +1157,15 @@ export type SendCraData = {
  */
 export type SendInvoiceData = {
     sentOn?: string | null;
+};
+
+/**
+ * SentryWebData
+ */
+export type SentryWebData = {
+    dsn: string;
+    environment: string;
+    tracesSampleRate: number;
 };
 
 /**
@@ -1661,10 +1679,7 @@ export type GetPingData = {
 };
 
 export type GetPingResponses = {
-    200: {
-        status: 'ok';
-        version: string;
-    };
+    200: PingData;
 };
 
 export type GetPingResponse = GetPingResponses[keyof GetPingResponses];
