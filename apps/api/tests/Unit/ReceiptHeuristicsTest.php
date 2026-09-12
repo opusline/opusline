@@ -234,6 +234,44 @@ test('ignores dates outside the window a receipt can carry', function (string $l
     'before the century' => 'Fondée en 12/03/1998',
 ]);
 
+test('a marketplace invoice names its seller of record', function (): void {
+    $reading = readReceipt("Facture\nLU-BIO-04\nAmazon EU S.à r.l. - 38 avenue John F. Kennedy, L-1855 Luxembourg\nVendu par Roborock (HK) Limited\nTotal à payer 1 299,00 €");
+
+    expect($reading->supplier?->value)->toBe('Roborock (HK) Limited')
+        ->and($reading->supplier?->confidence)->toBe(ReceiptFieldConfidence::High);
+});
+
+test('a company followed by its address on one line keeps only the company', function (): void {
+    expect(readReceipt("Facture\nLU-BIO-04\nAmazon EU S.à r.l. - 38 avenue John F. Kennedy, L-1855 Luxembourg")->supplier?->value)
+        ->toBe('Amazon EU S.à r.l.');
+});
+
+test('a code or a payment status is never the supplier', function (string $line): void {
+    expect(readReceipt("Facture\n{$line}\nRéférence de paiement WMM67AIQCRAU7Q28")->supplier)->toBeNull();
+})->with(['LU-BIO-04', 'Payé', 'FR62IUVK0AEUD']);
+
+test('a date glued to its label or wrapped under it is still read', function (string $text): void {
+    $reading = readReceipt($text);
+
+    expect($reading->spentOn?->value->toDateString())->toBe('2026-07-22')
+        ->and($reading->spentOn?->confidence)->toBe(ReceiptFieldConfidence::High);
+})->with([
+    'glued' => "Lunaprint\nDate de la commande 20.07.2026\nDate de la facture/Date de la livraison22.07.2026",
+    'wrapped' => "Lunaprint\nDate de la commande 20.07.2026\nDate de la facture/Date de\nla livraison22.07.2026",
+    'glued, in words' => "Lunaprint\nDate de la commande 20 juillet 2026\nDate de la facture/Date de la livraison22 juillet 2026",
+]);
+
+test('reads the rate from the row under a TVA table header', function (): void {
+    $vat = readReceipt("Lunaprint\nTaux TVA Total HT TVA\n20 % 1 082,50 € 216,50 €\nTotal à payer 1 299,00 €")->vat;
+
+    expect($vat?->treatment)->toBe(ExpenseVatTreatment::Domestic)
+        ->and($vat?->rateBp)->toBe(2_000);
+});
+
+test('the shipping line is not the description', function (): void {
+    expect(readReceipt("Lunaprint\nLivraison 0,00 € 0,00 €\nTotal 12,00 €")->description)->toBeNull();
+});
+
 test('the line under « Facturé à » is the client, not the supplier', function (): void {
     expect(readReceipt("Facture\nÉmise le 12/08/2026\nFacturé à\nThéo Benoit\n12 rue des Fjords\nNordlys Cloud SAS")->supplier?->value)
         ->toBe('Nordlys Cloud SAS');

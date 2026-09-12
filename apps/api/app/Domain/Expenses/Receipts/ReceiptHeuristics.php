@@ -57,11 +57,14 @@ final readonly class ReceiptHeuristics
 
     private const string EXEMPT = '/tva\s*non\s*applicable|art(?:icle|\.)?\s*293\s*b|\b293b\b|exoneree?\s*de\s*tva|exoneration\s*de\s*tva|vat\s*exempt|exempt\s*from\s*vat|\bno\s*vat\b|not\s*subject\s*to\s*vat|(?:tva|vat)\s*:?\s*0\s*%/u';
 
+    /** A marketplace or billing tool names the seller of record after one of these. */
+    private const string SELLER_LABEL = '/^(?:vendu\s*par|sold\s*by|fournisseur|supplier|emetteur|emis\s*par|issued\s*by)\s*:?\s*(?<name>.{3,60})$/u';
+
     /** The line under one of these names the client, never the supplier. */
     private const string CLIENT_LABEL = '/client|customer|bill(?:ed)?\s*to|facture?\s*a\b|destinataire/u';
 
     /** What no supplier name looks like: document words, coordinates, identifiers, addresses. */
-    private const string NOT_A_SUPPLIER = '/facture|invoice|\brecu\b|receipt|ticket|devis|quote|quotation|avoir|credit\s*note|\bpage\b|n°|\bno\.|\bnum|number|\bdate\b|total|siret|siren|\btva\b|\bvat\b|iban|\bbic\b|www\.|http|@|\brcs\b|capital|adresse|address|\btel\b|phone|client|customer|bill(?:ed)?\s*to|facture?\s*a\b|destinataire|montant|amount|\bref\b|reference|commande|order|\bcedex\b|\d{5}\b|\bemis|issued|payment|paiement|periode|period/u';
+    private const string NOT_A_SUPPLIER = '/facture|invoice|\brecu\b|receipt|ticket|devis|quote|quotation|avoir|credit\s*note|\bpage\b|n°|\bno\.|\bnum|number|\bdate\b|total|siret|siren|\btva\b|\bvat\b|iban|\bbic\b|www\.|http|@|\brcs\b|capital|adresse|address|\btel\b|phone|client|customer|bill(?:ed)?\s*to|facture?\s*a\b|destinataire|montant|amount|\bref\b|reference|commande|order|\bcedex\b|\d{5}\b|\bemis|issued|payment|paiement|periode|period|\bpaye\b|\bpaid\b|acquitte|impaye|unpaid/u';
 
     private const array FRENCH_MONTHS = [
         'janvier' => 1, 'janv' => 1, 'fevrier' => 2, 'fevr' => 2, 'fev' => 2, 'mars' => 3, 'avril' => 4, 'avr' => 4, 'mai' => 5, 'juin' => 6,
@@ -86,7 +89,7 @@ final readonly class ReceiptHeuristics
         ExpenseCategory::Internet->value => ['fibre', 'adsl', 'box internet', 'internet', 'wifi'],
         ExpenseCategory::Phone->value => ['mobile', 'forfait', 'telephone', 'phone', 'carte sim', 'appels'],
         ExpenseCategory::Equipment->value => ['ecran', 'ordinateur', 'laptop', 'clavier', 'souris', 'monitor', 'keyboard', 'mouse', 'materiel', 'casque', 'imprimante', 'printer', 'disque', 'ssd', 'webcam', 'chargeur'],
-        ExpenseCategory::Software->value => ['logiciel', 'software', 'licence', 'license', 'saas', 'abonnement', 'subscription'],
+        ExpenseCategory::Software->value => ['logiciel', 'software', 'saas', 'abonnement', 'subscription'],
     ];
 
     /** @var list<string> */
@@ -142,33 +145,58 @@ final readonly class ReceiptHeuristics
 
     private function supplier(): ?ReceiptTextFieldData
     {
+        foreach ($this->folded as $index => $folded) {
+            if (preg_match(self::SELLER_LABEL, $folded, $label) === 1) {
+                $name = trim(mb_substr($this->lines[$index], mb_strlen($this->lines[$index]) - mb_strlen($label['name'])));
+
+                return new ReceiptTextFieldData($this->supplierCase($name), ReceiptFieldConfidence::High);
+            }
+        }
+
         foreach (array_slice($this->lines, 0, 10, preserve_keys: true) as $index => $line) {
-            if (mb_strlen($line) > 60) {
-                continue;
-            }
-            if (preg_match_all('/\p{L}/u', $line) < 3) {
-                continue;
-            }
-            if (preg_match('/^\d/', $line) === 1) {
-                continue;
-            }
-            if (preg_match(self::NOT_A_SUPPLIER, $this->folded[$index]) === 1) {
-                continue;
-            }
             if ($index > 0 && preg_match(self::CLIENT_LABEL, $this->folded[$index - 1]) === 1) {
                 continue;
             }
-            if ($this->amountsIn($this->folded[$index], markedOnly: false) !== []) {
-                continue;
-            }
 
-            return new ReceiptTextFieldData(
-                value: mb_strtoupper($line) === $line ? $this->titleCase($line) : $line,
-                confidence: $index < 3 ? ReceiptFieldConfidence::Medium : ReceiptFieldConfidence::Low,
-            );
+            $name = $this->supplierNameIn($line);
+
+            if ($name !== null) {
+                return new ReceiptTextFieldData($name, $index < 3 ? ReceiptFieldConfidence::Medium : ReceiptFieldConfidence::Low);
+            }
         }
 
         return null;
+    }
+
+    /**
+     * The company name a line carries, if that is what the line is: its first
+     * segment when the address follows on the same line (« Nordlys Cloud SAS -
+     * 12 rue des Fjords, 75011 Paris »), refused for codes, statuses, document
+     * words, coordinates and anything priced.
+     */
+    private function supplierNameIn(string $line): ?string
+    {
+        $candidate = trim(preg_split('/\s[-–—·|]\s/u', $line, 2)[0] ?? '');
+        $folded = $this->fold($candidate);
+
+        if ($candidate === '' || mb_strlen($candidate) > 60 || preg_match_all('/\p{L}/u', $candidate) < 3) {
+            return null;
+        }
+
+        if (preg_match('/^\d/', $candidate) === 1 || preg_match('/^[^\p{Ll}]*\d[^\p{Ll}]*$/u', $candidate) === 1) {
+            return null;
+        }
+
+        if (preg_match(self::NOT_A_SUPPLIER, $folded) === 1 || $this->amountsIn($folded, markedOnly: false) !== []) {
+            return null;
+        }
+
+        return $this->supplierCase($candidate);
+    }
+
+    private function supplierCase(string $name): string
+    {
+        return mb_strtoupper($name) === $name ? $this->titleCase($name) : $name;
     }
 
     /** « NORDLYS CLOUD SAS » reads as « Nordlys Cloud SAS »: short all-caps words are acronyms, not shouting. */
@@ -181,8 +209,8 @@ final readonly class ReceiptHeuristics
     {
         $candidates = [];
 
-        foreach ($this->folded as $line) {
-            $labelled = $this->labelledInvoiceDate($line);
+        foreach ($this->folded as $index => $line) {
+            $labelled = $this->labelledInvoiceDate($index);
 
             if ($labelled instanceof CarbonImmutable) {
                 return new ReceiptDateFieldData($labelled, ReceiptFieldConfidence::High);
@@ -212,10 +240,12 @@ final readonly class ReceiptHeuristics
     /**
      * The date following an invoice-date label, when that label comes before
      * any due-date one — « Date de facture 12/08/2026 · Échéance 30/08/2026 »
-     * sits on one line on many PDFs.
+     * sits on one line on many PDFs. A table cell wraps the date to the next
+     * line just as often, so the line below counts as part of the label's.
      */
-    private function labelledInvoiceDate(string $folded): ?CarbonImmutable
+    private function labelledInvoiceDate(int $index): ?CarbonImmutable
     {
+        $folded = $this->folded[$index];
         $hasDueLabel = preg_match(self::NOT_THE_SPENT_DATE, $folded, $due, PREG_OFFSET_CAPTURE) === 1;
         $hasLabel = preg_match(self::INVOICE_DATE, $folded, $label, PREG_OFFSET_CAPTURE) === 1
             || (! $hasDueLabel && preg_match(self::BARE_DATE_LABEL, $folded, $label, PREG_OFFSET_CAPTURE) === 1);
@@ -228,7 +258,7 @@ final readonly class ReceiptHeuristics
             return null;
         }
 
-        return $this->datesIn(substr($folded, $label[0][1]))[0] ?? null;
+        return $this->datesIn(substr($folded, $label[0][1]).' '.($this->folded[$index + 1] ?? ''))[0] ?? null;
     }
 
     /**
@@ -241,10 +271,10 @@ final readonly class ReceiptHeuristics
         $french = implode('|', array_keys(self::FRENCH_MONTHS));
         $english = implode('|', array_keys(self::ENGLISH_MONTHS));
         $spellings = [
-            ['/\b(?<day>\d{1,2})[\/.\-](?<month>\d{1,2})[\/.\-](?<year>\d{4}|\d{2})\b(?![\/.\-]?\d)/', null],
+            ['/(?<!\d)(?<day>\d{1,2})[\/.\-](?<month>\d{1,2})[\/.\-](?<year>\d{4}|\d{2})\b(?![\/.\-]?\d)/', null],
             ['/\b(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})\b/', null],
-            ['/\b(?<day>\d{1,2})(?:er)?\s+(?<month>'.$french.')\.?\s+(?<year>\d{4})\b/', self::FRENCH_MONTHS],
-            ['/\b(?<day>\d{1,2})(?:st|nd|rd|th)?\s+(?<month>'.$english.')\.?,?\s+(?<year>\d{4})\b/', self::ENGLISH_MONTHS],
+            ['/(?<!\d)(?<day>\d{1,2})(?:er)?\s+(?<month>'.$french.')\.?\s+(?<year>\d{4})\b/', self::FRENCH_MONTHS],
+            ['/(?<!\d)(?<day>\d{1,2})(?:st|nd|rd|th)?\s+(?<month>'.$english.')\.?,?\s+(?<year>\d{4})\b/', self::ENGLISH_MONTHS],
             ['/\b(?<month>'.$english.')\.?\s+(?<day>\d{1,2})(?:st|nd|rd|th)?,?\s+(?<year>\d{4})\b/', self::ENGLISH_MONTHS],
         ];
         $dates = [];
@@ -361,7 +391,8 @@ final readonly class ReceiptHeuristics
         }
 
         if (preg_match('/(?:tva|vat|t\.v\.a\.?)[^\d\n]{0,12}?'.self::RATE.'/u', $this->foldedText, $rate) === 1
-            || preg_match('/'.self::RATE.'\s*(?:de\s+)?(?:tva|vat)/u', $this->foldedText, $rate) === 1) {
+            || preg_match('/'.self::RATE.'\s*(?:de\s+)?(?:tva|vat)/u', $this->foldedText, $rate) === 1
+            || preg_match('/(?:tva|vat)[^\n]*\n\s*'.self::RATE.'/u', $this->foldedText, $rate) === 1) {
             return new ReceiptVatFieldData(ExpenseVatTreatment::Domestic, $this->rateBp($rate[1]), ReceiptFieldConfidence::High);
         }
 
@@ -403,7 +434,7 @@ final readonly class ReceiptHeuristics
             if (preg_match(self::NOT_A_TOTAL, $folded) === 1) {
                 continue;
             }
-            if (preg_match('/\b(?:total|date|siret|iban|facture|invoice)\b/', $folded) === 1) {
+            if (preg_match('/\b(?:total|date|siret|iban|facture|invoice|livraison|shipping|delivery|frais\s*de\s*port)\b/', $folded) === 1) {
                 continue;
             }
             if (preg_match('/\p{L}{3}/u', $folded) !== 1) {
