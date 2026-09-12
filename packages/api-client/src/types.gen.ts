@@ -186,6 +186,24 @@ export type CalendarFeedData = {
 };
 
 /**
+ * CancelSubscriptionData
+ */
+export type CancelSubscriptionData = {
+    cancelledOn?: string | null;
+};
+
+/**
+ * ChangeSubscriptionAmountData
+ */
+export type ChangeSubscriptionAmountData = {
+    amountHt: {
+        amount: number;
+        currency: Currency;
+    };
+    effectiveFrom: string;
+};
+
+/**
  * ClientData
  */
 export type ClientData = {
@@ -1521,6 +1539,117 @@ export type StopTimerData = {
 };
 
 /**
+ * SubscriptionAmountChangeData
+ */
+export type SubscriptionAmountChangeData = {
+    subscriptionId: number;
+    supplier: string;
+    before: MoneyData;
+    after: MoneyData;
+    changeBp: number;
+    since: string;
+};
+
+/**
+ * SubscriptionAmountData
+ */
+export type SubscriptionAmountData = {
+    effectiveFrom: string;
+    amountHt: MoneyData;
+};
+
+/**
+ * SubscriptionCategoryTotalData
+ */
+export type SubscriptionCategoryTotalData = {
+    category: ExpenseCategory;
+    yearlyHt: MoneyData;
+};
+
+/**
+ * SubscriptionData
+ */
+export type SubscriptionData = {
+    id: number;
+    supplier: string;
+    category: ExpenseCategory;
+    description: string | null;
+    amountHt: MoneyData;
+    vat: MoneyData;
+    amountTtc: MoneyData;
+    recoverableVat: MoneyData;
+    proShareBp: number;
+    vatTreatment: ExpenseVatTreatment;
+    vatRateBp: number;
+    periodicity: SubscriptionPeriodicity;
+    debitDay: number;
+    debitMonth: number | null;
+    startedOn: string;
+    customerSpaceUrl: string | null;
+    autoCreateExpenses: boolean;
+    provisionMonthly: boolean;
+    monthlyProvision: MoneyData | null;
+    isPaused: boolean;
+    cancelledOn: string | null;
+    nextDebitOn: string | null;
+    amounts: Array<SubscriptionAmountData>;
+};
+
+/**
+ * SubscriptionInputData
+ */
+export type SubscriptionInputData = {
+    supplier: string;
+    category: ExpenseCategory;
+    amountHt: {
+        amount: number;
+        currency: Currency;
+    };
+    vatTreatment: ExpenseVatTreatment;
+    vatRateBp: number;
+    periodicity: SubscriptionPeriodicity;
+    debitDay: number;
+    startedOn: string;
+    proShareBp?: number;
+    debitMonth?: number | null;
+    description?: string | null;
+    customerSpaceUrl?: string | null;
+    autoCreateExpenses?: boolean;
+    provisionMonthly?: boolean;
+};
+
+/**
+ * SubscriptionKpisData
+ */
+export type SubscriptionKpisData = {
+    monthlyTtc: MoneyData;
+    monthlyCount: number;
+    yearlyTtc: MoneyData;
+    annualCount: number;
+    provisionedCount: number;
+    provisionedPerMonth: MoneyData;
+    recoverableVatPerYear: MoneyData;
+    reverseChargedVatPerYear: MoneyData;
+};
+
+/**
+ * SubscriptionPeriodicity
+ */
+export type SubscriptionPeriodicity = 0 | 1 | 2;
+
+/**
+ * SubscriptionsData
+ */
+export type SubscriptionsData = {
+    kpis: SubscriptionKpisData;
+    subscriptions: Array<SubscriptionData>;
+    upcoming: Array<UpcomingDebitData>;
+    categories: Array<SubscriptionCategoryTotalData>;
+    yearlyHt: MoneyData;
+    amountChanges: Array<SubscriptionAmountChangeData>;
+};
+
+/**
  * SummarizeDeclarationsData
  */
 export type SummarizeDeclarationsData = {
@@ -1666,6 +1795,18 @@ export type TwoFactorStatusData = {
     recoveryCodesRemaining: number;
     passkeys: Array<PasskeyData>;
     trustedDevices: Array<TrustedDeviceData>;
+};
+
+/**
+ * UpcomingDebitData
+ */
+export type UpcomingDebitData = {
+    subscriptionId: number;
+    supplier: string;
+    dueOn: string;
+    amountTtc: MoneyData;
+    periodicity: SubscriptionPeriodicity;
+    isProvision: boolean;
 };
 
 /**
@@ -6066,6 +6207,365 @@ export type UploadUserSignatureResponses = {
 };
 
 export type UploadUserSignatureResponse = UploadUserSignatureResponses[keyof UploadUserSignatureResponses];
+
+export type ListSubscriptionsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/subscriptions';
+};
+
+export type ListSubscriptionsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListSubscriptionsError = ListSubscriptionsErrors[keyof ListSubscriptionsErrors];
+
+export type ListSubscriptionsResponses = {
+    200: SubscriptionsData;
+};
+
+export type ListSubscriptionsResponse = ListSubscriptionsResponses[keyof ListSubscriptionsResponses];
+
+export type CreateSubscriptionData = {
+    body: SubscriptionInputData;
+    path?: never;
+    query?: never;
+    url: '/subscriptions';
+};
+
+export type CreateSubscriptionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateSubscriptionError = CreateSubscriptionErrors[keyof CreateSubscriptionErrors];
+
+export type CreateSubscriptionResponses = {
+    201: SubscriptionsData;
+};
+
+export type CreateSubscriptionResponse = CreateSubscriptionResponses[keyof CreateSubscriptionResponses];
+
+export type DeleteSubscriptionData = {
+    body?: never;
+    path: {
+        /**
+         * The subscription ID
+         */
+        subscription: number;
+    };
+    query?: never;
+    url: '/subscriptions/{subscription}';
+};
+
+export type DeleteSubscriptionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteSubscriptionError = DeleteSubscriptionErrors[keyof DeleteSubscriptionErrors];
+
+export type DeleteSubscriptionResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteSubscriptionResponse = DeleteSubscriptionResponses[keyof DeleteSubscriptionResponses];
+
+export type UpdateSubscriptionData = {
+    body: SubscriptionInputData;
+    path: {
+        /**
+         * The subscription ID
+         */
+        subscription: number;
+    };
+    query?: never;
+    url: '/subscriptions/{subscription}';
+};
+
+export type UpdateSubscriptionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateSubscriptionError = UpdateSubscriptionErrors[keyof UpdateSubscriptionErrors];
+
+export type UpdateSubscriptionResponses = {
+    200: SubscriptionsData;
+};
+
+export type UpdateSubscriptionResponse = UpdateSubscriptionResponses[keyof UpdateSubscriptionResponses];
+
+export type ChangeSubscriptionAmountData2 = {
+    body: ChangeSubscriptionAmountData;
+    path: {
+        /**
+         * The subscription ID
+         */
+        subscription: number;
+    };
+    query?: never;
+    url: '/subscriptions/{subscription}/amounts';
+};
+
+export type ChangeSubscriptionAmountErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type ChangeSubscriptionAmountError = ChangeSubscriptionAmountErrors[keyof ChangeSubscriptionAmountErrors];
+
+export type ChangeSubscriptionAmountResponses = {
+    201: SubscriptionsData;
+};
+
+export type ChangeSubscriptionAmountResponse = ChangeSubscriptionAmountResponses[keyof ChangeSubscriptionAmountResponses];
+
+export type ResumeSubscriptionData = {
+    body?: never;
+    path: {
+        /**
+         * The subscription ID
+         */
+        subscription: number;
+    };
+    query?: never;
+    url: '/subscriptions/{subscription}/pause';
+};
+
+export type ResumeSubscriptionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ResumeSubscriptionError = ResumeSubscriptionErrors[keyof ResumeSubscriptionErrors];
+
+export type ResumeSubscriptionResponses = {
+    200: SubscriptionsData;
+};
+
+export type ResumeSubscriptionResponse = ResumeSubscriptionResponses[keyof ResumeSubscriptionResponses];
+
+export type PauseSubscriptionData = {
+    body?: never;
+    path: {
+        /**
+         * The subscription ID
+         */
+        subscription: number;
+    };
+    query?: never;
+    url: '/subscriptions/{subscription}/pause';
+};
+
+export type PauseSubscriptionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type PauseSubscriptionError = PauseSubscriptionErrors[keyof PauseSubscriptionErrors];
+
+export type PauseSubscriptionResponses = {
+    201: SubscriptionsData;
+};
+
+export type PauseSubscriptionResponse = PauseSubscriptionResponses[keyof PauseSubscriptionResponses];
+
+export type ReactivateSubscriptionData = {
+    body?: never;
+    path: {
+        /**
+         * The subscription ID
+         */
+        subscription: number;
+    };
+    query?: never;
+    url: '/subscriptions/{subscription}/cancellation';
+};
+
+export type ReactivateSubscriptionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ReactivateSubscriptionError = ReactivateSubscriptionErrors[keyof ReactivateSubscriptionErrors];
+
+export type ReactivateSubscriptionResponses = {
+    200: SubscriptionsData;
+};
+
+export type ReactivateSubscriptionResponse = ReactivateSubscriptionResponses[keyof ReactivateSubscriptionResponses];
+
+export type CancelSubscriptionData2 = {
+    body?: CancelSubscriptionData;
+    path: {
+        /**
+         * The subscription ID
+         */
+        subscription: number;
+    };
+    query?: never;
+    url: '/subscriptions/{subscription}/cancellation';
+};
+
+export type CancelSubscriptionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CancelSubscriptionError = CancelSubscriptionErrors[keyof CancelSubscriptionErrors];
+
+export type CancelSubscriptionResponses = {
+    201: SubscriptionsData;
+};
+
+export type CancelSubscriptionResponse = CancelSubscriptionResponses[keyof CancelSubscriptionResponses];
 
 export type ListTimeEntriesData = {
     body?: never;

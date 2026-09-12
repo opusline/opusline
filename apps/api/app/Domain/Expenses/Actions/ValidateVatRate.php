@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Domain\Expenses\Actions;
 
-use App\Domain\Expenses\Data\ExpenseInputData;
 use App\Domain\Expenses\Enums\ExpenseVatTreatment;
 use Illuminate\Validation\ValidationException;
 
@@ -15,17 +14,17 @@ use Illuminate\Validation\ValidationException;
  * account under the franchise en base records receipts without tracking
  * their TVA at all.
  */
-class ValidateExpense
+class ValidateVatRate
 {
     /**
      * @throws ValidationException
      */
-    public function handle(ExpenseInputData $data): void
+    public function handle(ExpenseVatTreatment $treatment, int $rateBp): void
     {
-        $consistent = match ($data->vatTreatment) {
-            ExpenseVatTreatment::Exempt => $data->vatRateBp === 0,
+        $consistent = match ($treatment) {
+            ExpenseVatTreatment::Exempt => $rateBp === 0,
             ExpenseVatTreatment::ReverseChargeEu,
-            ExpenseVatTreatment::ReverseChargeNonEu => $data->vatRateBp > 0,
+            ExpenseVatTreatment::ReverseChargeNonEu => $rateBp > 0,
             ExpenseVatTreatment::Domestic => true,
         };
 
