@@ -10,6 +10,30 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof Tabs>;
 
+/**
+ * `underline-inline` drops the list's own rule so a row can draw one around
+ * the tabs and the controls that share it.
+ */
+export const UnderlineInline: Story = {
+  render: () => (
+    <Tabs defaultValue="journal">
+      <div className="flex items-end justify-between gap-4 border-b">
+        <TabsList variant="underline-inline">
+          <TabsTrigger value="journal">Journal</TabsTrigger>
+          <TabsTrigger value="abonnements">Abonnements</TabsTrigger>
+        </TabsList>
+        <span className="pb-2 text-muted-foreground-3 text-sm">août 2026</span>
+      </div>
+      <TabsContent value="journal" className="p-4 text-sm">
+        Les dépenses du mois.
+      </TabsContent>
+      <TabsContent value="abonnements" className="p-4 text-sm">
+        Les abonnements en cours.
+      </TabsContent>
+    </Tabs>
+  ),
+};
+
 export const Underline: Story = {
   render: () => (
     <Tabs defaultValue="missions">
