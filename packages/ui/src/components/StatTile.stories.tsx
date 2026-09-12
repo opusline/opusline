@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Pencil } from "lucide-react";
 import { Button } from "./button";
-import { StatTile, StatTileRow } from "./stat-tile";
+import { StatTile, StatTileNote, StatTileRow } from "./stat-tile";
 
 const meta = {
   title: "UI/StatTile",
@@ -58,7 +58,56 @@ export const Tones: Story = {
       <StatTile label="Appuyé" value="1 224 €" tone="strong" />
       <StatTile label="Marque" value="48 900 €" tone="brand" />
       <StatTile label="Alerte" value="3 756 €" tone="warn" />
+      <StatTile label="Attention" value="2" tone="attention" />
       <StatTile label="Discret" value="—" tone="quiet" />
+    </StatTileRow>
+  ),
+};
+
+/**
+ * The page-level KPI card: an `xl` figure with room around it, and toned
+ * notes under the figure for what it is missing or what it amounts to.
+ */
+export const PageKpi: Story = {
+  render: () => (
+    <StatTileRow className="grid-cols-1 md:grid-cols-3" variant="cards">
+      <StatTile
+        label="TVA à déduire"
+        padding="roomy"
+        size="xl"
+        tone="brand"
+        value="1 016,45 €"
+      >
+        <StatTileNote tone="attention">
+          + 14,00 € bloqués · 1 facture à lier
+        </StatTileNote>
+        <StatTileNote tone="info">+ 19,80 € autoliquidés</StatTileNote>
+        <StatTileNote tone="success">
+          Crédit de TVA 466,45 € · déduite &gt; collectée (550,00 €) · reporté
+          sur la CA3 suivante
+        </StatTileNote>
+      </StatTile>
+      <StatTile
+        label="Dépenses HT"
+        padding="roomy"
+        size="xl"
+        sub="12 dépenses · 1 258,22 € TTC"
+        tone="strong"
+        value="1 048,52 €"
+      />
+      <StatTile
+        label="Abonnements"
+        padding="roomy"
+        size="xl"
+        sub="3 216 € / an · 8 abonnements dont 2 annuels"
+        tone="strong"
+        value={
+          <>
+            268 €
+            <span className="text-muted-foreground-3 text-base"> / mois</span>
+          </>
+        }
+      />
     </StatTileRow>
   ),
 };

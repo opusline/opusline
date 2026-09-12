@@ -38,6 +38,8 @@
   --link: #8b5a10;
   --link-hover: #7a4a0e;
   --success: #386d3d;
+  --attention: #6f5a0c;
+  --info: #355e80;
   --overlay: #1f1b18cc;
   --card-2: #ffffff;
   --secondary-2: #e9e4dc;
@@ -113,6 +115,8 @@
   --link: #d69039;
   --link-hover: #e9b265;
   --success: #8fbf8f;
+  --attention: #dba24a;
+  --info: #9dbcdc;
   --overlay: #0c0a09cc;
   --card-2: #221f1d;
   --secondary-2: #2a2624;
@@ -180,6 +184,8 @@
   --color-link: var(--link);
   --color-link-hover: var(--link-hover);
   --color-success: var(--success);
+  --color-attention: var(--attention);
+  --color-info: var(--info);
   --color-overlay: var(--overlay);
   --color-card-2: var(--card-2);
   --color-secondary-2: var(--secondary-2);

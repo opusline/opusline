@@ -13,15 +13,20 @@ function PopoverTrigger({ ...props }: PopoverPrimitive.Trigger.Props) {
 }
 
 const popoverContentVariants = cva(
-  "z-50 w-72 max-h-(--available-height) origin-(--transform-origin) rounded-md p-2.5 text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-none duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+  "z-50 max-h-(--available-height) origin-(--transform-origin) rounded-md p-2.5 text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-none duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
   {
     variants: {
       surface: {
         default: "bg-popover",
         raised: "bg-card-2",
       },
+      size: {
+        default: "w-72",
+        /** Reading width, for a help panel with paragraphs — capped by the viewport. */
+        lg: "w-105 max-w-[calc(100vw-2rem)]",
+      },
     },
-    defaultVariants: { surface: "default" },
+    defaultVariants: { surface: "default", size: "default" },
   },
 );
 
@@ -32,6 +37,7 @@ function PopoverContent({
   className,
   side = "bottom",
   sideOffset = 6,
+  size,
   surface,
   ...props
 }: PopoverPrimitive.Popup.Props &
@@ -52,7 +58,7 @@ function PopoverContent({
       >
         <PopoverPrimitive.Popup
           data-slot="popover-content"
-          className={cn(popoverContentVariants({ surface }), className)}
+          className={cn(popoverContentVariants({ size, surface }), className)}
           {...props}
         />
       </PopoverPrimitive.Positioner>
