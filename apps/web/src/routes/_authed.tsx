@@ -52,6 +52,7 @@ const pageTitles: Record<string, () => string> = {
   "/clients": m.page_title_clients,
   "/cra": m.page_title_cra,
   "/revenue": m.page_title_revenue,
+  "/expenses": m.page_title_expenses,
   "/treasury": m.page_title_treasury,
   "/bank-account": m.page_title_bank,
   "/deadlines": m.page_title_deadlines,

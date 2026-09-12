@@ -189,6 +189,42 @@ export async function invalidateInvoiceWrites(
 }
 
 /**
+ * Every cached month of the expense journal, plus the sidebar's « factures à
+ * lier » badge that reads the current one.
+ */
+export function expensesFilter(): { predicate: (query: Query) => boolean } {
+  return operationFilter("listExpenses");
+}
+
+/**
+ * The Déclarations screen, whatever period it shows: the CA3 deductible boxes
+ * are summed from expenses, so every expense write moves them.
+ */
+export function declarationsFilter(): {
+  predicate: (query: Query) => boolean;
+} {
+  return operationFilter("showDeclarations");
+}
+
+/**
+ * The fan-out every expense write owes: the journal itself (every month — a
+ * regularisation lands on a later CA3 than the month it was spent in), the
+ * declarations that sum it, and the treasury and deadline figures that net
+ * the recoverable TVA out of the provision.
+ */
+export async function invalidateExpenseWrites(
+  queryClient: QueryClient,
+): Promise<void> {
+  void invalidateTreasury(queryClient);
+  void invalidateDeadlines(queryClient);
+
+  await Promise.all([
+    queryClient.invalidateQueries(expensesFilter()),
+    queryClient.invalidateQueries(declarationsFilter()),
+  ]);
+}
+
+/**
  * Three surfaces list the same documents: the client fiche, the mission fiche —
  * which merges its client's pieces in — and the global library on /documents. A
  * document filed or deleted on one of them moves all three.

@@ -2,6 +2,7 @@ import {
   listClientRevenueQueryKey,
   listCrasQueryKey,
   listDeadlinesQueryKey,
+  listExpensesQueryKey,
   listInvoicesQueryKey,
   listMissionDocumentsQueryKey,
   listMissionTimeEntriesQueryKey,
@@ -9,6 +10,7 @@ import {
   showBankAccountQueryKey,
   showClientRevenueQueryKey,
   showCraQueryKey,
+  showDeclarationsQueryKey,
   showInvoiceSummaryQueryKey,
   showMissionRevenueQueryKey,
   showTreasuryQueryKey,
@@ -19,6 +21,8 @@ import { describe, expect, it } from "vitest";
 import {
   craFilter,
   deadlinesFilter,
+  declarationsFilter,
+  expensesFilter,
   missionTimeEntriesFilter,
   operationFilter,
   revenueFilter,
@@ -232,5 +236,36 @@ describe("the bare listInvoices key", () => {
     expect(
       queryClient.getQueryCache().findAll({ queryKey: listInvoicesQueryKey() }),
     ).toHaveLength(3);
+  });
+});
+
+describe("expensesFilter", () => {
+  it("matches every month of the journal", () => {
+    const filter = expensesFilter();
+
+    expect(
+      filter.predicate(
+        queryWithKey(listExpensesQueryKey({ query: { month: "2026-08" } })),
+      ),
+    ).toBe(true);
+    expect(filter.predicate(queryWithKey(listExpensesQueryKey()))).toBe(true);
+    expect(filter.predicate(queryWithKey(showDeclarationsQueryKey()))).toBe(
+      false,
+    );
+  });
+});
+
+describe("declarationsFilter", () => {
+  it("matches the declarations whatever period they show", () => {
+    const filter = declarationsFilter();
+
+    expect(
+      filter.predicate(
+        queryWithKey(
+          showDeclarationsQueryKey({ query: { period: "2026-07" } }),
+        ),
+      ),
+    ).toBe(true);
+    expect(filter.predicate(queryWithKey(listExpensesQueryKey()))).toBe(false);
   });
 });
