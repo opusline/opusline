@@ -52,7 +52,7 @@ class ListBankMovements
 
         /** @var list<BankMovement> $movements */
         [$movements, $nextCursor] = DatePageCursor::window(
-            $user->bankMovements()->with(['invoice', 'match']),
+            $user->bankMovements()->with(['invoice', 'match', 'expense']),
             'booked_on',
             self::PAGE_SIZE,
             $position,

@@ -16,6 +16,8 @@ class DeleteExpense
     public function handle(Expense $expense): void
     {
         $expense->clearMediaCollection(Expense::RECEIPT_COLLECTION);
+        // nullOnDelete only fires on the hard delete; a tombstone keeps the FK alive.
+        $expense->bankMovement()->update(['expense_id' => null]);
 
         if ($expense->subscription_id === null) {
             $expense->forceDelete();

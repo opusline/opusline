@@ -16,6 +16,7 @@ class SubscriptionsData extends Data
      * @param  list<UpcomingDebitData>  $upcoming  the next thirty days, soonest first
      * @param  list<SubscriptionCategoryTotalData>  $categories  the year's HT by category, largest first
      * @param  list<SubscriptionAmountChangeData>  $amountChanges  latest first
+     * @param  list<RecurringDebitData>  $detected  recurring debits no subscription explains, the most recent first
      */
     public function __construct(
         public SubscriptionKpisData $kpis,
@@ -29,5 +30,7 @@ class SubscriptionsData extends Data
         public MoneyData $yearlyHt,
         #[DataCollectionOf(SubscriptionAmountChangeData::class)]
         public array $amountChanges,
+        #[DataCollectionOf(RecurringDebitData::class)]
+        public array $detected,
     ) {}
 }

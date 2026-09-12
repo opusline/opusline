@@ -8,12 +8,14 @@ use App\Domain\Expenses\Actions\CancelSubscription;
 use App\Domain\Expenses\Actions\ChangeSubscriptionAmount;
 use App\Domain\Expenses\Actions\CreateSubscription;
 use App\Domain\Expenses\Actions\DeleteSubscription;
+use App\Domain\Expenses\Actions\DismissRecurringDebit;
 use App\Domain\Expenses\Actions\ListSubscriptions;
 use App\Domain\Expenses\Actions\PauseSubscription;
 use App\Domain\Expenses\Actions\ReactivateSubscription;
 use App\Domain\Expenses\Actions\UpdateSubscription;
 use App\Domain\Expenses\Data\CancelSubscriptionData;
 use App\Domain\Expenses\Data\ChangeSubscriptionAmountData;
+use App\Domain\Expenses\Data\DismissRecurringDebitData;
 use App\Domain\Expenses\Data\SubscriptionInputData;
 use App\Domain\Expenses\Models\Subscription;
 use App\Domain\Users\Models\User;
@@ -94,6 +96,13 @@ class SubscriptionController extends Controller
         $reactivateSubscription->handle($subscription);
 
         return $this->tab($user);
+    }
+
+    public function storeDismissal(DismissRecurringDebitData $data, #[CurrentUser] User $user, DismissRecurringDebit $dismissRecurringDebit): JsonResponse
+    {
+        $dismissRecurringDebit->handle($user, $data);
+
+        return $this->tab($user, 201);
     }
 
     private function tab(User $user, int $status = 200): JsonResponse

@@ -33,6 +33,14 @@ Route::middleware('auth:sanctum')->group(function (): void {
         ->whereNumber('expense')
         ->name('deleteExpense');
 
+    Route::post('/expenses/{expense}/bank-movement', [ExpenseController::class, 'storeBankMovement'])
+        ->whereNumber('expense')
+        ->name('linkExpenseBankMovement');
+
+    Route::delete('/expenses/{expense}/bank-movement', [ExpenseController::class, 'destroyBankMovement'])
+        ->whereNumber('expense')
+        ->name('unlinkExpenseBankMovement');
+
     Route::post('/expenses/{expense}/receipt', [ExpenseReceiptController::class, 'store'])
         ->whereNumber('expense')
         ->middleware('throttle:uploads')

@@ -12,6 +12,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/subscriptions', [SubscriptionController::class, 'store'])
         ->name('createSubscription');
 
+    Route::post('/subscriptions/detected-debits/dismissals', [SubscriptionController::class, 'storeDismissal'])
+        ->name('dismissRecurringDebit');
+
     Route::put('/subscriptions/{subscription}', [SubscriptionController::class, 'update'])
         ->whereNumber('subscription')
         ->name('updateSubscription');

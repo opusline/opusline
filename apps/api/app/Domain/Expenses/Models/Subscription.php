@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Expenses\Models;
 
+use App\Domain\Bank\Actions\NormalizeBankText;
 use App\Domain\Expenses\Enums\ExpenseCategory;
 use App\Domain\Expenses\Enums\ExpenseVatTreatment;
 use App\Domain\Expenses\Enums\SubscriptionPeriodicity;
@@ -134,6 +135,12 @@ class Subscription extends Model
     public function isActiveOn(CarbonImmutable $day): bool
     {
         return ! $this->is_paused && ($this->cancelled_on === null || $this->cancelled_on->greaterThanOrEqualTo($day));
+    }
+
+    /** The supplier as a bank label would carry it, or null when too short to search for. */
+    public function supplierNeedle(): ?string
+    {
+        return NormalizeBankText::clientNeedle($this->supplier);
     }
 
     /** A next debit exists: a pause, or a cancellation with no debit left before it, leaves none. */

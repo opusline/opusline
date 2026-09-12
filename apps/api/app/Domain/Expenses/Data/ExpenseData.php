@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Expenses\Data;
 
+use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Expenses\Enums\ExpenseCategory;
 use App\Domain\Expenses\Enums\ExpenseVatStatus;
 use App\Domain\Expenses\Enums\ExpenseVatTreatment;
@@ -39,6 +40,8 @@ class ExpenseData extends Data
         public ?ExpenseReceiptData $receipt,
         /** Set when the expense is a subscription's debit; eager-load `subscription`. */
         public ?ExpenseSubscriptionData $subscription,
+        /** The compte pro debit that paid it, once linked; eager-load `bankMovement`. */
+        public ?ExpenseBankMovementData $bankMovement,
         public ExpenseVatStatus $vatStatus,
         /** `Y-m` — the CA3 the recoverable TVA is claimed on. */
         public string $vatClaimPeriod,
@@ -67,6 +70,7 @@ class ExpenseData extends Data
             proShareBp: $expense->pro_share_bp,
             receipt: $receipt instanceof Media ? ExpenseReceiptData::fromMedia($receipt) : null,
             subscription: $expense->subscription instanceof Subscription ? ExpenseSubscriptionData::fromModel($expense->subscription) : null,
+            bankMovement: $expense->bankMovement instanceof BankMovement ? ExpenseBankMovementData::fromModel($expense->bankMovement) : null,
             vatStatus: $expense->vatStatus($declared),
             vatClaimPeriod: $expense->vat_claim_period,
             isRegularisation: $expense->isRegularisation($declared),
