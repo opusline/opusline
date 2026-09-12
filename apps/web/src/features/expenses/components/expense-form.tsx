@@ -1,4 +1,7 @@
-import type { ExpenseCategory } from "@opusline/api-client";
+import type {
+  ExpenseCategory,
+  ReceiptSuggestionData,
+} from "@opusline/api-client";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
 import {
@@ -15,9 +18,13 @@ import {
 } from "@opusline/ui/components/input-group";
 import { Label } from "@opusline/ui/components/label";
 import { NativeSelect } from "@opusline/ui/components/native-select";
+import {
+  SegmentedControl,
+  SegmentedControlItem,
+} from "@opusline/ui/components/segmented-control";
 import { SheetBody, SheetFooter } from "@opusline/ui/components/sheet";
 import { Switch } from "@opusline/ui/components/switch";
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 
 import { DateField } from "@/components/date-field";
 import { useMoneyFormat } from "@/components/money-format-provider";
@@ -26,7 +33,11 @@ import {
   formatAmountWithCents,
   formatSignedDraft,
 } from "@/lib/billing";
-import type { FieldErrorMap } from "@/lib/validation";
+import {
+  type FieldErrorMap,
+  serverErrorMessage,
+  serverStatus,
+} from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
 import {
@@ -38,12 +49,19 @@ import {
 } from "../lib/expense-draft";
 import { EXPENSE_CATEGORIES, expenseCategoryLabel } from "../lib/labels";
 import { parseQuickEntry } from "../lib/parse-quick-entry";
+import {
+  type DraftSources,
+  readFieldCount,
+  receiptSuggestionChanges,
+} from "../lib/receipt-suggestion";
 import { receiptRejection } from "../lib/receipts";
 import { expenseAmountsFromTtc } from "../lib/vat";
 import { ExpenseCalcBox } from "./expense-calc-box";
+import { FieldSourceTag } from "./field-source-tag";
 import { ProShareField } from "./pro-share-field";
 import { QuickEntryInput } from "./quick-entry-input";
 import { ReceiptField } from "./receipt-field";
+import { type ReceiptScanState, ReceiptScanZone } from "./receipt-scan-zone";
 import { VatChoiceField } from "./vat-choice-field";
 
 type ExpenseFormProps = {
@@ -58,7 +76,11 @@ type ExpenseFormProps = {
   fieldErrors: FieldErrorMap | null;
   onSubmit: (draft: ExpenseDraft) => void;
   onCancel: () => void;
+  /** Reads the receipt server-side; rejects with the API's error. */
+  onReadReceipt: (file: File) => Promise<ReceiptSuggestionData>;
 };
+
+type EntryMode = "scan" | "type";
 
 export function ExpenseForm({
   initial,
@@ -71,29 +93,108 @@ export function ExpenseForm({
   fieldErrors,
   onSubmit,
   onCancel,
+  onReadReceipt,
 }: ExpenseFormProps) {
   const format = useMoneyFormat();
   const id = useId();
   const [draft, setDraft] = useState(initial);
   const [quickEntry, setQuickEntry] = useState("");
+  // A prefilled create (a duplicate, a debit) opens on its fields, not on
+  // a drop zone that would overwrite them.
+  const [entryMode, setEntryMode] = useState<EntryMode>(
+    initial.supplier === "" && initial.ttc === "" ? "scan" : "type",
+  );
+  const [sources, setSources] = useState<DraftSources>({});
+  const [scan, setScan] = useState<ReceiptScanState>({ status: "idle" });
+  // A read that outlives its file (removed, replaced) must not land.
+  const readToken = useRef(0);
   // Fields the user typed into by hand: the quick line never overwrites them.
   const [touched, setTouched] = useState<Set<keyof ExpenseDraft>>(
     () => new Set(),
   );
 
   const patch = (changes: Partial<ExpenseDraft>) => {
+    const keys = Object.keys(changes) as Array<keyof ExpenseDraft>;
+
     setDraft((current) => ({ ...current, ...changes }));
-    setTouched(
-      (current) =>
-        new Set([
-          ...current,
-          ...(Object.keys(changes) as Array<keyof ExpenseDraft>),
-        ]),
-    );
+    setTouched((current) => new Set([...current, ...keys]));
+    setSources((current) => {
+      const next = { ...current };
+
+      for (const key of keys) {
+        delete next[key];
+      }
+
+      return next;
+    });
+  };
+
+  const readReceipt = async (file: File) => {
+    const token = ++readToken.current;
+    const rejection = receiptRejection(file);
+
+    setEntryMode("scan");
+    setDraft((current) => ({ ...current, receipt: file }));
+
+    if (rejection !== null) {
+      setScan({ status: "failed", fileName: file.name, message: rejection });
+      return;
+    }
+
+    setScan({ status: "busy", fileName: file.name });
+
+    try {
+      const suggestion = await onReadReceipt(file);
+
+      if (token !== readToken.current) {
+        return;
+      }
+
+      const { changes, sources: read } = receiptSuggestionChanges(
+        format,
+        suggestion,
+        isVatLiable,
+      );
+
+      if (!suggestion.textFound || readFieldCount(read) === 0) {
+        setScan({ status: "unreadable", fileName: file.name });
+        return;
+      }
+
+      setDraft((current) => ({ ...current, ...changes }));
+      setSources(read);
+      setScan({
+        status: "done",
+        fileName: file.name,
+        readCount: readFieldCount(read),
+        hasCategory: read.category !== undefined,
+      });
+    } catch (failure) {
+      if (token !== readToken.current) {
+        return;
+      }
+
+      setScan({
+        status: "failed",
+        fileName: file.name,
+        message:
+          serverStatus(failure) === 429
+            ? m.expenses_scan_throttled()
+            : serverErrorMessage(failure, m.expenses_scan_failed()),
+      });
+    }
+  };
+
+  const resetScan = () => {
+    readToken.current += 1;
+    setScan({ status: "idle" });
+    setSources({});
+    setDraft((current) => ({ ...current, receipt: null }));
   };
 
   const applyQuickEntry = (value: string) => {
     setQuickEntry(value);
+    setSources({});
     const { ttcDraft, ...fields } = parseQuickEntry(value, today);
     const parsed: Partial<ExpenseDraft> = {
       ...fields,
@@ -141,6 +242,13 @@ export function ExpenseForm({
       : undefined;
   const receiptError =
     draft.receipt === null ? null : receiptRejection(draft.receipt);
+  // A picked receipt can still be read, and a failed read retried.
+  const fillableReceipt =
+    mode === "create" &&
+    (scan.status === "idle" || scan.status === "failed") &&
+    receiptError === null
+      ? draft.receipt
+      : null;
 
   const canSave =
     !isSaving &&
@@ -163,7 +271,36 @@ export function ExpenseForm({
     >
       <SheetBody className="flex flex-col gap-4 pb-4">
         {mode === "create" && (
-          <QuickEntryInput onChange={applyQuickEntry} value={quickEntry} />
+          <>
+            <SegmentedControl
+              aria-label={m.expenses_entry_mode_aria()}
+              className="w-full"
+              onValueChange={(value) => {
+                if (value[0] === "scan" || value[0] === "type") {
+                  setEntryMode(value[0]);
+                }
+              }}
+              size="sm"
+              value={[entryMode]}
+              variant="raised"
+            >
+              <SegmentedControlItem value="scan">
+                {m.expenses_mode_scan()}
+              </SegmentedControlItem>
+              <SegmentedControlItem value="type">
+                {m.expenses_mode_type()}
+              </SegmentedControlItem>
+            </SegmentedControl>
+            {entryMode === "scan" ? (
+              <ReceiptScanZone
+                onFile={readReceipt}
+                onReset={resetScan}
+                state={scan}
+              />
+            ) : (
+              <QuickEntryInput onChange={applyQuickEntry} value={quickEntry} />
+            )}
+          </>
         )}
 
         {error !== null && (
@@ -175,6 +312,7 @@ export function ExpenseForm({
         <Field data-invalid={supplierError !== undefined}>
           <FieldLabel htmlFor={`${id}-supplier`}>
             {m.expenses_field_supplier()}
+            <FieldSourceTag source={sources.supplier} />
           </FieldLabel>
           <Input
             aria-invalid={supplierError !== undefined}
@@ -189,6 +327,7 @@ export function ExpenseForm({
           <Field data-invalid={spentOnError !== undefined}>
             <FieldLabel htmlFor={`${id}-date`}>
               {m.expenses_field_date()}
+              <FieldSourceTag source={sources.spentOn} />
             </FieldLabel>
             <DateField
               aria-invalid={spentOnError !== undefined}
@@ -202,6 +341,7 @@ export function ExpenseForm({
           <Field>
             <FieldLabel htmlFor={`${id}-category`}>
               {m.expenses_field_category()}
+              <FieldSourceTag source={sources.category} />
             </FieldLabel>
             <NativeSelect
               id={`${id}-category`}
@@ -224,6 +364,7 @@ export function ExpenseForm({
         <Field data-invalid={amountError !== undefined}>
           <FieldLabel htmlFor={`${id}-ttc`}>
             {m.expenses_field_amount_ttc()}
+            <FieldSourceTag source={sources.ttc} />
           </FieldLabel>
           <InputGroup className="w-52">
             <InputGroupInput
@@ -262,6 +403,7 @@ export function ExpenseForm({
             />
             <VatChoiceField
               keptTerms={draft.vatTerms}
+              legendTag={<FieldSourceTag source={sources.vatChoice} />}
               onChange={(value) => patch({ vatChoice: value })}
               value={draft.vatChoice}
             />
@@ -271,6 +413,7 @@ export function ExpenseForm({
         <Field data-invalid={descriptionError !== undefined}>
           <FieldLabel htmlFor={`${id}-description`}>
             {m.expenses_field_description()}
+            <FieldSourceTag source={sources.description} />
           </FieldLabel>
           <Input
             aria-invalid={descriptionError !== undefined}
@@ -290,7 +433,16 @@ export function ExpenseForm({
         />
 
         <ReceiptField
-          onChange={(receipt) => patch({ receipt })}
+          onChange={(receipt) =>
+            receipt === null && mode === "create"
+              ? resetScan()
+              : patch({ receipt })
+          }
+          onFill={
+            fillableReceipt === null
+              ? undefined
+              : () => void readReceipt(fillableReceipt)
+          }
           storedFileName={storedReceiptName}
           value={draft.receipt}
         />

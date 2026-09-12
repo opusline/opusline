@@ -1,4 +1,4 @@
-import type { ExpenseData } from "@opusline/api-client";
+import type { ExpenseData, ReceiptSuggestionData } from "@opusline/api-client";
 import {
   Sheet,
   SheetContent,
@@ -28,6 +28,7 @@ type ExpenseSheetProps = {
   fieldErrors: FieldErrorMap | null;
   onOpenChange: (open: boolean) => void;
   onSubmit: (draft: ExpenseDraft) => void;
+  onReadReceipt: (file: File) => Promise<ReceiptSuggestionData>;
 };
 
 export function ExpenseSheet({
@@ -39,6 +40,7 @@ export function ExpenseSheet({
   fieldErrors,
   onOpenChange,
   onSubmit,
+  onReadReceipt,
 }: ExpenseSheetProps) {
   const format = useMoneyFormat();
 
@@ -55,7 +57,7 @@ export function ExpenseSheet({
               </SheetTitle>
               <SheetDescription className="sr-only">
                 {state.mode === "create"
-                  ? m.expenses_quick_hint()
+                  ? m.expenses_sheet_create_hint()
                   : m.expenses_sheet_edit_hint()}
               </SheetDescription>
             </SheetHeader>
@@ -71,6 +73,7 @@ export function ExpenseSheet({
               isVatLiable={isVatLiable}
               mode={state.mode}
               onCancel={() => onOpenChange(false)}
+              onReadReceipt={onReadReceipt}
               onSubmit={onSubmit}
               storedReceiptName={
                 state.mode === "edit"

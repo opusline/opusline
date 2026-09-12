@@ -11,7 +11,7 @@ import {
   PopoverTrigger,
 } from "@opusline/ui/components/popover";
 import { cn } from "@opusline/ui/lib/utils";
-import { useId } from "react";
+import { type ReactNode, useId } from "react";
 
 import { useLocale } from "@/components/money-format-provider";
 import { formatPercentFromBp } from "@/lib/billing";
@@ -23,6 +23,7 @@ import { VAT_CHOICE_MESSAGES } from "../lib/vat-help";
 type VatChoiceFieldProps = {
   /** Null while the row keeps a rate no chip covers. */
   value: VatChoice | null;
+  legendTag?: ReactNode;
   /** The pair a chipless row keeps, named under the chips. */
   keptTerms: VatTerms;
   onChange: (value: VatChoice) => void;
@@ -47,6 +48,7 @@ function VatChoiceHelp({ choice }: { choice: VatChoice }) {
 
 export function VatChoiceField({
   value,
+  legendTag,
   keptTerms,
   onChange,
 }: VatChoiceFieldProps) {
@@ -58,6 +60,7 @@ export function VatChoiceField({
       <div className="flex items-baseline justify-between gap-2.5">
         <FieldLegend id={legendId} variant="label">
           {m.expenses_field_vat()}
+          {legendTag}
         </FieldLegend>
         <Popover>
           <PopoverTrigger render={<Button size="sm" variant="link" />}>
