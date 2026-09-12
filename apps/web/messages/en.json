@@ -744,6 +744,10 @@
   "expense_category_warning_fuel": "TVA not recoverable.",
   "expense_category_warning_hotel": "TVA not recoverable.",
   "expense_category_warning_meal": "Invoice in the business's name required.",
+  "expense_filter_all": "All",
+  "expense_filter_blocked": "No receipt",
+  "expense_filter_deferred": "Deferred",
+  "expense_filter_reverse_charged": "Reverse charged",
   "expense_status_blocked": "Blocked",
   "expense_status_blocked_sub": "receipt missing",
   "expense_status_deducted": "Deducted",
@@ -787,11 +791,18 @@
   "expense_vat_rate_reverse": "autoliq. {rate}",
   "expenses_add": "Add an expense",
   "expenses_amount_invalid": "Enter an amount.",
+  "expenses_bulk_category": "Category",
+  "expenses_bulk_clear_aria": "Clear the selection",
+  "expenses_bulk_defer": "Defer",
+  "expenses_bulk_link": "Link a receipt",
+  "expenses_bulk_link_hint": "Drop a PDF on each selected row",
   "expenses_calc_net_zero": "due and deducted → 0 € net",
   "expenses_calc_net_zero_value": "0 € net",
   "expenses_calc_recoverable": "Recoverable",
   "expenses_calc_ttc": "TTC",
   "expenses_calc_vat": "TVA",
+  "expenses_categories_title": "By category · {unit}",
+  "expenses_category_subscriptions": "Subscriptions",
   "expenses_col_date": "Date",
   "expenses_col_ht": "HT",
   "expenses_col_receipt": "Receipt",
@@ -813,11 +824,27 @@
   "expenses_created_no_receipt": "Expense added · remember to link the receipt",
   "expenses_created_receipt_failed": "Expense added, but the receipt could not be attached · link it from the journal.",
   "expenses_created_regularised": "Expense added after filing → box 21, CA3 {month}",
+  "expenses_declared_banner": "CA3 {month} filed on {date} · {amount} deducted",
+  "expenses_declared_undo": "Undo the filing mark",
+  "expenses_declared_undo_failed": "The mark could not be removed. Try again in a moment.",
+  "expenses_declared_undone": "Mark removed · statuses unlocked",
+  "expenses_deferred_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Deferred to the next CA3",
+        "countPlural=other": "{count} expenses deferred"
+      }
+    }
+  ],
   "expenses_delete_body": "{supplier} · {amount} on {date}. The receipt goes with it; the TVA it carried leaves the CA3.",
   "expenses_delete_confirm": "Delete the expense",
   "expenses_delete_failed": "The expense could not be deleted. Try again in a moment.",
   "expenses_delete_title": "Delete this expense?",
   "expenses_deleted": "Expense deleted",
+  "expenses_empty_filter_sub": "Change the filter or add an expense.",
+  "expenses_empty_filter_title": "No expense in this filter",
   "expenses_empty_month_sub": "Subscriptions are created on their debit day.",
   "expenses_empty_month_title": "No expense in {month}",
   "expenses_field_amount_ttc": "Amount TTC",
@@ -832,7 +859,23 @@
   "expenses_field_recurring_day": "Debit day",
   "expenses_field_supplier": "Supplier",
   "expenses_field_vat": "TVA rate",
+  "expenses_filter_aria": "Filter the expenses",
+  "expenses_kpi_balance_line": "TVA collected {collected} → {balance} to pay",
+  "expenses_kpi_blocked_line": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "+ {amount} blocked · {count} receipt to link",
+        "countPlural=other": "+ {amount} blocked · {count} receipts to link"
+      }
+    }
+  ],
   "expenses_kpi_charges": "This month's charges",
+  "expenses_kpi_credit_line": "TVA credit {credit} · deducted > collected ({collected}) · carried to the next CA3",
+  "expenses_kpi_deferred_line": "+ {amount} deferred · CA3 {month}",
+  "expenses_kpi_regularised_line": "+ {amount} deferred · box 21, CA3 {month}",
+  "expenses_kpi_reverse_line": "+ {amount} reverse charged",
   "expenses_kpi_subscriptions": "Subscriptions",
   "expenses_kpi_subscriptions_annual": [
     {
@@ -868,13 +911,16 @@
   ],
   "expenses_kpi_vat_deducted": "TVA deducted",
   "expenses_kpi_vat_deductible": "TVA to deduct",
+  "expenses_link_debit_failed": "The expense was added, but the debit could not be linked to it.",
   "expenses_load_failed": "The expenses could not be loaded. Try again in a moment.",
   "expenses_locked": "Locked · month filed",
+  "expenses_menu_defer": "Defer to the next CA3",
   "expenses_menu_delete": "Delete",
   "expenses_menu_detach": "Detach the receipt",
   "expenses_menu_detach_confirm": "Confirm the detachment?",
   "expenses_menu_duplicate": "Duplicate",
   "expenses_menu_edit": "Edit",
+  "expenses_menu_reintegrate": "Put back on the CA3",
   "expenses_next_month": "Next month",
   "expenses_per_month": "/ month",
   "expenses_previous_month": "Previous month",
@@ -886,6 +932,17 @@
   "expenses_quick_aria": "Quick entry",
   "expenses_quick_hint": "Type it all in one go, the fields fill themselves.",
   "expenses_quick_placeholder": "lunaprint 429 monitor 20%",
+  "expenses_recategorize_failed": "The category could not be changed. Try again in a moment.",
+  "expenses_recategorized": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} expense recategorised",
+        "countPlural=other": "{count} expenses recategorised"
+      }
+    }
+  ],
   "expenses_receipt_attach_failed": "The receipt could not be linked. Try again in a moment.",
   "expenses_receipt_attached": "Receipt linked · {name}",
   "expenses_receipt_detach_failed": "The receipt could not be detached. Try again in a moment.",
@@ -901,14 +958,44 @@
   "expenses_receipt_zone": "Drop the receipt here, or click",
   "expenses_recurring_day_invalid": "Enter a day between 1 and 31.",
   "expenses_recurring_hint": "An expense is created on that day every month, with this amount and this TVA.",
+  "expenses_regime_abatement": "Micro-BNC allowance · 34 %",
+  "expenses_regime_body": "Your projected real charges ({charges}, subscriptions included) compare with the flat 34 % allowance on {revenue} of revenue. The real regime only pays off above {allowance} of deductible charges.",
+  "expenses_regime_micro_better": "The micro-BNC regime stays the better one.",
+  "expenses_regime_real": "Real charges · projection",
+  "expenses_regime_real_better": "The real regime would become the better one.",
   "expenses_regularisation_note": "changed after filing → box 21, CA3 {month}",
+  "expenses_reintegrated": "Back on the CA3",
   "expenses_row_menu_aria": "Actions for {supplier}",
   "expenses_save_failed": "The expense could not be saved. Try again in a moment.",
+  "expenses_select_col_aria": "Select",
+  "expenses_select_row_aria": "Select {supplier}",
+  "expenses_selected_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} selected",
+        "countPlural=other": "{count} selected"
+      }
+    }
+  ],
   "expenses_sheet_edit_hint": "Change what is needed, then save.",
   "expenses_sheet_edit_title": "Edit the expense",
   "expenses_subscription_aria": "Subscription",
   "expenses_tab_journal": "Journal",
   "expenses_title": "Expenses",
+  "expenses_todo_annual": "{supplier} · annual debit",
+  "expenses_todo_annual_sub": "Next debit on {date}.",
+  "expenses_todo_create": "Create the expense",
+  "expenses_todo_missing_receipt": "{supplier} · receipt expected",
+  "expenses_todo_missing_receipt_franchise_sub": "Debited on {date}, the receipt has not been linked.",
+  "expenses_todo_missing_receipt_sub": "Debited on {date}, the receipt has not been linked. {vat} of TVA blocked.",
+  "expenses_todo_title": "To handle",
+  "expenses_todo_unmatched_debit": "Debit {label}",
+  "expenses_todo_unmatched_debit_sub": "Business account · {date} · no expense matches",
+  "expenses_trend_aria": "Expenses {unit} over twelve months",
+  "expenses_trend_average": "average {amount}",
+  "expenses_trend_title": "Expenses {unit} · 12 months",
   "expenses_unit_aria": "Amounts shown",
   "expenses_unread_count": [
     {
@@ -922,6 +1009,7 @@
   ],
   "expenses_updated": "Expense updated",
   "expenses_updated_regularised": "Expense updated after filing → box 21, CA3 {month}",
+  "expenses_vat_action_failed": "This expense's TVA could not be moved. Try again in a moment.",
   "fiscality_sales_tax_name": "Sales tax",
   "fiscality_sales_tax_rate_label": "Default tax rate",
   "fiscality_sales_tax_zero_hint": "Set 0 if you do not charge tax.",

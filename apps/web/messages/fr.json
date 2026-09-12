@@ -744,6 +744,10 @@
   "expense_category_warning_fuel": "TVA non récupérable.",
   "expense_category_warning_hotel": "TVA non récupérable.",
   "expense_category_warning_meal": "Facture au nom de l'entreprise requise.",
+  "expense_filter_all": "Toutes",
+  "expense_filter_blocked": "Sans justificatif",
+  "expense_filter_deferred": "Reportées",
+  "expense_filter_reverse_charged": "Autoliquidées",
   "expense_status_blocked": "Bloquée",
   "expense_status_blocked_sub": "facture manquante",
   "expense_status_deducted": "Déduite",
@@ -787,11 +791,18 @@
   "expense_vat_rate_reverse": "autoliq. {rate}",
   "expenses_add": "Ajouter une dépense",
   "expenses_amount_invalid": "Indiquez un montant.",
+  "expenses_bulk_category": "Catégorie",
+  "expenses_bulk_clear_aria": "Désélectionner",
+  "expenses_bulk_defer": "Reporter",
+  "expenses_bulk_link": "Lier une facture",
+  "expenses_bulk_link_hint": "Déposez un PDF sur chaque ligne sélectionnée",
   "expenses_calc_net_zero": "due et déduite → 0 € net",
   "expenses_calc_net_zero_value": "0 € net",
   "expenses_calc_recoverable": "Récupérable",
   "expenses_calc_ttc": "TTC",
   "expenses_calc_vat": "TVA",
+  "expenses_categories_title": "Par catégorie · {unit}",
+  "expenses_category_subscriptions": "Abonnements",
   "expenses_col_date": "Date",
   "expenses_col_ht": "HT",
   "expenses_col_receipt": "Facture",
@@ -813,11 +824,27 @@
   "expenses_created_no_receipt": "Dépense ajoutée · pensez à lier la facture",
   "expenses_created_receipt_failed": "Dépense ajoutée, mais la facture n'a pas pu être jointe · liez-la depuis le journal.",
   "expenses_created_regularised": "Dépense ajoutée après déclaration → case 21, CA3 {month}",
+  "expenses_declared_banner": "CA3 {month} déclarée le {date} · {amount} déduits",
+  "expenses_declared_undo": "Annuler le marquage",
+  "expenses_declared_undo_failed": "Le marquage n'a pas pu être annulé. Réessayez dans un instant.",
+  "expenses_declared_undone": "Marquage annulé · statuts déverrouillés",
+  "expenses_deferred_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Reportée sur la prochaine CA3",
+        "countPlural=other": "{count} dépenses reportées"
+      }
+    }
+  ],
   "expenses_delete_body": "{supplier} · {amount} le {date}. La facture part avec elle ; la TVA qu'elle portait sort de la CA3.",
   "expenses_delete_confirm": "Supprimer la dépense",
   "expenses_delete_failed": "La dépense n'a pas pu être supprimée. Réessayez dans un instant.",
   "expenses_delete_title": "Supprimer cette dépense ?",
   "expenses_deleted": "Dépense supprimée",
+  "expenses_empty_filter_sub": "Changez de filtre ou ajoutez une dépense.",
+  "expenses_empty_filter_title": "Aucune dépense dans ce filtre",
   "expenses_empty_month_sub": "Les abonnements seront créés à leur prélèvement.",
   "expenses_empty_month_title": "Aucune dépense en {month}",
   "expenses_field_amount_ttc": "Montant TTC",
@@ -832,7 +859,23 @@
   "expenses_field_recurring_day": "Jour du prélèvement",
   "expenses_field_supplier": "Fournisseur",
   "expenses_field_vat": "Taux de TVA",
+  "expenses_filter_aria": "Filtrer les dépenses",
+  "expenses_kpi_balance_line": "TVA collectée {collected} → solde à payer {balance}",
+  "expenses_kpi_blocked_line": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "+ {amount} bloqués · {count} facture à lier",
+        "countPlural=other": "+ {amount} bloqués · {count} factures à lier"
+      }
+    }
+  ],
   "expenses_kpi_charges": "Charges du mois",
+  "expenses_kpi_credit_line": "Crédit de TVA {credit} · déduite > collectée ({collected}) · reporté sur la CA3 suivante",
+  "expenses_kpi_deferred_line": "+ {amount} reportés · CA3 {month}",
+  "expenses_kpi_regularised_line": "+ {amount} reportés · case 21, CA3 {month}",
+  "expenses_kpi_reverse_line": "+ {amount} autoliquidés",
   "expenses_kpi_subscriptions": "Abonnements",
   "expenses_kpi_subscriptions_annual": [
     {
@@ -868,13 +911,16 @@
   ],
   "expenses_kpi_vat_deducted": "TVA déduite",
   "expenses_kpi_vat_deductible": "TVA à déduire",
+  "expenses_link_debit_failed": "La dépense a été ajoutée, mais le prélèvement n'a pas pu lui être lié.",
   "expenses_load_failed": "Les dépenses n'ont pas pu être chargées. Réessayez dans un instant.",
   "expenses_locked": "Verrouillée · mois déclaré",
+  "expenses_menu_defer": "Reporter sur la prochaine CA3",
   "expenses_menu_delete": "Supprimer",
   "expenses_menu_detach": "Détacher la facture",
   "expenses_menu_detach_confirm": "Confirmer le détachement ?",
   "expenses_menu_duplicate": "Dupliquer",
   "expenses_menu_edit": "Modifier",
+  "expenses_menu_reintegrate": "Réintégrer dans la CA3",
   "expenses_next_month": "Mois suivant",
   "expenses_per_month": "/ mois",
   "expenses_previous_month": "Mois précédent",
@@ -886,6 +932,17 @@
   "expenses_quick_aria": "Saisie rapide",
   "expenses_quick_hint": "Tapez tout d'une traite, les champs se remplissent.",
   "expenses_quick_placeholder": "lunaprint 429 écran 20%",
+  "expenses_recategorize_failed": "La catégorie n'a pas pu être changée. Réessayez dans un instant.",
+  "expenses_recategorized": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} dépense reclassée",
+        "countPlural=other": "{count} dépenses reclassées"
+      }
+    }
+  ],
   "expenses_receipt_attach_failed": "La facture n'a pas pu être liée. Réessayez dans un instant.",
   "expenses_receipt_attached": "Facture liée · {name}",
   "expenses_receipt_detach_failed": "La facture n'a pas pu être détachée. Réessayez dans un instant.",
@@ -901,14 +958,44 @@
   "expenses_receipt_zone": "Glissez la facture ici, ou cliquez",
   "expenses_recurring_day_invalid": "Indiquez un jour entre 1 et 31.",
   "expenses_recurring_hint": "Une dépense sera créée chaque mois ce jour-là, avec ce montant et cette TVA.",
+  "expenses_regime_abatement": "Abattement micro-BNC · 34 %",
+  "expenses_regime_body": "Vos charges réelles projetées ({charges}, abonnements inclus) se comparent à l'abattement forfaitaire de 34 % sur {revenue} de CA. Le réel ne devient intéressant qu'au-delà de {allowance} de charges déductibles.",
+  "expenses_regime_micro_better": "Le régime micro-BNC reste plus favorable.",
+  "expenses_regime_real": "Charges réelles · projection",
+  "expenses_regime_real_better": "Le régime réel deviendrait plus favorable.",
   "expenses_regularisation_note": "modifiée après déclaration → case 21, CA3 {month}",
+  "expenses_reintegrated": "Réintégrée dans la CA3",
   "expenses_row_menu_aria": "Actions pour {supplier}",
   "expenses_save_failed": "La dépense n'a pas pu être enregistrée. Réessayez dans un instant.",
+  "expenses_select_col_aria": "Sélection",
+  "expenses_select_row_aria": "Sélectionner {supplier}",
+  "expenses_selected_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} sélectionnée",
+        "countPlural=other": "{count} sélectionnées"
+      }
+    }
+  ],
   "expenses_sheet_edit_hint": "Modifiez ce qui doit l'être, puis enregistrez.",
   "expenses_sheet_edit_title": "Modifier la dépense",
   "expenses_subscription_aria": "Abonnement",
   "expenses_tab_journal": "Journal",
   "expenses_title": "Dépenses",
+  "expenses_todo_annual": "{supplier} · échéance annuelle",
+  "expenses_todo_annual_sub": "Prochain prélèvement le {date}.",
+  "expenses_todo_create": "Créer la dépense",
+  "expenses_todo_missing_receipt": "{supplier} · facture attendue",
+  "expenses_todo_missing_receipt_franchise_sub": "Prélèvement du {date} passé, la facture n'a pas été liée.",
+  "expenses_todo_missing_receipt_sub": "Prélèvement du {date} passé, la facture n'a pas été liée. {vat} de TVA bloqués.",
+  "expenses_todo_title": "À traiter",
+  "expenses_todo_unmatched_debit": "Prélèvement {label}",
+  "expenses_todo_unmatched_debit_sub": "Compte pro · {date} · aucune dépense ne correspond",
+  "expenses_trend_aria": "Dépenses {unit} sur douze mois",
+  "expenses_trend_average": "moyenne {amount}",
+  "expenses_trend_title": "Dépenses {unit} · 12 mois",
   "expenses_unit_aria": "Montants affichés",
   "expenses_unread_count": [
     {
@@ -922,6 +1009,7 @@
   ],
   "expenses_updated": "Dépense modifiée",
   "expenses_updated_regularised": "Dépense modifiée après déclaration → case 21, CA3 {month}",
+  "expenses_vat_action_failed": "La TVA de cette dépense n'a pas pu être déplacée. Réessayez dans un instant.",
   "fiscality_sales_tax_name": "Taxe sur les ventes",
   "fiscality_sales_tax_rate_label": "Taux de taxe par défaut",
   "fiscality_sales_tax_zero_hint": "Mettez 0 si vous ne facturez pas de taxe.",

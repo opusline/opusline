@@ -24,7 +24,16 @@ const meta = {
     onDetachReceipt: () => {},
     onEdit: () => {},
     onDuplicate: () => {},
+    onDeferVat: () => {},
+    onReintegrateVat: () => {},
     onDelete: () => {},
+    onRecategorize: () => {},
+    onDeferSelectedVat: () => {},
+    onLinkReceiptHint: () => {},
+    onUndoDeclared: () => {},
+    onCreateFromDebit: () => {},
+    isBulkBusy: false,
+    isUndoBusy: false,
   },
   decorators: [
     (Story) => (

@@ -13,12 +13,18 @@ import { useState } from "react";
 
 import { m } from "@/paraglide/messages.js";
 
-type ExpenseRowMenuProps = {
-  expense: ExpenseData;
+export type ExpenseRowMenuHandlers = {
   onEdit: (expense: ExpenseData) => void;
   onDuplicate: (expense: ExpenseData) => void;
+  onDeferVat: (expense: ExpenseData) => void;
+  onReintegrateVat: (expense: ExpenseData) => void;
   onDetachReceipt: (expense: ExpenseData) => void;
   onDelete: (expense: ExpenseData) => void;
+};
+
+type ExpenseRowMenuProps = ExpenseRowMenuHandlers & {
+  expense: ExpenseData;
+  canMoveVat: boolean;
   className?: string;
 };
 
@@ -29,8 +35,11 @@ type ExpenseRowMenuProps = {
  */
 export function ExpenseRowMenu({
   expense,
+  canMoveVat,
   onEdit,
   onDuplicate,
+  onDeferVat,
+  onReintegrateVat,
   onDetachReceipt,
   onDelete,
   className,
@@ -66,6 +75,16 @@ export function ExpenseRowMenu({
         <DropdownMenuItem onClick={() => onEdit(expense)}>
           {m.expenses_menu_edit()}
         </DropdownMenuItem>
+        {canMoveVat &&
+          (expense.vatStatus === 2 ? (
+            <DropdownMenuItem onClick={() => onReintegrateVat(expense)}>
+              {m.expenses_menu_reintegrate()}
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem onClick={() => onDeferVat(expense)}>
+              {m.expenses_menu_defer()}
+            </DropdownMenuItem>
+          ))}
         <DropdownMenuItem onClick={() => onDuplicate(expense)}>
           {m.expenses_menu_duplicate()}
         </DropdownMenuItem>

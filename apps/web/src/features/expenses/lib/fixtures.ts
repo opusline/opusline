@@ -140,6 +140,30 @@ function missingReceiptTodo(): ExpenseTodoData {
   };
 }
 
+function unmatchedDebitTodo(): ExpenseTodoData {
+  return {
+    kind: 1,
+    expenseId: null,
+    subscriptionId: null,
+    bankMovementId: 210,
+    label: "PRLV SEPA ATELIERS RUCHE",
+    amount: eur(4_900),
+    date: "2026-08-20",
+  };
+}
+
+function annualDebitTodo(): ExpenseTodoData {
+  return {
+    kind: 2,
+    expenseId: null,
+    subscriptionId: 7,
+    bankMovementId: null,
+    label: "Orvella Assurances",
+    amount: eur(31_200),
+    date: "2027-01-15",
+  };
+}
+
 /** August 2026, réel normal, not yet declared: one of each status. */
 export function expensesMonth(
   overrides: Partial<ExpensesMonthData> = {},
@@ -195,7 +219,7 @@ export function expensesMonth(
       abatement: eur(4_263_600),
       microIsFavourable: true,
     },
-    todo: [missingReceiptTodo()],
+    todo: [missingReceiptTodo(), unmatchedDebitTodo(), annualDebitTodo()],
     expenses: [
       mealExpense(),
       expense(),
@@ -209,6 +233,10 @@ export function expensesMonth(
 }
 
 /** The same month once its CA3 has been filed: statuses locked, deductions done. */
+export function deductedExpense(): ExpenseData {
+  return expense({ vatStatus: 1 });
+}
+
 export function declaredExpensesMonth(): ExpensesMonthData {
   const month = expensesMonth({ declaredOn: "2026-09-09" });
 

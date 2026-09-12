@@ -23,6 +23,8 @@ function renderCards(
     onDetachReceipt: vi.fn(),
     onEdit: vi.fn(),
     onDuplicate: vi.fn(),
+    onDeferVat: vi.fn(),
+    onReintegrateVat: vi.fn(),
     onDelete: vi.fn(),
     ...overrides,
   };

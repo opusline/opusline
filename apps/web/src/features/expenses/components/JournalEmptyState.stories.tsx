@@ -20,3 +20,5 @@ export default meta;
 type Story = StoryObj<typeof JournalEmptyState>;
 
 export const Default: Story = {};
+
+export const Filtered: Story = { args: { isFiltered: true } };
