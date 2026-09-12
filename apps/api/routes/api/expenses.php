@@ -18,6 +18,13 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/expenses/category', [ExpenseController::class, 'recategorize'])
         ->name('recategorizeExpenses');
 
+    Route::post('/expenses/vat-deferrals', [ExpenseController::class, 'deferVat'])
+        ->name('deferExpensesVat');
+
+    Route::delete('/expenses/{expense}/vat-deferral', [ExpenseController::class, 'reintegrateVat'])
+        ->whereNumber('expense')
+        ->name('reintegrateExpenseVat');
+
     Route::put('/expenses/{expense}', [ExpenseController::class, 'update'])
         ->whereNumber('expense')
         ->name('updateExpense');

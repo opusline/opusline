@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Http\Expenses\Controllers;
 
 use App\Domain\Expenses\Actions\CreateExpense;
+use App\Domain\Expenses\Actions\DeferVatDeductions;
 use App\Domain\Expenses\Actions\DeleteExpense;
 use App\Domain\Expenses\Actions\ListExpenses;
 use App\Domain\Expenses\Actions\RecategorizeExpenses;
+use App\Domain\Expenses\Actions\ReintegrateVatDeduction;
 use App\Domain\Expenses\Actions\UpdateExpense;
 use App\Domain\Expenses\Data\ExpenseInputData;
+use App\Domain\Expenses\Data\ExpenseSelectionData;
 use App\Domain\Expenses\Data\ListExpensesData;
 use App\Domain\Expenses\Data\RecategorizeExpensesData;
 use App\Domain\Expenses\Models\Expense;
@@ -65,5 +68,27 @@ class ExpenseController extends Controller
         $month = $recategorizeExpenses->handle($user, $data);
 
         return response()->json($listExpenses->handle($user, $month));
+    }
+
+    public function deferVat(
+        ExpenseSelectionData $data,
+        #[CurrentUser] User $user,
+        DeferVatDeductions $deferVatDeductions,
+        ListExpenses $listExpenses,
+    ): JsonResponse {
+        $month = $deferVatDeductions->handle($user, $data);
+
+        return response()->json($listExpenses->handle($user, $month));
+    }
+
+    public function reintegrateVat(
+        #[CurrentUser] User $user,
+        Expense $expense,
+        ReintegrateVatDeduction $reintegrateVatDeduction,
+        ListExpenses $listExpenses,
+    ): JsonResponse {
+        $reintegrateVatDeduction->handle($expense);
+
+        return response()->json($listExpenses->handle($user, $expense->month()));
     }
 }

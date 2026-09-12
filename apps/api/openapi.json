@@ -2125,9 +2125,76 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/expenses/vat-deferrals": {
+            "post": {
+                "operationId": "deferExpensesVat",
+                "tags": [
+                    "Expense"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ExpenseSelectionData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensesMonthData"
+                                }
+                            }
+                        }
                     },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/expenses/{expense}/vat-deferral": {
+            "delete": {
+                "operationId": "reintegrateExpenseVat",
+                "tags": [
+                    "Expense"
+                ],
+                "parameters": [
+                    {
+                        "name": "expense",
+                        "in": "path",
+                        "required": true,
+                        "description": "The expense ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensesMonthData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -7433,6 +7500,15 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "vatStatus": {
+                        "$ref": "#/components/schemas/ExpenseVatStatus"
+                    },
+                    "vatClaimPeriod": {
+                        "type": "string"
+                    },
+                    "isRegularisation": {
+                        "type": "boolean"
                     }
                 },
                 "required": [
@@ -7448,7 +7524,10 @@
                     "vatTreatment",
                     "vatRateBp",
                     "proShareBp",
-                    "receipt"
+                    "receipt",
+                    "vatStatus",
+                    "vatClaimPeriod",
+                    "isRegularisation"
                 ],
                 "title": "ExpenseData"
             },
@@ -7579,6 +7658,43 @@
                 ],
                 "title": "ExpenseRegimeProjectionData"
             },
+            "ExpenseSelectionData": {
+                "type": "object",
+                "properties": {
+                    "expenseIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "minItems": 1
+                    }
+                },
+                "required": [
+                    "expenseIds"
+                ],
+                "title": "ExpenseSelectionData"
+            },
+            "ExpenseVatStatus": {
+                "type": "integer",
+                "description": "Where a purchase's TVA stands with the CA3. Derived on every read from the receipt, the claim period and the declared months — never stored, so un-marking a declaration honestly flips the rows back.\n| |\n|---|\n| `0` <br/> Receipted and waiting for its CA3 to be declared. |\n| `1` <br/> Its CA3 was marked declared: the deduction is filed. |\n| `2` <br/> Claimed on a later CA3 than the purchase month, by choice or because that month was already declared. |\n| `3` <br/> No receipt: the fisc refuses the deduction until one is attached. |\n| `4` <br/> Autoliquidation: due and deducted on the same CA3, nothing to recover. |\n| `5` <br/> Exempt purchase, a receipt whose TVA is not tracked, or an account that files no CA3. |",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                ],
+                "x-enum-varnames": [
+                    "Deductible",
+                    "Deducted",
+                    "Deferred",
+                    "Blocked",
+                    "ReverseCharged",
+                    "NotApplicable"
+                ],
+                "title": "ExpenseVatStatus"
+            },
             "ExpenseVatTreatment": {
                 "type": "integer",
                 "description": "How the TVA on a purchase reaches the CA3. The receipt decides, never the supplier's country: a foreign SaaS billing through a European entity with 20 % on the invoice is Domestic.\n| |\n|---|\n| `0` <br/> A French invoice carrying TVA at the stated rate. |\n| `1` <br/> An EU supplier who invoiced without TVA against the intra-community number (autoliquidation). |\n| `2` <br/> A non-EU supplier who invoiced without TVA (autoliquidation). |\n| `3` <br/> No TVA at all: insurance, bank fees, stamps, CFE. |",
@@ -7601,6 +7717,23 @@
                 "properties": {
                     "month": {
                         "type": "string"
+                    },
+                    "declaredOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "vat": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpensesVatSummaryData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "totals": {
                         "$ref": "#/components/schemas/ExpensesTotalsData"
@@ -7636,6 +7769,8 @@
                 },
                 "required": [
                     "month",
+                    "declaredOn",
+                    "vat",
                     "totals",
                     "categories",
                     "series",
@@ -7663,6 +7798,42 @@
                     "count"
                 ],
                 "title": "ExpensesTotalsData"
+            },
+            "ExpensesVatSummaryData": {
+                "type": "object",
+                "properties": {
+                    "deductible": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "blocked": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "blockedCount": {
+                        "type": "integer"
+                    },
+                    "reverseCharged": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "deferred": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "collected": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "balance": {
+                        "$ref": "#/components/schemas/SignedMoneyData"
+                    }
+                },
+                "required": [
+                    "deductible",
+                    "blocked",
+                    "blockedCount",
+                    "reverseCharged",
+                    "deferred",
+                    "collected",
+                    "balance"
+                ],
+                "title": "ExpensesVatSummaryData"
             },
             "FiscalDeadlineData": {
                 "type": "object",

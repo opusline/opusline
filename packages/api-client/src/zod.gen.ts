@@ -453,6 +453,35 @@ export const zExpenseReceiptData = z.object({
 });
 
 /**
+ * ExpenseSelectionData
+ */
+export const zExpenseSelectionData = z.object({
+    expenseIds: z.array(z.int()).check(z.minLength(1))
+});
+
+/**
+ * ExpenseVatStatus
+ *
+ * Where a purchase's TVA stands with the CA3. Derived on every read from the receipt, the claim period and the declared months — never stored, so un-marking a declaration honestly flips the rows back.
+ * | |
+ * |---|
+ * | `0` <br/> Receipted and waiting for its CA3 to be declared. |
+ * | `1` <br/> Its CA3 was marked declared: the deduction is filed. |
+ * | `2` <br/> Claimed on a later CA3 than the purchase month, by choice or because that month was already declared. |
+ * | `3` <br/> No receipt: the fisc refuses the deduction until one is attached. |
+ * | `4` <br/> Autoliquidation: due and deducted on the same CA3, nothing to recover. |
+ * | `5` <br/> Exempt purchase, a receipt whose TVA is not tracked, or an account that files no CA3. |
+ */
+export const zExpenseVatStatus = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4),
+    z.literal(5)
+]);
+
+/**
  * ExpenseVatTreatment
  *
  * How the TVA on a purchase reaches the CA3. The receipt decides, never the supplier's country: a foreign SaaS billing through a European entity with 20 % on the invoice is Domestic.
@@ -778,7 +807,10 @@ export const zExpenseData = z.object({
     vatTreatment: zExpenseVatTreatment,
     vatRateBp: z.int(),
     proShareBp: z.int(),
-    receipt: z.nullable(zExpenseReceiptData)
+    receipt: z.nullable(zExpenseReceiptData),
+    vatStatus: zExpenseVatStatus,
+    vatClaimPeriod: z.string(),
+    isRegularisation: z.boolean()
 });
 
 /**
@@ -807,18 +839,6 @@ export const zExpensesTotalsData = z.object({
     ht: zMoneyData,
     ttc: zMoneyData,
     count: z.int()
-});
-
-/**
- * ExpensesMonthData
- */
-export const zExpensesMonthData = z.object({
-    month: z.string(),
-    totals: zExpensesTotalsData,
-    categories: z.array(zExpenseCategoryTotalData),
-    series: z.array(zExpenseMonthPointData),
-    projection: z.nullable(zExpenseRegimeProjectionData),
-    expenses: z.array(zExpenseData)
 });
 
 /**
@@ -1313,6 +1333,33 @@ export const zBankImportData = z.object({
 export const zBankMovementPageData = z.object({
     movements: z.array(zBankMovementData),
     nextCursor: z.nullable(z.string())
+});
+
+/**
+ * ExpensesVatSummaryData
+ */
+export const zExpensesVatSummaryData = z.object({
+    deductible: zMoneyData,
+    blocked: zMoneyData,
+    blockedCount: z.int(),
+    reverseCharged: zMoneyData,
+    deferred: zMoneyData,
+    collected: zMoneyData,
+    balance: zSignedMoneyData
+});
+
+/**
+ * ExpensesMonthData
+ */
+export const zExpensesMonthData = z.object({
+    month: z.string(),
+    declaredOn: z.nullable(z.iso.date()),
+    vat: z.nullable(zExpensesVatSummaryData),
+    totals: zExpensesTotalsData,
+    categories: z.array(zExpenseCategoryTotalData),
+    series: z.array(zExpenseMonthPointData),
+    projection: z.nullable(zExpenseRegimeProjectionData),
+    expenses: z.array(zExpenseData)
 });
 
 /**
@@ -2215,6 +2262,16 @@ export const zCreateExpenseResponse = zExpensesMonthData;
 export const zRecategorizeExpensesBody = zRecategorizeExpensesData;
 
 export const zRecategorizeExpensesResponse = zExpensesMonthData;
+
+export const zDeferExpensesVatBody = zExpenseSelectionData;
+
+export const zDeferExpensesVatResponse = zExpensesMonthData;
+
+export const zReintegrateExpenseVatPath = z.object({
+    expense: z.int()
+});
+
+export const zReintegrateExpenseVatResponse = zExpensesMonthData;
 
 export const zDeleteExpensePath = z.object({
     expense: z.int()
