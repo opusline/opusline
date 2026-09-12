@@ -636,6 +636,15 @@
   "deadlines_urssaf_sub": "Déclarer {amount} encaissés → cotisations à {rate} %",
   "deadlines_vat_sub": "TVA collectée {amount} · télérèglement impots.gouv.fr",
   "declarations_action_failed": "La déclaration n'a pas pu être mise à jour. Réessayez dans un instant.",
+  "declarations_annual_due_before": "avant le {date}",
+  "declarations_annual_filed_on": "déclarée le {date}",
+  "declarations_annual_open": "Voir →",
+  "declarations_annual_open_aria": "Voir {name}",
+  "declarations_annual_paid_on": "payée le {date}",
+  "declarations_annual_title": "Annuel",
+  "declarations_annual_undo": "Annuler le marquage",
+  "declarations_annual_upcoming": "À venir",
+  "declarations_annual_upcoming_lower": "à venir",
   "declarations_before_start": "Aucune activité déclarable avant le début de l'activité.",
   "declarations_box": "case {box}",
   "declarations_box_08_mixed_note": "plusieurs taux ce mois : ventilez sur les lignes 08, 9B et 09",
@@ -651,6 +660,36 @@
   "declarations_ceiling_over": "plafond dépassé de {amount}",
   "declarations_ceiling_share": "{share} du plafond micro-BNC",
   "declarations_ceiling_title": "CA cumulé {year}",
+  "declarations_cfe_amount_hint": "Le montant de l'avis remplace l'estimation, dans Trésorerie comme ici.",
+  "declarations_cfe_amount_invalid": "Indiquez un montant supérieur à zéro.",
+  "declarations_cfe_amount_label": "Montant de l'avis",
+  "declarations_cfe_amount_saved": "Montant de l'avis enregistré · {amount}",
+  "declarations_cfe_books_expense": "Une fois payée, la CFE crée automatiquement une dépense (Taxes · hors TVA).",
+  "declarations_cfe_deadline": "{date} · avis en ligne mi-novembre",
+  "declarations_cfe_description": "Cotisation foncière des entreprises · avis en ligne mi-novembre",
+  "declarations_cfe_enter_amount": "Saisir le montant de l'avis",
+  "declarations_cfe_estimate_note": "estimation d'après l'an dernier ou le barème de la commune · saisissez l'avis dès qu'il est en ligne",
+  "declarations_cfe_estimated_amount": "Montant estimé",
+  "declarations_cfe_link": "Ouvrir l'espace professionnel →",
+  "declarations_cfe_mark_paid": "Marquer comme payée",
+  "declarations_cfe_notice_note": "montant saisi depuis l'avis",
+  "declarations_cfe_paid": "CFE marquée payée",
+  "declarations_cfe_paid_booked": "CFE marquée payée · dépense « Taxes » créée ({amount}, hors TVA)",
+  "declarations_cfe_past_year_note": "la cotisation d'une année passée est ce qui a été payé ; seule la date du paiement est conservée",
+  "declarations_cfe_provision": "Provision",
+  "declarations_cfe_provisioned": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Provisionné · {count} mois",
+        "countPlural=other": "Provisionné · {count} mois"
+      }
+    }
+  ],
+  "declarations_cfe_sheet_title": "CFE {year}",
+  "declarations_cfe_undo_note": "La dépense « Taxes » reste dans le journal.",
+  "declarations_cfe_unknown_note": "aucune estimation possible pour cette année · saisissez l'avis dès qu'il est en ligne",
   "declarations_contribution_cfp": "CFP",
   "declarations_contribution_liberating": "Versement libératoire",
   "declarations_contribution_social": "Cotisations sociales",
@@ -707,6 +746,34 @@
   "declarations_history_to_file": "à déclarer",
   "declarations_history_to_pay": "à payer",
   "declarations_history_vat": "CA3 · TVA",
+  "declarations_income_tax_already_paid": "Impôt déjà réglé · versement libératoire {year}",
+  "declarations_income_tax_box_5hq": "case 5HQ",
+  "declarations_income_tax_box_5te_opted": "case 5TE · versement libératoire opté",
+  "declarations_income_tax_box_lead": "À reporter",
+  "declarations_income_tax_coherence": "Contrôle de cohérence",
+  "declarations_income_tax_coherence_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} déclaration URSSAF",
+        "countPlural=other": "{count} déclarations URSSAF"
+      }
+    }
+  ],
+  "declarations_income_tax_col_base": "CA",
+  "declarations_income_tax_deadline": "Avant le {date} (date estimée)",
+  "declarations_income_tax_description": "Déclaration de revenus · BNC micro · revenus {year}",
+  "declarations_income_tax_estimate": "Estimation",
+  "declarations_income_tax_liberating_note": "Le versement libératoire (2,2 % du CA) tient lieu d'impôt sur ces revenus ; la 2042-C PRO ne génère pas de complément.",
+  "declarations_income_tax_progressive_note": "Ce revenu rejoint le barème progressif du foyer ; l'impôt dépend de ses autres revenus.",
+  "declarations_income_tax_provisional": "provisoire jusqu'au 31 déc.",
+  "declarations_income_tax_receipts": "Recettes brutes encaissées {year}",
+  "declarations_income_tax_sheet_title": "2042-C PRO · revenus {year}",
+  "declarations_income_tax_taxable": "Revenu imposable après abattement 34 %",
+  "declarations_income_tax_total": "Total",
+  "declarations_income_tax_with_option": "Avec le versement libératoire : case 5TE.",
+  "declarations_income_tax_without_option": "Sans option : case 5HQ.",
   "declarations_intro": "Les chiffres à recopier, mois par mois. Marquez chaque déclaration une fois déposée.",
   "declarations_invoices_collected": [
     {
@@ -719,6 +786,8 @@
     }
   ],
   "declarations_kind_ca3": "CA3",
+  "declarations_kind_cfe": "CFE",
+  "declarations_kind_income_tax": "2042-C PRO",
   "declarations_kind_urssaf": "URSSAF",
   "declarations_load_failed": "Les déclarations n'ont pas pu être chargées. Réessayez dans un instant.",
   "declarations_mark_filed": "Marquer comme déclarée",

@@ -22,6 +22,9 @@ function renderPage(
     onMarkPaid: vi.fn(),
     onUnmark: vi.fn(),
     onClearPayment: vi.fn(),
+    onPayCfe: vi.fn(),
+    today: "2026-08-20",
+    onSaveCfeAmount: vi.fn(async () => {}),
     ...overrides,
   };
 
@@ -133,4 +136,40 @@ it("says so before the business started, instead of a zero card to tick", async 
   expect(
     screen.queryByRole("button", { name: "Marquer comme déclarée" }),
   ).not.toBeInTheDocument();
+});
+
+it("lists the year's two returns with their due dates", async () => {
+  renderPage();
+
+  expect(await screen.findByText("2042-C PRO")).toBeInTheDocument();
+  expect(screen.getByText("avant le 28/05/2027")).toBeInTheDocument();
+  expect(screen.getByText("15/12/2026")).toBeInTheDocument();
+  expect(screen.getAllByText("À venir")).toHaveLength(2);
+});
+
+it("pays the CFE from its sheet, both steps at once", async () => {
+  const props = renderPage();
+
+  fireEvent.click(await screen.findByRole("button", { name: "Voir CFE" }));
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Marquer comme payée" }),
+  );
+
+  expect(props.onPayCfe).toHaveBeenCalledWith({ kind: 3, periodKey: "2026" });
+});
+
+it("files a closed year's 2042 from its sheet, never the running one", async () => {
+  const props = renderPage({ today: "2027-06-02" });
+
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Voir 2042-C PRO" }),
+  );
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Marquer comme déclarée" }),
+  );
+
+  expect(props.onMarkFiled).toHaveBeenCalledWith({
+    kind: 5,
+    periodKey: "2026",
+  });
 });

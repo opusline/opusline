@@ -3,10 +3,16 @@ import type {
   DeclarationsData,
 } from "@opusline/api-client";
 import { cn } from "@opusline/ui/lib/utils";
+import { useState } from "react";
 
 import { m } from "@/paraglide/messages.js";
 
 import type { DeclarationKind } from "../lib/labels";
+import { AnnualReturnSheet } from "./annual-return-sheet";
+import {
+  type AnnualReturnKind,
+  AnnualReturnsCard,
+} from "./annual-returns-card";
 import { CaCumulativeCard } from "./ca-cumulative-card";
 import { DeclarationsHeader } from "./declarations-header";
 import { DeclarationsHistoryCard } from "./declarations-history-card";
@@ -25,6 +31,11 @@ type DeclarationsPageProps = {
   onMarkPaid: (target: DeclarationTarget) => void;
   onUnmark: (target: DeclarationTarget) => void;
   onClearPayment: (target: DeclarationTarget) => void;
+  /** The CFE is paid, not filed: the route ticks both steps at once. */
+  onPayCfe: (target: DeclarationTarget) => void;
+  /** `Y-m-d`, the account's today: the running year's figures stay provisional. */
+  today: string;
+  onSaveCfeAmount: (cents: number) => Promise<void>;
 };
 
 export function DeclarationsPage({
@@ -36,8 +47,11 @@ export function DeclarationsPage({
   onMarkPaid,
   onUnmark,
   onClearPayment,
+  onPayCfe,
+  today,
+  onSaveCfeAmount,
 }: DeclarationsPageProps) {
-  const { urssaf, vat, cumulative, history } = data;
+  const { urssaf, vat, cumulative, history, annual } = data;
   const isPending = (target: DeclarationTarget) =>
     pendingTarget !== null &&
     pendingTarget.kind === target.kind &&
@@ -53,6 +67,15 @@ export function DeclarationsPage({
     urssaf !== null &&
     urssaf.deadline === null &&
     (vat === null || vat.deadline === null);
+  const [openAnnual, setOpenAnnual] = useState<AnnualReturnKind | null>(null);
+  const openTarget: DeclarationTarget | null =
+    annual === null || openAnnual === null
+      ? null
+      : openAnnual === "incomeTax"
+        ? { kind: 5, periodKey: String(annual.incomeTaxReturn.year) }
+        : annual.cfe === null
+          ? null
+          : { kind: 3, periodKey: String(annual.cfe.year) };
 
   return (
     <div
@@ -109,6 +132,34 @@ export function DeclarationsPage({
             />
           )}
         </div>
+      )}
+
+      {annual !== null && (
+        <>
+          <AnnualReturnsCard annual={annual} onOpen={setOpenAnnual} />
+          <AnnualReturnSheet
+            annual={annual}
+            isBusy={openTarget !== null && isPending(openTarget)}
+            onMarkDone={() => {
+              if (openTarget !== null) {
+                (openAnnual === "cfe" ? onPayCfe : onMarkFiled)(openTarget);
+              }
+            }}
+            onOpenChange={(open) => {
+              if (!open) {
+                setOpenAnnual(null);
+              }
+            }}
+            onSaveCfeAmount={onSaveCfeAmount}
+            onUndo={() => {
+              if (openTarget !== null) {
+                onUnmark(openTarget);
+              }
+            }}
+            open={openAnnual}
+            today={today}
+          />
+        </>
       )}
 
       {history.length > 0 && (
