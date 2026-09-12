@@ -196,6 +196,13 @@ export function expensesFilter(): { predicate: (query: Query) => boolean } {
   return operationFilter("listExpenses");
 }
 
+/** The subscriptions list, its KPIs and strips. */
+export function subscriptionsFilter(): {
+  predicate: (query: Query) => boolean;
+} {
+  return operationFilter("listSubscriptions");
+}
+
 /**
  * The Déclarations screen, whatever period it shows: the CA3 deductible boxes
  * are summed from expenses, so every expense write moves them.
@@ -221,6 +228,19 @@ export async function invalidateExpenseWrites(
   await Promise.all([
     queryClient.invalidateQueries(expensesFilter()),
     queryClient.invalidateQueries(declarationsFilter()),
+  ]);
+}
+
+/**
+ * A subscription write moves its list and, through the debits it creates or
+ * stops, everything an expense write moves.
+ */
+export async function invalidateSubscriptionWrites(
+  queryClient: QueryClient,
+): Promise<void> {
+  await Promise.all([
+    queryClient.invalidateQueries(subscriptionsFilter()),
+    invalidateExpenseWrites(queryClient),
   ]);
 }
 

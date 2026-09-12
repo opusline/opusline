@@ -3,14 +3,24 @@ import type { ReactNode } from "react";
 
 import { m } from "@/paraglide/messages.js";
 
+export type ExpensesTab = "journal" | "subscriptions";
+
 type ExpensesPageProps = {
-  /** The primary call to action; none while the expense sheet is not there yet. */
+  tab: ExpensesTab;
+  onTabChange: (tab: ExpensesTab) => void;
+  /** The primary call to action of the tab shown. */
   action: ReactNode;
   controls: ReactNode;
   children: ReactNode;
 };
 
+function isExpensesTab(value: unknown): value is ExpensesTab {
+  return value === "journal" || value === "subscriptions";
+}
+
 export function ExpensesPage({
+  tab,
+  onTabChange,
   action,
   controls,
   children,
@@ -23,11 +33,21 @@ export function ExpensesPage({
         </h1>
         {action}
       </div>
-      <Tabs value="journal">
+      <Tabs
+        onValueChange={(value) => {
+          if (isExpensesTab(value)) {
+            onTabChange(value);
+          }
+        }}
+        value={tab}
+      >
         <div className="flex flex-wrap items-end justify-between gap-4 border-b">
           <TabsList variant="underline-inline">
             <TabsTrigger value="journal">
               {m.expenses_tab_journal()}
+            </TabsTrigger>
+            <TabsTrigger value="subscriptions">
+              {m.expenses_tab_subscriptions()}
             </TabsTrigger>
           </TabsList>
           <div className="flex flex-wrap items-center gap-2.5 pb-2">

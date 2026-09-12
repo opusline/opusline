@@ -3,6 +3,7 @@ import {
   StatTile,
   StatTileNote,
   StatTileRow,
+  StatTileUnit,
 } from "@opusline/ui/components/stat-tile";
 
 import { useLocale, useMoneyFormat } from "@/components/money-format-provider";
@@ -160,10 +161,7 @@ export function ExpenseKpiTiles({ month, unit }: ExpenseKpiTilesProps) {
           ) : (
             <>
               {formatWholeAmount(format, monthly.amount)}
-              <span className="font-sans text-base text-muted-foreground-3">
-                {" "}
-                {m.expenses_per_month()}
-              </span>
+              <StatTileUnit> {m.expenses_per_month()}</StatTileUnit>
             </>
           )
         }

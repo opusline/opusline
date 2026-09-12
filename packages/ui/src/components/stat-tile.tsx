@@ -91,6 +91,17 @@ const statTileRowVariants = cva("grid", {
 /**
  * Callers set the column count — how many tiles fit is a page decision.
  */
+/** The unit after a figure — « / mois », « / an » — set in the body face and quieter. */
+function StatTileUnit({ className, ...props }: ComponentProps<"span">) {
+  return (
+    <span
+      data-slot="stat-tile-unit"
+      className={cn("font-sans text-base text-muted-foreground-3", className)}
+      {...props}
+    />
+  );
+}
+
 function StatTileRow({
   className,
   variant,
@@ -210,6 +221,7 @@ export {
   StatTile,
   StatTileNote,
   StatTileRow,
+  StatTileUnit,
   statTileNoteVariants,
   statTileRowVariants,
   statTileValueVariants,
