@@ -10,11 +10,11 @@ use Illuminate\Testing\TestResponse;
 beforeEach(fn () => freezeTodayAtUtcNoon());
 
 /**
- * @param  array<string, mixed>  $overrides
+ * @return array<string, mixed>
  */
-function createExpense(User $user, array $overrides = []): TestResponse
+function expensePayload(): array
 {
-    return test()->actingAs($user)->postJson('/api/expenses', [
+    return [
         'supplier' => 'Brouillard Hébergement',
         'spentOn' => '2026-08-10',
         'category' => ExpenseCategory::Hosting->value,
@@ -22,8 +22,15 @@ function createExpense(User $user, array $overrides = []): TestResponse
         'vatTreatment' => ExpenseVatTreatment::Domestic->value,
         'vatRateBp' => 2_000,
         'description' => 'VPS + domaine',
-        ...$overrides,
-    ]);
+    ];
+}
+
+/**
+ * @param  array<string, mixed>  $overrides
+ */
+function createExpense(User $user, array $overrides = []): TestResponse
+{
+    return test()->actingAs($user)->postJson('/api/expenses', [...expensePayload(), ...$overrides]);
 }
 
 test('records a purchase and answers with its month, the net amount derived from the gross one', function (): void {
@@ -51,6 +58,63 @@ test('records a purchase and answers with its month, the net amount derived from
         'amount_ht_cents' => 1_199,
         'currency' => 'EUR',
     ]);
+});
+
+test('a purchase can be recorded as a subscription debit', function (): void {
+    $user = User::factory()->create();
+    $subscription = subscriptionOwnedBy($user, fn ($factory) => $factory->state(['auto_create_expenses' => false]));
+
+    createExpense($user, ['subscriptionId' => $subscription->id])
+        ->assertCreated()
+        ->assertJsonPath('expenses.0.subscription.id', $subscription->id);
+
+    $this->assertDatabaseHas('expenses', ['subscription_id' => $subscription->id, 'subscription_period_key' => '2026-08']);
+});
+
+test('refuses a second debit for the same period', function (): void {
+    $user = User::factory()->create();
+    $subscription = subscriptionOwnedBy($user, fn ($factory) => $factory->state(['auto_create_expenses' => false]));
+    createExpense($user, ['subscriptionId' => $subscription->id])->assertCreated();
+
+    createExpense($user, ['subscriptionId' => $subscription->id])->assertConflict();
+});
+
+test('refuses an unknown subscription, and tying both ways at once', function (): void {
+    $user = User::factory()->create();
+    $subscription = subscriptionOwnedBy($user);
+
+    createExpense($user, ['subscriptionId' => 999_999])->assertUnprocessable()->assertJsonValidationErrors('subscriptionId');
+    createExpense($user, ['subscriptionId' => $subscription->id, 'recurringDebitDay' => 5])->assertUnprocessable()->assertJsonValidationErrors('recurringDebitDay');
+});
+
+test('a recurring purchase creates its monthly subscription on the spot', function (): void {
+    $user = User::factory()->create();
+
+    createExpense($user, ['recurringDebitDay' => 10])
+        ->assertCreated()
+        ->assertJsonPath('expenses.0.subscription.supplier', 'Brouillard Hébergement')
+        ->assertJsonPath('expenses.0.subscription.periodicity', 0);
+
+    $subscription = $user->subscriptions()->sole();
+
+    expect($subscription->debit_day)->toBe(10)
+        ->and($subscription->started_on->toDateString())->toBe('2026-08-10')
+        ->and((int) $subscription->priceOn($subscription->started_on)->getAmount())->toBe(1_199)
+        ->and($user->expenses()->count())->toBe(1);
+});
+
+test('a debit cannot be re-tied on update, though the sheet may echo the tie in place', function (): void {
+    $user = User::factory()->create();
+    $subscription = subscriptionOwnedBy($user, fn ($factory) => $factory->state(['auto_create_expenses' => false]));
+    $expense = expenseOwnedBy($user, fn ($factory) => $factory->state(['subscription_id' => $subscription->id, 'subscription_period_key' => '2026-08']));
+
+    $this->actingAs($user)
+        ->putJson("/api/expenses/{$expense->id}", [...expensePayload(), 'subscriptionId' => $subscription->id])
+        ->assertOk();
+    $this->actingAs($user)
+        ->putJson("/api/expenses/{$expense->id}", [...expensePayload(), 'recurringDebitDay' => 5])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('subscriptionId');
 });
 
 test('a reverse-charged purchase self-assesses the TVA and keeps net equal to gross', function (): void {

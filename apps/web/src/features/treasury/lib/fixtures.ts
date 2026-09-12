@@ -31,6 +31,7 @@ export function emptyTreasuryData(): TreasuryData {
       vat: null,
       urssaf: null,
       cfe: null,
+      subscriptions: null,
       buffer: eur(150_000),
       total: eur(150_000),
     },

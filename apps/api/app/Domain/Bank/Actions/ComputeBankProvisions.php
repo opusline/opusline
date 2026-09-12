@@ -12,6 +12,7 @@ use App\Domain\Deadlines\Calendar\CfeSchedule;
 use App\Domain\Deadlines\Calendar\ExpectedCfe;
 use App\Domain\Declarations\Vat\Ca3Chain;
 use App\Domain\Declarations\Vat\Ca3ChainStart;
+use App\Domain\Expenses\Subscriptions\OccurrenceSchedule;
 use App\Domain\Expenses\Vat\DeclaredCa3Months;
 use App\Domain\Expenses\Vat\DeductibleExpenses;
 use App\Domain\Invoices\Revenue\CollectedInvoices;
@@ -47,6 +48,8 @@ use Money\Money as MoneyPhp;
  *   January must not reprice the December that is still owed;
  * - plus a twelfth of the expected CFE per elapsed month, netted the same way
  *   against detected CFE debits;
+ * - plus, for each annual subscription the user chose to spread, a twelfth of
+ *   its debit per month elapsed since the last one;
  * - plus the matelas as configured, verbatim.
  */
 class ComputeBankProvisions
@@ -76,11 +79,12 @@ class ComputeBankProvisions
             : $this->vat($user, $vatPeriod, $collected, $declared, $chainStart, $fiscDebits, $today, $currency);
         $urssaf = $urssafPeriod === null ? null : $this->urssaf($settings, $urssafPeriod, $collected, $fiscDebits, $today, $currency);
         $cfe = $this->cfe($settings, $fiscDebits, $today, $currency);
+        $subscriptions = $this->subscriptions($user, $today, $currency);
         $buffer = $settings->treasury_buffer_cents;
 
         $total = new Money(0, $currency);
 
-        foreach ([$vat?->amount->toMoney(), $urssaf?->amount->toMoney(), $cfe?->amount->toMoney(), $buffer] as $component) {
+        foreach ([$vat?->amount->toMoney(), $urssaf?->amount->toMoney(), $cfe?->amount->toMoney(), $subscriptions?->amount->toMoney(), $buffer] as $component) {
             if ($component !== null) {
                 $total = $total->add($component);
             }
@@ -90,6 +94,7 @@ class ComputeBankProvisions
             vat: $vat,
             urssaf: $urssaf,
             cfe: $cfe,
+            subscriptions: $subscriptions,
             buffer: $buffer === null ? null : MoneyData::fromMoney($buffer),
             total: MoneyData::fromMoney($total),
         );
@@ -277,6 +282,51 @@ class ComputeBankProvisions
             rateBp: $settings->effectiveContributionRateBp(),
             deductible: null,
             periodEnd: $period['end'],
+        );
+    }
+
+    /**
+     * An annual subscription the user chose to spread: a twelfth of its debit
+     * per month elapsed since the last one, so the year's debit finds the
+     * money set aside — eleven twelfths at most, the debit itself lands as
+     * an expense.
+     */
+    private function subscriptions(User $user, CarbonImmutable $today, string $currency): ?BankProvisionData
+    {
+        $provisioned = $user->subscriptions()
+            ->where('provision_monthly', true)
+            ->where('is_paused', false)
+            ->with('amounts')
+            ->get();
+        $total = new Money(0, $currency);
+        $nextDebit = null;
+
+        foreach ($provisioned as $subscription) {
+            $debitOn = new OccurrenceSchedule($subscription)->nextDebitOn($today);
+
+            if (! $debitOn instanceof CarbonImmutable) {
+                continue;
+            }
+
+            // The debit's own month lands as an expense: eleven twelfths at most.
+            $monthsSinceLastDebit = min(11, (int) $debitOn->subYear()->startOfMonth()->diffInMonths($today->startOfMonth()));
+            $twelfth = $subscription->monthlyProvisionOn($today);
+            assert($twelfth instanceof Money);
+
+            $total = $total->add($twelfth->multiply($monthsSinceLastDebit));
+            $nextDebit = min($nextDebit ?? $debitOn, $debitOn);
+        }
+
+        if (! $nextDebit instanceof CarbonImmutable) {
+            return null;
+        }
+
+        return new BankProvisionData(
+            amount: MoneyData::fromMoney($total),
+            carried: MoneyData::fromMoney(new Money(0, $currency)),
+            rateBp: null,
+            deductible: null,
+            periodEnd: $nextDebit,
         );
     }
 

@@ -48,6 +48,12 @@ class ExpenseInputData extends Data
         public int $proShareBp = Rate::BASIS_POINTS,
         #[StringType, Max(255)]
         public ?string $description = null,
+        /** Records the expense as that subscription's debit for its period (create only). */
+        #[IntegerType, Min(1)]
+        public ?int $subscriptionId = null,
+        /** « Récurrent · le N du mois »: creates a monthly subscription from this expense, debiting on that day (create only). */
+        #[IntegerType, Between(1, 31)]
+        public ?int $recurringDebitDay = null,
     ) {}
 
     /** The `Y-m` journal the purchase is listed in. */

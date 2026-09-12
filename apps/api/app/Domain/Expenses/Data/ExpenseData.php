@@ -8,6 +8,7 @@ use App\Domain\Expenses\Enums\ExpenseCategory;
 use App\Domain\Expenses\Enums\ExpenseVatStatus;
 use App\Domain\Expenses\Enums\ExpenseVatTreatment;
 use App\Domain\Expenses\Models\Expense;
+use App\Domain\Expenses\Models\Subscription;
 use App\Domain\Expenses\Vat\DeclaredCa3Months;
 use App\Domain\Shared\Data\MoneyData;
 use Carbon\CarbonImmutable;
@@ -36,6 +37,8 @@ class ExpenseData extends Data
         public int $proShareBp,
         /** Null until a justificatif is attached; the TVA is not deductible before. */
         public ?ExpenseReceiptData $receipt,
+        /** Set when the expense is a subscription's debit; eager-load `subscription`. */
+        public ?ExpenseSubscriptionData $subscription,
         public ExpenseVatStatus $vatStatus,
         /** `Y-m` — the CA3 the recoverable TVA is claimed on. */
         public string $vatClaimPeriod,
@@ -63,6 +66,7 @@ class ExpenseData extends Data
             vatRateBp: $expense->vat_rate_bp,
             proShareBp: $expense->pro_share_bp,
             receipt: $receipt instanceof Media ? ExpenseReceiptData::fromMedia($receipt) : null,
+            subscription: $expense->subscription instanceof Subscription ? ExpenseSubscriptionData::fromModel($expense->subscription) : null,
             vatStatus: $expense->vatStatus($declared),
             vatClaimPeriod: $expense->vat_claim_period,
             isRegularisation: $expense->isRegularisation($declared),

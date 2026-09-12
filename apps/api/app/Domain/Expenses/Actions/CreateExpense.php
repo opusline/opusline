@@ -13,7 +13,10 @@ use Illuminate\Support\Facades\DB;
 
 class CreateExpense
 {
-    public function __construct(private readonly ValidateVatRate $validateVatRate) {}
+    public function __construct(
+        private readonly ValidateVatRate $validateVatRate,
+        private readonly LinkExpenseToSubscription $linkExpenseToSubscription,
+    ) {}
 
     public function handle(User $user, ExpenseInputData $data): Expense
     {
@@ -22,10 +25,13 @@ class CreateExpense
         return DB::transaction(function () use ($user, $data): Expense {
             AccountCurrency::assertMatchesAccountUnderLock($user->id, $data->amountTtc);
 
-            return $user->expenses()->create([
+            $expense = $user->expenses()->create([
                 ...ExpenseAttributes::from($data),
                 'vat_claim_period' => DeclaredCa3Months::of($user->id)->claimFor($data->month()),
             ]);
+            $this->linkExpenseToSubscription->handle($user, $expense, $data);
+
+            return $expense;
         });
     }
 }

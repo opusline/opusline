@@ -53,6 +53,7 @@ function requestDataFields(): array
         'ExpenseReceiptData', 'ExpensesVatSummaryData',
         'SubscriptionData', 'SubscriptionAmountData', 'SubscriptionKpisData', 'SubscriptionsData',
         'UpcomingDebitData', 'SubscriptionCategoryTotalData', 'SubscriptionAmountChangeData',
+        'SubscriptionOccurrenceData', 'ExpenseSubscriptionData', 'ExpensesSubscriptionsData', 'ExpenseTodoData',
         'ClientData', 'ClientListData', 'ClientRevenueData',
         'ClientRevenueDetailData', 'ClientRevenueListData',
         'ClientWithMissionsData',

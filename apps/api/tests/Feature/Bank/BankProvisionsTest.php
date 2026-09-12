@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Expenses\Factories\ExpenseFactory;
+use App\Domain\Expenses\Factories\SubscriptionFactory;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Settings\Models\ContributionRate;
@@ -289,6 +290,22 @@ test('provisions the tva collected since january under réel simplifié', functi
         ->getJson('/api/bank')
         ->assertOk()
         ->assertJsonPath('provisions.vat.amount.amount', 66_000);
+});
+
+test('sets aside a twelfth a month for an annual subscription spread over the year', function (): void {
+    $user = User::factory()->create();
+    // 48 000 TTC due each 1 September: on 13 August, eleven twelfths are set aside.
+    subscriptionOwnedBy($user, fn (SubscriptionFactory $factory): SubscriptionFactory => $factory
+        ->exempt()->annual(1, 9)->startedOn('2025-09-01')->priced(48_000)->provisioned());
+    subscriptionOwnedBy($user, fn (SubscriptionFactory $factory): SubscriptionFactory => $factory
+        ->exempt()->annual(1, 9)->startedOn('2025-09-01')->priced(12_000));
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.subscriptions.amount.amount', 44_000)
+        ->assertJsonPath('provisions.subscriptions.periodEnd', '2026-09-01')
+        ->assertJsonPath('provisions.total.amount', 44_000);
 });
 
 test('adds the treasury buffer verbatim', function (): void {

@@ -9,6 +9,7 @@ use App\Domain\Expenses\Models\Expense;
 use App\Domain\Expenses\Vat\DeclaredCa3Months;
 use App\Domain\Shared\Validation\AccountCurrency;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class UpdateExpense
 {
@@ -23,6 +24,12 @@ class UpdateExpense
     public function handle(Expense $expense, ExpenseInputData $data): Expense
     {
         $this->validateVatRate->handle($data->vatTreatment, $data->vatRateBp);
+
+        // A debit's tie to its subscription is fixed at creation: the sheet
+        // may echo the one in place, but moving it would orphan the period.
+        if ($data->recurringDebitDay !== null || ($data->subscriptionId !== null && $data->subscriptionId !== $expense->subscription_id)) {
+            throw ValidationException::withMessages(['subscriptionId' => __('expenses.link_on_create_only')]);
+        }
 
         return DB::transaction(function () use ($expense, $data): Expense {
             AccountCurrency::assertMatchesAccountUnderLock($expense->user_id, $data->amountTtc);
