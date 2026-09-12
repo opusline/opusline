@@ -27,6 +27,7 @@ const FISCAL_DEADLINE_KIND_MESSAGES: Record<FiscalDeadlineKind, () => string> =
     2: m.deadline_kind_vat_ca12,
     3: m.deadline_kind_cfe,
     4: m.deadline_kind_cfe_instalment,
+    5: m.deadline_kind_income_tax_return,
   };
 
 export function fiscalDeadlineKindLabel(kind: FiscalDeadlineKind): string {

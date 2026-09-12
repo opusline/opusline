@@ -74,6 +74,8 @@ class PriceFiscalDeadlines
             ),
             FiscalDeadlineKind::Cfe => $this->cfe($expectedCfe, CfeSchedule::balance(...)),
             FiscalDeadlineKind::CfeInstalment => $this->cfe($expectedCfe, CfeSchedule::instalment(...)),
+            // Income tax is the household's, on more than this account's receipts: no figure to price.
+            FiscalDeadlineKind::IncomeTaxReturn => new DeadlineAmount(amount: null, rateBp: null, isEstimate: false),
         };
     }
 

@@ -426,6 +426,20 @@ function subscriptionPayload(array $overrides = []): array
     ];
 }
 
+/** Ticks a return from the Déclarations page, answering the month it names. */
+function markDeclared(User $user, FiscalDeadlineKind $kind, string $periodKey, ?string $period = null): TestResponse
+{
+    return test()->actingAs($user)->postJson('/api/declarations/completions', array_filter(
+        ['kind' => $kind->value, 'periodKey' => $periodKey, 'period' => $period],
+        static fn (mixed $value): bool => $value !== null,
+    ));
+}
+
+function completionPath(FiscalDeadlineKind $kind, string $periodKey, string $suffix = ''): string
+{
+    return "/api/declarations/completions/{$kind->value}/{$periodKey}{$suffix}";
+}
+
 /** An account on the réel normal — the one régime that deducts TVA purchase by purchase. */
 function vatLiableUser(): User
 {

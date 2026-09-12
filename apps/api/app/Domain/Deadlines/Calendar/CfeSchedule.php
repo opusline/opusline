@@ -35,6 +35,12 @@ final readonly class CfeSchedule
         return (int) $expected->getAmount() > self::INSTALMENT_THRESHOLD_CENTS;
     }
 
+    /** The elapsed share of the bill by the end of $month: a twelfth a month, since it only lands on 15 December. */
+    public static function accruedBy(Money $expected, int $month): Money
+    {
+        return $expected->multiply($month)->divide(12, MoneyPhp::ROUND_HALF_UP);
+    }
+
     public static function instalment(Money $expected): Money
     {
         return $expected->divide(2, MoneyPhp::ROUND_HALF_UP);

@@ -16,4 +16,6 @@ enum FiscalDeadlineKind: int
     case VatCa12 = 2;
     case Cfe = 3;
     case CfeInstalment = 4;
+    /** The 2042-C PRO, keyed by the year of income it declares. */
+    case IncomeTaxReturn = 5;
 }

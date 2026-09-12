@@ -26,6 +26,8 @@ class DeclarationsData extends Data
         public ?UrssafDeclarationData $urssaf,
         public ?VatDeclarationData $vat,
         public ?RevenueCeilingData $cumulative,
+        /** Null outside French fiscality, and for a year that closed before the business started. */
+        public ?AnnualDeclarationsData $annual,
         /** @var list<DeclarationHistoryRowData> the shown month and the five before it, newest first; empty outside French fiscality */
         #[DataCollectionOf(DeclarationHistoryRowData::class)]
         public array $history,

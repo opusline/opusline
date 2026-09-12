@@ -26,7 +26,6 @@ use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
 use Illuminate\Support\Collection;
-use Money\Money as MoneyPhp;
 
 /**
  * What the fisc is still owed, computed on collections (encaissements)
@@ -376,7 +375,7 @@ class ComputeBankProvisions
             return null;
         }
 
-        $accrued = $expected->multiply($today->month)->divide(12, MoneyPhp::ROUND_HALF_UP);
+        $accrued = CfeSchedule::accruedBy($expected, $today->month);
         $paid = DetectFiscPayments::debitedBetween($fiscDebits, $today->startOfYear(), $today, DetectFiscPayments::isCfe(...));
         $owed = (int) $accrued->getAmount() - $paid;
 
