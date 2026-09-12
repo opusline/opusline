@@ -368,7 +368,10 @@ and a self-hosted Sentry. `SENTRY_TRACES_SAMPLE_RATE` and
 `SENTRY_WEB_TRACES_SAMPLE_RATE` (0 to 1, default 1) throttle the traces;
 `SENTRY_ENVIRONMENT` names the environment for both halves (default `APP_ENV`).
 Source maps ship next to the bundle under `/assets`, so stack traces resolve
-to source as long as Sentry can fetch them from your instance.
+to source as long as Sentry can fetch them from your instance. To check the
+browser half, open `/health` on the instance: with a web DSN set, the page
+offers a button that throws a deliberate error, which should appear in the
+Sentry project within a minute.
 
 ## When something is wrong
 

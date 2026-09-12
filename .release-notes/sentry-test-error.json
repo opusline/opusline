@@ -1,0 +1,4 @@
+{
+  "kind": "improved",
+  "text": "Self-hosters who plugged Sentry in can send a test error from the /health page to check that browser reports arrive."
+}
