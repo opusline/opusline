@@ -63,8 +63,8 @@ test('sums the previous month sales and collected vat under reel normal', functi
         ->assertOk()
         ->assertJsonPath('vat.period', '2026-07')
         ->assertJsonPath('vat.regime', VatRegime::ReelNormal->value)
-        ->assertJsonPath('vat.salesHt.amount', 265_000)
-        ->assertJsonPath('vat.collected.amount', 53_000)
+        ->assertJsonPath('vat.boxes.salesHt.amount', 265_000)
+        ->assertJsonPath('vat.boxes.collected.amount', 53_000)
         ->assertJsonPath('vat.rateBp', 2000);
 });
 
@@ -96,8 +96,8 @@ test('an empty month reads as the account default rate', function (): void {
     $this->actingAs($user)
         ->getJson('/api/declarations')
         ->assertOk()
-        ->assertJsonPath('vat.salesHt.amount', 0)
-        ->assertJsonPath('vat.collected.amount', 0)
+        ->assertJsonPath('vat.boxes.salesHt.amount', 0)
+        ->assertJsonPath('vat.boxes.collected.amount', 0)
         ->assertJsonPath('vat.rateBp', 1000);
 });
 
@@ -145,7 +145,7 @@ test('never counts another account collections', function (): void {
         ->getJson('/api/declarations')
         ->assertOk()
         ->assertJsonPath('urssaf.base.amount', 165_000)
-        ->assertJsonPath('vat.salesHt.amount', 165_000);
+        ->assertJsonPath('vat.boxes.salesHt.amount', 165_000);
 });
 
 test('requires authentication', function (): void {

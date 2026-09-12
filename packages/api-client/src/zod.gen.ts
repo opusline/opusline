@@ -2483,8 +2483,6 @@ export const zUpdateSettingsData = z.object({
 export const zVatDeclarationData = z.object({
     period: z.string(),
     regime: zVatRegime,
-    salesHt: zMoneyData,
-    collected: zMoneyData,
     rateBp: z.nullable(z.int()),
     boxes: zCa3BoxesData,
     invoiceCount: z.int(),

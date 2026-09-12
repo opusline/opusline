@@ -44,10 +44,7 @@ export function InvoiceDrawer({
 }: InvoiceDrawerProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side="right"
-        className="w-[30rem] gap-0 overflow-y-auto sm:max-w-[30rem]"
-      >
+      <SheetContent className="gap-0 overflow-y-auto" side="right" size="md">
         <InvoiceDrawerContents
           actions={actions}
           detail={detail}

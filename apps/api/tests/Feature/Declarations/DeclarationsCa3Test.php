@@ -30,7 +30,6 @@ test('lists every case of the form from the invoices and the receipted purchases
         ->assertJsonPath('vat.boxes.nonEuPurchasesHt.amount', 4_800)
         ->assertJsonPath('vat.boxes.taxableBase.amount', 847_920)
         ->assertJsonPath('vat.boxes.collected.amount', 169_584)
-        ->assertJsonPath('vat.collected.amount', 168_000)
         ->assertJsonPath('vat.reverseChargedVat.amount', 1_584)
         ->assertJsonPath('vat.boxes.goodsAndServices.amount', 1_824)
         ->assertJsonPath('vat.boxes.otherDeductible.amount', 0)
