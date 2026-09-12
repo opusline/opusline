@@ -54,7 +54,7 @@ test('a reverse-charged purchase nets to nothing and an exempt one carries nothi
         ->assertJsonPath('expenses.0.vatStatus', ExpenseVatStatus::NotApplicable->value)
         ->assertJsonPath('expenses.1.vatStatus', ExpenseVatStatus::ReverseCharged->value)
         ->assertJsonPath('vat.reverseCharged.amount', 960)
-        ->assertJsonPath('vat.deductible.amount', 0);
+        ->assertJsonPath('vat.deductible.amount', 960);
 });
 
 test('an account abroad files no CA3, whatever régime its invoices are pinned to', function (): void {
@@ -203,4 +203,16 @@ test('collected minus deductible is what the CA3 owes, a credit when negative', 
         ->assertJsonPath('vat.collected.amount', 20_000)
         ->assertJsonPath('vat.deductible.amount', 25_000)
         ->assertJsonPath('vat.balance.amount', -5_000);
+});
+
+test('self-assessed TVA is due in full and deducted only for its professional share', function (): void {
+    $user = vatLiableUser();
+    expenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-08-05')->reverseCharged(4_800)->proShare(5_000));
+
+    $this->actingAs($user)
+        ->getJson('/api/expenses?month=2026-08')
+        ->assertOk()
+        ->assertJsonPath('vat.reverseCharged.amount', 960)
+        ->assertJsonPath('vat.deductible.amount', 480)
+        ->assertJsonPath('vat.balance.amount', 480);
 });

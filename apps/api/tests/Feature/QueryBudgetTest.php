@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Bank\Factories\BankMovementFactory;
 use App\Domain\Expenses\Factories\ExpenseFactory;
 use App\Domain\Users\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
 beforeEach(fn () => freezeTodayAtUtcNoon());
@@ -74,6 +75,19 @@ test('the expenses journal runs a bounded number of queries', function (): void 
     $queries = queriesDuring(fn () => test()->actingAs($user)->getJson('/api/expenses')->assertOk());
 
     expect($queries)->toBeLessThanOrEqual(10);
+});
+
+test('the declarations screen runs a bounded number of queries', function (): void {
+    $user = vatLiableUser();
+
+    foreach (range(1, 30) as $day) {
+        expenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory
+            ->on(CarbonImmutable::parse('2026-05-01')->addDays($day * 3)->toDateString()));
+    }
+
+    $queries = queriesDuring(fn () => test()->actingAs($user)->getJson('/api/declarations')->assertOk());
+
+    expect($queries)->toBeLessThanOrEqual(15);
 });
 
 test('the treasury summary runs a bounded number of queries', function (): void {

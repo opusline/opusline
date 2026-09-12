@@ -26,15 +26,25 @@ final readonly class DeclaredCa3Months
 
     public static function of(int $userId): self
     {
-        $declaredOn = [];
-
-        $completions = FiscalDeadlineCompletion::query()
+        return self::fromCompletions(FiscalDeadlineCompletion::query()
             ->where('user_id', $userId)
             ->where('kind', FiscalDeadlineKind::VatCa3)
-            ->get(['period_key', 'completed_on']);
+            ->get(['kind', 'period_key', 'completed_on']));
+    }
+
+    /**
+     * From completions already in hand — only the CA3 ones count.
+     *
+     * @param  iterable<FiscalDeadlineCompletion>  $completions
+     */
+    public static function fromCompletions(iterable $completions): self
+    {
+        $declaredOn = [];
 
         foreach ($completions as $completion) {
-            $declaredOn[$completion->period_key] = $completion->completed_on;
+            if ($completion->kind === FiscalDeadlineKind::VatCa3) {
+                $declaredOn[$completion->period_key] = $completion->completed_on;
+            }
         }
 
         return new self($declaredOn);
@@ -43,6 +53,14 @@ final readonly class DeclaredCa3Months
     public function isDeclared(string $month): bool
     {
         return isset($this->declaredOn[$month]);
+    }
+
+    /** The earliest month ever marked declared — where a chain of returns can be anchored. */
+    public function earliest(): ?string
+    {
+        $months = array_keys($this->declaredOn);
+
+        return $months === [] ? null : min($months);
     }
 
     public function declaredOn(string $month): ?CarbonImmutable

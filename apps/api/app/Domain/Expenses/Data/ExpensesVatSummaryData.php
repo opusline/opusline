@@ -12,7 +12,7 @@ use Spatie\LaravelData\Data;
 class ExpensesVatSummaryData extends Data
 {
     public function __construct(
-        /** Recoverable TVA claimed on this month's CA3 — receipted purchases of the month, plus what earlier months pushed here. */
+        /** Recoverable TVA claimed on this month's CA3 (cases 20 and 21): receipted purchases, what earlier months pushed here, and the professional share of what was self-assessed. */
         public MoneyData $deductible,
         /** Recoverable TVA of the month's purchases still waiting for a receipt. */
         public MoneyData $blocked,
@@ -23,7 +23,7 @@ class ExpensesVatSummaryData extends Data
         public MoneyData $deferred,
         /** TVA collected on the invoices paid this month. */
         public MoneyData $collected,
-        /** Collected minus deductible: what the CA3 owes, negative when it carries a credit. */
+        /** What the CA3 owes before any carried credit — collected plus self-assessed, minus deductible; negative when the month builds a credit. */
         public SignedMoneyData $balance,
     ) {}
 }

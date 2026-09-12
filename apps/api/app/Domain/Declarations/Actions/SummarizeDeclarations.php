@@ -4,135 +4,237 @@ declare(strict_types=1);
 
 namespace App\Domain\Declarations\Actions;
 
+use App\Domain\Deadlines\Actions\GenerateFiscalDeadlines;
+use App\Domain\Deadlines\Calendar\FiscalDeadline;
+use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
+use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
+use App\Domain\Declarations\Data\Ca3BoxesData;
+use App\Domain\Declarations\Data\DeclarationCompletionData;
+use App\Domain\Declarations\Data\DeclarationDeadlineData;
 use App\Domain\Declarations\Data\DeclarationsData;
+use App\Domain\Declarations\Data\SummarizeDeclarationsData;
 use App\Domain\Declarations\Data\UrssafDeclarationData;
 use App\Domain\Declarations\Data\VatDeclarationData;
+use App\Domain\Declarations\Vat\Ca3Chain;
+use App\Domain\Expenses\Vat\DeclaredCa3Months;
+use App\Domain\Expenses\Vat\DeductibleExpenses;
+use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Revenue\CollectedInvoices;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
-use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
+use Illuminate\Support\Collection;
+use Illuminate\Validation\ValidationException;
 
 /**
- * The figures a French freelancer retypes into the fisc's forms, for the most
- * recently closed period. Both blocks are cash basis: URSSAF and micro-régime
- * TVA declare what was collected, not what was invoiced.
+ * The figures a French freelancer retypes into the fisc's forms for one
+ * month — by default the most recently closed one, otherwise the month asked
+ * for, never the running one. Both blocks are cash basis: URSSAF and TVA
+ * declare what was collected, not what was invoiced.
  *
  * A period with no collections still returns its zeros: a zero month must be
  * declared to URSSAF too, so an empty screen would be the wrong kind of quiet.
  *
- * Known limit: a closed period is not the same as an open declaration window.
- * A quarterly account spends two months of every quarter looking at a period
- * whose deadline has already passed, and nothing here says so.
- *
- * @phpstan-type ClosedPeriod array{start: CarbonImmutable, end: CarbonImmutable, key: string}
+ * @phpstan-type Period array{start: CarbonImmutable, end: CarbonImmutable, key: string}
  */
 class SummarizeDeclarations
 {
-    public function handle(User $user): DeclarationsData
+    public function __construct(private readonly GenerateFiscalDeadlines $generateFiscalDeadlines) {}
+
+    /**
+     * @throws ValidationException for the running month or a later one
+     */
+    public function handle(User $user, SummarizeDeclarationsData $data): DeclarationsData
     {
         $settings = $user->settingsOrFail();
+        $today = $settings->today();
+        $currentMonth = $today->startOfMonth();
+        $monthStart = $data->period === null
+            ? $currentMonth->subMonth()
+            : CarbonImmutable::parse($data->period.'-01');
 
-        if (! $settings->hasFrenchFiscality()) {
-            return new DeclarationsData(urssaf: null, vat: null);
+        if ($monthStart->greaterThanOrEqualTo($currentMonth)) {
+            throw ValidationException::withMessages(['period' => __('declarations.future_period')]);
         }
 
-        $today = $settings->today();
+        $urssaf = $vat = null;
 
-        $urssafPeriod = $this->closedPeriod(
-            $today,
-            $settings->urssaf_periodicity === UrssafPeriodicity::Quarterly,
-        );
+        if ($settings->hasFrenchFiscality()) {
+            $completions = $user->fiscalDeadlineCompletions()->get();
+            $declared = DeclaredCa3Months::fromCompletions($completions);
+            $urssafPeriod = $this->urssafPeriod($settings, $monthStart, $currentMonth);
+            $chainStart = $settings->filesMonthlyCa3() ? $this->chainStart($user, $settings, $declared, $monthStart) : null;
+            $collected = CollectedInvoices::paidBetween(
+                $user,
+                min($urssafPeriod['start'], $chainStart ?? $monthStart),
+                max($urssafPeriod['end'], $monthStart->endOfMonth()),
+            );
+            $deadlines = $this->generateFiscalDeadlines->handle(
+                $settings,
+                min($monthStart, $urssafPeriod['start']),
+                max($monthStart->endOfMonth(), $urssafPeriod['end'])->addMonths(2)->endOfMonth(),
+            );
 
-        // Only réel normal declares TVA monthly on the CA3; réel simplifié files
-        // an annual CA12 this helper does not cover yet, and the franchise en
-        // base files nothing.
-        $vatPeriod = $settings->vat_regime === VatRegime::ReelNormal
-            ? $this->closedPeriod($today, quarterly: false)
-            : null;
+            $urssaf = $this->urssaf($settings, $collected, $urssafPeriod, $monthStart, $deadlines, $completions, $today);
+            $vat = $chainStart instanceof CarbonImmutable
+                ? $this->vat($user, $settings, $collected, $declared, $chainStart, $monthStart, $deadlines, $today)
+                : null;
+        }
 
-        $collected = $this->collectedAcross($user, $urssafPeriod, $vatPeriod);
+        $next = $monthStart->addMonth();
 
         return new DeclarationsData(
-            urssaf: $this->urssaf($settings, $collected, $urssafPeriod),
-            vat: $vatPeriod === null ? null : $this->vat($settings, $collected, $vatPeriod),
+            period: $monthStart->format('Y-m'),
+            previousPeriod: $monthStart->subMonth()->format('Y-m'),
+            nextPeriod: $next->lessThan($currentMonth) ? $next->format('Y-m') : null,
+            isDefault: $data->period === null,
+            urssaf: $urssaf,
+            vat: $vat,
         );
     }
 
     /**
-     * The period that closed most recently — the one whose figures the forms
-     * are asking for now.
+     * The URSSAF period to declare for the shown month: the month itself, or
+     * for a quarterly account the quarter holding it — unless that quarter is
+     * still running, in which case the one before, the last that can be filed.
      *
-     * @return ClosedPeriod
+     * @return Period
      */
-    private function closedPeriod(CarbonImmutable $today, bool $quarterly): array
+    private function urssafPeriod(UserSettings $settings, CarbonImmutable $monthStart, CarbonImmutable $currentMonth): array
     {
-        $end = ($quarterly ? $today->firstOfQuarter() : $today->startOfMonth())->subDay();
-        $start = $quarterly ? $end->firstOfQuarter() : $end->startOfMonth();
-
-        return [
-            'start' => $start,
-            'end' => $end,
-            'key' => $quarterly ? $start->year.'-Q'.$start->quarter : $start->format('Y-m'),
-        ];
-    }
-
-    /**
-     * One query over the widest window either block reads — the two coincide
-     * entirely for a monthly account.
-     *
-     * @param  ClosedPeriod  $urssafPeriod
-     * @param  ?ClosedPeriod  $vatPeriod
-     */
-    private function collectedAcross(User $user, array $urssafPeriod, ?array $vatPeriod): CollectedInvoices
-    {
-        if ($vatPeriod === null) {
-            return CollectedInvoices::paidBetween($user, $urssafPeriod['start'], $urssafPeriod['end']);
+        if ($settings->urssaf_periodicity !== UrssafPeriodicity::Quarterly) {
+            return ['start' => $monthStart, 'end' => $monthStart->endOfMonth(), 'key' => FiscalDeadline::monthKey($monthStart)];
         }
 
-        return CollectedInvoices::paidBetween(
-            $user,
-            min($urssafPeriod['start'], $vatPeriod['start']),
-            max($urssafPeriod['end'], $vatPeriod['end']),
-        );
+        $start = $monthStart->firstOfQuarter();
+
+        if ($start->lastOfQuarter()->greaterThanOrEqualTo($currentMonth)) {
+            $start = $start->subQuarter();
+        }
+
+        return ['start' => $start, 'end' => $start->lastOfQuarter(), 'key' => FiscalDeadline::quarterKey($start)];
     }
 
     /**
-     * @param  ClosedPeriod  $period
+     * The first month the CA3 chain runs from, and nothing is carried into.
+     *
+     * Once a return has been filed, the chain is anchored on the earliest
+     * one: what came before was either declared by hand or never owed a
+     * CA3, and either way the data cannot say what credit the fisc holds.
+     * Before any return, the chain starts where the account's history does.
+     */
+    private function chainStart(User $user, UserSettings $settings, DeclaredCa3Months $declared, CarbonImmutable $monthStart): CarbonImmutable
+    {
+        $firstDeclared = $declared->earliest();
+
+        if ($firstDeclared !== null) {
+            return min(CarbonImmutable::parse($firstDeclared.'-01'), $monthStart);
+        }
+
+        $candidates = [$monthStart];
+
+        if ($settings->business_started_on instanceof CarbonImmutable) {
+            $candidates[] = $settings->business_started_on->startOfMonth();
+        }
+
+        $firstPaidOn = $user->invoices()->where('status', InvoiceStatus::Paid)->min('paid_on');
+        $firstSpentOn = $user->expenses()->min('spent_on');
+
+        foreach ([$firstPaidOn, $firstSpentOn] as $date) {
+            if (is_string($date)) {
+                $candidates[] = CarbonImmutable::parse($date)->startOfMonth();
+            }
+        }
+
+        return min($candidates);
+    }
+
+    /**
+     * @param  list<FiscalDeadline>  $deadlines
+     */
+    private function deadline(array $deadlines, FiscalDeadlineKind $kind, string $periodKey, CarbonImmutable $today): ?DeclarationDeadlineData
+    {
+        foreach ($deadlines as $deadline) {
+            if ($deadline->is($kind, $periodKey)) {
+                return DeclarationDeadlineData::on($deadline->dueOn, $today);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param  Collection<int, FiscalDeadlineCompletion>  $completions
+     */
+    private function completion(Collection $completions, FiscalDeadlineKind $kind, string $periodKey): ?DeclarationCompletionData
+    {
+        $completion = $completions->first(
+            fn (FiscalDeadlineCompletion $completion): bool => $completion->kind === $kind && $completion->period_key === $periodKey,
+        );
+
+        return DeclarationCompletionData::on($completion?->completed_on);
+    }
+
+    /**
+     * @param  Period  $period
+     * @param  list<FiscalDeadline>  $deadlines
+     * @param  Collection<int, FiscalDeadlineCompletion>  $completions
      */
     private function urssaf(
         UserSettings $settings,
         CollectedInvoices $collected,
         array $period,
+        CarbonImmutable $monthStart,
+        array $deadlines,
+        Collection $completions,
+        CarbonImmutable $today,
     ): UrssafDeclarationData {
-        $currency = $settings->currency->value;
-
         return new UrssafDeclarationData(
             period: $period['key'],
             periodicity: $settings->urssaf_periodicity,
-            base: MoneyData::fromMoney(new Money($collected->htCents($period['start'], $period['end']), $currency)),
+            coversShownMonth: $monthStart->betweenIncluded($period['start'], $period['end']),
+            base: MoneyData::fromMoney(new Money($collected->htCents($period['start'], $period['end']), $settings->currency->value)),
+            invoiceCount: $collected->countBetween($period['start'], $period['end']),
+            deadline: $this->deadline($deadlines, FiscalDeadlineKind::UrssafDeclaration, $period['key'], $today),
+            completion: $this->completion($completions, FiscalDeadlineKind::UrssafDeclaration, $period['key']),
         );
     }
 
     /**
-     * @param  ClosedPeriod  $period
+     * @param  list<FiscalDeadline>  $deadlines
      */
     private function vat(
+        User $user,
         UserSettings $settings,
         CollectedInvoices $collected,
-        array $period,
+        DeclaredCa3Months $declared,
+        CarbonImmutable $chainStart,
+        CarbonImmutable $monthStart,
+        array $deadlines,
+        CarbonImmutable $today,
     ): VatDeclarationData {
+        $month = FiscalDeadline::monthKey($monthStart);
+        $monthEnd = $monthStart->endOfMonth();
         $currency = $settings->currency->value;
+        $expenses = DeductibleExpenses::spentOrClaimedBetween($user, $chainStart, $monthEnd, $declared);
+        $boxes = new Ca3Chain($collected, $expenses, $chainStart)->boxes($monthStart);
 
         return new VatDeclarationData(
-            period: $period['key'],
+            period: $month,
             regime: $settings->vat_regime,
-            salesHt: MoneyData::fromMoney(new Money($collected->htCents($period['start'], $period['end']), $currency)),
-            collected: MoneyData::fromMoney(new Money($collected->vatCents($period['start'], $period['end']), $currency)),
-            rateBp: $collected->uniqueRateBp($period['start'], $period['end'], $settings->default_vat_rate_bp),
+            salesHt: MoneyData::fromMoney(new Money($boxes->salesHt, $currency)),
+            collected: MoneyData::fromMoney(new Money($collected->vatCents($monthStart, $monthEnd), $currency)),
+            rateBp: $collected->uniqueRateBp($monthStart, $monthEnd, $settings->default_vat_rate_bp),
+            boxes: Ca3BoxesData::fromBoxes($boxes, $currency),
+            invoiceCount: $collected->countBetween($monthStart, $monthEnd),
+            expenseCount: $expenses->countSpentIn($month),
+            reverseChargedVat: MoneyData::fromMoney(new Money($expenses->reverseChargeVatCents($month), $currency)),
+            creditIsRefundable: $boxes->creditIsRefundable(),
+            deadline: $this->deadline($deadlines, FiscalDeadlineKind::VatCa3, $month, $today),
+            completion: DeclarationCompletionData::on($declared->declaredOn($month)),
         );
     }
 }
