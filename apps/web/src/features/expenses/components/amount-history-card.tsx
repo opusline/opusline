@@ -27,7 +27,7 @@ export function AmountHistoryCard({
           {m.subscriptions_history_empty()}
         </p>
       ) : (
-        <div className="grid grid-cols-[minmax(0,1fr)_5.25rem_5.25rem_3.25rem_8rem] items-center gap-x-3 gap-y-2.5 text-sm">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto_auto] items-center gap-x-3 gap-y-2.5 text-sm">
           <span className={HEAD_CLASSES}>
             {m.subscriptions_history_col_subscription()}
           </span>
@@ -38,7 +38,7 @@ export function AmountHistoryCard({
             {m.subscriptions_history_col_after()}
           </span>
           <span />
-          <span className={cn(HEAD_CLASSES, "text-right")}>
+          <span className={cn(HEAD_CLASSES, "whitespace-nowrap text-right")}>
             {m.subscriptions_history_col_since()}
           </span>
           {changes.map((change) => (
