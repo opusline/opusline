@@ -19,6 +19,7 @@ const meta = {
     fieldErrors: null,
     onOpenChange: () => {},
     onSubmit: () => {},
+    onReadReceipt: async () => ({ textFound: false }),
   },
 } satisfies Meta<typeof ExpenseSheet>;
 

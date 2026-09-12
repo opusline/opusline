@@ -1017,6 +1017,7 @@
   "expenses_empty_filter_title": "Aucune dépense dans ce filtre",
   "expenses_empty_month_sub": "Les abonnements seront créés à leur prélèvement.",
   "expenses_empty_month_title": "Aucune dépense en {month}",
+  "expenses_entry_mode_aria": "Mode de saisie",
   "expenses_field_amount_ttc": "Montant TTC",
   "expenses_field_category": "Catégorie",
   "expenses_field_date": "Date",
@@ -1091,6 +1092,8 @@
   "expenses_menu_duplicate": "Dupliquer",
   "expenses_menu_edit": "Modifier",
   "expenses_menu_reintegrate": "Réintégrer dans la CA3",
+  "expenses_mode_scan": "Depuis la facture",
+  "expenses_mode_type": "Saisir",
   "expenses_next_month": "Mois suivant",
   "expenses_per_month": "/ mois",
   "expenses_previous_month": "Mois précédent",
@@ -1117,6 +1120,7 @@
   "expenses_receipt_attached": "Facture liée · {name}",
   "expenses_receipt_detach_failed": "La facture n'a pas pu être détachée. Réessayez dans un instant.",
   "expenses_receipt_detached": "Facture détachée",
+  "expenses_receipt_fill": "Remplir depuis la facture",
   "expenses_receipt_link": "Lier la facture",
   "expenses_receipt_link_aria": "Lier la facture de {supplier}",
   "expenses_receipt_open_aria": "Ouvrir la facture {name}",
@@ -1137,6 +1141,29 @@
   "expenses_reintegrated": "Réintégrée dans la CA3",
   "expenses_row_menu_aria": "Actions pour {supplier}",
   "expenses_save_failed": "La dépense n'a pas pu être enregistrée. Réessayez dans un instant.",
+  "expenses_scan_another": "Autre facture",
+  "expenses_scan_failed": "La facture n'a pas pu être lue.",
+  "expenses_scan_fields_read": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} champ lu sur {file}",
+        "countPlural=other": "{count} champs lus sur {file}"
+      }
+    }
+  ],
+  "expenses_scan_hint": "Vérifiez les champs, puis enregistrez.",
+  "expenses_scan_hint_category": "Vérifiez la catégorie et la quote-part pro, puis enregistrez. Les champs restent modifiables.",
+  "expenses_scan_hint_manual": "La facture reste jointe ; saisissez les champs à la main. Les photos ne sont pas encore lues.",
+  "expenses_scan_reading": "Lecture de {file}…",
+  "expenses_scan_source_read": "· lu sur la facture",
+  "expenses_scan_source_suggested": "· suggérée, à vérifier",
+  "expenses_scan_step_text": "Extraction du texte…",
+  "expenses_scan_throttled": "Trop de factures lues d'affilée. Patientez une minute, puis réessayez.",
+  "expenses_scan_unreadable": "Aucun texte lisible dans {file}",
+  "expenses_scan_zone_aria": "Lire la facture",
+  "expenses_scan_zone_sub": "PDF · fournisseur, date, montants et TVA sont lus automatiquement",
   "expenses_select_col_aria": "Sélection",
   "expenses_select_row_aria": "Sélectionner {supplier}",
   "expenses_selected_count": [
@@ -1149,6 +1176,7 @@
       }
     }
   ],
+  "expenses_sheet_create_hint": "Lisez la facture, ou tapez tout d'une traite.",
   "expenses_sheet_edit_hint": "Modifiez ce qui doit l'être, puis enregistrez.",
   "expenses_sheet_edit_title": "Modifier la dépense",
   "expenses_subscription_aria": "Abonnement",
