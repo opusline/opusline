@@ -25,6 +25,7 @@ class SubscriptionData extends Data
 {
     /**
      * @param  list<SubscriptionAmountData>  $amounts
+     * @param  list<SubscriptionOccurrenceData>  $occurrences  the trailing twelve months' debits, oldest first
      */
     public function __construct(
         public int $id,
@@ -57,9 +58,14 @@ class SubscriptionData extends Data
         public ?CarbonImmutable $nextDebitOn,
         #[DataCollectionOf(SubscriptionAmountData::class)]
         public array $amounts,
+        #[DataCollectionOf(SubscriptionOccurrenceData::class)]
+        public array $occurrences,
     ) {}
 
-    public static function fromModel(Subscription $subscription, CarbonImmutable $today): self
+    /**
+     * @param  list<SubscriptionOccurrenceData>  $occurrences
+     */
+    public static function fromModel(Subscription $subscription, CarbonImmutable $today, array $occurrences): self
     {
         $amounts = $subscription->amountsOn($today);
         $provision = $subscription->monthlyProvisionOn($today);
@@ -91,6 +97,7 @@ class SubscriptionData extends Data
                 SubscriptionAmountData::fromModel(...),
                 $subscription->amounts->all(),
             )),
+            occurrences: $occurrences,
         );
     }
 }

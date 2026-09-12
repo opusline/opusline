@@ -6292,6 +6292,16 @@
                             }
                         ]
                     },
+                    "subscriptions": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BankProvisionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "buffer": {
                         "anyOf": [
                             {
@@ -6310,6 +6320,7 @@
                     "vat",
                     "urssaf",
                     "cfe",
+                    "subscriptions",
                     "buffer",
                     "total"
                 ],
@@ -8345,7 +8356,14 @@
                 "type": "object",
                 "properties": {
                     "category": {
-                        "$ref": "#/components/schemas/ExpenseCategory"
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpenseCategory"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "ht": {
                         "$ref": "#/components/schemas/MoneyData"
@@ -8418,6 +8436,16 @@
                             }
                         ]
                     },
+                    "subscription": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpenseSubscriptionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "vatStatus": {
                         "$ref": "#/components/schemas/ExpenseVatStatus"
                     },
@@ -8442,6 +8470,7 @@
                     "vatRateBp",
                     "proShareBp",
                     "receipt",
+                    "subscription",
                     "vatStatus",
                     "vatClaimPeriod",
                     "isRegularisation"
@@ -8499,6 +8528,21 @@
                             "null"
                         ],
                         "maxLength": 255
+                    },
+                    "subscriptionId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 1
+                    },
+                    "recurringDebitDay": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 1,
+                        "maximum": 31
                     }
                 },
                 "required": [
@@ -8591,6 +8635,87 @@
                 ],
                 "title": "ExpenseSelectionData"
             },
+            "ExpenseSubscriptionData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "supplier": {
+                        "type": "string"
+                    },
+                    "periodicity": {
+                        "$ref": "#/components/schemas/SubscriptionPeriodicity"
+                    }
+                },
+                "required": [
+                    "id",
+                    "supplier",
+                    "periodicity"
+                ],
+                "title": "ExpenseSubscriptionData"
+            },
+            "ExpenseTodoData": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "$ref": "#/components/schemas/ExpenseTodoKind"
+                    },
+                    "expenseId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "subscriptionId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "bankMovementId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "expenseId",
+                    "subscriptionId",
+                    "bankMovementId",
+                    "label",
+                    "amount",
+                    "date"
+                ],
+                "title": "ExpenseTodoData"
+            },
+            "ExpenseTodoKind": {
+                "type": "integer",
+                "description": "The cards of the journal's « À traiter » rail.\n| |\n|---|\n| `0` <br/> A subscription's debit was recorded; the receipt is still to be linked. |\n| `1` <br/> A recurring bank debit no expense matches (a later rung fills it). |\n| `2` <br/> An annual subscription debits within the month. |",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "MissingReceipt",
+                    "UnmatchedDebit",
+                    "UpcomingAnnualDebit"
+                ],
+                "title": "ExpenseTodoKind"
+            },
             "ExpenseVatStatus": {
                 "type": "integer",
                 "description": "Where a purchase's TVA stands with the CA3. Derived on every read from the receipt, the claim period and the declared months — never stored, so un-marking a declaration honestly flips the rows back.\n| |\n|---|\n| `0` <br/> Receipted and waiting for its CA3 to be declared. |\n| `1` <br/> Its CA3 was marked declared: the deduction is filed. |\n| `2` <br/> Claimed on a later CA3 than the purchase month, by choice or because that month was already declared. |\n| `3` <br/> No receipt: the fisc refuses the deduction until one is attached. |\n| `4` <br/> Autoliquidation: due and deducted on the same CA3, nothing to recover. |\n| `5` <br/> Exempt purchase, a receipt whose TVA is not tracked, or an account that files no CA3. |",
@@ -8655,6 +8780,16 @@
                     "totals": {
                         "$ref": "#/components/schemas/ExpensesTotalsData"
                     },
+                    "subscriptions": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpensesSubscriptionsData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "categories": {
                         "type": "array",
                         "items": {
@@ -8677,6 +8812,12 @@
                             }
                         ]
                     },
+                    "todo": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ExpenseTodoData"
+                        }
+                    },
                     "expenses": {
                         "type": "array",
                         "items": {
@@ -8689,12 +8830,46 @@
                     "declaredOn",
                     "vat",
                     "totals",
+                    "subscriptions",
                     "categories",
                     "series",
                     "projection",
+                    "todo",
                     "expenses"
                 ],
                 "title": "ExpensesMonthData"
+            },
+            "ExpensesSubscriptionsData": {
+                "type": "object",
+                "properties": {
+                    "monthlyHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "monthlyTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "yearlyHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "yearlyTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "count": {
+                        "type": "integer"
+                    },
+                    "annualCount": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "monthlyHt",
+                    "monthlyTtc",
+                    "yearlyHt",
+                    "yearlyTtc",
+                    "count",
+                    "annualCount"
+                ],
+                "title": "ExpensesSubscriptionsData"
             },
             "ExpensesTotalsData": {
                 "type": "object",
@@ -10908,6 +11083,12 @@
                         "items": {
                             "$ref": "#/components/schemas/SubscriptionAmountData"
                         }
+                    },
+                    "occurrences": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SubscriptionOccurrenceData"
+                        }
                     }
                 },
                 "required": [
@@ -10933,7 +11114,8 @@
                     "isPaused",
                     "cancelledOn",
                     "nextDebitOn",
-                    "amounts"
+                    "amounts",
+                    "occurrences"
                 ],
                 "title": "SubscriptionData"
             },
@@ -11058,6 +11240,9 @@
                     },
                     "reverseChargedVatPerYear": {
                         "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "missingReceipts": {
+                        "type": "integer"
                     }
                 },
                 "required": [
@@ -11068,9 +11253,57 @@
                     "provisionedCount",
                     "provisionedPerMonth",
                     "recoverableVatPerYear",
-                    "reverseChargedVatPerYear"
+                    "reverseChargedVatPerYear",
+                    "missingReceipts"
                 ],
                 "title": "SubscriptionKpisData"
+            },
+            "SubscriptionOccurrenceData": {
+                "type": "object",
+                "properties": {
+                    "period": {
+                        "type": "string"
+                    },
+                    "debitOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "state": {
+                        "$ref": "#/components/schemas/SubscriptionOccurrenceState"
+                    },
+                    "expenseId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "period",
+                    "debitOn",
+                    "state",
+                    "expenseId"
+                ],
+                "title": "SubscriptionOccurrenceData"
+            },
+            "SubscriptionOccurrenceState": {
+                "type": "integer",
+                "description": "One square of the twelve-month strip.\n| |\n|---|\n| `0` <br/> The debit has its expense and the expense its receipt. |\n| `1` <br/> The debit has its expense, still waiting for the receipt. |\n| `2` <br/>  |\n| `3` <br/> A future debit that will not happen while the subscription is paused. |\n| `4` <br/> A past debit with no expense — before the subscription was recorded, or not auto-created. |",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4
+                ],
+                "x-enum-varnames": [
+                    "Linked",
+                    "Missing",
+                    "Future",
+                    "Paused",
+                    "Inactive"
+                ],
+                "title": "SubscriptionOccurrenceState"
             },
             "SubscriptionPeriodicity": {
                 "type": "integer",

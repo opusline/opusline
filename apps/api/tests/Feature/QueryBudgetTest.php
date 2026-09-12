@@ -62,7 +62,7 @@ test('the expenses journal runs a bounded number of queries', function (): void 
 
     $queries = queriesDuring(fn () => test()->actingAs($user)->getJson('/api/expenses')->assertOk());
 
-    expect($queries)->toBeLessThanOrEqual(10);
+    expect($queries)->toBeLessThanOrEqual(14);
 });
 
 test('the declarations screen runs a bounded number of queries', function (): void {

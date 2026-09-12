@@ -15,6 +15,17 @@ test('deletes an expense', function (): void {
     $this->assertDatabaseMissing('expenses', ['id' => $expense->id]);
 });
 
+test('deleting a subscription debit leaves a tombstone', function (): void {
+    $user = User::factory()->create();
+    $subscription = subscriptionOwnedBy($user);
+    $debit = expenseOwnedBy($user, fn ($factory) => $factory->state(['subscription_id' => $subscription->id, 'subscription_period_key' => '2026-08']));
+
+    $this->actingAs($user)->deleteJson("/api/expenses/{$debit->id}")->assertNoContent();
+
+    $this->assertSoftDeleted('expenses', ['id' => $debit->id]);
+    $this->actingAs($user)->deleteJson("/api/expenses/{$debit->id}")->assertNotFound();
+});
+
 test('another account expense is invisible and untouched', function (): void {
     $expense = expenseOwnedBy(User::factory()->create());
 

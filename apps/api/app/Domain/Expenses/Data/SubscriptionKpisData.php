@@ -27,5 +27,7 @@ class SubscriptionKpisData extends Data
         public MoneyData $recoverableVatPerYear,
         /** TVA self-assessed under reverse charge per year — due in full on the CA3; only its professional share sits in recoverableVatPerYear. */
         public MoneyData $reverseChargedVatPerYear,
+        /** Debits of the last twelve months whose expense still has no receipt. */
+        public int $missingReceipts,
     ) {}
 }

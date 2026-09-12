@@ -13,7 +13,8 @@ use Spatie\LaravelData\Data;
  * period's collections (null outside French fiscality), the elapsed share of
  * the expected CFE (null outside French fiscality and in the exempt creation
  * year — otherwise resolved from the entered amount, last year's detected
- * payment or the barème, the last two carrying isEstimate), and the matelas
+ * payment or the barème, the last two carrying isEstimate), the elapsed
+ * share of the annual subscriptions the user chose to spread, and the matelas
  * the user configured (null when unset).
  */
 class BankProvisionsData extends Data
@@ -22,6 +23,7 @@ class BankProvisionsData extends Data
         public ?BankProvisionData $vat,
         public ?BankProvisionData $urssaf,
         public ?BankProvisionData $cfe,
+        public ?BankProvisionData $subscriptions,
         public ?MoneyData $buffer,
         public MoneyData $total,
     ) {}
