@@ -60,6 +60,26 @@ export const WithDescription: Story = {
   ),
 };
 
+/** Reading width for a help panel with paragraphs. */
+export const Large: Story = {
+  render: () => (
+    <Popover>
+      <PopoverTrigger render={<Button variant="link" />}>
+        En savoir plus
+      </PopoverTrigger>
+      <PopoverContent size="lg">
+        <PopoverTitle>Autoliq. UE</PopoverTitle>
+        <PopoverDescription className="mt-1.5">
+          Fournisseur établi dans un autre pays de l'UE qui ne vous a pas
+          facturé de TVA parce que vous lui avez donné votre numéro de TVA
+          intracom. Vous déclarez vous-même la TVA française : elle est due et
+          déduite sur la même CA3. Rien à payer, mais elle doit apparaître.
+        </PopoverDescription>
+      </PopoverContent>
+    </Popover>
+  ),
+};
+
 export const RaisedSurface: Story = {
   render: () => (
     <Popover open>
