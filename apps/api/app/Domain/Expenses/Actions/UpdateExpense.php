@@ -14,7 +14,7 @@ class UpdateExpense
 {
     private const array VAT_COLUMNS = ['spent_on', 'amount_ttc_cents', 'vat_treatment', 'vat_rate_bp', 'pro_share_bp'];
 
-    public function __construct(private readonly ValidateExpense $validateExpense) {}
+    public function __construct(private readonly ValidateVatRate $validateVatRate) {}
 
     /**
      * A cosmetic edit never moves the deduction; one that changes what the
@@ -22,7 +22,7 @@ class UpdateExpense
      */
     public function handle(Expense $expense, ExpenseInputData $data): Expense
     {
-        $this->validateExpense->handle($data);
+        $this->validateVatRate->handle($data->vatTreatment, $data->vatRateBp);
 
         return DB::transaction(function () use ($expense, $data): Expense {
             AccountCurrency::assertMatchesAccountUnderLock($expense->user_id, $data->amountTtc);
