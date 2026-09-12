@@ -4160,6 +4160,39 @@
                 "security": []
             }
         },
+        "/expenses/receipt-reading": {
+            "post": {
+                "operationId": "readExpenseReceipt",
+                "tags": [
+                    "ReceiptReading"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReadReceiptData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReceiptSuggestionData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/user/two-factor/recovery-codes": {
             "get": {
                 "operationId": "showRecoveryCodes",
@@ -10616,6 +10649,21 @@
                 ],
                 "title": "PingData"
             },
+            "ReadReceiptData": {
+                "type": "object",
+                "properties": {
+                    "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "contentMediaType": "application/octet-stream",
+                        "description": "Maximum file size: 20480 kilobytes."
+                    }
+                },
+                "required": [
+                    "file"
+                ],
+                "title": "ReadReceiptData"
+            },
             "RecategorizeExpensesData": {
                 "type": "object",
                 "properties": {
@@ -10635,6 +10683,162 @@
                     "category"
                 ],
                 "title": "RecategorizeExpensesData"
+            },
+            "ReceiptAmountFieldData": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "confidence": {
+                        "$ref": "#/components/schemas/ReceiptFieldConfidence"
+                    }
+                },
+                "required": [
+                    "value",
+                    "confidence"
+                ],
+                "title": "ReceiptAmountFieldData"
+            },
+            "ReceiptDateFieldData": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "confidence": {
+                        "$ref": "#/components/schemas/ReceiptFieldConfidence"
+                    }
+                },
+                "required": [
+                    "value",
+                    "confidence"
+                ],
+                "title": "ReceiptDateFieldData"
+            },
+            "ReceiptFieldConfidence": {
+                "type": "integer",
+                "description": "How much a field read off a receipt deserves a second look. High means the value stood next to its own label (« Total TTC », « Date de facture »); Low means it was the best of several candidates.\n",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "Low",
+                    "Medium",
+                    "High"
+                ],
+                "title": "ReceiptFieldConfidence"
+            },
+            "ReceiptSuggestionData": {
+                "type": "object",
+                "properties": {
+                    "textFound": {
+                        "type": "boolean"
+                    },
+                    "supplier": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ReceiptTextFieldData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "spentOn": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ReceiptDateFieldData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "amountTtc": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ReceiptAmountFieldData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "vat": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ReceiptVatFieldData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ReceiptTextFieldData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "category": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpenseCategory"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "textFound"
+                ],
+                "title": "ReceiptSuggestionData"
+            },
+            "ReceiptTextFieldData": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "string"
+                    },
+                    "confidence": {
+                        "$ref": "#/components/schemas/ReceiptFieldConfidence"
+                    }
+                },
+                "required": [
+                    "value",
+                    "confidence"
+                ],
+                "title": "ReceiptTextFieldData"
+            },
+            "ReceiptVatFieldData": {
+                "type": "object",
+                "properties": {
+                    "treatment": {
+                        "$ref": "#/components/schemas/ExpenseVatTreatment"
+                    },
+                    "rateBp": {
+                        "type": "integer"
+                    },
+                    "confidence": {
+                        "$ref": "#/components/schemas/ReceiptFieldConfidence"
+                    }
+                },
+                "required": [
+                    "treatment",
+                    "rateBp",
+                    "confidence"
+                ],
+                "title": "ReceiptVatFieldData"
             },
             "RecoveryCodesData": {
                 "type": "object",

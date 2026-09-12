@@ -1327,11 +1327,76 @@ export const zPersonalTransferData = z.object({
 });
 
 /**
+ * ReadReceiptData
+ */
+export const zReadReceiptData = z.object({
+    file: z.string()
+});
+
+/**
  * RecategorizeExpensesData
  */
 export const zRecategorizeExpensesData = z.object({
     expenseIds: z.array(z.int()).check(z.minLength(1)),
     category: zExpenseCategory
+});
+
+/**
+ * ReceiptFieldConfidence
+ *
+ * How much a field read off a receipt deserves a second look. High means the value stood next to its own label (« Total TTC », « Date de facture »); Low means it was the best of several candidates.
+ *
+ */
+export const zReceiptFieldConfidence = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * ReceiptAmountFieldData
+ */
+export const zReceiptAmountFieldData = z.object({
+    value: zMoneyData,
+    confidence: zReceiptFieldConfidence
+});
+
+/**
+ * ReceiptDateFieldData
+ */
+export const zReceiptDateFieldData = z.object({
+    value: z.iso.date(),
+    confidence: zReceiptFieldConfidence
+});
+
+/**
+ * ReceiptTextFieldData
+ */
+export const zReceiptTextFieldData = z.object({
+    value: z.string(),
+    confidence: zReceiptFieldConfidence
+});
+
+/**
+ * ReceiptVatFieldData
+ */
+export const zReceiptVatFieldData = z.object({
+    treatment: zExpenseVatTreatment,
+    rateBp: z.int(),
+    confidence: zReceiptFieldConfidence
+});
+
+/**
+ * ReceiptSuggestionData
+ */
+export const zReceiptSuggestionData = z.object({
+    textFound: z.boolean(),
+    supplier: z.nullish(zReceiptTextFieldData),
+    spentOn: z.nullish(zReceiptDateFieldData),
+    amountTtc: z.nullish(zReceiptAmountFieldData),
+    vat: z.nullish(zReceiptVatFieldData),
+    description: z.nullish(zReceiptTextFieldData),
+    category: z.nullish(zExpenseCategory)
 });
 
 /**
@@ -3069,6 +3134,10 @@ export const zPasskeyLoginOptionsResponse = zPasskeyOptionsData;
 export const zLoginWithPasskeyBody = zPasskeyLoginData;
 
 export const zLoginWithPasskeyResponse = zUserData;
+
+export const zReadExpenseReceiptBody = zReadReceiptData;
+
+export const zReadExpenseReceiptResponse = zReceiptSuggestionData;
 
 export const zShowRecoveryCodesResponse = zRecoveryCodesData;
 
