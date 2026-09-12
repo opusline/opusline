@@ -21,10 +21,6 @@ class VatDeclarationData extends Data
         public string $period,
         /** The régime this block was built for, so the client captions it rather than guessing. */
         public VatRegime $regime,
-        /** Case A1 — services sold HT, summed from the invoices paid in the month. Duplicates boxes.salesHt for the current web card; the web rung drops it. */
-        public MoneyData $salesHt,
-        /** The VAT those invoices actually carried, per-invoice actuals — self-assessed TVA excluded. */
-        public MoneyData $collected,
         /**
          * The one rate every paid invoice carries — caption context, not the sum's
          * input. Null once they disagree; the account default on an empty month.

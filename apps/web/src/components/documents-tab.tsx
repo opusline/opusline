@@ -2,6 +2,7 @@ import type { DocumentCategory, DocumentData } from "@opusline/api-client";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Badge } from "@opusline/ui/components/badge";
 import { Button } from "@opusline/ui/components/button";
+import { Dropzone } from "@opusline/ui/components/dropzone";
 import { Input } from "@opusline/ui/components/input";
 import { NativeSelect } from "@opusline/ui/components/native-select";
 import { cn } from "@opusline/ui/lib/utils";
@@ -82,7 +83,6 @@ export function DocumentsTab({
   const [queue, setQueue] = useState<QueuedUpload[]>([]);
   const [rejectedFiles, setRejectedFiles] = useState<string[]>([]);
   const [hasDeleteError, setHasDeleteError] = useState(false);
-  const [isDragOver, setIsDragOver] = useState(false);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<DocumentCategoryFilter>("all");
 
@@ -189,34 +189,13 @@ export function DocumentsTab({
 
   return (
     <div className="flex flex-col gap-3.5">
-      <label
-        className={cn(
-          "flex cursor-pointer items-center gap-3.5 rounded-md border border-border-3 border-dashed bg-card px-5 py-4.5 transition-colors",
-          "hover:border-muted-foreground-6 has-[input:focus-visible]:border-primary has-[input:focus-visible]:ring-3 has-[input:focus-visible]:ring-primary/20",
-          isDragOver && "border-primary bg-primary/7",
-        )}
-        onDragLeave={() => setIsDragOver(false)}
-        onDragOver={(event) => {
-          event.preventDefault();
-          setIsDragOver(true);
-        }}
-        onDrop={(event) => {
-          event.preventDefault();
-          setIsDragOver(false);
-          addFiles(event.dataTransfer.files);
-        }}
+      <Dropzone
+        accept={DOCUMENT_ACCEPT}
+        aria-label={m.documents_add_aria()}
+        className="h-auto gap-3.5 bg-card px-5 py-4.5"
+        multiple
+        onFiles={addFiles}
       >
-        <input
-          accept={DOCUMENT_ACCEPT}
-          aria-label={m.documents_add_aria()}
-          className="sr-only"
-          multiple
-          onChange={(event) => {
-            addFiles(event.target.files ?? []);
-            event.target.value = "";
-          }}
-          type="file"
-        />
         <UploadIcon
           aria-hidden
           className="size-4.5 shrink-0 text-muted-foreground-2"
@@ -229,7 +208,7 @@ export function DocumentsTab({
             {m.documents_drop_formats()}
           </span>
         </span>
-      </label>
+      </Dropzone>
 
       {rejectedFiles.length > 0 && (
         <Alert variant="warn">

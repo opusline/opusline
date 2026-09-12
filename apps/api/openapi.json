@@ -13522,12 +13522,6 @@
                     "regime": {
                         "$ref": "#/components/schemas/VatRegime"
                     },
-                    "salesHt": {
-                        "$ref": "#/components/schemas/MoneyData"
-                    },
-                    "collected": {
-                        "$ref": "#/components/schemas/MoneyData"
-                    },
                     "rateBp": {
                         "type": [
                             "integer",
@@ -13576,8 +13570,6 @@
                 "required": [
                     "period",
                     "regime",
-                    "salesHt",
-                    "collected",
                     "rateBp",
                     "boxes",
                     "invoiceCount",
