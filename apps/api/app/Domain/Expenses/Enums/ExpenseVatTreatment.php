@@ -22,4 +22,10 @@ enum ExpenseVatTreatment: int
 
     /** No TVA at all: insurance, bank fees, stamps, CFE. */
     case Exempt = 3;
+
+    /** Whether the user self-assesses the French TVA — due and deducted on the same CA3, so it nets to nothing. */
+    public function isReverseCharge(): bool
+    {
+        return $this === self::ReverseChargeEu || $this === self::ReverseChargeNonEu;
+    }
 }

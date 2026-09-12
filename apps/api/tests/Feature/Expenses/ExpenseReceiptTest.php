@@ -3,29 +3,20 @@
 declare(strict_types=1);
 
 use App\Domain\Expenses\Factories\ExpenseFactory;
-use App\Domain\Expenses\Models\Expense;
 use App\Domain\Users\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Testing\TestResponse;
 
 beforeEach(function (): void {
     freezeTodayAtUtcNoon();
     Storage::fake('local');
 });
 
-function attachReceipt(User $user, Expense $expense, string|UploadedFile $file = 'facture-9921.pdf'): TestResponse
-{
-    return test()->actingAs($user)->post("/api/expenses/{$expense->id}/receipt", [
-        'file' => is_string($file) ? UploadedFile::fake()->createWithContent($file, '%PDF-1.4 fake receipt') : $file,
-    ], ['Accept' => 'application/json']);
-}
-
 test('attaches a receipt and answers with the month showing it', function (): void {
     $user = User::factory()->create();
     $expense = expenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-08-10'));
 
-    $response = attachReceipt($user, $expense)
+    $response = attachReceiptTo($user, $expense)
         ->assertCreated()
         ->assertJsonPath('month', '2026-08')
         ->assertJsonPath('expenses.0.receipt.fileName', 'facture-9921.pdf');
@@ -38,8 +29,8 @@ test('a second upload replaces the receipt rather than piling up', function (): 
     $user = User::factory()->create();
     $expense = expenseOwnedBy($user);
 
-    attachReceipt($user, $expense, 'first.pdf')->assertCreated();
-    attachReceipt($user, $expense, 'corrected.pdf')
+    attachReceiptTo($user, $expense, 'first.pdf')->assertCreated();
+    attachReceiptTo($user, $expense, 'corrected.pdf')
         ->assertCreated()
         ->assertJsonPath('expenses.0.receipt.fileName', 'corrected.pdf');
 
@@ -50,7 +41,7 @@ test('rejects a file type a receipt never comes as', function (): void {
     $user = User::factory()->create();
     $expense = expenseOwnedBy($user);
 
-    attachReceipt($user, $expense, UploadedFile::fake()->create('run.exe', 100, 'application/x-msdownload'))
+    attachReceiptTo($user, $expense, UploadedFile::fake()->create('run.exe', 100, 'application/x-msdownload'))
         ->assertUnprocessable()
         ->assertJsonValidationErrors('file');
 });
@@ -59,7 +50,7 @@ test('rejects an oversized receipt', function (): void {
     $user = User::factory()->create();
     $expense = expenseOwnedBy($user);
 
-    attachReceipt($user, $expense, UploadedFile::fake()->create('scan.pdf', 21_000, 'application/pdf'))
+    attachReceiptTo($user, $expense, UploadedFile::fake()->create('scan.pdf', 21_000, 'application/pdf'))
         ->assertUnprocessable()
         ->assertJsonValidationErrors('file');
 });
@@ -67,7 +58,7 @@ test('rejects an oversized receipt', function (): void {
 test('streams the receipt inline with a restrictive csp', function (): void {
     $user = User::factory()->create();
     $expense = expenseOwnedBy($user);
-    attachReceipt($user, $expense)->assertCreated();
+    attachReceiptTo($user, $expense)->assertCreated();
 
     $response = $this->actingAs($user)
         ->get("/api/expenses/{$expense->id}/receipt")
@@ -99,7 +90,7 @@ test('refuses a receipt whose name hides an executable segment, as a 422 not a c
     $user = User::factory()->create();
     $expense = expenseOwnedBy($user);
 
-    attachReceipt($user, $expense, 'facture.php.pdf')
+    attachReceiptTo($user, $expense, 'facture.php.pdf')
         ->assertUnprocessable()
         ->assertJsonValidationErrors('file');
 
@@ -109,7 +100,7 @@ test('refuses a receipt whose name hides an executable segment, as a 422 not a c
 test('detaches the receipt and answers with the month', function (): void {
     $user = User::factory()->create();
     $expense = expenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-08-10'));
-    attachReceipt($user, $expense)->assertCreated();
+    attachReceiptTo($user, $expense)->assertCreated();
 
     $this->actingAs($user)
         ->deleteJson("/api/expenses/{$expense->id}/receipt")
@@ -123,9 +114,35 @@ test('detaches the receipt and answers with the month', function (): void {
 test('deleting the expense takes its receipt along', function (): void {
     $user = User::factory()->create();
     $expense = expenseOwnedBy($user);
-    attachReceipt($user, $expense)->assertCreated();
+    attachReceiptTo($user, $expense)->assertCreated();
 
     $this->actingAs($user)->deleteJson("/api/expenses/{$expense->id}")->assertNoContent();
 
     $this->assertDatabaseMissing('media', ['model_type' => 'expense', 'model_id' => $expense->id]);
+});
+
+test('detaching the receipt of a deducted purchase regularises it on the next open CA3', function (): void {
+    freezeTodayAtUtcNoon();
+    $user = vatLiableUser();
+    $expense = receiptedExpenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-07-05'));
+    ca3DeclaredFor($user, '2026-07');
+
+    $this->actingAs($user)
+        ->deleteJson("/api/expenses/{$expense->id}/receipt")
+        ->assertOk()
+        ->assertJsonPath('expenses.0.vatClaimPeriod', '2026-08')
+        ->assertJsonPath('expenses.0.isRegularisation', true);
+});
+
+test('detaching nothing from a blocked purchase in a declared month moves nothing', function (): void {
+    freezeTodayAtUtcNoon();
+    $user = vatLiableUser();
+    $expense = expenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-07-05'));
+    ca3DeclaredFor($user, '2026-07');
+
+    $this->actingAs($user)
+        ->deleteJson("/api/expenses/{$expense->id}/receipt")
+        ->assertOk()
+        ->assertJsonPath('expenses.0.vatClaimPeriod', '2026-07')
+        ->assertJsonPath('expenses.0.isRegularisation', false);
 });
