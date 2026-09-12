@@ -49,13 +49,22 @@ const meta = {
     ),
     children: (
       <JournalTab
+        isBulkBusy={false}
         isRefreshing={false}
+        isUndoBusy={false}
         month={expensesMonth()}
         onAttachReceipt={() => {}}
+        onCreateFromDebit={() => {}}
+        onDeferSelectedVat={() => {}}
+        onLinkReceiptHint={() => {}}
+        onRecategorize={() => {}}
+        onUndoDeclared={() => {}}
         onDelete={() => {}}
         onDetachReceipt={() => {}}
+        onDeferVat={() => {}}
         onDuplicate={() => {}}
         onEdit={() => {}}
+        onReintegrateVat={() => {}}
         unit="ht"
         uploadingExpenseId={null}
       />

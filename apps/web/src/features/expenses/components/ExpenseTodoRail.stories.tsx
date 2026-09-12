@@ -1,0 +1,31 @@
+import type { Meta, StoryObj } from "@storybook/react";
+
+import { expensesMonth } from "../lib/fixtures";
+import { ExpenseTodoRail } from "./expense-todo-rail";
+
+const meta = {
+  title: "Web/Expenses/ExpenseTodoRail",
+  component: ExpenseTodoRail,
+  tags: ["autodocs"],
+  args: {
+    month: expensesMonth(),
+    uploadingExpenseId: null,
+    onAttachReceipt: () => {},
+    onCreateFromDebit: () => {},
+  },
+  decorators: [
+    (Story) => (
+      <div className="w-66">
+        <Story />
+      </div>
+    ),
+  ],
+} satisfies Meta<typeof ExpenseTodoRail>;
+
+export default meta;
+type Story = StoryObj<typeof ExpenseTodoRail>;
+
+/** One card per kind: a receipt expected, a debit nothing matches, an annual debit ahead. */
+export const Default: Story = {};
+
+export const Uploading: Story = { args: { uploadingExpenseId: 2 } };
