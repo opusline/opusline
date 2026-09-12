@@ -8,6 +8,7 @@ use App\Domain\Expenses\Enums\ExpenseCategory;
 use App\Domain\Expenses\Enums\ExpenseVatTreatment;
 use App\Domain\Expenses\Enums\SubscriptionPeriodicity;
 use App\Domain\Expenses\Factories\SubscriptionFactory;
+use App\Domain\Expenses\Subscriptions\OccurrenceSchedule;
 use App\Domain\Expenses\Vat\ExpenseAmounts;
 use App\Domain\Shared\Casts\CalendarDate;
 use App\Domain\Shared\Routing\OwnedRouteBinding;
@@ -41,6 +42,7 @@ use Money\Money as MoneyPhp;
  * @property int $debit_day
  * @property ?int $debit_month
  * @property CarbonImmutable $started_on
+ * @property ?CarbonImmutable $occurrences_from
  * @property ?CarbonImmutable $cancelled_on
  * @property bool $is_paused
  * @property bool $auto_create_expenses
@@ -63,6 +65,7 @@ use Money\Money as MoneyPhp;
     'debit_day',
     'debit_month',
     'started_on',
+    'occurrences_from',
     'cancelled_on',
     'is_paused',
     'auto_create_expenses',
@@ -91,6 +94,7 @@ class Subscription extends Model
             'vat_treatment' => ExpenseVatTreatment::class,
             'periodicity' => SubscriptionPeriodicity::class,
             'started_on' => CalendarDate::class,
+            'occurrences_from' => CalendarDate::class,
             'cancelled_on' => CalendarDate::class,
             'is_paused' => 'boolean',
             'auto_create_expenses' => 'boolean',
@@ -114,6 +118,12 @@ class Subscription extends Model
         return $this->belongsTo(User::class);
     }
 
+    /** @return HasMany<Expense, $this> */
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(Expense::class);
+    }
+
     /** @return HasMany<SubscriptionAmount, $this> */
     public function amounts(): HasMany
     {
@@ -124,6 +134,21 @@ class Subscription extends Model
     public function isActiveOn(CarbonImmutable $day): bool
     {
         return ! $this->is_paused && ($this->cancelled_on === null || $this->cancelled_on->greaterThanOrEqualTo($day));
+    }
+
+    /** A next debit exists: a pause, or a cancellation with no debit left before it, leaves none. */
+    public function stillDebitsAfter(CarbonImmutable $today): bool
+    {
+        return new OccurrenceSchedule($this)->nextDebitOn($today) instanceof CarbonImmutable;
+    }
+
+    /**
+     * The first day an occurrence may be written for: the start, or the
+     * later day the subscription was recorded or resumed on.
+     */
+    public function occurrencesFrom(): CarbonImmutable
+    {
+        return max($this->started_on, $this->occurrences_from ?? $this->started_on);
     }
 
     /**

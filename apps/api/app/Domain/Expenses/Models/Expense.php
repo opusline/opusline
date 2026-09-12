@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -33,6 +34,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  *
  * @property int $id
  * @property int $user_id
+ * @property ?int $subscription_id
+ * @property ?string $subscription_period_key
  * @property string $supplier
  * @property ExpenseCategory $category
  * @property ?string $description
@@ -46,9 +49,13 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property string $currency
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
+ * @property ?CarbonImmutable $deleted_at
  * @property-read User $user
+ * @property-read ?Subscription $subscription
  */
 #[Fillable([
+    'subscription_id',
+    'subscription_period_key',
     'supplier',
     'category',
     'description',
@@ -67,6 +74,7 @@ class Expense extends Model implements HasMedia
     use HasFactory;
 
     use InteractsWithMedia;
+    use SoftDeletes;
 
     public const string RECEIPT_COLLECTION = 'receipt';
 
@@ -123,6 +131,12 @@ class Expense extends Model implements HasMedia
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** @return BelongsTo<Subscription, $this> */
+    public function subscription(): BelongsTo
+    {
+        return $this->belongsTo(Subscription::class);
     }
 
     /** The `Y-m` key of the journal this purchase is listed in. */

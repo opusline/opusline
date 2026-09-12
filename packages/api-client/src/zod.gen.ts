@@ -506,6 +506,22 @@ export const zExpenseSelectionData = z.object({
 });
 
 /**
+ * ExpenseTodoKind
+ *
+ * The cards of the journal's « À traiter » rail.
+ * | |
+ * |---|
+ * | `0` <br/> A subscription's debit was recorded; the receipt is still to be linked. |
+ * | `1` <br/> A recurring bank debit no expense matches (a later rung fills it). |
+ * | `2` <br/> An annual subscription debits within the month. |
+ */
+export const zExpenseTodoKind = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
  * ExpenseVatStatus
  *
  * Where a purchase's TVA stands with the CA3. Derived on every read from the receipt, the claim period and the declared months — never stored, so un-marking a declaration honestly flips the rows back.
@@ -559,7 +575,9 @@ export const zExpenseInputData = z.object({
     vatTreatment: zExpenseVatTreatment,
     vatRateBp: z.int().check(z.gte(0), z.lte(10000)),
     proShareBp: z.optional(z.int().check(z.gte(0), z.lte(10000))),
-    description: z.nullish(z.string().check(z.maxLength(255)))
+    description: z.nullish(z.string().check(z.maxLength(255))),
+    subscriptionId: z.nullish(z.int().check(z.gte(1))),
+    recurringDebitDay: z.nullish(z.int().check(z.gte(1), z.lte(31)))
 });
 
 /**
@@ -799,6 +817,7 @@ export const zBankProvisionsData = z.object({
     vat: z.nullable(zBankProvisionData),
     urssaf: z.nullable(zBankProvisionData),
     cfe: z.nullable(zBankProvisionData),
+    subscriptions: z.nullable(zBankProvisionData),
     buffer: z.nullable(zMoneyData),
     total: zMoneyData
 });
@@ -895,32 +914,10 @@ export const zDeclarationHistoryRowData = z.object({
  * ExpenseCategoryTotalData
  */
 export const zExpenseCategoryTotalData = z.object({
-    category: zExpenseCategory,
+    category: z.nullable(zExpenseCategory),
     ht: zMoneyData,
     ttc: zMoneyData,
     shareBp: z.int()
-});
-
-/**
- * ExpenseData
- */
-export const zExpenseData = z.object({
-    id: z.int(),
-    supplier: z.string(),
-    spentOn: z.iso.date(),
-    category: zExpenseCategory,
-    description: z.nullable(z.string()),
-    amountHt: zMoneyData,
-    vat: zMoneyData,
-    amountTtc: zMoneyData,
-    recoverableVat: zMoneyData,
-    vatTreatment: zExpenseVatTreatment,
-    vatRateBp: z.int(),
-    proShareBp: z.int(),
-    receipt: z.nullable(zExpenseReceiptData),
-    vatStatus: zExpenseVatStatus,
-    vatClaimPeriod: z.string(),
-    isRegularisation: z.boolean()
 });
 
 /**
@@ -940,6 +937,31 @@ export const zExpenseRegimeProjectionData = z.object({
     annualRevenueHt: zMoneyData,
     abatement: zMoneyData,
     microIsFavourable: z.boolean()
+});
+
+/**
+ * ExpenseTodoData
+ */
+export const zExpenseTodoData = z.object({
+    kind: zExpenseTodoKind,
+    expenseId: z.nullable(z.int()),
+    subscriptionId: z.nullable(z.int()),
+    bankMovementId: z.nullable(z.int()),
+    label: z.string(),
+    amount: zMoneyData,
+    date: z.iso.date()
+});
+
+/**
+ * ExpensesSubscriptionsData
+ */
+export const zExpensesSubscriptionsData = z.object({
+    monthlyHt: zMoneyData,
+    monthlyTtc: zMoneyData,
+    yearlyHt: zMoneyData,
+    yearlyTtc: zMoneyData,
+    count: z.int(),
+    annualCount: z.int()
 });
 
 /**
@@ -1469,20 +1491,6 @@ export const zExpensesVatSummaryData = z.object({
 });
 
 /**
- * ExpensesMonthData
- */
-export const zExpensesMonthData = z.object({
-    month: z.string(),
-    declaredOn: z.nullable(z.iso.date()),
-    vat: z.nullable(zExpensesVatSummaryData),
-    totals: zExpensesTotalsData,
-    categories: z.array(zExpenseCategoryTotalData),
-    series: z.array(zExpenseMonthPointData),
-    projection: z.nullable(zExpenseRegimeProjectionData),
-    expenses: z.array(zExpenseData)
-});
-
-/**
  * FixedPriceBudgetData
  */
 export const zFixedPriceBudgetData = z.object({
@@ -1643,7 +1651,38 @@ export const zSubscriptionKpisData = z.object({
     provisionedCount: z.int(),
     provisionedPerMonth: zMoneyData,
     recoverableVatPerYear: zMoneyData,
-    reverseChargedVatPerYear: zMoneyData
+    reverseChargedVatPerYear: zMoneyData,
+    missingReceipts: z.int()
+});
+
+/**
+ * SubscriptionOccurrenceState
+ *
+ * One square of the twelve-month strip.
+ * | |
+ * |---|
+ * | `0` <br/> The debit has its expense and the expense its receipt. |
+ * | `1` <br/> The debit has its expense, still waiting for the receipt. |
+ * | `2` <br/>  |
+ * | `3` <br/> A future debit that will not happen while the subscription is paused. |
+ * | `4` <br/> A past debit with no expense — before the subscription was recorded, or not auto-created. |
+ */
+export const zSubscriptionOccurrenceState = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4)
+]);
+
+/**
+ * SubscriptionOccurrenceData
+ */
+export const zSubscriptionOccurrenceData = z.object({
+    period: z.string(),
+    debitOn: z.iso.date(),
+    state: zSubscriptionOccurrenceState,
+    expenseId: z.nullable(z.int())
 });
 
 /**
@@ -1654,6 +1693,54 @@ export const zSubscriptionPeriodicity = z.union([
     z.literal(1),
     z.literal(2)
 ]);
+
+/**
+ * ExpenseSubscriptionData
+ */
+export const zExpenseSubscriptionData = z.object({
+    id: z.int(),
+    supplier: z.string(),
+    periodicity: zSubscriptionPeriodicity
+});
+
+/**
+ * ExpenseData
+ */
+export const zExpenseData = z.object({
+    id: z.int(),
+    supplier: z.string(),
+    spentOn: z.iso.date(),
+    category: zExpenseCategory,
+    description: z.nullable(z.string()),
+    amountHt: zMoneyData,
+    vat: zMoneyData,
+    amountTtc: zMoneyData,
+    recoverableVat: zMoneyData,
+    vatTreatment: zExpenseVatTreatment,
+    vatRateBp: z.int(),
+    proShareBp: z.int(),
+    receipt: z.nullable(zExpenseReceiptData),
+    subscription: z.nullable(zExpenseSubscriptionData),
+    vatStatus: zExpenseVatStatus,
+    vatClaimPeriod: z.string(),
+    isRegularisation: z.boolean()
+});
+
+/**
+ * ExpensesMonthData
+ */
+export const zExpensesMonthData = z.object({
+    month: z.string(),
+    declaredOn: z.nullable(z.iso.date()),
+    vat: z.nullable(zExpensesVatSummaryData),
+    totals: zExpensesTotalsData,
+    subscriptions: z.nullable(zExpensesSubscriptionsData),
+    categories: z.array(zExpenseCategoryTotalData),
+    series: z.array(zExpenseMonthPointData),
+    projection: z.nullable(zExpenseRegimeProjectionData),
+    todo: z.array(zExpenseTodoData),
+    expenses: z.array(zExpenseData)
+});
 
 /**
  * SubscriptionData
@@ -1681,7 +1768,8 @@ export const zSubscriptionData = z.object({
     isPaused: z.boolean(),
     cancelledOn: z.nullable(z.iso.date()),
     nextDebitOn: z.nullable(z.iso.date()),
-    amounts: z.array(zSubscriptionAmountData)
+    amounts: z.array(zSubscriptionAmountData),
+    occurrences: z.array(zSubscriptionOccurrenceData)
 });
 
 /**

@@ -8,10 +8,13 @@ use App\Domain\Expenses\Data\SubscriptionAmountChangeData;
 use App\Domain\Expenses\Data\SubscriptionCategoryTotalData;
 use App\Domain\Expenses\Data\SubscriptionData;
 use App\Domain\Expenses\Data\SubscriptionKpisData;
+use App\Domain\Expenses\Data\SubscriptionOccurrenceData;
 use App\Domain\Expenses\Data\SubscriptionsData;
 use App\Domain\Expenses\Data\UpcomingDebitData;
 use App\Domain\Expenses\Enums\ExpenseCategory;
+use App\Domain\Expenses\Enums\SubscriptionOccurrenceState;
 use App\Domain\Expenses\Enums\SubscriptionPeriodicity;
+use App\Domain\Expenses\Models\Expense;
 use App\Domain\Expenses\Models\Subscription;
 use App\Domain\Expenses\Models\SubscriptionAmount;
 use App\Domain\Expenses\Subscriptions\OccurrenceSchedule;
@@ -22,6 +25,7 @@ use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
 use Illuminate\Support\Collection;
 use Money\Money as MoneyPhp;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * The Abonnements tab. Two queries — the subscriptions and their price
@@ -31,11 +35,17 @@ class ListSubscriptions
 {
     private const int UPCOMING_DAYS = 30;
 
+    private const int STRIP_MONTHS = 12;
+
+    public function __construct(private readonly MaterialiseSubscriptionOccurrences $materialiseSubscriptionOccurrences) {}
+
     public function handle(User $user): SubscriptionsData
     {
         $settings = $user->settingsOrFail();
         $today = $settings->today();
         $currency = $settings->currency->value;
+
+        $this->materialiseSubscriptionOccurrences->handle($user, $today);
 
         $subscriptions = $user->subscriptions()
             ->with('amounts')
@@ -46,7 +56,7 @@ class ListSubscriptions
         // Still debiting means a next debit exists: a pause or a cancellation
         // dated today or earlier leaves none, one dated ahead still does.
         $stillDebiting = $subscriptions
-            ->filter(static fn (Subscription $subscription): bool => new OccurrenceSchedule($subscription)->nextDebitOn($today) instanceof CarbonImmutable)
+            ->filter(static fn (Subscription $subscription): bool => $subscription->stillDebitsAfter($today))
             ->keyBy('id');
         $subscriptions = $subscriptions
             ->sortBy(static fn (Subscription $subscription): int => match (true) {
@@ -57,11 +67,16 @@ class ListSubscriptions
             ->values();
         $active = $stillDebiting->values();
         $categories = $this->categories($active, $today);
+        $stripStart = $today->subMonths(self::STRIP_MONTHS - 1)->startOfMonth();
+        $occurrences = $this->occurrences($user, $subscriptions, $stripStart, $today);
+        $missingReceipts = collect($occurrences)->flatten(1)
+            ->filter(static fn (SubscriptionOccurrenceData $occurrence): bool => $occurrence->state === SubscriptionOccurrenceState::Missing)
+            ->count();
 
         return new SubscriptionsData(
-            kpis: $this->kpis($active, $today, $currency),
+            kpis: $this->kpis($active, $today, $currency, $missingReceipts),
             subscriptions: array_values(array_map(
-                static fn (Subscription $subscription): SubscriptionData => SubscriptionData::fromModel($subscription, $today),
+                static fn (Subscription $subscription): SubscriptionData => SubscriptionData::fromModel($subscription, $today, $occurrences[$subscription->id] ?? []),
                 $subscriptions->all(),
             )),
             upcoming: $this->upcoming($active, $today),
@@ -78,7 +93,7 @@ class ListSubscriptions
     /**
      * @param  Collection<int, Subscription>  $active
      */
-    private function kpis(Collection $active, CarbonImmutable $today, string $currency): SubscriptionKpisData
+    private function kpis(Collection $active, CarbonImmutable $today, string $currency, int $missingReceipts): SubscriptionKpisData
     {
         $monthly = $yearly = $provisioned = $recoverable = $reverseCharged = new Money(0, $currency);
         $monthlyCount = $annualCount = $provisionedCount = 0;
@@ -118,7 +133,47 @@ class ListSubscriptions
             provisionedPerMonth: MoneyData::fromMoney($provisioned),
             recoverableVatPerYear: MoneyData::fromMoney($recoverable),
             reverseChargedVatPerYear: MoneyData::fromMoney($reverseCharged),
+            missingReceipts: $missingReceipts,
         );
+    }
+
+    /**
+     * The twelve-month strip of each subscription: every debit of the window
+     * with the expense it became, when it did — one query for the lot.
+     *
+     * @param  Collection<int, Subscription>  $subscriptions
+     * @return array<int, list<SubscriptionOccurrenceData>>
+     */
+    private function occurrences(User $user, Collection $subscriptions, CarbonImmutable $from, CarbonImmutable $today): array
+    {
+        $expenses = $user->expenses()
+            ->whereNotNull('subscription_id')
+            ->where('spent_on', '>=', $from->toDateString())
+            ->with('media')
+            ->get()
+            ->keyBy(static fn (Expense $expense): string => "{$expense->subscription_id}:{$expense->subscription_period_key}");
+        $to = $today->endOfMonth();
+        $strip = [];
+
+        foreach ($subscriptions as $subscription) {
+            $rows = [];
+
+            foreach (new OccurrenceSchedule($subscription)->debitsBetween($from, $to) as $debitOn) {
+                $periodKey = $subscription->periodicity->periodKey($debitOn);
+                $expense = $expenses->get("{$subscription->id}:{$periodKey}");
+
+                $rows[] = new SubscriptionOccurrenceData(
+                    period: $periodKey,
+                    debitOn: $debitOn,
+                    state: $this->occurrenceState($expense, $debitOn, $subscription, $today),
+                    expenseId: $expense?->id,
+                );
+            }
+
+            $strip[$subscription->id] = $rows;
+        }
+
+        return $strip;
     }
 
     /**
@@ -169,6 +224,19 @@ class ListSubscriptions
         usort($lines, static fn (UpcomingDebitData $a, UpcomingDebitData $b): int => [$a->dueOn->toDateString(), $a->supplier] <=> [$b->dueOn->toDateString(), $b->supplier]);
 
         return $lines;
+    }
+
+    private function occurrenceState(?Expense $expense, CarbonImmutable $debitOn, Subscription $subscription, CarbonImmutable $today): SubscriptionOccurrenceState
+    {
+        if ($expense instanceof Expense) {
+            return $expense->receipt() instanceof Media ? SubscriptionOccurrenceState::Linked : SubscriptionOccurrenceState::Missing;
+        }
+
+        if ($debitOn->lessThanOrEqualTo($today)) {
+            return SubscriptionOccurrenceState::Inactive;
+        }
+
+        return $subscription->is_paused ? SubscriptionOccurrenceState::Paused : SubscriptionOccurrenceState::Future;
     }
 
     /**

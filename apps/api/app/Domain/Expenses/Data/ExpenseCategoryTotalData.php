@@ -11,7 +11,8 @@ use Spatie\LaravelData\Data;
 class ExpenseCategoryTotalData extends Data
 {
     public function __construct(
-        public ExpenseCategory $category,
+        /** Null for the « Abonnements » row: the month's subscription debits, whatever their category. */
+        public ?ExpenseCategory $category,
         public MoneyData $ht,
         public MoneyData $ttc,
         /** This category's share of the month's largest one, for the bar. */
