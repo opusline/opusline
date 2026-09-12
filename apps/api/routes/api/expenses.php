@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Expenses\Controllers\ExpenseController;
 use App\Http\Expenses\Controllers\ExpenseReceiptController;
+use App\Http\Expenses\Controllers\ReceiptReadingController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function (): void {
@@ -20,6 +21,10 @@ Route::middleware('auth:sanctum')->group(function (): void {
 
     Route::post('/expenses/vat-deferrals', [ExpenseController::class, 'deferVat'])
         ->name('deferExpensesVat');
+
+    Route::post('/expenses/receipt-reading', ReceiptReadingController::class)
+        ->middleware('throttle:uploads')
+        ->name('readExpenseReceipt');
 
     Route::delete('/expenses/{expense}/vat-deferral', [ExpenseController::class, 'reintegrateVat'])
         ->whereNumber('expense')
