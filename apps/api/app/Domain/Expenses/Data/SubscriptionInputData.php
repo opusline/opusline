@@ -6,53 +6,59 @@ namespace App\Domain\Expenses\Data;
 
 use App\Domain\Expenses\Enums\ExpenseCategory;
 use App\Domain\Expenses\Enums\ExpenseVatTreatment;
+use App\Domain\Expenses\Enums\SubscriptionPeriodicity;
 use App\Domain\Shared\Calendar\CivilMonth;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Money\Rate;
-use App\Domain\Shared\Validation\BeforeOrEqualAccountToday;
 use Spatie\LaravelData\Attributes\Validation\AfterOrEqual;
 use Spatie\LaravelData\Attributes\Validation\Between;
+use Spatie\LaravelData\Attributes\Validation\BooleanType;
 use Spatie\LaravelData\Attributes\Validation\DateFormat;
 use Spatie\LaravelData\Attributes\Validation\Enum;
 use Spatie\LaravelData\Attributes\Validation\IntegerType;
 use Spatie\LaravelData\Attributes\Validation\Max;
 use Spatie\LaravelData\Attributes\Validation\Min;
-use Spatie\LaravelData\Attributes\Validation\Rule;
 use Spatie\LaravelData\Attributes\Validation\StringType;
+use Spatie\LaravelData\Attributes\Validation\Url;
 use Spatie\LaravelData\Data;
 
 /**
- * One shape for creating and replacing: the sheet always resends every field
- * it shows, so a PUT is a full replace. The rate-versus-treatment consistency
- * is a cross-field rule and lives in ValidateVatRate.
+ * One shape for creating and replacing a subscription: the sheet resends
+ * every field it shows. The amount is the price in force from today — a
+ * change dated elsewhere goes through ChangeSubscriptionAmountData. The
+ * cross-field rules live in ValidateSubscriptionTerms.
  */
-class ExpenseInputData extends Data
+class SubscriptionInputData extends Data
 {
     public function __construct(
         #[StringType, Min(1), Max(120)]
         public string $supplier,
-        /** The receipt's date; a purchase already made is never post-dated, and the journal starts at 1900. */
-        #[DateFormat('Y-m-d'), AfterOrEqual(CivilMonth::EARLIEST_DAY), Rule(new BeforeOrEqualAccountToday)]
-        public string $spentOn,
         #[Enum(ExpenseCategory::class)]
         public ExpenseCategory $category,
-        /** What the receipt says, TVA included; the HT figure is derived from it. */
-        public MoneyData $amountTtc,
+        public MoneyData $amountHt,
         #[Enum(ExpenseVatTreatment::class)]
         public ExpenseVatTreatment $vatTreatment,
-        /** In basis points, whatever the account's country charges; 0 is a receipt whose TVA is not tracked. */
         #[IntegerType, Between(0, Rate::BASIS_POINTS)]
         public int $vatRateBp,
-        /** The share used for the business, in basis points; only that share of the TVA is recoverable. */
+        #[Enum(SubscriptionPeriodicity::class)]
+        public SubscriptionPeriodicity $periodicity,
+        #[IntegerType, Between(1, 31)]
+        public int $debitDay,
+        #[DateFormat('Y-m-d'), AfterOrEqual(CivilMonth::EARLIEST_DAY)]
+        public string $startedOn,
         #[IntegerType, Min(0), Max(Rate::BASIS_POINTS)]
         public int $proShareBp = Rate::BASIS_POINTS,
+        /** The month an annual subscription debits in — required then, meaningless otherwise (ValidateSubscriptionTerms). */
+        #[IntegerType, Between(1, 12)]
+        public ?int $debitMonth = null,
         #[StringType, Max(255)]
         public ?string $description = null,
+        #[StringType, Url, Max(2048)]
+        public ?string $customerSpaceUrl = null,
+        #[BooleanType]
+        public bool $autoCreateExpenses = true,
+        /** Annual only: spread the debit over the year on the compte pro. */
+        #[BooleanType]
+        public bool $provisionMonthly = false,
     ) {}
-
-    /** The `Y-m` journal the purchase is listed in. */
-    public function month(): string
-    {
-        return substr($this->spentOn, 0, 7);
-    }
 }

@@ -15,8 +15,13 @@ use App\Domain\Cra\Factories\CraFactory;
 use App\Domain\Cra\Models\Cra;
 use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
 use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
+use App\Domain\Expenses\Enums\ExpenseCategory;
+use App\Domain\Expenses\Enums\ExpenseVatTreatment;
+use App\Domain\Expenses\Enums\SubscriptionPeriodicity;
 use App\Domain\Expenses\Factories\ExpenseFactory;
+use App\Domain\Expenses\Factories\SubscriptionFactory;
 use App\Domain\Expenses\Models\Expense;
+use App\Domain\Expenses\Models\Subscription;
 use App\Domain\Invoices\Factories\InvoiceFactory;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Factories\MissionFactory;
@@ -387,6 +392,38 @@ function receiptedExpenseOwnedBy(User $user, ?callable $configure = null): Expen
         ->toMediaCollection(Expense::RECEIPT_COLLECTION);
 
     return $expense->fresh() ?? $expense;
+}
+
+/**
+ * A subscription of the given user, priced at the factory's opening amount.
+ *
+ * @param  (callable(SubscriptionFactory): SubscriptionFactory)|null  $configure
+ */
+function subscriptionOwnedBy(User $user, ?callable $configure = null): Subscription
+{
+    return configuredFactory(Subscription::factory(), $configure)->create(['user_id' => $user->id]);
+}
+
+/**
+ * The subscription sheet as it is sent: a monthly host at 24 € HT.
+ *
+ * @param  array<string, mixed>  $overrides
+ * @return array<string, mixed>
+ */
+function subscriptionPayload(array $overrides = []): array
+{
+    return [
+        'supplier' => 'Nordlys Cloud',
+        'category' => ExpenseCategory::Hosting->value,
+        'description' => 'Hébergement · plan Pro',
+        'amountHt' => ['amount' => 2_400, 'currency' => 'EUR'],
+        'vatTreatment' => ExpenseVatTreatment::Domestic->value,
+        'vatRateBp' => 2_000,
+        'periodicity' => SubscriptionPeriodicity::Monthly->value,
+        'debitDay' => 5,
+        'startedOn' => '2026-01-05',
+        ...$overrides,
+    ];
 }
 
 /** An account on the réel normal — the one régime that deducts TVA purchase by purchase. */
