@@ -13,6 +13,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.27.0",
+    date: "2026-09-12",
+    items: [
+      {
+        kind: "improved",
+        text: "Self-hosters who plugged Sentry in can send a test error from the /health page to check that browser reports arrive.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.26.0",
     date: "2026-09-12",
     items: [
