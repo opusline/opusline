@@ -732,6 +732,8 @@
   "fiscality_vat_name": "VAT",
   "fiscality_vat_rate_label": "Default VAT",
   "fiscality_vat_zero_hint": "Set 0 if you do not charge VAT.",
+  "health_sentry_test_button": "Send a test error to Sentry",
+  "health_sentry_test_hint": "This instance reports browser errors to Sentry. Send a deliberate error to check that it arrives.",
   "instance_backup_days_ago": [
     {
       "declarations": ["input count", "local countPlural = count: plural"],

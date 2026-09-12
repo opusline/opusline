@@ -732,6 +732,8 @@
   "fiscality_vat_name": "TVA",
   "fiscality_vat_rate_label": "TVA par défaut",
   "fiscality_vat_zero_hint": "Mettez 0 si vous ne facturez pas de TVA.",
+  "health_sentry_test_button": "Envoyer une erreur de test à Sentry",
+  "health_sentry_test_hint": "Cette instance signale les erreurs du navigateur à Sentry. Envoyez une erreur volontaire pour vérifier qu'elle arrive bien.",
   "instance_backup_days_ago": [
     {
       "declarations": ["input count", "local countPlural = count: plural"],
