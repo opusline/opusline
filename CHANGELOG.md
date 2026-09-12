@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.27.0](https://github.com/opusline/opusline/compare/v0.26.0...v0.27.0) (2026-09-12)
+
+
+### Features
+
+* **web:** send a test error to sentry from /health ([#357](https://github.com/opusline/opusline/issues/357)) ([0d0f69e](https://github.com/opusline/opusline/commit/0d0f69eedbe092fd1f112b3ea3246cf789fba64b))
+
 ## [0.26.0](https://github.com/opusline/opusline/compare/v0.25.0...v0.26.0) (2026-09-12)
 
 
