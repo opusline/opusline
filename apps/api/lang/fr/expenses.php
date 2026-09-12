@@ -11,4 +11,6 @@ return [
     'occurrence_taken' => 'Cet abonnement a déjà une dépense pour cette période.',
     'link_on_create_only' => 'Une dépense se rattache à un abonnement à sa saisie, pas après.',
     'one_subscription_link' => 'Rattachez la dépense à un abonnement existant ou rendez-la récurrente, pas les deux.',
+    'unknown_movement' => 'Ce prélèvement n\'existe pas sur le compte pro.',
+    'movement_taken' => 'Ce prélèvement règle déjà une facture ou une autre dépense.',
 ];
