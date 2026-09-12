@@ -32,6 +32,18 @@ final class DetectFiscPayments
         return preg_match('/\bCFE\b/', self::normalized($label)) === 1;
     }
 
+    public static function isFisc(string $label): bool
+    {
+        if (self::isUrssaf($label)) {
+            return true;
+        }
+        if (self::isVat($label)) {
+            return true;
+        }
+
+        return self::isCfe($label);
+    }
+
     /**
      * The fisc's debits of one kind over the window, as positive cents.
      *

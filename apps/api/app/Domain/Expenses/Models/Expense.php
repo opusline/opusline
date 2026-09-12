@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Expenses\Models;
 
+use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Expenses\Enums\ExpenseCategory;
 use App\Domain\Expenses\Enums\ExpenseVatStatus;
 use App\Domain\Expenses\Enums\ExpenseVatTreatment;
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -52,6 +54,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property ?CarbonImmutable $deleted_at
  * @property-read User $user
  * @property-read ?Subscription $subscription
+ * @property-read ?BankMovement $bankMovement
  */
 #[Fillable([
     'subscription_id',
@@ -137,6 +140,12 @@ class Expense extends Model implements HasMedia
     public function subscription(): BelongsTo
     {
         return $this->belongsTo(Subscription::class);
+    }
+
+    /** @return HasOne<BankMovement, $this> */
+    public function bankMovement(): HasOne
+    {
+        return $this->hasOne(BankMovement::class);
     }
 
     /** The `Y-m` key of the journal this purchase is listed in. */

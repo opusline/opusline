@@ -21,6 +21,8 @@ use Illuminate\Support\Facades\DB;
  */
 class MaterialiseSubscriptionOccurrences
 {
+    public function __construct(private readonly SuggestExpenseMatches $suggestExpenseMatches) {}
+
     public function handle(User $user, CarbonImmutable $today): void
     {
         $due = $user->subscriptions()->where('auto_create_expenses', true)->where('is_paused', false);
@@ -43,6 +45,7 @@ class MaterialiseSubscriptionOccurrences
             }
 
             $declared = DeclaredCa3Months::of($user->id);
+            $earliest = null;
 
             foreach ($subscriptions as $subscription) {
                 foreach (new OccurrenceSchedule($subscription)->debitsBetween($subscription->occurrencesFrom(), $today) as $debitOn) {
@@ -53,7 +56,14 @@ class MaterialiseSubscriptionOccurrences
                     }
 
                     $this->create($user, $subscription, $periodKey, $debitOn, $declared);
+                    $earliest = min($earliest ?? $debitOn, $debitOn);
                 }
+            }
+
+            // A debit the bank already imported may be waiting for exactly
+            // the expense that was just written.
+            if ($earliest instanceof CarbonImmutable) {
+                $this->suggestExpenseMatches->handle($user, $earliest);
             }
         });
     }

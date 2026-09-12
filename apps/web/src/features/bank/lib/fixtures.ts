@@ -49,6 +49,7 @@ export function bankMovement(
     runningBalance: eur(1_482_000),
     invoice: { id: 40, number: "2026-040" },
     pendingMatchId: null,
+    expense: null,
     ...overrides,
   };
 }
@@ -113,6 +114,7 @@ export function bankData(
         runningBalance: eur(1_482_000),
         invoice: null,
         pendingMatchId: 11,
+        expense: null,
       }),
       bankMovement({
         id: 107,
@@ -206,6 +208,7 @@ export function reconciledBankData(): BankAccountData {
     movements: data.movements.map((movement) => ({
       ...movement,
       pendingMatchId: null,
+      expense: null,
       invoice:
         movement.amount.amount > 0 && movement.invoice === null
           ? { id: 41, number: "2026-041" }
@@ -227,6 +230,7 @@ export function unlinkedCreditsBankData(): BankAccountData {
     movements: data.movements.map((movement) => ({
       ...movement,
       pendingMatchId: null,
+      expense: null,
     })),
   };
 }

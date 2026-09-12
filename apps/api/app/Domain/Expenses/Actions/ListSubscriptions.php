@@ -37,7 +37,10 @@ class ListSubscriptions
 
     private const int STRIP_MONTHS = 12;
 
-    public function __construct(private readonly MaterialiseSubscriptionOccurrences $materialiseSubscriptionOccurrences) {}
+    public function __construct(
+        private readonly MaterialiseSubscriptionOccurrences $materialiseSubscriptionOccurrences,
+        private readonly DetectRecurringDebits $detectRecurringDebits,
+    ) {}
 
     public function handle(User $user): SubscriptionsData
     {
@@ -87,6 +90,7 @@ class ListSubscriptions
                 new Money(0, $currency),
             )),
             amountChanges: $this->amountChanges($subscriptions, $today),
+            detected: $this->detectRecurringDebits->handle($user, $today, $active),
         );
     }
 

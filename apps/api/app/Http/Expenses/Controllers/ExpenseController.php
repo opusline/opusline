@@ -7,12 +7,15 @@ namespace App\Http\Expenses\Controllers;
 use App\Domain\Expenses\Actions\CreateExpense;
 use App\Domain\Expenses\Actions\DeferVatDeductions;
 use App\Domain\Expenses\Actions\DeleteExpense;
+use App\Domain\Expenses\Actions\LinkExpenseBankMovement;
 use App\Domain\Expenses\Actions\ListExpenses;
 use App\Domain\Expenses\Actions\RecategorizeExpenses;
 use App\Domain\Expenses\Actions\ReintegrateVatDeduction;
+use App\Domain\Expenses\Actions\UnlinkExpenseBankMovement;
 use App\Domain\Expenses\Actions\UpdateExpense;
 use App\Domain\Expenses\Data\ExpenseInputData;
 use App\Domain\Expenses\Data\ExpenseSelectionData;
+use App\Domain\Expenses\Data\LinkExpenseBankMovementData;
 use App\Domain\Expenses\Data\ListExpensesData;
 use App\Domain\Expenses\Data\RecategorizeExpensesData;
 use App\Domain\Expenses\Models\Expense;
@@ -48,6 +51,29 @@ class ExpenseController extends Controller
         ListExpenses $listExpenses,
     ): JsonResponse {
         $updateExpense->handle($expense, $data);
+
+        return response()->json($listExpenses->handle($user, $expense->month()));
+    }
+
+    public function storeBankMovement(
+        LinkExpenseBankMovementData $data,
+        #[CurrentUser] User $user,
+        Expense $expense,
+        LinkExpenseBankMovement $linkExpenseBankMovement,
+        ListExpenses $listExpenses,
+    ): JsonResponse {
+        $linkExpenseBankMovement->handle($expense, $data);
+
+        return response()->json($listExpenses->handle($user, $expense->month()), 201);
+    }
+
+    public function destroyBankMovement(
+        #[CurrentUser] User $user,
+        Expense $expense,
+        UnlinkExpenseBankMovement $unlinkExpenseBankMovement,
+        ListExpenses $listExpenses,
+    ): JsonResponse {
+        $unlinkExpenseBankMovement->handle($expense);
 
         return response()->json($listExpenses->handle($user, $expense->month()));
     }

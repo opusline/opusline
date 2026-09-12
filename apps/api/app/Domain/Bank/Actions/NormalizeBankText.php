@@ -59,6 +59,24 @@ final class NormalizeBankText
      * spell them inconsistently ("CALLISTO SA" vs "CALLISTO"), and short
      * remainders are refused for the same reason short invoice numbers are.
      */
+    /**
+     * Whether the label, normalised, contains any of the needles.
+     *
+     * @param  iterable<string>  $needles
+     */
+    public static function mentionsAny(string $label, iterable $needles): bool
+    {
+        $normalized = self::normalize($label);
+
+        foreach ($needles as $needle) {
+            if (str_contains($normalized, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static function clientNeedle(string $name): ?string
     {
         $needle = self::normalize($name);

@@ -48,6 +48,14 @@ export const zBankMatchReason = z.union([
 ]);
 
 /**
+ * BankMovementExpenseData
+ */
+export const zBankMovementExpenseData = z.object({
+    id: z.int(),
+    supplier: z.string()
+});
+
+/**
  * BankMovementInvoiceData
  */
 export const zBankMovementInvoiceData = z.object({
@@ -355,6 +363,17 @@ export const zDeclarationDeadlineData = z.object({
 });
 
 /**
+ * DismissRecurringDebitData
+ */
+export const zDismissRecurringDebitData = z.object({
+    label: z.string().check(z.minLength(1), z.maxLength(255)),
+    amount: z.object({
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
+        currency: zCurrency
+    })
+});
+
+/**
  * DocumentCategory
  *
  * | |
@@ -471,6 +490,15 @@ export const zCreateMissionData = z.object({
 });
 
 /**
+ * ExpenseBankMovementData
+ */
+export const zExpenseBankMovementData = z.object({
+    id: z.int(),
+    bookedOn: z.iso.date(),
+    label: z.string()
+});
+
+/**
  * ExpenseCategory
  */
 export const zExpenseCategory = z.union([
@@ -512,7 +540,7 @@ export const zExpenseSelectionData = z.object({
  * | |
  * |---|
  * | `0` <br/> A subscription's debit was recorded; the receipt is still to be linked. |
- * | `1` <br/> A recurring bank debit no expense matches (a later rung fills it). |
+ * | `1` <br/> A debit that names a subscription but that no expense explains. |
  * | `2` <br/> An annual subscription debits within the month. |
  */
 export const zExpenseTodoKind = z.union([
@@ -752,6 +780,13 @@ export const zInvoiceTodoWorkData = z.object({
     valuedMinutes: z.nullable(z.int()),
     timeEntryIds: z.array(z.int()),
     vatRateBp: z.int()
+});
+
+/**
+ * LinkExpenseBankMovementData
+ */
+export const zLinkExpenseBankMovementData = z.object({
+    bankMovementId: z.int().check(z.gte(1))
 });
 
 /**
@@ -1265,6 +1300,17 @@ export const zRecoveryCodesData = z.object({
 });
 
 /**
+ * RecurringDebitData
+ */
+export const zRecurringDebitData = z.object({
+    label: z.string(),
+    amount: zMoneyData,
+    debitDay: z.int(),
+    months: z.array(z.string()),
+    lastBookedOn: z.iso.date()
+});
+
+/**
  * RegisterPasskeyData
  */
 export const zRegisterPasskeyData = z.object({
@@ -1433,7 +1479,8 @@ export const zBankMovementData = z.object({
     amount: zSignedMoneyData,
     runningBalance: z.nullable(zSignedMoneyData),
     invoice: z.nullable(zBankMovementInvoiceData),
-    pendingMatchId: z.nullable(z.int())
+    pendingMatchId: z.nullable(z.int()),
+    expense: z.nullable(zBankMovementExpenseData)
 });
 
 /**
@@ -1721,6 +1768,7 @@ export const zExpenseData = z.object({
     proShareBp: z.int(),
     receipt: z.nullable(zExpenseReceiptData),
     subscription: z.nullable(zExpenseSubscriptionData),
+    bankMovement: z.nullable(zExpenseBankMovementData),
     vatStatus: zExpenseVatStatus,
     vatClaimPeriod: z.string(),
     isRegularisation: z.boolean()
@@ -1968,7 +2016,8 @@ export const zSubscriptionsData = z.object({
     upcoming: z.array(zUpcomingDebitData),
     categories: z.array(zSubscriptionCategoryTotalData),
     yearlyHt: zMoneyData,
-    amountChanges: z.array(zSubscriptionAmountChangeData)
+    amountChanges: z.array(zSubscriptionAmountChangeData),
+    detected: z.array(zRecurringDebitData)
 });
 
 /**
@@ -2703,6 +2752,20 @@ export const zUpdateExpensePath = z.object({
 
 export const zUpdateExpenseResponse = zExpensesMonthData;
 
+export const zUnlinkExpenseBankMovementPath = z.object({
+    expense: z.int()
+});
+
+export const zUnlinkExpenseBankMovementResponse = zExpensesMonthData;
+
+export const zLinkExpenseBankMovementBody = zLinkExpenseBankMovementData;
+
+export const zLinkExpenseBankMovementPath = z.object({
+    expense: z.int()
+});
+
+export const zLinkExpenseBankMovementResponse = zExpensesMonthData;
+
 export const zDetachExpenseReceiptPath = z.object({
     expense: z.int()
 });
@@ -2984,6 +3047,10 @@ export const zListSubscriptionsResponse = zSubscriptionsData;
 export const zCreateSubscriptionBody = zSubscriptionInputData;
 
 export const zCreateSubscriptionResponse = zSubscriptionsData;
+
+export const zDismissRecurringDebitBody = zDismissRecurringDebitData;
+
+export const zDismissRecurringDebitResponse = zSubscriptionsData;
 
 export const zDeleteSubscriptionPath = z.object({
     subscription: z.int()

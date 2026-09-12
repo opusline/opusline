@@ -9,7 +9,7 @@ enum ExpenseTodoKind: int
 {
     /** A subscription's debit was recorded; the receipt is still to be linked. */
     case MissingReceipt = 0;
-    /** A recurring bank debit no expense matches (a later rung fills it). */
+    /** A debit that names a subscription but that no expense explains. */
     case UnmatchedDebit = 1;
     /** An annual subscription debits within the month. */
     case UpcomingAnnualDebit = 2;

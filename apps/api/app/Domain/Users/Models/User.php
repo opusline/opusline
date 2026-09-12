@@ -13,6 +13,7 @@ use App\Domain\Cra\Models\Cra;
 use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
 use App\Domain\Documents\Concerns\InteractsWithDocuments;
 use App\Domain\Expenses\Models\Expense;
+use App\Domain\Expenses\Models\RecurringDebitDismissal;
 use App\Domain\Expenses\Models\Subscription;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Models\Mission;
@@ -182,6 +183,12 @@ class User extends Authenticatable implements HasMedia
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class);
+    }
+
+    /** @return HasMany<RecurringDebitDismissal, $this> */
+    public function recurringDebitDismissals(): HasMany
+    {
+        return $this->hasMany(RecurringDebitDismissal::class);
     }
 
     /** @return HasMany<FiscalDeadlineCompletion, $this> */

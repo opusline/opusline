@@ -27,6 +27,8 @@ class BankMovementData extends Data
         public ?BankMovementInvoiceData $invoice,
         /** The still-pending suggestion on this movement, when there is one. */
         public ?int $pendingMatchId,
+        /** The expense this debit paid, once linked. */
+        public ?BankMovementExpenseData $expense,
     ) {}
 
     public static function fromModel(BankMovement $movement, ?Money $runningBalance): self
@@ -41,6 +43,7 @@ class BankMovementData extends Data
             runningBalance: $runningBalance instanceof Money ? SignedMoneyData::fromMoney($runningBalance) : null,
             invoice: $movement->invoice === null ? null : BankMovementInvoiceData::fromModel($movement->invoice),
             pendingMatchId: $match !== null && $match->status === BankMatchStatus::Pending ? $match->id : null,
+            expense: $movement->expense === null ? null : BankMovementExpenseData::fromModel($movement->expense),
         );
     }
 }
