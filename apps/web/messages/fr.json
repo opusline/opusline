@@ -1826,6 +1826,21 @@
   "subscriptions_delete_confirm": "Supprimer l'abonnement",
   "subscriptions_delete_title": "Supprimer cet abonnement ?",
   "subscriptions_deleted": "Abonnement supprimé",
+  "subscriptions_detected_create": "Créer l'abonnement",
+  "subscriptions_detected_description": "Détecté · compte pro",
+  "subscriptions_detected_dismiss": "Ignorer",
+  "subscriptions_detected_dismissed": "Ignoré · ne sera plus proposé",
+  "subscriptions_detected_sub": "Compte pro · {months} · aucun abonnement ne correspond",
+  "subscriptions_detected_title": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Prélèvement récurrent détecté : {label} · {amount} · le {day} du mois · {count} mois",
+        "countPlural=other": "Prélèvement récurrent détecté : {label} · {amount} · le {day} du mois · {count} mois consécutifs"
+      }
+    }
+  ],
   "subscriptions_empty_sub": "Ajoutez vos abonnements : leurs dépenses seront créées à chaque prélèvement.",
   "subscriptions_empty_title": "Aucun abonnement",
   "subscriptions_field_amount_ht": "Montant HT",
@@ -1909,6 +1924,14 @@
   "subscriptions_split_title": "Répartition annuelle · HT",
   "subscriptions_split_value": "{amount} / an",
   "subscriptions_unprovisioned": "{supplier} · plus de provision mensuelle",
+  "subscriptions_upcoming_by": "d'ici le {date}",
+  "subscriptions_upcoming_line": "{date} · {periodicity}",
+  "subscriptions_upcoming_none": "Aucun prélèvement d'ici trente jours.",
+  "subscriptions_upcoming_provision": "provision mensuelle · {amount}",
+  "subscriptions_upcoming_provision_link": "Virable en sécurité",
+  "subscriptions_upcoming_provision_note": "{suppliers} · {amount} provisionnés ce mois →",
+  "subscriptions_upcoming_provision_tail": "tient compte des provisions.",
+  "subscriptions_upcoming_title": "Prochains prélèvements · 30 jours",
   "subscriptions_updated": "Abonnement modifié",
   "theme_choose": "Choisir le thème",
   "theme_dark": "Sombre",

@@ -29,6 +29,9 @@ const meta = {
     onReactivate: () => {},
     onDelete: () => {},
     onLinkReceipt: () => {},
+    isDetectedBusy: false,
+    onCreateFromDebit: () => {},
+    onDismissDebit: () => {},
   },
   decorators: [
     (Story) => (

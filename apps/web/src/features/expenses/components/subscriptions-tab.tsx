@@ -1,4 +1,7 @@
-import type { SubscriptionsData } from "@opusline/api-client";
+import type {
+  RecurringDebitData,
+  SubscriptionsData,
+} from "@opusline/api-client";
 import {
   Empty,
   EmptyDescription,
@@ -11,6 +14,7 @@ import { m } from "@/paraglide/messages.js";
 
 import { AmountHistoryCard } from "./amount-history-card";
 import { AnnualSplitCard } from "./annual-split-card";
+import { DetectedDebitBanner } from "./detected-debit-banner";
 import { OccurrenceLegend } from "./occurrence-strip";
 import { SubscriptionCardList } from "./subscription-card-list";
 import { SubscriptionKpiTiles } from "./subscription-kpi-tiles";
@@ -18,6 +22,7 @@ import {
   type SubscriptionRowHandlers,
   SubscriptionTable,
 } from "./subscription-table";
+import { UpcomingDebitsRail } from "./upcoming-debits-rail";
 
 type SubscriptionsTabProps = SubscriptionRowHandlers & {
   data: SubscriptionsData;
@@ -27,6 +32,9 @@ type SubscriptionsTabProps = SubscriptionRowHandlers & {
   showCancelled: boolean;
   /** `Y-m-d`, the account's today. */
   today: string;
+  isDetectedBusy: boolean;
+  onCreateFromDebit: (debit: RecurringDebitData) => void;
+  onDismissDebit: (debit: RecurringDebitData) => void;
 };
 
 export function SubscriptionsTab({
@@ -35,6 +43,9 @@ export function SubscriptionsTab({
   isRefreshing,
   showCancelled,
   today,
+  isDetectedBusy,
+  onCreateFromDebit,
+  onDismissDebit,
   ...handlers
 }: SubscriptionsTabProps) {
   const visible = data.subscriptions.filter(
@@ -50,6 +61,16 @@ export function SubscriptionsTab({
       )}
     >
       <SubscriptionKpiTiles kpis={data.kpis} />
+
+      {data.detected.map((debit) => (
+        <DetectedDebitBanner
+          debit={debit}
+          isBusy={isDetectedBusy}
+          key={`${debit.label}:${debit.amount.amount}`}
+          onCreate={onCreateFromDebit}
+          onDismiss={onDismissDebit}
+        />
+      ))}
 
       <section className="rounded-md border bg-card">
         {visible.length === 0 ? (
@@ -90,8 +111,10 @@ export function SubscriptionsTab({
         )}
       </section>
 
+      {/* The table needs the width: the thirty-day rail joins the cards below it. */}
       {data.subscriptions.length > 0 && (
         <div className="grid grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] gap-4">
+          <UpcomingDebitsRail data={data} today={today} />
           <AnnualSplitCard
             categories={data.categories}
             yearlyHtCents={data.yearlyHt.amount}
