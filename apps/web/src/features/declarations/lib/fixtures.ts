@@ -1,4 +1,6 @@
 import type {
+  DeclarationHistoryRowData,
+  DeclarationSettlementData,
   DeclarationsData,
   UrssafDeclarationData,
   VatDeclarationData,
@@ -34,6 +36,7 @@ export function urssafDeclaration(
   };
 }
 
+/** July under réel normal: 10 450 € of sales, 112 € of deductible TVA. */
 export function vatDeclaration(
   overrides: Partial<VatDeclarationData> = {},
 ): VatDeclarationData {
@@ -45,29 +48,107 @@ export function vatDeclaration(
     rateBp: 2000,
     boxes: {
       salesHt: eur(1_045_000),
-      intraCommunityPurchasesHt: eur(0),
-      nonEuPurchasesHt: eur(0),
-      taxableBase: eur(1_045_000),
-      collected: eur(209_000),
+      intraCommunityPurchasesHt: eur(3_100),
+      nonEuPurchasesHt: eur(6_800),
+      taxableBase: eur(1_054_900),
+      collected: eur(210_980),
       fixedAssets: eur(0),
-      goodsAndServices: eur(0),
+      goodsAndServices: eur(13_180),
       otherDeductible: eur(0),
       creditCarried: eur(0),
       credit: eur(0),
-      due: eur(209_000),
+      due: eur(197_800),
     },
     invoiceCount: 3,
-    expenseCount: 0,
-    reverseChargedVat: eur(0),
+    expenseCount: 9,
+    reverseChargedVat: eur(1_980),
     creditIsRefundable: false,
     deadline: { dueOn: "2026-08-17", daysLeft: 4 },
     completion: null,
     settlement: {
-      expected: eur(209_000),
-      provisioned: eur(209_000),
-      gap: { amount: 0, currency: "EUR" },
+      expected: eur(197_800),
+      provisioned: eur(199_800),
+      gap: { amount: 2_000, currency: "EUR" },
       detectedPayments: eur(0),
     },
+    ...overrides,
+  };
+}
+
+/** The compte pro holds less than the filing asks for. */
+export function shortSettlement(): DeclarationSettlementData {
+  return {
+    expected: eur(297_825),
+    provisioned: eur(250_000),
+    gap: { amount: -47_825, currency: "EUR" },
+    detectedPayments: eur(0),
+  };
+}
+
+/** A period the engine no longer provisions for: the debit was found instead. */
+export function settledSettlement(): DeclarationSettlementData {
+  return {
+    expected: eur(297_825),
+    provisioned: null,
+    gap: null,
+    detectedPayments: eur(297_825),
+  };
+}
+
+/** June's credit lands in box 22 and lowers July's tax to pay. */
+export function creditCarriedVatDeclaration(): VatDeclarationData {
+  return vatDeclaration({
+    boxes: {
+      ...vatDeclaration().boxes,
+      creditCarried: eur(46_645),
+      due: eur(151_155),
+    },
+  });
+}
+
+/** A month that ends in credit: nothing to pay, box 25 carried to the next CA3. */
+export function creditVatDeclaration(): VatDeclarationData {
+  return vatDeclaration({
+    period: "2026-08",
+    salesHt: eur(275_000),
+    collected: eur(55_000),
+    boxes: {
+      salesHt: eur(275_000),
+      intraCommunityPurchasesHt: eur(0),
+      nonEuPurchasesHt: eur(4_800),
+      taxableBase: eur(279_800),
+      collected: eur(55_960),
+      fixedAssets: eur(0),
+      goodsAndServices: eur(102_605),
+      otherDeductible: eur(0),
+      creditCarried: eur(0),
+      credit: eur(46_645),
+      due: eur(0),
+    },
+    invoiceCount: 1,
+    expenseCount: 6,
+    reverseChargedVat: eur(960),
+    deadline: { dueOn: "2026-09-15", daysLeft: -3 },
+    settlement: {
+      expected: eur(0),
+      provisioned: null,
+      gap: null,
+      detectedPayments: eur(0),
+    },
+  });
+}
+
+export function historyRow(
+  overrides: Partial<DeclarationHistoryRowData> = {},
+): DeclarationHistoryRowData {
+  return {
+    period: "2026-07",
+    urssaf: {
+      period: "2026-07",
+      total: eur(297_825),
+      completion: null,
+    },
+    vat: { due: eur(197_800), credit: eur(0), completion: null },
     ...overrides,
   };
 }
@@ -78,7 +159,7 @@ export function declarationsData(
   return {
     period: "2026-07",
     previousPeriod: "2026-06",
-    nextPeriod: null,
+    nextPeriod: "2026-08",
     isDefault: true,
     urssaf: urssafDeclaration(),
     vat: vatDeclaration(),
@@ -89,8 +170,109 @@ export function declarationsData(
       shareBp: 8597,
       margin: { amount: 1_090_000, currency: "EUR" },
     },
-    history: [],
+    history: [
+      historyRow(),
+      historyRow({
+        period: "2026-06",
+        urssaf: {
+          period: "2026-06",
+          total: eur(297_825),
+          completion: { declaredOn: "2026-07-28", paidOn: "2026-07-31" },
+        },
+        vat: {
+          due: eur(0),
+          credit: eur(46_600),
+          completion: { declaredOn: "2026-07-14", paidOn: null },
+        },
+      }),
+      historyRow({
+        period: "2026-05",
+        urssaf: {
+          period: "2026-05",
+          total: eur(266_475),
+          completion: { declaredOn: "2026-06-29", paidOn: "2026-06-30" },
+        },
+        vat: {
+          due: eur(180_200),
+          credit: eur(0),
+          completion: { declaredOn: "2026-06-15", paidOn: "2026-06-15" },
+        },
+      }),
+    ],
     annual: null,
     ...overrides,
   };
+}
+
+/** Both declarations of the month marked filed, the URSSAF one paid. */
+export function filedDeclarationsData(): DeclarationsData {
+  const urssaf = urssafDeclaration({
+    completion: { declaredOn: "2026-08-09", paidOn: "2026-08-12" },
+  });
+  const vat = vatDeclaration({
+    completion: { declaredOn: "2026-08-09", paidOn: null },
+  });
+  const data = declarationsData({ urssaf, vat });
+
+  return {
+    ...data,
+    history: [
+      historyRow({
+        urssaf: {
+          period: "2026-07",
+          total: urssaf.total,
+          completion: urssaf.completion,
+        },
+        vat: {
+          due: vat.boxes.due,
+          credit: vat.boxes.credit,
+          completion: vat.completion,
+        },
+      }),
+      ...data.history.slice(1),
+    ],
+  };
+}
+
+/** A month before the business started: a zero card without a deadline, nothing to file. */
+export function beforeStartDeclarationsData(): DeclarationsData {
+  const zero = { amount: 0, currency: "EUR" } as const;
+
+  return declarationsData({
+    period: "2025-03",
+    previousPeriod: "2025-02",
+    urssaf: urssafDeclaration({
+      period: "2025-03",
+      base: eur(0),
+      invoiceCount: 0,
+      lines: [
+        { kind: 0, rateBp: 2610, amount: eur(0) },
+        { kind: 1, rateBp: 20, amount: eur(0) },
+        { kind: 2, rateBp: 220, amount: eur(0) },
+      ],
+      total: eur(0),
+      deadline: null,
+      settlement: {
+        expected: eur(0),
+        provisioned: null,
+        gap: null,
+        detectedPayments: eur(0),
+      },
+    }),
+    vat: null,
+    cumulative: {
+      year: 2025,
+      collectedHt: eur(0),
+      ceiling: eur(7_770_000),
+      shareBp: 0,
+      margin: { amount: 7_770_000, currency: "EUR" },
+    },
+    history: [
+      historyRow({
+        period: "2025-03",
+        urssaf: { period: "2025-03", total: zero, completion: null },
+        vat: null,
+      }),
+    ],
+  });
 }
