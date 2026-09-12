@@ -4,6 +4,7 @@ import {
   SidebarProvider,
   useSidebar,
 } from "@opusline/ui/components/sidebar";
+import { Toaster, ToastProvider } from "@opusline/ui/components/toast";
 import { useQuery } from "@tanstack/react-query";
 import {
   createFileRoute,
@@ -114,27 +115,30 @@ function AuthedLayout() {
               features do not import each other, only a route composes two. */}
           <SessionLockProvider status={<TimerLockStatus />}>
             <InvoiceDrawerProvider timezone={user.timezone}>
-              <SidebarProvider>
-                <AppSidebar />
-                <SidebarInset>
-                  <header className="flex h-14 items-center gap-4 border-b px-4">
-                    <ExpandSidebarButton />
-                    {pageTitle ? (
-                      <span className="font-medium text-sm">{pageTitle}</span>
-                    ) : null}
-                    <div className="flex-1" />
-                    <ModeToggle
-                      onChange={setTheme}
-                      resolvedTheme={resolvedTheme}
-                      theme={theme}
-                    />
-                    <TimerContainer workdayMinutes={user.workdayMinutes} />
-                  </header>
-                  <div className="p-6">
-                    <Outlet />
-                  </div>
-                </SidebarInset>
-              </SidebarProvider>
+              <ToastProvider>
+                <SidebarProvider>
+                  <AppSidebar />
+                  <SidebarInset>
+                    <header className="flex h-14 items-center gap-4 border-b px-4">
+                      <ExpandSidebarButton />
+                      {pageTitle ? (
+                        <span className="font-medium text-sm">{pageTitle}</span>
+                      ) : null}
+                      <div className="flex-1" />
+                      <ModeToggle
+                        onChange={setTheme}
+                        resolvedTheme={resolvedTheme}
+                        theme={theme}
+                      />
+                      <TimerContainer workdayMinutes={user.workdayMinutes} />
+                    </header>
+                    <div className="p-6">
+                      <Outlet />
+                    </div>
+                  </SidebarInset>
+                </SidebarProvider>
+                <Toaster closeLabel={m.common_close()} />
+              </ToastProvider>
             </InvoiceDrawerProvider>
           </SessionLockProvider>
         </TimerProvider>
