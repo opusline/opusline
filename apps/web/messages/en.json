@@ -636,6 +636,15 @@
   "deadlines_urssaf_sub": "Declare {amount} collected → contributions at {rate} %",
   "deadlines_vat_sub": "TVA collected {amount} · télérèglement impots.gouv.fr",
   "declarations_action_failed": "The filing could not be updated. Try again in a moment.",
+  "declarations_annual_due_before": "before {date}",
+  "declarations_annual_filed_on": "filed on {date}",
+  "declarations_annual_open": "View →",
+  "declarations_annual_open_aria": "View {name}",
+  "declarations_annual_paid_on": "paid on {date}",
+  "declarations_annual_title": "Yearly",
+  "declarations_annual_undo": "Remove the mark",
+  "declarations_annual_upcoming": "Upcoming",
+  "declarations_annual_upcoming_lower": "upcoming",
   "declarations_before_start": "Nothing to declare before the business started.",
   "declarations_box": "box {box}",
   "declarations_box_08_mixed_note": "several rates this month: split across lines 08, 9B and 09",
@@ -651,6 +660,36 @@
   "declarations_ceiling_over": "ceiling exceeded by {amount}",
   "declarations_ceiling_share": "{share} of the micro-BNC ceiling",
   "declarations_ceiling_title": "{year} revenue to date",
+  "declarations_cfe_amount_hint": "The notice amount replaces the estimate, in Trésorerie as here.",
+  "declarations_cfe_amount_invalid": "Enter an amount above zero.",
+  "declarations_cfe_amount_label": "Notice amount",
+  "declarations_cfe_amount_saved": "Notice amount saved · {amount}",
+  "declarations_cfe_books_expense": "Once paid, the CFE books an expense on its own (Taxes · no TVA).",
+  "declarations_cfe_deadline": "{date} · notice online mid-November",
+  "declarations_cfe_description": "Cotisation foncière des entreprises · notice online mid-November",
+  "declarations_cfe_enter_amount": "Enter the notice amount",
+  "declarations_cfe_estimate_note": "estimated from last year or the commune's scale · enter the notice as soon as it is online",
+  "declarations_cfe_estimated_amount": "Estimated amount",
+  "declarations_cfe_link": "Open the professional space →",
+  "declarations_cfe_mark_paid": "Mark as paid",
+  "declarations_cfe_notice_note": "amount entered from the notice",
+  "declarations_cfe_paid": "CFE marked as paid",
+  "declarations_cfe_paid_booked": "CFE marked as paid · « Taxes » expense booked ({amount}, no TVA)",
+  "declarations_cfe_past_year_note": "a past year's bill is what was paid; only the payment date is kept",
+  "declarations_cfe_provision": "Provision",
+  "declarations_cfe_provisioned": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Set aside · {count} month",
+        "countPlural=other": "Set aside · {count} months"
+      }
+    }
+  ],
+  "declarations_cfe_sheet_title": "CFE {year}",
+  "declarations_cfe_undo_note": "The « Taxes » expense stays in the journal.",
+  "declarations_cfe_unknown_note": "no estimate possible for this year · enter the notice as soon as it is online",
   "declarations_contribution_cfp": "CFP",
   "declarations_contribution_liberating": "Versement libératoire",
   "declarations_contribution_social": "Social contributions",
@@ -707,6 +746,34 @@
   "declarations_history_to_file": "to file",
   "declarations_history_to_pay": "to pay",
   "declarations_history_vat": "CA3 · TVA",
+  "declarations_income_tax_already_paid": "Tax already paid · versement libératoire {year}",
+  "declarations_income_tax_box_5hq": "box 5HQ",
+  "declarations_income_tax_box_5te_opted": "box 5TE · versement libératoire opted",
+  "declarations_income_tax_box_lead": "Goes in",
+  "declarations_income_tax_coherence": "Consistency check",
+  "declarations_income_tax_coherence_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} URSSAF declaration",
+        "countPlural=other": "{count} URSSAF declarations"
+      }
+    }
+  ],
+  "declarations_income_tax_col_base": "Revenue",
+  "declarations_income_tax_deadline": "Before {date} (estimated date)",
+  "declarations_income_tax_description": "Income tax return · micro-BNC · {year} income",
+  "declarations_income_tax_estimate": "Estimate",
+  "declarations_income_tax_liberating_note": "The versement libératoire (2.2 % of revenue) stands as the tax on this income; the 2042-C PRO adds nothing on top.",
+  "declarations_income_tax_progressive_note": "This income joins the household's progressive scale; the tax depends on its other income.",
+  "declarations_income_tax_provisional": "provisional until 31 Dec.",
+  "declarations_income_tax_receipts": "Gross receipts collected in {year}",
+  "declarations_income_tax_sheet_title": "2042-C PRO · {year} income",
+  "declarations_income_tax_taxable": "Taxable income after the 34 % abatement",
+  "declarations_income_tax_total": "Total",
+  "declarations_income_tax_with_option": "With the versement libératoire: box 5TE.",
+  "declarations_income_tax_without_option": "Without the option: box 5HQ.",
   "declarations_intro": "The figures to retype, month by month. Mark each filing once it is done.",
   "declarations_invoices_collected": [
     {
@@ -719,6 +786,8 @@
     }
   ],
   "declarations_kind_ca3": "CA3",
+  "declarations_kind_cfe": "CFE",
+  "declarations_kind_income_tax": "2042-C PRO",
   "declarations_kind_urssaf": "URSSAF",
   "declarations_load_failed": "The declarations could not be loaded. Try again in a moment.",
   "declarations_mark_filed": "Mark as filed",

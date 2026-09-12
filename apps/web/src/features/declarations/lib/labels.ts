@@ -31,12 +31,14 @@ export function contributionKindLabel(kind: ContributionLineKind): string {
   return CONTRIBUTION_KIND_MESSAGES[kind]();
 }
 
-/** The two `FiscalDeadlineKind`s this screen records; the others live on /deadlines. */
-export type DeclarationKind = 0 | 1;
+/** The `FiscalDeadlineKind`s this screen records: URSSAF, CA3, CFE and the 2042-C PRO. */
+export type DeclarationKind = 0 | 1 | 3 | 5;
 
 const DECLARATION_KIND_MESSAGES: Record<DeclarationKind, () => string> = {
   0: m.declarations_kind_urssaf,
   1: m.declarations_kind_ca3,
+  3: m.declarations_kind_cfe,
+  5: m.declarations_kind_income_tax,
 };
 
 export function declarationKindLabel(kind: DeclarationKind): string {
