@@ -35,5 +35,6 @@ class UrssafDeclarationData extends Data
         /** Null for a period the account did not exist in. */
         public ?DeclarationDeadlineData $deadline,
         public ?DeclarationCompletionData $completion,
+        public DeclarationSettlementData $settlement,
     ) {}
 }

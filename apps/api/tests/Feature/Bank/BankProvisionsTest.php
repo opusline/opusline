@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Expenses\Factories\ExpenseFactory;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Settings\Models\ContributionRate;
@@ -181,6 +182,96 @@ test('a tva télérèglement settles the carried month and leaves urssaf alone',
         // The TVA label settles nothing on the URSSAF side.
         ->assertJsonPath('provisions.urssaf.amount.amount', 83_160)
         ->assertJsonPath('provisions.total.amount', 116_160);
+});
+
+test('nets the receipted purchases off the tva of the month under réel normal', function (): void {
+    $user = vatLiableUser();
+    paidInvoiceOn($user, '2026-08-03');
+    receiptedExpenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-08-05')->ttc(120_000));
+
+    // 33 000 collected, 20 000 deductible on a receipted 20 % purchase.
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.vat.amount.amount', 13_000)
+        ->assertJsonPath('provisions.vat.deductible.amount', 20_000)
+        ->assertJsonPath('provisions.vat.carried.amount', 0);
+});
+
+test('a purchase still waiting for its receipt deducts nothing yet', function (): void {
+    $user = vatLiableUser();
+    paidInvoiceOn($user, '2026-08-03');
+    expenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-08-05')->ttc(120_000));
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.vat.amount.amount', 33_000)
+        ->assertJsonPath('provisions.vat.deductible.amount', 0);
+});
+
+test('a credit built on last month return lowers this month', function (): void {
+    $user = vatLiableUser();
+    paidInvoiceOn($user, '2026-07-15');
+    receiptedExpenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-07-20')->ttc(240_000));
+    paidInvoiceOn($user, '2026-08-03');
+
+    // July: 33 000 collected − 40 000 deductible → nothing due, 7 000 carried
+    // as a credit; August: 33 000 − 7 000.
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.vat.amount.amount', 26_000)
+        ->assertJsonPath('provisions.vat.carried.amount', 0);
+});
+
+test('carries last month return net of its deductions until the télérèglement shows', function (): void {
+    $user = vatLiableUser();
+    paidInvoiceOn($user, '2026-07-15');
+    receiptedExpenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-07-20')->ttc(120_000));
+    paidInvoiceOn($user, '2026-08-03');
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.vat.amount.amount', 46_000)
+        ->assertJsonPath('provisions.vat.carried.amount', 13_000);
+
+    fiscDebitOn($user, '2026-08-12', 13_000, 'TELEREGLEMENT TVA CA3 JUILLET');
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.vat.amount.amount', 33_000)
+        ->assertJsonPath('provisions.vat.carried.amount', 0);
+});
+
+test('a foreign account keeps its collected tva whole, as its journal deducts nothing', function (): void {
+    $user = vatLiableUser();
+    $user->settings()->sole()->update(['business_country' => 'DE']);
+    paidInvoiceOn($user, '2026-08-03');
+    receiptedExpenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-08-05')->ttc(120_000));
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.vat.amount.amount', 33_000)
+        ->assertJsonPath('provisions.vat.deductible', null);
+});
+
+test('nets the receipted purchases of the year off the ca12 under réel simplifié', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['vat_regime' => VatRegime::ReelSimplifie, 'default_vat_rate_bp' => 2000]);
+    paidInvoiceOn($user, '2026-08-03');
+    paidInvoiceOn($user, '2026-03-15');
+    receiptedExpenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-03-20')->ttc(120_000));
+    expenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-04-02')->ttc(60_000));
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.vat.amount.amount', 46_000)
+        ->assertJsonPath('provisions.vat.deductible.amount', 20_000);
 });
 
 test('provisions the tva collected since january under réel simplifié', function (): void {

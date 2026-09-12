@@ -14,8 +14,12 @@ class BankProvisionData extends Data
 {
     public function __construct(
         public MoneyData $amount,
+        /** The previous period's share of the amount, still owed until its payment shows up. */
+        public MoneyData $carried,
         /** Null for TVA, which sums each invoice's actual rate instead of applying one. */
         public ?int $rateBp,
+        /** TVA only: what the running period's receipted purchases take off the collected TVA. Null when the régime deducts nothing. */
+        public ?MoneyData $deductible,
         /**
          * The last day of the accrual window the amount was collected over —
          * the period the régime declares, not a filing deadline: those follow

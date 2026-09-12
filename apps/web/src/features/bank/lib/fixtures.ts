@@ -66,12 +66,16 @@ export function bankData(
     provisions: {
       vat: {
         amount: eur(199_400),
+        carried: eur(0),
         rateBp: null,
+        deductible: eur(9_600),
         periodEnd: "2026-08-31",
       },
       urssaf: {
         amount: eur(271_700),
+        carried: eur(0),
         rateBp: 2560,
+        deductible: null,
         periodEnd: "2026-08-31",
       },
       cfe: null,
@@ -248,7 +252,9 @@ export function emptyBankData(): BankAccountData {
       vat: null,
       urssaf: {
         amount: eur(0),
+        carried: eur(0),
         rateBp: 2560,
+        deductible: null,
         periodEnd: "2026-08-31",
       },
       cfe: null,
