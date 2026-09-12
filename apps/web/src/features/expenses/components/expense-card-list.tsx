@@ -51,6 +51,8 @@ function ExpenseCard({
   uploadingExpenseId,
   onAttachReceipt,
   onDetachReceipt,
+  onEdit,
+  onDuplicate,
   onDelete,
 }: ExpenseRowHandlers & {
   expense: ExpenseData;
@@ -89,6 +91,8 @@ function ExpenseCard({
           expense={expense}
           onDelete={onDelete}
           onDetachReceipt={onDetachReceipt}
+          onDuplicate={onDuplicate}
+          onEdit={onEdit}
         />
       </div>
       <div className="mt-2.5 flex items-center justify-between gap-2">

@@ -1,4 +1,4 @@
-type FieldErrorMap = Record<string, { message: string }>;
+export type FieldErrorMap = Record<string, { message: string }>;
 
 /**
  * What the api client stamps on a refused request's body before throwing it:
