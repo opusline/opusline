@@ -1,0 +1,4 @@
+{
+  "kind": "new",
+  "text": "Dropping a PDF receipt on the expense form now reads the supplier, date, total, TVA regime and a likely category off it, each flagged with how sure the reading is, so most expenses take one check instead of six fields."
+}

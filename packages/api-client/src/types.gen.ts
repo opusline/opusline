@@ -1457,11 +1457,75 @@ export type PingData = {
 };
 
 /**
+ * ReadReceiptData
+ */
+export type ReadReceiptData = {
+    /**
+     * Maximum file size: 20480 kilobytes.
+     */
+    file: Blob | File;
+};
+
+/**
  * RecategorizeExpensesData
  */
 export type RecategorizeExpensesData = {
     expenseIds: Array<number>;
     category: ExpenseCategory;
+};
+
+/**
+ * ReceiptAmountFieldData
+ */
+export type ReceiptAmountFieldData = {
+    value: MoneyData;
+    confidence: ReceiptFieldConfidence;
+};
+
+/**
+ * ReceiptDateFieldData
+ */
+export type ReceiptDateFieldData = {
+    value: string;
+    confidence: ReceiptFieldConfidence;
+};
+
+/**
+ * ReceiptFieldConfidence
+ *
+ * How much a field read off a receipt deserves a second look. High means the value stood next to its own label (« Total TTC », « Date de facture »); Low means it was the best of several candidates.
+ *
+ */
+export type ReceiptFieldConfidence = 0 | 1 | 2;
+
+/**
+ * ReceiptSuggestionData
+ */
+export type ReceiptSuggestionData = {
+    textFound: boolean;
+    supplier?: ReceiptTextFieldData | null;
+    spentOn?: ReceiptDateFieldData | null;
+    amountTtc?: ReceiptAmountFieldData | null;
+    vat?: ReceiptVatFieldData | null;
+    description?: ReceiptTextFieldData | null;
+    category?: ExpenseCategory | null;
+};
+
+/**
+ * ReceiptTextFieldData
+ */
+export type ReceiptTextFieldData = {
+    value: string;
+    confidence: ReceiptFieldConfidence;
+};
+
+/**
+ * ReceiptVatFieldData
+ */
+export type ReceiptVatFieldData = {
+    treatment: ExpenseVatTreatment;
+    rateBp: number;
+    confidence: ReceiptFieldConfidence;
 };
 
 /**
@@ -6153,6 +6217,33 @@ export type LoginWithPasskeyResponses = {
 };
 
 export type LoginWithPasskeyResponse = LoginWithPasskeyResponses[keyof LoginWithPasskeyResponses];
+
+export type ReadExpenseReceiptData = {
+    body: ReadReceiptData;
+    path?: never;
+    query?: never;
+    url: '/expenses/receipt-reading';
+};
+
+export type ReadExpenseReceiptErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ReadExpenseReceiptError = ReadExpenseReceiptErrors[keyof ReadExpenseReceiptErrors];
+
+export type ReadExpenseReceiptResponses = {
+    200: ReceiptSuggestionData;
+};
+
+export type ReadExpenseReceiptResponse = ReadExpenseReceiptResponses[keyof ReadExpenseReceiptResponses];
 
 export type ShowRecoveryCodesData = {
     body?: never;
