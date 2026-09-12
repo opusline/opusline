@@ -348,8 +348,6 @@ class SummarizeDeclarations
         return new VatDeclarationData(
             period: $month,
             regime: $settings->vat_regime,
-            salesHt: MoneyData::fromMoney(new Money($boxes->salesHt, $currency)),
-            collected: MoneyData::fromMoney(new Money($collected->vatCents($monthStart, $monthEnd), $currency)),
             rateBp: $collected->uniqueRateBp($monthStart, $monthEnd, $settings->default_vat_rate_bp),
             boxes: Ca3BoxesData::fromBoxes($boxes, $currency),
             invoiceCount: $collected->countBetween($monthStart, $monthEnd),

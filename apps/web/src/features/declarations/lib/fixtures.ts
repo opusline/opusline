@@ -46,8 +46,6 @@ export function vatDeclaration(
   return {
     period: "2026-07",
     regime: 2,
-    salesHt: eur(1_045_000),
-    collected: eur(209_000),
     rateBp: 2000,
     boxes: {
       salesHt: eur(1_045_000),
@@ -113,8 +111,6 @@ export function creditCarriedVatDeclaration(): VatDeclarationData {
 export function creditVatDeclaration(): VatDeclarationData {
   return vatDeclaration({
     period: "2026-08",
-    salesHt: eur(275_000),
-    collected: eur(55_000),
     boxes: {
       salesHt: eur(275_000),
       intraCommunityPurchasesHt: eur(0),

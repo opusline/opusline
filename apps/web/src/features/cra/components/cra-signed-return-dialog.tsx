@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@opusline/ui/components/dialog";
-import { cn } from "@opusline/ui/lib/utils";
+import { Dropzone } from "@opusline/ui/components/dropzone";
 import { UploadIcon } from "lucide-react";
 import { useState } from "react";
 import { useLocale } from "@/components/money-format-provider";
@@ -42,7 +42,6 @@ export function CraSignedReturnDialog({
   const locale = useLocale();
   const [file, setFile] = useState<File | null>(null);
   const [rejected, setRejected] = useState<string | null>(null);
-  const [isDragOver, setIsDragOver] = useState(false);
 
   const accept = (candidate: File | undefined) => {
     if (candidate === undefined) {
@@ -92,33 +91,12 @@ export function CraSignedReturnDialog({
         </DialogHeader>
 
         {file === null ? (
-          <label
-            className={cn(
-              "flex cursor-pointer items-center gap-3.5 rounded-md border border-border-3 border-dashed px-5 py-5 transition-colors",
-              "hover:border-muted-foreground-6 has-[input:focus-visible]:border-primary has-[input:focus-visible]:ring-3 has-[input:focus-visible]:ring-primary/20",
-              isDragOver && "border-primary bg-primary/7",
-            )}
-            onDragLeave={() => setIsDragOver(false)}
-            onDragOver={(event) => {
-              event.preventDefault();
-              setIsDragOver(true);
-            }}
-            onDrop={(event) => {
-              event.preventDefault();
-              setIsDragOver(false);
-              accept(event.dataTransfer.files[0]);
-            }}
+          <Dropzone
+            accept={ACCEPT}
+            aria-label={m.cra_signed_return_drop()}
+            className="h-auto gap-3.5 px-5 py-5"
+            onFiles={(files) => accept(files[0])}
           >
-            <input
-              accept={ACCEPT}
-              aria-label={m.cra_signed_return_drop()}
-              className="sr-only"
-              onChange={(event) => {
-                accept(event.target.files?.[0]);
-                event.target.value = "";
-              }}
-              type="file"
-            />
             <span className="flex size-9.5 shrink-0 items-center justify-center rounded-md bg-muted">
               <UploadIcon
                 aria-hidden
@@ -133,7 +111,7 @@ export function CraSignedReturnDialog({
                 {m.cra_signed_return_hint()}
               </span>
             </span>
-          </label>
+          </Dropzone>
         ) : (
           <div className="flex items-center gap-3 rounded-md border px-4 py-3.5">
             <span className="flex size-8.5 shrink-0 items-center justify-center rounded-md bg-muted font-mono text-muted-foreground-3 text-xs uppercase">

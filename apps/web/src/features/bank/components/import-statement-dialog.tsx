@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@opusline/ui/components/dialog";
+import { Dropzone } from "@opusline/ui/components/dropzone";
 import {
   InputGroup,
   InputGroupInput,
@@ -83,7 +84,6 @@ function ImportStatementForm({
   const balanceId = useId();
   const [file, setFile] = useState<File | null>(null);
   const [rejected, setRejected] = useState<string | null>(null);
-  const [isDragOver, setIsDragOver] = useState(false);
   const [balanceDraft, setBalanceDraft] = useState("");
 
   const pick = (files: ArrayLike<File> | null) => {
@@ -130,49 +130,23 @@ function ImportStatementForm({
         </DialogDescription>
       </DialogHeader>
 
-      <label
+      <Dropzone
+        accept={BANK_STATEMENT_ACCEPT}
+        aria-label={m.bank_import_drop_hint()}
         className={cn(
-          "mt-4 flex items-center gap-3 rounded-md border border-border-3 border-dashed p-5 text-muted-foreground transition-colors",
-          "has-[input:focus-visible]:border-primary has-[input:focus-visible]:ring-3 has-[input:focus-visible]:ring-primary/20",
-          isSaving
-            ? "cursor-not-allowed opacity-60"
-            : "cursor-pointer hover:border-primary",
-          isDragOver && !isSaving && "border-primary bg-primary/7",
+          "mt-4 h-auto gap-3 p-5",
           file !== null && "border-primary border-solid",
         )}
-        onDragLeave={() => setIsDragOver(false)}
-        onDragOver={(event) => {
-          if (isSaving) {
-            return;
-          }
-
-          event.preventDefault();
-          setIsDragOver(true);
-        }}
-        onDrop={(event) => {
-          event.preventDefault();
-          setIsDragOver(false);
-          pick(event.dataTransfer.files);
-        }}
+        disabled={isSaving}
+        onFiles={pick}
       >
-        <input
-          accept={BANK_STATEMENT_ACCEPT}
-          aria-label={m.bank_import_drop_hint()}
-          className="sr-only"
-          disabled={isSaving}
-          onChange={(event) => {
-            pick(event.target.files);
-            event.target.value = "";
-          }}
-          type="file"
-        />
         <UploadIcon aria-hidden className="size-4.5 shrink-0" />
         <span className="min-w-0 truncate text-sm">
           {file === null
             ? m.bank_import_drop_hint()
             : `${file.name} · ${formatFileSize(format.locale, file.size)}`}
         </span>
-      </label>
+      </Dropzone>
 
       <div className="mt-4 flex flex-col gap-1.5">
         <Label size="md" htmlFor={balanceId}>
