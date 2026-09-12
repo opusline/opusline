@@ -30,7 +30,7 @@ test('the current user endpoint returns the authenticated user', function (): vo
             'timezone' => 'Europe/Paris',
             'workdayMinutes' => 420,
             'defaultPaymentTermsDays' => 45,
-            'effectiveContributionRateBp' => 2560,
+            'effectiveContributionRateBp' => 2580,
         ]);
 });
 
@@ -47,7 +47,7 @@ test('the current user carries the account rate, not a national default', functi
     $this->actingAs($user)
         ->getJson('/api/user')
         ->assertOk()
-        ->assertJsonPath('effectiveContributionRateBp', 1450);
+        ->assertJsonPath('effectiveContributionRateBp', 1470);
 });
 
 test('guests receive a 401 json response', function (): void {

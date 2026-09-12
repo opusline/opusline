@@ -16,6 +16,12 @@ export function urssafDeclaration(
     coversShownMonth: true,
     base: eur(1_045_000),
     invoiceCount: 3,
+    lines: [
+      { kind: 0, rateBp: 2610, amount: eur(272_745) },
+      { kind: 1, rateBp: 20, amount: eur(2_090) },
+      { kind: 2, rateBp: 220, amount: eur(22_990) },
+    ],
+    total: eur(297_825),
     deadline: { dueOn: "2026-08-31", daysLeft: 18 },
     completion: null,
     ...overrides,
@@ -64,6 +70,13 @@ export function declarationsData(
     isDefault: true,
     urssaf: urssafDeclaration(),
     vat: vatDeclaration(),
+    cumulative: {
+      year: 2026,
+      collectedHt: eur(6_680_000),
+      ceiling: eur(7_770_000),
+      shareBp: 8597,
+      margin: { amount: 1_090_000, currency: "EUR" },
+    },
     ...overrides,
   };
 }

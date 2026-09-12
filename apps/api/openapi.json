@@ -6323,6 +6323,41 @@
                 ],
                 "title": "ConfirmTotpData"
             },
+            "ContributionLineData": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "$ref": "#/components/schemas/ContributionLineKind"
+                    },
+                    "rateBp": {
+                        "type": "integer"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "rateBp",
+                    "amount"
+                ],
+                "title": "ContributionLineData"
+            },
+            "ContributionLineKind": {
+                "type": "integer",
+                "description": "The lines a micro-entrepreneur's URSSAF declaration is settled in, each a rate on the same collected base.\n",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "SocialContributions",
+                    "Cfp",
+                    "LiberatingPayment"
+                ],
+                "title": "ContributionLineKind"
+            },
             "CorrectInvoiceDatesData": {
                 "type": "object",
                 "properties": {
@@ -7327,6 +7362,16 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "cumulative": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/RevenueCeilingData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -7335,7 +7380,8 @@
                     "nextPeriod",
                     "isDefault",
                     "urssaf",
-                    "vat"
+                    "vat",
+                    "cumulative"
                 ],
                 "title": "DeclarationsData"
             },
@@ -9349,6 +9395,34 @@
                 ],
                 "title": "RevenueBasis"
             },
+            "RevenueCeilingData": {
+                "type": "object",
+                "properties": {
+                    "year": {
+                        "type": "integer"
+                    },
+                    "collectedHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "ceiling": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "shareBp": {
+                        "type": "integer"
+                    },
+                    "margin": {
+                        "$ref": "#/components/schemas/SignedMoneyData"
+                    }
+                },
+                "required": [
+                    "year",
+                    "collectedHt",
+                    "ceiling",
+                    "shareBp",
+                    "margin"
+                ],
+                "title": "RevenueCeilingData"
+            },
             "RevenueClientData": {
                 "type": "object",
                 "properties": {
@@ -11220,6 +11294,15 @@
                     "invoiceCount": {
                         "type": "integer"
                     },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ContributionLineData"
+                        }
+                    },
+                    "total": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
                     "deadline": {
                         "anyOf": [
                             {
@@ -11247,6 +11330,8 @@
                     "coversShownMonth",
                     "base",
                     "invoiceCount",
+                    "lines",
+                    "total",
                     "deadline",
                     "completion"
                 ],
