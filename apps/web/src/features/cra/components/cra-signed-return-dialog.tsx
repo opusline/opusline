@@ -10,7 +10,6 @@ import {
   DialogTitle,
 } from "@opusline/ui/components/dialog";
 import { Dropzone } from "@opusline/ui/components/dropzone";
-import { cn } from "@opusline/ui/lib/utils";
 import { UploadIcon } from "lucide-react";
 import { useState } from "react";
 import { useLocale } from "@/components/money-format-provider";
