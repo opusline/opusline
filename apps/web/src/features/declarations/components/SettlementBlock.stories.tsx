@@ -15,7 +15,6 @@ const meta = {
       expected: eur(297_825),
       provisioned: eur(297_825),
       gap: { amount: 0, currency: "EUR" },
-      detectedPayments: eur(0),
     },
   },
   decorators: [

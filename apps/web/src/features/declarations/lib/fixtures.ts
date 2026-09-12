@@ -1,7 +1,10 @@
 import type {
+  AnnualDeclarationsData,
+  CfeReturnData,
   DeclarationHistoryRowData,
   DeclarationSettlementData,
   DeclarationsData,
+  IncomeTaxReturnData,
   UrssafDeclarationData,
   VatDeclarationData,
 } from "@opusline/api-client";
@@ -153,6 +156,63 @@ export function historyRow(
   };
 }
 
+export function incomeTaxReturn(
+  overrides: Partial<IncomeTaxReturnData> = {},
+): IncomeTaxReturnData {
+  const bases = [
+    810_000, 990_000, 825_000, 1_100_000, 935_000, 1_045_000, 975_000, 0, 0, 0,
+    0, 0,
+  ];
+  const declaredOn = [
+    "2026-02-28",
+    "2026-03-31",
+    "2026-04-30",
+    "2026-05-31",
+    "2026-06-30",
+    "2026-07-28",
+    "2026-08-31",
+  ];
+
+  return {
+    year: 2026,
+    dueOn: "2027-05-28",
+    grossReceipts: eur(6_680_000),
+    box: 0,
+    periods: bases.map((base, index) => ({
+      period: `2026-${String(index + 1).padStart(2, "0")}`,
+      base: eur(base),
+      declaredOn: declaredOn[index] ?? null,
+    })),
+    taxableAfterAbatement: eur(4_408_800),
+    liberatingPaymentPaid: eur(146_960),
+    completion: null,
+    ...overrides,
+  };
+}
+
+/** The running year's CFE, guessed from last year's bill, nine twelfths set aside. */
+export function cfeReturn(
+  overrides: Partial<CfeReturnData> = {},
+): CfeReturnData {
+  return {
+    year: 2026,
+    dueOn: "2026-12-15",
+    expected: eur(31_200),
+    isEstimate: true,
+    provisioned: eur(23_400),
+    gap: { amount: -7_800, currency: "EUR" },
+    monthsProvisioned: 9,
+    completion: null,
+    ...overrides,
+  };
+}
+
+export function annualDeclarations(
+  overrides: Partial<AnnualDeclarationsData> = {},
+): AnnualDeclarationsData {
+  return { incomeTaxReturn: incomeTaxReturn(), cfe: cfeReturn(), ...overrides };
+}
+
 export function declarationsData(
   overrides: Partial<DeclarationsData> = {},
 ): DeclarationsData {
@@ -199,7 +259,7 @@ export function declarationsData(
         },
       }),
     ],
-    annual: null,
+    annual: annualDeclarations(),
     ...overrides,
   };
 }
