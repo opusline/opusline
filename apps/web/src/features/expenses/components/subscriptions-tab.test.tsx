@@ -29,6 +29,9 @@ function renderTab(
     onReactivate: vi.fn(),
     onDelete: vi.fn(),
     onLinkReceipt: vi.fn(),
+    isDetectedBusy: false,
+    onCreateFromDebit: vi.fn(),
+    onDismissDebit: vi.fn(),
     ...overrides,
   };
 
@@ -185,4 +188,52 @@ it("tells the cancelled ones apart from none at all", async () => {
   expect(
     await screen.findByText("Tous les abonnements sont résiliés"),
   ).toBeInTheDocument();
+});
+
+it("offers the recurring debit the compte pro shows as a subscription", async () => {
+  const props = renderTab();
+
+  expect(
+    await screen.findByText(
+      /Prélèvement récurrent détecté : PRLV SEPA ATELIERS RUCHE · 49,00\s€ · le 20 du mois · 3 mois consécutifs/,
+    ),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText(
+      "Compte pro · juin, juillet, août · aucun abonnement ne correspond",
+    ),
+  ).toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: "Créer l'abonnement" }));
+  expect(props.onCreateFromDebit).toHaveBeenCalledWith(
+    expect.objectContaining({ label: "PRLV SEPA ATELIERS RUCHE" }),
+  );
+
+  fireEvent.click(screen.getByRole("button", { name: "Ignorer" }));
+  expect(props.onDismissDebit).toHaveBeenCalled();
+});
+
+it("lists the debits ahead, the provision dashed, and sums the real ones", async () => {
+  renderTab();
+
+  const rail = (
+    await screen.findByText("Prochains prélèvements · 30 jours")
+  ).closest("aside") as HTMLElement;
+
+  expect(
+    within(rail).getByText("1 septembre 2026 · mensuel"),
+  ).toBeInTheDocument();
+  expect(within(rail).getByText(/^provision mensuelle · 26\s€$/)).toHaveClass(
+    "italic",
+  );
+  expect(
+    within(rail).getByText("d'ici le 19 septembre 2026"),
+  ).toBeInTheDocument();
+  expect(within(rail).getByText(/^52,97\s€$/)).toBeInTheDocument();
+  expect(
+    within(rail).getByText(/Orvella Assurances · 26\s€ provisionnés ce mois/),
+  ).toBeInTheDocument();
+  expect(
+    within(rail).getByRole("link", { name: "Virable en sécurité" }),
+  ).toHaveAttribute("href", "/treasury");
 });

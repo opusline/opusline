@@ -1826,6 +1826,21 @@
   "subscriptions_delete_confirm": "Delete the subscription",
   "subscriptions_delete_title": "Delete this subscription?",
   "subscriptions_deleted": "Subscription deleted",
+  "subscriptions_detected_create": "Create the subscription",
+  "subscriptions_detected_description": "Found on the compte pro",
+  "subscriptions_detected_dismiss": "Ignore",
+  "subscriptions_detected_dismissed": "Ignored · it will not come up again",
+  "subscriptions_detected_sub": "Compte pro · {months} · no subscription matches",
+  "subscriptions_detected_title": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Recurring debit found: {label} · {amount} · on the {day} of the month · {count} month",
+        "countPlural=other": "Recurring debit found: {label} · {amount} · on the {day} of the month · {count} months running"
+      }
+    }
+  ],
   "subscriptions_empty_sub": "Add your subscriptions: their expenses are created at each debit.",
   "subscriptions_empty_title": "No subscriptions",
   "subscriptions_field_amount_ht": "HT amount",
@@ -1909,6 +1924,14 @@
   "subscriptions_split_title": "Yearly split · HT",
   "subscriptions_split_value": "{amount} / year",
   "subscriptions_unprovisioned": "{supplier} · no monthly provision any more",
+  "subscriptions_upcoming_by": "by {date}",
+  "subscriptions_upcoming_line": "{date} · {periodicity}",
+  "subscriptions_upcoming_none": "No debit in the next thirty days.",
+  "subscriptions_upcoming_provision": "monthly provision · {amount}",
+  "subscriptions_upcoming_provision_link": "Safe to transfer",
+  "subscriptions_upcoming_provision_note": "{suppliers} · {amount} set aside this month →",
+  "subscriptions_upcoming_provision_tail": "takes the provisions into account.",
+  "subscriptions_upcoming_title": "Next debits · 30 days",
   "subscriptions_updated": "Subscription updated",
   "theme_choose": "Choose the theme",
   "theme_dark": "Dark",
