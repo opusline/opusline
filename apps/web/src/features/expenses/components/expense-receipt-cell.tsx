@@ -29,7 +29,9 @@ export function ExpenseReceiptCell({
         render={
           <a
             href={expenseReceiptHref(expense.id)}
-            rel="noreferrer"
+            // Sanctum trusts the session only on requests that carry the
+            // SPA's referer — a noreferrer link would answer 401.
+            rel="noopener"
             target="_blank"
           />
         }

@@ -94,6 +94,11 @@ it("opens a receipt in its own tab and offers a drop target without one", async 
   );
   expect(receipt).toHaveAttribute("target", "_blank");
   expect(receipt).not.toHaveAttribute("download");
+  // Sanctum reads the session off the referer: a noreferrer link answers 401.
+  expect(receipt).not.toHaveAttribute(
+    "rel",
+    expect.stringContaining("noreferrer"),
+  );
   expect(
     screen.getByLabelText("Lier la facture de Vesterhus Énergie"),
   ).toBeInTheDocument();
