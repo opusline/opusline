@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Domain\Expenses\Actions;
 
 use App\Domain\Expenses\Data\ExpenseInputData;
+use App\Domain\Expenses\Enums\ExpenseCategory;
+use App\Domain\Expenses\Enums\ExpenseVatTreatment;
 use App\Domain\Expenses\Vat\ExpenseAmounts;
 
 /**
@@ -14,7 +16,18 @@ use App\Domain\Expenses\Vat\ExpenseAmounts;
 final readonly class ExpenseAttributes
 {
     /**
-     * @return array<string, mixed>
+     * @return array{
+     *     supplier: string,
+     *     category: ExpenseCategory,
+     *     description: ?string,
+     *     spent_on: string,
+     *     vat_treatment: ExpenseVatTreatment,
+     *     vat_rate_bp: int,
+     *     pro_share_bp: int,
+     *     currency: string,
+     *     amount_ttc_cents: int,
+     *     amount_ht_cents: int
+     * }
      */
     public static function from(ExpenseInputData $data): array
     {

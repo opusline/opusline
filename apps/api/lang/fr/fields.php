@@ -107,7 +107,7 @@ return [
     'vatNumber' => 'numéro de TVA',
     'vatRateBp' => 'taux de TVA',
     'vatRegime' => 'régime de TVA',
-    'vatTreatment' => 'régime de TVA',
+    'vatTreatment' => 'traitement de TVA',
     'version' => 'version',
     'workdayMinutes' => 'durée de journée',
 ];

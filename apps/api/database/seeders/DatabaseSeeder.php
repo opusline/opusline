@@ -419,6 +419,10 @@ class DatabaseSeeder extends Seeder
         $this->expense($user, $thisMonth->subMonth()->setDay(21), 'Lunaprint', ExpenseCategory::Equipment, 'Écran 27"', 42_900);
     }
 
+    /**
+     * The current month is seeded up to today only: a purchase dated after
+     * today would fail the very rule the endpoint enforces.
+     */
     private function expense(
         User $user,
         CarbonImmutable $spentOn,
@@ -430,8 +434,6 @@ class DatabaseSeeder extends Seeder
         int $rateBp = 2_000,
         int $proShareBp = 10_000,
     ): void {
-        // The current month is seeded up to today only: a purchase dated after
-        // today would fail the very rule the endpoint enforces.
         if ($spentOn->greaterThan(CarbonImmutable::today())) {
             return;
         }

@@ -12,8 +12,6 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/expenses', [ExpenseController::class, 'store'])
         ->name('createExpense');
 
-    // Declared before the {expense} routes so the literal segment never reads
-    // as an id; whereNumber below is what actually keeps them apart.
     Route::post('/expenses/category', [ExpenseController::class, 'recategorize'])
         ->name('recategorizeExpenses');
 
