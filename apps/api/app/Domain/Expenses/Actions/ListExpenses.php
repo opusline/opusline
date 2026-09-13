@@ -95,7 +95,7 @@ class ListExpenses
      */
     private function vat(Collection $rows, string $month, DeclaredCa3Months $declared, int $collected, string $currency): ExpensesVatSummaryData
     {
-        $deductible = $blocked = $reverseCharged = $deferred = 0;
+        $deductible = $blocked = $reverseCharged = $reverseRecoverable = $deferred = 0;
         $blockedCount = 0;
 
         foreach ($rows as $expense) {
@@ -115,6 +115,7 @@ class ListExpenses
 
             if ($inMonth && $status === ExpenseVatStatus::ReverseCharged) {
                 $reverseCharged += (int) $amounts->assessedVat()->getAmount();
+                $reverseRecoverable += $recoverable;
             }
 
             if ($inMonth && $status === ExpenseVatStatus::Deferred) {
@@ -129,7 +130,10 @@ class ListExpenses
             reverseCharged: MoneyData::fromMoney(new Money($reverseCharged, $currency)),
             deferred: MoneyData::fromMoney(new Money($deferred, $currency)),
             collected: MoneyData::fromMoney(new Money($collected, $currency)),
-            balance: SignedMoneyData::fromMoney(new Money($collected - $deductible, $currency)),
+            // What the CA3 nets: the self-assessed TVA is both collected and
+            // deducted, so only the private share of a partly pro purchase
+            // stays owed.
+            balance: SignedMoneyData::fromMoney(new Money($collected + $reverseCharged - $deductible - $reverseRecoverable, $currency)),
         );
     }
 

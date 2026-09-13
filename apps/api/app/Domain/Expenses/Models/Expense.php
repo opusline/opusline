@@ -166,11 +166,11 @@ class Expense extends Model implements HasMedia
             return ExpenseVatStatus::Blocked;
         }
 
-        if ($this->isDeferred()) {
-            return ExpenseVatStatus::Deferred;
+        if ($declared->isDeclared($this->vat_claim_period)) {
+            return ExpenseVatStatus::Deducted;
         }
 
-        return $declared->isDeclared($this->vat_claim_period) ? ExpenseVatStatus::Deducted : ExpenseVatStatus::Deductible;
+        return $this->isDeferred() ? ExpenseVatStatus::Deferred : ExpenseVatStatus::Deductible;
     }
 
     /** The purchase month was declared without this row: the CA3 lists it as « autre TVA à déduire » (case 21). */

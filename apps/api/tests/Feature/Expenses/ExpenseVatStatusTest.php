@@ -192,6 +192,26 @@ test('a cosmetic edit keeps the claim where it is, an amount change in a declare
         ->assertJsonPath('expenses.0.isRegularisation', true);
 });
 
+test('a deferred deduction reads as deducted once the month it moved to is declared', function (): void {
+    $user = vatLiableUser();
+    $expense = receiptedExpenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-06-05')->ttc(12_000));
+
+    $this->actingAs($user)
+        ->postJson('/api/expenses/vat-deferrals', ['expenseIds' => [$expense->id]])
+        ->assertOk()
+        ->assertJsonPath('expenses.0.vatStatus', ExpenseVatStatus::Deferred->value)
+        ->assertJsonPath('expenses.0.vatClaimPeriod', '2026-07');
+
+    ca3DeclaredFor($user, '2026-07');
+
+    // The July CA3 carried it: the row is locked like any deducted one.
+    $this->actingAs($user)
+        ->getJson('/api/expenses?month=2026-06')
+        ->assertOk()
+        ->assertJsonPath('expenses.0.vatStatus', ExpenseVatStatus::Deducted->value)
+        ->assertJsonPath('vat.deferred.amount', 0);
+});
+
 test('collected minus deductible is what the CA3 owes, a credit when negative', function (): void {
     $user = vatLiableUser();
     paidInvoiceOn($user, '2026-08-10', htCents: 100_000, ttcCents: 120_000);
@@ -203,4 +223,17 @@ test('collected minus deductible is what the CA3 owes, a credit when negative', 
         ->assertJsonPath('vat.collected.amount', 20_000)
         ->assertJsonPath('vat.deductible.amount', 25_000)
         ->assertJsonPath('vat.balance.amount', -5_000);
+});
+
+test('a self-assessed purchase only leaves its private share owed', function (): void {
+    $user = vatLiableUser();
+    paidInvoiceOn($user, '2026-08-10', htCents: 100_000, ttcCents: 120_000);
+    // 480 € HT from outside the EU, 70 % pro: 96 € of TVA due, 67,20 € deductible.
+    receiptedExpenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-08-05')->reverseCharged(48_000)->proShare(7_000));
+
+    $this->actingAs($user)
+        ->getJson('/api/expenses?month=2026-08')
+        ->assertOk()
+        ->assertJsonPath('vat.reverseCharged.amount', 9_600)
+        ->assertJsonPath('vat.balance.amount', 20_000 + 9_600 - 6_720);
 });
