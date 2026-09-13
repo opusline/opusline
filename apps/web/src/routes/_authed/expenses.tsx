@@ -453,7 +453,7 @@ function ExpensesRoute() {
 
   if (journal.isPending) {
     return (
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4">
+      <div className="flex w-full flex-col gap-4">
         <Skeleton className="h-16 w-full" />
         <Skeleton className="h-28 w-full" />
         <Skeleton className="h-64 w-full" />

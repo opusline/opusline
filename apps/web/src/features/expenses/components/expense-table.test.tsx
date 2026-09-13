@@ -81,14 +81,19 @@ it("only tracks the receipt under the franchise", async () => {
   expect(screen.getAllByText("Facture manquante").length).toBeGreaterThan(0);
 });
 
-it("links a receipt for download and offers a drop target without one", async () => {
+it("opens a receipt in its own tab and offers a drop target without one", async () => {
   renderTable({ expenses: [expense(), blockedExpense()] });
 
-  expect(
-    await screen.findByRole("link", {
-      name: "Ouvrir la facture lunaprint-facture-9921.pdf",
-    }),
-  ).toHaveAttribute("href", expect.stringContaining("/expenses/1/receipt"));
+  const receipt = await screen.findByRole("link", {
+    name: "Ouvrir la facture lunaprint-facture-9921.pdf",
+  });
+
+  expect(receipt).toHaveAttribute(
+    "href",
+    expect.stringContaining("/expenses/1/receipt"),
+  );
+  expect(receipt).toHaveAttribute("target", "_blank");
+  expect(receipt).not.toHaveAttribute("download");
   expect(
     screen.getByLabelText("Lier la facture de Vesterhus Énergie"),
   ).toBeInTheDocument();

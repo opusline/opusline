@@ -27,7 +27,11 @@ export function ExpenseReceiptCell({
         })}
         className="max-w-full justify-start"
         render={
-          <a download href={expenseReceiptHref(expense.id)} rel="noreferrer" />
+          <a
+            href={expenseReceiptHref(expense.id)}
+            rel="noreferrer"
+            target="_blank"
+          />
         }
         size="lg"
         title={expense.receipt.fileName}
