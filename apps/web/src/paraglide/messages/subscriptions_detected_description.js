@@ -6,7 +6,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{}} Subscriptions_Detected_DescriptionInputs */
 
 const en_subscriptions_detected_description = /** @type {(inputs: Subscriptions_Detected_DescriptionInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Found on the compte pro`)
+	return /** @type {LocalizedString} */ (`Found on the business account`)
 };
 
 const fr_subscriptions_detected_description = /** @type {(inputs: Subscriptions_Detected_DescriptionInputs) => LocalizedString} */ () => {
@@ -16,7 +16,7 @@ const fr_subscriptions_detected_description = /** @type {(inputs: Subscriptions_
 /**
 * | output |
 * | --- |
-* | "Found on the compte pro" |
+* | "Found on the business account" |
 *
 * @param {Subscriptions_Detected_DescriptionInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

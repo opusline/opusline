@@ -7,8 +7,8 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{ count: NonNullable<unknown> }} Expenses_Kpi_Subscriptions_AnnualInputs */
 
 const en_expenses_kpi_subscriptions_annual = /** @type {(inputs: Expenses_Kpi_Subscriptions_AnnualInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
-	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} annual`);
-	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} annual`);
+	if (countPlural === "one") return /** @type {LocalizedString} */ (`of which ${i?.count} annual`);
+	if (countPlural === "other") return /** @type {LocalizedString} */ (`of which ${i?.count} annual`);
 	return /** @type {LocalizedString} */ ("expenses_kpi_subscriptions_annual");
 };
 
@@ -21,8 +21,8 @@ const fr_expenses_kpi_subscriptions_annual = /** @type {(inputs: Expenses_Kpi_Su
 /**
 * | countPlural | output |
 * | --- | --- |
-* | "one" | "{count} annual" |
-* | "other" | "{count} annual" |
+* | "one" | "of which {count} annual" |
+* | "other" | "of which {count} annual" |
 *
 * @param {Expenses_Kpi_Subscriptions_AnnualInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

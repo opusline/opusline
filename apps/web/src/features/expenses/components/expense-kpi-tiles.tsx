@@ -145,14 +145,24 @@ export function ExpenseKpiTiles({ month, unit }: ExpenseKpiTilesProps) {
         padding="roomy"
         size="xl"
         sub={
-          subscriptions === null || yearly === undefined
-            ? m.expenses_kpi_subscriptions_none()
-            : `${m.expenses_kpi_subscriptions_sub({
+          subscriptions === null || yearly === undefined ? (
+            m.expenses_kpi_subscriptions_none()
+          ) : (
+            <>
+              {m.expenses_kpi_subscriptions_sub({
                 count: subscriptions.count,
                 yearly: formatWholeAmount(format, yearly.amount),
-              })} · ${m.expenses_kpi_subscriptions_annual({
-                count: subscriptions.annualCount,
-              })}`
+              })}
+              {subscriptions.annualCount > 0 && (
+                <>
+                  {" "}
+                  {m.expenses_kpi_subscriptions_annual({
+                    count: subscriptions.annualCount,
+                  })}
+                </>
+              )}
+            </>
+          )
         }
         tone={subscriptions === null ? "quiet" : "strong"}
         value={

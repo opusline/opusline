@@ -660,7 +660,7 @@
   "declarations_ceiling_over": "ceiling exceeded by {amount}",
   "declarations_ceiling_share": "{share} of the micro-BNC ceiling",
   "declarations_ceiling_title": "{year} revenue to date",
-  "declarations_cfe_amount_hint": "The notice amount replaces the estimate, in Trésorerie as here.",
+  "declarations_cfe_amount_hint": "The notice amount replaces the estimate, in Treasury as here.",
   "declarations_cfe_amount_invalid": "Enter an amount above zero.",
   "declarations_cfe_amount_label": "Notice amount",
   "declarations_cfe_amount_saved": "Notice amount saved · {amount}",
@@ -921,7 +921,7 @@
   "expense_status_blocked": "Blocked",
   "expense_status_blocked_sub": "receipt missing",
   "expense_status_deducted": "Deducted",
-  "expense_status_deducted_sub": "CA3 of {date}",
+  "expense_status_deducted_sub": "filed on {date}",
   "expense_status_deductible": "To deduct",
   "expense_status_deductible_sub": "CA3 {month}",
   "expense_status_deferred": "Deferred",
@@ -1053,8 +1053,8 @@
       "declarations": ["input count", "local countPlural = count: plural"],
       "selectors": ["countPlural"],
       "match": {
-        "countPlural=one": "{count} annual",
-        "countPlural=other": "{count} annual"
+        "countPlural=one": "of which {count} annual",
+        "countPlural=other": "of which {count} annual"
       }
     }
   ],
@@ -1902,7 +1902,7 @@
   "subscriptions_annual_receipt": "1 receipt / year · {month}",
   "subscriptions_auto_create": "Create the expense automatically",
   "subscriptions_auto_create_help_1": "When the option is on, Opusline creates the expense on the debit day, with the HT amount, the TVA regime and the pro share set here. It shows in the month's journal as « Bloquée · facture manquante » until you link the receipt — the TVA only reaches the CA3 then.",
-  "subscriptions_auto_create_help_2": "If the debit is found on the compte pro, it is matched to that expense automatically: no duplicate.",
+  "subscriptions_auto_create_help_2": "If the debit is found on the business account, it is matched to that expense automatically: no duplicate.",
   "subscriptions_auto_create_help_3": "Turn the option off when the amount changes every month (electricity, usage-based billing): add the expense yourself with the real amount, and keep the subscription for tracking only.",
   "subscriptions_auto_create_more": "Learn more",
   "subscriptions_auto_create_note": "Expenses already created are not changed when you change the option or the amount.",
@@ -1924,10 +1924,10 @@
   "subscriptions_delete_title": "Delete this subscription?",
   "subscriptions_deleted": "Subscription deleted",
   "subscriptions_detected_create": "Create the subscription",
-  "subscriptions_detected_description": "Found on the compte pro",
+  "subscriptions_detected_description": "Found on the business account",
   "subscriptions_detected_dismiss": "Ignore",
   "subscriptions_detected_dismissed": "Ignored · it will not come up again",
-  "subscriptions_detected_sub": "Compte pro · {months} · no subscription matches",
+  "subscriptions_detected_sub": "Business account · {months} · no subscription matches",
   "subscriptions_detected_title": [
     {
       "declarations": ["input count", "local countPlural = count: plural"],
@@ -2006,9 +2006,9 @@
   "subscriptions_paused": "{supplier} paused · no expense will be created",
   "subscriptions_per_year": "/ year",
   "subscriptions_provision": "Set aside monthly",
-  "subscriptions_provision_amount": "{amount} / month set aside in Trésorerie.",
-  "subscriptions_provision_hint": "Smooths the yearly debit in Trésorerie.",
-  "subscriptions_provisioned": "{supplier} · {amount} / month set aside in Trésorerie",
+  "subscriptions_provision_amount": "{amount} / month set aside in Treasury.",
+  "subscriptions_provision_hint": "Smooths the yearly debit in Treasury.",
+  "subscriptions_provisioned": "{supplier} · {amount} / month set aside in Treasury",
   "subscriptions_reactivated": "{supplier} reactivated · debits resume",
   "subscriptions_receipt_linked": "{month} receipt linked · {supplier}",
   "subscriptions_regime_share": "{rate} · {share} of {amount}",

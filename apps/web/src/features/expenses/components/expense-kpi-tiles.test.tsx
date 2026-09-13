@@ -24,7 +24,7 @@ it("leads with the TVA to deduct and the month's totals in the chosen unit", () 
   expect(tile("Dépenses HT")).toHaveTextContent("6 dépenses · 948,00 € TTC");
   expect(tile("Abonnements")).toHaveTextContent("142 € / mois");
   expect(tile("Abonnements").lastElementChild?.textContent).toMatch(
-    /^2\s018\s€ \/ an · 3 abonnements · dont 1 annuel$/,
+    /^2\s018\s€ \/ an · 3 abonnements dont 1 annuel$/,
   );
 });
 

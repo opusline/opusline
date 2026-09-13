@@ -67,7 +67,7 @@ it("locks every deducted row once the month is filed", async () => {
   renderTable({ month: declaredExpensesMonth() });
 
   expect(await screen.findByText("Déduite")).toBeInTheDocument();
-  expect(screen.getByText("CA3 du 09/09/2026")).toBeInTheDocument();
+  expect(screen.getByText("déclarée le 09/09/2026")).toBeInTheDocument();
   expect(screen.getAllByText("Verrouillée · mois déclaré")).toHaveLength(1);
 });
 
