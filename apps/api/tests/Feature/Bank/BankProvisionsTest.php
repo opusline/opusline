@@ -52,7 +52,7 @@ test('a return marked paid on the Déclarations screen is no longer carried', fu
         ->assertJsonCount(1, 'provisions.urssaf.carriedPeriods');
 });
 
-test('a detected debit settles the oldest carried period first', function (): void {
+test('a detected debit settles the period that closed just before it', function (): void {
     $user = User::factory()->create();
     $user->settings()->sole()->update(['contribution_rate_bp' => 2500]);
 
@@ -64,11 +64,65 @@ test('a detected debit settles the oldest carried period first', function (): vo
     $this->actingAs($user)
         ->getJson('/api/bank')
         ->assertOk()
-        // June's debit shows; July stays owed, listed after the settled June.
+        // A July debit pays June; July stays owed, listed after the settled June.
         ->assertJsonPath('provisions.urssaf.amount.amount', 83_160)
         ->assertJsonPath('provisions.urssaf.carriedPeriods.0.period', '2026-06')
         ->assertJsonPath('provisions.urssaf.carriedPeriods.0.amount.amount', 0)
         ->assertJsonPath('provisions.urssaf.carriedPeriods.1.amount.amount', 41_580);
+});
+
+test('a late payment reaches back to the older period still owed', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['contribution_rate_bp' => 2500]);
+
+    paidInvoiceOn($user, '2026-08-03');
+    paidInvoiceOn($user, '2026-06-30');
+    // Nothing was collected in July, so an August debit can only be June's.
+    fiscDebitOn($user, '2026-08-05', 41_580, 'PRLV URSSAF JUIN');
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.urssaf.amount.amount', 41_580)
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.0.period', '2026-06')
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.0.amount.amount', 0);
+});
+
+test('a return marked paid keeps its own debit from settling another period', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['contribution_rate_bp' => 2500]);
+    FiscalDeadlineCompletion::factory()->for($user)->of(FiscalDeadlineKind::UrssafDeclaration, '2026-06')
+        ->completedOn('2026-07-20')->paidOn('2026-07-20')->create();
+
+    paidInvoiceOn($user, '2026-08-03');
+    paidInvoiceOn($user, '2026-07-31');
+    paidInvoiceOn($user, '2026-06-30');
+    paidInvoiceOn($user, '2026-05-31');
+    fiscDebitOn($user, '2026-07-20', 41_580, 'PRLV URSSAF JUIN');
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        // June is paid and its prélèvement is on the statement: May and July are still owed in full.
+        ->assertJsonPath('provisions.urssaf.amount.amount', 124_740)
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.0.period', '2026-05')
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.0.amount.amount', 41_580)
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.1.period', '2026-07')
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.1.amount.amount', 41_580);
+});
+
+test('a quarter that straddles the start of the window is still carried', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['contribution_rate_bp' => 2500, 'urssaf_periodicity' => UrssafPeriodicity::Quarterly]);
+
+    // Today is 13 August 2026: Q3 2025 started before the window but closed inside it.
+    paidInvoiceOn($user, '2025-09-15');
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.0.period', '2025-Q3')
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.0.amount.amount', 41_580);
 });
 
 test('a closed period is carried for a year at most', function (): void {

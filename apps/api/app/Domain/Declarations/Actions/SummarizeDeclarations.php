@@ -121,7 +121,7 @@ class SummarizeDeclarations
             // or nothing.
             $lookbackStart = ComputeBankProvisions::lookbackStart($today);
             $urssafCarried = $urssafPeriod['end']->lessThan($currentMonth)
-                && $urssafPeriod['start']->greaterThanOrEqualTo($lookbackStart)
+                && $urssafPeriod['end']->greaterThanOrEqualTo($lookbackStart)
                 && $collected->htCents($urssafPeriod['start'], $urssafPeriod['end']) > 0
                 && ! $this->completion($completions, FiscalDeadlineKind::UrssafDeclaration, $urssafPeriod['key'])?->paidOn instanceof CarbonImmutable;
             $vatCarried = $chain instanceof Ca3Chain
@@ -322,7 +322,9 @@ class SummarizeDeclarations
             $olderCarries = $olderCarries->add($carriedPeriod->amount->toMoney());
         }
 
-        if (! $carried instanceof Money) {
+        // Not carried, or carried at zero because its payment showed up on
+        // the compte pro: either way there is nothing to match against.
+        if (! $carried instanceof Money || $carried->isZero()) {
             return null;
         }
 

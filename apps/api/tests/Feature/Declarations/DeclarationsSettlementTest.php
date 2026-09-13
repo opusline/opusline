@@ -110,14 +110,15 @@ test('the CA3 block settles case 32 the same way, the other provisions taken off
     fiscDebitOn($user, '2026-08-12', 13_000, 'TELEREGLEMENT TVA CA3 JUILLET');
 
     // July owes 33 000 − 20 000 = 13 000 of TVA and 41 580 to the URSSAF. The
-    // télérèglement settled the TVA carry, so the engine holds 41 580 for the
-    // URSSAF and nothing for the TVA; the 60 000 covers the URSSAF in full.
+    // télérèglement settled the TVA carry, so there is nothing left to match
+    // on that side; the engine holds 41 580 for the URSSAF and the 60 000
+    // covers it in full.
     $this->actingAs($user)
         ->getJson('/api/declarations')
         ->assertOk()
         ->assertJsonPath('vat.settlement.expected.amount', 13_000)
         ->assertJsonPath('vat.settlement.detectedPayments.amount', 13_000)
-        ->assertJsonPath('vat.settlement.provisioned.amount', 0)
+        ->assertJsonPath('vat.settlement.provisioned', null)
         ->assertJsonPath('urssaf.settlement.provisioned.amount', 41_580)
         ->assertJsonPath('urssaf.settlement.gap.amount', 0);
 });

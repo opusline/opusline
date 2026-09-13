@@ -116,7 +116,7 @@ class ComputeBankProvisions
     }
 
     /**
-     * @return ?array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}
+     * @return ?array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable, annual: bool}
      */
     private function vatPeriod(UserSettings $settings, CarbonImmutable $today): ?array
     {
@@ -131,6 +131,7 @@ class ComputeBankProvisions
             'start' => $start,
             'end' => $annual ? $today->endOfYear() : $today->endOfMonth(),
             'previousStart' => $annual ? $start->subYear() : $start->subMonth(),
+            'annual' => $annual,
         ];
     }
 
@@ -169,9 +170,10 @@ class ComputeBankProvisions
         ?array $urssafPeriod,
         ?CarbonImmutable $chainStart,
     ): CollectedInvoices {
+        // One period before the carry window too: it absorbs the payment that lands first.
         $starts = array_filter([
-            $vatPeriod === null ? null : min($vatPeriod['previousStart'], $lookbackStart),
-            $urssafPeriod === null ? null : $lookbackStart,
+            $vatPeriod === null ? null : min($vatPeriod['previousStart'], $lookbackStart->subMonth()),
+            $urssafPeriod === null ? null : $lookbackStart->subMonths(6),
             $chainStart,
         ]);
 
@@ -200,8 +202,8 @@ class ComputeBankProvisions
         CarbonImmutable $today,
     ): Collection {
         $starts = array_filter([
-            // The carries net the payments made since the oldest of them closed.
-            $vatPeriod === null && $urssafPeriod === null ? null : $lookbackStart,
+            // The carries net the payments made since the period before the window closed.
+            $vatPeriod === null && $urssafPeriod === null ? null : $lookbackStart->subMonths(6),
             // The CFE netting reads the elapsed year.
             $settings->hasFrenchFiscality() ? $today->startOfYear() : null,
         ]);
@@ -227,7 +229,7 @@ class ComputeBankProvisions
      * whole — its journal tracks no deduction — and carries only the
      * previous period, as it files no return here to mark.
      *
-     * @param  array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}  $period
+     * @param  array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable, annual: bool}  $period
      * @param  ?DeclaredCa3Months  $declared  null outside French fiscality
      * @param  ?CarbonImmutable  $chainStart  null unless the account files the monthly CA3
      * @param  array<string, true>  $paid
@@ -256,11 +258,11 @@ class ComputeBankProvisions
             $deductible = $running->goodsAndServices + $running->otherDeductible;
             $closed = [];
 
-            for ($month = max($chainStart, $lookbackStart); $month->lessThanOrEqualTo($period['previousStart']); $month = $month->addMonth()) {
+            for ($month = max($chainStart, $lookbackStart->subMonth()); $month->lessThanOrEqualTo($period['previousStart']); $month = $month->addMonth()) {
                 $closed[] = ['key' => FiscalDeadline::monthKey($month), 'end' => $month->endOfMonth(), 'due' => $chain->boxes($month)->due];
             }
 
-            $carry = $this->carry($closed, FiscalDeadlineKind::VatCa3, $paid, $fiscDebits, DetectFiscPayments::isVat(...), $today, $currency);
+            $carry = $this->carry($closed, FiscalDeadlineKind::VatCa3, $paid, $lookbackStart, $fiscDebits, DetectFiscPayments::isVat(...), $today, $currency);
         } else {
             $previousEnd = $period['start']->subDay();
             $deductible = $expenses?->receiptedRecoverableCents($period['start'], $today) ?? 0;
@@ -270,11 +272,12 @@ class ComputeBankProvisions
                 $collected->vatCents($period['previousStart'], $previousEnd)
                     - ($expenses?->receiptedRecoverableCents($period['previousStart'], $previousEnd) ?? 0),
             );
-            $annual = $period['previousStart']->year !== $period['start']->year;
+            $annual = $period['annual'];
             $carry = $this->carry(
                 [['key' => $annual ? (string) $period['previousStart']->year : FiscalDeadline::monthKey($period['previousStart']), 'end' => $previousEnd, 'due' => $previous]],
                 $annual ? FiscalDeadlineKind::VatCa12 : FiscalDeadlineKind::VatCa3,
                 $paid,
+                $period['previousStart'],
                 $fiscDebits,
                 DetectFiscPayments::isVat(...),
                 $today,
@@ -293,12 +296,18 @@ class ComputeBankProvisions
     }
 
     /**
-     * The closed periods still owed, oldest first: a period is released once
-     * its return is marked paid, and the payments detected since the oldest
-     * one closed settle them in that order — a period a payment covered stays
-     * listed at zero, so the Déclarations screen can say it is settled.
+     * The closed periods still owed, oldest first. A payment detected on the
+     * compte pro answers for the period that closed just before it: the
+     * debits booked between a period's close and the next one's settle that
+     * period, and what they leave over reaches back to an older period still
+     * owed — never forward, since a return is paid after its period closes.
+     * A period marked paid, or one that closed before the carry window,
+     * still takes its due out of its own debits, so its prélèvement is not
+     * read as someone else's. Only the carried periods are listed; a period
+     * a payment covered stays at zero, so the Déclarations screen can say it
+     * is settled.
      *
-     * @param  list<array{key: string, end: CarbonImmutable, due: int}>  $closed  oldest first
+     * @param  list<array{key: string, end: CarbonImmutable, due: int}>  $closed  oldest first, contiguous, starting one period before the window
      * @param  array<string, true>  $paid
      * @param  Collection<int, BankMovement>  $fiscDebits
      * @return array{periods: list<CarriedPeriodData>, total: int}
@@ -307,30 +316,45 @@ class ComputeBankProvisions
         array $closed,
         FiscalDeadlineKind $kind,
         array $paid,
+        CarbonImmutable $windowStart,
         Collection $fiscDebits,
         callable $matchesLabel,
         CarbonImmutable $today,
         string $currency,
     ): array {
-        $owed = array_values(array_filter(
-            $closed,
-            static fn (array $period): bool => $period['due'] > 0 && ! isset($paid["{$kind->value}:{$period['key']}"]),
-        ));
+        $remaining = array_column($closed, 'due');
+        $leftover = [];
 
-        if ($owed === []) {
-            return ['periods' => [], 'total' => 0];
+        foreach ($closed as $index => $period) {
+            $paidWindowEnd = isset($closed[$index + 1]) ? min($closed[$index + 1]['end'], $today) : $today;
+            $debited = DetectFiscPayments::debitedBetween($fiscDebits, $period['end']->addDay(), $paidWindowEnd, $matchesLabel);
+            $applied = min($debited, $remaining[$index]);
+            $remaining[$index] -= $applied;
+            $leftover[$index] = $debited - $applied;
         }
 
-        $settled = DetectFiscPayments::debitedBetween($fiscDebits, $owed[0]['end']->addDay(), $today, $matchesLabel);
+        foreach ($closed as $index => $period) {
+            for ($later = $index + 1; $later < count($closed) && $remaining[$index] > 0; $later++) {
+                $applied = min($leftover[$later], $remaining[$index]);
+                $remaining[$index] -= $applied;
+                $leftover[$later] -= $applied;
+            }
+        }
+
         $periods = [];
         $total = 0;
 
-        foreach ($owed as $period) {
-            $applied = min($settled, $period['due']);
-            $settled -= $applied;
-            $remaining = $period['due'] - $applied;
-            $periods[] = new CarriedPeriodData($period['key'], MoneyData::fromMoney(new Money($remaining, $currency)));
-            $total += $remaining;
+        foreach ($closed as $index => $period) {
+            $isCarried = $period['due'] > 0
+                && ! isset($paid["{$kind->value}:{$period['key']}"])
+                && $period['end']->greaterThanOrEqualTo($windowStart);
+
+            if (! $isCarried) {
+                continue;
+            }
+
+            $periods[] = new CarriedPeriodData($period['key'], MoneyData::fromMoney(new Money($remaining[$index], $currency)));
+            $total += $remaining[$index];
         }
 
         return ['periods' => $periods, 'total' => $total];
@@ -381,16 +405,21 @@ class ComputeBankProvisions
         $quarterly = $settings->urssaf_periodicity === UrssafPeriodicity::Quarterly;
         $closed = [];
 
-        for ($start = $period['previousStart']; $start->greaterThanOrEqualTo($lookbackStart); $start = $quarterly ? $start->subMonths(3) : $start->subMonth()) {
+        // Back through every period that ends inside the window, then one
+        // more: the period before it absorbs the payment that lands first.
+        $start = $period['previousStart'];
+
+        do {
             $end = $quarterly ? $start->lastOfQuarter() : $start->endOfMonth();
             $closed[] = [
                 'key' => $quarterly ? FiscalDeadline::quarterKey($start) : FiscalDeadline::monthKey($start),
                 'end' => $end,
                 'due' => (int) Rate::of(new Money($collected->htCents($start, $end), $currency), $rates->onDate($end))->getAmount(),
             ];
-        }
+            $start = $quarterly ? $start->subMonths(3) : $start->subMonth();
+        } while ($end->greaterThanOrEqualTo($lookbackStart));
 
-        $carry = $this->carry(array_reverse($closed), FiscalDeadlineKind::UrssafDeclaration, $paid, $fiscDebits, DetectFiscPayments::isUrssaf(...), $today, $currency);
+        $carry = $this->carry(array_reverse($closed), FiscalDeadlineKind::UrssafDeclaration, $paid, $lookbackStart, $fiscDebits, DetectFiscPayments::isUrssaf(...), $today, $currency);
         $current = $this->urssafOwedCents($settings, $collected, $period['start'], $today, $currency);
 
         return new BankProvisionData(
