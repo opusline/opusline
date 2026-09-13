@@ -6449,6 +6449,12 @@
                     },
                     "isEstimate": {
                         "type": "boolean"
+                    },
+                    "carriedPeriods": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CarriedPeriodData"
+                        }
                     }
                 },
                 "required": [
@@ -6676,6 +6682,22 @@
                     }
                 },
                 "title": "CancelSubscriptionData"
+            },
+            "CarriedPeriodData": {
+                "type": "object",
+                "properties": {
+                    "period": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "period",
+                    "amount"
+                ],
+                "title": "CarriedPeriodData"
             },
             "CfeReturnData": {
                 "type": "object",

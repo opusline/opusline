@@ -13,7 +13,7 @@ use App\Domain\Users\Models\User;
 
 beforeEach(fn () => freezeTodayAtUtcNoon());
 
-test('provisions urssaf on this month plus the unpaid previous month', function (): void {
+test('provisions urssaf on this month plus every unpaid closed month', function (): void {
     $user = User::factory()->create();
     $user->settings()->sole()->update(['contribution_rate_bp' => 2500]);
 
@@ -24,12 +24,66 @@ test('provisions urssaf on this month plus the unpaid previous month', function 
     $this->actingAs($user)
         ->getJson('/api/bank')
         ->assertOk()
-        // August's accrual plus July's, carried while no payment shows; June
-        // is gone — two periods behind is out of the model's sight. Each month
-        // owes 1 650 € × (25 % + 0,2 % CFP) = 415,80 €.
-        ->assertJsonPath('provisions.urssaf.amount.amount', 83_160)
+        // August's accrual plus July's and June's, carried while nothing
+        // settles them. Each month owes 1 650 € × (25 % + 0,2 % CFP) = 415,80 €.
+        ->assertJsonPath('provisions.urssaf.amount.amount', 124_740)
+        ->assertJsonPath('provisions.urssaf.carried.amount', 83_160)
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.0.period', '2026-06')
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.1.period', '2026-07')
         ->assertJsonPath('provisions.urssaf.rateBp', 2520)
-        ->assertJsonPath('provisions.total.amount', 83_160);
+        ->assertJsonPath('provisions.total.amount', 124_740);
+});
+
+test('a return marked paid on the Déclarations screen is no longer carried', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['contribution_rate_bp' => 2500]);
+    FiscalDeadlineCompletion::factory()->for($user)->of(FiscalDeadlineKind::UrssafDeclaration, '2026-06')
+        ->completedOn('2026-07-20')->paidOn('2026-07-31')->create();
+
+    paidInvoiceOn($user, '2026-08-03');
+    paidInvoiceOn($user, '2026-07-31');
+    paidInvoiceOn($user, '2026-06-30');
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.urssaf.amount.amount', 83_160)
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.0.period', '2026-07')
+        ->assertJsonCount(1, 'provisions.urssaf.carriedPeriods');
+});
+
+test('a detected debit settles the oldest carried period first', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['contribution_rate_bp' => 2500]);
+
+    paidInvoiceOn($user, '2026-08-03');
+    paidInvoiceOn($user, '2026-07-31');
+    paidInvoiceOn($user, '2026-06-30');
+    fiscDebitOn($user, '2026-07-28', 41_580, 'PRLV URSSAF JUIN');
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        // June's debit shows; July stays owed, listed after the settled June.
+        ->assertJsonPath('provisions.urssaf.amount.amount', 83_160)
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.0.period', '2026-06')
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.0.amount.amount', 0)
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.1.amount.amount', 41_580);
+});
+
+test('a closed period is carried for a year at most', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['contribution_rate_bp' => 2500]);
+
+    paidInvoiceOn($user, '2025-07-15');
+    paidInvoiceOn($user, '2025-08-15');
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.urssaf.amount.amount', 41_580)
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.0.period', '2025-08')
+        ->assertJsonCount(1, 'provisions.urssaf.carriedPeriods');
 });
 
 test('a detected urssaf debit settles the carried month', function (): void {
@@ -167,6 +221,27 @@ test('provisions the tva of this month plus the unpaid previous month under rée
         ->assertOk()
         ->assertJsonPath('provisions.vat.amount.amount', 66_000)
         ->assertJsonPath('provisions.vat.rateBp', null);
+});
+
+test('carries every unpaid ca3 of the past year under réel normal', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['contribution_rate_bp' => 2500]);
+    vatLiable($user);
+    FiscalDeadlineCompletion::factory()->for($user)->of(FiscalDeadlineKind::VatCa3, '2026-06')
+        ->completedOn('2026-07-10')->paidOn('2026-07-12')->create();
+
+    paidInvoiceOn($user, '2026-08-03');
+    paidInvoiceOn($user, '2026-07-15');
+    paidInvoiceOn($user, '2026-06-15');
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        // June's CA3 was marked paid and July's is still owed: two returns of 330 €.
+        ->assertJsonPath('provisions.vat.amount.amount', 66_000)
+        ->assertJsonPath('provisions.vat.carried.amount', 33_000)
+        ->assertJsonPath('provisions.vat.carriedPeriods.0.period', '2026-07')
+        ->assertJsonCount(1, 'provisions.vat.carriedPeriods');
 });
 
 test('a tva télérèglement settles the carried month and leaves urssaf alone', function (): void {

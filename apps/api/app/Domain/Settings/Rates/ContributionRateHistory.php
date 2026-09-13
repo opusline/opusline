@@ -19,15 +19,18 @@ class ContributionRateHistory
 {
     public function onDate(UserSettings $settings, CarbonImmutable $date): int
     {
+        return $this->timeline($settings)->onDate($date);
+    }
+
+    public function timeline(UserSettings $settings): ContributionRateTimeline
+    {
         $recorded = ContributionRate::query()
             ->where('user_id', $settings->user_id)
-            ->where('effective_from', '<=', $date->toDateString())
             ->orderByDesc('effective_from')
             ->orderByDesc('id')
-            ->first();
+            ->get()
+            ->all();
 
-        return $recorded instanceof ContributionRate
-            ? $recorded->effective_rate_bp
-            : $settings->effectiveContributionRateBp();
+        return new ContributionRateTimeline($settings, $recorded);
     }
 }

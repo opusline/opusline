@@ -853,30 +853,6 @@ export const zBankMatchData = z.object({
 });
 
 /**
- * BankProvisionData
- */
-export const zBankProvisionData = z.object({
-    amount: zMoneyData,
-    carried: zMoneyData,
-    rateBp: z.nullable(z.int()),
-    deductible: z.nullable(zMoneyData),
-    periodEnd: z.iso.date(),
-    isEstimate: z.optional(z.boolean())
-});
-
-/**
- * BankProvisionsData
- */
-export const zBankProvisionsData = z.object({
-    vat: z.nullable(zBankProvisionData),
-    urssaf: z.nullable(zBankProvisionData),
-    cfe: z.nullable(zBankProvisionData),
-    subscriptions: z.nullable(zBankProvisionData),
-    buffer: z.nullable(zMoneyData),
-    total: zMoneyData
-});
-
-/**
  * Ca3BoxesData
  */
 export const zCa3BoxesData = z.object({
@@ -891,6 +867,39 @@ export const zCa3BoxesData = z.object({
     creditCarried: zMoneyData,
     credit: zMoneyData,
     due: zMoneyData
+});
+
+/**
+ * CarriedPeriodData
+ */
+export const zCarriedPeriodData = z.object({
+    period: z.string(),
+    amount: zMoneyData
+});
+
+/**
+ * BankProvisionData
+ */
+export const zBankProvisionData = z.object({
+    amount: zMoneyData,
+    carried: zMoneyData,
+    rateBp: z.nullable(z.int()),
+    deductible: z.nullable(zMoneyData),
+    periodEnd: z.iso.date(),
+    isEstimate: z.optional(z.boolean()),
+    carriedPeriods: z.optional(z.array(zCarriedPeriodData))
+});
+
+/**
+ * BankProvisionsData
+ */
+export const zBankProvisionsData = z.object({
+    vat: z.nullable(zBankProvisionData),
+    urssaf: z.nullable(zBankProvisionData),
+    cfe: z.nullable(zBankProvisionData),
+    subscriptions: z.nullable(zBankProvisionData),
+    buffer: z.nullable(zMoneyData),
+    total: zMoneyData
 });
 
 /**
