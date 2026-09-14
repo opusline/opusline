@@ -1,4 +1,3 @@
-import { client } from "@opusline/api-client/client";
 import { currentUserQueryKey } from "@opusline/api-client/react-query";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
@@ -10,16 +9,14 @@ import {
 } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 
-import { setupApiClient } from "@/lib/api";
 import { INACTIVITY_LOCK_MS, reportSessionExpired } from "@/lib/session-lock";
+import { wireAppApiClient } from "@/test/api-client";
 import { CURRENT_USER_FIXTURE, seedCurrentUser } from "@/test/current-user";
 import { StoryRouter } from "@/test/story-router";
 import { SessionLockProvider } from "./session-lock-provider";
 
-setupApiClient();
-// The interceptors are the subject here — a 401 has to reach the lock — but the
-// app's relative "/api" base is a browser trick Node's Request cannot repeat.
-client.setConfig({ baseUrl: "http://localhost/api" });
+// The interceptors are the subject here: a 401 has to reach the lock.
+wireAppApiClient();
 
 const jsonResponse = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), {

@@ -1,13 +1,11 @@
 import { client } from "@opusline/api-client/client";
 import { afterEach, expect, it, vi } from "vitest";
 
-import { setupApiClient } from "./api";
+import { wireAppApiClient } from "@/test/api-client";
+
 import { onSessionExpired } from "./session-lock";
 
-setupApiClient();
-// The app's base is the relative `/api` the browser resolves; Node's Request
-// cannot, so the tests keep the generated absolute default.
-client.setConfig({ baseUrl: "http://localhost/api" });
+wireAppApiClient();
 
 function stubResponse(status: number, body: string, type: string) {
   vi.stubGlobal(

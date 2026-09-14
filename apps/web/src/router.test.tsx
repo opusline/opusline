@@ -1,17 +1,14 @@
-import { client } from "@opusline/api-client/client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
 import { render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { setupApiClient } from "@/lib/api";
+import { wireAppApiClient } from "@/test/api-client";
 import { seedCurrentUser } from "@/test/current-user";
 import { getRouter } from "./router";
 
 // The status these routes branch on is stamped by the client's error
-// interceptor, so the suite wires the client the app wires at boot — with the
-// absolute base Node's Request needs, as lib/api.test.ts does.
-setupApiClient();
-client.setConfig({ baseUrl: "http://localhost/api" });
+// interceptor, so the suite wires the client the app wires at boot.
+wireAppApiClient();
 
 beforeEach(() => {
   window.history.replaceState(null, "", "/");
