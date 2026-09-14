@@ -18,6 +18,7 @@ function renderSheet(
     fieldErrors: null,
     onOpenChange: vi.fn(),
     onSubmit: vi.fn(),
+    onReadReceipt: vi.fn(async () => ({ textFound: false })),
     ...overrides,
   };
 
