@@ -106,6 +106,19 @@ test('refuses a receipt whose name hides an executable segment, as a 422 not a c
     $this->assertDatabaseMissing('media', ['model_type' => 'expense', 'model_id' => $expense->id]);
 });
 
+test('a refused replacement leaves the receipt already attached in place', function (): void {
+    $user = User::factory()->create();
+    $expense = expenseOwnedBy($user);
+    attachReceipt($user, $expense, 'facture-9921.pdf')->assertCreated();
+
+    attachReceipt($user, $expense, 'facture.php.pdf')
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('file');
+
+    $this->assertDatabaseHas('media', ['model_type' => 'expense', 'model_id' => $expense->id, 'file_name' => 'facture-9921.pdf']);
+    $this->assertDatabaseCount('media', 1);
+});
+
 test('detaches the receipt and answers with the month', function (): void {
     $user = User::factory()->create();
     $expense = expenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-08-10'));
