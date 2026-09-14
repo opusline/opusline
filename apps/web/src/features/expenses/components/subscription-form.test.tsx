@@ -1,6 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
+import { pickDate } from "@/test/date-picker";
+
 import { emptySubscriptionDraft } from "../lib/subscription-draft";
 import { SubscriptionForm } from "./subscription-form";
 
@@ -100,4 +102,138 @@ it("hides the TVA choice under the franchise", () => {
   expect(screen.queryByText("Taux de TVA")).not.toBeInTheDocument();
   expect(screen.queryByText("Quote-part pro")).not.toBeInTheDocument();
   expect(screen.queryByText("TVA")).not.toBeInTheDocument();
+});
+
+function typeSupplierAndAmount(supplier: string, ht: string) {
+  fireEvent.change(screen.getByLabelText("Fournisseur"), {
+    target: { value: supplier },
+  });
+  fireEvent.change(screen.getByLabelText("Montant HT"), {
+    target: { value: ht },
+  });
+}
+
+it("hands every detail picked in the form over on save", async () => {
+  const props = renderForm();
+
+  typeSupplierAndAmount("Callisto Télécom", "24,17");
+  fireEvent.change(screen.getByLabelText("Catégorie"), {
+    target: { value: "3" },
+  });
+  fireEvent.change(screen.getByLabelText("Description"), {
+    target: { value: "Forfait mobile pro" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "70 %" }));
+  fireEvent.click(screen.getByRole("button", { name: "Autoliq. UE" }));
+  fireEvent.change(screen.getByLabelText("Jour du prélèvement"), {
+    target: { value: "12" },
+  });
+  await pickDate("Date de début", "2026-09-01");
+  fireEvent.change(screen.getByLabelText("URL de l'espace client"), {
+    target: { value: "https://espace.callisto.example" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+
+  expect(props.onSubmit).toHaveBeenCalledWith(
+    expect.objectContaining({
+      supplier: "Callisto Télécom",
+      ht: "24,17",
+      category: 3,
+      description: "Forfait mobile pro",
+      proShare: "70",
+      vatChoice: "eu",
+      debitDay: "12",
+      startedOn: "2026-09-01",
+      customerSpaceUrl: "https://espace.callisto.example",
+    }),
+  );
+});
+
+it("an annual subscription hands its debit month and provisioning over", () => {
+  const props = renderForm();
+
+  typeSupplierAndAmount("Orvella Assurances", "312");
+  fireEvent.click(screen.getByRole("button", { name: "Annuel" }));
+  fireEvent.change(screen.getByLabelText("Mois du prélèvement"), {
+    target: { value: "1" },
+  });
+  fireEvent.click(
+    screen.getByRole("switch", { name: "Provisionner mensuellement" }),
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+
+  expect(props.onSubmit).toHaveBeenCalledWith(
+    expect.objectContaining({
+      periodicity: 2,
+      debitMonth: 1,
+      provisionMonthly: false,
+    }),
+  );
+});
+
+it("keeps the rhythm when the one already picked is pressed again", () => {
+  renderForm();
+
+  fireEvent.click(screen.getByRole("button", { name: "Mensuel" }));
+
+  expect(screen.getByRole("button", { name: "Mensuel" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+});
+
+it("turns a numpad dot into the decimal comma once the amount is left", () => {
+  renderForm();
+
+  const amount = screen.getByLabelText("Montant HT");
+  fireEvent.change(amount, { target: { value: "24.5" } });
+  fireEvent.blur(amount);
+
+  expect(amount).toHaveValue("24,5");
+});
+
+it("holds the save on a debit day no month has", () => {
+  renderForm();
+
+  typeSupplierAndAmount("Nordlys Cloud", "24");
+  fireEvent.change(screen.getByLabelText("Jour du prélèvement"), {
+    target: { value: "32" },
+  });
+
+  expect(
+    screen.getByText("Indiquez un jour entre 1 et 31."),
+  ).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Enregistrer" })).toBeDisabled();
+});
+
+it.each([
+  ["supplier", "Fournisseur", "Ce fournisseur a déjà un abonnement."],
+  ["amountHt.amount", "Montant HT", "Le montant est trop élevé."],
+  ["debitDay", "Jour du prélèvement", "Le jour doit exister chaque mois."],
+  ["customerSpaceUrl", "URL de l'espace client", "Indiquez une adresse web."],
+])("puts the API's refusal of %s under its field", (field, label, message) => {
+  renderForm({ fieldErrors: { [field]: { message } } });
+
+  expect(screen.getByText(message)).toBeInTheDocument();
+  expect(screen.getByLabelText(label)).toHaveAttribute("aria-invalid", "true");
+});
+
+it("puts the API's refusal of the start date under its field", () => {
+  renderForm({
+    fieldErrors: {
+      startedOn: { message: "La date de début ne peut pas être si ancienne." },
+    },
+  });
+
+  expect(
+    screen.getByText("La date de début ne peut pas être si ancienne."),
+  ).toBeInTheDocument();
+});
+
+it("shows a refusal that belongs to no field above the form", () => {
+  renderForm({ error: "L'abonnement n'a pas pu être mis à jour." });
+
+  expect(screen.getByRole("alert")).toHaveTextContent(
+    "L'abonnement n'a pas pu être mis à jour.",
+  );
 });
