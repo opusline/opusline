@@ -15,6 +15,8 @@ type TreasuryHeroProps = {
   balance: BankBalanceData;
   transferable: SignedMoneyData;
   pendingTransfers: MoneyData;
+  /** Returns marked paid that the balance does not show the debit of yet. */
+  pendingDeclarations: MoneyData;
   onRecord: () => void;
 };
 
@@ -22,6 +24,7 @@ export function TreasuryHero({
   balance,
   transferable,
   pendingTransfers,
+  pendingDeclarations,
   onRecord,
 }: TreasuryHeroProps) {
   const format = useMoneyFormat();
@@ -49,6 +52,13 @@ export function TreasuryHero({
         <p className="mt-1.5 text-muted-foreground-3 text-xs">
           {m.treasury_hero_pending({
             amount: formatWholeAmount(format, pendingTransfers.amount),
+          })}
+        </p>
+      )}
+      {pendingDeclarations.amount > 0 && (
+        <p className="mt-1.5 text-muted-foreground-3 text-xs">
+          {m.treasury_hero_pending_declarations({
+            amount: formatWholeAmount(format, pendingDeclarations.amount),
           })}
         </p>
       )}

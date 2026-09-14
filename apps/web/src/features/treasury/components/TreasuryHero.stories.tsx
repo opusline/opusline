@@ -2,11 +2,15 @@ import type { Meta, StoryObj } from "@storybook/react";
 
 import { eur, treasuryData } from "@/test/fixtures";
 
-import { pendingTransferTreasuryData } from "../lib/fixtures";
+import {
+  paidDeclarationTreasuryData,
+  pendingTransferTreasuryData,
+} from "../lib/fixtures";
 import { TreasuryHero } from "./treasury-hero";
 
 const base = treasuryData();
 const pending = pendingTransferTreasuryData();
+const paidDeclaration = paidDeclarationTreasuryData();
 
 const meta = {
   title: "Web/Treasury/TreasuryHero",
@@ -16,6 +20,7 @@ const meta = {
     balance: base.balance ?? undefined,
     transferable: base.transferable ?? undefined,
     pendingTransfers: base.pendingTransfers,
+    pendingDeclarations: base.pendingDeclarations,
     onRecord: () => {},
   },
 } satisfies Meta<typeof TreasuryHero>;
@@ -30,6 +35,14 @@ export const WithPendingTransfer: Story = {
   args: {
     transferable: pending.transferable ?? undefined,
     pendingTransfers: pending.pendingTransfers,
+  },
+};
+
+/** A return marked paid since the last relevé is deducted on top of the balance too. */
+export const WithPaidDeclaration: Story = {
+  args: {
+    transferable: paidDeclaration.transferable ?? undefined,
+    pendingDeclarations: paidDeclaration.pendingDeclarations,
   },
 };
 
