@@ -81,7 +81,7 @@ function renderPanel(data = subscriptionsData()) {
               today={SUBSCRIPTIONS_TODAY}
             />
           </StoryRouter>
-          <Toaster />
+          <Toaster closeLabel="Close" />
         </ToastProvider>
       </MoneyFormatProvider>
     </QueryClientProvider>,
