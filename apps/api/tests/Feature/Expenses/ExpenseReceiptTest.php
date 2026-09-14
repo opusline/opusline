@@ -100,9 +100,9 @@ test('refuses a receipt whose name hides an executable segment, as a 422 not a c
 test('a refused replacement leaves the receipt already attached in place', function (): void {
     $user = User::factory()->create();
     $expense = expenseOwnedBy($user);
-    attachReceipt($user, $expense, 'facture-9921.pdf')->assertCreated();
+    attachReceiptTo($user, $expense, 'facture-9921.pdf')->assertCreated();
 
-    attachReceipt($user, $expense, 'facture.php.pdf')
+    attachReceiptTo($user, $expense, 'facture.php.pdf')
         ->assertUnprocessable()
         ->assertJsonValidationErrors('file');
 
