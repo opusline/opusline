@@ -161,4 +161,11 @@ describe("expenseToDraft", () => {
       receipt: null,
     });
   });
+
+  it("leaves the description blank on a row without one", () => {
+    expect(
+      expenseToDraft(DEFAULT_MONEY_FORMAT, expense({ description: null }))
+        .description,
+    ).toBe("");
+  });
 });

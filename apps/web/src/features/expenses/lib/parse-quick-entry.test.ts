@@ -58,6 +58,14 @@ it("reads the reverse-charge and exempt words", () => {
   );
 });
 
+it("reads « pro » as a plain word when no share comes before it", () => {
+  expect(parseQuickEntry("pro 12 papeterie", TODAY)).toEqual({
+    supplier: "Pro",
+    ttcDraft: "12",
+    description: "Papeterie",
+  });
+});
+
 it("keeps a multi-word supplier before the amount", () => {
   expect(
     parseQuickEntry("maison vesterhus 46 déjeuner 10%", TODAY),
