@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { CircleAlert, TriangleAlert } from "lucide-react";
+import { CheckIcon, CircleAlert, TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "./alert";
 
 const meta = {
@@ -37,6 +37,18 @@ export const Warn: Story = {
       <AlertDescription>
         Email ou mot de passe incorrect. 2 essais restants avant blocage
         temporaire.
+      </AlertDescription>
+    </Alert>
+  ),
+};
+
+/** A settled state the page keeps showing — a month declared, a file read. */
+export const Success: Story = {
+  render: () => (
+    <Alert variant="success">
+      <CheckIcon />
+      <AlertDescription>
+        CA3 août déclarée le 30 juillet · 1 016,45 € déduits
       </AlertDescription>
     </Alert>
   ),
