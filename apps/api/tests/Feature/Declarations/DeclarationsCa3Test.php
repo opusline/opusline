@@ -152,3 +152,19 @@ test('a purchase deferred by hand is deducted on the next return', function (): 
         ->assertJsonPath('vat.boxes.goodsAndServices.amount', 2_000)
         ->assertJsonPath('vat.boxes.otherDeductible.amount', 0);
 });
+
+test('never counts another account purchases on the return', function (): void {
+    $user = vatLiableUser();
+    $other = vatLiableUser();
+    paidInvoiceOn($user, '2026-07-10', htCents: 840_000, ttcCents: 1_008_000);
+    receiptedExpenseOwnedBy($other, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-07-08')->ttc(1_439));
+    expenseOwnedBy($other, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-07-15')->reverseCharged(4_800));
+
+    $this->actingAs($user)
+        ->getJson('/api/declarations?period=2026-07')
+        ->assertOk()
+        ->assertJsonPath('vat.boxes.nonEuPurchasesHt.amount', 0)
+        ->assertJsonPath('vat.boxes.goodsAndServices.amount', 0)
+        ->assertJsonPath('vat.expenseCount', 0)
+        ->assertJsonPath('vat.boxes.due.amount', 168_000);
+});
