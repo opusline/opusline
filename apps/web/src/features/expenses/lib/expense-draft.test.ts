@@ -4,6 +4,7 @@ import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
 
 import {
   draftToPayload,
+  duplicateExpenseDraft,
   emptyExpenseDraft,
   expenseToDraft,
 } from "./expense-draft";
@@ -127,6 +128,23 @@ describe("draftToPayload", () => {
         false,
       ),
     ).toMatchObject({ vatTreatment: 0, vatRateBp: 0 });
+  });
+});
+
+describe("duplicateExpenseDraft", () => {
+  it("dates the copy today and moves its recurring day along", () => {
+    expect(
+      duplicateExpenseDraft(
+        DEFAULT_MONEY_FORMAT,
+        deferredExpense(),
+        "2026-09-21",
+      ),
+    ).toMatchObject({
+      supplier: "Callisto Télécom",
+      spentOn: "2026-09-21",
+      recurringDay: "21",
+      receipt: null,
+    });
   });
 });
 

@@ -26,6 +26,12 @@ it("reads a day and month as the most recent such day", () => {
   ).toBeUndefined();
 });
 
+it("reads a leap day on the last leap year when this one has none", () => {
+  expect(parseQuickEntry("lunaprint 14,39 29/02", "2025-03-10").spentOn).toBe(
+    "2024-02-29",
+  );
+});
+
 it("hands the amount over with a dot, whatever was typed", () => {
   expect(parseQuickEntry("lunaprint 14,39", TODAY).ttcDraft).toBe("14.39");
   expect(parseQuickEntry("lunaprint 429€", TODAY).ttcDraft).toBe("429");

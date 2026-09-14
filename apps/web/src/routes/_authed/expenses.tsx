@@ -38,9 +38,9 @@ import { JournalTab } from "@/features/expenses/components/journal-tab";
 import { type AmountUnit, isAmountUnit } from "@/features/expenses/lib/amounts";
 import {
   draftToPayload,
+  duplicateExpenseDraft,
   type ExpenseDraft,
   emptyExpenseDraft,
-  expenseToDraft,
 } from "@/features/expenses/lib/expense-draft";
 import { monthName } from "@/features/expenses/lib/labels";
 import { receiptRejection } from "@/features/expenses/lib/receipts";
@@ -452,7 +452,7 @@ function ExpensesRoute() {
           onDuplicate={(expense) =>
             setSheet({
               mode: "create",
-              initial: { ...expenseToDraft(format, expense), spentOn: today },
+              initial: duplicateExpenseDraft(format, expense, today),
             })
           }
           onEdit={(expense) => setSheet({ mode: "edit", expense })}

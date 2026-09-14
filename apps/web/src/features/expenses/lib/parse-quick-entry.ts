@@ -70,8 +70,9 @@ function recentDate(
       `${candidate}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`,
     );
 
+    // A day this year may not exist in the other: 29/02 lives on leap years.
     if (date.getMonth() + 1 !== month || date.getDate() !== day) {
-      return undefined;
+      continue;
     }
 
     const calendarDate = toCalendarDate(date);

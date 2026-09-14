@@ -83,6 +83,19 @@ export function expenseToDraft(
   };
 }
 
+/** « Dupliquer »: the same purchase again today, so its recurring day follows today too. */
+export function duplicateExpenseDraft(
+  format: MoneyFormat,
+  expense: ExpenseData,
+  today: string,
+): ExpenseDraft {
+  return {
+    ...expenseToDraft(format, expense),
+    spentOn: today,
+    recurringDay: dayOfMonth(today),
+  };
+}
+
 /** The pair the row will carry: the chip's, or the stored one while no chip is picked. */
 export function draftVatTerms(draft: ExpenseDraft): VatTerms {
   return draft.vatChoice === null
