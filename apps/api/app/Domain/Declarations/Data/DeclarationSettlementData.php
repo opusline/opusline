@@ -12,11 +12,12 @@ use Spatie\LaravelData\Data;
 /**
  * What the period costs against what the compte pro holds for it.
  *
- * `provisioned` only means something while the period is the one the
- * provisions engine carries — the last closed one — and its payment has
- * not been recorded: it is that carry, capped by what the balance can
- * actually cover once pending transfers and the other provisions come
- * off. Older periods and paid ones read null, never a stale figure.
+ * `provisioned` only means something while the provisions engine carries
+ * the period — closed inside the past year, neither marked paid nor
+ * settled by a detected payment: it is that carry, capped by what the
+ * balance can actually cover once pending transfers, the other provisions
+ * and the older carries come off. Other periods read null, never a stale
+ * figure.
  */
 class DeclarationSettlementData extends Data
 {
@@ -31,7 +32,7 @@ class DeclarationSettlementData extends Data
     ) {}
 
     /**
-     * @param  ?Money  $provisioned  null when the period is not the one the engine carries, or is paid, or the balance is unknown
+     * @param  ?Money  $provisioned  null when the engine does not carry the period, or the balance is unknown
      */
     public static function of(Money $expected, int $detectedPayments, ?Money $provisioned): self
     {

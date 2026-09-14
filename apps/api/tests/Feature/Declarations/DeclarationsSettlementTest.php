@@ -66,6 +66,25 @@ test('a paid return is no longer matched against the provision', function (): vo
         ->assertJsonPath('urssaf.settlement.gap', null);
 });
 
+test('an older unpaid period is matched too, and served before the newer one', function (): void {
+    $user = settledAccount(balanceCents: 50_000);
+    paidInvoiceOn($user, '2026-06-10');
+
+    // June and July each owe 41 580; the 50 000 covers June in full and
+    // leaves 8 420 for July.
+    $this->actingAs($user)
+        ->getJson('/api/declarations?period=2026-06')
+        ->assertOk()
+        ->assertJsonPath('urssaf.settlement.provisioned.amount', 41_580)
+        ->assertJsonPath('urssaf.settlement.gap.amount', 0);
+
+    $this->actingAs($user)
+        ->getJson('/api/declarations')
+        ->assertOk()
+        ->assertJsonPath('urssaf.settlement.provisioned.amount', 8_420)
+        ->assertJsonPath('urssaf.settlement.gap.amount', -33_160);
+});
+
 test('an older period has no provision to match', function (): void {
     $this->actingAs(settledAccount())
         ->getJson('/api/declarations?period=2026-06')
@@ -91,14 +110,15 @@ test('the CA3 block settles case 32 the same way, the other provisions taken off
     fiscDebitOn($user, '2026-08-12', 13_000, 'TELEREGLEMENT TVA CA3 JUILLET');
 
     // July owes 33 000 − 20 000 = 13 000 of TVA and 41 580 to the URSSAF. The
-    // télérèglement settled the TVA carry, so the engine holds 41 580 for the
-    // URSSAF and nothing for the TVA; the 60 000 covers the URSSAF in full.
+    // télérèglement settled the TVA carry, so there is nothing left to match
+    // on that side; the engine holds 41 580 for the URSSAF and the 60 000
+    // covers it in full.
     $this->actingAs($user)
         ->getJson('/api/declarations')
         ->assertOk()
         ->assertJsonPath('vat.settlement.expected.amount', 13_000)
         ->assertJsonPath('vat.settlement.detectedPayments.amount', 13_000)
-        ->assertJsonPath('vat.settlement.provisioned.amount', 0)
+        ->assertJsonPath('vat.settlement.provisioned', null)
         ->assertJsonPath('urssaf.settlement.provisioned.amount', 41_580)
         ->assertJsonPath('urssaf.settlement.gap.amount', 0);
 });

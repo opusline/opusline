@@ -12,6 +12,8 @@ use App\Domain\Cra\Actions\MaterializeCraDays;
 use App\Domain\Cra\Actions\WriteCraDays;
 use App\Domain\Cra\Calendar\FrenchHolidays;
 use App\Domain\Cra\Enums\CraStatus;
+use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
+use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
 use App\Domain\Expenses\Enums\ExpenseCategory;
 use App\Domain\Expenses\Enums\ExpenseVatTreatment;
 use App\Domain\Expenses\Models\Expense;
@@ -119,6 +121,7 @@ class DatabaseSeeder extends Seeder
         $this->seedPreviousMonthCra($user, $callistoFront);
         $this->seedInvoiceHistory($user, $nordlys, $callistoFront, $lunaprint, $lunaprintMaintenance);
         $this->seedProAccount($user);
+        $this->seedFilings($user);
         $this->seedExpenses($user);
 
         RunningTimer::factory()
@@ -391,6 +394,30 @@ class DatabaseSeeder extends Seeder
             'amount_cents' => 80_000,
             'note' => 'Avance',
         ]);
+    }
+
+    /**
+     * The past year's URSSAF and CA3 returns, filed and paid a fortnight after
+     * each month closed — all but the last one, which the treasury still
+     * carries and the Déclarations screen still asks to mark.
+     */
+    private function seedFilings(User $user): void
+    {
+        $lastCarried = CarbonImmutable::today()->startOfMonth()->subMonth();
+
+        for ($month = $lastCarried->subMonths(11); $month->lessThan($lastCarried); $month = $month->addMonth()) {
+            $filedOn = $month->endOfMonth()->addDays(12)->toDateString();
+            $paidOn = $month->endOfMonth()->addDays(14)->toDateString();
+
+            foreach ([FiscalDeadlineKind::UrssafDeclaration, FiscalDeadlineKind::VatCa3] as $kind) {
+                FiscalDeadlineCompletion::factory()->for($user)
+                    ->of($kind, $month->format('Y-m'))
+                    ->dueOn($month->endOfMonth()->addMonth()->toDateString())
+                    ->completedOn($filedOn)
+                    ->paidOn($paidOn)
+                    ->create();
+            }
+        }
     }
 
     /**

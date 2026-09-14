@@ -142,6 +142,7 @@ export type BankProvisionData = {
     deductible: MoneyData | null;
     periodEnd: string;
     isEstimate?: boolean;
+    carriedPeriods?: Array<CarriedPeriodData>;
 };
 
 /**
@@ -208,6 +209,14 @@ export type CalendarFeedData = {
  */
 export type CancelSubscriptionData = {
     cancelledOn?: string | null;
+};
+
+/**
+ * CarriedPeriodData
+ */
+export type CarriedPeriodData = {
+    period: string;
+    amount: MoneyData;
 };
 
 /**

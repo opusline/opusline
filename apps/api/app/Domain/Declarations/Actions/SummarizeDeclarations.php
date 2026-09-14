@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Declarations\Actions;
 
+use App\Domain\Bank\Actions\ComputeBankProvisions;
 use App\Domain\Bank\Actions\DetectFiscPayments;
 use App\Domain\Bank\Actions\SummarizeTreasury;
 use App\Domain\Bank\Data\BankBalanceData;
@@ -114,12 +115,20 @@ class SummarizeDeclarations
                 : null;
             $fiscDebits = $this->fiscDebitsAfter($user, $settings, $urssafPeriod['end'], $monthEnd);
 
-            // The engine holds a provision for the last closed period only:
-            // the treasury is read when a shown period is that one, and each
-            // block is matched against its own kind's provision, or nothing.
-            $carriedMonth = $currentMonth->subMonth();
-            $urssafCarried = $urssafPeriod['key'] === $this->urssafPeriod($settings, $carriedMonth, $currentMonth)['key'];
-            $vatCarried = $chain instanceof Ca3Chain && $monthStart->equalTo($carriedMonth);
+            // The engine carries every closed period of the past year still
+            // owed: the treasury is read when a shown period may be one of
+            // them, and each block is matched against its own kind's carry,
+            // or nothing.
+            $lookbackStart = ComputeBankProvisions::lookbackStart($today);
+            $urssafCarried = $urssafPeriod['end']->lessThan($currentMonth)
+                && $urssafPeriod['end']->greaterThanOrEqualTo($lookbackStart)
+                && $collected->htCents($urssafPeriod['start'], $urssafPeriod['end']) > 0
+                && ! $this->completion($completions, FiscalDeadlineKind::UrssafDeclaration, $urssafPeriod['key'])?->paidOn instanceof CarbonImmutable;
+            $vatCarried = $chain instanceof Ca3Chain
+                && $monthStart->lessThan($currentMonth)
+                && $monthStart->greaterThanOrEqualTo($lookbackStart)
+                && $chain->boxes($monthStart)->due > 0
+                && ! $this->completion($completions, FiscalDeadlineKind::VatCa3, FiscalDeadline::monthKey($monthStart))?->paidOn instanceof CarbonImmutable;
             $treasury = $urssafCarried || $vatCarried ? $this->summarizeTreasury->handle($user) : null;
 
             $urssaf = $this->urssaf(
@@ -130,7 +139,7 @@ class SummarizeDeclarations
                 $deadlines,
                 $completions,
                 $fiscDebits,
-                $urssafCarried ? $this->coveredCarry($treasury, $treasury?->provisions->urssaf) : null,
+                $urssafCarried ? $this->coveredCarry($treasury, $treasury?->provisions->urssaf, $urssafPeriod['key']) : null,
                 $today,
             );
             $vat = $chain instanceof Ca3Chain
@@ -142,7 +151,7 @@ class SummarizeDeclarations
                     $deadlines,
                     $completions,
                     $fiscDebits,
-                    $vatCarried ? $this->coveredCarry($treasury, $treasury?->provisions->vat) : null,
+                    $vatCarried ? $this->coveredCarry($treasury, $treasury?->provisions->vat, FiscalDeadline::monthKey($monthStart)) : null,
                     $today,
                 )
                 : null;
@@ -292,18 +301,40 @@ class SummarizeDeclarations
      * What the balance still covers of a kind's carry once pending transfers
      * and the other provisions come off — null without a known balance.
      */
-    private function coveredCarry(?TreasuryData $treasury, ?BankProvisionData $provision): ?Money
+    private function coveredCarry(?TreasuryData $treasury, ?BankProvisionData $provision, string $periodKey): ?Money
     {
         if (! $provision instanceof BankProvisionData || ! $treasury?->balance instanceof BankBalanceData) {
+            return null;
+        }
+
+        $carried = null;
+        $olderCarries = new Money(0, $treasury->balance->amount->currency->value);
+
+        // The balance answers for the oldest carry first: what an older
+        // period still needs is not this one's to count.
+        foreach ($provision->carriedPeriods as $carriedPeriod) {
+            if ($carriedPeriod->period === $periodKey) {
+                $carried = $carriedPeriod->amount->toMoney();
+
+                break;
+            }
+
+            $olderCarries = $olderCarries->add($carriedPeriod->amount->toMoney());
+        }
+
+        // Not carried, or carried at zero because its payment showed up on
+        // the compte pro: either way there is nothing to match against.
+        if (! $carried instanceof Money || $carried->isZero()) {
             return null;
         }
 
         $otherProvisions = $treasury->provisions->total->toMoney()->subtract($provision->amount->toMoney());
         $coverable = $treasury->balance->amount->toMoney()
             ->subtract($treasury->pendingTransfers->toMoney())
-            ->subtract($otherProvisions);
+            ->subtract($otherProvisions)
+            ->subtract($olderCarries);
 
-        return Money::max(new Money(0, $coverable->getCurrency()->getCode()), Money::min($provision->carried->toMoney(), $coverable));
+        return Money::max(new Money(0, $coverable->getCurrency()->getCode()), Money::min($carried, $coverable));
     }
 
     private function cumulative(UserSettings $settings, CollectedInvoices $collected, CarbonImmutable $monthStart): RevenueCeilingData
