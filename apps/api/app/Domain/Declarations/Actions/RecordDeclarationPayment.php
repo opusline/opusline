@@ -14,6 +14,7 @@ use App\Domain\Expenses\Enums\ExpenseCategory;
 use App\Domain\Expenses\Enums\ExpenseVatTreatment;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Users\Models\User;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Dates the payment, and for the running year's CFE also books it: the bill
@@ -46,18 +47,28 @@ class RecordDeclarationPayment
         $expected = $this->resolveExpectedCfe->handle($settings);
         $description = "CFE {$year}";
 
-        if (! $expected instanceof ExpectedCfe || $user->expenses()->where('category', ExpenseCategory::Taxes)->where('description', $description)->exists()) {
+        if (! $expected instanceof ExpectedCfe) {
             return;
         }
 
-        $this->createExpense->handle($user, new ExpenseInputData(
-            supplier: 'DGFiP',
-            spentOn: $settings->today()->toDateString(),
-            category: ExpenseCategory::Taxes,
-            amountTtc: MoneyData::fromMoney($expected->amount),
-            vatTreatment: ExpenseVatTreatment::Exempt,
-            vatRateBp: 0,
-            description: $description,
-        ));
+        // The check and the write share the account lock, so two payments
+        // sent together cannot both find no booking and book it twice.
+        DB::transaction(function () use ($user, $settings, $expected, $description): void {
+            User::lockRow($user->id);
+
+            if ($user->expenses()->where('category', ExpenseCategory::Taxes)->where('description', $description)->exists()) {
+                return;
+            }
+
+            $this->createExpense->handle($user, new ExpenseInputData(
+                supplier: 'DGFiP',
+                spentOn: $settings->today()->toDateString(),
+                category: ExpenseCategory::Taxes,
+                amountTtc: MoneyData::fromMoney($expected->amount),
+                vatTreatment: ExpenseVatTreatment::Exempt,
+                vatRateBp: 0,
+                description: $description,
+            ));
+        });
     }
 }
