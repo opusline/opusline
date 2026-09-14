@@ -3,6 +3,7 @@ import type {
   DocumentData,
   InvoiceListItemData,
   MissionData,
+  TimeEntryData,
 } from "@opusline/api-client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
@@ -58,6 +59,7 @@ function clientPayload(): ClientWithMissionsData {
     billingEmail: null,
     color: 0,
     paymentTermsDays: 45,
+    hasLogo: false,
     archivedAt: null,
     createdAt: "2025-03-01T00:00:00+00:00",
     missions: [
@@ -86,6 +88,7 @@ function stubApi(
   documents: DocumentData[] = [],
   invoices: InvoiceListItemData[] = [],
   revenue = missionRevenueDetailPayload(),
+  timeEntries: TimeEntryData[] = [],
 ): RecordedRequest[] {
   const requests: RecordedRequest[] = [];
 
@@ -105,7 +108,7 @@ function stubApi(
       requests.push({ method: request.method, path: url.pathname, body });
 
       if (url.pathname.endsWith("/time-entries")) {
-        return jsonResponse(200, { timeEntries: [] });
+        return jsonResponse(200, { timeEntries });
       }
 
       if (url.pathname.endsWith("/revenue")) {
@@ -265,6 +268,56 @@ it("marks the mission as done from the actions menu", async () => {
     const update = requests.find((request) => request.method === "PUT");
     expect(update?.body).toMatchObject({ status: 2, name: "Callisto front" });
   });
+});
+
+it("deletes a mission with no tracked time and goes back to its client", async () => {
+  const requests = stubApi(missionPayload());
+  await renderMissionDetail();
+
+  fireEvent.click(screen.getByRole("button", { name: "Plus d'actions" }));
+  fireEvent.click(
+    await screen.findByRole("menuitem", { name: "Supprimer cette mission" }),
+  );
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Supprimer la mission" }),
+  );
+
+  await waitFor(() =>
+    expect(window.location.pathname).toBe("/clients/nordlys"),
+  );
+  expect(
+    requests.some(
+      (request) =>
+        request.method === "DELETE" &&
+        request.path.endsWith("/clients/nordlys/missions/callisto-front"),
+    ),
+  ).toBe(true);
+});
+
+it("offers no deletion once the mission has tracked time", async () => {
+  stubApi(missionPayload(), [], [], missionRevenueDetailPayload(), [
+    {
+      id: 7,
+      missionId: 1,
+      billable: true,
+      invoiced: false,
+      date: "2026-08-03",
+      durationMinutes: 420,
+      valuedMinutes: null,
+      rounding: null,
+      valuedDayFraction: 1,
+      value: null,
+      note: null,
+    },
+  ]);
+  await renderMissionDetail();
+
+  fireEvent.click(screen.getByRole("button", { name: "Plus d'actions" }));
+
+  await screen.findByRole("menuitem", { name: "Marquer comme terminée" });
+  expect(
+    screen.queryByRole("menuitem", { name: "Supprimer cette mission" }),
+  ).not.toBeInTheDocument();
 });
 
 it("shows a server error on an untouched field after saving", async () => {

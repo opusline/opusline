@@ -15,6 +15,7 @@ const meta = {
     onSend: () => {},
     onPay: () => {},
     onRemind: () => {},
+    onDelete: () => {},
   },
 } satisfies Meta<typeof InvoiceLifecycleActions>;
 

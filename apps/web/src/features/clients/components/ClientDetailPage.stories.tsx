@@ -47,6 +47,7 @@ const client: ClientWithMissionsData = {
   billingEmail: "factures@nordlys.example",
   color: 0,
   paymentTermsDays: 45,
+  hasLogo: false,
   archivedAt: null,
   createdAt: new Date(Date.now() - 500 * DAY_MS).toISOString(),
   missions: [
@@ -136,6 +137,7 @@ const meta = {
     logoSrc: SAMPLE_LOGO_SRC,
     onUploadLogo: async () => ({ status: "success" }) as const,
     onRemoveLogo: async () => true,
+    onDelete: () => {},
     vatLiable: true,
     accountVatRateBp: 2000,
   },

@@ -43,7 +43,8 @@ type ClientEditFormProps = {
   client: ClientWithMissionsData;
   onSubmit: (body: UpdateClientData) => Promise<FormSubmitResult>;
   onCancel: () => void;
-  logoSrc: string;
+  /** Omitted when the client has no logo, so none is asked for. */
+  logoSrc?: string;
   onUploadLogo: (logo: File) => Promise<LogoUploadResult>;
   onRemoveLogo: () => Promise<boolean>;
   /** Whether the account charges TVA at all; under the franchise en base it never does. */

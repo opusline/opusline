@@ -55,6 +55,7 @@ const client: ClientWithMissionsData = {
   billingEmail: null,
   color: 0,
   paymentTermsDays: 45,
+  hasLogo: false,
   archivedAt: null,
   createdAt: "2025-03-01T00:00:00+00:00",
   missions: [
@@ -161,6 +162,7 @@ const meta = {
     craTab,
     tab: "entries",
     onTabChange: () => {},
+    onDelete: () => {},
   },
 } satisfies Meta<typeof MissionDetailPage>;
 
