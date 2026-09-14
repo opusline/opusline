@@ -606,6 +606,48 @@ test('prices the carried month at the rate that applied when it closed', functio
         ->assertJsonPath('provisions.urssaf.rateBp', 1220);
 });
 
+test('prices each carried month at its own rate across two changes inside the window', function (): void {
+    $user = User::factory()->create();
+
+    // ACRE until 31 October 2025, the full rate from November, the yearly rise
+    // in January — both changes inside the year the carry reaches back over.
+    ContributionRate::query()->create([
+        'user_id' => $user->id,
+        'effective_rate_bp' => 1250,
+        'effective_from' => '2025-01-01',
+    ]);
+    ContributionRate::query()->create([
+        'user_id' => $user->id,
+        'effective_rate_bp' => 2480,
+        'effective_from' => '2025-11-01',
+    ]);
+    ContributionRate::query()->create([
+        'user_id' => $user->id,
+        'effective_rate_bp' => 2580,
+        'effective_from' => '2026-01-01',
+    ]);
+    $user->settings()->sole()->update(['contribution_rate_bp' => 2560]);
+
+    paidInvoiceOn($user, '2025-10-31');
+    paidInvoiceOn($user, '2025-12-31');
+    paidInvoiceOn($user, '2026-01-05');
+
+    // 165 000 HT a month, rated on the day each month closed:
+    // October 165 000 × 1 250 / 10 000 = 20 625, December × 2 480 = 40 920,
+    // January × 2 580 = 42 570.
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonCount(3, 'provisions.urssaf.carriedPeriods')
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.0.period', '2025-10')
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.0.amount.amount', 20_625)
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.1.period', '2025-12')
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.1.amount.amount', 40_920)
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.2.period', '2026-01')
+        ->assertJsonPath('provisions.urssaf.carriedPeriods.2.amount.amount', 42_570)
+        ->assertJsonPath('provisions.urssaf.carried.amount', 104_115);
+});
+
 test('falls back to the settings for an account that never changed its rate', function (): void {
     $user = User::factory()->create();
     $user->settings()->sole()->update(['contribution_rate_bp' => 2500]);
