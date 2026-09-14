@@ -104,6 +104,9 @@ export function ExpenseForm({
   const [entryMode, setEntryMode] = useState<EntryMode>(
     initial.supplier === "" && initial.ttc === "" ? "scan" : "type",
   );
+  // A read started from « Saisir » moves to the scan tab only to show its
+  // outcome; removing that file hands the quick line back.
+  const wasTypingBeforeRead = useRef(false);
   const [sources, setSources] = useState<DraftSources>({});
   const [scan, setScan] = useState<ReceiptScanState>({ status: "idle" });
   // A read that outlives its file (removed, replaced) must not land.
@@ -133,7 +136,11 @@ export function ExpenseForm({
     const token = ++readToken.current;
     const rejection = receiptRejection(file);
 
-    setEntryMode("scan");
+    if (entryMode === "type") {
+      wasTypingBeforeRead.current = true;
+      setEntryMode("scan");
+    }
+
     setDraft((current) => ({ ...current, receipt: file }));
 
     if (rejection !== null) {
@@ -187,9 +194,18 @@ export function ExpenseForm({
 
   const resetScan = () => {
     readToken.current += 1;
+    wasTypingBeforeRead.current = false;
     setScan({ status: "idle" });
     setSources({});
     setDraft((current) => ({ ...current, receipt: null }));
+  };
+
+  const removeReceipt = () => {
+    if (wasTypingBeforeRead.current) {
+      setEntryMode("type");
+    }
+
+    resetScan();
   };
 
   const applyQuickEntry = (value: string) => {
@@ -435,7 +451,7 @@ export function ExpenseForm({
         <ReceiptField
           onChange={(receipt) =>
             receipt === null && mode === "create"
-              ? resetScan()
+              ? removeReceipt()
               : patch({ receipt })
           }
           onFill={

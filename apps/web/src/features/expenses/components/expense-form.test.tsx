@@ -408,6 +408,28 @@ it("reads a dropped receipt and tags what it filled", async () => {
   expect(screen.getByText("· suggérée, à vérifier")).toBeInTheDocument();
 });
 
+it.each([
+  [
+    readLunaprint,
+    "Vérifiez la catégorie et la quote-part pro, puis enregistrez. Les champs restent modifiables.",
+  ],
+  [
+    { ...readLunaprint, category: null },
+    "Vérifiez les champs, puis enregistrez.",
+  ],
+])(
+  "points the check at the category only when it guessed one",
+  async (suggestion, hint) => {
+    renderForm({ onReadReceipt: readingReceipt(suggestion) });
+
+    fireEvent.change(screen.getByLabelText("Lire la facture"), {
+      target: { files: [receiptFile()] },
+    });
+
+    expect(await screen.findByText(hint)).toBeInTheDocument();
+  },
+);
+
 it("drops a field's tag once the user edits it", async () => {
   renderForm({ onReadReceipt: readingReceipt(readLunaprint) });
 
@@ -593,6 +615,58 @@ it("reads a receipt picked while typing, and shows the outcome", async () => {
   expect(
     screen.queryByRole("button", { name: "Remplir depuis la facture" }),
   ).not.toBeInTheDocument();
+});
+
+async function readReceiptWhileTyping(quickLine: string) {
+  renderForm({ onReadReceipt: readingReceipt(readLunaprint) });
+
+  fireEvent.click(screen.getByRole("button", { name: "Saisir" }));
+  fireEvent.change(screen.getByLabelText("Saisie rapide"), {
+    target: { value: quickLine },
+  });
+  fireEvent.change(screen.getByLabelText("Facture"), {
+    target: { files: [receiptFile()] },
+  });
+  fireEvent.click(
+    screen.getByRole("button", { name: "Remplir depuis la facture" }),
+  );
+  await screen.findByText("2 champs lus sur lunaprint-facture.pdf");
+}
+
+it("hands the quick line back when a receipt read from it is removed", async () => {
+  await readReceiptWhileTyping("lunaprint 429 écran");
+
+  fireEvent.click(screen.getByRole("button", { name: "Retirer" }));
+
+  expect(screen.getByLabelText("Saisie rapide")).toHaveValue(
+    "lunaprint 429 écran",
+  );
+  expect(screen.queryByLabelText("Lire la facture")).not.toBeInTheDocument();
+});
+
+it("offers the drop zone on « Autre facture », even from the quick line", async () => {
+  await readReceiptWhileTyping("lunaprint 429 écran");
+
+  fireEvent.click(screen.getByRole("button", { name: "Autre facture" }));
+
+  expect(screen.getByLabelText("Lire la facture")).toBeInTheDocument();
+});
+
+it("lets an edit remove the file it just picked", () => {
+  const props = renderForm({
+    initial: expenseToDraft(DEFAULT_MONEY_FORMAT, expense()),
+    mode: "edit",
+  });
+
+  fireEvent.change(screen.getByLabelText("Facture"), {
+    target: { files: [receiptFile()] },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Retirer" }));
+  fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+
+  expect(props.onSubmit).toHaveBeenCalledWith(
+    expect.objectContaining({ supplier: "Lunaprint", receipt: null }),
+  );
 });
 
 it("opens a prefilled create on its fields", () => {
