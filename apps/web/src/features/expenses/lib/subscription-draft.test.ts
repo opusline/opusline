@@ -1,3 +1,4 @@
+import type { RecurringDebitData } from "@opusline/api-client";
 import { expect, it } from "vitest";
 
 import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
@@ -5,6 +6,7 @@ import { DEFAULT_MONEY_FORMAT } from "@/lib/billing";
 import {
   draftToSubscriptionPayload,
   emptySubscriptionDraft,
+  recurringDebitToDraft,
   subscriptionToDraft,
   subscriptionToPayload,
 } from "./subscription-draft";
@@ -125,4 +127,52 @@ it("rebuilds the input from a row to flip one flag", () => {
     debitDay: 1,
     provisionMonthly: true,
   });
+});
+
+function recurringDebit(
+  overrides: Partial<RecurringDebitData> = {},
+): RecurringDebitData {
+  return {
+    label: "PRLV SEPA ATELIERS RUCHE",
+    amount: { amount: 4_900, currency: "EUR" },
+    debitDay: 20,
+    months: ["2026-06", "2026-07", "2026-08"],
+    lastBookedOn: "2026-08-20",
+    ...overrides,
+  };
+}
+
+it("opens a detected debit at the HT of a 20 % purchase on its TTC", () => {
+  const draft = recurringDebitToDraft(
+    DEFAULT_MONEY_FORMAT,
+    recurringDebit(),
+    "2026-09-12",
+  );
+
+  expect(draft).toMatchObject({
+    supplier: "PRLV SEPA ATELIERS RUCHE",
+    ht: "40,83",
+    vatChoice: "fr20",
+    debitDay: "20",
+  });
+});
+
+it.each([
+  ["the debit day of the first month seen", 20, ["2026-06"], "2026-06-20"],
+  ["a zero-padded single-digit debit day", 5, ["2026-06"], "2026-06-05"],
+  [
+    "the last day of a month shorter than the debit day",
+    31,
+    ["2026-06"],
+    "2026-06-30",
+  ],
+  ["today when no month was seen", 5, [], "2026-09-12"],
+])("starts a detected debit on %s", (_case, debitDay, months, startedOn) => {
+  const draft = recurringDebitToDraft(
+    DEFAULT_MONEY_FORMAT,
+    recurringDebit({ debitDay, months }),
+    "2026-09-12",
+  );
+
+  expect(draft.startedOn).toBe(startedOn);
 });
