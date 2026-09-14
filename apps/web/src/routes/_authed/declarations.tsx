@@ -131,14 +131,20 @@ function DeclarationsRoute() {
   // The CFE is paid rather than filed, and the API wants the tick before
   // the payment: one write for the screen, one greyed-out button.
   const payCfe = useMutation({
-    mutationFn: async (target: DeclarationTarget) => {
+    mutationFn: async ({
+      target,
+      period,
+    }: {
+      target: DeclarationTarget;
+      period: string;
+    }) => {
       await markDeclarationFiled({
-        body: { ...target, period: declarations.data?.period },
+        body: { ...target, period },
         throwOnError: true,
       });
       const { data } = await recordDeclarationPayment({
         path: target,
-        body: { period: declarations.data?.period },
+        body: { period },
         throwOnError: true,
       });
 
@@ -282,24 +288,27 @@ function DeclarationsRoute() {
         }
         onUnmark={unmarkTarget}
         onPayCfe={(target) =>
-          payCfe.mutate(target, {
-            ...track(target),
-            onSuccess: () =>
-              toast.add({
-                title:
-                  cfeExpectedCents === undefined
-                    ? m.declarations_cfe_paid()
-                    : m.declarations_cfe_paid_booked({
-                        amount: formatWholeAmount(format, cfeExpectedCents),
-                      }),
-                description: m.declarations_cfe_undo_note(),
-                tone: "success",
-                action: {
-                  label: m.declarations_undo(),
-                  onClick: () => unmarkTarget(target),
-                },
-              }),
-          })
+          payCfe.mutate(
+            { target, period },
+            {
+              ...track(target),
+              onSuccess: () =>
+                toast.add({
+                  title:
+                    cfeExpectedCents === undefined
+                      ? m.declarations_cfe_paid()
+                      : m.declarations_cfe_paid_booked({
+                          amount: formatWholeAmount(format, cfeExpectedCents),
+                        }),
+                  description: m.declarations_cfe_undo_note(),
+                  tone: "success",
+                  action: {
+                    label: m.declarations_undo(),
+                    onClick: () => unmarkTarget(target),
+                  },
+                }),
+            },
+          )
         }
         onSaveCfeAmount={saveCfeAmountFromDialog}
         pendingTarget={pendingTarget}
