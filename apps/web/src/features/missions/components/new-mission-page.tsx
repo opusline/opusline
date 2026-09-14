@@ -33,11 +33,11 @@ import {
   formatWholeAmount,
   MONTHLY_BILLABLE_DAYS,
   monthlyBillableHours,
-  parseRateToCents,
   projectMissionMonth,
 } from "@/lib/billing";
 import { isInternalClient } from "@/lib/client-types";
 import { browserTodayCalendarDate, capitalizeFirst } from "@/lib/dates";
+import { formatBilledDays, formatBilledHours, isHourly } from "@/lib/durations";
 import {
   entryRoundingHint,
   entryRoundingLabel,
@@ -53,16 +53,18 @@ import {
 import { weekdayShortLabel } from "@/lib/weeks";
 import { m } from "@/paraglide/messages.js";
 import { billingModeLabel } from "../lib/labels";
+import {
+  type MissionFormValues,
+  missionRateCents,
+  toMissionPayload,
+} from "../lib/mission-form";
 import { MissionRateField } from "./mission-rate-field";
 
 const BILLING_MODES: BillingMode[] = [0, 1, 2];
 
-type MissionFormValues = {
-  name: string;
-  endClientName: string;
-  startDate: string;
-  endDate: string;
-};
+/** What the week-grid mockup pretends was worked, so the cell has a quantity. */
+const MOCKUP_BILLED_MINUTES = 90;
+const MOCKUP_BILLED_DAYS = 1;
 
 type NewMissionPageProps = {
   clients: ClientWithMissionsData[];
@@ -117,9 +119,7 @@ export function NewMissionPage({
   const isInternal =
     selectedClient !== undefined && isInternalClient(selectedClient.type);
   const isForfait = billingMode === 2;
-  const rateCents = isInternal
-    ? null
-    : parseRateToCents(format.locale, rateDraft);
+  const rateCents = missionRateCents(format, isInternal, rateDraft);
 
   const form = useForm({
     defaultValues: {
@@ -139,25 +139,17 @@ export function NewMissionPage({
           return m.missions_rate_missing();
         }
 
-        const body: CreateMissionData = {
-          name: value.name.trim(),
+        const body: CreateMissionData = toMissionPayload({
+          values: value,
+          format,
           billingMode,
-          rate:
-            rateCents === null
-              ? null
-              : // A stale render-context currency is refused by the API (422);
-                // see settings-form.ts for the one case needing the snapshot.
-                { amount: rateCents, currency: format.currency },
+          rateCents,
+          referenceRateCents: null,
           rounding,
-          craRequired: isEsn ? craRequired : null,
-          endClientName:
-            isEsn && value.endClientName.trim() !== ""
-              ? value.endClientName.trim()
-              : null,
           color,
-          startDate: value.startDate === "" ? null : value.startDate,
-          endDate: value.endDate === "" ? null : value.endDate,
-        };
+          isEsn,
+          craRequired,
+        });
 
         const result = await onSubmit(selectedClient.slug, body);
 
@@ -619,7 +611,12 @@ export function NewMissionPage({
                       )}
                     >
                       <div className="font-mono text-sm tabular-nums">
-                        {billingMode === 1 ? "1,5 h" : "1 j"}
+                        {isHourly(billingMode)
+                          ? formatBilledHours(
+                              format.locale,
+                              MOCKUP_BILLED_MINUTES,
+                            )
+                          : formatBilledDays(format.locale, MOCKUP_BILLED_DAYS)}
                       </div>
                     </div>
                   </div>

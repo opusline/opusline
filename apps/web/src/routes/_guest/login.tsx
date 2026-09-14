@@ -8,6 +8,7 @@ import {
   twoFactorPasskeyOptionsMutation,
 } from "@opusline/api-client/react-query";
 import { Button } from "@opusline/ui/components/button";
+import { linkVariants } from "@opusline/ui/components/text-link";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
@@ -224,7 +225,10 @@ function LoginPage() {
       footer={
         <>
           {m.auth_no_account()}{" "}
-          <Link className="text-primary hover:underline" to="/register">
+          <Link
+            className={linkVariants({ underline: "always" })}
+            to="/register"
+          >
             {m.auth_create_account()}
           </Link>
         </>

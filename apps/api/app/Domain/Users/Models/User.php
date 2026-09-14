@@ -66,6 +66,7 @@ class User extends Authenticatable implements HasMedia
     /**
      * @var array<string, mixed>
      */
+    #[\Override]
     protected $attributes = [
         'theme' => Theme::System->value,
     ];
@@ -291,7 +292,10 @@ class User extends Authenticatable implements HasMedia
             return true;
         }
 
-        if ($this->expenses()->exists()) {
+        // Tombstones included: DeleteExpense soft-deletes a subscription debit so
+        // it cannot re-materialise, and a deleted row still holds cents in the
+        // currency they were entered in.
+        if ($this->expenses()->withTrashed()->exists()) {
             return true;
         }
 

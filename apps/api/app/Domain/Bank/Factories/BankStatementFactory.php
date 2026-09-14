@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class BankStatementFactory extends Factory
 {
+    #[\Override]
     protected $model = BankStatement::class;
 
     /**

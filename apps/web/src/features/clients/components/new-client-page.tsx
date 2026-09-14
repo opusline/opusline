@@ -230,7 +230,7 @@ export function NewClientPage({
                   label="SIRET"
                   labelClassName="text-foreground-3"
                   font="mono"
-                  placeholder="443 061 841 00047"
+                  placeholder="123 456 782 00002"
                 />
               )}
             </form.Field>
@@ -242,7 +242,7 @@ export function NewClientPage({
                   label={m.clients_vat_label()}
                   labelClassName="text-foreground-3"
                   font="mono"
-                  placeholder="FR64 443061841"
+                  placeholder="FR11 123456782"
                 />
               )}
             </form.Field>

@@ -235,6 +235,10 @@ const DECIMAL = /^\d+(?:\.\d+)?$/;
  * Refuses anything that is not a single plain decimal in the locale's notation.
  * `Number.parseFloat` stops at the first stray separator and hands back a
  * silently truncated number instead — « 1,234,5 » has to be an error, not 1,23.
+ *
+ * Not money's door: a draft that means an amount goes through
+ * `parseAmountToCents`, which owns the ×100 and the zero policy. This one reads
+ * the shares and rates that are genuinely not amounts.
  */
 export function parseDecimal(locale: Locale, draft: string): number | null {
   const { group, decimal } = numberSeparators(locale);
@@ -281,11 +285,32 @@ function hasValidGrouping(integerPart: string, group: string): boolean {
   );
 }
 
-/** Zero is refused: a mission billed at nothing is a mistake, not a price. */
-export function parseRateToCents(locale: Locale, draft: string): number | null {
+type AmountParseOptions = {
+  /**
+   * Whether zero is an amount. It is for a threshold the user turns off — an
+   * empty buffer is a buffer of nothing — and it is not for a price, where zero
+   * is a mistake rather than a figure.
+   */
+  allowZero?: boolean;
+};
+
+/**
+ * The one euros→cents conversion in the app. Three copies of it had grown out
+ * of `parseDecimal` with three different validity rules, on figures the user
+ * files; locale parsing, rounding and the zero policy are decided here.
+ */
+export function parseAmountToCents(
+  locale: Locale,
+  draft: string,
+  { allowZero = false }: AmountParseOptions = {},
+): number | null {
   const amount = parseDecimal(locale, draft);
 
-  return amount === null || amount <= 0 ? null : Math.round(amount * 100);
+  if (amount === null || (amount === 0 && !allowZero)) {
+    return null;
+  }
+
+  return Math.round(amount * 100);
 }
 
 /** An ASCII hyphen or the typographic minus a formatter may have echoed back. */
@@ -315,13 +340,13 @@ export function parseSignedAmountToCents(
   draft: string,
 ): number | null {
   const { isNegative, magnitude } = splitLeadingMinus(draft.trim());
-  const amount = parseDecimal(locale, magnitude);
+  const cents = parseAmountToCents(locale, magnitude, { allowZero: true });
 
-  if (amount === null) {
+  if (cents === null) {
     return null;
   }
 
-  return Math.round(amount * 100) * (isNegative ? -1 : 1);
+  return isNegative ? -cents : cents;
 }
 
 /** A rate is what makes a mission billable, and having one is what proves it. */
@@ -423,6 +448,69 @@ export function shareBp(partCents: number, wholeCents: number): number {
   return wholeCents === 0
     ? 0
     : Math.trunc((partCents * BASIS_POINTS) / wholeCents);
+}
+
+/**
+ * A share of money as a 0–1 fraction, for how far a bar reaches. Not a figure:
+ * the amount printed beside the bar stays the server's own.
+ */
+export function centsShare(partCents: number, totalCents: number): number {
+  return totalCents === 0 ? 0 : partCents / totalCents;
+}
+
+/** Whole currency units of an amount — what a fisc form's box accepts. */
+export function wholeUnits(amountCents: number): number {
+  return Math.round(amountCents / 100);
+}
+
+/**
+ * The same figure rounded DOWN, for a seed the user can only lower: rounding up
+ * would offer more than the amount it came from actually allows.
+ */
+export function floorToWholeUnits(amountCents: number): number {
+  return Math.floor(amountCents / 100) * 100;
+}
+
+/** "11,4" — a bar's label in thousands of units, scaled for reading, never summed. */
+export function formatThousands(locale: Locale, amountCents: number): string {
+  return cachedFormatter(locale, { maximumFractionDigits: 1 }).format(
+    amountCents / 100_000,
+  );
+}
+
+/**
+ * The mean of a series the API already sent, for the caption over a sparkline.
+ * A reading of the points on screen rather than a figure to reconcile.
+ */
+export function averageCents(amountsCents: number[]): number {
+  if (amountsCents.length === 0) {
+    return 0;
+  }
+
+  return Math.round(
+    amountsCents.reduce((sum, amountCents) => sum + amountCents, 0) /
+      amountsCents.length,
+  );
+}
+
+/**
+ * What a recurring debit costs over a year. The sheets that show it price a
+ * draft, so there is no saved subscription to read the figure off yet.
+ */
+export function annualCostOf(
+  perDebitCents: number,
+  occurrencesPerYear: number,
+): number {
+  return perDebitCents * occurrencesPerYear;
+}
+
+/**
+ * A twelfth of an annual debit, divided half up the way
+ * `Subscription::monthlyProvisionOn()` does — the sheet previews the provision
+ * against an amount still being typed, before any `monthlyProvision` exists.
+ */
+export function monthlyTwelfthOf(annualCents: number): number {
+  return Math.round(annualCents / 12);
 }
 
 /**

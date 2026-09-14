@@ -95,21 +95,3 @@ export function invoiceRowDetailWithMission(
 
   return `${mission} · ${invoiceRowDetail(locale, dateFormat, item.invoice, accountToday)}`;
 }
-
-/**
- * How long this client actually takes to pay, averaged over the invoices that have
- * been paid. Null until at least one has — an average of nothing is not zero days.
- */
-export function averageDaysToPay(invoices: InvoiceData[]): number | null {
-  const delays = invoices
-    .map(daysToPay)
-    .filter((days): days is number => days !== null);
-
-  if (delays.length === 0) {
-    return null;
-  }
-
-  return Math.round(
-    delays.reduce((total, days) => total + days, 0) / delays.length,
-  );
-}

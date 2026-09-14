@@ -6,7 +6,7 @@ import type {
   VatDeclarationData,
 } from "@opusline/api-client";
 
-import { formatPercentFromBp } from "@/lib/billing";
+import { formatPercentFromBp, wholeUnits } from "@/lib/billing";
 import { cachedDateFormatter, fromCalendarDate } from "@/lib/dates";
 import { monthStart } from "@/lib/months";
 import { periodKind, periodTitle, shiftPeriod } from "@/lib/periods";
@@ -62,7 +62,7 @@ export function declarationPeriodLabel(locale: Locale, period: string): string {
 
 /** What the copy button puts on the clipboard: whole euros, no spaces, no cents — what the forms expect. */
 export function declarationCopyValue(amountCents: number): string {
-  return String(Math.round(amountCents / 100));
+  return String(wholeUnits(amountCents));
 }
 
 export type DeadlineTone = "quiet" | "attention" | "overdue";

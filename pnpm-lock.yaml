@@ -273,9 +273,6 @@ importers:
       '@storybook/react':
         specifier: ^10.6.0
         version: 10.6.0(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(storybook@10.6.0(@types/react@19.2.18)(prettier@3.9.6)(react@19.2.8))(typescript@7.0.2)
-      '@types/node':
-        specifier: ^26
-        version: 26.4.1
       '@types/react':
         specifier: ^19
         version: 19.2.18

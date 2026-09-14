@@ -6,6 +6,7 @@ namespace App\Domain\Passkeys\Data;
 
 use App\Domain\Passkeys\Webauthn\CredentialJson;
 use Spatie\LaravelData\Attributes\Validation\Json;
+use Spatie\LaravelData\Attributes\Validation\Max;
 use Spatie\LaravelData\Data;
 
 class PasskeyLoginData extends Data
@@ -14,7 +15,7 @@ class PasskeyLoginData extends Data
      * @param  string  $credential  the browser's assertion response, JSON-encoded
      */
     public function __construct(
-        #[Json]
+        #[Json, Max(CredentialJson::MAX_LENGTH)]
         public string $credential,
         public bool $remember = false,
     ) {}

@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class BankMatchFactory extends Factory
 {
+    #[\Override]
     protected $model = BankMatch::class;
 
     /**

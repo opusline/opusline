@@ -36,6 +36,15 @@ yarn-error.log*
 .DS_Store
 *.pem
 
+# Scratch PDFs at the root: receipts and invoices dropped here to try the
+# parser against real documents. Third-party data in a public repository, one
+# `git add -A` away from being published. Committed PDFs live under a directory.
+/*.pdf
+
+# Where scripts/opusline-backup.sh writes when it is run from the repository
+# root. Each archive holds a verbatim .env — APP_KEY, DB_PASSWORD, S3 keys.
+/backups/
+
 # IDEs
 .vscode/
 .idea/

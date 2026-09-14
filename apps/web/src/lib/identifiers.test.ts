@@ -4,26 +4,26 @@ import { formatFrenchPhone, formatSiret, formatVatNumber } from "./identifiers";
 
 describe("formatSiret", () => {
   it("groups the SIREN then the NIC", () => {
-    expect(formatSiret("44306184100047")).toBe("443 061 841 00047");
+    expect(formatSiret("12345678200002")).toBe("123 456 782 00002");
   });
 
   it("regroups one that was spaced by hand", () => {
-    expect(formatSiret("443061841 00047")).toBe("443 061 841 00047");
+    expect(formatSiret("123456782 00002")).toBe("123 456 782 00002");
   });
 
   it("leaves an incomplete one alone rather than half-grouping it", () => {
-    expect(formatSiret("44306184")).toBe("44306184");
+    expect(formatSiret("12345678")).toBe("12345678");
     expect(formatSiret("")).toBe("");
   });
 });
 
 describe("formatVatNumber", () => {
   it("splits the country and key from the SIREN", () => {
-    expect(formatVatNumber("FR64443061841")).toBe("FR64 443061841");
+    expect(formatVatNumber("FR11123456782")).toBe("FR11 123456782");
   });
 
   it("upper-cases what it recognises", () => {
-    expect(formatVatNumber("fr64 443061841")).toBe("FR64 443061841");
+    expect(formatVatNumber("fr11 123456782")).toBe("FR11 123456782");
   });
 
   it("leaves another country's number to that country", () => {

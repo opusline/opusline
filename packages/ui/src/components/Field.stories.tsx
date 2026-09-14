@@ -23,6 +23,40 @@ export const Default: Story = {
   ),
 };
 
+/**
+ * The label is the same role everywhere, drawn at the weight the surrounding
+ * form asks for: a creation page leads with `strong`, a dense edit sheet drops
+ * to `quiet` at `sm`.
+ */
+export const LabelTones: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4">
+      <Field className="max-w-sm">
+        <FieldLabel htmlFor="field-tone-default">Par défaut</FieldLabel>
+        <Input id="field-tone-default" />
+      </Field>
+      <Field className="max-w-sm">
+        <FieldLabel htmlFor="field-tone-strong" tone="strong">
+          Raison sociale
+        </FieldLabel>
+        <Input id="field-tone-strong" />
+      </Field>
+      <Field className="max-w-sm">
+        <FieldLabel htmlFor="field-tone-muted" size="sm" tone="muted">
+          Fuseau horaire
+        </FieldLabel>
+        <Input id="field-tone-muted" />
+      </Field>
+      <Field className="max-w-sm">
+        <FieldLabel htmlFor="field-tone-quiet" size="sm" tone="quiet">
+          TJM
+        </FieldLabel>
+        <Input id="field-tone-quiet" />
+      </Field>
+    </div>
+  ),
+};
+
 export const Invalid: Story = {
   render: () => (
     <Field className="max-w-sm" data-invalid>

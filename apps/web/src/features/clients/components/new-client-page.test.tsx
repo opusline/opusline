@@ -76,20 +76,20 @@ it("spaces a SIRET once the field is left", async () => {
   await renderNewClientPage();
 
   const siret = screen.getByLabelText("SIRET");
-  fireEvent.change(siret, { target: { value: "44306184100047" } });
+  fireEvent.change(siret, { target: { value: "12345678200002" } });
   fireEvent.blur(siret);
 
-  await waitFor(() => expect(siret).toHaveValue("443 061 841 00047"));
+  await waitFor(() => expect(siret).toHaveValue("123 456 782 00002"));
 });
 
 it("leaves a half-typed SIRET alone rather than grouping it wrongly", async () => {
   await renderNewClientPage();
 
   const siret = screen.getByLabelText("SIRET");
-  fireEvent.change(siret, { target: { value: "44306184" } });
+  fireEvent.change(siret, { target: { value: "12345678" } });
   fireEvent.blur(siret);
 
-  await waitFor(() => expect(siret).toHaveValue("44306184"));
+  await waitFor(() => expect(siret).toHaveValue("12345678"));
 });
 
 it("explains the end-client rule when picking an intermediary", async () => {

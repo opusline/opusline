@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Domain\Settings\Actions;
 
 use App\Domain\Settings\Models\UserSettings;
+use App\Domain\Settings\Rates\LiberatingPayment;
 use App\Domain\Settings\Rates\MonEntrepriseClient;
 use App\Domain\Settings\Rates\OfficialRates;
 use App\Domain\Settings\Rates\RateSituation;
 use App\Domain\Settings\Rates\RatesUnavailable;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class RefreshOfficialRates
 {
@@ -42,17 +44,21 @@ class RefreshOfficialRates
     {
         $rates = $this->read(RateSituation::fromSettings($settings), $force, $retryTransientFailures);
         $previousRateBp = $settings->effectiveContributionRateBp();
+        $previousLiberatingPayment = LiberatingPayment::of($settings);
 
-        $settings->update([
-            'contribution_rate_bp' => $rates->contributionRateBp,
-            'liberating_payment_rate_bp' => $rates->liberatingPaymentRateBp,
-            'rates_year' => $rates->year,
-            'rates_checked_at' => $rates->readAt,
-        ]);
+        DB::transaction(function () use ($settings, $rates, $previousRateBp, $previousLiberatingPayment): void {
+            $settings->update([
+                'contribution_rate_bp' => $rates->contributionRateBp,
+                'liberating_payment_rate_bp' => $rates->liberatingPaymentRateBp,
+                'rates_year' => $rates->year,
+                'rates_checked_at' => $rates->readAt,
+            ]);
 
-        // A new barème is a rate change like any other: the period that closed
-        // under the old one must keep being priced with it.
-        $this->recordContributionRate->handle($settings, $previousRateBp);
+            // A new barème is a rate change like any other: the period that closed
+            // under the old one must keep being priced with it, which is only true
+            // if the record cannot outlive — or be outlived by — the rate it records.
+            $this->recordContributionRate->handle($settings, $previousRateBp, $previousLiberatingPayment);
+        });
 
         return $settings;
     }

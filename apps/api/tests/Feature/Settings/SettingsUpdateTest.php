@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Settings\Actions\RecordContributionRate;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Shared\Enums\Currency;
@@ -14,14 +15,14 @@ test('saves the company identity', function (): void {
     $this->actingAs($user)
         ->putJson('/api/settings', settingsPayload([
             'tradeName' => 'Théo Marchand',
-            'siret' => '443 061 841 00047',
+            'siret' => '123 456 782 00002',
             'signatureCity' => 'Nantes',
             'contactEmail' => 'theo@marchand.dev',
             'phone' => '06 12 34 56 78',
         ]))
         ->assertOk()
         ->assertJsonPath('tradeName', 'Théo Marchand')
-        ->assertJsonPath('siret', '443 061 841 00047')
+        ->assertJsonPath('siret', '123 456 782 00002')
         ->assertJsonPath('signatureCity', 'Nantes')
         ->assertJsonPath('contactEmail', 'theo@marchand.dev')
         ->assertJsonPath('phone', '06 12 34 56 78');
@@ -301,3 +302,20 @@ test('rejects a dormancy period outside the months it accepts', function (int $m
         ->assertStatus(422)
         ->assertJsonValidationErrors('dormantAfterMonths');
 })->with([0, 61, -1]);
+
+test('a save whose rate record fails leaves the rate untouched', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['contribution_rate_bp' => 2_500]);
+
+    $this->mock(RecordContributionRate::class)
+        ->shouldReceive('handle')
+        ->andThrow(new RuntimeException('the rate history could not be written'));
+
+    $this->actingAs($user)
+        ->putJson('/api/settings', settingsPayload(['contributionRateBp' => 1_200]))
+        ->assertServerError();
+
+    // An account on the new rate with nothing recording the old one reprices
+    // every closed period: the save has to go down with the record.
+    expect($user->settings()->sole()->contribution_rate_bp)->toBe(2_500);
+});

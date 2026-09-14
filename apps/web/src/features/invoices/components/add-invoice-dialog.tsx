@@ -28,8 +28,8 @@ import {
   formatAmount,
   formatPercentFromBp,
   formatWholeAmount,
+  parseAmountToCents,
   parseRateBp,
-  parseRateToCents,
   percentOfCents,
 } from "@/lib/billing";
 import { budgetShareLabel } from "@/lib/fixed-price-budget";
@@ -182,7 +182,7 @@ function AddInvoiceForm({
   // is in: until then the prop, and failing that whatever landed first.
   const selected =
     missions.find((row) => row.mission.id === missionId) ?? first;
-  const amountHtCents = parseRateToCents(format.locale, amountDraft);
+  const amountHtCents = parseAmountToCents(format.locale, amountDraft);
   const vatRateBp = vatLiable ? parseRateBp(format.locale, vatDraft) : null;
   const isVatInvalid = vatLiable && vatRateBp === null;
   // The API refuses an issued invoice without one, and the reference is the only

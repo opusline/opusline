@@ -12,7 +12,7 @@ import {
   formatAmount,
   formatPercentFromBp,
   type MoneyFormat,
-  parseDecimal,
+  parseAmountToCents,
   parseRateBp,
 } from "@/lib/billing";
 import { isFrenchFiscalityCountry } from "@/lib/fiscality";
@@ -178,7 +178,7 @@ export function toSettingsPayload(
   // An amount only exists once the user gives one, and a zero says the same
   // thing as an empty field — the API's Min(1) agrees.
   const moneyOrNull = (draft: string, appliesHere = true): MoneyData | null => {
-    const cents = parseBufferCents(format.locale, draft);
+    const cents = parseAmountToCents(format.locale, draft, { allowZero: true });
 
     return !appliesHere || cents === null || cents === 0
       ? null
@@ -292,11 +292,12 @@ const FIELD_TAB: Record<keyof SettingsFormValues, SettingsTab> = {
 
 /**
  * The onChange validator every optional money draft shares: empty means unset,
- * anything else has to parse in the account's notation.
+ * and a threshold set to zero is a real answer, so zero has to parse.
  */
 export function optionalAmountValidator(locale: Locale) {
   return ({ value }: { value: string }): { message: string } | undefined =>
-    value.trim() === "" || parseBufferCents(locale, value) !== null
+    value.trim() === "" ||
+    parseAmountToCents(locale, value, { allowZero: true }) !== null
       ? undefined
       : { message: m.settings_buffer_invalid() };
 }
@@ -361,10 +362,4 @@ export function previewInvoiceNumber(format: string, on: Date): string {
 /** The same figure pinned to one decimal, so it does not jump as a rate is typed. */
 export function formatRateBp(locale: Locale, basisPoints: number): string {
   return formatPercentFromBp(locale, basisPoints, 1);
-}
-
-export function parseBufferCents(locale: Locale, draft: string): number | null {
-  const amount = parseDecimal(locale, draft);
-
-  return amount === null ? null : Math.round(amount * 100);
 }

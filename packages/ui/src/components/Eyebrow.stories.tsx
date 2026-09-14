@@ -25,6 +25,17 @@ export const Tones: Story = {
   ),
 };
 
+/** Three letter spacings for one role, named after the scale step they use. */
+export const Tracking: Story = {
+  render: () => (
+    <div className="flex flex-col gap-3">
+      <Eyebrow>Provisions à conserver</Eyebrow>
+      <Eyebrow tracking="wider-2">Provisions à conserver</Eyebrow>
+      <Eyebrow tracking="wider">Provisions à conserver</Eyebrow>
+    </div>
+  ),
+};
+
 /** A panel's title, where the role has to be a real heading. */
 export const AsAHeading: Story = {
   render: () => <h2 className={eyebrowVariants()}>Provisions à conserver</h2>,

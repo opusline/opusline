@@ -40,7 +40,7 @@ class ExpenseController extends Controller
     ): JsonResponse {
         $expense = $createExpense->handle($user, $data);
 
-        return response()->json($listExpenses->handle($user, $expense->month()), 201);
+        return response()->json($listExpenses->handle($user, $expense->month(), materialiseDueDebits: false), 201);
     }
 
     public function update(
@@ -52,7 +52,7 @@ class ExpenseController extends Controller
     ): JsonResponse {
         $updated = $updateExpense->handle($expense, $data);
 
-        return response()->json($listExpenses->handle($user, $updated->month()));
+        return response()->json($listExpenses->handle($user, $updated->month(), materialiseDueDebits: false));
     }
 
     public function storeBankMovement(
@@ -64,7 +64,7 @@ class ExpenseController extends Controller
     ): JsonResponse {
         $linkExpenseBankMovement->handle($expense, $data);
 
-        return response()->json($listExpenses->handle($user, $expense->month()), 201);
+        return response()->json($listExpenses->handle($user, $expense->month(), materialiseDueDebits: false), 201);
     }
 
     public function destroyBankMovement(
@@ -75,7 +75,7 @@ class ExpenseController extends Controller
     ): JsonResponse {
         $unlinkExpenseBankMovement->handle($expense);
 
-        return response()->json($listExpenses->handle($user, $expense->month()));
+        return response()->json($listExpenses->handle($user, $expense->month(), materialiseDueDebits: false));
     }
 
     public function destroy(Expense $expense, DeleteExpense $deleteExpense): Response
@@ -93,7 +93,7 @@ class ExpenseController extends Controller
     ): JsonResponse {
         $month = $recategorizeExpenses->handle($user, $data);
 
-        return response()->json($listExpenses->handle($user, $month));
+        return response()->json($listExpenses->handle($user, $month, materialiseDueDebits: false));
     }
 
     public function deferVat(
@@ -104,7 +104,7 @@ class ExpenseController extends Controller
     ): JsonResponse {
         $month = $deferVatDeductions->handle($user, $data);
 
-        return response()->json($listExpenses->handle($user, $month));
+        return response()->json($listExpenses->handle($user, $month, materialiseDueDebits: false));
     }
 
     public function reintegrateVat(
@@ -115,6 +115,6 @@ class ExpenseController extends Controller
     ): JsonResponse {
         $reintegrateVatDeduction->handle($expense);
 
-        return response()->json($listExpenses->handle($user, $expense->month()));
+        return response()->json($listExpenses->handle($user, $expense->month(), materialiseDueDebits: false));
     }
 }

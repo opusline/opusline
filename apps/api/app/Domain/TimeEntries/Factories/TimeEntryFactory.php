@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class TimeEntryFactory extends Factory
 {
+    #[\Override]
     protected $model = TimeEntry::class;
 
     public function nonBillable(): static

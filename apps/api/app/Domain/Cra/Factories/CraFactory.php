@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class CraFactory extends Factory
 {
+    #[\Override]
     protected $model = Cra::class;
 
     /**

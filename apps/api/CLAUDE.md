@@ -1,3 +1,52 @@
+# apps/api — agent notes
+
+The block at the end of this file is written by `php artisan boost:update`,
+which `composer update` runs on every dependency change (`post-update-cmd` in
+`composer.json`). It is upstream Laravel boilerplate describing a generic
+Laravel app — not a statement about this one — so editing inside it is
+pointless: the next update replaces the whole thing. This section sits above it
+and survives, and **where the two disagree this section is right.** The
+repository root `CLAUDE.md` outranks both.
+
+Never write the block's opening marker anywhere in this section. `boost:update`
+replaces from that marker's *first* occurrence to the closing one, so a
+paragraph that merely names it silently deletes everything below. That is not
+hypothetical — it cost this preamble once already.
+
+Where the generated block is wrong about Opusline:
+
+- **PHP never runs on the host.** Every `php`, `artisan`, `composer`, `pint`,
+  `rector`, `phpstan` and Pest invocation goes through the Docker wrapper, from
+  `apps/api/`: `sh scripts/php.sh php artisan route:list`,
+  `sh scripts/php.sh php artisan test --compact`,
+  `sh scripts/php.sh php vendor/bin/pint`. There is no host PHP to fall back to,
+  so `vendor/bin/pint --dirty` and `php artisan tinker` as written below simply
+  fail.
+- **There is no `.ai/rules` directory**, and nothing is waiting for one. Do not
+  treat reading it as a precondition for editing a file, and do not record rules
+  into it — the conventions live in the root `CLAUDE.md`, which is the file to
+  add one to.
+- **Boundaries are spatie/laravel-data, not Eloquent API Resources.** `Data`
+  classes validate what comes in and serialise what goes out, validating
+  explicitly on anything security-relevant; plain Eloquent in between; the logic
+  in domain actions under `app/Domain/*/Actions` behind thin controllers. The
+  OpenAPI spec and the typed TS client are generated from those shapes, so a
+  changed request or response shape means `pnpm generate-api` from the root.
+- **There is no npm and no Vite here.** The JS toolchain is pnpm + Turborepo at
+  the repository root; `apps/api` serves JSON only. `npm run build`,
+  `npm run dev` and `composer run dev` do not exist — `turbo dev` from the root
+  boots the Sail stack, the SPA and Storybook together.
+- **Deployment is the self-hosted Docker stack**, not Laravel Cloud: the root
+  `Dockerfile`, `compose.prod.yaml` and `docs/self-hosting.md`.
+  `apps/api/compose.yaml` is the development Sail stack and is not a deployment.
+- **Translations have rules the block does not mention.** Messages live in
+  `lang/{en,fr}` domain groups with exact key parity; never add keys to the
+  laravel-lang-managed files, and never memoize `__()` in a static — Octane
+  workers would freeze the first request's locale.
+- **Rector's target PHP version is auto-detected** from `composer.json`'s
+  `require.php` (`rector.php` calls `withPhpSets()` with no argument), so
+  changing that constraint changes which refactorings `turbo lint` demands.
+
 <laravel-boost-guidelines>
 === foundation rules ===
 
@@ -58,7 +107,7 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 ## Searching Documentation (IMPORTANT)
 
-- Always use `search-docs` before making code changes. Do not skip this step. It returns version-specific docs based on installed packages automatically.
+- Use `search-docs` before changes that depend on Laravel ecosystem APIs, behavior, configuration, or version-specific syntax. Skip it for copy-only edits and other changes where package documentation is irrelevant. Reuse sufficient results already in context instead of searching again.
 - Pass a `packages` array to scope results when you know which packages are relevant.
 - Use multiple broad, topic-based queries: `['rate limiting', 'routing rate limiting', 'routing']`. Expect the most relevant results first.
 - Do not add package names to queries because package info is already shared. Use `test resource table`, not `filament 4 test resource table`.
@@ -108,8 +157,10 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 # Test Enforcement
 
-- Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
-- Run the minimum number of tests needed to ensure code quality and speed. Use `php artisan test --compact` with a specific filename or filter.
+- Test every code change by adding or updating a test.
+- Run the affected tests and ensure they pass.
+- Test the changed behavior and its important failure modes, but do not add tests beyond them.
+- Read the `testing-best-practices` skill before writing tests.
 
 === laravel/core rules ===
 
@@ -162,11 +213,18 @@ When working on Octane-specific features (concurrency, shared tables, memory, dr
 
 === pest/core rules ===
 
-## Pest
+# Pest
 
-- This project uses Pest for testing. Create tests: `php artisan make:test --pest {name}`.
-- The `{name}` argument should not include the test suite directory. Use `php artisan make:test --pest SomeFeatureTest` instead of `php artisan make:test --pest Feature/SomeFeatureTest`.
-- Run tests: `php artisan test --compact` or filter: `php artisan test --compact --filter=testName`.
-- Do NOT delete tests without approval.
+- This project uses Pest. Create tests with `php artisan make:test --pest {name}`.
+- Do not include the test suite directory in `{name}`. Use `SomeFeatureTest`, not `Feature/SomeFeatureTest`.
+- Read the `testing-best-practices` skill for guidance on coverage, naming, structure, dependency isolation, and review.
+- Do not delete tests or test files without approval. They are part of the application.
+
+## Running Tests
+
+- Run the narrowest set of tests that covers the change. Pass a file path or `--filter=testName` to `php artisan test --compact`.
+- Rerun a test after each change to it.
+- Run `vendor/bin/pest` to call the test runner directly. It accepts the same file path and `--filter=testName` arguments.
+- After the feature tests pass, ask the user to run the complete suite with `php artisan test --compact`.
 
 </laravel-boost-guidelines>

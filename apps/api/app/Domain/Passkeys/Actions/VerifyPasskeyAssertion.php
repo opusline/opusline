@@ -9,6 +9,7 @@ use App\Domain\Passkeys\Webauthn\CredentialJson;
 use App\Domain\Passkeys\Webauthn\PasskeyCeremony;
 use App\Domain\Passkeys\Webauthn\PasskeyVerificationFailed;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class VerifyPasskeyAssertion
 {
@@ -44,7 +45,18 @@ class VerifyPasskeyAssertion
 
             try {
                 $counter = $this->ceremony->verifyAssertion($credential, $options, $passkey, $userHandle);
-            } catch (PasskeyVerificationFailed) {
+            } catch (PasskeyVerificationFailed $exception) {
+                // The library's reason is the only thing that tells a
+                // misconfigured PASSKEYS_ORIGINS — where every sign-in fails
+                // identically — from a genuine refusal. The credential itself
+                // never goes to the log.
+                Log::warning('Passkey assertion refused.', [
+                    'user_id' => $passkey->user_id,
+                    'passkey_id' => $passkey->id,
+                    'ip' => request()->ip(),
+                    'reason' => $exception->getMessage(),
+                ]);
+
                 return null;
             }
 

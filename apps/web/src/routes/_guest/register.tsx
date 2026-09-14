@@ -2,6 +2,7 @@ import {
   currentUserQueryKey,
   registerMutation,
 } from "@opusline/api-client/react-query";
+import { linkVariants } from "@opusline/ui/components/text-link";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
@@ -41,7 +42,7 @@ function RegisterPage() {
       footer={
         <>
           {m.auth_have_account()}{" "}
-          <Link className="text-primary hover:underline" to="/login">
+          <Link className={linkVariants({ underline: "always" })} to="/login">
             {m.auth_login_submit()}
           </Link>
         </>

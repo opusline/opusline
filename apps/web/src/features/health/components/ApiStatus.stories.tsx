@@ -18,6 +18,13 @@ export const Healthy: Story = {
 
 export const Degraded: Story = {
   args: {
-    status: "indisponible",
+    status: "degraded",
+  },
+};
+
+/** The ping never came back — the state the page exists to be able to show. */
+export const Unreachable: Story = {
+  args: {
+    status: null,
   },
 };

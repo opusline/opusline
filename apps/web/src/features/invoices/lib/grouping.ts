@@ -1,4 +1,5 @@
 import type {
+  ClientRevenueData,
   InvoiceClientTotalsData,
   InvoiceListItemData,
   InvoiceStatus,
@@ -6,8 +7,6 @@ import type {
 } from "@opusline/api-client";
 
 import { m } from "@/paraglide/messages.js";
-
-import { averageDaysToPay } from "./labels";
 
 export const INVOICE_SCOPES = ["all", "open", "late", "paid", "draft"] as const;
 
@@ -87,23 +86,33 @@ export type InvoiceGroup = {
   client: InvoiceListItemData["client"];
   items: InvoiceListItemData[];
   total: number;
-  averageDaysToPay: number | null;
+  /** The API's own figure — null until the client has paid something. */
+  averagePaymentDelayDays: number | null;
 };
 
 /**
  * Totals come from the API's clientTotals verbatim — the frontend never does
- * money arithmetic — and are gross: what is owed, not what gets declared.
+ * money arithmetic — and are gross: what is owed, not what gets declared. The
+ * payment delay comes from SummarizeClientRevenue for the same reason: it is a
+ * property of the client, not of whichever chip is selected.
  */
 export function groupByClient(
   locale: Locale,
   items: InvoiceListItemData[],
   clientTotals: InvoiceClientTotalsData[],
+  clientRevenue: ClientRevenueData[],
   scope: InvoiceScope,
 ): InvoiceGroup[] {
   const totalsByClient = new Map(
     clientTotals.map((totals) => [totals.clientId, totals]),
   );
-  const groups = new Map<number, Omit<InvoiceGroup, "averageDaysToPay">>();
+  const revenueByClient = new Map(
+    clientRevenue.map((revenue) => [revenue.clientId, revenue]),
+  );
+  const groups = new Map<
+    number,
+    Omit<InvoiceGroup, "averagePaymentDelayDays">
+  >();
 
   for (const item of items) {
     const group = groups.get(item.client.id) ?? {
@@ -119,9 +128,8 @@ export function groupByClient(
   return [...groups.values()]
     .map((group) => ({
       ...group,
-      averageDaysToPay: averageDaysToPay(
-        group.items.map((item) => item.invoice),
-      ),
+      averagePaymentDelayDays:
+        revenueByClient.get(group.client.id)?.averagePaymentDelayDays ?? null,
     }))
     .sort((a, b) => a.client.name.localeCompare(b.client.name, locale));
 }

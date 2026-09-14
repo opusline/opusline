@@ -8,12 +8,17 @@
 #
 #   ./opusline-backup.sh backup            one archive of everything that holds state
 #   ./opusline-backup.sh verify FILE       what is in an archive, without unpacking it
-#   ./opusline-backup.sh restore FILE      put it back into a stack that is up
+#   ./opusline-backup.sh restore FILE      put it back, stopping the writers first
 #
 # Run it from the directory holding compose.prod.yaml and .env, or point it
 # elsewhere with OPUSLINE_DIR. Needs docker and the database container running;
 # nothing else.
 set -eu
+
+# An archive holds the verbatim .env — APP_KEY, DB_PASSWORD, the S3 credentials
+# — beside the dump that APP_KEY decrypts. Nothing this script writes is any
+# other user's business, and the default umask would publish all of it.
+umask 077
 
 COMPOSE_FILE="${OPUSLINE_COMPOSE:-compose.prod.yaml}"
 ENV_FILE="${OPUSLINE_ENV:-.env}"
@@ -90,6 +95,46 @@ load_database() {
       fail "unknown DB_CONNECTION '$(db_connection)'."
       ;;
   esac
+}
+
+# The dump drops and recreates every table as it streams in, and the uploads are
+# deleted before they are unpacked. An Octane worker, the queue or the scheduler
+# writing in that window lands in a schema that is half gone — and a connection
+# still holding a table makes the DROP wait for it instead, which reads as a
+# restore that hung. Only what was running is stopped, and only that is started
+# again: restoring is also what you do to a stack whose api will not boot.
+WRITER_SERVICES='api queue scheduler'
+stopped_writers=''
+
+running_writers() {
+  running="$(compose ps --services --status running)"
+
+  for service in $WRITER_SERVICES; do
+    if printf '%s\n' "$running" | grep -qFx "$service"; then
+      printf '%s ' "$service"
+    fi
+  done
+}
+
+stop_writers() {
+  stopped_writers="$(running_writers)"
+  [ -n "$stopped_writers" ] || return 0
+
+  echo "Stopping ${stopped_writers}while the data goes back…"
+  # shellcheck disable=SC2086 # a list of service names, deliberately split
+  compose stop $stopped_writers
+}
+
+start_writers() {
+  [ -n "$stopped_writers" ] || return 0
+
+  services="$stopped_writers"
+  # Cleared before the call, not after: this also runs from the EXIT trap, and a
+  # failure to start must not send it round a second time.
+  stopped_writers=''
+  echo "Starting ${services}again…"
+  # shellcheck disable=SC2086 # a list of service names, deliberately split
+  compose up -d $services
 }
 
 # Compose prefixes a volume with the project name, and the project name is not
@@ -187,6 +232,9 @@ backup() {
   trap "rm -rf '$work'" EXIT
 
   mkdir -p "$BACKUP_DIR"
+  # umask only constrains what this run creates; a directory from before it was
+  # set, or one the operator made by hand, is corrected here.
+  chmod 700 "$BACKUP_DIR"
 
   # Resolved before anything is written: a stack whose volume cannot be found has
   # to fail here rather than produce an archive with an empty uploads tarball.
@@ -211,6 +259,7 @@ storage_volume=$volume
 MANIFEST
 
   tar czf "$archive" -C "$work" MANIFEST database.sql storage.tar.gz env
+  chmod 600 "$archive"
 
   echo "Wrote $archive ($(du -h "$archive" | cut -f1))"
   record_backup "$volume" "$taken_at" "$archive" "$(wc -c < "$archive" | tr -d ' ')"
@@ -246,8 +295,10 @@ restore() {
   volume="$(storage_volume)"
   work="$(mktemp -d)"
   # shellcheck disable=SC2064
-  trap "rm -rf '$work'" EXIT
+  trap "start_writers; rm -rf '$work'" EXIT
   tar xzf "$archive" -C "$work"
+
+  stop_writers
 
   echo "Loading the database…"
   load_database "$work/database.sql"
@@ -259,6 +310,8 @@ restore() {
   # name the wrong one until the next backup. This archive is the truth now.
   record_backup "$volume" "$(manifest_value "$work/MANIFEST" taken_at)" \
     "$archive" "$(wc -c < "$archive" | tr -d ' ')"
+
+  start_writers
 
   echo
   echo "Done. The archive's env file is at $work/env — it is NOT copied over"

@@ -1,6 +1,12 @@
 codecov:
   require_ci_to_pass: true
 
+# Coverage reports, it does not gate: no codecov context is in the branch
+# ruleset, so a failing status here would sit red on a pull request nothing
+# waits for. `informational` says that out loud — the 80 % targets are the
+# number the PR comment holds each flag to, not a merge condition. Putting
+# `codecov/patch/api` and `codecov/patch/web` in the ruleset is what would turn
+# them into one.
 coverage:
   status:
     project:
@@ -10,9 +16,11 @@ coverage:
       api:
         target: 80%
         flags: [api]
+        informational: true
       web:
         target: 80%
         flags: [web]
+        informational: true
 
 flags:
   api:

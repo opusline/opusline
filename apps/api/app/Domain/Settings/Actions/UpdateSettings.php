@@ -11,6 +11,7 @@ use App\Domain\Settings\Data\UpdateSettingsData;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Settings\Jobs\RefreshOfficialRatesJob;
 use App\Domain\Settings\Models\UserSettings;
+use App\Domain\Settings\Rates\LiberatingPayment;
 use App\Domain\Settings\Rates\RateSituation;
 use App\Domain\Shared\Validation\AccountCurrency;
 use Illuminate\Support\Facades\DB;
@@ -37,6 +38,7 @@ class UpdateSettings
         );
         $wasFollowingOfficialRates = $settings->auto_rates;
         $previousRateBp = $settings->effectiveContributionRateBp();
+        $previousLiberatingPayment = LiberatingPayment::of($settings);
         // Gate on the country being saved, not the stored one: moving the
         // business out of France must strip the French flags in the same write.
         $hasFrenchFiscality = $data->businessCountry === UserSettings::FRENCH_FISCALITY_COUNTRY;
@@ -45,7 +47,7 @@ class UpdateSettings
         // it or a foreign payload's submitted rates would be silently dropped.
         $autoRates = $hasFrenchFiscality && $data->autoRates;
 
-        DB::transaction(function () use ($settings, $data, $hasFrenchFiscality, $autoRates): void {
+        DB::transaction(function () use ($settings, $data, $hasFrenchFiscality, $autoRates, $previousRateBp, $previousLiberatingPayment): void {
             // MoneyCast writes the currency column as a side effect of writing
             // the buffer, so a stale-currency buffer slipping past the request
             // rule would silently re-label the whole account.
@@ -101,11 +103,13 @@ class UpdateSettings
                 // dropped, not carried dormant.
                 'cfe_expected_cents' => $hasFrenchFiscality ? $data->cfeExpected?->toMoney() : null,
             ]);
-        });
 
-        // After the write, before anything reads a provision: a period that closed
-        // under the old rate has to keep being priced with it.
-        $this->recordContributionRate->handle($settings, $previousRateBp);
+            // In the same transaction as the write it records: a period that
+            // closed under the old rate has to keep being priced with it, and a
+            // rate that moved with nothing written down repricing it is worse
+            // than a save that failed.
+            $this->recordContributionRate->handle($settings, $previousRateBp, $previousLiberatingPayment);
+        });
 
         $calendarAfter = $this->generateFiscalDeadlines->signature(
             $settings,

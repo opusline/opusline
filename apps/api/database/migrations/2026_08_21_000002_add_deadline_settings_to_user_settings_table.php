@@ -50,6 +50,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('user_settings', function (Blueprint $table): void {
+            // SQLite rewrites the table once per dropped column and replays the
+            // surviving index definitions each time, so the unique has to go
+            // before the column it covers or every later drop fails.
+            $table->dropUnique('user_settings_calendar_token_unique');
             $table->dropColumn([
                 'cfe_expected_cents',
                 'calendar_token',

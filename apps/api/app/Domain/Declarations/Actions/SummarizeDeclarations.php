@@ -35,6 +35,8 @@ use App\Domain\Expenses\Vat\DeductibleExpenses;
 use App\Domain\Invoices\Revenue\CollectedInvoices;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Models\UserSettings;
+use App\Domain\Settings\Rates\ContributionRateHistory;
+use App\Domain\Settings\Rates\ContributionRateTimeline;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Data\SignedMoneyData;
 use App\Domain\Shared\Fiscality\MicroBnc;
@@ -66,6 +68,7 @@ class SummarizeDeclarations
         private readonly GenerateFiscalDeadlines $generateFiscalDeadlines,
         private readonly SummarizeTreasury $summarizeTreasury,
         private readonly SummarizeAnnualDeclarations $summarizeAnnualDeclarations,
+        private readonly ContributionRateHistory $contributionRateHistory,
     ) {}
 
     /**
@@ -89,6 +92,7 @@ class SummarizeDeclarations
         $history = [];
 
         if ($settings->hasFrenchFiscality()) {
+            $rates = $this->contributionRateHistory->timeline($settings);
             $completions = $user->fiscalDeadlineCompletions()->get();
             $declared = DeclaredCa3Months::fromCompletions($completions);
             $historyStart = $monthStart->subMonths(self::HISTORY_MONTHS - 1);
@@ -133,6 +137,7 @@ class SummarizeDeclarations
 
             $urssaf = $this->urssaf(
                 $settings,
+                $rates,
                 $collected,
                 $urssafPeriod,
                 $monthStart,
@@ -156,8 +161,8 @@ class SummarizeDeclarations
                 )
                 : null;
             $cumulative = $this->cumulative($settings, $collected, $monthStart);
-            $history = $this->history($settings, $collected, $chain, $completions, $monthStart, $currentMonth);
-            $annual = $this->summarizeAnnualDeclarations->handle($settings, $collected, $completions, $deadlines, $monthStart, $today);
+            $history = $this->history($settings, $rates, $collected, $chain, $completions, $monthStart, $currentMonth);
+            $annual = $this->summarizeAnnualDeclarations->handle($settings, $rates, $collected, $completions, $deadlines, $monthStart, $today);
         }
 
         $next = $monthStart->addMonth();
@@ -239,6 +244,7 @@ class SummarizeDeclarations
      */
     private function urssaf(
         UserSettings $settings,
+        ContributionRateTimeline $rates,
         CollectedInvoices $collected,
         array $period,
         CarbonImmutable $monthStart,
@@ -249,7 +255,8 @@ class SummarizeDeclarations
         CarbonImmutable $today,
     ): UrssafDeclarationData {
         $base = new Money($collected->htCents($period['start'], $period['end']), $settings->currency->value);
-        $total = $settings->urssafContributionsOn($base);
+        $lines = $rates->contributionLinesFor($base, $period['end']);
+        $total = $rates->contributionsFor($base, $period['end']);
         $completion = $this->completion($completions, FiscalDeadlineKind::UrssafDeclaration, $period['key']);
 
         return new UrssafDeclarationData(
@@ -258,7 +265,7 @@ class SummarizeDeclarations
             coversShownMonth: $monthStart->betweenIncluded($period['start'], $period['end']),
             base: MoneyData::fromMoney($base),
             invoiceCount: $collected->countBetween($period['start'], $period['end']),
-            lines: array_map(ContributionLineData::fromLine(...), $settings->urssafContributionLines($base)),
+            lines: array_map(ContributionLineData::fromLine(...), $lines),
             total: MoneyData::fromMoney($total),
             deadline: $this->deadline($deadlines, FiscalDeadlineKind::UrssafDeclaration, $period['key'], $today),
             completion: $completion,
@@ -405,6 +412,7 @@ class SummarizeDeclarations
      */
     private function history(
         UserSettings $settings,
+        ContributionRateTimeline $rates,
         CollectedInvoices $collected,
         ?Ca3Chain $chain,
         Collection $completions,
@@ -426,7 +434,7 @@ class SummarizeDeclarations
                 $base = new Money($collected->htCents($period['start'], $period['end']), $currency);
                 $urssaf = new DeclarationHistoryUrssafData(
                     period: $period['key'],
-                    total: MoneyData::fromMoney($settings->urssafContributionsOn($base)),
+                    total: MoneyData::fromMoney($rates->contributionsFor($base, $period['end'])),
                     completion: $this->completion($completions, FiscalDeadlineKind::UrssafDeclaration, $period['key']),
                 );
             }

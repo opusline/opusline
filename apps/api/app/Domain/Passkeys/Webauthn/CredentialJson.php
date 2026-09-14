@@ -12,6 +12,13 @@ namespace App\Domain\Passkeys\Webauthn;
 final class CredentialJson
 {
     /**
+     * The longest credential the boundary accepts. A real one is around a
+     * kilobyte; two of the three routes carrying it answer without a session,
+     * so the body is decoded twice before anything has been proven.
+     */
+    public const int MAX_LENGTH = 8192;
+
+    /**
      * A non-object document decodes to nothing, and nothing verifies.
      *
      * @return array<string, mixed>

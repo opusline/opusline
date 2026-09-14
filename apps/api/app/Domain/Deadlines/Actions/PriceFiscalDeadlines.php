@@ -11,6 +11,8 @@ use App\Domain\Deadlines\Calendar\FiscalDeadline;
 use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
 use App\Domain\Invoices\Revenue\CollectedInvoices;
 use App\Domain\Settings\Models\UserSettings;
+use App\Domain\Settings\Rates\ContributionRateHistory;
+use App\Domain\Settings\Rates\ContributionRateTimeline;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
@@ -32,6 +34,8 @@ class PriceFiscalDeadlines
         FiscalDeadlineKind::VatCa12,
     ];
 
+    public function __construct(private readonly ContributionRateHistory $contributionRateHistory) {}
+
     /**
      * @param  list<FiscalDeadline>  $deadlines
      * @return array<string, DeadlineAmount> keyed by FiscalDeadline::key()
@@ -45,11 +49,12 @@ class PriceFiscalDeadlines
         $today = $settings->today();
         $currency = $settings->currency->value;
         $collected = $this->collections($user, $today, $deadlines);
+        $rates = $this->contributionRateHistory->timeline($settings);
 
         $prices = [];
 
         foreach ($deadlines as $deadline) {
-            $prices[$deadline->key()] = $this->price($deadline, $settings, $collected, $expectedCfe, $today, $currency);
+            $prices[$deadline->key()] = $this->price($deadline, $rates, $collected, $expectedCfe, $today, $currency);
         }
 
         return $prices;
@@ -57,14 +62,14 @@ class PriceFiscalDeadlines
 
     private function price(
         FiscalDeadline $deadline,
-        UserSettings $settings,
+        ContributionRateTimeline $rates,
         CollectedInvoices $collected,
         ?ExpectedCfe $expectedCfe,
         CarbonImmutable $today,
         string $currency,
     ): DeadlineAmount {
         return match ($deadline->kind) {
-            FiscalDeadlineKind::UrssafDeclaration => $this->urssaf($deadline, $settings, $collected, $today, $currency),
+            FiscalDeadlineKind::UrssafDeclaration => $this->urssaf($deadline, $rates, $collected, $today, $currency),
             FiscalDeadlineKind::VatCa3, FiscalDeadlineKind::VatCa12 => $this->estimate(
                 $deadline,
                 $today,
@@ -109,15 +114,19 @@ class PriceFiscalDeadlines
      * The contributions on what the window collected, carrying the base too:
      * the screen names both, and the amount is rounded line by line, so the
      * base cannot be divided back out of it.
+     *
+     * An occurrence whose period has closed is priced at the rate that applied
+     * then, the same way the treasury carries it — an ACRE step ending in
+     * January must not reprice the December still on the calendar.
      */
     private function urssaf(
         FiscalDeadline $deadline,
-        UserSettings $settings,
+        ContributionRateTimeline $rates,
         CollectedInvoices $collected,
         CarbonImmutable $today,
         string $currency,
     ): DeadlineAmount {
-        $rateBp = $settings->effectiveContributionRateBp();
+        $rateBp = $rates->rateBpFor($deadline->periodEnd);
 
         if ($deadline->periodStart->greaterThan($today)) {
             return new DeadlineAmount(amount: null, rateBp: $rateBp, isEstimate: true);
@@ -126,7 +135,7 @@ class PriceFiscalDeadlines
         $base = new Money($collected->htCents($deadline->periodStart, $this->through($deadline, $today)), $currency);
 
         return new DeadlineAmount(
-            amount: $settings->urssafContributionsOn($base),
+            amount: $rates->contributionsFor($base, $deadline->periodEnd),
             rateBp: $rateBp,
             isEstimate: true,
             base: $base,

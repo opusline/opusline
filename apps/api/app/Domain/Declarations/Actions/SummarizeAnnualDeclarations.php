@@ -19,6 +19,8 @@ use App\Domain\Declarations\Enums\IncomeTaxReturnBox;
 use App\Domain\Invoices\Revenue\CollectedInvoices;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Models\UserSettings;
+use App\Domain\Settings\Rates\ContributionRateTimeline;
+use App\Domain\Settings\Rates\LiberatingPayment;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Data\SignedMoneyData;
 use App\Domain\Shared\Fiscality\MicroBnc;
@@ -44,6 +46,7 @@ class SummarizeAnnualDeclarations
      */
     public function handle(
         UserSettings $settings,
+        ContributionRateTimeline $rates,
         CollectedInvoices $collected,
         Collection $completions,
         array $deadlines,
@@ -62,18 +65,28 @@ class SummarizeAnnualDeclarations
         }
 
         $gross = new Money($collected->htCents($yearStart, $yearEnd), $currency);
+        $urssafPeriods = $this->urssafPeriodsOf($settings, $yearStart);
+        $recorded = array_map(
+            static fn (array $period): ?LiberatingPayment => $rates->liberatingPaymentOn($period['end']),
+            $urssafPeriods,
+        );
+        $liberating = $this->liberatingPaymentOverYear($settings, $recorded);
+        $isLiberated = $liberating instanceof LiberatingPayment && $liberating->isPaid;
         $periods = [];
         $liberatingPaid = new Money(0, $currency);
 
-        foreach ($this->urssafPeriodsOf($settings, $yearStart) as $period) {
+        foreach ($urssafPeriods as $index => $period) {
             $base = new Money($collected->htCents($period['start'], $period['end']), $currency);
             $periods[] = new IncomeTaxReturnPeriodData(
                 period: $period['key'],
                 base: MoneyData::fromMoney($base),
                 declaredOn: DeclarationCompletionData::in($completions, FiscalDeadlineKind::UrssafDeclaration, $period['key'])?->declaredOn,
             );
-            // Summed per declaration, as the URSSAF rounded each one: the cents can differ from a rate on the year.
-            $liberatingPaid = $liberatingPaid->add(Rate::of($base, $settings->liberating_payment_rate_bp));
+
+            if ($isLiberated) {
+                // Summed per declaration, as the URSSAF rounded each one: the cents can differ from a rate on the year.
+                $liberatingPaid = $liberatingPaid->add(Rate::of($base, ($recorded[$index] ?? $liberating)->rateBp));
+            }
         }
 
         return new AnnualDeclarationsData(
@@ -81,10 +94,14 @@ class SummarizeAnnualDeclarations
                 year: $year,
                 dueOn: $incomeTaxDueOn,
                 grossReceipts: MoneyData::fromMoney($gross),
-                box: $settings->liberating_payment ? IncomeTaxReturnBox::WithLiberatingPayment : IncomeTaxReturnBox::WithoutLiberatingPayment,
+                // The year the account cannot vouch for lands in 5HQ, the box that
+                // claims nothing: 5TE asserts the tax was already settled on every
+                // receipt, and an assertion nobody can stand behind has no place on
+                // a tax return.
+                box: $isLiberated ? IncomeTaxReturnBox::WithLiberatingPayment : IncomeTaxReturnBox::WithoutLiberatingPayment,
                 periods: $periods,
                 taxableAfterAbatement: MoneyData::fromMoney(Money::max(new Money(0, $currency), $gross->subtract(MicroBnc::abatementOf($gross)))),
-                liberatingPaymentPaid: $settings->liberating_payment ? MoneyData::fromMoney($liberatingPaid) : null,
+                liberatingPaymentPaid: $isLiberated ? MoneyData::fromMoney($liberatingPaid) : null,
                 completion: DeclarationCompletionData::in($completions, FiscalDeadlineKind::IncomeTaxReturn, (string) $year),
             ),
             cfe: $cfeDueOn instanceof CarbonImmutable ? $this->cfe($settings, $completions, $year, $cfeDueOn, $today) : null,
@@ -121,6 +138,44 @@ class SummarizeAnnualDeclarations
             monthsProvisioned: $isRunningYear ? $today->month : 12,
             completion: $completion,
         );
+    }
+
+    /**
+     * The versement libératoire the whole year ran under, or null when the
+     * account cannot vouch for it.
+     *
+     * The 2042-C PRO has one box and one figure for twelve months, so a year
+     * only gets an answer when every one of its declarations agrees. An account
+     * that never moved its terms has nothing recorded at all, and today's
+     * settings are then the only answer there is — the one the screen has
+     * always given. A year the option moved inside, or one only half written
+     * down, gets none: a return that claims 2,2 % was already paid on receipts
+     * it was not is a wrong return, filed confidently.
+     *
+     * @param  list<?LiberatingPayment>  $recorded  one per URSSAF period of the year, null where nothing was written down
+     */
+    private function liberatingPaymentOverYear(UserSettings $settings, array $recorded): ?LiberatingPayment
+    {
+        $known = array_values(array_filter(
+            $recorded,
+            static fn (?LiberatingPayment $state): bool => $state instanceof LiberatingPayment,
+        ));
+
+        if ($known === []) {
+            return LiberatingPayment::of($settings);
+        }
+
+        if (count($known) !== count($recorded)) {
+            return null;
+        }
+
+        foreach ($known as $state) {
+            if ($state->isPaid !== $known[0]->isPaid) {
+                return null;
+            }
+        }
+
+        return $known[0];
     }
 
     /**

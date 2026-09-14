@@ -52,7 +52,7 @@ class DatabaseSeeder extends Seeder
         $nordlys = Client::factory()->for($user)->intermediary()->create([
             'name' => 'Nordlys',
             'color' => Color::Amber,
-            'siret' => '443 061 841 00047',
+            'siret' => '123 456 782 00002',
             'billing_contact_name' => 'Camille Dupont',
             'billing_email' => 'factures@nordlys.example',
             'created_at' => now()->subMonths(17),

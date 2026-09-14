@@ -17,7 +17,7 @@ const client = {
   name: "Nordlys",
   type: 1,
   notes: null,
-  siret: "443 061 841 00047",
+  siret: "123 456 782 00002",
   vatNumber: null,
   defaultVatRateBp: null,
   billingAddressLine1: null,
@@ -163,8 +163,8 @@ export function craItem(
  */
 export const DEMO_SETTINGS = {
   tradeName: "Théo Marchand",
-  siret: "443 061 841 00047",
-  vatNumber: "FR40443061841",
+  siret: "123 456 782 00002",
+  vatNumber: "FR11123456782",
   signatureCity: "Nantes",
   contactEmail: "theo@marchand.dev",
   phone: "06 12 34 56 78",

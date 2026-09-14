@@ -1,0 +1,4 @@
+{
+  "kind": "fixed",
+  "text": "Backup archives are now written so only their owner can read them; they contain your application key and database password."
+}

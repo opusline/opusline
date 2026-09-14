@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
  */
 class BankMovementFactory extends Factory
 {
+    #[\Override]
     protected $model = BankMovement::class;
 
     /**

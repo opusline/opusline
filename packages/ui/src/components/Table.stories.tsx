@@ -58,3 +58,58 @@ export const Default: Story = {
     </Table>
   ),
 };
+
+/** The ledger rhythm: an eyebrow head over rows of figures. */
+export const Compact: Story = {
+  render: () => (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead density="compact" tone="eyebrow-quiet">
+            Fournisseur
+          </TableHead>
+          <TableHead className="w-24" density="compact" tone="eyebrow-quiet">
+            Date
+          </TableHead>
+          <TableHead
+            className="w-28 text-right"
+            density="compact"
+            tone="eyebrow-quiet"
+          >
+            HT
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        <TableRow>
+          <TableCell density="compact" tone="strong">
+            Ateliers Ruche
+          </TableCell>
+          <TableCell density="compact" tone="quiet">
+            04/09/2026
+          </TableCell>
+          <TableCell
+            className="text-right font-mono tabular-nums"
+            density="compact"
+          >
+            1 240,00 €
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell density="compact" tone="strong">
+            Studio Lorem
+          </TableCell>
+          <TableCell density="compact" tone="quiet">
+            28/08/2026
+          </TableCell>
+          <TableCell
+            className="text-right font-mono tabular-nums"
+            density="compact"
+          >
+            310,50 €
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+  ),
+};

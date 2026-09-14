@@ -117,16 +117,22 @@ class ImportBankStatement
 
             $importedCount = count($rows);
 
-            // Every movement still awaiting a suggestion is re-evaluated, not
-            // just the new rows: an invoice sent after an earlier import
-            // becomes matchable simply by re-importing the statement.
+            // Every movement of the imported period still awaiting a suggestion
+            // is re-evaluated, not just the new rows: an invoice sent after an
+            // earlier import becomes matchable simply by re-importing the
+            // statement that carries its payment. The window stops there —
+            // cross-matching the whole account in PHP is the very shape the
+            // chunked insert above exists to avoid, and it would run inside the
+            // same user row lock.
+            $rescanFrom = $statement->period_start->subDays(SuggestExpenseMatches::DAYS_APART);
             $suggestible = array_values($locked->bankMovements()
                 ->where('amount_cents', '>', 0)
                 ->whereNull('invoice_id')
                 ->whereDoesntHave('match')
+                ->where('booked_on', '>=', $rescanFrom->toDateString())
                 ->get()
                 ->all());
-            $this->suggestExpenseMatches->handle($locked);
+            $this->suggestExpenseMatches->handle($locked, $rescanFrom);
 
             return [$importedCount, $this->suggestBankMatches->handle($locked, $suggestible)];
         });

@@ -36,6 +36,12 @@ export const TREASURY_BAND_SKINS: Record<
     label_tone: "text-muted-foreground",
     value_tone: "text-foreground-2",
   },
+  subscriptions: {
+    label: m.treasury_band_subscriptions,
+    swatch: "bg-border-2",
+    label_tone: "text-muted-foreground",
+    value_tone: "text-foreground-2",
+  },
   buffer: {
     label: m.treasury_band_buffer,
     swatch: "border border-border-3 bg-secondary-2",

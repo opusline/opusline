@@ -60,9 +60,10 @@ class MaterializeCraDays
      * query — the list screen shows a dozen missions at once and must not fan out.
      *
      * @param  Collection<int, Mission>  $missions
+     * @param  CarbonImmutable  $through  the account's today: the list stops at its month
      * @return array<int, array<string, int>> mission id => `Y-m` => basis points
      */
-    public function monthlyTotals(User $user, Collection $missions): array
+    public function monthlyTotals(User $user, Collection $missions, CarbonImmutable $through): array
     {
         if ($missions->isEmpty()) {
             return [];
@@ -72,11 +73,14 @@ class MaterializeCraDays
 
         // Aggregated in SQL rather than hydrated: this runs on every list, and an
         // account with years of tracking would otherwise pull every entry it ever
-        // recorded into memory just to add them back up.
+        // recorded into memory just to add them back up. Bounded above at the
+        // current month because time logged ahead of today is not reportable yet
+        // — CreateCra refuses it, so listing it would offer a row nobody can open.
         /** @var SupportCollection<int, object{mission_id: int, date: string, minutes: int|numeric-string}> $rows */
         $rows = $user->timeEntries()
             ->where('billable', true)
             ->whereIn('mission_id', $missions->modelKeys())
+            ->where('date', '<=', $through->endOfMonth()->toDateString())
             ->toBase()
             ->selectRaw('mission_id, date, SUM(duration_minutes) as minutes')
             ->groupBy('mission_id', 'date')

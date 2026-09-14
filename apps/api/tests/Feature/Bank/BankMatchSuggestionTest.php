@@ -132,6 +132,25 @@ test('a re-import matches invoices sent since the first import', function (): vo
         ->assertJsonPath('account.pendingMatches.0.invoice.id', $invoice->id);
 });
 
+test('an import looks no further back than its own period', function (): void {
+    $user = User::factory()->create();
+    $invoice = invoiceOwnedBy($user);
+
+    // January's payment landed while the invoice was still a draft, so the
+    // pairing the re-import test proves would otherwise be found is available.
+    importCsv($user, csvWithMovements('08/01/2026;VIR REF 2026041;1 980,00'))
+        ->assertCreated()
+        ->assertJsonPath('suggestionCount', 0);
+
+    $invoice->update(['status' => InvoiceStatus::Sent, 'number' => '2026-041']);
+
+    importCsv($user, csvWithMovements('08/08/2026;VIR SEPA ANONYME;500,00'))
+        ->assertCreated()
+        ->assertJsonPath('suggestionCount', 0);
+
+    expect($user->bankMatches()->count())->toBe(0);
+});
+
 test('never resurrects a dismissed pairing on re-import', function (): void {
     $user = User::factory()->create();
     invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state(['number' => '2026-041']));

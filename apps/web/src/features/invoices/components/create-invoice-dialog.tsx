@@ -22,8 +22,8 @@ import {
   formatAmount,
   formatAmountWithCents,
   formatPercentFromBp,
+  parseAmountToCents,
   parseRateBp,
-  parseRateToCents,
 } from "@/lib/billing";
 import { calendarRangeLabel } from "@/lib/dates";
 import { m } from "@/paraglide/messages.js";
@@ -122,7 +122,7 @@ function CreateInvoiceForm({
     formatPercentFromBp(format.locale, work.vatRateBp),
   );
 
-  const amountHtCents = parseRateToCents(format.locale, amountDraft);
+  const amountHtCents = parseAmountToCents(format.locale, amountDraft);
   // With no field to read, the rate goes back to the API rather than being invented
   // here: a cached vatLiable or a cached work.vatRateBp could each be a regime behind,
   // and only the server resolves the regime and the client's rate together.

@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class FiscalDeadlineCompletionFactory extends Factory
 {
+    #[\Override]
     protected $model = FiscalDeadlineCompletion::class;
 
     /**

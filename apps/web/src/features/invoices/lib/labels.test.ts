@@ -3,7 +3,7 @@ import { expect, it } from "vitest";
 
 import { INVOICE_FIXTURE } from "@/test/fixtures";
 
-import { averageDaysToPay, invoiceRowDetail } from "./labels";
+import { invoiceRowDetail } from "./labels";
 
 const TODAY = "2026-08-20";
 
@@ -36,21 +36,4 @@ it("dates an open invoice in the account's layout", () => {
   expect(invoiceRowDetail("fr-FR", 1, invoice(), TODAY)).toContain(
     "2026-08-15",
   );
-});
-
-it("averages only the invoices that were actually paid", () => {
-  const average = averageDaysToPay([
-    invoice({ id: 1, status: 2, issuedOn: "2026-07-01", paidOn: "2026-07-11" }),
-    invoice({ id: 2, status: 2, issuedOn: "2026-07-01", paidOn: "2026-07-31" }),
-    // A draft carrying a payment date is not a payment.
-    invoice({ id: 3, status: 0, issuedOn: "2026-07-01", paidOn: "2026-07-02" }),
-    invoice({ id: 4, status: 1, paidOn: null }),
-  ]);
-
-  expect(average).toBe(20);
-});
-
-it("has no average until something has been paid", () => {
-  expect(averageDaysToPay([invoice({ paidOn: null })])).toBeNull();
-  expect(averageDaysToPay([])).toBeNull();
 });

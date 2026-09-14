@@ -21,9 +21,16 @@ const PALETTE_TOKENS = [
 const SURFACE_TOKENS = [
   "--background",
   "--card",
+  "--card-2",
+  "--popover",
+  "--sidebar",
   "--muted",
+  "--muted-2",
   "--secondary",
+  "--secondary-2",
   "--accent",
+  "--stripe-1",
+  "--stripe-2",
 ] as const;
 
 const TEXT_ROLE_TOKENS = [
@@ -56,6 +63,18 @@ const FILL_PAIRS = [
   { foreground: "--secondary-foreground", background: "--secondary" },
   { foreground: "--accent-foreground", background: "--accent" },
   { foreground: "--card-foreground", background: "--card" },
+] as const;
+
+/**
+ * Every surface a bordered control is drawn against: the page and the card, the
+ * raised popover, and the fill the two toggles give themselves in dark
+ * (`checkbox.tsx`, `radio-group.tsx`).
+ */
+const NON_TEXT_PAIRS = [
+  { foreground: "--input", background: "--background" },
+  { foreground: "--input", background: "--muted" },
+  { foreground: "--input", background: "--secondary" },
+  { foreground: "--input", background: "--card-2" },
 ] as const;
 
 const AA_NORMAL_TEXT = 4.5;
@@ -158,48 +177,54 @@ function PairsTable({ read }: { read: TokenReader }) {
   }));
 
   return (
-    <table className="w-full border-collapse text-left">
-      <thead>
-        <tr>
-          <th className="pb-2 pr-3 font-medium text-foreground-2 text-xs">
-            Premier plan
-          </th>
-          {surfaces.map((surface) => (
-            <th
-              className="pb-2 pr-3 font-mono font-normal text-muted-foreground-2 text-xs"
-              key={surface.token}
-              scope="col"
-            >
-              {surface.token.replace("--", "")}
+    // A dozen surfaces do not fit half a canvas, and axe fails a scroll box a
+    // keyboard cannot reach (scrollable-region-focusable) — which is the rule
+    // that wins here, since the clipped columns are the point of the story.
+    // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable to be scrollable without a mouse
+    <div className="overflow-x-auto" tabIndex={0}>
+      <table className="w-full border-collapse text-left">
+        <thead>
+          <tr>
+            <th className="pb-2 pr-3 font-medium text-foreground-2 text-xs">
+              Premier plan
             </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {TEXT_ROLE_TOKENS.map((token) => {
-          const value = read(token);
-
-          return (
-            <tr key={token}>
+            {surfaces.map((surface) => (
               <th
-                className="py-1 pr-3 font-mono font-normal text-foreground-3 text-xs"
-                scope="row"
+                className="pb-2 pr-3 font-mono font-normal text-muted-foreground-2 text-xs"
+                key={surface.token}
+                scope="col"
               >
-                {token.replace("--", "")}
+                {surface.token.replace("--", "")}
               </th>
-              {surfaces.map((surface) => (
-                <td className="py-1 pr-3" key={surface.token}>
-                  <Ratio
-                    ratio={contrastRatio(value, surface.value)}
-                    threshold={AA_NORMAL_TEXT}
-                  />
-                </td>
-              ))}
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {TEXT_ROLE_TOKENS.map((token) => {
+            const value = read(token);
+
+            return (
+              <tr key={token}>
+                <th
+                  className="py-1 pr-3 font-mono font-normal text-foreground-3 text-xs"
+                  scope="row"
+                >
+                  {token.replace("--", "")}
+                </th>
+                {surfaces.map((surface) => (
+                  <td className="py-1 pr-3" key={surface.token}>
+                    <Ratio
+                      ratio={contrastRatio(value, surface.value)}
+                      threshold={AA_NORMAL_TEXT}
+                    />
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -227,34 +252,26 @@ function FillsTable({ read }: { read: TokenReader }) {
             </td>
           </tr>
         ))}
-        <tr>
-          <th
-            className="py-1 pr-3 font-mono font-normal text-foreground-3 text-xs"
-            scope="row"
-          >
-            input sur background (SC 1.4.11)
-          </th>
-          <td className="py-1">
-            <Ratio
-              ratio={contrastRatio(read("--input"), read("--background"))}
-              threshold={AA_NON_TEXT}
-            />
-          </td>
-        </tr>
-        <tr>
-          <th
-            className="py-1 pr-3 font-mono font-normal text-foreground-3 text-xs"
-            scope="row"
-          >
-            input sur muted (SC 1.4.11)
-          </th>
-          <td className="py-1">
-            <Ratio
-              ratio={contrastRatio(read("--input"), read("--muted"))}
-              threshold={AA_NON_TEXT}
-            />
-          </td>
-        </tr>
+        {NON_TEXT_PAIRS.map((pair) => (
+          <tr key={pair.background}>
+            <th
+              className="py-1 pr-3 font-mono font-normal text-foreground-3 text-xs"
+              scope="row"
+            >
+              {pair.foreground.replace("--", "")} sur{" "}
+              {pair.background.replace("--", "")} (SC 1.4.11)
+            </th>
+            <td className="py-1">
+              <Ratio
+                ratio={contrastRatio(
+                  read(pair.foreground),
+                  read(pair.background),
+                )}
+                threshold={AA_NON_TEXT}
+              />
+            </td>
+          </tr>
+        ))}
       </tbody>
     </table>
   );
@@ -290,9 +307,10 @@ function ContrastMatrix() {
       </div>
       <p className="max-w-2xl text-muted-foreground-2 text-xs">
         Seuil AA texte : {AA_NORMAL_TEXT}:1 — {AA_NON_TEXT}:1 pour la bordure
-        d'un champ (SC 1.4.11), que axe-core ne sait pas mesurer. Un chiffre en
-        rouge est un bug, pas un choix : toute paire listée ici est réellement
-        peinte quelque part dans l'app.
+        d'un champ (SC 1.4.11), que axe-core ne sait pas mesurer. Chaque colonne
+        est une surface réellement peinte dans l'app : un chiffre en rouge
+        interdit ce rôle de texte sur cette surface-là, il ne dit pas que la
+        paire existe aujourd'hui.
       </p>
     </div>
   );
