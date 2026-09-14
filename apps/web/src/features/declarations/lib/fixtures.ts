@@ -90,6 +90,7 @@ export function declarationsData(
       margin: { amount: 1_090_000, currency: "EUR" },
     },
     history: [],
+    annual: null,
     ...overrides,
   };
 }

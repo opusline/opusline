@@ -40,6 +40,20 @@ final readonly class FiscalDeadline
         return $this->kind === $kind && $this->periodKey === $periodKey;
     }
 
+    /**
+     * @param  list<self>  $deadlines
+     */
+    public static function find(array $deadlines, FiscalDeadlineKind $kind, string $periodKey): ?self
+    {
+        foreach ($deadlines as $deadline) {
+            if ($deadline->is($kind, $periodKey)) {
+                return $deadline;
+            }
+        }
+
+        return null;
+    }
+
     /** `2026-07` — the key a monthly occurrence and a monthly completion share. */
     public static function monthKey(CarbonImmutable $start): string
     {

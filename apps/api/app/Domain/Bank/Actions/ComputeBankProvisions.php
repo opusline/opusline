@@ -10,6 +10,8 @@ use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Deadlines\Actions\ResolveExpectedCfe;
 use App\Domain\Deadlines\Calendar\CfeSchedule;
 use App\Domain\Deadlines\Calendar\ExpectedCfe;
+use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
+use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
 use App\Domain\Declarations\Vat\Ca3Chain;
 use App\Domain\Declarations\Vat\Ca3ChainStart;
 use App\Domain\Expenses\Subscriptions\OccurrenceSchedule;
@@ -26,7 +28,6 @@ use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
 use Illuminate\Support\Collection;
-use Money\Money as MoneyPhp;
 
 /**
  * What the fisc is still owed, computed on collections (encaissements)
@@ -379,9 +380,11 @@ class ComputeBankProvisions
             return null;
         }
 
-        $accrued = $expected->multiply($today->month)->divide(12, MoneyPhp::ROUND_HALF_UP);
+        $accrued = CfeSchedule::accruedBy($expected, $today->month);
         $paid = DetectFiscPayments::debitedBetween($fiscDebits, $today->startOfYear(), $today, DetectFiscPayments::isCfe(...));
-        $owed = (int) $accrued->getAmount() - $paid;
+        // A CFE marked paid on Déclarations was settled, often from another
+        // account the bank feed never sees: nothing is left to hold back.
+        $owed = $this->isCfeMarkedPaid($settings, $today->year) ? 0 : (int) $accrued->getAmount() - $paid;
 
         return new BankProvisionData(
             amount: MoneyData::fromMoney(new Money(max(0, $owed), $currency)),
@@ -391,5 +394,15 @@ class ComputeBankProvisions
             periodEnd: $today->endOfYear(),
             isEstimate: $expectedCfe->isEstimate,
         );
+    }
+
+    private function isCfeMarkedPaid(UserSettings $settings, int $year): bool
+    {
+        return FiscalDeadlineCompletion::query()
+            ->where('user_id', $settings->user_id)
+            ->where('kind', FiscalDeadlineKind::Cfe)
+            ->where('period_key', (string) $year)
+            ->whereNotNull('paid_on')
+            ->exists();
     }
 }

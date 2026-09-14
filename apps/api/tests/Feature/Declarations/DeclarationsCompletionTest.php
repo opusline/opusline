@@ -7,22 +7,8 @@ use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
 use App\Domain\Expenses\Enums\ExpenseVatStatus;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Users\Models\User;
-use Illuminate\Testing\TestResponse;
 
 beforeEach(fn () => freezeTodayAtUtcNoon());
-
-function markDeclared(User $user, FiscalDeadlineKind $kind, string $periodKey, ?string $period = null): TestResponse
-{
-    return test()->actingAs($user)->postJson('/api/declarations/completions', array_filter(
-        ['kind' => $kind->value, 'periodKey' => $periodKey, 'period' => $period],
-        static fn (mixed $value): bool => $value !== null,
-    ));
-}
-
-function completionPath(FiscalDeadlineKind $kind, string $periodKey, string $suffix = ''): string
-{
-    return "/api/declarations/completions/{$kind->value}/{$periodKey}{$suffix}";
-}
 
 test('marking a return as filed answers the screen with the tick in place', function (): void {
     markDeclared(User::factory()->create(), FiscalDeadlineKind::UrssafDeclaration, '2026-07')

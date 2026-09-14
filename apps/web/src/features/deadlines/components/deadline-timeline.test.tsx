@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
+import { fiscalDeadlineItem } from "@/test/fixtures";
 import { StoryRouter } from "@/test/story-router";
 
 import { DEMO_BOARD, DEMO_TODAY } from "../lib/fixtures";
@@ -87,6 +88,32 @@ it("toggles a fiscal line when it is pressed", async () => {
   expect(onToggleFiscal).toHaveBeenCalledWith(
     expect.objectContaining({ type: 2 }),
   );
+});
+
+it("says the income tax return date is only an estimate", async () => {
+  renderTimeline({
+    items: [
+      fiscalDeadlineItem({
+        kind: 5,
+        periodKey: "2026",
+        periodStart: "2026-01-01",
+        periodEnd: "2026-12-31",
+        dueOn: "2027-05-31",
+        amount: null,
+        rateBp: null,
+        base: null,
+      }),
+    ],
+  });
+
+  expect(
+    await screen.findByText(
+      "Date estimée — le fisc publie le jour exact chaque avril",
+    ),
+  ).toBeInTheDocument();
+  expect(
+    screen.getAllByText(/Déclaration de revenus — 2042-C PRO/).length,
+  ).toBeGreaterThan(0);
 });
 
 it("says the calendar is empty rather than showing a bare list", async () => {

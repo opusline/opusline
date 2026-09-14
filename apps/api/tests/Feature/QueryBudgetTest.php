@@ -77,7 +77,9 @@ test('the declarations screen runs a bounded number of queries', function (): vo
 
     $queries = queriesDuring(fn () => test()->actingAs($user)->getJson('/api/declarations')->assertOk());
 
-    expect($queries)->toBeLessThanOrEqual(25);
+    // The carried month reads the treasury, and the annual card resolves the
+    // CFE (last year's debits, then the barème on two revenue sums).
+    expect($queries)->toBeLessThanOrEqual(28);
 });
 
 test('the treasury summary runs a bounded number of queries', function (): void {

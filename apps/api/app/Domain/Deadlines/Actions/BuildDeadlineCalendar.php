@@ -133,7 +133,7 @@ class BuildDeadlineCalendar
         return match ($kind) {
             FiscalDeadlineKind::VatCa3, FiscalDeadlineKind::VatCa12 => $settings->calendar_feed_vat,
             FiscalDeadlineKind::UrssafDeclaration => $settings->calendar_feed_urssaf,
-            FiscalDeadlineKind::Cfe, FiscalDeadlineKind::CfeInstalment => $settings->calendar_feed_other,
+            FiscalDeadlineKind::Cfe, FiscalDeadlineKind::CfeInstalment, FiscalDeadlineKind::IncomeTaxReturn => $settings->calendar_feed_other,
         };
     }
 
