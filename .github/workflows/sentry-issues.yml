@@ -1,0 +1,39 @@
+name: Sentry Issues
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Print the issues that would be filed instead of filing them
+        type: boolean
+        default: true
+  schedule:
+    - cron: '*/30 * * * *'
+
+permissions:
+  contents: read
+  issues: write
+
+# Two overlapping runs would both see a Sentry issue as unfiled and open it twice.
+concurrency:
+  group: sentry-issues
+  cancel-in-progress: false
+
+jobs:
+  file-issues:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - run: sh scripts/sentry-github-issues.sh
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_URL: ${{ vars.SENTRY_URL }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
