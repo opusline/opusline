@@ -89,7 +89,7 @@ export function ExpenseTable({
           <TableHead className={cn(HEAD_CLASSES, "w-20 text-right")}>
             {m.expenses_col_ttc()}
           </TableHead>
-          <TableHead className={cn(HEAD_CLASSES, "w-36")}>
+          <TableHead className={cn(HEAD_CLASSES, "w-42")}>
             {m.expenses_col_status()}
           </TableHead>
           <TableHead className={cn(HEAD_CLASSES, "w-34")}>
