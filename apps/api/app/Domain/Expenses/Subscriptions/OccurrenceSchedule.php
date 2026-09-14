@@ -23,6 +23,8 @@ final readonly class OccurrenceSchedule
 
     /**
      * The debit dates falling in [$from, $to], within the subscription's own life.
+     * Pauses are not read here: a paused subscription keeps its calendar, and
+     * callers that must skip paused debits filter the subscriptions first.
      *
      * @return list<CarbonImmutable>
      */
@@ -79,7 +81,8 @@ final readonly class OccurrenceSchedule
         return $days;
     }
 
-    private function firstDebit(): CarbonImmutable
+    /** The first time the debit day comes round on or after the start date. */
+    public function firstDebit(): CarbonImmutable
     {
         $startedOn = $this->subscription->started_on;
         $annual = $this->subscription->periodicity === SubscriptionPeriodicity::Annual;

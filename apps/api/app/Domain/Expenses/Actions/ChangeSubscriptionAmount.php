@@ -6,6 +6,7 @@ namespace App\Domain\Expenses\Actions;
 
 use App\Domain\Expenses\Data\ChangeSubscriptionAmountData;
 use App\Domain\Expenses\Models\Subscription;
+use App\Domain\Expenses\Subscriptions\OccurrenceSchedule;
 use App\Domain\Shared\Validation\AccountCurrency;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +25,7 @@ class ChangeSubscriptionAmount
      */
     public function handle(Subscription $subscription, ChangeSubscriptionAmountData $data): void
     {
-        if (CarbonImmutable::parse($data->effectiveFrom)->lessThan($subscription->started_on)) {
+        if (CarbonImmutable::parse($data->effectiveFrom)->lessThan(new OccurrenceSchedule($subscription)->firstDebit())) {
             throw ValidationException::withMessages(['effectiveFrom' => __('rules.subscription_amount_before_start')]);
         }
 

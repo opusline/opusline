@@ -54,6 +54,38 @@ test('a price change cannot predate the first debit', function (): void {
     expect($subscription->amounts()->count())->toBe(1);
 });
 
+test('a price change cannot fall between the start and a first debit that comes later', function (): void {
+    $user = User::factory()->create();
+    // Started on 20 February, debiting on the 5th every quarter: the first debit is 5 March.
+    $subscription = subscriptionOwnedBy($user, fn (SubscriptionFactory $factory): SubscriptionFactory => $factory->quarterly(5)->startedOn('2026-02-20'));
+
+    $this->actingAs($user)
+        ->postJson("/api/subscriptions/{$subscription->id}/amounts", ['amountHt' => ['amount' => 2_900, 'currency' => 'EUR'], 'effectiveFrom' => '2026-03-01'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('effectiveFrom');
+
+    expect($subscription->amounts()->count())->toBe(1);
+});
+
+test('a price edited after the start but before a later first debit rewrites the opening price', function (): void {
+    $user = User::factory()->create();
+    // Started on 1 August, debiting on 5 December each year: today, 13 August, nothing has been debited.
+    $subscription = subscriptionOwnedBy($user, fn (SubscriptionFactory $factory): SubscriptionFactory => $factory->annual(5, 12)->startedOn('2026-08-01'));
+
+    $this->actingAs($user)
+        ->putJson("/api/subscriptions/{$subscription->id}", subscriptionPayload([
+            'periodicity' => 2,
+            'debitDay' => 5,
+            'debitMonth' => 12,
+            'startedOn' => '2026-08-01',
+            'amountHt' => ['amount' => 2_900, 'currency' => 'EUR'],
+        ]))
+        ->assertOk()
+        ->assertJsonCount(1, 'subscriptions.0.amounts')
+        ->assertJsonPath('subscriptions.0.amounts.0.effectiveFrom', '2026-08-01')
+        ->assertJsonPath('subscriptions.0.amounts.0.amountHt.amount', 2_900);
+});
+
 test('a price edited before the first debit rewrites the opening price', function (): void {
     $user = User::factory()->create();
     $subscription = subscriptionOwnedBy($user, fn (SubscriptionFactory $factory): SubscriptionFactory => $factory->startedOn('2026-10-05'));

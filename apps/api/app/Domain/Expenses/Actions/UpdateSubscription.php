@@ -6,6 +6,7 @@ namespace App\Domain\Expenses\Actions;
 
 use App\Domain\Expenses\Data\SubscriptionInputData;
 use App\Domain\Expenses\Models\Subscription;
+use App\Domain\Expenses\Subscriptions\OccurrenceSchedule;
 use App\Domain\Shared\Validation\AccountCurrency;
 use Illuminate\Support\Facades\DB;
 
@@ -31,8 +32,12 @@ class UpdateSubscription
             $today = $subscription->user->settingsOrFail()->today();
 
             if (! $subscription->priceOn($today)->equals($data->amountHt->toMoney())) {
+                // Before the first debit there is no price to keep: the
+                // opening row, dated on the start, takes the new amount.
+                $effectiveFrom = $today->lessThan(new OccurrenceSchedule($subscription)->firstDebit()) ? $subscription->started_on : $today;
+
                 $subscription->amounts()->updateOrCreate(
-                    ['effective_from' => max($today, $subscription->started_on)->toDateString()],
+                    ['effective_from' => $effectiveFrom->toDateString()],
                     ['currency' => $data->amountHt->currency->value, 'amount_ht_cents' => $data->amountHt->amount],
                 );
             }
