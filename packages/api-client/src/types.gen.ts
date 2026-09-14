@@ -2248,6 +2248,14 @@ export type UpdateTimerData = {
 };
 
 /**
+ * UpdateUserPasswordData
+ */
+export type UpdateUserPasswordData = {
+    password: string;
+    password_confirmation: string;
+};
+
+/**
  * UpdateUserThemeData
  */
 export type UpdateUserThemeData = {
@@ -2552,6 +2560,81 @@ export type ConfirmPasswordResponses = {
 };
 
 export type ConfirmPasswordResponse = ConfirmPasswordResponses[keyof ConfirmPasswordResponses];
+
+export type LockSessionData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/session-lock';
+};
+
+export type LockSessionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type LockSessionError = LockSessionErrors[keyof LockSessionErrors];
+
+export type LockSessionResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type LockSessionResponse = LockSessionResponses[keyof LockSessionResponses];
+
+export type UpdateUserPasswordData2 = {
+    body: UpdateUserPasswordData;
+    path?: never;
+    query?: never;
+    url: '/user/password';
+};
+
+export type UpdateUserPasswordErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type UpdateUserPasswordError = UpdateUserPasswordErrors[keyof UpdateUserPasswordErrors];
+
+export type UpdateUserPasswordResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type UpdateUserPasswordResponse = UpdateUserPasswordResponses[keyof UpdateUserPasswordResponses];
 
 export type UpdateUserThemeData2 = {
     body: UpdateUserThemeData;
@@ -7793,6 +7876,15 @@ export type AnswerTwoFactorChallengeErrors = {
         errors: {
             [key: string]: Array<string>;
         };
+    };
+    /**
+     * An error
+     */
+    429: {
+        /**
+         * Error overview.
+         */
+        message: string;
     };
 };
 

@@ -3,9 +3,10 @@
 declare(strict_types=1);
 
 use App\Http\Cra\Controllers\CraController;
+use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->group(function (): void {
+Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(function (): void {
     Route::get('/cras', [CraController::class, 'index'])
         ->name('listCras');
     Route::post('/cras', [CraController::class, 'store'])

@@ -12,6 +12,7 @@ use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Validation\ValidationException;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * Cross-field rules that no single validation attribute can express.
@@ -41,6 +42,7 @@ class ValidateInvoice
         $this->assertPaymentMatchesStatus($current->status, $data->paidOn, $issuedOn);
         $this->assertNumberIsFree($user, $data->number, $current);
         $this->assertLinkedTimeEntriesStay($data, $current);
+        $this->assertFiledDocumentStays($data, $current);
         $this->assertNumberPresentOnceIssued($current->status, $data->number);
     }
 
@@ -172,6 +174,23 @@ class ValidateInvoice
 
         throw ValidationException::withMessages([
             'missionId' => __('invoices.cannot_move_with_linked_time_entries'),
+        ]);
+    }
+
+    /**
+     * The filed document lives on the client's pile, where Invoice::document()
+     * looks for it. Moving the invoice would leave the file behind on a client
+     * that no longer owns the invoice — and deleting that client would take the
+     * file with it.
+     */
+    private function assertFiledDocumentStays(UpdateInvoiceData $data, Invoice $current): void
+    {
+        if ($data->clientId === $current->client_id || ! $current->attachedDocument() instanceof Media) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'clientId' => __('invoices.cannot_move_with_filed_document'),
         ]);
     }
 }

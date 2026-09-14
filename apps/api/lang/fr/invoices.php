@@ -10,6 +10,7 @@ return [
     'number_taken' => 'Une autre facture porte déjà cette référence.',
     'number_required_once_issued' => 'Renseignez la référence de la facture avant de la marquer envoyée.',
     'paid_on_required' => 'La date d\'encaissement est requise pour une facture payée.',
+    'cannot_move_with_filed_document' => 'Retirez d\'abord le document classé : il est rangé chez le client actuel.',
     'cannot_move_with_linked_time_entries' => 'Modifiez d\'abord le rattachement : des temps saisis sont rattachés à cette facture.',
     'paid_on_before_issued' => 'La date d\'encaissement ne peut pas précéder la date d\'émission.',
     'sent_on_before_issued' => 'La date d\'envoi ne peut pas précéder la date d\'émission.',

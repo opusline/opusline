@@ -52,15 +52,18 @@ test('the confirmation window closes after the timeout', function (): void {
     fromSpa()->actingAs($user)->postJson('/api/user/two-factor/totp')->assertStatus(423);
 });
 
-test('logging in with the password opens the window', function (): void {
+// A session stolen right after a sign-in must not be able to add its own
+// passkey or authenticator: only an explicit confirmation opens the window.
+test('logging in with the password leaves the window closed', function (): void {
     $user = User::factory()->create();
 
     fromSpa()->postJson('/api/login', ['email' => $user->email, 'password' => 'password'])->assertOk();
 
-    fromSpa()->postJson('/api/user/two-factor/totp')->assertOk();
+    fromSpa()->postJson('/api/user/two-factor/totp')->assertStatus(423);
+    fromSpa()->postJson('/api/user/passkeys/options')->assertStatus(423);
 });
 
-test('registering opens the window', function (): void {
+test('registering leaves the window closed', function (): void {
     fromSpa()->postJson('/api/register', [
         'name' => 'Nordlys Studio',
         'email' => 'nordlys@example.com',
@@ -68,7 +71,7 @@ test('registering opens the window', function (): void {
         'password_confirmation' => 'correct-horse-battery',
     ])->assertCreated();
 
-    fromSpa()->postJson('/api/user/two-factor/totp')->assertOk();
+    fromSpa()->postJson('/api/user/two-factor/totp')->assertStatus(423);
 });
 
 test('password confirmation attempts are rate limited', function (): void {

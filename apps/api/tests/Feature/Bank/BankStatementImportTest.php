@@ -157,3 +157,21 @@ test('refuses extensions no bank export uses', function (): void {
 test('requires authentication', function (): void {
     $this->postJson('/api/bank/statements')->assertUnauthorized();
 });
+
+test('re-importing a statement longer than one lookup chunk imports nothing twice', function (): void {
+    $user = User::factory()->create();
+    $rows = collect(range(1, 1_200))
+        ->map(fn (int $row): string => sprintf('2026-07-%02d,CARTE LUNAPRINT %d,-%d.00', ($row % 28) + 1, $row, $row))
+        ->implode("\n");
+    $csv = "dateOp,label,amount\n".$rows."\n";
+    $upload = fn (): TestResponse => test()->actingAs($user)->post(
+        '/api/bank/statements',
+        ['file' => UploadedFile::fake()->createWithContent('releve-juillet.csv', $csv)],
+        ['Accept' => 'application/json'],
+    );
+
+    $upload()->assertCreated()->assertJsonPath('importedCount', 1_200);
+    $upload()->assertCreated()->assertJsonPath('importedCount', 0);
+
+    expect($user->bankMovements()->count())->toBe(1_200);
+});

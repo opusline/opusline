@@ -79,12 +79,18 @@ class ImportBankStatement
 
             $hashes = $this->dedupHashes($parsed);
 
-            /** @var list<string> $existingHashes */
-            $existingHashes = $locked->bankMovements()
-                ->whereIn('dedup_hash', $hashes)
-                ->pluck('dedup_hash')
-                ->all();
-            $alreadyImported = array_flip($existingHashes);
+            $alreadyImported = [];
+
+            // Chunked like the insert below: one IN list per chunk keeps the
+            // lookup far from any driver's bind-parameter ceiling.
+            foreach (array_chunk($hashes, self::INSERT_CHUNK) as $chunk) {
+                /** @var list<string> $existingHashes */
+                $existingHashes = $locked->bankMovements()
+                    ->whereIn('dedup_hash', $chunk)
+                    ->pluck('dedup_hash')
+                    ->all();
+                $alreadyImported += array_flip($existingHashes);
+            }
 
             // Bulk-inserted in chunks rather than one create() per row: a first
             // import carries years of history, and N round trips under the user

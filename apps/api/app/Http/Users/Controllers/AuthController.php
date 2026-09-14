@@ -7,6 +7,7 @@ namespace App\Http\Users\Controllers;
 use App\Domain\TwoFactor\Actions\RecognizeTrustedDevice;
 use App\Domain\TwoFactor\Data\TwoFactorChallengeData;
 use App\Domain\TwoFactor\Models\TrustedDevice;
+use App\Domain\Users\Actions\ChangeUserPassword;
 use App\Domain\Users\Actions\MarkReleaseNotesSeen;
 use App\Domain\Users\Actions\RegisterUser;
 use App\Domain\Users\Actions\UpdateUserTheme;
@@ -14,12 +15,15 @@ use App\Domain\Users\Data\ConfirmPasswordData;
 use App\Domain\Users\Data\LoginData;
 use App\Domain\Users\Data\RegisterUserData;
 use App\Domain\Users\Data\UpdateReleaseNotesSeenData;
+use App\Domain\Users\Data\UpdateUserPasswordData;
 use App\Domain\Users\Data\UpdateUserThemeData;
 use App\Domain\Users\Data\UserData;
 use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
 use App\Http\TwoFactor\Support\TrustedDeviceCookie;
+use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use App\Http\Users\Support\PendingLogin;
+use App\Http\Users\Support\RequirePasswordConfirmation;
 use App\Http\Users\Support\ThemeCookie;
 use Illuminate\Auth\SessionGuard;
 use Illuminate\Container\Attributes\CurrentUser;
@@ -38,7 +42,7 @@ class AuthController extends Controller
 
         Auth::login($user);
         $request->session()->regenerate();
-        $request->session()->passwordConfirmed();
+        $request->session()->forget(EnsureSessionIsUnlocked::SESSION_KEY);
 
         return response()->json(UserData::from($user), 201)
             ->withCookie(ThemeCookie::for($user->theme));
@@ -84,9 +88,7 @@ class AuthController extends Controller
 
         $guard->login($user, $data->remember);
         $request->session()->regenerate();
-        // A password typed seconds ago is as good as a confirmation: the
-        // security settings should not ask for it again right away.
-        $request->session()->passwordConfirmed();
+        $request->session()->forget(EnsureSessionIsUnlocked::SESSION_KEY);
 
         return response()->json(UserData::from($user))
             ->withCookie(ThemeCookie::for($user->theme));
@@ -98,6 +100,39 @@ class AuthController extends Controller
     public function confirmPassword(ConfirmPasswordData $data, Request $request): Response
     {
         $request->session()->passwordConfirmed();
+        $request->session()->forget(EnsureSessionIsUnlocked::SESSION_KEY);
+
+        return response()->noContent();
+    }
+
+    /**
+     * Locks the session until the password is confirmed again.
+     */
+    public function lockSession(Request $request): Response
+    {
+        // The SPA calls this once it has sat idle long enough to cover itself,
+        // so the cover holds through a reload too.
+        $request->session()->put(EnsureSessionIsUnlocked::SESSION_KEY, true);
+        $request->session()->forget(RequirePasswordConfirmation::SESSION_KEY);
+
+        return response()->noContent();
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function updatePassword(UpdateUserPasswordData $data, Request $request, #[CurrentUser] User $user, ChangeUserPassword $changeUserPassword): Response
+    {
+        $changeUserPassword->handle($user, $data);
+
+        /** @var SessionGuard $guard */
+        $guard = Auth::guard('web');
+
+        // The new remember token voids this browser's cookie along with every
+        // other; a browser that asked to be remembered keeps that choice.
+        if ($request->cookies->has($guard->getRecallerName())) {
+            $guard->login($user, remember: true);
+        }
 
         return response()->noContent();
     }

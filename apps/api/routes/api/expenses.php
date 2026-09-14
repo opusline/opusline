@@ -5,9 +5,10 @@ declare(strict_types=1);
 use App\Http\Expenses\Controllers\ExpenseController;
 use App\Http\Expenses\Controllers\ExpenseReceiptController;
 use App\Http\Expenses\Controllers\ReceiptReadingController;
+use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->group(function (): void {
+Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(function (): void {
     Route::get('/expenses', [ExpenseController::class, 'index'])
         ->name('listExpenses');
 

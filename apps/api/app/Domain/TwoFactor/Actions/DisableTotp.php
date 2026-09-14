@@ -6,6 +6,7 @@ namespace App\Domain\TwoFactor\Actions;
 
 use App\Domain\Users\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DisableTotp
 {
@@ -18,6 +19,7 @@ class DisableTotp
     {
         DB::transaction(function () use ($user): void {
             $locked = User::lockRow($user->id);
+            $wasEnabled = $locked->hasTotpEnabled();
 
             $locked->totp_secret = null;
             $locked->totp_confirmed_at = null;
@@ -29,6 +31,10 @@ class DisableTotp
             }
 
             $locked->save();
+
+            if ($wasEnabled) {
+                Log::warning('Authenticator app turned off.', ['user_id' => $locked->id, 'ip' => request()->ip()]);
+            }
         });
     }
 }

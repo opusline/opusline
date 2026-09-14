@@ -9,13 +9,12 @@ use Illuminate\Http\UploadedFile;
 /**
  * The name a stored file is filed under: the caller's choice or the upload's
  * own, whitespace collapsed, cut to what the media row can hold, with the
- * original extension kept whatever the base became.
+ * extension of what the file actually is — never the one it was sent under, so
+ * a PDF uploaded as `invoice.html` downloads as `invoice.pdf`.
  */
 final class StoredFileName
 {
     private const int MAX_BYTES = 255;
-
-    private const int MAX_EXTENSION = 16;
 
     private const string FALLBACK_BASE = 'document';
 
@@ -29,7 +28,7 @@ final class StoredFileName
             $base = self::FALLBACK_BASE;
         }
 
-        $extension = mb_substr($file->getClientOriginalExtension(), 0, self::MAX_EXTENSION);
+        $extension = $file->guessExtension() ?? '';
         $suffix = $extension === '' ? '' : '.'.$extension;
 
         $room = self::MAX_BYTES - strlen($suffix);

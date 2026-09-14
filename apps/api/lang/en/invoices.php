@@ -10,6 +10,7 @@ return [
     'number_taken' => 'Another invoice already uses that reference.',
     'number_required_once_issued' => 'Set the invoice reference before marking it as sent.',
     'paid_on_required' => 'A payment date is required for a paid invoice.',
+    'cannot_move_with_filed_document' => 'Remove the filed document first: it is kept with the current client.',
     'cannot_move_with_linked_time_entries' => 'Change the linked time first: tracked time is attached to this invoice.',
     'paid_on_before_issued' => 'The payment date cannot precede the issue date.',
     'sent_on_before_issued' => 'The send date cannot precede the issue date.',

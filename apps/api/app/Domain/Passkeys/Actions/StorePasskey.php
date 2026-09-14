@@ -12,6 +12,7 @@ use App\Domain\Users\Models\User;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class StorePasskey
@@ -64,15 +65,25 @@ class StorePasskey
                     'backed_up' => $verified->backedUp,
                 ]);
             } catch (UniqueConstraintViolationException) {
-                // The pre-check only saw this account's rows; the credential_id
-                // index is the guard against two accounts racing the same key.
+                // The pre-check runs outside the lock; the credential_id index
+                // is the guard against two registrations racing the same key.
                 throw ValidationException::withMessages(['credential' => __('passkeys.already_registered')]);
             }
 
             if ($locked->two_factor_recovery_codes === null) {
+                // See ConfirmTotp: the first second factor voids remember-me.
                 $locked->two_factor_recovery_codes = RecoveryCodes::mint();
+                $locked->setRememberToken(Str::random(60));
                 $locked->save();
             }
+
+            // A new passkey is a new way into the account; if it was not the
+            // owner who added it, this line is how they find out when.
+            Log::warning('Passkey registered.', [
+                'user_id' => $user->id,
+                'passkey_id' => $passkey->id,
+                'ip' => request()->ip(),
+            ]);
 
             return $passkey;
         });
