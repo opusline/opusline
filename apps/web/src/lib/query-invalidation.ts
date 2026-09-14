@@ -225,6 +225,16 @@ export async function invalidateExpenseWrites(
 }
 
 /**
+ * A filing flips the journal's statuses and locks, and settles the provision
+ * and the deadline it was priced for: the same fan-out as an expense write.
+ */
+export async function invalidateDeclarationWrites(
+  queryClient: QueryClient,
+): Promise<void> {
+  await invalidateExpenseWrites(queryClient);
+}
+
+/**
  * Three surfaces list the same documents: the client fiche, the mission fiche —
  * which merges its client's pieces in — and the global library on /documents. A
  * document filed or deleted on one of them moves all three.

@@ -6,17 +6,17 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{ period: NonNullable<unknown> }} Declarations_Vat_TitleInputs */
 
 const en_declarations_vat_title = /** @type {(inputs: Declarations_Vat_TitleInputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`TVA · 3310-CA3 ${i?.period}`)
+	return /** @type {LocalizedString} */ (`TVA · CA3 ${i?.period}`)
 };
 
 const fr_declarations_vat_title = /** @type {(inputs: Declarations_Vat_TitleInputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`TVA · 3310-CA3 ${i?.period}`)
+	return /** @type {LocalizedString} */ (`TVA · CA3 ${i?.period}`)
 };
 
 /**
 * | output |
 * | --- |
-* | "TVA · 3310-CA3 {period}" |
+* | "TVA · CA3 {period}" |
 *
 * @param {Declarations_Vat_TitleInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

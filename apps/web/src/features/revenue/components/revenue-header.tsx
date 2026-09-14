@@ -67,20 +67,20 @@ export function RevenueHeader({
       <div className="flex flex-none flex-wrap items-center gap-2.5">
         <div className="flex gap-1">
           <Button
-            aria-label={m.revenue_prev_period()}
+            aria-label={m.common_previous_period()}
             onClick={() => onPeriodChange(shiftPeriod(period, -1))}
             size="icon-lg"
-            title={m.revenue_prev_period()}
+            title={m.common_previous_period()}
             variant="outline"
           >
             <ChevronLeftIcon aria-hidden />
           </Button>
           <Button
-            aria-label={m.revenue_next_period()}
+            aria-label={m.common_next_period()}
             disabled={isAtOrAfterCurrent(period, accountToday)}
             onClick={() => onPeriodChange(shiftPeriod(period, 1))}
             size="icon-lg"
-            title={m.revenue_next_period()}
+            title={m.common_next_period()}
             variant="outline"
           >
             <ChevronRightIcon aria-hidden />
