@@ -338,6 +338,7 @@ class SummarizeDeclarations
         $otherProvisions = $treasury->provisions->total->toMoney()->subtract($provision->amount->toMoney());
         $coverable = $treasury->balance->amount->toMoney()
             ->subtract($treasury->pendingTransfers->toMoney())
+            ->subtract($treasury->pendingDeclarations->toMoney())
             ->subtract($otherProvisions)
             ->subtract($olderCarries);
 

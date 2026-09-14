@@ -39,5 +39,8 @@ class BankProvisionData extends Data
         /** @var list<CarriedPeriodData> the closed periods behind $carried, oldest first, each net of the payments detected since it closed — so a screen can tell which return the money set aside answers for; empty for the CFE and the subscriptions, which accrue rather than carry */
         #[DataCollectionOf(CarriedPeriodData::class)]
         public array $carriedPeriods = [],
+        /** @var list<PaidPeriodData> the returns marked paid that no detected debit settles yet, oldest first — out of the amount, but not out of the balance until the statement carrying their debit is imported */
+        #[DataCollectionOf(PaidPeriodData::class)]
+        public array $paidPeriods = [],
     ) {}
 }

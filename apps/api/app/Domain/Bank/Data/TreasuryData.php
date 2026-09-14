@@ -23,6 +23,8 @@ class TreasuryData extends Data
         public ?BankBalanceData $balance,
         /** Recorded transfers no imported statement covers yet; zero when none. */
         public MoneyData $pendingTransfers,
+        /** Returns marked paid after what the balance covers, at what the provisions carried for them; zero when none. */
+        public MoneyData $pendingDeclarations,
         /** The date the balance provably accounts for debits through. */
         #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
         public ?CarbonImmutable $coveredThrough,

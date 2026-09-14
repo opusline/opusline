@@ -7,6 +7,7 @@ namespace App\Domain\Bank\Actions;
 use App\Domain\Bank\Data\BankProvisionData;
 use App\Domain\Bank\Data\BankProvisionsData;
 use App\Domain\Bank\Data\CarriedPeriodData;
+use App\Domain\Bank\Data\PaidPeriodData;
 use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Deadlines\Actions\ResolveExpectedCfe;
 use App\Domain\Deadlines\Calendar\CfeSchedule;
@@ -188,6 +189,9 @@ class ComputeBankProvisions
      * The debit movements the nettings below read, fetched once over the
      * widest window any component looks at — never the whole history. The
      * label matching stays in PHP: DetectFiscPayments owns those patterns.
+     * Only the fisc's own debits become models: every carried period rescans
+     * this set, and a year of card payments would otherwise be hydrated and
+     * read each time.
      *
      * @param  ?array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}  $vatPeriod
      * @param  ?array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}  $urssafPeriod
@@ -212,11 +216,14 @@ class ComputeBankProvisions
             return new Collection;
         }
 
-        return $user->bankMovements()
+        /** @var Collection<int, object{id: int, booked_on: string, label: string, currency: string, amount_cents: int|numeric-string}> $debits */
+        $debits = $user->bankMovements()
+            ->toBase()
             ->where('amount_cents', '<', 0)
             ->whereBetween('booked_on', [min($starts)->toDateString(), $today->toDateString()])
-            ->get(['id', 'booked_on', 'label', 'currency', 'amount_cents'])
-            ->toBase();
+            ->get(['id', 'booked_on', 'label', 'currency', 'amount_cents']);
+
+        return BankMovement::hydrate($debits->filter(fn (object $debit): bool => DetectFiscPayments::isFisc($debit->label))->all())->toBase();
     }
 
     /**
@@ -232,7 +239,7 @@ class ComputeBankProvisions
      * @param  array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable, annual: bool}  $period
      * @param  ?DeclaredCa3Months  $declared  null outside French fiscality
      * @param  ?CarbonImmutable  $chainStart  null unless the account files the monthly CA3
-     * @param  array<string, true>  $paid
+     * @param  array<string, CarbonImmutable>  $paid
      * @param  Collection<int, BankMovement>  $fiscDebits
      */
     private function vat(
@@ -292,6 +299,7 @@ class ComputeBankProvisions
             deductible: $expenses instanceof DeductibleExpenses ? MoneyData::fromMoney(new Money($deductible, $currency)) : null,
             periodEnd: $period['end'],
             carriedPeriods: $carry['periods'],
+            paidPeriods: $carry['paid'],
         );
     }
 
@@ -305,12 +313,14 @@ class ComputeBankProvisions
      * still takes its due out of its own debits, so its prélèvement is not
      * read as someone else's. Only the carried periods are listed; a period
      * a payment covered stays at zero, so the Déclarations screen can say it
-     * is settled.
+     * is settled. A period marked paid that no debit has settled yet is listed
+     * apart, at what it would still carry: it left the provisions, not yet the
+     * balance.
      *
      * @param  list<array{key: string, end: CarbonImmutable, due: int}>  $closed  oldest first, contiguous, starting one period before the window
-     * @param  array<string, true>  $paid
+     * @param  array<string, CarbonImmutable>  $paid
      * @param  Collection<int, BankMovement>  $fiscDebits
-     * @return array{periods: list<CarriedPeriodData>, total: int}
+     * @return array{periods: list<CarriedPeriodData>, total: int, paid: list<PaidPeriodData>}
      */
     private function carry(
         array $closed,
@@ -342,14 +352,21 @@ class ComputeBankProvisions
         }
 
         $periods = [];
+        $paidPeriods = [];
         $total = 0;
 
         foreach ($closed as $index => $period) {
-            $isCarried = $period['due'] > 0
-                && ! isset($paid["{$kind->value}:{$period['key']}"])
-                && $period['end']->greaterThanOrEqualTo($windowStart);
+            if ($period['due'] <= 0 || $period['end']->lessThan($windowStart)) {
+                continue;
+            }
 
-            if (! $isCarried) {
+            $paidOn = $paid["{$kind->value}:{$period['key']}"] ?? null;
+
+            if ($paidOn instanceof CarbonImmutable) {
+                if ($remaining[$index] > 0) {
+                    $paidPeriods[] = new PaidPeriodData($period['key'], MoneyData::fromMoney(new Money($remaining[$index], $currency)), $paidOn);
+                }
+
                 continue;
             }
 
@@ -357,20 +374,22 @@ class ComputeBankProvisions
             $total += $remaining[$index];
         }
 
-        return ['periods' => $periods, 'total' => $total];
+        return ['periods' => $periods, 'total' => $total, 'paid' => $paidPeriods];
     }
 
     /**
-     * The returns marked paid on the Déclarations screen, as `kind:period` keys.
+     * The returns marked paid on the Déclarations screen, keyed `kind:period`,
+     * with the day each was marked.
      *
-     * @return array<string, true>
+     * @return array<string, CarbonImmutable>
      */
     private function paidPeriods(User $user): array
     {
         $paid = [];
 
-        foreach (FiscalDeadlineCompletion::query()->where('user_id', $user->id)->whereNotNull('paid_on')->get(['kind', 'period_key']) as $completion) {
-            $paid[$completion->key()] = true;
+        foreach (FiscalDeadlineCompletion::query()->where('user_id', $user->id)->whereNotNull('paid_on')->get(['kind', 'period_key', 'paid_on']) as $completion) {
+            assert($completion->paid_on instanceof CarbonImmutable);
+            $paid[$completion->key()] = $completion->paid_on;
         }
 
         return $paid;
@@ -391,7 +410,7 @@ class ComputeBankProvisions
      * be rebuilt.
      *
      * @param  array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}  $period
-     * @param  array<string, true>  $paid
+     * @param  array<string, CarbonImmutable>  $paid
      * @param  Collection<int, BankMovement>  $fiscDebits
      */
     private function urssaf(
@@ -436,6 +455,7 @@ class ComputeBankProvisions
             deductible: null,
             periodEnd: $period['end'],
             carriedPeriods: $carry['periods'],
+            paidPeriods: $carry['paid'],
         );
     }
 
@@ -507,7 +527,7 @@ class ComputeBankProvisions
      * Built a twelfth a month rather than locked whole in January: the bill only
      * lands on 15 December, and until then the account owes the elapsed share.
      *
-     * @param  array<string, true>  $paid
+     * @param  array<string, CarbonImmutable>  $paid
      * @param  Collection<int, BankMovement>  $fiscDebits
      */
     private function cfe(
@@ -537,18 +557,22 @@ class ComputeBankProvisions
 
         $accrued = CfeSchedule::accruedBy($expected, $today->month);
         $debited = DetectFiscPayments::debitedBetween($fiscDebits, $today->startOfYear(), $today, DetectFiscPayments::isCfe(...));
-        // A CFE marked paid on Déclarations was settled, often from another
-        // account the bank feed never sees: nothing is left to hold back.
-        $isMarkedPaid = isset($paid[FiscalDeadlineKind::Cfe->value.':'.$today->year]);
-        $owed = $isMarkedPaid ? 0 : (int) $accrued->getAmount() - $debited;
+        $owed = max(0, (int) $accrued->getAmount() - $debited);
+        // A CFE marked paid on Déclarations was settled: nothing is left to
+        // hold back, and what was being held moves to the paid side until its
+        // debit shows up.
+        $paidOn = $paid[FiscalDeadlineKind::Cfe->value.':'.$today->year] ?? null;
 
         return new BankProvisionData(
-            amount: MoneyData::fromMoney(new Money(max(0, $owed), $currency)),
+            amount: MoneyData::fromMoney(new Money($paidOn instanceof CarbonImmutable ? 0 : $owed, $currency)),
             carried: MoneyData::fromMoney(new Money(0, $currency)),
             rateBp: null,
             deductible: null,
             periodEnd: $today->endOfYear(),
             isEstimate: $expectedCfe->isEstimate,
+            paidPeriods: $paidOn instanceof CarbonImmutable && $owed > 0
+                ? [new PaidPeriodData((string) $today->year, MoneyData::fromMoney(new Money($owed, $currency)), $paidOn)]
+                : [],
         );
     }
 }
