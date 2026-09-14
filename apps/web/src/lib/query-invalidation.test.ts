@@ -24,6 +24,7 @@ import {
   deadlinesFilter,
   declarationsFilter,
   expensesFilter,
+  invalidateDeclarationWrites,
   invalidateExpenseWrites,
   missionTimeEntriesFilter,
   operationFilter,
@@ -304,6 +305,33 @@ describe("invalidateExpenseWrites", () => {
     expect(
       queryClient.getQueryState(listInvoicesQueryKey())?.isInvalidated,
     ).toBe(false);
+  });
+});
+
+describe("invalidateDeclarationWrites", () => {
+  it("keeps the declarations the write answered with and marks the rest of the fan-out stale", async () => {
+    const queryClient = new QueryClient();
+    const answeredKey = showDeclarationsQueryKey({
+      query: { period: "2026-07" },
+    });
+    const movedKeys = [
+      showDeclarationsQueryKey({ query: { period: "2026-06" } }),
+      listExpensesQueryKey({ query: { month: "2026-08" } }),
+      showTreasuryQueryKey(),
+      listDeadlinesQueryKey(),
+    ];
+    for (const queryKey of [answeredKey, ...movedKeys]) {
+      queryClient.setQueryData(queryKey, {});
+    }
+
+    await invalidateDeclarationWrites(queryClient, [answeredKey]);
+
+    expect(queryClient.getQueryState(answeredKey)?.isInvalidated).toBe(false);
+    expect(
+      movedKeys.map(
+        (queryKey) => queryClient.getQueryState(queryKey)?.isInvalidated,
+      ),
+    ).toEqual([true, true, true, true]);
   });
 });
 

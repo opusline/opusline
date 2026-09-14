@@ -3,7 +3,13 @@ import {
   showInvoiceSummaryQueryKey,
   showNextInvoiceNumberQueryKey,
 } from "@opusline/api-client/react-query";
-import type { Query, QueryClient, QueryFilters } from "@tanstack/react-query";
+import {
+  hashKey,
+  type Query,
+  type QueryClient,
+  type QueryFilters,
+  type QueryKey,
+} from "@tanstack/react-query";
 
 /**
  * Filter matching every cached query of one generated operation, whatever
@@ -246,12 +252,30 @@ export async function invalidateSubscriptionWrites(
 
 /**
  * A filing flips the journal's statuses and locks, and settles the provision
- * and the deadline it was priced for: the same fan-out as an expense write.
+ * and the deadline it was priced for: the same fan-out as an expense write —
+ * except for the Déclarations screens the write already answered with. Those
+ * were recomputed by the write itself and written into the cache; marking
+ * them stale would throw that answer away and compute it a second time.
  */
 export async function invalidateDeclarationWrites(
   queryClient: QueryClient,
+  answeredKeys: readonly QueryKey[],
 ): Promise<void> {
-  await invalidateExpenseWrites(queryClient);
+  const answeredHashes = new Set(
+    answeredKeys.map((queryKey) => hashKey(queryKey)),
+  );
+
+  void invalidateTreasury(queryClient);
+  void invalidateDeadlines(queryClient);
+
+  await Promise.all([
+    queryClient.invalidateQueries(expensesFilter()),
+    queryClient.invalidateQueries({
+      predicate: (query) =>
+        declarationsFilter().predicate(query) &&
+        !answeredHashes.has(query.queryHash),
+    }),
+  ]);
 }
 
 /**

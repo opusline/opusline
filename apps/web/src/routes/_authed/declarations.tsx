@@ -91,19 +91,22 @@ function DeclarationsRoute() {
   // without a period reads, when it is the month on screen), then let the
   // journal, the treasury and the deadlines refetch.
   const acceptDeclarations = async (data: DeclarationsData) => {
-    queryClient.setQueryData(
+    const answeredKeys = [
       showDeclarationsQueryKey({ query: { period: data.period } }),
-      data,
-    );
+    ];
 
     if (
       search.period === undefined &&
       data.period === declarations.data?.period
     ) {
-      queryClient.setQueryData(showDeclarationsQueryKey(), data);
+      answeredKeys.push(showDeclarationsQueryKey());
     }
 
-    await invalidateDeclarationWrites(queryClient);
+    for (const queryKey of answeredKeys) {
+      queryClient.setQueryData(queryKey, data);
+    }
+
+    await invalidateDeclarationWrites(queryClient, answeredKeys);
   };
 
   const completionWrite = {
@@ -160,7 +163,7 @@ function DeclarationsRoute() {
     ...updateSettingsMutation(),
     onSuccess: async (data) => {
       queryClient.setQueryData(showSettingsQueryKey(), data);
-      await invalidateDeclarationWrites(queryClient);
+      await invalidateDeclarationWrites(queryClient, []);
       toast.add({
         title: m.declarations_cfe_amount_saved({
           amount: formatWholeAmount(format, data.cfeExpected?.amount ?? 0),
