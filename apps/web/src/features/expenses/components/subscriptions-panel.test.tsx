@@ -152,9 +152,12 @@ it("shows why a deletion failed once the dialog is out of the way", async () => 
     }),
   );
 
-  expect(await screen.findByRole("alert")).toHaveTextContent(
-    "Cet abonnement n'existe pas.",
-  );
+  expect(
+    await screen.findByRole("alert", {
+      name: (_name, element) =>
+        element.textContent === "Cet abonnement n'existe pas.",
+    }),
+  ).toBeInTheDocument();
   await waitFor(() =>
     expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument(),
   );
