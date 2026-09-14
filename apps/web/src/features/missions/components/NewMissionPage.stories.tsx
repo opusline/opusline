@@ -16,6 +16,7 @@ const baseClient = {
   billingContactName: null,
   billingEmail: null,
   paymentTermsDays: 45,
+  hasLogo: false,
   archivedAt: null,
   createdAt: "2025-03-01T00:00:00+00:00",
   missions: [],

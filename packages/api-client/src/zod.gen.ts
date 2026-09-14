@@ -878,31 +878,6 @@ export const zCarriedPeriodData = z.object({
 });
 
 /**
- * BankProvisionData
- */
-export const zBankProvisionData = z.object({
-    amount: zMoneyData,
-    carried: zMoneyData,
-    rateBp: z.nullable(z.int()),
-    deductible: z.nullable(zMoneyData),
-    periodEnd: z.iso.date(),
-    isEstimate: z.optional(z.boolean()),
-    carriedPeriods: z.optional(z.array(zCarriedPeriodData))
-});
-
-/**
- * BankProvisionsData
- */
-export const zBankProvisionsData = z.object({
-    vat: z.nullable(zBankProvisionData),
-    urssaf: z.nullable(zBankProvisionData),
-    cfe: z.nullable(zBankProvisionData),
-    subscriptions: z.nullable(zBankProvisionData),
-    buffer: z.nullable(zMoneyData),
-    total: zMoneyData
-});
-
-/**
  * ContributionLineData
  */
 export const zContributionLineData = z.object({
@@ -1225,6 +1200,7 @@ export const zClientWithMissionsData = z.object({
     paymentTermsDays: z.int(),
     archivedAt: z.nullable(z.iso.datetime()),
     createdAt: z.iso.datetime(),
+    hasLogo: z.boolean(),
     missions: z.array(zMissionData)
 });
 
@@ -1289,6 +1265,41 @@ export const zMonthWorkloadData = z.object({
 export const zNextInvoiceNumberData = z.object({
     number: z.string(),
     format: z.string()
+});
+
+/**
+ * PaidPeriodData
+ */
+export const zPaidPeriodData = z.object({
+    period: z.string(),
+    amount: zMoneyData,
+    paidOn: z.iso.date()
+});
+
+/**
+ * BankProvisionData
+ */
+export const zBankProvisionData = z.object({
+    amount: zMoneyData,
+    carried: zMoneyData,
+    rateBp: z.nullable(z.int()),
+    deductible: z.nullable(zMoneyData),
+    periodEnd: z.iso.date(),
+    isEstimate: z.optional(z.boolean()),
+    carriedPeriods: z.optional(z.array(zCarriedPeriodData)),
+    paidPeriods: z.optional(z.array(zPaidPeriodData))
+});
+
+/**
+ * BankProvisionsData
+ */
+export const zBankProvisionsData = z.object({
+    vat: z.nullable(zBankProvisionData),
+    urssaf: z.nullable(zBankProvisionData),
+    cfe: z.nullable(zBankProvisionData),
+    subscriptions: z.nullable(zBankProvisionData),
+    buffer: z.nullable(zMoneyData),
+    total: zMoneyData
 });
 
 /**
@@ -2074,6 +2085,7 @@ export const zTotpSetupData = z.object({
 export const zTreasuryData = z.object({
     balance: z.nullable(zBankBalanceData),
     pendingTransfers: zMoneyData,
+    pendingDeclarations: zMoneyData,
     coveredThrough: z.nullable(z.iso.date()),
     provisions: zBankProvisionsData,
     transferable: z.nullable(zSignedMoneyData),

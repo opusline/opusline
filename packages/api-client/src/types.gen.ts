@@ -143,6 +143,7 @@ export type BankProvisionData = {
     periodEnd: string;
     isEstimate?: boolean;
     carriedPeriods?: Array<CarriedPeriodData>;
+    paidPeriods?: Array<PaidPeriodData>;
 };
 
 /**
@@ -331,6 +332,7 @@ export type ClientWithMissionsData = {
     paymentTermsDays: number;
     archivedAt: string | null;
     createdAt: string;
+    hasLogo: boolean;
     missions: Array<MissionData>;
 };
 
@@ -1411,6 +1413,15 @@ export type NextInvoiceNumberData = {
 };
 
 /**
+ * PaidPeriodData
+ */
+export type PaidPeriodData = {
+    period: string;
+    amount: MoneyData;
+    paidOn: string;
+};
+
+/**
  * PasskeyData
  */
 export type PasskeyData = {
@@ -2002,6 +2013,7 @@ export type TotpSetupData = {
 export type TreasuryData = {
     balance: BankBalanceData | null;
     pendingTransfers: MoneyData;
+    pendingDeclarations: MoneyData;
     coveredThrough: string | null;
     provisions: BankProvisionsData;
     transferable: SignedMoneyData | null;

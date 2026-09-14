@@ -47,6 +47,7 @@ function client(
     billingEmail: null,
     color: 0,
     paymentTermsDays: 45,
+    hasLogo: false,
     archivedAt: null,
     createdAt: daysAgo(90),
     missions: [],

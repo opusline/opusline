@@ -179,7 +179,7 @@ export const CLIENT_FIXTURE = {
 export function clientWithMissions(
   overrides: Partial<ClientWithMissionsData> = {},
 ): ClientWithMissionsData {
-  return { ...CLIENT_FIXTURE, missions: [], ...overrides };
+  return { ...CLIENT_FIXTURE, hasLogo: false, missions: [], ...overrides };
 }
 
 export const MISSION_FIXTURE = {
@@ -338,6 +338,7 @@ export function treasuryData(
   return {
     balance: { amount: eur(1_482_000), source: 1, asOf: "2026-08-10" },
     pendingTransfers: eur(0),
+    pendingDeclarations: eur(0),
     coveredThrough: "2026-08-10",
     provisions: {
       vat: {

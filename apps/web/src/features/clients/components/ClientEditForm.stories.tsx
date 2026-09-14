@@ -21,6 +21,7 @@ const client: ClientWithMissionsData = {
   billingEmail: "factures@nordlys.example",
   color: 0,
   paymentTermsDays: 45,
+  hasLogo: false,
   archivedAt: null,
   createdAt: "2025-03-01T00:00:00+00:00",
   missions: [],
