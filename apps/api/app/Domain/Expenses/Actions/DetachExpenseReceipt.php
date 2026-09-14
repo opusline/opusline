@@ -6,15 +6,17 @@ namespace App\Domain\Expenses\Actions;
 
 use App\Domain\Expenses\Models\Expense;
 use App\Domain\Expenses\Vat\DeclaredCa3Months;
+use App\Domain\Users\Models\User;
 use Illuminate\Support\Facades\DB;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class DetachExpenseReceipt
 {
-    /** Under the same row lock as the attach, so the two cannot interleave on one expense. */
+    /** Under the same locks as the attach: the account's, then the expense row's. */
     public function handle(Expense $expense): void
     {
         DB::transaction(function () use ($expense): void {
+            User::lockRow($expense->user_id);
             $locked = Expense::query()->whereKey($expense->id)->lockForUpdate()->firstOrFail();
 
             if (! $locked->receipt() instanceof Media) {

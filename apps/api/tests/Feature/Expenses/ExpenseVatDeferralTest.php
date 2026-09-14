@@ -79,6 +79,15 @@ test('refuses to defer a purchase that carries no deductible TVA', function (): 
         ->assertConflict();
 });
 
+test('refuses to reintegrate a purchase that carries no deductible TVA', function (): void {
+    $user = vatLiableUser();
+    $expense = expenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-08-05')->reverseCharged(4_800));
+
+    $this->actingAs($user)
+        ->deleteJson("/api/expenses/{$expense->id}/vat-deferral")
+        ->assertConflict();
+});
+
 test('refuses a selection holding another account expense', function (): void {
     $foreign = expenseOwnedBy(User::factory()->create());
 
