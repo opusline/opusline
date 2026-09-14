@@ -152,6 +152,18 @@ export const zConfirmTotpData = z.object({
 });
 
 /**
+ * ContributionLineKind
+ *
+ * The lines a micro-entrepreneur's URSSAF declaration is settled in, each a rate on the same collected base.
+ *
+ */
+export const zContributionLineKind = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
  * CorrectInvoiceDatesData
  */
 export const zCorrectInvoiceDatesData = z.object({
@@ -776,6 +788,15 @@ export const zCa3BoxesData = z.object({
     creditCarried: zMoneyData,
     credit: zMoneyData,
     due: zMoneyData
+});
+
+/**
+ * ContributionLineData
+ */
+export const zContributionLineData = z.object({
+    kind: zContributionLineKind,
+    rateBp: z.int(),
+    amount: zMoneyData
 });
 
 /**
@@ -1488,6 +1509,17 @@ export const zClientRevenueListData = z.object({
 });
 
 /**
+ * RevenueCeilingData
+ */
+export const zRevenueCeilingData = z.object({
+    year: z.int(),
+    collectedHt: zMoneyData,
+    ceiling: zMoneyData,
+    shareBp: z.int(),
+    margin: zSignedMoneyData
+});
+
+/**
  * StartTimerData
  */
 export const zStartTimerData = z.object({
@@ -1844,6 +1876,8 @@ export const zUrssafDeclarationData = z.object({
     coversShownMonth: z.boolean(),
     base: zMoneyData,
     invoiceCount: z.int(),
+    lines: z.array(zContributionLineData),
+    total: zMoneyData,
     deadline: z.nullable(zDeclarationDeadlineData),
     completion: z.nullable(zDeclarationCompletionData)
 });
@@ -2002,7 +2036,8 @@ export const zDeclarationsData = z.object({
     nextPeriod: z.nullable(z.string()),
     isDefault: z.boolean(),
     urssaf: z.nullable(zUrssafDeclarationData),
-    vat: z.nullable(zVatDeclarationData)
+    vat: z.nullable(zVatDeclarationData),
+    cumulative: z.nullable(zRevenueCeilingData)
 });
 
 export const zGetPingResponse = zPingData;

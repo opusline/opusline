@@ -82,7 +82,7 @@ test('writes amounts in the notation of the account, not of the server', functio
     // French notation, whatever the server's own locale is. The comma comes
     // back escaped: RFC 5545 reserves it as a value separator.
     expect($this->get(calendarUrlFor($user->fresh()))->assertOk()->content())
-        ->toContain('Estimation : 422\\,40');
+        ->toContain('Estimation : 425\\,70');
 });
 
 test('mints one token however many readers race the first look', function (): void {

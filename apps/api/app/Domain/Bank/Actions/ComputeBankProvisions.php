@@ -16,6 +16,7 @@ use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Settings\Rates\ContributionRateHistory;
 use App\Domain\Shared\Data\MoneyData;
+use App\Domain\Shared\Money\Rate;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
@@ -212,25 +213,35 @@ class ComputeBankProvisions
         CarbonImmutable $today,
         string $currency,
     ): BankProvisionData {
-        $rateBp = $settings->effectiveContributionRateBp();
         // The period that closed was earned under whatever rate applied then — an
         // ACRE step that ended in January does not reprice December. The rate
-        // history answers for the closed period; the running one is today's.
+        // history answers for the closed period; the running one is today's,
+        // settled line by line the way the URSSAF does.
         $previousEnd = $period['start']->subDay();
         $carriedRateBp = $this->contributionRateHistory->onDate($settings, $previousEnd);
 
-        $current = $collected->contributionsCents($period['start'], $today, $rateBp, $currency);
+        $current = $this->urssafOwedCents($settings, $collected, $period['start'], $today, $currency);
         $carried = max(
             0,
-            $collected->contributionsCents($period['previousStart'], $previousEnd, $carriedRateBp, $currency)
+            (int) Rate::of(new Money($collected->htCents($period['previousStart'], $previousEnd), $currency), $carriedRateBp)->getAmount()
                 - $this->paymentsBetween($fiscDebits, $period['start'], $today, DetectFiscPayments::isUrssaf(...)),
         );
 
         return new BankProvisionData(
             amount: MoneyData::fromMoney(new Money($current + $carried, $currency)),
-            rateBp: $rateBp,
+            rateBp: $settings->effectiveContributionRateBp(),
             periodEnd: $period['end'],
         );
+    }
+
+    private function urssafOwedCents(
+        UserSettings $settings,
+        CollectedInvoices $collected,
+        CarbonImmutable $from,
+        CarbonImmutable $to,
+        string $currency,
+    ): int {
+        return (int) $settings->urssafContributionsOn(new Money($collected->htCents($from, $to), $currency))->getAmount();
     }
 
     /**
