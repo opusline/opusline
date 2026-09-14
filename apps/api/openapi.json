@@ -2487,6 +2487,91 @@
                 }
             }
         },
+        "/expenses/{expense}/bank-movement": {
+            "post": {
+                "operationId": "linkExpenseBankMovement",
+                "tags": [
+                    "Expense"
+                ],
+                "parameters": [
+                    {
+                        "name": "expense",
+                        "in": "path",
+                        "required": true,
+                        "description": "The expense ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LinkExpenseBankMovementData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensesMonthData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "unlinkExpenseBankMovement",
+                "tags": [
+                    "Expense"
+                ],
+                "parameters": [
+                    {
+                        "name": "expense",
+                        "in": "path",
+                        "required": true,
+                        "description": "The expense ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensesMonthData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/expenses/{expense}/receipt": {
             "post": {
                 "operationId": "attachExpenseReceipt",
@@ -4519,6 +4604,39 @@
                 }
             }
         },
+        "/subscriptions/detected-debits/dismissals": {
+            "post": {
+                "operationId": "dismissRecurringDebit",
+                "tags": [
+                    "Subscription"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DismissRecurringDebitData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubscriptionsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/subscriptions/{subscription}": {
             "put": {
                 "operationId": "updateSubscription",
@@ -6163,6 +6281,16 @@
                             "integer",
                             "null"
                         ]
+                    },
+                    "expense": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BankMovementExpenseData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -6172,9 +6300,26 @@
                     "amount",
                     "runningBalance",
                     "invoice",
-                    "pendingMatchId"
+                    "pendingMatchId",
+                    "expense"
                 ],
                 "title": "BankMovementData"
+            },
+            "BankMovementExpenseData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "supplier": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "supplier"
+                ],
+                "title": "BankMovementExpenseData"
             },
             "BankMovementInvoiceData": {
                 "type": "object",
@@ -8150,6 +8295,38 @@
                 ],
                 "title": "DeclarationsData"
             },
+            "DismissRecurringDebitData": {
+                "type": "object",
+                "properties": {
+                    "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 255
+                    },
+                    "amount": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100000000000
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    }
+                },
+                "required": [
+                    "label",
+                    "amount"
+                ],
+                "title": "DismissRecurringDebitData"
+            },
             "DocumentCategory": {
                 "type": "integer",
                 "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/>  |\n| `3` <br/>  |\n| `4` <br/>  |\n| `5` <br/> The CRA Opusline generated, filed next to the signed return it comes back as. |\n| `6` <br/>  |\n| `7` <br/>  |\n| `8` <br/>  |\n| `9` <br/>  |\n| `10` <br/>  |\n| `11` <br/> The document the user's billing tool issued, filed against the invoice it is. |",
@@ -8318,6 +8495,27 @@
                 ],
                 "title": "EntryRounding"
             },
+            "ExpenseBankMovementData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "bookedOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "label": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "bookedOn",
+                    "label"
+                ],
+                "title": "ExpenseBankMovementData"
+            },
             "ExpenseCategory": {
                 "type": "integer",
                 "enum": [
@@ -8446,6 +8644,16 @@
                             }
                         ]
                     },
+                    "bankMovement": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpenseBankMovementData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "vatStatus": {
                         "$ref": "#/components/schemas/ExpenseVatStatus"
                     },
@@ -8471,6 +8679,7 @@
                     "proShareBp",
                     "receipt",
                     "subscription",
+                    "bankMovement",
                     "vatStatus",
                     "vatClaimPeriod",
                     "isRegularisation"
@@ -8703,7 +8912,7 @@
             },
             "ExpenseTodoKind": {
                 "type": "integer",
-                "description": "The cards of the journal's « À traiter » rail.\n| |\n|---|\n| `0` <br/> A subscription's debit was recorded; the receipt is still to be linked. |\n| `1` <br/> A recurring bank debit no expense matches (a later rung fills it). |\n| `2` <br/> An annual subscription debits within the month. |",
+                "description": "The cards of the journal's « À traiter » rail.\n| |\n|---|\n| `0` <br/> A subscription's debit was recorded; the receipt is still to be linked. |\n| `1` <br/> A debit that names a subscription but that no expense explains. |\n| `2` <br/> An annual subscription debits within the month. |",
                 "enum": [
                     0,
                     1,
@@ -9795,6 +10004,19 @@
                 ],
                 "title": "InvoiceTotalData"
             },
+            "LinkExpenseBankMovementData": {
+                "type": "object",
+                "properties": {
+                    "bankMovementId": {
+                        "type": "integer",
+                        "minimum": 1
+                    }
+                },
+                "required": [
+                    "bankMovementId"
+                ],
+                "title": "LinkExpenseBankMovementData"
+            },
             "Locale": {
                 "type": "string",
                 "enum": [
@@ -10228,6 +10450,38 @@
                     "codes"
                 ],
                 "title": "RecoveryCodesData"
+            },
+            "RecurringDebitData": {
+                "type": "object",
+                "properties": {
+                    "label": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "debitDay": {
+                        "type": "integer"
+                    },
+                    "months": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "lastBookedOn": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "label",
+                    "amount",
+                    "debitDay",
+                    "months",
+                    "lastBookedOn"
+                ],
+                "title": "RecurringDebitData"
             },
             "RegisterPasskeyData": {
                 "type": "object",
@@ -11351,6 +11605,12 @@
                         "items": {
                             "$ref": "#/components/schemas/SubscriptionAmountChangeData"
                         }
+                    },
+                    "detected": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RecurringDebitData"
+                        }
                     }
                 },
                 "required": [
@@ -11359,7 +11619,8 @@
                     "upcoming",
                     "categories",
                     "yearlyHt",
-                    "amountChanges"
+                    "amountChanges",
+                    "detected"
                 ],
                 "title": "SubscriptionsData"
             },

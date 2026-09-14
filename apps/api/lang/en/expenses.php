@@ -11,4 +11,6 @@ return [
     'occurrence_taken' => 'This subscription already has an expense for that period.',
     'link_on_create_only' => 'An expense is tied to a subscription when it is recorded, not afterwards.',
     'one_subscription_link' => 'Tie the purchase to an existing subscription or make it recurring, not both.',
+    'unknown_movement' => 'This debit does not exist on the compte pro.',
+    'movement_taken' => 'This debit already pays an invoice or another expense.',
 ];

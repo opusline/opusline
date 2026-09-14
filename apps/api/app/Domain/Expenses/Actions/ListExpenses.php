@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Expenses\Actions;
 
+use App\Domain\Bank\Actions\NormalizeBankText;
 use App\Domain\Expenses\Data\ExpenseCategoryTotalData;
 use App\Domain\Expenses\Data\ExpenseData;
 use App\Domain\Expenses\Data\ExpenseMonthPointData;
@@ -64,7 +65,7 @@ class ListExpenses
         $this->materialiseSubscriptionOccurrences->handle($user, $today);
 
         $rows = $user->expenses()
-            ->with(['media', 'subscription'])
+            ->with(['media', 'subscription', 'bankMovement'])
             ->where(fn ($query) => $query
                 ->whereBetween('spent_on', [$monthStart->toDateString(), $monthEnd->toDateString()])
                 ->orWhere('vat_claim_period', $monthKey))
@@ -103,7 +104,11 @@ class ListExpenses
             projection: $settings->hasFrenchFiscality()
                 ? $this->projection($this->yearlyChargesHt($expenses, $shown->ht->toMoney(), $tile), $collected->htCents($yearStart, $monthEnd))
                 : null,
-            todo: [...$this->missingReceiptCards($expenses), ...$this->upcomingAnnualCards($subscriptions, $today)],
+            todo: [
+                ...$this->missingReceiptCards($expenses),
+                ...$this->unmatchedDebitCards($user, $subscriptions, $monthStart),
+                ...$this->upcomingAnnualCards($subscriptions, $today),
+            ],
             expenses: array_values(array_map(
                 fn (Expense $expense): ExpenseData => ExpenseData::fromModel($expense, $declared),
                 $expenses->all(),
@@ -286,6 +291,51 @@ class ListExpenses
                 label: $expense->supplier,
                 amount: MoneyData::fromMoney($expense->amount_ttc_cents),
                 date: $expense->spent_on,
+            );
+        }
+
+        return $cards;
+    }
+
+    /**
+     * The month's debits that read like one of the subscriptions — the
+     * supplier's name on the label — but that no expense explains.
+     *
+     * @param  Collection<int, Subscription>  $subscriptions
+     * @return list<ExpenseTodoData>
+     */
+    private function unmatchedDebitCards(User $user, Collection $subscriptions, CarbonImmutable $monthStart): array
+    {
+        $needles = $subscriptions
+            ->map(static fn (Subscription $subscription): ?string => $subscription->supplierNeedle())
+            ->filter()
+            ->values();
+
+        if ($needles->isEmpty()) {
+            return [];
+        }
+
+        $cards = [];
+        $debits = $user->bankMovements()
+            ->unlinkedDebits()
+            ->whereBetween('booked_on', [$monthStart->toDateString(), $monthStart->endOfMonth()->toDateString()])
+            ->orderBy('booked_on')
+            ->orderBy('id')
+            ->get();
+
+        foreach ($debits as $debit) {
+            if (! NormalizeBankText::mentionsAny($debit->label, $needles)) {
+                continue;
+            }
+
+            $cards[] = new ExpenseTodoData(
+                kind: ExpenseTodoKind::UnmatchedDebit,
+                expenseId: null,
+                subscriptionId: null,
+                bankMovementId: $debit->id,
+                label: $debit->label,
+                amount: MoneyData::fromMoney($debit->amount_cents->absolute()),
+                date: $debit->booked_on,
             );
         }
 

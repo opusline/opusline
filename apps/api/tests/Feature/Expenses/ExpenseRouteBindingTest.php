@@ -21,4 +21,6 @@ test('every expense route answers 404 for another account expense', function (st
     'download receipt' => ['GET', '/api/expenses/{expense}/receipt'],
     'detach receipt' => ['DELETE', '/api/expenses/{expense}/receipt'],
     'reintegrate VAT' => ['DELETE', '/api/expenses/{expense}/vat-deferral'],
+    'link a debit' => ['POST', '/api/expenses/{expense}/bank-movement'],
+    'unlink a debit' => ['DELETE', '/api/expenses/{expense}/bank-movement'],
 ]);

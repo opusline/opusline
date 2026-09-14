@@ -37,7 +37,7 @@ function requestDataFields(): array
     $responseOnly = [
         'BankAccountData', 'BankBalanceData', 'BankImportData',
         'BankMatchData', 'BankMatchInvoiceData', 'BankMovementData',
-        'BankMovementInvoiceData', 'BankMovementPageData',
+        'BankMovementInvoiceData', 'BankMovementExpenseData', 'BankMovementPageData',
         'BankProvisionData', 'BankProvisionsData',
         'BankStatementData', 'PersonalTransferData', 'TreasuryData',
         'SignedMoneyData',
@@ -54,6 +54,7 @@ function requestDataFields(): array
         'SubscriptionData', 'SubscriptionAmountData', 'SubscriptionKpisData', 'SubscriptionsData',
         'UpcomingDebitData', 'SubscriptionCategoryTotalData', 'SubscriptionAmountChangeData',
         'SubscriptionOccurrenceData', 'ExpenseSubscriptionData', 'ExpensesSubscriptionsData', 'ExpenseTodoData',
+        'ExpenseBankMovementData', 'RecurringDebitData',
         'ClientData', 'ClientListData', 'ClientRevenueData',
         'ClientRevenueDetailData', 'ClientRevenueListData',
         'ClientWithMissionsData',

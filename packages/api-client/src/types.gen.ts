@@ -97,6 +97,15 @@ export type BankMovementData = {
     runningBalance: SignedMoneyData | null;
     invoice: BankMovementInvoiceData | null;
     pendingMatchId: number | null;
+    expense: BankMovementExpenseData | null;
+};
+
+/**
+ * BankMovementExpenseData
+ */
+export type BankMovementExpenseData = {
+    id: number;
+    supplier: string;
 };
 
 /**
@@ -665,6 +674,17 @@ export type DeclarationsData = {
 };
 
 /**
+ * DismissRecurringDebitData
+ */
+export type DismissRecurringDebitData = {
+    label: string;
+    amount: {
+        amount: number;
+        currency: Currency;
+    };
+};
+
+/**
  * DocumentCategory
  *
  * | |
@@ -737,6 +757,15 @@ export type DocumentSource = 0 | 1 | 2;
 export type EntryRounding = 0 | 1 | 2;
 
 /**
+ * ExpenseBankMovementData
+ */
+export type ExpenseBankMovementData = {
+    id: number;
+    bookedOn: string;
+    label: string;
+};
+
+/**
  * ExpenseCategory
  */
 export type ExpenseCategory = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
@@ -769,6 +798,7 @@ export type ExpenseData = {
     proShareBp: number;
     receipt: ExpenseReceiptData | null;
     subscription: ExpenseSubscriptionData | null;
+    bankMovement: ExpenseBankMovementData | null;
     vatStatus: ExpenseVatStatus;
     vatClaimPeriod: string;
     isRegularisation: boolean;
@@ -857,7 +887,7 @@ export type ExpenseTodoData = {
  * | |
  * |---|
  * | `0` <br/> A subscription's debit was recorded; the receipt is still to be linked. |
- * | `1` <br/> A recurring bank debit no expense matches (a later rung fills it). |
+ * | `1` <br/> A debit that names a subscription but that no expense explains. |
  * | `2` <br/> An annual subscription debits within the month. |
  */
 export type ExpenseTodoKind = 0 | 1 | 2;
@@ -1222,6 +1252,13 @@ export type InvoiceTotalData = {
 };
 
 /**
+ * LinkExpenseBankMovementData
+ */
+export type LinkExpenseBankMovementData = {
+    bankMovementId: number;
+};
+
+/**
  * Locale
  */
 export type Locale = 'en-US' | 'fr-FR';
@@ -1368,6 +1405,17 @@ export type RecategorizeExpensesData = {
  */
 export type RecoveryCodesData = {
     codes: Array<string>;
+};
+
+/**
+ * RecurringDebitData
+ */
+export type RecurringDebitData = {
+    label: string;
+    amount: MoneyData;
+    debitDay: number;
+    months: Array<string>;
+    lastBookedOn: string;
 };
 
 /**
@@ -1725,6 +1773,7 @@ export type SubscriptionsData = {
     categories: Array<SubscriptionCategoryTotalData>;
     yearlyHt: MoneyData;
     amountChanges: Array<SubscriptionAmountChangeData>;
+    detected: Array<RecurringDebitData>;
 };
 
 /**
@@ -4542,6 +4591,103 @@ export type UpdateExpenseResponses = {
 
 export type UpdateExpenseResponse = UpdateExpenseResponses[keyof UpdateExpenseResponses];
 
+export type UnlinkExpenseBankMovementData = {
+    body?: never;
+    path: {
+        /**
+         * The expense ID
+         */
+        expense: number;
+    };
+    query?: never;
+    url: '/expenses/{expense}/bank-movement';
+};
+
+export type UnlinkExpenseBankMovementErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UnlinkExpenseBankMovementError = UnlinkExpenseBankMovementErrors[keyof UnlinkExpenseBankMovementErrors];
+
+export type UnlinkExpenseBankMovementResponses = {
+    200: ExpensesMonthData;
+};
+
+export type UnlinkExpenseBankMovementResponse = UnlinkExpenseBankMovementResponses[keyof UnlinkExpenseBankMovementResponses];
+
+export type LinkExpenseBankMovementData2 = {
+    body: LinkExpenseBankMovementData;
+    path: {
+        /**
+         * The expense ID
+         */
+        expense: number;
+    };
+    query?: never;
+    url: '/expenses/{expense}/bank-movement';
+};
+
+export type LinkExpenseBankMovementErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type LinkExpenseBankMovementError = LinkExpenseBankMovementErrors[keyof LinkExpenseBankMovementErrors];
+
+export type LinkExpenseBankMovementResponses = {
+    201: ExpensesMonthData;
+};
+
+export type LinkExpenseBankMovementResponse = LinkExpenseBankMovementResponses[keyof LinkExpenseBankMovementResponses];
+
 export type DetachExpenseReceiptData = {
     body?: never;
     path: {
@@ -6339,6 +6485,33 @@ export type CreateSubscriptionResponses = {
 };
 
 export type CreateSubscriptionResponse = CreateSubscriptionResponses[keyof CreateSubscriptionResponses];
+
+export type DismissRecurringDebitData2 = {
+    body: DismissRecurringDebitData;
+    path?: never;
+    query?: never;
+    url: '/subscriptions/detected-debits/dismissals';
+};
+
+export type DismissRecurringDebitErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DismissRecurringDebitError = DismissRecurringDebitErrors[keyof DismissRecurringDebitErrors];
+
+export type DismissRecurringDebitResponses = {
+    201: SubscriptionsData;
+};
+
+export type DismissRecurringDebitResponse = DismissRecurringDebitResponses[keyof DismissRecurringDebitResponses];
 
 export type DeleteSubscriptionData = {
     body?: never;

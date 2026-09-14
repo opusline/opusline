@@ -10,6 +10,7 @@ use App\Domain\Bank\Parsing\ParseBankStatement;
 use App\Domain\Bank\Parsing\ParsedMovement;
 use App\Domain\Bank\Parsing\ParsedStatement;
 use App\Domain\Bank\Parsing\StatementParseException;
+use App\Domain\Expenses\Actions\SuggestExpenseMatches;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Shared\Data\SignedMoneyData;
 use App\Domain\Shared\Enums\Currency;
@@ -33,6 +34,7 @@ class ImportBankStatement
     public function __construct(
         private readonly ParseBankStatement $parseBankStatement,
         private readonly SuggestBankMatches $suggestBankMatches,
+        private readonly SuggestExpenseMatches $suggestExpenseMatches,
         private readonly SummarizeBankAccount $summarizeBankAccount,
     ) {}
 
@@ -124,6 +126,7 @@ class ImportBankStatement
                 ->whereDoesntHave('match')
                 ->get()
                 ->all());
+            $this->suggestExpenseMatches->handle($locked);
 
             return [$importedCount, $this->suggestBankMatches->handle($locked, $suggestible)];
         });
