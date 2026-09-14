@@ -140,11 +140,14 @@ class Expense extends Model implements HasMedia
     /**
      * Whether the receipt carries TVA the account may recover: a French
      * supplier's rate on it. Reverse charge nets to nothing, exemption and an
-     * untracked 0 % carry none.
+     * untracked 0 % carry none, and a purchase with no professional share
+     * recovers none of it.
      */
     public function hasDeductibleVat(): bool
     {
-        return $this->vat_treatment === ExpenseVatTreatment::Domestic && $this->vat_rate_bp > 0;
+        return $this->vat_treatment === ExpenseVatTreatment::Domestic
+            && $this->vat_rate_bp > 0
+            && $this->pro_share_bp > 0;
     }
 
     /** @param  ?DeclaredCa3Months  $declared  null for an account that files no CA3 */

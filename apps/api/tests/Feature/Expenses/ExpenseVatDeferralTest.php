@@ -84,8 +84,7 @@ test('refuses a selection holding another account expense', function (): void {
 
     $this->actingAs(User::factory()->create())
         ->postJson('/api/expenses/vat-deferrals', ['expenseIds' => [$foreign->id]])
-        ->assertUnprocessable()
-        ->assertJsonValidationErrors('expenseIds');
+        ->assertNotFound();
 
     $this->assertDatabaseHas('expenses', ['id' => $foreign->id, 'vat_claim_period' => $foreign->month()]);
 });

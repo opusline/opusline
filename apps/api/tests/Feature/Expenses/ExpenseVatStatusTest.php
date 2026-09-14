@@ -43,17 +43,37 @@ test('a purchase without a receipt is blocked and counted apart', function (): v
         ->assertJsonPath('vat.blockedCount', 1);
 });
 
-test('a reverse-charged purchase nets to nothing and an exempt one carries nothing', function (): void {
+test('a reverse-charged purchase nets to nothing', function (): void {
     $user = vatLiableUser();
     expenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-08-05')->reverseCharged(4_800));
+
+    $this->actingAs($user)
+        ->getJson('/api/expenses?month=2026-08')
+        ->assertOk()
+        ->assertJsonPath('expenses.0.vatStatus', ExpenseVatStatus::ReverseCharged->value)
+        ->assertJsonPath('vat.reverseCharged.amount', 960)
+        ->assertJsonPath('vat.deductible.amount', 0);
+});
+
+test('an exempt purchase carries no TVA at all', function (): void {
+    $user = vatLiableUser();
     expenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-08-06')->exempt(31_200));
 
     $this->actingAs($user)
         ->getJson('/api/expenses?month=2026-08')
         ->assertOk()
         ->assertJsonPath('expenses.0.vatStatus', ExpenseVatStatus::NotApplicable->value)
-        ->assertJsonPath('expenses.1.vatStatus', ExpenseVatStatus::ReverseCharged->value)
-        ->assertJsonPath('vat.reverseCharged.amount', 960)
+        ->assertJsonPath('vat.deductible.amount', 0);
+});
+
+test('a purchase with no professional share has nothing to deduct', function (): void {
+    $user = vatLiableUser();
+    receiptedExpenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-08-05')->ttc(12_000)->proShare(0));
+
+    $this->actingAs($user)
+        ->getJson('/api/expenses?month=2026-08')
+        ->assertOk()
+        ->assertJsonPath('expenses.0.vatStatus', ExpenseVatStatus::NotApplicable->value)
         ->assertJsonPath('vat.deductible.amount', 0);
 });
 
@@ -165,12 +185,10 @@ test('a date moved past a hand deferral re-claims from the new purchase month', 
         ->assertJsonPath('expenses.0.vatStatus', ExpenseVatStatus::Deductible->value);
 });
 
-test('a cosmetic edit keeps the claim where it is, an amount change in a declared month moves it', function (): void {
-    $user = vatLiableUser();
-    $expense = receiptedExpenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-07-05')->ttc(12_000));
-    ca3DeclaredFor($user, '2026-07');
-
-    $body = [
+/** The body of an edit that only renames a July purchase declared on its own CA3. */
+function cosmeticEditBody(): array
+{
+    return [
         'supplier' => 'Renamed',
         'spentOn' => '2026-07-05',
         'category' => ExpenseCategory::Software->value,
@@ -178,18 +196,41 @@ test('a cosmetic edit keeps the claim where it is, an amount change in a declare
         'vatTreatment' => ExpenseVatTreatment::Domestic->value,
         'vatRateBp' => 2_000,
     ];
+}
+
+test('a cosmetic edit keeps the claim where it is', function (): void {
+    $user = vatLiableUser();
+    $expense = receiptedExpenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-07-05')->ttc(12_000));
+    ca3DeclaredFor($user, '2026-07');
 
     $this->actingAs($user)
-        ->putJson("/api/expenses/{$expense->id}", $body)
+        ->putJson("/api/expenses/{$expense->id}", cosmeticEditBody())
         ->assertOk()
         ->assertJsonPath('expenses.0.vatClaimPeriod', '2026-07')
         ->assertJsonPath('expenses.0.vatStatus', ExpenseVatStatus::Deducted->value);
+});
+
+test('an amount change in a declared month moves the claim to the next open one', function (): void {
+    $user = vatLiableUser();
+    $expense = receiptedExpenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-07-05')->ttc(12_000));
+    ca3DeclaredFor($user, '2026-07');
 
     $this->actingAs($user)
-        ->putJson("/api/expenses/{$expense->id}", ['amountTtc' => ['amount' => 24_000, 'currency' => 'EUR'], ...array_diff_key($body, ['amountTtc' => true])])
+        ->putJson("/api/expenses/{$expense->id}", ['amountTtc' => ['amount' => 24_000, 'currency' => 'EUR'], ...array_diff_key(cosmeticEditBody(), ['amountTtc' => true])])
         ->assertOk()
         ->assertJsonPath('expenses.0.vatClaimPeriod', '2026-08')
         ->assertJsonPath('expenses.0.isRegularisation', true);
+});
+
+test('a purchase moved to an earlier month does not read its old month as a deferral', function (): void {
+    $user = vatLiableUser();
+    $expense = receiptedExpenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-08-05')->ttc(12_000));
+
+    $this->actingAs($user)
+        ->putJson("/api/expenses/{$expense->id}", [...cosmeticEditBody(), 'spentOn' => '2026-07-05'])
+        ->assertOk()
+        ->assertJsonPath('expenses.0.vatClaimPeriod', '2026-07')
+        ->assertJsonPath('expenses.0.vatStatus', ExpenseVatStatus::Deductible->value);
 });
 
 test('a deferred deduction reads as deducted once the month it moved to is declared', function (): void {

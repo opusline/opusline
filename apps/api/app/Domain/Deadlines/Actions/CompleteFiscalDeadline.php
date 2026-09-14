@@ -9,6 +9,7 @@ use App\Domain\Deadlines\Calendar\FiscalDeadline;
 use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Users\Models\User;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Ticks off one occurrence. The occurrence must be one the account's own
@@ -34,10 +35,16 @@ class CompleteFiscalDeadline
 
         abort_if(! $deadline instanceof FiscalDeadline, 404, __('deadlines.unknown_occurrence'));
 
-        $user->fiscalDeadlineCompletions()->updateOrCreate(
-            ['kind' => $kind, 'period_key' => $periodKey],
-            ['due_on' => $deadline->dueOn, 'completed_on' => $settings->today()],
-        );
+        // A declared CA3 moves where expense deductions are claimed: the
+        // account lock orders this write against the claim-period writers.
+        DB::transaction(function () use ($user, $kind, $periodKey, $deadline, $settings): void {
+            User::lockRow($user->id);
+
+            $user->fiscalDeadlineCompletions()->updateOrCreate(
+                ['kind' => $kind, 'period_key' => $periodKey],
+                ['due_on' => $deadline->dueOn, 'completed_on' => $settings->today()],
+            );
+        });
     }
 
     private function find(UserSettings $settings, FiscalDeadlineKind $kind, string $periodKey): ?FiscalDeadline

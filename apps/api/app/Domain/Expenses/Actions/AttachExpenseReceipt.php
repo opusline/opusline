@@ -30,7 +30,7 @@ class AttachExpenseReceipt
             $locked = Expense::query()->whereKey($expense->id)->lockForUpdate()->firstOrFail();
 
             $locked->update([
-                'vat_claim_period' => DeclaredCa3Months::of($locked->user_id)->reclaim($locked->month(), $locked->vat_claim_period),
+                'vat_claim_period' => DeclaredCa3Months::of($locked->user_id)->reclaim($locked->month(), $locked->vat_claim_period, $locked->isDeferred()),
             ]);
 
             return $this->storeMediaFile->handle(

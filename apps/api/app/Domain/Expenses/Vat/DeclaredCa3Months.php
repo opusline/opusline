@@ -71,11 +71,12 @@ final readonly class DeclaredCa3Months
     /**
      * The claim after something about the purchase changed: a deferral by
      * hand to a month still open stands, anything else is claimed afresh from
-     * the purchase month.
+     * the purchase month. The caller says whether the claim was a deferral —
+     * a purchase moved to an earlier month must not read its old month as one.
      */
-    public function reclaim(string $spentMonth, string $currentClaim): string
+    public function reclaim(string $spentMonth, string $currentClaim, bool $deferredByHand): string
     {
-        if ($currentClaim > $spentMonth && ! $this->isDeclared($currentClaim)) {
+        if ($deferredByHand && $currentClaim > $spentMonth && ! $this->isDeclared($currentClaim)) {
             return $currentClaim;
         }
 

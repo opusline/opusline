@@ -27,16 +27,20 @@ class UpdateExpense
         return DB::transaction(function () use ($expense, $data): Expense {
             AccountCurrency::assertMatchesAccountUnderLock($expense->user_id, $data->amountTtc);
 
-            $expense->fill(ExpenseAttributes::from($data));
+            // Re-read under lock: a deferral or a receipt racing this edit
+            // would otherwise have its claim period overwritten with a stale one.
+            $locked = Expense::query()->whereKey($expense->id)->lockForUpdate()->firstOrFail();
+            $deferredByHand = $locked->isDeferred();
+            $locked->fill(ExpenseAttributes::from($data));
 
-            if ($expense->isDirty(self::VAT_COLUMNS)) {
-                $expense->vat_claim_period = DeclaredCa3Months::of($expense->user_id)
-                    ->reclaim($data->month(), $expense->vat_claim_period);
+            if ($locked->isDirty(self::VAT_COLUMNS)) {
+                $locked->vat_claim_period = DeclaredCa3Months::of($locked->user_id)
+                    ->reclaim($data->month(), $locked->vat_claim_period, $deferredByHand);
             }
 
-            $expense->save();
+            $locked->save();
 
-            return $expense;
+            return $locked;
         });
     }
 }

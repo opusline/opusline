@@ -113,7 +113,7 @@ class ListExpenses
                 $blockedCount++;
             }
 
-            if ($inMonth && $status === ExpenseVatStatus::ReverseCharged) {
+            if ($expense->vat_claim_period === $month && $status === ExpenseVatStatus::ReverseCharged) {
                 $reverseCharged += (int) $amounts->assessedVat()->getAmount();
                 $reverseRecoverable += $recoverable;
             }

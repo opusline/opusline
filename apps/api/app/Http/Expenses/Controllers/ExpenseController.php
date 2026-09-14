@@ -47,9 +47,9 @@ class ExpenseController extends Controller
         UpdateExpense $updateExpense,
         ListExpenses $listExpenses,
     ): JsonResponse {
-        $updateExpense->handle($expense, $data);
+        $updated = $updateExpense->handle($expense, $data);
 
-        return response()->json($listExpenses->handle($user, $expense->month()));
+        return response()->json($listExpenses->handle($user, $updated->month()));
     }
 
     public function destroy(Expense $expense, DeleteExpense $deleteExpense): Response

@@ -23,7 +23,7 @@ class DetachExpenseReceipt
 
             $locked->clearMediaCollection(Expense::RECEIPT_COLLECTION);
             $locked->update([
-                'vat_claim_period' => DeclaredCa3Months::of($locked->user_id)->reclaim($locked->month(), $locked->vat_claim_period),
+                'vat_claim_period' => DeclaredCa3Months::of($locked->user_id)->reclaim($locked->month(), $locked->vat_claim_period, $locked->isDeferred()),
             ]);
         });
     }
