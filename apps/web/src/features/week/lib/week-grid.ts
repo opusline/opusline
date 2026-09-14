@@ -22,7 +22,7 @@ import {
 } from "@/lib/durations";
 import { isMissionOpenForTime } from "@/lib/mission-status";
 import { COLOR_CLASSES } from "@/lib/palette";
-import { isoWeekDates, weekdayShortLabel } from "@/lib/weeks";
+import { isoWeekDates, isoWeekRange, weekdayShortLabel } from "@/lib/weeks";
 
 import { cellAriaLabel } from "./labels";
 
@@ -201,12 +201,17 @@ function selectMissions(
   clients: ClientWithMissionsData[],
   workedMissionIds: Set<number>,
   liveMissionId: number | null,
+  weekEnd: string,
 ): MissionWithClient[] {
   const selected: MissionWithClient[] = [];
 
   for (const client of clients) {
     for (const mission of client.missions) {
-      const isActive = mission.status === 0 && client.archivedAt === null;
+      // A mission joins the grid from the week it starts, not every week before.
+      const hasStarted =
+        mission.startDate === null || mission.startDate <= weekEnd;
+      const isActive =
+        mission.status === 0 && client.archivedAt === null && hasStarted;
 
       if (
         isActive ||
@@ -276,6 +281,7 @@ export function buildWeekGrid(input: {
     input.clients,
     workedMissionIds,
     input.liveMissionId ?? null,
+    isoWeekRange(input.week).to,
   ).map(({ mission, client }) => {
     const dayBilled = !isHourly(mission.billingMode);
     const hasRate = missionBills(mission);

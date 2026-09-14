@@ -130,6 +130,22 @@ describe("rows", () => {
     expect(rows).toHaveLength(0);
   });
 
+  it("leaves a mission out of the weeks before it starts", () => {
+    const { rows } = build({
+      clients: [client({ missions: [mission({ startDate: "2026-08-03" })] })],
+    });
+
+    expect(rows).toHaveLength(0);
+  });
+
+  it("shows a mission from the week it starts in", () => {
+    const { rows } = build({
+      clients: [client({ missions: [mission({ startDate: "2026-07-29" })] })],
+    });
+
+    expect(rows).toHaveLength(1);
+  });
+
   it("keeps an archived client's mission when it has entries this week", () => {
     const { rows } = build({
       clients: [client({ archivedAt: "2026-06-01T00:00:00+00:00" })],
