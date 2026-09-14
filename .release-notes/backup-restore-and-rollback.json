@@ -1,4 +1,0 @@
-{
-  "kind": "improved",
-  "text": "Restoring a backup now stops the services that write to the database first, and a failed upgrade can be rolled back cleanly."
-}

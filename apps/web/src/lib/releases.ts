@@ -13,6 +13,76 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.28.0",
+    date: "2026-09-14",
+    items: [
+      {
+        kind: "new",
+        text: "Clients without missions, missions without tracked time and draft invoices can now be deleted, and deleting a transfer asks for confirmation first.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "Dépenses and Déclarations: record every business expense (or read it off the PDF receipt), follow where its TVA stands with the CA3, track your subscriptions and what the compte pro debits for them, and file each month's URSSAF and CA3 — plus the year's 2042-C PRO and CFE — from figures ready to retype — and the amount safe to transfer keeps every return still owed until you mark it paid or its payment shows on the compte pro.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "Change your password under Settings → Security. Doing so signs you out on every other device and forgets the browsers you trusted.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "Sign-in links, client colour chips and the subscription receipt strip are now readable at normal contrast and easier to hit on a touch screen.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "Restoring a backup now stops the services that write to the database first, and a failed upgrade can be rolled back cleanly.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "Opening and editing the expenses and subscriptions screens no longer re-reads your whole history on every request.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "The business account, transfer and filings screens stay fast on accounts with years of history.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "The annual return no longer claims the versement libératoire for months it cannot vouch for, such as a year where you turned it on partway through.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "Backup archives are now written so only their owner can read them; they contain your application key and database password.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "The real-charges projection on the expenses screen counts a one-off purchase once instead of as a monthly expense.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "The health page now tells you the API is unreachable instead of showing an error screen, which is when you most need it.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "Address suggestions close when you leave the field, a collected invoice shows its collection date right away, and a mission stays out of the week grid until it starts.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "Behind a reverse proxy, one visitor's failed sign-ins no longer lock everyone out; wrong two-factor codes now count against the account across sign-ins; and an idle lock now holds through a page reload.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "Marking a tax return as paid no longer makes the transferable amount jump before the statement showing the payment is imported.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "The treasury breakdown now shows the money set aside for your subscriptions instead of leaving an unlabelled gap in the bar.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "A closed URSSAF period is now priced at the rate that applied when it closed, so the compte pro and the declarations screen agree on what you owe.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.27.0",
     date: "2026-09-12",
     items: [
