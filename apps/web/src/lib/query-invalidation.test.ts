@@ -2,13 +2,16 @@ import {
   listClientRevenueQueryKey,
   listCrasQueryKey,
   listDeadlinesQueryKey,
+  listExpensesQueryKey,
   listInvoicesQueryKey,
   listMissionDocumentsQueryKey,
   listMissionTimeEntriesQueryKey,
+  listSubscriptionsQueryKey,
   listTimeEntriesQueryKey,
   showBankAccountQueryKey,
   showClientRevenueQueryKey,
   showCraQueryKey,
+  showDeclarationsQueryKey,
   showInvoiceSummaryQueryKey,
   showMissionRevenueQueryKey,
   showTreasuryQueryKey,
@@ -19,9 +22,13 @@ import { describe, expect, it } from "vitest";
 import {
   craFilter,
   deadlinesFilter,
+  declarationsFilter,
+  expensesFilter,
+  invalidateExpenseWrites,
   missionTimeEntriesFilter,
   operationFilter,
   revenueFilter,
+  subscriptionsFilter,
   treasuryFilter,
 } from "./query-invalidation";
 
@@ -232,5 +239,81 @@ describe("the bare listInvoices key", () => {
     expect(
       queryClient.getQueryCache().findAll({ queryKey: listInvoicesQueryKey() }),
     ).toHaveLength(3);
+  });
+});
+
+describe("expensesFilter", () => {
+  it("matches every month of the journal", () => {
+    const filter = expensesFilter();
+
+    expect(
+      filter.predicate(
+        queryWithKey(listExpensesQueryKey({ query: { month: "2026-08" } })),
+      ),
+    ).toBe(true);
+    expect(filter.predicate(queryWithKey(listExpensesQueryKey()))).toBe(true);
+    expect(filter.predicate(queryWithKey(showDeclarationsQueryKey()))).toBe(
+      false,
+    );
+  });
+});
+
+describe("declarationsFilter", () => {
+  it("matches the declarations whatever period they show", () => {
+    const filter = declarationsFilter();
+
+    expect(
+      filter.predicate(
+        queryWithKey(
+          showDeclarationsQueryKey({ query: { period: "2026-07" } }),
+        ),
+      ),
+    ).toBe(true);
+    expect(filter.predicate(queryWithKey(listExpensesQueryKey()))).toBe(false);
+  });
+});
+
+describe("invalidateExpenseWrites", () => {
+  it("marks the journal, the declarations, the treasury and the deadlines stale", async () => {
+    const queryClient = new QueryClient();
+    const movedKeys = [
+      listExpensesQueryKey({ query: { month: "2026-08" } }),
+      showDeclarationsQueryKey({ query: { period: "2026-07" } }),
+      showTreasuryQueryKey(),
+      listDeadlinesQueryKey(),
+    ];
+    for (const queryKey of movedKeys) {
+      queryClient.setQueryData(queryKey, {});
+    }
+
+    await invalidateExpenseWrites(queryClient);
+
+    expect(
+      movedKeys.map(
+        (queryKey) => queryClient.getQueryState(queryKey)?.isInvalidated,
+      ),
+    ).toEqual([true, true, true, true]);
+  });
+
+  it("leaves the invoice reads alone", async () => {
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(listInvoicesQueryKey(), { invoices: [] });
+
+    await invalidateExpenseWrites(queryClient);
+
+    expect(
+      queryClient.getQueryState(listInvoicesQueryKey())?.isInvalidated,
+    ).toBe(false);
+  });
+});
+
+describe("subscriptionsFilter", () => {
+  it("matches the subscriptions list and leaves the journal alone", () => {
+    const filter = subscriptionsFilter();
+
+    expect(filter.predicate(queryWithKey(listSubscriptionsQueryKey()))).toBe(
+      true,
+    );
+    expect(filter.predicate(queryWithKey(listExpensesQueryKey()))).toBe(false);
   });
 });

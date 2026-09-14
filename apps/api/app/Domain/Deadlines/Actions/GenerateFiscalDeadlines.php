@@ -51,6 +51,15 @@ class GenerateFiscalDeadlines
     private const int CA3_DAY = 15;
 
     /**
+     * The online 2042 closes in late May or early June, on a day the fisc
+     * publishes each April by département. The end of May stands in until
+     * then: a reminder a few days early costs nothing.
+     */
+    private const int INCOME_TAX_RETURN_MONTH = 5;
+
+    private const int INCOME_TAX_RETURN_DAY = 31;
+
+    /**
      * A fingerprint of the calendar this profile produces, for telling whether a
      * settings save rewrote it.
      *
@@ -90,6 +99,7 @@ class GenerateFiscalDeadlines
             ...$this->urssaf($settings, $from, $to),
             ...$this->vat($settings, $from, $to),
             ...$this->cfe($settings, $from, $to, $expectedCfe),
+            ...$this->incomeTaxReturn($settings, $from, $to),
         ];
 
         usort(
@@ -142,7 +152,7 @@ class GenerateFiscalDeadlines
 
             $deadlines[] = new FiscalDeadline(
                 kind: FiscalDeadlineKind::UrssafDeclaration,
-                periodKey: $quarterly ? $this->quarterKey($start) : $this->monthKey($start),
+                periodKey: $quarterly ? FiscalDeadline::quarterKey($start) : FiscalDeadline::monthKey($start),
                 period: $quarterly ? DeadlinePeriod::Quarter : DeadlinePeriod::Month,
                 periodStart: $start,
                 periodEnd: $periodEnd,
@@ -175,7 +185,7 @@ class GenerateFiscalDeadlines
         foreach ($this->monthStarts($from->subMonths(self::LOOKBACK_MONTHS), $to) as $start) {
             $deadlines[] = new FiscalDeadline(
                 kind: FiscalDeadlineKind::VatCa3,
-                periodKey: $this->monthKey($start),
+                periodKey: FiscalDeadline::monthKey($start),
                 period: DeadlinePeriod::Month,
                 periodStart: $start,
                 periodEnd: $start->endOfMonth(),
@@ -265,6 +275,30 @@ class GenerateFiscalDeadlines
     }
 
     /**
+     * The year's income, declared the following spring — the 2042-C PRO a
+     * micro-BNC files with the household return.
+     *
+     * @return list<FiscalDeadline>
+     */
+    private function incomeTaxReturn(UserSettings $settings, CarbonImmutable $from, CarbonImmutable $to): array
+    {
+        $deadlines = [];
+
+        foreach (range($from->year - 2, $to->year) as $year) {
+            $deadlines[] = new FiscalDeadline(
+                kind: FiscalDeadlineKind::IncomeTaxReturn,
+                periodKey: (string) $year,
+                period: DeadlinePeriod::Year,
+                periodStart: $this->date($year, 1, 1),
+                periodEnd: $this->date($year, 12, 31),
+                dueOn: $this->roll($settings, $this->date($year + 1, self::INCOME_TAX_RETURN_MONTH, self::INCOME_TAX_RETURN_DAY)),
+            );
+        }
+
+        return $this->within($deadlines, $from, $to);
+    }
+
+    /**
      * A due date landing on a weekend or a jour férié moves to the next working
      * day, the roll-forward every French administration applies.
      */
@@ -315,16 +349,6 @@ class GenerateFiscalDeadlines
             static fn (FiscalDeadline $deadline): bool => $deadline->dueOn->toDateString() >= $fromDate
                 && $deadline->dueOn->toDateString() <= $toDate,
         ));
-    }
-
-    private function monthKey(CarbonImmutable $start): string
-    {
-        return $start->format('Y-m');
-    }
-
-    private function quarterKey(CarbonImmutable $start): string
-    {
-        return sprintf('%d-Q%d', $start->year, $start->quarter);
     }
 
     private function date(int $year, int $month, int $day): CarbonImmutable

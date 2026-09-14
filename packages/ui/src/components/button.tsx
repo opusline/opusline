@@ -20,6 +20,8 @@ const buttonVariants = cva(
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         // --primary is a fill colour: as light-mode text it reads at 3.42:1.
         link: "text-link underline-offset-4 hover:text-link-hover hover:underline",
+        /** A file the user can open: a quiet chip naming it, brand on hover. */
+        file: "border-border bg-muted font-normal text-foreground-3 text-xs hover:border-primary hover:text-primary-text",
       },
       surface: {
         flat: "",
@@ -44,6 +46,7 @@ const buttonVariants = cva(
     compoundVariants: [
       { variant: "outline", size: "2xl", class: "px-3.5" },
       { variant: "ghost", size: "2xl", class: "px-3.5" },
+      { variant: "file", size: "lg", class: "text-xs" },
     ],
     defaultVariants: {
       variant: "default",

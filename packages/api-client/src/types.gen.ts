@@ -5,6 +5,14 @@ export type ClientOptions = {
 };
 
 /**
+ * AnnualDeclarationsData
+ */
+export type AnnualDeclarationsData = {
+    incomeTaxReturn: IncomeTaxReturnData;
+    cfe: CfeReturnData | null;
+};
+
+/**
  * BackupRecordData
  */
 export type BackupRecordData = {
@@ -97,6 +105,15 @@ export type BankMovementData = {
     runningBalance: SignedMoneyData | null;
     invoice: BankMovementInvoiceData | null;
     pendingMatchId: number | null;
+    expense: BankMovementExpenseData | null;
+};
+
+/**
+ * BankMovementExpenseData
+ */
+export type BankMovementExpenseData = {
+    id: number;
+    supplier: string;
 };
 
 /**
@@ -120,9 +137,12 @@ export type BankMovementPageData = {
  */
 export type BankProvisionData = {
     amount: MoneyData;
+    carried: MoneyData;
     rateBp: number | null;
+    deductible: MoneyData | null;
     periodEnd: string;
     isEstimate?: boolean;
+    carriedPeriods?: Array<CarriedPeriodData>;
 };
 
 /**
@@ -132,6 +152,7 @@ export type BankProvisionsData = {
     vat: BankProvisionData | null;
     urssaf: BankProvisionData | null;
     cfe: BankProvisionData | null;
+    subscriptions: BankProvisionData | null;
     buffer: MoneyData | null;
     total: MoneyData;
 };
@@ -156,6 +177,23 @@ export type BankStatementData = {
 export type BillingMode = 0 | 1 | 2;
 
 /**
+ * Ca3BoxesData
+ */
+export type Ca3BoxesData = {
+    salesHt: MoneyData;
+    intraCommunityPurchasesHt: MoneyData;
+    nonEuPurchasesHt: MoneyData;
+    taxableBase: MoneyData;
+    collected: MoneyData;
+    fixedAssets: MoneyData;
+    goodsAndServices: MoneyData;
+    otherDeductible: MoneyData;
+    creditCarried: MoneyData;
+    credit: MoneyData;
+    due: MoneyData;
+};
+
+/**
  * CalendarFeedData
  */
 export type CalendarFeedData = {
@@ -164,6 +202,46 @@ export type CalendarFeedData = {
     vat: boolean;
     urssaf: boolean;
     other: boolean;
+};
+
+/**
+ * CancelSubscriptionData
+ */
+export type CancelSubscriptionData = {
+    cancelledOn?: string | null;
+};
+
+/**
+ * CarriedPeriodData
+ */
+export type CarriedPeriodData = {
+    period: string;
+    amount: MoneyData;
+};
+
+/**
+ * CfeReturnData
+ */
+export type CfeReturnData = {
+    year: number;
+    dueOn: string;
+    expected: MoneyData | null;
+    isEstimate: boolean;
+    provisioned: MoneyData | null;
+    gap: SignedMoneyData | null;
+    monthsProvisioned: number;
+    completion: DeclarationCompletionData | null;
+};
+
+/**
+ * ChangeSubscriptionAmountData
+ */
+export type ChangeSubscriptionAmountData = {
+    amountHt: {
+        amount: number;
+        currency: Currency;
+    };
+    effectiveFrom: string;
 };
 
 /**
@@ -262,6 +340,15 @@ export type ClientWithMissionsData = {
 export type Color = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 /**
+ * CompleteDeclarationData
+ */
+export type CompleteDeclarationData = {
+    kind: FiscalDeadlineKind;
+    periodKey: string;
+    period?: string | null;
+};
+
+/**
  * CompleteFiscalDeadlineData
  */
 export type CompleteFiscalDeadlineData = {
@@ -282,6 +369,23 @@ export type ConfirmPasswordData = {
 export type ConfirmTotpData = {
     code: string;
 };
+
+/**
+ * ContributionLineData
+ */
+export type ContributionLineData = {
+    kind: ContributionLineKind;
+    rateBp: number;
+    amount: MoneyData;
+};
+
+/**
+ * ContributionLineKind
+ *
+ * The lines a micro-entrepreneur's URSSAF declaration is settled in, each a rate on the same collected base.
+ *
+ */
+export type ContributionLineKind = 0 | 1 | 2;
 
 /**
  * CorrectInvoiceDatesData
@@ -534,11 +638,82 @@ export type DeadlineReminderData = {
 };
 
 /**
+ * DeclarationCompletionData
+ */
+export type DeclarationCompletionData = {
+    declaredOn: string;
+    paidOn: string | null;
+};
+
+/**
+ * DeclarationDeadlineData
+ */
+export type DeclarationDeadlineData = {
+    dueOn: string;
+    daysLeft: number;
+};
+
+/**
+ * DeclarationHistoryRowData
+ */
+export type DeclarationHistoryRowData = {
+    period: string;
+    urssaf: DeclarationHistoryUrssafData | null;
+    vat: DeclarationHistoryVatData | null;
+};
+
+/**
+ * DeclarationHistoryUrssafData
+ */
+export type DeclarationHistoryUrssafData = {
+    period: string;
+    total: MoneyData;
+    completion: DeclarationCompletionData | null;
+};
+
+/**
+ * DeclarationHistoryVatData
+ */
+export type DeclarationHistoryVatData = {
+    due: MoneyData;
+    credit: MoneyData;
+    completion: DeclarationCompletionData | null;
+};
+
+/**
+ * DeclarationSettlementData
+ */
+export type DeclarationSettlementData = {
+    expected: MoneyData;
+    provisioned: MoneyData | null;
+    gap: SignedMoneyData | null;
+    detectedPayments: MoneyData;
+};
+
+/**
  * DeclarationsData
  */
 export type DeclarationsData = {
+    period: string;
+    previousPeriod: string;
+    nextPeriod: string | null;
+    isDefault: boolean;
     urssaf: UrssafDeclarationData | null;
     vat: VatDeclarationData | null;
+    cumulative: RevenueCeilingData | null;
+    annual: AnnualDeclarationsData | null;
+    history: Array<DeclarationHistoryRowData>;
+};
+
+/**
+ * DismissRecurringDebitData
+ */
+export type DismissRecurringDebitData = {
+    label: string;
+    amount: {
+        amount: number;
+        currency: Currency;
+    };
 };
 
 /**
@@ -614,6 +789,220 @@ export type DocumentSource = 0 | 1 | 2;
 export type EntryRounding = 0 | 1 | 2;
 
 /**
+ * ExpenseBankMovementData
+ */
+export type ExpenseBankMovementData = {
+    id: number;
+    bookedOn: string;
+    label: string;
+};
+
+/**
+ * ExpenseCategory
+ */
+export type ExpenseCategory = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+
+/**
+ * ExpenseCategoryTotalData
+ */
+export type ExpenseCategoryTotalData = {
+    category: ExpenseCategory | null;
+    ht: MoneyData;
+    ttc: MoneyData;
+    shareBp: number;
+};
+
+/**
+ * ExpenseData
+ */
+export type ExpenseData = {
+    id: number;
+    supplier: string;
+    spentOn: string;
+    category: ExpenseCategory;
+    description: string | null;
+    amountHt: MoneyData;
+    vat: MoneyData;
+    amountTtc: MoneyData;
+    recoverableVat: MoneyData;
+    vatTreatment: ExpenseVatTreatment;
+    vatRateBp: number;
+    proShareBp: number;
+    receipt: ExpenseReceiptData | null;
+    subscription: ExpenseSubscriptionData | null;
+    bankMovement: ExpenseBankMovementData | null;
+    vatStatus: ExpenseVatStatus;
+    vatClaimPeriod: string;
+    isRegularisation: boolean;
+};
+
+/**
+ * ExpenseInputData
+ */
+export type ExpenseInputData = {
+    supplier: string;
+    spentOn: string;
+    category: ExpenseCategory;
+    amountTtc: {
+        amount: number;
+        currency: Currency;
+    };
+    vatTreatment: ExpenseVatTreatment;
+    vatRateBp: number;
+    proShareBp?: number;
+    description?: string | null;
+    subscriptionId?: number | null;
+    recurringDebitDay?: number | null;
+};
+
+/**
+ * ExpenseMonthPointData
+ */
+export type ExpenseMonthPointData = {
+    month: string;
+    ht: MoneyData;
+    ttc: MoneyData;
+};
+
+/**
+ * ExpenseReceiptData
+ */
+export type ExpenseReceiptData = {
+    id: number;
+    fileName: string;
+    sizeBytes: number;
+};
+
+/**
+ * ExpenseRegimeProjectionData
+ */
+export type ExpenseRegimeProjectionData = {
+    projectedChargesHt: MoneyData;
+    annualRevenueHt: MoneyData;
+    abatement: MoneyData;
+    microIsFavourable: boolean;
+};
+
+/**
+ * ExpenseSelectionData
+ */
+export type ExpenseSelectionData = {
+    expenseIds: Array<number>;
+};
+
+/**
+ * ExpenseSubscriptionData
+ */
+export type ExpenseSubscriptionData = {
+    id: number;
+    supplier: string;
+    periodicity: SubscriptionPeriodicity;
+};
+
+/**
+ * ExpenseTodoData
+ */
+export type ExpenseTodoData = {
+    kind: ExpenseTodoKind;
+    expenseId: number | null;
+    subscriptionId: number | null;
+    bankMovementId: number | null;
+    label: string;
+    amount: MoneyData;
+    date: string;
+};
+
+/**
+ * ExpenseTodoKind
+ *
+ * The cards of the journal's « À traiter » rail.
+ * | |
+ * |---|
+ * | `0` <br/> A subscription's debit was recorded; the receipt is still to be linked. |
+ * | `1` <br/> A debit that names a subscription but that no expense explains. |
+ * | `2` <br/> An annual subscription debits within the month. |
+ */
+export type ExpenseTodoKind = 0 | 1 | 2;
+
+/**
+ * ExpenseVatStatus
+ *
+ * Where a purchase's TVA stands with the CA3. Derived on every read from the receipt, the claim period and the declared months — never stored, so un-marking a declaration honestly flips the rows back.
+ * | |
+ * |---|
+ * | `0` <br/> Receipted and waiting for its CA3 to be declared. |
+ * | `1` <br/> Its CA3 was marked declared: the deduction is filed. |
+ * | `2` <br/> Claimed on a later CA3 than the purchase month, by choice or because that month was already declared. |
+ * | `3` <br/> No receipt: the fisc refuses the deduction until one is attached. |
+ * | `4` <br/> Autoliquidation: due and deducted on the same CA3, nothing to recover. |
+ * | `5` <br/> Exempt purchase, a receipt whose TVA is not tracked, or an account that files no CA3. |
+ */
+export type ExpenseVatStatus = 0 | 1 | 2 | 3 | 4 | 5;
+
+/**
+ * ExpenseVatTreatment
+ *
+ * How the TVA on a purchase reaches the CA3. The receipt decides, never the supplier's country: a foreign SaaS billing through a European entity with 20 % on the invoice is Domestic.
+ * | |
+ * |---|
+ * | `0` <br/> A French invoice carrying TVA at the stated rate. |
+ * | `1` <br/> An EU supplier who invoiced without TVA against the intra-community number (autoliquidation). |
+ * | `2` <br/> A non-EU supplier who invoiced without TVA (autoliquidation). |
+ * | `3` <br/> No TVA at all: insurance, bank fees, stamps, CFE. |
+ */
+export type ExpenseVatTreatment = 0 | 1 | 2 | 3;
+
+/**
+ * ExpensesMonthData
+ */
+export type ExpensesMonthData = {
+    month: string;
+    declaredOn: string | null;
+    vat: ExpensesVatSummaryData | null;
+    totals: ExpensesTotalsData;
+    subscriptions: ExpensesSubscriptionsData | null;
+    categories: Array<ExpenseCategoryTotalData>;
+    series: Array<ExpenseMonthPointData>;
+    projection: ExpenseRegimeProjectionData | null;
+    todo: Array<ExpenseTodoData>;
+    expenses: Array<ExpenseData>;
+};
+
+/**
+ * ExpensesSubscriptionsData
+ */
+export type ExpensesSubscriptionsData = {
+    monthlyHt: MoneyData;
+    monthlyTtc: MoneyData;
+    yearlyHt: MoneyData;
+    yearlyTtc: MoneyData;
+    count: number;
+    annualCount: number;
+};
+
+/**
+ * ExpensesTotalsData
+ */
+export type ExpensesTotalsData = {
+    ht: MoneyData;
+    ttc: MoneyData;
+    count: number;
+};
+
+/**
+ * ExpensesVatSummaryData
+ */
+export type ExpensesVatSummaryData = {
+    deductible: MoneyData;
+    blocked: MoneyData;
+    blockedCount: number;
+    reverseCharged: MoneyData;
+    deferred: MoneyData;
+    collected: MoneyData;
+    balance: SignedMoneyData;
+};
+
+/**
  * FiscalDeadlineData
  */
 export type FiscalDeadlineData = {
@@ -633,9 +1022,16 @@ export type FiscalDeadlineData = {
  * FiscalDeadlineKind
  *
  * The recurring French fiscal deadlines the app tracks. Declaration and payment share a case wherever they share a date, which is every case here: URSSAF télépaie on the declaration date, and the CA3 is due and paid the same day.
- *
+ * | |
+ * |---|
+ * | `0` <br/>  |
+ * | `1` <br/>  |
+ * | `2` <br/>  |
+ * | `3` <br/>  |
+ * | `4` <br/>  |
+ * | `5` <br/> The 2042-C PRO, keyed by the year of income it declares. |
  */
-export type FiscalDeadlineKind = 0 | 1 | 2 | 3 | 4;
+export type FiscalDeadlineKind = 0 | 1 | 2 | 3 | 4 | 5;
 
 /**
  * FixedPriceBudgetData
@@ -681,6 +1077,40 @@ export type ImportBankStatementData = {
     file: Blob | File;
     balanceAmount?: number | null;
     balanceCurrency?: Currency | null;
+};
+
+/**
+ * IncomeTaxReturnBox
+ *
+ * Where the micro-BNC receipts go on the 2042-C PRO.
+ * | |
+ * |---|
+ * | `0` <br/> Case 5TE — the versement libératoire was opted for; the tax is already paid. |
+ * | `1` <br/> Case 5HQ — no option; the receipts join the household's taxable income after the abatement. |
+ */
+export type IncomeTaxReturnBox = 0 | 1;
+
+/**
+ * IncomeTaxReturnData
+ */
+export type IncomeTaxReturnData = {
+    year: number;
+    dueOn: string;
+    grossReceipts: MoneyData;
+    box: IncomeTaxReturnBox;
+    periods: Array<IncomeTaxReturnPeriodData>;
+    taxableAfterAbatement: MoneyData;
+    liberatingPaymentPaid: MoneyData | null;
+    completion: DeclarationCompletionData | null;
+};
+
+/**
+ * IncomeTaxReturnPeriodData
+ */
+export type IncomeTaxReturnPeriodData = {
+    period: string;
+    base: MoneyData;
+    declaredOn: string | null;
 };
 
 /**
@@ -895,6 +1325,13 @@ export type InvoiceTotalData = {
 };
 
 /**
+ * LinkExpenseBankMovementData
+ */
+export type LinkExpenseBankMovementData = {
+    bankMovementId: number;
+};
+
+/**
  * Locale
  */
 export type Locale = 'en-US' | 'fr-FR';
@@ -1029,10 +1466,93 @@ export type PingData = {
 };
 
 /**
+ * ReadReceiptData
+ */
+export type ReadReceiptData = {
+    /**
+     * Maximum file size: 20480 kilobytes.
+     */
+    file: Blob | File;
+};
+
+/**
+ * RecategorizeExpensesData
+ */
+export type RecategorizeExpensesData = {
+    expenseIds: Array<number>;
+    category: ExpenseCategory;
+};
+
+/**
+ * ReceiptAmountFieldData
+ */
+export type ReceiptAmountFieldData = {
+    value: MoneyData;
+    confidence: ReceiptFieldConfidence;
+};
+
+/**
+ * ReceiptDateFieldData
+ */
+export type ReceiptDateFieldData = {
+    value: string;
+    confidence: ReceiptFieldConfidence;
+};
+
+/**
+ * ReceiptFieldConfidence
+ *
+ * How much a field read off a receipt deserves a second look. High means the value stood next to its own label (« Total TTC », « Date de facture »); Low means it was the best of several candidates.
+ *
+ */
+export type ReceiptFieldConfidence = 0 | 1 | 2;
+
+/**
+ * ReceiptSuggestionData
+ */
+export type ReceiptSuggestionData = {
+    textFound: boolean;
+    supplier?: ReceiptTextFieldData | null;
+    spentOn?: ReceiptDateFieldData | null;
+    amountTtc?: ReceiptAmountFieldData | null;
+    vat?: ReceiptVatFieldData | null;
+    description?: ReceiptTextFieldData | null;
+    category?: ExpenseCategory | null;
+};
+
+/**
+ * ReceiptTextFieldData
+ */
+export type ReceiptTextFieldData = {
+    value: string;
+    confidence: ReceiptFieldConfidence;
+};
+
+/**
+ * ReceiptVatFieldData
+ */
+export type ReceiptVatFieldData = {
+    treatment: ExpenseVatTreatment;
+    rateBp: number;
+    confidence: ReceiptFieldConfidence;
+};
+
+/**
  * RecoveryCodesData
  */
 export type RecoveryCodesData = {
     codes: Array<string>;
+};
+
+/**
+ * RecurringDebitData
+ */
+export type RecurringDebitData = {
+    label: string;
+    amount: MoneyData;
+    debitDay: number;
+    months: Array<string>;
+    lastBookedOn: string;
 };
 
 /**
@@ -1078,6 +1598,17 @@ export type RenamePasskeyData = {
  * | `1` <br/> Paid invoices, summed on their payment date. |
  */
 export type RevenueBasis = 0 | 1;
+
+/**
+ * RevenueCeilingData
+ */
+export type RevenueCeilingData = {
+    year: number;
+    collectedHt: MoneyData;
+    ceiling: MoneyData;
+    shareBp: number;
+    margin: SignedMoneyData;
+};
 
 /**
  * RevenueClientData
@@ -1245,6 +1776,151 @@ export type StopTimerData = {
 };
 
 /**
+ * SubscriptionAmountChangeData
+ */
+export type SubscriptionAmountChangeData = {
+    subscriptionId: number;
+    supplier: string;
+    before: MoneyData;
+    after: MoneyData;
+    changeBp: number;
+    since: string;
+};
+
+/**
+ * SubscriptionAmountData
+ */
+export type SubscriptionAmountData = {
+    effectiveFrom: string;
+    amountHt: MoneyData;
+};
+
+/**
+ * SubscriptionCategoryTotalData
+ */
+export type SubscriptionCategoryTotalData = {
+    category: ExpenseCategory;
+    yearlyHt: MoneyData;
+};
+
+/**
+ * SubscriptionData
+ */
+export type SubscriptionData = {
+    id: number;
+    supplier: string;
+    category: ExpenseCategory;
+    description: string | null;
+    amountHt: MoneyData;
+    vat: MoneyData;
+    amountTtc: MoneyData;
+    recoverableVat: MoneyData;
+    proShareBp: number;
+    vatTreatment: ExpenseVatTreatment;
+    vatRateBp: number;
+    periodicity: SubscriptionPeriodicity;
+    debitDay: number;
+    debitMonth: number | null;
+    startedOn: string;
+    customerSpaceUrl: string | null;
+    autoCreateExpenses: boolean;
+    provisionMonthly: boolean;
+    monthlyProvision: MoneyData | null;
+    isPaused: boolean;
+    cancelledOn: string | null;
+    nextDebitOn: string | null;
+    amounts: Array<SubscriptionAmountData>;
+    occurrences: Array<SubscriptionOccurrenceData>;
+};
+
+/**
+ * SubscriptionInputData
+ */
+export type SubscriptionInputData = {
+    supplier: string;
+    category: ExpenseCategory;
+    amountHt: {
+        amount: number;
+        currency: Currency;
+    };
+    vatTreatment: ExpenseVatTreatment;
+    vatRateBp: number;
+    periodicity: SubscriptionPeriodicity;
+    debitDay: number;
+    startedOn: string;
+    proShareBp?: number;
+    debitMonth?: number | null;
+    description?: string | null;
+    customerSpaceUrl?: string | null;
+    autoCreateExpenses?: boolean;
+    provisionMonthly?: boolean;
+};
+
+/**
+ * SubscriptionKpisData
+ */
+export type SubscriptionKpisData = {
+    monthlyTtc: MoneyData;
+    monthlyCount: number;
+    yearlyTtc: MoneyData;
+    annualCount: number;
+    provisionedCount: number;
+    provisionedPerMonth: MoneyData;
+    recoverableVatPerYear: MoneyData;
+    reverseChargedVatPerYear: MoneyData;
+    missingReceipts: number;
+};
+
+/**
+ * SubscriptionOccurrenceData
+ */
+export type SubscriptionOccurrenceData = {
+    period: string;
+    debitOn: string;
+    state: SubscriptionOccurrenceState;
+    expenseId: number | null;
+};
+
+/**
+ * SubscriptionOccurrenceState
+ *
+ * One square of the twelve-month strip.
+ * | |
+ * |---|
+ * | `0` <br/> The debit has its expense and the expense its receipt. |
+ * | `1` <br/> The debit has its expense, still waiting for the receipt. |
+ * | `2` <br/>  |
+ * | `3` <br/> A future debit that will not happen while the subscription is paused. |
+ * | `4` <br/> A past debit with no expense — before the subscription was recorded, or not auto-created. |
+ */
+export type SubscriptionOccurrenceState = 0 | 1 | 2 | 3 | 4;
+
+/**
+ * SubscriptionPeriodicity
+ */
+export type SubscriptionPeriodicity = 0 | 1 | 2;
+
+/**
+ * SubscriptionsData
+ */
+export type SubscriptionsData = {
+    kpis: SubscriptionKpisData;
+    subscriptions: Array<SubscriptionData>;
+    upcoming: Array<UpcomingDebitData>;
+    categories: Array<SubscriptionCategoryTotalData>;
+    yearlyHt: MoneyData;
+    amountChanges: Array<SubscriptionAmountChangeData>;
+    detected: Array<RecurringDebitData>;
+};
+
+/**
+ * SummarizeDeclarationsData
+ */
+export type SummarizeDeclarationsData = {
+    period?: string | null;
+};
+
+/**
  * Theme
  */
 export type Theme = 0 | 1 | 2;
@@ -1383,6 +2059,18 @@ export type TwoFactorStatusData = {
     recoveryCodesRemaining: number;
     passkeys: Array<PasskeyData>;
     trustedDevices: Array<TrustedDeviceData>;
+};
+
+/**
+ * UpcomingDebitData
+ */
+export type UpcomingDebitData = {
+    subscriptionId: number;
+    supplier: string;
+    dueOn: string;
+    amountTtc: MoneyData;
+    periodicity: SubscriptionPeriodicity;
+    isProvision: boolean;
 };
 
 /**
@@ -1589,6 +2277,16 @@ export type UploadDocumentData = {
 };
 
 /**
+ * UploadExpenseReceiptData
+ */
+export type UploadExpenseReceiptData = {
+    /**
+     * Maximum file size: 20480 kilobytes.
+     */
+    file: Blob | File;
+};
+
+/**
  * UploadInvoiceDocumentData
  */
 export type UploadInvoiceDocumentData = {
@@ -1625,7 +2323,14 @@ export type UploadSignedCraData = {
 export type UrssafDeclarationData = {
     period: string;
     periodicity: UrssafPeriodicity;
+    coversShownMonth: boolean;
     base: MoneyData;
+    invoiceCount: number;
+    lines: Array<ContributionLineData>;
+    total: MoneyData;
+    deadline: DeclarationDeadlineData | null;
+    completion: DeclarationCompletionData | null;
+    settlement: DeclarationSettlementData;
 };
 
 /**
@@ -1661,9 +2366,15 @@ export type UserData = {
 export type VatDeclarationData = {
     period: string;
     regime: VatRegime;
-    salesHt: MoneyData;
-    collected: MoneyData;
     rateBp: number | null;
+    boxes: Ca3BoxesData;
+    invoiceCount: number;
+    expenseCount: number;
+    reverseChargedVat: MoneyData;
+    creditIsRefundable: boolean;
+    deadline: DeclarationDeadlineData | null;
+    completion: DeclarationCompletionData | null;
+    settlement: DeclarationSettlementData;
 };
 
 /**
@@ -3530,7 +4241,9 @@ export type ShowDeadlineCalendarResponse = ShowDeadlineCalendarResponses[keyof S
 export type ShowDeclarationsData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        period?: string | null;
+    };
     url: '/declarations';
 };
 
@@ -3544,6 +4257,21 @@ export type ShowDeclarationsErrors = {
          */
         message: string;
     };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
 };
 
 export type ShowDeclarationsError = ShowDeclarationsErrors[keyof ShowDeclarationsErrors];
@@ -3553,6 +4281,187 @@ export type ShowDeclarationsResponses = {
 };
 
 export type ShowDeclarationsResponse = ShowDeclarationsResponses[keyof ShowDeclarationsResponses];
+
+export type MarkDeclarationFiledData = {
+    body: CompleteDeclarationData;
+    path?: never;
+    query?: never;
+    url: '/declarations/completions';
+};
+
+export type MarkDeclarationFiledErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type MarkDeclarationFiledError = MarkDeclarationFiledErrors[keyof MarkDeclarationFiledErrors];
+
+export type MarkDeclarationFiledResponses = {
+    201: DeclarationsData;
+};
+
+export type MarkDeclarationFiledResponse = MarkDeclarationFiledResponses[keyof MarkDeclarationFiledResponses];
+
+export type UnmarkDeclarationFiledData = {
+    body?: never;
+    path: {
+        kind: number;
+        periodKey: string;
+    };
+    query?: {
+        period?: string | null;
+    };
+    url: '/declarations/completions/{kind}/{periodKey}';
+};
+
+export type UnmarkDeclarationFiledErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type UnmarkDeclarationFiledError = UnmarkDeclarationFiledErrors[keyof UnmarkDeclarationFiledErrors];
+
+export type UnmarkDeclarationFiledResponses = {
+    200: DeclarationsData;
+};
+
+export type UnmarkDeclarationFiledResponse = UnmarkDeclarationFiledResponses[keyof UnmarkDeclarationFiledResponses];
+
+export type ClearDeclarationPaymentData = {
+    body?: never;
+    path: {
+        kind: number;
+        periodKey: string;
+    };
+    query?: {
+        period?: string | null;
+    };
+    url: '/declarations/completions/{kind}/{periodKey}/payment';
+};
+
+export type ClearDeclarationPaymentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type ClearDeclarationPaymentError = ClearDeclarationPaymentErrors[keyof ClearDeclarationPaymentErrors];
+
+export type ClearDeclarationPaymentResponses = {
+    200: DeclarationsData;
+};
+
+export type ClearDeclarationPaymentResponse = ClearDeclarationPaymentResponses[keyof ClearDeclarationPaymentResponses];
+
+export type RecordDeclarationPaymentData = {
+    body?: SummarizeDeclarationsData;
+    path: {
+        kind: number;
+        periodKey: string;
+    };
+    query?: never;
+    url: '/declarations/completions/{kind}/{periodKey}/payment';
+};
+
+export type RecordDeclarationPaymentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type RecordDeclarationPaymentError = RecordDeclarationPaymentErrors[keyof RecordDeclarationPaymentErrors];
+
+export type RecordDeclarationPaymentResponses = {
+    201: DeclarationsData;
+};
+
+export type RecordDeclarationPaymentResponse = RecordDeclarationPaymentResponses[keyof RecordDeclarationPaymentResponses];
 
 export type ListDocumentLibraryData = {
     body?: never;
@@ -3580,6 +4489,462 @@ export type ListDocumentLibraryResponses = {
 };
 
 export type ListDocumentLibraryResponse = ListDocumentLibraryResponses[keyof ListDocumentLibraryResponses];
+
+export type ListExpensesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        month?: string | null;
+    };
+    url: '/expenses';
+};
+
+export type ListExpensesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListExpensesError = ListExpensesErrors[keyof ListExpensesErrors];
+
+export type ListExpensesResponses = {
+    200: ExpensesMonthData;
+};
+
+export type ListExpensesResponse = ListExpensesResponses[keyof ListExpensesResponses];
+
+export type CreateExpenseData = {
+    body: ExpenseInputData;
+    path?: never;
+    query?: never;
+    url: '/expenses';
+};
+
+export type CreateExpenseErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateExpenseError = CreateExpenseErrors[keyof CreateExpenseErrors];
+
+export type CreateExpenseResponses = {
+    201: ExpensesMonthData;
+};
+
+export type CreateExpenseResponse = CreateExpenseResponses[keyof CreateExpenseResponses];
+
+export type RecategorizeExpensesData2 = {
+    body: RecategorizeExpensesData;
+    path?: never;
+    query?: never;
+    url: '/expenses/category';
+};
+
+export type RecategorizeExpensesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type RecategorizeExpensesError = RecategorizeExpensesErrors[keyof RecategorizeExpensesErrors];
+
+export type RecategorizeExpensesResponses = {
+    200: ExpensesMonthData;
+};
+
+export type RecategorizeExpensesResponse = RecategorizeExpensesResponses[keyof RecategorizeExpensesResponses];
+
+export type DeferExpensesVatData = {
+    body: ExpenseSelectionData;
+    path?: never;
+    query?: never;
+    url: '/expenses/vat-deferrals';
+};
+
+export type DeferExpensesVatErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeferExpensesVatError = DeferExpensesVatErrors[keyof DeferExpensesVatErrors];
+
+export type DeferExpensesVatResponses = {
+    200: ExpensesMonthData;
+};
+
+export type DeferExpensesVatResponse = DeferExpensesVatResponses[keyof DeferExpensesVatResponses];
+
+export type ReintegrateExpenseVatData = {
+    body?: never;
+    path: {
+        /**
+         * The expense ID
+         */
+        expense: number;
+    };
+    query?: never;
+    url: '/expenses/{expense}/vat-deferral';
+};
+
+export type ReintegrateExpenseVatErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ReintegrateExpenseVatError = ReintegrateExpenseVatErrors[keyof ReintegrateExpenseVatErrors];
+
+export type ReintegrateExpenseVatResponses = {
+    200: ExpensesMonthData;
+};
+
+export type ReintegrateExpenseVatResponse = ReintegrateExpenseVatResponses[keyof ReintegrateExpenseVatResponses];
+
+export type DeleteExpenseData = {
+    body?: never;
+    path: {
+        /**
+         * The expense ID
+         */
+        expense: number;
+    };
+    query?: never;
+    url: '/expenses/{expense}';
+};
+
+export type DeleteExpenseErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteExpenseError = DeleteExpenseErrors[keyof DeleteExpenseErrors];
+
+export type DeleteExpenseResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteExpenseResponse = DeleteExpenseResponses[keyof DeleteExpenseResponses];
+
+export type UpdateExpenseData = {
+    body: ExpenseInputData;
+    path: {
+        /**
+         * The expense ID
+         */
+        expense: number;
+    };
+    query?: never;
+    url: '/expenses/{expense}';
+};
+
+export type UpdateExpenseErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateExpenseError = UpdateExpenseErrors[keyof UpdateExpenseErrors];
+
+export type UpdateExpenseResponses = {
+    200: ExpensesMonthData;
+};
+
+export type UpdateExpenseResponse = UpdateExpenseResponses[keyof UpdateExpenseResponses];
+
+export type UnlinkExpenseBankMovementData = {
+    body?: never;
+    path: {
+        /**
+         * The expense ID
+         */
+        expense: number;
+    };
+    query?: never;
+    url: '/expenses/{expense}/bank-movement';
+};
+
+export type UnlinkExpenseBankMovementErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UnlinkExpenseBankMovementError = UnlinkExpenseBankMovementErrors[keyof UnlinkExpenseBankMovementErrors];
+
+export type UnlinkExpenseBankMovementResponses = {
+    200: ExpensesMonthData;
+};
+
+export type UnlinkExpenseBankMovementResponse = UnlinkExpenseBankMovementResponses[keyof UnlinkExpenseBankMovementResponses];
+
+export type LinkExpenseBankMovementData2 = {
+    body: LinkExpenseBankMovementData;
+    path: {
+        /**
+         * The expense ID
+         */
+        expense: number;
+    };
+    query?: never;
+    url: '/expenses/{expense}/bank-movement';
+};
+
+export type LinkExpenseBankMovementErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type LinkExpenseBankMovementError = LinkExpenseBankMovementErrors[keyof LinkExpenseBankMovementErrors];
+
+export type LinkExpenseBankMovementResponses = {
+    201: ExpensesMonthData;
+};
+
+export type LinkExpenseBankMovementResponse = LinkExpenseBankMovementResponses[keyof LinkExpenseBankMovementResponses];
+
+export type DetachExpenseReceiptData = {
+    body?: never;
+    path: {
+        /**
+         * The expense ID
+         */
+        expense: number;
+    };
+    query?: never;
+    url: '/expenses/{expense}/receipt';
+};
+
+export type DetachExpenseReceiptErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DetachExpenseReceiptError = DetachExpenseReceiptErrors[keyof DetachExpenseReceiptErrors];
+
+export type DetachExpenseReceiptResponses = {
+    200: ExpensesMonthData;
+};
+
+export type DetachExpenseReceiptResponse = DetachExpenseReceiptResponses[keyof DetachExpenseReceiptResponses];
+
+export type DownloadExpenseReceiptData = {
+    body?: never;
+    path: {
+        /**
+         * The expense ID
+         */
+        expense: number;
+    };
+    query?: never;
+    url: '/expenses/{expense}/receipt';
+};
+
+export type DownloadExpenseReceiptErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DownloadExpenseReceiptError = DownloadExpenseReceiptErrors[keyof DownloadExpenseReceiptErrors];
+
+export type DownloadExpenseReceiptResponses = {
+    200: Blob | File;
+};
+
+export type DownloadExpenseReceiptResponse = DownloadExpenseReceiptResponses[keyof DownloadExpenseReceiptResponses];
+
+export type AttachExpenseReceiptData = {
+    body: UploadExpenseReceiptData;
+    path: {
+        /**
+         * The expense ID
+         */
+        expense: number;
+    };
+    query?: never;
+    url: '/expenses/{expense}/receipt';
+};
+
+export type AttachExpenseReceiptErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type AttachExpenseReceiptError = AttachExpenseReceiptErrors[keyof AttachExpenseReceiptErrors];
+
+export type AttachExpenseReceiptResponses = {
+    201: ExpensesMonthData;
+};
+
+export type AttachExpenseReceiptResponse = AttachExpenseReceiptResponses[keyof AttachExpenseReceiptResponses];
 
 export type ShowInstanceData = {
     body?: never;
@@ -4860,6 +6225,33 @@ export type LoginWithPasskeyResponses = {
 
 export type LoginWithPasskeyResponse = LoginWithPasskeyResponses[keyof LoginWithPasskeyResponses];
 
+export type ReadExpenseReceiptData = {
+    body: ReadReceiptData;
+    path?: never;
+    query?: never;
+    url: '/expenses/receipt-reading';
+};
+
+export type ReadExpenseReceiptErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ReadExpenseReceiptError = ReadExpenseReceiptErrors[keyof ReadExpenseReceiptErrors];
+
+export type ReadExpenseReceiptResponses = {
+    200: ReceiptSuggestionData;
+};
+
+export type ReadExpenseReceiptResponse = ReadExpenseReceiptResponses[keyof ReadExpenseReceiptResponses];
+
 export type ShowRecoveryCodesData = {
     body?: never;
     path?: never;
@@ -5201,6 +6593,392 @@ export type UploadUserSignatureResponses = {
 };
 
 export type UploadUserSignatureResponse = UploadUserSignatureResponses[keyof UploadUserSignatureResponses];
+
+export type ListSubscriptionsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/subscriptions';
+};
+
+export type ListSubscriptionsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListSubscriptionsError = ListSubscriptionsErrors[keyof ListSubscriptionsErrors];
+
+export type ListSubscriptionsResponses = {
+    200: SubscriptionsData;
+};
+
+export type ListSubscriptionsResponse = ListSubscriptionsResponses[keyof ListSubscriptionsResponses];
+
+export type CreateSubscriptionData = {
+    body: SubscriptionInputData;
+    path?: never;
+    query?: never;
+    url: '/subscriptions';
+};
+
+export type CreateSubscriptionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateSubscriptionError = CreateSubscriptionErrors[keyof CreateSubscriptionErrors];
+
+export type CreateSubscriptionResponses = {
+    201: SubscriptionsData;
+};
+
+export type CreateSubscriptionResponse = CreateSubscriptionResponses[keyof CreateSubscriptionResponses];
+
+export type DismissRecurringDebitData2 = {
+    body: DismissRecurringDebitData;
+    path?: never;
+    query?: never;
+    url: '/subscriptions/detected-debits/dismissals';
+};
+
+export type DismissRecurringDebitErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DismissRecurringDebitError = DismissRecurringDebitErrors[keyof DismissRecurringDebitErrors];
+
+export type DismissRecurringDebitResponses = {
+    201: SubscriptionsData;
+};
+
+export type DismissRecurringDebitResponse = DismissRecurringDebitResponses[keyof DismissRecurringDebitResponses];
+
+export type DeleteSubscriptionData = {
+    body?: never;
+    path: {
+        /**
+         * The subscription ID
+         */
+        subscription: number;
+    };
+    query?: never;
+    url: '/subscriptions/{subscription}';
+};
+
+export type DeleteSubscriptionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteSubscriptionError = DeleteSubscriptionErrors[keyof DeleteSubscriptionErrors];
+
+export type DeleteSubscriptionResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteSubscriptionResponse = DeleteSubscriptionResponses[keyof DeleteSubscriptionResponses];
+
+export type UpdateSubscriptionData = {
+    body: SubscriptionInputData;
+    path: {
+        /**
+         * The subscription ID
+         */
+        subscription: number;
+    };
+    query?: never;
+    url: '/subscriptions/{subscription}';
+};
+
+export type UpdateSubscriptionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateSubscriptionError = UpdateSubscriptionErrors[keyof UpdateSubscriptionErrors];
+
+export type UpdateSubscriptionResponses = {
+    200: SubscriptionsData;
+};
+
+export type UpdateSubscriptionResponse = UpdateSubscriptionResponses[keyof UpdateSubscriptionResponses];
+
+export type ChangeSubscriptionAmountData2 = {
+    body: ChangeSubscriptionAmountData;
+    path: {
+        /**
+         * The subscription ID
+         */
+        subscription: number;
+    };
+    query?: never;
+    url: '/subscriptions/{subscription}/amounts';
+};
+
+export type ChangeSubscriptionAmountErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type ChangeSubscriptionAmountError = ChangeSubscriptionAmountErrors[keyof ChangeSubscriptionAmountErrors];
+
+export type ChangeSubscriptionAmountResponses = {
+    201: SubscriptionsData;
+};
+
+export type ChangeSubscriptionAmountResponse = ChangeSubscriptionAmountResponses[keyof ChangeSubscriptionAmountResponses];
+
+export type ResumeSubscriptionData = {
+    body?: never;
+    path: {
+        /**
+         * The subscription ID
+         */
+        subscription: number;
+    };
+    query?: never;
+    url: '/subscriptions/{subscription}/pause';
+};
+
+export type ResumeSubscriptionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ResumeSubscriptionError = ResumeSubscriptionErrors[keyof ResumeSubscriptionErrors];
+
+export type ResumeSubscriptionResponses = {
+    200: SubscriptionsData;
+};
+
+export type ResumeSubscriptionResponse = ResumeSubscriptionResponses[keyof ResumeSubscriptionResponses];
+
+export type PauseSubscriptionData = {
+    body?: never;
+    path: {
+        /**
+         * The subscription ID
+         */
+        subscription: number;
+    };
+    query?: never;
+    url: '/subscriptions/{subscription}/pause';
+};
+
+export type PauseSubscriptionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type PauseSubscriptionError = PauseSubscriptionErrors[keyof PauseSubscriptionErrors];
+
+export type PauseSubscriptionResponses = {
+    201: SubscriptionsData;
+};
+
+export type PauseSubscriptionResponse = PauseSubscriptionResponses[keyof PauseSubscriptionResponses];
+
+export type ReactivateSubscriptionData = {
+    body?: never;
+    path: {
+        /**
+         * The subscription ID
+         */
+        subscription: number;
+    };
+    query?: never;
+    url: '/subscriptions/{subscription}/cancellation';
+};
+
+export type ReactivateSubscriptionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ReactivateSubscriptionError = ReactivateSubscriptionErrors[keyof ReactivateSubscriptionErrors];
+
+export type ReactivateSubscriptionResponses = {
+    200: SubscriptionsData;
+};
+
+export type ReactivateSubscriptionResponse = ReactivateSubscriptionResponses[keyof ReactivateSubscriptionResponses];
+
+export type CancelSubscriptionData2 = {
+    body?: CancelSubscriptionData;
+    path: {
+        /**
+         * The subscription ID
+         */
+        subscription: number;
+    };
+    query?: never;
+    url: '/subscriptions/{subscription}/cancellation';
+};
+
+export type CancelSubscriptionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CancelSubscriptionError = CancelSubscriptionErrors[keyof CancelSubscriptionErrors];
+
+export type CancelSubscriptionResponses = {
+    201: SubscriptionsData;
+};
+
+export type CancelSubscriptionResponse = CancelSubscriptionResponses[keyof CancelSubscriptionResponses];
 
 export type ListTimeEntriesData = {
     body?: never;

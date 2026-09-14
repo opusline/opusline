@@ -49,6 +49,7 @@ export function bankMovement(
     runningBalance: eur(1_482_000),
     invoice: { id: 40, number: "2026-040" },
     pendingMatchId: null,
+    expense: null,
     ...overrides,
   };
 }
@@ -66,15 +67,20 @@ export function bankData(
     provisions: {
       vat: {
         amount: eur(199_400),
+        carried: eur(0),
         rateBp: null,
+        deductible: eur(9_600),
         periodEnd: "2026-08-31",
       },
       urssaf: {
         amount: eur(271_700),
+        carried: eur(0),
         rateBp: 2560,
+        deductible: null,
         periodEnd: "2026-08-31",
       },
       cfe: null,
+      subscriptions: null,
       buffer: eur(150_000),
       total: eur(621_100),
     },
@@ -108,6 +114,7 @@ export function bankData(
         runningBalance: eur(1_482_000),
         invoice: null,
         pendingMatchId: 11,
+        expense: null,
       }),
       bankMovement({
         id: 107,
@@ -201,6 +208,7 @@ export function reconciledBankData(): BankAccountData {
     movements: data.movements.map((movement) => ({
       ...movement,
       pendingMatchId: null,
+      expense: null,
       invoice:
         movement.amount.amount > 0 && movement.invoice === null
           ? { id: 41, number: "2026-041" }
@@ -222,6 +230,7 @@ export function unlinkedCreditsBankData(): BankAccountData {
     movements: data.movements.map((movement) => ({
       ...movement,
       pendingMatchId: null,
+      expense: null,
     })),
   };
 }
@@ -248,10 +257,13 @@ export function emptyBankData(): BankAccountData {
       vat: null,
       urssaf: {
         amount: eur(0),
+        carried: eur(0),
         rateBp: 2560,
+        deductible: null,
         periodEnd: "2026-08-31",
       },
       cfe: null,
+      subscriptions: null,
       buffer: null,
       total: eur(0),
     },

@@ -51,3 +51,12 @@ export const Invalid: Story = {
     </InputGroup>
   ),
 };
+
+/** The field a panel leads with — a quick-entry line above a form. */
+export const Brand: Story = {
+  render: () => (
+    <InputGroup className="w-80" tone="brand">
+      <InputGroupInput placeholder="lunaprint 429 écran 20%" />
+    </InputGroup>
+  ),
+};

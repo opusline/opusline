@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 return [
     'unknown_occurrence' => 'Cette échéance ne fait pas partie de celles que produit votre profil fiscal.',
+    'not_completed' => 'Marquez la déclaration comme déposée avant d\'enregistrer son paiement.',
 
     'calendar_name' => 'Opusline — échéances fiscales',
     'calendar_description' => 'URSSAF, TVA et CFE, tenus à jour par Opusline.',
@@ -23,5 +24,6 @@ return [
         'VatCa12' => 'TVA — CA12',
         'Cfe' => 'CFE',
         'CfeInstalment' => 'CFE — acompte',
+        'IncomeTaxReturn' => 'Déclaration de revenus — 2042-C PRO',
     ],
 ];

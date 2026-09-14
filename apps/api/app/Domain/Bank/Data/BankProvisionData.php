@@ -6,6 +6,7 @@ namespace App\Domain\Bank\Data;
 
 use App\Domain\Shared\Data\MoneyData;
 use Carbon\CarbonImmutable;
+use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Attributes\WithTransformer;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer;
@@ -14,8 +15,12 @@ class BankProvisionData extends Data
 {
     public function __construct(
         public MoneyData $amount,
+        /** The closed periods' share of the amount, still owed until each payment shows up or the return is marked paid. */
+        public MoneyData $carried,
         /** Null for TVA, which sums each invoice's actual rate instead of applying one. */
         public ?int $rateBp,
+        /** TVA only: what the running period's receipted purchases take off the collected TVA. Null when the régime deducts nothing. */
+        public ?MoneyData $deductible,
         /**
          * The last day of the accrual window the amount was collected over —
          * the period the régime declares, not a filing deadline: those follow
@@ -31,5 +36,8 @@ class BankProvisionData extends Data
          * the Échéances screen labels the identical number.
          */
         public bool $isEstimate = false,
+        /** @var list<CarriedPeriodData> the closed periods behind $carried, oldest first, each net of the payments detected since it closed — so a screen can tell which return the money set aside answers for; empty for the CFE and the subscriptions, which accrue rather than carry */
+        #[DataCollectionOf(CarriedPeriodData::class)]
+        public array $carriedPeriods = [],
     ) {}
 }

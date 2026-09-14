@@ -30,9 +30,11 @@ import {
 import { useOlderMovements } from "@/features/bank/lib/use-older-movements";
 import { requireFrenchFiscality } from "@/lib/fiscality";
 import {
+  expensesFilter,
   invalidateInvoiceWrites,
   invalidateTreasury,
   operationFilter,
+  subscriptionsFilter,
 } from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
@@ -86,7 +88,13 @@ function BankRoute() {
         suggestionCount: result.suggestionCount,
       });
       acceptSummary(result.account);
-      await refreshInvoices();
+      // New debits can pair with a subscription's expense or surface as a
+      // recurring one to create: the subscriptions read both.
+      await Promise.all([
+        refreshInvoices(),
+        queryClient.invalidateQueries(subscriptionsFilter()),
+        queryClient.invalidateQueries(expensesFilter()),
+      ]);
     },
     onError: (error) => {
       setImportError(serverErrorMessage(error, m.bank_import_failed()));

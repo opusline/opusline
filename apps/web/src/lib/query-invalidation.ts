@@ -189,6 +189,72 @@ export async function invalidateInvoiceWrites(
 }
 
 /**
+ * Every cached month of the expense journal, plus the sidebar's « factures à
+ * lier » badge that reads the current one.
+ */
+export function expensesFilter(): { predicate: (query: Query) => boolean } {
+  return operationFilter("listExpenses");
+}
+
+/** The subscriptions list, its KPIs and strips. */
+export function subscriptionsFilter(): {
+  predicate: (query: Query) => boolean;
+} {
+  return operationFilter("listSubscriptions");
+}
+
+/**
+ * The Déclarations screen, whatever period it shows: the CA3 deductible boxes
+ * are summed from expenses, so every expense write moves them.
+ */
+export function declarationsFilter(): {
+  predicate: (query: Query) => boolean;
+} {
+  return operationFilter("showDeclarations");
+}
+
+/**
+ * The fan-out every expense write owes: the journal itself (every month — a
+ * regularisation lands on a later CA3 than the month it was spent in), the
+ * declarations that sum it, and the treasury and deadline figures that net
+ * the recoverable TVA out of the provision.
+ */
+export async function invalidateExpenseWrites(
+  queryClient: QueryClient,
+): Promise<void> {
+  void invalidateTreasury(queryClient);
+  void invalidateDeadlines(queryClient);
+
+  await Promise.all([
+    queryClient.invalidateQueries(expensesFilter()),
+    queryClient.invalidateQueries(declarationsFilter()),
+  ]);
+}
+
+/**
+ * A subscription write moves its list and, through the debits it creates or
+ * stops, everything an expense write moves.
+ */
+export async function invalidateSubscriptionWrites(
+  queryClient: QueryClient,
+): Promise<void> {
+  await Promise.all([
+    queryClient.invalidateQueries(subscriptionsFilter()),
+    invalidateExpenseWrites(queryClient),
+  ]);
+}
+
+/**
+ * A filing flips the journal's statuses and locks, and settles the provision
+ * and the deadline it was priced for: the same fan-out as an expense write.
+ */
+export async function invalidateDeclarationWrites(
+  queryClient: QueryClient,
+): Promise<void> {
+  await invalidateExpenseWrites(queryClient);
+}
+
+/**
  * Three surfaces list the same documents: the client fiche, the mission fiche —
  * which merges its client's pieces in — and the global library on /documents. A
  * document filed or deleted on one of them moves all three.

@@ -12,6 +12,9 @@ use App\Domain\Clients\Models\Client;
 use App\Domain\Cra\Models\Cra;
 use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
 use App\Domain\Documents\Concerns\InteractsWithDocuments;
+use App\Domain\Expenses\Models\Expense;
+use App\Domain\Expenses\Models\RecurringDebitDismissal;
+use App\Domain\Expenses\Models\Subscription;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Passkeys\Models\Passkey;
@@ -170,6 +173,24 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(PersonalTransfer::class);
     }
 
+    /** @return HasMany<Expense, $this> */
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(Expense::class);
+    }
+
+    /** @return HasMany<Subscription, $this> */
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    /** @return HasMany<RecurringDebitDismissal, $this> */
+    public function recurringDebitDismissals(): HasMany
+    {
+        return $this->hasMany(RecurringDebitDismissal::class);
+    }
+
     /** @return HasMany<FiscalDeadlineCompletion, $this> */
     public function fiscalDeadlineCompletions(): HasMany
     {
@@ -232,12 +253,15 @@ class User extends Authenticatable implements HasMedia
         'bank_statements' => ['closing_balance_cents'],
         'bank_movements' => ['amount_cents'],
         'personal_transfers' => ['amount_cents'],
+        'expenses' => ['amount_ttc_cents', 'amount_ht_cents'],
+        'subscription_amounts' => ['amount_ht_cents'],
     ];
 
     /**
      * Whether the account currency can still change. It is fixed the moment any
      * amount is stored in it — a priced mission, an invoice, an imported bank
-     * statement or a recorded personal transfer — so every stored amount
+     * statement, a recorded personal transfer, an expense or a priced
+     * subscription — so every stored amount
      * provably shares one currency and aggregations never have to guard
      * against a mix.
      */
@@ -263,6 +287,16 @@ class User extends Authenticatable implements HasMedia
             return true;
         }
 
-        return $this->personalTransfers()->exists();
+        if ($this->personalTransfers()->exists()) {
+            return true;
+        }
+
+        if ($this->expenses()->exists()) {
+            return true;
+        }
+
+        // Every subscription carries its opening price, so the subscription
+        // row is the amount's witness.
+        return $this->subscriptions()->exists();
     }
 }

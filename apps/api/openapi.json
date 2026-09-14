@@ -1989,6 +1989,19 @@
                 "tags": [
                     "Declaration"
                 ],
+                "parameters": [
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "pattern": "^(19|20)\\d{2}-(0[1-9]|1[0-2])$"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -2002,6 +2015,206 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/declarations/completions": {
+            "post": {
+                "operationId": "markDeclarationFiled",
+                "tags": [
+                    "Declaration"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CompleteDeclarationData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeclarationsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/declarations/completions/{kind}/{periodKey}": {
+            "delete": {
+                "operationId": "unmarkDeclarationFiled",
+                "tags": [
+                    "Declaration"
+                ],
+                "parameters": [
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "pattern": "^(19|20)\\d{2}-(0[1-9]|1[0-2])$"
+                        }
+                    },
+                    {
+                        "name": "kind",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "periodKey",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeclarationsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/declarations/completions/{kind}/{periodKey}/payment": {
+            "post": {
+                "operationId": "recordDeclarationPayment",
+                "tags": [
+                    "Declaration"
+                ],
+                "parameters": [
+                    {
+                        "name": "kind",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "periodKey",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SummarizeDeclarationsData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeclarationsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "clearDeclarationPayment",
+                "tags": [
+                    "Declaration"
+                ],
+                "parameters": [
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "pattern": "^(19|20)\\d{2}-(0[1-9]|1[0-2])$"
+                        }
+                    },
+                    {
+                        "name": "kind",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "periodKey",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeclarationsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     }
                 }
             }
@@ -2025,6 +2238,465 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/expenses": {
+            "get": {
+                "operationId": "listExpenses",
+                "tags": [
+                    "Expense"
+                ],
+                "parameters": [
+                    {
+                        "name": "month",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "pattern": "^(19|20)\\d{2}-(0[1-9]|1[0-2])$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensesMonthData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "createExpense",
+                "tags": [
+                    "Expense"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ExpenseInputData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensesMonthData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/expenses/category": {
+            "post": {
+                "operationId": "recategorizeExpenses",
+                "tags": [
+                    "Expense"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecategorizeExpensesData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensesMonthData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/expenses/vat-deferrals": {
+            "post": {
+                "operationId": "deferExpensesVat",
+                "tags": [
+                    "Expense"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ExpenseSelectionData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensesMonthData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/expenses/{expense}/vat-deferral": {
+            "delete": {
+                "operationId": "reintegrateExpenseVat",
+                "tags": [
+                    "Expense"
+                ],
+                "parameters": [
+                    {
+                        "name": "expense",
+                        "in": "path",
+                        "required": true,
+                        "description": "The expense ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensesMonthData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/expenses/{expense}": {
+            "put": {
+                "operationId": "updateExpense",
+                "tags": [
+                    "Expense"
+                ],
+                "parameters": [
+                    {
+                        "name": "expense",
+                        "in": "path",
+                        "required": true,
+                        "description": "The expense ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ExpenseInputData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensesMonthData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteExpense",
+                "tags": [
+                    "Expense"
+                ],
+                "parameters": [
+                    {
+                        "name": "expense",
+                        "in": "path",
+                        "required": true,
+                        "description": "The expense ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/expenses/{expense}/bank-movement": {
+            "post": {
+                "operationId": "linkExpenseBankMovement",
+                "tags": [
+                    "Expense"
+                ],
+                "parameters": [
+                    {
+                        "name": "expense",
+                        "in": "path",
+                        "required": true,
+                        "description": "The expense ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LinkExpenseBankMovementData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensesMonthData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "unlinkExpenseBankMovement",
+                "tags": [
+                    "Expense"
+                ],
+                "parameters": [
+                    {
+                        "name": "expense",
+                        "in": "path",
+                        "required": true,
+                        "description": "The expense ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensesMonthData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/expenses/{expense}/receipt": {
+            "post": {
+                "operationId": "attachExpenseReceipt",
+                "tags": [
+                    "ExpenseReceipt"
+                ],
+                "parameters": [
+                    {
+                        "name": "expense",
+                        "in": "path",
+                        "required": true,
+                        "description": "The expense ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UploadExpenseReceiptData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensesMonthData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "get": {
+                "operationId": "downloadExpenseReceipt",
+                "tags": [
+                    "ExpenseReceipt"
+                ],
+                "parameters": [
+                    {
+                        "name": "expense",
+                        "in": "path",
+                        "required": true,
+                        "description": "The expense ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Transfer-Encoding": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "chunked"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "detachExpenseReceipt",
+                "tags": [
+                    "ExpenseReceipt"
+                ],
+                "parameters": [
+                    {
+                        "name": "expense",
+                        "in": "path",
+                        "required": true,
+                        "description": "The expense ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensesMonthData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -3488,6 +4160,39 @@
                 "security": []
             }
         },
+        "/expenses/receipt-reading": {
+            "post": {
+                "operationId": "readExpenseReceipt",
+                "tags": [
+                    "ReceiptReading"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReadReceiptData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReceiptSuggestionData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/user/two-factor/recovery-codes": {
             "get": {
                 "operationId": "showRecoveryCodes",
@@ -3874,6 +4579,371 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/subscriptions": {
+            "get": {
+                "operationId": "listSubscriptions",
+                "tags": [
+                    "Subscription"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubscriptionsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "createSubscription",
+                "tags": [
+                    "Subscription"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SubscriptionInputData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubscriptionsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/subscriptions/detected-debits/dismissals": {
+            "post": {
+                "operationId": "dismissRecurringDebit",
+                "tags": [
+                    "Subscription"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DismissRecurringDebitData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubscriptionsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscription}": {
+            "put": {
+                "operationId": "updateSubscription",
+                "tags": [
+                    "Subscription"
+                ],
+                "parameters": [
+                    {
+                        "name": "subscription",
+                        "in": "path",
+                        "required": true,
+                        "description": "The subscription ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SubscriptionInputData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubscriptionsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteSubscription",
+                "tags": [
+                    "Subscription"
+                ],
+                "parameters": [
+                    {
+                        "name": "subscription",
+                        "in": "path",
+                        "required": true,
+                        "description": "The subscription ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscription}/amounts": {
+            "post": {
+                "operationId": "changeSubscriptionAmount",
+                "tags": [
+                    "Subscription"
+                ],
+                "parameters": [
+                    {
+                        "name": "subscription",
+                        "in": "path",
+                        "required": true,
+                        "description": "The subscription ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChangeSubscriptionAmountData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubscriptionsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscription}/pause": {
+            "post": {
+                "operationId": "pauseSubscription",
+                "tags": [
+                    "Subscription"
+                ],
+                "parameters": [
+                    {
+                        "name": "subscription",
+                        "in": "path",
+                        "required": true,
+                        "description": "The subscription ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubscriptionsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "resumeSubscription",
+                "tags": [
+                    "Subscription"
+                ],
+                "parameters": [
+                    {
+                        "name": "subscription",
+                        "in": "path",
+                        "required": true,
+                        "description": "The subscription ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubscriptionsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscription}/cancellation": {
+            "post": {
+                "operationId": "cancelSubscription",
+                "tags": [
+                    "Subscription"
+                ],
+                "parameters": [
+                    {
+                        "name": "subscription",
+                        "in": "path",
+                        "required": true,
+                        "description": "The subscription ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CancelSubscriptionData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubscriptionsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "reactivateSubscription",
+                "tags": [
+                    "Subscription"
+                ],
+                "parameters": [
+                    {
+                        "name": "subscription",
+                        "in": "path",
+                        "required": true,
+                        "description": "The subscription ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubscriptionsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -4989,6 +6059,29 @@
             }
         },
         "schemas": {
+            "AnnualDeclarationsData": {
+                "type": "object",
+                "properties": {
+                    "incomeTaxReturn": {
+                        "$ref": "#/components/schemas/IncomeTaxReturnData"
+                    },
+                    "cfe": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/CfeReturnData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "incomeTaxReturn",
+                    "cfe"
+                ],
+                "title": "AnnualDeclarationsData"
+            },
             "BackupRecordData": {
                 "type": "object",
                 "properties": {
@@ -5244,6 +6337,16 @@
                             "integer",
                             "null"
                         ]
+                    },
+                    "expense": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BankMovementExpenseData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -5253,9 +6356,26 @@
                     "amount",
                     "runningBalance",
                     "invoice",
-                    "pendingMatchId"
+                    "pendingMatchId",
+                    "expense"
                 ],
                 "title": "BankMovementData"
+            },
+            "BankMovementExpenseData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "supplier": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "supplier"
+                ],
+                "title": "BankMovementExpenseData"
             },
             "BankMovementInvoiceData": {
                 "type": "object",
@@ -5304,10 +6424,23 @@
                     "amount": {
                         "$ref": "#/components/schemas/MoneyData"
                     },
+                    "carried": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
                     "rateBp": {
                         "type": [
                             "integer",
                             "null"
+                        ]
+                    },
+                    "deductible": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
                         ]
                     },
                     "periodEnd": {
@@ -5316,11 +6449,19 @@
                     },
                     "isEstimate": {
                         "type": "boolean"
+                    },
+                    "carriedPeriods": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CarriedPeriodData"
+                        }
                     }
                 },
                 "required": [
                     "amount",
+                    "carried",
                     "rateBp",
+                    "deductible",
                     "periodEnd"
                 ],
                 "title": "BankProvisionData"
@@ -5358,6 +6499,16 @@
                             }
                         ]
                     },
+                    "subscriptions": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BankProvisionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "buffer": {
                         "anyOf": [
                             {
@@ -5376,6 +6527,7 @@
                     "vat",
                     "urssaf",
                     "cfe",
+                    "subscriptions",
                     "buffer",
                     "total"
                 ],
@@ -5438,6 +6590,58 @@
                 ],
                 "title": "BillingMode"
             },
+            "Ca3BoxesData": {
+                "type": "object",
+                "properties": {
+                    "salesHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "intraCommunityPurchasesHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "nonEuPurchasesHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "taxableBase": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "collected": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "fixedAssets": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "goodsAndServices": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "otherDeductible": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "creditCarried": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "credit": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "due": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "salesHt",
+                    "intraCommunityPurchasesHt",
+                    "nonEuPurchasesHt",
+                    "taxableBase",
+                    "collected",
+                    "fixedAssets",
+                    "goodsAndServices",
+                    "otherDeductible",
+                    "creditCarried",
+                    "credit",
+                    "due"
+                ],
+                "title": "Ca3BoxesData"
+            },
             "CalendarFeedData": {
                 "type": "object",
                 "properties": {
@@ -5465,6 +6669,135 @@
                     "other"
                 ],
                 "title": "CalendarFeedData"
+            },
+            "CancelSubscriptionData": {
+                "type": "object",
+                "properties": {
+                    "cancelledOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    }
+                },
+                "title": "CancelSubscriptionData"
+            },
+            "CarriedPeriodData": {
+                "type": "object",
+                "properties": {
+                    "period": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "period",
+                    "amount"
+                ],
+                "title": "CarriedPeriodData"
+            },
+            "CfeReturnData": {
+                "type": "object",
+                "properties": {
+                    "year": {
+                        "type": "integer"
+                    },
+                    "dueOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "expected": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "isEstimate": {
+                        "type": "boolean"
+                    },
+                    "provisioned": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "gap": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/SignedMoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "monthsProvisioned": {
+                        "type": "integer"
+                    },
+                    "completion": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeclarationCompletionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "year",
+                    "dueOn",
+                    "expected",
+                    "isEstimate",
+                    "provisioned",
+                    "gap",
+                    "monthsProvisioned",
+                    "completion"
+                ],
+                "title": "CfeReturnData"
+            },
+            "ChangeSubscriptionAmountData": {
+                "type": "object",
+                "properties": {
+                    "amountHt": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100000000000
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "effectiveFrom": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "amountHt",
+                    "effectiveFrom"
+                ],
+                "title": "ChangeSubscriptionAmountData"
             },
             "ClientData": {
                 "type": "object",
@@ -5839,6 +7172,31 @@
                 ],
                 "title": "Color"
             },
+            "CompleteDeclarationData": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "$ref": "#/components/schemas/FiscalDeadlineKind"
+                    },
+                    "periodKey": {
+                        "type": "string",
+                        "pattern": "^\\d{4}(-(0[1-9]|1[0-2]|Q[1-4]))?$",
+                        "maxLength": 16
+                    },
+                    "period": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "pattern": "^(19|20)\\d{2}-(0[1-9]|1[0-2])$"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "periodKey"
+                ],
+                "title": "CompleteDeclarationData"
+            },
             "CompleteFiscalDeadlineData": {
                 "type": "object",
                 "properties": {
@@ -5880,6 +7238,41 @@
                     "code"
                 ],
                 "title": "ConfirmTotpData"
+            },
+            "ContributionLineData": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "$ref": "#/components/schemas/ContributionLineKind"
+                    },
+                    "rateBp": {
+                        "type": "integer"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "rateBp",
+                    "amount"
+                ],
+                "title": "ContributionLineData"
+            },
+            "ContributionLineKind": {
+                "type": "integer",
+                "description": "The lines a micro-entrepreneur's URSSAF declaration is settled in, each a rate on the same collected base.\n",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "SocialContributions",
+                    "Cfp",
+                    "LiberatingPayment"
+                ],
+                "title": "ContributionLineKind"
             },
             "CorrectInvoiceDatesData": {
                 "type": "object",
@@ -6818,9 +8211,188 @@
                 ],
                 "title": "DeadlineReminderData"
             },
+            "DeclarationCompletionData": {
+                "type": "object",
+                "properties": {
+                    "declaredOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "paidOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "declaredOn",
+                    "paidOn"
+                ],
+                "title": "DeclarationCompletionData"
+            },
+            "DeclarationDeadlineData": {
+                "type": "object",
+                "properties": {
+                    "dueOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "daysLeft": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "dueOn",
+                    "daysLeft"
+                ],
+                "title": "DeclarationDeadlineData"
+            },
+            "DeclarationHistoryRowData": {
+                "type": "object",
+                "properties": {
+                    "period": {
+                        "type": "string"
+                    },
+                    "urssaf": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeclarationHistoryUrssafData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "vat": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeclarationHistoryVatData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "period",
+                    "urssaf",
+                    "vat"
+                ],
+                "title": "DeclarationHistoryRowData"
+            },
+            "DeclarationHistoryUrssafData": {
+                "type": "object",
+                "properties": {
+                    "period": {
+                        "type": "string"
+                    },
+                    "total": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "completion": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeclarationCompletionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "period",
+                    "total",
+                    "completion"
+                ],
+                "title": "DeclarationHistoryUrssafData"
+            },
+            "DeclarationHistoryVatData": {
+                "type": "object",
+                "properties": {
+                    "due": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "credit": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "completion": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeclarationCompletionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "due",
+                    "credit",
+                    "completion"
+                ],
+                "title": "DeclarationHistoryVatData"
+            },
+            "DeclarationSettlementData": {
+                "type": "object",
+                "properties": {
+                    "expected": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "provisioned": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "gap": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/SignedMoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "detectedPayments": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "expected",
+                    "provisioned",
+                    "gap",
+                    "detectedPayments"
+                ],
+                "title": "DeclarationSettlementData"
+            },
             "DeclarationsData": {
                 "type": "object",
                 "properties": {
+                    "period": {
+                        "type": "string"
+                    },
+                    "previousPeriod": {
+                        "type": "string"
+                    },
+                    "nextPeriod": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "isDefault": {
+                        "type": "boolean"
+                    },
                     "urssaf": {
                         "anyOf": [
                             {
@@ -6840,13 +8412,78 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "cumulative": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/RevenueCeilingData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "annual": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/AnnualDeclarationsData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "history": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DeclarationHistoryRowData"
+                        }
                     }
                 },
                 "required": [
+                    "period",
+                    "previousPeriod",
+                    "nextPeriod",
+                    "isDefault",
                     "urssaf",
-                    "vat"
+                    "vat",
+                    "cumulative",
+                    "annual",
+                    "history"
                 ],
                 "title": "DeclarationsData"
+            },
+            "DismissRecurringDebitData": {
+                "type": "object",
+                "properties": {
+                    "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 255
+                    },
+                    "amount": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100000000000
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    }
+                },
+                "required": [
+                    "label",
+                    "amount"
+                ],
+                "title": "DismissRecurringDebitData"
             },
             "DocumentCategory": {
                 "type": "integer",
@@ -7016,6 +8653,647 @@
                 ],
                 "title": "EntryRounding"
             },
+            "ExpenseBankMovementData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "bookedOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "label": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "bookedOn",
+                    "label"
+                ],
+                "title": "ExpenseBankMovementData"
+            },
+            "ExpenseCategory": {
+                "type": "integer",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12
+                ],
+                "x-enum-varnames": [
+                    "Equipment",
+                    "Software",
+                    "Internet",
+                    "Phone",
+                    "Electricity",
+                    "Hosting",
+                    "Travel",
+                    "Meal",
+                    "Hotel",
+                    "Fuel",
+                    "Insurance",
+                    "Taxes",
+                    "Other"
+                ],
+                "title": "ExpenseCategory"
+            },
+            "ExpenseCategoryTotalData": {
+                "type": "object",
+                "properties": {
+                    "category": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpenseCategory"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "ht": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "ttc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "shareBp": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "category",
+                    "ht",
+                    "ttc",
+                    "shareBp"
+                ],
+                "title": "ExpenseCategoryTotalData"
+            },
+            "ExpenseData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "supplier": {
+                        "type": "string"
+                    },
+                    "spentOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/ExpenseCategory"
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "amountHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "vat": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "amountTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "recoverableVat": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "vatTreatment": {
+                        "$ref": "#/components/schemas/ExpenseVatTreatment"
+                    },
+                    "vatRateBp": {
+                        "type": "integer"
+                    },
+                    "proShareBp": {
+                        "type": "integer"
+                    },
+                    "receipt": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpenseReceiptData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "subscription": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpenseSubscriptionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "bankMovement": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpenseBankMovementData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "vatStatus": {
+                        "$ref": "#/components/schemas/ExpenseVatStatus"
+                    },
+                    "vatClaimPeriod": {
+                        "type": "string"
+                    },
+                    "isRegularisation": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "id",
+                    "supplier",
+                    "spentOn",
+                    "category",
+                    "description",
+                    "amountHt",
+                    "vat",
+                    "amountTtc",
+                    "recoverableVat",
+                    "vatTreatment",
+                    "vatRateBp",
+                    "proShareBp",
+                    "receipt",
+                    "subscription",
+                    "bankMovement",
+                    "vatStatus",
+                    "vatClaimPeriod",
+                    "isRegularisation"
+                ],
+                "title": "ExpenseData"
+            },
+            "ExpenseInputData": {
+                "type": "object",
+                "properties": {
+                    "supplier": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                    },
+                    "spentOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/ExpenseCategory"
+                    },
+                    "amountTtc": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100000000000
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "vatTreatment": {
+                        "$ref": "#/components/schemas/ExpenseVatTreatment"
+                    },
+                    "vatRateBp": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 10000
+                    },
+                    "proShareBp": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 10000
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "subscriptionId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 1
+                    },
+                    "recurringDebitDay": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 1,
+                        "maximum": 31
+                    }
+                },
+                "required": [
+                    "supplier",
+                    "spentOn",
+                    "category",
+                    "amountTtc",
+                    "vatTreatment",
+                    "vatRateBp"
+                ],
+                "title": "ExpenseInputData"
+            },
+            "ExpenseMonthPointData": {
+                "type": "object",
+                "properties": {
+                    "month": {
+                        "type": "string"
+                    },
+                    "ht": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "ttc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "month",
+                    "ht",
+                    "ttc"
+                ],
+                "title": "ExpenseMonthPointData"
+            },
+            "ExpenseReceiptData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "fileName": {
+                        "type": "string"
+                    },
+                    "sizeBytes": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "id",
+                    "fileName",
+                    "sizeBytes"
+                ],
+                "title": "ExpenseReceiptData"
+            },
+            "ExpenseRegimeProjectionData": {
+                "type": "object",
+                "properties": {
+                    "projectedChargesHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "annualRevenueHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "abatement": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "microIsFavourable": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "projectedChargesHt",
+                    "annualRevenueHt",
+                    "abatement",
+                    "microIsFavourable"
+                ],
+                "title": "ExpenseRegimeProjectionData"
+            },
+            "ExpenseSelectionData": {
+                "type": "object",
+                "properties": {
+                    "expenseIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "minItems": 1
+                    }
+                },
+                "required": [
+                    "expenseIds"
+                ],
+                "title": "ExpenseSelectionData"
+            },
+            "ExpenseSubscriptionData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "supplier": {
+                        "type": "string"
+                    },
+                    "periodicity": {
+                        "$ref": "#/components/schemas/SubscriptionPeriodicity"
+                    }
+                },
+                "required": [
+                    "id",
+                    "supplier",
+                    "periodicity"
+                ],
+                "title": "ExpenseSubscriptionData"
+            },
+            "ExpenseTodoData": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "$ref": "#/components/schemas/ExpenseTodoKind"
+                    },
+                    "expenseId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "subscriptionId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "bankMovementId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "expenseId",
+                    "subscriptionId",
+                    "bankMovementId",
+                    "label",
+                    "amount",
+                    "date"
+                ],
+                "title": "ExpenseTodoData"
+            },
+            "ExpenseTodoKind": {
+                "type": "integer",
+                "description": "The cards of the journal's « À traiter » rail.\n| |\n|---|\n| `0` <br/> A subscription's debit was recorded; the receipt is still to be linked. |\n| `1` <br/> A debit that names a subscription but that no expense explains. |\n| `2` <br/> An annual subscription debits within the month. |",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "MissingReceipt",
+                    "UnmatchedDebit",
+                    "UpcomingAnnualDebit"
+                ],
+                "title": "ExpenseTodoKind"
+            },
+            "ExpenseVatStatus": {
+                "type": "integer",
+                "description": "Where a purchase's TVA stands with the CA3. Derived on every read from the receipt, the claim period and the declared months — never stored, so un-marking a declaration honestly flips the rows back.\n| |\n|---|\n| `0` <br/> Receipted and waiting for its CA3 to be declared. |\n| `1` <br/> Its CA3 was marked declared: the deduction is filed. |\n| `2` <br/> Claimed on a later CA3 than the purchase month, by choice or because that month was already declared. |\n| `3` <br/> No receipt: the fisc refuses the deduction until one is attached. |\n| `4` <br/> Autoliquidation: due and deducted on the same CA3, nothing to recover. |\n| `5` <br/> Exempt purchase, a receipt whose TVA is not tracked, or an account that files no CA3. |",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                ],
+                "x-enum-varnames": [
+                    "Deductible",
+                    "Deducted",
+                    "Deferred",
+                    "Blocked",
+                    "ReverseCharged",
+                    "NotApplicable"
+                ],
+                "title": "ExpenseVatStatus"
+            },
+            "ExpenseVatTreatment": {
+                "type": "integer",
+                "description": "How the TVA on a purchase reaches the CA3. The receipt decides, never the supplier's country: a foreign SaaS billing through a European entity with 20 % on the invoice is Domestic.\n| |\n|---|\n| `0` <br/> A French invoice carrying TVA at the stated rate. |\n| `1` <br/> An EU supplier who invoiced without TVA against the intra-community number (autoliquidation). |\n| `2` <br/> A non-EU supplier who invoiced without TVA (autoliquidation). |\n| `3` <br/> No TVA at all: insurance, bank fees, stamps, CFE. |",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3
+                ],
+                "x-enum-varnames": [
+                    "Domestic",
+                    "ReverseChargeEu",
+                    "ReverseChargeNonEu",
+                    "Exempt"
+                ],
+                "title": "ExpenseVatTreatment"
+            },
+            "ExpensesMonthData": {
+                "type": "object",
+                "properties": {
+                    "month": {
+                        "type": "string"
+                    },
+                    "declaredOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "vat": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpensesVatSummaryData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "totals": {
+                        "$ref": "#/components/schemas/ExpensesTotalsData"
+                    },
+                    "subscriptions": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpensesSubscriptionsData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "categories": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ExpenseCategoryTotalData"
+                        }
+                    },
+                    "series": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ExpenseMonthPointData"
+                        }
+                    },
+                    "projection": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpenseRegimeProjectionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "todo": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ExpenseTodoData"
+                        }
+                    },
+                    "expenses": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ExpenseData"
+                        }
+                    }
+                },
+                "required": [
+                    "month",
+                    "declaredOn",
+                    "vat",
+                    "totals",
+                    "subscriptions",
+                    "categories",
+                    "series",
+                    "projection",
+                    "todo",
+                    "expenses"
+                ],
+                "title": "ExpensesMonthData"
+            },
+            "ExpensesSubscriptionsData": {
+                "type": "object",
+                "properties": {
+                    "monthlyHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "monthlyTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "yearlyHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "yearlyTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "count": {
+                        "type": "integer"
+                    },
+                    "annualCount": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "monthlyHt",
+                    "monthlyTtc",
+                    "yearlyHt",
+                    "yearlyTtc",
+                    "count",
+                    "annualCount"
+                ],
+                "title": "ExpensesSubscriptionsData"
+            },
+            "ExpensesTotalsData": {
+                "type": "object",
+                "properties": {
+                    "ht": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "ttc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "count": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "ht",
+                    "ttc",
+                    "count"
+                ],
+                "title": "ExpensesTotalsData"
+            },
+            "ExpensesVatSummaryData": {
+                "type": "object",
+                "properties": {
+                    "deductible": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "blocked": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "blockedCount": {
+                        "type": "integer"
+                    },
+                    "reverseCharged": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "deferred": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "collected": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "balance": {
+                        "$ref": "#/components/schemas/SignedMoneyData"
+                    }
+                },
+                "required": [
+                    "deductible",
+                    "blocked",
+                    "blockedCount",
+                    "reverseCharged",
+                    "deferred",
+                    "collected",
+                    "balance"
+                ],
+                "title": "ExpensesVatSummaryData"
+            },
             "FiscalDeadlineData": {
                 "type": "object",
                 "properties": {
@@ -7090,20 +9368,22 @@
             },
             "FiscalDeadlineKind": {
                 "type": "integer",
-                "description": "The recurring French fiscal deadlines the app tracks. Declaration and payment share a case wherever they share a date, which is every case here: URSSAF télépaie on the declaration date, and the CA3 is due and paid the same day.\n",
+                "description": "The recurring French fiscal deadlines the app tracks. Declaration and payment share a case wherever they share a date, which is every case here: URSSAF télépaie on the declaration date, and the CA3 is due and paid the same day.\n| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/>  |\n| `3` <br/>  |\n| `4` <br/>  |\n| `5` <br/> The 2042-C PRO, keyed by the year of income it declares. |",
                 "enum": [
                     0,
                     1,
                     2,
                     3,
-                    4
+                    4,
+                    5
                 ],
                 "x-enum-varnames": [
                     "UrssafDeclaration",
                     "VatCa3",
                     "VatCa12",
                     "Cfe",
-                    "CfeInstalment"
+                    "CfeInstalment",
+                    "IncomeTaxReturn"
                 ],
                 "title": "FiscalDeadlineKind"
             },
@@ -7231,6 +9511,101 @@
                     "file"
                 ],
                 "title": "ImportBankStatementData"
+            },
+            "IncomeTaxReturnBox": {
+                "type": "integer",
+                "description": "Where the micro-BNC receipts go on the 2042-C PRO.\n| |\n|---|\n| `0` <br/> Case 5TE — the versement libératoire was opted for; the tax is already paid. |\n| `1` <br/> Case 5HQ — no option; the receipts join the household's taxable income after the abatement. |",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "WithLiberatingPayment",
+                    "WithoutLiberatingPayment"
+                ],
+                "title": "IncomeTaxReturnBox"
+            },
+            "IncomeTaxReturnData": {
+                "type": "object",
+                "properties": {
+                    "year": {
+                        "type": "integer"
+                    },
+                    "dueOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "grossReceipts": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "box": {
+                        "$ref": "#/components/schemas/IncomeTaxReturnBox"
+                    },
+                    "periods": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/IncomeTaxReturnPeriodData"
+                        }
+                    },
+                    "taxableAfterAbatement": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "liberatingPaymentPaid": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "completion": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeclarationCompletionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "year",
+                    "dueOn",
+                    "grossReceipts",
+                    "box",
+                    "periods",
+                    "taxableAfterAbatement",
+                    "liberatingPaymentPaid",
+                    "completion"
+                ],
+                "title": "IncomeTaxReturnData"
+            },
+            "IncomeTaxReturnPeriodData": {
+                "type": "object",
+                "properties": {
+                    "period": {
+                        "type": "string"
+                    },
+                    "base": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "declaredOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "period",
+                    "base",
+                    "declaredOn"
+                ],
+                "title": "IncomeTaxReturnPeriodData"
             },
             "InstanceData": {
                 "type": "object",
@@ -7884,6 +10259,19 @@
                 ],
                 "title": "InvoiceTotalData"
             },
+            "LinkExpenseBankMovementData": {
+                "type": "object",
+                "properties": {
+                    "bankMovementId": {
+                        "type": "integer",
+                        "minimum": 1
+                    }
+                },
+                "required": [
+                    "bankMovementId"
+                ],
+                "title": "LinkExpenseBankMovementData"
+            },
             "Locale": {
                 "type": "string",
                 "enum": [
@@ -8283,6 +10671,197 @@
                 ],
                 "title": "PingData"
             },
+            "ReadReceiptData": {
+                "type": "object",
+                "properties": {
+                    "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "contentMediaType": "application/octet-stream",
+                        "description": "Maximum file size: 20480 kilobytes."
+                    }
+                },
+                "required": [
+                    "file"
+                ],
+                "title": "ReadReceiptData"
+            },
+            "RecategorizeExpensesData": {
+                "type": "object",
+                "properties": {
+                    "expenseIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "minItems": 1
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/ExpenseCategory"
+                    }
+                },
+                "required": [
+                    "expenseIds",
+                    "category"
+                ],
+                "title": "RecategorizeExpensesData"
+            },
+            "ReceiptAmountFieldData": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "confidence": {
+                        "$ref": "#/components/schemas/ReceiptFieldConfidence"
+                    }
+                },
+                "required": [
+                    "value",
+                    "confidence"
+                ],
+                "title": "ReceiptAmountFieldData"
+            },
+            "ReceiptDateFieldData": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "confidence": {
+                        "$ref": "#/components/schemas/ReceiptFieldConfidence"
+                    }
+                },
+                "required": [
+                    "value",
+                    "confidence"
+                ],
+                "title": "ReceiptDateFieldData"
+            },
+            "ReceiptFieldConfidence": {
+                "type": "integer",
+                "description": "How much a field read off a receipt deserves a second look. High means the value stood next to its own label (« Total TTC », « Date de facture »); Low means it was the best of several candidates.\n",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "Low",
+                    "Medium",
+                    "High"
+                ],
+                "title": "ReceiptFieldConfidence"
+            },
+            "ReceiptSuggestionData": {
+                "type": "object",
+                "properties": {
+                    "textFound": {
+                        "type": "boolean"
+                    },
+                    "supplier": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ReceiptTextFieldData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "spentOn": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ReceiptDateFieldData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "amountTtc": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ReceiptAmountFieldData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "vat": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ReceiptVatFieldData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ReceiptTextFieldData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "category": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpenseCategory"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "textFound"
+                ],
+                "title": "ReceiptSuggestionData"
+            },
+            "ReceiptTextFieldData": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "string"
+                    },
+                    "confidence": {
+                        "$ref": "#/components/schemas/ReceiptFieldConfidence"
+                    }
+                },
+                "required": [
+                    "value",
+                    "confidence"
+                ],
+                "title": "ReceiptTextFieldData"
+            },
+            "ReceiptVatFieldData": {
+                "type": "object",
+                "properties": {
+                    "treatment": {
+                        "$ref": "#/components/schemas/ExpenseVatTreatment"
+                    },
+                    "rateBp": {
+                        "type": "integer"
+                    },
+                    "confidence": {
+                        "$ref": "#/components/schemas/ReceiptFieldConfidence"
+                    }
+                },
+                "required": [
+                    "treatment",
+                    "rateBp",
+                    "confidence"
+                ],
+                "title": "ReceiptVatFieldData"
+            },
             "RecoveryCodesData": {
                 "type": "object",
                 "properties": {
@@ -8297,6 +10876,38 @@
                     "codes"
                 ],
                 "title": "RecoveryCodesData"
+            },
+            "RecurringDebitData": {
+                "type": "object",
+                "properties": {
+                    "label": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "debitDay": {
+                        "type": "integer"
+                    },
+                    "months": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "lastBookedOn": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "label",
+                    "amount",
+                    "debitDay",
+                    "months",
+                    "lastBookedOn"
+                ],
+                "title": "RecurringDebitData"
             },
             "RegisterPasskeyData": {
                 "type": "object",
@@ -8392,6 +11003,34 @@
                     "Collected"
                 ],
                 "title": "RevenueBasis"
+            },
+            "RevenueCeilingData": {
+                "type": "object",
+                "properties": {
+                    "year": {
+                        "type": "integer"
+                    },
+                    "collectedHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "ceiling": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "shareBp": {
+                        "type": "integer"
+                    },
+                    "margin": {
+                        "$ref": "#/components/schemas/SignedMoneyData"
+                    }
+                },
+                "required": [
+                    "year",
+                    "collectedHt",
+                    "ceiling",
+                    "shareBp",
+                    "margin"
+                ],
+                "title": "RevenueCeilingData"
             },
             "RevenueClientData": {
                 "type": "object",
@@ -8959,6 +11598,471 @@
                 ],
                 "title": "StopTimerData"
             },
+            "SubscriptionAmountChangeData": {
+                "type": "object",
+                "properties": {
+                    "subscriptionId": {
+                        "type": "integer"
+                    },
+                    "supplier": {
+                        "type": "string"
+                    },
+                    "before": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "after": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "changeBp": {
+                        "type": "integer"
+                    },
+                    "since": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "subscriptionId",
+                    "supplier",
+                    "before",
+                    "after",
+                    "changeBp",
+                    "since"
+                ],
+                "title": "SubscriptionAmountChangeData"
+            },
+            "SubscriptionAmountData": {
+                "type": "object",
+                "properties": {
+                    "effectiveFrom": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "amountHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "effectiveFrom",
+                    "amountHt"
+                ],
+                "title": "SubscriptionAmountData"
+            },
+            "SubscriptionCategoryTotalData": {
+                "type": "object",
+                "properties": {
+                    "category": {
+                        "$ref": "#/components/schemas/ExpenseCategory"
+                    },
+                    "yearlyHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "category",
+                    "yearlyHt"
+                ],
+                "title": "SubscriptionCategoryTotalData"
+            },
+            "SubscriptionData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "supplier": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/ExpenseCategory"
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "amountHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "vat": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "amountTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "recoverableVat": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "proShareBp": {
+                        "type": "integer"
+                    },
+                    "vatTreatment": {
+                        "$ref": "#/components/schemas/ExpenseVatTreatment"
+                    },
+                    "vatRateBp": {
+                        "type": "integer"
+                    },
+                    "periodicity": {
+                        "$ref": "#/components/schemas/SubscriptionPeriodicity"
+                    },
+                    "debitDay": {
+                        "type": "integer"
+                    },
+                    "debitMonth": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "startedOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "customerSpaceUrl": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "autoCreateExpenses": {
+                        "type": "boolean"
+                    },
+                    "provisionMonthly": {
+                        "type": "boolean"
+                    },
+                    "monthlyProvision": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "isPaused": {
+                        "type": "boolean"
+                    },
+                    "cancelledOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "nextDebitOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "amounts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SubscriptionAmountData"
+                        }
+                    },
+                    "occurrences": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SubscriptionOccurrenceData"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "supplier",
+                    "category",
+                    "description",
+                    "amountHt",
+                    "vat",
+                    "amountTtc",
+                    "recoverableVat",
+                    "proShareBp",
+                    "vatTreatment",
+                    "vatRateBp",
+                    "periodicity",
+                    "debitDay",
+                    "debitMonth",
+                    "startedOn",
+                    "customerSpaceUrl",
+                    "autoCreateExpenses",
+                    "provisionMonthly",
+                    "monthlyProvision",
+                    "isPaused",
+                    "cancelledOn",
+                    "nextDebitOn",
+                    "amounts",
+                    "occurrences"
+                ],
+                "title": "SubscriptionData"
+            },
+            "SubscriptionInputData": {
+                "type": "object",
+                "properties": {
+                    "supplier": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/ExpenseCategory"
+                    },
+                    "amountHt": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100000000000
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "vatTreatment": {
+                        "$ref": "#/components/schemas/ExpenseVatTreatment"
+                    },
+                    "vatRateBp": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 10000
+                    },
+                    "periodicity": {
+                        "$ref": "#/components/schemas/SubscriptionPeriodicity"
+                    },
+                    "debitDay": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 31
+                    },
+                    "startedOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "proShareBp": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 10000
+                    },
+                    "debitMonth": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 1,
+                        "maximum": 12
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "customerSpaceUrl": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "uri",
+                        "maxLength": 2048
+                    },
+                    "autoCreateExpenses": {
+                        "type": "boolean"
+                    },
+                    "provisionMonthly": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "supplier",
+                    "category",
+                    "amountHt",
+                    "vatTreatment",
+                    "vatRateBp",
+                    "periodicity",
+                    "debitDay",
+                    "startedOn"
+                ],
+                "title": "SubscriptionInputData"
+            },
+            "SubscriptionKpisData": {
+                "type": "object",
+                "properties": {
+                    "monthlyTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "monthlyCount": {
+                        "type": "integer"
+                    },
+                    "yearlyTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "annualCount": {
+                        "type": "integer"
+                    },
+                    "provisionedCount": {
+                        "type": "integer"
+                    },
+                    "provisionedPerMonth": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "recoverableVatPerYear": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "reverseChargedVatPerYear": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "missingReceipts": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "monthlyTtc",
+                    "monthlyCount",
+                    "yearlyTtc",
+                    "annualCount",
+                    "provisionedCount",
+                    "provisionedPerMonth",
+                    "recoverableVatPerYear",
+                    "reverseChargedVatPerYear",
+                    "missingReceipts"
+                ],
+                "title": "SubscriptionKpisData"
+            },
+            "SubscriptionOccurrenceData": {
+                "type": "object",
+                "properties": {
+                    "period": {
+                        "type": "string"
+                    },
+                    "debitOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "state": {
+                        "$ref": "#/components/schemas/SubscriptionOccurrenceState"
+                    },
+                    "expenseId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "period",
+                    "debitOn",
+                    "state",
+                    "expenseId"
+                ],
+                "title": "SubscriptionOccurrenceData"
+            },
+            "SubscriptionOccurrenceState": {
+                "type": "integer",
+                "description": "One square of the twelve-month strip.\n| |\n|---|\n| `0` <br/> The debit has its expense and the expense its receipt. |\n| `1` <br/> The debit has its expense, still waiting for the receipt. |\n| `2` <br/>  |\n| `3` <br/> A future debit that will not happen while the subscription is paused. |\n| `4` <br/> A past debit with no expense — before the subscription was recorded, or not auto-created. |",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4
+                ],
+                "x-enum-varnames": [
+                    "Linked",
+                    "Missing",
+                    "Future",
+                    "Paused",
+                    "Inactive"
+                ],
+                "title": "SubscriptionOccurrenceState"
+            },
+            "SubscriptionPeriodicity": {
+                "type": "integer",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "Monthly",
+                    "Quarterly",
+                    "Annual"
+                ],
+                "title": "SubscriptionPeriodicity"
+            },
+            "SubscriptionsData": {
+                "type": "object",
+                "properties": {
+                    "kpis": {
+                        "$ref": "#/components/schemas/SubscriptionKpisData"
+                    },
+                    "subscriptions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SubscriptionData"
+                        }
+                    },
+                    "upcoming": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UpcomingDebitData"
+                        }
+                    },
+                    "categories": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SubscriptionCategoryTotalData"
+                        }
+                    },
+                    "yearlyHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "amountChanges": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SubscriptionAmountChangeData"
+                        }
+                    },
+                    "detected": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RecurringDebitData"
+                        }
+                    }
+                },
+                "required": [
+                    "kpis",
+                    "subscriptions",
+                    "upcoming",
+                    "categories",
+                    "yearlyHt",
+                    "amountChanges",
+                    "detected"
+                ],
+                "title": "SubscriptionsData"
+            },
+            "SummarizeDeclarationsData": {
+                "type": "object",
+                "properties": {
+                    "period": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "pattern": "^(19|20)\\d{2}-(0[1-9]|1[0-2])$"
+                    }
+                },
+                "title": "SummarizeDeclarationsData"
+            },
             "Theme": {
                 "type": "integer",
                 "enum": [
@@ -9407,6 +12511,39 @@
                     "trustedDevices"
                 ],
                 "title": "TwoFactorStatusData"
+            },
+            "UpcomingDebitData": {
+                "type": "object",
+                "properties": {
+                    "subscriptionId": {
+                        "type": "integer"
+                    },
+                    "supplier": {
+                        "type": "string"
+                    },
+                    "dueOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "amountTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "periodicity": {
+                        "$ref": "#/components/schemas/SubscriptionPeriodicity"
+                    },
+                    "isProvision": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "subscriptionId",
+                    "supplier",
+                    "dueOn",
+                    "amountTtc",
+                    "periodicity",
+                    "isProvision"
+                ],
+                "title": "UpcomingDebitData"
             },
             "UpdateBankBalanceData": {
                 "type": "object",
@@ -10179,6 +13316,21 @@
                 ],
                 "title": "UploadDocumentData"
             },
+            "UploadExpenseReceiptData": {
+                "type": "object",
+                "properties": {
+                    "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "contentMediaType": "application/octet-stream",
+                        "description": "Maximum file size: 20480 kilobytes."
+                    }
+                },
+                "required": [
+                    "file"
+                ],
+                "title": "UploadExpenseReceiptData"
+            },
             "UploadInvoiceDocumentData": {
                 "type": "object",
                 "properties": {
@@ -10240,14 +13392,59 @@
                     "periodicity": {
                         "$ref": "#/components/schemas/UrssafPeriodicity"
                     },
+                    "coversShownMonth": {
+                        "type": "boolean"
+                    },
                     "base": {
                         "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "invoiceCount": {
+                        "type": "integer"
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ContributionLineData"
+                        }
+                    },
+                    "total": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "deadline": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeclarationDeadlineData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "completion": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeclarationCompletionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "settlement": {
+                        "$ref": "#/components/schemas/DeclarationSettlementData"
                     }
                 },
                 "required": [
                     "period",
                     "periodicity",
-                    "base"
+                    "coversShownMonth",
+                    "base",
+                    "invoiceCount",
+                    "lines",
+                    "total",
+                    "deadline",
+                    "completion",
+                    "settlement"
                 ],
                 "title": "UrssafDeclarationData"
             },
@@ -10347,25 +13544,63 @@
                     "regime": {
                         "$ref": "#/components/schemas/VatRegime"
                     },
-                    "salesHt": {
-                        "$ref": "#/components/schemas/MoneyData"
-                    },
-                    "collected": {
-                        "$ref": "#/components/schemas/MoneyData"
-                    },
                     "rateBp": {
                         "type": [
                             "integer",
                             "null"
                         ]
+                    },
+                    "boxes": {
+                        "$ref": "#/components/schemas/Ca3BoxesData"
+                    },
+                    "invoiceCount": {
+                        "type": "integer"
+                    },
+                    "expenseCount": {
+                        "type": "integer"
+                    },
+                    "reverseChargedVat": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "creditIsRefundable": {
+                        "type": "boolean"
+                    },
+                    "deadline": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeclarationDeadlineData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "completion": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeclarationCompletionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "settlement": {
+                        "$ref": "#/components/schemas/DeclarationSettlementData"
                     }
                 },
                 "required": [
                     "period",
                     "regime",
-                    "salesHt",
-                    "collected",
-                    "rateBp"
+                    "rateBp",
+                    "boxes",
+                    "invoiceCount",
+                    "expenseCount",
+                    "reverseChargedVat",
+                    "creditIsRefundable",
+                    "deadline",
+                    "completion",
+                    "settlement"
                 ],
                 "title": "VatDeclarationData"
             },

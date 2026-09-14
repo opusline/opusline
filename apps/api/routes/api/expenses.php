@@ -1,0 +1,59 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Http\Expenses\Controllers\ExpenseController;
+use App\Http\Expenses\Controllers\ExpenseReceiptController;
+use App\Http\Expenses\Controllers\ReceiptReadingController;
+use Illuminate\Support\Facades\Route;
+
+Route::middleware('auth:sanctum')->group(function (): void {
+    Route::get('/expenses', [ExpenseController::class, 'index'])
+        ->name('listExpenses');
+
+    Route::post('/expenses', [ExpenseController::class, 'store'])
+        ->name('createExpense');
+
+    Route::post('/expenses/category', [ExpenseController::class, 'recategorize'])
+        ->name('recategorizeExpenses');
+
+    Route::post('/expenses/vat-deferrals', [ExpenseController::class, 'deferVat'])
+        ->name('deferExpensesVat');
+
+    Route::post('/expenses/receipt-reading', ReceiptReadingController::class)
+        ->middleware('throttle:uploads')
+        ->name('readExpenseReceipt');
+
+    Route::delete('/expenses/{expense}/vat-deferral', [ExpenseController::class, 'reintegrateVat'])
+        ->whereNumber('expense')
+        ->name('reintegrateExpenseVat');
+
+    Route::put('/expenses/{expense}', [ExpenseController::class, 'update'])
+        ->whereNumber('expense')
+        ->name('updateExpense');
+
+    Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])
+        ->whereNumber('expense')
+        ->name('deleteExpense');
+
+    Route::post('/expenses/{expense}/bank-movement', [ExpenseController::class, 'storeBankMovement'])
+        ->whereNumber('expense')
+        ->name('linkExpenseBankMovement');
+
+    Route::delete('/expenses/{expense}/bank-movement', [ExpenseController::class, 'destroyBankMovement'])
+        ->whereNumber('expense')
+        ->name('unlinkExpenseBankMovement');
+
+    Route::post('/expenses/{expense}/receipt', [ExpenseReceiptController::class, 'store'])
+        ->whereNumber('expense')
+        ->middleware('throttle:uploads')
+        ->name('attachExpenseReceipt');
+
+    Route::get('/expenses/{expense}/receipt', [ExpenseReceiptController::class, 'show'])
+        ->whereNumber('expense')
+        ->name('downloadExpenseReceipt');
+
+    Route::delete('/expenses/{expense}/receipt', [ExpenseReceiptController::class, 'destroy'])
+        ->whereNumber('expense')
+        ->name('detachExpenseReceipt');
+});

@@ -50,14 +50,17 @@ test('adds the versement libératoire to the effective contribution rate', funct
     $this->actingAs($user)
         ->getJson('/api/settings')
         ->assertOk()
-        ->assertJsonPath('effectiveContributionRateBp', 2820);
+        ->assertJsonPath('effectiveContributionRateBp', 2840);
 });
 
-test('leaves the effective rate alone when the versement libératoire is off', function (): void {
+test('rates only the cotisations and the CFP when the versement libératoire is off', function (): void {
     $this->actingAs(User::factory()->create())
         ->getJson('/api/settings')
         ->assertOk()
-        ->assertJsonPath('effectiveContributionRateBp', config()->integer('fiscality.contribution_rate_bp'));
+        ->assertJsonPath(
+            'effectiveContributionRateBp',
+            config()->integer('fiscality.contribution_rate_bp') + config()->integer('fiscality.cfp_rate_bp'),
+        );
 });
 
 test('reports a stored signature', function (): void {

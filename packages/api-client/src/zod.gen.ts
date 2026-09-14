@@ -48,6 +48,14 @@ export const zBankMatchReason = z.union([
 ]);
 
 /**
+ * BankMovementExpenseData
+ */
+export const zBankMovementExpenseData = z.object({
+    id: z.int(),
+    supplier: z.string()
+});
+
+/**
  * BankMovementInvoiceData
  */
 export const zBankMovementInvoiceData = z.object({
@@ -87,6 +95,13 @@ export const zCalendarFeedData = z.object({
     vat: z.boolean(),
     urssaf: z.boolean(),
     other: z.boolean()
+});
+
+/**
+ * CancelSubscriptionData
+ */
+export const zCancelSubscriptionData = z.object({
+    cancelledOn: z.nullish(z.iso.date())
 });
 
 /**
@@ -150,6 +165,18 @@ export const zConfirmPasswordData = z.object({
 export const zConfirmTotpData = z.object({
     code: z.string()
 });
+
+/**
+ * ContributionLineKind
+ *
+ * The lines a micro-entrepreneur's URSSAF declaration is settled in, each a rate on the same collected base.
+ *
+ */
+export const zContributionLineKind = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
 
 /**
  * CorrectInvoiceDatesData
@@ -277,6 +304,17 @@ export const zCurrency = z.enum([
 ]);
 
 /**
+ * ChangeSubscriptionAmountData
+ */
+export const zChangeSubscriptionAmountData = z.object({
+    amountHt: z.object({
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
+        currency: zCurrency
+    }),
+    effectiveFrom: z.iso.date()
+});
+
+/**
  * CreatePersonalTransferData
  */
 export const zCreatePersonalTransferData = z.object({
@@ -307,6 +345,33 @@ export const zDeadlineItemType = z.union([
     z.literal(1),
     z.literal(2)
 ]);
+
+/**
+ * DeclarationCompletionData
+ */
+export const zDeclarationCompletionData = z.object({
+    declaredOn: z.iso.date(),
+    paidOn: z.nullable(z.iso.date())
+});
+
+/**
+ * DeclarationDeadlineData
+ */
+export const zDeclarationDeadlineData = z.object({
+    dueOn: z.iso.date(),
+    daysLeft: z.int()
+});
+
+/**
+ * DismissRecurringDebitData
+ */
+export const zDismissRecurringDebitData = z.object({
+    label: z.string().check(z.minLength(1), z.maxLength(255)),
+    amount: z.object({
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
+        currency: zCurrency
+    })
+});
 
 /**
  * DocumentCategory
@@ -425,18 +490,154 @@ export const zCreateMissionData = z.object({
 });
 
 /**
+ * ExpenseBankMovementData
+ */
+export const zExpenseBankMovementData = z.object({
+    id: z.int(),
+    bookedOn: z.iso.date(),
+    label: z.string()
+});
+
+/**
+ * ExpenseCategory
+ */
+export const zExpenseCategory = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4),
+    z.literal(5),
+    z.literal(6),
+    z.literal(7),
+    z.literal(8),
+    z.literal(9),
+    z.literal(10),
+    z.literal(11),
+    z.literal(12)
+]);
+
+/**
+ * ExpenseReceiptData
+ */
+export const zExpenseReceiptData = z.object({
+    id: z.int(),
+    fileName: z.string(),
+    sizeBytes: z.int()
+});
+
+/**
+ * ExpenseSelectionData
+ */
+export const zExpenseSelectionData = z.object({
+    expenseIds: z.array(z.int()).check(z.minLength(1))
+});
+
+/**
+ * ExpenseTodoKind
+ *
+ * The cards of the journal's « À traiter » rail.
+ * | |
+ * |---|
+ * | `0` <br/> A subscription's debit was recorded; the receipt is still to be linked. |
+ * | `1` <br/> A debit that names a subscription but that no expense explains. |
+ * | `2` <br/> An annual subscription debits within the month. |
+ */
+export const zExpenseTodoKind = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * ExpenseVatStatus
+ *
+ * Where a purchase's TVA stands with the CA3. Derived on every read from the receipt, the claim period and the declared months — never stored, so un-marking a declaration honestly flips the rows back.
+ * | |
+ * |---|
+ * | `0` <br/> Receipted and waiting for its CA3 to be declared. |
+ * | `1` <br/> Its CA3 was marked declared: the deduction is filed. |
+ * | `2` <br/> Claimed on a later CA3 than the purchase month, by choice or because that month was already declared. |
+ * | `3` <br/> No receipt: the fisc refuses the deduction until one is attached. |
+ * | `4` <br/> Autoliquidation: due and deducted on the same CA3, nothing to recover. |
+ * | `5` <br/> Exempt purchase, a receipt whose TVA is not tracked, or an account that files no CA3. |
+ */
+export const zExpenseVatStatus = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4),
+    z.literal(5)
+]);
+
+/**
+ * ExpenseVatTreatment
+ *
+ * How the TVA on a purchase reaches the CA3. The receipt decides, never the supplier's country: a foreign SaaS billing through a European entity with 20 % on the invoice is Domestic.
+ * | |
+ * |---|
+ * | `0` <br/> A French invoice carrying TVA at the stated rate. |
+ * | `1` <br/> An EU supplier who invoiced without TVA against the intra-community number (autoliquidation). |
+ * | `2` <br/> A non-EU supplier who invoiced without TVA (autoliquidation). |
+ * | `3` <br/> No TVA at all: insurance, bank fees, stamps, CFE. |
+ */
+export const zExpenseVatTreatment = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3)
+]);
+
+/**
+ * ExpenseInputData
+ */
+export const zExpenseInputData = z.object({
+    supplier: z.string().check(z.minLength(1), z.maxLength(120)),
+    spentOn: z.iso.date(),
+    category: zExpenseCategory,
+    amountTtc: z.object({
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
+        currency: zCurrency
+    }),
+    vatTreatment: zExpenseVatTreatment,
+    vatRateBp: z.int().check(z.gte(0), z.lte(10000)),
+    proShareBp: z.optional(z.int().check(z.gte(0), z.lte(10000))),
+    description: z.nullish(z.string().check(z.maxLength(255))),
+    subscriptionId: z.nullish(z.int().check(z.gte(1))),
+    recurringDebitDay: z.nullish(z.int().check(z.gte(1), z.lte(31)))
+});
+
+/**
  * FiscalDeadlineKind
  *
  * The recurring French fiscal deadlines the app tracks. Declaration and payment share a case wherever they share a date, which is every case here: URSSAF télépaie on the declaration date, and the CA3 is due and paid the same day.
- *
+ * | |
+ * |---|
+ * | `0` <br/>  |
+ * | `1` <br/>  |
+ * | `2` <br/>  |
+ * | `3` <br/>  |
+ * | `4` <br/>  |
+ * | `5` <br/> The 2042-C PRO, keyed by the year of income it declares. |
  */
 export const zFiscalDeadlineKind = z.union([
     z.literal(0),
     z.literal(1),
     z.literal(2),
     z.literal(3),
-    z.literal(4)
+    z.literal(4),
+    z.literal(5)
 ]);
+
+/**
+ * CompleteDeclarationData
+ */
+export const zCompleteDeclarationData = z.object({
+    kind: zFiscalDeadlineKind,
+    periodKey: z.string().check(z.maxLength(16), z.regex(/^\d{4}(-(0[1-9]|1[0-2]|Q[1-4]))?$/)),
+    period: z.nullish(z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/)))
+});
 
 /**
  * CompleteFiscalDeadlineData
@@ -466,6 +667,17 @@ export const zImportBankStatementData = z.object({
     balanceAmount: z.nullish(z.int()),
     balanceCurrency: z.nullish(zCurrency)
 });
+
+/**
+ * IncomeTaxReturnBox
+ *
+ * Where the micro-BNC receipts go on the 2042-C PRO.
+ * | |
+ * |---|
+ * | `0` <br/> Case 5TE — the versement libératoire was opted for; the tax is already paid. |
+ * | `1` <br/> Case 5HQ — no option; the receipts join the household's taxable income after the abatement. |
+ */
+export const zIncomeTaxReturnBox = z.union([z.literal(0), z.literal(1)]);
 
 /**
  * InstanceData
@@ -590,6 +802,13 @@ export const zInvoiceTodoWorkData = z.object({
 });
 
 /**
+ * LinkExpenseBankMovementData
+ */
+export const zLinkExpenseBankMovementData = z.object({
+    bankMovementId: z.int().check(z.gte(1))
+});
+
+/**
  * Locale
  */
 export const zLocale = z.enum(['en-US', 'fr-FR']);
@@ -634,13 +853,41 @@ export const zBankMatchData = z.object({
 });
 
 /**
+ * Ca3BoxesData
+ */
+export const zCa3BoxesData = z.object({
+    salesHt: zMoneyData,
+    intraCommunityPurchasesHt: zMoneyData,
+    nonEuPurchasesHt: zMoneyData,
+    taxableBase: zMoneyData,
+    collected: zMoneyData,
+    fixedAssets: zMoneyData,
+    goodsAndServices: zMoneyData,
+    otherDeductible: zMoneyData,
+    creditCarried: zMoneyData,
+    credit: zMoneyData,
+    due: zMoneyData
+});
+
+/**
+ * CarriedPeriodData
+ */
+export const zCarriedPeriodData = z.object({
+    period: z.string(),
+    amount: zMoneyData
+});
+
+/**
  * BankProvisionData
  */
 export const zBankProvisionData = z.object({
     amount: zMoneyData,
+    carried: zMoneyData,
     rateBp: z.nullable(z.int()),
+    deductible: z.nullable(zMoneyData),
     periodEnd: z.iso.date(),
-    isEstimate: z.optional(z.boolean())
+    isEstimate: z.optional(z.boolean()),
+    carriedPeriods: z.optional(z.array(zCarriedPeriodData))
 });
 
 /**
@@ -650,8 +897,18 @@ export const zBankProvisionsData = z.object({
     vat: z.nullable(zBankProvisionData),
     urssaf: z.nullable(zBankProvisionData),
     cfe: z.nullable(zBankProvisionData),
+    subscriptions: z.nullable(zBankProvisionData),
     buffer: z.nullable(zMoneyData),
     total: zMoneyData
+});
+
+/**
+ * ContributionLineData
+ */
+export const zContributionLineData = z.object({
+    kind: zContributionLineKind,
+    rateBp: z.int(),
+    amount: zMoneyData
 });
 
 /**
@@ -687,6 +944,96 @@ export const zDeadlineInvoiceData = z.object({
     dueOn: z.iso.date(),
     remindersSent: z.int(),
     lastRemindedOn: z.nullable(z.iso.date())
+});
+
+/**
+ * DeclarationHistoryUrssafData
+ */
+export const zDeclarationHistoryUrssafData = z.object({
+    period: z.string(),
+    total: zMoneyData,
+    completion: z.nullable(zDeclarationCompletionData)
+});
+
+/**
+ * DeclarationHistoryVatData
+ */
+export const zDeclarationHistoryVatData = z.object({
+    due: zMoneyData,
+    credit: zMoneyData,
+    completion: z.nullable(zDeclarationCompletionData)
+});
+
+/**
+ * DeclarationHistoryRowData
+ */
+export const zDeclarationHistoryRowData = z.object({
+    period: z.string(),
+    urssaf: z.nullable(zDeclarationHistoryUrssafData),
+    vat: z.nullable(zDeclarationHistoryVatData)
+});
+
+/**
+ * ExpenseCategoryTotalData
+ */
+export const zExpenseCategoryTotalData = z.object({
+    category: z.nullable(zExpenseCategory),
+    ht: zMoneyData,
+    ttc: zMoneyData,
+    shareBp: z.int()
+});
+
+/**
+ * ExpenseMonthPointData
+ */
+export const zExpenseMonthPointData = z.object({
+    month: z.string(),
+    ht: zMoneyData,
+    ttc: zMoneyData
+});
+
+/**
+ * ExpenseRegimeProjectionData
+ */
+export const zExpenseRegimeProjectionData = z.object({
+    projectedChargesHt: zMoneyData,
+    annualRevenueHt: zMoneyData,
+    abatement: zMoneyData,
+    microIsFavourable: z.boolean()
+});
+
+/**
+ * ExpenseTodoData
+ */
+export const zExpenseTodoData = z.object({
+    kind: zExpenseTodoKind,
+    expenseId: z.nullable(z.int()),
+    subscriptionId: z.nullable(z.int()),
+    bankMovementId: z.nullable(z.int()),
+    label: z.string(),
+    amount: zMoneyData,
+    date: z.iso.date()
+});
+
+/**
+ * ExpensesSubscriptionsData
+ */
+export const zExpensesSubscriptionsData = z.object({
+    monthlyHt: zMoneyData,
+    monthlyTtc: zMoneyData,
+    yearlyHt: zMoneyData,
+    yearlyTtc: zMoneyData,
+    count: z.int(),
+    annualCount: z.int()
+});
+
+/**
+ * ExpensesTotalsData
+ */
+export const zExpensesTotalsData = z.object({
+    ht: zMoneyData,
+    ttc: zMoneyData,
+    count: z.int()
 });
 
 /**
@@ -748,6 +1095,29 @@ export const zFixedPriceConsumptionData = z.object({
     remainingDays: z.number(),
     overrun: zMoneyData,
     state: zFixedPriceBudgetState
+});
+
+/**
+ * IncomeTaxReturnPeriodData
+ */
+export const zIncomeTaxReturnPeriodData = z.object({
+    period: z.string(),
+    base: zMoneyData,
+    declaredOn: z.nullable(z.iso.date())
+});
+
+/**
+ * IncomeTaxReturnData
+ */
+export const zIncomeTaxReturnData = z.object({
+    year: z.int(),
+    dueOn: z.iso.date(),
+    grossReceipts: zMoneyData,
+    box: zIncomeTaxReturnBox,
+    periods: z.array(zIncomeTaxReturnPeriodData),
+    taxableAfterAbatement: zMoneyData,
+    liberatingPaymentPaid: z.nullable(zMoneyData),
+    completion: z.nullable(zDeclarationCompletionData)
 });
 
 /**
@@ -966,10 +1336,94 @@ export const zPersonalTransferData = z.object({
 });
 
 /**
+ * ReadReceiptData
+ */
+export const zReadReceiptData = z.object({
+    file: z.string()
+});
+
+/**
+ * RecategorizeExpensesData
+ */
+export const zRecategorizeExpensesData = z.object({
+    expenseIds: z.array(z.int()).check(z.minLength(1)),
+    category: zExpenseCategory
+});
+
+/**
+ * ReceiptFieldConfidence
+ *
+ * How much a field read off a receipt deserves a second look. High means the value stood next to its own label (« Total TTC », « Date de facture »); Low means it was the best of several candidates.
+ *
+ */
+export const zReceiptFieldConfidence = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * ReceiptAmountFieldData
+ */
+export const zReceiptAmountFieldData = z.object({
+    value: zMoneyData,
+    confidence: zReceiptFieldConfidence
+});
+
+/**
+ * ReceiptDateFieldData
+ */
+export const zReceiptDateFieldData = z.object({
+    value: z.iso.date(),
+    confidence: zReceiptFieldConfidence
+});
+
+/**
+ * ReceiptTextFieldData
+ */
+export const zReceiptTextFieldData = z.object({
+    value: z.string(),
+    confidence: zReceiptFieldConfidence
+});
+
+/**
+ * ReceiptVatFieldData
+ */
+export const zReceiptVatFieldData = z.object({
+    treatment: zExpenseVatTreatment,
+    rateBp: z.int(),
+    confidence: zReceiptFieldConfidence
+});
+
+/**
+ * ReceiptSuggestionData
+ */
+export const zReceiptSuggestionData = z.object({
+    textFound: z.boolean(),
+    supplier: z.nullish(zReceiptTextFieldData),
+    spentOn: z.nullish(zReceiptDateFieldData),
+    amountTtc: z.nullish(zReceiptAmountFieldData),
+    vat: z.nullish(zReceiptVatFieldData),
+    description: z.nullish(zReceiptTextFieldData),
+    category: z.nullish(zExpenseCategory)
+});
+
+/**
  * RecoveryCodesData
  */
 export const zRecoveryCodesData = z.object({
     codes: z.array(z.string())
+});
+
+/**
+ * RecurringDebitData
+ */
+export const zRecurringDebitData = z.object({
+    label: z.string(),
+    amount: zMoneyData,
+    debitDay: z.int(),
+    months: z.array(z.string()),
+    lastBookedOn: z.iso.date()
 });
 
 /**
@@ -1141,7 +1595,8 @@ export const zBankMovementData = z.object({
     amount: zSignedMoneyData,
     runningBalance: z.nullable(zSignedMoneyData),
     invoice: z.nullable(zBankMovementInvoiceData),
-    pendingMatchId: z.nullable(z.int())
+    pendingMatchId: z.nullable(z.int()),
+    expense: z.nullable(zBankMovementExpenseData)
 });
 
 /**
@@ -1173,6 +1628,51 @@ export const zBankImportData = z.object({
 export const zBankMovementPageData = z.object({
     movements: z.array(zBankMovementData),
     nextCursor: z.nullable(z.string())
+});
+
+/**
+ * CfeReturnData
+ */
+export const zCfeReturnData = z.object({
+    year: z.int(),
+    dueOn: z.iso.date(),
+    expected: z.nullable(zMoneyData),
+    isEstimate: z.boolean(),
+    provisioned: z.nullable(zMoneyData),
+    gap: z.nullable(zSignedMoneyData),
+    monthsProvisioned: z.int(),
+    completion: z.nullable(zDeclarationCompletionData)
+});
+
+/**
+ * AnnualDeclarationsData
+ */
+export const zAnnualDeclarationsData = z.object({
+    incomeTaxReturn: zIncomeTaxReturnData,
+    cfe: z.nullable(zCfeReturnData)
+});
+
+/**
+ * DeclarationSettlementData
+ */
+export const zDeclarationSettlementData = z.object({
+    expected: zMoneyData,
+    provisioned: z.nullable(zMoneyData),
+    gap: z.nullable(zSignedMoneyData),
+    detectedPayments: zMoneyData
+});
+
+/**
+ * ExpensesVatSummaryData
+ */
+export const zExpensesVatSummaryData = z.object({
+    deductible: zMoneyData,
+    blocked: zMoneyData,
+    blockedCount: z.int(),
+    reverseCharged: zMoneyData,
+    deferred: zMoneyData,
+    collected: zMoneyData,
+    balance: zSignedMoneyData
 });
 
 /**
@@ -1269,6 +1769,17 @@ export const zClientRevenueListData = z.object({
 });
 
 /**
+ * RevenueCeilingData
+ */
+export const zRevenueCeilingData = z.object({
+    year: z.int(),
+    collectedHt: zMoneyData,
+    ceiling: zMoneyData,
+    shareBp: z.int(),
+    margin: zSignedMoneyData
+});
+
+/**
  * StartTimerData
  */
 export const zStartTimerData = z.object({
@@ -1284,6 +1795,197 @@ export const zStopTimerData = z.object({
     rounding: z.nullish(zEntryRounding),
     note: z.nullable(z.string().check(z.maxLength(2000))),
     billable: z.optional(z.boolean())
+});
+
+/**
+ * SubscriptionAmountChangeData
+ */
+export const zSubscriptionAmountChangeData = z.object({
+    subscriptionId: z.int(),
+    supplier: z.string(),
+    before: zMoneyData,
+    after: zMoneyData,
+    changeBp: z.int(),
+    since: z.iso.date()
+});
+
+/**
+ * SubscriptionAmountData
+ */
+export const zSubscriptionAmountData = z.object({
+    effectiveFrom: z.iso.date(),
+    amountHt: zMoneyData
+});
+
+/**
+ * SubscriptionCategoryTotalData
+ */
+export const zSubscriptionCategoryTotalData = z.object({
+    category: zExpenseCategory,
+    yearlyHt: zMoneyData
+});
+
+/**
+ * SubscriptionKpisData
+ */
+export const zSubscriptionKpisData = z.object({
+    monthlyTtc: zMoneyData,
+    monthlyCount: z.int(),
+    yearlyTtc: zMoneyData,
+    annualCount: z.int(),
+    provisionedCount: z.int(),
+    provisionedPerMonth: zMoneyData,
+    recoverableVatPerYear: zMoneyData,
+    reverseChargedVatPerYear: zMoneyData,
+    missingReceipts: z.int()
+});
+
+/**
+ * SubscriptionOccurrenceState
+ *
+ * One square of the twelve-month strip.
+ * | |
+ * |---|
+ * | `0` <br/> The debit has its expense and the expense its receipt. |
+ * | `1` <br/> The debit has its expense, still waiting for the receipt. |
+ * | `2` <br/>  |
+ * | `3` <br/> A future debit that will not happen while the subscription is paused. |
+ * | `4` <br/> A past debit with no expense — before the subscription was recorded, or not auto-created. |
+ */
+export const zSubscriptionOccurrenceState = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4)
+]);
+
+/**
+ * SubscriptionOccurrenceData
+ */
+export const zSubscriptionOccurrenceData = z.object({
+    period: z.string(),
+    debitOn: z.iso.date(),
+    state: zSubscriptionOccurrenceState,
+    expenseId: z.nullable(z.int())
+});
+
+/**
+ * SubscriptionPeriodicity
+ */
+export const zSubscriptionPeriodicity = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * ExpenseSubscriptionData
+ */
+export const zExpenseSubscriptionData = z.object({
+    id: z.int(),
+    supplier: z.string(),
+    periodicity: zSubscriptionPeriodicity
+});
+
+/**
+ * ExpenseData
+ */
+export const zExpenseData = z.object({
+    id: z.int(),
+    supplier: z.string(),
+    spentOn: z.iso.date(),
+    category: zExpenseCategory,
+    description: z.nullable(z.string()),
+    amountHt: zMoneyData,
+    vat: zMoneyData,
+    amountTtc: zMoneyData,
+    recoverableVat: zMoneyData,
+    vatTreatment: zExpenseVatTreatment,
+    vatRateBp: z.int(),
+    proShareBp: z.int(),
+    receipt: z.nullable(zExpenseReceiptData),
+    subscription: z.nullable(zExpenseSubscriptionData),
+    bankMovement: z.nullable(zExpenseBankMovementData),
+    vatStatus: zExpenseVatStatus,
+    vatClaimPeriod: z.string(),
+    isRegularisation: z.boolean()
+});
+
+/**
+ * ExpensesMonthData
+ */
+export const zExpensesMonthData = z.object({
+    month: z.string(),
+    declaredOn: z.nullable(z.iso.date()),
+    vat: z.nullable(zExpensesVatSummaryData),
+    totals: zExpensesTotalsData,
+    subscriptions: z.nullable(zExpensesSubscriptionsData),
+    categories: z.array(zExpenseCategoryTotalData),
+    series: z.array(zExpenseMonthPointData),
+    projection: z.nullable(zExpenseRegimeProjectionData),
+    todo: z.array(zExpenseTodoData),
+    expenses: z.array(zExpenseData)
+});
+
+/**
+ * SubscriptionData
+ */
+export const zSubscriptionData = z.object({
+    id: z.int(),
+    supplier: z.string(),
+    category: zExpenseCategory,
+    description: z.nullable(z.string()),
+    amountHt: zMoneyData,
+    vat: zMoneyData,
+    amountTtc: zMoneyData,
+    recoverableVat: zMoneyData,
+    proShareBp: z.int(),
+    vatTreatment: zExpenseVatTreatment,
+    vatRateBp: z.int(),
+    periodicity: zSubscriptionPeriodicity,
+    debitDay: z.int(),
+    debitMonth: z.nullable(z.int()),
+    startedOn: z.iso.date(),
+    customerSpaceUrl: z.nullable(z.string()),
+    autoCreateExpenses: z.boolean(),
+    provisionMonthly: z.boolean(),
+    monthlyProvision: z.nullable(zMoneyData),
+    isPaused: z.boolean(),
+    cancelledOn: z.nullable(z.iso.date()),
+    nextDebitOn: z.nullable(z.iso.date()),
+    amounts: z.array(zSubscriptionAmountData),
+    occurrences: z.array(zSubscriptionOccurrenceData)
+});
+
+/**
+ * SubscriptionInputData
+ */
+export const zSubscriptionInputData = z.object({
+    supplier: z.string().check(z.minLength(1), z.maxLength(120)),
+    category: zExpenseCategory,
+    amountHt: z.object({
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
+        currency: zCurrency
+    }),
+    vatTreatment: zExpenseVatTreatment,
+    vatRateBp: z.int().check(z.gte(0), z.lte(10000)),
+    periodicity: zSubscriptionPeriodicity,
+    debitDay: z.int().check(z.gte(1), z.lte(31)),
+    startedOn: z.iso.date(),
+    proShareBp: z.optional(z.int().check(z.gte(0), z.lte(10000))),
+    debitMonth: z.nullish(z.int().check(z.gte(1), z.lte(12))),
+    description: z.nullish(z.string().check(z.maxLength(255))),
+    customerSpaceUrl: z.nullish(z.url().check(z.maxLength(2048))),
+    autoCreateExpenses: z.optional(z.boolean()),
+    provisionMonthly: z.optional(z.boolean())
+});
+
+/**
+ * SummarizeDeclarationsData
+ */
+export const zSummarizeDeclarationsData = z.object({
+    period: z.nullish(z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/)))
 });
 
 /**
@@ -1429,6 +2131,31 @@ export const zTwoFactorStatusData = z.object({
     recoveryCodesRemaining: z.int(),
     passkeys: z.array(zPasskeyData),
     trustedDevices: z.array(zTrustedDeviceData)
+});
+
+/**
+ * UpcomingDebitData
+ */
+export const zUpcomingDebitData = z.object({
+    subscriptionId: z.int(),
+    supplier: z.string(),
+    dueOn: z.iso.date(),
+    amountTtc: zMoneyData,
+    periodicity: zSubscriptionPeriodicity,
+    isProvision: z.boolean()
+});
+
+/**
+ * SubscriptionsData
+ */
+export const zSubscriptionsData = z.object({
+    kpis: zSubscriptionKpisData,
+    subscriptions: z.array(zSubscriptionData),
+    upcoming: z.array(zUpcomingDebitData),
+    categories: z.array(zSubscriptionCategoryTotalData),
+    yearlyHt: zMoneyData,
+    amountChanges: z.array(zSubscriptionAmountChangeData),
+    detected: z.array(zRecurringDebitData)
 });
 
 /**
@@ -1583,6 +2310,13 @@ export const zUploadDocumentData = z.object({
 });
 
 /**
+ * UploadExpenseReceiptData
+ */
+export const zUploadExpenseReceiptData = z.object({
+    file: z.string()
+});
+
+/**
  * UploadInvoiceDocumentData
  */
 export const zUploadInvoiceDocumentData = z.object({
@@ -1615,7 +2349,14 @@ export const zUrssafPeriodicity = z.union([z.literal(0), z.literal(1)]);
 export const zUrssafDeclarationData = z.object({
     period: z.string(),
     periodicity: zUrssafPeriodicity,
-    base: zMoneyData
+    coversShownMonth: z.boolean(),
+    base: zMoneyData,
+    invoiceCount: z.int(),
+    lines: z.array(zContributionLineData),
+    total: zMoneyData,
+    deadline: z.nullable(zDeclarationDeadlineData),
+    completion: z.nullable(zDeclarationCompletionData),
+    settlement: zDeclarationSettlementData
 });
 
 /**
@@ -1751,17 +2492,30 @@ export const zUpdateSettingsData = z.object({
 export const zVatDeclarationData = z.object({
     period: z.string(),
     regime: zVatRegime,
-    salesHt: zMoneyData,
-    collected: zMoneyData,
-    rateBp: z.nullable(z.int())
+    rateBp: z.nullable(z.int()),
+    boxes: zCa3BoxesData,
+    invoiceCount: z.int(),
+    expenseCount: z.int(),
+    reverseChargedVat: zMoneyData,
+    creditIsRefundable: z.boolean(),
+    deadline: z.nullable(zDeclarationDeadlineData),
+    completion: z.nullable(zDeclarationCompletionData),
+    settlement: zDeclarationSettlementData
 });
 
 /**
  * DeclarationsData
  */
 export const zDeclarationsData = z.object({
+    period: z.string(),
+    previousPeriod: z.string(),
+    nextPeriod: z.nullable(z.string()),
+    isDefault: z.boolean(),
     urssaf: z.nullable(zUrssafDeclarationData),
-    vat: z.nullable(zVatDeclarationData)
+    vat: z.nullable(zVatDeclarationData),
+    cumulative: z.nullable(zRevenueCeilingData),
+    annual: z.nullable(zAnnualDeclarationsData),
+    history: z.array(zDeclarationHistoryRowData)
 });
 
 export const zGetPingResponse = zPingData;
@@ -2051,9 +2805,123 @@ export const zShowDeadlineCalendarPath = z.object({
 
 export const zShowDeadlineCalendarResponse = z.string();
 
+export const zShowDeclarationsQuery = z.object({
+    period: z.nullish(z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/)))
+});
+
 export const zShowDeclarationsResponse = zDeclarationsData;
 
+export const zMarkDeclarationFiledBody = zCompleteDeclarationData;
+
+export const zMarkDeclarationFiledResponse = zDeclarationsData;
+
+export const zUnmarkDeclarationFiledPath = z.object({
+    kind: z.int(),
+    periodKey: z.string()
+});
+
+export const zUnmarkDeclarationFiledQuery = z.object({
+    period: z.nullish(z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/)))
+});
+
+export const zUnmarkDeclarationFiledResponse = zDeclarationsData;
+
+export const zClearDeclarationPaymentPath = z.object({
+    kind: z.int(),
+    periodKey: z.string()
+});
+
+export const zClearDeclarationPaymentQuery = z.object({
+    period: z.nullish(z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/)))
+});
+
+export const zClearDeclarationPaymentResponse = zDeclarationsData;
+
+export const zRecordDeclarationPaymentBody = zSummarizeDeclarationsData;
+
+export const zRecordDeclarationPaymentPath = z.object({
+    kind: z.int(),
+    periodKey: z.string()
+});
+
+export const zRecordDeclarationPaymentResponse = zDeclarationsData;
+
 export const zListDocumentLibraryResponse = zDocumentLibraryData;
+
+export const zListExpensesQuery = z.object({
+    month: z.nullish(z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/)))
+});
+
+export const zListExpensesResponse = zExpensesMonthData;
+
+export const zCreateExpenseBody = zExpenseInputData;
+
+export const zCreateExpenseResponse = zExpensesMonthData;
+
+export const zRecategorizeExpensesBody = zRecategorizeExpensesData;
+
+export const zRecategorizeExpensesResponse = zExpensesMonthData;
+
+export const zDeferExpensesVatBody = zExpenseSelectionData;
+
+export const zDeferExpensesVatResponse = zExpensesMonthData;
+
+export const zReintegrateExpenseVatPath = z.object({
+    expense: z.int()
+});
+
+export const zReintegrateExpenseVatResponse = zExpensesMonthData;
+
+export const zDeleteExpensePath = z.object({
+    expense: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteExpenseResponse = z.void();
+
+export const zUpdateExpenseBody = zExpenseInputData;
+
+export const zUpdateExpensePath = z.object({
+    expense: z.int()
+});
+
+export const zUpdateExpenseResponse = zExpensesMonthData;
+
+export const zUnlinkExpenseBankMovementPath = z.object({
+    expense: z.int()
+});
+
+export const zUnlinkExpenseBankMovementResponse = zExpensesMonthData;
+
+export const zLinkExpenseBankMovementBody = zLinkExpenseBankMovementData;
+
+export const zLinkExpenseBankMovementPath = z.object({
+    expense: z.int()
+});
+
+export const zLinkExpenseBankMovementResponse = zExpensesMonthData;
+
+export const zDetachExpenseReceiptPath = z.object({
+    expense: z.int()
+});
+
+export const zDetachExpenseReceiptResponse = zExpensesMonthData;
+
+export const zDownloadExpenseReceiptPath = z.object({
+    expense: z.int()
+});
+
+export const zDownloadExpenseReceiptResponse = z.string();
+
+export const zAttachExpenseReceiptBody = zUploadExpenseReceiptData;
+
+export const zAttachExpenseReceiptPath = z.object({
+    expense: z.int()
+});
+
+export const zAttachExpenseReceiptResponse = zExpensesMonthData;
 
 export const zShowInstanceResponse = zInstanceData;
 
@@ -2274,6 +3142,10 @@ export const zLoginWithPasskeyBody = zPasskeyLoginData;
 
 export const zLoginWithPasskeyResponse = zUserData;
 
+export const zReadExpenseReceiptBody = zReadReceiptData;
+
+export const zReadExpenseReceiptResponse = zReceiptSuggestionData;
+
 export const zShowRecoveryCodesResponse = zRecoveryCodesData;
 
 export const zRegenerateRecoveryCodesResponse = zRecoveryCodesData;
@@ -2310,6 +3182,67 @@ export const zUploadUserSignatureBody = zUploadSignatureData;
  * No content
  */
 export const zUploadUserSignatureResponse = z.void();
+
+export const zListSubscriptionsResponse = zSubscriptionsData;
+
+export const zCreateSubscriptionBody = zSubscriptionInputData;
+
+export const zCreateSubscriptionResponse = zSubscriptionsData;
+
+export const zDismissRecurringDebitBody = zDismissRecurringDebitData;
+
+export const zDismissRecurringDebitResponse = zSubscriptionsData;
+
+export const zDeleteSubscriptionPath = z.object({
+    subscription: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteSubscriptionResponse = z.void();
+
+export const zUpdateSubscriptionBody = zSubscriptionInputData;
+
+export const zUpdateSubscriptionPath = z.object({
+    subscription: z.int()
+});
+
+export const zUpdateSubscriptionResponse = zSubscriptionsData;
+
+export const zChangeSubscriptionAmountBody = zChangeSubscriptionAmountData;
+
+export const zChangeSubscriptionAmountPath = z.object({
+    subscription: z.int()
+});
+
+export const zChangeSubscriptionAmountResponse = zSubscriptionsData;
+
+export const zResumeSubscriptionPath = z.object({
+    subscription: z.int()
+});
+
+export const zResumeSubscriptionResponse = zSubscriptionsData;
+
+export const zPauseSubscriptionPath = z.object({
+    subscription: z.int()
+});
+
+export const zPauseSubscriptionResponse = zSubscriptionsData;
+
+export const zReactivateSubscriptionPath = z.object({
+    subscription: z.int()
+});
+
+export const zReactivateSubscriptionResponse = zSubscriptionsData;
+
+export const zCancelSubscriptionBody = zCancelSubscriptionData;
+
+export const zCancelSubscriptionPath = z.object({
+    subscription: z.int()
+});
+
+export const zCancelSubscriptionResponse = zSubscriptionsData;
 
 export const zListTimeEntriesQuery = z.object({
     from: z.iso.date(),

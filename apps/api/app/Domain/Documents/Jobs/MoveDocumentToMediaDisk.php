@@ -7,6 +7,7 @@ namespace App\Domain\Documents\Jobs;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use UnexpectedValueException;
@@ -70,9 +71,32 @@ class MoveDocumentToMediaDisk implements ShouldQueue, ShouldQueueAfterCommit
             throw new UnexpectedValueException("Failed to write document [{$this->document->id}] to disk [{$targetDisk}].");
         }
 
-        $this->document->disk = $targetDisk;
-        $this->document->conversions_disk = $targetDisk;
-        $this->document->save();
+        // The row may have been deleted under a running move — a document
+        // removed, a receipt replaced, its expense deleted. The deletion
+        // cleaned the staging copy; the one just written would stay behind
+        // with nothing pointing at it. The row is re-read under lock so a
+        // deletion cannot slip in between the check and the update: it either
+        // ran before, and the copy goes, or waits and then cleans the moved
+        // file itself.
+        $moved = DB::transaction(function () use ($targetDisk): bool {
+            $current = Media::query()->whereKey($this->document->id)->lockForUpdate()->first();
+
+            if (! $current instanceof Media) {
+                return false;
+            }
+
+            $current->disk = $targetDisk;
+            $current->conversions_disk = $targetDisk;
+            $current->save();
+
+            return true;
+        });
+
+        if (! $moved) {
+            Storage::disk($targetDisk)->delete($path);
+
+            return;
+        }
 
         Storage::disk($stagingDisk)->delete($path);
     }

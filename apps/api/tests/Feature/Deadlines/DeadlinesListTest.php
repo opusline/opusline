@@ -43,10 +43,11 @@ test('lists the fiscal calendar the account profile produces', function (): void
     $kinds = fiscalItems($user)->pluck('kind')->unique()->sort()->values()->all();
 
     // A default account is under the franchise en base: URSSAF every month,
-    // and the statutory December CFE — amount or not.
+    // the statutory December CFE — amount or not — and the spring 2042.
     expect($kinds)->toBe([
         FiscalDeadlineKind::UrssafDeclaration->value,
         FiscalDeadlineKind::Cfe->value,
+        FiscalDeadlineKind::IncomeTaxReturn->value,
     ]);
 });
 
@@ -127,9 +128,10 @@ test('estimates URSSAF from what the period actually collected', function (): vo
         ->firstWhere(fn (array $deadline): bool => $deadline['kind'] === FiscalDeadlineKind::UrssafDeclaration->value
             && $deadline['periodKey'] === '2026-07');
 
-    // paidInvoiceOn bills 1 650 € HT each; a closed period is summed whole.
-    expect($july['amount']['amount'])->toBe(82_500)
-        ->and($july['rateBp'])->toBe(2500)
+    // paidInvoiceOn bills 1 650 € HT each; a closed period is summed whole,
+    // and the 0,2 % CFP rides on the same base as the 25 % of cotisations.
+    expect($july['amount']['amount'])->toBe(83_160)
+        ->and($july['rateBp'])->toBe(2520)
         // The base the rate was applied to, carried rather than left to the screen
         // to divide back out of an amount that was rounded on the way in.
         ->and($july['base']['amount'])->toBe(330_000)

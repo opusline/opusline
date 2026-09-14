@@ -13,6 +13,15 @@ use App\Domain\Bank\Models\PersonalTransfer;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Cra\Factories\CraFactory;
 use App\Domain\Cra\Models\Cra;
+use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
+use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
+use App\Domain\Expenses\Enums\ExpenseCategory;
+use App\Domain\Expenses\Enums\ExpenseVatTreatment;
+use App\Domain\Expenses\Enums\SubscriptionPeriodicity;
+use App\Domain\Expenses\Factories\ExpenseFactory;
+use App\Domain\Expenses\Factories\SubscriptionFactory;
+use App\Domain\Expenses\Models\Expense;
+use App\Domain\Expenses\Models\Subscription;
 use App\Domain\Invoices\Factories\InvoiceFactory;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Factories\MissionFactory;
@@ -37,6 +46,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Testing\TestResponse;
 use Tests\Support\FakePasskeyCeremony;
@@ -142,6 +152,20 @@ function fiscDebitOn(User $user, string $bookedOn, int $cents, string $label): v
         ->debit($cents)
         ->on($bookedOn)
         ->state(['label' => $label]));
+}
+
+/** How many queries one request runs — the figure the query budgets cap. */
+function queriesDuring(callable $request): int
+{
+    $count = 0;
+
+    DB::listen(function () use (&$count): void {
+        $count++;
+    });
+
+    $request();
+
+    return $count;
 }
 
 function freezeTodayAtUtcNoon(): void
@@ -343,6 +367,104 @@ function accountWithBankBalance(string $recordedOn = '2026-08-10', int $cents = 
 function personalTransferFor(User $user, ?callable $configure = null): PersonalTransfer
 {
     return configuredFactory(PersonalTransfer::factory(), $configure)->create(['user_id' => $user->id]);
+}
+
+/**
+ * An expense of the given user.
+ *
+ * @param  (callable(ExpenseFactory): ExpenseFactory)|null  $configure
+ */
+function expenseOwnedBy(User $user, ?callable $configure = null): Expense
+{
+    return configuredFactory(Expense::factory(), $configure)->create(['user_id' => $user->id]);
+}
+
+/**
+ * An expense of the given user with a justificatif attached — the state the
+ * TVA is deductible in. Fake the local disk first.
+ *
+ * @param  (callable(ExpenseFactory): ExpenseFactory)|null  $configure
+ */
+function receiptedExpenseOwnedBy(User $user, ?callable $configure = null): Expense
+{
+    $expense = expenseOwnedBy($user, $configure);
+    $expense->addMedia(UploadedFile::fake()->createWithContent('facture.pdf', '%PDF-1.4 fake receipt'))
+        ->toMediaCollection(Expense::RECEIPT_COLLECTION);
+
+    return $expense->fresh() ?? $expense;
+}
+
+/**
+ * A subscription of the given user, priced at the factory's opening amount.
+ *
+ * @param  (callable(SubscriptionFactory): SubscriptionFactory)|null  $configure
+ */
+function subscriptionOwnedBy(User $user, ?callable $configure = null): Subscription
+{
+    return configuredFactory(Subscription::factory(), $configure)->create(['user_id' => $user->id]);
+}
+
+/**
+ * The subscription sheet as it is sent: a monthly host at 24 € HT.
+ *
+ * @param  array<string, mixed>  $overrides
+ * @return array<string, mixed>
+ */
+function subscriptionPayload(array $overrides = []): array
+{
+    return [
+        'supplier' => 'Nordlys Cloud',
+        'category' => ExpenseCategory::Hosting->value,
+        'description' => 'Hébergement · plan Pro',
+        'amountHt' => ['amount' => 2_400, 'currency' => 'EUR'],
+        'vatTreatment' => ExpenseVatTreatment::Domestic->value,
+        'vatRateBp' => 2_000,
+        'periodicity' => SubscriptionPeriodicity::Monthly->value,
+        'debitDay' => 5,
+        'startedOn' => '2026-01-05',
+        ...$overrides,
+    ];
+}
+
+/** Ticks a return from the Déclarations page, answering the month it names. */
+function markDeclared(User $user, FiscalDeadlineKind $kind, string $periodKey, ?string $period = null): TestResponse
+{
+    return test()->actingAs($user)->postJson('/api/declarations/completions', array_filter(
+        ['kind' => $kind->value, 'periodKey' => $periodKey, 'period' => $period],
+        static fn (mixed $value): bool => $value !== null,
+    ));
+}
+
+function completionPath(FiscalDeadlineKind $kind, string $periodKey, string $suffix = ''): string
+{
+    return "/api/declarations/completions/{$kind->value}/{$periodKey}{$suffix}";
+}
+
+/** An account on the réel normal — the one régime that deducts TVA purchase by purchase. */
+function vatLiableUser(): User
+{
+    $user = User::factory()->create();
+    vatLiable($user);
+
+    return $user;
+}
+
+/** Uploads a receipt onto the expense as the sheet does. */
+function attachReceiptTo(User $user, Expense $expense, string|UploadedFile $file = 'facture-9921.pdf'): TestResponse
+{
+    return test()->actingAs($user)->post("/api/expenses/{$expense->id}/receipt", [
+        'file' => is_string($file) ? UploadedFile::fake()->createWithContent($file, '%PDF-1.4 fake receipt') : $file,
+    ], ['Accept' => 'application/json']);
+}
+
+/** Marks the CA3 of $month as declared, the way the Déclarations screen will. */
+function ca3DeclaredFor(User $user, string $month, string $on = '2026-08-13'): void
+{
+    FiscalDeadlineCompletion::factory()
+        ->for($user)
+        ->of(FiscalDeadlineKind::VatCa3, $month)
+        ->completedOn($on)
+        ->create();
 }
 
 /**

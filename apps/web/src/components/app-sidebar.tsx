@@ -50,12 +50,14 @@ import {
   ReceiptText,
   SlidersHorizontal,
   Users,
+  Wallet,
 } from "lucide-react";
 import { useState } from "react";
 import { InstanceDialog } from "@/components/instance-dialog";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatWholeAmount } from "@/lib/billing";
 import { deadlinesQueryOptions, unreadReminderCount } from "@/lib/deadlines";
+import { expensesBadgeQueryOptions } from "@/lib/expenses";
 import { initials } from "@/lib/initials";
 import { unreadReleaseCount } from "@/lib/releases";
 import { APP_VERSION } from "@/lib/version";
@@ -126,6 +128,8 @@ export function AppSidebar() {
   // Unlike the trésorerie tile this one is wanted in the rail too: a badge is
   // the whole point of collapsing the nav to icons.
   const deadlines = useQuery(deadlinesQueryOptions(user.hasFrenchFiscality));
+  const expenses = useQuery(expensesBadgeQueryOptions(user.hasFrenchFiscality));
+  const receiptsToLink = expenses.data?.vat?.blockedCount ?? 0;
 
   const unreadReminders = unreadReminderCount(deadlines.data?.reminders ?? []);
   const transferable = treasury.data?.transferable?.amount;
@@ -222,7 +226,7 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 {/*
-                The revenue/treasury/deadlines/declarations screens compute
+                The revenue/expenses/treasury/deadlines/declarations screens compute
                 URSSAF and TVA figures that only exist for a business
                 established in France; elsewhere they would just be wrong.
               */}
@@ -237,6 +241,21 @@ export function AppSidebar() {
                         <ChartLine />
                         <span>{m.nav_revenue()}</span>
                       </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        isActive={pathname.startsWith("/expenses")}
+                        render={<Link to="/expenses" />}
+                        tooltip={m.nav_expenses()}
+                      >
+                        <Wallet />
+                        <span>{m.nav_expenses()}</span>
+                        <UnreadLabel
+                          count={receiptsToLink}
+                          label={m.expenses_unread_count}
+                        />
+                      </SidebarMenuButton>
+                      <UnreadBadge count={receiptsToLink} />
                     </SidebarMenuItem>
                     <SidebarMenuItem>
                       <SidebarMenuButton

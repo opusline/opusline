@@ -10,9 +10,15 @@ const inputGroupVariants = cva(
         sm: "h-9 px-3",
         default: "h-10 px-3",
       },
+      tone: {
+        default: "",
+        /** The one field a panel leads with, outlined in the brand colour. */
+        brand: "border-primary/50",
+      },
     },
     defaultVariants: {
       size: "default",
+      tone: "default",
     },
   },
 );
@@ -21,12 +27,13 @@ const inputGroupVariants = cva(
 function InputGroup({
   className,
   size,
+  tone,
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof inputGroupVariants>) {
   return (
     <div
       data-slot="input-group"
-      className={cn(inputGroupVariants({ size }), className)}
+      className={cn(inputGroupVariants({ size, tone }), className)}
       {...props}
     />
   );
@@ -40,7 +47,7 @@ function InputGroupInput({
     <input
       data-slot="input-group-input"
       className={cn(
-        "min-w-0 border-none bg-transparent font-mono text-foreground-hi tabular-nums outline-none",
+        "min-w-0 flex-1 border-none bg-transparent font-mono text-foreground-hi tabular-nums outline-none",
         className,
       )}
       {...props}

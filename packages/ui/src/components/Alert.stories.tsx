@@ -1,6 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { CircleAlert, TriangleAlert } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "./alert";
+import {
+  CheckIcon,
+  CircleAlert,
+  RefreshCwIcon,
+  TriangleAlert,
+} from "lucide-react";
+import { Alert, AlertAction, AlertDescription, AlertTitle } from "./alert";
+import { Button } from "./button";
 
 const meta = {
   title: "UI/Alert",
@@ -42,6 +48,18 @@ export const Warn: Story = {
   ),
 };
 
+/** A settled state the page keeps showing — a month declared, a file read. */
+export const Success: Story = {
+  render: () => (
+    <Alert variant="success">
+      <CheckIcon />
+      <AlertDescription>
+        CA3 août déclarée le 30 juillet · 1 016,45 € déduits
+      </AlertDescription>
+    </Alert>
+  ),
+};
+
 export const Brand: Story = {
   render: () => (
     <Alert variant="brand">
@@ -51,6 +69,42 @@ export const Brand: Story = {
         Orvella front · 3 j, Vesterhus maintenance · 3,5 h. Soit 1 948 € HT qui
         ne figurent sur aucune facture.
       </AlertDescription>
+    </Alert>
+  ),
+};
+
+/** One small action fits the corner the alert keeps free beside its text. */
+export const CornerAction: Story = {
+  render: () => (
+    <Alert>
+      <AlertTitle>Relevé importé</AlertTitle>
+      <AlertDescription>42 mouvements lus sur le compte pro.</AlertDescription>
+      <AlertAction>
+        <Button size="xs" variant="outline">
+          Voir
+        </Button>
+      </AlertAction>
+    </Alert>
+  ),
+};
+
+/** Several actions take a row under the text, whatever its length. */
+export const RowActions: Story = {
+  render: () => (
+    <Alert variant="brand">
+      <RefreshCwIcon />
+      <AlertDescription>
+        Prélèvement récurrent détecté : PRLV SEPA ATELIERS RUCHE · 49,00 € · le
+        20 du mois · 3 mois consécutifs
+      </AlertDescription>
+      <AlertAction layout="row">
+        <Button size="lg" variant="secondary">
+          Créer l'abonnement
+        </Button>
+        <Button size="lg" variant="ghost">
+          Ignorer
+        </Button>
+      </AlertAction>
     </Alert>
   ),
 };

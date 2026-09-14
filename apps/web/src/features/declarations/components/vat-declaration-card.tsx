@@ -1,104 +1,128 @@
-import type { VatDeclarationData } from "@opusline/api-client";
+import type {
+  DeclarationCompletionData,
+  VatDeclarationData,
+} from "@opusline/api-client";
 import { Badge } from "@opusline/ui/components/badge";
 import { CopyButton } from "@opusline/ui/components/copy-button";
+import { Eyebrow } from "@opusline/ui/components/eyebrow";
+import { useId } from "react";
 
 import { useLocale, useMoneyFormat } from "@/components/money-format-provider";
-import { formatWholeAmount, formatWholeFigure } from "@/lib/billing";
-import { VAT_REGIME_MESSAGES } from "@/lib/fiscality";
+import { formatWholeAmount } from "@/lib/billing";
+import { shiftPeriod } from "@/lib/periods";
 import { m } from "@/paraglide/messages.js";
 
-import {
-  ca3RateLine,
-  declarationCopyValue,
-  declarationPeriodLabel,
-} from "../lib/labels";
+import { ca3CopyLines, ca3Rows, declarationPeriodLabel } from "../lib/labels";
+import { Ca3BoxRow } from "./ca3-box-row";
+import { DeclarationActions } from "./declaration-actions";
+import { DeclarationDeadlineLine } from "./declaration-deadline-line";
+import { SettlementBlock } from "./settlement-block";
 
-export function VatDeclarationCard({ vat }: { vat: VatDeclarationData }) {
+type VatDeclarationCardProps = {
+  vat: VatDeclarationData;
+  isBusy: boolean;
+  onMarkFiled: () => void;
+  onMarkPaid: () => void;
+  onUndo: (completion: DeclarationCompletionData) => void;
+};
+
+export function VatDeclarationCard({
+  vat,
+  isBusy,
+  onMarkFiled,
+  onMarkPaid,
+  onUndo,
+}: VatDeclarationCardProps) {
   const format = useMoneyFormat();
   const locale = useLocale();
-
-  const salesHt = vat.salesHt.amount;
-  const rateLine = ca3RateLine(vat.rateBp);
-
-  // Only these two boxes are typed: the télédéclaration greys out the « taxe
-  // due » column and every total, deriving them from the base. Both carry the
-  // same HT figure — A1 as the operations total, 08 as the rate line's base.
-  const rateHint = `${m.declarations_vat_case({ box: rateLine?.box ?? "" })} · ${m.declarations_ca3_base()}`;
-
-  const lines = [
-    {
-      key: "a1",
-      label: m.declarations_ca3_line_a1(),
-      hint: m.declarations_vat_case({ box: "A1" }),
-    },
-    {
-      key: "rate",
-      label: rateLine?.label ?? m.declarations_ca3_line_rate_other(),
-      hint: rateLine === null ? m.declarations_ca3_base() : rateHint,
-    },
-  ];
+  const money = (cents: number) => formatWholeAmount(format, cents);
+  const rows = ca3Rows(vat, locale, money);
+  const copyLines = ca3CopyLines(rows);
+  const { boxes } = vat;
+  const previous = declarationPeriodLabel(locale, shiftPeriod(vat.period, -1));
+  const titleId = useId();
 
   return (
-    <section className="rounded-md border bg-card p-6">
+    <section
+      aria-labelledby={titleId}
+      className="flex flex-col rounded-md border bg-card p-6"
+    >
       <div className="flex flex-wrap items-center justify-between gap-2.5">
-        <h2 className="font-heading font-semibold text-foreground-hi text-xl">
+        <h2
+          className="font-heading font-semibold text-foreground-hi text-xl"
+          id={titleId}
+        >
           {m.declarations_vat_title({
             period: declarationPeriodLabel(locale, vat.period),
           })}
         </h2>
-        <Badge variant="quiet">{VAT_REGIME_MESSAGES[vat.regime].label()}</Badge>
+        <Badge variant="quiet">
+          {m.declarations_vat_badge_normal_monthly()}
+        </Badge>
       </div>
-      <p className="mt-1.5 mb-2 text-muted-foreground-3 text-sm leading-relaxed">
-        {m.declarations_vat_intro()}
-      </p>
+      <div className="mt-1.5">
+        <DeclarationDeadlineLine
+          completion={vat.completion}
+          deadline={vat.deadline}
+        />
+      </div>
 
+      <div className="mt-4 mb-1 flex items-center justify-between gap-2.5">
+        <Eyebrow>{m.declarations_boxes_title()}</Eyebrow>
+        <CopyButton
+          copiedLabel={m.declarations_copied_boxes({
+            count: copyLines.length,
+          })}
+          failedLabel={m.common_copy_failed()}
+          label={m.declarations_copy_all()}
+          value={copyLines.join("\n")}
+        />
+      </div>
       <div>
-        {lines.map((line) => (
-          <div
-            className="flex items-center justify-between gap-3.5 border-secondary border-b py-3 last:border-b-0"
-            key={line.key}
-          >
-            <div className="flex min-w-0 flex-col gap-0.75">
-              <span className="text-foreground-2 text-sm">{line.label}</span>
-              <span className="font-mono text-muted-foreground-3 text-xs">
-                {line.hint}
-              </span>
-            </div>
-            <div className="flex shrink-0 items-center gap-2.5">
-              <span className="whitespace-nowrap font-mono text-foreground-2 text-xl tabular-nums">
-                {formatWholeFigure(format, salesHt)}
-              </span>
-              <CopyButton
-                aria-label={m.declarations_copy_line({ line: line.label })}
-                copiedLabel={m.common_copied()}
-                failedLabel={m.common_copy_failed()}
-                size="icon"
-                value={declarationCopyValue(salesHt)}
-              />
-            </div>
-          </div>
+        {rows.map((row) => (
+          <Ca3BoxRow key={row.box} row={row} />
         ))}
       </div>
 
-      {rateLine === null && (
-        <p className="mt-3 text-muted-foreground-3 text-xs leading-relaxed">
-          {m.declarations_ca3_mixed_note()}
-        </p>
-      )}
-      <p className="mt-3 text-muted-foreground-3 text-xs leading-relaxed">
-        {m.declarations_ca3_computed_note({
-          amount: formatWholeAmount(format, vat.collected.amount),
-        })}
-      </p>
+      <div className="mt-4 mb-4.5">
+        <SettlementBlock
+          expectedLabel={m.declarations_vat_expected()}
+          settlement={vat.settlement}
+        >
+          {boxes.credit.amount > 0 && (
+            <p className="mt-2.5 text-success text-xs leading-relaxed">
+              {vat.creditIsRefundable
+                ? m.declarations_credit_note_refund({
+                    amount: money(boxes.credit.amount),
+                  })
+                : m.declarations_credit_note_carry({
+                    amount: money(boxes.credit.amount),
+                  })}
+            </p>
+          )}
+          {boxes.creditCarried.amount > 0 && boxes.credit.amount === 0 && (
+            <p className="mt-2.5 text-muted-foreground-3 text-xs leading-relaxed">
+              {m.declarations_used_credit_note({
+                credit: money(boxes.creditCarried.amount),
+                month: previous,
+                gross: money(boxes.due.amount + boxes.creditCarried.amount),
+                due: money(boxes.due.amount),
+              })}
+            </p>
+          )}
+        </SettlementBlock>
+      </div>
 
-      <a
-        className="mt-3.5 inline-block text-link text-sm transition-colors hover:text-link-hover"
+      <DeclarationActions
+        completion={vat.completion}
+        hasDeadline={vat.deadline !== null}
         href="https://www.impots.gouv.fr"
-        rel="noreferrer"
-        target="_blank"
-      >
-        {m.declarations_vat_link()}
-      </a>
+        isBusy={isBusy}
+        linkLabel={m.declarations_vat_link()}
+        onMarkFiled={onMarkFiled}
+        onMarkPaid={onMarkPaid}
+        onUndo={onUndo}
+      />
     </section>
   );
 }
