@@ -55,11 +55,6 @@ final class NormalizeBankText
     }
 
     /**
-     * The needle a client name becomes: legal forms are dropped because banks
-     * spell them inconsistently ("CALLISTO SA" vs "CALLISTO"), and short
-     * remainders are refused for the same reason short invoice numbers are.
-     */
-    /**
      * Whether the label, normalised, contains any of the needles.
      *
      * @param  iterable<string>  $needles
@@ -77,6 +72,11 @@ final class NormalizeBankText
         return false;
     }
 
+    /**
+     * The needle a client name becomes: legal forms are dropped because banks
+     * spell them inconsistently ("CALLISTO SA" vs "CALLISTO"), and short
+     * remainders are refused for the same reason short invoice numbers are.
+     */
     public static function clientNeedle(string $name): ?string
     {
         $needle = self::normalize($name);
