@@ -146,8 +146,11 @@ final readonly class ReceiptHeuristics
     private function supplier(): ?ReceiptTextFieldData
     {
         foreach ($this->folded as $index => $folded) {
-            if (preg_match(self::SELLER_LABEL, $folded, $label) === 1) {
-                $name = trim(mb_substr($this->lines[$index], mb_strlen($this->lines[$index]) - mb_strlen($label['name'])));
+            if (preg_match(self::SELLER_LABEL, $folded, $label, PREG_OFFSET_CAPTURE) === 1) {
+                // Folding can lengthen the name (« Œ » becomes « OE »), never the
+                // label before it: the cut is counted on the label side.
+                $labelLength = mb_strlen(substr($folded, 0, $label['name'][1]));
+                $name = trim(mb_substr($this->lines[$index], $labelLength));
 
                 return new ReceiptTextFieldData($this->supplierCase($name), ReceiptFieldConfidence::High);
             }

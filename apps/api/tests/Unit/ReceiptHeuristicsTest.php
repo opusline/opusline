@@ -234,6 +234,12 @@ test('ignores dates outside the window a receipt can carry', function (string $l
     'before the century' => 'Fondée en 12/03/1998',
 ]);
 
+test('a seller name holding a ligature is read whole', function (): void {
+    $reading = readReceipt("Facture\nVendu par Cœur et Œuvres SAS\nTotal à payer 129,00 €");
+
+    expect($reading->supplier?->value)->toBe('Cœur et Œuvres SAS');
+});
+
 test('a marketplace invoice names its seller of record', function (): void {
     $reading = readReceipt("Facture\nLU-BIO-04\nAmazon EU S.à r.l. - 38 avenue John F. Kennedy, L-1855 Luxembourg\nVendu par Roborock (HK) Limited\nTotal à payer 1 299,00 €");
 
