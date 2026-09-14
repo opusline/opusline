@@ -125,6 +125,11 @@ async function pickRowAction(supplier: string, item: string) {
   fireEvent.click(await screen.findByRole("menuitem", { name: item }));
 }
 
+// Each test renders the whole panel, every row with its twelve-month strip, and
+// some open the sheet twice: on a CI runner shared with the Storybook browser
+// suite that runs past Vitest's 5 s default although it takes 0.4 s locally.
+vi.setConfig({ testTimeout: 15_000 });
+
 afterEach(() => {
   vi.unstubAllGlobals();
 });
