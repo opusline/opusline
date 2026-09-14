@@ -178,7 +178,12 @@ export function expenseStatusPresentation(
       return {
         ...base,
         label: m.expense_status_blocked(),
-        sub: m.expense_status_blocked_sub(),
+        // Deferring a purchase still waiting for its receipt moves its claim
+        // all the same: say where it will land once the receipt is in.
+        sub:
+          expense.vatClaimPeriod === expense.spentOn.slice(0, 7)
+            ? m.expense_status_blocked_sub()
+            : m.expense_status_blocked_deferred_sub({ month: claimMonth }),
       };
     case 4:
       return {
