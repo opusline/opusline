@@ -49,8 +49,10 @@ services:
         condition: service_healthy
     ports:
       # Plain HTTP on purpose: terminate TLS in the proxy that already holds your
-      # certificate and forward here. See docs/self-hosting.md.
-      - "${HTTP_PORT:-8080}:80"
+      # certificate and forward here. See docs/self-hosting.md. Bound to the
+      # loopback so nothing reaches it around that proxy; set HTTP_BIND=0.0.0.0
+      # only when the proxy runs on another machine.
+      - "${HTTP_BIND:-127.0.0.1}:${HTTP_PORT:-8080}:80"
 
   api:
     <<: *api

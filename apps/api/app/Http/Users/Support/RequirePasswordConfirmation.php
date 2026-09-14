@@ -12,8 +12,11 @@ use Symfony\Component\HttpFoundation\Response;
  * Laravel's own password.confirm middleware answers a redirect unless the
  * request advertises JSON, and the SPA's client sends no Accept header — so
  * this one always answers 423, the status the SPA turns into its password
- * dialog. The session key and the timeout are the framework's, so a login
- * still opens the window through Session::passwordConfirmed().
+ * dialog. The session key and the timeout are the framework's.
+ *
+ * Only POST /user/confirm-password opens the window. Signing in does not: a
+ * session stolen minutes after a login would otherwise add its own passkey —
+ * a credential that outlives the session — without ever knowing the password.
  */
 class RequirePasswordConfirmation
 {

@@ -16,6 +16,16 @@ use Throwable;
 class ParseBankStatement
 {
     /**
+     * Sixteen years of a busy freelance account. The bound is what keeps an
+     * upload inside the worker's memory and the dedup lookup inside the
+     * database's bind-parameter ceiling; a longer history imports in parts.
+     */
+    public const int MAX_MOVEMENTS = 20_000;
+
+    /** Header rows and bank preambles above the movements of a CSV export. */
+    private const int CSV_PREAMBLE_LINES = 100;
+
+    /**
      * @return array{0: ParsedStatement, 1: BankStatementFormat}
      *
      * @throws StatementParseException
@@ -24,6 +34,13 @@ class ParseBankStatement
     {
         $text = DecodeStatementText::decode($bytes);
         $format = $this->detectFormat($text);
+
+        // A CSV is split into one string per line before any row is read, so
+        // its bound has to hold before parsing; the other formats build one
+        // object per movement and are bounded on the result.
+        if ($format === BankStatementFormat::Csv && preg_match_all('/\r\n|\r|\n/', $text) > self::MAX_MOVEMENTS + self::CSV_PREAMBLE_LINES) {
+            throw new StatementParseException('bank.too_many_movements');
+        }
 
         try {
             $statement = $this->parserFor($format)->parse($text);
@@ -38,6 +55,10 @@ class ParseBankStatement
 
         if ($statement->movements === []) {
             throw new StatementParseException('bank.no_movements');
+        }
+
+        if (count($statement->movements) > self::MAX_MOVEMENTS) {
+            throw new StatementParseException('bank.too_many_movements');
         }
 
         $movements = $this->chronological($statement->movements);

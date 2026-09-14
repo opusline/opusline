@@ -1698,6 +1698,11 @@
   "security_passkey_synced": "Synchronisée",
   "security_passkey_title": "Clés d'accès",
   "security_passkey_unsupported": "Ce navigateur ne prend pas en charge les clés d'accès.",
+  "security_password_changed": "Mot de passe modifié. Vos autres sessions sont déconnectées et vos navigateurs de confiance oubliés.",
+  "security_password_description": "Le changer vous déconnecte partout ailleurs et oublie les navigateurs auxquels vous faisiez confiance.",
+  "security_password_new_label": "Nouveau mot de passe",
+  "security_password_submit": "Changer le mot de passe",
+  "security_password_title": "Mot de passe",
   "security_recovery_codes_remaining": [
     {
       "declarations": ["input count", "local countPlural = count: plural"],

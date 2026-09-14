@@ -8,6 +8,8 @@ use App\Domain\TwoFactor\Recovery\RecoveryCodes;
 use App\Domain\TwoFactor\Totp\TotpVerifier;
 use App\Domain\Users\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class ConfirmTotp
@@ -38,12 +40,21 @@ class ConfirmTotp
                 throw ValidationException::withMessages(['code' => __('two-factor.invalid_code')]);
             }
 
+            $isFirstSecondFactor = $locked->two_factor_recovery_codes === null;
             $codes = $locked->two_factor_recovery_codes ?? RecoveryCodes::mint();
+
+            // A remember-me cookie minted before the second factor would keep
+            // skipping the challenge that now guards every other sign-in.
+            if ($isFirstSecondFactor) {
+                $locked->setRememberToken(Str::random(60));
+            }
 
             $locked->totp_confirmed_at = now();
             $locked->totp_last_used_step = $step;
             $locked->two_factor_recovery_codes = $codes;
             $locked->save();
+
+            Log::warning('Authenticator app turned on.', ['user_id' => $locked->id, 'ip' => request()->ip()]);
 
             return $codes;
         });

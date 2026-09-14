@@ -22,15 +22,19 @@ has no server runtime of its own.
 
 ```sh
 curl -fsSLO https://github.com/opusline/opusline/releases/latest/download/compose.prod.yaml
-curl -fsSL -o .env https://github.com/opusline/opusline/releases/latest/download/example.env
+curl -fsSLO https://github.com/opusline/opusline/releases/latest/download/example.env
+curl -fsSLO https://github.com/opusline/opusline/releases/latest/download/SHA256SUMS
+sha256sum --check --ignore-missing SHA256SUMS
+cp example.env .env
 
 # The one secret you must not lose: it decrypts every session, cookie and
-# calendar token the instance ever issues.
+# authenticator secret the instance ever holds.
 docker run --rm ghcr.io/opusline/opusline-api:latest php artisan key:generate --show
 ```
 
 Both files come from the release, not from `main`, so they always match the
-images `latest` points at. To pin a version instead, take the same two files
+images `latest` points at, and `SHA256SUMS` from the same release says they
+arrived as published. To pin a version instead, take the same two files
 from that release's page — its `example.env` names its own tag — and use that
 tag in the command above.
 
@@ -108,8 +112,10 @@ services:
         condition: service_healthy
     ports:
       # Plain HTTP on purpose: terminate TLS in the proxy that already holds your
-      # certificate and forward here. See docs/self-hosting.md.
-      - "${HTTP_PORT:-8080}:80"
+      # certificate and forward here. See docs/self-hosting.md. Bound to the
+      # loopback so nothing reaches it around that proxy; set HTTP_BIND=0.0.0.0
+      # only when the proxy runs on another machine.
+      - "${HTTP_BIND:-127.0.0.1}:${HTTP_PORT:-8080}:80"
 
   api:
     <<: *api
@@ -182,7 +188,9 @@ change:
 
 - **The port.** `HTTP_PORT` defaults to 8080, which collides with a lot of
   pre-installed software. Anything free works — the reverse proxy below is what
-  the browser actually talks to.
+  the browser actually talks to. It listens on `127.0.0.1` only, so nothing
+  reaches the app around that proxy; if the proxy runs on another machine, set
+  `HTTP_BIND=0.0.0.0` and firewall the port to that machine.
 - **Where uploads live.** They sit in the `opusline-storage` volume. To keep them
   somewhere you can see, swap that one line on the `x-api` anchor for a bind
   mount — `- /srv/opusline/storage:/app/storage/app`. Leave Postgres on its named
@@ -190,18 +198,19 @@ change:
 
 ## Putting it behind TLS
 
-`web` publishes plain HTTP on `HTTP_PORT` (8080 by default) and terminates
-nothing. Point whatever already holds your certificate at it.
+`web` publishes plain HTTP on `127.0.0.1:HTTP_PORT` (8080 by default) and
+terminates nothing. Point whatever already holds your certificate at it.
 
 The SPA calls `/api` and `/sanctum` on its own origin with no configurable base
 URL — that is deliberate, because session auth rides an XSRF cookie and a second
 hostname would break it. So the proxy has one job: forward everything for one
 hostname to `web`, unchanged.
 
-Caddy:
+Caddy (it sends every header below, HSTS aside, on its own):
 
 ```caddyfile
 opusline.example.com {
+	header Strict-Transport-Security "max-age=31536000; includeSubDomains"
 	reverse_proxy localhost:8080
 }
 ```
@@ -224,6 +233,9 @@ server {
 		# without its Secure attribute, which reads as "logs me out at random".
 		proxy_set_header X-Forwarded-Proto $scheme;
 	}
+
+	# `web` does not send HSTS: only the hop that speaks https can.
+	add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 }
 ```
 
@@ -232,10 +244,19 @@ and `SESSION_SECURE_COOKIE=true` in `.env`. Those three are what make the
 cookie flow work behind TLS termination; missing any of them shows up as
 intermittent 419s on writes rather than as an obvious error.
 
-`TRUSTED_PROXIES=*` in the example env is safe **because** the API container is
-reachable only through `web` on the compose network. If you expose the API
-container directly, narrow it to the proxy's address — an app that believes
-`X-Forwarded-For` from anyone has no working rate limit.
+`X-Forwarded-For` is what the rate limits key on — six wrong passwords a minute
+per visitor. `web` trusts it from private addresses only, which is where your
+proxy connects from (the host, the Docker bridge, a tunnel container), reads it
+right to left so a visitor cannot write their own, and hands the API one
+address. `TRUSTED_PROXIES=*` in the example env is safe **because** the API
+container is reachable only through `web` on the compose network. If you expose
+the API container directly, narrow it to the proxy's address — an app that
+believes `X-Forwarded-For` from anyone has no working rate limit.
+
+If your visitors themselves arrive from private addresses — a LAN-only
+instance — a private address is not proof of being your proxy. Set the Docker
+bridge or the proxy's own address instead of `private_ranges` in
+`docker/web.Caddyfile`.
 
 ## Backups
 
@@ -407,20 +428,24 @@ Six services run: `web` (the SPA and the proxy), `api`, `queue` and `scheduler`
 | Logged out at random | `SESSION_SECURE_COOKIE=true` without the proxy sending `X-Forwarded-Proto` |
 | Links point at `http://` | `OCTANE_HTTPS` is not `true` |
 | `The MAC is invalid` | `APP_KEY` changed. Put the old one in `APP_PREVIOUS_KEYS` |
-| Login throttled instantly for everyone | `TRUSTED_PROXIES` unset, so every request looks like it comes from the proxy |
+| Login throttled instantly for everyone | Every request looks like it comes from the proxy: `TRUSTED_PROXIES` is unset, or `docker/web.Caddyfile` no longer trusts the address your proxy connects from |
 | `no such table: sessions` | An older image. Upgrade — the migration ships now |
 | Forgot the password | There is no reset email. Set a new one from the shell, below |
 
 Opusline never sends email — there is no reset route and nothing configured to
-send one — so a forgotten password is fixed where you already have root:
+send one. A password you still know is changed under Settings → Security, which
+also signs out every other session; a forgotten one is fixed where you already
+have root:
 
 ```sh
 docker compose -f compose.prod.yaml exec api php artisan tinker \
   --execute 'App\Domain\Users\Models\User::first()->update(["password" => "a-new-password"]);'
 ```
 
-The model hashes the password on assignment, and the instance is single-tenant,
-so the first user is you.
+The model hashes the password on assignment, and the account's other sessions
+end on their next request. Replace `first()` with
+`where("email", "you@example.com")->sole()` on an instance with more than one
+account.
 
 Found something this page does not cover? Open an issue with the "Self-hosting /
 Docker" area — that template exists for exactly this.

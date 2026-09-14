@@ -6,9 +6,10 @@ use App\Http\Invoices\Controllers\ClientRevenueController;
 use App\Http\Missions\Controllers\MissionController;
 use App\Http\Missions\Controllers\MissionDocumentController;
 use App\Http\Missions\Controllers\MissionTimeEntryController;
+use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->scopeBindings()->group(function (): void {
+Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->scopeBindings()->group(function (): void {
     Route::get('/clients/{client}/missions/{mission}', [MissionController::class, 'show'])
         ->name('showMission');
     Route::get('/clients/{client}/missions/{mission}/revenue', [ClientRevenueController::class, 'showMission'])

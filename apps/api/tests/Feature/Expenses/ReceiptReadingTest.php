@@ -72,6 +72,20 @@ test('reads amounts in the account currency', function (): void {
         ->assertJsonPath('amountTtc.value.currency', 'CHF');
 });
 
+test('a PDF shaped to exhaust the parser is not read', function (string $appended): void {
+    $readable = receiptPdf('<p>Nordlys Cloud SAS</p><p>Total TTC 42,00 €</p>');
+    // Trailing comments change nothing a PDF reader sees; without the guard,
+    // the same file reads fine.
+    $shaped = UploadedFile::fake()->createWithContent('facture.pdf', $readable->getContent().$appended);
+
+    readReceiptAs(User::factory()->create(), $shaped)
+        ->assertOk()
+        ->assertJsonPath('textFound', false);
+})->with([
+    'more streams than a receipt carries' => [str_repeat("% endstream\n", 33)],
+    'a filter decoded without a memory limit' => ["% /RunLengthDecode\n"],
+]);
+
 test('an image has no text to read', function (): void {
     readReceiptAs(User::factory()->create(), UploadedFile::fake()->image('ticket.png'))
         ->assertOk()

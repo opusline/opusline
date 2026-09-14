@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Facades\Route;
@@ -52,5 +53,38 @@ test('every API route but the eight documented public ones is behind auth:sanctu
         'An API route is reachable without a session. Put it inside the file\'s '
         .'auth:sanctum group, or — if it genuinely has to be public — add it to '
         .'PUBLIC_API_ROUTES with the reason it can be.',
+    );
+});
+
+/** The routes a locked session must still reach: the ways out of the lock. */
+const LOCK_EXEMPT_API_ROUTES = [
+    'api/logout',
+    'api/user/confirm-password',
+];
+
+test('every authenticated API route but the ways out refuses a locked session', function (): void {
+    $unguarded = collect(Route::getRoutes()->getRoutes())
+        ->filter(fn (RoutingRoute $route): bool => str_starts_with($route->uri(), 'api/'))
+        ->filter(fn (RoutingRoute $route): bool => in_array(
+            Authenticate::class.':sanctum',
+            Route::gatherRouteMiddleware($route),
+            true,
+        ))
+        ->reject(fn (RoutingRoute $route): bool => in_array(
+            EnsureSessionIsUnlocked::class,
+            Route::gatherRouteMiddleware($route),
+            true,
+        ))
+        ->map(fn (RoutingRoute $route): string => $route->uri())
+        ->unique()
+        ->sort()
+        ->values()
+        ->all();
+
+    expect($unguarded)->toBe(
+        collect(LOCK_EXEMPT_API_ROUTES)->sort()->values()->all(),
+        'An authenticated API route answers a locked session. Open its file\'s '
+        .'group with EnsureSessionIsUnlocked next to auth:sanctum, or — if a locked '
+        .'session genuinely has to reach it — add it to LOCK_EXEMPT_API_ROUTES.',
     );
 });

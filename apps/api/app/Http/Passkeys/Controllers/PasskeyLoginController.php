@@ -12,6 +12,7 @@ use App\Domain\Users\Data\UserData;
 use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
 use App\Http\Passkeys\Support\PasskeyChallenge;
+use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use App\Http\Users\Support\ThemeCookie;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,8 +21,7 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * Passwordless sign-in. A passkey with user verification is both factors
- * at once, so a verified assertion opens the session outright — without the
- * password-confirmation window a typed password would have opened.
+ * at once, so a verified assertion opens the session outright.
  */
 class PasskeyLoginController extends Controller
 {
@@ -53,6 +53,7 @@ class PasskeyLoginController extends Controller
 
         Auth::guard('web')->login($user, $data->remember);
         $request->session()->regenerate();
+        $request->session()->forget(EnsureSessionIsUnlocked::SESSION_KEY);
 
         return response()->json(UserData::from($user))
             ->withCookie(ThemeCookie::for($user->theme));

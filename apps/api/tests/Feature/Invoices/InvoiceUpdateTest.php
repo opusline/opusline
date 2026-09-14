@@ -6,6 +6,8 @@ use App\Domain\Clients\Models\Client;
 use App\Domain\Invoices\Enums\InvoiceEventKind;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 test('updates an invoice and recomputes the gross amount', function (): void {
     $user = User::factory()->create();
@@ -137,6 +139,30 @@ test('refuses to move an invoice that still bills tracked time', function (): vo
         ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors('missionId');
+});
+
+test('refuses to move an invoice to another client while its document is filed', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent());
+    $otherClient = Client::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->postJson("/api/invoices/{$invoice->id}/document", [
+            'file' => UploadedFile::fake()->create('facture.pdf', 90, 'application/pdf'),
+        ])
+        ->assertCreated();
+
+    $this->actingAs($user)
+        ->putJson("/api/invoices/{$invoice->id}", [
+            'clientId' => $otherClient->id,
+            'number' => $invoice->number,
+            'amountHt' => ['amount' => 165_000, 'currency' => 'EUR'],
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['clientId' => __('invoices.cannot_move_with_filed_document')]);
+
+    expect($invoice->refresh()->client_id)->not->toBe($otherClient->id);
 });
 
 test('refuses a payment date before the issue date', function (): void {

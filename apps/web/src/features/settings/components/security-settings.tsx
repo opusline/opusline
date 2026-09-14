@@ -11,6 +11,7 @@ import {
   showTwoFactorOptions,
   showTwoFactorQueryKey,
   startTotpSetupMutation,
+  updateUserPasswordMutation,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
@@ -27,6 +28,7 @@ import { AuthenticatorAppCard } from "./authenticator-app-card";
 import type { TotpSetupState } from "./authenticator-setup-dialog";
 import { PasskeyNameDialog } from "./passkey-name-dialog";
 import { PasskeysCard } from "./passkeys-card";
+import { PasswordCard } from "./password-card";
 import { TrustedBrowsersCard } from "./trusted-browsers-card";
 
 type WebAuthn = {
@@ -56,6 +58,7 @@ export function SecuritySettings({ guarded, webAuthn }: SecuritySettingsProps) {
   const [totpError, setTotpError] = useState<string | null>(null);
   const [devicesError, setDevicesError] = useState<string | null>(null);
   const [passkeysError, setPasskeysError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   // The browser has minted a credential and the API is waiting for its name.
   const [pendingCredential, setPendingCredential] = useState<string | null>(
     null,
@@ -71,9 +74,40 @@ export function SecuritySettings({ guarded, webAuthn }: SecuritySettingsProps) {
   const registerPasskey = useMutation(registerPasskeyMutation());
   const renamePasskey = useMutation(renamePasskeyMutation());
   const deletePasskey = useMutation(deletePasskeyMutation());
+  const updatePassword = useMutation(updateUserPasswordMutation());
 
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: showTwoFactorQueryKey() });
+
+  const changePassword = async (body: {
+    password: string;
+    password_confirmation: string;
+  }): Promise<FormSubmitResult> => {
+    setPasswordError(null);
+
+    try {
+      const outcome = await guarded(() => updatePassword.mutateAsync({ body }));
+
+      if (outcome.status === "cancelled") {
+        return { status: "failed" };
+      }
+
+      // The trusted browsers the card below lists are gone with the old password.
+      await refresh();
+
+      return { status: "success" };
+    } catch (error) {
+      const fieldErrors = serverFieldErrors(error);
+
+      if (fieldErrors !== null) {
+        return { status: "invalid", fieldErrors };
+      }
+
+      setPasswordError(serverErrorMessage(error, m.common_action_failed()));
+
+      return { status: "failed" };
+    }
+  };
 
   const runTotpAction = async (action: () => Promise<void>) => {
     setTotpError(null);
@@ -258,6 +292,11 @@ export function SecuritySettings({ guarded, webAuthn }: SecuritySettingsProps) {
 
   return (
     <div className="flex flex-col gap-6">
+      <PasswordCard
+        error={passwordError}
+        isPending={updatePassword.isPending}
+        onSubmit={changePassword}
+      />
       <AuthenticatorAppCard
         error={totpError}
         isPending={isTotpPending}

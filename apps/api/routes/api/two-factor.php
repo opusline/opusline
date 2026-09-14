@@ -7,6 +7,7 @@ use App\Http\TwoFactor\Controllers\TotpController;
 use App\Http\TwoFactor\Controllers\TrustedDeviceController;
 use App\Http\TwoFactor\Controllers\TwoFactorChallengeController;
 use App\Http\TwoFactor\Controllers\TwoFactorController;
+use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use App\Http\Users\Support\RequirePasswordConfirmation;
 use Illuminate\Support\Facades\Route;
 
@@ -17,7 +18,7 @@ Route::post('/two-factor-challenge/passkey-options', [TwoFactorChallengeControll
     ->middleware('throttle:two-factor-challenge')
     ->name('twoFactorPasskeyOptions');
 
-Route::middleware('auth:sanctum')->group(function (): void {
+Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(function (): void {
     Route::get('/user/two-factor', [TwoFactorController::class, 'show'])->name('showTwoFactor');
 
     Route::post('/user/two-factor/totp', [TotpController::class, 'start'])

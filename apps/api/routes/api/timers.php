@@ -3,9 +3,10 @@
 declare(strict_types=1);
 
 use App\Http\Timers\Controllers\TimerController;
+use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->group(function (): void {
+Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(function (): void {
     Route::get('/timer', [TimerController::class, 'show'])
         ->name('showTimer');
     Route::post('/timer', [TimerController::class, 'store'])

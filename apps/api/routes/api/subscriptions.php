@@ -3,9 +3,10 @@
 declare(strict_types=1);
 
 use App\Http\Expenses\Controllers\SubscriptionController;
+use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->group(function (): void {
+Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(function (): void {
     Route::get('/subscriptions', [SubscriptionController::class, 'index'])
         ->name('listSubscriptions');
 

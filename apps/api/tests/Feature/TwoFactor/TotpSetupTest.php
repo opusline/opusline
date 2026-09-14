@@ -73,6 +73,17 @@ test('confirming with the current code enables the authenticator and returns the
     ]);
 });
 
+test('turning the authenticator on voids remember-me cookies minted before it', function (): void {
+    $user = User::factory()->create(['remember_token' => 'remembered-before-two-factor']);
+    $secret = withConfirmedPassword($user)->postJson('/api/user/two-factor/totp')->json('secret');
+
+    fromSpa()->actingAs($user)
+        ->postJson('/api/user/two-factor/totp/confirm', ['code' => totpCodeFor($secret)])
+        ->assertOk();
+
+    expect($user->refresh()->remember_token)->not->toBe('remembered-before-two-factor');
+});
+
 test('confirming tolerates one step of clock drift on either side', function (int $driftSeconds): void {
     $user = User::factory()->create();
     $secret = withConfirmedPassword($user)->postJson('/api/user/two-factor/totp')->json('secret');
