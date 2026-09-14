@@ -35,8 +35,7 @@ test('refuses an expense of another account', function (): void {
             'expenseIds' => [$foreign->id],
             'category' => ExpenseCategory::Internet->value,
         ])
-        ->assertUnprocessable()
-        ->assertJsonValidationErrors('expenseIds');
+        ->assertNotFound();
 
     $this->assertDatabaseHas('expenses', ['id' => $foreign->id, 'category' => ExpenseCategory::Phone->value]);
 });

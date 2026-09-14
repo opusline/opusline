@@ -14,18 +14,16 @@ class RecategorizeExpenses
     /**
      * @return string the `Y-m` month the moved rows live in — the journal to answer with
      *
-     * @throws ValidationException when an id is not the user's, or the selection spans several months
+     * @throws ValidationException when the selection spans several months; a foreign id is a 404
      */
     public function handle(User $user, RecategorizeExpensesData $data): string
     {
         $ids = array_values(array_unique($data->expenseIds));
         $selected = $user->expenses()->whereIn('id', $ids)->get(['id', 'spent_on']);
 
-        // A foreign id is a 422, never a silent skip — one query answers both
-        // "is it mine" and "which month", where an exists rule would add a third.
-        if ($selected->count() !== count($ids)) {
-            throw ValidationException::withMessages(['expenseIds' => __('expenses.unknown_expense')]);
-        }
+        // A foreign id reads as absent, like any resource that is not the
+        // user's — one query answers both "is it mine" and "which month".
+        abort_if($selected->count() !== count($ids), 404, __('expenses.unknown_expense'));
 
         $months = $selected->map(fn (Expense $expense): string => $expense->month())->unique();
 
