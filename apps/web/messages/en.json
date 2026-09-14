@@ -1698,6 +1698,11 @@
   "security_passkey_synced": "Synced",
   "security_passkey_title": "Passkeys",
   "security_passkey_unsupported": "This browser does not support passkeys.",
+  "security_password_changed": "Password changed. Your other sessions are signed out and your trusted browsers forgotten.",
+  "security_password_description": "Changing it signs you out everywhere else and forgets the browsers you trusted.",
+  "security_password_new_label": "New password",
+  "security_password_submit": "Change password",
+  "security_password_title": "Password",
   "security_recovery_codes_remaining": [
     {
       "declarations": ["input count", "local countPlural = count: plural"],
