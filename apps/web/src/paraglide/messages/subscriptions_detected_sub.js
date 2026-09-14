@@ -6,7 +6,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{ months: NonNullable<unknown> }} Subscriptions_Detected_SubInputs */
 
 const en_subscriptions_detected_sub = /** @type {(inputs: Subscriptions_Detected_SubInputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Compte pro · ${i?.months} · no subscription matches`)
+	return /** @type {LocalizedString} */ (`Business account · ${i?.months} · no subscription matches`)
 };
 
 const fr_subscriptions_detected_sub = /** @type {(inputs: Subscriptions_Detected_SubInputs) => LocalizedString} */ (i) => {
@@ -16,7 +16,7 @@ const fr_subscriptions_detected_sub = /** @type {(inputs: Subscriptions_Detected
 /**
 * | output |
 * | --- |
-* | "Compte pro · {months} · no subscription matches" |
+* | "Business account · {months} · no subscription matches" |
 *
 * @param {Subscriptions_Detected_SubInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

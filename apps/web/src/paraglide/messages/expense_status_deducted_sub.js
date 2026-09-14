@@ -6,17 +6,17 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{ date: NonNullable<unknown> }} Expense_Status_Deducted_SubInputs */
 
 const en_expense_status_deducted_sub = /** @type {(inputs: Expense_Status_Deducted_SubInputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`CA3 of ${i?.date}`)
+	return /** @type {LocalizedString} */ (`filed on ${i?.date}`)
 };
 
 const fr_expense_status_deducted_sub = /** @type {(inputs: Expense_Status_Deducted_SubInputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`CA3 du ${i?.date}`)
+	return /** @type {LocalizedString} */ (`déclarée le ${i?.date}`)
 };
 
 /**
 * | output |
 * | --- |
-* | "CA3 of {date}" |
+* | "filed on {date}" |
 *
 * @param {Expense_Status_Deducted_SubInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

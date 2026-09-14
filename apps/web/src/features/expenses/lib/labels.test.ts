@@ -10,7 +10,7 @@ import {
 import { expenseStatusPresentation } from "./labels";
 
 describe("a deducted row's sub line", () => {
-  it("dates the CA3 when the row was claimed on the month shown", () => {
+  it("dates the filing when the row was claimed on the month shown", () => {
     const status = expenseStatusPresentation(
       "fr-FR",
       0,
@@ -18,7 +18,7 @@ describe("a deducted row's sub line", () => {
       declaredExpensesMonth(),
     );
 
-    expect(status.sub).toBe("CA3 du 09/09/2026");
+    expect(status.sub).toBe("déclarée le 09/09/2026");
     expect(status.isDeducted).toBe(true);
   });
 

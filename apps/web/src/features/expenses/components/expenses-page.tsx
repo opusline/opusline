@@ -26,7 +26,7 @@ export function ExpensesPage({
   children,
 }: ExpensesPageProps) {
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-4">
+    <div className="flex w-full flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="whitespace-nowrap font-heading font-semibold text-2xl text-foreground-hi leading-tight">
           {m.expenses_title()}

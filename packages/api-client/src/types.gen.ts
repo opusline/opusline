@@ -2357,8 +2357,6 @@ export type UserData = {
 export type VatDeclarationData = {
     period: string;
     regime: VatRegime;
-    salesHt: MoneyData;
-    collected: MoneyData;
     rateBp: number | null;
     boxes: Ca3BoxesData;
     invoiceCount: number;

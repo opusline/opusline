@@ -109,7 +109,7 @@ export function DeclarationsHistoryCard({
           {history.map((row) => (
             <TableRow
               className={cn(
-                "border-t hover:bg-accent",
+                "border-t",
                 row.period === period && "bg-primary/6",
               )}
               key={row.period}

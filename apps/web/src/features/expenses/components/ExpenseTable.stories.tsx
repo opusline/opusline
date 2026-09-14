@@ -31,7 +31,7 @@ const meta = {
   decorators: [
     (Story) => (
       <StoryRouter>
-        <div className="mx-auto max-w-6xl rounded-md border bg-card">
+        <div className="rounded-md border bg-card">
           <Story />
         </div>
       </StoryRouter>

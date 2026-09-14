@@ -921,7 +921,7 @@
   "expense_status_blocked": "Bloquée",
   "expense_status_blocked_sub": "facture manquante",
   "expense_status_deducted": "Déduite",
-  "expense_status_deducted_sub": "CA3 du {date}",
+  "expense_status_deducted_sub": "déclarée le {date}",
   "expense_status_deductible": "À déduire",
   "expense_status_deductible_sub": "CA3 {month}",
   "expense_status_deferred": "Reportée",

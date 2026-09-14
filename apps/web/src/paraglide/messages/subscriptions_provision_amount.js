@@ -6,7 +6,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{ amount: NonNullable<unknown> }} Subscriptions_Provision_AmountInputs */
 
 const en_subscriptions_provision_amount = /** @type {(inputs: Subscriptions_Provision_AmountInputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.amount} / month set aside in Trésorerie.`)
+	return /** @type {LocalizedString} */ (`${i?.amount} / month set aside in Treasury.`)
 };
 
 const fr_subscriptions_provision_amount = /** @type {(inputs: Subscriptions_Provision_AmountInputs) => LocalizedString} */ (i) => {
@@ -16,7 +16,7 @@ const fr_subscriptions_provision_amount = /** @type {(inputs: Subscriptions_Prov
 /**
 * | output |
 * | --- |
-* | "{amount} / month set aside in Trésorerie." |
+* | "{amount} / month set aside in Treasury." |
 *
 * @param {Subscriptions_Provision_AmountInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

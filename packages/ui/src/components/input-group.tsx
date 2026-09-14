@@ -47,7 +47,7 @@ function InputGroupInput({
     <input
       data-slot="input-group-input"
       className={cn(
-        "min-w-0 border-none bg-transparent font-mono text-foreground-hi tabular-nums outline-none",
+        "min-w-0 flex-1 border-none bg-transparent font-mono text-foreground-hi tabular-nums outline-none",
         className,
       )}
       {...props}

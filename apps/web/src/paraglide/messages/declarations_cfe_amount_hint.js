@@ -6,7 +6,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{}} Declarations_Cfe_Amount_HintInputs */
 
 const en_declarations_cfe_amount_hint = /** @type {(inputs: Declarations_Cfe_Amount_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`The notice amount replaces the estimate, in Trésorerie as here.`)
+	return /** @type {LocalizedString} */ (`The notice amount replaces the estimate, in Treasury as here.`)
 };
 
 const fr_declarations_cfe_amount_hint = /** @type {(inputs: Declarations_Cfe_Amount_HintInputs) => LocalizedString} */ () => {
@@ -16,7 +16,7 @@ const fr_declarations_cfe_amount_hint = /** @type {(inputs: Declarations_Cfe_Amo
 /**
 * | output |
 * | --- |
-* | "The notice amount replaces the estimate, in Trésorerie as here." |
+* | "The notice amount replaces the estimate, in Treasury as here." |
 *
 * @param {Declarations_Cfe_Amount_HintInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

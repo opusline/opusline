@@ -67,7 +67,7 @@ it("locks every deducted row once the month is filed", async () => {
   renderTable({ month: declaredExpensesMonth() });
 
   expect(await screen.findByText("Déduite")).toBeInTheDocument();
-  expect(screen.getByText("CA3 du 09/09/2026")).toBeInTheDocument();
+  expect(screen.getByText("déclarée le 09/09/2026")).toBeInTheDocument();
   expect(screen.getAllByText("Verrouillée · mois déclaré")).toHaveLength(1);
 });
 
@@ -81,14 +81,24 @@ it("only tracks the receipt under the franchise", async () => {
   expect(screen.getAllByText("Facture manquante").length).toBeGreaterThan(0);
 });
 
-it("links a receipt for download and offers a drop target without one", async () => {
+it("opens a receipt in its own tab and offers a drop target without one", async () => {
   renderTable({ expenses: [expense(), blockedExpense()] });
 
-  expect(
-    await screen.findByRole("link", {
-      name: "Ouvrir la facture lunaprint-facture-9921.pdf",
-    }),
-  ).toHaveAttribute("href", expect.stringContaining("/expenses/1/receipt"));
+  const receipt = await screen.findByRole("link", {
+    name: "Ouvrir la facture lunaprint-facture-9921.pdf",
+  });
+
+  expect(receipt).toHaveAttribute(
+    "href",
+    expect.stringContaining("/expenses/1/receipt"),
+  );
+  expect(receipt).toHaveAttribute("target", "_blank");
+  expect(receipt).not.toHaveAttribute("download");
+  // Sanctum reads the session off the referer: a noreferrer link answers 401.
+  expect(receipt).not.toHaveAttribute(
+    "rel",
+    expect.stringContaining("noreferrer"),
+  );
   expect(
     screen.getByLabelText("Lier la facture de Vesterhus Énergie"),
   ).toBeInTheDocument();

@@ -6,7 +6,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{}} Subscriptions_Provision_HintInputs */
 
 const en_subscriptions_provision_hint = /** @type {(inputs: Subscriptions_Provision_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Smooths the yearly debit in Trésorerie.`)
+	return /** @type {LocalizedString} */ (`Smooths the yearly debit in Treasury.`)
 };
 
 const fr_subscriptions_provision_hint = /** @type {(inputs: Subscriptions_Provision_HintInputs) => LocalizedString} */ () => {
@@ -16,7 +16,7 @@ const fr_subscriptions_provision_hint = /** @type {(inputs: Subscriptions_Provis
 /**
 * | output |
 * | --- |
-* | "Smooths the yearly debit in Trésorerie." |
+* | "Smooths the yearly debit in Treasury." |
 *
 * @param {Subscriptions_Provision_HintInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

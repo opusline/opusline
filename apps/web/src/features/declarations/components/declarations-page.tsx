@@ -81,7 +81,7 @@ export function DeclarationsPage({
     <div
       aria-busy={isRefreshing || undefined}
       className={cn(
-        "mx-auto flex w-full max-w-6xl flex-col gap-4 transition-opacity",
+        "flex w-full flex-col gap-4 transition-opacity",
         isRefreshing && "opacity-60",
       )}
     >

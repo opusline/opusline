@@ -24,7 +24,6 @@ export function QuickEntryInput({ value, onChange }: QuickEntryInputProps) {
         />
         <InputGroupInput
           aria-label={m.expenses_quick_aria()}
-          className="flex-1"
           onChange={(event) => onChange(event.target.value)}
           placeholder={m.expenses_quick_placeholder()}
           value={value}

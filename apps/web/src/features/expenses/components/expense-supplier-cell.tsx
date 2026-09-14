@@ -66,7 +66,7 @@ export function ExpenseSupplierCell({ expense }: { expense: ExpenseData }) {
         )}
       </div>
       {expense.isRegularisation && (
-        <div className="mt-1 text-primary-text text-xs">
+        <div className="mt-1 text-attention text-xs">
           {m.expenses_regularisation_note({
             month: monthName(locale, expense.vatClaimPeriod),
           })}

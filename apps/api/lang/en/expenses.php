@@ -10,7 +10,7 @@ return [
     'unknown_subscription' => 'This subscription does not exist.',
     'occurrence_taken' => 'This subscription already has an expense for that period.',
     'link_on_create_only' => 'An expense is tied to a subscription when it is recorded, not afterwards.',
-    'one_subscription_link' => 'Tie the purchase to an existing subscription or make it recurring, not both.',
-    'unknown_movement' => 'This debit does not exist on the compte pro.',
+    'one_subscription_link' => 'Tie the expense to an existing subscription or make it recurring, not both.',
+    'unknown_movement' => 'This debit does not exist on the business account.',
     'movement_taken' => 'This debit already pays an invoice or another expense.',
 ];

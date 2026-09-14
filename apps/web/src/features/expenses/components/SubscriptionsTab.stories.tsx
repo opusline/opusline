@@ -36,7 +36,7 @@ const meta = {
   decorators: [
     (Story) => (
       <StoryRouter>
-        <div className="mx-auto max-w-6xl p-6">
+        <div className="p-6">
           <Story />
         </div>
       </StoryRouter>

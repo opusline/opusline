@@ -6,7 +6,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{}} Subscriptions_Auto_Create_Help_2Inputs */
 
 const en_subscriptions_auto_create_help_2 = /** @type {(inputs: Subscriptions_Auto_Create_Help_2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`If the debit is found on the compte pro, it is matched to that expense automatically: no duplicate.`)
+	return /** @type {LocalizedString} */ (`If the debit is found on the business account, it is matched to that expense automatically: no duplicate.`)
 };
 
 const fr_subscriptions_auto_create_help_2 = /** @type {(inputs: Subscriptions_Auto_Create_Help_2Inputs) => LocalizedString} */ () => {
@@ -16,7 +16,7 @@ const fr_subscriptions_auto_create_help_2 = /** @type {(inputs: Subscriptions_Au
 /**
 * | output |
 * | --- |
-* | "If the debit is found on the compte pro, it is matched to that expense automatically: no duplicate." |
+* | "If the debit is found on the business account, it is matched to that expense automatically: no duplicate." |
 *
 * @param {Subscriptions_Auto_Create_Help_2Inputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

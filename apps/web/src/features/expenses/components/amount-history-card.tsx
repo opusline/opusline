@@ -28,7 +28,7 @@ export function AmountHistoryCard({
         </p>
       ) : (
         <div className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto_auto] items-center gap-x-3 gap-y-2.5 text-sm">
-          <span className={HEAD_CLASSES}>
+          <span className={cn(HEAD_CLASSES, "truncate")}>
             {m.subscriptions_history_col_subscription()}
           </span>
           <span className={cn(HEAD_CLASSES, "text-right")}>
