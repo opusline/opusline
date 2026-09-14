@@ -23,6 +23,7 @@ import {
   deadlinesFilter,
   declarationsFilter,
   expensesFilter,
+  invalidateExpenseWrites,
   missionTimeEntriesFilter,
   operationFilter,
   revenueFilter,
@@ -267,5 +268,39 @@ describe("declarationsFilter", () => {
       ),
     ).toBe(true);
     expect(filter.predicate(queryWithKey(listExpensesQueryKey()))).toBe(false);
+  });
+});
+
+describe("invalidateExpenseWrites", () => {
+  it("marks the journal, the declarations, the treasury and the deadlines stale", async () => {
+    const queryClient = new QueryClient();
+    const movedKeys = [
+      listExpensesQueryKey({ query: { month: "2026-08" } }),
+      showDeclarationsQueryKey({ query: { period: "2026-07" } }),
+      showTreasuryQueryKey(),
+      listDeadlinesQueryKey(),
+    ];
+    for (const queryKey of movedKeys) {
+      queryClient.setQueryData(queryKey, {});
+    }
+
+    await invalidateExpenseWrites(queryClient);
+
+    expect(
+      movedKeys.map(
+        (queryKey) => queryClient.getQueryState(queryKey)?.isInvalidated,
+      ),
+    ).toEqual([true, true, true, true]);
+  });
+
+  it("leaves the invoice reads alone", async () => {
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(listInvoicesQueryKey(), { invoices: [] });
+
+    await invalidateExpenseWrites(queryClient);
+
+    expect(
+      queryClient.getQueryState(listInvoicesQueryKey())?.isInvalidated,
+    ).toBe(false);
   });
 });

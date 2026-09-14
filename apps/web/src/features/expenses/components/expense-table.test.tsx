@@ -142,3 +142,20 @@ it("says a receipt is on its way for the row being uploaded", async () => {
     screen.getByLabelText("Lier la facture de Vesterhus Énergie"),
   ).toBeDisabled();
 });
+
+it("hands a file picked for a row to that expense", async () => {
+  const props = renderTable({ expenses: [blockedExpense()] });
+  const file = new File(["%PDF-1.4"], "vesterhus.pdf", {
+    type: "application/pdf",
+  });
+
+  fireEvent.change(
+    await screen.findByLabelText("Lier la facture de Vesterhus Énergie"),
+    { target: { files: [file] } },
+  );
+
+  expect(props.onAttachReceipt).toHaveBeenCalledWith(
+    expect.objectContaining({ id: 2 }),
+    expect.objectContaining({ length: 1 }),
+  );
+});

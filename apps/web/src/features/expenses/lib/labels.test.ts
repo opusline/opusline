@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { declaredExpensesMonth, expense, expensesMonth } from "./fixtures";
+import {
+  declaredExpensesMonth,
+  deferredExpense,
+  expense,
+  expensesMonth,
+  reverseChargedExpense,
+} from "./fixtures";
 import { expenseStatusPresentation } from "./labels";
 
 describe("a deducted row's sub line", () => {
@@ -36,5 +42,32 @@ describe("a deducted row's sub line", () => {
     );
 
     expect(status.sub).toBe("CA3 août");
+  });
+});
+
+describe("a deferred row's sub line", () => {
+  it("points a regularisation at box 21 of the CA3 it lands on", () => {
+    const status = expenseStatusPresentation(
+      "fr-FR",
+      0,
+      { ...deferredExpense(), isRegularisation: true },
+      expensesMonth(),
+    );
+
+    expect(status.sub).toBe("case 21 · CA3 septembre");
+  });
+});
+
+describe("a reverse-charged row", () => {
+  it("tells an EU supplier apart from a non-EU one", () => {
+    const status = expenseStatusPresentation(
+      "fr-FR",
+      0,
+      { ...reverseChargedExpense(), vatTreatment: 1 },
+      expensesMonth(),
+    );
+
+    expect(status.flag).toBe("UE");
+    expect(status.sub).toBe("UE · due et déduite");
   });
 });

@@ -53,3 +53,22 @@ it("offers no detachment when there is no receipt", async () => {
     screen.queryByRole("menuitem", { name: "Détacher la facture" }),
   ).not.toBeInTheDocument();
 });
+
+it("hands the expense to deletion", async () => {
+  const onDelete = vi.fn();
+
+  render(
+    <ExpenseRowMenu
+      expense={blockedExpense()}
+      onDelete={onDelete}
+      onDetachReceipt={() => {}}
+    />,
+  );
+
+  fireEvent.click(
+    screen.getByRole("button", { name: "Actions pour Vesterhus Énergie" }),
+  );
+  fireEvent.click(await screen.findByRole("menuitem", { name: "Supprimer" }));
+
+  expect(onDelete).toHaveBeenCalledWith(expect.objectContaining({ id: 2 }));
+});
