@@ -36,7 +36,10 @@ const dropzoneVariants = cva(
   },
 );
 
-type DropzoneProps = Omit<ComponentProps<"label">, "onChange"> &
+type DropzoneProps = Omit<
+  ComponentProps<"label">,
+  "onChange" | "onDragLeave" | "onDragOver" | "onDrop"
+> &
   VariantProps<typeof dropzoneVariants> & {
     /** Comma-separated extensions, `.pdf,.jpg` — the browser's file filter. */
     accept: string;
@@ -72,7 +75,18 @@ function Dropzone({
       data-slot="dropzone"
       data-drag-over={isDragOver && !disabled ? "" : undefined}
       className={cn(dropzoneVariants({ size, tone }), className)}
-      onDragLeave={() => setIsDragOver(false)}
+      onDragLeave={(event) => {
+        // Moving onto the icon or the hint leaves the label for its own
+        // child: the zone is only left once the pointer is outside it.
+        if (
+          event.relatedTarget instanceof Node &&
+          event.currentTarget.contains(event.relatedTarget)
+        ) {
+          return;
+        }
+
+        setIsDragOver(false);
+      }}
       onDragOver={(event) => {
         if (disabled) {
           return;
