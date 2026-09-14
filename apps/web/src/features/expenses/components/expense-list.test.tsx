@@ -12,6 +12,8 @@ function renderList(month: ExpensesMonthData) {
       onAttachReceipt={vi.fn()}
       onDelete={vi.fn()}
       onDetachReceipt={vi.fn()}
+      onDuplicate={vi.fn()}
+      onEdit={vi.fn()}
       unit="ht"
       uploadingExpenseId={null}
     />,

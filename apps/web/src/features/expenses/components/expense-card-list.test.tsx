@@ -21,6 +21,8 @@ function renderCards(
     uploadingExpenseId: null,
     onAttachReceipt: vi.fn(),
     onDetachReceipt: vi.fn(),
+    onEdit: vi.fn(),
+    onDuplicate: vi.fn(),
     onDelete: vi.fn(),
     ...overrides,
   };
