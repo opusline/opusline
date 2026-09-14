@@ -1,8 +1,14 @@
 #!/usr/bin/env sh
-# Files a GitHub issue for every unresolved Sentry issue that has none yet.
+# Files a GitHub issue for every unresolved Sentry issue that has none yet, and
+# keeps the two sides in step: an issue Sentry no longer lists as unresolved is
+# closed, a regression reopens it.
+#
 # The repository is public and an exception message can carry user data (SQL
-# bind values, client names, amounts), so the issue gets the exception type,
-# where it was thrown and a link back to Sentry — never the message itself.
+# bind values, client names, amounts), so an issue gets the exception type,
+# where it was thrown, the release it came from and a link back to Sentry —
+# never the message, the frame variables or the request. Stack frames are
+# published for this repository's own code only, which is public anyway.
+#
 # What is already filed is read back from GitHub rather than inferred from a
 # time window, so a skipped or failed run catches up on the next one.
 set -eu
@@ -18,17 +24,21 @@ dry_run="${DRY_RUN:-0}"
 # title is safe to publish as is.
 safe_message_types='["ApiFailure"]'
 
-issues_url="$sentry_url/api/0/organizations/$SENTRY_ORG/issues/?project=-1&query=is:unresolved&sort=new&limit=100&collapse=stats"
 headers_file=$(mktemp)
 trap 'rm -f "$headers_file"' EXIT
 
+sentry_get() {
+  curl --silent --show-error --fail-with-body \
+    --header "Authorization: Bearer $SENTRY_AUTH_TOKEN" \
+    --dump-header "$headers_file" \
+    "$sentry_url$1"
+}
+
+issues_path="/api/0/organizations/$SENTRY_ORG/issues/?project=-1&query=is:unresolved&sort=new&limit=100"
 unresolved='[]'
 cursor=''
 while :; do
-  page=$(curl --silent --show-error --fail-with-body \
-    --header "Authorization: Bearer $SENTRY_AUTH_TOKEN" \
-    --dump-header "$headers_file" \
-    "$issues_url${cursor:+&cursor=$cursor}")
+  page=$(sentry_get "$issues_path${cursor:+&cursor=$cursor}")
 
   if ! printf '%s' "$page" | jq --exit-status 'type == "array"' >/dev/null; then
     echo "Sentry did not answer with a list of issues:" >&2
@@ -41,49 +51,88 @@ while :; do
   [ -n "$cursor" ] || break
 done
 
+unresolved_ids=$(printf '%s' "$unresolved" | jq --raw-output '.[].id')
+regressed_ids=$(printf '%s' "$unresolved" | jq --raw-output '.[] | select(.substatus == "regressed") | .id')
+
+holds_id() {
+  printf '%s\n' "$1" | grep --quiet --line-regexp "$2"
+}
+
 # Past the limit the oldest markers drop out of the list and their Sentry
 # issues would be filed a second time, so stop rather than duplicate.
 filed_limit=1000
-filed_issues=$(gh issue list --label sentry --state all --limit "$filed_limit" --json body)
+filed_issues=$(gh issue list --label sentry --state all --limit "$filed_limit" --json number,state,body)
 if [ "$(printf '%s' "$filed_issues" | jq 'length')" -ge "$filed_limit" ]; then
   echo "gh issue list returned $filed_limit sentry issues, its limit: older ones would be filed again. Page through them before raising it." >&2
   exit 1
 fi
-filed_ids=$(printf '%s' "$filed_issues" | jq --raw-output '.[].body' | sed -n 's/.*<!-- sentry-issue:\([0-9]*\) -->.*/\1/p')
+filed=$(printf '%s' "$filed_issues" | jq --raw-output '
+  .[]
+  | (.body | capture("<!-- sentry-issue:(?<id>[0-9]+) -->")) as $marker
+  | "\($marker.id) \(.number) \(.state)"')
+filed_ids=$(printf '%s' "$filed" | cut --delimiter=' ' --fields=1)
 
 printf '%s' "$unresolved" \
   | jq --compact-output '.[] | select(.metadata.type != "SentryTestError")' \
   | while IFS= read -r issue; do
     id=$(printf '%s' "$issue" | jq --raw-output '.id')
-    if printf '%s\n' "$filed_ids" | grep --quiet --line-regexp "$id"; then
+    if holds_id "$filed_ids" "$id"; then
       continue
     fi
 
-    title=$(printf '%s' "$issue" | jq --raw-output --argjson safe "$safe_message_types" '
+    # The list carries no stack, so the newest event is what says which of our
+    # files threw. A stale issue whose events have aged out still gets filed.
+    if ! event=$(sentry_get "/api/0/organizations/$SENTRY_ORG/issues/$id/events/latest/"); then
+      echo "No event for Sentry issue $id, filing without its details." >&2
+      event='null'
+    fi
+
+    title=$(printf '%s' "$issue" | jq --raw-output --argjson safe "$safe_message_types" --argjson event "$event" '
+      def frames: [$event.entries[]? | select(.type == "exception") | .data.values[]?
+        | .stacktrace.frames[]? | select(.inApp)];
+
       .metadata.type as $type
+      | (first(frames | reverse | .[] | "\(.filename):\(.lineNo)") // .culprit // "") as $location
       | "[\(.shortId)] " + (
           if ($type | IN($safe[])) then .title
-          elif (.culprit // "") == "" then ($type // "Message")
-          else "\($type // "Message") in \(.culprit)"
+          elif $location == "" then ($type // "Message")
+          else "\($type // "Message") at \($location)"
           end
         )')
 
-    body=$(printf '%s' "$issue" | jq --raw-output '[
-      "Filed automatically from Sentry. The message and stack trace stay in Sentry.",
-      "",
-      "| | |",
-      "|---|---|",
-      "| Project | `\(.project.slug)` |",
-      "| Level | \(.level) |",
-      "| Events | \(.count) |",
-      "| Users | \(.userCount) |",
-      "| First seen | \(.firstSeen) |",
-      "| Last seen | \(.lastSeen) |",
-      "",
-      "[\(.shortId) in Sentry](\(.permalink))",
-      "",
-      "<!-- sentry-issue:\(.id) -->"
-    ] | join("\n")')
+    body=$(printf '%s' "$issue" | jq --raw-output --argjson event "$event" '
+      def tag($key): first($event.tags[]? | select(.key == $key) | .value) // "unknown";
+      def frames: [$event.entries[]? | select(.type == "exception") | .data.values[]?
+        | .stacktrace.frames[]? | select(.inApp)
+        | "\(.filename):\(.lineNo) in \(.function // "?")"];
+
+      (frames | reverse | .[0:8]) as $own_frames
+      | [
+        "Filed automatically from Sentry. The message, the frame variables and the request stay in Sentry.",
+        "",
+        "| | |",
+        "|---|---|",
+        "| Project | `\(.project.slug)` |",
+        "| Level | \(.level) |",
+        "| Culprit | `\(.culprit // "unknown")` |",
+        "| Transaction | `\(tag("transaction"))` |",
+        "| Release | `\(tag("release"))` |",
+        "| Environment | `\(tag("environment"))` |",
+        "| Handled | \(tag("handled")) |",
+        "| Events | \(.count) |",
+        "| Users | \(.userCount) |",
+        "| First seen | \(.firstSeen) |",
+        "| Last seen | \(.lastSeen) |"
+      ]
+      + (if ($own_frames | length) == 0 then ["", "No frame of this repository is in the stack."]
+         else ["", "Our frames, innermost first:", "", "```"] + $own_frames + ["```"] end)
+      + [
+        "",
+        "[\(.shortId) in Sentry](\(.permalink))",
+        "",
+        "<!-- sentry-issue:\(.id) -->"
+      ]
+      | join("\n")')
 
     if [ "$dry_run" = 1 ]; then
       printf '=== %s\n%s\n\n' "$title" "$body"
@@ -92,3 +141,25 @@ printf '%s' "$unresolved" \
 
     printf '%s\n' "$body" | gh issue create --label sentry --label bug --title "$title" --body-file -
   done
+
+# Sentry is the source of truth for whether something is still happening: an
+# issue resolved or archived there no longer appears in the list above, and a
+# regression puts it back. Closing on GitHub is what resolves it in Sentry
+# (sentry-issue-status.yml), so a close never fights this.
+printf '%s\n' "$filed" | while read -r sentry_id number state; do
+  [ -n "${sentry_id:-}" ] || continue
+
+  if [ "$state" = OPEN ] && ! holds_id "$unresolved_ids" "$sentry_id"; then
+    if [ "$dry_run" = 1 ]; then
+      echo "=== would close #$number (Sentry $sentry_id is no longer unresolved)"
+    else
+      gh issue close "$number" --comment "Closed automatically: Sentry no longer lists this as unresolved."
+    fi
+  elif [ "$state" = CLOSED ] && holds_id "$regressed_ids" "$sentry_id"; then
+    if [ "$dry_run" = 1 ]; then
+      echo "=== would reopen #$number (Sentry $sentry_id regressed)"
+    else
+      gh issue reopen "$number" --comment "Reopened automatically: Sentry marked this a regression."
+    fi
+  fi
+done
