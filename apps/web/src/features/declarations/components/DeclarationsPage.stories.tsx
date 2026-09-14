@@ -23,6 +23,9 @@ const meta = {
     onMarkPaid: () => {},
     onUnmark: () => {},
     onClearPayment: () => {},
+    onPayCfe: () => {},
+    today: "2026-08-20",
+    onSaveCfeAmount: async () => {},
   },
   decorators: [
     (Story) => (
