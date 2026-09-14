@@ -142,7 +142,7 @@ class GenerateFiscalDeadlines
 
             $deadlines[] = new FiscalDeadline(
                 kind: FiscalDeadlineKind::UrssafDeclaration,
-                periodKey: $quarterly ? $this->quarterKey($start) : $this->monthKey($start),
+                periodKey: $quarterly ? FiscalDeadline::quarterKey($start) : FiscalDeadline::monthKey($start),
                 period: $quarterly ? DeadlinePeriod::Quarter : DeadlinePeriod::Month,
                 periodStart: $start,
                 periodEnd: $periodEnd,
@@ -175,7 +175,7 @@ class GenerateFiscalDeadlines
         foreach ($this->monthStarts($from->subMonths(self::LOOKBACK_MONTHS), $to) as $start) {
             $deadlines[] = new FiscalDeadline(
                 kind: FiscalDeadlineKind::VatCa3,
-                periodKey: $this->monthKey($start),
+                periodKey: FiscalDeadline::monthKey($start),
                 period: DeadlinePeriod::Month,
                 periodStart: $start,
                 periodEnd: $start->endOfMonth(),
@@ -315,16 +315,6 @@ class GenerateFiscalDeadlines
             static fn (FiscalDeadline $deadline): bool => $deadline->dueOn->toDateString() >= $fromDate
                 && $deadline->dueOn->toDateString() <= $toDate,
         ));
-    }
-
-    private function monthKey(CarbonImmutable $start): string
-    {
-        return $start->format('Y-m');
-    }
-
-    private function quarterKey(CarbonImmutable $start): string
-    {
-        return sprintf('%d-Q%d', $start->year, $start->quarter);
     }
 
     private function date(int $year, int $month, int $day): CarbonImmutable
