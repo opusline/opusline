@@ -309,7 +309,10 @@ class ComputeBankProvisions
             }
 
             // The debit's own month lands as an expense: eleven twelfths at most.
-            $monthsSinceLastDebit = min(11, (int) $debitOn->subYear()->startOfMonth()->diffInMonths($today->startOfMonth()));
+            // A subscription not yet debited once counts from its start, not
+            // from a debit a year before it existed.
+            $lastDebit = max($debitOn->subYear(), $subscription->started_on);
+            $monthsSinceLastDebit = min(11, (int) $lastDebit->startOfMonth()->diffInMonths($today->startOfMonth()));
             $twelfth = $subscription->monthlyProvisionOn($today);
             assert($twelfth instanceof Money);
 
