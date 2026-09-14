@@ -20,4 +20,5 @@ test('every expense route answers 404 for another account expense', function (st
     'attach receipt' => ['POST', '/api/expenses/{expense}/receipt'],
     'download receipt' => ['GET', '/api/expenses/{expense}/receipt'],
     'detach receipt' => ['DELETE', '/api/expenses/{expense}/receipt'],
+    'reintegrate VAT' => ['DELETE', '/api/expenses/{expense}/vat-deferral'],
 ]);

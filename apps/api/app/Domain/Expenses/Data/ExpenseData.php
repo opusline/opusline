@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Domain\Expenses\Data;
 
 use App\Domain\Expenses\Enums\ExpenseCategory;
+use App\Domain\Expenses\Enums\ExpenseVatStatus;
 use App\Domain\Expenses\Enums\ExpenseVatTreatment;
 use App\Domain\Expenses\Models\Expense;
+use App\Domain\Expenses\Vat\DeclaredCa3Months;
 use App\Domain\Shared\Data\MoneyData;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Attributes\WithTransformer;
@@ -34,9 +36,15 @@ class ExpenseData extends Data
         public int $proShareBp,
         /** Null until a justificatif is attached; the TVA is not deductible before. */
         public ?ExpenseReceiptData $receipt,
+        public ExpenseVatStatus $vatStatus,
+        /** `Y-m` — the CA3 the recoverable TVA is claimed on. */
+        public string $vatClaimPeriod,
+        /** The purchase month was declared without this row: the CA3 lists it as « autre TVA à déduire » (case 21). */
+        public bool $isRegularisation,
     ) {}
 
-    public static function fromModel(Expense $expense): self
+    /** @param  ?DeclaredCa3Months  $declared  null for an account that files no CA3 */
+    public static function fromModel(Expense $expense, ?DeclaredCa3Months $declared): self
     {
         $amounts = $expense->amounts();
         $receipt = $expense->receipt();
@@ -55,6 +63,9 @@ class ExpenseData extends Data
             vatRateBp: $expense->vat_rate_bp,
             proShareBp: $expense->pro_share_bp,
             receipt: $receipt instanceof Media ? ExpenseReceiptData::fromMedia($receipt) : null,
+            vatStatus: $expense->vatStatus($declared),
+            vatClaimPeriod: $expense->vat_claim_period,
+            isRegularisation: $expense->isRegularisation($declared),
         );
     }
 }

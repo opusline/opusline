@@ -13,6 +13,8 @@ use App\Domain\Bank\Models\PersonalTransfer;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Cra\Factories\CraFactory;
 use App\Domain\Cra\Models\Cra;
+use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
+use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
 use App\Domain\Expenses\Factories\ExpenseFactory;
 use App\Domain\Expenses\Models\Expense;
 use App\Domain\Invoices\Factories\InvoiceFactory;
@@ -355,6 +357,48 @@ function personalTransferFor(User $user, ?callable $configure = null): PersonalT
 function expenseOwnedBy(User $user, ?callable $configure = null): Expense
 {
     return configuredFactory(Expense::factory(), $configure)->create(['user_id' => $user->id]);
+}
+
+/**
+ * An expense of the given user with a justificatif attached — the state the
+ * TVA is deductible in. Fake the local disk first.
+ *
+ * @param  (callable(ExpenseFactory): ExpenseFactory)|null  $configure
+ */
+function receiptedExpenseOwnedBy(User $user, ?callable $configure = null): Expense
+{
+    $expense = expenseOwnedBy($user, $configure);
+    $expense->addMedia(UploadedFile::fake()->createWithContent('facture.pdf', '%PDF-1.4 fake receipt'))
+        ->toMediaCollection(Expense::RECEIPT_COLLECTION);
+
+    return $expense->fresh() ?? $expense;
+}
+
+/** An account on the réel normal — the one régime that deducts TVA purchase by purchase. */
+function vatLiableUser(): User
+{
+    $user = User::factory()->create();
+    vatLiable($user);
+
+    return $user;
+}
+
+/** Uploads a receipt onto the expense as the sheet does. */
+function attachReceiptTo(User $user, Expense $expense, string|UploadedFile $file = 'facture-9921.pdf'): TestResponse
+{
+    return test()->actingAs($user)->post("/api/expenses/{$expense->id}/receipt", [
+        'file' => is_string($file) ? UploadedFile::fake()->createWithContent($file, '%PDF-1.4 fake receipt') : $file,
+    ], ['Accept' => 'application/json']);
+}
+
+/** Marks the CA3 of $month as declared, the way the Déclarations screen will. */
+function ca3DeclaredFor(User $user, string $month, string $on = '2026-08-13'): void
+{
+    FiscalDeadlineCompletion::factory()
+        ->for($user)
+        ->of(FiscalDeadlineKind::VatCa3, $month)
+        ->completedOn($on)
+        ->create();
 }
 
 /**

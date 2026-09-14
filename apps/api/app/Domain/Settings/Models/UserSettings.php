@@ -242,4 +242,14 @@ class UserSettings extends Model
     {
         return $this->business_country === self::FRENCH_FISCALITY_COUNTRY;
     }
+
+    /**
+     * Whether the account files the monthly CA3 — the only return that
+     * deducts TVA purchase by purchase. Abroad the régime is pinned to réel
+     * normal for invoicing, so the country must be asked too.
+     */
+    public function filesMonthlyCa3(): bool
+    {
+        return $this->hasFrenchFiscality() && $this->vat_regime === VatRegime::ReelNormal;
+    }
 }

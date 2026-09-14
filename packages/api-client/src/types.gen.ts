@@ -645,6 +645,9 @@ export type ExpenseData = {
     vatRateBp: number;
     proShareBp: number;
     receipt: ExpenseReceiptData | null;
+    vatStatus: ExpenseVatStatus;
+    vatClaimPeriod: string;
+    isRegularisation: boolean;
 };
 
 /**
@@ -693,6 +696,28 @@ export type ExpenseRegimeProjectionData = {
 };
 
 /**
+ * ExpenseSelectionData
+ */
+export type ExpenseSelectionData = {
+    expenseIds: Array<number>;
+};
+
+/**
+ * ExpenseVatStatus
+ *
+ * Where a purchase's TVA stands with the CA3. Derived on every read from the receipt, the claim period and the declared months — never stored, so un-marking a declaration honestly flips the rows back.
+ * | |
+ * |---|
+ * | `0` <br/> Receipted and waiting for its CA3 to be declared. |
+ * | `1` <br/> Its CA3 was marked declared: the deduction is filed. |
+ * | `2` <br/> Claimed on a later CA3 than the purchase month, by choice or because that month was already declared. |
+ * | `3` <br/> No receipt: the fisc refuses the deduction until one is attached. |
+ * | `4` <br/> Autoliquidation: due and deducted on the same CA3, nothing to recover. |
+ * | `5` <br/> Exempt purchase, a receipt whose TVA is not tracked, or an account that files no CA3. |
+ */
+export type ExpenseVatStatus = 0 | 1 | 2 | 3 | 4 | 5;
+
+/**
  * ExpenseVatTreatment
  *
  * How the TVA on a purchase reaches the CA3. The receipt decides, never the supplier's country: a foreign SaaS billing through a European entity with 20 % on the invoice is Domestic.
@@ -710,6 +735,8 @@ export type ExpenseVatTreatment = 0 | 1 | 2 | 3;
  */
 export type ExpensesMonthData = {
     month: string;
+    declaredOn: string | null;
+    vat: ExpensesVatSummaryData | null;
     totals: ExpensesTotalsData;
     categories: Array<ExpenseCategoryTotalData>;
     series: Array<ExpenseMonthPointData>;
@@ -724,6 +751,19 @@ export type ExpensesTotalsData = {
     ht: MoneyData;
     ttc: MoneyData;
     count: number;
+};
+
+/**
+ * ExpensesVatSummaryData
+ */
+export type ExpensesVatSummaryData = {
+    deductible: MoneyData;
+    blocked: MoneyData;
+    blockedCount: number;
+    reverseCharged: MoneyData;
+    deferred: MoneyData;
+    collected: MoneyData;
+    balance: SignedMoneyData;
 };
 
 /**
@@ -3785,21 +3825,6 @@ export type RecategorizeExpensesErrors = {
          */
         message: string;
     };
-    /**
-     * Validation error
-     */
-    422: {
-        /**
-         * Errors overview.
-         */
-        message: string;
-        /**
-         * A detailed description of each field that failed validation.
-         */
-        errors: {
-            [key: string]: Array<string>;
-        };
-    };
 };
 
 export type RecategorizeExpensesError = RecategorizeExpensesErrors[keyof RecategorizeExpensesErrors];
@@ -3809,6 +3834,74 @@ export type RecategorizeExpensesResponses = {
 };
 
 export type RecategorizeExpensesResponse = RecategorizeExpensesResponses[keyof RecategorizeExpensesResponses];
+
+export type DeferExpensesVatData = {
+    body: ExpenseSelectionData;
+    path?: never;
+    query?: never;
+    url: '/expenses/vat-deferrals';
+};
+
+export type DeferExpensesVatErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeferExpensesVatError = DeferExpensesVatErrors[keyof DeferExpensesVatErrors];
+
+export type DeferExpensesVatResponses = {
+    200: ExpensesMonthData;
+};
+
+export type DeferExpensesVatResponse = DeferExpensesVatResponses[keyof DeferExpensesVatResponses];
+
+export type ReintegrateExpenseVatData = {
+    body?: never;
+    path: {
+        /**
+         * The expense ID
+         */
+        expense: number;
+    };
+    query?: never;
+    url: '/expenses/{expense}/vat-deferral';
+};
+
+export type ReintegrateExpenseVatErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ReintegrateExpenseVatError = ReintegrateExpenseVatErrors[keyof ReintegrateExpenseVatErrors];
+
+export type ReintegrateExpenseVatResponses = {
+    200: ExpensesMonthData;
+};
+
+export type ReintegrateExpenseVatResponse = ReintegrateExpenseVatResponses[keyof ReintegrateExpenseVatResponses];
 
 export type DeleteExpenseData = {
     body?: never;
