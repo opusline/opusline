@@ -13,6 +13,7 @@ use App\Domain\Shared\Enums\Color;
 use App\Domain\Shared\Routing\OwnedRouteBinding;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
+use Closure;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\RouteKey;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -79,6 +81,18 @@ class Client extends Model implements HasMedia
     protected static function newFactory(): ClientFactory
     {
         return ClientFactory::new();
+    }
+
+    /**
+     * Whether a logo was uploaded, as the `has_logo` attribute — for the
+     * screens that draw it: asking for the file of a client that has none
+     * only earns a 404.
+     *
+     * @return array<string, Closure(Builder<Media>): Builder<Media>>
+     */
+    public static function logoExistence(): array
+    {
+        return ['media as has_logo' => static fn (Builder $media): Builder => $media->where('collection_name', 'logo')];
     }
 
     public function registerMediaCollections(): void

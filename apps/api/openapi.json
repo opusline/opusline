@@ -6523,6 +6523,12 @@
                         "items": {
                             "$ref": "#/components/schemas/CarriedPeriodData"
                         }
+                    },
+                    "paidPeriods": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PaidPeriodData"
+                        }
                     }
                 },
                 "required": [
@@ -7185,6 +7191,9 @@
                         "type": "string",
                         "format": "date-time"
                     },
+                    "hasLogo": {
+                        "type": "boolean"
+                    },
                     "missions": {
                         "type": "array",
                         "items": {
@@ -7212,6 +7221,7 @@
                     "paymentTermsDays",
                     "archivedAt",
                     "createdAt",
+                    "hasLogo",
                     "missions"
                 ],
                 "title": "ClientWithMissionsData"
@@ -10609,6 +10619,27 @@
                 ],
                 "title": "NextInvoiceNumberData"
             },
+            "PaidPeriodData": {
+                "type": "object",
+                "properties": {
+                    "period": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "paidOn": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "period",
+                    "amount",
+                    "paidOn"
+                ],
+                "title": "PaidPeriodData"
+            },
             "PasskeyData": {
                 "type": "object",
                 "properties": {
@@ -12397,6 +12428,9 @@
                     "pendingTransfers": {
                         "$ref": "#/components/schemas/MoneyData"
                     },
+                    "pendingDeclarations": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
                     "coveredThrough": {
                         "type": [
                             "string",
@@ -12427,6 +12461,7 @@
                 "required": [
                     "balance",
                     "pendingTransfers",
+                    "pendingDeclarations",
                     "coveredThrough",
                     "provisions",
                     "transferable",

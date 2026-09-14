@@ -18,6 +18,7 @@ function renderActions(
   const onSend = vi.fn();
   const onPay = vi.fn();
   const onRemind = vi.fn();
+  const onDelete = vi.fn();
 
   render(
     <InvoiceLifecycleActions
@@ -28,11 +29,12 @@ function renderActions(
       onSend={onSend}
       onPay={onPay}
       onRemind={onRemind}
+      onDelete={onDelete}
       {...props}
     />,
   );
 
-  return { onSend, onPay, onRemind };
+  return { onSend, onPay, onRemind, onDelete };
 }
 
 it("sends a draft that already carries its reference", () => {
@@ -92,6 +94,26 @@ it("refuses to send a referenceless draft on an empty field", () => {
   expect(
     screen.getByRole("button", { name: "Marquer envoyée" }),
   ).toBeDisabled();
+});
+
+it("offers to delete a draft", () => {
+  const { onDelete } = renderActions({
+    invoice: invoiceDetail({ status: 0 }).invoice,
+  });
+
+  fireEvent.click(
+    screen.getByRole("button", { name: "Supprimer le brouillon" }),
+  );
+
+  expect(onDelete).toHaveBeenCalled();
+});
+
+it("offers no deletion once the invoice is out", () => {
+  renderActions();
+
+  expect(
+    screen.queryByRole("button", { name: "Supprimer le brouillon" }),
+  ).not.toBeInTheDocument();
 });
 
 it("banks a payment on the date the money landed", async () => {

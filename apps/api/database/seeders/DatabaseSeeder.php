@@ -450,7 +450,7 @@ class DatabaseSeeder extends Seeder
      * The current month is seeded up to today only: a purchase dated after
      * today would fail the very rule the endpoint enforces.
      */
-    private function expense(
+    protected function expense(
         User $user,
         CarbonImmutable $spentOn,
         string $supplier,
@@ -485,7 +485,7 @@ class DatabaseSeeder extends Seeder
      * given. References are left blank here and assigned in issue order at the
      * end, whatever order the rows were written in.
      */
-    private function issuedInvoice(
+    protected function issuedInvoice(
         User $user,
         Client $client,
         Mission $mission,
@@ -535,10 +535,13 @@ class DatabaseSeeder extends Seeder
 
     /**
      * One sequence per year like the default AAAA-NNN format produces, assigned
-     * by issue date so the references read chronologically on the list.
+     * by issue date so the references read chronologically on the list —
+     * cleared first, so a seeder adding older invoices can number them all again.
      */
-    private function numberIssuedInvoices(User $user): void
+    protected function numberIssuedInvoices(User $user): void
     {
+        $user->invoices()->whereNotNull('number')->update(['number' => null]);
+
         $countByYear = [];
 
         $issued = $user->invoices()

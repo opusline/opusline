@@ -2,12 +2,14 @@ import type { InvoiceDetailData } from "@opusline/api-client";
 import {
   correctInvoiceDatesMutation,
   deleteInvoiceDocumentMutation,
+  deleteInvoiceMutation,
   payInvoiceMutation,
   remindInvoiceMutation,
   sendInvoiceMutation,
   showInvoiceOptions,
   updateInvoiceMutation,
 } from "@opusline/api-client/react-query";
+import { useToast } from "@opusline/ui/components/toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import {
@@ -19,6 +21,9 @@ import {
   useState,
 } from "react";
 
+import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
+import { useMoneyFormat } from "@/components/money-format-provider";
+import { formatAmountWithCents } from "@/lib/billing";
 import { accountTodayCalendarDate } from "@/lib/dates";
 import { invalidateInvoiceWrites } from "@/lib/query-invalidation";
 import { uploadWithProgress } from "@/lib/upload-with-progress";
@@ -54,7 +59,10 @@ export function InvoiceDrawerProvider({
 }) {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const toast = useToast();
+  const format = useMoneyFormat();
   const [openInvoiceId, setOpenInvoiceId] = useState<number | null>(null);
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   // Their own channels: the corrections form and the document panel are further
   // forms in the same drawer, and neither a refused correction nor a refused
@@ -113,6 +121,17 @@ export function InvoiceDrawerProvider({
       serverErrorMessage(error, m.invoices_correct_dates_failed()),
     );
   };
+
+  const deleteDraft = useMutation({
+    ...deleteInvoiceMutation(),
+    onMutate: () => setActionError(null),
+    onSuccess: async () => {
+      closeInvoice();
+      toast.add({ title: m.invoices_deleted() });
+      await refresh();
+    },
+    onError: reportFailure(m.invoices_delete_failed()),
+  });
 
   const remind = useMutation({
     ...remindInvoiceMutation(),
@@ -277,8 +296,10 @@ export function InvoiceDrawerProvider({
                   send.isPending ||
                   setReference.isPending ||
                   pay.isPending ||
-                  remind.isPending
+                  remind.isPending ||
+                  deleteDraft.isPending
                 }
+                onDelete={() => setIsConfirmingDelete(true)}
                 onPay={(paidOn) =>
                   pay.mutate({
                     path: { invoice: detail.data.invoice.id },
@@ -340,6 +361,31 @@ export function InvoiceDrawerProvider({
           }
         }}
         open={openInvoiceId !== null}
+      />
+      <ConfirmDeleteDialog
+        confirmLabel={m.invoices_delete_draft()}
+        description={
+          detail.data === undefined
+            ? ""
+            : m.invoices_delete_body({
+                amount: formatAmountWithCents(
+                  format,
+                  detail.data.invoice.amountTtc.amount,
+                ),
+                client: detail.data.client.name,
+              })
+        }
+        isDeleting={deleteDraft.isPending}
+        onConfirm={() => {
+          setIsConfirmingDelete(false);
+
+          if (detail.data !== undefined) {
+            deleteDraft.mutate({ path: { invoice: detail.data.invoice.id } });
+          }
+        }}
+        onOpenChange={setIsConfirmingDelete}
+        open={isConfirmingDelete}
+        title={m.invoices_delete_title()}
       />
     </InvoiceDrawerContext.Provider>
   );

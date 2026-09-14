@@ -58,6 +58,30 @@ describe("a deferred row's sub line", () => {
   });
 });
 
+describe("a blocked row's sub line", () => {
+  it("asks for the receipt", () => {
+    const status = expenseStatusPresentation(
+      "fr-FR",
+      0,
+      expense({ vatStatus: 3, receipt: null }),
+      expensesMonth(),
+    );
+
+    expect(status.sub).toBe("facture manquante");
+  });
+
+  it("names the later CA3 a deferred purchase waits on its receipt for", () => {
+    const status = expenseStatusPresentation(
+      "fr-FR",
+      0,
+      expense({ vatStatus: 3, receipt: null, vatClaimPeriod: "2026-09" }),
+      expensesMonth(),
+    );
+
+    expect(status.sub).toBe("facture manquante · CA3 septembre");
+  });
+});
+
 describe("a reverse-charged row", () => {
   it("tells an EU supplier apart from a non-EU one", () => {
     const status = expenseStatusPresentation(

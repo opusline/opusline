@@ -99,6 +99,28 @@ it("picks the highlighted address from the keyboard", async () => {
   expect(onSelect).toHaveBeenCalled();
 });
 
+it("leaves the list closed when the lookup answers after the field lost focus", async () => {
+  let answerLookup: (response: Response) => void = () => {};
+  const fetchMock = vi.fn(
+    () =>
+      new Promise<Response>((resolve) => {
+        answerLookup = resolve;
+      }),
+  );
+  vi.stubGlobal("fetch", fetchMock);
+  renderField("");
+  type("12 rue de la paix");
+
+  await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+  fireEvent.blur(screen.getByRole("combobox"));
+  answerLookup(
+    new Response(JSON.stringify({ features: [SUGGESTION] }), { status: 200 }),
+  );
+
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+});
+
 it("stays a plain text field when the lookup finds nothing", async () => {
   const fetchMock = stubBan([]);
   const { handleChange } = renderField("");

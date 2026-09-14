@@ -38,6 +38,7 @@ const baseClient = {
   billingContactName: null,
   billingEmail: null,
   paymentTermsDays: 45,
+  hasLogo: false,
   archivedAt: null,
   createdAt: new Date(Date.now() - 90 * DAY_MS).toISOString(),
 } satisfies Partial<ClientWithMissionsData>;

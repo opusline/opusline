@@ -8,6 +8,7 @@ use App\Domain\Cra\Enums\CraStatus;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
+use Database\Seeders\VolumeSeeder;
 
 test('seeds a demo portfolio for the test user', function (): void {
     $this->seed();
@@ -180,3 +181,48 @@ test('seeds three months of expenses across every TVA treatment', function (): v
         ->and($expenses->every(fn ($expense): bool => $expense->spent_on->lessThanOrEqualTo(CarbonImmutable::today())))->toBeTrue()
         ->and($expenses->every(fn ($expense): bool => $expense->amount_ht_cents->lessThanOrEqual($expense->amount_ttc_cents)))->toBeTrue();
 });
+
+test('the volume seeder puts three years of history behind the demo account', function (): void {
+    $this->seed(VolumeSeeder::class);
+
+    $user = User::query()->where('email', 'test@example.com')->firstOrFail();
+    $firstMonth = CarbonImmutable::today()->startOfMonth()->subMonths(VolumeSeeder::MONTHS)->toDateString();
+
+    expect($user->bankMovements()->min('booked_on'))->toBe($firstMonth)
+        ->and($user->timeEntries()->min('date'))->toStartWith(substr($firstMonth, 0, 7))
+        ->and($user->expenses()->min('spent_on'))->toStartWith(substr($firstMonth, 0, 7));
+});
+
+test('the volume seeder closes its history on the balance the demo relevé opens on', function (): void {
+    $this->seed(VolumeSeeder::class);
+
+    $user = User::query()->where('email', 'test@example.com')->firstOrFail();
+    [$demo, $lastOfHistory] = $user->bankStatements()->orderByDesc('period_start')->take(2)->get()->all();
+    $demoOpeningCents = (int) $demo->closing_balance_cents?->getAmount() - (int) $demo->movements()->sum('amount_cents');
+
+    expect((int) $lastOfHistory->closing_balance_cents?->getAmount())->toBe($demoOpeningCents);
+});
+
+test('the volume seeder numbers every invoice in issue order', function (): void {
+    $this->seed(VolumeSeeder::class);
+
+    $user = User::query()->where('email', 'test@example.com')->firstOrFail();
+    $numbers = $user->invoices()
+        ->where('status', '!=', InvoiceStatus::Draft)
+        ->orderBy('issued_on')
+        ->orderBy('id')
+        ->pluck('number')
+        ->all();
+
+    expect($numbers)->not->toContain(null)
+        ->and($numbers)->toBe(collect($numbers)->sort(SORT_NATURAL)->values()->all())
+        ->and(array_unique($numbers))->toHaveCount(count($numbers));
+});
+
+test('the volume seeder leaves the screens it exists for answering', function (string $endpoint): void {
+    $this->seed(VolumeSeeder::class);
+
+    $user = User::query()->where('email', 'test@example.com')->firstOrFail();
+
+    $this->actingAs($user)->getJson($endpoint)->assertOk();
+})->with(['/api/bank', '/api/treasury', '/api/declarations', '/api/deadlines']);

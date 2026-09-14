@@ -12,6 +12,7 @@ use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Settings\Models\UserSettings;
 use Cknow\Money\Money;
+use Illuminate\Support\Collection;
 
 /**
  * The year's expected CFE, from the best source available:
@@ -35,19 +36,20 @@ class ResolveExpectedCfe
 
         $paidCents = 0;
 
-        $movements = BankMovement::query()
+        /** @var Collection<int, object{amount_cents: int|numeric-string, label: string}> $debits */
+        $debits = BankMovement::query()
+            ->toBase()
             ->where('user_id', $settings->user_id)
+            ->where('amount_cents', '<', 0)
             ->whereBetween('booked_on', [
                 $previousYear->startOfYear()->toDateString(),
                 $previousYear->endOfYear()->toDateString(),
             ])
-            ->get(['amount_cents', 'label', 'currency']);
+            ->get(['amount_cents', 'label']);
 
-        foreach ($movements as $movement) {
-            $cents = (int) $movement->amount_cents->getAmount();
-
-            if ($cents < 0 && DetectFiscPayments::isCfe($movement->label)) {
-                $paidCents += -$cents;
+        foreach ($debits as $debit) {
+            if (DetectFiscPayments::isCfe($debit->label)) {
+                $paidCents -= (int) $debit->amount_cents;
             }
         }
 

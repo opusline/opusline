@@ -66,6 +66,22 @@ test('a paid return is no longer matched against the provision', function (): vo
         ->assertJsonPath('urssaf.settlement.gap', null);
 });
 
+test('a return paid after the balance was read is held out of what the balance covers', function (): void {
+    $user = settledAccount(balanceCents: 50_000);
+    $user->settings()->sole()->update(['bank_balance_recorded_on' => '2026-08-10']);
+    paidInvoiceOn($user, '2026-06-10');
+    FiscalDeadlineCompletion::factory()->for($user)->of(FiscalDeadlineKind::UrssafDeclaration, '2026-06')
+        ->completedOn('2026-07-12')->paidOn('2026-08-13')->create();
+
+    // June's 41 580 left the account on the 13th, which the balance read on
+    // the 10th cannot show: only 8 420 of it is still July's.
+    $this->actingAs($user)
+        ->getJson('/api/declarations?period=2026-07')
+        ->assertOk()
+        ->assertJsonPath('urssaf.settlement.provisioned.amount', 8_420)
+        ->assertJsonPath('urssaf.settlement.gap.amount', -33_160);
+});
+
 test('an older unpaid period is matched too, and served before the newer one', function (): void {
     $user = settledAccount(balanceCents: 50_000);
     paidInvoiceOn($user, '2026-06-10');

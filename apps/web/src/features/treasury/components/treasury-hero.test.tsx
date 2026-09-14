@@ -20,6 +20,7 @@ function renderHero(
   overrides: {
     transferable?: SignedMoneyData;
     pendingTransfers?: MoneyData;
+    pendingDeclarations?: MoneyData;
   } = {},
   onRecord = vi.fn(),
 ) {
@@ -27,6 +28,7 @@ function renderHero(
     <TreasuryHero
       balance={BALANCE}
       onRecord={onRecord}
+      pendingDeclarations={overrides.pendingDeclarations ?? eur(0)}
       pendingTransfers={overrides.pendingTransfers ?? eur(0)}
       transferable={overrides.transferable ?? eur(851_300)}
     />,
@@ -51,6 +53,19 @@ it("names the transfers the balance does not show yet", () => {
   expect(screen.getByText("7 313 €")).toBeInTheDocument();
   expect(
     screen.getByText("1 200 € déjà virés, pas encore sur un relevé"),
+  ).toBeInTheDocument();
+});
+
+it("names the paid returns the balance does not show yet", () => {
+  renderHero({
+    pendingDeclarations: eur(539_200),
+    transferable: eur(312_100),
+  });
+
+  expect(
+    screen.getByText(
+      "5 392 € de déclarations déjà payées, pas encore sur un relevé",
+    ),
   ).toBeInTheDocument();
 });
 

@@ -17,6 +17,8 @@ type InvoiceLifecycleActionsProps = {
   onSend: (reference: string | null, sentOn: string) => void;
   onPay: (paidOn: string) => void;
   onRemind: () => void;
+  /** Drafts only: an issued invoice is part of the record and cannot be removed. */
+  onDelete: () => void;
 };
 
 /**
@@ -35,6 +37,7 @@ export function InvoiceLifecycleActions({
   onSend,
   onPay,
   onRemind,
+  onDelete,
 }: InvoiceLifecycleActionsProps) {
   if (invoice.status === 2) {
     return null;
@@ -43,12 +46,24 @@ export function InvoiceLifecycleActions({
   return (
     <section className="border-t px-4 py-5">
       {invoice.status === 0 ? (
-        <SendStep
-          accountToday={accountToday}
-          invoice={invoice}
-          isPending={isPending}
-          onSend={onSend}
-        />
+        <>
+          <SendStep
+            accountToday={accountToday}
+            invoice={invoice}
+            isPending={isPending}
+            onSend={onSend}
+          />
+          <Button
+            className="mt-4"
+            disabled={isPending}
+            onClick={onDelete}
+            size="xl"
+            type="button"
+            variant="destructive"
+          >
+            {m.invoices_delete_draft()}
+          </Button>
+        </>
       ) : (
         <CollectStep
           accountToday={accountToday}

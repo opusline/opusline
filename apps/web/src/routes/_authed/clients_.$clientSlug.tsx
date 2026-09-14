@@ -6,6 +6,7 @@ import {
   archiveClientMutation,
   deleteClientDocumentMutation,
   deleteClientLogoMutation,
+  deleteClientMutation,
   listClientDocumentsOptions,
   listClientDocumentsQueryKey,
   listClientsQueryKey,
@@ -19,6 +20,7 @@ import {
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
+import { useToast } from "@opusline/ui/components/toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
@@ -59,6 +61,7 @@ function ClientDetailRoute() {
   const { logoFailed, tab } = Route.useSearch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   const { data, isPending, isError } = useQuery(
     showClientOptions({ path: { client } }),
@@ -71,6 +74,7 @@ function ClientDetailRoute() {
   const updateClient = useMutation(updateClientMutation());
   const archiveClient = useMutation(archiveClientMutation());
   const unarchiveClient = useMutation(unarchiveClientMutation());
+  const deleteClient = useMutation(deleteClientMutation());
   const uploadLogo = useMutation(uploadClientLogoMutation());
   const deleteLogo = useMutation(deleteClientLogoMutation());
   const uploadDocument = useMutation(uploadClientDocumentMutation());
@@ -136,6 +140,22 @@ function ClientDetailRoute() {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await deleteClient.mutateAsync({ path: { client } });
+    } catch {
+      // The refusal is surfaced through deleteClient.error below.
+      return;
+    }
+
+    toast.add({ title: m.clients_deleted() });
+    await navigate({ to: "/clients" });
+    queryClient.removeQueries({
+      queryKey: showClientQueryKey({ path: { client } }),
+    });
+    await queryClient.invalidateQueries({ queryKey: listClientsQueryKey() });
+  };
+
   const [logoVersion, setLogoVersion] = useState(0);
 
   const { handleUpload: handleUploadLogo, handleRemove: handleRemoveLogo } =
@@ -199,7 +219,8 @@ function ClientDetailRoute() {
   const actionError =
     writeErrorBanner(updateClient.error, m.common_action_failed()) ??
     writeErrorBanner(archiveClient.error, m.common_action_failed()) ??
-    writeErrorBanner(unarchiveClient.error, m.common_action_failed());
+    writeErrorBanner(unarchiveClient.error, m.common_action_failed()) ??
+    writeErrorBanner(deleteClient.error, m.clients_delete_failed());
 
   const genericError =
     actionError ?? (logoFailed ? m.clients_logo_failed_note() : null);
@@ -240,8 +261,10 @@ function ClientDetailRoute() {
       error={genericError}
       invoicesTab={invoicesTab}
       isArchivePending={archiveClient.isPending || unarchiveClient.isPending}
+      isDeletePending={deleteClient.isPending}
       isUpdatePending={updateClient.isPending}
-      logoSrc={clientLogoHref(client, logoVersion)}
+      logoSrc={data.hasLogo ? clientLogoHref(client, logoVersion) : undefined}
+      onDelete={() => void handleDelete()}
       onRemoveLogo={handleRemoveLogo}
       onToggleArchive={() => void handleToggleArchive()}
       onTabChange={(next) =>

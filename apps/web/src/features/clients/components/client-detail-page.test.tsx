@@ -397,8 +397,17 @@ it("retires the creation-time logo warning once an upload goes through", async (
   expect(window.location.search).toBe("");
 });
 
+it("never asks for the logo of a client that has none", async () => {
+  const requests = stubApi(clientPayload({ hasLogo: false }));
+  await renderDetailPage();
+
+  expect(
+    requests.some((request) => request.path.endsWith("/clients/nordlys/logo")),
+  ).toBe(false);
+});
+
 it("removes the logo from the edit form", async () => {
-  const requests = stubApi(clientPayload());
+  const requests = stubApi(clientPayload({ hasLogo: true }));
   await renderDetailPage();
 
   fireEvent.click(screen.getByRole("button", { name: "Modifier" }));
@@ -450,6 +459,70 @@ it("archives the client from the actions menu", async () => {
     );
     expect(archive).toBeDefined();
   });
+});
+
+it("deletes a client with no mission and goes back to the list", async () => {
+  const requests = stubApi(clientPayload({ missions: [] }), (request) =>
+    request.method === "DELETE" &&
+    new URL(request.url).pathname.endsWith("/clients/nordlys")
+      ? new Response(null, { status: 204 })
+      : null,
+  );
+  await renderDetailPage();
+
+  fireEvent.click(screen.getByRole("button", { name: "Plus d'actions" }));
+  fireEvent.click(
+    await screen.findByRole("menuitem", { name: "Supprimer ce client" }),
+  );
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Supprimer le client" }),
+  );
+
+  await waitFor(() => expect(window.location.pathname).toBe("/clients"));
+  expect(
+    requests.some(
+      (request) =>
+        request.method === "DELETE" &&
+        request.path.endsWith("/clients/nordlys"),
+    ),
+  ).toBe(true);
+});
+
+it("offers no deletion while the client still has missions", async () => {
+  stubApi(clientPayload());
+  await renderDetailPage();
+
+  fireEvent.click(screen.getByRole("button", { name: "Plus d'actions" }));
+
+  await screen.findByRole("menuitem", { name: "Archiver ce client" });
+  expect(
+    screen.queryByRole("menuitem", { name: "Supprimer ce client" }),
+  ).not.toBeInTheDocument();
+});
+
+it("says what the API said when it refuses the deletion", async () => {
+  stubApi(clientPayload({ missions: [] }), (request) =>
+    request.method === "DELETE" &&
+    new URL(request.url).pathname.endsWith("/clients/nordlys")
+      ? jsonResponse(409, {
+          message: "Ce client a des factures : archivez-le plutôt.",
+        })
+      : null,
+  );
+  await renderDetailPage();
+
+  fireEvent.click(screen.getByRole("button", { name: "Plus d'actions" }));
+  fireEvent.click(
+    await screen.findByRole("menuitem", { name: "Supprimer ce client" }),
+  );
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Supprimer le client" }),
+  );
+
+  expect(
+    await screen.findByText("Ce client a des factures : archivez-le plutôt."),
+  ).toBeInTheDocument();
+  expect(window.location.pathname).toBe("/clients/nordlys");
 });
 
 it("offers to reactivate an archived client", async () => {

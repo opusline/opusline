@@ -4,6 +4,7 @@ import { cn } from "@opusline/ui/lib/utils";
 import { useEffect, useId, useRef, useState } from "react";
 
 import type { StringFieldApi } from "@/components/form-text-field";
+import { m } from "@/paraglide/messages.js";
 
 export type Suggestion = { id: string; label: string };
 
@@ -147,6 +148,9 @@ export function SuggestField<T extends Suggestion>({
         id={field.name}
         onBlur={() => {
           field.handleBlur();
+          // A lookup still debouncing or in flight would otherwise open the
+          // list on a field nobody is in, where no key or click closes it.
+          cancelPendingSearch();
           setIsOpen(false);
         }}
         onChange={(event) => {
@@ -188,7 +192,7 @@ export function SuggestField<T extends Suggestion>({
       )}
       {hasLookupFailed && !isInvalid ? (
         <span className="text-muted-foreground-3 text-xs" role="status">
-          Suggestions indisponibles — saisissez l'adresse manuellement.
+          {m.address_suggestions_unavailable()}
         </span>
       ) : null}
       {isInvalid ? (

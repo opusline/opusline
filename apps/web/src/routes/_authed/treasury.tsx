@@ -16,10 +16,18 @@ import {
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
-import { useMoneyFormat } from "@/components/money-format-provider";
+import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
+import {
+  useDateFormat,
+  useMoneyFormat,
+} from "@/components/money-format-provider";
 import { RecordTransferDialog } from "@/features/treasury/components/record-transfer-dialog";
 import { TreasuryPage } from "@/features/treasury/components/treasury-page";
-import { accountTodayCalendarDate } from "@/lib/dates";
+import { formatWholeAmount } from "@/lib/billing";
+import {
+  accountTodayCalendarDate,
+  calendarDateNumericLabel,
+} from "@/lib/dates";
 import { requireFrenchFiscality } from "@/lib/fiscality";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
@@ -33,6 +41,7 @@ function VirementRoute() {
   const { user } = Route.useRouteContext();
   const queryClient = useQueryClient();
   const format = useMoneyFormat();
+  const dateFormat = useDateFormat();
 
   const treasury = useQuery({
     ...showTreasuryOptions(),
@@ -42,6 +51,9 @@ function VirementRoute() {
   const [recordOpen, setRecordOpen] = useState(false);
   const [recordError, setRecordError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [transferIdToDelete, setTransferIdToDelete] = useState<number | null>(
+    null,
+  );
 
   // Both writes answer with the freshly computed treasury — writing it straight
   // into the cache spares a second identical GET, and the sidebar tile reads
@@ -95,6 +107,10 @@ function VirementRoute() {
   // carries the record button — off the first. Reading both here keeps the
   // button and the dialog it opens from ever disagreeing.
   const { balance, coveredThrough, transferable } = treasury.data;
+  const transferToDelete =
+    treasury.data.transfers.find(
+      (transfer) => transfer.id === transferIdToDelete,
+    ) ?? null;
   const canRecord =
     balance !== null && coveredThrough !== null && transferable !== null;
 
@@ -114,10 +130,41 @@ function VirementRoute() {
           remove.isPending ? (remove.variables?.path.transfer ?? null) : null
         }
         isRefreshing={treasury.isPlaceholderData}
-        onDeleteTransfer={(transferId) =>
-          remove.mutate({ path: { transfer: transferId } })
-        }
+        onDeleteTransfer={setTransferIdToDelete}
         onRecord={() => setRecordOpen(true)}
+      />
+
+      <ConfirmDeleteDialog
+        confirmLabel={m.treasury_delete_confirm()}
+        description={
+          transferToDelete === null
+            ? ""
+            : m.treasury_delete_body({
+                amount: formatWholeAmount(
+                  format,
+                  transferToDelete.amount.amount,
+                ),
+                date: calendarDateNumericLabel(
+                  dateFormat,
+                  transferToDelete.transferredOn,
+                ),
+              })
+        }
+        isDeleting={remove.isPending}
+        onConfirm={() => {
+          if (transferToDelete !== null) {
+            remove.mutate({ path: { transfer: transferToDelete.id } });
+          }
+
+          setTransferIdToDelete(null);
+        }}
+        onOpenChange={(open) => {
+          if (!open) {
+            setTransferIdToDelete(null);
+          }
+        }}
+        open={transferToDelete !== null}
+        title={m.treasury_delete_title()}
       />
 
       {canRecord && (

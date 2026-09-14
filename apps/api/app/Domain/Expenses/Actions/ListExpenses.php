@@ -112,7 +112,7 @@ class ListExpenses
             categories: $this->categories($expenses, $currency),
             series: $series,
             projection: $settings->hasFrenchFiscality()
-                ? $this->projection($this->yearlyChargesHt($expenses, $shown->ht->toMoney(), $tile), $collected->htCents($yearStart, $monthEnd))
+                ? $this->projection($this->yearlyChargesHt($user, $yearStart, $monthEnd, $currency, $tile), $collected->htCents($yearStart, $monthEnd))
                 : null,
             todo: [
                 ...$this->missingReceiptCards($expenses),
@@ -261,21 +261,20 @@ class ListExpenses
     }
 
     /**
-     * The year's charges as the régime comparison needs them: the month's
-     * one-off purchases as a yearly run rate, plus a year of the
-     * subscriptions still debiting — the month's own debits stay out of the
-     * run rate, or an annual one would count twelve times in its month.
-     *
-     * @param  Collection<int, Expense>  $expenses
+     * The year's charges as the régime comparison needs them: the one-off
+     * purchases of the trailing year the revenue is read over — a single
+     * purchase counts once, not as a monthly habit — plus a year of the
+     * subscriptions still debiting, whose own debits stay out of the
+     * purchases or they would count twice.
      */
-    private function yearlyChargesHt(Collection $expenses, Money $monthHt, ?ExpensesSubscriptionsData $tile): Money
+    private function yearlyChargesHt(User $user, CarbonImmutable $from, CarbonImmutable $to, string $currency, ?ExpensesSubscriptionsData $tile): Money
     {
-        $debitsHt = $expenses
-            ->filter(static fn (Expense $expense): bool => $expense->subscription_id !== null)
-            ->reduce(static fn (int $total, Expense $expense): int => $total + (int) $expense->amount_ht_cents->getAmount(), 0);
-        $oneOffs = $monthHt->subtract(new Money($debitsHt, $monthHt->getCurrency()->getCode()));
+        $oneOffsHtCents = (int) $user->expenses()
+            ->whereNull('subscription_id')
+            ->whereBetween('spent_on', [$from->toDateString(), $to->toDateString()])
+            ->sum('amount_ht_cents');
 
-        return $oneOffs->multiply(self::SERIES_MONTHS)->add($tile?->yearlyHt->toMoney() ?? new Money(0, $monthHt->getCurrency()->getCode()));
+        return new Money($oneOffsHtCents, $currency)->add($tile?->yearlyHt->toMoney() ?? new Money(0, $currency));
     }
 
     /**

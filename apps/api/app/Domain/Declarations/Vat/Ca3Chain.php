@@ -15,13 +15,22 @@ use InvalidArgumentException;
  * from what was typed on impots.gouv.fr — an estimate of the chain the
  * fisc holds, honest as long as every return was filed as shown.
  */
-final readonly class Ca3Chain
+final class Ca3Chain
 {
+    /**
+     * Every month computed so far, oldest first from the first month: the
+     * screens ask for a year of months, and each would otherwise replay the
+     * chain from its start.
+     *
+     * @var list<Ca3Boxes>
+     */
+    private array $computed = [];
+
     public function __construct(
-        private CollectedInvoices $invoices,
-        public DeductibleExpenses $expenses,
+        private readonly CollectedInvoices $invoices,
+        public readonly DeductibleExpenses $expenses,
         /** The first month the chain runs from; nothing is carried into it. */
-        public CarbonImmutable $firstMonth,
+        public readonly CarbonImmutable $firstMonth,
     ) {}
 
     public function boxes(CarbonImmutable $month): Ca3Boxes
@@ -30,17 +39,11 @@ final readonly class Ca3Chain
             throw new InvalidArgumentException("The CA3 chain starts at {$this->firstMonth->format('Y-m')}; {$month->format('Y-m')} is before it.");
         }
 
-        $credit = 0;
-        $boxes = null;
-
-        for ($cursor = $this->firstMonth; $cursor->lessThanOrEqualTo($month); $cursor = $cursor->addMonth()) {
-            $boxes = Ca3Boxes::compute($this->inputs($cursor, $credit));
-            $credit = $boxes->credit;
+        for ($cursor = $this->firstMonth->addMonths(count($this->computed)); $cursor->lessThanOrEqualTo($month); $cursor = $cursor->addMonth()) {
+            $this->computed[] = Ca3Boxes::compute($this->inputs($cursor, array_last($this->computed)->credit ?? 0));
         }
 
-        assert($boxes instanceof Ca3Boxes);
-
-        return $boxes;
+        return $this->computed[($month->year - $this->firstMonth->year) * 12 + $month->month - $this->firstMonth->month];
     }
 
     private function inputs(CarbonImmutable $monthStart, int $creditCarried): Ca3Inputs

@@ -54,6 +54,31 @@ it("starts on the dates the invoice already carries", () => {
   );
 });
 
+it("re-seeds the drafts from the record when the invoice is collected while open", () => {
+  const sent = invoiceDetail({ status: 1, paidOn: null }).invoice;
+  const props = {
+    accountToday: "2026-08-14",
+    error: null,
+    isPending: false,
+    onSubmit: vi.fn(),
+    sentOn: "2026-07-01",
+  };
+  const { rerender } = render(
+    <InvoiceDateCorrections {...props} invoice={sent} />,
+  );
+
+  rerender(
+    <InvoiceDateCorrections
+      {...props}
+      invoice={{ ...sent, status: 2, paidOn: "2026-08-14" }}
+    />,
+  );
+
+  expect(screen.getByLabelText("Encaissée le")).toHaveTextContent(
+    "14 août 2026",
+  );
+});
+
 it("stays quiet until something actually changes", () => {
   renderCorrections();
 

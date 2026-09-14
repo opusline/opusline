@@ -14,7 +14,7 @@ use Spatie\LaravelData\Data;
 class ExpenseRegimeProjectionData extends Data
 {
     public function __construct(
-        /** This month's HT charges taken as a run rate over a year. */
+        /** The trailing year's one-off purchases plus a year of the subscriptions still debiting, HT. */
         public MoneyData $projectedChargesHt,
         /** HT collected over the twelve months ending with the shown one. */
         public MoneyData $annualRevenueHt,

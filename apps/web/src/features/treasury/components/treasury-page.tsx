@@ -66,6 +66,7 @@ export function TreasuryPage({
           <TreasuryHero
             balance={balance}
             onRecord={onRecord}
+            pendingDeclarations={data.pendingDeclarations}
             pendingTransfers={data.pendingTransfers}
             transferable={transferable}
           />

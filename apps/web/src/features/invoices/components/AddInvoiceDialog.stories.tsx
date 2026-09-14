@@ -8,7 +8,7 @@ import {
 } from "../lib/fixtures";
 import { AddInvoiceDialog, type AddInvoiceMission } from "./add-invoice-dialog";
 
-const client = { ...CLIENT_FIXTURE, missions: [] };
+const client = { ...CLIENT_FIXTURE, hasLogo: false, missions: [] };
 
 const daily: AddInvoiceMission = {
   budget: null,

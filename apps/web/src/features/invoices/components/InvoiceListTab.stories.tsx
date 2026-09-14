@@ -2,6 +2,8 @@ import {
   listInvoicesInfiniteQueryKey,
   showInvoiceOptions,
 } from "@opusline/api-client/react-query";
+import { ToastProvider } from "@opusline/ui/components/toast";
+
 import type { Meta, StoryObj } from "@storybook/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
@@ -42,14 +44,16 @@ function Example({ invoices }: { invoices: ReturnType<typeof invoiceItem>[] }) {
   return (
     <QueryClientProvider client={queryClient}>
       <StoryRouter>
-        <InvoiceDrawerProvider timezone="Europe/Paris">
-          <InvoiceListTab
-            accountToday="2026-08-14"
-            emptyHint="Les factures apparaîtront ici dès que du temps facturable aura été saisi sur une mission de ce client."
-            query={CLIENT_QUERY}
-            withMission
-          />
-        </InvoiceDrawerProvider>
+        <ToastProvider>
+          <InvoiceDrawerProvider timezone="Europe/Paris">
+            <InvoiceListTab
+              accountToday="2026-08-14"
+              emptyHint="Les factures apparaîtront ici dès que du temps facturable aura été saisi sur une mission de ce client."
+              query={CLIENT_QUERY}
+              withMission
+            />
+          </InvoiceDrawerProvider>
+        </ToastProvider>
       </StoryRouter>
     </QueryClientProvider>
   );

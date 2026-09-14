@@ -17,6 +17,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@opusline/ui/components/dropdown-menu";
 import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
@@ -35,9 +36,11 @@ import {
   CircleAlert,
   MoreHorizontalIcon,
   PlusIcon,
+  Trash2Icon,
   TriangleAlertIcon,
 } from "lucide-react";
 import { type ReactNode, useState } from "react";
+import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import {
@@ -160,8 +163,15 @@ type MissionDetailPageProps = {
   invoicesTab: ReactNode;
   onUpdate: (body: UpdateMissionData) => Promise<FormSubmitResult>;
   onSetStatus: (status: MissionStatus) => void;
+  /**
+   * Offered only once the history has loaded empty: tracked time is the usual
+   * reason the API refuses, and the rest (an invoice, a CRA) comes back as its
+   * message.
+   */
+  onDelete: () => void;
   isUpdatePending?: boolean;
   isStatusPending?: boolean;
+  isDeletePending?: boolean;
   error?: string | null;
   /** Undefined while the figures are still loading; tiles show a placeholder. */
   revenue?: MissionRevenueData;
@@ -182,8 +192,10 @@ export function MissionDetailPage({
   invoicesTab,
   onUpdate,
   onSetStatus,
+  onDelete,
   isUpdatePending,
   isStatusPending,
+  isDeletePending,
   error,
   revenue,
   revenueFailed,
@@ -193,8 +205,11 @@ export function MissionDetailPage({
 }: MissionDetailPageProps) {
   const format = useMoneyFormat();
   const [isEditing, setIsEditing] = useState(false);
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   const barColor = mission.color ?? client.color;
+  const hasNoHistory =
+    !isEntriesPending && !isEntriesError && entries.length === 0;
   // A mission that stopped requiring a CRA loses the tab; a stale ?tab=cra lands on entries.
   const activeTab = tab === "cra" && !mission.craRequired ? "entries" : tab;
   const isDone = mission.status === 2;
@@ -296,8 +311,33 @@ export function MissionDetailPage({
                 <CheckIcon aria-hidden />
                 {isDone ? m.missions_resume() : m.missions_mark_done()}
               </DropdownMenuItem>
+              {hasNoHistory && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    disabled={isDeletePending}
+                    onClick={() => setIsConfirmingDelete(true)}
+                    variant="destructive"
+                  >
+                    <Trash2Icon aria-hidden />
+                    {m.missions_delete()}
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
+          <ConfirmDeleteDialog
+            confirmLabel={m.missions_delete_confirm()}
+            description={m.missions_delete_body({ name: mission.name })}
+            isDeleting={isDeletePending ?? false}
+            onConfirm={() => {
+              setIsConfirmingDelete(false);
+              onDelete();
+            }}
+            onOpenChange={setIsConfirmingDelete}
+            open={isConfirmingDelete}
+            title={m.missions_delete_title()}
+          />
         </div>
       </div>
 

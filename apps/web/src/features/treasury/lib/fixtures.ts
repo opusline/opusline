@@ -20,6 +20,14 @@ export function pendingTransferTreasuryData(): TreasuryData {
   });
 }
 
+/** August's URSSAF marked paid after the last relevé: out of the provisions, not yet out of the balance. */
+export function paidDeclarationTreasuryData(): TreasuryData {
+  return treasuryData({
+    pendingDeclarations: eur(273_790),
+    transferable: eur(577_510),
+  });
+}
+
 /** Nothing typed, nothing imported: no balance to reason about at all. */
 export function emptyTreasuryData(): TreasuryData {
   return treasuryData({

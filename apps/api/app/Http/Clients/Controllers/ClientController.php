@@ -29,6 +29,7 @@ class ClientController extends Controller
         $clients = $user
             ->clients()
             ->with('missions')
+            ->withExists(Client::logoExistence())
             ->orderBy('name')
             ->get()
             ->all();
@@ -40,7 +41,7 @@ class ClientController extends Controller
 
     public function show(Client $client): JsonResponse
     {
-        $client->load('missions');
+        $client->load('missions')->loadExists(Client::logoExistence());
 
         return response()->json(ClientWithMissionsData::from($client));
     }

@@ -57,7 +57,14 @@ pnpm --filter @opusline/storybook dev
 # PHP — never on the host. The single door is the Docker wrapper (from apps/api/):
 sh scripts/php.sh php artisan test
 sh scripts/php.sh php vendor/bin/pint
+sh scripts/php.sh php artisan migrate:fresh --seed --seeder=VolumeSeeder  # demo account + 3 years of history:
+                                                                         # measure a screen's cost on this, not the demo seed
 ```
+
+Telescope is installed for development only: it is registered, and its tables
+migrated, when `APP_ENV=local` and nowhere else (`AppServiceProvider`). Open it
+on the API container directly — `http://localhost/telescope` — since Vite only
+proxies `/api` and `/sanctum`.
 
 ## Stack decisions (do not re-litigate)
 

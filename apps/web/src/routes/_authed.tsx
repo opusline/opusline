@@ -128,8 +128,9 @@ function AuthedLayout() {
           {/* Inside the timer so the lock can say a timer is still running;
               features do not import each other, only a route composes two. */}
           <SessionLockProvider status={<TimerLockStatus />}>
-            <InvoiceDrawerProvider timezone={user.timezone}>
-              <ToastProvider>
+            {/* The toasts wrap the fiche: deleting a draft from it says so. */}
+            <ToastProvider>
+              <InvoiceDrawerProvider timezone={user.timezone}>
                 <SidebarProvider>
                   <AppSidebar />
                   <SidebarInset>
@@ -152,8 +153,8 @@ function AuthedLayout() {
                   </SidebarInset>
                 </SidebarProvider>
                 <Toaster closeLabel={m.common_close()} />
-              </ToastProvider>
-            </InvoiceDrawerProvider>
+              </InvoiceDrawerProvider>
+            </ToastProvider>
           </SessionLockProvider>
         </TimerProvider>
       </AddressAutocompleteProvider>

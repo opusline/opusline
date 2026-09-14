@@ -35,6 +35,7 @@ const baseClient = {
   createdAt: "2026-01-08T00:00:00+00:00",
   notes: null,
   paymentTermsDays: 45,
+  hasLogo: false,
   siret: null,
   vatNumber: null,
   defaultVatRateBp: null,

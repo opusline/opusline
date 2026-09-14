@@ -140,16 +140,16 @@ test('a deleted debit does not come back on the next read', function (): void {
     expect($user->expenses()->count())->toBe(2);
 });
 
-test('the run rate counts an annual debit once, even in its own month', function (): void {
+test('the projection counts an annual debit once, even in its own month', function (): void {
     $user = User::factory()->create();
     subscriptionOwnedBy($user, fn (SubscriptionFactory $factory): SubscriptionFactory => $factory
         ->named('Orvella Assurances', ExpenseCategory::Insurance)->exempt()->annual(15, 3)->startedOn('2026-03-15')->recordedOn('2026-03-01')->priced(31_200));
     expenseOwnedBy($user, fn ($factory) => $factory->on('2026-03-20')->ttc(12_000));
 
-    // March holds the 31 200 debit and a 10 000 one-off: 10 000 × 12 + 31 200.
+    // March holds the 31 200 debit and a 10 000 one-off: the one-off once, plus a year of the subscription.
     $this->actingAs($user)->getJson('/api/expenses?month=2026-03')->assertOk()
         ->assertJsonPath('totals.ht.amount', 41_200)
-        ->assertJsonPath('projection.projectedChargesHt.amount', 151_200);
+        ->assertJsonPath('projection.projectedChargesHt.amount', 41_200);
 });
 
 test('a debit landing on a declared month claims its TVA on the next open one', function (): void {
@@ -180,8 +180,8 @@ test('the journal tallies the subscriptions and files their debits under one bar
         ->assertJsonPath('categories.0.ht.amount', 10_000)
         ->assertJsonPath('categories.1.category', null)
         ->assertJsonPath('categories.1.ht.amount', 2_400)
-        // The run rate: the 10 000 one-off × 12, plus a year of both subscriptions.
-        ->assertJsonPath('projection.projectedChargesHt.amount', 10_000 * 12 + 60_000);
+        // The 10 000 one-off once, plus a year of both subscriptions.
+        ->assertJsonPath('projection.projectedChargesHt.amount', 10_000 + 60_000);
 });
 
 test('the rail lists the debits still without a receipt and the annual debit ahead', function (): void {

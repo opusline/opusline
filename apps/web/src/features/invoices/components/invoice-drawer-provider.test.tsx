@@ -1,3 +1,4 @@
+import { ToastProvider } from "@opusline/ui/components/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   createMemoryHistory,
@@ -13,6 +14,7 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from "@testing-library/react";
 import { useEffect } from "react";
 import { afterEach, expect, it, vi } from "vitest";
@@ -91,9 +93,11 @@ function DeepLinkPage() {
 async function renderApp() {
   const rootRoute = createRootRoute({
     component: () => (
-      <InvoiceDrawerProvider timezone="Europe/Paris">
-        <Outlet />
-      </InvoiceDrawerProvider>
+      <ToastProvider>
+        <InvoiceDrawerProvider timezone="Europe/Paris">
+          <Outlet />
+        </InvoiceDrawerProvider>
+      </ToastProvider>
     ),
   });
   const routeTree = rootRoute.addChildren([
@@ -187,6 +191,37 @@ it("writes the reference before sending a draft that carries none", async () => 
       expect.objectContaining({ method: "POST", path: "/api/invoices/1/send" }),
     ]);
   });
+});
+
+it("deletes a draft once confirmed and closes its fiche", async () => {
+  const requests = stubApi(
+    invoiceDetail({ number: null, status: 0 }),
+    (request) =>
+      request.method === "DELETE" ? new Response(null, { status: 204 }) : null,
+  );
+  await renderApp();
+
+  fireEvent.click(screen.getByRole("button", { name: "ouvrir" }));
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Supprimer le brouillon" }),
+  );
+  const confirm = await screen.findByRole("alertdialog");
+  fireEvent.click(
+    within(confirm).getByRole("button", { name: "Supprimer le brouillon" }),
+  );
+
+  await waitFor(() =>
+    expect(
+      requests.some(
+        (request) =>
+          request.method === "DELETE" && request.path === "/api/invoices/1",
+      ),
+    ).toBe(true),
+  );
+  await waitFor(() =>
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument(),
+  );
+  expect(screen.queryByLabelText("Référence")).not.toBeInTheDocument();
 });
 
 it("does not send when the reference write is refused", async () => {

@@ -10,6 +10,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@opusline/ui/components/dropdown-menu";
 import {
@@ -42,9 +43,11 @@ import {
   CircleAlert,
   MoreHorizontalIcon,
   PlusIcon,
+  Trash2Icon,
 } from "lucide-react";
 import { type MouseEvent, type ReactNode, useMemo, useState } from "react";
 import { ClientLogo } from "@/components/client-logo";
+import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import {
@@ -102,7 +105,10 @@ type ClientDetailPageProps = {
   invoicesTab: ReactNode;
   onUpdate: (body: UpdateClientData) => Promise<FormSubmitResult>;
   onToggleArchive: () => void;
-  logoSrc: string;
+  /** Offered only while the client has no mission: the API refuses the rest. */
+  onDelete: () => void;
+  /** Omitted when the client has no logo, so none is asked for. */
+  logoSrc?: string;
   onUploadLogo: (logo: File) => Promise<LogoUploadResult>;
   onRemoveLogo: () => Promise<boolean>;
   /** Whether the account charges TVA at all; under the franchise en base it never does. */
@@ -111,6 +117,7 @@ type ClientDetailPageProps = {
   accountVatRateBp: number;
   isUpdatePending?: boolean;
   isArchivePending?: boolean;
+  isDeletePending?: boolean;
   error?: string | null;
   /** Undefined while the figures are still loading; tiles show a placeholder. */
   revenue?: ClientRevenueData;
@@ -128,6 +135,7 @@ export function ClientDetailPage({
   invoicesTab,
   onUpdate,
   onToggleArchive,
+  onDelete,
   logoSrc,
   onUploadLogo,
   onRemoveLogo,
@@ -135,6 +143,7 @@ export function ClientDetailPage({
   accountVatRateBp,
   isUpdatePending,
   isArchivePending,
+  isDeletePending,
   error,
   revenue,
   revenueYear,
@@ -143,6 +152,7 @@ export function ClientDetailPage({
   const format = useMoneyFormat();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const missionRevenues = useMemo(
     () => indexMissionRevenue(revenue === undefined ? undefined : [revenue]),
     [revenue],
@@ -250,8 +260,33 @@ export function ClientDetailPage({
                 <ArchiveIcon aria-hidden />
                 {isArchived ? m.clients_reactivate() : m.clients_archive()}
               </DropdownMenuItem>
+              {client.missions.length === 0 && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    disabled={isDeletePending}
+                    onClick={() => setIsConfirmingDelete(true)}
+                    variant="destructive"
+                  >
+                    <Trash2Icon aria-hidden />
+                    {m.clients_delete()}
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
+          <ConfirmDeleteDialog
+            confirmLabel={m.clients_delete_confirm()}
+            description={m.clients_delete_body({ name: client.name })}
+            isDeleting={isDeletePending ?? false}
+            onConfirm={() => {
+              setIsConfirmingDelete(false);
+              onDelete();
+            }}
+            onOpenChange={setIsConfirmingDelete}
+            open={isConfirmingDelete}
+            title={m.clients_delete_title()}
+          />
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 import type { MissionStatus, UpdateMissionData } from "@opusline/api-client";
 import {
   deleteMissionDocumentMutation,
+  deleteMissionMutation,
   listClientsQueryKey,
   listMissionDocumentsOptions,
   listMissionDocumentsQueryKey,
@@ -14,6 +15,7 @@ import {
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
+import { useToast } from "@opusline/ui/components/toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
@@ -54,6 +56,7 @@ function MissionDetailRoute() {
   const { tab } = Route.useSearch();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const missionPath = { client: clientSlug, mission: missionSlug };
   const clientQuery = useQuery(
@@ -71,6 +74,7 @@ function MissionDetailRoute() {
   );
 
   const updateMission = useMutation(updateMissionMutation());
+  const deleteMission = useMutation(deleteMissionMutation());
   const [isMutating, setIsMutating] = useState(false);
   const inFlightMutations = useRef(0);
 
@@ -127,6 +131,30 @@ function MissionDetailRoute() {
     } finally {
       endMutation();
     }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteMission.mutateAsync({ path: missionPath });
+    } catch {
+      // The refusal is surfaced through deleteMission.error below.
+      return;
+    }
+
+    toast.add({ title: m.missions_deleted() });
+    await navigate({
+      params: { clientSlug },
+      to: "/clients/$clientSlug",
+    });
+    queryClient.removeQueries({
+      queryKey: showMissionQueryKey({ path: missionPath }),
+    });
+    await Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: showClientOptions({ path: { client: clientSlug } }).queryKey,
+      }),
+      queryClient.invalidateQueries({ queryKey: listClientsQueryKey() }),
+    ]);
   };
 
   const handleSetStatus = async (status: MissionStatus) => {
@@ -256,11 +284,16 @@ function MissionDetailRoute() {
       client={clientQuery.data}
       craTab={craTab}
       documentsTab={documentsTab}
-      error={writeErrorBanner(updateMission.error, m.common_action_failed())}
+      error={
+        writeErrorBanner(updateMission.error, m.common_action_failed()) ??
+        writeErrorBanner(deleteMission.error, m.missions_delete_failed())
+      }
       invoicesTab={invoicesTab}
+      isDeletePending={deleteMission.isPending}
       isStatusPending={isMutating}
       isUpdatePending={isMutating}
       mission={missionQuery.data}
+      onDelete={() => void handleDelete()}
       onSetStatus={(status) => void handleSetStatus(status)}
       onTabChange={(next) =>
         void navigate({

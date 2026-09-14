@@ -50,6 +50,7 @@ function client(
     billingEmail: null,
     color: 0,
     paymentTermsDays: 45,
+    hasLogo: false,
     archivedAt: null,
     createdAt: "2026-08-01T00:00:00+00:00",
     missions: [],

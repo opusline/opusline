@@ -36,6 +36,8 @@ class ClientWithMissionsData extends Data
         public int $paymentTermsDays,
         public ?CarbonImmutable $archivedAt,
         public CarbonImmutable $createdAt,
+        /** Whether a logo was uploaded: ask for the file only then. */
+        public bool $hasLogo,
         #[DataCollectionOf(MissionData::class)]
         public array $missions,
     ) {}
