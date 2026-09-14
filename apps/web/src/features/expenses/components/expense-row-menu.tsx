@@ -15,6 +15,8 @@ import { m } from "@/paraglide/messages.js";
 
 type ExpenseRowMenuProps = {
   expense: ExpenseData;
+  onEdit: (expense: ExpenseData) => void;
+  onDuplicate: (expense: ExpenseData) => void;
   onDetachReceipt: (expense: ExpenseData) => void;
   onDelete: (expense: ExpenseData) => void;
   className?: string;
@@ -27,6 +29,8 @@ type ExpenseRowMenuProps = {
  */
 export function ExpenseRowMenu({
   expense,
+  onEdit,
+  onDuplicate,
   onDetachReceipt,
   onDelete,
   className,
@@ -59,27 +63,31 @@ export function ExpenseRowMenu({
         <MoreVerticalIcon aria-hidden />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-56">
+        <DropdownMenuItem onClick={() => onEdit(expense)}>
+          {m.expenses_menu_edit()}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onDuplicate(expense)}>
+          {m.expenses_menu_duplicate()}
+        </DropdownMenuItem>
         {expense.receipt !== null && (
-          <>
-            <DropdownMenuItem
-              className={cn(isConfirmingDetach && "text-attention")}
-              closeOnClick={isConfirmingDetach}
-              onClick={() => {
-                if (isConfirmingDetach) {
-                  onDetachReceipt(expense);
-                  return;
-                }
+          <DropdownMenuItem
+            className={cn(isConfirmingDetach && "text-attention")}
+            closeOnClick={isConfirmingDetach}
+            onClick={() => {
+              if (isConfirmingDetach) {
+                onDetachReceipt(expense);
+                return;
+              }
 
-                setIsConfirmingDetach(true);
-              }}
-            >
-              {isConfirmingDetach
-                ? m.expenses_menu_detach_confirm()
-                : m.expenses_menu_detach()}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-          </>
+              setIsConfirmingDetach(true);
+            }}
+          >
+            {isConfirmingDetach
+              ? m.expenses_menu_detach_confirm()
+              : m.expenses_menu_detach()}
+          </DropdownMenuItem>
         )}
+        <DropdownMenuSeparator />
         <DropdownMenuItem
           className="text-destructive data-highlighted:text-destructive"
           onClick={() => onDelete(expense)}

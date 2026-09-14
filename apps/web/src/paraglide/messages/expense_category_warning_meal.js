@@ -6,17 +6,17 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{}} Expense_Category_Warning_MealInputs */
 
 const en_expense_category_warning_meal = /** @type {(inputs: Expense_Category_Warning_MealInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Invoice in the business's name required`)
+	return /** @type {LocalizedString} */ (`Invoice in the business's name required.`)
 };
 
 const fr_expense_category_warning_meal = /** @type {(inputs: Expense_Category_Warning_MealInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Facture au nom de l'entreprise requise`)
+	return /** @type {LocalizedString} */ (`Facture au nom de l'entreprise requise.`)
 };
 
 /**
 * | output |
 * | --- |
-* | "Invoice in the business's name required" |
+* | "Invoice in the business's name required." |
 *
 * @param {Expense_Category_Warning_MealInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

@@ -28,6 +28,8 @@ export type ExpenseRowHandlers = {
   uploadingExpenseId: number | null;
   onAttachReceipt: (expense: ExpenseData, files: FileList) => void;
   onDetachReceipt: (expense: ExpenseData) => void;
+  onEdit: (expense: ExpenseData) => void;
+  onDuplicate: (expense: ExpenseData) => void;
   onDelete: (expense: ExpenseData) => void;
 };
 
@@ -116,6 +118,8 @@ function ExpenseRow({
   uploadingExpenseId,
   onAttachReceipt,
   onDetachReceipt,
+  onEdit,
+  onDuplicate,
   onDelete,
 }: ExpenseRowHandlers & {
   expense: ExpenseData;
@@ -188,6 +192,8 @@ function ExpenseRow({
           expense={expense}
           onDelete={onDelete}
           onDetachReceipt={onDetachReceipt}
+          onDuplicate={onDuplicate}
+          onEdit={onEdit}
         />
       </TableCell>
     </TableRow>

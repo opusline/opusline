@@ -12,6 +12,8 @@ it("asks once more before detaching the receipt", async () => {
       expense={expense()}
       onDelete={() => {}}
       onDetachReceipt={onDetachReceipt}
+      onDuplicate={() => {}}
+      onEdit={() => {}}
     />,
   );
 
@@ -39,6 +41,8 @@ it("offers no detachment when there is no receipt", async () => {
       expense={blockedExpense()}
       onDelete={() => {}}
       onDetachReceipt={() => {}}
+      onDuplicate={() => {}}
+      onEdit={() => {}}
     />,
   );
 
@@ -62,6 +66,8 @@ it("hands the expense to deletion", async () => {
       expense={blockedExpense()}
       onDelete={onDelete}
       onDetachReceipt={() => {}}
+      onDuplicate={() => {}}
+      onEdit={() => {}}
     />,
   );
 
@@ -71,4 +77,30 @@ it("hands the expense to deletion", async () => {
   fireEvent.click(await screen.findByRole("menuitem", { name: "Supprimer" }));
 
   expect(onDelete).toHaveBeenCalledWith(expect.objectContaining({ id: 2 }));
+});
+
+it.each([
+  ["Modifier", "onEdit"],
+  ["Dupliquer", "onDuplicate"],
+] as const)("hands the row to « %s »", async (item, handler) => {
+  const handlers = { onEdit: vi.fn(), onDuplicate: vi.fn() };
+
+  render(
+    <ExpenseRowMenu
+      expense={expense()}
+      onDelete={() => {}}
+      onDetachReceipt={() => {}}
+      onDuplicate={handlers.onDuplicate}
+      onEdit={handlers.onEdit}
+    />,
+  );
+
+  fireEvent.click(
+    screen.getByRole("button", { name: "Actions pour Lunaprint" }),
+  );
+  fireEvent.click(await screen.findByRole("menuitem", { name: item }));
+
+  expect(handlers[handler]).toHaveBeenCalledWith(
+    expect.objectContaining({ id: 1 }),
+  );
 });
