@@ -85,7 +85,7 @@ class SummarizeDeclarations
             $chainStart = $settings->filesMonthlyCa3() ? $this->chainStart($user, $settings, $declared, $monthStart) : null;
             $collected = CollectedInvoices::paidBetween(
                 $user,
-                min($earliestUrssafPeriod['start'], $monthStart->startOfYear(), $chainStart ?? $historyStart, $historyStart),
+                min($earliestUrssafPeriod['start'], $monthStart->startOfYear(), $chainStart ?? $historyStart),
                 max($urssafPeriod['end'], $monthEnd),
             );
             $deadlines = $this->generateFiscalDeadlines->handle(
