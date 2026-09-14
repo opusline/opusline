@@ -52,6 +52,24 @@ export function InvoiceDateCorrections({
   const [sentOnDraft, setSentOnDraft] = useState(sentOn);
   const [paidOnDraft, setPaidOnDraft] = useState(invoice.paidOn ?? "");
 
+  // The drawer stays open across the lifecycle buttons above: once the
+  // invoice is collected or its dates saved, the drafts re-seed from the
+  // record rather than keep showing the dates it had when the drawer opened.
+  const storedDates = [
+    invoice.status,
+    invoice.issuedOn,
+    sentOn,
+    invoice.paidOn,
+  ].join("|");
+  const [seededFrom, setSeededFrom] = useState(storedDates);
+
+  if (seededFrom !== storedDates) {
+    setSeededFrom(storedDates);
+    setIssuedOnDraft(invoice.issuedOn);
+    setSentOnDraft(sentOn);
+    setPaidOnDraft(invoice.paidOn ?? "");
+  }
+
   if (invoice.status === 0) {
     return null;
   }
