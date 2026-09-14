@@ -6,7 +6,6 @@ namespace App\Domain\Settings\Rates;
 
 use App\Domain\Settings\Models\ContributionRate;
 use App\Domain\Settings\Models\UserSettings;
-use Carbon\CarbonImmutable;
 
 /**
  * What URSSAF cost on a given day.
@@ -17,11 +16,6 @@ use Carbon\CarbonImmutable;
  */
 class ContributionRateHistory
 {
-    public function onDate(UserSettings $settings, CarbonImmutable $date): int
-    {
-        return $this->timeline($settings)->onDate($date);
-    }
-
     public function timeline(UserSettings $settings): ContributionRateTimeline
     {
         $recorded = ContributionRate::query()

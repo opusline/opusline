@@ -383,6 +383,13 @@ class ComputeBankProvisions
     }
 
     /**
+     * A carried period is priced with one rate on its whole HT, while the
+     * running period sums the URSSAF lines each rounded on its own, so a carry
+     * can sit a cent off what the URSSAF debits for it. ContributionRate
+     * records only the combined effective rate, not the cotisations, CFP and
+     * versement libératoire it was made of, so a closed period's lines cannot
+     * be rebuilt.
+     *
      * @param  array{start: CarbonImmutable, end: CarbonImmutable, previousStart: CarbonImmutable}  $period
      * @param  array<string, true>  $paid
      * @param  Collection<int, BankMovement>  $fiscDebits
