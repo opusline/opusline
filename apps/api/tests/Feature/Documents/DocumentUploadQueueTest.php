@@ -73,3 +73,28 @@ test('keeps the document in place when the media disk is the staging disk', func
     expect($document->disk)->toBe('local');
     Storage::disk('local')->assertExists($document->getPathRelativeToRoot());
 });
+
+test('discards its copy when the row was deleted under a running move', function (): void {
+    config(['media-library.disk_name' => 's3']);
+    Storage::fake('local');
+    Storage::fake('s3');
+    Queue::fake();
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+
+    $documentId = $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/documents", [
+            'file' => UploadedFile::fake()->createWithContent('Contrat.pdf', '%PDF-1.4 fake contract'),
+        ])
+        ->assertCreated()
+        ->json('id');
+    $document = Media::query()->findOrFail($documentId);
+    $path = $document->getPathRelativeToRoot();
+
+    // The row vanishes while the job holds its model — a query delete, so the
+    // staged file stays exactly as the job would find it mid-flight.
+    Media::query()->whereKey($documentId)->delete();
+    new MoveDocumentToMediaDisk($document)->handle();
+
+    Storage::disk('s3')->assertMissing($path);
+});

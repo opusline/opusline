@@ -175,3 +175,17 @@ test('does not list another user documents', function (): void {
 test('returns 401 for guests', function (): void {
     $this->getJson('/api/user/documents')->assertUnauthorized();
 });
+
+test('refuses a name hiding an executable segment as a 422 rather than a crash', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->post('/api/user/documents', [
+            'file' => UploadedFile::fake()->create('Kbis.php.pdf', 100, 'application/pdf'),
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('file');
+
+    $this->assertDatabaseMissing('media', ['model_type' => 'user', 'model_id' => $user->id]);
+});
