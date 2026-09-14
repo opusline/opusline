@@ -1,0 +1,30 @@
+name: Sentry Issue Status
+
+on:
+  issues:
+    types: [closed, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  mirror-state:
+    # Only the issues sentry-issues.yml filed carry a Sentry marker; the label
+    # keeps every other issue from starting a job that would find nothing.
+    if: contains(github.event.issue.labels.*.name, 'sentry')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - run: sh scripts/sentry-issue-status.sh
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_URL: ${{ vars.SENTRY_URL }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_STATE: ${{ github.event.issue.state }}
+          ISSUE_STATE_REASON: ${{ github.event.issue.state_reason }}
