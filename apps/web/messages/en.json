@@ -875,7 +875,7 @@
   "expenses_kpi_credit_line": "TVA credit {credit} · deducted > collected ({collected}) · carried to the next CA3",
   "expenses_kpi_deferred_line": "+ {amount} deferred · CA3 {month}",
   "expenses_kpi_regularised_line": "+ {amount} deferred · box 21, CA3 {month}",
-  "expenses_kpi_reverse_line": "+ {amount} reverse charged",
+  "expenses_kpi_reverse_line": "of which {amount} reverse charged",
   "expenses_kpi_subscriptions": "Subscriptions",
   "expenses_kpi_subscriptions_annual": [
     {

@@ -6,17 +6,17 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{ amount: NonNullable<unknown> }} Expenses_Kpi_Reverse_LineInputs */
 
 const en_expenses_kpi_reverse_line = /** @type {(inputs: Expenses_Kpi_Reverse_LineInputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`+ ${i?.amount} reverse charged`)
+	return /** @type {LocalizedString} */ (`of which ${i?.amount} reverse charged`)
 };
 
 const fr_expenses_kpi_reverse_line = /** @type {(inputs: Expenses_Kpi_Reverse_LineInputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`+ ${i?.amount} autoliquidés`)
+	return /** @type {LocalizedString} */ (`dont ${i?.amount} autoliquidés`)
 };
 
 /**
 * | output |
 * | --- |
-* | "+ {amount} reverse charged" |
+* | "of which {amount} reverse charged" |
 *
 * @param {Expenses_Kpi_Reverse_LineInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

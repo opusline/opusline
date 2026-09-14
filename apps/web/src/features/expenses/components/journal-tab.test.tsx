@@ -85,13 +85,20 @@ it("swaps the chips for the bulk bar and defers the selection", async () => {
   expect(screen.getByRole("status")).toBeEmptyDOMElement();
 });
 
+it("says the TVA figure already holds the self-assessed part", async () => {
+  renderJournal();
+
+  expect(
+    await screen.findByText(/^dont 9,60 € autoliquidés$/),
+  ).toBeInTheDocument();
+});
+
 it("spells out what the TVA figure leaves aside", async () => {
   renderJournal();
 
   expect(
     await screen.findByText(/\+ 18,18 € bloqués · 2 factures à lier/),
   ).toBeInTheDocument();
-  expect(screen.getByText(/\+ 9,60 € autoliquidés/)).toBeInTheDocument();
   expect(
     screen.getByText(/\+ 3,38 € reportés · CA3 septembre/),
   ).toBeInTheDocument();

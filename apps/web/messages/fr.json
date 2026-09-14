@@ -875,7 +875,7 @@
   "expenses_kpi_credit_line": "Crédit de TVA {credit} · déduite > collectée ({collected}) · reporté sur la CA3 suivante",
   "expenses_kpi_deferred_line": "+ {amount} reportés · CA3 {month}",
   "expenses_kpi_regularised_line": "+ {amount} reportés · case 21, CA3 {month}",
-  "expenses_kpi_reverse_line": "+ {amount} autoliquidés",
+  "expenses_kpi_reverse_line": "dont {amount} autoliquidés",
   "expenses_kpi_subscriptions": "Abonnements",
   "expenses_kpi_subscriptions_annual": [
     {
