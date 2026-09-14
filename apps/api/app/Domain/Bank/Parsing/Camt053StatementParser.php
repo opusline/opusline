@@ -38,6 +38,13 @@ final class Camt053StatementParser implements StatementParser
 
     private function firstStatement(string $text): SimpleXMLElement
     {
+        // A CAMT.053 message is plain ISO 20022 XML and never declares a DTD;
+        // refusing one outright leaves no entity to expand, whatever libxml's
+        // defaults become.
+        if (stripos($text, '<!DOCTYPE') !== false) {
+            throw new StatementParseException('bank.unreadable_file');
+        }
+
         $previous = libxml_use_internal_errors(true);
 
         try {

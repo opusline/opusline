@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'account_locked' => 'Too many wrong codes for this account. Try again in 15 minutes.',
     'already_enabled' => 'The authenticator app is already enabled.',
     'challenge_expired' => 'This sign-in attempt has expired. Enter your password again.',
     'invalid_code' => 'The code is invalid or has expired.',
@@ -10,5 +11,6 @@ return [
     'not_enabled' => 'Two-factor authentication is not enabled.',
     'password_confirmation_required' => 'Confirm your password to continue.',
     'too_many_failures' => 'Too many wrong codes. Enter your password again.',
+    'session_locked' => 'This session is locked. Confirm your password to continue.',
     'setup_not_started' => 'Start the authenticator app setup before confirming a code.',
 ];

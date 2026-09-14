@@ -35,7 +35,9 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            // Every download streams through a controller that resolves an
+            // owned model; a signed /storage route would be a second door.
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],

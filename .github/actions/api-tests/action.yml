@@ -36,7 +36,7 @@ runs:
       shell: bash
       working-directory: apps/api
       run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
-    - uses: actions/cache@v6
+    - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: composer-${{ hashFiles('apps/api/composer.lock') }}
@@ -75,7 +75,7 @@ runs:
     # Kept so the push that merges the PR can hand the same report to Codecov
     # under the commit that lands on main (see coverage-carry in ci.yml).
     - if: inputs.coverage == 'pcov'
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: coverage-api
         path: apps/api/coverage/clover.xml

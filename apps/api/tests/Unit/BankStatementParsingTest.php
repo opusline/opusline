@@ -28,6 +28,33 @@ test('refuses files that are not bank statements', function (string $fixture): v
     'csv mixing currencies' => ['mixed_currencies.csv'],
 ]);
 
+test('refuses a csv with more rows than a statement import holds', function (): void {
+    $rows = str_repeat("2026-07-15,VIR SEPA NORDLYS,-12.00\n", ParseBankStatement::MAX_MOVEMENTS + 200);
+
+    (new ParseBankStatement)->handle("Date,Label,Amount\n".$rows);
+})->throws(StatementParseException::class, 'bank.too_many_movements');
+
+test('refuses any other format holding more movements than an import holds', function (): void {
+    $transaction = '<STMTTRN><TRNTYPE>DEBIT</TRNTYPE><DTPOSTED>20260722</DTPOSTED><TRNAMT>-12.00</TRNAMT><NAME>PRLV ONDULYS</NAME></STMTTRN>';
+    $ofx = str_replace(
+        '<BANKTRANLIST>',
+        '<BANKTRANLIST>'.str_repeat($transaction, ParseBankStatement::MAX_MOVEMENTS + 1),
+        bankFixture('statement_v211.ofx'),
+    );
+
+    (new ParseBankStatement)->handle($ofx);
+})->throws(StatementParseException::class, 'bank.too_many_movements');
+
+test('refuses a camt053 document that declares a DTD', function (): void {
+    $camt = str_replace(
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE Document [<!ENTITY bank "Nordlys">]>',
+        bankFixture('camt053.xml'),
+    );
+
+    (new ParseBankStatement)->handle($camt);
+})->throws(StatementParseException::class, 'bank.unreadable_file');
+
 test('reads a semicolon csv with french headers and amounts, oldest first', function (): void {
     [$statement] = (new ParseBankStatement)->handle(bankFixture('semicolon_solde.csv'));
 

@@ -27,9 +27,21 @@ trait StreamsMedia
             $media->getPathRelativeToRoot(),
             $media->file_name,
             [
-                'Content-Security-Policy' => "default-src 'none'",
+                'Content-Security-Policy' => $this->contentSecurityPolicyFor($media),
                 'Cache-Control' => 'no-store',
             ],
         );
+    }
+
+    /**
+     * An SVG opened on its own is a document on the app's origin: sandboxed, it
+     * can neither run script nor submit a form. Only SVGs, because Chrome
+     * refuses to render a PDF inside a sandbox, and receipts open inline.
+     */
+    private function contentSecurityPolicyFor(Media $media): string
+    {
+        return $media->mime_type === 'image/svg+xml'
+            ? "default-src 'none'; style-src 'unsafe-inline'; sandbox"
+            : "default-src 'none'";
     }
 }

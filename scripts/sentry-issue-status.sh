@@ -11,7 +11,8 @@ set -eu
 sentry_url="${SENTRY_URL:-https://sentry.io}"
 dry_run="${DRY_RUN:-0}"
 
-sentry_id=$(printf '%s' "${ISSUE_BODY:-}" | sed -n 's/.*<!-- sentry-issue:\([0-9]*\) -->.*/\1/p')
+# The marker is the body's last line; an id quoted anywhere above it is not ours.
+sentry_id=$(printf '%s' "${ISSUE_BODY:-}" | sed -n 's/.*<!-- sentry-issue:\([0-9]*\) -->.*/\1/p' | tail -n 1)
 if [ -z "$sentry_id" ]; then
   echo "This issue carries no Sentry marker, nothing to mirror."
   exit 0

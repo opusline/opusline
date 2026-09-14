@@ -198,6 +198,52 @@
                 }
             }
         },
+        "/user/session-lock": {
+            "post": {
+                "operationId": "lockSession",
+                "summary": "Locks the session until the password is confirmed again",
+                "tags": [
+                    "Auth"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/user/password": {
+            "put": {
+                "operationId": "updateUserPassword",
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateUserPasswordData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/user/theme": {
             "put": {
                 "operationId": "updateUserTheme",
@@ -5818,6 +5864,28 @@
                     },
                     "422": {
                         "$ref": "#/components/responses/ValidationException"
+                    },
+                    "429": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                "Too many wrong codes for this account. Try again in 15 minutes."
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
                     }
                 },
                 "security": []
@@ -13296,6 +13364,26 @@
                     "note"
                 ],
                 "title": "UpdateTimerData"
+            },
+            "UpdateUserPasswordData": {
+                "type": "object",
+                "properties": {
+                    "password": {
+                        "type": "string",
+                        "minLength": 8,
+                        "maxLength": 255
+                    },
+                    "password_confirmation": {
+                        "type": "string",
+                        "minLength": 8,
+                        "maxLength": 255
+                    }
+                },
+                "required": [
+                    "password",
+                    "password_confirmation"
+                ],
+                "title": "UpdateUserPasswordData"
             },
             "UpdateUserThemeData": {
                 "type": "object",

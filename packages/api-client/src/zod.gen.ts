@@ -2299,6 +2299,14 @@ export const zUpdateTimerData = z.object({
 });
 
 /**
+ * UpdateUserPasswordData
+ */
+export const zUpdateUserPasswordData = z.object({
+    password: z.string().check(z.minLength(8), z.maxLength(255)),
+    password_confirmation: z.string().check(z.minLength(8), z.maxLength(255))
+});
+
+/**
  * UpdateUserThemeData
  */
 export const zUpdateUserThemeData = z.object({
@@ -2556,6 +2564,18 @@ export const zConfirmPasswordBody = zConfirmPasswordData;
  * No content
  */
 export const zConfirmPasswordResponse = z.void();
+
+/**
+ * No content
+ */
+export const zLockSessionResponse = z.void();
+
+export const zUpdateUserPasswordBody = zUpdateUserPasswordData;
+
+/**
+ * No content
+ */
+export const zUpdateUserPasswordResponse = z.void();
 
 export const zUpdateUserThemeBody = zUpdateUserThemeData;
 

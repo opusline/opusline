@@ -5,6 +5,7 @@ declare(strict_types=1);
 return [
     'unreadable_file' => 'Ce fichier n\'a pas pu être lu comme un relevé bancaire.',
     'no_movements' => 'Aucun mouvement trouvé dans ce relevé.',
+    'too_many_movements' => 'Ce relevé contient plus de 20 000 mouvements. Exportez une période plus courte et importez-la en plusieurs fois.',
     'statement_currency_mismatch' => 'Ce relevé n\'est pas dans la devise du compte.',
     'match_already_settled' => 'Cette suggestion a déjà été validée ou écartée.',
     'movement_in_future' => 'Ce mouvement est daté dans le futur et ne peut pas encore solder une facture.',

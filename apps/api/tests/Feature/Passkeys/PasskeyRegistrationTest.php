@@ -69,6 +69,30 @@ test('registering a second passkey keeps the recovery codes', function (): void 
         ->and($user->passkeys()->count())->toBe(2);
 });
 
+test('the first passkey voids remember-me cookies minted before the challenge existed', function (): void {
+    $user = User::factory()->create(['remember_token' => 'remembered-before-two-factor']);
+    $options = withConfirmedPassword($user)->postJson('/api/user/passkeys/options');
+
+    withConfirmedPassword($user)
+        ->postJson('/api/user/passkeys', ['name' => 'YubiKey', 'credential' => fakeCredentialFor($options, 'cred-yubikey')])
+        ->assertCreated();
+
+    expect($user->refresh()->remember_token)->not->toBe('remembered-before-two-factor');
+});
+
+test('a second passkey leaves the remember-me cookies alone', function (): void {
+    $user = User::factory()->create();
+    registerPasskey($user);
+    $user->forceFill(['remember_token' => 'remembered-under-two-factor'])->save();
+    $options = withConfirmedPassword($user)->postJson('/api/user/passkeys/options');
+
+    withConfirmedPassword($user)
+        ->postJson('/api/user/passkeys', ['name' => 'YubiKey', 'credential' => fakeCredentialFor($options, 'cred-yubikey')])
+        ->assertCreated();
+
+    expect($user->refresh()->remember_token)->toBe('remembered-under-two-factor');
+});
+
 test('a credential answering another challenge is refused', function (): void {
     $user = User::factory()->create();
     withConfirmedPassword($user)->postJson('/api/user/passkeys/options');

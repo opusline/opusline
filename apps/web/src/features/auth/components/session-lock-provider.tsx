@@ -2,6 +2,7 @@ import type { UserData } from "@opusline/api-client";
 import {
   confirmPasswordMutation,
   currentUserQueryKey,
+  lockSessionMutation,
   loginMutation,
   logoutMutation,
 } from "@opusline/api-client/react-query";
@@ -30,6 +31,10 @@ type SessionLockProviderProps = {
  * Locks the app after a stretch of inactivity, and when the API answers that
  * the session is gone.
  *
+ * An inactivity lock is also sent to the API, which refuses the session until
+ * the password is confirmed: a reload or a second tab must not be a way past
+ * the screen.
+ *
  * The lock covers the app instead of redirecting to /login so that unlocking
  * puts back the page that was there — the router, the open drawer and the
  * running timer all survive it.
@@ -48,10 +53,12 @@ export function SessionLockProvider({
   const confirmPassword = useMutation(confirmPasswordMutation());
   const login = useMutation(loginMutation());
   const logout = useMutation(logoutMutation());
+  const lockSession = useMutation(lockSessionMutation());
 
-  useIdleTimeout(INACTIVITY_LOCK_MS, reason === null, () =>
-    setReason("inactivity"),
-  );
+  useIdleTimeout(INACTIVITY_LOCK_MS, reason === null, () => {
+    setReason("inactivity");
+    lockSession.mutate({});
+  });
 
   useEffect(
     () =>

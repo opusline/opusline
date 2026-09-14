@@ -11,7 +11,7 @@ import {
 import { afterEach, expect, it, vi } from "vitest";
 
 import { setupApiClient } from "@/lib/api";
-import { reportSessionExpired } from "@/lib/session-lock";
+import { INACTIVITY_LOCK_MS, reportSessionExpired } from "@/lib/session-lock";
 import { CURRENT_USER_FIXTURE, seedCurrentUser } from "@/test/current-user";
 import { StoryRouter } from "@/test/story-router";
 import { SessionLockProvider } from "./session-lock-provider";
@@ -94,6 +94,25 @@ it("covers the app when the API says the session is gone", async () => {
     /session expirée/i,
   );
   expect(screen.getByText("Ma semaine")).toBeInTheDocument();
+});
+
+it("has the API hold the lock once the app sits idle", async () => {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+  const lockSession = vi.fn(() => new Response(null, { status: 204 }));
+  stubApi({ "session-lock": lockSession });
+
+  try {
+    await renderApp();
+
+    act(() => {
+      vi.advanceTimersByTime(INACTIVITY_LOCK_MS);
+    });
+
+    expect(await screen.findByRole("dialog")).toBeInTheDocument();
+    await waitFor(() => expect(lockSession).toHaveBeenCalledOnce());
+  } finally {
+    vi.useRealTimers();
+  }
 });
 
 it("leaves a signed-out visitor to the login redirect", async () => {

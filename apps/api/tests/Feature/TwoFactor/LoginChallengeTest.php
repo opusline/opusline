@@ -6,6 +6,7 @@ use App\Domain\TwoFactor\Enums\TwoFactorMethod;
 use App\Domain\Users\Models\User;
 use App\Http\Users\Support\PendingLogin;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
 
 beforeEach(fn () => freezeTodayAtUtcNoon());
 
@@ -75,14 +76,14 @@ test('the challenge honours the remember choice made at the password step', func
         ->assertCookie(Auth::guard('web')->getRecallerName());
 });
 
-test('the challenge opens the password confirmation window', function (): void {
+test('the challenge does not open the password confirmation window', function (): void {
     $user = User::factory()->create();
     $secret = enableTotp($user);
     loginExpectingChallenge($user);
 
     fromSpa()->postJson('/api/two-factor-challenge', ['code' => totpCodeFor($secret)])->assertOk();
 
-    fromSpa()->getJson('/api/user/two-factor/recovery-codes')->assertOk();
+    fromSpa()->getJson('/api/user/two-factor/recovery-codes')->assertStatus(423);
 });
 
 test('the challenge regenerates the session id', function (): void {
@@ -158,6 +159,84 @@ test('the fifth wrong answer discards the pending login and says so', function (
     fromSpa()->postJson('/api/two-factor-challenge', ['code' => '000000'])
         ->assertConflict()
         ->assertJsonPath('message', __('two-factor.too_many_failures'));
+
+    fromSpa()->postJson('/api/two-factor-challenge', ['code' => totpCodeFor($secret)])
+        ->assertConflict()
+        ->assertJsonPath('message', __('two-factor.challenge_expired'));
+
+    $this->assertGuest('web');
+});
+
+test('wrong answers count against the account across fresh logins', function (): void {
+    $user = User::factory()->create();
+    $secret = enableTotp($user);
+
+    // Two full allowances, each from a new password step: a session-only count
+    // would start over each time and never refuse the correct code.
+    foreach (range(1, 2) as $round) {
+        loginExpectingChallenge($user);
+
+        foreach (range(1, PendingLogin::MAX_FAILURES) as $attempt) {
+            fromSpa()->postJson('/api/two-factor-challenge', ['code' => '000000'])
+                ->assertStatus($attempt < PendingLogin::MAX_FAILURES ? 422 : 409);
+        }
+
+        $this->travel(1)->minutes();
+    }
+
+    loginExpectingChallenge($user);
+
+    fromSpa()->postJson('/api/two-factor-challenge', ['code' => totpCodeFor($secret)])
+        ->assertTooManyRequests()
+        ->assertJsonPath('message', __('two-factor.account_locked'));
+
+    $this->assertGuest('web');
+});
+
+test('the account lockout lifts once its window has passed', function (): void {
+    $user = User::factory()->create();
+    $secret = enableTotp($user);
+
+    foreach (range(1, 2) as $round) {
+        loginExpectingChallenge($user);
+
+        foreach (range(1, PendingLogin::MAX_FAILURES) as $attempt) {
+            fromSpa()->postJson('/api/two-factor-challenge', ['code' => '000000']);
+        }
+
+        $this->travel(1)->minutes();
+    }
+
+    $this->travel(PendingLogin::ACCOUNT_FAILURE_WINDOW_SECONDS)->seconds();
+    loginExpectingChallenge($user);
+
+    fromSpa()->postJson('/api/two-factor-challenge', ['code' => totpCodeFor($secret)])->assertOk();
+
+    $this->assertAuthenticatedAs($user, 'web');
+});
+
+test('a correct answer clears the account\'s wrong-answer count', function (): void {
+    $user = User::factory()->create();
+    $secret = enableTotp($user);
+
+    loginExpectingChallenge($user);
+
+    foreach (range(1, PendingLogin::MAX_FAILURES - 1) as $attempt) {
+        fromSpa()->postJson('/api/two-factor-challenge', ['code' => '000000'])->assertUnprocessable();
+    }
+
+    fromSpa()->postJson('/api/two-factor-challenge', ['code' => totpCodeFor($secret)])->assertOk();
+
+    expect(PendingLogin::isAccountLockedOut($user))->toBeFalse()
+        ->and(RateLimiter::attempts('two-factor-failures:'.$user->id))->toBe(0);
+});
+
+test('a password changed after the password step voids the pending login', function (): void {
+    $user = User::factory()->create();
+    $secret = enableTotp($user);
+    loginExpectingChallenge($user);
+
+    $user->refresh()->forceFill(['password' => 'a-brand-new-password'])->save();
 
     fromSpa()->postJson('/api/two-factor-challenge', ['code' => totpCodeFor($secret)])
         ->assertConflict()

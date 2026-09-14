@@ -312,26 +312,20 @@ test('clips an overlong original file name to fit its column', function (): void
     expect($response->json('fileName'))->toBe(str_repeat('n', 251).'.pdf');
 });
 
-test('clips an absurd extension instead of losing the whole name', function (): void {
+test('files a document under the extension of what it is, not the one it was sent under', function (): void {
     Storage::fake('local');
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
 
-    $response = $this->actingAs($user)
+    $this->actingAs($user)
         ->post("/api/clients/{$client->slug}/documents", [
-            'file' => UploadedFile::fake()->create(
-                'scan.'.str_repeat('e', 300),
-                12,
-                'application/pdf',
-            ),
-            'fileName' => 'Contrat',
+            'file' => UploadedFile::fake()->create('facture.html', 12, 'application/pdf'),
         ])
-        ->assertCreated();
-
-    expect($response->json('fileName'))->toBe('Contrat.'.str_repeat('e', 16));
+        ->assertCreated()
+        ->assertJsonPath('fileName', 'facture.pdf');
 });
 
-test('leaves no trailing dot when the upload has no extension', function (): void {
+test('gives an upload sent without an extension the one its content calls for', function (): void {
     Storage::fake('local');
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
@@ -342,7 +336,7 @@ test('leaves no trailing dot when the upload has no extension', function (): voi
             'fileName' => 'Contrat',
         ])
         ->assertCreated()
-        ->assertJsonPath('fileName', 'Contrat');
+        ->assertJsonPath('fileName', 'Contrat.pdf');
 });
 
 test('collapses whitespace runs in a chosen name to one separator', function (string $chosen): void {

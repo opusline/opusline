@@ -17,6 +17,7 @@ use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
 use App\Http\Passkeys\Support\PasskeyChallenge;
 use App\Http\TwoFactor\Support\TrustedDeviceCookie;
+use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use App\Http\Users\Support\PendingLogin;
 use App\Http\Users\Support\ThemeCookie;
 use Illuminate\Http\JsonResponse;
@@ -45,6 +46,7 @@ class TwoFactorChallengeController extends Controller
         $user = PendingLogin::user($session);
 
         abort_if(! $user instanceof User, 409, __('two-factor.challenge_expired'));
+        abort_if(PendingLogin::isAccountLockedOut($user), 429, __('two-factor.account_locked'));
 
         if ($data->code !== null) {
             $accepted = $verifyTotpCode->handle($user, $data->code);
@@ -67,11 +69,11 @@ class TwoFactorChallengeController extends Controller
 
         $remember = PendingLogin::remember($session);
         PendingLogin::clear($session);
-        $session->forget(PasskeyChallenge::SECOND_FACTOR);
+        PendingLogin::clearAccountFailures($user);
+        $session->forget([PasskeyChallenge::SECOND_FACTOR, EnsureSessionIsUnlocked::SESSION_KEY]);
 
         Auth::guard('web')->login($user, $remember);
         $session->regenerate();
-        $session->passwordConfirmed();
 
         $response = response()->json(UserData::from($user))
             ->withCookie(ThemeCookie::for($user->theme));

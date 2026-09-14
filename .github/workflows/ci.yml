@@ -156,7 +156,7 @@ jobs:
     name: Repo guards
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - run: sh scripts/i18n-guard.sh
@@ -172,11 +172,11 @@ jobs:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .nvmrc
           cache: pnpm
@@ -184,7 +184,7 @@ jobs:
       - id: playwright-version
         run: echo "version=$(pnpm --filter @opusline/storybook exec playwright --version | tr ' ' '-')" >> "$GITHUB_OUTPUT"
       - id: playwright-cache
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
@@ -209,7 +209,7 @@ jobs:
           fail_ci_if_error: false
       # Kept so the push that merges this PR can hand the same report to Codecov
       # under the commit that lands on main, instead of re-running the suite.
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: coverage-web
           path: apps/web/coverage/lcov.info
@@ -220,7 +220,7 @@ jobs:
     name: Secret scan (gitleaks)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Full history: leaked-then-deleted secrets still live in old commits.
           fetch-depth: 0
@@ -239,7 +239,7 @@ jobs:
       run:
         working-directory: apps/api
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
@@ -250,14 +250,14 @@ jobs:
       - name: Resolve composer cache directory
         id: composer-cache
         run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@v6
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: composer-${{ hashFiles('apps/api/composer.lock') }}
           restore-keys: composer-
       - run: composer install --no-interaction --no-progress --prefer-dist
       - run: cp .env.example .env && php artisan key:generate
-      - uses: actions/cache@v6
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/api/.cache
           key: php-tools-${{ hashFiles('apps/api/composer.lock') }}-${{ github.sha }}
@@ -284,7 +284,7 @@ jobs:
       DB_CONNECTION: sqlite
       DB_DATABASE: ":memory:"
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: ./.github/actions/api-tests
@@ -318,7 +318,7 @@ jobs:
       DB_USERNAME: root
       DB_PASSWORD: password
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: ./.github/actions/api-tests
@@ -351,7 +351,7 @@ jobs:
       DB_USERNAME: postgres
       DB_PASSWORD: password
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: ./.github/actions/api-tests
@@ -375,7 +375,7 @@ jobs:
       # interpolation and hand postgres a database named ":memory:".
       DB_DATABASE: opusline
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       # Free, and proves the example env file still satisfies the compose file's
@@ -409,6 +409,27 @@ jobs:
           echo "OPUSLINE_VERSION=ci" >> .env
           docker compose -f compose.prod.yaml up -d --wait --wait-timeout 180
           curl -fsS http://localhost:8080/ > /dev/null
+      # The login limiter allows six tries a minute per address, so it is only a
+      # per-visitor limit while the address survives both hops. The runner plays
+      # the operator's TLS proxy (it reaches `web` from a private address, as a
+      # proxy does) and appends the visitor after whatever the visitor sent.
+      - name: Visitors keep their own login allowance behind the proxy
+        run: |
+          set -eu
+          login() {
+            curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/login \
+              -H 'Accept: application/json' -H 'Content-Type: application/json' \
+              -H "X-Forwarded-For: $1" \
+              -d "{\"email\":\"probe-$2@example.com\",\"password\":\"wrong\"}"
+          }
+
+          for attempt in 1 2 3 4 5 6; do login 203.0.113.10 "a$attempt" > /dev/null; done
+          [ "$(login 203.0.113.10 a7)" = 429 ] \
+            || { echo "::error::the seventh bad login from one visitor was not throttled"; exit 1; }
+          [ "$(login 203.0.113.20 b1)" = 422 ] \
+            || { echo "::error::a second visitor inherited the first one's throttle: the client address was lost between the proxies"; exit 1; }
+          [ "$(login '203.0.113.99, 203.0.113.10' a8)" = 429 ] \
+            || { echo "::error::a visitor escaped its throttle by writing its own X-Forwarded-For"; exit 1; }
       # docs/self-hosting.md tells operators "check a restore before you need
       # one", and opusline-backup.sh is the only recovery path an instance
       # holding invoices and declarations has. This is the project taking its own
@@ -459,7 +480,7 @@ jobs:
     if: needs.changes.outputs.generated == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
@@ -471,7 +492,7 @@ jobs:
         id: composer-cache
         run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
         working-directory: apps/api
-      - uses: actions/cache@v6
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: composer-${{ hashFiles('apps/api/composer.lock') }}
@@ -483,7 +504,7 @@ jobs:
       - run: php artisan scramble:export --path=openapi.json
         working-directory: apps/api
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .nvmrc
           cache: pnpm
@@ -500,11 +521,11 @@ jobs:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .nvmrc
           cache: pnpm
@@ -521,7 +542,7 @@ jobs:
     if: needs.changes.outputs.deps == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
@@ -531,7 +552,7 @@ jobs:
       - run: composer audit --locked
         working-directory: apps/api
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .nvmrc
       # Production dependencies at any severity, every dependency at high.
@@ -551,7 +572,7 @@ jobs:
       contents: read
       actions: read
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Download the coverage the merged pull request produced

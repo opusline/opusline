@@ -54,6 +54,21 @@ test('serves the logo inline with a restrictive csp', function (): void {
     expect($response->headers->get('Cache-Control'))->toContain('no-store');
 });
 
+test('serves an svg logo sandboxed, so opened on its own it runs nothing', function (): void {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $client = Client::factory()->for($user)->create();
+    $svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><rect width="10" height="10"/></svg>';
+    $this->actingAs($user)
+        ->post("/api/clients/{$client->slug}/logo", ['logo' => UploadedFile::fake()->createWithContent('logo.svg', $svg)], ['Accept' => 'application/json'])
+        ->assertSuccessful();
+
+    $this->actingAs($user)
+        ->get("/api/clients/{$client->slug}/logo")
+        ->assertOk()
+        ->assertHeader('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; sandbox");
+});
+
 test('returns 404 when the client has no logo', function (): void {
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();

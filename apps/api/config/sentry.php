@@ -33,9 +33,12 @@ return [
     'max_request_body_size' => 'never',
 
     // Probes read nothing, and the SPA pings on every boot: not worth a trace.
+    // The calendar feed is polled by calendar apps, and its URL is the
+    // credential: a trace would copy the token into Sentry on every poll.
     'ignore_transactions' => [
         '/up',
         '/api/ping',
+        '/api/calendar/{token}.ics',
     ],
 
     'breadcrumbs' => [

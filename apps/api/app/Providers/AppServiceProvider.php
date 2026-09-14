@@ -118,29 +118,38 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('confirm-password', fn (Request $request): Limit => Limit::perMinute(6)->by('confirm:'.$caller($request)));
         RateLimiter::for('two-factor-setup', fn (Request $request): Limit => Limit::perMinute(6)->by('2fa-setup:'.$caller($request)));
 
-        // The challenge answers for a guest who has proven the password: keyed
-        // on the pending account so one attacker cannot spend another
-        // account's tries, with an IP ceiling for callers with no pending login.
         RateLimiter::for('passkey-login', fn (Request $request): Limit => Limit::perMinute(10)->by('passkey:'.($request->ip() ?? 'unknown')));
 
+        // The challenge answers for a guest who has proven the password: keyed
+        // on the pending account alone, so an attacker rotating addresses
+        // still shares one allowance, with an IP ceiling for callers with no
+        // pending login.
         RateLimiter::for('two-factor-challenge', function (Request $request): array {
             $pendingUserId = $request->hasSession() ? $request->session()->get(PendingLogin::KEY_USER_ID) : null;
             $ip = $request->ip() ?? 'unknown';
 
             return [
-                Limit::perMinute(10)->by('2fa:'.(is_int($pendingUserId) ? $pendingUserId : 'none').':'.$ip),
+                Limit::perMinute(10)->by('2fa:'.(is_int($pendingUserId) ? 'user:'.$pendingUserId : 'none:'.$ip)),
                 Limit::perMinute(20)->by('2fa-ip:'.$ip),
             ];
         });
 
-        // Login is limited per email as well as per IP, so an attacker
-        // rotating IPs still hits a per-account wall.
+        // Login is limited per account as well as per IP, so an attacker
+        // rotating IPs still hits a per-account wall. The account is the one
+        // the database resolves: a case-insensitive MySQL collation also
+        // equates accented spellings of an address, and each spelling must
+        // not buy a fresh allowance.
         RateLimiter::for('login', function (Request $request): array {
             $email = $request->input('email');
+            $accountId = is_string($email) ? User::query()->where('email', $email)->value('id') : null;
 
             return [
                 Limit::perMinute(6)->by('ip:'.($request->ip() ?? 'unknown')),
-                Limit::perMinute(6)->by('email:'.(is_string($email) ? mb_strtolower($email) : 'invalid')),
+                Limit::perMinute(6)->by(match (true) {
+                    is_int($accountId) => 'account:'.$accountId,
+                    is_string($email) => 'email:'.mb_strtolower($email),
+                    default => 'email:invalid',
+                }),
             ];
         });
 
