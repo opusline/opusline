@@ -48,7 +48,7 @@ const meta = {
     (Story) => (
       <ToastProvider>
         <Story />
-        <Toaster />
+        <Toaster closeLabel="Fermer" />
       </ToastProvider>
     ),
   ],

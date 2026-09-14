@@ -83,11 +83,11 @@ function useToast(): {
 /** Mount once, next to the provider's children; every toast renders here. */
 function Toaster({
   className,
-  closeLabel = "Close",
+  closeLabel,
 }: {
   className?: string;
-  /** The close button's accessible name, in the user's language. */
-  closeLabel?: string;
+  /** The close button's accessible name, in the user's language — required, this package has no catalog. */
+  closeLabel: string;
 }) {
   const { toasts } = ToastPrimitive.useToastManager<ToastData>();
 
