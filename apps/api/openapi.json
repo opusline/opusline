@@ -2022,6 +2022,203 @@
                 }
             }
         },
+        "/declarations/completions": {
+            "post": {
+                "operationId": "markDeclarationFiled",
+                "tags": [
+                    "Declaration"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CompleteDeclarationData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeclarationsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/declarations/completions/{kind}/{periodKey}": {
+            "delete": {
+                "operationId": "unmarkDeclarationFiled",
+                "tags": [
+                    "Declaration"
+                ],
+                "parameters": [
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "pattern": "^(19|20)\\d{2}-(0[1-9]|1[0-2])$"
+                        }
+                    },
+                    {
+                        "name": "kind",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "periodKey",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeclarationsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/declarations/completions/{kind}/{periodKey}/payment": {
+            "post": {
+                "operationId": "recordDeclarationPayment",
+                "tags": [
+                    "Declaration"
+                ],
+                "parameters": [
+                    {
+                        "name": "kind",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "periodKey",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SummarizeDeclarationsData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeclarationsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "clearDeclarationPayment",
+                "tags": [
+                    "Declaration"
+                ],
+                "parameters": [
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "pattern": "^(19|20)\\d{2}-(0[1-9]|1[0-2])$"
+                        }
+                    },
+                    {
+                        "name": "kind",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "periodKey",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeclarationsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/documents": {
             "get": {
                 "operationId": "listDocumentLibrary",
@@ -6281,6 +6478,31 @@
                 ],
                 "title": "Color"
             },
+            "CompleteDeclarationData": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "$ref": "#/components/schemas/FiscalDeadlineKind"
+                    },
+                    "periodKey": {
+                        "type": "string",
+                        "pattern": "^\\d{4}(-(0[1-9]|1[0-2]|Q[1-4]))?$",
+                        "maxLength": 16
+                    },
+                    "period": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "pattern": "^(19|20)\\d{2}-(0[1-9]|1[0-2])$"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "periodKey"
+                ],
+                "title": "CompleteDeclarationData"
+            },
             "CompleteFiscalDeadlineData": {
                 "type": "object",
                 "properties": {
@@ -7301,10 +7523,18 @@
                     "declaredOn": {
                         "type": "string",
                         "format": "date"
+                    },
+                    "paidOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
                     }
                 },
                 "required": [
-                    "declaredOn"
+                    "declaredOn",
+                    "paidOn"
                 ],
                 "title": "DeclarationCompletionData"
             },
@@ -7324,6 +7554,94 @@
                     "daysLeft"
                 ],
                 "title": "DeclarationDeadlineData"
+            },
+            "DeclarationHistoryRowData": {
+                "type": "object",
+                "properties": {
+                    "period": {
+                        "type": "string"
+                    },
+                    "urssaf": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeclarationHistoryUrssafData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "vat": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeclarationHistoryVatData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "period",
+                    "urssaf",
+                    "vat"
+                ],
+                "title": "DeclarationHistoryRowData"
+            },
+            "DeclarationHistoryUrssafData": {
+                "type": "object",
+                "properties": {
+                    "period": {
+                        "type": "string"
+                    },
+                    "total": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "completion": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeclarationCompletionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "period",
+                    "total",
+                    "completion"
+                ],
+                "title": "DeclarationHistoryUrssafData"
+            },
+            "DeclarationHistoryVatData": {
+                "type": "object",
+                "properties": {
+                    "due": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "credit": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "completion": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DeclarationCompletionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "due",
+                    "credit",
+                    "completion"
+                ],
+                "title": "DeclarationHistoryVatData"
             },
             "DeclarationsData": {
                 "type": "object",
@@ -7372,6 +7690,12 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "history": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DeclarationHistoryRowData"
+                        }
                     }
                 },
                 "required": [
@@ -7381,7 +7705,8 @@
                     "isDefault",
                     "urssaf",
                     "vat",
-                    "cumulative"
+                    "cumulative",
+                    "history"
                 ],
                 "title": "DeclarationsData"
             },
@@ -9988,6 +10313,19 @@
                     "note"
                 ],
                 "title": "StopTimerData"
+            },
+            "SummarizeDeclarationsData": {
+                "type": "object",
+                "properties": {
+                    "period": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "pattern": "^(19|20)\\d{2}-(0[1-9]|1[0-2])$"
+                    }
+                },
+                "title": "SummarizeDeclarationsData"
             },
             "Theme": {
                 "type": "integer",

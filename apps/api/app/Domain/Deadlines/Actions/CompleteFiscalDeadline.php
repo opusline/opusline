@@ -37,10 +37,12 @@ class CompleteFiscalDeadline
 
         // A declared CA3 moves where expense deductions are claimed: the
         // account lock orders this write against the claim-period writers.
+        // A second tick changes nothing: the first date is the filing date,
+        // and a payment recorded since must not end up before it.
         DB::transaction(function () use ($user, $kind, $periodKey, $deadline, $settings): void {
             User::lockRow($user->id);
 
-            $user->fiscalDeadlineCompletions()->updateOrCreate(
+            $user->fiscalDeadlineCompletions()->firstOrCreate(
                 ['kind' => $kind, 'period_key' => $periodKey],
                 ['due_on' => $deadline->dueOn, 'completed_on' => $settings->today()],
             );
@@ -49,7 +51,7 @@ class CompleteFiscalDeadline
 
     private function find(UserSettings $settings, FiscalDeadlineKind $kind, string $periodKey): ?FiscalDeadline
     {
-        $window = DeadlineWindow::onScreen($settings->today());
+        $window = DeadlineWindow::forTicking($settings->today());
         $expectedCfe = $this->resolveExpectedCfe->handle($settings);
 
         foreach ($this->generateFiscalDeadlines->handle($settings, $window->from, $window->to, $expectedCfe?->amount) as $deadline) {
