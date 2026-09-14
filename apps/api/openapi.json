@@ -5891,10 +5891,23 @@
                     "amount": {
                         "$ref": "#/components/schemas/MoneyData"
                     },
+                    "carried": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
                     "rateBp": {
                         "type": [
                             "integer",
                             "null"
+                        ]
+                    },
+                    "deductible": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
                         ]
                     },
                     "periodEnd": {
@@ -5907,7 +5920,9 @@
                 },
                 "required": [
                     "amount",
+                    "carried",
                     "rateBp",
+                    "deductible",
                     "periodEnd"
                 ],
                 "title": "BankProvisionData"
@@ -7642,6 +7657,44 @@
                     "completion"
                 ],
                 "title": "DeclarationHistoryVatData"
+            },
+            "DeclarationSettlementData": {
+                "type": "object",
+                "properties": {
+                    "expected": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "provisioned": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "gap": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/SignedMoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "detectedPayments": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "expected",
+                    "provisioned",
+                    "gap",
+                    "detectedPayments"
+                ],
+                "title": "DeclarationSettlementData"
             },
             "DeclarationsData": {
                 "type": "object",
@@ -11660,6 +11713,9 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "settlement": {
+                        "$ref": "#/components/schemas/DeclarationSettlementData"
                     }
                 },
                 "required": [
@@ -11671,7 +11727,8 @@
                     "lines",
                     "total",
                     "deadline",
-                    "completion"
+                    "completion",
+                    "settlement"
                 ],
                 "title": "UrssafDeclarationData"
             },
@@ -11817,6 +11874,9 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "settlement": {
+                        "$ref": "#/components/schemas/DeclarationSettlementData"
                     }
                 },
                 "required": [
@@ -11831,7 +11891,8 @@
                     "reverseChargedVat",
                     "creditIsRefundable",
                     "deadline",
-                    "completion"
+                    "completion",
+                    "settlement"
                 ],
                 "title": "VatDeclarationData"
             },

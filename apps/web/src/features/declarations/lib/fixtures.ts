@@ -24,6 +24,12 @@ export function urssafDeclaration(
     total: eur(297_825),
     deadline: { dueOn: "2026-08-31", daysLeft: 18 },
     completion: null,
+    settlement: {
+      expected: eur(297_825),
+      provisioned: eur(297_825),
+      gap: { amount: 0, currency: "EUR" },
+      detectedPayments: eur(0),
+    },
     ...overrides,
   };
 }
@@ -56,6 +62,12 @@ export function vatDeclaration(
     creditIsRefundable: false,
     deadline: { dueOn: "2026-08-17", daysLeft: 4 },
     completion: null,
+    settlement: {
+      expected: eur(209_000),
+      provisioned: eur(209_000),
+      gap: { amount: 0, currency: "EUR" },
+      detectedPayments: eur(0),
+    },
     ...overrides,
   };
 }

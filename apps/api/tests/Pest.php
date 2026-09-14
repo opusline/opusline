@@ -41,6 +41,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Testing\TestResponse;
 use Tests\Support\FakePasskeyCeremony;
@@ -146,6 +147,20 @@ function fiscDebitOn(User $user, string $bookedOn, int $cents, string $label): v
         ->debit($cents)
         ->on($bookedOn)
         ->state(['label' => $label]));
+}
+
+/** How many queries one request runs — the figure the query budgets cap. */
+function queriesDuring(callable $request): int
+{
+    $count = 0;
+
+    DB::listen(function () use (&$count): void {
+        $count++;
+    });
+
+    $request();
+
+    return $count;
 }
 
 function freezeTodayAtUtcNoon(): void
