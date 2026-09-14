@@ -47,6 +47,7 @@ it("draws no bar when everything on the account is zero", () => {
           vat: null,
           urssaf: null,
           cfe: null,
+          subscriptions: null,
           buffer: null,
           total: { amount: 0, currency: "EUR" },
         },

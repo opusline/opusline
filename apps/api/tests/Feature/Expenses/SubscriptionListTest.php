@@ -78,6 +78,31 @@ test('splits the year by category, largest first', function (): void {
         ->assertJsonMissingPath('categories.3');
 });
 
+test('draws the twelve-month strip of each subscription', function (): void {
+    $user = User::factory()->create();
+    subscriptionOwnedBy($user, fn (SubscriptionFactory $factory): SubscriptionFactory => $factory->monthly(5)->startedOn('2026-01-05')->recordedOn('2026-06-01'));
+
+    $response = $this->actingAs($user)->getJson('/api/subscriptions')->assertOk();
+    $strip = collect($response->json('subscriptions.0.occurrences'));
+
+    // September 2025 to August 2026: four months before the start are absent,
+    // January to May predate the record, June to August were created and wait
+    // for their receipts.
+    expect($strip->pluck('period')->all())->toBe(['2026-01', '2026-02', '2026-03', '2026-04', '2026-05', '2026-06', '2026-07', '2026-08'])
+        ->and($strip->firstWhere('period', '2026-03')['state'])->toBe(4)
+        ->and($strip->firstWhere('period', '2026-07')['state'])->toBe(1)
+        ->and($strip->firstWhere('period', '2026-07')['expenseId'])->not->toBeNull();
+
+    $response->assertJsonPath('kpis.missingReceipts', 3);
+
+    $expense = $user->expenses()->where('subscription_period_key', '2026-07')->sole();
+    attachReceiptTo($user, $expense)->assertCreated();
+
+    $this->actingAs($user)->getJson('/api/subscriptions')->assertOk()
+        ->assertJsonPath('subscriptions.0.occurrences.6.state', 0)
+        ->assertJsonPath('kpis.missingReceipts', 2);
+});
+
 test('never lists another account subscriptions', function (): void {
     subscribedAccount();
 
@@ -90,8 +115,10 @@ test('never lists another account subscriptions', function (): void {
 
 test('the tab runs a bounded number of queries', function (): void {
     $user = subscribedAccount();
+    // The first read writes the debits that came due; the budget is the read.
+    $this->actingAs($user)->getJson('/api/subscriptions')->assertOk();
 
     $queries = queriesDuring(fn () => test()->actingAs($user)->getJson('/api/subscriptions')->assertOk());
 
-    expect($queries)->toBeLessThanOrEqual(6);
+    expect($queries)->toBeLessThanOrEqual(10);
 });

@@ -21,7 +21,10 @@ class CreateSubscription
         return DB::transaction(function () use ($user, $data): Subscription {
             AccountCurrency::assertMatchesAccountUnderLock($user->id, $data->amountHt);
 
-            $subscription = $user->subscriptions()->create(SubscriptionAttributes::from($data));
+            $subscription = $user->subscriptions()->create([
+                ...SubscriptionAttributes::from($data),
+                'occurrences_from' => $user->settingsOrFail()->today(),
+            ]);
             $subscription->amounts()->create([
                 'effective_from' => $data->startedOn,
                 'currency' => $data->amountHt->currency->value,

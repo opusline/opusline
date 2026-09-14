@@ -9,10 +9,16 @@ use App\Domain\Expenses\Data\ExpenseData;
 use App\Domain\Expenses\Data\ExpenseMonthPointData;
 use App\Domain\Expenses\Data\ExpenseRegimeProjectionData;
 use App\Domain\Expenses\Data\ExpensesMonthData;
+use App\Domain\Expenses\Data\ExpensesSubscriptionsData;
 use App\Domain\Expenses\Data\ExpensesTotalsData;
 use App\Domain\Expenses\Data\ExpensesVatSummaryData;
+use App\Domain\Expenses\Data\ExpenseTodoData;
 use App\Domain\Expenses\Enums\ExpenseCategory;
+use App\Domain\Expenses\Enums\ExpenseTodoKind;
+use App\Domain\Expenses\Enums\SubscriptionPeriodicity;
 use App\Domain\Expenses\Models\Expense;
+use App\Domain\Expenses\Models\Subscription;
+use App\Domain\Expenses\Subscriptions\OccurrenceSchedule;
 use App\Domain\Expenses\Vat\DeclaredCa3Months;
 use App\Domain\Expenses\Vat\DeductibleExpenses;
 use App\Domain\Invoices\Revenue\CollectedInvoices;
@@ -24,6 +30,8 @@ use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
 use Illuminate\Support\Collection;
+use Money\Money as MoneyPhp;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * The journal for one month, plus the year of context around it.
@@ -37,18 +45,26 @@ class ListExpenses
 {
     private const int SERIES_MONTHS = 12;
 
+    /** How far ahead the rail warns of an annual debit. */
+    private const int UPCOMING_DAYS = 30;
+
+    public function __construct(private readonly MaterialiseSubscriptionOccurrences $materialiseSubscriptionOccurrences) {}
+
     public function handle(User $user, ?string $month): ExpensesMonthData
     {
         $settings = $user->settingsOrFail();
         $currency = $settings->currency->value;
+        $today = $settings->today();
         $monthStart = $month === null
-            ? $settings->today()->startOfMonth()
+            ? $today->startOfMonth()
             : CarbonImmutable::parse($month.'-01');
         $monthKey = $monthStart->format('Y-m');
         $monthEnd = $monthStart->endOfMonth();
 
+        $this->materialiseSubscriptionOccurrences->handle($user, $today);
+
         $rows = $user->expenses()
-            ->with('media')
+            ->with(['media', 'subscription'])
             ->where(fn ($query) => $query
                 ->whereBetween('spent_on', [$monthStart->toDateString(), $monthEnd->toDateString()])
                 ->orWhere('vat_claim_period', $monthKey))
@@ -70,6 +86,10 @@ class ListExpenses
         $shown = end($series);
         assert($shown instanceof ExpenseMonthPointData);
 
+        $subscriptions = $user->subscriptions()->with('amounts')->get()
+            ->filter(static fn (Subscription $subscription): bool => $subscription->stillDebitsAfter($today));
+        $tile = $subscriptions->isEmpty() ? null : $this->subscriptions($subscriptions, $today, $currency);
+
         return new ExpensesMonthData(
             month: $monthKey,
             declaredOn: $declared?->declaredOn($monthKey),
@@ -77,11 +97,13 @@ class ListExpenses
                 ? $this->vat(new DeductibleExpenses($rows, $declared), $monthKey, $collected->vatCents($monthStart, $monthEnd), $currency)
                 : null,
             totals: new ExpensesTotalsData(ht: $shown->ht, ttc: $shown->ttc, count: $expenses->count()),
+            subscriptions: $tile,
             categories: $this->categories($expenses, $currency),
             series: $series,
             projection: $settings->hasFrenchFiscality()
-                ? $this->projection($shown->ht->toMoney(), $collected->htCents($yearStart, $monthEnd))
+                ? $this->projection($this->yearlyChargesHt($expenses, $shown->ht->toMoney(), $tile), $collected->htCents($yearStart, $monthEnd))
                 : null,
+            todo: [...$this->missingReceiptCards($expenses), ...$this->upcomingAnnualCards($subscriptions, $today)],
             expenses: array_values(array_map(
                 fn (Expense $expense): ExpenseData => ExpenseData::fromModel($expense, $declared),
                 $expenses->all(),
@@ -117,12 +139,14 @@ class ListExpenses
      */
     private function categories(Collection $expenses, string $currency): array
     {
-        /** @var array<int, array{ht: int, ttc: int}> $totals */
+        /** @var array<string, array{category: ?ExpenseCategory, ht: int, ttc: int}> $totals */
         $totals = [];
 
         foreach ($expenses as $expense) {
-            $key = $expense->category->value;
-            $totals[$key] ??= ['ht' => 0, 'ttc' => 0];
+            // A subscription's debit files under « Abonnements » whatever it buys — the bar answers "what do my subscriptions cost".
+            $category = $expense->subscription_id === null ? $expense->category : null;
+            $key = $category === null ? 'subscriptions' : $category->name;
+            $totals[$key] ??= ['category' => $category, 'ht' => 0, 'ttc' => 0];
             $totals[$key]['ht'] += (int) $expense->amount_ht_cents->getAmount();
             $totals[$key]['ttc'] += (int) $expense->amount_ttc_cents->getAmount();
         }
@@ -132,9 +156,9 @@ class ListExpenses
         $largest = $totals === [] ? 0 : reset($totals)['ht'];
         $rows = [];
 
-        foreach ($totals as $category => $total) {
+        foreach ($totals as $total) {
             $rows[] = new ExpenseCategoryTotalData(
-                category: ExpenseCategory::from($category),
+                category: $total['category'],
                 ht: MoneyData::fromMoney(new Money($total['ht'], $currency)),
                 ttc: MoneyData::fromMoney(new Money($total['ttc'], $currency)),
                 shareBp: Rate::shareBp($total['ht'], $largest),
@@ -190,13 +214,127 @@ class ListExpenses
     }
 
     /**
-     * The month's charges as a yearly run rate against the abatement on the
-     * trailing year of collections — the same cash basis the URSSAF reads.
+     * The subscriptions still debiting, as the journal's tile reads them:
+     * spread evenly over the year at today's prices.
+     *
+     * @param  Collection<int, Subscription>  $subscriptions
      */
-    private function projection(Money $monthHt, int $annualRevenueHtCents): ExpenseRegimeProjectionData
+    private function subscriptions(Collection $subscriptions, CarbonImmutable $today, string $currency): ExpensesSubscriptionsData
     {
-        $revenueHt = new Money($annualRevenueHtCents, $monthHt->getCurrency()->getCode());
-        $projected = $monthHt->multiply(self::SERIES_MONTHS);
+        $yearlyHt = $yearlyTtc = new Money(0, $currency);
+        $annualCount = 0;
+
+        foreach ($subscriptions as $subscription) {
+            $amounts = $subscription->amountsOn($today);
+            $perYear = $subscription->periodicity->occurrencesPerYear();
+            $yearlyHt = $yearlyHt->add($amounts->ht->multiply($perYear));
+            $yearlyTtc = $yearlyTtc->add($amounts->ttc->multiply($perYear));
+
+            if ($subscription->periodicity === SubscriptionPeriodicity::Annual) {
+                $annualCount++;
+            }
+        }
+
+        return new ExpensesSubscriptionsData(
+            monthlyHt: MoneyData::fromMoney($yearlyHt->divide(12, MoneyPhp::ROUND_HALF_UP)),
+            monthlyTtc: MoneyData::fromMoney($yearlyTtc->divide(12, MoneyPhp::ROUND_HALF_UP)),
+            yearlyHt: MoneyData::fromMoney($yearlyHt),
+            yearlyTtc: MoneyData::fromMoney($yearlyTtc),
+            count: $subscriptions->count(),
+            annualCount: $annualCount,
+        );
+    }
+
+    /**
+     * The year's charges as the régime comparison needs them: the month's
+     * one-off purchases as a yearly run rate, plus a year of the
+     * subscriptions still debiting — the month's own debits stay out of the
+     * run rate, or an annual one would count twelve times in its month.
+     *
+     * @param  Collection<int, Expense>  $expenses
+     */
+    private function yearlyChargesHt(Collection $expenses, Money $monthHt, ?ExpensesSubscriptionsData $tile): Money
+    {
+        $debitsHt = $expenses
+            ->filter(static fn (Expense $expense): bool => $expense->subscription_id !== null)
+            ->reduce(static fn (int $total, Expense $expense): int => $total + (int) $expense->amount_ht_cents->getAmount(), 0);
+        $oneOffs = $monthHt->subtract(new Money($debitsHt, $monthHt->getCurrency()->getCode()));
+
+        return $oneOffs->multiply(self::SERIES_MONTHS)->add($tile?->yearlyHt->toMoney() ?? new Money(0, $monthHt->getCurrency()->getCode()));
+    }
+
+    /**
+     * @param  Collection<int, Expense>  $expenses
+     * @return list<ExpenseTodoData>
+     */
+    private function missingReceiptCards(Collection $expenses): array
+    {
+        $cards = [];
+
+        foreach ($expenses as $expense) {
+            if ($expense->subscription_id === null) {
+                continue;
+            }
+            if ($expense->receipt() instanceof Media) {
+                continue;
+            }
+            $cards[] = new ExpenseTodoData(
+                kind: ExpenseTodoKind::MissingReceipt,
+                expenseId: $expense->id,
+                subscriptionId: $expense->subscription_id,
+                bankMovementId: null,
+                label: $expense->supplier,
+                amount: MoneyData::fromMoney($expense->amount_ttc_cents),
+                date: $expense->spent_on,
+            );
+        }
+
+        return $cards;
+    }
+
+    /**
+     * @param  Collection<int, Subscription>  $subscriptions
+     * @return list<ExpenseTodoData>
+     */
+    private function upcomingAnnualCards(Collection $subscriptions, CarbonImmutable $today): array
+    {
+        $horizon = $today->addDays(self::UPCOMING_DAYS);
+        $cards = [];
+
+        foreach ($subscriptions as $subscription) {
+            if ($subscription->periodicity !== SubscriptionPeriodicity::Annual) {
+                continue;
+            }
+
+            $nextDebitOn = new OccurrenceSchedule($subscription)->nextDebitOn($today);
+            if (! $nextDebitOn instanceof CarbonImmutable) {
+                continue;
+            }
+            if ($nextDebitOn->greaterThan($horizon)) {
+                continue;
+            }
+
+            $cards[] = new ExpenseTodoData(
+                kind: ExpenseTodoKind::UpcomingAnnualDebit,
+                expenseId: null,
+                subscriptionId: $subscription->id,
+                bankMovementId: null,
+                label: $subscription->supplier,
+                amount: MoneyData::fromMoney($subscription->amountsOn($nextDebitOn)->ttc),
+                date: $nextDebitOn,
+            );
+        }
+
+        return $cards;
+    }
+
+    /**
+     * The year's charges against the abatement on the trailing year of
+     * collections — the same cash basis the URSSAF reads.
+     */
+    private function projection(Money $projected, int $annualRevenueHtCents): ExpenseRegimeProjectionData
+    {
+        $revenueHt = new Money($annualRevenueHtCents, $projected->getCurrency()->getCode());
         $abatement = MicroBnc::abatementOf($revenueHt);
 
         return new ExpenseRegimeProjectionData(

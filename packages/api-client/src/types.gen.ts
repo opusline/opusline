@@ -134,6 +134,7 @@ export type BankProvisionsData = {
     vat: BankProvisionData | null;
     urssaf: BankProvisionData | null;
     cfe: BankProvisionData | null;
+    subscriptions: BankProvisionData | null;
     buffer: MoneyData | null;
     total: MoneyData;
 };
@@ -744,7 +745,7 @@ export type ExpenseCategory = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 
  * ExpenseCategoryTotalData
  */
 export type ExpenseCategoryTotalData = {
-    category: ExpenseCategory;
+    category: ExpenseCategory | null;
     ht: MoneyData;
     ttc: MoneyData;
     shareBp: number;
@@ -767,6 +768,7 @@ export type ExpenseData = {
     vatRateBp: number;
     proShareBp: number;
     receipt: ExpenseReceiptData | null;
+    subscription: ExpenseSubscriptionData | null;
     vatStatus: ExpenseVatStatus;
     vatClaimPeriod: string;
     isRegularisation: boolean;
@@ -787,6 +789,8 @@ export type ExpenseInputData = {
     vatRateBp: number;
     proShareBp?: number;
     description?: string | null;
+    subscriptionId?: number | null;
+    recurringDebitDay?: number | null;
 };
 
 /**
@@ -825,6 +829,40 @@ export type ExpenseSelectionData = {
 };
 
 /**
+ * ExpenseSubscriptionData
+ */
+export type ExpenseSubscriptionData = {
+    id: number;
+    supplier: string;
+    periodicity: SubscriptionPeriodicity;
+};
+
+/**
+ * ExpenseTodoData
+ */
+export type ExpenseTodoData = {
+    kind: ExpenseTodoKind;
+    expenseId: number | null;
+    subscriptionId: number | null;
+    bankMovementId: number | null;
+    label: string;
+    amount: MoneyData;
+    date: string;
+};
+
+/**
+ * ExpenseTodoKind
+ *
+ * The cards of the journal's « À traiter » rail.
+ * | |
+ * |---|
+ * | `0` <br/> A subscription's debit was recorded; the receipt is still to be linked. |
+ * | `1` <br/> A recurring bank debit no expense matches (a later rung fills it). |
+ * | `2` <br/> An annual subscription debits within the month. |
+ */
+export type ExpenseTodoKind = 0 | 1 | 2;
+
+/**
  * ExpenseVatStatus
  *
  * Where a purchase's TVA stands with the CA3. Derived on every read from the receipt, the claim period and the declared months — never stored, so un-marking a declaration honestly flips the rows back.
@@ -860,10 +898,24 @@ export type ExpensesMonthData = {
     declaredOn: string | null;
     vat: ExpensesVatSummaryData | null;
     totals: ExpensesTotalsData;
+    subscriptions: ExpensesSubscriptionsData | null;
     categories: Array<ExpenseCategoryTotalData>;
     series: Array<ExpenseMonthPointData>;
     projection: ExpenseRegimeProjectionData | null;
+    todo: Array<ExpenseTodoData>;
     expenses: Array<ExpenseData>;
+};
+
+/**
+ * ExpensesSubscriptionsData
+ */
+export type ExpensesSubscriptionsData = {
+    monthlyHt: MoneyData;
+    monthlyTtc: MoneyData;
+    yearlyHt: MoneyData;
+    yearlyTtc: MoneyData;
+    count: number;
+    annualCount: number;
 };
 
 /**
@@ -1593,6 +1645,7 @@ export type SubscriptionData = {
     cancelledOn: string | null;
     nextDebitOn: string | null;
     amounts: Array<SubscriptionAmountData>;
+    occurrences: Array<SubscriptionOccurrenceData>;
 };
 
 /**
@@ -1630,7 +1683,32 @@ export type SubscriptionKpisData = {
     provisionedPerMonth: MoneyData;
     recoverableVatPerYear: MoneyData;
     reverseChargedVatPerYear: MoneyData;
+    missingReceipts: number;
 };
+
+/**
+ * SubscriptionOccurrenceData
+ */
+export type SubscriptionOccurrenceData = {
+    period: string;
+    debitOn: string;
+    state: SubscriptionOccurrenceState;
+    expenseId: number | null;
+};
+
+/**
+ * SubscriptionOccurrenceState
+ *
+ * One square of the twelve-month strip.
+ * | |
+ * |---|
+ * | `0` <br/> The debit has its expense and the expense its receipt. |
+ * | `1` <br/> The debit has its expense, still waiting for the receipt. |
+ * | `2` <br/>  |
+ * | `3` <br/> A future debit that will not happen while the subscription is paused. |
+ * | `4` <br/> A past debit with no expense — before the subscription was recorded, or not auto-created. |
+ */
+export type SubscriptionOccurrenceState = 0 | 1 | 2 | 3 | 4;
 
 /**
  * SubscriptionPeriodicity

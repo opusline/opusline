@@ -39,6 +39,7 @@ class SubscriptionFactory extends Factory
             'debit_day' => 5,
             'debit_month' => null,
             'started_on' => CarbonImmutable::parse('2026-01-05'),
+            'occurrences_from' => null,
             'cancelled_on' => null,
             'is_paused' => false,
             'auto_create_expenses' => true,
@@ -64,6 +65,12 @@ class SubscriptionFactory extends Factory
                 ]);
             }
         });
+    }
+
+    /** Entered on that day: occurrences never reach further back. */
+    public function recordedOn(string $date): static
+    {
+        return $this->state(fn (array $attributes): array => ['occurrences_from' => CarbonImmutable::parse($date)]);
     }
 
     public function startedOn(string $date): static
