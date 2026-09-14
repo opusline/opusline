@@ -7,6 +7,7 @@ use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
 use App\Domain\Declarations\Enums\IncomeTaxReturnBox;
 use App\Domain\Expenses\Enums\ExpenseCategory;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
+use App\Domain\Settings\Models\ContributionRate;
 use App\Domain\Users\Models\User;
 
 beforeEach(fn () => freezeTodayAtUtcNoon());
@@ -59,6 +60,74 @@ test('the versement libératoire moves the receipts to case 5TE and shows what i
         ->assertJsonPath('annual.incomeTaxReturn.liberatingPaymentPaid.amount', 7_260)
         ->assertJsonPath('annual.incomeTaxReturn.periods.2.declaredOn', '2026-04-20')
         ->assertJsonPath('annual.incomeTaxReturn.periods.6.declaredOn', null);
+});
+
+test('a year the versement libératoire was switched on mid-way claims none of it', function (): void {
+    $user = annualAccount(liberatingPayment: true);
+
+    // Off until June, on from July: the January receipts were never settled at
+    // 2,2 %, and the 2042 has one box for the twelve months.
+    ContributionRate::query()->create([
+        'user_id' => $user->id,
+        'effective_rate_bp' => 2_520,
+        'liberating_payment' => false,
+        'liberating_payment_rate_bp' => 220,
+        'effective_from' => '2026-01-01',
+    ]);
+    ContributionRate::query()->create([
+        'user_id' => $user->id,
+        'effective_rate_bp' => 2_740,
+        'liberating_payment' => true,
+        'liberating_payment_rate_bp' => 220,
+        'effective_from' => '2026-07-01',
+    ]);
+
+    $this->actingAs($user)
+        ->getJson('/api/declarations?period=2026-07')
+        ->assertOk()
+        ->assertJsonPath('annual.incomeTaxReturn.box', IncomeTaxReturnBox::WithoutLiberatingPayment->value)
+        ->assertJsonPath('annual.incomeTaxReturn.liberatingPaymentPaid', null);
+});
+
+test('a year every declaration was filed under the option still claims it', function (): void {
+    $user = annualAccount(liberatingPayment: true);
+
+    ContributionRate::query()->create([
+        'user_id' => $user->id,
+        'effective_rate_bp' => 2_740,
+        'liberating_payment' => true,
+        'liberating_payment_rate_bp' => 220,
+        'effective_from' => '2025-06-01',
+    ]);
+
+    // 2,2 % of the two collected months: 3 630 twice.
+    $this->actingAs($user)
+        ->getJson('/api/declarations?period=2026-07')
+        ->assertOk()
+        ->assertJsonPath('annual.incomeTaxReturn.box', IncomeTaxReturnBox::WithLiberatingPayment->value)
+        ->assertJsonPath('annual.incomeTaxReturn.liberatingPaymentPaid.amount', 7_260);
+});
+
+test('a year that closed before anything was recorded reads the settings it has', function (): void {
+    $user = annualAccount(liberatingPayment: true);
+    $user->settings()->sole()->update(['business_started_on' => '2024-06-01']);
+
+    ContributionRate::query()->create([
+        'user_id' => $user->id,
+        'effective_rate_bp' => 2_740,
+        'liberating_payment' => true,
+        'liberating_payment_rate_bp' => 220,
+        'effective_from' => '2026-07-01',
+    ]);
+
+    // Nothing written down reaches back into 2025, so today's settings are the
+    // only answer there is — the one the screen has always given. 2,2 % of the
+    // 1 650 € collected in December.
+    $this->actingAs($user)
+        ->getJson('/api/declarations?period=2025-12')
+        ->assertOk()
+        ->assertJsonPath('annual.incomeTaxReturn.box', IncomeTaxReturnBox::WithLiberatingPayment->value)
+        ->assertJsonPath('annual.incomeTaxReturn.liberatingPaymentPaid.amount', 3_630);
 });
 
 test('a quarterly account checks four declarations, not twelve', function (): void {

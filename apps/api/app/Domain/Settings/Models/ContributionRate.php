@@ -18,9 +18,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * switched on, a hand-typed correction — so a settled account holds no rows at
  * all and the current setting answers for every period.
  *
+ * The versement libératoire is recorded beside the rate because the effective
+ * rate cannot be asked about it after the fact, and the annual return routes a
+ * year's receipts on that flag. Null on the rows written before it was
+ * recorded: unknown, not off.
+ *
  * @property int $id
  * @property int $user_id
  * @property int $effective_rate_bp
+ * @property ?bool $liberating_payment
+ * @property ?int $liberating_payment_rate_bp
  * @property CarbonImmutable $effective_from
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
@@ -29,6 +36,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable([
     'user_id',
     'effective_rate_bp',
+    'liberating_payment',
+    'liberating_payment_rate_bp',
     'effective_from',
 ])]
 class ContributionRate extends Model
@@ -46,6 +55,8 @@ class ContributionRate extends Model
     {
         return [
             'effective_rate_bp' => 'integer',
+            'liberating_payment' => 'boolean',
+            'liberating_payment_rate_bp' => 'integer',
             'effective_from' => CalendarDate::class,
         ];
     }

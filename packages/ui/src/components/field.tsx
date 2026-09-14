@@ -97,18 +97,50 @@ function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * The forms across the app draw their labels in four tones and two sizes, and
+ * these names shadow `Label`'s own: a field label is a narrower role than a
+ * label, and the vocabulary here is the one the forms speak.
+ *
+ * Exported as classes too, because a few of these labels are a `<span>` beside
+ * a control rather than a `<label>` for one.
+ */
+const fieldLabelVariants = cva(
+  cn(
+    "group/field-label peer/field-label flex w-fit gap-2 font-normal leading-snug group-data-[disabled=true]/field:opacity-50 has-data-checked:bg-primary/5 has-[>[data-slot=field]]:rounded-md has-[>[data-slot=field]]:border *:data-[slot=field]:p-2 dark:has-data-checked:bg-primary/10",
+    "has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col",
+  ),
+  {
+    variants: {
+      tone: {
+        default: "text-muted-foreground",
+        strong: "text-foreground-3",
+        muted: "text-muted-foreground-2",
+        quiet: "text-muted-foreground-3",
+      },
+      size: {
+        default: "text-sm",
+        sm: "text-xs",
+      },
+    },
+    defaultVariants: {
+      tone: "default",
+      size: "default",
+    },
+  },
+);
+
 function FieldLabel({
   className,
+  tone,
+  size,
   ...props
-}: React.ComponentProps<typeof Label>) {
+}: Omit<React.ComponentProps<typeof Label>, "size" | "tone"> &
+  VariantProps<typeof fieldLabelVariants>) {
   return (
     <Label
       data-slot="field-label"
-      className={cn(
-        "group/field-label peer/field-label flex w-fit gap-2 font-normal text-muted-foreground text-sm leading-snug group-data-[disabled=true]/field:opacity-50 has-data-checked:bg-primary/5 has-[>[data-slot=field]]:rounded-md has-[>[data-slot=field]]:border *:data-[slot=field]:p-2 dark:has-data-checked:bg-primary/10",
-        "has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col",
-        className,
-      )}
+      className={cn(fieldLabelVariants({ tone, size }), className)}
       {...props}
     />
   );
@@ -134,7 +166,7 @@ function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
       className={cn(
         "text-left text-xs/relaxed leading-normal font-normal text-muted-foreground group-has-data-horizontal/field:text-balance [[data-variant=legend]+&]:-mt-1.5",
         "last:mt-0 nth-last-2:-mt-1",
-        "[&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
+        "[&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-link-hover",
         className,
       )}
       {...props}
@@ -234,4 +266,5 @@ export {
   FieldSeparator,
   FieldSet,
   FieldTitle,
+  fieldLabelVariants,
 };

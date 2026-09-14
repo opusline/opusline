@@ -30,7 +30,7 @@ type DeadlinesPageProps = {
   onOpenSubscribe: () => void;
 };
 
-function isDeadlineFilter(value: unknown): value is DeadlineFilter {
+export function isDeadlineFilter(value: unknown): value is DeadlineFilter {
   return (
     value === "all" || DEADLINE_CATEGORIES.includes(value as DeadlineCategory)
   );

@@ -11,6 +11,7 @@ use App\Domain\TwoFactor\Recovery\RecoveryCodes;
 use App\Domain\Users\Models\User;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class StorePasskey
@@ -31,7 +32,16 @@ class StorePasskey
     {
         try {
             $verified = $this->ceremony->verifyRegistration($credential, $options);
-        } catch (PasskeyVerificationFailed) {
+        } catch (PasskeyVerificationFailed $exception) {
+            // Enrolment fails the same way for a bad relying-party
+            // configuration as for a bad credential; the reason is what tells
+            // the operator which of the two they are looking at.
+            Log::warning('Passkey registration refused.', [
+                'user_id' => $user->id,
+                'ip' => request()->ip(),
+                'reason' => $exception->getMessage(),
+            ]);
+
             throw ValidationException::withMessages(['credential' => __('passkeys.verification_failed')]);
         }
 

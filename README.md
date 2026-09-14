@@ -124,8 +124,8 @@ app compiles to static files — there is no second server runtime to operate.
 
 ## Working on Opusline
 
-Prerequisites: Node.js 22.12+ (or 20.19+) with pnpm, and Docker (PHP only runs in containers,
-through `apps/api/scripts/php.sh`).
+Prerequisites: Node.js 26 (the version in `.nvmrc`, which is the only one CI runs) with pnpm,
+and Docker (PHP only runs in containers, through `apps/api/scripts/php.sh`).
 
 ```bash
 pnpm install        # JS workspaces + git hooks

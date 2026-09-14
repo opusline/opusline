@@ -1,0 +1,4 @@
+{
+  "kind": "fixed",
+  "text": "The health page now tells you the API is unreachable instead of showing an error screen, which is when you most need it."
+}

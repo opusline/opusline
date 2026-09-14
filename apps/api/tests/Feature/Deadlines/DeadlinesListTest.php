@@ -7,6 +7,7 @@ use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
 use App\Domain\Invoices\Factories\InvoiceFactory;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
+use App\Domain\Settings\Models\ContributionRate;
 use App\Domain\Users\Models\User;
 use Illuminate\Support\Collection;
 
@@ -136,6 +137,41 @@ test('estimates URSSAF from what the period actually collected', function (): vo
         // to divide back out of an amount that was rounded on the way in.
         ->and($july['base']['amount'])->toBe(330_000)
         ->and($july['isEstimate'])->toBeTrue();
+});
+
+test('prices a closed occurrence at the rate that applied when its period closed', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update([
+        'contribution_rate_bp' => 1_200,
+        'liberating_payment' => false,
+        'liberating_payment_rate_bp' => 0,
+    ]);
+
+    // The ACRE step ended on 1 July 2026: June was earned at 25,2 %, July at 12,2 %.
+    ContributionRate::query()->create([
+        'user_id' => $user->id,
+        'effective_rate_bp' => 2_520,
+        'effective_from' => '2025-01-01',
+    ]);
+    ContributionRate::query()->create([
+        'user_id' => $user->id,
+        'effective_rate_bp' => 1_220,
+        'effective_from' => '2026-07-01',
+    ]);
+
+    paidInvoiceOn($user, '2026-06-30');
+    paidInvoiceOn($user, '2026-07-31');
+
+    $fiscal = fiscalItems($user->fresh());
+    $urssafOf = fn (string $periodKey): array => $fiscal->firstWhere(
+        fn (array $deadline): bool => $deadline['kind'] === FiscalDeadlineKind::UrssafDeclaration->value
+            && $deadline['periodKey'] === $periodKey,
+    );
+
+    expect($urssafOf('2026-06')['amount']['amount'])->toBe(41_580)
+        ->and($urssafOf('2026-06')['rateBp'])->toBe(2_520)
+        ->and($urssafOf('2026-07')['amount']['amount'])->toBe(20_130)
+        ->and($urssafOf('2026-07')['rateBp'])->toBe(1_220);
 });
 
 test('carries no base for the figures no rate produced', function (): void {

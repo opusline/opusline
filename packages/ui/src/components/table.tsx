@@ -1,4 +1,6 @@
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { cn } from "@opusline/ui/lib/utils";
+import { cva, type VariantProps } from "class-variance-authority";
 import type * as React from "react";
 
 function Table({
@@ -74,6 +76,32 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
 }
 
 /**
+ * `compact` is the rhythm the app's ledgers draw: the fixed 40px header row
+ * gives way to one sized by its own type, and the column name drops to the
+ * eyebrow role so the values, not the headings, carry the weight of the table.
+ */
+const tableHeadVariants = cva(
+  "text-left align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0",
+  {
+    variants: {
+      density: {
+        default: "h-10 px-2",
+        compact: "h-auto px-2 pt-2.5 pb-2",
+      },
+      tone: {
+        default: "font-medium text-foreground",
+        eyebrow: cn(eyebrowVariants(), "font-normal"),
+        "eyebrow-quiet": cn(eyebrowVariants({ tone: "quiet" }), "font-normal"),
+      },
+    },
+    defaultVariants: {
+      density: "default",
+      tone: "default",
+    },
+  },
+);
+
+/**
  * A column header. `scope` defaults to "col" because that is what a header cell
  * in a `<thead>` is, and a `<th>` without it associates with nothing — a screen
  * reader then reads the cells of a wide row as bare values. Pass `scope="row"`
@@ -81,30 +109,52 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
  */
 function TableHead({
   className,
+  density,
   scope = "col",
+  tone,
   ...props
-}: React.ComponentProps<"th">) {
+}: React.ComponentProps<"th"> & VariantProps<typeof tableHeadVariants>) {
   return (
     <th
       data-slot="table-head"
-      className={cn(
-        "h-10 px-2 text-left align-middle font-medium whitespace-nowrap text-foreground [&:has([role=checkbox])]:pr-0",
-        className,
-      )}
+      className={cn(tableHeadVariants({ density, tone }), className)}
       scope={scope}
       {...props}
     />
   );
 }
 
-function TableCell({ className, ...props }: React.ComponentProps<"td">) {
+const tableCellVariants = cva(
+  "align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0",
+  {
+    variants: {
+      density: {
+        default: "p-2",
+        compact: "px-2 py-2.5",
+      },
+      tone: {
+        default: "",
+        strong: "text-foreground-hi",
+        quiet: "text-muted-foreground-3",
+      },
+    },
+    defaultVariants: {
+      density: "default",
+      tone: "default",
+    },
+  },
+);
+
+function TableCell({
+  className,
+  density,
+  tone,
+  ...props
+}: React.ComponentProps<"td"> & VariantProps<typeof tableCellVariants>) {
   return (
     <td
       data-slot="table-cell"
-      className={cn(
-        "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0",
-        className,
-      )}
+      className={cn(tableCellVariants({ density, tone }), className)}
       {...props}
     />
   );
@@ -132,4 +182,6 @@ export {
   TableHead,
   TableHeader,
   TableRow,
+  tableCellVariants,
+  tableHeadVariants,
 };

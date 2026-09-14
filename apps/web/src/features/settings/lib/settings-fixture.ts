@@ -2,7 +2,7 @@ import type { SettingsData } from "@opusline/api-client";
 
 export const settingsFixture: SettingsData = {
   tradeName: "Théo Marchand",
-  siret: "443 061 841 00047",
+  siret: "123 456 782 00002",
   vatNumber: null,
   signatureCity: "Nantes",
   contactEmail: "theo@marchand.dev",

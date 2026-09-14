@@ -7,6 +7,7 @@ namespace App\Domain\Expenses\Data;
 use App\Domain\Expenses\Enums\ExpenseCategory;
 use Spatie\LaravelData\Attributes\Validation\ArrayType;
 use Spatie\LaravelData\Attributes\Validation\Enum;
+use Spatie\LaravelData\Attributes\Validation\Max;
 use Spatie\LaravelData\Attributes\Validation\Min;
 use Spatie\LaravelData\Data;
 
@@ -17,7 +18,7 @@ class RecategorizeExpensesData extends Data
      * @param  list<int>  $expenseIds
      */
     public function __construct(
-        #[ArrayType, Min(1)]
+        #[ArrayType, Min(1), Max(ExpenseSelectionData::MAX_SELECTION)]
         public array $expenseIds,
         #[Enum(ExpenseCategory::class)]
         public ExpenseCategory $category,

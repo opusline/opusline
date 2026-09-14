@@ -29,6 +29,7 @@ import { TimerLockStatus } from "@/features/timer/components/timer-lock-status";
 import { TimerProvider } from "@/features/timer/components/timer-provider";
 import { syncLocale } from "@/lib/i18n";
 import { setMonitoredUser } from "@/lib/monitoring";
+import { serverStatus } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute("/_authed")({
@@ -36,12 +37,24 @@ export const Route = createFileRoute("/_authed")({
     try {
       const user = await context.queryClient.ensureQueryData({
         ...currentUserOptions(),
-        retry: false,
+        // A refused session is deterministic and must not stall the redirect;
+        // anything else gets one more attempt, so a dropped connection behind
+        // someone's home proxy does not become an error screen on the spot.
+        retry: (failureCount, error) =>
+          failureCount < 1 && serverStatus(error) !== 401,
       });
 
       return { user };
-    } catch {
-      throw redirect({ to: "/login", search: { redirect: location.href } });
+    } catch (error) {
+      // Only a refused session sends anyone to the login screen. A 500, a proxy
+      // in front of a self-hosted instance or an offline blip has to reach the
+      // error boundary and say so — "please log in again" on a broken API is
+      // advice that cannot work.
+      if (serverStatus(error) === 401) {
+        throw redirect({ to: "/login", search: { redirect: location.href } });
+      }
+
+      throw error;
     }
   },
   component: AuthedLayout,

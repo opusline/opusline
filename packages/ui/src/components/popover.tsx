@@ -1,6 +1,7 @@
 "use client";
 
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover";
+import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { cn } from "@opusline/ui/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -71,7 +72,7 @@ function PopoverTitle({ className, ...props }: PopoverPrimitive.Title.Props) {
     <PopoverPrimitive.Title
       data-slot="popover-title"
       className={cn(
-        "font-medium text-muted-foreground-3 text-xs uppercase tracking-wider-2",
+        eyebrowVariants({ tone: "quiet", tracking: "wider-2" }),
         className,
       )}
       {...props}

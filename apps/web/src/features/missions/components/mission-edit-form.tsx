@@ -24,7 +24,7 @@ import { useMoneyFormat } from "@/components/money-format-provider";
 import {
   formatAmount,
   type MoneyFormat,
-  parseRateToCents,
+  parseAmountToCents,
 } from "@/lib/billing";
 import { isInternalClient } from "@/lib/client-types";
 import {
@@ -36,18 +36,16 @@ import type { FormSubmitResult } from "@/lib/form";
 import { COLOR_CLASSES, COLORS, colorLabel } from "@/lib/palette";
 import { m } from "@/paraglide/messages.js";
 import { billingModeLabel } from "../lib/labels";
+import {
+  type MissionFormValues,
+  missionRateCents,
+  toMissionPayload,
+} from "../lib/mission-form";
 import { MissionRateField } from "./mission-rate-field";
 
 const EDIT_LABEL_CLASSES = "text-muted-foreground-3 text-xs";
 
 const BILLING_MODES: BillingMode[] = [0, 1, 2];
-
-type MissionEditFormValues = {
-  name: string;
-  endClientName: string;
-  startDate: string;
-  endDate: string;
-};
 
 function initialRateDraft(
   format: MoneyFormat,
@@ -94,13 +92,11 @@ export function MissionEditForm({
   const [craRequired, setCraRequired] = useState(mission.craRequired);
 
   const isForfait = billingMode === 2;
-  const rateCents = isInternal
-    ? null
-    : parseRateToCents(format.locale, rateDraft);
+  const rateCents = missionRateCents(format, isInternal, rateDraft);
   // Only a forfait carries one, and only a filled one is sent: an unreadable draft
   // clears the rate rather than failing the save, because it prices nothing.
   const referenceRateCents = isForfait
-    ? parseRateToCents(format.locale, referenceRateDraft)
+    ? parseAmountToCents(format.locale, referenceRateDraft)
     : null;
   const displayedColor = color ?? client.color;
 
@@ -110,7 +106,7 @@ export function MissionEditForm({
       endClientName: mission.endClientName ?? "",
       startDate: mission.startDate ?? "",
       endDate: mission.endDate ?? "",
-    } as MissionEditFormValues,
+    } as MissionFormValues,
     validators: {
       onSubmitAsync: async ({ value }) => {
         if (!isInternal && rateCents === null) {
@@ -119,29 +115,19 @@ export function MissionEditForm({
         }
 
         const body: UpdateMissionData = {
-          name: value.name.trim(),
-          billingMode,
+          ...toMissionPayload({
+            values: value,
+            format,
+            billingMode,
+            rateCents,
+            referenceRateCents,
+            rounding,
+            color,
+            isEsn,
+            craRequired,
+          }),
           status: mission.status,
-          rate:
-            rateCents === null
-              ? null
-              : // A stale render-context currency is refused by the API (422);
-                // see settings-form.ts for the one case needing the snapshot.
-                { amount: rateCents, currency: format.currency },
-          referenceDailyRate:
-            referenceRateCents === null
-              ? null
-              : { amount: referenceRateCents, currency: format.currency },
-          rounding,
-          craRequired: isEsn ? craRequired : null,
-          endClientName:
-            isEsn && value.endClientName.trim() !== ""
-              ? value.endClientName.trim()
-              : null,
-          color,
           notes: mission.notes,
-          startDate: value.startDate === "" ? null : value.startDate,
-          endDate: value.endDate === "" ? null : value.endDate,
         };
 
         const result = await onSubmit(body);

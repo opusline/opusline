@@ -58,17 +58,15 @@ holds_id() {
   printf '%s\n' "$1" | grep --quiet --line-regexp "$2"
 }
 
-# Past the limit the oldest markers drop out of the list and their Sentry
-# issues would be filed a second time, so stop rather than duplicate.
-filed_limit=1000
-filed_issues=$(gh issue list --label sentry --state all --limit "$filed_limit" --json number,state,body)
-if [ "$(printf '%s' "$filed_issues" | jq 'length')" -ge "$filed_limit" ]; then
-  echo "gh issue list returned $filed_limit sentry issues, its limit: older ones would be filed again. Page through them before raising it." >&2
-  exit 1
-fi
-filed=$(printf '%s' "$filed_issues" | jq --raw-output '
-  .[]
-  | (.body | capture("<!-- sentry-issue:(?<id>[0-9]+) -->")) as $marker
+# Every marker, paged rather than capped: a triaged-and-closed issue keeps its
+# marker forever, so any fixed ceiling is one the repository grows through, and
+# the first issue to fall off the end is filed a second time. `--paginate`
+# follows the Link headers to the end. Pull requests can carry the label too and
+# are not issues we ever filed, so they are dropped.
+filed=$(gh api --paginate "repos/$GH_REPO/issues?labels=sentry&state=all&per_page=100" \
+  --jq '.[] | select(has("pull_request") | not) | {number, state: (.state | ascii_upcase), body}' \
+  | jq --raw-output '
+  ((.body // "") | capture("<!-- sentry-issue:(?<id>[0-9]+) -->")) as $marker
   | "\($marker.id) \(.number) \(.state)"')
 filed_ids=$(printf '%s' "$filed" | cut --delimiter=' ' --fields=1)
 

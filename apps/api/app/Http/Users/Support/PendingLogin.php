@@ -6,6 +6,7 @@ namespace App\Http\Users\Support;
 
 use App\Domain\Users\Models\User;
 use Illuminate\Contracts\Session\Session;
+use Illuminate\Support\Facades\Log;
 
 /**
  * The state between a correct password and a correct second factor. It lives
@@ -71,6 +72,14 @@ final class PendingLogin
         $failures = (is_int($failures) ? $failures : 0) + 1;
 
         if ($failures >= self::MAX_FAILURES) {
+            // The allowance is spent: somebody holds the password and is
+            // guessing the second factor. Nothing else in the stack says so.
+            Log::warning('Two-factor challenge abandoned after too many wrong answers.', [
+                'user_id' => $session->get(self::KEY_USER_ID),
+                'ip' => request()->ip(),
+                'failures' => $failures,
+            ]);
+
             self::clear($session);
 
             abort(409, __('two-factor.too_many_failures'));

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import parity from "./expense-amounts-parity.json";
 import {
   expenseAmountsFromHt,
   expenseAmountsFromTtc,
@@ -21,28 +22,35 @@ describe("the chips and the API pairs", () => {
 });
 
 describe("expenseAmountsFromTtc", () => {
-  it.each([
-    [1_439, "fr20", 1_199],
-    [2_900, "fr20", 2_417],
-    [8_900, "fr10", 8_091],
-    [1_200, "fr55", 1_137],
-    [1, "fr20", 1],
-    [3, "fr20", 3],
-    [9, "fr20", 8],
-  ] as const)(
-    "derives the HT the API will store: %i at %s → %i",
-    (ttc, choice, ht) => {
+  // The triples are the API's own, kept in JSON rather than inline so the PHP
+  // side can read the same bytes.
+  // TODO: point ExpenseAmountsTest.php's dataset at
+  // apps/web/src/features/expenses/lib/expense-amounts-parity.json (the file
+  // names that test back). Until it does, the two datasets are only kept in
+  // step by hand, which is the drift this file exists to stop.
+  it.each(parity.domesticFromTtc)(
+    "derives the HT the API will store: $case",
+    ({ ttcCents, rateBp, htCents }) => {
       const amounts = expenseAmountsFromTtc(
-        ttc,
-        vatChoiceTerms(choice),
+        ttcCents,
+        { vatTreatment: 0, vatRateBp: rateBp },
         10_000,
       );
 
-      expect(amounts.htCents).toBe(ht);
-      expect(amounts.vatCents).toBe(ttc - ht);
-      expect(amounts.recoverableCents).toBe(ttc - ht);
+      expect(amounts.htCents).toBe(htCents);
+      expect(amounts.vatCents).toBe(ttcCents - htCents);
+      expect(amounts.recoverableCents).toBe(ttcCents - htCents);
     },
   );
+
+  it("rounds a half-cent share up, the way ROUND_HALF_UP does", () => {
+    expect(
+      expenseAmountsFromTtc(9, vatChoiceTerms("fr20"), 10_000).htCents,
+    ).toBe(8);
+    expect(
+      expenseAmountsFromTtc(3, vatChoiceTerms("fr20"), 10_000).htCents,
+    ).toBe(3);
+  });
 
   it("self-assesses the rate on a reverse-charged purchase", () => {
     expect(

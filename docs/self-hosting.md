@@ -257,8 +257,15 @@ chmod +x opusline-backup.sh
 
 ./opusline-backup.sh backup            # one timestamped archive of all three
 ./opusline-backup.sh verify FILE       # what is in it, without unpacking it
-./opusline-backup.sh restore FILE      # put it back into a stack that is up
+./opusline-backup.sh restore FILE      # put it back, stopping the writers first
 ```
+
+The archive carries your `APP_KEY`, your database password and your S3
+credentials beside the dump they open, so it is written `0600` into a `0700`
+directory — and a backup run against a directory that predates this fixes that
+directory's mode on the way. Keep it that way wherever you copy it to: an rsync
+or a NAS share that preserves modes is fine, a world-readable one hands over the
+instance.
 
 It is a shell script and it never talks to Laravel, on purpose: the database is
 dumped through its own container, so a broken migration, a crash-looping API or
@@ -285,7 +292,16 @@ leaves the archive's `.env` in a temporary directory rather than over yours —
 it carries the `APP_KEY` of the instance it came from, and on a new machine that
 key is the difference between a database that opens and one that does not.
 
-Check a restore before you need one: an untested backup is a hope.
+It stops `api`, `queue` and `scheduler` first and starts back whichever of them
+were running. The dump drops and recreates every table as it streams in, so a
+worker writing in that window lands in a schema that is half gone — and a
+connection still holding a table makes the drop wait for it instead, which reads
+as a restore that hung. `web`, `postgres` and `redis` stay up throughout, and a
+service you had deliberately stopped stays stopped.
+
+Check a restore before you need one: an untested backup is a hope. CI runs the
+whole round trip — backup, `down --volumes`, restore — against the real images
+on every pull request that touches this path.
 
 ## Upgrading
 

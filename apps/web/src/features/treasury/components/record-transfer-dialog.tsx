@@ -25,9 +25,10 @@ import {
 } from "@/components/money-format-provider";
 import {
   currencySymbol,
+  floorToWholeUnits,
   formatAmount,
   formatRateDraft,
-  parseRateToCents,
+  parseAmountToCents,
 } from "@/lib/billing";
 import { calendarDateNumericLabel } from "@/lib/dates";
 import { valueOrNull } from "@/lib/form";
@@ -114,15 +115,15 @@ function RecordTransferForm({
   // unit, always in the conservative direction.
   const [amountDraft, setAmountDraft] = useState(() =>
     transferableCents > 0
-      ? formatAmount(format, Math.floor(transferableCents / 100) * 100)
+      ? formatAmount(format, floorToWholeUnits(transferableCents))
       : "",
   );
   const [transferredOn, setTransferredOn] = useState(accountToday);
   const [note, setNote] = useState("");
 
-  const amountCents = parseRateToCents(format.locale, amountDraft);
+  const amountCents = parseAmountToCents(format.locale, amountDraft);
   const isInvalidAmount = amountDraft.trim() !== "" && amountCents === null;
-  // parseRateToCents already rejects zero and negatives; a native date input
+  // parseAmountToCents already rejects zero and negatives; a native date input
   // can be cleared, and an empty date is a 422 waiting to happen.
   const draft: RecordTransferSubmit | null =
     amountCents !== null && transferredOn !== ""

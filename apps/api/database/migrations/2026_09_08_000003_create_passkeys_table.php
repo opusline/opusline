@@ -40,6 +40,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table): void {
+            // SQLite keeps the index definition when the column goes, then
+            // refuses every later statement against `users`; the unique has to
+            // be named explicitly because dropColumn would otherwise take it.
+            $table->dropUnique('users_passkey_user_handle_unique');
             $table->dropColumn('passkey_user_handle');
         });
 

@@ -21,12 +21,13 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import {
   type DeadlineFilter,
   DeadlinesPage,
+  isDeadlineFilter,
 } from "@/features/deadlines/components/deadlines-page";
 import { SubscribeCalendarDialog } from "@/features/deadlines/components/subscribe-calendar-dialog";
 import { accountTodayCalendarDate } from "@/lib/dates";
@@ -39,13 +40,20 @@ import { requireFrenchFiscality } from "@/lib/fiscality";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
+type DeadlinesSearch = { filter?: DeadlineFilter };
+
 export const Route = createFileRoute("/_authed/deadlines")({
+  validateSearch: (search: Record<string, unknown>): DeadlinesSearch => ({
+    filter: isDeadlineFilter(search.filter) ? search.filter : undefined,
+  }),
   beforeLoad: ({ context }) => requireFrenchFiscality(context.user),
   component: DeadlinesRoute,
 });
 
 function DeadlinesRoute() {
   const { user } = Route.useRouteContext();
+  const search = Route.useSearch();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const today = accountTodayCalendarDate(user.timezone);
 
@@ -54,7 +62,7 @@ function DeadlinesRoute() {
     placeholderData: keepPreviousData,
   });
 
-  const [filter, setFilter] = useState<DeadlineFilter>("all");
+  const filter = search.filter ?? "all";
   const [subscribeOpen, setSubscribeOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pendingKey, setPendingKey] = useState<string | null>(null);
@@ -234,7 +242,9 @@ function DeadlinesRoute() {
         board={board.data}
         filter={filter}
         isRefreshing={board.isPlaceholderData}
-        onFilterChange={setFilter}
+        onFilterChange={(next) =>
+          navigate({ to: "/deadlines", search: { filter: next } })
+        }
         onOpenSubscribe={() => setSubscribeOpen(true)}
         onToggleFiscal={toggleFiscal}
         pendingKey={pendingKey}

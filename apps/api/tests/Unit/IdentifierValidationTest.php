@@ -12,11 +12,13 @@ use Tests\TestCase;
 // booted application — unlike the rest of tests/Unit, which stays container-free.
 uses(TestCase::class);
 
+// The identifiers below are synthetic: Luhn-valid and key-valid, belonging to
+// no registered company. Fixtures name no real business, identifiers included.
 test('accepts a SIRET with a valid Luhn checksum', function (string $siret): void {
     expect(rejects(new Siret, $siret))->toBeFalse();
 })->with([
-    'Google France' => ['44306184100047'],
-    'spaced input' => ['443 061 841 00047'],
+    'plain digits' => ['12345678200002'],
+    'spaced input' => ['123 456 782 00002'],
 ]);
 
 test('accepts a La Poste SIRET, which is exempt from Luhn', function (): void {
@@ -27,10 +29,10 @@ test('accepts a La Poste SIRET, which is exempt from Luhn', function (): void {
 test('rejects a malformed or mistyped SIRET', function (mixed $siret): void {
     expect(rejects(new Siret, $siret))->toBeTrue();
 })->with([
-    'one digit off' => ['44306184100048'],
-    'too short' => ['4430618410004'],
-    'too long' => ['443061841000477'],
-    'letters' => ['4430618410004A'],
+    'one digit off' => ['12345678200003'],
+    'too short' => ['1234567820000'],
+    'too long' => ['123456782000022'],
+    'letters' => ['1234567820000A'],
     'empty' => [''],
     'not a string' => [12345678901234],
 ]);
@@ -38,13 +40,13 @@ test('rejects a malformed or mistyped SIRET', function (mixed $siret): void {
 test('accepts a French VAT number whose key matches the SIREN', function (string $vat): void {
     expect(rejects(new VatNumber, $vat))->toBeFalse();
 })->with([
-    'plain' => ['FR64443061841'],
-    'spaced and lowercase' => ['fr 64 443 061 841'],
+    'plain' => ['FR11123456782'],
+    'spaced and lowercase' => ['fr 11 123 456 782'],
 ]);
 
 test('rejects a French VAT number with a wrong key', function (): void {
-    // The SIREN's real key is 64.
-    expect(rejects(new VatNumber, 'FR54443061841'))->toBeTrue();
+    // The SIREN's real key is 11.
+    expect(rejects(new VatNumber, 'FR54123456782'))->toBeTrue();
 });
 
 test('accepts other member states on shape alone', function (string $vat): void {
@@ -60,7 +62,7 @@ test('rejects an unknown country code or a broken shape', function (mixed $vat):
 })->with([
     'not an EU code' => ['US123456789'],
     'German number too short' => ['DE12345678'],
-    'no country code' => ['443061841'],
+    'no country code' => ['123456782'],
     'empty' => [''],
 ]);
 

@@ -17,7 +17,11 @@ import {
 import { useId, useState } from "react";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
-import { currencySymbol, formatAmount, parseDecimal } from "@/lib/billing";
+import {
+  currencySymbol,
+  formatAmount,
+  parseAmountToCents,
+} from "@/lib/billing";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -65,11 +69,9 @@ function CfeAmountForm({
   );
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const amount = parseDecimal(format.locale, draft);
-  const cents = amount === null ? null : Math.round(amount * 100);
-  const isPositiveAmount = cents !== null && cents > 0;
+  const cents = parseAmountToCents(format.locale, draft);
   const amountError =
-    draft.trim() !== "" && !isPositiveAmount
+    draft.trim() !== "" && cents === null
       ? m.declarations_cfe_amount_invalid()
       : null;
 
@@ -78,7 +80,7 @@ function CfeAmountForm({
       onSubmit={async (event) => {
         event.preventDefault();
 
-        if (!isPositiveAmount) {
+        if (cents === null) {
           return;
         }
 
@@ -128,11 +130,7 @@ function CfeAmountForm({
         <Button onClick={onCancel} size="2xl" type="button" variant="outline">
           {m.common_cancel()}
         </Button>
-        <Button
-          disabled={!isPositiveAmount || isSaving}
-          size="2xl"
-          type="submit"
-        >
+        <Button disabled={cents === null || isSaving} size="2xl" type="submit">
           {m.common_save()}
         </Button>
       </DialogFooter>

@@ -10,9 +10,9 @@ Reviews happen around a freelance workload. Expect days, not hours; the
 
 ## Setting up
 
-You need Node.js 22.12+ (or 20.19+), [pnpm](https://pnpm.io) and Docker. PHP
-is deliberately not on the list — it only runs in containers, through
-`apps/api/scripts/php.sh`.
+You need Node.js 26 — the version in `.nvmrc`, which is the only one CI runs —
+plus [pnpm](https://pnpm.io) and Docker. PHP is deliberately not on the list:
+it only runs in containers, through `apps/api/scripts/php.sh`.
 
 ```bash
 git clone https://github.com/opusline/opusline.git
@@ -75,9 +75,10 @@ nearly everything. Skipped counts as passing — the lane table lives in the
 `pnpm install` installed them. Pre-commit formats what you staged — Biome on
 JS/TS, Rector then Pint on PHP — and re-stages the result. Commit-msg runs
 commitlint. Pre-push regenerates the OpenAPI spec, the API client, the route
-tree and the message catalogs, failing on drift in any of them, then runs
-the same build, test and lint battery CI does. It is slow on purpose: a push
-that survives it merges green.
+tree and the message catalogs, failing on drift in any of them, then runs knip
+and the i18n, release-notes and compose-doc guards, then the same build, test
+and lint battery CI does. It is slow on purpose: a push that survives it merges
+green.
 
 ## What a PR needs
 

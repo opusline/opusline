@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class MissionFactory extends Factory
 {
+    #[\Override]
     protected $model = Mission::class;
 
     /**

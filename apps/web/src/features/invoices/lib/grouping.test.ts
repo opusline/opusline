@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { clientTotals, invoiceItem, secondClient } from "./fixtures";
+import {
+  clientRevenue,
+  clientTotals,
+  invoiceItem,
+  secondClient,
+} from "./fixtures";
 import { countByScope, groupByClient, matchesScope } from "./grouping";
 
 const draft = invoiceItem({ id: 1, status: 0 });
@@ -37,6 +42,7 @@ describe("countByScope", () => {
 });
 
 describe("groupByClient", () => {
+  const revenue = [clientRevenue(1, null), clientRevenue(2, 20)];
   const totals = [
     clientTotals(1, {
       all: { amount: 111_000, currency: "EUR" },
@@ -49,7 +55,7 @@ describe("groupByClient", () => {
   ];
 
   it("groups rows by client, ordered by name", () => {
-    const groups = groupByClient("fr-FR", items, totals, "all");
+    const groups = groupByClient("fr-FR", items, totals, revenue, "all");
 
     expect(groups.map((group) => group.client.name)).toEqual([
       "Orvella",
@@ -60,15 +66,15 @@ describe("groupByClient", () => {
   });
 
   it("reads the total for the shown scope from the API verbatim", () => {
-    const groups = groupByClient("fr-FR", items, totals, "open");
+    const groups = groupByClient("fr-FR", items, totals, revenue, "open");
 
     // The frontend never sums money: 90 000 is the API's figure, not a re-addition.
     expect(groups[1]?.total).toBe(90_000);
   });
 
-  it("derives the average days to pay from the paid rows", () => {
-    const groups = groupByClient("fr-FR", [paid], totals, "paid");
+  it("reads the payment delay from the API rather than averaging it here", () => {
+    const groups = groupByClient("fr-FR", [paid], totals, revenue, "paid");
 
-    expect(groups[0]?.averageDaysToPay).toBe(20);
+    expect(groups[0]?.averagePaymentDelayDays).toBe(20);
   });
 });

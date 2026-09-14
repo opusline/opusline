@@ -2,6 +2,8 @@ import { Eyebrow } from "@opusline/ui/components/eyebrow";
 import { Meter } from "@opusline/ui/components/meter";
 import { useId } from "react";
 
+import { centsShare } from "@/lib/billing";
+
 export type CategoryBarRow = {
   key: string;
   label: string;
@@ -46,7 +48,7 @@ export function CategoryBars({
               aria-labelledby={`${id}-${index}`}
               getAriaValueText={() => formatValue(row.cents)}
               tone={row.tone ?? "brand"}
-              value={largest === 0 ? 0 : row.cents / largest}
+              value={centsShare(row.cents, largest)}
             />
             <span className="text-right font-mono text-foreground-2 tabular-nums">
               {formatValue(row.cents)}

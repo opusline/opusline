@@ -1,0 +1,43 @@
+{
+  "phpTest": "apps/api/tests/Unit/ExpenseAmountsTest.php",
+  "phpSubject": "App\\Domain\\Expenses\\Vat\\ExpenseAmounts::fromTtc",
+  "domesticFromTtc": [
+    {
+      "case": "20 % on 14,39",
+      "ttcCents": 1439,
+      "rateBp": 2000,
+      "htCents": 1199
+    },
+    {
+      "case": "20 % on 29,00",
+      "ttcCents": 2900,
+      "rateBp": 2000,
+      "htCents": 2417
+    },
+    {
+      "case": "10 % on 89,00",
+      "ttcCents": 8900,
+      "rateBp": 1000,
+      "htCents": 8091
+    },
+    {
+      "case": "5,5 % on 12,00",
+      "ttcCents": 1200,
+      "rateBp": 550,
+      "htCents": 1137
+    },
+    {
+      "case": "2,1 % on 100,00",
+      "ttcCents": 10000,
+      "rateBp": 210,
+      "htCents": 9794
+    },
+    { "case": "a cent at 20 %", "ttcCents": 1, "rateBp": 2000, "htCents": 1 },
+    {
+      "case": "ten cents at 20 %",
+      "ttcCents": 10,
+      "rateBp": 2000,
+      "htCents": 8
+    }
+  ]
+}

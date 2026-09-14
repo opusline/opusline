@@ -14,6 +14,7 @@ use ParagonIE\ConstantTime\Base64UrlSafe;
  */
 class PasskeyFactory extends Factory
 {
+    #[\Override]
     protected $model = Passkey::class;
 
     /**

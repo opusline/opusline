@@ -38,6 +38,7 @@ import {
   currencySymbol,
   formatSignedDraft,
   formatWholeAmount,
+  monthlyTwelfthOf,
 } from "@/lib/billing";
 import type { FieldErrorMap } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
@@ -406,7 +407,7 @@ export function SubscriptionForm({
                   : m.subscriptions_provision_amount({
                       amount: formatWholeAmount(
                         format,
-                        Math.round(amounts.ttcCents / 12),
+                        monthlyTwelfthOf(amounts.ttcCents),
                       ),
                     })}
               </FieldDescription>

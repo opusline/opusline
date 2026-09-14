@@ -36,16 +36,36 @@ type OccurrenceStripProps = {
   onLinkReceipt: OccurrenceLinkHandler;
 };
 
+/**
+ * Shape carries the two states that matter, not only hue: a receipt that is in
+ * reads as a round dot and a missing one as a square, because `--success` and
+ * `--attention` measure 1.09:1 against each other and a red-green-deficient eye
+ * cannot separate them. The later states already lean on border style.
+ */
 const STATE_CLASSES: Record<SubscriptionOccurrenceState, string> = {
-  0: "bg-success",
-  1: "bg-attention",
-  2: "border border-border-4",
-  3: "border border-muted-foreground-4 border-dashed",
-  4: "border border-border-2",
+  0: "rounded-full bg-success",
+  1: "rounded-xs bg-attention",
+  2: "rounded-xs border border-border-4",
+  3: "rounded-xs border border-muted-foreground-4 border-dashed",
+  4: "rounded-xs border border-border-2",
 };
 
 /** A month the subscription had no debit in: before it started, after it ended, between two quarters. */
-const IDLE_CLASSES = "border border-border-2";
+const IDLE_CLASSES = "rounded-xs border border-border-2";
+
+const CELL_SIZE_CLASSES = { default: "size-2.75", sm: "size-2" } as const;
+
+/**
+ * The cells are 8–11 px, so WCAG 2.2 SC 2.5.8 is met through its spacing
+ * exception, which measures centre to centre: 24 px of pitch. The pressable
+ * ones then grow an invisible hit area out to that pitch.
+ */
+const STRIP_GAP_CLASSES = { default: "gap-3.25", sm: "gap-4" } as const;
+
+const HIT_AREA_CLASSES = {
+  default: "relative after:absolute after:-inset-x-1.5 after:-inset-y-2",
+  sm: "relative after:absolute after:-inset-2",
+} as const;
 
 const SLOT_COUNT = 12;
 
@@ -73,8 +93,8 @@ function OccurrenceCell({
     state: occurrenceStateLabel(occurrence.state),
   });
   const cellClass = cn(
-    size === "sm" ? "size-2" : "size-2.75",
-    "block rounded-xs",
+    CELL_SIZE_CLASSES[size ?? "default"],
+    "block",
     STATE_CLASSES[occurrence.state],
   );
 
@@ -101,6 +121,7 @@ function OccurrenceCell({
               })}
               className={cn(
                 cellClass,
+                HIT_AREA_CLASSES[size ?? "default"],
                 "cursor-pointer focus-visible:outline-2 focus-visible:outline-primary-text",
               )}
               onClick={() => inputRef.current?.click()}
@@ -157,10 +178,7 @@ export function OccurrenceStrip({
     return (
       <ul
         aria-label={m.subscriptions_col_receipts()}
-        className={cn(
-          "flex items-center",
-          size === "sm" ? "gap-1" : "gap-0.75",
-        )}
+        className={cn("flex items-center", STRIP_GAP_CLASSES[size])}
       >
         {monthSlots(today).map((month) => {
           const occurrence = byMonth.get(month);
@@ -170,11 +188,7 @@ export function OccurrenceStrip({
               {occurrence === undefined ? (
                 <span
                   aria-hidden
-                  className={cn(
-                    size === "sm" ? "size-2" : "size-2.75",
-                    "block rounded-xs",
-                    IDLE_CLASSES,
-                  )}
+                  className={cn(CELL_SIZE_CLASSES[size], "block", IDLE_CLASSES)}
                 />
               ) : (
                 <OccurrenceCell
@@ -238,10 +252,7 @@ export function OccurrenceLegend() {
     <ul className="flex flex-wrap gap-3.5 text-muted-foreground-3 text-xs">
       {LEGEND.map((state) => (
         <li className="inline-flex items-center gap-1.25" key={state}>
-          <span
-            aria-hidden
-            className={cn("size-2.25 rounded-xs", STATE_CLASSES[state])}
-          />
+          <span aria-hidden className={cn("size-2.25", STATE_CLASSES[state])} />
           {occurrenceStateLabel(state)}
         </li>
       ))}

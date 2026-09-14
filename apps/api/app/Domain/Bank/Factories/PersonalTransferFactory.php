@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class PersonalTransferFactory extends Factory
 {
+    #[\Override]
     protected $model = PersonalTransfer::class;
 
     /**

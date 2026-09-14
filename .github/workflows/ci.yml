@@ -83,6 +83,11 @@ jobs:
               - 'apps/storybook/**'
               - 'packages/ui/**'
               - 'packages/api-client/**'
+              # Not the web app. biome.jsonc already includes the root scripts
+              # and knip already reaches them, but the `js` job is the only
+              # place CI invokes either — and the only place the assembler's
+              # own tests run.
+              - 'scripts/**'
             generated:
               - *ci
               - 'pnpm-lock.yaml'
@@ -105,6 +110,9 @@ jobs:
               - 'docker/**'
               - 'compose.prod.yaml'
               - '.env.production.example'
+              # opusline-backup.sh is only ever exercised against the booted
+              # stack this lane builds.
+              - 'scripts/**'
             deps:
               - *ci
               - *manifests
@@ -186,6 +194,9 @@ jobs:
         run: pnpm --filter @opusline/storybook exec playwright install chromium --with-deps
       - run: pnpm format-and-lint
       - run: pnpm knip
+      # Outside turbo on purpose: the root scripts are not a workspace, and this
+      # is the only job that runs them.
+      - run: pnpm test:scripts
       - run: pnpm exec turbo run test check-types build "--filter=!@opusline/api"
         env:
           COVERAGE: "1"
@@ -398,6 +409,47 @@ jobs:
           echo "OPUSLINE_VERSION=ci" >> .env
           docker compose -f compose.prod.yaml up -d --wait --wait-timeout 180
           curl -fsS http://localhost:8080/ > /dev/null
+      # docs/self-hosting.md tells operators "check a restore before you need
+      # one", and opusline-backup.sh is the only recovery path an instance
+      # holding invoices and declarations has. This is the project taking its own
+      # advice: plant a row and an upload, destroy the stack and its volumes,
+      # and make the archive bring both back. `name: opusline` in
+      # compose.prod.yaml is what fixes the volume name below.
+      - name: Back up, destroy, restore
+        run: |
+          set -eu
+          storage=opusline_opusline-storage
+          compose() { docker compose -f compose.prod.yaml "$@"; }
+          query() { compose exec -T postgres psql -v ON_ERROR_STOP=1 -tAq -U opusline -d opusline "$@"; }
+          upload() { docker run --rm -v "$storage":/data alpine "$@"; }
+
+          query -c "CREATE TABLE dr_probe (note text); INSERT INTO dr_probe VALUES ('survived');"
+          upload sh -c 'echo survived > /data/dr-probe.txt'
+
+          sh scripts/opusline-backup.sh backup
+          archive=$(ls -1 backups/opusline-*.tar.gz | tail -n 1)
+          sh scripts/opusline-backup.sh verify "$archive"
+
+          # The archive holds the verbatim .env — APP_KEY, DB_PASSWORD, any S3
+          # credentials — so its mode is part of what is being tested.
+          [ "$(stat -c %a backups)" = 700 ] \
+            || { echo "::error::backups/ is mode $(stat -c %a backups), expected 700"; exit 1; }
+          [ "$(stat -c %a "$archive")" = 600 ] \
+            || { echo "::error::$archive is mode $(stat -c %a "$archive"), expected 600"; exit 1; }
+
+          compose down --volumes
+          compose up -d --wait --wait-timeout 180
+          if [ -n "$(query -c "SELECT to_regclass('public.dr_probe')")" ]; then
+            echo "::error::the probe outlived down --volumes, so restoring it proves nothing"
+            exit 1
+          fi
+
+          printf 'RESTORE\n' | sh scripts/opusline-backup.sh restore "$archive"
+          [ "$(query -c 'SELECT note FROM dr_probe')" = survived ] \
+            || { echo "::error::the database row did not come back"; exit 1; }
+          [ "$(upload cat /data/dr-probe.txt)" = survived ] \
+            || { echo "::error::the upload did not come back"; exit 1; }
+          compose up -d --wait --wait-timeout 180
       - if: failure()
         run: docker compose -f compose.prod.yaml logs
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Expenses\Data;
 
 use Spatie\LaravelData\Attributes\Validation\ArrayType;
+use Spatie\LaravelData\Attributes\Validation\Max;
 use Spatie\LaravelData\Attributes\Validation\Min;
 use Spatie\LaravelData\Data;
 
@@ -16,10 +17,17 @@ use Spatie\LaravelData\Data;
 class ExpenseSelectionData extends Data
 {
     /**
+     * The bulk bar can only ever select one month of the journal, and the ids
+     * reach `whereIn` unsplit: an unbounded body walks straight into Postgres'
+     * 65 535 bind parameters and comes back as a 500.
+     */
+    public const int MAX_SELECTION = 500;
+
+    /**
      * @param  list<int>  $expenseIds
      */
     public function __construct(
-        #[ArrayType, Min(1)]
+        #[ArrayType, Min(1), Max(self::MAX_SELECTION)]
         public array $expenseIds,
     ) {}
 

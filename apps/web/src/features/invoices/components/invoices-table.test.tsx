@@ -1,7 +1,12 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
-import { clientTotals, invoiceItem, secondClient } from "../lib/fixtures";
+import {
+  clientRevenue,
+  clientTotals,
+  invoiceItem,
+  secondClient,
+} from "../lib/fixtures";
 import { InvoicesTable } from "./invoices-table";
 
 const invoices = [
@@ -20,6 +25,7 @@ it("groups rows under the client they are filed against", () => {
   render(
     <InvoicesTable
       accountToday="2026-08-14"
+      clientRevenue={[]}
       clientTotals={totals}
       invoices={invoices}
     />,
@@ -33,6 +39,7 @@ it("shows the API's per-client total for the shown scope, verbatim", () => {
   render(
     <InvoicesTable
       accountToday="2026-08-14"
+      clientRevenue={[]}
       clientTotals={[
         // Deliberately not the sum of the rows below: the rendered figure must
         // be the API's, not a re-addition.
@@ -53,6 +60,7 @@ it("counts an overdue invoice under both Envoyées and En retard", () => {
   render(
     <InvoicesTable
       accountToday="2026-08-14"
+      clientRevenue={[]}
       clientTotals={totals}
       invoices={invoices}
     />,
@@ -71,6 +79,7 @@ it("narrows the rows to the chosen filter", () => {
   render(
     <InvoicesTable
       accountToday="2026-08-14"
+      clientRevenue={[]}
       clientTotals={totals}
       invoices={invoices}
     />,
@@ -86,6 +95,7 @@ it("explains an empty filter differently from an empty account", () => {
   render(
     <InvoicesTable
       accountToday="2026-08-14"
+      clientRevenue={[]}
       clientTotals={totals}
       invoices={invoices}
     />,
@@ -98,43 +108,36 @@ it("explains an empty filter differently from an empty account", () => {
   ).toBeInTheDocument();
 
   render(
-    <InvoicesTable accountToday="2026-08-14" clientTotals={[]} invoices={[]} />,
+    <InvoicesTable
+      accountToday="2026-08-14"
+      clientRevenue={[]}
+      clientTotals={[]}
+      invoices={[]}
+    />,
   );
   expect(
     screen.getByText(/Ajoutez-en une pour suivre ce qui est facturé/),
   ).toBeInTheDocument();
 });
 
-it("says how long a client actually takes to pay, from its paid invoices", () => {
+it("says how long a client takes to pay, using the API's own figure", () => {
   render(
     <InvoicesTable
       accountToday="2026-08-14"
+      clientRevenue={[clientRevenue(1, 24)]}
       clientTotals={totals}
-      invoices={[
-        invoiceItem({
-          id: 1,
-          status: 2,
-          issuedOn: "2026-06-01",
-          paidOn: "2026-06-21",
-        }),
-        invoiceItem({
-          id: 2,
-          status: 2,
-          issuedOn: "2026-05-01",
-          paidOn: "2026-05-29",
-        }),
-      ]}
+      invoices={[invoiceItem({ id: 1, status: 2, paidOn: "2026-06-21" })]}
     />,
   );
 
-  // 20 and 28 days → 24 on average.
   expect(screen.getByText("24 j en moyenne pour payer")).toBeInTheDocument();
 });
 
-it("leaves the average out until something has been paid", () => {
+it("leaves the average out until the API has one to report", () => {
   render(
     <InvoicesTable
       accountToday="2026-08-14"
+      clientRevenue={[clientRevenue(1, null)]}
       clientTotals={totals}
       invoices={[invoiceItem({ id: 1, status: 1 })]}
     />,
@@ -147,6 +150,7 @@ it("tells each row why its status matters", () => {
   render(
     <InvoicesTable
       accountToday="2026-08-14"
+      clientRevenue={[]}
       clientTotals={totals}
       invoices={[
         invoiceItem({
@@ -168,6 +172,7 @@ it("opens the invoice it was asked to open", () => {
   render(
     <InvoicesTable
       accountToday="2026-08-14"
+      clientRevenue={[]}
       clientTotals={totals}
       invoices={[invoiceItem({ id: 7 })]}
       onOpen={onOpen}
@@ -185,6 +190,7 @@ it("reads each row against a column header", () => {
   render(
     <InvoicesTable
       accountToday="2026-08-14"
+      clientRevenue={[]}
       clientTotals={totals}
       invoices={[invoiceItem({ id: 7 })]}
     />,
@@ -207,6 +213,7 @@ it("heads each client's rows with the client itself", () => {
   render(
     <InvoicesTable
       accountToday="2026-08-14"
+      clientRevenue={[]}
       clientTotals={totals}
       invoices={[invoiceItem({ id: 7 })]}
     />,

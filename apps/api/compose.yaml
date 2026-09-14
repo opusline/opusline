@@ -141,7 +141,10 @@ services:
             retries: 3
             timeout: 5s
     minio:
-        image: 'minio/minio:latest'
+        # quay.io, not Docker Hub: MinIO withdrew both `minio/minio` and
+        # `minio/mc` from Hub, which answers an anonymous pull with "repository
+        # does not exist" — so a fresh clone could not boot the stack at all.
+        image: 'quay.io/minio/minio:latest'
         ports:
             - '${FORWARD_MINIO_PORT:-9000-9010}:9000'
             - '${FORWARD_MINIO_CONSOLE_PORT:-8900-8910}:8900'
@@ -162,7 +165,7 @@ services:
             retries: 3
             timeout: 5s
     minio.bootstrap:
-        image: 'minio/mc:latest'
+        image: 'quay.io/minio/mc:latest'
         depends_on:
             minio:
                 condition: service_healthy

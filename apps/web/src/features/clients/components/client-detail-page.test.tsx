@@ -28,7 +28,7 @@ function clientPayload(
     slug: "nordlys",
     name: "Nordlys",
     type: 1,
-    siret: "443 061 841 00047",
+    siret: "123 456 782 00002",
     createdAt: daysAgo(400),
     missions: [
       {
@@ -178,13 +178,13 @@ it("keeps the empty card for a client that has never been invoiced", async () =>
 });
 
 it("shows the coordinates in the dedicated tab", async () => {
-  stubApi(clientPayload({ vatNumber: "FR64 443061841" }));
+  stubApi(clientPayload({ vatNumber: "FR11 123456782" }));
   await renderDetailPage();
 
   fireEvent.click(screen.getByRole("tab", { name: "Coordonnées" }));
 
-  expect(await screen.findByText("443 061 841 00047")).toBeInTheDocument();
-  expect(screen.getByText("FR64 443061841")).toBeInTheDocument();
+  expect(await screen.findByText("123 456 782 00002")).toBeInTheDocument();
+  expect(screen.getByText("FR11 123456782")).toBeInTheDocument();
 });
 
 it("invites to fill in missing coordinates", async () => {

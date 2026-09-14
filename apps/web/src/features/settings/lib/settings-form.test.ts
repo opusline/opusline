@@ -8,7 +8,7 @@ import {
   formatRateBp,
   hasInvoiceNumberCounter,
   isSettingsTab,
-  parseBufferCents,
+  optionalAmountValidator,
   previewInvoiceNumber,
   toSettingsPayload,
   toSettingsValues,
@@ -251,7 +251,9 @@ it("refuses a rate with a stray separator instead of truncating it", () => {
 });
 
 it("treats a zero treasury buffer as a real answer", () => {
-  expect(parseBufferCents("fr-FR", "0")).toBe(0);
-  expect(parseBufferCents("fr-FR", "1 500,50")).toBe(150_050);
-  expect(parseBufferCents("fr-FR", "abc")).toBeNull();
+  const validateAmount = optionalAmountValidator("fr-FR");
+
+  expect(validateAmount({ value: "0" })).toBeUndefined();
+  expect(validateAmount({ value: "1 500,50" })).toBeUndefined();
+  expect(validateAmount({ value: "abc" })).not.toBeUndefined();
 });

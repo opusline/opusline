@@ -7,6 +7,7 @@ namespace App\Domain\TwoFactor\Data;
 use App\Domain\Passkeys\Webauthn\CredentialJson;
 use Spatie\LaravelData\Attributes\Validation\Digits;
 use Spatie\LaravelData\Attributes\Validation\Json;
+use Spatie\LaravelData\Attributes\Validation\Max;
 use Spatie\LaravelData\Attributes\Validation\Prohibits;
 use Spatie\LaravelData\Attributes\Validation\Regex;
 use Spatie\LaravelData\Attributes\Validation\RequiredWithoutAll;
@@ -21,7 +22,7 @@ class TwoFactorChallengeAnswerData extends Data
         #[RequiredWithoutAll('code', 'passkey'), Prohibits('code', 'passkey'), Regex('/^[A-Za-z0-9]{10}-[A-Za-z0-9]{10}$/')]
         public ?string $recoveryCode,
         /** The browser's assertion response, JSON-encoded. */
-        #[RequiredWithoutAll('code', 'recoveryCode'), Prohibits('code', 'recoveryCode'), Json]
+        #[RequiredWithoutAll('code', 'recoveryCode'), Prohibits('code', 'recoveryCode'), Json, Max(CredentialJson::MAX_LENGTH)]
         public ?string $passkey,
         public bool $trustDevice = false,
     ) {}

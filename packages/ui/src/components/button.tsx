@@ -13,7 +13,7 @@ const buttonVariants = cva(
         "brand-outline":
           "border-primary/45 bg-transparent text-primary-text hover:bg-primary/14",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+          "bg-secondary text-secondary-foreground hover:bg-secondary-2 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
         ghost:
           "text-muted-foreground-3 hover:text-foreground-hi aria-expanded:bg-muted aria-expanded:text-foreground",
         destructive:
@@ -72,4 +72,18 @@ function Button({
   );
 }
 
-export { Button, buttonVariants };
+/**
+ * A button-shaped navigation target: `<ButtonLink render={<Link to="/week" />}>`.
+ *
+ * Base UI's `useButton` assumes a native `<button>` unless told otherwise — it
+ * errors in development when the rendered element is an anchor, and stamps
+ * `type="button"` onto it. The opt-out is fixed here rather than repeated at
+ * every call site, because a link that forgets it still looks right.
+ */
+function ButtonLink(
+  props: Omit<React.ComponentProps<typeof Button>, "nativeButton">,
+) {
+  return <Button data-slot="button-link" {...props} nativeButton={false} />;
+}
+
+export { Button, ButtonLink, buttonVariants };

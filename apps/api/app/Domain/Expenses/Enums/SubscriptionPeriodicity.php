@@ -35,4 +35,14 @@ enum SubscriptionPeriodicity: int
             self::Annual => (string) $debitOn->year,
         };
     }
+
+    /** The first day of the period a debit falls in — the day its key starts at. */
+    public function periodStart(CarbonImmutable $debitOn): CarbonImmutable
+    {
+        return match ($this) {
+            self::Monthly => $debitOn->startOfMonth(),
+            self::Quarterly => $debitOn->startOfQuarter(),
+            self::Annual => $debitOn->startOfYear(),
+        };
+    }
 }

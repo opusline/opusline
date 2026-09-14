@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
+import { DEFAULT_MONEY_FORMAT, formatWholeAmount } from "@/lib/billing";
+
 import { CategoryBars } from "./category-bars";
 
 const meta = {
@@ -9,7 +11,7 @@ const meta = {
   args: {
     title: "Par catégorie · HT",
     caption: "Août 2026",
-    formatValue: (cents) => `${Math.round(cents / 100)} €`,
+    formatValue: (cents) => formatWholeAmount(DEFAULT_MONEY_FORMAT, cents),
     rows: [
       { key: "hosting", label: "Hébergement", cents: 28_800 },
       { key: "phone", label: "Téléphone", cents: 29_004 },

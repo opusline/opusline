@@ -1,4 +1,5 @@
 import type {
+  ClientRevenueData,
   InvoiceClientTotalsData,
   InvoiceListItemData,
 } from "@opusline/api-client";
@@ -39,6 +40,8 @@ import { InvoicesEmptyState } from "./invoices-empty-state";
 type InvoicesTableProps = {
   invoices: InvoiceListItemData[];
   clientTotals: InvoiceClientTotalsData[];
+  /** Carries each client's averagePaymentDelayDays; empty while it loads. */
+  clientRevenue: ClientRevenueData[];
   /** Today in the account's timezone — the date isLate was derived from. */
   accountToday: string;
   onOpen?: (invoiceId: number) => void;
@@ -47,6 +50,7 @@ type InvoicesTableProps = {
 export function InvoicesTable({
   invoices,
   clientTotals,
+  clientRevenue,
   accountToday,
   onOpen,
 }: InvoicesTableProps) {
@@ -63,9 +67,10 @@ export function InvoicesTable({
         format.locale,
         invoices.filter((item) => matchesScope(item, scope)),
         clientTotals,
+        clientRevenue,
         scope,
       ),
-    [format.locale, invoices, clientTotals, scope],
+    [format.locale, invoices, clientTotals, clientRevenue, scope],
   );
 
   return (
@@ -144,10 +149,10 @@ export function InvoicesTable({
                       </span>
                     </span>
                     <span className="ml-auto whitespace-nowrap font-normal text-muted-foreground-3 text-xs">
-                      {group.averageDaysToPay === null
+                      {group.averagePaymentDelayDays === null
                         ? null
                         : m.invoices_average_days_to_pay({
-                            days: group.averageDaysToPay,
+                            days: group.averagePaymentDelayDays,
                           })}
                     </span>
                     <span className="w-32 text-right font-mono text-foreground-hi text-sm tabular-nums">

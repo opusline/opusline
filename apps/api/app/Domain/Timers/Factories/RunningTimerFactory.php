@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class RunningTimerFactory extends Factory
 {
+    #[\Override]
     protected $model = RunningTimer::class;
 
     /**

@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class SubscriptionFactory extends Factory
 {
+    #[\Override]
     protected $model = Subscription::class;
 
     /**

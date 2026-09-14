@@ -83,6 +83,7 @@ type ExpensesSearch = {
   period?: string;
   expense?: number;
   tab?: "subscriptions";
+  unit?: AmountUnit;
 };
 
 export const Route = createFileRoute("/_authed/expenses")({
@@ -96,6 +97,7 @@ export const Route = createFileRoute("/_authed/expenses")({
           : undefined,
       expense: Number.isInteger(expense) && expense > 0 ? expense : undefined,
       tab: search.tab === "subscriptions" ? "subscriptions" : undefined,
+      unit: isAmountUnit(search.unit) ? search.unit : undefined,
     };
   },
   beforeLoad: ({ context }) => requireFrenchFiscality(context.user),
@@ -130,7 +132,7 @@ function ExpensesRoute() {
   const [subscriptionSheet, setSubscriptionSheet] =
     useState<SubscriptionSheetState | null>(null);
 
-  const [unit, setUnit] = useState<AmountUnit>("ht");
+  const unit = search.unit ?? "ht";
   const [expenseToDelete, setExpenseToDelete] = useState<ExpenseData | null>(
     null,
   );
@@ -182,7 +184,7 @@ function ExpensesRoute() {
   });
 
   const showPeriod = (period: string) => {
-    navigate({ to: "/expenses", search: { period } });
+    navigate({ to: "/expenses", search: { period, unit: search.unit } });
   };
 
   const closeSheet = () => {
@@ -412,7 +414,7 @@ function ExpensesRoute() {
 
     void navigate({
       to: "/expenses",
-      search: { period: search.period },
+      search: { period: search.period, unit: search.unit },
       replace: true,
     });
   }, [
@@ -422,6 +424,7 @@ function ExpensesRoute() {
     journal.isPlaceholderData,
     navigate,
     search.period,
+    search.unit,
   ]);
 
   // One upload at a time: a second drop while one is in flight would race it.
@@ -534,7 +537,10 @@ function ExpensesRoute() {
                     const next = value[0];
 
                     if (isAmountUnit(next)) {
-                      setUnit(next);
+                      navigate({
+                        to: "/expenses",
+                        search: { ...search, unit: next },
+                      });
                     }
                   }}
                   size="sm"
@@ -575,6 +581,7 @@ function ExpensesRoute() {
             search: {
               period: search.period,
               tab: next === "subscriptions" ? "subscriptions" : undefined,
+              unit: search.unit,
             },
           });
         }}

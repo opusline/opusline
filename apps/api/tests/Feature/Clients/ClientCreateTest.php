@@ -36,7 +36,7 @@ test('creates a client with billing details', function (): void {
         ->postJson('/api/clients', [
             'name' => 'Nordlys',
             'type' => ClientType::Direct->value,
-            'siret' => '443 061 841 00047',
+            'siret' => '123 456 782 00002',
             'vatNumber' => 'FR37 892447118',
             'billingAddressLine1' => '12 rue de la Paix',
             'billingPostalCode' => '44000',
@@ -48,7 +48,7 @@ test('creates a client with billing details', function (): void {
             'paymentTermsDays' => 60,
         ])
         ->assertCreated()
-        ->assertJsonPath('siret', '443 061 841 00047')
+        ->assertJsonPath('siret', '123 456 782 00002')
         ->assertJsonPath('vatNumber', 'FR37 892447118')
         ->assertJsonPath('billingAddressLine1', '12 rue de la Paix')
         ->assertJsonPath('billingPostalCode', '44000')
@@ -61,7 +61,7 @@ test('creates a client with billing details', function (): void {
 
     $this->assertDatabaseHas('clients', [
         'name' => 'Nordlys',
-        'siret' => '443 061 841 00047',
+        'siret' => '123 456 782 00002',
         'billing_email' => 'factures@nordlys.example',
         'color' => Color::Sage->value,
         'payment_terms_days' => 60,

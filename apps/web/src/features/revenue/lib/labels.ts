@@ -103,16 +103,6 @@ export function revenueTrendNoneLabel(kind: PeriodKind): string {
   return TREND_NONE_MESSAGES[kind]();
 }
 
-/**
- * "11,4" — a bar's label in thousands. Presentation scaling of one server
- * figure, like `formatWholeAmount`'s cents-to-units division; never a sum.
- */
-export function thousandsLabel(locale: Locale, amountCents: number): string {
-  return cachedFormatter(locale, { maximumFractionDigits: 1 }).format(
-    amountCents / 100_000,
-  );
-}
-
 /** "92 %" — a client's share, rounded: the column is scanned, not reconciled. */
 export function shareLabel(locale: Locale, shareBp: number): string {
   return m.common_percent({

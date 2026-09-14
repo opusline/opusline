@@ -1,3 +1,52 @@
+# apps/api — agent notes
+
+The block at the end of this file is written by `php artisan boost:update`,
+which `composer update` runs on every dependency change (`post-update-cmd` in
+`composer.json`). It is upstream Laravel boilerplate describing a generic
+Laravel app — not a statement about this one — so editing inside it is
+pointless: the next update replaces the whole thing. This section sits above it
+and survives, and **where the two disagree this section is right.** The
+repository root `CLAUDE.md` outranks both.
+
+Never write the block's opening marker anywhere in this section. `boost:update`
+replaces from that marker's *first* occurrence to the closing one, so a
+paragraph that merely names it silently deletes everything below. That is not
+hypothetical — it cost this preamble once already.
+
+Where the generated block is wrong about Opusline:
+
+- **PHP never runs on the host.** Every `php`, `artisan`, `composer`, `pint`,
+  `rector`, `phpstan` and Pest invocation goes through the Docker wrapper, from
+  `apps/api/`: `sh scripts/php.sh php artisan route:list`,
+  `sh scripts/php.sh php artisan test --compact`,
+  `sh scripts/php.sh php vendor/bin/pint`. There is no host PHP to fall back to,
+  so `vendor/bin/pint --dirty` and `php artisan tinker` as written below simply
+  fail.
+- **There is no `.ai/rules` directory**, and nothing is waiting for one. Do not
+  treat reading it as a precondition for editing a file, and do not record rules
+  into it — the conventions live in the root `CLAUDE.md`, which is the file to
+  add one to.
+- **Boundaries are spatie/laravel-data, not Eloquent API Resources.** `Data`
+  classes validate what comes in and serialise what goes out, validating
+  explicitly on anything security-relevant; plain Eloquent in between; the logic
+  in domain actions under `app/Domain/*/Actions` behind thin controllers. The
+  OpenAPI spec and the typed TS client are generated from those shapes, so a
+  changed request or response shape means `pnpm generate-api` from the root.
+- **There is no npm and no Vite here.** The JS toolchain is pnpm + Turborepo at
+  the repository root; `apps/api` serves JSON only. `npm run build`,
+  `npm run dev` and `composer run dev` do not exist — `turbo dev` from the root
+  boots the Sail stack, the SPA and Storybook together.
+- **Deployment is the self-hosted Docker stack**, not Laravel Cloud: the root
+  `Dockerfile`, `compose.prod.yaml` and `docs/self-hosting.md`.
+  `apps/api/compose.yaml` is the development Sail stack and is not a deployment.
+- **Translations have rules the block does not mention.** Messages live in
+  `lang/{en,fr}` domain groups with exact key parity; never add keys to the
+  laravel-lang-managed files, and never memoize `__()` in a static — Octane
+  workers would freeze the first request's locale.
+- **Rector's target PHP version is auto-detected** from `composer.json`'s
+  `require.php` (`rector.php` calls `withPhpSets()` with no argument), so
+  changing that constraint changes which refactorings `turbo lint` demands.
+
 <laravel-boost-guidelines>
 === foundation rules ===
 

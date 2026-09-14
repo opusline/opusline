@@ -51,7 +51,15 @@ class ListExpenses
 
     public function __construct(private readonly MaterialiseSubscriptionOccurrences $materialiseSubscriptionOccurrences) {}
 
-    public function handle(User $user, ?string $month): ExpensesMonthData
+    /**
+     * @param  bool  $materialiseDueDebits  false when the caller has already
+     *                                      read the journal this round — the
+     *                                      mutation endpoints answer with this
+     *                                      payload, and the pass would take the
+     *                                      account row lock a second time in
+     *                                      the same request
+     */
+    public function handle(User $user, ?string $month, bool $materialiseDueDebits = true): ExpensesMonthData
     {
         $settings = $user->settingsOrFail();
         $currency = $settings->currency->value;
@@ -62,7 +70,9 @@ class ListExpenses
         $monthKey = $monthStart->format('Y-m');
         $monthEnd = $monthStart->endOfMonth();
 
-        $this->materialiseSubscriptionOccurrences->handle($user, $today);
+        if ($materialiseDueDebits) {
+            $this->materialiseSubscriptionOccurrences->handle($user, $today);
+        }
 
         $rows = $user->expenses()
             ->with(['media', 'subscription', 'bankMovement'])

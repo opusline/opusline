@@ -25,7 +25,7 @@ export function TreasuryBreakdown({ data }: TreasuryBreakdownProps) {
     return null;
   }
 
-  const { vat, urssaf, cfe } = data.provisions;
+  const { vat, urssaf, cfe, subscriptions } = data.provisions;
 
   // Undefined, not an empty string: a provision that does not apply has neither
   // a band nor a caption.
@@ -49,6 +49,12 @@ export function TreasuryBreakdown({ data }: TreasuryBreakdownProps) {
       cfe === null
         ? undefined
         : m.treasury_band_cfe_sub({ year: cfe.periodEnd.slice(0, 4) }),
+    subscriptions:
+      subscriptions === null
+        ? undefined
+        : m.treasury_band_subscriptions_sub({
+            date: calendarDateNumericLabel(dateFormat, subscriptions.periodEnd),
+          }),
     buffer: m.treasury_band_buffer_sub(),
     transferable: m.treasury_band_transferable_sub(),
   };

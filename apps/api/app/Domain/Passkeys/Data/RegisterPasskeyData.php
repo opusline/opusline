@@ -18,7 +18,7 @@ class RegisterPasskeyData extends Data
     public function __construct(
         #[Min(1), Max(100)]
         public string $name,
-        #[Json]
+        #[Json, Max(CredentialJson::MAX_LENGTH)]
         public string $credential,
     ) {}
 

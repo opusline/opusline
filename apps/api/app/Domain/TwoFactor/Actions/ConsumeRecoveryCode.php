@@ -6,6 +6,7 @@ namespace App\Domain\TwoFactor\Actions;
 
 use App\Domain\Users\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ConsumeRecoveryCode
 {
@@ -28,6 +29,15 @@ class ConsumeRecoveryCode
 
                 $locked->two_factor_recovery_codes = array_values($codes);
                 $locked->save();
+
+                // A second factor was bypassed with a printed code: the one
+                // 2FA event an operator has to be able to see afterwards. The
+                // code itself never goes to the log.
+                Log::warning('Recovery code spent.', [
+                    'user_id' => $locked->id,
+                    'ip' => request()->ip(),
+                    'remaining' => count($codes),
+                ]);
 
                 return true;
             }

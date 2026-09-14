@@ -34,6 +34,9 @@ function themedStorybook(theme: "light" | "dark"): TestProjectConfiguration {
     ],
     test: {
       name: `storybook-${theme}`,
+      // A string, not an array: the Storybook plugin rebuilds `setupFiles` from
+      // its own internals and only carries a string entry through.
+      setupFiles: "./.storybook/vitest.setup.ts",
       isolate: false,
       browser: {
         enabled: true,

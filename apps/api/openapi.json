@@ -8994,7 +8994,8 @@
                         "items": {
                             "type": "integer"
                         },
-                        "minItems": 1
+                        "minItems": 1,
+                        "maxItems": 500
                     }
                 },
                 "required": [
@@ -10575,7 +10576,8 @@
                 "type": "object",
                 "properties": {
                     "credential": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 8192
                     },
                     "remember": {
                         "type": "boolean"
@@ -10694,7 +10696,8 @@
                         "items": {
                             "type": "integer"
                         },
-                        "minItems": 1
+                        "minItems": 1,
+                        "maxItems": 500
                     },
                     "category": {
                         "$ref": "#/components/schemas/ExpenseCategory"
@@ -10918,7 +10921,8 @@
                         "maxLength": 100
                     },
                     "credential": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 8192
                     }
                 },
                 "required": [
@@ -12437,7 +12441,8 @@
                         "type": [
                             "string",
                             "null"
-                        ]
+                        ],
+                        "maxLength": 8192
                     },
                     "trustDevice": {
                         "type": "boolean"

@@ -530,7 +530,7 @@ export const zExpenseReceiptData = z.object({
  * ExpenseSelectionData
  */
 export const zExpenseSelectionData = z.object({
-    expenseIds: z.array(z.int()).check(z.minLength(1))
+    expenseIds: z.array(z.int()).check(z.minLength(1), z.maxLength(500))
 });
 
 /**
@@ -1306,7 +1306,7 @@ export const zPasskeyData = z.object({
  * PasskeyLoginData
  */
 export const zPasskeyLoginData = z.object({
-    credential: z.string(),
+    credential: z.string().check(z.maxLength(8192)),
     remember: z.optional(z.boolean())
 });
 
@@ -1346,7 +1346,7 @@ export const zReadReceiptData = z.object({
  * RecategorizeExpensesData
  */
 export const zRecategorizeExpensesData = z.object({
-    expenseIds: z.array(z.int()).check(z.minLength(1)),
+    expenseIds: z.array(z.int()).check(z.minLength(1), z.maxLength(500)),
     category: zExpenseCategory
 });
 
@@ -1431,7 +1431,7 @@ export const zRecurringDebitData = z.object({
  */
 export const zRegisterPasskeyData = z.object({
     name: z.string().check(z.minLength(1), z.maxLength(100)),
-    credential: z.string()
+    credential: z.string().check(z.maxLength(8192))
 });
 
 /**
@@ -2105,7 +2105,7 @@ export const zTrustedDeviceData = z.object({
 export const zTwoFactorChallengeAnswerData = z.object({
     code: z.nullish(z.string()),
     recoveryCode: z.nullish(z.string().check(z.regex(/^[A-Za-z0-9]{10}-[A-Za-z0-9]{10}$/))),
-    passkey: z.nullish(z.string()),
+    passkey: z.nullish(z.string().check(z.maxLength(8192))),
     trustDevice: z.optional(z.boolean())
 });
 

@@ -3,7 +3,11 @@ import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { cn } from "@opusline/ui/lib/utils";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
-import { formatAmountWithCents, formatWholeAmount } from "@/lib/billing";
+import {
+  annualCostOf,
+  formatAmountWithCents,
+  formatWholeAmount,
+} from "@/lib/billing";
 import { m } from "@/paraglide/messages.js";
 
 import { expenseCategoryWarning } from "../lib/labels";
@@ -141,6 +145,9 @@ export function perYearCell(
     value:
       amounts === null
         ? "—"
-        : formatWholeAmount(format, amounts.ttcCents * occurrencesPerYear),
+        : formatWholeAmount(
+            format,
+            annualCostOf(amounts.ttcCents, occurrencesPerYear),
+          ),
   };
 }

@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class SubscriptionAmountFactory extends Factory
 {
+    #[\Override]
     protected $model = SubscriptionAmount::class;
 
     /**

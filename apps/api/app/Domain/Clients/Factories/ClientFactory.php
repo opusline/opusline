@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class ClientFactory extends Factory
 {
+    #[\Override]
     protected $model = Client::class;
 
     /**

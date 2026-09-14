@@ -3,13 +3,13 @@ import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { cn } from "@opusline/ui/lib/utils";
 
 import { useLocale, useMoneyFormat } from "@/components/money-format-provider";
-import { formatWholeAmount } from "@/lib/billing";
+import { formatThousands, formatWholeAmount } from "@/lib/billing";
 import { cachedDateFormatter, fromCalendarDate } from "@/lib/dates";
 import { monthTitle } from "@/lib/months";
 import { isFuturePeriod } from "@/lib/periods";
 import { m } from "@/paraglide/messages.js";
 
-import { basisText, type RevenueBasisKey, thousandsLabel } from "../lib/labels";
+import { basisText, type RevenueBasisKey } from "../lib/labels";
 
 const MONTH_SHORT: Intl.DateTimeFormatOptions = { month: "short" };
 
@@ -48,7 +48,7 @@ export function RevenueChart({
         {months.map((bar) => {
           // A month under ~50 € rounds to "0"; a floating zero over an
           // invisible bar reads like an empty month, so it says nothing.
-          const label = thousandsLabel(locale, bar.total.amount);
+          const label = formatThousands(locale, bar.total.amount);
 
           return (
             <button

@@ -3,7 +3,7 @@ import { Eyebrow } from "@opusline/ui/components/eyebrow";
 import { Sparkline } from "@opusline/ui/components/sparkline";
 
 import { useLocale, useMoneyFormat } from "@/components/money-format-provider";
-import { formatWholeAmount } from "@/lib/billing";
+import { averageCents, formatWholeAmount } from "@/lib/billing";
 import { cachedDateFormatter, fromCalendarDate } from "@/lib/dates";
 import { monthStart } from "@/lib/months";
 import { m } from "@/paraglide/messages.js";
@@ -27,10 +27,7 @@ export function ExpenseTrendCard({ series, unit }: ExpenseTrendCardProps) {
     label: shortMonth(point.month),
     value: unit === "ht" ? point.ht.amount : point.ttc.amount,
   }));
-  const average =
-    points.length === 0
-      ? 0
-      : points.reduce((sum, point) => sum + point.value, 0) / points.length;
+  const average = averageCents(points.map((point) => point.value));
   const first = points[0];
   const last = points[points.length - 1];
 
@@ -40,7 +37,7 @@ export function ExpenseTrendCard({ series, unit }: ExpenseTrendCardProps) {
         <Eyebrow>{m.expenses_trend_title({ unit: unitLabel })}</Eyebrow>
         <span className="text-muted-foreground-3 text-xs">
           {m.expenses_trend_average({
-            amount: formatWholeAmount(format, Math.round(average)),
+            amount: formatWholeAmount(format, average),
           })}
         </span>
       </div>

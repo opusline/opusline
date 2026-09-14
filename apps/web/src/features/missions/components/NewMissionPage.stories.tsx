@@ -21,17 +21,51 @@ const baseClient = {
   missions: [],
 } satisfies Partial<ClientWithMissionsData>;
 
+/** One per `Color`, so every wash the week-grid mockup can paint has a client. */
 const clients: ClientWithMissionsData[] = [
   { ...baseClient, id: 1, slug: "nordlys", name: "Nordlys", type: 1, color: 0 },
   {
     ...baseClient,
     id: 2,
+    slug: "callisto",
+    name: "Callisto",
+    type: 0,
+    color: 1,
+  },
+  { ...baseClient, id: 3, slug: "orvella", name: "Orvella", type: 0, color: 2 },
+  {
+    ...baseClient,
+    id: 4,
+    slug: "vesterhus",
+    name: "Vesterhus",
+    type: 0,
+    color: 3,
+  },
+  {
+    ...baseClient,
+    id: 5,
     slug: "lunaprint",
     name: "Lunaprint",
     type: 0,
     color: 4,
   },
-  { ...baseClient, id: 3, slug: "perso", name: "Perso", type: 2, color: 7 },
+  {
+    ...baseClient,
+    id: 6,
+    slug: "studio-lorem",
+    name: "Studio Lorem",
+    type: 0,
+    color: 5,
+  },
+  {
+    ...baseClient,
+    id: 7,
+    slug: "ateliers-ruche",
+    name: "Ateliers Ruche",
+    type: 0,
+    color: 6,
+  },
+  { ...baseClient, id: 8, slug: "perso", name: "Perso", type: 2, color: 7 },
 ];
 
 const meta = {
@@ -87,3 +121,27 @@ export const WithoutClients: Story = {
     onCancel: () => {},
   },
 };
+
+/**
+ * The selected client's colour paints the week-grid cell, and each hue
+ * composites differently over the card. The default story only ever renders
+ * amber, so the other seven washes went unmeasured by the contrast gate.
+ */
+function clientColorStory(slug: string): Story {
+  return {
+    args: {
+      clients,
+      hasFrenchFiscality: true,
+      initialClientSlug: slug,
+      onSubmit: async () => ({ status: "success" }) as const,
+      onCancel: () => {},
+    },
+  };
+}
+
+export const TerracottaClient = clientColorStory("callisto");
+export const OliveClient = clientColorStory("orvella");
+export const SageClient = clientColorStory("vesterhus");
+export const IndigoClient = clientColorStory("studio-lorem");
+export const PlumClient = clientColorStory("ateliers-ruche");
+export const StoneClient = clientColorStory("perso");

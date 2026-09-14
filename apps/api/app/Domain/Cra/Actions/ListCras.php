@@ -29,9 +29,10 @@ class ListCras
 
     public function handle(User $user, ListCrasData $data): CraListData
     {
-        $currentMonth = $user->settingsOrFail()->today()->format('Y-m');
+        $today = $user->settingsOrFail()->today();
+        $currentMonth = $today->format('Y-m');
         $missions = $this->eligibleMissions($user);
-        $tracked = $this->materializeCraDays->monthlyTotals($user, $missions);
+        $tracked = $this->materializeCraDays->monthlyTotals($user, $missions, $today);
 
         /** @var array<int, array<string, Cra>> $existing */
         $existing = [];
@@ -118,13 +119,9 @@ class ListCras
     private function monthsFor(Mission $mission, array $tracked, array $cras, string $currentMonth): array
     {
         // Months with tracked time, whatever the mission's status: a finished mission
-        // still owes the CRAs of the months it ran. Time logged ahead of today is not
-        // reportable yet, and CreateCra refuses it — listing it would offer a row that
-        // cannot be opened.
-        $months = array_filter(
-            array_keys($tracked),
-            fn (string $month): bool => $month <= $currentMonth,
-        );
+        // still owes the CRAs of the months it ran. The totals already stop at the
+        // current month, so nothing unopenable can be listed here.
+        $months = array_keys($tracked);
 
         if ($mission->status === MissionStatus::Active) {
             $months[] = $currentMonth;

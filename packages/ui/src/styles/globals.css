@@ -104,8 +104,11 @@
   --accent-foreground: #efeae4;
   --destructive: #d89272;
   --border: #302b27;
-  /* As in light: 3:1 against the page and the field fill both. */
-  --input: #6f665f;
+  /* As in light, except that the value is set by the toggles rather than by the
+     page: `checkbox.tsx` and `radio-group.tsx` fill themselves with --secondary
+     here, which is lighter than any page surface. 3.21:1 there, 3.33:1 on a
+     raised --card-2 popover, 3.05:1 on --secondary-2 at its tightest. */
+  --input: #786f68;
   --ring: #f0b762;
   --destructive-strong: #c97a5a;
   --destructive-border: #6b4a3a;

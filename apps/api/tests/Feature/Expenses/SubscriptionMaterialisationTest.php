@@ -7,6 +7,10 @@ use App\Domain\Expenses\Enums\ExpenseVatStatus;
 use App\Domain\Expenses\Factories\SubscriptionFactory;
 use App\Domain\Expenses\Models\Subscription;
 use App\Domain\Users\Models\User;
+use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Database\Events\TransactionBeginning;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 
 beforeEach(fn () => freezeTodayAtUtcNoon());
 
@@ -43,6 +47,46 @@ test('a second read creates nothing more', function (): void {
     $this->actingAs($user)->getJson('/api/subscriptions')->assertOk();
 
     expect($user->expenses()->count())->toBe(3);
+});
+
+test('a second read writes nothing and takes no account lock', function (): void {
+    $user = User::factory()->create();
+    nordlysRecordedOn($user);
+    $this->actingAs($user)->getJson('/api/expenses')->assertOk();
+
+    $writes = [];
+    $transactions = 0;
+
+    DB::listen(function (QueryExecuted $query) use (&$writes): void {
+        if (preg_match('/^\s*(insert|update|delete)\b/i', $query->sql) === 1) {
+            $writes[] = $query->sql;
+        }
+    });
+    Event::listen(function (TransactionBeginning $event) use (&$transactions): void {
+        $transactions++;
+    });
+
+    $this->actingAs($user)->getJson('/api/expenses')->assertOk();
+
+    // The account row lock lives inside the materialisation transaction, so no
+    // transaction is the assertion that a read endpoint took no write lock.
+    expect($writes)->toBe([])
+        ->and($transactions)->toBe(0);
+});
+
+test('a debit corrected into a later month does not stop that month\'s own debit', function (): void {
+    $user = User::factory()->create();
+    $subscription = nordlysRecordedOn($user);
+    // June's debit, still answering for June, but dated the day the bank
+    // really took it: a date is correctable after the fact, a period is not.
+    expenseOwnedBy($user, fn ($factory) => $factory->on('2026-08-10')->state([
+        'subscription_id' => $subscription->id,
+        'subscription_period_key' => '2026-06',
+    ]));
+
+    $this->actingAs($user)->getJson('/api/expenses?month=2026-08')->assertOk();
+
+    expect($user->expenses()->pluck('subscription_period_key')->all())->toContain('2026-08');
 });
 
 test('a debit is priced at the amount in force on its day', function (): void {

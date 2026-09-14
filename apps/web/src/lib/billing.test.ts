@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  averageCents,
+  centsShare,
   currencySymbol,
+  floorToWholeUnits,
   formatAmount,
   formatAmountWithCents,
   formatRate,
@@ -10,7 +13,8 @@ import {
   formatWholeAmount,
   type MoneyFormat,
   monthlyBillableHours,
-  parseRateToCents,
+  monthlyTwelfthOf,
+  parseAmountToCents,
   parseSignedAmountToCents,
   projectMissionMonth,
 } from "./billing";
@@ -91,33 +95,37 @@ describe("French rate drafts", () => {
   });
 
   it("converts a grouped draft back to cents", () => {
-    expect(parseRateToCents("fr-FR", `4${NARROW_NBSP}800,50`)).toBe(480_050);
+    expect(parseAmountToCents("fr-FR", `4${NARROW_NBSP}800,50`)).toBe(480_050);
   });
 
   it("reads a whole-euro amount as cents", () => {
-    expect(parseRateToCents("fr-FR", "550")).toBe(55_000);
+    expect(parseAmountToCents("fr-FR", "550")).toBe(55_000);
   });
 
   it("rejects an empty draft", () => {
-    expect(parseRateToCents("fr-FR", "")).toBeNull();
+    expect(parseAmountToCents("fr-FR", "")).toBeNull();
   });
 
   it("rejects a zero rate", () => {
-    expect(parseRateToCents("fr-FR", "0")).toBeNull();
+    expect(parseAmountToCents("fr-FR", "0")).toBeNull();
+  });
+
+  it("reads zero as an amount where the field allows one", () => {
+    expect(parseAmountToCents("fr-FR", "0", { allowZero: true })).toBe(0);
   });
 
   it("rejects a negative rate", () => {
-    expect(parseRateToCents("fr-FR", "-5")).toBeNull();
+    expect(parseAmountToCents("fr-FR", "-5")).toBeNull();
   });
 
   it("rejects a draft that holds no digits", () => {
-    expect(parseRateToCents("fr-FR", "abc")).toBeNull();
+    expect(parseAmountToCents("fr-FR", "abc")).toBeNull();
   });
 
   it("survives a round trip through the draft formatter", () => {
-    expect(parseRateToCents("fr-FR", formatRateDraft("fr-FR", "1234.5"))).toBe(
-      123_450,
-    );
+    expect(
+      parseAmountToCents("fr-FR", formatRateDraft("fr-FR", "1234.5")),
+    ).toBe(123_450);
   });
 });
 
@@ -175,7 +183,7 @@ describe("US rate drafts", () => {
     // the one to reject it, so the draft has to preserve the mistake.
     expect(formatRateDraft("en-US", "1,5")).toBe("1,5");
     expect(
-      parseRateToCents("en-US", formatRateDraft("en-US", "1,5")),
+      parseAmountToCents("en-US", formatRateDraft("en-US", "1,5")),
     ).toBeNull();
   });
 
@@ -195,23 +203,23 @@ describe("US rate drafts", () => {
     }
 
     expect(draft).toBe("48,000");
-    expect(parseRateToCents("en-US", draft)).toBe(4_800_000);
+    expect(parseAmountToCents("en-US", draft)).toBe(4_800_000);
   });
 
   it("converts a grouped draft back to cents", () => {
-    expect(parseRateToCents("en-US", "1,234.56")).toBe(123_456);
+    expect(parseAmountToCents("en-US", "1,234.56")).toBe(123_456);
   });
 
   it("refuses a comma that cannot be a thousands group", () => {
     // "1,5" typed by someone who means one and a half must be an error,
     // never fifteen.
-    expect(parseRateToCents("en-US", "1,5")).toBeNull();
+    expect(parseAmountToCents("en-US", "1,5")).toBeNull();
   });
 
   it("survives a round trip through the draft formatter", () => {
-    expect(parseRateToCents("en-US", formatRateDraft("en-US", "1234.5"))).toBe(
-      123_450,
-    );
+    expect(
+      parseAmountToCents("en-US", formatRateDraft("en-US", "1234.5")),
+    ).toBe(123_450);
   });
 });
 
@@ -272,5 +280,34 @@ describe("projectMissionMonth", () => {
   it("reports the hours its monthly figure assumed", () => {
     expect(monthlyBillableHours(SEVEN_HOUR_DAY)).toBe(140);
     expect(monthlyBillableHours(480)).toBe(160);
+  });
+});
+
+describe("reading a series of amounts", () => {
+  it("averages the points a sparkline draws", () => {
+    expect(averageCents([10_000, 20_001, 30_000])).toBe(20_000);
+  });
+
+  it("has no average to report for an empty series", () => {
+    expect(averageCents([])).toBe(0);
+  });
+
+  it("takes a share of a bar's total", () => {
+    expect(centsShare(25_000, 100_000)).toBe(0.25);
+  });
+
+  it("draws nothing rather than dividing by an empty total", () => {
+    expect(centsShare(25_000, 0)).toBe(0);
+  });
+});
+
+describe("projections with no server figure yet", () => {
+  it("divides an annual debit into twelfths the way the API does", () => {
+    expect(monthlyTwelfthOf(11_994)).toBe(1_000);
+    expect(monthlyTwelfthOf(1_000)).toBe(83);
+  });
+
+  it("seeds a transferable amount down to the whole unit", () => {
+    expect(floorToWholeUnits(120_099)).toBe(120_000);
   });
 });

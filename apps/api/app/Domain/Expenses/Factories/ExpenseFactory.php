@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class ExpenseFactory extends Factory
 {
+    #[\Override]
     protected $model = Expense::class;
 
     /**

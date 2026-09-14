@@ -22,7 +22,7 @@ export function formatSiret(value: string): string {
   return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 9)} ${digits.slice(9)}`;
 }
 
-/** `FR64443061841` → `FR64 443061841`, the country and key then the SIREN. */
+/** `FR11123456782` → `FR11 123456782`, the country and key then the SIREN. */
 export function formatVatNumber(value: string): string {
   const compact = value.replace(/[\s.]/g, "").toUpperCase();
 

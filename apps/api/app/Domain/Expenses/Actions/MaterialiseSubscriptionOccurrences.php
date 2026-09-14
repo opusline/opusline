@@ -9,7 +9,8 @@ use App\Domain\Expenses\Subscriptions\OccurrenceSchedule;
 use App\Domain\Expenses\Vat\DeclaredCa3Months;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -18,6 +19,11 @@ use Illuminate\Support\Facades\DB;
  * they show is what the bank did. Idempotent by (subscription, period) —
  * a deleted debit's tombstone counts — and never further back than the
  * subscription's occurrence floor: the day it was recorded, or resumed.
+ *
+ * The read that has nothing to write opens no transaction and takes no lock.
+ * Both the calendar walk and the probe restart at each subscription's latest
+ * settled period rather than at its first: this sits on the two hottest reads
+ * of the domain, and neither may cost more as the account ages.
  */
 class MaterialiseSubscriptionOccurrences
 {
@@ -25,39 +31,21 @@ class MaterialiseSubscriptionOccurrences
 
     public function handle(User $user, CarbonImmutable $today): void
     {
-        $due = $user->subscriptions()->where('auto_create_expenses', true)->where('is_paused', false);
-
-        if ($due->clone()->doesntExist()) {
+        if ($this->pending($user, $today) === []) {
             return;
         }
 
-        DB::transaction(function () use ($user, $today, $due): void {
+        DB::transaction(function () use ($user, $today): void {
             User::lockRow($user->id);
-
-            $subscriptions = $due->with('amounts')->get();
-            /** @var Collection<int, object{subscription_id: int, subscription_period_key: string}> $rows */
-            $rows = $user->expenses()->withTrashed()->whereNotNull('subscription_id')->toBase()->get(['subscription_id', 'subscription_period_key']);
-            /** @var array<string, true> $taken */
-            $taken = [];
-
-            foreach ($rows as $row) {
-                $taken["{$row->subscription_id}:{$row->subscription_period_key}"] = true;
-            }
 
             $declared = DeclaredCa3Months::of($user->id);
             $earliest = null;
 
-            foreach ($subscriptions as $subscription) {
-                foreach (new OccurrenceSchedule($subscription)->debitsBetween($subscription->occurrencesFrom(), $today) as $debitOn) {
-                    $periodKey = $subscription->periodicity->periodKey($debitOn);
-
-                    if (isset($taken["{$subscription->id}:{$periodKey}"])) {
-                        continue;
-                    }
-
-                    $this->create($user, $subscription, $periodKey, $debitOn, $declared);
-                    $earliest = min($earliest ?? $debitOn, $debitOn);
-                }
+            // Asked again under the lock: the gate above ran outside it, and a
+            // concurrent read may have written the same occurrence meanwhile.
+            foreach ($this->pending($user, $today) as [$subscription, $periodKey, $debitOn]) {
+                $this->create($user, $subscription, $periodKey, $debitOn, $declared);
+                $earliest = min($earliest ?? $debitOn, $debitOn);
             }
 
             // A debit the bank already imported may be waiting for exactly
@@ -66,6 +54,119 @@ class MaterialiseSubscriptionOccurrences
                 $this->suggestExpenseMatches->handle($user, $earliest);
             }
         });
+    }
+
+    /**
+     * The debits that have come due and have neither an expense nor a
+     * tombstone of their own yet.
+     *
+     * @return list<array{Subscription, string, CarbonImmutable}>
+     */
+    private function pending(User $user, CarbonImmutable $today): array
+    {
+        $subscriptions = $user->subscriptions()
+            ->where('auto_create_expenses', true)
+            ->where('is_paused', false)
+            ->with('amounts')
+            ->get();
+
+        if ($subscriptions->isEmpty()) {
+            return [];
+        }
+
+        $scanFrom = $this->scanFrom($user, $subscriptions);
+        /** @var array<string, array{Subscription, string, CarbonImmutable}> $due */
+        $due = [];
+
+        foreach ($subscriptions as $subscription) {
+            foreach (new OccurrenceSchedule($subscription)->debitsBetween($scanFrom[$subscription->id], $today) as $debitOn) {
+                $periodKey = $subscription->periodicity->periodKey($debitOn);
+                $due["{$subscription->id}:{$periodKey}"] = [$subscription, $periodKey, $debitOn];
+            }
+        }
+
+        if ($due === []) {
+            return [];
+        }
+
+        return array_values(array_diff_key($due, $this->taken($user, $due)));
+    }
+
+    /**
+     * The first day of each subscription's calendar still worth walking: its
+     * occurrence floor, or the start of the period its latest debit falls in
+     * when that is later. Everything before it was settled by an earlier pass
+     * — a written expense, or the tombstone of a deleted one — so a ten-year-old
+     * monthly subscription costs the same to check as a new one. The period is
+     * what the floor snaps to, not the day: a debit's date may be corrected
+     * afterwards to the day the bank really took it.
+     *
+     * @param  Collection<int, Subscription>  $subscriptions
+     * @return array<int, CarbonImmutable>
+     */
+    private function scanFrom(User $user, Collection $subscriptions): array
+    {
+        /** @var SupportCollection<int, object{subscription_id: int, last_debit_on: string}> $rows */
+        $rows = $user->expenses()
+            ->withTrashed()
+            ->whereIn('subscription_id', $subscriptions->modelKeys())
+            ->toBase()
+            ->select('subscription_id')
+            ->selectRaw('MAX(spent_on) as last_debit_on')
+            ->groupBy('subscription_id')
+            ->get();
+
+        $latest = [];
+
+        foreach ($rows as $row) {
+            $latest[(int) $row->subscription_id] = CarbonImmutable::parse($row->last_debit_on);
+        }
+
+        $scanFrom = [];
+
+        foreach ($subscriptions as $subscription) {
+            $floor = $subscription->occurrencesFrom();
+            $lastDebitOn = $latest[$subscription->id] ?? null;
+            $scanFrom[$subscription->id] = $lastDebitOn instanceof CarbonImmutable
+                ? max($floor, $subscription->periodicity->periodStart($lastDebitOn))
+                : $floor;
+        }
+
+        return $scanFrom;
+    }
+
+    /**
+     * Which of the asked-about (subscription, period) pairs the account
+     * already holds. Tombstones count: a deleted debit must not come back.
+     *
+     * @param  array<string, array{Subscription, string, CarbonImmutable}>  $due
+     * @return array<string, true>
+     */
+    private function taken(User $user, array $due): array
+    {
+        $subscriptionIds = [];
+        $periodKeys = [];
+
+        foreach ($due as [$subscription, $periodKey]) {
+            $subscriptionIds[$subscription->id] = true;
+            $periodKeys[$periodKey] = true;
+        }
+
+        /** @var SupportCollection<int, object{subscription_id: int, subscription_period_key: string}> $rows */
+        $rows = $user->expenses()
+            ->withTrashed()
+            ->whereIn('subscription_id', array_keys($subscriptionIds))
+            ->whereIn('subscription_period_key', array_keys($periodKeys))
+            ->toBase()
+            ->get(['subscription_id', 'subscription_period_key']);
+
+        $taken = [];
+
+        foreach ($rows as $row) {
+            $taken["{$row->subscription_id}:{$row->subscription_period_key}"] = true;
+        }
+
+        return $taken;
     }
 
     private function create(User $user, Subscription $subscription, string $periodKey, CarbonImmutable $debitOn, DeclaredCa3Months $declared): void

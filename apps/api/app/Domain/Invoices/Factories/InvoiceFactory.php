@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class InvoiceFactory extends Factory
 {
+    #[\Override]
     protected $model = Invoice::class;
 
     /**

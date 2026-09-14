@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
  */
 class TrustedDeviceFactory extends Factory
 {
+    #[\Override]
     protected $model = TrustedDevice::class;
 
     /**
