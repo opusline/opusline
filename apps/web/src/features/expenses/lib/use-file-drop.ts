@@ -14,7 +14,17 @@ export function useFileDrop(onFiles: (files: FileList) => void) {
       event.preventDefault();
       setIsDragOver(true);
     },
-    onDragLeave: () => setIsDragOver(false),
+    onDragLeave: (event: DragEvent) => {
+      // Crossing onto a cell of the row is not leaving the row.
+      if (
+        event.relatedTarget instanceof Node &&
+        event.currentTarget.contains(event.relatedTarget)
+      ) {
+        return;
+      }
+
+      setIsDragOver(false);
+    },
     onDrop: (event: DragEvent) => {
       event.preventDefault();
       setIsDragOver(false);

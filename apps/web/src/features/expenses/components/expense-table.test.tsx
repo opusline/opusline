@@ -107,6 +107,33 @@ it("hands a file dropped on a row to that expense", async () => {
   );
 });
 
+it("keeps a drop target lit while the pointer crosses its own content", async () => {
+  renderTable({ expenses: [blockedExpense()] });
+
+  const zone = (
+    await screen.findByLabelText("Lier la facture de Vesterhus Énergie")
+  ).closest("[data-slot=dropzone]") as HTMLElement;
+  const row = zone.closest("tr") as HTMLElement;
+
+  // jsdom has no DragEvent, and only a MouseEvent carries relatedTarget.
+  const leave = (target: HTMLElement, towards: Element | null) =>
+    fireEvent(
+      target,
+      new MouseEvent("dragleave", { bubbles: true, relatedTarget: towards }),
+    );
+
+  fireEvent.dragOver(zone);
+  leave(zone, zone.lastElementChild);
+
+  expect(zone).toHaveAttribute("data-drag-over");
+  expect(row).toHaveAttribute("data-drag-over");
+
+  leave(zone, document.body);
+
+  expect(zone).not.toHaveAttribute("data-drag-over");
+  expect(row).not.toHaveAttribute("data-drag-over");
+});
+
 it("says a receipt is on its way for the row being uploaded", async () => {
   renderTable({ expenses: [blockedExpense()], uploadingExpenseId: 2 });
 
