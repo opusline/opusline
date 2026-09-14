@@ -65,7 +65,7 @@ test('charts the twelve months ending with the shown one', function (): void {
     expect(array_sum(array_map(fn (array $point): int => $point['ht']['amount'], $response->json('series'))))->toBe(3_000);
 });
 
-test('compares the run rate of charges with the micro-BNC abatement for a French account', function (): void {
+test('compares the trailing year of charges with the micro-BNC abatement for a French account', function (): void {
     $user = User::factory()->create();
     paidInvoiceOn($user, '2026-02-10', htCents: 1_000_000, ttcCents: 1_200_000);
     // Collected more than a year before the shown month: outside the trailing year.
@@ -75,7 +75,7 @@ test('compares the run rate of charges with the micro-BNC abatement for a French
     $this->actingAs($user)
         ->getJson('/api/expenses?month=2026-08')
         ->assertOk()
-        ->assertJsonPath('projection.projectedChargesHt.amount', 240_000)
+        ->assertJsonPath('projection.projectedChargesHt.amount', 20_000)
         ->assertJsonPath('projection.annualRevenueHt.amount', 1_000_000)
         ->assertJsonPath('projection.abatement.amount', 340_000)
         ->assertJsonPath('projection.microIsFavourable', true);
@@ -84,12 +84,12 @@ test('compares the run rate of charges with the micro-BNC abatement for a French
 test('says when real charges would beat the abatement', function (): void {
     $user = User::factory()->create();
     paidInvoiceOn($user, '2026-06-10', htCents: 100_000, ttcCents: 120_000);
-    expenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-08-05')->ttc(6_000));
+    expenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-03-05')->ttc(48_000));
 
     $this->actingAs($user)
         ->getJson('/api/expenses?month=2026-08')
         ->assertOk()
-        ->assertJsonPath('projection.projectedChargesHt.amount', 60_000)
+        ->assertJsonPath('projection.projectedChargesHt.amount', 40_000)
         ->assertJsonPath('projection.abatement.amount', 34_000)
         ->assertJsonPath('projection.microIsFavourable', false);
 });
@@ -103,8 +103,21 @@ test('never lets the abatement fall under its statutory floor', function (): voi
         ->assertOk()
         ->assertJsonPath('projection.annualRevenueHt.amount', 0)
         ->assertJsonPath('projection.abatement.amount', 30_500)
-        ->assertJsonPath('projection.projectedChargesHt.amount', 12_000)
+        ->assertJsonPath('projection.projectedChargesHt.amount', 1_000)
         ->assertJsonPath('projection.microIsFavourable', true);
+});
+
+test('counts a one-off purchase once over the trailing year, not as a monthly habit', function (): void {
+    $user = User::factory()->create();
+    expenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2026-08-05')->ttc(3_600));
+    expenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2025-09-01')->ttc(1_200));
+    // Spent before the twelve months ending with August: outside the year.
+    expenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory->on('2025-08-31')->ttc(60_000));
+
+    $this->actingAs($user)
+        ->getJson('/api/expenses?month=2026-08')
+        ->assertOk()
+        ->assertJsonPath('projection.projectedChargesHt.amount', 4_000);
 });
 
 test('has no régime projection outside French fiscality', function (): void {
