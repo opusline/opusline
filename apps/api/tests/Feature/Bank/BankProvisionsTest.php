@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
+use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
 use App\Domain\Expenses\Factories\ExpenseFactory;
 use App\Domain\Expenses\Factories\SubscriptionFactory;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
@@ -394,6 +396,31 @@ test('a detected CFE debit settles what had accrued', function (): void {
         ->getJson('/api/bank')
         ->assertOk()
         ->assertJsonPath('provisions.cfe.amount.amount', 12_000);
+});
+
+test('a CFE marked paid releases what had accrued', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['cfe_expected_cents' => 48_000]);
+    FiscalDeadlineCompletion::factory()->for($user)->of(FiscalDeadlineKind::Cfe, '2026')
+        ->completedOn('2026-08-03')->paidOn('2026-08-03')->create();
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.cfe.amount.amount', 0)
+        ->assertJsonPath('provisions.total.amount', 0);
+});
+
+test('a CFE only marked declared keeps its provision', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['cfe_expected_cents' => 48_000]);
+    FiscalDeadlineCompletion::factory()->for($user)->of(FiscalDeadlineKind::Cfe, '2026')
+        ->completedOn('2026-08-03')->create();
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('provisions.cfe.amount.amount', 32_000);
 });
 
 test('a CFE overpayment never turns into a negative provision', function (): void {
