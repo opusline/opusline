@@ -728,6 +728,136 @@
   "error_home": "Retour au tableau de bord",
   "error_retry": "Réessayer",
   "error_title": "Une erreur est survenue",
+  "expense_category_electricity": "Électricité",
+  "expense_category_equipment": "Matériel",
+  "expense_category_fuel": "Carburant",
+  "expense_category_hosting": "Hébergement",
+  "expense_category_hotel": "Hôtel",
+  "expense_category_insurance": "Assurance",
+  "expense_category_internet": "Internet",
+  "expense_category_meal": "Repas",
+  "expense_category_other": "Autre",
+  "expense_category_phone": "Téléphone",
+  "expense_category_software": "Logiciel",
+  "expense_category_taxes": "Taxes",
+  "expense_category_travel": "Déplacement",
+  "expense_category_warning_fuel": "TVA non récupérable",
+  "expense_category_warning_hotel": "TVA non récupérable",
+  "expense_category_warning_meal": "Facture au nom de l'entreprise requise",
+  "expense_status_blocked": "Bloquée",
+  "expense_status_blocked_sub": "facture manquante",
+  "expense_status_deducted": "Déduite",
+  "expense_status_deducted_sub": "CA3 du {date}",
+  "expense_status_deductible": "À déduire",
+  "expense_status_deductible_sub": "CA3 {month}",
+  "expense_status_deferred": "Reportée",
+  "expense_status_deferred_regularisation_sub": "case 21 · CA3 {month}",
+  "expense_status_deferred_sub": "CA3 {month}",
+  "expense_status_exempt": "Hors TVA",
+  "expense_status_receipt_linked": "Facture liée",
+  "expense_status_receipt_missing": "Facture manquante",
+  "expense_status_reverse_charged": "Autoliquidée",
+  "expense_status_reverse_charged_eu_flag": "UE",
+  "expense_status_reverse_charged_eu_sub": "UE · due et déduite",
+  "expense_status_reverse_charged_non_eu_flag": "hors UE",
+  "expense_status_reverse_charged_non_eu_sub": "hors UE · due et déduite",
+  "expense_vat_exempt": "hors TVA",
+  "expense_vat_rate_reverse": "autoliq. {rate}",
+  "expenses_col_date": "Date",
+  "expenses_col_ht": "HT",
+  "expenses_col_receipt": "Facture",
+  "expenses_col_status": "Statut",
+  "expenses_col_supplier": "Fournisseur",
+  "expenses_col_ttc": "TTC",
+  "expenses_col_vat": "TVA",
+  "expenses_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} dépense",
+        "countPlural=other": "{count} dépenses"
+      }
+    }
+  ],
+  "expenses_delete_body": "{supplier} · {amount} le {date}. La facture part avec elle ; la TVA qu'elle portait sort de la CA3.",
+  "expenses_delete_confirm": "Supprimer la dépense",
+  "expenses_delete_failed": "La dépense n'a pas pu être supprimée. Réessayez dans un instant.",
+  "expenses_delete_title": "Supprimer cette dépense ?",
+  "expenses_deleted": "Dépense supprimée",
+  "expenses_empty_month_sub": "Les abonnements seront créés à leur prélèvement.",
+  "expenses_empty_month_title": "Aucune dépense en {month}",
+  "expenses_kpi_charges": "Charges du mois",
+  "expenses_kpi_subscriptions": "Abonnements",
+  "expenses_kpi_subscriptions_annual": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "dont {count} annuel",
+        "countPlural=other": "dont {count} annuels"
+      }
+    }
+  ],
+  "expenses_kpi_subscriptions_none": "aucun abonnement pour l'instant",
+  "expenses_kpi_subscriptions_sub": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{yearly} / an · {count} abonnement",
+        "countPlural=other": "{yearly} / an · {count} abonnements"
+      }
+    }
+  ],
+  "expenses_kpi_total": "Dépenses {unit}",
+  "expenses_kpi_total_sub": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} dépense · {other}",
+        "countPlural=other": "{count} dépenses · {other}"
+      }
+    }
+  ],
+  "expenses_kpi_vat_deducted": "TVA déduite",
+  "expenses_kpi_vat_deductible": "TVA à déduire",
+  "expenses_load_failed": "Les dépenses n'ont pas pu être chargées. Réessayez dans un instant.",
+  "expenses_locked": "Verrouillée · mois déclaré",
+  "expenses_menu_delete": "Supprimer",
+  "expenses_menu_detach": "Détacher la facture",
+  "expenses_menu_detach_confirm": "Confirmer le détachement ?",
+  "expenses_next_month": "Mois suivant",
+  "expenses_per_month": "/ mois",
+  "expenses_previous_month": "Mois précédent",
+  "expenses_pro_share": "{share} % pro",
+  "expenses_receipt_attach_failed": "La facture n'a pas pu être liée. Réessayez dans un instant.",
+  "expenses_receipt_attached": "Facture liée · {name}",
+  "expenses_receipt_detach_failed": "La facture n'a pas pu être détachée. Réessayez dans un instant.",
+  "expenses_receipt_detached": "Facture détachée",
+  "expenses_receipt_link": "Lier la facture",
+  "expenses_receipt_link_aria": "Lier la facture de {supplier}",
+  "expenses_receipt_open_aria": "Ouvrir la facture {name}",
+  "expenses_receipt_reject_size": "Ce fichier est trop lourd (20 Mo maximum).",
+  "expenses_receipt_reject_type": "Une facture est un PDF ou une photo (JPG, PNG, WebP).",
+  "expenses_receipt_uploading": "Envoi…",
+  "expenses_regularisation_note": "modifiée après déclaration → case 21, CA3 {month}",
+  "expenses_row_menu_aria": "Actions pour {supplier}",
+  "expenses_subscription_aria": "Abonnement",
+  "expenses_tab_journal": "Journal",
+  "expenses_title": "Dépenses",
+  "expenses_unit_aria": "Montants affichés",
+  "expenses_unread_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} facture à lier",
+        "countPlural=other": "{count} factures à lier"
+      }
+    }
+  ],
   "fiscality_sales_tax_name": "Taxe sur les ventes",
   "fiscality_sales_tax_rate_label": "Taux de taxe par défaut",
   "fiscality_sales_tax_zero_hint": "Mettez 0 si vous ne facturez pas de taxe.",
@@ -1056,6 +1186,7 @@
   "nav_deadlines": "Échéances",
   "nav_declarations": "Déclarations",
   "nav_documents": "Documents",
+  "nav_expenses": "Dépenses",
   "nav_invoices": "Factures",
   "nav_revenue": "Revenus",
   "nav_settings": "Réglages",
@@ -1070,6 +1201,7 @@
   "page_title_deadlines": "Obligations",
   "page_title_declarations": "Déclarations",
   "page_title_documents": "Documents",
+  "page_title_expenses": "Dépenses",
   "page_title_release_notes": "Notes de version",
   "page_title_revenue": "Revenus",
   "page_title_settings": "Réglages",

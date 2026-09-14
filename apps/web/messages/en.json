@@ -728,6 +728,136 @@
   "error_home": "Back to the dashboard",
   "error_retry": "Try again",
   "error_title": "Something went wrong",
+  "expense_category_electricity": "Electricity",
+  "expense_category_equipment": "Equipment",
+  "expense_category_fuel": "Fuel",
+  "expense_category_hosting": "Hosting",
+  "expense_category_hotel": "Hotel",
+  "expense_category_insurance": "Insurance",
+  "expense_category_internet": "Internet",
+  "expense_category_meal": "Meals",
+  "expense_category_other": "Other",
+  "expense_category_phone": "Phone",
+  "expense_category_software": "Software",
+  "expense_category_taxes": "Taxes",
+  "expense_category_travel": "Travel",
+  "expense_category_warning_fuel": "TVA not recoverable",
+  "expense_category_warning_hotel": "TVA not recoverable",
+  "expense_category_warning_meal": "Invoice in the business's name required",
+  "expense_status_blocked": "Blocked",
+  "expense_status_blocked_sub": "receipt missing",
+  "expense_status_deducted": "Deducted",
+  "expense_status_deducted_sub": "CA3 of {date}",
+  "expense_status_deductible": "To deduct",
+  "expense_status_deductible_sub": "CA3 {month}",
+  "expense_status_deferred": "Deferred",
+  "expense_status_deferred_regularisation_sub": "box 21 · CA3 {month}",
+  "expense_status_deferred_sub": "CA3 {month}",
+  "expense_status_exempt": "No TVA",
+  "expense_status_receipt_linked": "Receipt linked",
+  "expense_status_receipt_missing": "Receipt missing",
+  "expense_status_reverse_charged": "Reverse charged",
+  "expense_status_reverse_charged_eu_flag": "EU",
+  "expense_status_reverse_charged_eu_sub": "EU · due and deducted",
+  "expense_status_reverse_charged_non_eu_flag": "non-EU",
+  "expense_status_reverse_charged_non_eu_sub": "non-EU · due and deducted",
+  "expense_vat_exempt": "no TVA",
+  "expense_vat_rate_reverse": "autoliq. {rate}",
+  "expenses_col_date": "Date",
+  "expenses_col_ht": "HT",
+  "expenses_col_receipt": "Receipt",
+  "expenses_col_status": "Status",
+  "expenses_col_supplier": "Supplier",
+  "expenses_col_ttc": "TTC",
+  "expenses_col_vat": "TVA",
+  "expenses_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} expense",
+        "countPlural=other": "{count} expenses"
+      }
+    }
+  ],
+  "expenses_delete_body": "{supplier} · {amount} on {date}. The receipt goes with it; the TVA it carried leaves the CA3.",
+  "expenses_delete_confirm": "Delete the expense",
+  "expenses_delete_failed": "The expense could not be deleted. Try again in a moment.",
+  "expenses_delete_title": "Delete this expense?",
+  "expenses_deleted": "Expense deleted",
+  "expenses_empty_month_sub": "Subscriptions are created on their debit day.",
+  "expenses_empty_month_title": "No expense in {month}",
+  "expenses_kpi_charges": "This month's charges",
+  "expenses_kpi_subscriptions": "Subscriptions",
+  "expenses_kpi_subscriptions_annual": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} annual",
+        "countPlural=other": "{count} annual"
+      }
+    }
+  ],
+  "expenses_kpi_subscriptions_none": "no subscription yet",
+  "expenses_kpi_subscriptions_sub": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{yearly} / year · {count} subscription",
+        "countPlural=other": "{yearly} / year · {count} subscriptions"
+      }
+    }
+  ],
+  "expenses_kpi_total": "Expenses {unit}",
+  "expenses_kpi_total_sub": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} expense · {other}",
+        "countPlural=other": "{count} expenses · {other}"
+      }
+    }
+  ],
+  "expenses_kpi_vat_deducted": "TVA deducted",
+  "expenses_kpi_vat_deductible": "TVA to deduct",
+  "expenses_load_failed": "The expenses could not be loaded. Try again in a moment.",
+  "expenses_locked": "Locked · month filed",
+  "expenses_menu_delete": "Delete",
+  "expenses_menu_detach": "Detach the receipt",
+  "expenses_menu_detach_confirm": "Confirm the detachment?",
+  "expenses_next_month": "Next month",
+  "expenses_per_month": "/ month",
+  "expenses_previous_month": "Previous month",
+  "expenses_pro_share": "{share} % pro",
+  "expenses_receipt_attach_failed": "The receipt could not be linked. Try again in a moment.",
+  "expenses_receipt_attached": "Receipt linked · {name}",
+  "expenses_receipt_detach_failed": "The receipt could not be detached. Try again in a moment.",
+  "expenses_receipt_detached": "Receipt detached",
+  "expenses_receipt_link": "Link the receipt",
+  "expenses_receipt_link_aria": "Link the receipt of {supplier}",
+  "expenses_receipt_open_aria": "Open the receipt {name}",
+  "expenses_receipt_reject_size": "This file is too heavy (max 20 MB).",
+  "expenses_receipt_reject_type": "A receipt is a PDF or a photo (JPG, PNG, WebP).",
+  "expenses_receipt_uploading": "Sending…",
+  "expenses_regularisation_note": "changed after filing → box 21, CA3 {month}",
+  "expenses_row_menu_aria": "Actions for {supplier}",
+  "expenses_subscription_aria": "Subscription",
+  "expenses_tab_journal": "Journal",
+  "expenses_title": "Expenses",
+  "expenses_unit_aria": "Amounts shown",
+  "expenses_unread_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} receipt to link",
+        "countPlural=other": "{count} receipts to link"
+      }
+    }
+  ],
   "fiscality_sales_tax_name": "Sales tax",
   "fiscality_sales_tax_rate_label": "Default tax rate",
   "fiscality_sales_tax_zero_hint": "Set 0 if you do not charge tax.",
@@ -1056,6 +1186,7 @@
   "nav_deadlines": "Deadlines",
   "nav_declarations": "Filings",
   "nav_documents": "Documents",
+  "nav_expenses": "Expenses",
   "nav_invoices": "Invoices",
   "nav_revenue": "Revenue",
   "nav_settings": "Settings",
@@ -1070,6 +1201,7 @@
   "page_title_deadlines": "Obligations",
   "page_title_declarations": "Filings",
   "page_title_documents": "Documents",
+  "page_title_expenses": "Expenses",
   "page_title_release_notes": "Release notes",
   "page_title_revenue": "Revenue",
   "page_title_settings": "Settings",

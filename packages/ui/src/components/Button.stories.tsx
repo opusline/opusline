@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { FileTextIcon } from "lucide-react";
 import { Button } from "./button";
 
 const meta = {
@@ -35,6 +36,20 @@ export const BrandOutline: Story = {
     size: "xl",
     variant: "brand-outline",
   },
+};
+
+/** A file the user can open — the receipt on a journal row, a document in a list. */
+export const File: Story = {
+  render: () => (
+    <Button
+      render={<a download href="#lunaprint-facture-9921.pdf" />}
+      size="lg"
+      variant="file"
+    >
+      <FileTextIcon aria-hidden />
+      lunaprint-facture-9921.pdf
+    </Button>
+  ),
 };
 
 export const RaisedSurface: Story = {

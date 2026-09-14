@@ -19,6 +19,7 @@ import { Route as AuthedCraRouteImport } from './routes/_authed/cra'
 import { Route as AuthedDeadlinesRouteImport } from './routes/_authed/deadlines'
 import { Route as AuthedDeclarationsRouteImport } from './routes/_authed/declarations'
 import { Route as AuthedDocumentsRouteImport } from './routes/_authed/documents'
+import { Route as AuthedExpensesRouteImport } from './routes/_authed/expenses'
 import { Route as AuthedInvoicesRouteImport } from './routes/_authed/invoices'
 import { Route as AuthedReleaseNotesRouteImport } from './routes/_authed/release-notes'
 import { Route as AuthedRevenueRouteImport } from './routes/_authed/revenue'
@@ -78,6 +79,11 @@ const AuthedDeclarationsRoute = AuthedDeclarationsRouteImport.update({
 const AuthedDocumentsRoute = AuthedDocumentsRouteImport.update({
   id: '/documents',
   path: '/documents',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedExpensesRoute = AuthedExpensesRouteImport.update({
+  id: '/expenses',
+  path: '/expenses',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedInvoicesRoute = AuthedInvoicesRouteImport.update({
@@ -151,6 +157,7 @@ export interface FileRoutesByFullPath {
   '/deadlines': typeof AuthedDeadlinesRoute
   '/declarations': typeof AuthedDeclarationsRoute
   '/documents': typeof AuthedDocumentsRoute
+  '/expenses': typeof AuthedExpensesRoute
   '/invoices': typeof AuthedInvoicesRoute
   '/release-notes': typeof AuthedReleaseNotesRoute
   '/revenue': typeof AuthedRevenueRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByTo {
   '/deadlines': typeof AuthedDeadlinesRoute
   '/declarations': typeof AuthedDeclarationsRoute
   '/documents': typeof AuthedDocumentsRoute
+  '/expenses': typeof AuthedExpensesRoute
   '/invoices': typeof AuthedInvoicesRoute
   '/release-notes': typeof AuthedReleaseNotesRoute
   '/revenue': typeof AuthedRevenueRoute
@@ -198,6 +206,7 @@ export interface FileRoutesById {
   '/_authed/deadlines': typeof AuthedDeadlinesRoute
   '/_authed/declarations': typeof AuthedDeclarationsRoute
   '/_authed/documents': typeof AuthedDocumentsRoute
+  '/_authed/expenses': typeof AuthedExpensesRoute
   '/_authed/invoices': typeof AuthedInvoicesRoute
   '/_authed/release-notes': typeof AuthedReleaseNotesRoute
   '/_authed/revenue': typeof AuthedRevenueRoute
@@ -222,6 +231,7 @@ export interface FileRouteTypes {
     | '/deadlines'
     | '/declarations'
     | '/documents'
+    | '/expenses'
     | '/invoices'
     | '/release-notes'
     | '/revenue'
@@ -244,6 +254,7 @@ export interface FileRouteTypes {
     | '/deadlines'
     | '/declarations'
     | '/documents'
+    | '/expenses'
     | '/invoices'
     | '/release-notes'
     | '/revenue'
@@ -268,6 +279,7 @@ export interface FileRouteTypes {
     | '/_authed/deadlines'
     | '/_authed/declarations'
     | '/_authed/documents'
+    | '/_authed/expenses'
     | '/_authed/invoices'
     | '/_authed/release-notes'
     | '/_authed/revenue'
@@ -359,6 +371,13 @@ declare module '@tanstack/react-router' {
       path: '/documents'
       fullPath: '/documents'
       preLoaderRoute: typeof AuthedDocumentsRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/expenses': {
+      id: '/_authed/expenses'
+      path: '/expenses'
+      fullPath: '/expenses'
+      preLoaderRoute: typeof AuthedExpensesRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/invoices': {
@@ -455,6 +474,7 @@ interface AuthedRouteChildren {
   AuthedDeadlinesRoute: typeof AuthedDeadlinesRoute
   AuthedDeclarationsRoute: typeof AuthedDeclarationsRoute
   AuthedDocumentsRoute: typeof AuthedDocumentsRoute
+  AuthedExpensesRoute: typeof AuthedExpensesRoute
   AuthedInvoicesRoute: typeof AuthedInvoicesRoute
   AuthedReleaseNotesRoute: typeof AuthedReleaseNotesRoute
   AuthedRevenueRoute: typeof AuthedRevenueRoute
@@ -474,6 +494,7 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedDeadlinesRoute: AuthedDeadlinesRoute,
   AuthedDeclarationsRoute: AuthedDeclarationsRoute,
   AuthedDocumentsRoute: AuthedDocumentsRoute,
+  AuthedExpensesRoute: AuthedExpensesRoute,
   AuthedInvoicesRoute: AuthedInvoicesRoute,
   AuthedReleaseNotesRoute: AuthedReleaseNotesRoute,
   AuthedRevenueRoute: AuthedRevenueRoute,
