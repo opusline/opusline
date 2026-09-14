@@ -170,7 +170,7 @@ it("locks the currency picker once the account holds money", () => {
     screen.getByLabelText("Devise de l'activité", { selector: "select" }),
   ).toBeDisabled();
   expect(
-    screen.getByText(/une mission tarifée ou une facture existe déjà/),
+    screen.getByText(/un montant a déjà été enregistré dans cette devise/),
   ).toBeInTheDocument();
 });
 

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Bank\Factories\BankMovementFactory;
+use App\Domain\Expenses\Factories\ExpenseFactory;
 use App\Domain\Users\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -60,6 +61,19 @@ test('the bank movements page runs a bounded number of queries', function (): vo
     $queries = queriesDuring(fn () => test()->actingAs($user)->getJson('/api/bank/movements')->assertOk());
 
     expect($queries)->toBeLessThanOrEqual(12);
+});
+
+test('the expenses journal runs a bounded number of queries', function (): void {
+    $user = User::factory()->create();
+
+    foreach (range(1, 30) as $day) {
+        expenseOwnedBy($user, fn (ExpenseFactory $factory): ExpenseFactory => $factory
+            ->on('2026-08-'.str_pad((string) ($day % 13 + 1), 2, '0', STR_PAD_LEFT)));
+    }
+
+    $queries = queriesDuring(fn () => test()->actingAs($user)->getJson('/api/expenses')->assertOk());
+
+    expect($queries)->toBeLessThanOrEqual(10);
 });
 
 test('the treasury summary runs a bounded number of queries', function (): void {

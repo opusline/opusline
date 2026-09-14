@@ -28,6 +28,17 @@ final readonly class Rate
     }
 
     /**
+     * The net amount inside $gross when $rateBp was applied on top of it —
+     * the inverse of of(), rounded the same way.
+     */
+    public static function netOf(Money $gross, int $rateBp): Money
+    {
+        return $gross
+            ->multiply(self::BASIS_POINTS)
+            ->divide(self::BASIS_POINTS + $rateBp, MoneyPhp::ROUND_HALF_UP);
+    }
+
+    /**
      * $part as a share of $whole in basis points, truncated.
      *
      * A share is a proportion for a bar or a caption, never money, so it

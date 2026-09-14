@@ -168,3 +168,15 @@ test('seeds time on a non-billable mission so the week grid shows one', function
             fn ($entry): bool => $entry->billable === false,
         ))->toBeTrue();
 });
+
+test('seeds three months of expenses across every TVA treatment', function (): void {
+    $this->seed();
+
+    $user = User::query()->where('email', 'test@example.com')->firstOrFail();
+    $expenses = $user->expenses;
+
+    expect($expenses->count())->toBeGreaterThanOrEqual(12)
+        ->and($expenses->pluck('vat_treatment')->unique())->toHaveCount(3)
+        ->and($expenses->every(fn ($expense): bool => $expense->spent_on->lessThanOrEqualTo(CarbonImmutable::today())))->toBeTrue()
+        ->and($expenses->every(fn ($expense): bool => $expense->amount_ht_cents->lessThanOrEqual($expense->amount_ttc_cents)))->toBeTrue();
+});

@@ -2029,6 +2029,184 @@
                 }
             }
         },
+        "/expenses": {
+            "get": {
+                "operationId": "listExpenses",
+                "tags": [
+                    "Expense"
+                ],
+                "parameters": [
+                    {
+                        "name": "month",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "pattern": "^(19|20)\\d{2}-(0[1-9]|1[0-2])$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensesMonthData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "createExpense",
+                "tags": [
+                    "Expense"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ExpenseInputData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensesMonthData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/expenses/category": {
+            "post": {
+                "operationId": "recategorizeExpenses",
+                "tags": [
+                    "Expense"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecategorizeExpensesData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensesMonthData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/expenses/{expense}": {
+            "put": {
+                "operationId": "updateExpense",
+                "tags": [
+                    "Expense"
+                ],
+                "parameters": [
+                    {
+                        "name": "expense",
+                        "in": "path",
+                        "required": true,
+                        "description": "The expense ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ExpenseInputData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExpensesMonthData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteExpense",
+                "tags": [
+                    "Expense"
+                ],
+                "parameters": [
+                    {
+                        "name": "expense",
+                        "in": "path",
+                        "required": true,
+                        "description": "The expense ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/instance": {
             "get": {
                 "operationId": "showInstance",
@@ -7016,6 +7194,316 @@
                 ],
                 "title": "EntryRounding"
             },
+            "ExpenseCategory": {
+                "type": "integer",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12
+                ],
+                "x-enum-varnames": [
+                    "Equipment",
+                    "Software",
+                    "Internet",
+                    "Phone",
+                    "Electricity",
+                    "Hosting",
+                    "Travel",
+                    "Meal",
+                    "Hotel",
+                    "Fuel",
+                    "Insurance",
+                    "Taxes",
+                    "Other"
+                ],
+                "title": "ExpenseCategory"
+            },
+            "ExpenseCategoryTotalData": {
+                "type": "object",
+                "properties": {
+                    "category": {
+                        "$ref": "#/components/schemas/ExpenseCategory"
+                    },
+                    "ht": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "ttc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "shareBp": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "category",
+                    "ht",
+                    "ttc",
+                    "shareBp"
+                ],
+                "title": "ExpenseCategoryTotalData"
+            },
+            "ExpenseData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "supplier": {
+                        "type": "string"
+                    },
+                    "spentOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/ExpenseCategory"
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "amountHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "vat": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "amountTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "recoverableVat": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "vatTreatment": {
+                        "$ref": "#/components/schemas/ExpenseVatTreatment"
+                    },
+                    "vatRateBp": {
+                        "type": "integer"
+                    },
+                    "proShareBp": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "id",
+                    "supplier",
+                    "spentOn",
+                    "category",
+                    "description",
+                    "amountHt",
+                    "vat",
+                    "amountTtc",
+                    "recoverableVat",
+                    "vatTreatment",
+                    "vatRateBp",
+                    "proShareBp"
+                ],
+                "title": "ExpenseData"
+            },
+            "ExpenseInputData": {
+                "type": "object",
+                "properties": {
+                    "supplier": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                    },
+                    "spentOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/ExpenseCategory"
+                    },
+                    "amountTtc": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100000000000
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "vatTreatment": {
+                        "$ref": "#/components/schemas/ExpenseVatTreatment"
+                    },
+                    "vatRateBp": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 10000
+                    },
+                    "proShareBp": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 10000
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    }
+                },
+                "required": [
+                    "supplier",
+                    "spentOn",
+                    "category",
+                    "amountTtc",
+                    "vatTreatment",
+                    "vatRateBp"
+                ],
+                "title": "ExpenseInputData"
+            },
+            "ExpenseMonthPointData": {
+                "type": "object",
+                "properties": {
+                    "month": {
+                        "type": "string"
+                    },
+                    "ht": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "ttc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "month",
+                    "ht",
+                    "ttc"
+                ],
+                "title": "ExpenseMonthPointData"
+            },
+            "ExpenseRegimeProjectionData": {
+                "type": "object",
+                "properties": {
+                    "projectedChargesHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "annualRevenueHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "abatement": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "microIsFavourable": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "projectedChargesHt",
+                    "annualRevenueHt",
+                    "abatement",
+                    "microIsFavourable"
+                ],
+                "title": "ExpenseRegimeProjectionData"
+            },
+            "ExpenseVatTreatment": {
+                "type": "integer",
+                "description": "How the TVA on a purchase reaches the CA3. The receipt decides, never the supplier's country: a foreign SaaS billing through a European entity with 20 % on the invoice is Domestic.\n| |\n|---|\n| `0` <br/> A French invoice carrying TVA at the stated rate. |\n| `1` <br/> An EU supplier who invoiced without TVA against the intra-community number (autoliquidation). |\n| `2` <br/> A non-EU supplier who invoiced without TVA (autoliquidation). |\n| `3` <br/> No TVA at all: insurance, bank fees, stamps, CFE. |",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3
+                ],
+                "x-enum-varnames": [
+                    "Domestic",
+                    "ReverseChargeEu",
+                    "ReverseChargeNonEu",
+                    "Exempt"
+                ],
+                "title": "ExpenseVatTreatment"
+            },
+            "ExpensesMonthData": {
+                "type": "object",
+                "properties": {
+                    "month": {
+                        "type": "string"
+                    },
+                    "totals": {
+                        "$ref": "#/components/schemas/ExpensesTotalsData"
+                    },
+                    "categories": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ExpenseCategoryTotalData"
+                        }
+                    },
+                    "series": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ExpenseMonthPointData"
+                        }
+                    },
+                    "projection": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpenseRegimeProjectionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "expenses": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ExpenseData"
+                        }
+                    }
+                },
+                "required": [
+                    "month",
+                    "totals",
+                    "categories",
+                    "series",
+                    "projection",
+                    "expenses"
+                ],
+                "title": "ExpensesMonthData"
+            },
+            "ExpensesTotalsData": {
+                "type": "object",
+                "properties": {
+                    "ht": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "ttc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "count": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "ht",
+                    "ttc",
+                    "count"
+                ],
+                "title": "ExpensesTotalsData"
+            },
             "FiscalDeadlineData": {
                 "type": "object",
                 "properties": {
@@ -8282,6 +8770,26 @@
                     "sentry"
                 ],
                 "title": "PingData"
+            },
+            "RecategorizeExpensesData": {
+                "type": "object",
+                "properties": {
+                    "expenseIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "minItems": 1
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/ExpenseCategory"
+                    }
+                },
+                "required": [
+                    "expenseIds",
+                    "category"
+                ],
+                "title": "RecategorizeExpensesData"
             },
             "RecoveryCodesData": {
                 "type": "object",
