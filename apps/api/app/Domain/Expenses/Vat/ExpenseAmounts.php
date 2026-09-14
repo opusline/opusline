@@ -24,6 +24,14 @@ final readonly class ExpenseAmounts
         private int $rateBp,
     ) {}
 
+    /** A subscription is priced HT; the TTC follows from the treatment. */
+    public static function fromHt(Money $ht, ExpenseVatTreatment $treatment, int $rateBp): self
+    {
+        $ttc = $treatment === ExpenseVatTreatment::Domestic ? $ht->add(Rate::of($ht, $rateBp)) : $ht;
+
+        return new self(ht: $ht, ttc: $ttc, treatment: $treatment, rateBp: $rateBp);
+    }
+
     public static function fromTtc(Money $ttc, ExpenseVatTreatment $treatment, int $rateBp): self
     {
         $ht = $treatment === ExpenseVatTreatment::Domestic ? Rate::netOf($ttc, $rateBp) : $ttc;

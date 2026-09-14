@@ -90,6 +90,13 @@ export const zCalendarFeedData = z.object({
 });
 
 /**
+ * CancelSubscriptionData
+ */
+export const zCancelSubscriptionData = z.object({
+    cancelledOn: z.nullish(z.iso.date())
+});
+
+/**
  * ClientType
  */
 export const zClientType = z.union([
@@ -287,6 +294,17 @@ export const zCurrency = z.enum([
     'ZAR',
     'MAD'
 ]);
+
+/**
+ * ChangeSubscriptionAmountData
+ */
+export const zChangeSubscriptionAmountData = z.object({
+    amountHt: z.object({
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
+        currency: zCurrency
+    }),
+    effectiveFrom: z.iso.date()
+});
 
 /**
  * CreatePersonalTransferData
@@ -1587,6 +1605,109 @@ export const zStopTimerData = z.object({
 });
 
 /**
+ * SubscriptionAmountChangeData
+ */
+export const zSubscriptionAmountChangeData = z.object({
+    subscriptionId: z.int(),
+    supplier: z.string(),
+    before: zMoneyData,
+    after: zMoneyData,
+    changeBp: z.int(),
+    since: z.iso.date()
+});
+
+/**
+ * SubscriptionAmountData
+ */
+export const zSubscriptionAmountData = z.object({
+    effectiveFrom: z.iso.date(),
+    amountHt: zMoneyData
+});
+
+/**
+ * SubscriptionCategoryTotalData
+ */
+export const zSubscriptionCategoryTotalData = z.object({
+    category: zExpenseCategory,
+    yearlyHt: zMoneyData
+});
+
+/**
+ * SubscriptionKpisData
+ */
+export const zSubscriptionKpisData = z.object({
+    monthlyTtc: zMoneyData,
+    monthlyCount: z.int(),
+    yearlyTtc: zMoneyData,
+    annualCount: z.int(),
+    provisionedCount: z.int(),
+    provisionedPerMonth: zMoneyData,
+    recoverableVatPerYear: zMoneyData,
+    reverseChargedVatPerYear: zMoneyData
+});
+
+/**
+ * SubscriptionPeriodicity
+ */
+export const zSubscriptionPeriodicity = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * SubscriptionData
+ */
+export const zSubscriptionData = z.object({
+    id: z.int(),
+    supplier: z.string(),
+    category: zExpenseCategory,
+    description: z.nullable(z.string()),
+    amountHt: zMoneyData,
+    vat: zMoneyData,
+    amountTtc: zMoneyData,
+    recoverableVat: zMoneyData,
+    proShareBp: z.int(),
+    vatTreatment: zExpenseVatTreatment,
+    vatRateBp: z.int(),
+    periodicity: zSubscriptionPeriodicity,
+    debitDay: z.int(),
+    debitMonth: z.nullable(z.int()),
+    startedOn: z.iso.date(),
+    customerSpaceUrl: z.nullable(z.string()),
+    autoCreateExpenses: z.boolean(),
+    provisionMonthly: z.boolean(),
+    monthlyProvision: z.nullable(zMoneyData),
+    isPaused: z.boolean(),
+    cancelledOn: z.nullable(z.iso.date()),
+    nextDebitOn: z.nullable(z.iso.date()),
+    amounts: z.array(zSubscriptionAmountData)
+});
+
+/**
+ * SubscriptionInputData
+ */
+export const zSubscriptionInputData = z.object({
+    supplier: z.string().check(z.minLength(1), z.maxLength(120)),
+    category: zExpenseCategory,
+    amountHt: z.object({
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
+        currency: zCurrency
+    }),
+    vatTreatment: zExpenseVatTreatment,
+    vatRateBp: z.int().check(z.gte(0), z.lte(10000)),
+    periodicity: zSubscriptionPeriodicity,
+    debitDay: z.int().check(z.gte(1), z.lte(31)),
+    startedOn: z.iso.date(),
+    proShareBp: z.optional(z.int().check(z.gte(0), z.lte(10000))),
+    debitMonth: z.nullish(z.int().check(z.gte(1), z.lte(12))),
+    description: z.nullish(z.string().check(z.maxLength(255))),
+    customerSpaceUrl: z.nullish(z.url().check(z.maxLength(2048))),
+    autoCreateExpenses: z.optional(z.boolean()),
+    provisionMonthly: z.optional(z.boolean())
+});
+
+/**
  * SummarizeDeclarationsData
  */
 export const zSummarizeDeclarationsData = z.object({
@@ -1736,6 +1857,30 @@ export const zTwoFactorStatusData = z.object({
     recoveryCodesRemaining: z.int(),
     passkeys: z.array(zPasskeyData),
     trustedDevices: z.array(zTrustedDeviceData)
+});
+
+/**
+ * UpcomingDebitData
+ */
+export const zUpcomingDebitData = z.object({
+    subscriptionId: z.int(),
+    supplier: z.string(),
+    dueOn: z.iso.date(),
+    amountTtc: zMoneyData,
+    periodicity: zSubscriptionPeriodicity,
+    isProvision: z.boolean()
+});
+
+/**
+ * SubscriptionsData
+ */
+export const zSubscriptionsData = z.object({
+    kpis: zSubscriptionKpisData,
+    subscriptions: z.array(zSubscriptionData),
+    upcoming: z.array(zUpcomingDebitData),
+    categories: z.array(zSubscriptionCategoryTotalData),
+    yearlyHt: zMoneyData,
+    amountChanges: z.array(zSubscriptionAmountChangeData)
 });
 
 /**
@@ -2745,6 +2890,63 @@ export const zUploadUserSignatureBody = zUploadSignatureData;
  * No content
  */
 export const zUploadUserSignatureResponse = z.void();
+
+export const zListSubscriptionsResponse = zSubscriptionsData;
+
+export const zCreateSubscriptionBody = zSubscriptionInputData;
+
+export const zCreateSubscriptionResponse = zSubscriptionsData;
+
+export const zDeleteSubscriptionPath = z.object({
+    subscription: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteSubscriptionResponse = z.void();
+
+export const zUpdateSubscriptionBody = zSubscriptionInputData;
+
+export const zUpdateSubscriptionPath = z.object({
+    subscription: z.int()
+});
+
+export const zUpdateSubscriptionResponse = zSubscriptionsData;
+
+export const zChangeSubscriptionAmountBody = zChangeSubscriptionAmountData;
+
+export const zChangeSubscriptionAmountPath = z.object({
+    subscription: z.int()
+});
+
+export const zChangeSubscriptionAmountResponse = zSubscriptionsData;
+
+export const zResumeSubscriptionPath = z.object({
+    subscription: z.int()
+});
+
+export const zResumeSubscriptionResponse = zSubscriptionsData;
+
+export const zPauseSubscriptionPath = z.object({
+    subscription: z.int()
+});
+
+export const zPauseSubscriptionResponse = zSubscriptionsData;
+
+export const zReactivateSubscriptionPath = z.object({
+    subscription: z.int()
+});
+
+export const zReactivateSubscriptionResponse = zSubscriptionsData;
+
+export const zCancelSubscriptionBody = zCancelSubscriptionData;
+
+export const zCancelSubscriptionPath = z.object({
+    subscription: z.int()
+});
+
+export const zCancelSubscriptionResponse = zSubscriptionsData;
 
 export const zListTimeEntriesQuery = z.object({
     from: z.iso.date(),

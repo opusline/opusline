@@ -4465,6 +4465,338 @@
                 }
             }
         },
+        "/subscriptions": {
+            "get": {
+                "operationId": "listSubscriptions",
+                "tags": [
+                    "Subscription"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubscriptionsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "createSubscription",
+                "tags": [
+                    "Subscription"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SubscriptionInputData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubscriptionsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscription}": {
+            "put": {
+                "operationId": "updateSubscription",
+                "tags": [
+                    "Subscription"
+                ],
+                "parameters": [
+                    {
+                        "name": "subscription",
+                        "in": "path",
+                        "required": true,
+                        "description": "The subscription ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SubscriptionInputData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubscriptionsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteSubscription",
+                "tags": [
+                    "Subscription"
+                ],
+                "parameters": [
+                    {
+                        "name": "subscription",
+                        "in": "path",
+                        "required": true,
+                        "description": "The subscription ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscription}/amounts": {
+            "post": {
+                "operationId": "changeSubscriptionAmount",
+                "tags": [
+                    "Subscription"
+                ],
+                "parameters": [
+                    {
+                        "name": "subscription",
+                        "in": "path",
+                        "required": true,
+                        "description": "The subscription ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChangeSubscriptionAmountData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubscriptionsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscription}/pause": {
+            "post": {
+                "operationId": "pauseSubscription",
+                "tags": [
+                    "Subscription"
+                ],
+                "parameters": [
+                    {
+                        "name": "subscription",
+                        "in": "path",
+                        "required": true,
+                        "description": "The subscription ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubscriptionsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "resumeSubscription",
+                "tags": [
+                    "Subscription"
+                ],
+                "parameters": [
+                    {
+                        "name": "subscription",
+                        "in": "path",
+                        "required": true,
+                        "description": "The subscription ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubscriptionsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscription}/cancellation": {
+            "post": {
+                "operationId": "cancelSubscription",
+                "tags": [
+                    "Subscription"
+                ],
+                "parameters": [
+                    {
+                        "name": "subscription",
+                        "in": "path",
+                        "required": true,
+                        "description": "The subscription ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CancelSubscriptionData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubscriptionsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "reactivateSubscription",
+                "tags": [
+                    "Subscription"
+                ],
+                "parameters": [
+                    {
+                        "name": "subscription",
+                        "in": "path",
+                        "required": true,
+                        "description": "The subscription ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubscriptionsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/time-entries": {
             "get": {
                 "operationId": "listTimeEntries",
@@ -6119,6 +6451,50 @@
                     "other"
                 ],
                 "title": "CalendarFeedData"
+            },
+            "CancelSubscriptionData": {
+                "type": "object",
+                "properties": {
+                    "cancelledOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    }
+                },
+                "title": "CancelSubscriptionData"
+            },
+            "ChangeSubscriptionAmountData": {
+                "type": "object",
+                "properties": {
+                    "amountHt": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100000000000
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "effectiveFrom": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "amountHt",
+                    "effectiveFrom"
+                ],
+                "title": "ChangeSubscriptionAmountData"
             },
             "ClientData": {
                 "type": "object",
@@ -10367,6 +10743,393 @@
                 ],
                 "title": "StopTimerData"
             },
+            "SubscriptionAmountChangeData": {
+                "type": "object",
+                "properties": {
+                    "subscriptionId": {
+                        "type": "integer"
+                    },
+                    "supplier": {
+                        "type": "string"
+                    },
+                    "before": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "after": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "changeBp": {
+                        "type": "integer"
+                    },
+                    "since": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "subscriptionId",
+                    "supplier",
+                    "before",
+                    "after",
+                    "changeBp",
+                    "since"
+                ],
+                "title": "SubscriptionAmountChangeData"
+            },
+            "SubscriptionAmountData": {
+                "type": "object",
+                "properties": {
+                    "effectiveFrom": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "amountHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "effectiveFrom",
+                    "amountHt"
+                ],
+                "title": "SubscriptionAmountData"
+            },
+            "SubscriptionCategoryTotalData": {
+                "type": "object",
+                "properties": {
+                    "category": {
+                        "$ref": "#/components/schemas/ExpenseCategory"
+                    },
+                    "yearlyHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "category",
+                    "yearlyHt"
+                ],
+                "title": "SubscriptionCategoryTotalData"
+            },
+            "SubscriptionData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "supplier": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/ExpenseCategory"
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "amountHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "vat": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "amountTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "recoverableVat": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "proShareBp": {
+                        "type": "integer"
+                    },
+                    "vatTreatment": {
+                        "$ref": "#/components/schemas/ExpenseVatTreatment"
+                    },
+                    "vatRateBp": {
+                        "type": "integer"
+                    },
+                    "periodicity": {
+                        "$ref": "#/components/schemas/SubscriptionPeriodicity"
+                    },
+                    "debitDay": {
+                        "type": "integer"
+                    },
+                    "debitMonth": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "startedOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "customerSpaceUrl": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "autoCreateExpenses": {
+                        "type": "boolean"
+                    },
+                    "provisionMonthly": {
+                        "type": "boolean"
+                    },
+                    "monthlyProvision": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "isPaused": {
+                        "type": "boolean"
+                    },
+                    "cancelledOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "nextDebitOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "amounts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SubscriptionAmountData"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "supplier",
+                    "category",
+                    "description",
+                    "amountHt",
+                    "vat",
+                    "amountTtc",
+                    "recoverableVat",
+                    "proShareBp",
+                    "vatTreatment",
+                    "vatRateBp",
+                    "periodicity",
+                    "debitDay",
+                    "debitMonth",
+                    "startedOn",
+                    "customerSpaceUrl",
+                    "autoCreateExpenses",
+                    "provisionMonthly",
+                    "monthlyProvision",
+                    "isPaused",
+                    "cancelledOn",
+                    "nextDebitOn",
+                    "amounts"
+                ],
+                "title": "SubscriptionData"
+            },
+            "SubscriptionInputData": {
+                "type": "object",
+                "properties": {
+                    "supplier": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/ExpenseCategory"
+                    },
+                    "amountHt": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100000000000
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "vatTreatment": {
+                        "$ref": "#/components/schemas/ExpenseVatTreatment"
+                    },
+                    "vatRateBp": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 10000
+                    },
+                    "periodicity": {
+                        "$ref": "#/components/schemas/SubscriptionPeriodicity"
+                    },
+                    "debitDay": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 31
+                    },
+                    "startedOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "proShareBp": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 10000
+                    },
+                    "debitMonth": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 1,
+                        "maximum": 12
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "customerSpaceUrl": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "uri",
+                        "maxLength": 2048
+                    },
+                    "autoCreateExpenses": {
+                        "type": "boolean"
+                    },
+                    "provisionMonthly": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "supplier",
+                    "category",
+                    "amountHt",
+                    "vatTreatment",
+                    "vatRateBp",
+                    "periodicity",
+                    "debitDay",
+                    "startedOn"
+                ],
+                "title": "SubscriptionInputData"
+            },
+            "SubscriptionKpisData": {
+                "type": "object",
+                "properties": {
+                    "monthlyTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "monthlyCount": {
+                        "type": "integer"
+                    },
+                    "yearlyTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "annualCount": {
+                        "type": "integer"
+                    },
+                    "provisionedCount": {
+                        "type": "integer"
+                    },
+                    "provisionedPerMonth": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "recoverableVatPerYear": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "reverseChargedVatPerYear": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "monthlyTtc",
+                    "monthlyCount",
+                    "yearlyTtc",
+                    "annualCount",
+                    "provisionedCount",
+                    "provisionedPerMonth",
+                    "recoverableVatPerYear",
+                    "reverseChargedVatPerYear"
+                ],
+                "title": "SubscriptionKpisData"
+            },
+            "SubscriptionPeriodicity": {
+                "type": "integer",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "Monthly",
+                    "Quarterly",
+                    "Annual"
+                ],
+                "title": "SubscriptionPeriodicity"
+            },
+            "SubscriptionsData": {
+                "type": "object",
+                "properties": {
+                    "kpis": {
+                        "$ref": "#/components/schemas/SubscriptionKpisData"
+                    },
+                    "subscriptions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SubscriptionData"
+                        }
+                    },
+                    "upcoming": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UpcomingDebitData"
+                        }
+                    },
+                    "categories": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SubscriptionCategoryTotalData"
+                        }
+                    },
+                    "yearlyHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "amountChanges": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SubscriptionAmountChangeData"
+                        }
+                    }
+                },
+                "required": [
+                    "kpis",
+                    "subscriptions",
+                    "upcoming",
+                    "categories",
+                    "yearlyHt",
+                    "amountChanges"
+                ],
+                "title": "SubscriptionsData"
+            },
             "SummarizeDeclarationsData": {
                 "type": "object",
                 "properties": {
@@ -10828,6 +11591,39 @@
                     "trustedDevices"
                 ],
                 "title": "TwoFactorStatusData"
+            },
+            "UpcomingDebitData": {
+                "type": "object",
+                "properties": {
+                    "subscriptionId": {
+                        "type": "integer"
+                    },
+                    "supplier": {
+                        "type": "string"
+                    },
+                    "dueOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "amountTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "periodicity": {
+                        "$ref": "#/components/schemas/SubscriptionPeriodicity"
+                    },
+                    "isProvision": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "subscriptionId",
+                    "supplier",
+                    "dueOn",
+                    "amountTtc",
+                    "periodicity",
+                    "isProvision"
+                ],
+                "title": "UpcomingDebitData"
             },
             "UpdateBankBalanceData": {
                 "type": "object",

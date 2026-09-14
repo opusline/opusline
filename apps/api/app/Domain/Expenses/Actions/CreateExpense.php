@@ -13,11 +13,11 @@ use Illuminate\Support\Facades\DB;
 
 class CreateExpense
 {
-    public function __construct(private readonly ValidateExpense $validateExpense) {}
+    public function __construct(private readonly ValidateVatRate $validateVatRate) {}
 
     public function handle(User $user, ExpenseInputData $data): Expense
     {
-        $this->validateExpense->handle($data);
+        $this->validateVatRate->handle($data->vatTreatment, $data->vatRateBp);
 
         return DB::transaction(function () use ($user, $data): Expense {
             AccountCurrency::assertMatchesAccountUnderLock($user->id, $data->amountTtc);
