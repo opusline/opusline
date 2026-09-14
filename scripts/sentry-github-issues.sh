@@ -18,18 +18,38 @@ dry_run="${DRY_RUN:-0}"
 # title is safe to publish as is.
 safe_message_types='["ApiFailure"]'
 
-unresolved=$(curl --silent --show-error --fail-with-body \
-  --header "Authorization: Bearer $SENTRY_AUTH_TOKEN" \
-  "$sentry_url/api/0/organizations/$SENTRY_ORG/issues/?project=-1&query=is:unresolved&sort=new&limit=100&collapse=stats")
+issues_url="$sentry_url/api/0/organizations/$SENTRY_ORG/issues/?project=-1&query=is:unresolved&sort=new&limit=100&collapse=stats"
+headers_file=$(mktemp)
+trap 'rm -f "$headers_file"' EXIT
 
-if ! printf '%s' "$unresolved" | jq --exit-status 'type == "array"' >/dev/null; then
-  echo "Sentry did not answer with a list of issues:" >&2
-  printf '%s\n' "$unresolved" >&2
+unresolved='[]'
+cursor=''
+while :; do
+  page=$(curl --silent --show-error --fail-with-body \
+    --header "Authorization: Bearer $SENTRY_AUTH_TOKEN" \
+    --dump-header "$headers_file" \
+    "$issues_url${cursor:+&cursor=$cursor}")
+
+  if ! printf '%s' "$page" | jq --exit-status 'type == "array"' >/dev/null; then
+    echo "Sentry did not answer with a list of issues:" >&2
+    printf '%s\n' "$page" >&2
+    exit 1
+  fi
+  unresolved=$(printf '%s\n%s' "$unresolved" "$page" | jq --slurp --compact-output 'add')
+
+  cursor=$(sed -n 's/.*rel="next"; results="true"; cursor="\([^"]*\)".*/\1/p' "$headers_file")
+  [ -n "$cursor" ] || break
+done
+
+# Past the limit the oldest markers drop out of the list and their Sentry
+# issues would be filed a second time, so stop rather than duplicate.
+filed_limit=1000
+filed_issues=$(gh issue list --label sentry --state all --limit "$filed_limit" --json body)
+if [ "$(printf '%s' "$filed_issues" | jq 'length')" -ge "$filed_limit" ]; then
+  echo "gh issue list returned $filed_limit sentry issues, its limit: older ones would be filed again. Page through them before raising it." >&2
   exit 1
 fi
-
-filed_bodies=$(gh issue list --label sentry --state all --limit 1000 --json body --jq '.[].body')
-filed_ids=$(printf '%s\n' "$filed_bodies" | sed -n 's/.*<!-- sentry-issue:\([0-9]*\) -->.*/\1/p')
+filed_ids=$(printf '%s' "$filed_issues" | jq --raw-output '.[].body' | sed -n 's/.*<!-- sentry-issue:\([0-9]*\) -->.*/\1/p')
 
 printf '%s' "$unresolved" \
   | jq --compact-output '.[] | select(.metadata.type != "SentryTestError")' \
