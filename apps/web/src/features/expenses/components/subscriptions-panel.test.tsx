@@ -152,9 +152,12 @@ it("shows why a deletion failed once the dialog is out of the way", async () => 
     }),
   );
 
-  expect(await screen.findByRole("alert")).toHaveTextContent(
-    "Cet abonnement n'existe pas.",
-  );
+  expect(
+    await screen.findByRole("alert", {
+      name: (_name, element) =>
+        element.textContent === "Cet abonnement n'existe pas.",
+    }),
+  ).toBeInTheDocument();
   await waitFor(() =>
     expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument(),
   );
@@ -523,7 +526,11 @@ it("refuses a file that cannot be a receipt without uploading it", async () => {
     new File(["notes"], "nordlys.txt", { type: "text/plain" }),
   );
 
-  expect(await screen.findByRole("alert")).toHaveTextContent(
-    "Une facture est un PDF ou une photo (JPG, PNG, WebP).",
-  );
+  expect(
+    await screen.findByRole("alert", {
+      name: (_name, element) =>
+        element.textContent ===
+        "Une facture est un PDF ou une photo (JPG, PNG, WebP).",
+    }),
+  ).toBeInTheDocument();
 });

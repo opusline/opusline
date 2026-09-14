@@ -1,11 +1,14 @@
 import type {
   ExpenseCategory,
+  RecurringDebitData,
   SubscriptionData,
   SubscriptionInputData,
   SubscriptionPeriodicity,
 } from "@opusline/api-client";
 
 import { formatAmount, type MoneyFormat } from "@/lib/billing";
+import { monthEnd } from "@/lib/months";
+import { m } from "@/paraglide/messages.js";
 
 import {
   dayOfMonthOrNull,
@@ -14,6 +17,7 @@ import {
   positiveCentsOrNull,
 } from "./expense-draft";
 import {
+  expenseAmountsFromTtc,
   type VatChoice,
   type VatTerms,
   vatChoiceOf,
@@ -88,6 +92,43 @@ export function subscriptionToDraft(
     autoCreateExpenses: subscription.autoCreateExpenses,
     provisionMonthly: subscription.provisionMonthly,
   };
+}
+
+/**
+ * A recurring debit the compte pro shows, opened as a new subscription. The
+ * debit is TTC and the sheet is priced HT, so the draft opens at the HT a 20 %
+ * purchase would carry: the regime chips put it right if not.
+ */
+export function recurringDebitToDraft(
+  format: MoneyFormat,
+  debit: RecurringDebitData,
+  today: string,
+): SubscriptionDraft {
+  const [firstMonth] = debit.months;
+
+  return {
+    ...emptySubscriptionDraft(today),
+    supplier: debit.label,
+    description: m.subscriptions_detected_description(),
+    ht: formatAmount(
+      format,
+      expenseAmountsFromTtc(debit.amount.amount, vatChoiceTerms("fr20"), 10_000)
+        .htCents,
+    ),
+    debitDay: String(debit.debitDay),
+    startedOn:
+      firstMonth === undefined
+        ? today
+        : debitDateIn(firstMonth, debit.debitDay),
+  };
+}
+
+/** A day 31 debit lands on the last day of a shorter month, as the bank books it. */
+function debitDateIn(month: string, debitDay: number): string {
+  const lastDay = monthEnd(month);
+  const debitDate = `${month}-${String(debitDay).padStart(2, "0")}`;
+
+  return debitDate < lastDay ? debitDate : lastDay;
 }
 
 export function draftHtCents(

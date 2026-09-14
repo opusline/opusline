@@ -5,6 +5,7 @@ import {
   changeSubscriptionAmountMutation,
   createSubscriptionMutation,
   deleteSubscriptionMutation,
+  dismissRecurringDebitMutation,
   listSubscriptionsQueryKey,
   pauseSubscriptionMutation,
   reactivateSubscriptionMutation,
@@ -35,6 +36,7 @@ import { monthName } from "../lib/labels";
 import { receiptRejection } from "../lib/receipts";
 import {
   draftToSubscriptionPayload,
+  recurringDebitToDraft,
   subscriptionToPayload,
 } from "../lib/subscription-draft";
 import { occurrenceMonth } from "../lib/subscriptions";
@@ -121,6 +123,10 @@ export function SubscriptionsPanel({
   const attachReceipt = useMutation({
     ...attachExpenseReceiptMutation(),
     ...withActionError(m.expenses_receipt_attach_failed),
+  });
+  const dismissDebit = useMutation({
+    ...dismissRecurringDebitMutation(),
+    ...rowWrite,
   });
 
   const sheetWrite = {
@@ -291,6 +297,23 @@ export function SubscriptionsPanel({
             },
           );
         }}
+        isDetectedBusy={dismissDebit.isPending}
+        onCreateFromDebit={(debit) =>
+          onSheetChange({
+            mode: "create",
+            initial: recurringDebitToDraft(format, debit, today),
+          })
+        }
+        onDismissDebit={(debit) =>
+          dismissDebit.mutate(
+            { body: { label: debit.label, amount: debit.amount } },
+            {
+              onSuccess: accepted({
+                title: m.subscriptions_detected_dismissed(),
+              }),
+            },
+          )
+        }
         showCancelled={showCancelled}
         today={today}
       />
