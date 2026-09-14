@@ -48,6 +48,14 @@ runs:
       working-directory: apps/api
       run: cp .env.example .env && php artisan key:generate
 
+    # Every parallel process shares storage/, and dompdf copies each TTF into
+    # its font cache on first use: on a cold cache one process can parse a font
+    # another is still writing (`unpack(): Type n: not enough input values`).
+    # Warming once up front is what docker/api-entrypoint.sh does before Octane.
+    - shell: bash
+      working-directory: apps/api
+      run: php artisan cra:warm-pdf-fonts --quiet
+
     - if: inputs.coverage == 'none'
       shell: bash
       working-directory: apps/api
