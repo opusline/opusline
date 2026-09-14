@@ -1,4 +1,0 @@
-{
-  "kind": "fixed",
-  "text": "Behind a reverse proxy, one visitor's failed sign-ins no longer lock everyone out; wrong two-factor codes now count against the account across sign-ins; and an idle lock now holds through a page reload."
-}

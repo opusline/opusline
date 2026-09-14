@@ -1,5 +1,42 @@
 # Changelog
 
+## [0.28.0](https://github.com/opusline/opusline/compare/v0.27.0...v0.28.0) (2026-09-14)
+
+
+### Features
+
+* **api:** add expense journal endpoints ([#274](https://github.com/opusline/opusline/issues/274)) ([1be3ed8](https://github.com/opusline/opusline/commit/1be3ed8f9fe5d2c343ffb5f7e70febd6da2ad824))
+* **api:** attach a receipt to each expense ([#275](https://github.com/opusline/opusline/issues/275)) ([59a6e85](https://github.com/opusline/opusline/commit/59a6e85158020c4d1be5b24c3de5a7dde5634abf))
+* **api:** carry every unpaid return in the provisions ([#374](https://github.com/opusline/opusline/issues/374)) ([6828ee0](https://github.com/opusline/opusline/commit/6828ee0e117dd9cd607020b0d64975e90e0b236b))
+* **api:** fill the CA3 cases month by month ([#340](https://github.com/opusline/opusline/issues/340)) ([b39839c](https://github.com/opusline/opusline/commit/b39839cb56a82c55583bdef2bef48eba776756f7))
+* **api:** mark declarations filed and paid ([#349](https://github.com/opusline/opusline/issues/349)) ([61ffede](https://github.com/opusline/opusline/commit/61ffede9c25a4c38e7e3cb89713243c618088815))
+* **api:** net deductions into the tva provision ([#350](https://github.com/opusline/opusline/issues/350)) ([0498c5a](https://github.com/opusline/opusline/commit/0498c5a5d8ff045c239fb08cdaab60dd9c9d0ac0))
+* **api:** prepare the year's two annual returns ([#360](https://github.com/opusline/opusline/issues/360)) ([308149d](https://github.com/opusline/opusline/commit/308149d0b146d34a41b943ebc13465713e9a7462))
+* **api:** read the expense off a PDF receipt ([#361](https://github.com/opusline/opusline/issues/361)) ([842af63](https://github.com/opusline/opusline/commit/842af6326e85f293014aed1d2ee5133ddf53ea6e))
+* **api:** settle the URSSAF month line by line ([#346](https://github.com/opusline/opusline/issues/346)) ([e33ea51](https://github.com/opusline/opusline/commit/e33ea510b96dff3a66ae33a904e9cc51f7442b7f))
+* **api:** tie expenses to the debits that paid them ([#359](https://github.com/opusline/opusline/issues/359)) ([f9f5136](https://github.com/opusline/opusline/commit/f9f5136ab812d1ec0c05ea0ce916211dea33bc35))
+* **api:** track subscriptions and their prices ([#351](https://github.com/opusline/opusline/issues/351)) ([1575263](https://github.com/opusline/opusline/commit/1575263f11af9ac4eaaa4426b38b1b1513570624))
+* **api:** track where each expense's TVA stands ([#339](https://github.com/opusline/opusline/issues/339)) ([ce4b7e4](https://github.com/opusline/opusline/commit/ce4b7e4c8a28251d924f7e18d4040317008f9a07))
+* **api:** write subscription debits into the journal ([#353](https://github.com/opusline/opusline/issues/353)) ([901daa8](https://github.com/opusline/opusline/commit/901daa8096e79981966e8542f2eb175a6793136f))
+* **ui:** add a toast primitive and mount it ([#364](https://github.com/opusline/opusline/issues/364)) ([50e1e73](https://github.com/opusline/opusline/commit/50e1e739b9301f173a1da68b9bbea2ec557ff9be))
+* **ui:** add dropzone, period navigator, meter, sparkline ([#363](https://github.com/opusline/opusline/issues/363)) ([dd62dc2](https://github.com/opusline/opusline/commit/dd62dc26114683a637556471c9c026d4e292b29e))
+* **ui:** add the attention and info tones ([#362](https://github.com/opusline/opusline/issues/362)) ([7b8f3c9](https://github.com/opusline/opusline/commit/7b8f3c949bd509c8452dd5d774024d885758260f))
+* **web:** add the annual returns to declarations ([#371](https://github.com/opusline/opusline/issues/371)) ([1d56db9](https://github.com/opusline/opusline/commit/1d56db9d066d4aa7c9449fb004358978da7a911c))
+* **web:** add the expense journal statuses ([#367](https://github.com/opusline/opusline/issues/367)) ([3243842](https://github.com/opusline/opusline/commit/3243842bcc7ad819e38d4ba66b67354b018f7c57))
+* **web:** add the expense sheet ([#366](https://github.com/opusline/opusline/issues/366)) ([4c12c89](https://github.com/opusline/opusline/commit/4c12c8953015611dd1fdf3522db09fbd7799d975))
+* **web:** add the expenses journal page ([#365](https://github.com/opusline/opusline/issues/365)) ([e4f4985](https://github.com/opusline/opusline/commit/e4f49856405e6813a3511a019b4d79fbc5b87e8e))
+* **web:** add the subscriptions tab ([#369](https://github.com/opusline/opusline/issues/369)) ([35cc843](https://github.com/opusline/opusline/commit/35cc84304a9f58c4d014e869c70b1d0e57f9c05d))
+* **web:** read the receipt into the expense sheet ([#372](https://github.com/opusline/opusline/issues/372)) ([a44e62c](https://github.com/opusline/opusline/commit/a44e62c409960c6249d338303a2979e18811cd91))
+* **web:** rework declarations month by month ([#368](https://github.com/opusline/opusline/issues/368)) ([c5efcb7](https://github.com/opusline/opusline/commit/c5efcb72b6a7311823039083f48a170a0525981d))
+* **web:** surface debits on the subscriptions tab ([#370](https://github.com/opusline/opusline/issues/370)) ([7543a91](https://github.com/opusline/opusline/commit/7543a916fe3e87f95a67dcf29c6f219e6adf591e))
+
+
+### Bug Fixes
+
+* **repo:** close the 2026-09-14 audit findings ([#382](https://github.com/opusline/opusline/issues/382)) ([f7178fd](https://github.com/opusline/opusline/commit/f7178fd23dbd233c6ba888ea16e2cd651e912bb2))
+* **repo:** close the 2026-09-14 security audit ([#384](https://github.com/opusline/opusline/issues/384)) ([5156057](https://github.com/opusline/opusline/commit/5156057fbeaeee011ce74c1e0520425db9cdcb00))
+* **repo:** close the telescope audit findings ([#385](https://github.com/opusline/opusline/issues/385)) ([439c0be](https://github.com/opusline/opusline/commit/439c0be774e6e37affb5392228284323bf742fa0))
+
 ## [0.27.0](https://github.com/opusline/opusline/compare/v0.26.0...v0.27.0) (2026-09-12)
 
 

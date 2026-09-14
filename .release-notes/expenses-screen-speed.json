@@ -1,4 +1,0 @@
-{
-  "kind": "improved",
-  "text": "Opening and editing the expenses and subscriptions screens no longer re-reads your whole history on every request."
-}
