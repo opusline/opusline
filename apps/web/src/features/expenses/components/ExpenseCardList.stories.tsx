@@ -20,6 +20,8 @@ const meta = {
     onDetachReceipt: () => {},
     onEdit: () => {},
     onDuplicate: () => {},
+    onDeferVat: () => {},
+    onReintegrateVat: () => {},
     onDelete: () => {},
   },
   decorators: [

@@ -3,6 +3,7 @@ import { expect, it } from "vitest";
 
 import {
   declaredExpensesMonth,
+  deferredExpense,
   emptyExpensesMonth,
   expensesMonth,
   franchiseExpensesMonth,
@@ -39,6 +40,36 @@ it("reads « TVA déduite » once the month is filed", () => {
   render(<ExpenseKpiTiles month={declaredExpensesMonth()} unit="ht" />);
 
   expect(tile("TVA déduite")).toBeInTheDocument();
+});
+
+it("calls a deferral out of a filed month a box 21 regularisation", () => {
+  const month = expensesMonth();
+  month.expenses = [
+    { ...deferredExpense(), vatClaimPeriod: "2026-10", isRegularisation: true },
+  ];
+
+  render(<ExpenseKpiTiles month={month} unit="ht" />);
+
+  expect(tile("TVA à déduire")).toHaveTextContent(
+    "+ 3,38 € reportés · case 21, CA3 octobre",
+  );
+});
+
+it("announces a TVA credit even when nothing was collected", () => {
+  const month = expensesMonth();
+
+  if (month.vat === null) {
+    throw new Error("the sample month is under réel normal");
+  }
+
+  month.vat.collected = { amount: 0, currency: "EUR" };
+  month.vat.balance = { amount: -7_150, currency: "EUR" };
+
+  render(<ExpenseKpiTiles month={month} unit="ht" />);
+
+  expect(tile("TVA à déduire")).toHaveTextContent(
+    "Crédit de TVA 71,50 € · déduite > collectée (0,00 €)",
+  );
 });
 
 it("shows the month's charges instead of TVA under the franchise", () => {

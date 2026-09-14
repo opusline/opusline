@@ -6,6 +6,7 @@ import { formatAmountWithCents } from "@/lib/billing";
 import { m } from "@/paraglide/messages.js";
 
 import { type AmountUnit, expenseAmountCents } from "../lib/amounts";
+import { hasMovableVat } from "../lib/filters";
 import { expenseRateLabel } from "../lib/labels";
 import { useFileDrop } from "../lib/use-file-drop";
 import { DateTile } from "./date-tile";
@@ -50,10 +51,7 @@ function ExpenseCard({
   unit,
   uploadingExpenseId,
   onAttachReceipt,
-  onDetachReceipt,
-  onEdit,
-  onDuplicate,
-  onDelete,
+  ...menuHandlers
 }: ExpenseRowHandlers & {
   expense: ExpenseData;
   month: ExpensesMonthData;
@@ -87,12 +85,10 @@ function ExpenseCard({
           )}
         </div>
         <ExpenseRowMenu
+          canMoveVat={hasMovableVat(expense, month)}
           className="opacity-100"
           expense={expense}
-          onDelete={onDelete}
-          onDetachReceipt={onDetachReceipt}
-          onDuplicate={onDuplicate}
-          onEdit={onEdit}
+          {...menuHandlers}
         />
       </div>
       <div className="mt-2.5 flex items-center justify-between gap-2">
