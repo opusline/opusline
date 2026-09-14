@@ -1,0 +1,4 @@
+{
+  "kind": "new",
+  "text": "Clients without missions, missions without tracked time and draft invoices can now be deleted, and deleting a transfer asks for confirmation first."
+}
