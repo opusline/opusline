@@ -9,31 +9,31 @@ use App\Domain\Shared\Data\MoneyData;
 use Cknow\Money\Money;
 use Spatie\LaravelData\Data;
 
-/** One figure per case of form n° 3310-CA3, in the order the form lists them. */
+/** One figure per box of form n° 3310-CA3, in the order the form lists them. */
 class Ca3BoxesData extends Data
 {
     public function __construct(
-        /** A1 — ventes, prestations de services HT. */
+        /** A1 — sales and services, HT. */
         public MoneyData $salesHt,
-        /** 2A — achats de prestations intracommunautaires (autoliquidation UE). */
+        /** 2A — intra-community purchases of services (EU reverse charge). */
         public MoneyData $intraCommunityPurchasesHt,
-        /** 3B — achats auprès d'un assujetti non établi en France (autoliquidation hors UE). */
+        /** 3B — purchases from a supplier not established in France (non-EU reverse charge). */
         public MoneyData $nonEuPurchasesHt,
-        /** 08, base column — ventes plus the two self-assessed purchase lines. */
+        /** 08, base column — sales plus the two self-assessed purchase lines. */
         public MoneyData $taxableBase,
-        /** 08, tax column — TVA collectée, self-assessed TVA included. */
+        /** 08, tax column — collected TVA, self-assessed TVA included. */
         public MoneyData $collected,
-        /** 19 — TVA déductible sur immobilisations. */
+        /** 19 — deductible TVA on fixed assets. */
         public MoneyData $fixedAssets,
-        /** 20 — TVA déductible sur autres biens et services. */
+        /** 20 — deductible TVA on other goods and services. */
         public MoneyData $goodsAndServices,
-        /** 21 — autre TVA à déduire: what earlier declared months pushed here. */
+        /** 21 — other deductible TVA: what earlier declared months pushed here. */
         public MoneyData $otherDeductible,
-        /** 22 — crédit reporté from the previous CA3's case 25. */
+        /** 22 — the credit carried from the previous CA3's box 25. */
         public MoneyData $creditCarried,
-        /** 25 — crédit de TVA, when the deductible lines exceed the collected one. */
+        /** 25 — TVA credit, when the deductible lines exceed the collected one. */
         public MoneyData $credit,
-        /** 32 — TVA nette due. */
+        /** 32 — net TVA due. */
         public MoneyData $due,
     ) {}
 
