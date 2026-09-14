@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Telescope\TelescopeServiceProvider;
 use Sentry\Laravel\Integration;
 use Sentry\Laravel\Integration\ModelViolations\LazyLoadingModelViolationReporter;
 use Spatie\LaravelData\Data;
@@ -51,6 +52,14 @@ class AppServiceProvider extends ServiceProvider
             LazyLoadingModelViolationReporter::class,
             fn (): callable => Integration::lazyLoadingViolationReporter(reportAfterResponse: false),
         );
+
+        // A dev dependency the production image is built without: registered
+        // by hand instead of discovered, and its tables are only ever created
+        // on a development database.
+        if ($this->app->environment('local')) {
+            $this->app->register(TelescopeServiceProvider::class);
+            $this->loadMigrationsFrom(base_path('vendor/laravel/telescope/database/migrations'));
+        }
     }
 
     /**
