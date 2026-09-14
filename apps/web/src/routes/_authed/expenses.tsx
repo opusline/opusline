@@ -1,4 +1,8 @@
-import type { ExpenseData, ExpensesMonthData } from "@opusline/api-client";
+import {
+  type ExpenseData,
+  type ExpensesMonthData,
+  readExpenseReceipt,
+} from "@opusline/api-client";
 import {
   attachExpenseReceiptMutation,
   createExpenseMutation,
@@ -662,6 +666,11 @@ function ExpensesRoute() {
 
       <ExpenseSheet
         error={writeErrorBanner(sheetError, m.expenses_save_failed())}
+        onReadReceipt={(file) =>
+          readExpenseReceipt({ body: { file }, throwOnError: true }).then(
+            (result) => result.data,
+          )
+        }
         fieldErrors={serverFieldErrors(sheetError)}
         isSaving={createExpense.isPending || updateExpense.isPending}
         isVatLiable={isVatLiable}

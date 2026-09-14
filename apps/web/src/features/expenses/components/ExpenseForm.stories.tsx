@@ -20,6 +20,7 @@ const meta = {
     fieldErrors: null,
     onSubmit: () => {},
     onCancel: () => {},
+    onReadReceipt: async () => ({ textFound: false }),
   },
   decorators: [
     (Story) => (
