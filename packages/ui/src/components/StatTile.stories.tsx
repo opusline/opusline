@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Pencil } from "lucide-react";
 import { Button } from "./button";
-import { StatTile, StatTileNote, StatTileRow } from "./stat-tile";
+import { StatTile, StatTileNote, StatTileRow, StatTileUnit } from "./stat-tile";
 
 const meta = {
   title: "UI/StatTile",
@@ -257,5 +257,23 @@ export const Interactive: Story = {
         value="1 240,00 €"
       />
     </StatTileRow>
+  ),
+};
+
+/** A figure with its unit: the unit sits in the body face, quieter. */
+export const WithUnit: Story = {
+  render: () => (
+    <StatTile
+      label="Abonnements"
+      padding="roomy"
+      size="xl"
+      sub="2 018 € / an · 3 abonnements"
+      tone="strong"
+      value={
+        <>
+          142 €<StatTileUnit> / mois</StatTileUnit>
+        </>
+      }
+    />
   ),
 };

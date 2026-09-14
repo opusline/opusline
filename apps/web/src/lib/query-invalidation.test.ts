@@ -6,6 +6,7 @@ import {
   listInvoicesQueryKey,
   listMissionDocumentsQueryKey,
   listMissionTimeEntriesQueryKey,
+  listSubscriptionsQueryKey,
   listTimeEntriesQueryKey,
   showBankAccountQueryKey,
   showClientRevenueQueryKey,
@@ -27,6 +28,7 @@ import {
   missionTimeEntriesFilter,
   operationFilter,
   revenueFilter,
+  subscriptionsFilter,
   treasuryFilter,
 } from "./query-invalidation";
 
@@ -302,5 +304,16 @@ describe("invalidateExpenseWrites", () => {
     expect(
       queryClient.getQueryState(listInvoicesQueryKey())?.isInvalidated,
     ).toBe(false);
+  });
+});
+
+describe("subscriptionsFilter", () => {
+  it("matches the subscriptions list and leaves the journal alone", () => {
+    const filter = subscriptionsFilter();
+
+    expect(filter.predicate(queryWithKey(listSubscriptionsQueryKey()))).toBe(
+      true,
+    );
+    expect(filter.predicate(queryWithKey(listExpensesQueryKey()))).toBe(false);
   });
 });

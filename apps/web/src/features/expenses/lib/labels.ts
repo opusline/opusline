@@ -70,7 +70,10 @@ export function monthName(locale: Locale, period: string): string {
 }
 
 /** The rate line under the TVA cell: « 20 % », « autoliq. 20 % », « hors TVA ». */
-export function expenseRateLabel(locale: Locale, expense: ExpenseData): string {
+export function expenseRateLabel(
+  locale: Locale,
+  expense: Pick<ExpenseData, "vatTreatment" | "vatRateBp">,
+): string {
   if (expense.vatTreatment === 3 || expense.vatRateBp === 0) {
     return m.expense_vat_exempt();
   }

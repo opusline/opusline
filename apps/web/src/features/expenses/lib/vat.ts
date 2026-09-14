@@ -85,3 +85,24 @@ export function expenseAmountsFromTtc(
     recoverableCents: roundHalfUp((vatCents * proShareBp) / 10_000),
   };
 }
+
+/**
+ * Mirrors the API's ExpenseAmounts::fromHt for a subscription, priced HT:
+ * the TVA is rate × HT rounded half up and the TTC their sum — nothing for
+ * an exempt one, and a reverse-charged one assesses the TVA without paying it.
+ */
+export function expenseAmountsFromHt(
+  htCents: number,
+  { vatTreatment, vatRateBp }: VatTerms,
+  proShareBp: number,
+): ExpenseAmounts {
+  const vatCents =
+    vatTreatment === 3 ? 0 : roundHalfUp((htCents * vatRateBp) / 10_000);
+
+  return {
+    htCents,
+    vatCents,
+    ttcCents: vatTreatment === 0 ? htCents + vatCents : htCents,
+    recoverableCents: roundHalfUp((vatCents * proShareBp) / 10_000),
+  };
+}

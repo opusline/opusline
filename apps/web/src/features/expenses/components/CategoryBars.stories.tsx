@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { expensesMonth } from "../lib/fixtures";
 import { CategoryBars } from "./category-bars";
 
 const meta = {
@@ -8,13 +7,23 @@ const meta = {
   component: CategoryBars,
   tags: ["autodocs"],
   args: {
-    categories: expensesMonth().categories,
-    unit: "ht",
-    month: "2026-08",
+    title: "Par catégorie · HT",
+    caption: "Août 2026",
+    formatValue: (cents) => `${Math.round(cents / 100)} €`,
+    rows: [
+      { key: "hosting", label: "Hébergement", cents: 28_800 },
+      { key: "phone", label: "Téléphone", cents: 29_004 },
+      {
+        key: "subscriptions",
+        label: "Abonnements",
+        cents: 14_200,
+        tone: "quiet",
+      },
+    ],
   },
   decorators: [
     (Story) => (
-      <div className="w-96">
+      <div className="max-w-md">
         <Story />
       </div>
     ),
@@ -24,7 +33,4 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof CategoryBars>;
 
-/** Each bar against the largest; the subscriptions grouped in the quiet tone. */
 export const Default: Story = {};
-
-export const Ttc: Story = { args: { unit: "ttc" } };

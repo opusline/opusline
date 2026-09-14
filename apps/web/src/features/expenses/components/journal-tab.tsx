@@ -14,10 +14,10 @@ import {
   hasMovableVat,
   matchesExpenseFilter,
 } from "../lib/filters";
-import { CategoryBars } from "./category-bars";
 import { DeclaredBanner } from "./declared-banner";
 import { ExpenseBulkBar } from "./expense-bulk-bar";
 import { ExpenseCardList } from "./expense-card-list";
+import { ExpenseCategoryBars } from "./expense-category-bars";
 import { ExpenseFilterChips } from "./expense-filter-chips";
 import { ExpenseKpiTiles } from "./expense-kpi-tiles";
 import { type ExpenseRowHandlers, ExpenseTable } from "./expense-table";
@@ -184,7 +184,7 @@ export function JournalTab({
 
       {month.categories.length > 0 && (
         <div className="grid grid-cols-[repeat(auto-fit,minmax(18rem,1fr))] gap-4">
-          <CategoryBars
+          <ExpenseCategoryBars
             categories={month.categories}
             month={month.month}
             unit={unit}
