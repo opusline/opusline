@@ -10,6 +10,21 @@
 # certificate (a Caddy, an nginx, a Traefik, a tunnel) and forward to :80; see
 # docs/self-hosting.md for the two headers that reverse proxy has to send.
 
+# That proxy is a hop Caddy does not trust by default, and an untrusted hop's
+# X-Forwarded-* headers are thrown away and rewritten from the connection: the
+# API would then see the proxy's address on every request, and one visitor's
+# six bad passwords would lock the login for everyone. The proxy in front
+# reaches this container from a private address (the Docker bridge, the host,
+# a tunnel on the same network), so those are trusted. Strict mode reads
+# X-Forwarded-For right to left, so the address the proxy appended is the one
+# kept — never a value the client wrote at the left of the header itself.
+{
+	servers {
+		trusted_proxies static private_ranges
+		trusted_proxies_strict
+	}
+}
+
 :80 {
 	log {
 		output stdout
@@ -37,7 +52,12 @@
 	@api path /api/* /sanctum/* /up
 
 	handle @api {
-		reverse_proxy {$API_UPSTREAM:api:8000}
+		reverse_proxy {$API_UPSTREAM:api:8000} {
+			# One address, the one resolved above. The API trusts only this
+			# container (TRUSTED_PROXIES), so a longer chain would leave it
+			# reading the proxy's hop instead of the visitor.
+			header_up X-Forwarded-For {client_ip}
+		}
 	}
 
 	handle {

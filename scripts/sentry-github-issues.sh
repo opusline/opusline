@@ -21,8 +21,17 @@ dry_run="${DRY_RUN:-0}"
 
 # Types whose message is a fixed template with no user data in it
 # (monitoring.ts builds `API 503 GET /clients/{client}`), so their Sentry
-# title is safe to publish as is.
+# title is safe to publish — once it is proven to have that shape. A browser
+# DSN is public by design, so anyone can send an event of any type with any
+# title; the type alone proves nothing.
 safe_message_types='["ApiFailure"]'
+safe_title_pattern='^API [0-9]{3} (GET|POST|PUT|PATCH|DELETE) /[A-Za-z0-9_./{}-]*$'
+
+# Every other string below comes from the event, which the same public DSN
+# lets anyone write. Stripped of what could close the table row, the code span
+# or the HTML comment the filed marker lives in — a transaction named
+# `<!-- sentry-issue:1 -->` would otherwise be read back as this issue's id.
+clean_filter='def clean: tostring | gsub("[`<>|\\r\\n]"; "");'
 
 headers_file=$(mktemp)
 trap 'rm -f "$headers_file"' EXIT
@@ -66,7 +75,7 @@ holds_id() {
 filed=$(gh api --paginate "repos/$GH_REPO/issues?labels=sentry&state=all&per_page=100" \
   --jq '.[] | select(has("pull_request") | not) | {number, state: (.state | ascii_upcase), body}' \
   | jq --raw-output '
-  ((.body // "") | capture("<!-- sentry-issue:(?<id>[0-9]+) -->")) as $marker
+  ((.body // "") | capture("<!-- sentry-issue:(?<id>[0-9]+) -->\\s*$")) as $marker
   | "\($marker.id) \(.number) \(.state)"')
 filed_ids=$(printf '%s' "$filed" | cut --delimiter=' ' --fields=1)
 
@@ -85,24 +94,24 @@ printf '%s' "$unresolved" \
       event='null'
     fi
 
-    title=$(printf '%s' "$issue" | jq --raw-output --argjson safe "$safe_message_types" --argjson event "$event" '
+    title=$(printf '%s' "$issue" | jq --raw-output --argjson safe "$safe_message_types" --arg safe_title "$safe_title_pattern" --argjson event "$event" "$clean_filter"'
       def frames: [$event.entries[]? | select(.type == "exception") | .data.values[]?
         | .stacktrace.frames[]? | select(.inApp)];
 
-      .metadata.type as $type
-      | (first(frames | reverse | .[] | "\(.filename):\(.lineNo)") // .culprit // "") as $location
-      | "[\(.shortId)] " + (
-          if ($type | IN($safe[])) then .title
-          elif $location == "" then ($type // "Message")
-          else "\($type // "Message") at \($location)"
+      (.metadata.type // "Message" | clean) as $type
+      | (first(frames | reverse | .[] | "\(.filename | clean):\(.lineNo | clean)") // (.culprit // "" | clean)) as $location
+      | "[\(.shortId | clean)] " + (
+          if ($type | IN($safe[])) and ((.title // "") | test($safe_title)) then .title
+          elif $location == "" then $type
+          else "\($type) at \($location)"
           end
         )')
 
-    body=$(printf '%s' "$issue" | jq --raw-output --argjson event "$event" '
-      def tag($key): first($event.tags[]? | select(.key == $key) | .value) // "unknown";
+    body=$(printf '%s' "$issue" | jq --raw-output --argjson event "$event" "$clean_filter"'
+      def tag($key): first($event.tags[]? | select(.key == $key) | .value) // "unknown" | clean;
       def frames: [$event.entries[]? | select(.type == "exception") | .data.values[]?
         | .stacktrace.frames[]? | select(.inApp)
-        | "\(.filename):\(.lineNo) in \(.function // "?")"];
+        | "\(.filename | clean):\(.lineNo | clean) in \(.function // "?" | clean)"];
 
       (frames | reverse | .[0:8]) as $own_frames
       | [
@@ -110,9 +119,9 @@ printf '%s' "$unresolved" \
         "",
         "| | |",
         "|---|---|",
-        "| Project | `\(.project.slug)` |",
-        "| Level | \(.level) |",
-        "| Culprit | `\(.culprit // "unknown")` |",
+        "| Project | `\(.project.slug | clean)` |",
+        "| Level | \(.level | clean) |",
+        "| Culprit | `\(.culprit // "unknown" | clean)` |",
         "| Transaction | `\(tag("transaction"))` |",
         "| Release | `\(tag("release"))` |",
         "| Environment | `\(tag("environment"))` |",
@@ -126,7 +135,7 @@ printf '%s' "$unresolved" \
          else ["", "Our frames, innermost first:", "", "```"] + $own_frames + ["```"] end)
       + [
         "",
-        "[\(.shortId) in Sentry](\(.permalink))",
+        "[\(.shortId | clean) in Sentry](\(.permalink | clean))",
         "",
         "<!-- sentry-issue:\(.id) -->"
       ]

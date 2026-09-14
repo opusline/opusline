@@ -64,12 +64,12 @@ jobs:
       # the manifest and the version stamps. Credentials are persisted on
       # purpose, that is what the push authenticates with.
       - if: ${{ !cancelled() && steps.release-pr.outputs.head != '' }}
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ steps.release-pr.outputs.head }}
           token: ${{ steps.app-token.outputs.token }}
       - if: ${{ !cancelled() && steps.release-pr.outputs.head != '' }}
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .nvmrc
 
@@ -177,7 +177,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ needs.release-please.outputs.tag_name }}
           persist-credentials: false
@@ -195,4 +195,8 @@ jobs:
           # release instead of shipping an asset that silently kept :latest.
           grep -q "opusline-api:${VERSION}" example.env
           grep -q "^# OPUSLINE_VERSION=${VERSION}" example.env
-          gh release upload "$TAG" compose.prod.yaml example.env scripts/opusline-backup.sh --clobber
+          # The images carry attestations; these three files are run as root on
+          # the operator's host, so they get a checksum list to verify against.
+          cp scripts/opusline-backup.sh opusline-backup.sh
+          sha256sum compose.prod.yaml example.env opusline-backup.sh > SHA256SUMS
+          gh release upload "$TAG" compose.prod.yaml example.env opusline-backup.sh SHA256SUMS --clobber
