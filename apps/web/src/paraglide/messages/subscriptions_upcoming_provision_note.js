@@ -6,17 +6,17 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{ suppliers: NonNullable<unknown>, amount: NonNullable<unknown> }} Subscriptions_Upcoming_Provision_NoteInputs */
 
 const en_subscriptions_upcoming_provision_note = /** @type {(inputs: Subscriptions_Upcoming_Provision_NoteInputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.suppliers} · ${i?.amount} set aside this month →`)
+	return /** @type {LocalizedString} */ (`${i?.suppliers} · ${i?.amount} set aside this month. The safe-to-transfer amount takes the provisions into account.`)
 };
 
 const fr_subscriptions_upcoming_provision_note = /** @type {(inputs: Subscriptions_Upcoming_Provision_NoteInputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.suppliers} · ${i?.amount} provisionnés ce mois →`)
+	return /** @type {LocalizedString} */ (`${i?.suppliers} · ${i?.amount} provisionnés ce mois. Le montant virable en sécurité tient compte des provisions.`)
 };
 
 /**
 * | output |
 * | --- |
-* | "{suppliers} · {amount} set aside this month →" |
+* | "{suppliers} · {amount} set aside this month. The safe-to-transfer amount takes the provisions into account." |
 *
 * @param {Subscriptions_Upcoming_Provision_NoteInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

@@ -1,8 +1,4 @@
-import type {
-  RecurringDebitData,
-  SubscriptionData,
-  SubscriptionsData,
-} from "@opusline/api-client";
+import type { SubscriptionData, SubscriptionsData } from "@opusline/api-client";
 import {
   attachExpenseReceiptMutation,
   cancelSubscriptionMutation,
@@ -22,7 +18,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { useLocale, useMoneyFormat } from "@/components/money-format-provider";
-import { formatAmount, formatWholeAmount } from "@/lib/billing";
+import { formatWholeAmount } from "@/lib/billing";
 import { calendarDateLabel } from "@/lib/dates";
 import {
   invalidateExpenseWrites,
@@ -40,11 +36,10 @@ import { monthName } from "../lib/labels";
 import { receiptRejection } from "../lib/receipts";
 import {
   draftToSubscriptionPayload,
-  emptySubscriptionDraft,
+  recurringDebitToDraft,
   subscriptionToPayload,
 } from "../lib/subscription-draft";
 import { occurrenceMonth } from "../lib/subscriptions";
-import { expenseAmountsFromTtc, vatChoiceTerms } from "../lib/vat";
 import { DeleteSubscriptionDialog } from "./delete-subscription-dialog";
 import {
   SubscriptionSheet,
@@ -133,29 +128,6 @@ export function SubscriptionsPanel({
     ...dismissRecurringDebitMutation(),
     ...rowWrite,
   });
-
-  // The debit is TTC; the sheet is priced HT, so the draft opens at the HT a
-  // 20 % purchase would carry — the regime chips put it right if not.
-  const draftFromDebit = (debit: RecurringDebitData) => {
-    const [firstMonth] = debit.months;
-    const day = String(debit.debitDay).padStart(2, "0");
-
-    return {
-      ...emptySubscriptionDraft(today),
-      supplier: debit.label,
-      description: m.subscriptions_detected_description(),
-      ht: formatAmount(
-        format,
-        expenseAmountsFromTtc(
-          debit.amount.amount,
-          vatChoiceTerms("fr20"),
-          10_000,
-        ).htCents,
-      ),
-      debitDay: String(debit.debitDay),
-      startedOn: firstMonth === undefined ? today : `${firstMonth}-${day}`,
-    };
-  };
 
   const sheetWrite = {
     onMutate: () => setSheetError(null),
@@ -327,7 +299,10 @@ export function SubscriptionsPanel({
         }}
         isDetectedBusy={dismissDebit.isPending}
         onCreateFromDebit={(debit) =>
-          onSheetChange({ mode: "create", initial: draftFromDebit(debit) })
+          onSheetChange({
+            mode: "create",
+            initial: recurringDebitToDraft(format, debit, today),
+          })
         }
         onDismissDebit={(debit) =>
           dismissDebit.mutate(

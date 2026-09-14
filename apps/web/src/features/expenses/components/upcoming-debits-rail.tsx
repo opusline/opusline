@@ -112,24 +112,25 @@ export function UpcomingDebitsRail({ data, today }: UpcomingDebitsRailProps) {
         </span>
       </div>
       {provisioned.length > 0 && (
-        <p className="mt-3 rounded-md border bg-muted px-3 py-2.5 text-muted-foreground-3 text-xs leading-relaxed">
-          {m.subscriptions_upcoming_provision_note({
-            suppliers: provisioned
-              .map((subscription) => subscription.supplier)
-              .join(" + "),
-            amount: formatWholeAmount(
-              format,
-              data.kpis.provisionedPerMonth.amount,
-            ),
-          })}{" "}
+        <div className="mt-3 rounded-md border bg-muted px-3 py-2.5 text-xs leading-relaxed">
+          <p className="text-muted-foreground-3">
+            {m.subscriptions_upcoming_provision_note({
+              suppliers: provisioned
+                .map((subscription) => subscription.supplier)
+                .join(" + "),
+              amount: formatWholeAmount(
+                format,
+                data.kpis.provisionedPerMonth.amount,
+              ),
+            })}
+          </p>
           <Link
-            className="text-link underline underline-offset-2 hover:text-link-hover"
+            className="mt-1 inline-block text-link transition-colors hover:text-link-hover"
             to="/treasury"
           >
             {m.subscriptions_upcoming_provision_link()}
-          </Link>{" "}
-          {m.subscriptions_upcoming_provision_tail()}
-        </p>
+          </Link>
+        </div>
       )}
     </aside>
   );

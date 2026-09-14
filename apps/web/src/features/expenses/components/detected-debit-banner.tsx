@@ -50,7 +50,7 @@ export function DetectedDebitBanner({
           })}
         </span>
       </AlertDescription>
-      <AlertAction>
+      <AlertAction layout="row">
         <Button
           disabled={isBusy}
           onClick={() => onCreate(debit)}

@@ -27,3 +27,14 @@ export default meta;
 type Story = StoryObj<typeof DetectedDebitBanner>;
 
 export const Default: Story = {};
+
+/** A bank label as long as they come still leaves the actions their own row. */
+export const LongLabel: Story = {
+  args: {
+    debit: {
+      ...debit,
+      label:
+        "PRLV SEPA LUNAPRINT IMPRESSION NUMERIQUE ABONNEMENT PRO REF 2026-0412",
+    },
+  },
+};

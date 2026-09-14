@@ -6,17 +6,17 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{}} Subscriptions_Upcoming_Provision_LinkInputs */
 
 const en_subscriptions_upcoming_provision_link = /** @type {(inputs: Subscriptions_Upcoming_Provision_LinkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Safe to transfer`)
+	return /** @type {LocalizedString} */ (`Safe to transfer →`)
 };
 
 const fr_subscriptions_upcoming_provision_link = /** @type {(inputs: Subscriptions_Upcoming_Provision_LinkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Virable en sécurité`)
+	return /** @type {LocalizedString} */ (`Virable en sécurité →`)
 };
 
 /**
 * | output |
 * | --- |
-* | "Safe to transfer" |
+* | "Safe to transfer →" |
 *
 * @param {Subscriptions_Upcoming_Provision_LinkInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

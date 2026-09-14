@@ -231,9 +231,11 @@ it("lists the debits ahead, the provision dashed, and sums the real ones", async
   ).toBeInTheDocument();
   expect(within(rail).getByText(/^52,97\s€$/)).toBeInTheDocument();
   expect(
-    within(rail).getByText(/Orvella Assurances · 26\s€ provisionnés ce mois/),
+    within(rail).getByText(
+      /^Orvella Assurances · 26\s€ provisionnés ce mois\. Le montant virable en sécurité tient compte des provisions\.$/,
+    ),
   ).toBeInTheDocument();
   expect(
-    within(rail).getByRole("link", { name: "Virable en sécurité" }),
+    within(rail).getByRole("link", { name: "Virable en sécurité →" }),
   ).toHaveAttribute("href", "/treasury");
 });
