@@ -15,11 +15,13 @@ import { gzipSync } from "node:zlib";
 
 // History: 78.8 kB gzip when the audit measured it (2026-08), 93.7 kB after
 // the @tanstack/react-router 1.170.32 lockfile update started bundling its
-// once-lazy Match module into the entry. The budget tracks the honest floor
-// with modest headroom — a wall against the next silent 15 kB jump, not a
-// number to bump casually. The audit's entry trims (zod out of the entry via
-// the lib/i18n → lib/zod edge, lazy date-field calendar) are the way back down.
-const BUDGET_BYTES = 100_000;
+// once-lazy Match module into the entry, 104.8 kB when react-dom 19.3.0 grew
+// by 29 kB raw (View Transitions, Fragment refs, Trusted Types). The budget
+// tracks the honest floor with modest headroom — a wall against the next
+// silent 15 kB jump, not a number to bump casually. What is left in the entry
+// is the framework floor (react-dom, router-core, query-core, the message
+// catalog); zod and the date-field calendar already load in route chunks.
+const BUDGET_BYTES = 110_000;
 
 const distDir = resolve(fileURLToPath(import.meta.url), "../../dist");
 const indexHtml = readFileSync(resolve(distDir, "index.html"), "utf8");
