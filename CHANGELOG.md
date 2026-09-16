@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.28.1](https://github.com/opusline/opusline/compare/v0.28.0...v0.28.1) (2026-09-16)
+
+
+### Dependencies
+
+* **deps:** bump the composer-minor group in /apps/api with 7 updates ([#386](https://github.com/opusline/opusline/issues/386)) ([850cc6c](https://github.com/opusline/opusline/commit/850cc6c0a6e4418fe8cafa8b6bc48b43181bca92))
+
 ## [0.28.0](https://github.com/opusline/opusline/compare/v0.27.0...v0.28.0) (2026-09-14)
 
 
