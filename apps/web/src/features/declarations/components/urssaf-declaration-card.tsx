@@ -15,7 +15,7 @@ import {
   formatWholeFigure,
 } from "@/lib/billing";
 import { m } from "@/paraglide/messages.js";
-
+import { prefillHref, urssafHandoff } from "../lib/handoff";
 import {
   contributionKindLabel,
   declarationCopyValue,
@@ -150,6 +150,10 @@ export function UrssafDeclarationCard({
         isBusy={isBusy}
         linkLabel={m.declarations_urssaf_link()}
         onMarkFiled={onMarkFiled}
+        prefill={{
+          href: prefillHref(urssafHandoff(urssaf)),
+          label: m.declarations_prefill_urssaf(),
+        }}
         onMarkPaid={onMarkPaid}
         onUndo={onUndo}
       />

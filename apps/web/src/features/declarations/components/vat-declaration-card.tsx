@@ -12,6 +12,7 @@ import { formatWholeAmount } from "@/lib/billing";
 import { shiftPeriod } from "@/lib/periods";
 import { m } from "@/paraglide/messages.js";
 
+import { prefillHref, vatHandoff } from "../lib/handoff";
 import { ca3CopyLines, ca3Rows, declarationPeriodLabel } from "../lib/labels";
 import { Ca3BoxRow } from "./ca3-box-row";
 import { DeclarationActions } from "./declaration-actions";
@@ -120,6 +121,10 @@ export function VatDeclarationCard({
         isBusy={isBusy}
         linkLabel={m.declarations_vat_link()}
         onMarkFiled={onMarkFiled}
+        prefill={{
+          href: prefillHref(vatHandoff(vat)),
+          label: m.declarations_prefill_vat(),
+        }}
         onMarkPaid={onMarkPaid}
         onUndo={onUndo}
       />

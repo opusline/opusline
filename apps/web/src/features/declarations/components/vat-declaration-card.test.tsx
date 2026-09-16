@@ -1,3 +1,4 @@
+import { decodeHandoff, PORTALS } from "@opusline/portal-handoff";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
@@ -173,4 +174,20 @@ it("records the filing", async () => {
   );
 
   expect(props.onMarkFiled).toHaveBeenCalled();
+});
+
+it("hands every box to the browser extension through the portal link", async () => {
+  renderCard();
+
+  const link = (
+    await screen.findByText("Pré-remplir sur impots.gouv.fr")
+  ).closest("a");
+  const url = new URL(link?.getAttribute("href") ?? "");
+
+  expect(url.origin + url.pathname).toBe(PORTALS.impots.url);
+  expect(decodeHandoff(url.hash)).toMatchObject({
+    portal: "impots",
+    period: "2026-07",
+    fields: { A1: 10450, "08": 10549, "08_tax": 2110, "20": 132, "32": 1978 },
+  });
 });

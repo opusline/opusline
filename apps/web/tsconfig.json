@@ -23,6 +23,9 @@
         "../../packages/api-client/src/@tanstack/react-query.gen.ts"
       ],
       "@opusline/api-client/zod": ["../../packages/api-client/src/zod.gen.ts"],
+      "@opusline/portal-handoff": [
+        "../../packages/portal-handoff/src/index.ts"
+      ],
       "@opusline/ui/*": ["../../packages/ui/src/*"]
     },
     "noEmit": true

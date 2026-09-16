@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@opusline/api-client": "workspace:*",
+    "@opusline/portal-handoff": "workspace:*",
     "@opusline/ui": "workspace:*",
     "@sentry/react": "^10.74.0",
     "@simplewebauthn/browser": "^14.0.0",

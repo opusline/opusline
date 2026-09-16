@@ -11,6 +11,10 @@ const meta = {
     hasDeadline: true,
     href: "https://autoentrepreneur.urssaf.fr",
     linkLabel: "Ouvrir autoentrepreneur.urssaf.fr →",
+    prefill: {
+      href: "https://www.autoentrepreneur.urssaf.fr/portail/accueil.html#opusline=eyJ2IjoxfQ",
+      label: "Pré-remplir sur autoentrepreneur.urssaf.fr",
+    },
     isBusy: false,
     onMarkFiled: () => {},
     onMarkPaid: () => {},
@@ -29,6 +33,8 @@ export default meta;
 type Story = StoryObj<typeof DeclarationActions>;
 
 export const Default: Story = {};
+
+export const WithoutPrefill: Story = { args: { prefill: undefined } };
 
 export const Filed: Story = {
   args: { completion: { declaredOn: "2026-08-09", paidOn: null } },

@@ -136,6 +136,9 @@ importers:
       '@opusline/api-client':
         specifier: workspace:*
         version: link:../../packages/api-client
+      '@opusline/portal-handoff':
+        specifier: workspace:*
+        version: link:../../packages/portal-handoff
       '@opusline/ui':
         specifier: workspace:*
         version: link:../../packages/ui

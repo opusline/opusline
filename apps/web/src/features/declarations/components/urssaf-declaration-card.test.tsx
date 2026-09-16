@@ -1,3 +1,4 @@
+import { decodeHandoff, PORTALS } from "@opusline/portal-handoff";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
@@ -212,4 +213,34 @@ it("shows a quiet period as a zero to declare rather than an empty card", async 
 
   expect(await screen.findByText("0")).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Copier" })).toBeInTheDocument();
+});
+
+it("hands the base to the browser extension through the portal link", async () => {
+  renderCard();
+
+  const link = (
+    await screen.findByText("Pré-remplir sur autoentrepreneur.urssaf.fr")
+  ).closest("a");
+  const url = new URL(link?.getAttribute("href") ?? "");
+
+  expect(url.origin + url.pathname).toBe(PORTALS.urssaf.url);
+  expect(decodeHandoff(url.hash)).toMatchObject({
+    portal: "urssaf",
+    period: "2026-07",
+    fields: { turnover: 10450 },
+  });
+  expect(
+    screen.getByText("Nécessite l’extension navigateur Opusline."),
+  ).toBeInTheDocument();
+});
+
+it("offers no pre-fill once the period is filed", async () => {
+  renderCard({
+    urssaf: urssafDeclaration({
+      completion: { declaredOn: "2026-08-09", paidOn: null },
+    }),
+  });
+
+  await screen.findByText(/Déclarée le 09\/08\/2026/);
+  expect(screen.queryByText(/Pré-remplir/)).not.toBeInTheDocument();
 });
