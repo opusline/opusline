@@ -55,6 +55,51 @@ export function locateByLabel(
   return null;
 }
 
+/**
+ * Forms laid out as tables carry the line code in the first cell and the
+ * input further along the same row, with no `<label>` at all.
+ */
+export function locateInRow(
+  doc: Document,
+  pattern: RegExp,
+): HTMLInputElement | null {
+  for (const row of doc.querySelectorAll("tr")) {
+    const heading = row.querySelector("th, td");
+    if (heading === null || !pattern.test(normalizeText(heading.textContent))) {
+      continue;
+    }
+    for (const input of row.querySelectorAll("input")) {
+      if (isFillableInput(input)) {
+        return input;
+      }
+    }
+  }
+
+  return null;
+}
+
+/** The fillable input that follows `first` in the same table row, if any. */
+export function nextInputInRow(
+  first: HTMLInputElement,
+): HTMLInputElement | null {
+  const row = first.closest("tr");
+  if (row === null) {
+    return null;
+  }
+  let seenFirst = false;
+  for (const input of row.querySelectorAll("input")) {
+    if (input === first) {
+      seenFirst = true;
+      continue;
+    }
+    if (seenFirst && isFillableInput(input)) {
+      return input;
+    }
+  }
+
+  return null;
+}
+
 function labelledInput(
   doc: Document,
   label: HTMLLabelElement,

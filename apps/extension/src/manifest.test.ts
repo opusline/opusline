@@ -51,8 +51,10 @@ describe("manifest", () => {
       ),
     );
 
-    expect(covered.map(({ url }) => url)).toEqual(
-      expect.arrayContaining([PORTALS.urssaf.url]),
+    expect(covered.map(({ url }) => url).sort()).toEqual(
+      Object.values(PORTALS)
+        .map(({ url }) => url)
+        .sort(),
     );
   });
 

@@ -48,7 +48,7 @@ describe("captureHandoff", () => {
     expect(history.replaceState).not.toHaveBeenCalled();
   });
 
-  it("strips but never stores a payload meant for the other portal", async () => {
+  it("leaves a payload addressed to the other portal untouched", async () => {
     const history = fakeHistory();
 
     const captured = await captureHandoff(
@@ -59,6 +59,6 @@ describe("captureHandoff", () => {
 
     expect(captured).toBe(false);
     expect(storedHandoffs()).toEqual({});
-    expect(history.replaceState).toHaveBeenCalledOnce();
+    expect(history.replaceState).not.toHaveBeenCalled();
   });
 });
