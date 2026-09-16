@@ -14,8 +14,11 @@ concurrency:
 jobs:
   pr-title:
     name: PR title is a conventional commit
+    # The PR author, not the event actor: the App's "update branch" pushes and
+    # human title edits also fire this workflow on a Dependabot PR, and its
+    # generated titles overrun the 50-character subject.
     if: >-
-      github.actor != 'dependabot[bot]'
+      github.event.pull_request.user.login != 'dependabot[bot]'
       && !(startsWith(github.head_ref, 'release-please--')
       && github.event.pull_request.user.type == 'Bot')
     runs-on: ubuntu-latest

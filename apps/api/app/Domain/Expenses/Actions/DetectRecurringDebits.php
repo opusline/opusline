@@ -79,6 +79,9 @@ class DetectRecurringDebits
         return $detected;
     }
 
+    /**
+     * @return non-falsy-string
+     */
     private function fingerprint(BankMovement $movement): string
     {
         return NormalizeBankText::normalize($movement->label).':'.$movement->amount_cents->absolute()->getAmount();
