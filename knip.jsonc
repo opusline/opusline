@@ -10,6 +10,12 @@
     "@inlang/plugin-message-format"
   ],
   "workspaces": {
+    "apps/extension": {
+      // Content scripts are reached by path from scripts/build.mjs and the
+      // manifest, never by an import.
+      "entry": ["src/content/*.ts", "scripts/*.mjs"],
+      "project": ["src/**", "scripts/**"]
+    },
     "apps/storybook": {
       "ignoreDependencies": [
         // Storybook globs the web app's stories by relative path rather than by

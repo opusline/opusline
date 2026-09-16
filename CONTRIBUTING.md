@@ -44,6 +44,7 @@ pnpm --filter @opusline/storybook exec playwright install chromium
 | `apps/api` | Laravel API — domain folders under `app/Domain/` |
 | `apps/web` | The SPA — Vite, React, TanStack Router/Query |
 | `apps/storybook` | Storybook host for both `packages/ui` and `apps/web` stories |
+| `apps/extension` | Browser extension (Manifest V3, Chrome + Firefox) that pre-fills the URSSAF and CA3 portals — see `docs/browser-extension.md` |
 | `packages/ui` | The design system — shadcn/ui on Base UI, raw TS source |
 | `packages/api-client` | TS client generated from the API's OpenAPI spec |
 | `packages/portal-handoff` | The figures the web app hands to the browser extension, as a URL-fragment codec — raw TS source |

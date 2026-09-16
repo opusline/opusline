@@ -1,0 +1,24 @@
+{
+  "name": "@opusline/extension",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:harness": "node scripts/build.mjs --harness",
+    "harness": "node scripts/serve-fixtures.mjs",
+    "test": "vitest run",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@opusline/portal-handoff": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.3.0",
+    "jsdom": "^30.0.1",
+    "typescript": "^7",
+    "vite": "^8.3.0",
+    "vitest": "^4.1.11"
+  },
+  "license": "AGPL-3.0-only"
+}

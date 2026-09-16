@@ -15,6 +15,7 @@ apps/
   api/        # Laravel API (PHP). Composer-managed; PHP runs ONLY in Docker via scripts/php.sh.
   web/        # Product SPA — Vite + React + TypeScript + TanStack Router/Query
   storybook/  # Storybook host — serves the stories of packages/ui AND apps/web
+  extension/  # Browser extension (MV3, Chrome + Firefox) — pre-fills the URSSAF and CA3 portals from the Déclarations page
 packages/
   ui/         # Design system — shadcn/ui components (raw TS source, no build step)
   api-client/ # TS client generated from the Laravel OpenAPI spec (flat into src/, incl. index.ts)

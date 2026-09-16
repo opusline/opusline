@@ -1,0 +1,9 @@
+{
+  "root": false,
+  "extends": "//",
+  "files": {
+    "ignoreUnknown": false,
+    // Captured portal DOM stays byte-exact: the adapters are tested against it.
+    "includes": ["**", "!fixtures"]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "extension_name": {
+    "message": "Opusline — declaration pre-fill"
+  },
+  "extension_description": {
+    "message": "Carries the figures from your Opusline Déclarations page into the URSSAF and VAT (CA3) forms, for you to review before filing."
+  },
+  "banner_title": {
+    "message": "Opusline figures for $PERIOD$",
+    "placeholders": {
+      "period": { "content": "$1" }
+    }
+  },
+  "banner_filled": {
+    "message": "Pre-filled: $LIST$",
+    "placeholders": {
+      "list": { "content": "$1" }
+    }
+  },
+  "banner_skipped": {
+    "message": "Not filled (field missing or locked): $LIST$",
+    "placeholders": {
+      "list": { "content": "$1" }
+    }
+  },
+  "banner_review": {
+    "message": "Check every amount before you file: nothing is submitted on your behalf."
+  },
+  "banner_dismiss": {
+    "message": "Close"
+  },
+  "quarter_label": {
+    "message": "Q$N$ $YEAR$",
+    "placeholders": {
+      "n": { "content": "$1" },
+      "year": { "content": "$2" }
+    }
+  },
+  "field_turnover": {
+    "message": "BNC turnover"
+  },
+  "field_box": {
+    "message": "box $BOX$",
+    "placeholders": {
+      "box": { "content": "$1" }
+    }
+  }
+}

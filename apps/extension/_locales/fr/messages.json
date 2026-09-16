@@ -1,0 +1,48 @@
+{
+  "extension_name": {
+    "message": "Opusline — pré-remplissage des déclarations"
+  },
+  "extension_description": {
+    "message": "Reporte les chiffres de votre page Déclarations Opusline dans les formulaires URSSAF et TVA (CA3), pour relecture avant validation."
+  },
+  "banner_title": {
+    "message": "Chiffres Opusline pour $PERIOD$",
+    "placeholders": {
+      "period": { "content": "$1" }
+    }
+  },
+  "banner_filled": {
+    "message": "Pré-rempli : $LIST$",
+    "placeholders": {
+      "list": { "content": "$1" }
+    }
+  },
+  "banner_skipped": {
+    "message": "Non rempli (champ absent ou verrouillé) : $LIST$",
+    "placeholders": {
+      "list": { "content": "$1" }
+    }
+  },
+  "banner_review": {
+    "message": "Vérifiez chaque montant avant de valider : rien n'est envoyé à votre place."
+  },
+  "banner_dismiss": {
+    "message": "Fermer"
+  },
+  "quarter_label": {
+    "message": "T$N$ $YEAR$",
+    "placeholders": {
+      "n": { "content": "$1" },
+      "year": { "content": "$2" }
+    }
+  },
+  "field_turnover": {
+    "message": "chiffre d'affaires BNC"
+  },
+  "field_box": {
+    "message": "case $BOX$",
+    "placeholders": {
+      "box": { "content": "$1" }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "__MSG_extension_name__",
+  "description": "__MSG_extension_description__",
+  "version": "0.28.2",
+  "default_locale": "fr",
+  "icons": {
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["*://*.urssaf.fr/*"],
+      "js": ["urssaf.js"],
+      "run_at": "document_start"
+    }
+  ]
+}

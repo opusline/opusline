@@ -81,6 +81,7 @@ jobs:
               - *js-toolchain
               - 'apps/web/**'
               - 'apps/storybook/**'
+              - 'apps/extension/**'
               - 'packages/ui/**'
               - 'packages/api-client/**'
               - 'packages/portal-handoff/**'

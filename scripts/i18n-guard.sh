@@ -5,8 +5,9 @@
 # week-page-english.test.tsx, which renders the primary screen at `en` and reads
 # back what it says. Keep both.
 #
-# packages/ui and packages/portal-handoff are in scope too: neither holds any
-# user-facing copy, so anything matched there is a bug by definition.
+# packages/ui, packages/portal-handoff and the extension's source are in scope
+# too: none holds user-facing copy (the extension's lives in _locales), so
+# anything matched there is a bug by definition.
 #
 # File exemptions are expressed where grep scopes files so content can never
 # trigger them: stories/tests/fixtures (French fixture copy is deliberate), the
@@ -21,7 +22,7 @@ cd "$(dirname "$0")/.."
 # copy uses, and the typographic apostrophe.
 FRENCH_CHARACTERS="[à-üÀ-ÜœŒ«»’]"
 
-matches=$(grep -rnP "$FRENCH_CHARACTERS" apps/web/src packages/ui/src packages/portal-handoff/src \
+matches=$(grep -rnP "$FRENCH_CHARACTERS" apps/web/src apps/extension/src packages/ui/src packages/portal-handoff/src \
   --include="*.ts" --include="*.tsx" \
   --exclude='*.stories.*' --exclude='*.test.*' --exclude='*fixture*' \
   --exclude='story-router.tsx' --exclude='settings-form-story.tsx' \

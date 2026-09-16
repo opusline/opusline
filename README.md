@@ -105,6 +105,13 @@ the first account — Opusline is single-tenant, so that account is yours.
 [compose file in full](docs/self-hosting.md#the-compose-file), TLS, backups and
 upgrades.
 
+## Browser extension
+
+Déclarations computes the URSSAF turnover and the CA3 boxes; the optional
+browser extension (Chrome, Firefox) types them into the portals' forms for
+you to review before filing. It installs from the zip attached to each
+release — see [the extension guide](docs/browser-extension.md).
+
 ## What it is not
 
 - **Not multi-tenant.** One instance, one freelance. No teams, no roles, no
