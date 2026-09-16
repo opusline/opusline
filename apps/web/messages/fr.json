@@ -1656,6 +1656,7 @@
   "revenue_kpi_zero_invoiced": "Aucune facture émise sur la période",
   "revenue_load_failed": "Les revenus n'ont pas pu être chargés. Réessayez dans un instant.",
   "revenue_net_title": "Estimation net après URSSAF",
+  "revenue_net_title_settled": "Net après URSSAF",
   "revenue_net_zero": "Rien à cotiser sur la période",
   "revenue_period_kind_aria": "Type de période",
   "revenue_period_month": "Mois",

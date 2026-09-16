@@ -17,6 +17,7 @@ use App\Domain\Invoices\Enums\RevenueBasis;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Revenue\CollectedInvoices;
 use App\Domain\Settings\Models\UserSettings;
+use App\Domain\Settings\Rates\ContributionRateHistory;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Money\Rate;
 use App\Domain\Users\Models\User;
@@ -31,6 +32,8 @@ use Illuminate\Support\Collection;
 class SummarizeRevenue
 {
     private const int CHART_MONTHS = 8;
+
+    public function __construct(private readonly ContributionRateHistory $contributionRateHistory) {}
 
     public function handle(User $user, SummarizeRevenueData $data): RevenueData
     {
@@ -61,7 +64,7 @@ class SummarizeRevenue
             total: MoneyData::fromMoney($total),
             previous: $this->previous($user, $basis, $period, $total, $currency),
             vat: $this->vat($settings, $invoices, $currency),
-            net: $this->net($settings, $total),
+            net: $this->net($settings, $basis, $period, $invoices, $total, $currency),
             months: $this->months($user, $basis, $period, $currency),
             invoices: array_values(InvoiceListItemData::collect($invoices, 'array')),
             clients: $this->clients($invoices, $total, $currency),
@@ -227,18 +230,58 @@ class SummarizeRevenue
         );
     }
 
-    private function net(UserSettings $settings, Money $total): ?RevenueNetData
+    /**
+     * What the URSSAF takes off the period, return by return. A paid invoice
+     * joins the return of the month or quarter it was collected in — the
+     * URSSAF taxes collections, whatever the basis on screen — priced at the
+     * rate that return is settled at: today's while it runs, the one recorded
+     * when it closed otherwise, so a closed period reads the same figure as
+     * the Déclarations screen. An invoice still unpaid will be collected on a
+     * return that has not closed, so it is priced at today's rate.
+     *
+     * The rate is named only when every return of the period agrees on it,
+     * and the figure is an estimate as long as it can still move: invoiced
+     * revenue, a return still running, or a return older than anything the
+     * rate history recorded.
+     *
+     * @param  Period  $period
+     * @param  Collection<int, Invoice>  $invoices
+     */
+    private function net(UserSettings $settings, RevenueBasis $basis, array $period, Collection $invoices, Money $total, string $currency): ?RevenueNetData
     {
         if (! $settings->hasFrenchFiscality()) {
             return null;
         }
 
-        $contributions = $settings->urssafContributionsOn($total);
+        $rates = $this->contributionRateHistory->timeline($settings);
+        $today = $settings->today();
+        $periodicity = $settings->urssaf_periodicity;
+
+        /** @var array<string, Money> $basesByReturn */
+        $basesByReturn = [];
+
+        foreach ($invoices as $invoice) {
+            $returnEnd = $periodicity->returnEnd($invoice->paid_on ?? $today)->toDateString();
+            $basesByReturn[$returnEnd] = ($basesByReturn[$returnEnd] ?? new Money(0, $currency))->add($invoice->amount_ht_cents);
+        }
+
+        $contributions = new Money(0, $currency);
+        $returnRateBps = [];
+        $estimated = $basis !== RevenueBasis::Collected
+            || $periodicity->returnEnd($period['end'])->greaterThanOrEqualTo($today);
+
+        foreach ($basesByReturn as $returnEnd => $base) {
+            $end = CarbonImmutable::parse($returnEnd);
+            $contributions = $contributions->add($rates->contributionsFor($base, $end));
+            $returnRateBps[] = $rates->rateBpFor($end);
+            $estimated = $estimated || ! $rates->isRecordedOn($end);
+        }
 
         return new RevenueNetData(
             amount: MoneyData::fromMoney($total->subtract($contributions)),
             contributions: MoneyData::fromMoney($contributions),
-            rateBp: $settings->effectiveContributionRateBp(),
+            rateBp: CollectedInvoices::consensusRateBp($returnRateBps, $settings->effectiveContributionRateBp()),
+            estimated: $estimated,
         );
     }
 

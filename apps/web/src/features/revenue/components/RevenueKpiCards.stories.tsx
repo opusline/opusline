@@ -59,6 +59,37 @@ export const MixedVatRates: Story = {
   },
 };
 
+/** A closed month of collected revenue: the contributions are what its return settled. */
+export const SettledNet: Story = {
+  args: {
+    data: revenueData({
+      basis: 1,
+      net: {
+        amount: { amount: 844_300, currency: "EUR" },
+        contributions: { amount: 296_700, currency: "EUR" },
+        rateBp: 2600,
+        estimated: false,
+      },
+    }),
+    basis: "collected",
+  },
+};
+
+/** A rate change inside the period: two returns at two rates, no single figure to caption. */
+export const MixedContributionRates: Story = {
+  args: {
+    data: revenueData({
+      period: "2026",
+      net: {
+        amount: { amount: 844_300, currency: "EUR" },
+        contributions: { amount: 296_700, currency: "EUR" },
+        rateBp: null,
+        estimated: true,
+      },
+    }),
+  },
+};
+
 export const EmptyPeriod: Story = {
   args: { data: emptyRevenueData() },
 };

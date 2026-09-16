@@ -1518,7 +1518,8 @@ export const zRevenueMonthData = z.object({
 export const zRevenueNetData = z.object({
     amount: zMoneyData,
     contributions: zMoneyData,
-    rateBp: z.int()
+    rateBp: z.nullable(z.int()),
+    estimated: z.boolean()
 });
 
 /**

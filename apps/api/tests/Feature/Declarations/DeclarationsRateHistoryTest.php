@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Domain\Settings\Models\ContributionRate;
 use App\Domain\Users\Models\User;
 
 beforeEach(fn () => freezeTodayAtUtcNoon());
@@ -15,24 +14,11 @@ beforeEach(fn () => freezeTodayAtUtcNoon());
  */
 function acreStepEndedAccount(): User
 {
-    $user = User::factory()->create();
+    $user = repricedAccount();
     $user->settings()->sole()->update([
         'business_started_on' => '2026-01-15',
-        'contribution_rate_bp' => 1_200,
-        'liberating_payment' => false,
         'bank_balance_cents' => 1_000_000,
         'bank_balance_recorded_on' => '2026-08-13',
-    ]);
-
-    ContributionRate::query()->create([
-        'user_id' => $user->id,
-        'effective_rate_bp' => 2_520,
-        'effective_from' => '2025-01-01',
-    ]);
-    ContributionRate::query()->create([
-        'user_id' => $user->id,
-        'effective_rate_bp' => 1_220,
-        'effective_from' => '2026-07-01',
     ]);
 
     paidInvoiceOn($user, '2026-06-30');

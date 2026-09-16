@@ -1675,7 +1675,8 @@ export type RevenueMonthData = {
 export type RevenueNetData = {
     amount: MoneyData;
     contributions: MoneyData;
-    rateBp: number;
+    rateBp: number | null;
+    estimated: boolean;
 };
 
 /**

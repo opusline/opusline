@@ -126,7 +126,12 @@ export function revenueData(overrides: Partial<RevenueData> = {}): RevenueData {
     total: eur(1_141_000),
     previous: { period: "2026-06", total: eur(1_178_000), changeBp: -314 },
     vat: { amount: eur(228_200), rateBp: 2000 },
-    net: { amount: eur(844_300), contributions: eur(296_700), rateBp: 2600 },
+    net: {
+      amount: eur(844_300),
+      contributions: eur(296_700),
+      rateBp: 2600,
+      estimated: true,
+    },
     months: MONTHS,
     invoices: PERIOD_INVOICES,
     clients: CLIENTS,
@@ -143,7 +148,12 @@ export function emptyRevenueData(
     total: eur(0),
     previous: { period: "2024", total: eur(0), changeBp: null },
     vat: { amount: eur(0), rateBp: 2000 },
-    net: { amount: eur(0), contributions: eur(0), rateBp: 2600 },
+    net: {
+      amount: eur(0),
+      contributions: eur(0),
+      rateBp: 2600,
+      estimated: true,
+    },
     months: Array.from({ length: 12 }, (_, index) => ({
       month: `2025-${String(index + 1).padStart(2, "0")}`,
       total: eur(0),

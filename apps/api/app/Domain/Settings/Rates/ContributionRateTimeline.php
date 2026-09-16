@@ -83,6 +83,16 @@ final readonly class ContributionRateTimeline
     }
 
     /**
+     * Whether what applied on $date is actually known: an account that never
+     * moved its rate holds no rows and the settings are its whole history, but
+     * once rows exist a date older than the first predates what was recorded.
+     */
+    public function isRecordedOn(CarbonImmutable $date): bool
+    {
+        return $this->recorded === [] || $this->recordedOn($date) instanceof ContributionRate;
+    }
+
+    /**
      * Whether the versement libératoire was in force on $date, and at what
      * rate — null when nothing recorded can say. An account that never moved
      * its terms holds no rows at all, and the rows written before the option

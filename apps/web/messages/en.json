@@ -1656,6 +1656,7 @@
   "revenue_kpi_zero_invoiced": "No invoice issued over the period",
   "revenue_load_failed": "The revenue could not be loaded. Try again in a moment.",
   "revenue_net_title": "Estimated net after URSSAF",
+  "revenue_net_title_settled": "Net after URSSAF",
   "revenue_net_zero": "Nothing to contribute over the period",
   "revenue_period_kind_aria": "Period type",
   "revenue_period_month": "Month",

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Domain\Settings\Enums\UrssafPeriodicity;
+use App\Domain\Settings\Models\ContributionRate;
 use App\Domain\Users\Models\User;
 
 beforeEach(fn () => freezeTodayAtUtcNoon());
@@ -248,7 +250,114 @@ test('estimates net after contributions', function (): void {
         ->assertOk()
         ->assertJsonPath('net.contributions.amount', 3_235)
         ->assertJsonPath('net.amount.amount', 9_110)
-        ->assertJsonPath('net.rateBp', 2_620);
+        ->assertJsonPath('net.rateBp', 2_620)
+        ->assertJsonPath('net.estimated', true);
+});
+
+test('settles a closed month of collected revenue at the rate it was declared under', function (): void {
+    // 165 000 collected in June is what the June return declared, at 25,2 %
+    // — not at the 12,2 % the settings hold today.
+    $user = repricedAccount();
+    paidInvoiceOn($user, '2026-06-30');
+
+    $this->actingAs($user)
+        ->getJson('/api/revenue?period=2026-06&basis=1')
+        ->assertOk()
+        ->assertJsonPath('net.contributions.amount', 41_580)
+        ->assertJsonPath('net.amount.amount', 123_420)
+        ->assertJsonPath('net.rateBp', 2_520)
+        ->assertJsonPath('net.estimated', false);
+});
+
+test('sums the returns of a period that spans a rate change and names no single rate', function (): void {
+    // June at 25,2 % on the whole base (41 580), July line by line at today's
+    // 12 % + 0,2 % (19 800 + 330): two returns, two rates, one net.
+    $user = repricedAccount();
+    paidInvoiceOn($user, '2026-06-30');
+    paidInvoiceOn($user, '2026-07-31');
+
+    $this->actingAs($user)
+        ->getJson('/api/revenue?period=2026&basis=1')
+        ->assertOk()
+        ->assertJsonPath('total.amount', 330_000)
+        ->assertJsonPath('net.contributions.amount', 61_710)
+        ->assertJsonPath('net.amount.amount', 268_290)
+        ->assertJsonPath('net.rateBp', null)
+        ->assertJsonPath('net.estimated', true);
+});
+
+test('prices a month of a quarterly account at the rate its quarter is settled at', function (): void {
+    // April is declared on the Q2 return, settled on 30 June at the rate in
+    // force that day — 12,2 % since May — not at April's own 25,2 %.
+    $user = repricedAccount();
+    $user->settings()->sole()->update(['urssaf_periodicity' => UrssafPeriodicity::Quarterly]);
+    ContributionRate::query()->where('user_id', $user->id)->where('effective_rate_bp', 1_220)->update(['effective_from' => '2026-05-01']);
+    paidInvoiceOn($user, '2026-04-30');
+
+    $this->actingAs($user)
+        ->getJson('/api/revenue?period=2026-04&basis=1')
+        ->assertOk()
+        ->assertJsonPath('net.contributions.amount', 20_130)
+        ->assertJsonPath('net.rateBp', 1_220)
+        ->assertJsonPath('net.estimated', false);
+});
+
+test('prices an unpaid invoice at today\'s rate and keeps invoiced revenue an estimate', function (): void {
+    // Issued in June under 25,2 %, but it will be collected on a return that
+    // has not closed: 12,2 % line by line, and the figure can still move.
+    $user = repricedAccount();
+    invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state(['issued_on' => '2026-06-15', 'amount_ht_cents' => 165_000]));
+
+    $this->actingAs($user)
+        ->getJson('/api/revenue?period=2026-06')
+        ->assertOk()
+        ->assertJsonPath('net.contributions.amount', 20_130)
+        ->assertJsonPath('net.rateBp', 1_220)
+        ->assertJsonPath('net.estimated', true);
+});
+
+test('prices invoiced revenue on the return it was collected on, not the one it was issued in', function (): void {
+    // The URSSAF taxes the July collection at July's rate, whatever June's was.
+    $user = repricedAccount();
+    invoiceOwnedBy($user, configure: fn ($factory) => $factory->paid()->state([
+        'issued_on' => '2026-06-15', 'due_on' => '2026-07-15', 'paid_on' => '2026-07-10', 'amount_ht_cents' => 165_000,
+    ]));
+
+    $this->actingAs($user)
+        ->getJson('/api/revenue?period=2026-06')
+        ->assertOk()
+        ->assertJsonPath('total.amount', 165_000)
+        ->assertJsonPath('net.contributions.amount', 20_130)
+        ->assertJsonPath('net.rateBp', 1_220);
+});
+
+test('keeps a closed month an estimate while the quarter declaring it still runs', function (): void {
+    // July is collected, but a quarterly account declares it on the Q3 return,
+    // which is still open on 13 August — so today's rate, and no settled claim.
+    $user = repricedAccount();
+    $user->settings()->sole()->update(['urssaf_periodicity' => UrssafPeriodicity::Quarterly]);
+    paidInvoiceOn($user, '2026-07-31');
+
+    $this->actingAs($user)
+        ->getJson('/api/revenue?period=2026-07&basis=1')
+        ->assertOk()
+        ->assertJsonPath('net.contributions.amount', 20_130)
+        ->assertJsonPath('net.estimated', true);
+});
+
+test('keeps a return older than the recorded rate history an estimate', function (): void {
+    // Nothing recorded says what 2025 was declared at, so it is priced at
+    // today's rate for want of better — and must not read as settled.
+    $user = repricedAccount();
+    ContributionRate::query()->where('user_id', $user->id)->where('effective_rate_bp', 2_520)->update(['effective_from' => '2026-03-01']);
+    paidInvoiceOn($user, '2025-06-30');
+
+    $this->actingAs($user)
+        ->getJson('/api/revenue?period=2025-06&basis=1')
+        ->assertOk()
+        ->assertJsonPath('net.contributions.amount', 20_130)
+        ->assertJsonPath('net.rateBp', 1_220)
+        ->assertJsonPath('net.estimated', true);
 });
 
 test('hides the net estimation abroad', function (): void {

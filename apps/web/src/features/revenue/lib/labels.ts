@@ -1,6 +1,15 @@
-import type { Locale, RevenueBasis } from "@opusline/api-client";
+import type {
+  Locale,
+  RevenueBasis,
+  RevenueNetData,
+} from "@opusline/api-client";
 
-import { cachedFormatter, formatPercentFromBp } from "@/lib/billing";
+import {
+  cachedFormatter,
+  formatPercentFromBp,
+  formatWholeAmount,
+  type MoneyFormat,
+} from "@/lib/billing";
 import type { PeriodKind } from "@/lib/periods";
 import { m } from "@/paraglide/messages.js";
 
@@ -116,4 +125,18 @@ export function trendDeltaLabel(locale: Locale, changeBp: number): string {
     maximumFractionDigits: 0,
     signDisplay: "exceptZero",
   }).format(changeBp / 100);
+}
+
+/** « 12 000 € − 3 120 € (26 %) », the rate left out once the period has no single one. */
+export function netSubtractionLabel(
+  locale: Locale,
+  format: MoneyFormat,
+  totalCents: number,
+  net: RevenueNetData,
+): string {
+  const subtraction = `${formatWholeAmount(format, totalCents)} − ${formatWholeAmount(format, net.contributions.amount)}`;
+
+  return net.rateBp === null
+    ? subtraction
+    : `${subtraction} (${formatPercentFromBp(locale, net.rateBp)} %)`;
 }

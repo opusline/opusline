@@ -10,6 +10,7 @@ import { m } from "@/paraglide/messages.js";
 
 import {
   basisText,
+  netSubtractionLabel,
   type RevenueBasisKey,
   revenueTrendNoneLabel,
   trendDeltaLabel,
@@ -58,14 +59,23 @@ export function RevenueKpiCards({
 
       {data.net !== null && (
         <section className="rounded-md border bg-card p-5">
-          <h2 className={eyebrowVariants()}>{m.revenue_net_title()}</h2>
+          <h2 className={eyebrowVariants()}>
+            {data.net.estimated
+              ? m.revenue_net_title()
+              : m.revenue_net_title_settled()}
+          </h2>
           <p className="mt-3 whitespace-nowrap font-mono text-4xl text-foreground-hi leading-none tabular-nums">
             {formatWholeAmount(format, data.net.amount.amount)}
           </p>
           <p className="mt-2.5 text-muted-foreground-3 text-sm">
             {data.total.amount === 0
               ? m.revenue_net_zero()
-              : `${formatWholeAmount(format, data.total.amount)} − ${formatWholeAmount(format, data.net.contributions.amount)} (${formatPercentFromBp(locale, data.net.rateBp)} %)`}
+              : netSubtractionLabel(
+                  locale,
+                  format,
+                  data.total.amount,
+                  data.net,
+                )}
           </p>
         </section>
       )}

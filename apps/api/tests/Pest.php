@@ -32,6 +32,7 @@ use App\Domain\Settings\Enums\DateFormat;
 use App\Domain\Settings\Enums\Locale;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
+use App\Domain\Settings\Models\ContributionRate;
 use App\Domain\TimeEntries\Factories\TimeEntryFactory;
 use App\Domain\TimeEntries\Models\TimeEntry;
 use App\Domain\Timers\Factories\RunningTimerFactory;
@@ -441,6 +442,21 @@ function completionPath(FiscalDeadlineKind $kind, string $periodKey, string $suf
 }
 
 /** An account on the réel normal — the one régime that deducts TVA purchase by purchase. */
+/**
+ * An account whose rate stepped down on 1 July 2026: 25,2 % recorded until
+ * then, 12,2 % (12 % + 0,2 % CFP) since, which is also what the settings hold.
+ */
+function repricedAccount(): User
+{
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['contribution_rate_bp' => 1_200, 'liberating_payment' => false]);
+
+    ContributionRate::query()->create(['user_id' => $user->id, 'effective_rate_bp' => 2_520, 'effective_from' => '2025-01-01']);
+    ContributionRate::query()->create(['user_id' => $user->id, 'effective_rate_bp' => 1_220, 'effective_from' => '2026-07-01']);
+
+    return $user;
+}
+
 function vatLiableUser(): User
 {
     $user = User::factory()->create();

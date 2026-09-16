@@ -11302,13 +11302,20 @@
                         "$ref": "#/components/schemas/MoneyData"
                     },
                     "rateBp": {
-                        "type": "integer"
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "estimated": {
+                        "type": "boolean"
                     }
                 },
                 "required": [
                     "amount",
                     "contributions",
-                    "rateBp"
+                    "rateBp",
+                    "estimated"
                 ],
                 "title": "RevenueNetData"
             },
