@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.28.3](https://github.com/opusline/opusline/compare/v0.28.2...v0.28.3) (2026-09-16)
+
+
+### Bug Fixes
+
+* **web:** offer remember browser before the code field ([#395](https://github.com/opusline/opusline/issues/395)) ([f19fbdd](https://github.com/opusline/opusline/commit/f19fbdd06a6ef092f79f8c704e5aa5994a3287d8))
+
 ## [0.28.2](https://github.com/opusline/opusline/compare/v0.28.1...v0.28.2) (2026-09-16)
 
 
