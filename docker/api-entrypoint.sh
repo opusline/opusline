@@ -26,6 +26,10 @@ fi
 # OPUSLINE_SKIP_MIGRATIONS=1 to take it back into your own hands.
 if [ "${OPUSLINE_SKIP_MIGRATIONS:-0}" != "1" ]; then
   php artisan migrate --force --no-interaction
+  # Data changes a release needs done once (operations/), kept out of the
+  # migrations so the schema history stays a schema history. Synchronous
+  # on purpose: a self-hoster may run no queue worker at all.
+  php artisan operations:process --sync --no-interaction
 fi
 
 # Rebuilt every boot: the caches are keyed to the environment the container was

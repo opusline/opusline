@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 use App\Domain\TwoFactor\Models\TrustedDevice;
 use App\Domain\Users\Models\User;
-use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+use TimoKoerber\LaravelOneTimeOperations\OneTimeOperation;
 
-function signEveryoneOutMigration(): Migration
+function signEveryoneOutOperation(): OneTimeOperation
 {
-    return require database_path('migrations/2026_09_16_000001_sign_everyone_out_to_offer_trusted_browsers.php');
+    return require base_path('operations/2026_09_16_130203_sign_everyone_out_to_offer_trusted_browsers.php');
 }
 
 test('signs everyone out once and forgets every trusted browser', function (): void {
@@ -24,9 +24,13 @@ test('signs everyone out once and forgets every trusted browser', function (): v
         'last_activity' => now()->getTimestamp(),
     ]);
 
-    signEveryoneOutMigration()->up();
+    signEveryoneOutOperation()->process();
 
     expect($user->fresh()?->remember_token)->toBeNull()
         ->and(TrustedDevice::query()->count())->toBe(0)
         ->and(DB::table('sessions')->count())->toBe(0);
+});
+
+test('runs on boot rather than on a queue a self-hoster may not run', function (): void {
+    expect(signEveryoneOutOperation()->isAsync())->toBeFalse();
 });

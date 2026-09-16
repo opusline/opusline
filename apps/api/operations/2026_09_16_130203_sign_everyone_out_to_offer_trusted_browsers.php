@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use TimoKoerber\LaravelOneTimeOperations\OneTimeOperation;
 
 /**
  * Until this release the "remember this browser" choice was skipped over by
@@ -15,9 +15,13 @@ use Illuminate\Support\Facades\Schema;
  * sign-in runs the challenge with the box where it belongs. Sessions kept in
  * Redis or on disk are not touched; they end on their own at SESSION_LIFETIME.
  */
-return new class extends Migration
+return new class extends OneTimeOperation
 {
-    public function up(): void
+    // Part of the boot, like the migrations before it: a self-hoster may run
+    // no queue worker at all, and a sign-out is too small to be worth one.
+    protected bool $async = false;
+
+    public function process(): void
     {
         DB::table('users')->update(['remember_token' => null]);
         DB::table('trusted_devices')->delete();
@@ -25,10 +29,5 @@ return new class extends Migration
         if (Schema::hasTable(config()->string('session.table'))) {
             DB::table(config()->string('session.table'))->delete();
         }
-    }
-
-    public function down(): void
-    {
-        // A sign-out cannot be undone.
     }
 };
