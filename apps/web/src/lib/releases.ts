@@ -13,6 +13,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.28.3",
+    date: "2026-09-16",
+    items: [
+      {
+        kind: "fixed",
+        text: 'Two-factor sign-in: "Remember this browser" now sits above the code field, which submits on its sixth digit, so the choice is no longer skipped over. You will be asked to sign in again once after this update, and that sign-in offers it.', // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.28.2",
     date: "2026-09-16",
     items: [
