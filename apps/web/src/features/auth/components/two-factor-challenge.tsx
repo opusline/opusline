@@ -131,6 +131,20 @@ export function TwoFactorChallenge({
         </Alert>
       ) : null}
 
+      {/* Above the code field on purpose: that field submits itself on its
+          sixth digit, so a choice placed under it is never reached in time. */}
+      <Field orientation="horizontal">
+        <Checkbox
+          checked={rememberDevice}
+          disabled={isPending}
+          id={rememberId}
+          onCheckedChange={(checked) => setRememberDevice(checked === true)}
+        />
+        <FieldLabel htmlFor={rememberId}>
+          {m.auth_two_factor_remember_label()}
+        </FieldLabel>
+      </Field>
+
       {mode === "code" ? (
         <Field data-invalid={isInvalid}>
           <FieldLabel htmlFor={codeId}>
@@ -183,18 +197,6 @@ export function TwoFactorChallenge({
           )}
         </Field>
       )}
-
-      <Field orientation="horizontal">
-        <Checkbox
-          checked={rememberDevice}
-          disabled={isPending}
-          id={rememberId}
-          onCheckedChange={(checked) => setRememberDevice(checked === true)}
-        />
-        <FieldLabel htmlFor={rememberId}>
-          {m.auth_two_factor_remember_label()}
-        </FieldLabel>
-      </Field>
 
       <Button
         className="mt-1 w-full"
