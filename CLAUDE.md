@@ -18,6 +18,7 @@ apps/
 packages/
   ui/         # Design system — shadcn/ui components (raw TS source, no build step)
   api-client/ # TS client generated from the Laravel OpenAPI spec (flat into src/, incl. index.ts)
+  portal-handoff/ # Payload the web app hands to the browser extension through the portal URL fragment (raw TS, no build step)
 docker/       # Production image bits: the API entrypoint and the web Caddyfile
 ```
 
@@ -77,7 +78,7 @@ proxies `/api` and `/sanctum`.
 
 ## Conventions
 
-- **Commits**: Conventional Commits, enforced by commitlint via Lefthook. Types: feat, fix, refactor, perf, style, test, docs, build, ci, chore, revert. Scopes (closed list): `api`, `web`, `ui`, `storybook`, `deps`, `repo`. Subject: imperative, lowercase, ≤50 chars (`subject-max-length` in `commitlint.config.mjs`, which `pr-title.yml` runs over the PR title too), no trailing period. Body explains the WHY.
+- **Commits**: Conventional Commits, enforced by commitlint via Lefthook. Types: feat, fix, refactor, perf, style, test, docs, build, ci, chore, revert. Scopes (closed list): `api`, `web`, `ui`, `storybook`, `extension`, `deps`, `repo`. Subject: imperative, lowercase, ≤50 chars (`subject-max-length` in `commitlint.config.mjs`, which `pr-title.yml` runs over the PR title too), no trailing period. Body explains the WHY.
 - **Hooks**: single `lefthook.yml` at root. Pre-commit runs Biome (staged JS/TS/JSON/CSS) and, on staged PHP, Rector then Pint — all auto-fix and re-stage. Commit-msg runs commitlint. Pre-push, in order: regenerates the OpenAPI spec, then the API client, route tree and compiled message catalogs, failing on drift in any of them (`scripts/generated-artifacts.sh`); `knip`; `i18n-guard`; `release-notes-guard`; `compose-doc-guard`; then `turbo run test check-types lint` filtered to `@opusline/api`, and `turbo run build test check-types lint format-and-lint` across everything. Don't add Turbo tasks to pre-commit.
 - **Formatting/linting JS**: Biome (`biome.jsonc` at the root, extended by `apps/web`, `apps/api`, `packages/api-client`). No ESLint, no Prettier.
 - **Unused code**: knip (`knip.jsonc`) on the JS side — unused files, exports and dependencies, in `pnpm knip`, pre-push and CI. On the PHP side, Rector's `deadCode` set already removes what is dead *inside* a file, and `composer-unused` (`apps/api/composer-unused.php`) catches dependencies nothing requires; both run in `turbo lint`. Anything either tool cannot see is silenced by name, in the config, with the reason written next to it.

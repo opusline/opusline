@@ -11,7 +11,7 @@ export default {
     "scope-enum": [
       2,
       "always",
-      ["api", "web", "ui", "storybook", "deps", "repo"],
+      ["api", "web", "ui", "storybook", "extension", "deps", "repo"],
     ],
   },
 };

@@ -46,6 +46,7 @@ pnpm --filter @opusline/storybook exec playwright install chromium
 | `apps/storybook` | Storybook host for both `packages/ui` and `apps/web` stories |
 | `packages/ui` | The design system — shadcn/ui on Base UI, raw TS source |
 | `packages/api-client` | TS client generated from the API's OpenAPI spec |
+| `packages/portal-handoff` | The figures the web app hands to the browser extension, as a URL-fragment codec — raw TS source |
 
 ## Running the checks
 

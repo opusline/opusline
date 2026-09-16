@@ -77,7 +77,7 @@
   },
   "overrides": [
     {
-      "includes": ["packages/ui/**"],
+      "includes": ["packages/ui/**", "packages/portal-handoff/**"],
       "linter": {
         "rules": {
           "style": {
@@ -113,7 +113,7 @@
                       "@opusline/api-client",
                       "@opusline/api-client/**"
                     ],
-                    "message": "The design system must stay standalone - ui cannot import the app or the API client."
+                    "message": "Shared packages stay standalone - they cannot import the app or the API client."
                   }
                 ]
               }

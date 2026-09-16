@@ -231,6 +231,15 @@ importers:
         specifier: ^5.9.0
         version: 5.9.3
 
+  packages/portal-handoff:
+    devDependencies:
+      typescript:
+        specifier: ^7
+        version: 7.0.2
+      vitest:
+        specifier: ^4.1.11
+        version: 4.1.11(@types/node@26.5.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-v8@4.1.11)(jsdom@30.0.1)(vite@8.3.0(@types/node@26.5.1)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
+
   packages/ui:
     dependencies:
       '@base-ui/react':

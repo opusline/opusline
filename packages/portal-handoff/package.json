@@ -1,0 +1,18 @@
+{
+  "name": "@opusline/portal-handoff",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^7",
+    "vitest": "^4.1.11"
+  },
+  "license": "AGPL-3.0-only"
+}

@@ -83,6 +83,7 @@ jobs:
               - 'apps/storybook/**'
               - 'packages/ui/**'
               - 'packages/api-client/**'
+              - 'packages/portal-handoff/**'
               # Not the web app. biome.jsonc already includes the root scripts
               # and knip already reaches them, but the `js` job is the only
               # place CI invokes either — and the only place the assembler's

@@ -29,6 +29,7 @@ COPY apps/api/package.json apps/api/
 COPY apps/storybook/package.json apps/storybook/
 COPY apps/web/package.json apps/web/
 COPY packages/api-client/package.json packages/api-client/
+COPY packages/portal-handoff/package.json packages/portal-handoff/
 COPY packages/ui/package.json packages/ui/
 RUN pnpm install --frozen-lockfile --ignore-scripts
 
@@ -36,6 +37,7 @@ RUN pnpm install --frozen-lockfile --ignore-scripts
 COPY apps/web apps/web
 COPY packages/ui packages/ui
 COPY packages/api-client packages/api-client
+COPY packages/portal-handoff packages/portal-handoff
 
 # `vite build` directly rather than through turbo: the build graph reaches the
 # API's generate task, and that needs PHP. The generated client, route tree and
