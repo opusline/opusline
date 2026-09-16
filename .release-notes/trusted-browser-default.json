@@ -1,0 +1,4 @@
+{
+  "kind": "fixed",
+  "text": "Two-factor sign-in: \"Remember this browser\" now sits above the code field, which submits on its sixth digit, so the choice is no longer skipped over. You will be asked to sign in again once after this update, and that sign-in offers it."
+}

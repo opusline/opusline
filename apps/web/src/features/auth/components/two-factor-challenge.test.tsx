@@ -25,6 +25,21 @@ function codeInput(): HTMLInputElement {
   return screen.getByLabelText(/code de votre application/i);
 }
 
+function rememberCheckbox(): HTMLElement {
+  return screen.getByRole("checkbox", {
+    name: /se souvenir de ce navigateur/i,
+  });
+}
+
+it("offers to remember the browser before the code field that submits on its own", () => {
+  renderChallenge();
+
+  expect(
+    rememberCheckbox().compareDocumentPosition(codeInput()) &
+      Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+});
+
 it("submits the code once as soon as six digits are typed", async () => {
   const { onSubmitCode } = renderChallenge();
 
@@ -39,9 +54,7 @@ it("submits the code once as soon as six digits are typed", async () => {
 it("passes the remember choice along with the code", async () => {
   const { onSubmitCode } = renderChallenge();
 
-  fireEvent.click(
-    screen.getByRole("checkbox", { name: /se souvenir de ce navigateur/i }),
-  );
+  fireEvent.click(rememberCheckbox());
   fireEvent.change(codeInput(), { target: { value: "482913" } });
 
   await waitFor(() =>
@@ -113,9 +126,7 @@ it("switches to the passkey and hands over the remember choice", async () => {
   const onUsePasskey = vi.fn().mockResolvedValue({ status: "success" });
   renderChallenge({ methods: [0, 1], onUsePasskey });
 
-  fireEvent.click(
-    screen.getByRole("checkbox", { name: /se souvenir de ce navigateur/i }),
-  );
+  fireEvent.click(rememberCheckbox());
   fireEvent.click(
     screen.getByRole("button", { name: /utiliser une clé d'accès/i }),
   );

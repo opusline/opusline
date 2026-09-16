@@ -331,8 +331,10 @@ docker compose -f compose.prod.yaml pull
 docker compose -f compose.prod.yaml up -d
 ```
 
-Migrations run on start, so that is the whole upgrade. Take the database backup
-first anyway — a migration is the one thing a rollback cannot undo.
+Migrations run on start, followed by the release's one-time data operations
+(`apps/api/operations/`, each processed once and never again), so that is the
+whole upgrade. Take the database backup first anyway — a migration is the one
+thing a rollback cannot undo.
 
 Images are built only when a release is cut, so every tag corresponds to one:
 `latest`, the exact version (`0.20.0`) and the minor series (`0.20`). Nothing is

@@ -12,4 +12,5 @@ parameters:
         - bootstrap/app.php
         - config
         - database
+        - operations
         - routes

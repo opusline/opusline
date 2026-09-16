@@ -28,6 +28,7 @@
     "spatie/laravel-medialibrary": "^11.23",
     "spatie/laravel-sluggable": "^4.0",
     "spomky-labs/otphp": "^11.5",
+    "timokoerber/laravel-one-time-operations": "^1.4",
     "web-auth/webauthn-lib": "^5.3"
   },
   "require-dev": {
