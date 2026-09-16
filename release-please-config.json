@@ -29,6 +29,11 @@
           "type": "json",
           "path": "apps/api/openapi.json",
           "jsonpath": "$.info.version"
+        },
+        {
+          "type": "json",
+          "path": "apps/extension/manifest.base.json",
+          "jsonpath": "$.version"
         }
       ]
     }

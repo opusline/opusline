@@ -15,7 +15,13 @@ Store or on addons.mozilla.org yet; it installs from the zip attached to each
 
 Download `opusline-extension-chrome-<version>.zip` or
 `opusline-extension-firefox-<version>.zip` from the release matching your
-instance, then unzip it.
+instance, check it against the release's checksum list, then unzip it:
+
+```sh
+curl -fsSLO https://github.com/opusline/opusline/releases/latest/download/opusline-extension-chrome-<version>.zip
+curl -fsSLO https://github.com/opusline/opusline/releases/latest/download/SHA256SUMS
+sha256sum --check --ignore-missing SHA256SUMS
+```
 
 **Chrome** — open `chrome://extensions`, turn on *Developer mode*, click
 *Load unpacked* and pick the unzipped folder. Every site the extension needs

@@ -66,6 +66,17 @@ describe("manifest", () => {
     expect(base.version).toMatch(/^\d+\.\d+\.\d+$/);
   });
 
+  it("is stamped with the release version like every other versioned file", () => {
+    const releaseManifest = JSON.parse(
+      readFileSync(
+        path.join(process.cwd(), "../../.release-please-manifest.json"),
+        "utf8",
+      ),
+    ) as Record<string, string>;
+
+    expect(base.version).toBe(releaseManifest["."]);
+  });
+
   it("declares to Firefox that nothing is collected", () => {
     expect(
       firefox.browser_specific_settings.gecko.data_collection_permissions
