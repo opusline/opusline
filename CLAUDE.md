@@ -15,6 +15,7 @@ apps/
   api/        # Laravel API (PHP). Composer-managed; PHP runs ONLY in Docker via scripts/php.sh.
   web/        # Product SPA — Vite + React + TypeScript + TanStack Router/Query
   storybook/  # Storybook host — serves the stories of packages/ui AND apps/web
+  e2e/        # Playwright suite — browses the production images, never the dev stack's seed
 packages/
   ui/         # Design system — shadcn/ui components (raw TS source, no build step)
   api-client/ # TS client generated from the Laravel OpenAPI spec (flat into src/, incl. index.ts)
@@ -49,6 +50,8 @@ turbo lint                # PHP only: Pint --test + Rector --dry-run + composer-
 pnpm format-and-lint      # Biome across the repo (root //#format-and-lint task; :fix writes)
 pnpm knip                 # unused files, exports and dependencies across the JS workspaces
 pnpm generate-api         # export OpenAPI spec + regenerate packages/api-client
+pnpm e2e                  # Playwright against http://localhost:8080 (E2E_BASE_URL overrides); boot the stack
+                          #   first: pnpm --filter @opusline/e2e stack:build, then stack:up (stack:down to drop it)
 
 # Scoped
 pnpm --filter @opusline/web dev
@@ -123,6 +126,7 @@ proxies `/api` and `/sanctum`.
 - API: Pest. Feature tests for endpoints (happy path + validation errors + authorization), unit tests for domain actions.
 - Web: Vitest + Testing Library for components with logic; don't test trivial rendering.
 - **Fixture and demo names are fiction.** Every client, company, brand, and mission name in seeders, tests, stories, and fixtures must be invented — never the name of a real business, and never copied from a design mockup without checking (mockups have carried real names). Reuse the established fictional cast (Nordlys, Callisto, Lunaprint, Orvella, Vesterhus, Studio Lorem, Ateliers Ruche, Perso…) before coining new members, so the demo reads as one coherent world.
+- E2E (`apps/e2e`): Playwright over the production compose stack (`apps/e2e/scripts/stack.sh`), in its own CI job and deliberately not a `test` task, so neither `turbo test` nor pre-push boots a stack. One workflow per test, and **every test registers its own account** (the `account` fixture) and provisions through the real API (`support/provision.ts`) — no seeders, no test-only routes, no shared state, so aggregates can be asserted exactly. Locate by role and label like the Vitest suite, never `data-testid`; assert the **English** copy from `messages/en.json` (the Vitest suite is pinned to `fr`, do not copy its strings). No `page.clock`: the server cannot follow it — tracking specs navigate to a fixed past week instead.
 - Storybook (`apps/storybook`, serves both workspaces): **every component in `packages/ui` AND `apps/web` gets a story**, colocated next to the component (`PascalCase.stories.tsx`, CSF3 `satisfies Meta`, `tags: ["autodocs"]`, title prefix `UI/` or `Web/`). Stories double as visual documentation; a component without a story is not done. Exceptions: TanStack Router route files (`src/routes/**`) are thin wiring — the feature component they render carries the story; context-provider components and story-only helpers have no visual surface of their own and need no story.
 
 ## When unsure

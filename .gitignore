@@ -14,6 +14,10 @@ node_modules
 
 # Testing
 coverage
+playwright-report
+test-results
+# The e2e stack's generated .env, which holds an APP_KEY.
+apps/e2e/.stack
 
 # Turbo
 .turbo

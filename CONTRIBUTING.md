@@ -31,7 +31,8 @@ cd apps/api && sh scripts/php.sh php artisan migrate --seed
 
 then sign in at http://localhost:3000 as `test@example.com` / `password`.
 
-The Storybook tests drive a headless Chromium; install it once:
+The Storybook tests and the end-to-end suite drive a headless Chromium; install
+it once:
 
 ```bash
 pnpm --filter @opusline/storybook exec playwright install chromium
@@ -44,6 +45,7 @@ pnpm --filter @opusline/storybook exec playwright install chromium
 | `apps/api` | Laravel API — domain folders under `app/Domain/` |
 | `apps/web` | The SPA — Vite, React, TanStack Router/Query |
 | `apps/storybook` | Storybook host for both `packages/ui` and `apps/web` stories |
+| `apps/e2e` | Playwright suite that browses the production images |
 | `packages/ui` | The design system — shadcn/ui on Base UI, raw TS source |
 | `packages/api-client` | TS client generated from the API's OpenAPI spec |
 
@@ -64,6 +66,23 @@ Any PHP command goes through the wrapper, from `apps/api/`:
 ```bash
 sh scripts/php.sh php artisan test
 ```
+
+The end-to-end suite is the one check the hooks leave out, because it needs a
+booted stack. It browses the production images — Caddy, FrankenPHP, Postgres —
+under a compose project of its own, on port 8080, beside whatever `pnpm dev` has
+running:
+
+```bash
+pnpm --filter @opusline/e2e stack:build   # both images, from your working tree (needs docker buildx)
+pnpm --filter @opusline/e2e stack:up
+pnpm e2e                                  # `pnpm --filter @opusline/e2e e2e:ui` to debug
+pnpm --filter @opusline/e2e stack:down    # volumes included
+```
+
+Every test registers its own account and creates what it needs through the app,
+so there is nothing to seed and no order to respect. `E2E_BASE_URL=http://localhost:3000
+pnpm e2e` points the same suite at `pnpm dev`; past a handful of tests that needs
+`TRUSTED_PROXIES=*` in `apps/api/.env`, or the register limiter sees one visitor.
 
 CI is narrower than the hooks: it runs only the lanes your diff touches, so a
 frontend-only PR reports the backend jobs as *skipped*, and a docs-only PR skips
