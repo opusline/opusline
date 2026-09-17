@@ -278,6 +278,7 @@ export function SettingsPage({
                   onCancel={() => form.reset(savedValues)}
                 >
                   <Button
+                    data-testid="settings-save"
                     disabled={isSubmitting}
                     form={FORM_ID}
                     onClick={() => {

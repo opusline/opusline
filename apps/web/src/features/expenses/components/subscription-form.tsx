@@ -136,6 +136,7 @@ export function SubscriptionForm({
   return (
     <form
       className="flex min-h-0 flex-1 flex-col"
+      data-testid="subscription-form"
       onSubmit={(event) => {
         event.preventDefault();
 
@@ -158,6 +159,7 @@ export function SubscriptionForm({
             </FieldLabel>
             <Input
               aria-invalid={supplierError !== undefined}
+              data-testid="subscription-supplier"
               id={`${id}-supplier`}
               onChange={(event) => patch({ supplier: event.target.value })}
               value={draft.supplier}
@@ -209,6 +211,7 @@ export function SubscriptionForm({
               <InputGroupInput
                 aria-invalid={amountError !== undefined}
                 className="font-mono tabular-nums"
+                data-testid="subscription-amount"
                 id={`${id}-ht`}
                 inputMode="decimal"
                 onBlur={() =>
@@ -427,7 +430,12 @@ export function SubscriptionForm({
         <Button onClick={onCancel} size="2xl" type="button" variant="outline">
           {m.common_cancel()}
         </Button>
-        <Button disabled={!canSave} size="2xl" type="submit">
+        <Button
+          data-testid="subscription-submit"
+          disabled={!canSave}
+          size="2xl"
+          type="submit"
+        >
           {m.common_save()}
         </Button>
       </SheetFooter>

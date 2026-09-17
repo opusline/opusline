@@ -41,7 +41,10 @@ export function PastTransfersCard({
       </div>
 
       {transfers.length === 0 ? (
-        <p className="mt-4 text-muted-foreground-3 text-sm">
+        <p
+          className="mt-4 text-muted-foreground-3 text-sm"
+          data-testid="transfers-empty"
+        >
           {m.treasury_past_empty()}
         </p>
       ) : (
@@ -81,7 +84,11 @@ function TransferRow({
   onDelete,
 }: TransferRowProps) {
   return (
-    <li className="flex items-center gap-3 border-secondary border-b py-3 last:border-b-0">
+    <li
+      className="flex items-center gap-3 border-secondary border-b py-3 last:border-b-0"
+      data-amount-cents={transfer.amount.amount}
+      data-testid="transfer-row"
+    >
       <span className="shrink-0 text-foreground-3 text-sm tabular-nums">
         {dateLabel}
       </span>
@@ -96,6 +103,7 @@ function TransferRow({
       </span>
       <Button
         aria-label={m.treasury_delete_aria({ date: dateLabel })}
+        data-testid="transfer-delete"
         disabled={isDeleting}
         onClick={() => onDelete(transfer.id)}
         size="icon-sm"

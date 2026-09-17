@@ -29,6 +29,7 @@ export function BankKpiTiles({ data, onEditBalance }: BankKpiTilesProps) {
         action={
           <Button
             aria-label={m.bank_balance_edit_aria()}
+            data-testid="bank-balance-edit"
             onClick={onEditBalance}
             size="icon-sm"
             variant="ghost"

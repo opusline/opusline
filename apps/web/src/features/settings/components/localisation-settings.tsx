@@ -117,6 +117,7 @@ export function LocalisationSettings({
           </FieldLabel>
           <NativeSelect
             className="w-70"
+            data-testid="settings-country"
             id="localisation-country"
             onChange={(event) =>
               setDraft((current) => ({
@@ -184,6 +185,7 @@ export function LocalisationSettings({
           </FieldLabel>
           <NativeSelect
             className="w-70"
+            data-testid="settings-language"
             id="localisation-lang"
             onChange={(event) => {
               const next = zLocale.safeParse(event.target.value);
@@ -274,7 +276,12 @@ export function LocalisationSettings({
             onCancel();
           }}
         >
-          <Button disabled={isSaving} onClick={() => onSave(draft)} size="xl">
+          <Button
+            data-testid="settings-save"
+            disabled={isSaving}
+            onClick={() => onSave(draft)}
+            size="xl"
+          >
             {isSaving ? m.common_saving() : m.common_save()}
           </Button>
         </SaveBar>

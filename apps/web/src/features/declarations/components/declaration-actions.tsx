@@ -43,6 +43,7 @@ export function DeclarationActions({
       {completion === null ? (
         hasDeadline && (
           <Button
+            data-testid="declaration-mark-filed"
             disabled={isBusy}
             onClick={onMarkFiled}
             size="xl"
@@ -64,6 +65,7 @@ export function DeclarationActions({
           </span>
           {completion.paidOn === null && (
             <Button
+              data-testid="declaration-mark-paid"
               disabled={isBusy}
               onClick={onMarkPaid}
               size="lg"
@@ -73,6 +75,7 @@ export function DeclarationActions({
             </Button>
           )}
           <Button
+            data-testid="declaration-undo-filed"
             disabled={isBusy}
             onClick={() => onUndo(completion)}
             size="sm"

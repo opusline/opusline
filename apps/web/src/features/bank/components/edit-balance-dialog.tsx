@@ -92,6 +92,7 @@ function EditBalanceForm({
 
   return (
     <form
+      data-testid="bank-balance-dialog"
       onSubmit={(event) => {
         event.preventDefault();
 
@@ -117,6 +118,7 @@ function EditBalanceForm({
             aria-invalid={isInvalidDraft}
             autoFocus
             className="flex-1 font-mono"
+            data-testid="bank-balance-input"
             id={fieldId}
             inputMode="decimal"
             onChange={(event) =>
@@ -143,7 +145,12 @@ function EditBalanceForm({
         <DialogClose render={<Button size="xl" variant="outline" />}>
           {m.common_cancel()}
         </DialogClose>
-        <Button disabled={!canSubmit} size="xl" type="submit">
+        <Button
+          data-testid="bank-balance-submit"
+          disabled={!canSubmit}
+          size="xl"
+          type="submit"
+        >
           {isSaving ? m.common_saving() : m.common_save()}
         </Button>
       </DialogFooter>

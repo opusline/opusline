@@ -154,6 +154,7 @@ export function SubscribeCalendarDialog({
           <InputGroup className="h-11 gap-2 bg-muted pr-1.5">
             <InputGroupInput
               className="flex-1 text-sm"
+              data-testid="calendar-address"
               id={addressId}
               onFocus={(event) => event.currentTarget.select()}
               readOnly

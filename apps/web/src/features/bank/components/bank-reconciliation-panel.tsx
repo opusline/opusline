@@ -52,6 +52,13 @@ export function BankReconciliationPanel({
   // "Tout est rapproché" is a factual claim — it only holds when no credit is
   // left without a linked invoice, not merely when no suggestion is pending.
   const fullyLinked = hasStatement && !data.hasUnlinkedCredits;
+  const reconciliationState = !hasStatement
+    ? "no-statement"
+    : matches.length > 0
+      ? "to-validate"
+      : fullyLinked
+        ? "reconciled"
+        : "unlinked-credits";
 
   useEffect(() => {
     const settled = matches.length < settledCount.current;
@@ -78,6 +85,8 @@ export function BankReconciliationPanel({
         "overflow-hidden rounded-md border bg-card",
         matches.length > 0 && "border-primary/35",
       )}
+      data-state={reconciliationState}
+      data-testid="bank-reconciliation"
       ref={panelRef}
       // Focus lands here when the last suggestion is settled and there is no
       // next row to move to; it is not in the tab order otherwise.
@@ -173,7 +182,11 @@ function SuggestionRow({
   const dateFormat = useDateFormat();
 
   return (
-    <div className="flex flex-wrap items-center gap-4 border-accent border-b px-5 py-3.5 last:border-b-0">
+    <div
+      className="flex flex-wrap items-center gap-4 border-accent border-b px-5 py-3.5 last:border-b-0"
+      data-reference={match.invoice.number ?? undefined}
+      data-testid="bank-match"
+    >
       <div className="min-w-0 flex-1 basis-64">
         <div className="flex min-w-0 items-baseline gap-2.5">
           <span className="shrink-0 font-mono text-muted-foreground-3 text-sm tabular-nums">
@@ -207,6 +220,7 @@ function SuggestionRow({
       <div className="flex shrink-0 gap-1.5">
         <Button
           data-settle-target
+          data-testid="bank-match-validate"
           disabled={isActing}
           onClick={() => onValidate(match.id)}
           size="lg"

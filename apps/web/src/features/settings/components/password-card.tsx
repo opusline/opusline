@@ -93,6 +93,7 @@ export function PasswordCard({
                 <Input
                   aria-invalid={isInvalid}
                   autoComplete="new-password"
+                  data-testid="settings-new-password"
                   id="new-password"
                   onBlur={field.handleBlur}
                   onChange={(event) => field.handleChange(event.target.value)}
@@ -118,6 +119,7 @@ export function PasswordCard({
                 <Input
                   aria-invalid={isInvalid}
                   autoComplete="new-password"
+                  data-testid="settings-confirm-password"
                   id="new-password-confirmation"
                   onBlur={field.handleBlur}
                   onChange={(event) => field.handleChange(event.target.value)}
@@ -132,7 +134,12 @@ export function PasswordCard({
           }}
         </form.Field>
         <div>
-          <Button disabled={isPending} size="lg" type="submit">
+          <Button
+            data-testid="settings-change-password"
+            disabled={isPending}
+            size="lg"
+            type="submit"
+          >
             {m.security_password_submit()}
           </Button>
         </div>

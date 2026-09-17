@@ -29,7 +29,12 @@ export function RevenueKpiCards({
     <div className="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-3.5">
       <section className="rounded-md border bg-card p-5">
         <h2 className={eyebrowVariants()}>{basisText(basis).kpiTitle()}</h2>
-        <p className="mt-3 whitespace-nowrap font-mono text-4xl text-primary-text leading-none tabular-nums">
+        <p
+          className="mt-3 whitespace-nowrap font-mono text-4xl text-primary-text leading-none tabular-nums"
+          data-amount-cents={data.total.amount}
+          data-basis={basis}
+          data-testid="revenue-total"
+        >
           {formatWholeAmount(format, data.total.amount)}
         </p>
         <p className="mt-2.5 flex items-center gap-1.5 text-muted-foreground-3 text-sm">

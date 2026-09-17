@@ -55,7 +55,7 @@ export function TreasuryPage({
       </div>
 
       {balance === null || transferable === null ? (
-        <Empty>
+        <Empty data-testid="treasury-no-balance">
           <EmptyHeader>
             <EmptyTitle>{m.treasury_empty_title()}</EmptyTitle>
             <EmptyDescription>{m.treasury_empty_body()}</EmptyDescription>
