@@ -14,6 +14,7 @@ import {
   type MoneyFormat,
 } from "@/lib/billing";
 import { cachedDateFormatter, fromCalendarDate } from "@/lib/dates";
+import { shiftPeriod } from "@/lib/periods";
 import { m } from "@/paraglide/messages.js";
 
 import { expenseRateLabel, monthName } from "./labels";
@@ -176,4 +177,36 @@ export function occurrenceMonth(
   occurrence: Pick<SubscriptionOccurrenceData, "debitOn">,
 ): string {
   return occurrence.debitOn.slice(0, 7);
+}
+
+const RECEIPT_STRIP_MONTHS = 12;
+
+/** The twelve months the receipts strip draws, ending on today's, oldest first. */
+export function receiptStripMonths(today: string): string[] {
+  const last = today.slice(0, 7);
+
+  return Array.from({ length: RECEIPT_STRIP_MONTHS }, (_, index) =>
+    shiftPeriod(last, index - (RECEIPT_STRIP_MONTHS - 1)),
+  );
+}
+
+/**
+ * The debits the strip shows as waiting for their receipt, newest first: an
+ * annual subscription's strip is its latest debit alone, the others' the
+ * twelve months ending on today's.
+ */
+export function occurrencesMissingReceipt(
+  subscription: SubscriptionData,
+  today: string,
+): SubscriptionOccurrenceData[] {
+  const shown =
+    subscription.periodicity === 2
+      ? subscription.occurrences.slice(-1)
+      : subscription.occurrences.filter((occurrence) =>
+          receiptStripMonths(today).includes(occurrenceMonth(occurrence)),
+        );
+
+  return shown
+    .filter((occurrence) => occurrence.state === 1)
+    .sort((a, b) => b.debitOn.localeCompare(a.debitOn));
 }

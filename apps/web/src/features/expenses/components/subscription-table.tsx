@@ -24,10 +24,7 @@ import {
   subscriptionPeriodicityLabel,
   subscriptionRegimeLabel,
 } from "../lib/subscriptions";
-import {
-  type OccurrenceLinkHandler,
-  OccurrenceStrip,
-} from "./occurrence-strip";
+import { OccurrenceStrip } from "./occurrence-strip";
 import {
   SubscriptionRowMenu,
   type SubscriptionRowMenuHandlers,
@@ -35,11 +32,7 @@ import {
 import { SubscriptionStatusBadge } from "./subscription-status-badge";
 import { SubscriptionSupplierCell } from "./subscription-supplier-cell";
 
-export type SubscriptionRowHandlers = SubscriptionRowMenuHandlers & {
-  onLinkReceipt: OccurrenceLinkHandler;
-};
-
-type SubscriptionTableProps = SubscriptionRowHandlers & {
+type SubscriptionTableProps = SubscriptionRowMenuHandlers & {
   subscriptions: SubscriptionData[];
   isVatLiable: boolean;
   /** `Y-m-d`, the account's today: the strip ends on its month. */
@@ -59,7 +52,6 @@ export function SubscriptionTable({
   isVatLiable,
   today,
   className,
-  onLinkReceipt,
   ...menuHandlers
 }: SubscriptionTableProps) {
   const format = useMoneyFormat();
@@ -175,15 +167,12 @@ export function SubscriptionTable({
               <SubscriptionStatusBadge subscription={subscription} />
             </TableCell>
             <TableCell className={cn(CELL_CLASSES, "max-w-0")}>
-              <OccurrenceStrip
-                onLinkReceipt={onLinkReceipt}
-                subscription={subscription}
-                today={today}
-              />
+              <OccurrenceStrip subscription={subscription} today={today} />
             </TableCell>
             <TableCell className={cn(CELL_CLASSES, "pr-2 pl-0 text-right")}>
               <SubscriptionRowMenu
                 subscription={subscription}
+                today={today}
                 {...menuHandlers}
               />
             </TableCell>
