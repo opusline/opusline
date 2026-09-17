@@ -37,6 +37,7 @@ export function ReceiptField({
         <Dropzone
           accept={RECEIPT_ACCEPT}
           aria-label={m.expenses_field_receipt()}
+          data-testid="expense-receipt-file"
           onFiles={(files) => onChange(files[0] ?? null)}
         >
           <PaperclipIcon aria-hidden className="text-muted-foreground-2" />

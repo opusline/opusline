@@ -1,4 +1,5 @@
 import { midLastMonth, parisYesterday } from "../../support/dates";
+import { byTestId } from "../../support/locators";
 import {
   addInvoice,
   createClient,
@@ -6,6 +7,8 @@ import {
 } from "../../support/provision";
 import { bankStatementCsv } from "../../support/statements";
 import { expect, test } from "../../support/test";
+
+const REFERENCE = "2026-036";
 
 test("an imported payment is matched to its invoice, and validating it marks the invoice paid", async ({
   page,
@@ -15,41 +18,37 @@ test("an imported payment is matched to its invoice, and validating it marks the
   const client = await createClient(api, { name: "Vesterhus" });
   await addInvoice(api, {
     clientId: client.id,
-    number: "2026-036",
+    number: REFERENCE,
     status: INVOICE_STATUS_SENT,
     issuedOn: midLastMonth(),
     amountHt: { amount: 122_400, currency: "EUR" },
   });
 
   await page.goto("/bank-account");
-  await page
-    .getByRole("button", { name: "Import a statement" })
-    .first()
-    .click();
+  await page.getByTestId("bank-import-open").click();
 
-  const dialog = page.getByRole("dialog", { name: "Import a statement" });
-  await dialog.locator('input[type="file"]').setInputFiles(
+  await page.getByTestId("bank-import-file").setInputFiles(
     bankStatementCsv("releve.csv", [
       {
         bookedOn: parisYesterday(),
-        label: "VIR VESTERHUS FACT 2026-036",
+        label: `VIR VESTERHUS FACT ${REFERENCE}`,
         amount: "1224.00",
       },
     ]),
   );
-  await dialog
-    .getByLabel("Business account balance at the statement date")
-    .fill("5000");
-  await dialog.getByRole("button", { name: "Analyse the statement" }).click();
-  await expect(dialog).toBeHidden();
+  await page.getByTestId("bank-import-balance").fill("5000");
+  await page.getByTestId("bank-import-submit").click();
+  await expect(page.getByTestId("bank-import-dialog")).toBeHidden();
 
-  const reconciliation = page.getByRole("region", { name: "Reconciliation" });
-  await expect(reconciliation).toContainText("2026-036");
-  await reconciliation
-    .getByRole("button", { name: "Validate", exact: true })
+  const reconciliation = page.getByTestId("bank-reconciliation");
+  await expect(reconciliation).toHaveAttribute("data-state", "to-validate");
+  await byTestId(reconciliation, "bank-match", { reference: REFERENCE })
+    .getByTestId("bank-match-validate")
     .click();
-  await expect(reconciliation).toContainText("Everything is reconciled");
+  await expect(reconciliation).toHaveAttribute("data-state", "reconciled");
 
   await page.goto("/invoices");
-  await expect(page.getByRole("button", { name: "Paid (1)" })).toBeVisible();
+  await expect(
+    byTestId(page, "invoice-row", { reference: REFERENCE }),
+  ).toHaveAttribute("data-status", "paid");
 });

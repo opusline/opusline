@@ -62,6 +62,7 @@ export function IdentitySettingsForm({
               label={m.settings_trade_name_label()}
               labelClassName={LABEL}
               placeholder={m.settings_trade_name_placeholder()}
+              testId="settings-trade-name"
             />
           )}
         </form.Field>

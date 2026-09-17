@@ -46,6 +46,9 @@ export function VatDeclarationCard({
     <section
       aria-labelledby={titleId}
       className="flex flex-col rounded-md border bg-card p-6"
+      data-filed={vat.completion !== null}
+      data-kind="vat"
+      data-testid="declaration-card"
     >
       <div className="flex flex-wrap items-center justify-between gap-2.5">
         <h2

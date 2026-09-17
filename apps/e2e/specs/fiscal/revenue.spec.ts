@@ -1,4 +1,5 @@
 import { parisToday } from "../../support/dates";
+import { byTestId } from "../../support/locators";
 import {
   addInvoice,
   createClient,
@@ -33,19 +34,15 @@ test("invoiced revenue counts every invoice issued this month", async ({
   await page.goto("/revenue");
 
   await expect(
-    page
-      .getByRole("heading", { name: "Invoiced revenue HT", exact: true })
-      .locator("xpath=following-sibling::p[1]"),
-  ).toHaveText("€2,024");
+    byTestId(page, "revenue-total", { basis: "invoiced" }),
+  ).toHaveAttribute("data-amount-cents", "202400");
 });
 
 test("collected revenue only counts what was paid", async ({ page }) => {
   await page.goto("/revenue");
-  await page.getByRole("button", { name: "Collected", exact: true }).click();
+  await byTestId(page, "revenue-basis", { basis: "collected" }).click();
 
   await expect(
-    page
-      .getByRole("heading", { name: "Collected revenue HT", exact: true })
-      .locator("xpath=following-sibling::p[1]"),
-  ).toHaveText("€1,224");
+    byTestId(page, "revenue-total", { basis: "collected" }),
+  ).toHaveAttribute("data-amount-cents", "122400");
 });

@@ -74,7 +74,7 @@ export function SubscriptionsTab({
 
       <section className="rounded-md border bg-card">
         {visible.length === 0 ? (
-          <Empty className="px-5 py-8">
+          <Empty className="px-5 py-8" data-testid="subscriptions-empty">
             <EmptyHeader className="gap-1.5">
               <EmptyTitle variant="strong">
                 {data.subscriptions.length === 0

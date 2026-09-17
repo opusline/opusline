@@ -3,12 +3,10 @@ import { expect, test } from "../../support/test";
 
 async function enterBalance(page: Page, balance: string) {
   await page.goto("/bank-account");
-  await page.getByRole("button", { name: "Edit the balance" }).click();
-
-  const dialog = page.getByRole("dialog", { name: "Business account balance" });
-  await dialog.getByLabel("Balance").fill(balance);
-  await dialog.getByRole("button", { name: "Save" }).click();
-  await expect(dialog).toBeHidden();
+  await page.getByTestId("bank-balance-edit").click();
+  await page.getByTestId("bank-balance-input").fill(balance);
+  await page.getByTestId("bank-balance-submit").click();
+  await expect(page.getByTestId("bank-balance-dialog")).toBeHidden();
 }
 
 test("without a balance there is nothing to work a transfer out from", async ({
@@ -17,7 +15,7 @@ test("without a balance there is nothing to work a transfer out from", async ({
 }) => {
   await page.goto("/treasury");
 
-  await expect(page.getByText("No business account balance yet")).toBeVisible();
+  await expect(page.getByTestId("treasury-no-balance")).toBeVisible();
 });
 
 test("a recorded transfer joins the past transfers, and can be deleted", async ({
@@ -27,25 +25,17 @@ test("a recorded transfer joins the past transfers, and can be deleted", async (
   await enterBalance(page, "5000");
 
   await page.goto("/treasury");
-  await page.getByRole("button", { name: "Record a transfer" }).click();
-  const dialog = page.getByRole("dialog", { name: "Record a transfer" });
-  await dialog.getByLabel("Amount").fill("1500");
-  await dialog.getByLabel("Note").fill("Septembre");
-  await dialog.getByRole("button", { name: "Save" }).click();
-  await expect(dialog).toBeHidden();
+  await page.getByTestId("transfer-add-open").click();
+  await page.getByTestId("transfer-amount").fill("1500");
+  await page.getByTestId("transfer-note").fill("Septembre");
+  await page.getByTestId("transfer-submit").click();
+  await expect(page.getByTestId("transfer-form")).toBeHidden();
 
-  const transfer = page
-    .getByRole("main")
-    .getByRole("listitem")
-    .filter({ hasText: "Septembre" });
-  await expect(transfer).toContainText("1,500");
+  const transfer = page.getByTestId("transfer-row");
+  await expect(transfer).toHaveAttribute("data-amount-cents", "150000");
+  await expect(transfer).toContainText("Septembre");
 
-  await transfer
-    .getByRole("button", { name: /^Delete the transfer of/ })
-    .click();
-  await page
-    .getByRole("alertdialog", { name: "Delete this transfer?" })
-    .getByRole("button", { name: "Delete the transfer" })
-    .click();
-  await expect(page.getByText("No transfer recorded yet.")).toBeVisible();
+  await transfer.getByTestId("transfer-delete").click();
+  await page.getByTestId("confirm-delete-submit").click();
+  await expect(page.getByTestId("transfers-empty")).toBeVisible();
 });

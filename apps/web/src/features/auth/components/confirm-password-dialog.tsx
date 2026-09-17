@@ -82,6 +82,7 @@ function ConfirmPasswordForm({ onConfirmed }: { onConfirmed: () => void }) {
   return (
     <form
       className="flex flex-col gap-5"
+      data-testid="confirm-password-form"
       onSubmit={(event) => {
         event.preventDefault();
         void form.handleSubmit();
@@ -114,6 +115,7 @@ function ConfirmPasswordForm({ onConfirmed }: { onConfirmed: () => void }) {
                 aria-invalid={isInvalid}
                 autoComplete="current-password"
                 autoFocus
+                data-testid="confirm-password-input"
                 id={field.name}
                 onBlur={field.handleBlur}
                 onChange={(event) => field.handleChange(event.target.value)}
@@ -128,7 +130,12 @@ function ConfirmPasswordForm({ onConfirmed }: { onConfirmed: () => void }) {
         }}
       </form.Field>
       <DialogFooter layout="inline">
-        <Button disabled={confirmPassword.isPending} size="2xl" type="submit">
+        <Button
+          data-testid="confirm-password-submit"
+          disabled={confirmPassword.isPending}
+          size="2xl"
+          type="submit"
+        >
           {m.security_confirm_password_submit()}
         </Button>
       </DialogFooter>

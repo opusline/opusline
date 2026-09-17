@@ -118,6 +118,7 @@ function ImportStatementForm({
 
   return (
     <form
+      data-testid="bank-import-dialog"
       onSubmit={(event) => {
         event.preventDefault();
         submit();
@@ -137,6 +138,7 @@ function ImportStatementForm({
           "mt-4 h-auto gap-3 p-5",
           file !== null && "border-primary border-solid",
         )}
+        data-testid="bank-import-file"
         disabled={isSaving}
         onFiles={pick}
       >
@@ -157,6 +159,7 @@ function ImportStatementForm({
             aria-describedby={balanceInvalid ? balanceErrorId : undefined}
             aria-invalid={balanceInvalid}
             className="flex-1 font-mono"
+            data-testid="bank-import-balance"
             id={balanceId}
             inputMode="decimal"
             onChange={(event) =>
@@ -192,7 +195,12 @@ function ImportStatementForm({
         <DialogClose render={<Button size="xl" variant="outline" />}>
           {m.common_cancel()}
         </DialogClose>
-        <Button disabled={!canSubmit} size="xl" type="submit">
+        <Button
+          data-testid="bank-import-submit"
+          disabled={!canSubmit}
+          size="xl"
+          type="submit"
+        >
           {isSaving ? m.bank_import_analysing() : m.bank_import_submit()}
         </Button>
       </DialogFooter>

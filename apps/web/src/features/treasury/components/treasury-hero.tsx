@@ -70,7 +70,12 @@ export function TreasuryHero({
         </p>
       )}
 
-      <Button className="mt-6" onClick={onRecord} size="2xl">
+      <Button
+        className="mt-6"
+        data-testid="transfer-add-open"
+        onClick={onRecord}
+        size="2xl"
+      >
         {m.treasury_record_button()}
       </Button>
     </section>

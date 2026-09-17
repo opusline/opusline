@@ -35,18 +35,25 @@ export function ExpenseFilterChips({
       }}
       value={[value]}
     >
-      {filters.map((filter) => (
-        <Chip key={filter} size="sm" value={filter}>
-          {expenseFilterLabel(filter)}
-          <ChipCount>
-            {
-              month.expenses.filter((expense) =>
-                matchesExpenseFilter(expense, filter, month),
-              ).length
-            }
-          </ChipCount>
-        </Chip>
-      ))}
+      {filters.map((filter) => {
+        const matchCount = month.expenses.filter((expense) =>
+          matchesExpenseFilter(expense, filter, month),
+        ).length;
+
+        return (
+          <Chip
+            data-count={matchCount}
+            data-filter={filter}
+            data-testid="expense-filter"
+            key={filter}
+            size="sm"
+            value={filter}
+          >
+            {expenseFilterLabel(filter)}
+            <ChipCount>{matchCount}</ChipCount>
+          </Chip>
+        );
+      })}
     </ChipGroup>
   );
 }

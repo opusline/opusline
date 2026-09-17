@@ -1,4 +1,5 @@
 import { midLastMonth } from "../../support/dates";
+import { byTestId } from "../../support/locators";
 import {
   addInvoice,
   createClient,
@@ -23,21 +24,21 @@ test("last month's collections are the URSSAF figure to declare", async ({
 }) => {
   await page.goto("/declarations");
 
-  const urssaf = page.getByRole("region", { name: /^URSSAF/ });
-  await expect(
-    urssaf.getByRole("link", { name: /1 invoice collected/ }),
-  ).toContainText("1,224");
+  const collected = byTestId(page, "declaration-card", {
+    kind: "urssaf",
+  }).getByTestId("declaration-collected");
+  await expect(collected).toHaveAttribute("data-amount-cents", "122400");
+  await expect(collected).toHaveAttribute("data-invoice-count", "1");
 });
 
 test("a filing is marked filed, then undone", async ({ page }) => {
   await page.goto("/declarations");
 
-  const urssaf = page.getByRole("region", { name: /^URSSAF/ });
-  await urssaf.getByRole("button", { name: "Mark as filed" }).click();
-  await expect(urssaf.getByText(/^Filed on/)).toBeVisible();
+  const urssaf = byTestId(page, "declaration-card", { kind: "urssaf" });
+  await urssaf.getByTestId("declaration-mark-filed").click();
+  await expect(urssaf).toHaveAttribute("data-filed", "true");
 
-  await urssaf.getByRole("button", { name: "Undo" }).click();
-  await expect(
-    urssaf.getByRole("button", { name: "Mark as filed" }),
-  ).toBeVisible();
+  await urssaf.getByTestId("declaration-undo-filed").click();
+  await expect(urssaf).toHaveAttribute("data-filed", "false");
+  await expect(urssaf.getByTestId("declaration-mark-filed")).toBeVisible();
 });

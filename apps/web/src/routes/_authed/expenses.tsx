@@ -495,6 +495,7 @@ function ExpensesRoute() {
         action={
           tab === "journal" ? (
             <Button
+              data-testid="expense-add-open"
               onClick={() =>
                 setSheet({ mode: "create", initial: emptyExpenseDraft(today) })
               }
@@ -505,6 +506,7 @@ function ExpensesRoute() {
             </Button>
           ) : (
             <Button
+              data-testid="subscription-add-open"
               onClick={() =>
                 setSubscriptionSheet({
                   mode: "create",

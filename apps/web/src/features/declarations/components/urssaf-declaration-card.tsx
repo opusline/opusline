@@ -49,6 +49,9 @@ export function UrssafDeclarationCard({
     <section
       aria-labelledby={titleId}
       className="flex flex-col rounded-md border bg-card p-6"
+      data-filed={urssaf.completion !== null}
+      data-kind="urssaf"
+      data-testid="declaration-card"
     >
       <div className="flex flex-wrap items-center justify-between gap-2.5">
         <h2
@@ -78,6 +81,9 @@ export function UrssafDeclarationCard({
         <div className="mt-2.5 flex flex-wrap items-center justify-between gap-3.5">
           <Link
             className="rounded-sm text-left focus-visible:outline-2 focus-visible:outline-primary-text"
+            data-amount-cents={urssaf.base.amount}
+            data-invoice-count={urssaf.invoiceCount}
+            data-testid="declaration-collected"
             to="/invoices"
           >
             <span className="whitespace-nowrap border-primary/50 border-b border-dashed font-mono text-4xl text-primary-text leading-none tabular-nums">

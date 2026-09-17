@@ -25,6 +25,7 @@ import {
   deadlineItemKey,
   deadlineItemTitle,
   isItemDone,
+  itemCategory,
 } from "@/lib/deadlines";
 import { m } from "@/paraglide/messages.js";
 
@@ -174,7 +175,13 @@ function DeadlineRow({
   );
 
   return (
-    <li className="flex items-stretch gap-3.5">
+    <li
+      className="flex items-stretch gap-3.5"
+      data-category={itemCategory(item)}
+      data-done={done}
+      data-fiscal-kind={item.fiscal?.kind}
+      data-testid="deadline-item"
+    >
       <span className="flex w-2 shrink-0 justify-center pt-6" aria-hidden>
         <span className={cn("size-2 rounded-full", DOT_TONES[tone])} />
       </span>
@@ -194,6 +201,7 @@ function DeadlineRow({
               : `${m.deadlines_mark_done()} — ${title} ${dueLabel}`
           }
           className={cardClasses}
+          data-testid="deadline-toggle"
           disabled={isPending}
           onClick={() => onToggleFiscal(item)}
           type="button"

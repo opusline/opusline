@@ -136,6 +136,7 @@ function RecordTransferForm({
 
   return (
     <form
+      data-testid="transfer-form"
       onSubmit={(event) => {
         event.preventDefault();
 
@@ -162,6 +163,7 @@ function RecordTransferForm({
               aria-invalid={isInvalidAmount}
               autoFocus
               className="flex-1 font-mono"
+              data-testid="transfer-amount"
               id={amountId}
               inputMode="decimal"
               // Seeded, so focusing means "confirm or replace", not "append".
@@ -199,6 +201,7 @@ function RecordTransferForm({
             {m.treasury_note_label()}
           </Label>
           <Input
+            data-testid="transfer-note"
             id={noteId}
             maxLength={255}
             onChange={(event) => setNote(event.target.value)}
@@ -224,7 +227,12 @@ function RecordTransferForm({
         <DialogClose render={<Button size="xl" variant="outline" />}>
           {m.common_cancel()}
         </DialogClose>
-        <Button disabled={draft === null || isSaving} size="xl" type="submit">
+        <Button
+          data-testid="transfer-submit"
+          disabled={draft === null || isSaving}
+          size="xl"
+          type="submit"
+        >
           {isSaving ? m.common_saving() : m.common_save()}
         </Button>
       </DialogFooter>

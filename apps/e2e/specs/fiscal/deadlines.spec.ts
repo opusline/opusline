@@ -1,17 +1,25 @@
+import { byTestId } from "../../support/locators";
 import { expect, test } from "../../support/test";
+
+const FISCAL_KIND_CFE = 3;
 
 test("the timeline filters down to one kind of deadline", async ({
   page,
   account: _registered,
 }) => {
   await page.goto("/deadlines");
-  await page.getByRole("button", { name: /^Other \(/ }).click();
+  await expect(
+    byTestId(page, "deadline-item", { category: "urssaf" }).first(),
+  ).toBeVisible();
 
-  const deadlines = page.getByRole("main").getByRole("listitem");
-  await expect(deadlines.filter({ hasText: "CFE" })).toHaveCount(1);
-  await expect(deadlines.filter({ hasText: "Déclaration URSSAF" })).toHaveCount(
-    0,
-  );
+  await byTestId(page, "deadline-filter", { filter: "other" }).click();
+
+  await expect(
+    byTestId(page, "deadline-item", { "fiscal-kind": FISCAL_KIND_CFE }),
+  ).toHaveCount(1);
+  await expect(
+    byTestId(page, "deadline-item", { category: "urssaf" }),
+  ).toHaveCount(0);
 });
 
 test("a deadline marked as done can be reopened", async ({
@@ -19,11 +27,13 @@ test("a deadline marked as done can be reopened", async ({
   account: _registered,
 }) => {
   await page.goto("/deadlines");
-  await page.getByRole("button", { name: /^Mark as done — CFE/ }).click();
 
-  await expect(
-    page.getByRole("button", { name: /^Mark as not done — CFE/ }),
-  ).toBeVisible();
+  const cfe = byTestId(page, "deadline-item", {
+    "fiscal-kind": FISCAL_KIND_CFE,
+  });
+  await cfe.getByTestId("deadline-toggle").click();
+  await expect(cfe).toHaveAttribute("data-done", "true");
+  await expect(cfe.getByTestId("deadline-toggle")).toBeEnabled();
 });
 
 test("the calendar subscription hands out a private webcal address", async ({
@@ -31,11 +41,9 @@ test("the calendar subscription hands out a private webcal address", async ({
   account: _registered,
 }) => {
   await page.goto("/deadlines");
-  await page.getByRole("button", { name: "Subscribe to the calendar" }).click();
+  await page.getByTestId("calendar-subscribe-open").click();
 
-  await expect(
-    page
-      .getByRole("dialog", { name: "Subscribe to the calendar" })
-      .getByLabel("Subscription address"),
-  ).toHaveValue(/^webcal:\/\/.+\/api\/calendar\/.+\.ics$/);
+  await expect(page.getByTestId("calendar-address")).toHaveValue(
+    /^webcal:\/\/.+\/api\/calendar\/.+\.ics$/,
+  );
 });

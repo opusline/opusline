@@ -277,6 +277,7 @@ export function ExpenseForm({
   return (
     <form
       className="flex min-h-0 flex-1 flex-col"
+      data-testid="expense-form"
       onSubmit={(event) => {
         event.preventDefault();
 
@@ -300,10 +301,18 @@ export function ExpenseForm({
               value={[entryMode]}
               variant="raised"
             >
-              <SegmentedControlItem value="scan">
+              <SegmentedControlItem
+                data-mode="scan"
+                data-testid="expense-mode"
+                value="scan"
+              >
                 {m.expenses_mode_scan()}
               </SegmentedControlItem>
-              <SegmentedControlItem value="type">
+              <SegmentedControlItem
+                data-mode="type"
+                data-testid="expense-mode"
+                value="type"
+              >
                 {m.expenses_mode_type()}
               </SegmentedControlItem>
             </SegmentedControl>
@@ -332,6 +341,7 @@ export function ExpenseForm({
           </FieldLabel>
           <Input
             aria-invalid={supplierError !== undefined}
+            data-testid="expense-supplier"
             id={`${id}-supplier`}
             onChange={(event) => patch({ supplier: event.target.value })}
             value={draft.supplier}
@@ -360,6 +370,7 @@ export function ExpenseForm({
               <FieldSourceTag source={sources.category} />
             </FieldLabel>
             <NativeSelect
+              data-testid="expense-category"
               id={`${id}-category`}
               onChange={(event) =>
                 patch({
@@ -385,6 +396,7 @@ export function ExpenseForm({
           <InputGroup className="w-52">
             <InputGroupInput
               aria-invalid={amountError !== undefined}
+              data-testid="expense-amount"
               id={`${id}-ttc`}
               inputMode="decimal"
               onChange={(event) =>
@@ -514,7 +526,12 @@ export function ExpenseForm({
         <Button onClick={onCancel} size="xl" type="button" variant="outline">
           {m.common_cancel()}
         </Button>
-        <Button disabled={!canSave} size="xl" type="submit">
+        <Button
+          data-testid="expense-submit"
+          disabled={!canSave}
+          size="xl"
+          type="submit"
+        >
           {isSaving ? m.common_saving() : m.common_save()}
         </Button>
       </SheetFooter>

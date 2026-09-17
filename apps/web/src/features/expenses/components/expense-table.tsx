@@ -147,6 +147,9 @@ function ExpenseRow({
         "group/row border-t transition-colors hover:bg-accent data-drag-over:bg-primary/7",
         isSelected && "bg-primary/5",
       )}
+      data-has-receipt={expense.receipt !== null}
+      data-supplier={expense.supplier}
+      data-testid="expense-row"
       {...dropTarget}
     >
       <TableCell className={cn(CELL_CLASSES, "pr-0")}>

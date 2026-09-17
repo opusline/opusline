@@ -1,28 +1,33 @@
 import { pdfFile } from "../../support/files";
+import { byTestId } from "../../support/locators";
 import { expect, test } from "../../support/test";
+
+const CATEGORY_EQUIPMENT = "0";
 
 test("an expense typed in with its receipt joins the month's journal", async ({
   page,
   account: _registered,
 }) => {
   await page.goto("/expenses");
-  await page.getByRole("button", { name: "Add an expense" }).click();
+  await page.getByTestId("expense-add-open").click();
 
-  const dialog = page.getByRole("dialog", { name: "Add an expense" });
-  await dialog.getByRole("button", { name: "Type it" }).click();
-  await dialog.getByLabel("Supplier").fill("Lunaprint");
-  await dialog.getByLabel("Category").selectOption("Equipment");
-  await dialog.getByLabel("Amount TTC").fill("49.90");
-  await dialog
-    .getByRole("group", { name: "Receipt" })
-    .locator('input[type="file"]')
+  await byTestId(page, "expense-mode", { mode: "type" }).click();
+  await page.getByTestId("expense-supplier").fill("Lunaprint");
+  await page.getByTestId("expense-category").selectOption(CATEGORY_EQUIPMENT);
+  await page.getByTestId("expense-amount").fill("49.90");
+  await page
+    .getByTestId("expense-receipt-file")
     .setInputFiles(pdfFile("lunaprint-recu.pdf"));
-  await dialog.getByRole("button", { name: "Save" }).click();
+  await page.getByTestId("expense-submit").click();
 
-  await expect(dialog).toBeHidden();
-  await expect(page.getByRole("main")).toContainText("Lunaprint");
-  await expect(page.getByRole("button", { name: "All 1" })).toBeVisible();
+  await expect(page.getByTestId("expense-form")).toBeHidden();
   await expect(
-    page.getByRole("button", { name: "No receipt 0" }),
-  ).toBeVisible();
+    byTestId(page, "expense-row", { supplier: "Lunaprint" }),
+  ).toHaveAttribute("data-has-receipt", "true");
+  await expect(
+    byTestId(page, "expense-filter", { filter: "all" }),
+  ).toHaveAttribute("data-count", "1");
+  await expect(
+    byTestId(page, "expense-filter", { filter: "blocked" }),
+  ).toHaveAttribute("data-count", "0");
 });

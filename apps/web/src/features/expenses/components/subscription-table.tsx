@@ -110,6 +110,9 @@ export function SubscriptionTable({
               "group/row border-t transition-colors hover:bg-accent",
               subscription.cancelledOn !== null && "bg-muted/60",
             )}
+            data-periodicity={subscription.periodicity}
+            data-supplier={subscription.supplier}
+            data-testid="subscription-row"
             key={subscription.id}
           >
             <TableCell className={cn(CELL_CLASSES, "max-w-0")}>

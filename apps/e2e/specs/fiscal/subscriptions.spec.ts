@@ -1,19 +1,23 @@
+import { byTestId } from "../../support/locators";
 import { expect, test } from "../../support/test";
+
+const PERIODICITY_MONTHLY = "0";
 
 test("a monthly subscription is listed with its yearly cost", async ({
   page,
   account: _registered,
 }) => {
   await page.goto("/expenses?tab=subscriptions");
-  await expect(page.getByText("No subscriptions")).toBeVisible();
+  await expect(page.getByTestId("subscriptions-empty")).toBeVisible();
 
-  await page.getByRole("button", { name: "Add a subscription" }).click();
-  const dialog = page.getByRole("dialog", { name: "Add a subscription" });
-  await dialog.getByLabel("Supplier").fill("Orvella");
-  await dialog.getByLabel("HT amount").fill("20");
-  await dialog.getByRole("button", { name: "Save" }).click();
+  await page.getByTestId("subscription-add-open").click();
+  await page.getByTestId("subscription-supplier").fill("Orvella");
+  await page.getByTestId("subscription-amount").fill("20");
+  await page.getByTestId("subscription-submit").click();
 
-  await expect(dialog).toBeHidden();
-  await expect(page.getByRole("main")).toContainText("Orvella");
-  await expect(page.getByRole("main")).toContainText("1 monthly subscription");
+  await expect(page.getByTestId("subscription-form")).toBeHidden();
+  await expect(
+    byTestId(page, "subscription-row", { supplier: "Orvella" }),
+  ).toHaveAttribute("data-periodicity", PERIODICITY_MONTHLY);
+  await expect(page.getByTestId("subscriptions-empty")).toBeHidden();
 });

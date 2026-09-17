@@ -21,7 +21,7 @@ export function BankHeader({ onImport }: BankHeaderProps) {
           {m.bank_intro()}
         </p>
       </div>
-      <Button onClick={onImport} size="xl">
+      <Button data-testid="bank-import-open" onClick={onImport} size="xl">
         <DownloadIcon aria-hidden data-icon="inline-start" />
         {m.bank_import_button()}
       </Button>

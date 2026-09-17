@@ -95,7 +95,12 @@ export function DeadlinesPage({
               {m.deadlines_subscribed_badge()}
             </Badge>
           )}
-          <Button onClick={onOpenSubscribe} size="xl" variant="outline">
+          <Button
+            data-testid="calendar-subscribe-open"
+            onClick={onOpenSubscribe}
+            size="xl"
+            variant="outline"
+          >
             {board.calendarSubscribedOn !== null ? (
               <CalendarCogIcon aria-hidden data-icon="inline-start" />
             ) : (
@@ -127,6 +132,9 @@ export function DeadlinesPage({
                   ? m.deadline_category_all()
                   : deadlineCategoryLabel(category)
               } (${counts.get(category) ?? 0})`}
+              data-count={counts.get(category) ?? 0}
+              data-filter={category}
+              data-testid="deadline-filter"
               key={category}
               shape="pill"
               value={category}

@@ -122,7 +122,12 @@ export function RevenueHeader({
           }}
         >
           {BASES.map((option) => (
-            <SegmentedControlItem key={option} value={option}>
+            <SegmentedControlItem
+              data-basis={option}
+              data-testid="revenue-basis"
+              key={option}
+              value={option}
+            >
               {basisText(option).label()}
             </SegmentedControlItem>
           ))}
