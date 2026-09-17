@@ -40,6 +40,8 @@ export function TimerStartPopover({
             <li key={mission.missionId}>
               <button
                 className="flex w-full items-center gap-3 rounded-md border border-border-2 bg-card-2 px-3.5 py-3 text-left transition-colors hover:border-muted-foreground-6 hover:bg-accent disabled:pointer-events-none disabled:opacity-50"
+                data-mission={mission.missionId}
+                data-testid="timer-mission"
                 disabled={isStarting}
                 onClick={() => onPick(mission.missionId)}
                 type="button"

@@ -102,6 +102,9 @@ export function ClientsTable({ clients, revenue }: ClientsTableProps) {
             value={clientScope}
             shape="pill"
             aria-label={`${CLIENT_SCOPE_MESSAGES[clientScope]()} (${scopedClients[clientScope].length})`}
+            data-count={scopedClients[clientScope].length}
+            data-scope={clientScope}
+            data-testid="clients-scope"
           >
             {CLIENT_SCOPE_MESSAGES[clientScope]()}
             <ChipCount aria-hidden>
@@ -170,6 +173,9 @@ export function ClientsTable({ clients, revenue }: ClientsTableProps) {
                         />
                         <Link
                           className="truncate font-medium text-foreground-hi text-sm"
+                          data-archived={isArchived}
+                          data-client={client.slug}
+                          data-testid="client-row-link"
                           onClick={(event: MouseEvent) =>
                             event.stopPropagation()
                           }

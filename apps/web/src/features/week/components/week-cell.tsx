@@ -9,10 +9,11 @@ import { m } from "@/paraglide/messages.js";
 
 import { liveCellLabel, liveStateLabel } from "../lib/labels";
 import { PILL_SKINS, type PillSkin, UNINVOICED_RING } from "../lib/pill-skins";
-import type {
-  LiveCell,
-  WeekCell as WeekCellModel,
-  WeekRow,
+import {
+  type LiveCell,
+  trackedMinutes,
+  type WeekCell as WeekCellModel,
+  type WeekRow,
 } from "../lib/week-grid";
 
 export type CellEditor = { draft: string; error: string | null };
@@ -58,6 +59,7 @@ function LivePill({ live }: { live: LiveCell }) {
   return (
     <button
       aria-label={m.week_stop_tracking()}
+      data-testid="week-cell-live-stop"
       className={cn(
         "min-h-11 w-full rounded-sm border px-2.5 py-2 text-left transition-colors hover:bg-primary/20",
         PILL_SKINS.live.pill,
@@ -149,6 +151,11 @@ export function WeekCell({
         isPending && "bg-muted-2",
       )}
       data-cell={cell.key}
+      data-date={cell.date}
+      data-minutes={trackedMinutes([cell])}
+      data-mission={cell.missionId}
+      data-testid="week-cell"
+      data-today={cell.isToday}
       onClick={editor === null ? () => onActivate(cell.key) : undefined}
       onKeyDown={(event) => onCellKeyDown(event, cell.key)}
       ref={cellRef}
@@ -186,6 +193,7 @@ export function WeekCell({
               </div>
               <div
                 className={cn("mt-0.5 truncate text-xs", PILL_SKINS[skin].note)}
+                data-testid="week-cell-note"
               >
                 {cell.entries.length > 1
                   ? m.week_entries_count({ count: cell.entries.length })
@@ -201,6 +209,7 @@ export function WeekCell({
             aria-describedby={editor.error === null ? undefined : errorId}
             aria-invalid={editor.error !== null || undefined}
             aria-label={m.week_duration_cell_label({ cell: cell.ariaLabel })}
+            data-testid="week-cell-input"
             font="mono"
             onBlur={onDraftBlur}
             onChange={(event) => onDraftChange(event.target.value)}
@@ -213,6 +222,7 @@ export function WeekCell({
           {editor.error !== null && (
             <p
               className="mt-1 text-destructive text-xs"
+              data-testid="week-cell-error"
               id={errorId}
               role="alert"
             >

@@ -12,6 +12,7 @@ import {
   focusableColumnCount,
   type LiveCell,
   locateCell,
+  trackedMinutes,
   type WeekGridModel,
 } from "../lib/week-grid";
 import { isDurationKey, nextCell } from "../lib/week-keyboard";
@@ -336,6 +337,8 @@ export function WeekGrid({
             column.kind === "day" ? (
               <ColumnHeader
                 aria-colindex={columnIndex + 2}
+                data-date={column.date}
+                data-testid="week-column"
                 className={cn(
                   "flex flex-col gap-1.5 border-b px-3.5 py-3",
                   column.isWeekend && "bg-muted",
@@ -389,6 +392,8 @@ export function WeekGrid({
             <RowHeader
               aria-colindex={1}
               className="flex flex-col gap-0.75 border-secondary border-b p-3.5"
+              data-mission={row.missionId}
+              data-testid="week-mission-row"
             >
               <span className="flex min-w-0 items-center gap-2">
                 <span
@@ -458,6 +463,9 @@ export function WeekGrid({
             <ReadOnlyCell
               aria-colindex={model.columns.length + 2}
               aria-label={m.week_row_total_label({ mission: row.name })}
+              data-minutes={trackedMinutes(row.cells)}
+              data-mission={row.missionId}
+              data-testid="week-mission-total"
               className={cn(
                 "whitespace-nowrap border-secondary border-b border-l px-3 py-3.5 text-right font-mono text-sm tabular-nums",
                 row.hasRate && !isHourly(row.billingMode)
@@ -502,6 +510,10 @@ export function WeekGrid({
           <ReadOnlyCell
             aria-colindex={model.columns.length + 2}
             aria-label={m.week_week_total_label()}
+            data-minutes={trackedMinutes(
+              model.rows.flatMap((row) => row.cells),
+            )}
+            data-testid="week-total"
             // Not nowrap: the week total is the one figure that can outgrow its
             // track, and wrapping beats spilling over the card edge.
             className="border-l bg-muted px-3 py-3.5 text-right font-mono font-medium text-primary-text text-sm tabular-nums"

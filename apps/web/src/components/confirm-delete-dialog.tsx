@@ -40,10 +40,14 @@ export function ConfirmDeleteDialog({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>
+          <AlertDialogCancel
+            data-testid="confirm-delete-cancel"
+            disabled={isDeleting}
+          >
             {m.common_cancel()}
           </AlertDialogCancel>
           <AlertDialogAction
+            data-testid="confirm-delete-submit"
             disabled={isDeleting}
             onClick={onConfirm}
             render={<Button size="2xl" variant="destructive" />}

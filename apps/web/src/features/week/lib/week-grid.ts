@@ -62,6 +62,22 @@ export type WeekCell = {
   ariaLabel: string;
 };
 
+/**
+ * Minutes as tracked, before any rounding or pricing — the locale-free figure
+ * the grid exposes as `data-minutes` beside each formatted label.
+ */
+export function trackedMinutes(cells: WeekCell[]): number {
+  return cells.reduce(
+    (total, cell) =>
+      total +
+      cell.entries.reduce(
+        (cellTotal, entry) => cellTotal + entry.durationMinutes,
+        0,
+      ),
+    0,
+  );
+}
+
 export type LiveCell = {
   missionId: number;
   date: string;

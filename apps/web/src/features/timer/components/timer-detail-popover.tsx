@@ -164,6 +164,7 @@ export function TimerDetailPopover({
         {isConfirmingDiscard ? (
           <>
             <Button
+              data-testid="timer-discard-confirm"
               disabled={isBusy}
               onClick={onConfirmDiscard}
               ref={confirmRef}
@@ -178,6 +179,7 @@ export function TimerDetailPopover({
         ) : (
           <Button
             className="w-full"
+            data-testid="timer-discard"
             disabled={isBusy}
             onClick={onDiscard}
             variant="ghost"

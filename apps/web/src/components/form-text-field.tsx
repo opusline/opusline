@@ -52,6 +52,8 @@ type FormTextFieldProps = {
    * right by the time it is read.
    */
   formatOnBlur?: (value: string) => string;
+  /** Lands on the control itself as `data-testid`, for the e2e suite. */
+  testId?: string;
 };
 
 export function FormTextField({
@@ -72,6 +74,7 @@ export function FormTextField({
   controlClassName,
   beside,
   formatOnBlur,
+  testId,
 }: FormTextFieldProps) {
   const isInvalid = !field.state.meta.isValid;
   const errorId = `${field.name}-error`;
@@ -88,6 +91,7 @@ export function FormTextField({
     "aria-describedby":
       [hint, describedBy].filter(Boolean).join(" ") || undefined,
     className: cn(inputClassName, adornment === undefined && controlClassName),
+    "data-testid": testId,
     disabled,
     id: field.name,
     inputMode,
