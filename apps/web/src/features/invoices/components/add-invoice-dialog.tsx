@@ -105,7 +105,7 @@ export function AddInvoiceDialog({
 }: AddInvoiceDialogProps) {
   return (
     <Dialog onOpenChange={onOpenChange} open={open}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg" data-testid="invoice-add-dialog">
         {open && (
           <AddInvoiceForm
             accountToday={accountToday}
@@ -255,6 +255,7 @@ function AddInvoiceForm({
             </Label>
             <Input
               aria-invalid={isNumberMissing}
+              data-testid="invoice-add-reference"
               id={numberFieldId}
               onChange={(event) => setNumber(event.target.value)}
               placeholder={suggestedNumber ?? "F-2026-001"}
@@ -283,6 +284,7 @@ function AddInvoiceForm({
             </Label>
             <Input
               aria-invalid={amountDraft !== "" && amountHtCents === null}
+              data-testid="invoice-add-amount"
               id={amountFieldId}
               inputMode="decimal"
               onChange={(event) => setAmountDraft(event.target.value)}
@@ -366,7 +368,11 @@ function AddInvoiceForm({
       )}
 
       <div className="mt-5 flex justify-end">
-        <Button disabled={!canSubmit} type="submit">
+        <Button
+          data-testid="invoice-add-submit"
+          disabled={!canSubmit}
+          type="submit"
+        >
           {isSaving ? m.invoices_creating() : m.common_save()}
         </Button>
       </div>

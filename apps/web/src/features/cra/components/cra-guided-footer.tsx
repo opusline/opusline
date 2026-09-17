@@ -38,7 +38,13 @@ export function CraGuidedFooter({
   return (
     <div className="flex flex-wrap items-center gap-2.5">
       {index > 0 && (
-        <Button disabled={isBusy} onClick={onBack} size="2xl" variant="outline">
+        <Button
+          data-testid="cra-back"
+          disabled={isBusy}
+          onClick={onBack}
+          size="2xl"
+          variant="outline"
+        >
           {m.common_back()}
         </Button>
       )}
@@ -50,6 +56,7 @@ export function CraGuidedFooter({
       <div className="ml-auto flex flex-wrap items-center gap-2">
         {step === "document" && (
           <Button
+            data-testid="cra-download-pdf"
             disabled={isBusy}
             onClick={onDownload}
             size="2xl"
@@ -59,7 +66,13 @@ export function CraGuidedFooter({
             {m.cra_download_pdf()}
           </Button>
         )}
-        <Button disabled={isBusy} onClick={onAdvance} size="2xl">
+        <Button
+          data-step={step}
+          data-testid="cra-advance"
+          disabled={isBusy}
+          onClick={onAdvance}
+          size="2xl"
+        >
           {CRA_STEP_ACTIONS[step]()}
         </Button>
       </div>

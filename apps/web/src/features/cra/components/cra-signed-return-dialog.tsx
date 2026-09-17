@@ -79,7 +79,7 @@ export function CraSignedReturnDialog({
 
   return (
     <Dialog onOpenChange={close} open={open}>
-      <DialogContent>
+      <DialogContent data-testid="cra-signed-return-dialog">
         <DialogHeader>
           <DialogTitle>{m.cra_signed_return_title()}</DialogTitle>
           <DialogDescription>
@@ -95,6 +95,7 @@ export function CraSignedReturnDialog({
             accept={ACCEPT}
             aria-label={m.cra_signed_return_drop()}
             className="h-auto gap-3.5 px-5 py-5"
+            data-testid="cra-signed-return-file"
             onFiles={(files) => accept(files[0])}
           >
             <span className="flex size-9.5 shrink-0 items-center justify-center rounded-md bg-muted">
@@ -153,6 +154,7 @@ export function CraSignedReturnDialog({
             {m.common_cancel()}
           </Button>
           <Button
+            data-testid="cra-signed-return-submit"
             disabled={file === null || isPending}
             onClick={() => file !== null && onUpload(file)}
             size="2xl"

@@ -301,6 +301,9 @@ function DayCell({
                 : "border border-border-3 border-dashed",
       )}
       data-cell={cell.key}
+      data-date={cell.date}
+      data-fraction-bp={cell.dayFractionBp}
+      data-testid="cra-day"
       onClick={onActivate}
       onKeyDown={(event) => onKeyDown(event, cell.key)}
       ref={cellRef}

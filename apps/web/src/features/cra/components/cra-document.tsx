@@ -84,6 +84,8 @@ export function CraDocument({
 
       <article
         className="rounded-sm p-8 shadow-lg"
+        data-month={cra.month}
+        data-testid="cra-document-preview"
         style={{ background: "#FFFFFF", color: PAPER.ink }}
       >
         <header

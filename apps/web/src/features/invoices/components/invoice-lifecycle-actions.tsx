@@ -55,6 +55,7 @@ export function InvoiceLifecycleActions({
           />
           <Button
             className="mt-4"
+            data-testid="invoice-delete-draft"
             disabled={isPending}
             onClick={onDelete}
             size="xl"
@@ -143,6 +144,7 @@ function SendStep({
       </div>
 
       <Button
+        data-testid="invoice-mark-sent"
         type="submit"
         className="self-start"
         disabled={
@@ -195,10 +197,16 @@ function CollectStep({
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Button disabled={isPending || paidOn === ""} size="xl" type="submit">
+        <Button
+          data-testid="invoice-mark-collected"
+          disabled={isPending || paidOn === ""}
+          size="xl"
+          type="submit"
+        >
           {isPending ? m.common_saving() : m.invoices_mark_paid()}
         </Button>
         <Button
+          data-testid="invoice-remind"
           type="button"
           variant="outline"
           disabled={isPending}

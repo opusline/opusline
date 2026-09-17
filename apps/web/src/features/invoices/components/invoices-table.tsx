@@ -21,7 +21,10 @@ import {
   useMoneyFormat,
 } from "@/components/money-format-provider";
 import { formatWholeAmount } from "@/lib/billing";
-import { invoiceStatusBadge } from "@/lib/invoice-status";
+import {
+  INVOICE_STATUS_TOKENS,
+  invoiceStatusBadge,
+} from "@/lib/invoice-status";
 import { COLOR_CLASSES } from "@/lib/palette";
 import { m } from "@/paraglide/messages.js";
 
@@ -92,6 +95,9 @@ export function InvoicesTable({
             value={invoiceScope}
             shape="pill"
             aria-label={`${invoiceScopeLabel(invoiceScope)} (${counts[invoiceScope]})`}
+            data-count={counts[invoiceScope]}
+            data-filter={invoiceScope}
+            data-testid="invoice-filter"
           >
             {invoiceScopeLabel(invoiceScope)}
             <ChipCount aria-hidden>{counts[invoiceScope]}</ChipCount>
@@ -169,6 +175,10 @@ export function InvoicesTable({
                 return (
                   <TableRow
                     className="cursor-pointer"
+                    data-amount-cents={invoice.amountTtc.amount}
+                    data-reference={invoice.number ?? ""}
+                    data-status={INVOICE_STATUS_TOKENS[invoice.status]}
+                    data-testid="invoice-row"
                     key={invoice.id}
                     onClick={() => onOpen?.(invoice.id)}
                   >
@@ -178,6 +188,7 @@ export function InvoicesTable({
                       <button
                         aria-label={m.invoices_open_aria({ label })}
                         className="rounded-sm text-left focus-visible:outline-2 focus-visible:outline-primary-text"
+                        data-testid="invoice-open"
                         onClick={(event) => {
                           event.stopPropagation();
                           onOpen?.(invoice.id);

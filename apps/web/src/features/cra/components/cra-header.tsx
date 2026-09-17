@@ -4,7 +4,7 @@ import { Button } from "@opusline/ui/components/button";
 import { DownloadIcon } from "lucide-react";
 
 import { useLocale } from "@/components/money-format-provider";
-import { craStatusBadge } from "@/lib/cra-status";
+import { CRA_STATUS_TOKENS, craStatusBadge } from "@/lib/cra-status";
 import { monthTitle } from "@/lib/months";
 
 import { m } from "@/paraglide/messages.js";
@@ -40,12 +40,26 @@ export function CraHeader({
     <div className="flex flex-wrap items-start justify-between gap-4">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2.5">
-          <h1 className="font-heading font-semibold text-2xl text-foreground-hi leading-tight">
+          <h1
+            className="font-heading font-semibold text-2xl text-foreground-hi leading-tight"
+            data-month={cra.month}
+            data-testid="cra-title"
+          >
             {monthTitle(locale, cra.month)}
           </h1>
-          <Badge variant={badge.variant}>{badge.label}</Badge>
+          <Badge
+            data-status={CRA_STATUS_TOKENS[cra.status]}
+            data-testid="cra-status"
+            variant={badge.variant}
+          >
+            {badge.label}
+          </Badge>
         </div>
-        <p className="mt-1.5 text-muted-foreground-3 text-sm">
+        <p
+          className="mt-1.5 text-muted-foreground-3 text-sm"
+          data-origin={cra.dirty ? "edited" : "prefilled"}
+          data-testid="cra-origin"
+        >
           {craSubtitle(client.name, client.type === 1, mission.name, cra.dirty)}
         </p>
       </div>
@@ -55,6 +69,7 @@ export function CraHeader({
       <div className="flex flex-wrap items-center gap-2">
         {cra.status !== 0 && (
           <Button
+            data-testid="cra-download-pdf"
             disabled={isBusy}
             onClick={onDownload}
             size="xl"
@@ -68,6 +83,7 @@ export function CraHeader({
         {cra.status === 1 && (
           <>
             <Button
+              data-testid="cra-reopen"
               disabled={isBusy}
               onClick={onReopen}
               size="xl"
@@ -75,7 +91,12 @@ export function CraHeader({
             >
               {m.cra_reopen()}
             </Button>
-            <Button disabled={isBusy} onClick={onSignedReturn} size="xl">
+            <Button
+              data-testid="cra-signed-return-open"
+              disabled={isBusy}
+              onClick={onSignedReturn}
+              size="xl"
+            >
               {m.cra_signed_return_title()}
             </Button>
           </>

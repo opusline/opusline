@@ -27,6 +27,8 @@ export function CraStatTiles({
   return (
     <StatTileRow className="grid-cols-2 lg:grid-cols-4">
       <StatTile
+        data-days={cra.totalDays}
+        data-testid="cra-reported-days"
         label={m.cra_stat_reported()}
         tone="strong"
         value={daysLabel(format.locale, cra.totalDays)}
@@ -40,6 +42,8 @@ export function CraStatTiles({
         }
       />
       <StatTile
+        data-drift-days={cra.differenceDays}
+        data-testid="cra-drift"
         label={m.cra_stat_difference()}
         tone={cra.differenceDays === 0 ? "quiet" : "brand"}
         value={differenceLabel(format.locale, cra.differenceDays)}

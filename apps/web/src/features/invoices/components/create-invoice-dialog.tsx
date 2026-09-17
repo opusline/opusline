@@ -76,7 +76,10 @@ export function CreateInvoiceDialog({
 }: CreateInvoiceDialogProps) {
   return (
     <Dialog open={todo !== null} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent
+        className="sm:max-w-md"
+        data-testid="invoice-create-dialog"
+      >
         {todo?.work == null ? null : (
           <CreateInvoiceForm
             todo={todo}
@@ -181,6 +184,7 @@ function CreateInvoiceForm({
         <div className="flex flex-col gap-1.5">
           <Label htmlFor={numberFieldId}>{m.invoices_reference_label()}</Label>
           <Input
+            data-testid="invoice-create-reference"
             id={numberFieldId}
             value={number}
             placeholder={suggestedNumber ?? "F-2026-001"}
@@ -194,6 +198,7 @@ function CreateInvoiceForm({
         <div className="flex flex-col gap-1.5">
           <Label htmlFor={amountFieldId}>{m.invoices_amount_ht_label()}</Label>
           <Input
+            data-testid="invoice-create-amount"
             id={amountFieldId}
             inputMode="decimal"
             value={amountDraft}
@@ -221,7 +226,11 @@ function CreateInvoiceForm({
       </p>
 
       <div className="mt-5 flex justify-end">
-        <Button type="submit" disabled={!canSubmit}>
+        <Button
+          data-testid="invoice-create-submit"
+          type="submit"
+          disabled={!canSubmit}
+        >
           {isSaving ? m.invoices_creating() : m.invoices_create_title()}
         </Button>
       </div>

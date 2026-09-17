@@ -1,5 +1,7 @@
+import type { MissionData } from "@opusline/api-client";
 import type { Page } from "@playwright/test";
 import { ANCHOR_TRACKED_DAYS } from "../../support/dates";
+import { byTestId } from "../../support/locators";
 import {
   createClient,
   createMission,
@@ -9,31 +11,51 @@ import {
 import { expect, test } from "../../support/test";
 
 const REFERENCE = "2026-036";
+const THREE_DAYS_AT_550_CENTS = "165000";
+
+let mission: MissionData;
+
+const unbilledWork = (page: Page) =>
+  byTestId(page, "invoice-todo-item", {
+    kind: "to-invoice",
+    "mission-id": mission.id,
+  });
+
+const invoiceFilter = (page: Page, filter: string) =>
+  byTestId(page, "invoice-filter", { filter });
 
 async function invoiceUnbilledTime(page: Page, reference: string) {
   await page.goto("/invoices");
-  await page.getByRole("button", { name: "Create the invoice" }).click();
+  await unbilledWork(page).getByTestId("invoice-todo-create").click();
 
-  const dialog = page.getByRole("dialog", { name: "Create the invoice" });
-  // The next free reference is suggested once it has loaded, and would
-  // overwrite anything typed before it lands.
-  await expect(dialog.getByLabel("Reference")).toHaveValue(/\S/);
-  await dialog.getByLabel("Reference").fill(reference);
-  await dialog.getByRole("button", { name: "Create the invoice" }).click();
+  const dialog = page.getByTestId("invoice-create-dialog");
+  // The next free reference is suggested once it has loaded, and an empty
+  // field takes it: a reference cleared before it lands comes back filled.
+  await expect(dialog.getByTestId("invoice-create-reference")).toHaveValue(
+    /\S/,
+  );
+  await dialog.getByTestId("invoice-create-reference").fill(reference);
+  await dialog.getByTestId("invoice-create-submit").click();
   await expect(dialog).toBeHidden();
 }
 
 async function openInvoice(page: Page, reference: string) {
-  await page
-    .getByRole("button", { name: `Open the invoice ${reference}` })
+  await byTestId(page, "invoice-row", { reference })
+    .getByTestId("invoice-open")
     .click();
 
-  return page.getByRole("dialog", { name: new RegExp(`^${reference}`) });
+  const drawer = page.getByTestId("invoice-drawer");
+  await expect(drawer.getByTestId("invoice-drawer-title")).toHaveAttribute(
+    "data-reference",
+    reference,
+  );
+
+  return drawer;
 }
 
 test.beforeEach(async ({ api, account: _registered }) => {
   const client = await createClient(api, { name: "Nordlys" });
-  const mission = await createMission(api, client, { name: "Callisto front" });
+  mission = await createMission(api, client, { name: "Callisto front" });
 
   for (const date of ANCHOR_TRACKED_DAYS) {
     await logTime(api, {
@@ -49,9 +71,11 @@ test("tracked days wait to be invoiced at the mission's rate", async ({
 }) => {
   await page.goto("/invoices");
 
-  const toHandle = page.getByRole("listitem").filter({ hasText: "To invoice" });
-  await expect(toHandle).toContainText("3 d on Callisto front");
-  await expect(toHandle).toContainText("€1,650 HT");
+  await expect(unbilledWork(page)).toContainText(mission.name);
+  await expect(unbilledWork(page)).toHaveAttribute(
+    "data-amount-cents",
+    THREE_DAYS_AT_550_CENTS,
+  );
 });
 
 test("invoicing the tracked days leaves nothing to handle", async ({
@@ -59,39 +83,41 @@ test("invoicing the tracked days leaves nothing to handle", async ({
 }) => {
   await invoiceUnbilledTime(page, REFERENCE);
 
-  await expect(
-    page.getByText("Everything is invoiced and collected."),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("row", { name: new RegExp(`${REFERENCE}.*€1,650 Sent$`) }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "To collect (1)" }),
-  ).toBeVisible();
+  await expect(page.getByTestId("invoices-all-handled")).toBeVisible();
+
+  const row = byTestId(page, "invoice-row", { reference: REFERENCE });
+  await expect(row).toHaveAttribute("data-status", "sent");
+  await expect(row).toHaveAttribute(
+    "data-amount-cents",
+    THREE_DAYS_AT_550_CENTS,
+  );
+  await expect(invoiceFilter(page, "open")).toHaveAttribute("data-count", "1");
 });
 
 test("a collected invoice is paid", async ({ page }) => {
   await invoiceUnbilledTime(page, REFERENCE);
   const drawer = await openInvoice(page, REFERENCE);
-  await drawer.getByRole("button", { name: "Mark as collected" }).click();
+  await drawer.getByTestId("invoice-mark-collected").click();
 
-  const paidDrawer = page.getByRole("dialog", { name: `${REFERENCE} Paid` });
-  await expect(paidDrawer).toBeVisible();
+  await expect(drawer.getByTestId("invoice-drawer-title")).toHaveAttribute(
+    "data-status",
+    "paid",
+  );
 
-  await paidDrawer.getByRole("button", { name: "Close" }).click();
-  await expect(page.getByRole("button", { name: "Paid (1)" })).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "To collect (0)" }),
-  ).toBeVisible();
+  // The open drawer keeps the list behind it out of reach.
+  await page.keyboard.press("Escape");
+  await expect(drawer).toBeHidden();
+  await expect(invoiceFilter(page, "paid")).toHaveAttribute("data-count", "1");
+  await expect(invoiceFilter(page, "open")).toHaveAttribute("data-count", "0");
 });
 
 test("a reminder is kept in the invoice's history", async ({ page }) => {
   await invoiceUnbilledTime(page, REFERENCE);
   const drawer = await openInvoice(page, REFERENCE);
-  await drawer.getByRole("button", { name: "Note a reminder" }).click();
+  await drawer.getByTestId("invoice-remind").click();
 
   await expect(
-    drawer.getByRole("listitem").filter({ hasText: "Reminder" }),
+    byTestId(drawer, "invoice-history-item", { event: "reminded" }),
   ).toBeVisible();
 });
 
@@ -99,35 +125,30 @@ test("an invoice without a reference is a draft, and deleting it frees the days"
   page,
 }) => {
   await invoiceUnbilledTime(page, "");
-  await expect(page.getByRole("button", { name: "Drafts (1)" })).toBeVisible();
+  await expect(invoiceFilter(page, "draft")).toHaveAttribute("data-count", "1");
 
-  await page.getByRole("button", { name: /^Open the invoice/ }).click();
-  await page
-    .getByRole("dialog")
-    .getByRole("button", { name: "Delete the draft" })
-    .click();
-  await page
-    .getByRole("alertdialog", { name: "Delete this draft?" })
-    .getByRole("button", { name: "Delete the draft" })
-    .click();
+  const drawer = await openInvoice(page, "");
+  await drawer.getByTestId("invoice-delete-draft").click();
+  await page.getByTestId("confirm-delete-submit").click();
 
-  await expect(page.getByRole("button", { name: "Drafts (0)" })).toBeVisible();
-  await expect(
-    page.getByRole("listitem").filter({ hasText: "To invoice" }),
-  ).toContainText("3 d on Callisto front");
+  await expect(invoiceFilter(page, "draft")).toHaveAttribute("data-count", "0");
+  await expect(unbilledWork(page)).toHaveAttribute(
+    "data-amount-cents",
+    THREE_DAYS_AT_550_CENTS,
+  );
 });
 
 test("an invoice issued elsewhere is added by hand", async ({ page }) => {
   await page.goto("/invoices");
-  await page.getByRole("button", { name: "Add an invoice" }).click();
+  await page.getByTestId("invoice-add-open").click();
 
-  const dialog = page.getByRole("dialog", { name: "Add an invoice" });
-  await dialog.getByLabel("Reference").fill("2026-037");
-  await dialog.getByLabel("Amount HT").fill("1200");
-  await dialog.getByRole("button", { name: "Save" }).click();
+  const dialog = page.getByTestId("invoice-add-dialog");
+  await dialog.getByTestId("invoice-add-reference").fill("2026-037");
+  await dialog.getByTestId("invoice-add-amount").fill("1200");
+  await dialog.getByTestId("invoice-add-submit").click();
 
   await expect(dialog).toBeHidden();
   await expect(
-    page.getByRole("button", { name: "Open the invoice 2026-037" }),
-  ).toBeVisible();
+    byTestId(page, "invoice-row", { reference: "2026-037" }),
+  ).toHaveAttribute("data-amount-cents", "120000");
 });

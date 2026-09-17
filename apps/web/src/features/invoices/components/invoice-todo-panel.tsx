@@ -56,7 +56,10 @@ export function InvoiceTodoPanel({
       </header>
 
       {todo.length === 0 ? (
-        <p className="px-5 py-6 text-muted-foreground-3 text-sm">
+        <p
+          className="px-5 py-6 text-muted-foreground-3 text-sm"
+          data-testid="invoices-all-handled"
+        >
           {m.invoices_todo_empty()}
         </p>
       ) : (
@@ -108,13 +111,24 @@ function todoKey(todo: InvoiceTodoData): string {
   return `${todo.kind}-${id}`;
 }
 
+const TODO_KIND_TOKENS: Record<InvoiceTodoData["kind"], string> = {
+  0: "overdue",
+  1: "to-invoice",
+  2: "budget",
+  3: "budget-overrun",
+};
+
 function Row({
+  todo,
+  missionId,
   badge,
   title,
   detail,
   amount,
   action,
 }: {
+  todo: InvoiceTodoData;
+  missionId?: number;
   badge: React.ReactNode;
   title: string;
   detail: string;
@@ -122,7 +136,13 @@ function Row({
   action: React.ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-[6.5rem_minmax(0,1fr)_auto_auto] items-center gap-4 border-b px-5 py-3 last:border-b-0">
+    <div
+      className="grid grid-cols-[6.5rem_minmax(0,1fr)_auto_auto] items-center gap-4 border-b px-5 py-3 last:border-b-0"
+      data-amount-cents={todo.amount.amount}
+      data-kind={TODO_KIND_TOKENS[todo.kind]}
+      data-mission-id={missionId}
+      data-testid="invoice-todo-item"
+    >
       {badge}
       <div className="min-w-0">
         <p className="truncate text-foreground-2 text-sm">{title}</p>
@@ -154,6 +174,7 @@ function OverdueRow({
 
   return (
     <Row
+      todo={todo}
       badge={<Badge variant="warn">{m.invoice_status_late()}</Badge>}
       title={`${overdue.number ?? m.invoices_no_reference()} · ${todo.clientName}`}
       detail={overdueDetail(dateFormat, overdue)}
@@ -185,12 +206,18 @@ function UnbilledWorkRow({
 
   return (
     <Row
+      todo={todo}
+      missionId={work.missionId}
       badge={<Badge variant="brand">{m.invoices_to_invoice_badge()}</Badge>}
       title={unbilledWorkTitle(format.locale, work)}
       detail={unbilledWorkDetail(format.locale, work)}
       amount={`${formatWholeAmount(format, todo.amount.amount)} HT`}
       action={
-        <Button size="lg" onClick={() => onCreateInvoice(todo)}>
+        <Button
+          data-testid="invoice-todo-create"
+          size="lg"
+          onClick={() => onCreateInvoice(todo)}
+        >
           {m.invoices_create_title()}
         </Button>
       }
@@ -214,6 +241,8 @@ function BudgetRow({
 
   return (
     <Row
+      todo={todo}
+      missionId={budget.missionId}
       badge={
         <Badge variant={isOverrun ? "warn" : "brand"}>
           {isOverrun

@@ -96,6 +96,9 @@ export function CraPicker({
                           "hover:bg-accent focus-visible:bg-accent focus-visible:outline-none",
                           key === selectedKey && "bg-primary/10",
                         )}
+                        data-mission={item.missionSlug}
+                        data-month={item.month}
+                        data-testid="cra-picker-item"
                         onClick={() => onPick(item)}
                         type="button"
                       >
