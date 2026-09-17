@@ -1,5 +1,12 @@
 import { randomUUID } from "node:crypto";
-import type { RegisterUserData } from "@opusline/api-client";
+import type {
+  ClientData,
+  CreateClientData,
+  CreateMissionData,
+  MissionData,
+  RegisterUserData,
+  TimeEntryInputData,
+} from "@opusline/api-client";
 import type { Api } from "./api";
 
 export type Account = {
@@ -29,4 +36,41 @@ export async function registerAccount(api: Api): Promise<Account> {
   await api.post("/api/register", registration);
 
   return account;
+}
+
+/** What a new account counts as one day; a day-billed entry is a share of it. */
+export const WORKDAY_MINUTES = 420;
+
+const CLIENT_TYPE_DIRECT = 0;
+const BILLING_MODE_DAILY = 0;
+
+export async function createClient(
+  api: Api,
+  client: Partial<CreateClientData> & Pick<CreateClientData, "name">,
+): Promise<ClientData> {
+  const payload: CreateClientData = { type: CLIENT_TYPE_DIRECT, ...client };
+
+  return api.post<ClientData>("/api/clients", payload);
+}
+
+/** A day-billed mission at 550 € unless the test says otherwise. */
+export async function createMission(
+  api: Api,
+  client: ClientData,
+  mission: Partial<CreateMissionData> & Pick<CreateMissionData, "name">,
+): Promise<MissionData> {
+  const payload: CreateMissionData = {
+    billingMode: BILLING_MODE_DAILY,
+    rate: { amount: 55_000, currency: "EUR" },
+    ...mission,
+  };
+
+  return api.post<MissionData>(`/api/clients/${client.slug}/missions`, payload);
+}
+
+export async function logTime(
+  api: Api,
+  entry: TimeEntryInputData,
+): Promise<void> {
+  await api.post("/api/time-entries", entry);
 }
