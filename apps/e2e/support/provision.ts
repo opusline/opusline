@@ -2,7 +2,9 @@ import { randomUUID } from "node:crypto";
 import type {
   ClientData,
   CreateClientData,
+  CreateInvoiceData,
   CreateMissionData,
+  InvoiceData,
   MissionData,
   RegisterUserData,
   TimeEntryInputData,
@@ -73,4 +75,14 @@ export async function logTime(
   entry: TimeEntryInputData,
 ): Promise<void> {
   await api.post("/api/time-entries", entry);
+}
+
+export const INVOICE_STATUS_SENT = 1;
+export const INVOICE_STATUS_PAID = 2;
+
+export async function addInvoice(
+  api: Api,
+  invoice: CreateInvoiceData,
+): Promise<InvoiceData> {
+  return api.post<InvoiceData>("/api/invoices", invoice);
 }
