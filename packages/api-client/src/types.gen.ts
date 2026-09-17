@@ -1750,6 +1750,10 @@ export type SettingsData = {
     invoiceNumberFormat: string;
     treasuryBuffer: MoneyData | null;
     cfeExpected: MoneyData | null;
+    referenceTaxIncome: MoneyData | null;
+    referenceTaxIncomeYear: number | null;
+    taxHouseholdQuarterParts: number | null;
+    incomeTaxRateBp: number | null;
     currency: Currency;
     currencyLocked: boolean;
     locale: Locale;
@@ -2250,6 +2254,13 @@ export type UpdateSettingsData = {
         amount: number;
         currency: Currency;
     } | null;
+    referenceTaxIncome?: {
+        amount: number;
+        currency: Currency;
+    } | null;
+    referenceTaxIncomeYear?: number | null;
+    taxHouseholdQuarterParts?: number | null;
+    incomeTaxRateBp?: number | null;
 };
 
 /**

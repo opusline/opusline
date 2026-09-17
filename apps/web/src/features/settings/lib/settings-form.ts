@@ -15,6 +15,7 @@ import {
   parseAmountToCents,
   parseRateBp,
 } from "@/lib/billing";
+import { accountTodayCalendarDate } from "@/lib/dates";
 import { isFrenchFiscalityCountry } from "@/lib/fiscality";
 import { valueOrNull } from "@/lib/form";
 import { m } from "@/paraglide/messages.js";
@@ -92,6 +93,12 @@ export type SettingsFormValues = {
   invoiceNumberFormat: string;
   treasuryBuffer: string;
   cfeExpected: string;
+  referenceTaxIncome: string;
+  /** Held even while no RFR is typed, so the picker has a year to show; sent only with one. */
+  referenceTaxIncomeYear: number;
+  /** Quarter parts, like the API: 4 is one part. Sent only with an RFR, like the year. */
+  taxHouseholdQuarterParts: number;
+  incomeTaxRate: string;
   workdayMinutes: number;
   /** Months of silence before work retires itself; 0 is the form's "never". */
   dormantAfterMonths: number;
@@ -153,6 +160,19 @@ export function toSettingsValues(
       settings.cfeExpected === null
         ? ""
         : formatAmount(format, settings.cfeExpected.amount),
+    referenceTaxIncome:
+      settings.referenceTaxIncome === null
+        ? ""
+        : formatAmount(format, settings.referenceTaxIncome.amount),
+    referenceTaxIncomeYear:
+      settings.referenceTaxIncomeYear ??
+      latestAvisIncomeYear(settings.timezone),
+    taxHouseholdQuarterParts:
+      settings.taxHouseholdQuarterParts ?? QUARTER_PARTS_PER_PART,
+    incomeTaxRate:
+      settings.incomeTaxRateBp === null
+        ? ""
+        : formatRateBp(format.locale, settings.incomeTaxRateBp),
     workdayMinutes: settings.workdayMinutes,
     dormantAfterMonths: settings.dormantAfterMonths ?? 0,
   };
@@ -192,6 +212,7 @@ export function toSettingsPayload(
   // the régime pinned. Sending the already-normalized values keeps the saved
   // echo identical to the draft, so the unsaved-changes bar settles at zero.
   const isFrench = isFrenchFiscalityCountry(businessCountry);
+  const referenceTaxIncome = moneyOrNull(values.referenceTaxIncome, isFrench);
 
   return {
     businessCountry,
@@ -237,7 +258,24 @@ export function toSettingsPayload(
     treasuryBuffer: moneyOrNull(values.treasuryBuffer),
     // Outside France these two French taxes do not apply at all.
     cfeExpected: moneyOrNull(values.cfeExpected, isFrench),
+    referenceTaxIncome,
+    referenceTaxIncomeYear:
+      referenceTaxIncome === null ? null : values.referenceTaxIncomeYear,
+    taxHouseholdQuarterParts:
+      referenceTaxIncome === null ? null : values.taxHouseholdQuarterParts,
+    incomeTaxRateBp:
+      !isFrench || values.incomeTaxRate.trim() === ""
+        ? null
+        : (parseRateBp(format.locale, values.incomeTaxRate) ??
+          settings.incomeTaxRateBp),
   };
+}
+
+export const QUARTER_PARTS_PER_PART = 4;
+
+/** The avis d'imposition that lands in the summer prints the year before's income. */
+export function latestAvisIncomeYear(timezone: string): number {
+  return Number(accountTodayCalendarDate(timezone).slice(0, 4)) - 1;
 }
 
 export function countChanges(
@@ -286,6 +324,10 @@ const FIELD_TAB: Record<keyof SettingsFormValues, SettingsTab> = {
   invoiceNumberFormat: "facturation",
   treasuryBuffer: "facturation",
   cfeExpected: "fiscalite",
+  referenceTaxIncome: "fiscalite",
+  referenceTaxIncomeYear: "fiscalite",
+  taxHouseholdQuarterParts: "fiscalite",
+  incomeTaxRate: "fiscalite",
   workdayMinutes: "facturation",
   dormantAfterMonths: "facturation",
 };
@@ -300,6 +342,12 @@ export function optionalAmountValidator(locale: Locale) {
     parseAmountToCents(locale, value, { allowZero: true }) !== null
       ? undefined
       : { message: m.settings_buffer_invalid() };
+}
+
+/** A percent rate the user may leave empty: empty means unset. */
+export function optionalRatePercentValidator(locale: Locale) {
+  return ({ value }: { value: string }): { message: string } | undefined =>
+    value.trim() === "" ? undefined : ratePercentValidator(locale)({ value });
 }
 
 /** The onChange validator every percent-rate draft field shares. */

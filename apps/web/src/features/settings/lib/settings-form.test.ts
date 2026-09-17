@@ -257,3 +257,60 @@ it("treats a zero treasury buffer as a real answer", () => {
   expect(validateAmount({ value: "1 500,50" })).toBeUndefined();
   expect(validateAmount({ value: "abc" })).not.toBeUndefined();
 });
+
+it("sends the year and the parts only with a revenu fiscal de référence", () => {
+  const withoutIncome = toSettingsPayload(
+    DEFAULT_MONEY_FORMAT,
+    { ...values, referenceTaxIncome: "", referenceTaxIncomeYear: 2025 },
+    settingsFixture,
+  );
+  const withIncome = toSettingsPayload(
+    DEFAULT_MONEY_FORMAT,
+    {
+      ...values,
+      referenceTaxIncome: "31 500",
+      referenceTaxIncomeYear: 2025,
+      taxHouseholdQuarterParts: 6,
+    },
+    settingsFixture,
+  );
+
+  expect(withoutIncome).toMatchObject({
+    referenceTaxIncome: null,
+    referenceTaxIncomeYear: null,
+    taxHouseholdQuarterParts: null,
+  });
+  expect(withIncome).toMatchObject({
+    referenceTaxIncome: { amount: 3_150_000, currency: "EUR" },
+    referenceTaxIncomeYear: 2025,
+    taxHouseholdQuarterParts: 6,
+  });
+});
+
+it.each([
+  ["", null],
+  ["7,5", 750],
+])("reads the withholding rate « %s » as %s", (draft, rateBp) => {
+  const payload = toSettingsPayload(
+    DEFAULT_MONEY_FORMAT,
+    { ...values, incomeTaxRate: draft },
+    settingsFixture,
+  );
+
+  expect(payload.incomeTaxRateBp).toBe(rateBp);
+});
+
+it("drops the avis figures outside France", () => {
+  const payload = toSettingsPayload(
+    DEFAULT_MONEY_FORMAT,
+    { ...values, referenceTaxIncome: "31 500", incomeTaxRate: "7,5" },
+    settingsFixture,
+    { businessCountry: "BE" },
+  );
+
+  expect(payload).toMatchObject({
+    referenceTaxIncome: null,
+    referenceTaxIncomeYear: null,
+    incomeTaxRateBp: null,
+  });
+});

@@ -17,6 +17,7 @@ use Spatie\LaravelData\Attributes\Validation\Email;
 use Spatie\LaravelData\Attributes\Validation\IntegerType;
 use Spatie\LaravelData\Attributes\Validation\Max;
 use Spatie\LaravelData\Attributes\Validation\Regex;
+use Spatie\LaravelData\Attributes\Validation\RequiredWith;
 use Spatie\LaravelData\Attributes\Validation\Rule;
 use Spatie\LaravelData\Attributes\Validation\Timezone;
 use Spatie\LaravelData\Data;
@@ -96,6 +97,17 @@ class UpdateSettingsData extends Data
          * it simply overrides that estimate.
          */
         public ?MoneyData $cfeExpected = null,
+        /** The household's revenu fiscal de référence, as the avis d'imposition prints it. */
+        public ?MoneyData $referenceTaxIncome = null,
+        /** The year of income that RFR measures: the avis sent in 2026 prints 2025's. */
+        #[IntegerType, Between(2000, 2100), RequiredWith('referenceTaxIncome')]
+        public ?int $referenceTaxIncomeYear = null,
+        /** The household's quotient familial in quarter parts — 4 is one part, 6 one and a half. */
+        #[IntegerType, Between(4, 80), RequiredWith('referenceTaxIncome')]
+        public ?int $taxHouseholdQuarterParts = null,
+        /** The prélèvement à la source rate from the avis, which prices the income tax set aside without the versement libératoire. */
+        #[IntegerType, Between(0, 10000)]
+        public ?int $incomeTaxRateBp = null,
     ) {}
 
     /**
