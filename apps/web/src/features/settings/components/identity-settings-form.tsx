@@ -1,9 +1,8 @@
 import type { VatRegime } from "@opusline/api-client";
+import { ExemptField } from "@opusline/ui/components/exempt-field";
 import { Switch } from "@opusline/ui/components/switch";
 import { House } from "lucide-react";
-
 import { AddressFields } from "@/components/address-fields";
-import { ExemptField } from "@/components/exempt-field";
 import { FormTextField } from "@/components/form-text-field";
 import {
   formatFrenchPhone,

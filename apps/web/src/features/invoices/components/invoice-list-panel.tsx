@@ -6,8 +6,8 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@opusline/ui/components/empty";
+import { LoadMoreButton } from "@opusline/ui/components/load-more-button";
 import { Skeleton } from "@opusline/ui/components/skeleton";
-import { LoadMoreButton } from "@/components/load-more-button";
 import {
   useDateFormat,
   useMoneyFormat,

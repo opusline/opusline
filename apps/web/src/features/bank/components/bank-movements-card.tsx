@@ -1,6 +1,7 @@
 import type { BankAccountData, BankMovementData } from "@opusline/api-client";
 import { Badge } from "@opusline/ui/components/badge";
 import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
+import { LoadMoreButton } from "@opusline/ui/components/load-more-button";
 import {
   Table,
   TableBody,
@@ -10,8 +11,6 @@ import {
   TableRow,
 } from "@opusline/ui/components/table";
 import { cn } from "@opusline/ui/lib/utils";
-
-import { LoadMoreButton } from "@/components/load-more-button";
 import {
   useDateFormat,
   useMoneyFormat,

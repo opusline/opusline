@@ -13,6 +13,7 @@ import {
   AlertTitle,
 } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
+import { ConfirmDeleteDialog } from "@opusline/ui/components/confirm-delete-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,7 +41,6 @@ import {
   TriangleAlertIcon,
 } from "lucide-react";
 import { type ReactNode, useState } from "react";
-import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import {
@@ -330,6 +330,7 @@ export function MissionDetailPage({
             </DropdownMenuContent>
           </DropdownMenu>
           <ConfirmDeleteDialog
+            cancelLabel={m.common_cancel()}
             confirmLabel={m.missions_delete_confirm()}
             description={m.missions_delete_body({ name: mission.name })}
             isDeleting={isDeletePending ?? false}

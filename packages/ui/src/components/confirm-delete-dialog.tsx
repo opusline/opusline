@@ -10,14 +10,13 @@ import {
 } from "@opusline/ui/components/alert-dialog";
 import { Button } from "@opusline/ui/components/button";
 
-import { m } from "@/paraglide/messages.js";
-
 type ConfirmDeleteDialogProps = {
   open: boolean;
   title: string;
   /** What goes, named the way the screen names it, so the click is informed. */
   description: string;
   confirmLabel: string;
+  cancelLabel: string;
   isDeleting: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
@@ -28,6 +27,7 @@ export function ConfirmDeleteDialog({
   title,
   description,
   confirmLabel,
+  cancelLabel,
   isDeleting,
   onOpenChange,
   onConfirm,
@@ -44,7 +44,7 @@ export function ConfirmDeleteDialog({
             data-testid="confirm-delete-cancel"
             disabled={isDeleting}
           >
-            {m.common_cancel()}
+            {cancelLabel}
           </AlertDialogCancel>
           <AlertDialogAction
             data-testid="confirm-delete-submit"

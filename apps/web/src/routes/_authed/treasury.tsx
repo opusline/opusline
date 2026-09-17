@@ -6,6 +6,7 @@ import {
   showTreasuryQueryKey,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
+import { ConfirmDeleteDialog } from "@opusline/ui/components/confirm-delete-dialog";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import {
   keepPreviousData,
@@ -15,8 +16,6 @@ import {
 } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-
-import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import {
   useDateFormat,
   useMoneyFormat,
@@ -135,6 +134,7 @@ function VirementRoute() {
       />
 
       <ConfirmDeleteDialog
+        cancelLabel={m.common_cancel()}
         confirmLabel={m.treasury_delete_confirm()}
         description={
           transferToDelete === null

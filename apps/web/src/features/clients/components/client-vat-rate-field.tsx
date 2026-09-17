@@ -1,6 +1,6 @@
 import type { Locale } from "@opusline/api-client";
+import { ExemptField } from "@opusline/ui/components/exempt-field";
 
-import { ExemptField } from "@/components/exempt-field";
 import {
   FormTextField,
   type StringFieldApi,

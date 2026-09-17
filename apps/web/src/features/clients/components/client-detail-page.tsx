@@ -6,6 +6,7 @@ import type {
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Badge } from "@opusline/ui/components/badge";
 import { Button } from "@opusline/ui/components/button";
+import { ConfirmDeleteDialog } from "@opusline/ui/components/confirm-delete-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,7 +48,6 @@ import {
 } from "lucide-react";
 import { type MouseEvent, type ReactNode, useMemo, useState } from "react";
 import { ClientLogo } from "@/components/client-logo";
-import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import { MissionStatusBadge } from "@/components/mission-status-badge";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import {
@@ -284,6 +284,7 @@ export function ClientDetailPage({
             </DropdownMenuContent>
           </DropdownMenu>
           <ConfirmDeleteDialog
+            cancelLabel={m.common_cancel()}
             confirmLabel={m.clients_delete_confirm()}
             description={m.clients_delete_body({ name: client.name })}
             isDeleting={isDeletePending ?? false}

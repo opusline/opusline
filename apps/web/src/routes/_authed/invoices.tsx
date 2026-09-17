@@ -13,6 +13,7 @@ import {
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Button } from "@opusline/ui/components/button";
+import { LoadMoreButton } from "@opusline/ui/components/load-more-button";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import {
   useInfiniteQuery,
@@ -23,7 +24,6 @@ import {
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { LoadMoreButton } from "@/components/load-more-button";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import {
   AddInvoiceDialog,

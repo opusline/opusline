@@ -9,10 +9,12 @@ import {
   FieldLabel,
 } from "@opusline/ui/components/field";
 import { Input } from "@opusline/ui/components/input";
+import {
+  TOTP_CODE_LENGTH,
+  TotpCodeField,
+} from "@opusline/ui/components/totp-code-field";
 import { CircleAlert, Fingerprint } from "lucide-react";
 import { useId, useState } from "react";
-
-import { TOTP_CODE_LENGTH, TotpCodeField } from "@/components/totp-code-field";
 import { m } from "@/paraglide/messages.js";
 
 export type ChallengeOutcome =

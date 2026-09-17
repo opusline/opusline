@@ -23,7 +23,7 @@ function Example(props: { disabled?: boolean; invalid?: boolean }) {
 }
 
 const meta = {
-  title: "Web/TotpCodeField",
+  title: "UI/TotpCodeField",
   component: Example,
   tags: ["autodocs"],
 } satisfies Meta<typeof Example>;

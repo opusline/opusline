@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { ExemptField } from "./exempt-field";
 
 const meta = {
-  title: "Web/ExemptField",
+  title: "UI/ExemptField",
   component: ExemptField,
   tags: ["autodocs"],
 } satisfies Meta<typeof ExemptField>;

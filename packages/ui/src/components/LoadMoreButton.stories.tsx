@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { LoadMoreButton } from "./load-more-button";
 
 const meta = {
-  title: "Web/LoadMoreButton",
+  title: "UI/LoadMoreButton",
   component: LoadMoreButton,
   tags: ["autodocs"],
 } satisfies Meta<typeof LoadMoreButton>;

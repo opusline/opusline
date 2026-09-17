@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { ConfirmDeleteDialog } from "./confirm-delete-dialog";
 
 const meta = {
-  title: "Web/ConfirmDeleteDialog",
+  title: "UI/ConfirmDeleteDialog",
   component: ConfirmDeleteDialog,
   tags: ["autodocs"],
   args: {
@@ -12,6 +12,7 @@ const meta = {
     description:
       "Orvella Studio will be removed for good. Its documents go with it.",
     confirmLabel: "Delete the client",
+    cancelLabel: "Cancel",
     isDeleting: false,
     onOpenChange: () => {},
     onConfirm: () => {},

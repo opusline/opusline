@@ -9,6 +9,7 @@ import {
   showInvoiceOptions,
   updateInvoiceMutation,
 } from "@opusline/api-client/react-query";
+import { ConfirmDeleteDialog } from "@opusline/ui/components/confirm-delete-dialog";
 import { useToast } from "@opusline/ui/components/toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
@@ -20,8 +21,6 @@ import {
   useEffect,
   useState,
 } from "react";
-
-import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatAmountWithCents } from "@/lib/billing";
 import { accountTodayCalendarDate } from "@/lib/dates";
@@ -363,6 +362,7 @@ export function InvoiceDrawerProvider({
         open={openInvoiceId !== null}
       />
       <ConfirmDeleteDialog
+        cancelLabel={m.common_cancel()}
         confirmLabel={m.invoices_delete_draft()}
         description={
           detail.data === undefined

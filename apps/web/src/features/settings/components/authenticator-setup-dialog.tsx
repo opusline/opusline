@@ -12,10 +12,12 @@ import {
 import { Field, FieldError, FieldLabel } from "@opusline/ui/components/field";
 import { QrCode } from "@opusline/ui/components/qr-code";
 import { RecoveryCodes } from "@opusline/ui/components/recovery-codes";
+import {
+  TOTP_CODE_LENGTH,
+  TotpCodeField,
+} from "@opusline/ui/components/totp-code-field";
 import { TriangleAlert } from "lucide-react";
 import { useId, useState } from "react";
-
-import { TOTP_CODE_LENGTH, TotpCodeField } from "@/components/totp-code-field";
 import type { FormSubmitResult } from "@/lib/form";
 import { m } from "@/paraglide/messages.js";
 
