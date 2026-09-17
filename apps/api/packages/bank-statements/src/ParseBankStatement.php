@@ -2,16 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Bank\Parsing;
+namespace Opusline\BankStatements;
 
-use App\Domain\Bank\Enums\BankStatementFormat;
 use Throwable;
 
 /**
  * The single door for statement files: decode bytes, sniff the format from
  * content (extensions lie — banks serve OFX as .txt), delegate to the format's
- * parser, and refuse anything unreadable with a translatable exception before
- * a byte reaches the database.
+ * parser, and refuse anything unreadable with a StatementParseException.
  */
 class ParseBankStatement
 {
@@ -39,7 +37,7 @@ class ParseBankStatement
         // its bound has to hold before parsing; the other formats build one
         // object per movement and are bounded on the result.
         if ($format === BankStatementFormat::Csv && preg_match_all('/\r\n|\r|\n/', $text) > self::MAX_MOVEMENTS + self::CSV_PREAMBLE_LINES) {
-            throw new StatementParseException('bank.too_many_movements');
+            throw new StatementParseException(StatementParseFailure::TooManyMovements);
         }
 
         try {
@@ -50,15 +48,15 @@ class ParseBankStatement
             // Anything a malformed file makes a parser throw is the same fact:
             // the file is not a statement we can read. Surface it as such —
             // chained, so a genuine parser bug keeps its trail.
-            throw new StatementParseException('bank.unreadable_file', 0, $exception);
+            throw new StatementParseException(StatementParseFailure::UnreadableFile, $exception);
         }
 
         if ($statement->movements === []) {
-            throw new StatementParseException('bank.no_movements');
+            throw new StatementParseException(StatementParseFailure::NoMovements);
         }
 
         if (count($statement->movements) > self::MAX_MOVEMENTS) {
-            throw new StatementParseException('bank.too_many_movements');
+            throw new StatementParseException(StatementParseFailure::TooManyMovements);
         }
 
         $movements = $this->chronological($statement->movements);

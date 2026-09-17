@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Bank\Parsing;
+namespace Opusline\BankStatements;
 
 use Carbon\CarbonImmutable;
 
@@ -19,7 +19,7 @@ final class OfxStatementParser implements StatementParser
         $blocks = $this->transactionBlocks($text);
 
         if ($blocks === []) {
-            throw new StatementParseException('bank.no_movements');
+            throw new StatementParseException(StatementParseFailure::NoMovements);
         }
 
         $movements = [];
@@ -29,7 +29,7 @@ final class OfxStatementParser implements StatementParser
             $amount = $this->value($block, 'TRNAMT');
 
             if ($posted === null || $amount === null) {
-                throw new StatementParseException('bank.unreadable_file');
+                throw new StatementParseException(StatementParseFailure::UnreadableFile);
             }
 
             $movements[] = new ParsedMovement(
@@ -156,7 +156,7 @@ final class OfxStatementParser implements StatementParser
     private function parseOfxDate(string $value): CarbonImmutable
     {
         if (preg_match('/^(\d{4})(\d{2})(\d{2})/', trim($value), $parts) !== 1) {
-            throw new StatementParseException('bank.unreadable_file');
+            throw new StatementParseException(StatementParseFailure::UnreadableFile);
         }
 
         return StatementDate::fromParts((int) $parts[1], (int) $parts[2], (int) $parts[3]);

@@ -2,13 +2,18 @@
 
 declare(strict_types=1);
 
-use App\Domain\Bank\Enums\BankStatementFormat;
-use App\Domain\Bank\Parsing\ParseBankStatement;
-use App\Domain\Bank\Parsing\ParsedMovement;
-use App\Domain\Bank\Parsing\StatementParseException;
+use Opusline\BankStatements\BankStatementFormat;
+use Opusline\BankStatements\ParseBankStatement;
+use Opusline\BankStatements\ParsedMovement;
+use Opusline\BankStatements\StatementParseException;
+
+function statementFixture(string $name): string
+{
+    return (string) file_get_contents(__DIR__.'/Fixtures/'.$name);
+}
 
 test('detects the format from content, never from the file name', function (string $fixture, BankStatementFormat $expected): void {
-    [, $format] = (new ParseBankStatement)->handle(bankFixture($fixture));
+    [, $format] = (new ParseBankStatement)->handle(statementFixture($fixture));
 
     expect($format)->toBe($expected);
 })->with([
@@ -20,7 +25,7 @@ test('detects the format from content, never from the file name', function (stri
 ]);
 
 test('refuses files that are not bank statements', function (string $fixture): void {
-    (new ParseBankStatement)->handle(bankFixture($fixture));
+    (new ParseBankStatement)->handle(statementFixture($fixture));
 })->throws(StatementParseException::class)->with([
     'binary garbage' => ['garbage.bin'],
     'empty file' => ['empty.txt'],
@@ -32,31 +37,31 @@ test('refuses a csv with more rows than a statement import holds', function (): 
     $rows = str_repeat("2026-07-15,VIR SEPA NORDLYS,-12.00\n", ParseBankStatement::MAX_MOVEMENTS + 200);
 
     (new ParseBankStatement)->handle("Date,Label,Amount\n".$rows);
-})->throws(StatementParseException::class, 'bank.too_many_movements');
+})->throws(StatementParseException::class, 'TooManyMovements');
 
 test('refuses any other format holding more movements than an import holds', function (): void {
     $transaction = '<STMTTRN><TRNTYPE>DEBIT</TRNTYPE><DTPOSTED>20260722</DTPOSTED><TRNAMT>-12.00</TRNAMT><NAME>PRLV ONDULYS</NAME></STMTTRN>';
     $ofx = str_replace(
         '<BANKTRANLIST>',
         '<BANKTRANLIST>'.str_repeat($transaction, ParseBankStatement::MAX_MOVEMENTS + 1),
-        bankFixture('statement_v211.ofx'),
+        statementFixture('statement_v211.ofx'),
     );
 
     (new ParseBankStatement)->handle($ofx);
-})->throws(StatementParseException::class, 'bank.too_many_movements');
+})->throws(StatementParseException::class, 'TooManyMovements');
 
 test('refuses a camt053 document that declares a DTD', function (): void {
     $camt = str_replace(
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE Document [<!ENTITY bank "Nordlys">]>',
-        bankFixture('camt053.xml'),
+        statementFixture('camt053.xml'),
     );
 
     (new ParseBankStatement)->handle($camt);
-})->throws(StatementParseException::class, 'bank.unreadable_file');
+})->throws(StatementParseException::class, 'UnreadableFile');
 
 test('reads a semicolon csv with french headers and amounts, oldest first', function (): void {
-    [$statement] = (new ParseBankStatement)->handle(bankFixture('semicolon_solde.csv'));
+    [$statement] = (new ParseBankStatement)->handle(statementFixture('semicolon_solde.csv'));
 
     expect($statement->movements)->toHaveCount(4)
         ->and($statement->movements[0]->bookedOn->toDateString())->toBe('2026-07-15')
@@ -76,7 +81,7 @@ test('reads a semicolon csv with french headers and amounts, oldest first', func
 });
 
 test('reads a comma csv with quoted labels and iso dates', function (): void {
-    [$statement] = (new ParseBankStatement)->handle(bankFixture('comma_iso_dates.csv'));
+    [$statement] = (new ParseBankStatement)->handle(statementFixture('comma_iso_dates.csv'));
 
     expect($statement->movements)->toHaveCount(3)
         ->and($statement->movements[2]->label)->toBe('VIREMENT SEPA, ORVELLA STUDIO')
@@ -86,7 +91,7 @@ test('reads a comma csv with quoted labels and iso dates', function (): void {
 });
 
 test('reads a débit and crédit column pair and skips filler rows', function (): void {
-    [$statement] = (new ParseBankStatement)->handle(bankFixture('split_debit_credit.csv'));
+    [$statement] = (new ParseBankStatement)->handle(statementFixture('split_debit_credit.csv'));
 
     expect($statement->movements)->toHaveCount(3)
         ->and($statement->movements[0]->amountCents)->toBe(-243_100)
@@ -100,14 +105,14 @@ test('reads a débit and crédit column pair and skips filler rows', function ()
 });
 
 test('decodes windows-1252 labels to utf-8', function (): void {
-    [$statement] = (new ParseBankStatement)->handle(bankFixture('cp1252_labels.csv'));
+    [$statement] = (new ParseBankStatement)->handle(statementFixture('cp1252_labels.csv'));
 
     expect($statement->movements[0]->label)->toBe('RÈGLEMENT SÉMINAIRE 25 €')
         ->and($statement->movements[0]->amountCents)->toBe(-12_000);
 });
 
 test('reads sgml ofx transactions, fitids and the ledger balance', function (): void {
-    [$statement] = (new ParseBankStatement)->handle(bankFixture('statement_v102.ofx'));
+    [$statement] = (new ParseBankStatement)->handle(statementFixture('statement_v102.ofx'));
 
     expect($statement->movements)->toHaveCount(2)
         ->and($statement->movements[1]->bookedOn->toDateString())->toBe('2026-08-08')
@@ -123,7 +128,7 @@ test('reads sgml ofx transactions, fitids and the ledger balance', function (): 
 });
 
 test('reads xml ofx with timezone-suffixed dates', function (): void {
-    [$statement] = (new ParseBankStatement)->handle(bankFixture('statement_v211.ofx'));
+    [$statement] = (new ParseBankStatement)->handle(statementFixture('statement_v211.ofx'));
 
     expect($statement->movements)->toHaveCount(1)
         ->and($statement->movements[0]->bookedOn->toDateString())->toBe('2026-07-22')
@@ -132,7 +137,7 @@ test('reads xml ofx with timezone-suffixed dates', function (): void {
 });
 
 test('reads qif records with a proven day-first convention', function (): void {
-    [$statement] = (new ParseBankStatement)->handle(bankFixture('statement.qif'));
+    [$statement] = (new ParseBankStatement)->handle(statementFixture('statement.qif'));
 
     expect($statement->movements)->toHaveCount(3)
         ->and($statement->movements[2]->bookedOn->toDateString())->toBe('2026-07-31')
@@ -143,14 +148,14 @@ test('reads qif records with a proven day-first convention', function (): void {
 });
 
 test('defaults ambiguous qif dates to day-first', function (): void {
-    [$statement] = (new ParseBankStatement)->handle(bankFixture('ambiguous_dates.qif'));
+    [$statement] = (new ParseBankStatement)->handle(statementFixture('ambiguous_dates.qif'));
 
     expect($statement->movements[0]->bookedOn->toDateString())->toBe('2026-02-01')
         ->and($statement->movements[1]->bookedOn->toDateString())->toBe('2026-04-03');
 });
 
 test('reads a camt053 document whose namespace is prefixed', function (): void {
-    [$statement] = (new ParseBankStatement)->handle(bankFixture('camt053_prefixed.xml'));
+    [$statement] = (new ParseBankStatement)->handle(statementFixture('camt053_prefixed.xml'));
 
     expect($statement->movements)->toHaveCount(2)
         ->and($statement->movements[1]->amountCents)->toBe(1_254_000)
@@ -161,7 +166,7 @@ test('reads a camt053 document whose namespace is prefixed', function (): void {
 });
 
 test('reads only the first account of a multi-account ofx file', function (string $fixture): void {
-    [$statement] = (new ParseBankStatement)->handle(bankFixture($fixture));
+    [$statement] = (new ParseBankStatement)->handle(statementFixture($fixture));
 
     // The balance, period and currency all come from the first statement
     // section — the movements must not mix in the other accounts' rows.
@@ -176,7 +181,7 @@ test('reads only the first account of a multi-account ofx file', function (strin
 ]);
 
 test('reads camt053 entries, the closing balance and the period', function (): void {
-    [$statement] = (new ParseBankStatement)->handle(bankFixture('camt053.xml'));
+    [$statement] = (new ParseBankStatement)->handle(statementFixture('camt053.xml'));
 
     expect($statement->movements)->toHaveCount(2)
         ->and($statement->movements[1]->bookedOn->toDateString())->toBe('2026-08-08')

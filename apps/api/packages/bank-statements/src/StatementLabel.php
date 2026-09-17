@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Bank\Parsing;
+namespace Opusline\BankStatements;
 
 /**
  * The one spelling of how a movement label is assembled from a file's

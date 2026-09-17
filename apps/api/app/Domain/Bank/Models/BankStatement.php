@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Domain\Bank\Models;
 
-use App\Domain\Bank\Enums\BankStatementFormat;
 use App\Domain\Bank\Factories\BankStatementFactory;
 use App\Domain\Shared\Casts\CalendarDate;
 use App\Domain\Users\Models\User;
@@ -16,6 +15,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Opusline\BankStatements\BankStatementFormat;
 
 /**
  * @property int $id

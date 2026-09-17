@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Domain\Bank\Parsing\AmountParser;
-use App\Domain\Bank\Parsing\StatementParseException;
+use Opusline\BankStatements\AmountParser;
+use Opusline\BankStatements\StatementParseException;
 
 test('reads bank amount notations as signed cents', function (string $raw, int $expectedCents): void {
     expect(AmountParser::toCents($raw))->toBe($expectedCents);

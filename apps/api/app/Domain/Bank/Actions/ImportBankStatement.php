@@ -6,10 +6,6 @@ namespace App\Domain\Bank\Actions;
 
 use App\Domain\Bank\Data\BankImportData;
 use App\Domain\Bank\Data\ImportBankStatementData;
-use App\Domain\Bank\Parsing\ParseBankStatement;
-use App\Domain\Bank\Parsing\ParsedMovement;
-use App\Domain\Bank\Parsing\ParsedStatement;
-use App\Domain\Bank\Parsing\StatementParseException;
 use App\Domain\Expenses\Actions\SuggestExpenseMatches;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Shared\Data\SignedMoneyData;
@@ -19,6 +15,11 @@ use App\Domain\Users\Models\User;
 use Cknow\Money\Money;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Opusline\BankStatements\ParseBankStatement;
+use Opusline\BankStatements\ParsedMovement;
+use Opusline\BankStatements\ParsedStatement;
+use Opusline\BankStatements\StatementParseException;
+use Opusline\BankStatements\StatementParseFailure;
 
 /**
  * The import pipeline: parse strictly before any write, then — under the
@@ -43,7 +44,7 @@ class ImportBankStatement
         try {
             [$parsed, $format] = $this->parseBankStatement->handle((string) $data->file->get());
         } catch (StatementParseException $exception) {
-            throw ValidationException::withMessages(['file' => __($exception->getMessage())]);
+            throw ValidationException::withMessages(['file' => $this->failureMessage($exception->reason)]);
         }
 
         [$importedCount, $suggestionCount] = DB::transaction(function () use ($user, $data, $parsed, $format): array {
@@ -166,6 +167,15 @@ class ImportBankStatement
     private function cents(?int $cents, UserSettings $settings): ?Money
     {
         return $cents === null ? null : new Money($cents, $settings->currency->value);
+    }
+
+    private function failureMessage(StatementParseFailure $reason): string
+    {
+        return match ($reason) {
+            StatementParseFailure::UnreadableFile => __('bank.unreadable_file'),
+            StatementParseFailure::NoMovements => __('bank.no_movements'),
+            StatementParseFailure::TooManyMovements => __('bank.too_many_movements'),
+        };
     }
 
     /**

@@ -298,7 +298,7 @@ function uploadUserDocument(User $user, string $fileName, ?int $category = null)
 /** The raw bytes of a bank-statement fixture file. */
 function bankFixture(string $name): string
 {
-    return (string) file_get_contents(__DIR__.'/Fixtures/Bank/'.$name);
+    return (string) file_get_contents(dirname(__DIR__).'/packages/bank-statements/tests/Fixtures/'.$name);
 }
 
 /**

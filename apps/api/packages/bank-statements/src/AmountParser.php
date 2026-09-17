@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Bank\Parsing;
+namespace Opusline\BankStatements;
 
 /**
  * Turns the amount notations found in bank exports into signed integer cents
@@ -40,13 +40,13 @@ final class AmountParser
         $value = trim($value);
 
         if ($value === '' || preg_match('/^[0-9.,]+$/', $value) !== 1) {
-            throw new StatementParseException('bank.unreadable_file');
+            throw new StatementParseException(StatementParseFailure::UnreadableFile);
         }
 
         [$integerPart, $decimalPart] = self::splitDecimal($value);
 
         if ($integerPart === '' || preg_match('/^[0-9]*$/', $integerPart) !== 1) {
-            throw new StatementParseException('bank.unreadable_file');
+            throw new StatementParseException(StatementParseFailure::UnreadableFile);
         }
 
         $cents = ((int) $integerPart) * 100 + self::centsOf($decimalPart);
@@ -75,7 +75,7 @@ final class AmountParser
             $group = preg_quote($value[$decimalAt] === ',' ? '.' : ',', '/');
 
             if (preg_match('/^[0-9]{1,3}(?:'.$group.'[0-9]{3})+$/', $integerPart) !== 1) {
-                throw new StatementParseException('bank.unreadable_file');
+                throw new StatementParseException(StatementParseFailure::UnreadableFile);
             }
 
             return [
@@ -94,7 +94,7 @@ final class AmountParser
             $group = preg_quote($separator, '/');
 
             if (preg_match('/^[0-9]{1,3}(?:'.$group.'[0-9]{3})+$/', $value) !== 1) {
-                throw new StatementParseException('bank.unreadable_file');
+                throw new StatementParseException(StatementParseFailure::UnreadableFile);
             }
 
             return [str_replace($separator, '', $value), ''];
@@ -118,7 +118,7 @@ final class AmountParser
         }
 
         if (preg_match('/^[0-9]{1,2}$/', $decimalPart) !== 1) {
-            throw new StatementParseException('bank.unreadable_file');
+            throw new StatementParseException(StatementParseFailure::UnreadableFile);
         }
 
         return (int) str_pad($decimalPart, 2, '0');

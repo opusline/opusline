@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7fbc7e490183e59699af178d044c08c4",
+    "content-hash": "c318aa46a6d188ba15fe61eb12b0ff40",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -4058,6 +4058,36 @@
                 }
             ],
             "time": "2024-09-09T07:06:30+00:00"
+        },
+        {
+            "name": "opusline/bank-statements",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/bank-statements",
+                "reference": "5742bc2736433d3abb7276e0e9467c72ec534c26"
+            },
+            "require": {
+                "ext-libxml": "*",
+                "ext-mbstring": "*",
+                "ext-simplexml": "*",
+                "nesbot/carbon": "^3.14",
+                "php": "^8.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Opusline\\BankStatements\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-only"
+            ],
+            "description": "Reads CSV, OFX, QIF and CAMT.053 bank statements into signed-cent movements.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "opusline/business-calendar",
@@ -16742,9 +16772,7 @@
         "php": "^8.5",
         "ext-exif": "*",
         "ext-gd": "*",
-        "ext-libxml": "*",
-        "ext-mbstring": "*",
-        "ext-simplexml": "*"
+        "ext-mbstring": "*"
     },
     "platform-dev": {},
     "plugin-api-version": "2.9.0"

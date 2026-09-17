@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Bank\Parsing;
+namespace Opusline\BankStatements;
 
 use Carbon\CarbonImmutable;
 
@@ -22,7 +22,7 @@ final class QifStatementParser implements StatementParser
         $records = $this->records($text);
 
         if ($records === []) {
-            throw new StatementParseException('bank.no_movements');
+            throw new StatementParseException(StatementParseFailure::NoMovements);
         }
 
         $dayFirst = $this->isDayFirst($records);
@@ -33,7 +33,7 @@ final class QifStatementParser implements StatementParser
             $amount = $record['T'] ?? $record['U'] ?? null;
 
             if ($date === null || $amount === null) {
-                throw new StatementParseException('bank.unreadable_file');
+                throw new StatementParseException(StatementParseFailure::UnreadableFile);
             }
 
             $movements[] = new ParsedMovement(
@@ -54,7 +54,7 @@ final class QifStatementParser implements StatementParser
         $lines = preg_split('/\r\n|\r|\n/', $text);
 
         if ($lines === false) {
-            throw new StatementParseException('bank.unreadable_file');
+            throw new StatementParseException(StatementParseFailure::UnreadableFile);
         }
 
         $records = [];
@@ -136,7 +136,7 @@ final class QifStatementParser implements StatementParser
         $parts = $this->dateParts($value);
 
         if ($parts === null) {
-            throw new StatementParseException('bank.unreadable_file');
+            throw new StatementParseException(StatementParseFailure::UnreadableFile);
         }
 
         [$first, $second, $year] = $parts;

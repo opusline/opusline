@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Domain\Expenses\Receipts;
 
-use App\Domain\Bank\Actions\NormalizeBankText;
 use App\Domain\Expenses\Data\ReceiptAmountFieldData;
 use App\Domain\Expenses\Data\ReceiptDateFieldData;
 use App\Domain\Expenses\Data\ReceiptSuggestionData;
@@ -16,6 +15,7 @@ use App\Domain\Expenses\Enums\ReceiptFieldConfidence;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Enums\Currency;
 use Carbon\CarbonImmutable;
+use Opusline\BankStatements\FoldAccents;
 
 /**
  * Reads an expense off the text of a French or English receipt with plain
@@ -140,7 +140,7 @@ final readonly class ReceiptHeuristics
     /** Lowercase without accents, so every pattern is written once in plain ASCII. */
     private function fold(string $line): string
     {
-        return strtr(mb_strtolower(NormalizeBankText::foldAccents($line)), ['’' => "'"]);
+        return strtr(mb_strtolower(FoldAccents::fold($line)), ['’' => "'"]);
     }
 
     private function supplier(): ?ReceiptTextFieldData

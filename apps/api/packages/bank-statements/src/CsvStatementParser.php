@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Bank\Parsing;
+namespace Opusline\BankStatements;
 
-use App\Domain\Bank\Actions\NormalizeBankText;
 use Carbon\CarbonImmutable;
 
 /**
@@ -62,7 +61,7 @@ final class CsvStatementParser implements StatementParser
         $lines = $this->contentLines($text);
 
         if (count($lines) < 2) {
-            throw new StatementParseException('bank.unreadable_file');
+            throw new StatementParseException(StatementParseFailure::UnreadableFile);
         }
 
         $delimiter = $this->sniffDelimiter($lines);
@@ -98,7 +97,7 @@ final class CsvStatementParser implements StatementParser
         $lines = preg_split('/\r\n|\r|\n/', $text);
 
         if ($lines === false) {
-            throw new StatementParseException('bank.unreadable_file');
+            throw new StatementParseException(StatementParseFailure::UnreadableFile);
         }
 
         return array_values(array_filter($lines, static fn (string $line): bool => trim($line) !== ''));
@@ -140,7 +139,7 @@ final class CsvStatementParser implements StatementParser
         }
 
         if ($best === null) {
-            throw new StatementParseException('bank.unreadable_file');
+            throw new StatementParseException(StatementParseFailure::UnreadableFile);
         }
 
         return $best;
@@ -148,7 +147,7 @@ final class CsvStatementParser implements StatementParser
 
     private function normalizeHeaderCell(?string $cell): string
     {
-        $normalized = mb_strtolower(NormalizeBankText::foldAccents(trim($cell ?? '')));
+        $normalized = mb_strtolower(FoldAccents::fold(trim($cell ?? '')));
 
         return trim(preg_replace('/[^a-z0-9]+/', ' ', $normalized) ?? '');
     }
@@ -163,7 +162,7 @@ final class CsvStatementParser implements StatementParser
         $date = $this->matchColumn($header, self::DATE_ALIASES, $used);
 
         if ($date === null) {
-            throw new StatementParseException('bank.unreadable_file');
+            throw new StatementParseException(StatementParseFailure::UnreadableFile);
         }
 
         $used[] = $date;
@@ -189,7 +188,7 @@ final class CsvStatementParser implements StatementParser
         }
 
         if ($amount === null && $debit === null) {
-            throw new StatementParseException('bank.unreadable_file');
+            throw new StatementParseException(StatementParseFailure::UnreadableFile);
         }
 
         $label = $this->matchColumn($header, self::LABEL_ALIASES, $used);
@@ -279,7 +278,7 @@ final class CsvStatementParser implements StatementParser
         }
 
         if ($date === '') {
-            throw new StatementParseException('bank.unreadable_file');
+            throw new StatementParseException(StatementParseFailure::UnreadableFile);
         }
 
         return new ParsedMovement(
@@ -365,7 +364,7 @@ final class CsvStatementParser implements StatementParser
         }
 
         if ($seen !== null && $code !== $seen) {
-            throw new StatementParseException('bank.unreadable_file');
+            throw new StatementParseException(StatementParseFailure::UnreadableFile);
         }
 
         return $code;
@@ -389,6 +388,6 @@ final class CsvStatementParser implements StatementParser
             }
         }
 
-        throw new StatementParseException('bank.unreadable_file');
+        throw new StatementParseException(StatementParseFailure::UnreadableFile);
     }
 }

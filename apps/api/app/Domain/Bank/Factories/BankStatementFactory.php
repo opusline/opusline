@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Bank\Factories;
 
-use App\Domain\Bank\Enums\BankStatementFormat;
 use App\Domain\Bank\Models\BankStatement;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Opusline\BankStatements\BankStatementFormat;
 
 /**
  * @extends Factory<BankStatement>

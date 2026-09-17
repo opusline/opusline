@@ -7,6 +7,7 @@ namespace App\Domain\Bank\Actions;
 use App\Domain\Bank\Models\BankMovement;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
+use Opusline\BankStatements\FoldAccents;
 
 /**
  * Recognizes the fisc's debits in bank labels: URSSAF prélèvements, TVA
@@ -75,6 +76,6 @@ final class DetectFiscPayments
 
     private static function normalized(string $label): string
     {
-        return trim(preg_replace('/[^A-Z0-9]+/', ' ', NormalizeBankText::foldAccents($label)) ?? '');
+        return trim(preg_replace('/[^A-Z0-9]+/', ' ', FoldAccents::fold($label)) ?? '');
     }
 }

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
  * Laravel, a helper, a vendor library the package never declared — fails its fence.
  */
 $packageDependencies = [
+    'Opusline\BankStatements' => [CarbonImmutable::class],
     'Opusline\BusinessCalendar' => [CarbonImmutable::class],
 ];
 

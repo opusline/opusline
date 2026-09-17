@@ -1,0 +1,20 @@
+{
+  "$schema": "https://getcomposer.org/schema.json",
+  "name": "opusline/bank-statements",
+  "description": "Reads CSV, OFX, QIF and CAMT.053 bank statements into signed-cent movements.",
+  "type": "library",
+  "version": "1.0.0",
+  "license": "AGPL-3.0-only",
+  "require": {
+    "php": "^8.5",
+    "ext-libxml": "*",
+    "ext-mbstring": "*",
+    "ext-simplexml": "*",
+    "nesbot/carbon": "^3.14"
+  },
+  "autoload": {
+    "psr-4": {
+      "Opusline\\BankStatements\\": "src/"
+    }
+  }
+}

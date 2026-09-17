@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Bank\Parsing;
+namespace Opusline\BankStatements;
 
 /**
  * Bank exports arrive in whatever encoding the bank's mainframe grew up with.
@@ -38,7 +38,7 @@ final class DecodeStatementText
         $converted = mb_convert_encoding($bytes, 'UTF-8', $encoding);
 
         if (! is_string($converted)) {
-            throw new StatementParseException('bank.unreadable_file');
+            throw new StatementParseException(StatementParseFailure::UnreadableFile);
         }
 
         return $converted;

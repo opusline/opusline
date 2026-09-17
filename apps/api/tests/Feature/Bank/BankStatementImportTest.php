@@ -2,18 +2,24 @@
 
 declare(strict_types=1);
 
-use App\Domain\Bank\Enums\BankStatementFormat;
 use App\Domain\Users\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Testing\TestResponse;
+use Opusline\BankStatements\BankStatementFormat;
+use Opusline\BankStatements\ParseBankStatement;
 
 beforeEach(fn () => freezeTodayAtUtcNoon());
 
 function importStatement(User $user, string $fixture, string $asName, array $extra = []): TestResponse
 {
+    return postStatement($user, bankFixture($fixture), $asName, $extra);
+}
+
+function postStatement(User $user, string $content, string $asName, array $extra = []): TestResponse
+{
     return test()->actingAs($user)->post(
         '/api/bank/statements',
-        ['file' => UploadedFile::fake()->createWithContent($asName, bankFixture($fixture)), ...$extra],
+        ['file' => UploadedFile::fake()->createWithContent($asName, $content), ...$extra],
         ['Accept' => 'application/json'],
     );
 }
@@ -134,7 +140,7 @@ test('refuses unreadable files and writes nothing', function (string $fixture, s
 
     importStatement($user, $fixture, $asName)
         ->assertStatus(422)
-        ->assertJsonValidationErrors('file');
+        ->assertJsonValidationErrors(['file' => __('bank.unreadable_file')]);
 
     expect($user->bankStatements()->count())->toBe(0)
         ->and($user->bankMovements()->count())->toBe(0);
@@ -142,6 +148,15 @@ test('refuses unreadable files and writes nothing', function (string $fixture, s
     'binary garbage' => ['garbage.bin', 'releve.csv'],
     'empty file' => ['empty.txt', 'releve.txt'],
     'csv without a header' => ['headerless.csv', 'releve.csv'],
+]);
+
+test('tells the user why a statement holds nothing to import', function (Closure $content, string $messageKey): void {
+    postStatement(User::factory()->create(), $content(), 'releve.csv')
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['file' => __($messageKey)]);
+})->with([
+    'without movements' => [fn (): string => (string) preg_replace('/<STMTTRN>.*?<\/STMTTRN>/s', '', bankFixture('statement_v211.ofx')), 'bank.no_movements'],
+    'too long' => [fn (): string => "Date,Label,Amount\n".str_repeat("2026-07-15,VIR SEPA NORDLYS,-12.00\n", ParseBankStatement::MAX_MOVEMENTS + 200), 'bank.too_many_movements'],
 ]);
 
 test('refuses extensions no bank export uses', function (): void {

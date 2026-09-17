@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Bank\Actions;
 
+use Opusline\BankStatements\FoldAccents;
+
 /**
  * Bank labels mangle whatever they carry: uppercase, accents dropped,
  * punctuation eaten, spacing arbitrary ("VIR SEPA CALLISTO SA REF F2026041"
@@ -14,25 +16,10 @@ final class NormalizeBankText
 {
     private const array LEGAL_FORMS = ['SASU', 'SARL', 'EURL', 'SAS', 'SNC', 'SCI', 'SA'];
 
-    /**
-     * The one accent table every bank-text normalizer builds on — the CSV
-     * header matcher, the fisc-payment detector and this class's own
-     * normalize() differ only in casing and separator policy. normalize()
-     * feeds the persisted dedup hashes, so the table must never fork.
-     */
-    public static function foldAccents(string $text): string
-    {
-        return strtr(mb_strtoupper($text), [
-            'É' => 'E', 'È' => 'E', 'Ê' => 'E', 'Ë' => 'E',
-            'À' => 'A', 'Â' => 'A', 'Î' => 'I', 'Ï' => 'I',
-            'Ô' => 'O', 'Û' => 'U', 'Ù' => 'U', 'Ü' => 'U',
-            'Ç' => 'C', 'Œ' => 'OE',
-        ]);
-    }
-
+    /** Feeds the persisted dedup hashes: see FoldAccents before changing what it folds. */
     public static function normalize(string $text): string
     {
-        return preg_replace('/[^A-Z0-9]+/', '', self::foldAccents($text)) ?? '';
+        return preg_replace('/[^A-Z0-9]+/', '', FoldAccents::fold($text)) ?? '';
     }
 
     /**

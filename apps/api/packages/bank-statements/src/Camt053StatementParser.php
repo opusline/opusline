@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Bank\Parsing;
+namespace Opusline\BankStatements;
 
 use Carbon\CarbonImmutable;
 use SimpleXMLElement;
@@ -42,7 +42,7 @@ final class Camt053StatementParser implements StatementParser
         // refusing one outright leaves no entity to expand, whatever libxml's
         // defaults become.
         if (stripos($text, '<!DOCTYPE') !== false) {
-            throw new StatementParseException('bank.unreadable_file');
+            throw new StatementParseException(StatementParseFailure::UnreadableFile);
         }
 
         $previous = libxml_use_internal_errors(true);
@@ -57,7 +57,7 @@ final class Camt053StatementParser implements StatementParser
         }
 
         if ($document === false) {
-            throw new StatementParseException('bank.unreadable_file');
+            throw new StatementParseException(StatementParseFailure::UnreadableFile);
         }
 
         $this->inheritNamespace($document);
@@ -65,7 +65,7 @@ final class Camt053StatementParser implements StatementParser
         $statements = $document->xpath('//c:BkToCstmrStmt/c:Stmt');
 
         if (in_array($statements, [false, null, []], true)) {
-            throw new StatementParseException('bank.unreadable_file');
+            throw new StatementParseException(StatementParseFailure::UnreadableFile);
         }
 
         $statement = $statements[0];
@@ -82,7 +82,7 @@ final class Camt053StatementParser implements StatementParser
         $cents = $this->signedCents($entry);
 
         if ($cents === null || ! $bookedNode instanceof SimpleXMLElement) {
-            throw new StatementParseException('bank.unreadable_file');
+            throw new StatementParseException(StatementParseFailure::UnreadableFile);
         }
 
         return new ParsedMovement(
@@ -204,7 +204,7 @@ final class Camt053StatementParser implements StatementParser
     private function parseIsoDate(string $value): CarbonImmutable
     {
         if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', trim($value), $parts) !== 1) {
-            throw new StatementParseException('bank.unreadable_file');
+            throw new StatementParseException(StatementParseFailure::UnreadableFile);
         }
 
         return StatementDate::fromParts((int) $parts[1], (int) $parts[2], (int) $parts[3]);
