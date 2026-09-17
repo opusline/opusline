@@ -25,7 +25,7 @@ export function CraEmptyState({
   onGoToClients: () => void;
 }) {
   return (
-    <Empty className="px-6 py-10">
+    <Empty className="px-6 py-10" data-testid="cra-empty">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <FileCheckIcon />

@@ -50,7 +50,10 @@ export function RevenueHeader({
   return (
     <div className="flex flex-wrap items-start justify-between gap-4">
       <div className="min-w-0">
-        <h1 className="whitespace-nowrap font-heading font-semibold text-2xl text-foreground-hi leading-tight">
+        <h1
+          data-testid="page-heading"
+          className="whitespace-nowrap font-heading font-semibold text-2xl text-foreground-hi leading-tight"
+        >
           {m.nav_revenue()}{" "}
           <span aria-hidden className="font-normal text-muted-foreground-5">
             ·

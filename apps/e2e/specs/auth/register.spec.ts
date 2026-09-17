@@ -7,15 +7,17 @@ test("a visitor who registers lands on an empty week, signed in", async ({
   const account = newAccount();
 
   await page.goto("/register");
-  await page.getByLabel("Name").fill(account.name);
-  await page.getByLabel("Email address").fill(account.email);
-  await page.getByLabel("Password", { exact: true }).fill(account.password);
-  await page.getByLabel("Confirm password").fill(account.password);
-  await page.getByRole("button", { name: "Create the account" }).click();
+  await page.getByTestId("register-name").fill(account.name);
+  await page.getByTestId("register-email").fill(account.email);
+  await page.getByTestId("register-password").fill(account.password);
+  await page
+    .getByTestId("register-password-confirmation")
+    .fill(account.password);
+  await page.getByTestId("register-submit").click();
 
   await expect(page).toHaveURL(/\/week/);
-  await expect(page.getByText("Nothing to track yet")).toBeVisible();
-  await expect(page.getByRole("button", { name: account.email })).toBeVisible();
+  await expect(page.getByTestId("week-missions-empty")).toBeVisible();
+  await expect(page.getByTestId("account-menu")).toContainText(account.email);
 });
 
 test("a mistyped password confirmation keeps the visitor on the form", async ({
@@ -24,12 +26,16 @@ test("a mistyped password confirmation keeps the visitor on the form", async ({
   const account = newAccount();
 
   await page.goto("/register");
-  await page.getByLabel("Name").fill(account.name);
-  await page.getByLabel("Email address").fill(account.email);
-  await page.getByLabel("Password", { exact: true }).fill(account.password);
-  await page.getByLabel("Confirm password").fill(`${account.password}-typo`);
-  await page.getByRole("button", { name: "Create the account" }).click();
+  await page.getByTestId("register-name").fill(account.name);
+  await page.getByTestId("register-email").fill(account.email);
+  await page.getByTestId("register-password").fill(account.password);
+  await page
+    .getByTestId("register-password-confirmation")
+    .fill(`${account.password}-typo`);
+  await page.getByTestId("register-submit").click();
 
-  await expect(page.getByText("The passwords do not match.")).toBeVisible();
+  await expect(
+    page.getByTestId("register-password-confirmation-error"),
+  ).toBeVisible();
   await expect(page).toHaveURL(/\/register/);
 });

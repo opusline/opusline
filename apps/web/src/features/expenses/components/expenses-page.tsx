@@ -28,7 +28,10 @@ export function ExpensesPage({
   return (
     <div className="flex w-full flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="whitespace-nowrap font-heading font-semibold text-2xl text-foreground-hi leading-tight">
+        <h1
+          data-testid="page-heading"
+          className="whitespace-nowrap font-heading font-semibold text-2xl text-foreground-hi leading-tight"
+        >
           {m.expenses_title()}
         </h1>
         {action}

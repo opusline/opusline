@@ -24,7 +24,10 @@ export function DeclarationsHeader({
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h1 className="font-heading font-semibold text-2xl text-foreground-hi leading-tight">
+        <h1
+          data-testid="page-heading"
+          className="font-heading font-semibold text-2xl text-foreground-hi leading-tight"
+        >
           {m.declarations_title()}
         </h1>
         <p className="mt-1 text-muted-foreground-3 text-sm">

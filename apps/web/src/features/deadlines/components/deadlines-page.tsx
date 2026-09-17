@@ -82,7 +82,10 @@ export function DeadlinesPage({
       )}
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <h1 className="font-heading font-semibold text-2xl text-foreground-hi">
+        <h1
+          data-testid="page-heading"
+          className="font-heading font-semibold text-2xl text-foreground-hi"
+        >
           {m.deadlines_title()}
         </h1>
         <div className="flex items-center gap-2.5">

@@ -130,7 +130,10 @@ export function SettingsPage({
   return (
     <div>
       <div className="mb-6.5">
-        <h1 className="mb-1 font-heading font-semibold text-2xl text-foreground-hi">
+        <h1
+          data-testid="page-heading"
+          className="mb-1 font-heading font-semibold text-2xl text-foreground-hi"
+        >
           {m.page_title_settings()}
         </h1>
         <p className="text-muted-foreground-3 text-sm">

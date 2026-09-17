@@ -29,7 +29,10 @@ export function DocumentsPage({
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-7">
       <div className="min-w-0">
-        <h1 className="font-heading font-semibold text-2xl text-foreground-hi">
+        <h1
+          data-testid="page-heading"
+          className="font-heading font-semibold text-2xl text-foreground-hi"
+        >
           {m.documents_page_title()}
         </h1>
         <p className="mt-1 max-w-[62ch] text-pretty text-muted-foreground-3 text-sm">

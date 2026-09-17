@@ -1,9 +1,12 @@
 import { expect, test } from "../../support/test";
 
-test("logging out closes the session", async ({ page, account }) => {
+test("logging out closes the session", async ({
+  page,
+  account: _registered,
+}) => {
   await page.goto("/week");
-  await page.getByRole("button", { name: account.email }).click();
-  await page.getByRole("menuitem", { name: "Log out" }).click();
+  await page.getByTestId("account-menu").click();
+  await page.getByTestId("account-logout").click();
 
   await expect(page).toHaveURL(/\/login/);
 
