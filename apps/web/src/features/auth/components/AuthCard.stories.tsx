@@ -6,6 +6,7 @@ import { StoryRouter } from "@/test/story-router";
 
 import { AuthCard } from "./auth-card";
 import { LoginForm } from "./login-form";
+import { TwoFactorChallenge } from "./two-factor-challenge";
 
 const meta = {
   title: "Web/Auth/AuthCard",
@@ -50,4 +51,23 @@ export const WithFooterLink: Story = {
       </StoryRouter>
     ),
   ],
+};
+
+/** A step inside the sign-in flow shows its title and says what it asks for. */
+export const WithDescription: Story = {
+  args: {
+    title: "Vérification en deux étapes",
+    description: "Une étape de plus pour confirmer que c'est bien vous.",
+    children: (
+      <TwoFactorChallenge
+        error={null}
+        isPending={false}
+        methods={[0, 1]}
+        onBack={() => {}}
+        onSubmitCode={async () => ({ status: "success" })}
+        onSubmitRecoveryCode={async () => ({ status: "success" })}
+        onUsePasskey={async () => ({ status: "success" })}
+      />
+    ),
+  },
 };
