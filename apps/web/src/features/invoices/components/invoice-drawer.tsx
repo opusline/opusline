@@ -16,7 +16,12 @@ import {
 } from "@/components/money-format-provider";
 import { formatAmountWithCents, formatPercentFromBp } from "@/lib/billing";
 import { calendarDateNumericLabel, calendarRangeLabel } from "@/lib/dates";
-import { invoiceEventLabel, invoiceStatusBadge } from "@/lib/invoice-status";
+import {
+  INVOICE_EVENT_TOKENS,
+  INVOICE_STATUS_TOKENS,
+  invoiceEventLabel,
+  invoiceStatusBadge,
+} from "@/lib/invoice-status";
 import { m } from "@/paraglide/messages.js";
 
 import { Fact } from "./invoice-fact";
@@ -44,7 +49,12 @@ export function InvoiceDrawer({
 }: InvoiceDrawerProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="gap-0 overflow-y-auto" side="right" size="md">
+      <SheetContent
+        className="gap-0 overflow-y-auto"
+        data-testid="invoice-drawer"
+        side="right"
+        size="md"
+      >
         <InvoiceDrawerContents
           actions={actions}
           detail={detail}
@@ -104,7 +114,12 @@ function InvoiceDrawerBody({
   return (
     <>
       <SheetHeader className="gap-1.5">
-        <SheetTitle className="flex items-center gap-2.5 font-mono text-base">
+        <SheetTitle
+          className="flex items-center gap-2.5 font-mono text-base"
+          data-reference={invoice.number ?? ""}
+          data-status={INVOICE_STATUS_TOKENS[invoice.status]}
+          data-testid="invoice-drawer-title"
+        >
           {invoice.number ?? m.invoice_status_draft()}
           <Badge variant={badge.variant}>{badge.label}</Badge>
         </SheetTitle>
@@ -167,7 +182,12 @@ function InvoiceDrawerBody({
         <ol className="mt-3.5 flex flex-col gap-3.5">
           {/* Newest first: the last thing that happened is the thing you came to check. */}
           {[...history].reverse().map((event) => (
-            <li key={event.id} className="flex gap-3">
+            <li
+              key={event.id}
+              className="flex gap-3"
+              data-event={INVOICE_EVENT_TOKENS[event.kind]}
+              data-testid="invoice-history-item"
+            >
               <span
                 aria-hidden
                 className="mt-1.5 size-1.75 shrink-0 rounded-full bg-border-4"

@@ -12,6 +12,13 @@ const INVOICE_STATUS_MESSAGES: Record<InvoiceStatus, () => string> = {
   2: m.invoice_status_paid,
 };
 
+/** What a test or a stylesheet can match on: the label moves with the locale. */
+export const INVOICE_STATUS_TOKENS: Record<InvoiceStatus, string> = {
+  0: "draft",
+  1: "sent",
+  2: "paid",
+};
+
 export function invoiceStatusLabel(status: InvoiceStatus): string {
   return INVOICE_STATUS_MESSAGES[status]();
 }
@@ -53,6 +60,14 @@ const INVOICE_EVENT_MESSAGES: Record<InvoiceEventKind, () => string> = {
   2: m.invoice_event_reminded,
   3: m.invoice_event_paid,
   4: m.invoice_event_corrected,
+};
+
+export const INVOICE_EVENT_TOKENS: Record<InvoiceEventKind, string> = {
+  0: "created",
+  1: "sent",
+  2: "reminded",
+  3: "paid",
+  4: "corrected",
 };
 
 export function invoiceEventLabel(kind: InvoiceEventKind): string {

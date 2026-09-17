@@ -40,6 +40,8 @@ export function CraStepTracker({ cra, current, onGo }: CraStepTrackerProps) {
                   ? "border-border-4 bg-secondary after:opacity-100"
                   : "border-border hover:bg-accent",
               )}
+              data-step={step}
+              data-testid="cra-step"
               onClick={() => onGo(step)}
               type="button"
             >

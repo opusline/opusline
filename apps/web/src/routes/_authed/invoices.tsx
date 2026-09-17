@@ -218,6 +218,7 @@ function FacturesPage() {
           </p>
         </div>
         <Button
+          data-testid="invoice-add-open"
           onClick={() => {
             setCreateError(null);
             setAdding({ missionId: null });

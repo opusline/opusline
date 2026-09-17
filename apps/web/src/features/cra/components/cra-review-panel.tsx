@@ -73,6 +73,9 @@ export function CraReviewPanel({ detail, settings }: CraReviewPanelProps) {
         {checksFor(locale, detail, settings).map((check) => (
           <div
             className="flex flex-wrap items-start gap-x-2.5 gap-y-0.5 border-secondary border-b py-2.75 last:border-b-0"
+            data-check={check.key}
+            data-testid="cra-check"
+            data-tone={check.tone}
             key={check.key}
           >
             <span

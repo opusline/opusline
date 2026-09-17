@@ -8,6 +8,13 @@ const CRA_STATUS_MESSAGES: Record<CraStatus, () => string> = {
   2: m.cra_status_signed,
 };
 
+/** What a test or a stylesheet can match on: the label moves with the locale. */
+export const CRA_STATUS_TOKENS: Record<CraStatus, string> = {
+  0: "draft",
+  1: "sent",
+  2: "signed",
+};
+
 export function craStatusLabel(status: CraStatus): string {
   return CRA_STATUS_MESSAGES[status]();
 }

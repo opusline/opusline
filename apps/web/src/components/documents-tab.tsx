@@ -193,6 +193,7 @@ export function DocumentsTab({
         accept={DOCUMENT_ACCEPT}
         aria-label={m.documents_add_aria()}
         className="h-auto gap-3.5 bg-card px-5 py-4.5"
+        data-testid="documents-upload"
         multiple
         onFiles={addFiles}
       >
@@ -305,11 +306,17 @@ export function DocumentsTab({
           </div>
           <div className="divide-y">
             {pending.map((item) => (
-              <div className="flex flex-col gap-1.5 px-4 py-3" key={item.key}>
+              <div
+                className="flex flex-col gap-1.5 px-4 py-3"
+                data-name={item.file.name}
+                data-testid="documents-pending-item"
+                key={item.key}
+              >
                 <div className="flex items-center gap-3">
                   <Input
                     aria-label={m.documents_name_aria({ name: item.file.name })}
                     className="min-w-0 flex-1"
+                    data-testid="documents-pending-name"
                     onChange={(event) =>
                       setPending((current) =>
                         current.map((candidate) =>
@@ -324,6 +331,7 @@ export function DocumentsTab({
                   />
                   <NativeSelect
                     aria-label={m.documents_type_aria({ name: item.file.name })}
+                    data-testid="documents-pending-type"
                     onChange={(event) => {
                       const category = Number(event.target.value);
 
@@ -371,7 +379,11 @@ export function DocumentsTab({
             ))}
           </div>
           <div className="flex items-center gap-2 border-t bg-muted px-4 py-3.5">
-            <Button onClick={confirmPending} size="xl">
+            <Button
+              data-testid="documents-send"
+              onClick={confirmPending}
+              size="xl"
+            >
               {m.documents_send_count({ count: pending.length })}
             </Button>
             <Button onClick={() => setPending([])} size="xl" variant="ghost">
@@ -424,6 +436,7 @@ export function DocumentsTab({
                       aria-label={m.documents_delete_aria({
                         name: document.fileName,
                       })}
+                      data-testid="document-delete"
                       onClick={() => void handleDelete(document)}
                       size="icon-lg"
                       variant="ghost"
@@ -443,7 +456,10 @@ export function DocumentsTab({
       ) : (
         pending.length === 0 &&
         queue.length === 0 && (
-          <div className="rounded-md border bg-card px-5 py-7 text-center text-muted-foreground-3 text-sm">
+          <div
+            className="rounded-md border bg-card px-5 py-7 text-center text-muted-foreground-3 text-sm"
+            data-testid="documents-empty"
+          >
             {emptyLabel}
           </div>
         )

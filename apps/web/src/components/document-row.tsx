@@ -21,7 +21,11 @@ export function DocumentRow({ document, badges, children }: DocumentRowProps) {
   const locale = useLocale();
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3">
+    <div
+      className="flex items-center gap-3 px-4 py-3"
+      data-name={document.fileName}
+      data-testid="document-row"
+    >
       <span className="flex size-8 shrink-0 items-center justify-center rounded-md border border-border-2 bg-secondary text-muted-foreground-2">
         <FileIcon aria-hidden className="size-3.75" />
       </span>
@@ -60,6 +64,7 @@ export function DocumentDownloadButton({
       render={
         <a
           aria-label={m.documents_download_aria({ name: document.fileName })}
+          data-testid="document-download"
           download
           href={href}
         />

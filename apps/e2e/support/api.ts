@@ -1,7 +1,9 @@
-import type { BrowserContext } from "@playwright/test";
+import type { APIResponse, BrowserContext } from "@playwright/test";
 
 export type Api = {
   post: <ResponseBody>(path: string, body: unknown) => Promise<ResponseBody>;
+  /** The raw response, for files the app serves: status, headers and bytes. */
+  download: (url: string) => Promise<APIResponse>;
 };
 
 const CSRF_COOKIE = "XSRF-TOKEN";
@@ -12,6 +14,15 @@ const CSRF_COOKIE = "XSRF-TOKEN";
  */
 export function createApi(context: BrowserContext, baseURL: string): Api {
   const origin = new URL(baseURL).origin;
+
+  // Sanctum only treats a request as the SPA's when it names its origin, and
+  // unlike a browser this client sends neither header by itself.
+  const spaHeaders = {
+    Accept: "application/json",
+    "Accept-Language": "en",
+    Origin: origin,
+    Referer: `${origin}/`,
+  };
 
   async function csrfToken(): Promise<string> {
     const readToken = async () =>
@@ -37,15 +48,7 @@ export function createApi(context: BrowserContext, baseURL: string): Api {
     async post<ResponseBody>(path: string, body: unknown) {
       const response = await context.request.post(`${origin}${path}`, {
         data: body,
-        headers: {
-          Accept: "application/json",
-          "Accept-Language": "en",
-          // Sanctum only treats a request as the SPA's when it names its origin,
-          // and unlike a browser this client sends neither header by itself.
-          Origin: origin,
-          Referer: `${origin}/`,
-          "X-XSRF-TOKEN": await csrfToken(),
-        },
+        headers: { ...spaHeaders, "X-XSRF-TOKEN": await csrfToken() },
       });
 
       if (response.status() === 429) {
@@ -61,6 +64,12 @@ export function createApi(context: BrowserContext, baseURL: string): Api {
       }
 
       return (await response.json()) as ResponseBody;
+    },
+
+    download(url: string) {
+      return context.request.get(new URL(url, origin).href, {
+        headers: { ...spaHeaders, Accept: "*/*" },
+      });
     },
   };
 }
