@@ -47,20 +47,24 @@ test('subtracts a transfer the known balance does not show yet', function (): vo
         ->assertJsonPath('transfers.0.reflectedInBalance', false);
 });
 
-test('stops subtracting a transfer once an imported statement covers its date', function (): void {
+test('keeps deducting a transfer made the day the balance was typed, whatever the statement brings', function (): void {
     $user = accountWithBankBalance();
-    recordTransfer($user, '2026-08-13')->assertCreated();
+    recordTransfer($user, '2026-08-10')->assertCreated();
 
-    // The relevé lands: its closing balance is the newer anchor, and it already
-    // counts the debit. Deducting the transfer again would show 760 000.
-    bankStatementOwnedBy($user, fn (BankStatementFactory $factory): BankStatementFactory => $factory->withClosingBalance(880_000, '2026-08-13'));
+    // The typed balance stays the anchor and rolls forward only past its own
+    // day, so the transfer's debit booked that day never reaches the balance —
+    // however late the statement's own balance and movements run.
+    $statement = bankStatementOwnedBy($user, fn (BankStatementFactory $factory): BankStatementFactory => $factory->withClosingBalance(930_000, '2026-08-13'));
+    bankMovementFor($user, $statement, fn (BankMovementFactory $factory): BankMovementFactory => $factory->debit(120_000)->on('2026-08-10'));
+    bankMovementFor($user, $statement, fn (BankMovementFactory $factory): BankMovementFactory => $factory->credit(50_000)->on('2026-08-12'));
 
     $this->actingAs($user)
         ->getJson('/api/treasury')
         ->assertOk()
-        ->assertJsonPath('pendingTransfers.amount', 0)
-        ->assertJsonPath('transferable.amount', 880_000)
-        ->assertJsonPath('transfers.0.reflectedInBalance', true);
+        ->assertJsonPath('balance.amount.amount', 1_050_000)
+        ->assertJsonPath('pendingTransfers.amount', 120_000)
+        ->assertJsonPath('transferable.amount', 930_000)
+        ->assertJsonPath('transfers.0.reflectedInBalance', false);
 });
 
 test('stops subtracting a transfer once a movement rolls past its date', function (): void {

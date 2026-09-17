@@ -11,14 +11,17 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
 /**
- * Picks the account's balance anchor: the hand-typed figure or the newest
- * statement closing balance, whichever speaks about the later date. On a tie
- * the typed figure wins — typing it was a deliberate correction.
+ * Picks the account's balance anchor. A balance the user typed — with the
+ * pencil, or in the import dialog — anchors the account for as long as it
+ * stands: later imports roll it forward through their movements instead of
+ * replacing it with the file's own closing balance, which users found drifting
+ * from the figure their bank showed (#391). Typing a new one is how it moves.
  *
- * With no anchor at all but movements on file, the balance derives from the
- * movements alone, as if the account had opened empty just before the first
- * one — exact once the full history is imported, corrected with the pencil
- * otherwise.
+ * Only an account nobody typed a balance for anchors on the newest statement
+ * closing balance. With neither but movements on file, the balance derives
+ * from the movements alone, as if the account had opened empty just before the
+ * first one — exact once the full history is imported, corrected with the
+ * pencil otherwise.
  *
  * Beyond the figure, the anchor carries what it is authoritative for, because
  * this is the only place that knows how each one was obtained:
@@ -45,31 +48,29 @@ class ResolveBankBalance
      */
     public function handle(User $user, Collection $statements): ?array
     {
+        return $this->manualAnchor($user)
+            ?? $this->statementAnchor($statements)
+            ?? $this->derived($user);
+    }
+
+    /**
+     * @return ?BalanceAnchor
+     */
+    private function manualAnchor(User $user): ?array
+    {
         $settings = $user->settingsOrFail();
 
-        $manual = null;
-
-        if ($settings->bank_balance_cents !== null && $settings->bank_balance_recorded_on !== null) {
-            $manual = [
-                'cents' => (int) $settings->bank_balance_cents->getAmount(),
-                'source' => BankBalanceSource::Manual,
-                'asOf' => $settings->bank_balance_recorded_on,
-                'coversThrough' => $settings->bank_balance_recorded_on->subDay(),
-                'citableAsOf' => $settings->bank_balance_recorded_on,
-            ];
+        if ($settings->bank_balance_cents === null || $settings->bank_balance_recorded_on === null) {
+            return null;
         }
 
-        $statement = $this->statementAnchor($statements);
-
-        if ($manual === null && $statement === null) {
-            return $this->derived($user);
-        }
-
-        if ($manual === null || $statement === null) {
-            return $manual ?? $statement;
-        }
-
-        return $statement['asOf']->greaterThan($manual['asOf']) ? $statement : $manual;
+        return [
+            'cents' => (int) $settings->bank_balance_cents->getAmount(),
+            'source' => BankBalanceSource::Manual,
+            'asOf' => $settings->bank_balance_recorded_on,
+            'coversThrough' => $settings->bank_balance_recorded_on->subDay(),
+            'citableAsOf' => $settings->bank_balance_recorded_on,
+        ];
     }
 
     /**
