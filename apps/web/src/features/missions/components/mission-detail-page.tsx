@@ -258,7 +258,10 @@ export function MissionDetailPage({
                 COLOR_CLASSES[barColor],
               )}
             />
-            <h1 className="font-heading font-semibold text-2xl text-foreground-hi">
+            <h1
+              className="font-heading font-semibold text-2xl text-foreground-hi"
+              data-testid="mission-detail-name"
+            >
               {mission.name}
             </h1>
             <MissionStatusBadge

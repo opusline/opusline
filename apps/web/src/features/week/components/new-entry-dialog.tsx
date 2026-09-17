@@ -74,6 +74,7 @@ export function NewEntryDialog({
     <Dialog onOpenChange={onOpenChange} open={open}>
       <DialogContent
         className="gap-0 overflow-hidden p-0 sm:max-w-lg"
+        data-testid="new-entry-dialog"
         showCloseButton={false}
       >
         <DialogHeader className="flex-row items-center justify-between gap-4 border-border border-b px-5 py-4">
@@ -145,6 +146,8 @@ function MissionStep({
           <li key={mission.missionId}>
             <button
               className="flex w-full items-center gap-3 rounded-md border border-border-2 bg-card-2 px-3.5 py-3 text-left transition-colors hover:border-muted-foreground-6 hover:bg-accent"
+              data-mission={mission.missionId}
+              data-testid="new-entry-mission"
               onClick={() => onPick(mission)}
               type="button"
             >
@@ -317,7 +320,10 @@ function EntryStep({
         </div>
 
         {existing.length > 0 && (
-          <div className="flex flex-col gap-2.5 rounded-md border border-border bg-muted px-3.5 py-3">
+          <div
+            className="flex flex-col gap-2.5 rounded-md border border-border bg-muted px-3.5 py-3"
+            data-testid="new-entry-existing"
+          >
             <p className="text-foreground-2 text-sm">
               {m.week_entry_exists({ duration: existingLabel })}
             </p>
@@ -328,8 +334,12 @@ function EntryStep({
               }
               value={[replaceExisting ? "replace" : "add"]}
             >
-              <Chip value="add">{m.week_cumulate()}</Chip>
-              <Chip value="replace">{m.week_replace()}</Chip>
+              <Chip data-testid="new-entry-existing-add" value="add">
+                {m.week_cumulate()}
+              </Chip>
+              <Chip data-testid="new-entry-existing-replace" value="replace">
+                {m.week_replace()}
+              </Chip>
             </ChipGroup>
           </div>
         )}
@@ -342,6 +352,7 @@ function EntryStep({
             aria-describedby={`${durationId}-hint`}
             aria-invalid={error !== null || undefined}
             className="w-32"
+            data-testid="new-entry-duration"
             font="mono"
             id={durationId}
             onChange={(event) => {
@@ -359,7 +370,11 @@ function EntryStep({
             {durationUnitHint(mission.billingMode)}
           </p>
           {error !== null && (
-            <p className="text-destructive text-xs" role="alert">
+            <p
+              className="text-destructive text-xs"
+              data-testid="new-entry-error"
+              role="alert"
+            >
               {error}
             </p>
           )}
@@ -376,6 +391,7 @@ function EntryStep({
             {m.timer_note_label()}
           </Label>
           <Input
+            data-testid="new-entry-note"
             id={noteId}
             onChange={(event) => setNote(event.target.value)}
             placeholder={m.timer_stop_note_placeholder()}
@@ -398,7 +414,12 @@ function EntryStep({
           <Button onClick={onBack} variant="ghost">
             {m.common_back()}
           </Button>
-          <Button disabled={isSaving} onClick={submit} size="2xl">
+          <Button
+            data-testid="new-entry-submit"
+            disabled={isSaving}
+            onClick={submit}
+            size="2xl"
+          >
             {isSaving ? m.common_saving() : m.common_save()}
           </Button>
         </div>

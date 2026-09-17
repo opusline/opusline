@@ -240,6 +240,7 @@ export function NewMissionPage({
                 label={m.missions_name_label()}
                 labelClassName="text-foreground-3"
                 placeholder="Callisto front"
+                testId="mission-form-name"
               />
             )}
           </form.Field>
@@ -272,7 +273,13 @@ export function NewMissionPage({
               }}
             >
               {activeClients.map((client) => (
-                <Chip key={client.slug} size="lg" value={client.slug}>
+                <Chip
+                  key={client.slug}
+                  data-client={client.slug}
+                  data-testid="mission-form-client"
+                  size="lg"
+                  value={client.slug}
+                >
                   {client.name}
                 </Chip>
               ))}
@@ -325,6 +332,7 @@ export function NewMissionPage({
                   setIsRateMissing(false);
                 }}
                 rateDraft={rateDraft}
+                testId="mission-form-rate"
               />
               <Field className="min-w-0">
                 <div className="flex items-center gap-1.5">
@@ -525,7 +533,12 @@ export function NewMissionPage({
           )}
 
           <div className="flex gap-2 pt-1">
-            <Button disabled={isPending} size="2xl" type="submit">
+            <Button
+              data-testid="mission-form-submit"
+              disabled={isPending}
+              size="2xl"
+              type="submit"
+            >
               {m.missions_create_submit()}
             </Button>
             <Button

@@ -89,6 +89,7 @@ export function TimerStopDialog({
     <Dialog onOpenChange={onOpenChange} open={open}>
       <DialogContent
         className="gap-0 overflow-hidden p-0 sm:max-w-md"
+        data-testid="timer-stop-dialog"
         showCloseButton={false}
       >
         <DialogHeader className="px-5 pt-5 pb-0">
@@ -207,6 +208,7 @@ export function TimerStopDialog({
               {m.timer_note_label()}
             </Label>
             <Input
+              data-testid="timer-stop-note"
               id={noteId}
               onChange={(event) => onChangeNote(event.target.value)}
               placeholder={m.timer_stop_note_placeholder()}
@@ -257,6 +259,7 @@ export function TimerStopDialog({
           <div className="flex items-center gap-2">
             <Button
               className="flex-1"
+              data-testid="timer-stop-submit"
               disabled={isSaving}
               size="2xl"
               type="submit"

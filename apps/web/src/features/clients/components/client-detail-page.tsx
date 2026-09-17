@@ -205,7 +205,11 @@ export function ClientDetailPage({
                   COLOR_CLASSES[client.color],
                 )}
               />
-              <h1 className="font-heading font-semibold text-2xl text-foreground-hi">
+              <h1
+                className="font-heading font-semibold text-2xl text-foreground-hi"
+                data-archived={isArchived}
+                data-testid="client-detail-name"
+              >
                 {client.name}
               </h1>
               <Badge>{clientTypeLabel(client.type)}</Badge>
@@ -234,6 +238,7 @@ export function ClientDetailPage({
             </Button>
           )}
           <Button
+            data-testid="client-edit-toggle"
             onClick={() => setIsEditing((editing) => !editing)}
             size="xl"
             variant="outline"
@@ -245,6 +250,7 @@ export function ClientDetailPage({
               render={
                 <Button
                   aria-label={m.common_more_actions()}
+                  data-testid="client-actions"
                   size="icon-xl"
                   variant="outline"
                 />
@@ -254,6 +260,7 @@ export function ClientDetailPage({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-63">
               <DropdownMenuItem
+                data-testid="client-archive-toggle"
                 disabled={isArchivePending}
                 onClick={onToggleArchive}
               >
@@ -264,6 +271,7 @@ export function ClientDetailPage({
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
+                    data-testid="client-delete"
                     disabled={isDeletePending}
                     onClick={() => setIsConfirmingDelete(true)}
                     variant="destructive"

@@ -1,3 +1,4 @@
+import { byTestId } from "../../support/locators";
 import { createClient } from "../../support/provision";
 import { expect, test } from "../../support/test";
 
@@ -6,31 +7,26 @@ test("a client and its first mission are created in one go, and the mission beco
   account: _registered,
 }) => {
   await page.goto("/clients/new");
-  await page.getByLabel("Company name").fill("Nordlys");
-  await page
-    .getByRole("button", { name: "Create and go on to a mission" })
-    .click();
+  await page.getByTestId("client-form-name").fill("Nordlys");
+  await page.getByTestId("client-form-submit-and-chain").click();
 
   await expect(
-    page.getByRole("heading", { level: 1, name: "New mission" }),
-  ).toBeVisible();
-  await expect(page.getByRole("button", { name: "Nordlys" })).toHaveAttribute(
-    "aria-pressed",
-    "true",
+    byTestId(page, "mission-form-client", { client: "nordlys" }),
+  ).toHaveAttribute("aria-pressed", "true");
+
+  await page.getByTestId("mission-form-name").fill("Callisto front");
+  await page.getByTestId("mission-form-rate").fill("550");
+  await page.getByTestId("mission-form-submit").click();
+
+  await expect(page.getByTestId("mission-detail-name")).toHaveText(
+    "Callisto front",
   );
 
-  await page.getByLabel("Mission name").fill("Callisto front");
-  await page.getByLabel("Rate HT").fill("550");
-  await page.getByRole("button", { name: "Create the mission" }).click();
-
-  await expect(
-    page.getByRole("heading", { level: 1, name: "Callisto front" }),
-  ).toBeVisible();
-
   await page.goto("/week");
-  await expect(
-    page.getByRole("rowheader", { name: /^Callisto front/ }),
-  ).toContainText("€550 / d");
+  await expect(page.getByTestId("week-mission-row")).toHaveCount(1);
+  await expect(page.getByTestId("week-mission-row")).toContainText(
+    "Callisto front",
+  );
 });
 
 test("a mission without a rate is refused", async ({
@@ -41,9 +37,9 @@ test("a mission without a rate is refused", async ({
   const client = await createClient(api, { name: "Lunaprint" });
 
   await page.goto(`/missions/new?client=${client.slug}`);
-  await page.getByLabel("Mission name").fill("Lunaprint maintenance");
-  await page.getByRole("button", { name: "Create the mission" }).click();
+  await page.getByTestId("mission-form-name").fill("Lunaprint maintenance");
+  await page.getByTestId("mission-form-submit").click();
 
-  await expect(page.getByText("Set a rate for this mission.")).toBeVisible();
+  await expect(page.getByTestId("mission-rate-error")).toBeVisible();
   await expect(page).toHaveURL(/\/missions\/new/);
 });

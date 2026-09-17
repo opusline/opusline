@@ -35,6 +35,8 @@ export function TimerChip({
 
   return (
     <div
+      data-state={running ? "running" : "paused"}
+      data-testid="timer-chip"
       className={cn(
         "flex h-10 items-center gap-2.5 rounded-md px-3",
         running
@@ -83,6 +85,7 @@ export function TimerChip({
           CONTROL,
           "text-foreground-2 hover:bg-primary/25 hover:text-primary-text",
         )}
+        data-testid="timer-pause-toggle"
         disabled={isBusy}
         onClick={onTogglePause}
         title={running ? m.timer_pause() : m.timer_resume()}
@@ -100,6 +103,7 @@ export function TimerChip({
           CONTROL,
           "text-foreground-2 hover:bg-primary/25 hover:text-primary-text",
         )}
+        data-testid="timer-stop"
         disabled={isBusy}
         onClick={onStop}
         title={m.timer_stop()}
@@ -115,6 +119,7 @@ export function TimerChip({
           CONTROL,
           "text-muted-foreground-2 hover:text-foreground-hi",
         )}
+        data-testid="timer-details"
         onClick={onOpenDetails}
         title={m.timer_details()}
         type="button"

@@ -41,6 +41,7 @@ export function WeekToolbar({
       <div className="flex flex-wrap items-center gap-2.5">
         <Button
           aria-label={m.week_previous()}
+          data-testid="week-previous"
           onClick={() => onWeekChange(shiftIsoWeek(week, -1))}
           size="icon-lg"
           title={m.week_previous()}
@@ -59,6 +60,7 @@ export function WeekToolbar({
         </h1>
         <Button
           aria-label={m.week_next()}
+          data-testid="week-next"
           onClick={() => onWeekChange(shiftIsoWeek(week, 1))}
           size="icon-lg"
           title={m.week_next()}
@@ -67,6 +69,7 @@ export function WeekToolbar({
           <ChevronRightIcon aria-hidden />
         </Button>
         <Button
+          data-testid="week-today"
           disabled={week === isoWeekOf(today)}
           onClick={() => onWeekChange(isoWeekOf(today))}
           variant="outline"
@@ -79,6 +82,8 @@ export function WeekToolbar({
             nobody can ask about, so it stays focusable and says why. */}
         <Button
           aria-describedby={isWeekendLocked ? weekendLockId : undefined}
+          data-expanded={weekendShown}
+          data-testid="week-weekend-toggle"
           disabled={isWeekendLocked}
           focusableWhenDisabled
           onClick={onWeekendToggle}
@@ -93,7 +98,12 @@ export function WeekToolbar({
             {m.week_weekend_lock_reason()}
           </span>
         )}
-        <Button aria-keyshortcuts="n" onClick={onNewEntry} size="xl">
+        <Button
+          aria-keyshortcuts="n"
+          data-testid="new-entry-open"
+          onClick={onNewEntry}
+          size="xl"
+        >
           <PlusIcon aria-hidden data-icon="inline-start" strokeWidth={2.2} />
           {m.week_new_entry()}
           <Kbd>N</Kbd>

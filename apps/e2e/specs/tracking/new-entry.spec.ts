@@ -1,47 +1,71 @@
+import type { MissionData } from "@opusline/api-client";
 import type { Page } from "@playwright/test";
-import { createClient, createMission } from "../../support/provision";
+import { byTestId } from "../../support/locators";
+import {
+  createClient,
+  createMission,
+  WORKDAY_MINUTES,
+} from "../../support/provision";
 import { expect, test } from "../../support/test";
 
-const MISSION = "Callisto front";
+let mission: MissionData;
 
-async function addTodayEntry(page: Page, duration: string, activity: string) {
-  await page.getByRole("button", { name: /^New entry/ }).click();
-
-  const dialog = page.getByRole("dialog", { name: "New entry" });
-  await dialog.getByRole("button", { name: new RegExp(`^${MISSION}`) }).click();
-  await dialog.getByLabel("Duration").fill(duration);
-  await dialog.getByLabel("Activity").fill(activity);
-  await dialog.getByRole("button", { name: "Save" }).click();
-
-  return dialog;
+/** The dialog opens on today, which is the day these specs leave it on. */
+async function openNewEntry(page: Page) {
+  await page.getByTestId("new-entry-open").click();
+  await byTestId(page, "new-entry-mission", { mission: mission.id }).click();
 }
 
-test.beforeEach(async ({ api, account: _registered }) => {
+async function saveEntry(page: Page, duration: string, activity: string) {
+  await page.getByTestId("new-entry-duration").fill(duration);
+  await page.getByTestId("new-entry-note").fill(activity);
+  await page.getByTestId("new-entry-submit").click();
+  await expect(page.getByTestId("new-entry-dialog")).toBeHidden();
+}
+
+/** Every column is asked for, so today has a cell even on a weekend. */
+const WEEK_WITH_WEEKEND = "/week?weekend=true";
+
+const todayCell = (page: Page) =>
+  byTestId(page, "week-cell", { mission: mission.id, today: "true" });
+
+test.beforeEach(async ({ page, api, account: _registered }) => {
   const client = await createClient(api, { name: "Nordlys" });
-  await createMission(api, client, { name: MISSION });
+  mission = await createMission(api, client, { name: "Callisto front" });
+  await page.goto(WEEK_WITH_WEEKEND);
 });
 
 test("an entry added for today lands in today's cell with its activity", async ({
   page,
 }) => {
-  await page.goto("/week");
-  const dialog = await addTodayEntry(page, "0.5", "Sprint review");
+  await openNewEntry(page);
+  await saveEntry(page, "0.5", "Sprint review");
 
-  await expect(dialog).toBeHidden();
-  await expect(
-    page.getByRole("gridcell", {
-      name: new RegExp(`^${MISSION}, .*: 0\\.5 d`),
-    }),
-  ).toContainText("Sprint review");
+  await expect(todayCell(page)).toHaveAttribute(
+    "data-minutes",
+    String(WORKDAY_MINUTES / 2),
+  );
+  await expect(todayCell(page).getByTestId("week-cell-note")).toHaveText(
+    "Sprint review",
+  );
 });
 
-test("a second entry on the same day and mission is refused", async ({
+test("a second entry on the same day can replace the first", async ({
   page,
 }) => {
-  await page.goto("/week");
-  await expect(await addTodayEntry(page, "0.5", "Sprint review")).toBeHidden();
+  await openNewEntry(page);
+  await saveEntry(page, "0.5", "Sprint review");
 
-  const dialog = await addTodayEntry(page, "0.5", "Pairing");
+  await openNewEntry(page);
+  await expect(page.getByTestId("new-entry-existing")).toBeVisible();
+  await page.getByTestId("new-entry-existing-replace").click();
+  await saveEntry(page, "1", "Pairing");
 
-  await expect(dialog.getByText(/already exists on that day/)).toBeVisible();
+  await expect(todayCell(page)).toHaveAttribute(
+    "data-minutes",
+    String(WORKDAY_MINUTES),
+  );
+  await expect(todayCell(page).getByTestId("week-cell-note")).toHaveText(
+    "Pairing",
+  );
 });

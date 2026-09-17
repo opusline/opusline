@@ -177,6 +177,7 @@ export function NewClientPage({
                     label={m.clients_name_label()}
                     labelClassName="text-foreground-3"
                     placeholder="Nordlys"
+                    testId="client-form-name"
                   />
                 )}
               </form.Field>
@@ -376,6 +377,7 @@ export function NewClientPage({
 
           <div className="flex flex-wrap gap-2 pt-1">
             <Button
+              data-testid="client-form-submit"
               disabled={isPending}
               onClick={() => {
                 chainToMissionRef.current = false;
@@ -386,6 +388,7 @@ export function NewClientPage({
               {m.clients_create_submit()}
             </Button>
             <Button
+              data-testid="client-form-submit-and-chain"
               disabled={isPending}
               onClick={() => {
                 chainToMissionRef.current = true;

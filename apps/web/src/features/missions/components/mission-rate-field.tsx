@@ -31,6 +31,8 @@ type MissionRateFieldProps = {
   isRateMissing?: boolean;
   className?: string;
   labelClassName?: string;
+  /** Lands on the input as `data-testid`, for the e2e suite. */
+  testId?: string;
 };
 
 export function MissionRateField({
@@ -44,6 +46,7 @@ export function MissionRateField({
   isRateMissing = false,
   className,
   labelClassName,
+  testId,
 }: MissionRateFieldProps) {
   const format = useMoneyFormat();
   const fieldLabel = label ?? billingModeAmountLabel(billingMode);
@@ -58,6 +61,7 @@ export function MissionRateField({
           aria-invalid={isRateMissing}
           aria-label={fieldLabel}
           className="flex-1 text-base"
+          data-testid={testId}
           id={id}
           inputMode="decimal"
           onChange={(event) =>
@@ -76,7 +80,10 @@ export function MissionRateField({
         </p>
       )}
       {isRateMissing ? (
-        <FieldError errors={[{ message: m.missions_rate_required() }]} />
+        <FieldError
+          data-testid="mission-rate-error"
+          errors={[{ message: m.missions_rate_required() }]}
+        />
       ) : null}
     </Field>
   );

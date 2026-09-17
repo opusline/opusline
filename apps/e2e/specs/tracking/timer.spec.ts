@@ -1,65 +1,69 @@
+import type { MissionData } from "@opusline/api-client";
 import type { Page } from "@playwright/test";
+import { byTestId } from "../../support/locators";
 import { createClient, createMission } from "../../support/provision";
 import { expect, test } from "../../support/test";
 
-const MISSION = "Callisto front";
+let mission: MissionData;
 
-const timerChip = (page: Page) => page.getByRole("main").locator("header");
+/** Every column is asked for, so today has a cell even on a weekend. */
+const WEEK_WITH_WEEKEND = "/week?weekend=true";
+
+const todayCell = (page: Page) =>
+  byTestId(page, "week-cell", { mission: mission.id, today: "true" });
 
 async function startTracking(page: Page) {
-  await page.getByRole("button", { name: "Start tracking" }).click();
-  await page
-    .getByRole("dialog", { name: "Track which mission?" })
-    .getByRole("button", { name: new RegExp(`^${MISSION}`) })
-    .click();
-  await expect(timerChip(page).getByText("Tracking in progress")).toBeVisible();
+  await page.getByTestId("timer-start").click();
+  await byTestId(page, "timer-mission", { mission: mission.id }).click();
+  await expect(page.getByTestId("timer-chip")).toHaveAttribute(
+    "data-state",
+    "running",
+  );
 }
 
 test.beforeEach(async ({ page, api, account: _registered }) => {
   const client = await createClient(api, { name: "Nordlys" });
-  await createMission(api, client, { name: MISSION });
-  await page.goto("/week");
+  mission = await createMission(api, client, { name: "Callisto front" });
+  await page.goto(WEEK_WITH_WEEKEND);
 });
 
 test("a tracking can be paused and resumed", async ({ page }) => {
   await startTracking(page);
 
-  await page.getByRole("button", { name: "Pause" }).click();
-  await expect(
-    timerChip(page).getByText("Paused", { exact: true }),
-  ).toBeVisible();
+  await page.getByTestId("timer-pause-toggle").click();
+  await expect(page.getByTestId("timer-chip")).toHaveAttribute(
+    "data-state",
+    "paused",
+  );
 
-  await page.getByRole("button", { name: "Resume" }).click();
-  await expect(timerChip(page).getByText("Tracking in progress")).toBeVisible();
+  await page.getByTestId("timer-pause-toggle").click();
+  await expect(page.getByTestId("timer-chip")).toHaveAttribute(
+    "data-state",
+    "running",
+  );
 });
 
 test("a stopped tracking becomes today's entry", async ({ page }) => {
   await startTracking(page);
-  await page.getByRole("button", { name: "Stop", exact: true }).click();
+  await page.getByTestId("timer-stop").click();
 
-  const dialog = page.getByRole("dialog", { name: "Save the entry" });
-  await dialog.getByLabel("Activity").fill("Scoping call");
-  await dialog.getByRole("button", { name: "Save" }).click();
+  await page.getByTestId("timer-stop-note").fill("Scoping call");
+  await page.getByTestId("timer-stop-submit").click();
 
-  await expect(dialog).toBeHidden();
-  await expect(
-    page.getByRole("button", { name: "Start tracking" }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("gridcell", { name: new RegExp(`^${MISSION}, .* d, `) }),
-  ).toContainText("Scoping call");
+  await expect(page.getByTestId("timer-stop-dialog")).toBeHidden();
+  await expect(page.getByTestId("timer-start")).toBeVisible();
+  await expect(todayCell(page)).not.toHaveAttribute("data-minutes", "0");
+  await expect(todayCell(page).getByTestId("week-cell-note")).toHaveText(
+    "Scoping call",
+  );
 });
 
 test("a discarded tracking leaves no entry behind", async ({ page }) => {
   await startTracking(page);
-  await page.getByRole("button", { name: "Details" }).click();
-  await page.getByRole("button", { name: "Discard without saving" }).click();
-  await page.getByRole("button", { name: "Confirm discard" }).click();
+  await page.getByTestId("timer-details").click();
+  await page.getByTestId("timer-discard").click();
+  await page.getByTestId("timer-discard-confirm").click();
 
-  await expect(
-    page.getByRole("button", { name: "Start tracking" }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("gridcell", { name: new RegExp(`^${MISSION}, .*: \\d`) }),
-  ).toHaveCount(0);
+  await expect(page.getByTestId("timer-start")).toBeVisible();
+  await expect(todayCell(page)).toHaveAttribute("data-minutes", "0");
 });

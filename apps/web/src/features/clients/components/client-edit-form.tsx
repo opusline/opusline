@@ -165,6 +165,7 @@ export function ClientEditForm({
                   field={field}
                   label={m.clients_name_label()}
                   labelClassName={EDIT_LABEL_CLASSES}
+                  testId="client-form-name"
                 />
               )}
             </form.Field>
@@ -376,7 +377,12 @@ export function ClientEditForm({
       </div>
 
       <div className="mt-4 flex items-center gap-2 border-t pt-4">
-        <Button disabled={isPending} size="xl" type="submit">
+        <Button
+          data-testid="client-form-submit"
+          disabled={isPending}
+          size="xl"
+          type="submit"
+        >
           {m.common_save()}
         </Button>
         <Button

@@ -14,7 +14,7 @@ import { m } from "@/paraglide/messages.js";
 
 export function ClientsEmptyState() {
   return (
-    <Empty className="px-7 py-8">
+    <Empty className="px-7 py-8" data-testid="clients-empty-state">
       <EmptyHeader className="max-w-none gap-2">
         <EmptyMedia className="mb-2.5">
           <div
@@ -33,7 +33,11 @@ export function ClientsEmptyState() {
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Button render={<Link to="/clients/new" />} size="2xl">
+        <Button
+          data-testid="clients-create-first"
+          render={<Link to="/clients/new" />}
+          size="2xl"
+        >
           {m.clients_create_short()}
         </Button>
       </EmptyContent>
