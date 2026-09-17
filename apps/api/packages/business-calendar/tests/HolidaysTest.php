@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Domain\Cra\Calendar\FrenchHolidays;
-use App\Domain\Cra\Calendar\Holidays;
 use Carbon\CarbonImmutable;
+use Opusline\BusinessCalendar\FrenchHolidays;
+use Opusline\BusinessCalendar\Holidays;
 
 test('serves the French calendar to a business established in France', function (): void {
     expect(Holidays::for('FR'))->toBeInstanceOf(FrenchHolidays::class);

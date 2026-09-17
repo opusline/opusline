@@ -13,4 +13,8 @@ parameters:
         - config
         - database
         - operations
+        - packages
         - routes
+    excludePaths:
+        analyse:
+            - packages/*/tests/*

@@ -3,12 +3,12 @@
 declare(strict_types=1);
 
 use App\Domain\Cra\Actions\DescribeCra;
-use App\Domain\Cra\Calendar\FrenchHolidays;
 use App\Domain\Cra\Enums\CraStatus;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Database\Seeders\VolumeSeeder;
+use Opusline\BusinessCalendar\FrenchHolidays;
 
 test('seeds a demo portfolio for the test user', function (): void {
     $this->seed();

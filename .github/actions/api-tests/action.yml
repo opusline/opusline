@@ -27,7 +27,9 @@ runs:
         php-version: ${{ inputs.php-version }}
         extensions: exif, gd, pdo_mysql, pdo_pgsql
         coverage: ${{ inputs.coverage }}
-        ini-values: pcov.directory=${{ github.workspace }}/apps/api/app
+        # The path packages load through vendor/ symlinks but report their real
+        # paths, so instrument apps/api and keep only what phpunit.xml reports on.
+        ini-values: pcov.directory=${{ github.workspace }}/apps/api, pcov.exclude="~/apps/api/(?!app/|packages/[^/]+/src/)~"
 
     # Composite steps do not inherit the caller's `defaults`, so every run step
     # below carries the working directory itself.

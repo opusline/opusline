@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Cra\Calendar;
+namespace Opusline\BusinessCalendar;
 
 use Carbon\CarbonImmutable;
 
@@ -15,6 +15,15 @@ use Carbon\CarbonImmutable;
  */
 class FrenchHolidays implements HolidayProvider
 {
+    /**
+     * The memo outlives the request on a long-lived worker, so only this window is
+     * kept: a year from outside it is computed again on every call rather than grow
+     * the table for the life of the process.
+     */
+    private const int FIRST_MEMOIZED_YEAR = 1900;
+
+    private const int LAST_MEMOIZED_YEAR = 2199;
+
     /** @var array<int, array<string, string>> */
     private static array $byYear = [];
 
@@ -25,6 +34,10 @@ class FrenchHolidays implements HolidayProvider
      */
     public function forYear(int $year): array
     {
+        if ($year < self::FIRST_MEMOIZED_YEAR || $year > self::LAST_MEMOIZED_YEAR) {
+            return $this->compute($year);
+        }
+
         return self::$byYear[$year] ??= $this->compute($year);
     }
 

@@ -5,6 +5,15 @@
   "description": "Laravel API for Opusline — time tracking, CRA, and invoicing for freelancers.",
   "keywords": ["laravel", "freelance", "time-tracking", "cra"],
   "license": "AGPL-3.0-only",
+  "repositories": [
+    {
+      "type": "path",
+      "url": "packages/*",
+      "options": {
+        "symlink": true
+      }
+    }
+  ],
   "require": {
     "php": "^8.5",
     "ext-exif": "*",
@@ -21,6 +30,7 @@
     "laravel/sanctum": "^4.3",
     "laravel/tinker": "^3.0",
     "league/flysystem-aws-s3-v3": "^3.35",
+    "opusline/business-calendar": "^1.0",
     "sentry/sentry-laravel": "^4.27",
     "smalot/pdfparser": "^2.12",
     "spatie/icalendar-generator": "^3.3",

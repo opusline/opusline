@@ -8,7 +8,6 @@ use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Bank\Models\BankStatement;
 use App\Domain\Bank\Models\PersonalTransfer;
 use App\Domain\Clients\Models\Client;
-use App\Domain\Cra\Calendar\FrenchHolidays;
 use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
 use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
 use App\Domain\Expenses\Enums\ExpenseCategory;
@@ -23,6 +22,7 @@ use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Str;
+use Opusline\BusinessCalendar\FrenchHolidays;
 
 /**
  * The demo account with three years of history behind it: a long client

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Domain\Cra\Calendar\FrenchHolidays;
 use Carbon\CarbonImmutable;
+use Opusline\BusinessCalendar\FrenchHolidays;
 
 test('a year has the eleven public holidays', function (int $year): void {
     expect(new FrenchHolidays()->forYear($year))->toHaveCount(11);
@@ -54,3 +54,8 @@ test('spans a range crossing a year boundary', function (): void {
 
     expect(array_keys($holidays))->toBe(['2026-12-25', '2027-01-01']);
 });
+
+test('serves years outside the memoized window without keeping them', function (int $year): void {
+    expect(new FrenchHolidays()->forYear($year))->toHaveKey("{$year}-01-01")
+        ->and(new ReflectionProperty(FrenchHolidays::class, 'byYear')->getValue())->not->toHaveKey($year);
+})->with([1899, 2200, 9999]);

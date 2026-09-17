@@ -7,11 +7,8 @@ namespace App\Domain\Shared\Calendar;
 /**
  * A civil month as `2026-08`, for the request fields that name one.
  *
- * The year is bounded rather than left to `\d{4}` because FrenchHolidays memoizes
- * every year it is asked for in a static that outlives the request on an Octane
- * worker: an unbounded year lets request input grow that table for the life of the
- * process. Every field that can reach a holiday lookup validates against this, so
- * the bound holds wherever the month enters.
+ * The year is bounded rather than left to `\d{4}`: no return is ever filed for a
+ * month outside 1900–2099.
  */
 final readonly class CivilMonth
 {

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Domain\Deadlines\Actions;
 
-use App\Domain\Cra\Calendar\Holidays;
 use App\Domain\Deadlines\Calendar\CfeSchedule;
 use App\Domain\Deadlines\Calendar\DeadlinePeriod;
 use App\Domain\Deadlines\Calendar\DeadlineWindow;
@@ -16,6 +15,7 @@ use App\Domain\Settings\Models\UserSettings;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Cknow\Money\Money;
+use Opusline\BusinessCalendar\Holidays;
 
 /**
  * The fiscal calendar of one account, derived from its profile alone.

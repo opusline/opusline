@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Domain\Cra\Actions;
 
-use App\Domain\Cra\Calendar\Holidays;
 use App\Domain\Cra\Data\CraData;
 use App\Domain\Cra\Data\CraDayData;
 use App\Domain\Cra\Models\Cra;
@@ -12,6 +11,7 @@ use App\Domain\Cra\Models\CraDay;
 use App\Domain\Shared\Data\MoneyData;
 use Cknow\Money\Money;
 use Money\Money as MoneyPhp;
+use Opusline\BusinessCalendar\Holidays;
 
 /**
  * A CRA as the screen and the PDF need it: every calendar day of the month, what the

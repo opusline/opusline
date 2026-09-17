@@ -10,7 +10,6 @@ use App\Domain\Bank\Models\PersonalTransfer;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Cra\Actions\MaterializeCraDays;
 use App\Domain\Cra\Actions\WriteCraDays;
-use App\Domain\Cra\Calendar\FrenchHolidays;
 use App\Domain\Cra\Enums\CraStatus;
 use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
 use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
@@ -31,6 +30,7 @@ use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
 use Illuminate\Database\Seeder;
+use Opusline\BusinessCalendar\FrenchHolidays;
 
 class DatabaseSeeder extends Seeder
 {

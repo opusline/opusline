@@ -51,6 +51,10 @@ FROM --platform=$BUILDPLATFORM composer:2 AS vendor
 WORKDIR /src
 
 COPY apps/api/composer.json apps/api/composer.lock ./
+# Path packages install from their manifests alone: composer symlinks
+# vendor/opusline/* to packages/*, whose sources arrive with the full copy
+# below, so editing a package keeps this layer cached.
+COPY --parents apps/api/./packages/*/composer.json ./
 # Platform requirements are ignored here and satisfied in the runtime stage
 # below: this image resolves packages, it never runs them, and its PHP carries
 # neither the extensions nor the version the app asks for.

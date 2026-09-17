@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Cra\Calendar;
+namespace Opusline\BusinessCalendar;
 
 use Carbon\CarbonImmutable;
 use LogicException;

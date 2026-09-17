@@ -1,0 +1,17 @@
+{
+  "$schema": "https://getcomposer.org/schema.json",
+  "name": "opusline/business-calendar",
+  "description": "Public holidays and working days by business country.",
+  "type": "library",
+  "version": "1.0.0",
+  "license": "AGPL-3.0-only",
+  "require": {
+    "php": "^8.5",
+    "nesbot/carbon": "^3.14"
+  },
+  "autoload": {
+    "psr-4": {
+      "Opusline\\BusinessCalendar\\": "src/"
+    }
+  }
+}

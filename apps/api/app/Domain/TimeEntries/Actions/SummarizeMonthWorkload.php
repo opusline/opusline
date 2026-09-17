@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\TimeEntries\Actions;
 
-use App\Domain\Cra\Calendar\Holidays;
 use App\Domain\TimeEntries\Data\MonthWorkloadData;
 use App\Domain\TimeEntries\Data\MonthWorkloadQueryData;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
+use Opusline\BusinessCalendar\Holidays;
 
 class SummarizeMonthWorkload
 {

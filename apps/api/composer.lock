@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cce20344b814f8811292985466718c7c",
+    "content-hash": "7fbc7e490183e59699af178d044c08c4",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -4058,6 +4058,33 @@
                 }
             ],
             "time": "2024-09-09T07:06:30+00:00"
+        },
+        {
+            "name": "opusline/business-calendar",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/business-calendar",
+                "reference": "8a8040246268083a95a6a59b5fe595873bdfc9f0"
+            },
+            "require": {
+                "nesbot/carbon": "^3.14",
+                "php": "^8.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Opusline\\BusinessCalendar\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-only"
+            ],
+            "description": "Public holidays and working days by business country.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "paragonie/constant_time_encoding",
