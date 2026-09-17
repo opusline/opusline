@@ -150,6 +150,11 @@ export function DeclarationsPage({
                 (openAnnual === "cfe" ? onPayCfe : onMarkFiled)(openTarget);
               }
             }}
+            onMarkIncomeTaxPaid={() => {
+              if (openTarget !== null) {
+                onMarkPaid(openTarget);
+              }
+            }}
             onOpenChange={(open) => {
               if (!open) {
                 setOpenAnnual(null);
@@ -157,9 +162,20 @@ export function DeclarationsPage({
             }}
             onSaveCfeAmount={onSaveCfeAmount}
             onUndo={() => {
-              if (openTarget !== null) {
-                onUnmark(openTarget);
+              const completion = annual.incomeTaxReturn.completion;
+
+              if (openTarget === null) {
+                return;
               }
+
+              // The 2042 walks back a step like the monthly returns, its
+              // payment first; the CFE's single tick is filed and paid at once.
+              if (openAnnual === "incomeTax" && completion !== null) {
+                undo(openTarget, completion);
+                return;
+              }
+
+              onUnmark(openTarget);
             }}
             open={openAnnual}
             today={today}

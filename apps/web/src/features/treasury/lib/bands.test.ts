@@ -35,11 +35,12 @@ it("draws a band for every kind of provision the DTO carries", () => {
       vat: owed(209_000),
       urssaf: owed(271_700),
       cfe: owed(52_000),
+      incomeTax: owed(61_000),
       subscriptions: owed(18_000),
       buffer: eur(150_000),
-      total: eur(700_700),
+      total: eur(761_700),
     },
-    transferable: eur(781_300),
+    transferable: eur(720_300),
   });
   // Read off the payload rather than listed: a sixth kind of provision the API
   // starts sending is a band the bar must draw, not an unlabelled gap in it.
@@ -76,6 +77,7 @@ it("draws no bar when everything on the account is zero", () => {
           vat: null,
           urssaf: null,
           cfe: null,
+          incomeTax: null,
           subscriptions: null,
           buffer: null,
           total: { amount: 0, currency: "EUR" },

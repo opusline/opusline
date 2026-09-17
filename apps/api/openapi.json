@@ -6573,6 +6573,16 @@
                             }
                         ]
                     },
+                    "incomeTax": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BankProvisionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "subscriptions": {
                         "anyOf": [
                             {
@@ -6601,6 +6611,7 @@
                     "vat",
                     "urssaf",
                     "cfe",
+                    "incomeTax",
                     "subscriptions",
                     "buffer",
                     "total"

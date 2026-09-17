@@ -1322,6 +1322,7 @@ export const zBankProvisionsData = z.object({
     vat: z.nullable(zBankProvisionData),
     urssaf: z.nullable(zBankProvisionData),
     cfe: z.nullable(zBankProvisionData),
+    incomeTax: z.nullable(zBankProvisionData),
     subscriptions: z.nullable(zBankProvisionData),
     buffer: z.nullable(zMoneyData),
     total: zMoneyData

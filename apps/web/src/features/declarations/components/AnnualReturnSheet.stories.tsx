@@ -21,6 +21,7 @@ const meta = {
     isBusy: false,
     onOpenChange: () => {},
     onMarkDone: () => {},
+    onMarkIncomeTaxPaid: () => {},
     onUndo: () => {},
     onSaveCfeAmount: async () => {},
   },
@@ -47,6 +48,20 @@ export const IncomeTaxFiled: Story = {
     today: "2027-05-10",
     annual: annualDeclarations({
       incomeTaxReturn: incomeTaxReturn({
+        completion: { declaredOn: "2027-05-02", paidOn: null },
+      }),
+    }),
+  },
+};
+
+/** Filed without the versement libératoire: the tax is still to pay, and the treasury holds it until then. */
+export const IncomeTaxFiledToPay: Story = {
+  args: {
+    today: "2027-09-10",
+    annual: annualDeclarations({
+      incomeTaxReturn: incomeTaxReturn({
+        box: 1,
+        liberatingPaymentPaid: null,
         completion: { declaredOn: "2027-05-02", paidOn: null },
       }),
     }),

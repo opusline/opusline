@@ -25,12 +25,15 @@ use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Settings\Rates\ContributionRateHistory;
+use App\Domain\Settings\Rates\ContributionRateTimeline;
 use App\Domain\Shared\Data\MoneyData;
+use App\Domain\Shared\Fiscality\MicroBnc;
 use App\Domain\Shared\Money\Rate;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
 use Illuminate\Support\Collection;
+use LogicException;
 
 /**
  * What the fisc is still owed, computed on collections (encaissements)
@@ -54,6 +57,9 @@ use Illuminate\Support\Collection;
  *   that is still owed;
  * - plus a twelfth of the expected CFE per elapsed month, netted the same way
  *   against detected CFE debits;
+ * - plus, without the versement libératoire, the income tax the micro-BNC
+ *   profit will cost: the running year's so far, and last year's whole until
+ *   its 2042-C PRO is marked paid;
  * - plus, for each annual subscription the user chose to spread, a twelfth of
  *   its debit per month elapsed since the last one;
  * - plus the matelas as configured, verbatim.
@@ -84,23 +90,27 @@ class ComputeBankProvisions
         $chainStart = $declared instanceof DeclaredCa3Months && $settings->filesMonthlyCa3()
             ? Ca3ChainStart::resolve($user, $settings, $declared, $vatPeriod['previousStart'])
             : null;
-        $collected = $this->collectedInvoices($user, $today, $lookbackStart, $vatPeriod, $urssafPeriod, $chainStart);
+        $collected = $this->collectedInvoices($user, $today, $lookbackStart, $vatPeriod, $urssafPeriod, $chainStart, $this->owesIncomeTax($settings));
         $fiscDebits = $this->fiscDebits($user, $settings, $lookbackStart, $vatPeriod, $urssafPeriod, $today);
         $paid = $settings->hasFrenchFiscality() ? $this->paidPeriods($user) : [];
+        $rates = $settings->hasFrenchFiscality() ? $this->contributionRateHistory->timeline($settings) : null;
 
         $vat = $vatPeriod === null
             ? null
             : $this->vat($user, $vatPeriod, $lookbackStart, $collected, $declared, $chainStart, $paid, $fiscDebits, $today, $currency);
-        $urssaf = $urssafPeriod === null
+        $urssaf = $urssafPeriod === null || ! $rates instanceof ContributionRateTimeline
             ? null
-            : $this->urssaf($settings, $urssafPeriod, $lookbackStart, $collected, $paid, $fiscDebits, $today, $currency);
+            : $this->urssaf($settings, $rates, $urssafPeriod, $lookbackStart, $collected, $paid, $fiscDebits, $today, $currency);
         $cfe = $this->cfe($settings, $paid, $fiscDebits, $today, $currency);
+        $incomeTax = $rates instanceof ContributionRateTimeline && $this->owesIncomeTax($settings)
+            ? $this->incomeTax($settings, $rates, $collected, $paid, $today, $currency)
+            : null;
         $subscriptions = $this->subscriptions($user, $today, $currency);
         $buffer = $settings->treasury_buffer_cents;
 
         $total = new Money(0, $currency);
 
-        foreach ([$vat?->amount->toMoney(), $urssaf?->amount->toMoney(), $cfe?->amount->toMoney(), $subscriptions?->amount->toMoney(), $buffer] as $component) {
+        foreach ([$vat?->amount->toMoney(), $urssaf?->amount->toMoney(), $cfe?->amount->toMoney(), $incomeTax?->amount->toMoney(), $subscriptions?->amount->toMoney(), $buffer] as $component) {
             if ($component !== null) {
                 $total = $total->add($component);
             }
@@ -110,6 +120,7 @@ class ComputeBankProvisions
             vat: $vat,
             urssaf: $urssaf,
             cfe: $cfe,
+            incomeTax: $incomeTax,
             subscriptions: $subscriptions,
             buffer: $buffer === null ? null : MoneyData::fromMoney($buffer),
             total: MoneyData::fromMoney($total),
@@ -170,12 +181,15 @@ class ComputeBankProvisions
         ?array $vatPeriod,
         ?array $urssafPeriod,
         ?CarbonImmutable $chainStart,
+        bool $owesIncomeTax,
     ): CollectedInvoices {
         // One period before the carry window too: it absorbs the payment that lands first.
         $starts = array_filter([
             $vatPeriod === null ? null : min($vatPeriod['previousStart'], $lookbackStart->subMonth()),
             $urssafPeriod === null ? null : $lookbackStart->subMonths(6),
             $chainStart,
+            // The income tax carries last year whole, from its first January.
+            $owesIncomeTax ? $today->startOfYear()->subYear() : null,
         ]);
 
         if ($starts === []) {
@@ -415,6 +429,7 @@ class ComputeBankProvisions
      */
     private function urssaf(
         UserSettings $settings,
+        ContributionRateTimeline $rates,
         array $period,
         CarbonImmutable $lookbackStart,
         CollectedInvoices $collected,
@@ -427,7 +442,6 @@ class ComputeBankProvisions
         // ACRE step that ended in January does not reprice December. The rate
         // history answers for the closed periods; the running one is today's,
         // settled line by line the way the URSSAF does.
-        $rates = $this->contributionRateHistory->timeline($settings);
         $quarterly = $settings->urssaf_periodicity === UrssafPeriodicity::Quarterly;
         $closed = [];
 
@@ -457,6 +471,85 @@ class ComputeBankProvisions
             carriedPeriods: $carry['periods'],
             paidPeriods: $carry['paid'],
         );
+    }
+
+    /**
+     * Without the versement libératoire, the micro-BNC profit joins the
+     * household's income tax, paid the year after it was earned. There is no
+     * household to run the barème on, so the figure is the avis's own
+     * prélèvement à la source rate on the receipts less the 34 % abatement: the
+     * running year's receipts so far, plus last year's whole bill until its
+     * 2042-C PRO is marked paid on Déclarations — then it moves to the paid
+     * side until the balance can show it. A month the option was in force on
+     * adds nothing: its tax left with the URSSAF.
+     *
+     * No detected debit settles it, unlike the returns above: the fisc takes
+     * income tax from whichever account the household gave it, which is
+     * rarely the compte pro.
+     *
+     * @param  array<string, CarbonImmutable>  $paid
+     */
+    private function incomeTax(
+        UserSettings $settings,
+        ContributionRateTimeline $rates,
+        CollectedInvoices $collected,
+        array $paid,
+        CarbonImmutable $today,
+        string $currency,
+    ): BankProvisionData {
+        $rateBp = $settings->income_tax_rate_bp ?? throw new LogicException('An account with no withholding rate owes no income tax provision.');
+        $lastYearStart = $today->startOfYear()->subYear();
+        $lastYearKey = (string) $lastYearStart->year;
+        $running = $this->incomeTaxCents($rates, $collected, $today->startOfYear(), $today, $rateBp, $currency);
+        $lastYear = $this->incomeTaxCents($rates, $collected, $lastYearStart, $lastYearStart->endOfYear(), $rateBp, $currency);
+        $paidOn = $paid[FiscalDeadlineKind::IncomeTaxReturn->value.':'.$lastYearKey] ?? null;
+        $carried = $paidOn instanceof CarbonImmutable ? 0 : $lastYear;
+
+        return new BankProvisionData(
+            amount: MoneyData::fromMoney(new Money($running + $carried, $currency)),
+            carried: MoneyData::fromMoney(new Money($carried, $currency)),
+            rateBp: $rateBp,
+            deductible: null,
+            periodEnd: $today->endOfYear(),
+            carriedPeriods: $carried > 0 ? [new CarriedPeriodData($lastYearKey, MoneyData::fromMoney(new Money($carried, $currency)))] : [],
+            paidPeriods: $paidOn instanceof CarbonImmutable && $lastYear > 0
+                ? [new PaidPeriodData($lastYearKey, MoneyData::fromMoney(new Money($lastYear, $currency)), $paidOn)]
+                : [],
+        );
+    }
+
+    /** The income tax on the receipts collected over [$from, $to] outside the versement libératoire. */
+    private function incomeTaxCents(
+        ContributionRateTimeline $rates,
+        CollectedInvoices $collected,
+        CarbonImmutable $from,
+        CarbonImmutable $to,
+        int $rateBp,
+        string $currency,
+    ): int {
+        $receiptsCents = 0;
+
+        for ($month = $from->startOfMonth(); $month->lessThanOrEqualTo($to); $month = $month->addMonth()) {
+            $monthEnd = min($month->endOfMonth(), $to);
+
+            // Nothing recorded means the settings answer, and the settings say the option is off.
+            if ($rates->liberatingPaymentOn($monthEnd)?->isPaid !== true) {
+                $receiptsCents += $collected->htCents($month, $monthEnd);
+            }
+        }
+
+        $receipts = new Money($receiptsCents, $currency);
+        $taxable = Money::max(new Money(0, $currency), $receipts->subtract(MicroBnc::abatementOf($receipts)));
+
+        return (int) Rate::of($taxable, $rateBp)->getAmount();
+    }
+
+    /** Whether the account owes the income tax the provision prices: French, off the option, with a rate to price it at. */
+    private function owesIncomeTax(UserSettings $settings): bool
+    {
+        return $settings->hasFrenchFiscality()
+            && ! $settings->liberating_payment
+            && $settings->income_tax_rate_bp !== null;
     }
 
     /**
