@@ -704,6 +704,7 @@ export type DeclarationsData = {
     vat: VatDeclarationData | null;
     cumulative: RevenueCeilingData | null;
     annual: AnnualDeclarationsData | null;
+    liberatingPayment: LiberatingPaymentOutlookData | null;
     history: Array<DeclarationHistoryRowData>;
 };
 
@@ -1324,6 +1325,31 @@ export type InvoiceTodoWorkData = {
 export type InvoiceTotalData = {
     amount: MoneyData;
     count: number;
+};
+
+/**
+ * LiberatingPaymentEndReason
+ *
+ * Why the versement libératoire stops applying.
+ * | |
+ * |---|
+ * | `0` <br/> The household's revenu fiscal de référence exceeds the limit for its parts. |
+ * | `1` <br/> The receipts crossed the micro-BNC ceiling two calendar years running, which ends the régime itself. |
+ */
+export type LiberatingPaymentEndReason = 0 | 1;
+
+/**
+ * LiberatingPaymentOutlookData
+ */
+export type LiberatingPaymentOutlookData = {
+    endsOn: string | null;
+    reason: LiberatingPaymentEndReason | null;
+    referenceTaxIncome: MoneyData | null;
+    referenceTaxIncomeYear: number | null;
+    referenceTaxIncomeLimit: MoneyData | null;
+    taxHouseholdQuarterParts: number | null;
+    ceiling: MoneyData | null;
+    needsReferenceTaxIncome: boolean;
 };
 
 /**

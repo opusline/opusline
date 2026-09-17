@@ -5,6 +5,7 @@ import type {
   DeclarationSettlementData,
   DeclarationsData,
   IncomeTaxReturnData,
+  LiberatingPaymentOutlookData,
   UrssafDeclarationData,
   VatDeclarationData,
 } from "@opusline/api-client";
@@ -222,9 +223,9 @@ export function declarationsData(
     cumulative: {
       year: 2026,
       collectedHt: eur(6_680_000),
-      ceiling: eur(7_770_000),
-      shareBp: 8597,
-      margin: { amount: 1_090_000, currency: "EUR" },
+      ceiling: eur(8_360_000),
+      shareBp: 7990,
+      margin: { amount: 1_680_000, currency: "EUR" },
     },
     history: [
       historyRow(),
@@ -256,6 +257,24 @@ export function declarationsData(
       }),
     ],
     annual: annualDeclarations(),
+    liberatingPayment: null,
+    ...overrides,
+  };
+}
+
+/** An avis over the limit: the option paid today stops next January. */
+export function liberatingPaymentOutlook(
+  overrides: Partial<LiberatingPaymentOutlookData> = {},
+): LiberatingPaymentOutlookData {
+  return {
+    endsOn: "2027-01-01",
+    reason: 0,
+    referenceTaxIncome: eur(3_420_000),
+    referenceTaxIncomeYear: 2025,
+    referenceTaxIncomeLimit: eur(2_957_900),
+    taxHouseholdQuarterParts: 4,
+    ceiling: null,
+    needsReferenceTaxIncome: false,
     ...overrides,
   };
 }

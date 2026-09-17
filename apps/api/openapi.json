@@ -8511,6 +8511,16 @@
                             }
                         ]
                     },
+                    "liberatingPayment": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/LiberatingPaymentOutlookData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "history": {
                         "type": "array",
                         "items": {
@@ -8527,6 +8537,7 @@
                     "vat",
                     "cumulative",
                     "annual",
+                    "liberatingPayment",
                     "history"
                 ],
                 "title": "DeclarationsData"
@@ -10337,6 +10348,97 @@
                     "count"
                 ],
                 "title": "InvoiceTotalData"
+            },
+            "LiberatingPaymentEndReason": {
+                "type": "integer",
+                "description": "Why the versement libératoire stops applying.\n| |\n|---|\n| `0` <br/> The household's revenu fiscal de référence exceeds the limit for its parts. |\n| `1` <br/> The receipts crossed the micro-BNC ceiling two calendar years running, which ends the régime itself. |",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "ReferenceTaxIncome",
+                    "RevenueCeiling"
+                ],
+                "title": "LiberatingPaymentEndReason"
+            },
+            "LiberatingPaymentOutlookData": {
+                "type": "object",
+                "properties": {
+                    "endsOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "reason": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/LiberatingPaymentEndReason"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "referenceTaxIncome": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "referenceTaxIncomeYear": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "referenceTaxIncomeLimit": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "taxHouseholdQuarterParts": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "ceiling": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "needsReferenceTaxIncome": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "endsOn",
+                    "reason",
+                    "referenceTaxIncome",
+                    "referenceTaxIncomeYear",
+                    "referenceTaxIncomeLimit",
+                    "taxHouseholdQuarterParts",
+                    "ceiling",
+                    "needsReferenceTaxIncome"
+                ],
+                "title": "LiberatingPaymentOutlookData"
             },
             "LinkExpenseBankMovementData": {
                 "type": "object",

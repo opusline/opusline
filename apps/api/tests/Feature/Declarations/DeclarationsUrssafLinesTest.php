@@ -81,15 +81,15 @@ test('tallies the year against the micro-BNC ceiling up to the shown month', fun
     paidInvoiceOn($user, '2026-07-10');
     paidInvoiceOn($user, '2026-08-03');
 
-    // Three invoices of 1 650 € HT between January and July: 4 950 € of the 77 700 € ceiling.
+    // Three invoices of 1 650 € HT between January and July: 4 950 € of the 83 600 € ceiling.
     $this->actingAs($user)
         ->getJson('/api/declarations?period=2026-07')
         ->assertOk()
         ->assertJsonPath('cumulative.year', 2026)
         ->assertJsonPath('cumulative.collectedHt.amount', 495_000)
-        ->assertJsonPath('cumulative.ceiling.amount', 7_770_000)
-        ->assertJsonPath('cumulative.shareBp', 637)
-        ->assertJsonPath('cumulative.margin.amount', 7_275_000);
+        ->assertJsonPath('cumulative.ceiling.amount', 8_360_000)
+        ->assertJsonPath('cumulative.shareBp', 592)
+        ->assertJsonPath('cumulative.margin.amount', 7_865_000);
 
     $this->actingAs($user)
         ->getJson('/api/declarations?period=2026-03')
@@ -99,13 +99,30 @@ test('tallies the year against the micro-BNC ceiling up to the shown month', fun
 
 test('reports a crossed ceiling as a negative margin', function (): void {
     $user = User::factory()->create();
-    paidInvoiceOn($user, '2026-02-10', htCents: 8_000_000, ttcCents: 9_600_000);
+    paidInvoiceOn($user, '2026-02-10', htCents: 9_000_000, ttcCents: 10_800_000);
 
     $this->actingAs($user)
         ->getJson('/api/declarations?period=2026-07')
         ->assertOk()
-        ->assertJsonPath('cumulative.shareBp', 10_296)
-        ->assertJsonPath('cumulative.margin.amount', -230_000);
+        ->assertJsonPath('cumulative.shareBp', 10_765)
+        ->assertJsonPath('cumulative.margin.amount', -640_000);
+});
+
+test('reads each year against the ceiling the law set for it', function (string $period, ?int $ceilingCents): void {
+    $this->actingAs(User::factory()->create())
+        ->getJson("/api/declarations?period={$period}")
+        ->assertOk()
+        ->assertJsonPath('cumulative.ceiling.amount', $ceilingCents);
+})->with([
+    '2025, before the 2026 revaluation' => ['2025-07', 7_770_000],
+    '2026' => ['2026-07', 8_360_000],
+]);
+
+test('shows no ceiling for a year the law has not set one for', function (): void {
+    $this->actingAs(User::factory()->create())
+        ->getJson('/api/declarations?period=2019-07')
+        ->assertOk()
+        ->assertJsonPath('cumulative', null);
 });
 
 test('has no ceiling to show outside french fiscality', function (): void {

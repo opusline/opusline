@@ -798,6 +798,30 @@
   "declarations_kind_cfe": "CFE",
   "declarations_kind_income_tax": "2042-C PRO",
   "declarations_kind_urssaf": "URSSAF",
+  "declarations_liberating_ceiling_reason": "Vos recettes ont dépassé le plafond micro-BNC ({ceiling}) deux années de suite : le régime micro s'arrête, et l'option avec lui.",
+  "declarations_liberating_ended_action": "Désactivez-le dans les réglages.",
+  "declarations_liberating_ended_title": "Le versement libératoire ne s'applique plus depuis le {date}",
+  "declarations_liberating_ends_action": "Désactivez-le dans les réglages à cette date.",
+  "declarations_liberating_ends_title": "Le versement libératoire prend fin le {date}",
+  "declarations_liberating_income_reason": [
+    {
+      "declarations": [
+        "input count",
+        "input year",
+        "input income",
+        "input limit",
+        "input parts",
+        "local countPlural = count: plural"
+      ],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Votre revenu fiscal de référence {year} ({income}) dépasse la limite de {limit} pour {parts} part.",
+        "countPlural=other": "Votre revenu fiscal de référence {year} ({income}) dépasse la limite de {limit} pour {parts} parts."
+      }
+    }
+  ],
+  "declarations_liberating_needs_income": "Recopiez le revenu fiscal de référence de votre dernier avis d'imposition : Opusline vous dira si le versement libératoire peut continuer.",
+  "declarations_liberating_settings_link": "Réglages fiscaux",
   "declarations_load_failed": "Les déclarations n'ont pas pu être chargées. Réessayez dans un instant.",
   "declarations_mark_filed": "Marquer comme déclarée",
   "declarations_mark_paid": "Marquer payée",

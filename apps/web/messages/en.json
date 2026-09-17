@@ -798,6 +798,30 @@
   "declarations_kind_cfe": "CFE",
   "declarations_kind_income_tax": "2042-C PRO",
   "declarations_kind_urssaf": "URSSAF",
+  "declarations_liberating_ceiling_reason": "Your receipts crossed the micro-BNC ceiling ({ceiling}) two years running: the micro régime ends, and the option with it.",
+  "declarations_liberating_ended_action": "Turn it off in the settings.",
+  "declarations_liberating_ended_title": "The versement libératoire has not applied since {date}",
+  "declarations_liberating_ends_action": "Turn it off in the settings on that date.",
+  "declarations_liberating_ends_title": "The versement libératoire ends on {date}",
+  "declarations_liberating_income_reason": [
+    {
+      "declarations": [
+        "input count",
+        "input year",
+        "input income",
+        "input limit",
+        "input parts",
+        "local countPlural = count: plural"
+      ],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "Your {year} revenu fiscal de référence ({income}) exceeds the {limit} limit for {parts} part.",
+        "countPlural=other": "Your {year} revenu fiscal de référence ({income}) exceeds the {limit} limit for {parts} parts."
+      }
+    }
+  ],
+  "declarations_liberating_needs_income": "Copy the revenu fiscal de référence from your latest avis d'imposition: Opusline will tell you whether the versement libératoire can go on.",
+  "declarations_liberating_settings_link": "Tax settings",
   "declarations_load_failed": "The declarations could not be loaded. Try again in a moment.",
   "declarations_mark_filed": "Mark as filed",
   "declarations_mark_paid": "Mark as paid",

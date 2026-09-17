@@ -69,6 +69,7 @@ class SummarizeDeclarations
         private readonly SummarizeTreasury $summarizeTreasury,
         private readonly SummarizeAnnualDeclarations $summarizeAnnualDeclarations,
         private readonly ContributionRateHistory $contributionRateHistory,
+        private readonly ResolveLiberatingPaymentOutlook $resolveLiberatingPaymentOutlook,
     ) {}
 
     /**
@@ -176,6 +177,7 @@ class SummarizeDeclarations
             vat: $vat,
             cumulative: $cumulative,
             annual: $annual,
+            liberatingPayment: $this->resolveLiberatingPaymentOutlook->handle($user),
             history: $history,
         );
     }
@@ -345,17 +347,23 @@ class SummarizeDeclarations
         return Money::max(new Money(0, $coverable->getCurrency()->getCode()), Money::min($carried, $coverable));
     }
 
-    private function cumulative(UserSettings $settings, CollectedInvoices $collected, CarbonImmutable $monthStart): RevenueCeilingData
+    private function cumulative(UserSettings $settings, CollectedInvoices $collected, CarbonImmutable $monthStart): ?RevenueCeilingData
     {
+        $ceilingCents = MicroBnc::ceilingCentsFor($monthStart->year);
+
+        if ($ceilingCents === null) {
+            return null;
+        }
+
         $currency = $settings->currency->value;
         $collectedHt = new Money($collected->htCents($monthStart->startOfYear(), $monthStart->endOfMonth()), $currency);
-        $ceiling = new Money(MicroBnc::CEILING_CENTS, $currency);
+        $ceiling = new Money($ceilingCents, $currency);
 
         return new RevenueCeilingData(
             year: $monthStart->year,
             collectedHt: MoneyData::fromMoney($collectedHt),
             ceiling: MoneyData::fromMoney($ceiling),
-            shareBp: Rate::shareBp((int) $collectedHt->getAmount(), MicroBnc::CEILING_CENTS),
+            shareBp: Rate::shareBp((int) $collectedHt->getAmount(), $ceilingCents),
             margin: SignedMoneyData::fromMoney($ceiling->subtract($collectedHt)),
         );
     }
