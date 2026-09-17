@@ -25,7 +25,10 @@ function ClientsPage() {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
-        <h1 className="font-heading font-semibold text-2xl text-foreground-hi">
+        <h1
+          data-testid="page-heading"
+          className="font-heading font-semibold text-2xl text-foreground-hi"
+        >
           {m.nav_clients()}
         </h1>
         <Button render={<Link to="/clients/new" />} size="xl">

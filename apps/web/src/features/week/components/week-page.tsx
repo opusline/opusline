@@ -170,7 +170,10 @@ export function WeekPage({
   if (model.rows.length === 0 && !model.hasEntries) {
     return (
       <div className="flex flex-col gap-5">
-        <h1 className="font-heading font-semibold text-2xl text-foreground-hi">
+        <h1
+          data-testid="page-heading"
+          className="font-heading font-semibold text-2xl text-foreground-hi"
+        >
           {m.week_page_title()}
         </h1>
         <WeekMissionsEmptyState />

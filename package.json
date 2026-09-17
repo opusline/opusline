@@ -10,6 +10,7 @@
     "check-types": "turbo run check-types",
     "test": "turbo run test",
     "test:scripts": "node --test scripts/assemble-release-notes.test.mjs",
+    "e2e": "pnpm --filter @opusline/e2e e2e",
     "generate-api": "turbo run generate"
   },
   "devDependencies": {

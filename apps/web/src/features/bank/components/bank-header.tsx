@@ -11,7 +11,10 @@ export function BankHeader({ onImport }: BankHeaderProps) {
   return (
     <div className="flex flex-wrap items-start justify-between gap-5">
       <div className="min-w-0">
-        <h1 className="font-heading font-semibold text-2xl text-foreground-hi">
+        <h1
+          data-testid="page-heading"
+          className="font-heading font-semibold text-2xl text-foreground-hi"
+        >
           {m.bank_title()}
         </h1>
         <p className="mt-1 max-w-[62ch] text-pretty text-muted-foreground-3 text-sm">

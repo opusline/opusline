@@ -207,7 +207,10 @@ function FacturesPage() {
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="font-heading font-semibold text-2xl text-foreground-hi">
+          <h1
+            data-testid="page-heading"
+            className="font-heading font-semibold text-2xl text-foreground-hi"
+          >
             {m.nav_invoices()}
           </h1>
           <p className="mt-1 max-w-[60ch] text-muted-foreground-3 text-sm text-pretty">

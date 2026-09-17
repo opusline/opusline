@@ -26,6 +26,7 @@ WORKDIR /src
 # The manifests alone first, so a source-only change reuses the install layer.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json apps/api/
+COPY apps/e2e/package.json apps/e2e/
 COPY apps/storybook/package.json apps/storybook/
 COPY apps/web/package.json apps/web/
 COPY packages/api-client/package.json packages/api-client/

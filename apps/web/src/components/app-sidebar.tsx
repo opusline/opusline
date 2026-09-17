@@ -187,6 +187,8 @@ export function AppSidebar() {
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton
+                    data-route="/week"
+                    data-testid="nav-link"
                     isActive={pathname.startsWith("/week")}
                     render={<Link to="/week" />}
                     tooltip={m.nav_week()}
@@ -197,6 +199,8 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton
+                    data-route="/clients"
+                    data-testid="nav-link"
                     isActive={pathname.startsWith("/clients")}
                     render={<Link to="/clients" />}
                     tooltip={m.nav_clients()}
@@ -207,6 +211,8 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton
+                    data-route="/cra"
+                    data-testid="nav-link"
                     isActive={pathname.startsWith("/cra")}
                     render={<Link to="/cra" />}
                     tooltip={m.nav_cra()}
@@ -217,6 +223,8 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton
+                    data-route="/invoices"
+                    data-testid="nav-link"
                     isActive={pathname.startsWith("/invoices")}
                     render={<Link to="/invoices" />}
                     tooltip={m.nav_invoices()}
@@ -234,6 +242,8 @@ export function AppSidebar() {
                   <>
                     <SidebarMenuItem>
                       <SidebarMenuButton
+                        data-route="/revenue"
+                        data-testid="nav-link"
                         isActive={pathname.startsWith("/revenue")}
                         render={<Link to="/revenue" />}
                         tooltip={m.nav_revenue()}
@@ -244,6 +254,8 @@ export function AppSidebar() {
                     </SidebarMenuItem>
                     <SidebarMenuItem>
                       <SidebarMenuButton
+                        data-route="/expenses"
+                        data-testid="nav-link"
                         isActive={pathname.startsWith("/expenses")}
                         render={<Link to="/expenses" />}
                         tooltip={m.nav_expenses()}
@@ -259,6 +271,8 @@ export function AppSidebar() {
                     </SidebarMenuItem>
                     <SidebarMenuItem>
                       <SidebarMenuButton
+                        data-route="/treasury"
+                        data-testid="nav-link"
                         isActive={pathname.startsWith("/treasury")}
                         render={<Link to="/treasury" />}
                         tooltip={m.nav_treasury()}
@@ -269,6 +283,8 @@ export function AppSidebar() {
                     </SidebarMenuItem>
                     <SidebarMenuItem>
                       <SidebarMenuButton
+                        data-route="/bank-account"
+                        data-testid="nav-link"
                         isActive={pathname.startsWith("/bank-account")}
                         render={<Link to="/bank-account" />}
                         tooltip={m.nav_bank()}
@@ -279,6 +295,8 @@ export function AppSidebar() {
                     </SidebarMenuItem>
                     <SidebarMenuItem>
                       <SidebarMenuButton
+                        data-route="/deadlines"
+                        data-testid="nav-link"
                         isActive={pathname.startsWith("/deadlines")}
                         render={<Link to="/deadlines" />}
                         tooltip={m.nav_deadlines()}
@@ -294,6 +312,8 @@ export function AppSidebar() {
                     </SidebarMenuItem>
                     <SidebarMenuItem>
                       <SidebarMenuButton
+                        data-route="/declarations"
+                        data-testid="nav-link"
                         isActive={pathname.startsWith("/declarations")}
                         render={<Link to="/declarations" />}
                         tooltip={m.nav_declarations()}
@@ -306,6 +326,8 @@ export function AppSidebar() {
                 )}
                 <SidebarMenuItem>
                   <SidebarMenuButton
+                    data-route="/documents"
+                    data-testid="nav-link"
                     isActive={pathname.startsWith("/documents")}
                     render={<Link to="/documents" />}
                     tooltip={m.nav_documents()}
@@ -316,6 +338,8 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton
+                    data-route="/settings"
+                    data-testid="nav-link"
                     isActive={pathname.startsWith("/settings")}
                     render={<Link to="/settings" />}
                     tooltip={m.nav_settings()}
@@ -355,6 +379,8 @@ export function AppSidebar() {
             <SidebarMenuItem>
               <SidebarMenuButton
                 className="h-auto rounded-none border-sidebar-border border-b px-3.5 py-2 group-data-[collapsible=icon]:rounded-md group-data-[collapsible=icon]:border-b-0"
+                data-route="/release-notes"
+                data-testid="nav-link"
                 isActive={pathname.startsWith("/release-notes")}
                 render={<Link to="/release-notes" />}
                 tooltip={m.release_notes_title()}
@@ -379,6 +405,7 @@ export function AppSidebar() {
                   render={
                     <SidebarMenuButton
                       className="h-auto rounded-none px-3.5 py-2.75"
+                      data-testid="account-menu"
                       size="lg"
                     >
                       <Avatar className="size-7.5">
@@ -426,6 +453,7 @@ export function AppSidebar() {
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="mt-1 border-t not-focus:text-destructive not-focus:*:[svg]:text-destructive"
+                    data-testid="account-logout"
                     disabled={logout.isPending}
                     onClick={() => logout.mutate({})}
                   >

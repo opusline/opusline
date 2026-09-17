@@ -74,6 +74,7 @@ export function RegisterForm({
                 {m.auth_name_label()}
               </FieldLabel>
               <Input
+                data-testid="register-name"
                 aria-invalid={isInvalid}
                 id={field.name}
                 onBlur={field.handleBlur}
@@ -81,7 +82,10 @@ export function RegisterForm({
                 value={field.state.value}
               />
               {isInvalid ? (
-                <FieldError errors={field.state.meta.errors} />
+                <FieldError
+                  data-testid="register-name-error"
+                  errors={field.state.meta.errors}
+                />
               ) : null}
             </Field>
           );
@@ -97,6 +101,7 @@ export function RegisterForm({
                 {m.auth_email_label()}
               </FieldLabel>
               <Input
+                data-testid="register-email"
                 aria-invalid={isInvalid}
                 id={field.name}
                 onBlur={field.handleBlur}
@@ -105,7 +110,10 @@ export function RegisterForm({
                 value={field.state.value}
               />
               {isInvalid ? (
-                <FieldError errors={field.state.meta.errors} />
+                <FieldError
+                  data-testid="register-email-error"
+                  errors={field.state.meta.errors}
+                />
               ) : null}
             </Field>
           );
@@ -121,6 +129,7 @@ export function RegisterForm({
                 {m.auth_password_label()}
               </FieldLabel>
               <Input
+                data-testid="register-password"
                 aria-invalid={isInvalid}
                 id={field.name}
                 onBlur={field.handleBlur}
@@ -129,7 +138,10 @@ export function RegisterForm({
                 value={field.state.value}
               />
               {isInvalid ? (
-                <FieldError errors={field.state.meta.errors} />
+                <FieldError
+                  data-testid="register-password-error"
+                  errors={field.state.meta.errors}
+                />
               ) : null}
             </Field>
           );
@@ -145,6 +157,7 @@ export function RegisterForm({
                 {m.auth_password_confirm_label()}
               </FieldLabel>
               <Input
+                data-testid="register-password-confirmation"
                 aria-invalid={isInvalid}
                 id={field.name}
                 onBlur={field.handleBlur}
@@ -153,7 +166,10 @@ export function RegisterForm({
                 value={field.state.value}
               />
               {isInvalid ? (
-                <FieldError errors={field.state.meta.errors} />
+                <FieldError
+                  data-testid="register-password-confirmation-error"
+                  errors={field.state.meta.errors}
+                />
               ) : null}
             </Field>
           );
@@ -162,6 +178,7 @@ export function RegisterForm({
       <Button
         className="mt-1 w-full"
         disabled={isPending}
+        data-testid="register-submit"
         size="2xl"
         type="submit"
       >

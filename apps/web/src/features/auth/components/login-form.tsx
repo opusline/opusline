@@ -71,6 +71,7 @@ export function LoginForm({
                 {m.auth_email_label()}
               </FieldLabel>
               <Input
+                data-testid="login-email"
                 aria-invalid={isInvalid}
                 autoComplete="username webauthn"
                 id={field.name}
@@ -80,7 +81,10 @@ export function LoginForm({
                 value={field.state.value}
               />
               {isInvalid ? (
-                <FieldError errors={field.state.meta.errors} />
+                <FieldError
+                  data-testid="login-email-error"
+                  errors={field.state.meta.errors}
+                />
               ) : null}
             </Field>
           );
@@ -96,6 +100,7 @@ export function LoginForm({
                 {m.auth_password_label()}
               </FieldLabel>
               <Input
+                data-testid="login-password"
                 aria-invalid={isInvalid}
                 id={field.name}
                 onBlur={field.handleBlur}
@@ -104,7 +109,10 @@ export function LoginForm({
                 value={field.state.value}
               />
               {isInvalid ? (
-                <FieldError errors={field.state.meta.errors} />
+                <FieldError
+                  data-testid="login-password-error"
+                  errors={field.state.meta.errors}
+                />
               ) : null}
             </Field>
           );
@@ -127,6 +135,7 @@ export function LoginForm({
       <Button
         className="mt-1 w-full"
         disabled={isPending}
+        data-testid="login-submit"
         size="2xl"
         type="submit"
       >

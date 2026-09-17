@@ -1,0 +1,21 @@
+{
+  "name": "@opusline/e2e",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "stack:build": "sh scripts/stack.sh build",
+    "stack:up": "sh scripts/stack.sh up",
+    "stack:down": "sh scripts/stack.sh down",
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@opusline/api-client": "workspace:*",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.5.1",
+    "typescript": "^7"
+  },
+  "license": "AGPL-3.0-only"
+}
