@@ -4,9 +4,8 @@ import {
   FieldError,
   FieldLabel,
 } from "@opusline/ui/components/field";
+import { FormTextField } from "@opusline/ui/components/form-text-field";
 import { NativeSelect } from "@opusline/ui/components/native-select";
-
-import { FormTextField } from "@/components/form-text-field";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { PaymentTermsPicker } from "@/components/payment-terms-picker";
 import { currencySymbol, formatRateDraft } from "@/lib/billing";

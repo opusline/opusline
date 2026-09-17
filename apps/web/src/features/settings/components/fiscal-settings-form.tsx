@@ -12,13 +12,13 @@ import {
   FieldLegend,
   FieldSet,
 } from "@opusline/ui/components/field";
+import { FormTextField } from "@opusline/ui/components/form-text-field";
 import { RadioCard, RadioGroup } from "@opusline/ui/components/radio-group";
 import {
   SegmentedControl,
   SegmentedControlItem,
 } from "@opusline/ui/components/segmented-control";
 import { Switch } from "@opusline/ui/components/switch";
-import { FormTextField } from "@/components/form-text-field";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { currencySymbol } from "@/lib/billing";
 import {

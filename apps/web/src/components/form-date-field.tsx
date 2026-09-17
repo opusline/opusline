@@ -4,10 +4,9 @@ import {
   FieldError,
   FieldLabel,
 } from "@opusline/ui/components/field";
+import type { StringFieldApi } from "@opusline/ui/components/form-text-field";
 import type * as React from "react";
-
 import { DateField } from "@/components/date-field";
-import type { StringFieldApi } from "@/components/form-text-field";
 
 type FormDateFieldProps = {
   field: StringFieldApi;

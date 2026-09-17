@@ -1,9 +1,8 @@
 import { Field, FieldError, FieldLabel } from "@opusline/ui/components/field";
+import type { StringFieldApi } from "@opusline/ui/components/form-text-field";
 import { Input } from "@opusline/ui/components/input";
 import { cn } from "@opusline/ui/lib/utils";
 import { useEffect, useId, useRef, useState } from "react";
-
-import type { StringFieldApi } from "@/components/form-text-field";
 import { m } from "@/paraglide/messages.js";
 
 export type Suggestion = { id: string; label: string };

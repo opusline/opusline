@@ -10,6 +10,7 @@ import { Button } from "@opusline/ui/components/button";
 import { Chip, ChipGroup } from "@opusline/ui/components/chip";
 import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { Field, FieldError, FieldLabel } from "@opusline/ui/components/field";
+import { FormTextField } from "@opusline/ui/components/form-text-field";
 import { HelpTip } from "@opusline/ui/components/help-tip";
 import { Input } from "@opusline/ui/components/input";
 import {
@@ -25,7 +26,6 @@ import { CircleAlert, InfoIcon } from "lucide-react";
 import { useState } from "react";
 import { DateField } from "@/components/date-field";
 import { FormDateField } from "@/components/form-date-field";
-import { FormTextField } from "@/components/form-text-field";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { RichMessage } from "@/components/rich-message";
 import {

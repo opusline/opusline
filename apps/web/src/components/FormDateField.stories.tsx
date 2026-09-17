@@ -1,7 +1,7 @@
+import type { StringFieldApi } from "@opusline/ui/components/form-text-field";
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { FormDateField } from "./form-date-field";
-import type { StringFieldApi } from "./form-text-field";
 
 function fieldApi(
   value: string,

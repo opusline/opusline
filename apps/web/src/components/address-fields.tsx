@@ -1,10 +1,9 @@
-import type { ReactNode } from "react";
-
-import { useAddressAutocomplete } from "@/components/address-autocomplete-provider";
 import {
   FormTextField,
   type StringFieldApi,
-} from "@/components/form-text-field";
+} from "@opusline/ui/components/form-text-field";
+import type { ReactNode } from "react";
+import { useAddressAutocomplete } from "@/components/address-autocomplete-provider";
 import { useLocale } from "@/components/money-format-provider";
 import { SuggestField } from "@/components/suggest-field";
 import { searchCountries } from "@/lib/countries";

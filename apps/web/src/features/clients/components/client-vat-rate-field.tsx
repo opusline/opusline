@@ -4,7 +4,7 @@ import { ExemptField } from "@opusline/ui/components/exempt-field";
 import {
   FormTextField,
   type StringFieldApi,
-} from "@/components/form-text-field";
+} from "@opusline/ui/components/form-text-field";
 import { formatPercentFromBp } from "@/lib/billing";
 import { m } from "@/paraglide/messages.js";
 

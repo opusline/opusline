@@ -18,7 +18,7 @@ function stubField(value: string, error?: string): StringFieldApi {
 }
 
 const meta = {
-  title: "Web/FormTextField",
+  title: "UI/FormTextField",
   component: FormTextField,
   tags: ["autodocs"],
 } satisfies Meta<typeof FormTextField>;

@@ -12,6 +12,7 @@ import { Button } from "@opusline/ui/components/button";
 import { Chip, ChipGroup } from "@opusline/ui/components/chip";
 import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import { Field, FieldLabel } from "@opusline/ui/components/field";
+import { FormTextField } from "@opusline/ui/components/form-text-field";
 import { HelpTip } from "@opusline/ui/components/help-tip";
 import { Swatch, SwatchGroup } from "@opusline/ui/components/swatch";
 import { Switch } from "@opusline/ui/components/switch";
@@ -19,7 +20,6 @@ import { useForm } from "@tanstack/react-form";
 import { CircleAlert, PencilIcon } from "lucide-react";
 import { useState } from "react";
 import { FormDateField } from "@/components/form-date-field";
-import { FormTextField } from "@/components/form-text-field";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import {
   formatAmount,
