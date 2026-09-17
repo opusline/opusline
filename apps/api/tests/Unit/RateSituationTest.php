@@ -73,3 +73,10 @@ test('gives identical situations the same signature, so two accounts share one c
 
     expect($one->signature())->toBe($two->signature());
 });
+
+test('keeps the cache keys a deploy inherits', function (): void {
+    // The signature names cached barèmes: a refactor that changes it silently
+    // drops every cached rate and re-asks mon-entreprise for each account.
+    expect(new RateSituation(false, null)->signature())->toBe('65a418065f5788b3b55be467656b707c')
+        ->and(new RateSituation(true, CarbonImmutable::parse('2026-02-10'))->signature())->toBe('05a377b84cc535e1a4e6a787ec45c22c');
+});

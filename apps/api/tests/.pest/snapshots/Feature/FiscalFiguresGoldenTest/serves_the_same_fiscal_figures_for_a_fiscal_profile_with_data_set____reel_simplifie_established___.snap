@@ -1,0 +1,3571 @@
+{
+    "\/api\/user": {
+        "status": 200,
+        "queries": 1,
+        "body": {
+            "id": "[scrubbed]",
+            "name": "Camille Vesterhus",
+            "email": "reel-simplifie@opusline.test",
+            "theme": 0,
+            "releaseNotesSeenVersion": "0.28.3",
+            "locale": "en-US",
+            "dateFormat": 0,
+            "currency": "EUR",
+            "businessCountry": "FR",
+            "hasFrenchFiscality": true,
+            "vatLiable": true,
+            "effectiveVatRateBp": 1000,
+            "timezone": "Europe\/Paris",
+            "workdayMinutes": 420,
+            "defaultPaymentTermsDays": 45,
+            "effectiveContributionRateBp": 2800
+        }
+    },
+    "\/api\/settings": {
+        "status": 200,
+        "queries": 4,
+        "body": {
+            "tradeName": null,
+            "siret": null,
+            "vatNumber": null,
+            "signatureCity": null,
+            "contactEmail": null,
+            "phone": null,
+            "companyAddressLine1": null,
+            "companyAddressLine2": null,
+            "companyPostalCode": null,
+            "companyCity": null,
+            "homeAddressSameAsCompany": true,
+            "homeAddressLine1": null,
+            "homeAddressLine2": null,
+            "homePostalCode": null,
+            "homeCity": null,
+            "businessCountry": "FR",
+            "hasFrenchFiscality": true,
+            "urssafPeriodicity": 0,
+            "autoRates": false,
+            "businessStartedOn": "2024-05-01",
+            "acre": false,
+            "ratesCheckedAt": null,
+            "ratesYear": null,
+            "ratesRefreshing": false,
+            "contributionRateBp": 2560,
+            "liberatingPayment": true,
+            "liberatingPaymentRateBp": 220,
+            "vatRegime": 1,
+            "vatLiable": true,
+            "defaultVatRateBp": 1000,
+            "effectiveVatRateBp": 1000,
+            "effectiveContributionRateBp": 2800,
+            "defaultPaymentTermsDays": 45,
+            "invoiceNumberFormat": "AAAA-NNN",
+            "treasuryBuffer": null,
+            "cfeExpected": null,
+            "currency": "EUR",
+            "currencyLocked": true,
+            "locale": "en-US",
+            "dateFormat": 0,
+            "timezone": "Europe\/Paris",
+            "workdayMinutes": 420,
+            "dormantAfterMonths": null,
+            "hasSignature": false
+        }
+    },
+    "\/api\/declarations": {
+        "status": 200,
+        "queries": 6,
+        "body": {
+            "period": "2026-07",
+            "previousPeriod": "2026-06",
+            "nextPeriod": null,
+            "isDefault": true,
+            "urssaf": {
+                "period": "2026-07",
+                "periodicity": 0,
+                "coversShownMonth": true,
+                "base": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "invoiceCount": 0,
+                "lines": [
+                    {
+                        "kind": 0,
+                        "rateBp": 2560,
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        }
+                    },
+                    {
+                        "kind": 1,
+                        "rateBp": 20,
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        }
+                    },
+                    {
+                        "kind": 2,
+                        "rateBp": 220,
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        }
+                    }
+                ],
+                "total": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "deadline": {
+                    "dueOn": "2026-08-31",
+                    "daysLeft": 18
+                },
+                "completion": null,
+                "settlement": {
+                    "expected": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "provisioned": null,
+                    "gap": null,
+                    "detectedPayments": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                }
+            },
+            "vat": null,
+            "cumulative": {
+                "year": 2026,
+                "collectedHt": {
+                    "amount": 960000,
+                    "currency": "EUR"
+                },
+                "ceiling": {
+                    "amount": 7770000,
+                    "currency": "EUR"
+                },
+                "shareBp": 1235,
+                "margin": {
+                    "amount": 6810000,
+                    "currency": "EUR"
+                }
+            },
+            "annual": {
+                "incomeTaxReturn": {
+                    "year": 2026,
+                    "dueOn": "2027-05-31",
+                    "grossReceipts": {
+                        "amount": 1500000,
+                        "currency": "EUR"
+                    },
+                    "box": 0,
+                    "periods": [
+                        {
+                            "period": "2026-01",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-02",
+                            "base": {
+                                "amount": 960000,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-03",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-04",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-05",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-06",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-07",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-08",
+                            "base": {
+                                "amount": 540000,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-09",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-10",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-11",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-12",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        }
+                    ],
+                    "taxableAfterAbatement": {
+                        "amount": 990000,
+                        "currency": "EUR"
+                    },
+                    "liberatingPaymentPaid": {
+                        "amount": 33000,
+                        "currency": "EUR"
+                    },
+                    "completion": null
+                },
+                "cfe": {
+                    "year": 2026,
+                    "dueOn": "2026-12-15",
+                    "expected": {
+                        "amount": 112000,
+                        "currency": "EUR"
+                    },
+                    "isEstimate": true,
+                    "provisioned": {
+                        "amount": 74667,
+                        "currency": "EUR"
+                    },
+                    "gap": {
+                        "amount": -37333,
+                        "currency": "EUR"
+                    },
+                    "monthsProvisioned": 8,
+                    "completion": null
+                }
+            },
+            "history": [
+                {
+                    "period": "2026-07",
+                    "urssaf": {
+                        "period": "2026-07",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2026-06",
+                    "urssaf": {
+                        "period": "2026-06",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2026-05",
+                    "urssaf": {
+                        "period": "2026-05",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2026-04",
+                    "urssaf": {
+                        "period": "2026-04",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2026-03",
+                    "urssaf": {
+                        "period": "2026-03",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2026-02",
+                    "urssaf": {
+                        "period": "2026-02",
+                        "total": {
+                            "amount": 268800,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                }
+            ]
+        }
+    },
+    "\/api\/declarations?period=2026-03": {
+        "status": 200,
+        "queries": 6,
+        "body": {
+            "period": "2026-03",
+            "previousPeriod": "2026-02",
+            "nextPeriod": "2026-04",
+            "isDefault": false,
+            "urssaf": {
+                "period": "2026-03",
+                "periodicity": 0,
+                "coversShownMonth": true,
+                "base": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "invoiceCount": 0,
+                "lines": [
+                    {
+                        "kind": 0,
+                        "rateBp": 2560,
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        }
+                    },
+                    {
+                        "kind": 1,
+                        "rateBp": 20,
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        }
+                    },
+                    {
+                        "kind": 2,
+                        "rateBp": 220,
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        }
+                    }
+                ],
+                "total": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "deadline": {
+                    "dueOn": "2026-04-30",
+                    "daysLeft": -105
+                },
+                "completion": null,
+                "settlement": {
+                    "expected": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "provisioned": null,
+                    "gap": null,
+                    "detectedPayments": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                }
+            },
+            "vat": null,
+            "cumulative": {
+                "year": 2026,
+                "collectedHt": {
+                    "amount": 960000,
+                    "currency": "EUR"
+                },
+                "ceiling": {
+                    "amount": 7770000,
+                    "currency": "EUR"
+                },
+                "shareBp": 1235,
+                "margin": {
+                    "amount": 6810000,
+                    "currency": "EUR"
+                }
+            },
+            "annual": {
+                "incomeTaxReturn": {
+                    "year": 2026,
+                    "dueOn": "2027-05-31",
+                    "grossReceipts": {
+                        "amount": 1500000,
+                        "currency": "EUR"
+                    },
+                    "box": 0,
+                    "periods": [
+                        {
+                            "period": "2026-01",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-02",
+                            "base": {
+                                "amount": 960000,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-03",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-04",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-05",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-06",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-07",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-08",
+                            "base": {
+                                "amount": 540000,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-09",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-10",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-11",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-12",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        }
+                    ],
+                    "taxableAfterAbatement": {
+                        "amount": 990000,
+                        "currency": "EUR"
+                    },
+                    "liberatingPaymentPaid": {
+                        "amount": 33000,
+                        "currency": "EUR"
+                    },
+                    "completion": null
+                },
+                "cfe": {
+                    "year": 2026,
+                    "dueOn": "2026-12-15",
+                    "expected": {
+                        "amount": 112000,
+                        "currency": "EUR"
+                    },
+                    "isEstimate": true,
+                    "provisioned": {
+                        "amount": 74667,
+                        "currency": "EUR"
+                    },
+                    "gap": {
+                        "amount": -37333,
+                        "currency": "EUR"
+                    },
+                    "monthsProvisioned": 8,
+                    "completion": null
+                }
+            },
+            "history": [
+                {
+                    "period": "2026-03",
+                    "urssaf": {
+                        "period": "2026-03",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2026-02",
+                    "urssaf": {
+                        "period": "2026-02",
+                        "total": {
+                            "amount": 268800,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2026-01",
+                    "urssaf": {
+                        "period": "2026-01",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2025-12",
+                    "urssaf": {
+                        "period": "2025-12",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2025-11",
+                    "urssaf": {
+                        "period": "2025-11",
+                        "total": {
+                            "amount": 686000,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2025-10",
+                    "urssaf": {
+                        "period": "2025-10",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                }
+            ]
+        }
+    },
+    "\/api\/declarations?period=2026-06": {
+        "status": 200,
+        "queries": 6,
+        "body": {
+            "period": "2026-06",
+            "previousPeriod": "2026-05",
+            "nextPeriod": "2026-07",
+            "isDefault": false,
+            "urssaf": {
+                "period": "2026-06",
+                "periodicity": 0,
+                "coversShownMonth": true,
+                "base": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "invoiceCount": 0,
+                "lines": [
+                    {
+                        "kind": 0,
+                        "rateBp": 2560,
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        }
+                    },
+                    {
+                        "kind": 1,
+                        "rateBp": 20,
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        }
+                    },
+                    {
+                        "kind": 2,
+                        "rateBp": 220,
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        }
+                    }
+                ],
+                "total": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "deadline": {
+                    "dueOn": "2026-07-31",
+                    "daysLeft": -13
+                },
+                "completion": null,
+                "settlement": {
+                    "expected": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "provisioned": null,
+                    "gap": null,
+                    "detectedPayments": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                }
+            },
+            "vat": null,
+            "cumulative": {
+                "year": 2026,
+                "collectedHt": {
+                    "amount": 960000,
+                    "currency": "EUR"
+                },
+                "ceiling": {
+                    "amount": 7770000,
+                    "currency": "EUR"
+                },
+                "shareBp": 1235,
+                "margin": {
+                    "amount": 6810000,
+                    "currency": "EUR"
+                }
+            },
+            "annual": {
+                "incomeTaxReturn": {
+                    "year": 2026,
+                    "dueOn": "2027-05-31",
+                    "grossReceipts": {
+                        "amount": 1500000,
+                        "currency": "EUR"
+                    },
+                    "box": 0,
+                    "periods": [
+                        {
+                            "period": "2026-01",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-02",
+                            "base": {
+                                "amount": 960000,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-03",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-04",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-05",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-06",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-07",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-08",
+                            "base": {
+                                "amount": 540000,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-09",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-10",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-11",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-12",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        }
+                    ],
+                    "taxableAfterAbatement": {
+                        "amount": 990000,
+                        "currency": "EUR"
+                    },
+                    "liberatingPaymentPaid": {
+                        "amount": 33000,
+                        "currency": "EUR"
+                    },
+                    "completion": null
+                },
+                "cfe": {
+                    "year": 2026,
+                    "dueOn": "2026-12-15",
+                    "expected": {
+                        "amount": 112000,
+                        "currency": "EUR"
+                    },
+                    "isEstimate": true,
+                    "provisioned": {
+                        "amount": 74667,
+                        "currency": "EUR"
+                    },
+                    "gap": {
+                        "amount": -37333,
+                        "currency": "EUR"
+                    },
+                    "monthsProvisioned": 8,
+                    "completion": null
+                }
+            },
+            "history": [
+                {
+                    "period": "2026-06",
+                    "urssaf": {
+                        "period": "2026-06",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2026-05",
+                    "urssaf": {
+                        "period": "2026-05",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2026-04",
+                    "urssaf": {
+                        "period": "2026-04",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2026-03",
+                    "urssaf": {
+                        "period": "2026-03",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2026-02",
+                    "urssaf": {
+                        "period": "2026-02",
+                        "total": {
+                            "amount": 268800,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2026-01",
+                    "urssaf": {
+                        "period": "2026-01",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                }
+            ]
+        }
+    },
+    "\/api\/declarations?period=2025-12": {
+        "status": 200,
+        "queries": 5,
+        "body": {
+            "period": "2025-12",
+            "previousPeriod": "2025-11",
+            "nextPeriod": "2026-01",
+            "isDefault": false,
+            "urssaf": {
+                "period": "2025-12",
+                "periodicity": 0,
+                "coversShownMonth": true,
+                "base": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "invoiceCount": 0,
+                "lines": [
+                    {
+                        "kind": 0,
+                        "rateBp": 2560,
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        }
+                    },
+                    {
+                        "kind": 1,
+                        "rateBp": 20,
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        }
+                    },
+                    {
+                        "kind": 2,
+                        "rateBp": 220,
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        }
+                    }
+                ],
+                "total": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "deadline": {
+                    "dueOn": "2026-02-02",
+                    "daysLeft": -192
+                },
+                "completion": null,
+                "settlement": {
+                    "expected": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "provisioned": null,
+                    "gap": null,
+                    "detectedPayments": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                }
+            },
+            "vat": null,
+            "cumulative": {
+                "year": 2025,
+                "collectedHt": {
+                    "amount": 4250000,
+                    "currency": "EUR"
+                },
+                "ceiling": {
+                    "amount": 7770000,
+                    "currency": "EUR"
+                },
+                "shareBp": 5469,
+                "margin": {
+                    "amount": 3520000,
+                    "currency": "EUR"
+                }
+            },
+            "annual": {
+                "incomeTaxReturn": {
+                    "year": 2025,
+                    "dueOn": "2026-06-01",
+                    "grossReceipts": {
+                        "amount": 4250000,
+                        "currency": "EUR"
+                    },
+                    "box": 0,
+                    "periods": [
+                        {
+                            "period": "2025-01",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2025-02",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2025-03",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2025-04",
+                            "base": {
+                                "amount": 1800000,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2025-05",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2025-06",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2025-07",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2025-08",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2025-09",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2025-10",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2025-11",
+                            "base": {
+                                "amount": 2450000,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2025-12",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        }
+                    ],
+                    "taxableAfterAbatement": {
+                        "amount": 2805000,
+                        "currency": "EUR"
+                    },
+                    "liberatingPaymentPaid": {
+                        "amount": 93500,
+                        "currency": "EUR"
+                    },
+                    "completion": null
+                },
+                "cfe": {
+                    "year": 2025,
+                    "dueOn": "2025-12-15",
+                    "expected": null,
+                    "isEstimate": false,
+                    "provisioned": null,
+                    "gap": null,
+                    "monthsProvisioned": 12,
+                    "completion": null
+                }
+            },
+            "history": [
+                {
+                    "period": "2025-12",
+                    "urssaf": {
+                        "period": "2025-12",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2025-11",
+                    "urssaf": {
+                        "period": "2025-11",
+                        "total": {
+                            "amount": 686000,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2025-10",
+                    "urssaf": {
+                        "period": "2025-10",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2025-09",
+                    "urssaf": {
+                        "period": "2025-09",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2025-08",
+                    "urssaf": {
+                        "period": "2025-08",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2025-07",
+                    "urssaf": {
+                        "period": "2025-07",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                }
+            ]
+        }
+    },
+    "\/api\/deadlines": {
+        "status": 200,
+        "queries": 8,
+        "body": {
+            "next": {
+                "type": 2,
+                "dueOn": "2026-06-30",
+                "invoice": null,
+                "fiscal": {
+                    "kind": 0,
+                    "periodKey": "2026-05",
+                    "periodStart": "2026-05-01",
+                    "periodEnd": "2026-05-31",
+                    "dueOn": "2026-06-30",
+                    "amount": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "rateBp": 2800,
+                    "base": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "isEstimate": true,
+                    "completedOn": null
+                }
+            },
+            "items": [
+                {
+                    "type": 2,
+                    "dueOn": "2026-06-30",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 0,
+                        "periodKey": "2026-05",
+                        "periodStart": "2026-05-01",
+                        "periodEnd": "2026-05-31",
+                        "dueOn": "2026-06-30",
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "rateBp": 2800,
+                        "base": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2026-07-31",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 0,
+                        "periodKey": "2026-06",
+                        "periodStart": "2026-06-01",
+                        "periodEnd": "2026-06-30",
+                        "dueOn": "2026-07-31",
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "rateBp": 2800,
+                        "base": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2026-08-31",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 0,
+                        "periodKey": "2026-07",
+                        "periodStart": "2026-07-01",
+                        "periodEnd": "2026-07-31",
+                        "dueOn": "2026-08-31",
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "rateBp": 2800,
+                        "base": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2026-09-30",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 0,
+                        "periodKey": "2026-08",
+                        "periodStart": "2026-08-01",
+                        "periodEnd": "2026-08-31",
+                        "dueOn": "2026-09-30",
+                        "amount": {
+                            "amount": 151200,
+                            "currency": "EUR"
+                        },
+                        "rateBp": 2800,
+                        "base": {
+                            "amount": 540000,
+                            "currency": "EUR"
+                        },
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2026-11-02",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 0,
+                        "periodKey": "2026-09",
+                        "periodStart": "2026-09-01",
+                        "periodEnd": "2026-09-30",
+                        "dueOn": "2026-11-02",
+                        "amount": null,
+                        "rateBp": 2800,
+                        "base": null,
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2026-11-30",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 0,
+                        "periodKey": "2026-10",
+                        "periodStart": "2026-10-01",
+                        "periodEnd": "2026-10-31",
+                        "dueOn": "2026-11-30",
+                        "amount": null,
+                        "rateBp": 2800,
+                        "base": null,
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2026-12-15",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 3,
+                        "periodKey": "2026",
+                        "periodStart": "2026-01-01",
+                        "periodEnd": "2026-12-31",
+                        "dueOn": "2026-12-15",
+                        "amount": {
+                            "amount": 112000,
+                            "currency": "EUR"
+                        },
+                        "rateBp": null,
+                        "base": null,
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2026-12-31",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 0,
+                        "periodKey": "2026-11",
+                        "periodStart": "2026-11-01",
+                        "periodEnd": "2026-11-30",
+                        "dueOn": "2026-12-31",
+                        "amount": null,
+                        "rateBp": 2800,
+                        "base": null,
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2027-02-01",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 0,
+                        "periodKey": "2026-12",
+                        "periodStart": "2026-12-01",
+                        "periodEnd": "2026-12-31",
+                        "dueOn": "2027-02-01",
+                        "amount": null,
+                        "rateBp": 2800,
+                        "base": null,
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2027-03-01",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 0,
+                        "periodKey": "2027-01",
+                        "periodStart": "2027-01-01",
+                        "periodEnd": "2027-01-31",
+                        "dueOn": "2027-03-01",
+                        "amount": null,
+                        "rateBp": 2800,
+                        "base": null,
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2027-03-31",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 0,
+                        "periodKey": "2027-02",
+                        "periodStart": "2027-02-01",
+                        "periodEnd": "2027-02-28",
+                        "dueOn": "2027-03-31",
+                        "amount": null,
+                        "rateBp": 2800,
+                        "base": null,
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2027-04-30",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 0,
+                        "periodKey": "2027-03",
+                        "periodStart": "2027-03-01",
+                        "periodEnd": "2027-03-31",
+                        "dueOn": "2027-04-30",
+                        "amount": null,
+                        "rateBp": 2800,
+                        "base": null,
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2027-05-04",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 2,
+                        "periodKey": "2026",
+                        "periodStart": "2026-01-01",
+                        "periodEnd": "2026-12-31",
+                        "dueOn": "2027-05-04",
+                        "amount": {
+                            "amount": 150000,
+                            "currency": "EUR"
+                        },
+                        "rateBp": null,
+                        "base": null,
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2027-05-31",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 0,
+                        "periodKey": "2027-04",
+                        "periodStart": "2027-04-01",
+                        "periodEnd": "2027-04-30",
+                        "dueOn": "2027-05-31",
+                        "amount": null,
+                        "rateBp": 2800,
+                        "base": null,
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2027-05-31",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 5,
+                        "periodKey": "2026",
+                        "periodStart": "2026-01-01",
+                        "periodEnd": "2026-12-31",
+                        "dueOn": "2027-05-31",
+                        "amount": null,
+                        "rateBp": null,
+                        "base": null,
+                        "isEstimate": false,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2027-06-30",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 0,
+                        "periodKey": "2027-05",
+                        "periodStart": "2027-05-01",
+                        "periodEnd": "2027-05-31",
+                        "dueOn": "2027-06-30",
+                        "amount": null,
+                        "rateBp": 2800,
+                        "base": null,
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2027-08-02",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 0,
+                        "periodKey": "2027-06",
+                        "periodStart": "2027-06-01",
+                        "periodEnd": "2027-06-30",
+                        "dueOn": "2027-08-02",
+                        "amount": null,
+                        "rateBp": 2800,
+                        "base": null,
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                }
+            ],
+            "reminders": [
+                {
+                    "deadline": {
+                        "kind": 0,
+                        "periodKey": "2026-05",
+                        "periodStart": "2026-05-01",
+                        "periodEnd": "2026-05-31",
+                        "dueOn": "2026-06-30",
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "rateBp": 2800,
+                        "base": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "isEstimate": true,
+                        "completedOn": null
+                    },
+                    "isRead": false
+                },
+                {
+                    "deadline": {
+                        "kind": 0,
+                        "periodKey": "2026-06",
+                        "periodStart": "2026-06-01",
+                        "periodEnd": "2026-06-30",
+                        "dueOn": "2026-07-31",
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "rateBp": 2800,
+                        "base": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "isEstimate": true,
+                        "completedOn": null
+                    },
+                    "isRead": false
+                }
+            ],
+            "calendarToken": "[scrubbed]",
+            "calendarFeed": {
+                "invoices": true,
+                "reminders": false,
+                "vat": true,
+                "urssaf": true,
+                "other": true
+            },
+            "calendarSubscribedOn": null,
+            "calendarLastSyncedAt": null
+        }
+    },
+    "\/api\/treasury": {
+        "status": 200,
+        "queries": 15,
+        "body": {
+            "balance": {
+                "amount": {
+                    "amount": -112000,
+                    "currency": "EUR"
+                },
+                "source": 2,
+                "asOf": null
+            },
+            "pendingTransfers": {
+                "amount": 0,
+                "currency": "EUR"
+            },
+            "pendingDeclarations": {
+                "amount": 0,
+                "currency": "EUR"
+            },
+            "coveredThrough": "2025-12-15",
+            "provisions": {
+                "vat": {
+                    "amount": {
+                        "amount": 575000,
+                        "currency": "EUR"
+                    },
+                    "carried": {
+                        "amount": 425000,
+                        "currency": "EUR"
+                    },
+                    "rateBp": null,
+                    "deductible": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "periodEnd": "2026-12-31",
+                    "isEstimate": false,
+                    "carriedPeriods": [
+                        {
+                            "period": "2025",
+                            "amount": {
+                                "amount": 425000,
+                                "currency": "EUR"
+                            }
+                        }
+                    ],
+                    "paidPeriods": []
+                },
+                "urssaf": {
+                    "amount": {
+                        "amount": 1106000,
+                        "currency": "EUR"
+                    },
+                    "carried": {
+                        "amount": 954800,
+                        "currency": "EUR"
+                    },
+                    "rateBp": 2800,
+                    "deductible": null,
+                    "periodEnd": "2026-08-31",
+                    "isEstimate": false,
+                    "carriedPeriods": [
+                        {
+                            "period": "2025-11",
+                            "amount": {
+                                "amount": 686000,
+                                "currency": "EUR"
+                            }
+                        },
+                        {
+                            "period": "2026-02",
+                            "amount": {
+                                "amount": 268800,
+                                "currency": "EUR"
+                            }
+                        }
+                    ],
+                    "paidPeriods": []
+                },
+                "cfe": {
+                    "amount": {
+                        "amount": 74667,
+                        "currency": "EUR"
+                    },
+                    "carried": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "rateBp": null,
+                    "deductible": null,
+                    "periodEnd": "2026-12-31",
+                    "isEstimate": true,
+                    "carriedPeriods": [],
+                    "paidPeriods": []
+                },
+                "subscriptions": null,
+                "buffer": null,
+                "total": {
+                    "amount": 1755667,
+                    "currency": "EUR"
+                }
+            },
+            "transferable": {
+                "amount": -1867667,
+                "currency": "EUR"
+            },
+            "transfers": []
+        }
+    },
+    "\/api\/bank": {
+        "status": 200,
+        "queries": 19,
+        "body": {
+            "balance": {
+                "amount": {
+                    "amount": -112000,
+                    "currency": "EUR"
+                },
+                "source": 2,
+                "asOf": null
+            },
+            "provisions": {
+                "vat": {
+                    "amount": {
+                        "amount": 575000,
+                        "currency": "EUR"
+                    },
+                    "carried": {
+                        "amount": 425000,
+                        "currency": "EUR"
+                    },
+                    "rateBp": null,
+                    "deductible": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "periodEnd": "2026-12-31",
+                    "isEstimate": false,
+                    "carriedPeriods": [
+                        {
+                            "period": "2025",
+                            "amount": {
+                                "amount": 425000,
+                                "currency": "EUR"
+                            }
+                        }
+                    ],
+                    "paidPeriods": []
+                },
+                "urssaf": {
+                    "amount": {
+                        "amount": 1106000,
+                        "currency": "EUR"
+                    },
+                    "carried": {
+                        "amount": 954800,
+                        "currency": "EUR"
+                    },
+                    "rateBp": 2800,
+                    "deductible": null,
+                    "periodEnd": "2026-08-31",
+                    "isEstimate": false,
+                    "carriedPeriods": [
+                        {
+                            "period": "2025-11",
+                            "amount": {
+                                "amount": 686000,
+                                "currency": "EUR"
+                            }
+                        },
+                        {
+                            "period": "2026-02",
+                            "amount": {
+                                "amount": 268800,
+                                "currency": "EUR"
+                            }
+                        }
+                    ],
+                    "paidPeriods": []
+                },
+                "cfe": {
+                    "amount": {
+                        "amount": 74667,
+                        "currency": "EUR"
+                    },
+                    "carried": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "rateBp": null,
+                    "deductible": null,
+                    "periodEnd": "2026-12-31",
+                    "isEstimate": true,
+                    "carriedPeriods": [],
+                    "paidPeriods": []
+                },
+                "subscriptions": null,
+                "buffer": null,
+                "total": {
+                    "amount": 1755667,
+                    "currency": "EUR"
+                }
+            },
+            "pendingMatches": [],
+            "movements": [
+                {
+                    "id": "[scrubbed]",
+                    "bookedOn": "2025-12-15",
+                    "label": "IMPOT CFE 2025",
+                    "amount": {
+                        "amount": -112000,
+                        "currency": "EUR"
+                    },
+                    "runningBalance": {
+                        "amount": -112000,
+                        "currency": "EUR"
+                    },
+                    "invoice": null,
+                    "pendingMatchId": "[scrubbed]",
+                    "expense": null
+                }
+            ],
+            "nextMovementsCursor": null,
+            "hasUnlinkedCredits": false,
+            "statements": [
+                {
+                    "id": "[scrubbed]",
+                    "fileName": "releve-compte-pro.csv",
+                    "periodStart": "2026-07-14",
+                    "periodEnd": "2026-08-13",
+                    "lineCount": 5,
+                    "importedAt": "2026-08-13",
+                    "matchCount": 0,
+                    "validatedMatchCount": 0
+                }
+            ]
+        }
+    },
+    "\/api\/revenue": {
+        "status": 200,
+        "queries": 7,
+        "body": {
+            "period": "2026-01",
+            "basis": 0,
+            "fellBack": true,
+            "lastActivePeriod": "2026-01",
+            "total": {
+                "amount": 5750000,
+                "currency": "EUR"
+            },
+            "previous": {
+                "period": "2025-12",
+                "total": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "changeBp": null
+            },
+            "vat": {
+                "amount": {
+                    "amount": 575000,
+                    "currency": "EUR"
+                },
+                "rateBp": 2000
+            },
+            "net": {
+                "amount": {
+                    "amount": 4140000,
+                    "currency": "EUR"
+                },
+                "contributions": {
+                    "amount": 1610000,
+                    "currency": "EUR"
+                },
+                "rateBp": 2800
+            },
+            "months": [
+                {
+                    "month": "2025-06",
+                    "total": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "inPeriod": false,
+                    "shareBp": 0
+                },
+                {
+                    "month": "2025-07",
+                    "total": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "inPeriod": false,
+                    "shareBp": 0
+                },
+                {
+                    "month": "2025-08",
+                    "total": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "inPeriod": false,
+                    "shareBp": 0
+                },
+                {
+                    "month": "2025-09",
+                    "total": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "inPeriod": false,
+                    "shareBp": 0
+                },
+                {
+                    "month": "2025-10",
+                    "total": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "inPeriod": false,
+                    "shareBp": 0
+                },
+                {
+                    "month": "2025-11",
+                    "total": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "inPeriod": false,
+                    "shareBp": 0
+                },
+                {
+                    "month": "2025-12",
+                    "total": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "inPeriod": false,
+                    "shareBp": 0
+                },
+                {
+                    "month": "2026-01",
+                    "total": {
+                        "amount": 5750000,
+                        "currency": "EUR"
+                    },
+                    "inPeriod": true,
+                    "shareBp": 10000
+                }
+            ],
+            "invoices": [
+                {
+                    "invoice": {
+                        "id": "[scrubbed]",
+                        "clientId": "[scrubbed]",
+                        "missionId": "[scrubbed]",
+                        "number": "2026-009",
+                        "status": 2,
+                        "isLate": false,
+                        "issuedOn": "2026-01-05",
+                        "dueOn": "2026-02-05",
+                        "paidOn": "2026-08-07",
+                        "periodStart": null,
+                        "periodEnd": null,
+                        "amountHt": {
+                            "amount": 540000,
+                            "currency": "EUR"
+                        },
+                        "amountVat": {
+                            "amount": 54000,
+                            "currency": "EUR"
+                        },
+                        "amountTtc": {
+                            "amount": 594000,
+                            "currency": "EUR"
+                        },
+                        "ttcOverridden": true,
+                        "vatRateBp": 2000,
+                        "notes": null
+                    },
+                    "client": {
+                        "id": "[scrubbed]",
+                        "slug": "callisto-media",
+                        "name": "Callisto Media",
+                        "type": 0,
+                        "notes": null,
+                        "siret": null,
+                        "vatNumber": null,
+                        "defaultVatRateBp": null,
+                        "billingAddressLine1": null,
+                        "billingAddressLine2": null,
+                        "billingPostalCode": null,
+                        "billingCity": null,
+                        "billingCountry": null,
+                        "billingContactName": null,
+                        "billingEmail": null,
+                        "color": 0,
+                        "paymentTermsDays": 45,
+                        "archivedAt": null,
+                        "createdAt": "[scrubbed]"
+                    },
+                    "mission": null
+                },
+                {
+                    "invoice": {
+                        "id": "[scrubbed]",
+                        "clientId": "[scrubbed]",
+                        "missionId": "[scrubbed]",
+                        "number": "2026-008",
+                        "status": 2,
+                        "isLate": false,
+                        "issuedOn": "2026-01-05",
+                        "dueOn": "2026-02-05",
+                        "paidOn": "2026-02-27",
+                        "periodStart": null,
+                        "periodEnd": null,
+                        "amountHt": {
+                            "amount": 960000,
+                            "currency": "EUR"
+                        },
+                        "amountVat": {
+                            "amount": 96000,
+                            "currency": "EUR"
+                        },
+                        "amountTtc": {
+                            "amount": 1056000,
+                            "currency": "EUR"
+                        },
+                        "ttcOverridden": true,
+                        "vatRateBp": 2000,
+                        "notes": null
+                    },
+                    "client": {
+                        "id": "[scrubbed]",
+                        "slug": "nordlys-cloud",
+                        "name": "Nordlys Cloud",
+                        "type": 0,
+                        "notes": null,
+                        "siret": null,
+                        "vatNumber": null,
+                        "defaultVatRateBp": null,
+                        "billingAddressLine1": null,
+                        "billingAddressLine2": null,
+                        "billingPostalCode": null,
+                        "billingCity": null,
+                        "billingCountry": null,
+                        "billingContactName": null,
+                        "billingEmail": null,
+                        "color": 0,
+                        "paymentTermsDays": 45,
+                        "archivedAt": null,
+                        "createdAt": "[scrubbed]"
+                    },
+                    "mission": null
+                },
+                {
+                    "invoice": {
+                        "id": "[scrubbed]",
+                        "clientId": "[scrubbed]",
+                        "missionId": "[scrubbed]",
+                        "number": "2026-007",
+                        "status": 2,
+                        "isLate": false,
+                        "issuedOn": "2026-01-05",
+                        "dueOn": "2026-02-05",
+                        "paidOn": "2025-11-03",
+                        "periodStart": null,
+                        "periodEnd": null,
+                        "amountHt": {
+                            "amount": 2450000,
+                            "currency": "EUR"
+                        },
+                        "amountVat": {
+                            "amount": 245000,
+                            "currency": "EUR"
+                        },
+                        "amountTtc": {
+                            "amount": 2695000,
+                            "currency": "EUR"
+                        },
+                        "ttcOverridden": true,
+                        "vatRateBp": 2000,
+                        "notes": null
+                    },
+                    "client": {
+                        "id": "[scrubbed]",
+                        "slug": "ateliers-ruche",
+                        "name": "Ateliers Ruche",
+                        "type": 0,
+                        "notes": null,
+                        "siret": null,
+                        "vatNumber": null,
+                        "defaultVatRateBp": null,
+                        "billingAddressLine1": null,
+                        "billingAddressLine2": null,
+                        "billingPostalCode": null,
+                        "billingCity": null,
+                        "billingCountry": null,
+                        "billingContactName": null,
+                        "billingEmail": null,
+                        "color": 0,
+                        "paymentTermsDays": 45,
+                        "archivedAt": null,
+                        "createdAt": "[scrubbed]"
+                    },
+                    "mission": null
+                },
+                {
+                    "invoice": {
+                        "id": "[scrubbed]",
+                        "clientId": "[scrubbed]",
+                        "missionId": "[scrubbed]",
+                        "number": "2026-006",
+                        "status": 2,
+                        "isLate": false,
+                        "issuedOn": "2026-01-05",
+                        "dueOn": "2026-02-05",
+                        "paidOn": "2025-04-18",
+                        "periodStart": null,
+                        "periodEnd": null,
+                        "amountHt": {
+                            "amount": 1800000,
+                            "currency": "EUR"
+                        },
+                        "amountVat": {
+                            "amount": 180000,
+                            "currency": "EUR"
+                        },
+                        "amountTtc": {
+                            "amount": 1980000,
+                            "currency": "EUR"
+                        },
+                        "ttcOverridden": true,
+                        "vatRateBp": 2000,
+                        "notes": null
+                    },
+                    "client": {
+                        "id": "[scrubbed]",
+                        "slug": "studio-lorem",
+                        "name": "Studio Lorem",
+                        "type": 0,
+                        "notes": null,
+                        "siret": null,
+                        "vatNumber": null,
+                        "defaultVatRateBp": null,
+                        "billingAddressLine1": null,
+                        "billingAddressLine2": null,
+                        "billingPostalCode": null,
+                        "billingCity": null,
+                        "billingCountry": null,
+                        "billingContactName": null,
+                        "billingEmail": null,
+                        "color": 0,
+                        "paymentTermsDays": 45,
+                        "archivedAt": null,
+                        "createdAt": "[scrubbed]"
+                    },
+                    "mission": null
+                }
+            ],
+            "clients": [
+                {
+                    "clientId": "[scrubbed]",
+                    "clientName": "Ateliers Ruche",
+                    "color": 0,
+                    "invoiceCount": 1,
+                    "total": {
+                        "amount": 2450000,
+                        "currency": "EUR"
+                    },
+                    "shareBp": 4260
+                },
+                {
+                    "clientId": "[scrubbed]",
+                    "clientName": "Studio Lorem",
+                    "color": 0,
+                    "invoiceCount": 1,
+                    "total": {
+                        "amount": 1800000,
+                        "currency": "EUR"
+                    },
+                    "shareBp": 3130
+                },
+                {
+                    "clientId": "[scrubbed]",
+                    "clientName": "Nordlys Cloud",
+                    "color": 0,
+                    "invoiceCount": 1,
+                    "total": {
+                        "amount": 960000,
+                        "currency": "EUR"
+                    },
+                    "shareBp": 1669
+                },
+                {
+                    "clientId": "[scrubbed]",
+                    "clientName": "Callisto Media",
+                    "color": 0,
+                    "invoiceCount": 1,
+                    "total": {
+                        "amount": 540000,
+                        "currency": "EUR"
+                    },
+                    "shareBp": 939
+                }
+            ]
+        }
+    },
+    "\/api\/revenue?period=2025": {
+        "status": 200,
+        "queries": 5,
+        "body": {
+            "period": "2025",
+            "basis": 0,
+            "fellBack": false,
+            "lastActivePeriod": "2026",
+            "total": {
+                "amount": 0,
+                "currency": "EUR"
+            },
+            "previous": {
+                "period": "2024",
+                "total": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "changeBp": null
+            },
+            "vat": {
+                "amount": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "rateBp": 1000
+            },
+            "net": {
+                "amount": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "contributions": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "rateBp": 2800
+            },
+            "months": [
+                {
+                    "month": "2025-01",
+                    "total": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "inPeriod": true,
+                    "shareBp": 0
+                },
+                {
+                    "month": "2025-02",
+                    "total": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "inPeriod": true,
+                    "shareBp": 0
+                },
+                {
+                    "month": "2025-03",
+                    "total": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "inPeriod": true,
+                    "shareBp": 0
+                },
+                {
+                    "month": "2025-04",
+                    "total": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "inPeriod": true,
+                    "shareBp": 0
+                },
+                {
+                    "month": "2025-05",
+                    "total": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "inPeriod": true,
+                    "shareBp": 0
+                },
+                {
+                    "month": "2025-06",
+                    "total": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "inPeriod": true,
+                    "shareBp": 0
+                },
+                {
+                    "month": "2025-07",
+                    "total": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "inPeriod": true,
+                    "shareBp": 0
+                },
+                {
+                    "month": "2025-08",
+                    "total": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "inPeriod": true,
+                    "shareBp": 0
+                },
+                {
+                    "month": "2025-09",
+                    "total": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "inPeriod": true,
+                    "shareBp": 0
+                },
+                {
+                    "month": "2025-10",
+                    "total": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "inPeriod": true,
+                    "shareBp": 0
+                },
+                {
+                    "month": "2025-11",
+                    "total": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "inPeriod": true,
+                    "shareBp": 0
+                },
+                {
+                    "month": "2025-12",
+                    "total": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "inPeriod": true,
+                    "shareBp": 0
+                }
+            ],
+            "invoices": [],
+            "clients": []
+        }
+    },
+    "\/api\/client-revenue": {
+        "status": 200,
+        "queries": 5,
+        "body": {
+            "year": 2026,
+            "clients": [
+                {
+                    "clientId": "[scrubbed]",
+                    "yearToDate": {
+                        "amount": 2450000,
+                        "currency": "EUR"
+                    },
+                    "pending": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "averagePaymentDelayDays": -63,
+                    "missions": []
+                },
+                {
+                    "clientId": "[scrubbed]",
+                    "yearToDate": {
+                        "amount": 540000,
+                        "currency": "EUR"
+                    },
+                    "pending": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "averagePaymentDelayDays": 214,
+                    "missions": []
+                },
+                {
+                    "clientId": "[scrubbed]",
+                    "yearToDate": {
+                        "amount": 960000,
+                        "currency": "EUR"
+                    },
+                    "pending": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "averagePaymentDelayDays": 53,
+                    "missions": []
+                },
+                {
+                    "clientId": "[scrubbed]",
+                    "yearToDate": {
+                        "amount": 1800000,
+                        "currency": "EUR"
+                    },
+                    "pending": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "averagePaymentDelayDays": -262,
+                    "missions": []
+                }
+            ]
+        }
+    },
+    "\/api\/invoices\/summary": {
+        "status": 200,
+        "queries": 5,
+        "body": {
+            "month": "2026-08",
+            "toCollect": {
+                "amount": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "count": 0
+            },
+            "overdue": {
+                "amount": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "count": 0,
+                "maxDaysLate": 0
+            },
+            "forecast": [
+                {
+                    "bucket": 1,
+                    "amount": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "shareBp": 0
+                },
+                {
+                    "bucket": 2,
+                    "amount": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "shareBp": 0
+                }
+            ],
+            "monthUnbilled": {
+                "amount": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "count": 0
+            },
+            "unbilled": {
+                "amount": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "count": 0
+            },
+            "counts": {
+                "all": 4,
+                "draft": 0,
+                "sent": 0,
+                "late": 0,
+                "paid": 4
+            },
+            "todo": [],
+            "todoTotal": 0
+        }
+    },
+    "\/api\/invoices\/summary?month=2026-07": {
+        "status": 200,
+        "queries": 5,
+        "body": {
+            "month": "2026-07",
+            "toCollect": {
+                "amount": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "count": 0
+            },
+            "overdue": {
+                "amount": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "count": 0,
+                "maxDaysLate": 0
+            },
+            "forecast": [
+                {
+                    "bucket": 1,
+                    "amount": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "shareBp": 0
+                },
+                {
+                    "bucket": 2,
+                    "amount": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "shareBp": 0
+                }
+            ],
+            "monthUnbilled": {
+                "amount": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "count": 0
+            },
+            "unbilled": {
+                "amount": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "count": 0
+            },
+            "counts": {
+                "all": 4,
+                "draft": 0,
+                "sent": 0,
+                "late": 0,
+                "paid": 4
+            },
+            "todo": [],
+            "todoTotal": 0
+        }
+    },
+    "\/api\/expenses": {
+        "status": 200,
+        "queries": 7,
+        "body": {
+            "month": "2026-08",
+            "declaredOn": null,
+            "vat": null,
+            "totals": {
+                "ht": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "ttc": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "count": 0
+            },
+            "subscriptions": null,
+            "categories": [],
+            "series": [
+                {
+                    "month": "2025-09",
+                    "ht": {
+                        "amount": 45000,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 45000,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2025-10",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2025-11",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2025-12",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2026-01",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2026-02",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2026-03",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2026-04",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2026-05",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2026-06",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2026-07",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2026-08",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                }
+            ],
+            "projection": {
+                "projectedChargesHt": {
+                    "amount": 45000,
+                    "currency": "EUR"
+                },
+                "annualRevenueHt": {
+                    "amount": 3950000,
+                    "currency": "EUR"
+                },
+                "abatement": {
+                    "amount": 1343000,
+                    "currency": "EUR"
+                },
+                "microIsFavourable": true
+            },
+            "todo": [],
+            "expenses": []
+        }
+    },
+    "\/api\/expenses?month=2026-07": {
+        "status": 200,
+        "queries": 7,
+        "body": {
+            "month": "2026-07",
+            "declaredOn": null,
+            "vat": null,
+            "totals": {
+                "ht": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "ttc": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "count": 0
+            },
+            "subscriptions": null,
+            "categories": [],
+            "series": [
+                {
+                    "month": "2025-08",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2025-09",
+                    "ht": {
+                        "amount": 45000,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 45000,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2025-10",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2025-11",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2025-12",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2026-01",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2026-02",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2026-03",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2026-04",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2026-05",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2026-06",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                },
+                {
+                    "month": "2026-07",
+                    "ht": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "ttc": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                }
+            ],
+            "projection": {
+                "projectedChargesHt": {
+                    "amount": 45000,
+                    "currency": "EUR"
+                },
+                "annualRevenueHt": {
+                    "amount": 3410000,
+                    "currency": "EUR"
+                },
+                "abatement": {
+                    "amount": 1159400,
+                    "currency": "EUR"
+                },
+                "microIsFavourable": true
+            },
+            "todo": [],
+            "expenses": []
+        }
+    },
+    "calendar feed": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:spatie\/icalendar-generator\r\nNAME:Opusline \u2014 \u00e9ch\u00e9ances fiscales\r\nX-WR-CALNAME:Opusline \u2014 \u00e9ch\u00e9ances fiscales\r\nDESCRIPTION:URSSAF\\, TVA and CFE\\, kept up to date by Opusline.\r\nX-WR-CALDESC:URSSAF\\, TVA and CFE\\, kept up to date by Opusline.\r\nREFRESH-INTERVAL;VALUE=DURATION:PT720M\r\nX-PUBLISHED-TTL:PT720M\r\nBEGIN:VTIMEZONE\r\nTZID:UTC\r\nBEGIN:STANDARD\r\nDTSTART:20241205T000000\r\nTZOFFSETFROM:+0000\r\nTZOFFSETTO:+0000\r\nEND:STANDARD\r\nEND:VTIMEZONE\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2025-07\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20250901\r\nSUMMARY:D\u00e9claration URSSAF \u2014 July 2025\r\nDESCRIPTION:Estimate: \u20ac0.00\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2025-08\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20250930\r\nSUMMARY:D\u00e9claration URSSAF \u2014 August 2025\r\nDESCRIPTION:Estimate: \u20ac0.00\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2025-09\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20251031\r\nSUMMARY:D\u00e9claration URSSAF \u2014 September 2025\r\nDESCRIPTION:Estimate: \u20ac0.00\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2025-10\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20251201\r\nSUMMARY:D\u00e9claration URSSAF \u2014 October 2025\r\nDESCRIPTION:Estimate: \u20ac0.00\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-3-2025\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20251215\r\nSUMMARY:CFE \u2014 2025\r\nDESCRIPTION:Estimate: \u20ac1\\,120.00\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2025-11\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20251231\r\nSUMMARY:D\u00e9claration URSSAF \u2014 November 2025\r\nDESCRIPTION:Estimate: \u20ac6\\,860.00\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2025-12\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20260202\r\nSUMMARY:D\u00e9claration URSSAF \u2014 December 2025\r\nDESCRIPTION:Estimate: \u20ac0.00\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2026-01\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20260302\r\nSUMMARY:D\u00e9claration URSSAF \u2014 January 2026\r\nDESCRIPTION:Estimate: \u20ac0.00\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2026-02\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20260331\r\nSUMMARY:D\u00e9claration URSSAF \u2014 February 2026\r\nDESCRIPTION:Estimate: \u20ac2\\,688.00\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2026-03\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20260430\r\nSUMMARY:D\u00e9claration URSSAF \u2014 March 2026\r\nDESCRIPTION:Estimate: \u20ac0.00\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-2-2025\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20260505\r\nSUMMARY:TVA \u2014 CA12 \u2014 2025\r\nDESCRIPTION:Estimate: \u20ac4\\,250.00\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2026-04\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20260601\r\nSUMMARY:D\u00e9claration URSSAF \u2014 April 2026\r\nDESCRIPTION:Estimate: \u20ac0.00\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-5-2025\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20260601\r\nSUMMARY:D\u00e9claration de revenus \u2014 2042-C PRO \u2014 2025\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2026-05\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20260630\r\nSUMMARY:D\u00e9claration URSSAF \u2014 May 2026\r\nDESCRIPTION:Estimate: \u20ac0.00\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2026-06\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20260731\r\nSUMMARY:D\u00e9claration URSSAF \u2014 June 2026\r\nDESCRIPTION:Estimate: \u20ac0.00\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2026-07\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20260831\r\nSUMMARY:D\u00e9claration URSSAF \u2014 July 2026\r\nDESCRIPTION:Estimate: \u20ac0.00\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2026-08\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20260930\r\nSUMMARY:D\u00e9claration URSSAF \u2014 August 2026\r\nDESCRIPTION:Estimate: \u20ac1\\,512.00\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2026-09\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20261102\r\nSUMMARY:D\u00e9claration URSSAF \u2014 September 2026\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2026-10\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20261130\r\nSUMMARY:D\u00e9claration URSSAF \u2014 October 2026\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-3-2026\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20261215\r\nSUMMARY:CFE \u2014 2026\r\nDESCRIPTION:Estimate: \u20ac1\\,120.00\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2026-11\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20261231\r\nSUMMARY:D\u00e9claration URSSAF \u2014 November 2026\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2026-12\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20270201\r\nSUMMARY:D\u00e9claration URSSAF \u2014 December 2026\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2027-01\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20270301\r\nSUMMARY:D\u00e9claration URSSAF \u2014 January 2027\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2027-02\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20270331\r\nSUMMARY:D\u00e9claration URSSAF \u2014 February 2027\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2027-03\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20270430\r\nSUMMARY:D\u00e9claration URSSAF \u2014 March 2027\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-2-2026\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20270504\r\nSUMMARY:TVA \u2014 CA12 \u2014 2026\r\nDESCRIPTION:Estimate: \u20ac1\\,500.00\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2027-04\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20270531\r\nSUMMARY:D\u00e9claration URSSAF \u2014 April 2027\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-5-2026\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20270531\r\nSUMMARY:D\u00e9claration de revenus \u2014 2042-C PRO \u2014 2026\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2027-05\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20270630\r\nSUMMARY:D\u00e9claration URSSAF \u2014 May 2027\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2027-06\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20270802\r\nSUMMARY:D\u00e9claration URSSAF \u2014 June 2027\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2027-07\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20270831\r\nSUMMARY:D\u00e9claration URSSAF \u2014 July 2027\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2027-08\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20270930\r\nSUMMARY:D\u00e9claration URSSAF \u2014 August 2027\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2027-09\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20271102\r\nSUMMARY:D\u00e9claration URSSAF \u2014 September 2027\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2027-10\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20271130\r\nSUMMARY:D\u00e9claration URSSAF \u2014 October 2027\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-3-2027\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20271215\r\nSUMMARY:CFE \u2014 2027\r\nDESCRIPTION:Estimate: \u20ac1\\,120.00\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2027-11\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20271231\r\nSUMMARY:D\u00e9claration URSSAF \u2014 November 2027\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nBEGIN:VEVENT\r\nUID:opusline-[user]-0-2027-12\r\nDTSTAMP:[scrubbed]\r\nDTSTART;VALUE=DATE:20280131\r\nSUMMARY:D\u00e9claration URSSAF \u2014 December 2027\r\nX-MICROSOFT-CDO-ALLDAYEVENT:TRUE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT10080M\r\nEND:VALARM\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:-PT1440M\r\nEND:VALARM\r\nEND:VEVENT\r\nEND:VCALENDAR",
+    "settings save": {
+        "status": 200,
+        "body": {
+            "tradeName": null,
+            "siret": null,
+            "vatNumber": null,
+            "signatureCity": null,
+            "contactEmail": null,
+            "phone": null,
+            "companyAddressLine1": null,
+            "companyAddressLine2": null,
+            "companyPostalCode": null,
+            "companyCity": null,
+            "homeAddressSameAsCompany": true,
+            "homeAddressLine1": null,
+            "homeAddressLine2": null,
+            "homePostalCode": null,
+            "homeCity": null,
+            "businessCountry": "FR",
+            "hasFrenchFiscality": true,
+            "urssafPeriodicity": 1,
+            "autoRates": false,
+            "businessStartedOn": "2024-05-01",
+            "acre": false,
+            "ratesCheckedAt": null,
+            "ratesYear": null,
+            "ratesRefreshing": false,
+            "contributionRateBp": 2460,
+            "liberatingPayment": true,
+            "liberatingPaymentRateBp": 220,
+            "vatRegime": 1,
+            "vatLiable": true,
+            "defaultVatRateBp": 1000,
+            "effectiveVatRateBp": 1000,
+            "effectiveContributionRateBp": 2700,
+            "defaultPaymentTermsDays": 45,
+            "invoiceNumberFormat": "AAAA-NNN",
+            "treasuryBuffer": null,
+            "cfeExpected": null,
+            "currency": "EUR",
+            "currencyLocked": true,
+            "locale": "fr-FR",
+            "dateFormat": 0,
+            "timezone": "Europe\/Paris",
+            "workdayMinutes": 420,
+            "dormantAfterMonths": null,
+            "hasSignature": false
+        }
+    },
+    "recorded contribution rates": [
+        {
+            "effectiveRateBp": 2700,
+            "effectiveFrom": "2026-08-13"
+        }
+    ],
+    "reminders read after save": null,
+    "\/api\/user after save": {
+        "status": 200,
+        "queries": 1,
+        "body": {
+            "id": "[scrubbed]",
+            "name": "Camille Vesterhus",
+            "email": "reel-simplifie@opusline.test",
+            "theme": 0,
+            "releaseNotesSeenVersion": "0.28.3",
+            "locale": "fr-FR",
+            "dateFormat": 0,
+            "currency": "EUR",
+            "businessCountry": "FR",
+            "hasFrenchFiscality": true,
+            "vatLiable": true,
+            "effectiveVatRateBp": 1000,
+            "timezone": "Europe\/Paris",
+            "workdayMinutes": 420,
+            "defaultPaymentTermsDays": 45,
+            "effectiveContributionRateBp": 2700
+        }
+    },
+    "\/api\/declarations after save": {
+        "status": 200,
+        "queries": 6,
+        "body": {
+            "period": "2026-07",
+            "previousPeriod": "2026-06",
+            "nextPeriod": null,
+            "isDefault": true,
+            "urssaf": {
+                "period": "2026-Q2",
+                "periodicity": 1,
+                "coversShownMonth": false,
+                "base": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "invoiceCount": 0,
+                "lines": [
+                    {
+                        "kind": 0,
+                        "rateBp": 2460,
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        }
+                    },
+                    {
+                        "kind": 1,
+                        "rateBp": 20,
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        }
+                    },
+                    {
+                        "kind": 2,
+                        "rateBp": 220,
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        }
+                    }
+                ],
+                "total": {
+                    "amount": 0,
+                    "currency": "EUR"
+                },
+                "deadline": {
+                    "dueOn": "2026-07-31",
+                    "daysLeft": -13
+                },
+                "completion": null,
+                "settlement": {
+                    "expected": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "provisioned": null,
+                    "gap": null,
+                    "detectedPayments": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    }
+                }
+            },
+            "vat": null,
+            "cumulative": {
+                "year": 2026,
+                "collectedHt": {
+                    "amount": 960000,
+                    "currency": "EUR"
+                },
+                "ceiling": {
+                    "amount": 7770000,
+                    "currency": "EUR"
+                },
+                "shareBp": 1235,
+                "margin": {
+                    "amount": 6810000,
+                    "currency": "EUR"
+                }
+            },
+            "annual": {
+                "incomeTaxReturn": {
+                    "year": 2026,
+                    "dueOn": "2027-05-31",
+                    "grossReceipts": {
+                        "amount": 1500000,
+                        "currency": "EUR"
+                    },
+                    "box": 1,
+                    "periods": [
+                        {
+                            "period": "2026-Q1",
+                            "base": {
+                                "amount": 960000,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-Q2",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-Q3",
+                            "base": {
+                                "amount": 540000,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        },
+                        {
+                            "period": "2026-Q4",
+                            "base": {
+                                "amount": 0,
+                                "currency": "EUR"
+                            },
+                            "declaredOn": null
+                        }
+                    ],
+                    "taxableAfterAbatement": {
+                        "amount": 990000,
+                        "currency": "EUR"
+                    },
+                    "liberatingPaymentPaid": null,
+                    "completion": null
+                },
+                "cfe": {
+                    "year": 2026,
+                    "dueOn": "2026-12-15",
+                    "expected": {
+                        "amount": 112000,
+                        "currency": "EUR"
+                    },
+                    "isEstimate": true,
+                    "provisioned": {
+                        "amount": 74667,
+                        "currency": "EUR"
+                    },
+                    "gap": {
+                        "amount": -37333,
+                        "currency": "EUR"
+                    },
+                    "monthsProvisioned": 8,
+                    "completion": null
+                }
+            },
+            "history": [
+                {
+                    "period": "2026-07",
+                    "urssaf": null,
+                    "vat": null
+                },
+                {
+                    "period": "2026-06",
+                    "urssaf": {
+                        "period": "2026-Q2",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2026-05",
+                    "urssaf": {
+                        "period": "2026-Q2",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2026-04",
+                    "urssaf": {
+                        "period": "2026-Q2",
+                        "total": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2026-03",
+                    "urssaf": {
+                        "period": "2026-Q1",
+                        "total": {
+                            "amount": 259200,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                },
+                {
+                    "period": "2026-02",
+                    "urssaf": {
+                        "period": "2026-Q1",
+                        "total": {
+                            "amount": 259200,
+                            "currency": "EUR"
+                        },
+                        "completion": null
+                    },
+                    "vat": null
+                }
+            ]
+        }
+    },
+    "\/api\/deadlines after save": {
+        "status": 200,
+        "queries": 6,
+        "body": {
+            "next": {
+                "type": 2,
+                "dueOn": "2026-07-31",
+                "invoice": null,
+                "fiscal": {
+                    "kind": 0,
+                    "periodKey": "2026-Q2",
+                    "periodStart": "2026-04-01",
+                    "periodEnd": "2026-06-30",
+                    "dueOn": "2026-07-31",
+                    "amount": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "rateBp": 2700,
+                    "base": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "isEstimate": true,
+                    "completedOn": null
+                }
+            },
+            "items": [
+                {
+                    "type": 2,
+                    "dueOn": "2026-07-31",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 0,
+                        "periodKey": "2026-Q2",
+                        "periodStart": "2026-04-01",
+                        "periodEnd": "2026-06-30",
+                        "dueOn": "2026-07-31",
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "rateBp": 2700,
+                        "base": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2026-11-02",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 0,
+                        "periodKey": "2026-Q3",
+                        "periodStart": "2026-07-01",
+                        "periodEnd": "2026-09-30",
+                        "dueOn": "2026-11-02",
+                        "amount": {
+                            "amount": 145800,
+                            "currency": "EUR"
+                        },
+                        "rateBp": 2700,
+                        "base": {
+                            "amount": 540000,
+                            "currency": "EUR"
+                        },
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2026-12-15",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 3,
+                        "periodKey": "2026",
+                        "periodStart": "2026-01-01",
+                        "periodEnd": "2026-12-31",
+                        "dueOn": "2026-12-15",
+                        "amount": {
+                            "amount": 112000,
+                            "currency": "EUR"
+                        },
+                        "rateBp": null,
+                        "base": null,
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2027-02-01",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 0,
+                        "periodKey": "2026-Q4",
+                        "periodStart": "2026-10-01",
+                        "periodEnd": "2026-12-31",
+                        "dueOn": "2027-02-01",
+                        "amount": null,
+                        "rateBp": 2700,
+                        "base": null,
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2027-04-30",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 0,
+                        "periodKey": "2027-Q1",
+                        "periodStart": "2027-01-01",
+                        "periodEnd": "2027-03-31",
+                        "dueOn": "2027-04-30",
+                        "amount": null,
+                        "rateBp": 2700,
+                        "base": null,
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2027-05-04",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 2,
+                        "periodKey": "2026",
+                        "periodStart": "2026-01-01",
+                        "periodEnd": "2026-12-31",
+                        "dueOn": "2027-05-04",
+                        "amount": {
+                            "amount": 150000,
+                            "currency": "EUR"
+                        },
+                        "rateBp": null,
+                        "base": null,
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2027-05-31",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 5,
+                        "periodKey": "2026",
+                        "periodStart": "2026-01-01",
+                        "periodEnd": "2026-12-31",
+                        "dueOn": "2027-05-31",
+                        "amount": null,
+                        "rateBp": null,
+                        "base": null,
+                        "isEstimate": false,
+                        "completedOn": null
+                    }
+                },
+                {
+                    "type": 2,
+                    "dueOn": "2027-08-02",
+                    "invoice": null,
+                    "fiscal": {
+                        "kind": 0,
+                        "periodKey": "2027-Q2",
+                        "periodStart": "2027-04-01",
+                        "periodEnd": "2027-06-30",
+                        "dueOn": "2027-08-02",
+                        "amount": null,
+                        "rateBp": 2700,
+                        "base": null,
+                        "isEstimate": true,
+                        "completedOn": null
+                    }
+                }
+            ],
+            "reminders": [
+                {
+                    "deadline": {
+                        "kind": 0,
+                        "periodKey": "2026-Q2",
+                        "periodStart": "2026-04-01",
+                        "periodEnd": "2026-06-30",
+                        "dueOn": "2026-07-31",
+                        "amount": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "rateBp": 2700,
+                        "base": {
+                            "amount": 0,
+                            "currency": "EUR"
+                        },
+                        "isEstimate": true,
+                        "completedOn": null
+                    },
+                    "isRead": false
+                }
+            ],
+            "calendarToken": "[scrubbed]",
+            "calendarFeed": {
+                "invoices": true,
+                "reminders": false,
+                "vat": true,
+                "urssaf": true,
+                "other": true
+            },
+            "calendarSubscribedOn": null,
+            "calendarLastSyncedAt": "2026-08-13T12:00:00+00:00"
+        }
+    },
+    "\/api\/treasury after save": {
+        "status": 200,
+        "queries": 15,
+        "body": {
+            "balance": {
+                "amount": {
+                    "amount": -112000,
+                    "currency": "EUR"
+                },
+                "source": 2,
+                "asOf": null
+            },
+            "pendingTransfers": {
+                "amount": 0,
+                "currency": "EUR"
+            },
+            "pendingDeclarations": {
+                "amount": 0,
+                "currency": "EUR"
+            },
+            "coveredThrough": "2025-12-15",
+            "provisions": {
+                "vat": {
+                    "amount": {
+                        "amount": 575000,
+                        "currency": "EUR"
+                    },
+                    "carried": {
+                        "amount": 425000,
+                        "currency": "EUR"
+                    },
+                    "rateBp": null,
+                    "deductible": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "periodEnd": "2026-12-31",
+                    "isEstimate": false,
+                    "carriedPeriods": [
+                        {
+                            "period": "2025",
+                            "amount": {
+                                "amount": 425000,
+                                "currency": "EUR"
+                            }
+                        }
+                    ],
+                    "paidPeriods": []
+                },
+                "urssaf": {
+                    "amount": {
+                        "amount": 1066500,
+                        "currency": "EUR"
+                    },
+                    "carried": {
+                        "amount": 920700,
+                        "currency": "EUR"
+                    },
+                    "rateBp": 2700,
+                    "deductible": null,
+                    "periodEnd": "2026-09-30",
+                    "isEstimate": false,
+                    "carriedPeriods": [
+                        {
+                            "period": "2025-Q4",
+                            "amount": {
+                                "amount": 661500,
+                                "currency": "EUR"
+                            }
+                        },
+                        {
+                            "period": "2026-Q1",
+                            "amount": {
+                                "amount": 259200,
+                                "currency": "EUR"
+                            }
+                        }
+                    ],
+                    "paidPeriods": []
+                },
+                "cfe": {
+                    "amount": {
+                        "amount": 74667,
+                        "currency": "EUR"
+                    },
+                    "carried": {
+                        "amount": 0,
+                        "currency": "EUR"
+                    },
+                    "rateBp": null,
+                    "deductible": null,
+                    "periodEnd": "2026-12-31",
+                    "isEstimate": true,
+                    "carriedPeriods": [],
+                    "paidPeriods": []
+                },
+                "subscriptions": null,
+                "buffer": null,
+                "total": {
+                    "amount": 1716167,
+                    "currency": "EUR"
+                }
+            },
+            "transferable": {
+                "amount": -1828167,
+                "currency": "EUR"
+            },
+            "transfers": []
+        }
+    }
+}
