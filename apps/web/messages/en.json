@@ -34,6 +34,7 @@
   "auth_two_factor_back": "Use another account",
   "auth_two_factor_code_hint": "Enter the six-digit code shown by your app.",
   "auth_two_factor_code_label": "Code from your authenticator app",
+  "auth_two_factor_description": "One more step to confirm it is you.",
   "auth_two_factor_expired": "This sign-in attempt has expired. Enter your password again.",
   "auth_two_factor_failed": "The verification failed. Try again in a moment.",
   "auth_two_factor_passkey_hint": "Confirm with the passkey saved on this device or in your password manager.",

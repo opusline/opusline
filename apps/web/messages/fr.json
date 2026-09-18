@@ -34,6 +34,7 @@
   "auth_two_factor_back": "Utiliser un autre compte",
   "auth_two_factor_code_hint": "Saisissez le code à six chiffres affiché par votre application.",
   "auth_two_factor_code_label": "Code de votre application d'authentification",
+  "auth_two_factor_description": "Une étape de plus pour confirmer que c'est bien vous.",
   "auth_two_factor_expired": "Cette tentative de connexion a expiré. Saisissez à nouveau votre mot de passe.",
   "auth_two_factor_failed": "La vérification a échoué. Réessayez dans un instant.",
   "auth_two_factor_passkey_hint": "Confirmez avec la clé d'accès enregistrée sur cet appareil ou dans votre gestionnaire de mots de passe.",

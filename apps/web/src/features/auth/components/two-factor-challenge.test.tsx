@@ -31,19 +31,27 @@ function rememberCheckbox(): HTMLElement {
   });
 }
 
-it("offers to remember the browser before the code field that submits on its own", () => {
+function verifyButton(): HTMLElement {
+  return screen.getByRole("button", { name: /^vérifier$/i });
+}
+
+it("offers to remember the browser under the code field", () => {
   renderChallenge();
 
   expect(
-    rememberCheckbox().compareDocumentPosition(codeInput()) &
+    codeInput().compareDocumentPosition(rememberCheckbox()) &
       Node.DOCUMENT_POSITION_FOLLOWING,
   ).toBeTruthy();
 });
 
-it("submits the code once as soon as six digits are typed", async () => {
+it("waits for the verify button before sending a complete code", async () => {
   const { onSubmitCode } = renderChallenge();
 
   fireEvent.change(codeInput(), { target: { value: "482913" } });
+
+  expect(onSubmitCode).not.toHaveBeenCalled();
+
+  fireEvent.click(verifyButton());
 
   await waitFor(() =>
     expect(onSubmitCode).toHaveBeenCalledWith("482913", false),
@@ -51,11 +59,12 @@ it("submits the code once as soon as six digits are typed", async () => {
   expect(onSubmitCode).toHaveBeenCalledTimes(1);
 });
 
-it("passes the remember choice along with the code", async () => {
+it("passes the remember choice ticked after the code was typed", async () => {
   const { onSubmitCode } = renderChallenge();
 
-  fireEvent.click(rememberCheckbox());
   fireEvent.change(codeInput(), { target: { value: "482913" } });
+  fireEvent.click(rememberCheckbox());
+  fireEvent.click(verifyButton());
 
   await waitFor(() =>
     expect(onSubmitCode).toHaveBeenCalledWith("482913", true),
@@ -71,6 +80,7 @@ it("shows a refused code on the field and clears it for another try", async () =
   });
 
   fireEvent.change(codeInput(), { target: { value: "000000" } });
+  fireEvent.click(verifyButton());
 
   expect(
     await screen.findByText("Le code est invalide ou a expiré."),
@@ -87,7 +97,7 @@ it("switches to a recovery code and submits it trimmed", async () => {
   fireEvent.change(screen.getByLabelText(/code de secours/i), {
     target: { value: "  k4F7mQ2pL9-a8Zr3Tn6Wx " },
   });
-  fireEvent.submit(screen.getByRole("button", { name: /^vérifier$/i }));
+  fireEvent.submit(verifyButton());
 
   await waitFor(() =>
     expect(onSubmitRecoveryCode).toHaveBeenCalledWith(
@@ -176,9 +186,10 @@ it("holds every action while a submission is pending", () => {
   const { onSubmitCode } = renderChallenge({ isPending: true });
 
   fireEvent.change(codeInput(), { target: { value: "482913" } });
+  fireEvent.submit(verifyButton());
 
   expect(onSubmitCode).not.toHaveBeenCalled();
-  expect(screen.getByRole("button", { name: /^vérifier$/i })).toBeDisabled();
+  expect(verifyButton()).toBeDisabled();
   expect(
     screen.getByRole("button", { name: /utiliser un code de secours/i }),
   ).toBeDisabled();
