@@ -2,11 +2,14 @@
 
 The block at the end of this file is written by `php artisan boost:update`,
 which `composer update` runs on every dependency change (`post-update-cmd` in
-`composer.json`). It is upstream Laravel boilerplate describing a generic
-Laravel app — not a statement about this one — so editing inside it is
-pointless: the next update replaces the whole thing. This section sits above it
-and survives, and **where the two disagree this section is right.** The
-repository root `CLAUDE.md` outranks both.
+`composer.json`). Dependabot's lockfile bumps skip composer's scripts, so
+`.github/workflows/composer-scripts.yml` runs them on its composer PRs and
+commits the output, and CI's `Generated artifacts drift` check fails any branch
+whose committed output they would change. The block is upstream Laravel
+boilerplate describing a generic Laravel app — not a statement about this one —
+so editing inside it is pointless: the next update replaces the whole thing.
+This section sits above it and survives, and **where the two disagree this
+section is right.** The repository root `CLAUDE.md` outranks both.
 
 Never write the block's opening marker anywhere in this section. `boost:update`
 replaces from that marker's *first* occurrence to the closing one, so a

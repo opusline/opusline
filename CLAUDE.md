@@ -33,7 +33,11 @@ is `apps/api/CLAUDE.md` (and its byte-identical `AGENTS.md`): below the
 which `composer update` runs, and it describes a generic Laravel app rather than
 this one. The hand-written section above the tag is what survives a regeneration
 and names every place the generated text is wrong here — starting with host PHP.
-This file outranks both.
+This file outranks both. Dependabot's lockfile bumps skip composer's scripts, so
+`.github/workflows/composer-scripts.yml` commits `post-update-cmd`'s output (that
+block, the Boost skills, the laravel-lang files) onto its composer PRs, and the
+`Generated artifacts drift` check fails any branch where re-running those
+scripts would change a file.
 
 ## Commands
 
