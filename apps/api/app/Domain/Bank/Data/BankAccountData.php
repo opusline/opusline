@@ -31,8 +31,12 @@ class BankAccountData extends Data
         public ?string $nextMovementsCursor,
         /** A credit with no invoice and no pending suggestion, anywhere in the history. */
         public bool $hasUnlinkedCredits,
-        /** Newest import first. */
+        /** Most recently imported or synced first. */
         #[DataCollectionOf(BankStatementData::class)]
         public array $statements,
+        /** Whether the account saved an Enable Banking application (Réglages › Intégrations). */
+        public bool $bankSyncConfigured,
+        /** The bank the account syncs from; null until one is connected. */
+        public ?BankConnectionData $connection,
     ) {}
 }

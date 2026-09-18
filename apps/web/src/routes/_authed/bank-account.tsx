@@ -1,9 +1,15 @@
-import type { BankAccountData } from "@opusline/api-client";
+import type { BankAccountData, BankImportData } from "@opusline/api-client";
 import {
+  chooseBankConnectionAccountMutation,
+  completeBankConnectionMutation,
+  disconnectBankConnectionMutation,
   dismissBankMatchMutation,
   importBankStatementMutation,
+  listBankAspspsOptions,
   showBankAccountOptions,
   showBankAccountQueryKey,
+  startBankConnectionMutation,
+  syncBankConnectionMutation,
   updateBankBalanceMutation,
   validateBankMatchMutation,
 } from "@opusline/api-client/react-query";
@@ -22,11 +28,18 @@ import { useState } from "react";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { BankPage } from "@/features/bank/components/bank-page";
+import { ChooseBankAccountDialog } from "@/features/bank/components/choose-bank-account-dialog";
+import { ConnectBankDialog } from "@/features/bank/components/connect-bank-dialog";
 import { EditBalanceDialog } from "@/features/bank/components/edit-balance-dialog";
 import {
   ImportStatementDialog,
   type ImportStatementSubmit,
 } from "@/features/bank/components/import-statement-dialog";
+import {
+  parseBankCallbackSearch,
+  useBankAuthorizationCallback,
+} from "@/features/bank/lib/bank-callback";
+import { connectionState } from "@/features/bank/lib/connection";
 import { useOlderMovements } from "@/features/bank/lib/use-older-movements";
 import { requireFrenchFiscality } from "@/lib/fiscality";
 import {
@@ -40,13 +53,19 @@ import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute("/_authed/bank-account")({
+  // The bank sends the browser back here with the authorization's outcome.
+  validateSearch: parseBankCallbackSearch,
   beforeLoad: ({ context }) => requireFrenchFiscality(context.user),
   component: BankRoute,
 });
 
-type ImportResult = { lineCount: number; suggestionCount: number };
+/** What the last import or sync brought in, for the dismissible banner. */
+type MovementsResult =
+  | { kind: "import"; lineCount: number; suggestionCount: number }
+  | { kind: "sync"; importedCount: number; suggestionCount: number };
 
 function BankRoute() {
+  const search = Route.useSearch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const format = useMoneyFormat();
@@ -60,10 +79,24 @@ function BankRoute() {
 
   const [importOpen, setImportOpen] = useState(false);
   const [editingBalance, setEditingBalance] = useState(false);
-  const [importResult, setImportResult] = useState<ImportResult | null>(null);
+  const [connectOpen, setConnectOpen] = useState(false);
+  const [chooseAccountOpen, setChooseAccountOpen] = useState(false);
+  const [importResult, setImportResult] = useState<MovementsResult | null>(
+    null,
+  );
   const [importError, setImportError] = useState<string | null>(null);
   const [balanceError, setBalanceError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [connectError, setConnectError] = useState<string | null>(null);
+  const [chooseAccountError, setChooseAccountError] = useState<string | null>(
+    null,
+  );
+
+  const aspsps = useQuery({
+    ...listBankAspspsOptions(),
+    enabled: connectOpen,
+    staleTime: 5 * 60_000,
+  });
 
   // Every mutation answers with the freshly computed account summary — writing
   // it straight into the cache spares a second identical GET per action. The
@@ -78,26 +111,122 @@ function BankRoute() {
   // as any other invoice write.
   const refreshInvoices = () => invalidateInvoiceWrites(queryClient);
 
+  const acceptMovements = async (result: BankImportData) => {
+    acceptSummary(result.account);
+    // New debits can pair with a subscription's expense or surface as a
+    // recurring one to create: the subscriptions read both.
+    await Promise.all([
+      refreshInvoices(),
+      queryClient.invalidateQueries(subscriptionsFilter()),
+      queryClient.invalidateQueries(expensesFilter()),
+    ]);
+  };
+
   const importStatement = useMutation({
     ...importBankStatementMutation(),
     onMutate: () => setImportError(null),
     onSuccess: async (result) => {
       setImportOpen(false);
       setImportResult({
+        kind: "import",
         lineCount: result.lineCount,
         suggestionCount: result.suggestionCount,
       });
-      acceptSummary(result.account);
-      // New debits can pair with a subscription's expense or surface as a
-      // recurring one to create: the subscriptions read both.
-      await Promise.all([
-        refreshInvoices(),
-        queryClient.invalidateQueries(subscriptionsFilter()),
-        queryClient.invalidateQueries(expensesFilter()),
-      ]);
+      await acceptMovements(result);
     },
     onError: (error) => {
       setImportError(serverErrorMessage(error, m.bank_import_failed()));
+    },
+  });
+
+  const syncConnection = useMutation({
+    ...syncBankConnectionMutation(),
+    onMutate: () => setActionError(null),
+    onSuccess: async (result) => {
+      setImportResult({
+        kind: "sync",
+        importedCount: result.importedCount,
+        suggestionCount: result.suggestionCount,
+      });
+      await acceptMovements(result);
+    },
+    onError: async (error) => {
+      setActionError(serverErrorMessage(error, m.bank_sync_failed()));
+      // A refused sync records why on the connection, which the card shows.
+      await queryClient.invalidateQueries({
+        queryKey: showBankAccountQueryKey(),
+      });
+    },
+  });
+
+  const startConnection = useMutation({
+    ...startBankConnectionMutation(),
+    onMutate: () => setConnectError(null),
+    // The bank's own pages take over from here; it sends the browser back
+    // to this route with the outcome in the query string.
+    onSuccess: ({ url }) => window.location.assign(url),
+    onError: (error) => {
+      setConnectError(serverErrorMessage(error, m.bank_connect_failed()));
+    },
+  });
+
+  const clearBankCallback = () =>
+    navigate({ to: "/bank-account", search: {}, replace: true });
+
+  const completeConnection = useMutation({
+    ...completeBankConnectionMutation(),
+    onMutate: () => setActionError(null),
+    onSuccess: (account) => {
+      acceptSummary(account);
+      void clearBankCallback();
+
+      const state = connectionState(account);
+
+      if (state === "active") {
+        syncConnection.mutate({});
+      } else if (state === "awaiting-account") {
+        setChooseAccountOpen(true);
+      }
+    },
+    onError: (error) => {
+      setActionError(
+        serverErrorMessage(error, m.bank_connection_complete_failed()),
+      );
+      void clearBankCallback();
+    },
+  });
+
+  useBankAuthorizationCallback(search, {
+    complete: (body) => completeConnection.mutate({ body }),
+    cancel: () => {
+      setActionError(m.bank_connection_cancelled());
+      void clearBankCallback();
+    },
+  });
+
+  const chooseAccount = useMutation({
+    ...chooseBankConnectionAccountMutation(),
+    onMutate: () => setChooseAccountError(null),
+    onSuccess: (account) => {
+      setChooseAccountOpen(false);
+      acceptSummary(account);
+      syncConnection.mutate({});
+    },
+    onError: (error) => {
+      setChooseAccountError(
+        serverErrorMessage(error, m.bank_choose_account_failed()),
+      );
+    },
+  });
+
+  const disconnect = useMutation({
+    ...disconnectBankConnectionMutation(),
+    onMutate: () => setActionError(null),
+    onSuccess: acceptSummary,
+    onError: (error) => {
+      setActionError(
+        serverErrorMessage(error, m.bank_connection_disconnect_failed()),
+      );
     },
   });
 
@@ -188,7 +317,9 @@ function BankRoute() {
         <Alert variant="brand">
           <AlertDescription className="flex items-center gap-2">
             <span>
-              {m.bank_import_success_lines({ count: importResult.lineCount })}
+              {importResult.kind === "import"
+                ? m.bank_import_success_lines({ count: importResult.lineCount })
+                : m.bank_sync_success({ count: importResult.importedCount })}
               {" · "}
               {m.bank_import_success_suggestions({
                 count: importResult.suggestionCount,
@@ -211,6 +342,20 @@ function BankRoute() {
         data={bank.data}
         isRefreshing={bank.isPlaceholderData}
         olderMovements={olderMovements}
+        connection={{
+          isSyncing: syncConnection.isPending || completeConnection.isPending,
+          isDisconnecting: disconnect.isPending,
+          onConnect: () => {
+            setConnectError(null);
+            setConnectOpen(true);
+          },
+          onChooseAccount: () => {
+            setChooseAccountError(null);
+            setChooseAccountOpen(true);
+          },
+          onSync: () => syncConnection.mutate({}),
+          onDisconnect: () => disconnect.mutate({}),
+        }}
         onDismissMatch={(matchId) =>
           dismiss.mutate({ path: { match: matchId } })
         }
@@ -240,6 +385,45 @@ function BankRoute() {
         }}
         onSubmit={submitImport}
         open={importOpen}
+      />
+
+      <ConnectBankDialog
+        banks={aspsps.data?.aspsps}
+        defaultBankName={bank.data.connection?.aspspName ?? null}
+        error={
+          connectError ??
+          (aspsps.isError
+            ? serverErrorMessage(aspsps.error, m.bank_connect_banks_failed())
+            : null)
+        }
+        isStarting={startConnection.isPending || startConnection.isSuccess}
+        onOpenChange={(open) => {
+          if (!open) {
+            setConnectOpen(false);
+            setConnectError(null);
+            // A success only means the browser was sent to the bank; coming
+            // back through history must find the dialog usable again.
+            startConnection.reset();
+          }
+        }}
+        onSubmit={(body) => startConnection.mutate({ body })}
+        open={connectOpen}
+      />
+
+      <ChooseBankAccountDialog
+        accounts={bank.data.connection?.accounts ?? []}
+        error={chooseAccountError}
+        isSaving={chooseAccount.isPending}
+        onOpenChange={(open) => {
+          if (!open) {
+            setChooseAccountOpen(false);
+            setChooseAccountError(null);
+          }
+        }}
+        onSubmit={(accountUid) =>
+          chooseAccount.mutate({ body: { accountUid } })
+        }
+        open={chooseAccountOpen}
       />
 
       <EditBalanceDialog

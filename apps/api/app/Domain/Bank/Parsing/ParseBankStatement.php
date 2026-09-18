@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Bank\Parsing;
 
 use App\Domain\Bank\Enums\BankStatementFormat;
+use LogicException;
 use Throwable;
 
 /**
@@ -61,7 +62,7 @@ class ParseBankStatement
             throw new StatementParseException('bank.too_many_movements');
         }
 
-        $movements = $this->chronological($statement->movements);
+        $movements = self::chronological($statement->movements);
         $first = $movements[0];
         $last = $movements[count($movements) - 1];
 
@@ -91,7 +92,7 @@ class ParseBankStatement
      * @param  non-empty-list<ParsedMovement>  $movements
      * @return non-empty-list<ParsedMovement>
      */
-    private function chronological(array $movements): array
+    public static function chronological(array $movements): array
     {
         $last = count($movements) - 1;
 
@@ -133,6 +134,7 @@ class ParseBankStatement
             BankStatementFormat::Ofx => new OfxStatementParser,
             BankStatementFormat::Qif => new QifStatementParser,
             BankStatementFormat::Camt053 => new Camt053StatementParser,
+            BankStatementFormat::EnableBanking => throw new LogicException('A synced statement has no file to parse.'),
         };
     }
 }

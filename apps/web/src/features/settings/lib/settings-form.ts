@@ -26,6 +26,7 @@ export const SETTINGS_TABS = [
   "fiscalite",
   "facturation",
   "regional",
+  "integrations",
   "securite",
 ] as const;
 
@@ -54,6 +55,10 @@ export const SETTINGS_TAB_DETAILS: Record<
   regional: {
     label: m.settings_tab_regional_label,
     hint: m.settings_tab_regional_hint,
+  },
+  integrations: {
+    label: m.settings_tab_integrations_label,
+    hint: m.settings_tab_integrations_hint,
   },
   securite: {
     label: m.settings_tab_security_label,

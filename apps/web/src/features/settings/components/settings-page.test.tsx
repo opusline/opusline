@@ -44,6 +44,7 @@ function renderPage(
       onSave: vi.fn(),
       onCancel: () => {},
     },
+    integrations: null,
     security: null,
     ...overrides,
   };
@@ -89,6 +90,7 @@ it("lists every section as a vertical tab", () => {
     "FiscalitéURSSAF, TVA, provisions",
     "FacturationDélais, numérotation, matelas",
     "LocalisationPays, devise, langue",
+    "IntégrationsSynchronisation bancaire",
     "SécuritéVérification en deux étapes, navigateurs",
   ]);
 });

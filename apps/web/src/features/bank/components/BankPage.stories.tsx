@@ -8,6 +8,7 @@ import {
   manualBankData,
   noVatBankData,
   reconciledBankData,
+  syncedBankData,
 } from "../lib/fixtures";
 import { BankPage } from "./bank-page";
 
@@ -20,6 +21,14 @@ const meta = {
     data: bankData(),
     isRefreshing: false,
     pendingMatchId: null,
+    connection: {
+      isSyncing: false,
+      isDisconnecting: false,
+      onConnect: () => {},
+      onChooseAccount: () => {},
+      onSync: () => {},
+      onDisconnect: () => {},
+    },
     onImport: () => {},
     onEditBalance: () => {},
     onValidateMatch: () => {},
@@ -56,4 +65,8 @@ export const EmptyAccount: Story = {
 
 export const NotVatLiable: Story = {
   args: { data: noVatBankData() },
+};
+
+export const SyncedFromTheBank: Story = {
+  args: { data: syncedBankData() },
 };

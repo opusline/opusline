@@ -68,17 +68,30 @@ function StatusRowTitle({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+const statusRowDescriptionVariants = cva("mt-0.5 text-xs leading-relaxed", {
+  variants: {
+    /** `attention` flags what needs doing soon; `destructive` what already failed. */
+    tone: {
+      muted: "text-muted-foreground-3",
+      attention: "text-attention",
+      destructive: "text-destructive",
+    },
+  },
+  defaultVariants: {
+    tone: "muted",
+  },
+});
+
 function StatusRowDescription({
   className,
+  tone,
   ...props
-}: React.ComponentProps<"p">) {
+}: React.ComponentProps<"p"> &
+  VariantProps<typeof statusRowDescriptionVariants>) {
   return (
     <p
       data-slot="status-row-description"
-      className={cn(
-        "mt-0.5 text-muted-foreground-3 text-xs leading-relaxed",
-        className,
-      )}
+      className={cn(statusRowDescriptionVariants({ tone }), className)}
       {...props}
     />
   );

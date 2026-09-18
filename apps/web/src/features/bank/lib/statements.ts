@@ -1,3 +1,5 @@
+import type { BankStatementData } from "@opusline/api-client";
+
 import { fileRejector } from "@/lib/files";
 import { m } from "@/paraglide/messages.js";
 
@@ -12,3 +14,8 @@ export const rejectStatementReason = fileRejector({
   rejectType: m.bank_import_reject_type,
   rejectSize: m.bank_import_reject_size,
 });
+
+/** A bank connection's rolling statement, not a file: it grows with each sync. */
+export function isSyncedStatement(statement: BankStatementData): boolean {
+  return statement.format === 4;
+}

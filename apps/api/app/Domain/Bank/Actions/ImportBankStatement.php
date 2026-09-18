@@ -7,10 +7,7 @@ namespace App\Domain\Bank\Actions;
 use App\Domain\Bank\Data\BankImportData;
 use App\Domain\Bank\Data\ImportBankStatementData;
 use App\Domain\Bank\Parsing\ParseBankStatement;
-use App\Domain\Bank\Parsing\ParsedMovement;
-use App\Domain\Bank\Parsing\ParsedStatement;
 use App\Domain\Bank\Parsing\StatementParseException;
-use App\Domain\Expenses\Actions\SuggestExpenseMatches;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Shared\Data\SignedMoneyData;
 use App\Domain\Shared\Enums\Currency;
@@ -29,12 +26,9 @@ use Illuminate\Validation\ValidationException;
  */
 class ImportBankStatement
 {
-    public const int INSERT_CHUNK = 500;
-
     public function __construct(
         private readonly ParseBankStatement $parseBankStatement,
-        private readonly SuggestBankMatches $suggestBankMatches,
-        private readonly SuggestExpenseMatches $suggestExpenseMatches,
+        private readonly RecordBankMovements $recordBankMovements,
         private readonly SummarizeBankAccount $summarizeBankAccount,
     ) {}
 
@@ -46,7 +40,7 @@ class ImportBankStatement
             throw ValidationException::withMessages(['file' => __($exception->getMessage())]);
         }
 
-        [$importedCount, $suggestionCount] = DB::transaction(function () use ($user, $data, $parsed, $format): array {
+        $recorded = DB::transaction(function () use ($user, $data, $parsed, $format): array {
             $locked = User::lockRow($user->id);
             $settings = $locked->settings()->sole();
             $locked->setRelation('settings', $settings);
@@ -85,76 +79,13 @@ class ImportBankStatement
                 ]);
             }
 
-            $hashes = $this->dedupHashes($parsed);
-
-            $alreadyImported = [];
-
-            // Chunked like the insert below: one IN list per chunk keeps the
-            // lookup far from any driver's bind-parameter ceiling.
-            foreach (array_chunk($hashes, self::INSERT_CHUNK) as $chunk) {
-                /** @var list<string> $existingHashes */
-                $existingHashes = $locked->bankMovements()
-                    ->whereIn('dedup_hash', $chunk)
-                    ->pluck('dedup_hash')
-                    ->all();
-                $alreadyImported += array_flip($existingHashes);
-            }
-
-            // Bulk-inserted in chunks rather than one create() per row: a first
-            // import carries years of history, and N round trips under the user
-            // row lock can outlive Octane's max_execution_time. Raw rows, so the
-            // casts don't apply — cents and date strings are written directly.
-            $now = now();
-            $rows = [];
-
-            foreach ($parsed->movements as $index => $movement) {
-                if (isset($alreadyImported[$hashes[$index]])) {
-                    continue;
-                }
-
-                $rows[] = [
-                    'user_id' => $locked->id,
-                    'bank_statement_id' => $statement->id,
-                    'booked_on' => $movement->bookedOn->toDateString(),
-                    'label' => mb_strcut($movement->label, 0, 255),
-                    'currency' => $settings->currency->value,
-                    'amount_cents' => $movement->amountCents,
-                    'dedup_hash' => $hashes[$index],
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ];
-            }
-
-            foreach (array_chunk($rows, self::INSERT_CHUNK) as $chunk) {
-                $locked->bankMovements()->insert($chunk);
-            }
-
-            $importedCount = count($rows);
-
-            // Every movement of the imported period still awaiting a suggestion
-            // is re-evaluated, not just the new rows: an invoice sent after an
-            // earlier import becomes matchable simply by re-importing the
-            // statement that carries its payment. The window stops there —
-            // cross-matching the whole account in PHP is the very shape the
-            // chunked insert above exists to avoid, and it would run inside the
-            // same user row lock.
-            $rescanFrom = $statement->period_start->subDays(SuggestExpenseMatches::DAYS_APART);
-            $suggestible = array_values($locked->bankMovements()
-                ->where('amount_cents', '>', 0)
-                ->whereNull('invoice_id')
-                ->whereDoesntHave('match')
-                ->where('booked_on', '>=', $rescanFrom->toDateString())
-                ->get()
-                ->all());
-            $this->suggestExpenseMatches->handle($locked, $rescanFrom);
-
-            return [$importedCount, $this->suggestBankMatches->handle($locked, $suggestible)];
+            return $this->recordBankMovements->handle($locked, $statement, $parsed->movements, $statement->period_start);
         });
 
         return new BankImportData(
             lineCount: count($parsed->movements),
-            importedCount: $importedCount,
-            suggestionCount: $suggestionCount,
+            importedCount: $recorded['imported'],
+            suggestionCount: $recorded['suggestions'],
             account: $this->summarizeBankAccount->handle($user),
         );
     }
@@ -174,35 +105,5 @@ class ImportBankStatement
     private function cents(?int $cents, UserSettings $settings): ?Money
     {
         return $cents === null ? null : new Money($cents, $settings->currency->value);
-    }
-
-    /**
-     * One hash per parsed movement, aligned by index. OFX/CAMT bank references
-     * are the bank's own idempotency key; everything else falls back to the
-     * row's content plus its ordinal among identical rows in this file, so two
-     * genuine same-day same-amount payments stay two movements while
-     * overlapping exports still collapse.
-     *
-     * @return list<string>
-     */
-    private function dedupHashes(ParsedStatement $parsed): array
-    {
-        $occurrences = [];
-
-        return array_map(function (ParsedMovement $movement) use (&$occurrences): string {
-            if ($movement->fitid !== null) {
-                return hash('sha256', 'fitid|'.$movement->fitid);
-            }
-
-            $row = implode('|', [
-                $movement->bookedOn->toDateString(),
-                (string) $movement->amountCents,
-                NormalizeBankText::normalize($movement->label),
-            ]);
-
-            $occurrences[$row] = ($occurrences[$row] ?? 0) + 1;
-
-            return hash('sha256', 'row|'.$row.'|'.$occurrences[$row]);
-        }, $parsed->movements);
     }
 }

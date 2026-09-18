@@ -511,6 +511,172 @@
                 }
             }
         },
+        "/bank/aspsps": {
+            "get": {
+                "operationId": "listBankAspsps",
+                "tags": [
+                    "BankConnection"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BankAspspListData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/bank/connection": {
+            "post": {
+                "operationId": "startBankConnection",
+                "tags": [
+                    "BankConnection"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StartBankConnectionData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BankAuthorizationData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "disconnectBankConnection",
+                "tags": [
+                    "BankConnection"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BankAccountData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/bank/connection/complete": {
+            "post": {
+                "operationId": "completeBankConnection",
+                "tags": [
+                    "BankConnection"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CompleteBankConnectionData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BankAccountData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/bank/connection/account": {
+            "put": {
+                "operationId": "chooseBankConnectionAccount",
+                "tags": [
+                    "BankConnection"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChooseBankAccountData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BankAccountData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/bank/connection/sync": {
+            "post": {
+                "operationId": "syncBankConnection",
+                "tags": [
+                    "BankConnection"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BankImportData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/clients": {
             "get": {
                 "operationId": "listClients",
@@ -2760,6 +2926,83 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/InstanceData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/settings/integrations": {
+            "get": {
+                "operationId": "showIntegrations",
+                "tags": [
+                    "Integrations"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IntegrationsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/settings/integrations/enable-banking": {
+            "put": {
+                "operationId": "saveEnableBankingCredentials",
+                "tags": [
+                    "Integrations"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SaveEnableBankingCredentialsData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IntegrationsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteEnableBankingCredentials",
+                "tags": [
+                    "Integrations"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IntegrationsData"
                                 }
                             }
                         }
@@ -6213,6 +6456,19 @@
                         "items": {
                             "$ref": "#/components/schemas/BankStatementData"
                         }
+                    },
+                    "bankSyncConfigured": {
+                        "type": "boolean"
+                    },
+                    "connection": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BankConnectionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -6222,9 +6478,61 @@
                     "movements",
                     "nextMovementsCursor",
                     "hasUnlinkedCredits",
-                    "statements"
+                    "statements",
+                    "bankSyncConfigured",
+                    "connection"
                 ],
                 "title": "BankAccountData"
+            },
+            "BankAspspData": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "psuTypes": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BankPsuType"
+                        }
+                    },
+                    "isBeta": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "name",
+                    "psuTypes",
+                    "isBeta"
+                ],
+                "title": "BankAspspData"
+            },
+            "BankAspspListData": {
+                "type": "object",
+                "properties": {
+                    "aspsps": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BankAspspData"
+                        }
+                    }
+                },
+                "required": [
+                    "aspsps"
+                ],
+                "title": "BankAspspListData"
+            },
+            "BankAuthorizationData": {
+                "type": "object",
+                "properties": {
+                    "url": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "url"
+                ],
+                "title": "BankAuthorizationData"
             },
             "BankBalanceData": {
                 "type": "object",
@@ -6264,6 +6572,103 @@
                     "Derived"
                 ],
                 "title": "BankBalanceSource"
+            },
+            "BankConnectionAccountData": {
+                "type": "object",
+                "properties": {
+                    "uid": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "ibanLast4": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "uid",
+                    "name",
+                    "ibanLast4"
+                ],
+                "title": "BankConnectionAccountData"
+            },
+            "BankConnectionData": {
+                "type": "object",
+                "properties": {
+                    "aspspName": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/BankConnectionStatus"
+                    },
+                    "account": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BankConnectionAccountData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "accounts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BankConnectionAccountData"
+                        }
+                    },
+                    "validUntil": {
+                        "type": "string"
+                    },
+                    "lastSyncedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "lastError": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BankSyncError"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "aspspName",
+                    "status",
+                    "account",
+                    "accounts",
+                    "validUntil",
+                    "lastSyncedAt",
+                    "lastError"
+                ],
+                "title": "BankConnectionData"
+            },
+            "BankConnectionStatus": {
+                "type": "integer",
+                "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/> The consent covers several accounts in the account currency; the user picks the one to sync. |\n| `2` <br/> The consent ended or was revoked: nothing syncs until the user authorizes again at the bank. |",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "Active",
+                    "AwaitingAccount",
+                    "Expired"
+                ],
+                "title": "BankConnectionStatus"
             },
             "BankImportData": {
                 "type": "object",
@@ -6618,6 +7023,19 @@
                 ],
                 "title": "BankProvisionsData"
             },
+            "BankPsuType": {
+                "type": "integer",
+                "description": "Which login the bank shows: a business account's or a personal one's. Banks offering both need it said up front, or the consent can miss the account.\n",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "Business",
+                    "Personal"
+                ],
+                "title": "BankPsuType"
+            },
             "BankStatementData": {
                 "type": "object",
                 "properties": {
@@ -6626,6 +7044,9 @@
                     },
                     "fileName": {
                         "type": "string"
+                    },
+                    "format": {
+                        "$ref": "#/components/schemas/BankStatementFormat"
                     },
                     "periodStart": {
                         "type": "string",
@@ -6652,6 +7073,7 @@
                 "required": [
                     "id",
                     "fileName",
+                    "format",
                     "periodStart",
                     "periodEnd",
                     "lineCount",
@@ -6660,6 +7082,44 @@
                     "validatedMatchCount"
                 ],
                 "title": "BankStatementData"
+            },
+            "BankStatementFormat": {
+                "type": "integer",
+                "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/>  |\n| `3` <br/>  |\n| `4` <br/> Not a file: the rolling statement a bank connection keeps extending with each sync. |",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4
+                ],
+                "x-enum-varnames": [
+                    "Csv",
+                    "Ofx",
+                    "Qif",
+                    "Camt053",
+                    "EnableBanking"
+                ],
+                "title": "BankStatementFormat"
+            },
+            "BankSyncError": {
+                "type": "integer",
+                "description": "Why a call to the bank through Enable Banking failed. Kept on the connection after a failed sync, so the Compte pro page can say what went wrong with the last nightly run too.\n| |\n|---|\n| `0` <br/> Enable Banking or the bank did not answer, or answered something unreadable. |\n| `1` <br/> The bank's quota of unattended reads is spent; it resets within hours. |\n| `2` <br/> The consent lapsed or was revoked: only a new authorization at the bank helps. |\n| `3` <br/> Enable Banking refused the application id or its key. |\n| `4` <br/> The bank reports the account in another currency than this account's. |",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4
+                ],
+                "x-enum-varnames": [
+                    "Unavailable",
+                    "RateLimited",
+                    "ConsentExpired",
+                    "CredentialsRejected",
+                    "CurrencyMismatch"
+                ],
+                "title": "BankSyncError"
             },
             "BillingMode": {
                 "type": "integer",
@@ -6883,6 +7343,19 @@
                     "effectiveFrom"
                 ],
                 "title": "ChangeSubscriptionAmountData"
+            },
+            "ChooseBankAccountData": {
+                "type": "object",
+                "properties": {
+                    "accountUid": {
+                        "type": "string",
+                        "maxLength": 64
+                    }
+                },
+                "required": [
+                    "accountUid"
+                ],
+                "title": "ChooseBankAccountData"
             },
             "ClientData": {
                 "type": "object",
@@ -7260,6 +7733,24 @@
                     "Stone"
                 ],
                 "title": "Color"
+            },
+            "CompleteBankConnectionData": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "maxLength": 2048
+                    },
+                    "state": {
+                        "type": "string",
+                        "pattern": "^s[0-9a-f]{32}$"
+                    }
+                },
+                "required": [
+                    "code",
+                    "state"
+                ],
+                "title": "CompleteBankConnectionData"
             },
             "CompleteDeclarationData": {
                 "type": "object",
@@ -8738,6 +9229,25 @@
                 ],
                 "title": "DocumentSource"
             },
+            "EnableBankingSettingsData": {
+                "type": "object",
+                "properties": {
+                    "applicationId": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "redirectUrl": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "applicationId",
+                    "redirectUrl"
+                ],
+                "title": "EnableBankingSettingsData"
+            },
             "EntryRounding": {
                 "type": "integer",
                 "description": "Rounding increment for time entries, expressed as a fraction of the mission's billing unit: half or a quarter of a day/hour, or to the minute.\n",
@@ -9734,6 +10244,18 @@
                     "backup"
                 ],
                 "title": "InstanceData"
+            },
+            "IntegrationsData": {
+                "type": "object",
+                "properties": {
+                    "enableBanking": {
+                        "$ref": "#/components/schemas/EnableBankingSettingsData"
+                    }
+                },
+                "required": [
+                    "enableBanking"
+                ],
+                "title": "IntegrationsData"
             },
             "InvoiceClientTotalsData": {
                 "type": "object",
@@ -11444,6 +11966,24 @@
                 ],
                 "title": "RevenueVatData"
             },
+            "SaveEnableBankingCredentialsData": {
+                "type": "object",
+                "properties": {
+                    "applicationId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "privateKey": {
+                        "type": "string",
+                        "maxLength": 10000
+                    }
+                },
+                "required": [
+                    "applicationId",
+                    "privateKey"
+                ],
+                "title": "SaveEnableBankingCredentialsData"
+            },
             "SendCraData": {
                 "type": "object",
                 "properties": {
@@ -11793,6 +12333,23 @@
                     "currency"
                 ],
                 "title": "SignedMoneyData"
+            },
+            "StartBankConnectionData": {
+                "type": "object",
+                "properties": {
+                    "aspspName": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "psuType": {
+                        "$ref": "#/components/schemas/BankPsuType"
+                    }
+                },
+                "required": [
+                    "aspspName",
+                    "psuType"
+                ],
+                "title": "StartBankConnectionData"
             },
             "StartTimerData": {
                 "type": "object",

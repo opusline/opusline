@@ -3,10 +3,13 @@
 declare(strict_types=1);
 
 return [
+    'accountUid' => 'compte bancaire',
     'acre' => 'ACRE',
     'amountHt' => 'montant HT',
     'amountTtc' => 'montant TTC',
+    'applicationId' => 'identifiant d\'application',
     'applySignature' => 'application de la signature',
+    'aspspName' => 'banque',
     'autoCreateExpenses' => 'dépense automatique',
     'autoRates' => 'taux automatiques',
     'balance' => 'solde',
@@ -88,8 +91,10 @@ return [
     'periodicity' => 'périodicité',
     'periodKey' => 'période',
     'periodStart' => 'début de période',
+    'privateKey' => 'clé privée',
     'proShareBp' => 'quote-part pro',
     'provisionMonthly' => 'provision mensuelle',
+    'psuType' => 'type de compte',
     'rate' => 'tarif',
     'recoveryCode' => 'code de secours',
     'recurringDebitDay' => 'jour de prélèvement récurrent',
@@ -107,6 +112,7 @@ return [
     'spentOn' => 'date de la dépense',
     'startDate' => 'date de début',
     'startedOn' => 'date de début',
+    'state' => 'état de l\'autorisation',
     'subscriptionId' => 'abonnement',
     'supplier' => 'fournisseur',
     'taxHouseholdQuarterParts' => 'nombre de parts du foyer',

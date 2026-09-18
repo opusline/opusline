@@ -8,6 +8,7 @@ import {
 } from "../lib/settings-fixture";
 import type { SettingsTab } from "../lib/settings-form";
 import { AuthenticatorAppCard } from "./authenticator-app-card";
+import { EnableBankingCard } from "./enable-banking-card";
 import { SettingsPage } from "./settings-page";
 import { TrustedBrowsersCard } from "./trusted-browsers-card";
 
@@ -46,6 +47,18 @@ const meta = {
       onSave: () => {},
       onCancel: () => {},
     },
+    integrations: (
+      <EnableBankingCard
+        error={null}
+        isRemoving={false}
+        onRemove={() => {}}
+        onSave={async () => ({ status: "success" }) as const}
+        settings={{
+          applicationId: null,
+          redirectUrl: "https://opusline.example/bank-account",
+        }}
+      />
+    ),
     security: (
       <div className="flex flex-col gap-6">
         <AuthenticatorAppCard

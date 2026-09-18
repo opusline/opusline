@@ -1,5 +1,6 @@
 import type {
   BankAccountData,
+  BankConnectionData,
   BankMatchData,
   BankMovementData,
   BankStatementData,
@@ -13,12 +14,31 @@ export function bankStatement(
   return {
     id: 1,
     fileName: "releve-compte-pro-aout-2026.csv",
+    format: 0,
     periodStart: "2026-08-01",
     periodEnd: "2026-08-10",
     lineCount: 12,
     importedAt: "2026-08-10",
     matchCount: 3,
     validatedMatchCount: 1,
+    ...overrides,
+  };
+}
+
+/** A connection to a fictional bank, syncing its one account. */
+export function bankConnection(
+  overrides: Partial<BankConnectionData> = {},
+): BankConnectionData {
+  const account = { uid: "07cc67f4", name: "Compte pro", ibanLast4: "0185" };
+
+  return {
+    aspspName: "Banque Orvella",
+    status: 0,
+    account,
+    accounts: [account],
+    validUntil: "2027-02-09T12:00:00+00:00",
+    lastSyncedAt: "2026-08-13T05:00:12+00:00",
+    lastError: null,
     ...overrides,
   };
 }
@@ -165,7 +185,34 @@ export function bankData(
         validatedMatchCount: 2,
       }),
     ],
+    bankSyncConfigured: false,
+    connection: null,
     ...overrides,
+  };
+}
+
+/** Synced from the bank: the connection's rolling statement sits on top. */
+export function syncedBankData(): BankAccountData {
+  const data = bankData();
+
+  return {
+    ...data,
+    bankSyncConfigured: true,
+    connection: bankConnection(),
+    statements: [
+      bankStatement({
+        id: 3,
+        fileName: "Banque Orvella",
+        format: 4,
+        periodStart: "2026-08-11",
+        periodEnd: "2026-08-13",
+        lineCount: 4,
+        importedAt: "2026-08-13",
+        matchCount: 1,
+        validatedMatchCount: 0,
+      }),
+      ...data.statements,
+    ],
   };
 }
 
@@ -274,5 +321,7 @@ export function emptyBankData(): BankAccountData {
     nextMovementsCursor: null,
     hasUnlinkedCredits: false,
     statements: [],
+    bankSyncConfigured: false,
+    connection: null,
   };
 }

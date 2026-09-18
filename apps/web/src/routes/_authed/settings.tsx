@@ -32,6 +32,7 @@ import {
   isWebAuthnSupported,
   webAuthnFailure,
 } from "@/features/auth/lib/webauthn";
+import { IntegrationsSettings } from "@/features/settings/components/integrations-settings";
 import type { LocalisationDraft } from "@/features/settings/components/localisation-settings";
 import { SecuritySettings } from "@/features/settings/components/security-settings";
 import { SettingsPage } from "@/features/settings/components/settings-page";
@@ -368,6 +369,7 @@ function ReglagesRoute() {
           onSave: (draft) => void saveLocalisation(draft),
           onCancel: () => setLocalisationError(null),
         }}
+        integrations={<IntegrationsSettings />}
         security={
           <SecuritySettings
             guarded={passwordConfirmation.guarded}

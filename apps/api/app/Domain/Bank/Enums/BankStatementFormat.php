@@ -10,4 +10,7 @@ enum BankStatementFormat: int
     case Ofx = 1;
     case Qif = 2;
     case Camt053 = 3;
+
+    /** Not a file: the rolling statement a bank connection keeps extending with each sync. */
+    case EnableBanking = 4;
 }

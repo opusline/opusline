@@ -97,3 +97,26 @@ export const List: Story = {
     </div>
   ),
 };
+
+export const Tones: Story = {
+  render: () => (
+    <StatusRow>
+      <StatusRowMedia>
+        <LaptopIcon />
+      </StatusRowMedia>
+      <StatusRowContent>
+        <StatusRowTitle>
+          Synchronisation bancaire
+          <Badge variant="success">Connectée</Badge>
+        </StatusRowTitle>
+        <StatusRowDescription>Synchronisé ce matin</StatusRowDescription>
+        <StatusRowDescription tone="attention">
+          L'accès expire dans 5 jours.
+        </StatusRowDescription>
+        <StatusRowDescription tone="destructive">
+          La dernière synchronisation a échoué.
+        </StatusRowDescription>
+      </StatusRowContent>
+    </StatusRow>
+  ),
+};

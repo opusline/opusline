@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Bank\EnableBanking\BankSyncFailed;
 use App\Domain\Settings\Rates\RatesUnavailable;
 use App\Domain\TwoFactor\Models\TrustedDevice;
 use App\Http\Support\SetLocale;
@@ -31,6 +32,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // a client to archived, and nobody wants to watch that happen mid-morning.
         $schedule->command('clients:retire-dormant')->dailyAt('03:30')->withoutOverlapping();
         $schedule->command('model:prune', ['--model' => [TrustedDevice::class]])->daily();
+        // One unattended read a day stays well inside the four PSD2 lets banks
+        // allow, and by then the night's postings are booked.
+        $schedule->command('bank:sync')->dailyAt('05:00')->withoutOverlapping();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         Integration::handles($exceptions);
@@ -40,5 +44,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(fn (RatesUnavailable $exception) => response()->json(
             ['message' => __('settings.rates_unavailable')],
             503,
+        ));
+
+        $exceptions->render(fn (BankSyncFailed $exception) => response()->json(
+            ['message' => __($exception->reason->messageKey())],
+            $exception->reason->httpStatus(),
         ));
     })->create();

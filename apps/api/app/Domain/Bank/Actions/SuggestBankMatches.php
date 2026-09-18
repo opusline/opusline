@@ -69,7 +69,7 @@ class SuggestBankMatches
 
         // Bulk-inserted: this runs inside the import's user row lock, and a
         // re-import over years of history can raise hundreds of suggestions.
-        foreach (array_chunk($rows, ImportBankStatement::INSERT_CHUNK) as $chunk) {
+        foreach (array_chunk($rows, RecordBankMovements::INSERT_CHUNK) as $chunk) {
             $user->bankMatches()->insert($chunk);
         }
 
