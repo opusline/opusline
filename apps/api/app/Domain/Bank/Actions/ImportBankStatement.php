@@ -71,11 +71,19 @@ class ImportBankStatement
                 'period_end' => $parsed->periodEnd,
                 'line_count' => count($parsed->movements),
                 'currency' => $settings->currency->value,
-                'closing_balance_cents' => $this->cents($data->balanceAmount ?? $parsed->closingBalanceCents, $settings),
-                'closing_balance_on' => $data->balanceAmount !== null
-                    ? $parsed->periodEnd
-                    : ($parsed->closingBalanceOn ?? $parsed->periodEnd),
+                'closing_balance_cents' => $this->cents($parsed->closingBalanceCents, $settings),
+                'closing_balance_on' => $parsed->closingBalanceOn ?? $parsed->periodEnd,
             ]);
+
+            // A balance typed here is the same fact as one typed with the
+            // pencil, read at the statement's date: it becomes the account's
+            // anchor, which a file's own closing balance never overrides.
+            if ($data->balanceAmount !== null) {
+                $settings->update([
+                    'bank_balance_cents' => $this->cents($data->balanceAmount, $settings),
+                    'bank_balance_recorded_on' => $parsed->periodEnd,
+                ]);
+            }
 
             $hashes = $this->dedupHashes($parsed);
 

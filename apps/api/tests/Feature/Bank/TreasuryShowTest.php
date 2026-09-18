@@ -113,8 +113,9 @@ test('clamps what the balance covers to today when a movement is dated in the fu
         ->assertJsonPath('coveredThrough', '2026-08-13');
 });
 
-test('cites the statement its closing balance was read from', function (): void {
+test('cites the statement its closing balance was read from when no balance was typed', function (): void {
     $user = canvasAccount();
+    $user->settings()->sole()->update(['bank_balance_cents' => null, 'bank_balance_recorded_on' => null]);
     bankStatementOwnedBy($user, fn (BankStatementFactory $factory): BankStatementFactory => $factory->withClosingBalance(900_000, '2026-08-13'));
 
     $this->actingAs($user)
