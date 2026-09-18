@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.29.0](https://github.com/opusline/opusline/compare/v0.28.4...v0.29.0) (2026-09-18)
+
+
+### Features
+
+* **repo:** add the avis d'imposition settings ([#422](https://github.com/opusline/opusline/issues/422)) ([85c8e74](https://github.com/opusline/opusline/commit/85c8e74a581e8750b168e7dd4baac312ee320e05))
+* **repo:** say when the versement libératoire ends ([#423](https://github.com/opusline/opusline/issues/423)) ([df6c94b](https://github.com/opusline/opusline/commit/df6c94bf5abe24da5579b6b19272c8df44b2ca66))
+* **repo:** set aside the income tax without the vl ([#424](https://github.com/opusline/opusline/issues/424)) ([dd2925a](https://github.com/opusline/opusline/commit/dd2925a6d84d83100ab31fdaaa42d8387b2703bb))
+
 ## [0.28.4](https://github.com/opusline/opusline/compare/v0.28.3...v0.28.4) (2026-09-18)
 
 

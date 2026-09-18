@@ -13,6 +13,20 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.29.0",
+    date: "2026-09-18",
+    items: [
+      {
+        kind: "new",
+        text: "Income tax: copy your revenu fiscal de référence, household parts and withholding rate from your avis d'imposition into Settings. Déclarations then warns you when the versement libératoire has to be switched off, and without it the treasury sets the year's income tax aside until you mark the 2042-C PRO paid.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "Déclarations: the micro-BNC ceiling reads the 83 600 € in force from 2026 instead of the former 77 700 €.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.28.4",
     date: "2026-09-18",
     items: [
