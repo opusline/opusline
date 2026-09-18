@@ -40,13 +40,17 @@ export async function uploadWithProgress({
   onProgress,
   signal,
 }: UploadWithProgressOptions): Promise<unknown> {
+  throwIfAborted(signal);
+
   // The session cookie is only handed out once; a first upload in a fresh tab
   // would otherwise be the request that trips the 419.
   if (readCookie("XSRF-TOKEN") === null) {
-    await fetch("/sanctum/csrf-cookie", {
-      headers: { Accept: "application/json" },
-    });
+    await fetchCsrfCookie(signal);
   }
+
+  // Nothing awaits between here and send(), and the abort listener below only
+  // hears what fires after it is attached.
+  throwIfAborted(signal);
 
   const body = new FormData();
   body.append(field, file);
@@ -102,14 +106,38 @@ export async function uploadWithProgress({
     request.addEventListener("error", () =>
       reject(new TypeError("Network request failed")),
     );
-    request.addEventListener("abort", () =>
-      reject(new DOMException("The upload was aborted.", "AbortError")),
-    );
+    request.addEventListener("abort", () => reject(abortError()));
 
     signal?.addEventListener("abort", () => request.abort(), { once: true });
 
     request.send(body);
   });
+}
+
+/**
+ * A cancelled CSRF request rejects with whatever reason the caller aborted
+ * with; the upload promises an `AbortError` either way.
+ */
+async function fetchCsrfCookie(signal: AbortSignal | undefined) {
+  try {
+    await fetch("/sanctum/csrf-cookie", {
+      headers: { Accept: "application/json" },
+      signal,
+    });
+  } catch (error) {
+    throwIfAborted(signal);
+    throw error;
+  }
+}
+
+function throwIfAborted(signal: AbortSignal | undefined) {
+  if (signal?.aborted) {
+    throw abortError();
+  }
+}
+
+function abortError() {
+  return new DOMException("The upload was aborted.", "AbortError");
 }
 
 /** A proxy's HTML error page is not a field map; it falls through as null. */
