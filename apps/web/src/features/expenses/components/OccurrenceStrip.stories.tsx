@@ -16,14 +16,13 @@ const meta = {
   args: {
     subscription: subscription(),
     today: SUBSCRIPTIONS_TODAY,
-    onLinkReceipt: () => {},
   },
 } satisfies Meta<typeof OccurrenceStrip>;
 
 export default meta;
 type Story = StoryObj<typeof OccurrenceStrip>;
 
-/** Twelve months, July's receipt still missing: its cell opens the file picker. */
+/** Twelve months, July's receipt still missing: the row menu offers to link it. */
 export const Default: Story = {};
 
 export const Paused: Story = { args: { subscription: pausedSubscription() } };
