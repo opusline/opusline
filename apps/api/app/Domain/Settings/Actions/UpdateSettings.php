@@ -55,6 +55,7 @@ class UpdateSettings
                 $settings->user_id,
                 $data->treasuryBuffer,
                 $data->cfeExpected,
+                $data->referenceTaxIncome,
             );
 
             $settings->update([
@@ -102,6 +103,12 @@ class UpdateSettings
                 // The CFE is a French tax like the rest: outside France it is
                 // dropped, not carried dormant.
                 'cfe_expected_cents' => $hasFrenchFiscality ? $data->cfeExpected?->toMoney() : null,
+                // What the avis d'imposition says only means something to the
+                // French income tax, so it goes the same way.
+                'reference_tax_income_cents' => $hasFrenchFiscality ? $data->referenceTaxIncome?->toMoney() : null,
+                'reference_tax_income_year' => $hasFrenchFiscality ? $data->referenceTaxIncomeYear : null,
+                'tax_household_quarter_parts' => $hasFrenchFiscality ? $data->taxHouseholdQuarterParts : null,
+                'income_tax_rate_bp' => $hasFrenchFiscality ? $data->incomeTaxRateBp : null,
             ]);
 
             // In the same transaction as the write it records: a period that

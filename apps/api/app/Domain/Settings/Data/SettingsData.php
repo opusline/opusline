@@ -57,6 +57,11 @@ class SettingsData extends Data
         public string $invoiceNumberFormat,
         public ?MoneyData $treasuryBuffer,
         public ?MoneyData $cfeExpected,
+        public ?MoneyData $referenceTaxIncome,
+        public ?int $referenceTaxIncomeYear,
+        /** The quotient familial in quarter parts: 4 is one part. */
+        public ?int $taxHouseholdQuarterParts,
+        public ?int $incomeTaxRateBp,
         public Currency $currency,
         public bool $currencyLocked,
         public Locale $locale,
@@ -118,6 +123,12 @@ class SettingsData extends Data
             cfeExpected: $settings->cfe_expected_cents === null
                 ? null
                 : MoneyData::fromMoney($settings->cfe_expected_cents),
+            referenceTaxIncome: $settings->reference_tax_income_cents === null
+                ? null
+                : MoneyData::fromMoney($settings->reference_tax_income_cents),
+            referenceTaxIncomeYear: $settings->reference_tax_income_year,
+            taxHouseholdQuarterParts: $settings->tax_household_quarter_parts,
+            incomeTaxRateBp: $settings->income_tax_rate_bp,
             currency: $settings->currency,
             currencyLocked: $currencyLocked,
             locale: $settings->locale,

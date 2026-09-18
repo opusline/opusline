@@ -12,6 +12,7 @@ import {
   FieldLegend,
   FieldSet,
 } from "@opusline/ui/components/field";
+import { NativeSelect } from "@opusline/ui/components/native-select";
 import { RadioCard, RadioGroup } from "@opusline/ui/components/radio-group";
 import {
   SegmentedControl,
@@ -20,7 +21,7 @@ import {
 import { Switch } from "@opusline/ui/components/switch";
 import { FormTextField } from "@/components/form-text-field";
 import { useMoneyFormat } from "@/components/money-format-provider";
-import { currencySymbol } from "@/lib/billing";
+import { cachedFormatter, currencySymbol } from "@/lib/billing";
 import {
   abroadTaxTerms,
   URSSAF_PERIODICITIES,
@@ -31,7 +32,10 @@ import {
 import { m } from "@/paraglide/messages.js";
 import {
   formatRateBp,
+  latestAvisIncomeYear,
   optionalAmountValidator,
+  optionalRatePercentValidator,
+  QUARTER_PARTS_PER_PART,
   ratePercentValidator,
 } from "../lib/settings-form";
 import type { SettingsForm } from "../lib/use-settings-form";
@@ -233,6 +237,142 @@ export function FiscalSettingsForm({
       </div>
     </SettingsSection>
   );
+}
+
+/** One part up to ten, a quarter at a time: a shared custody adds a quarter. */
+const QUARTER_PART_OPTIONS = Array.from(
+  { length: 9 * QUARTER_PARTS_PER_PART + 1 },
+  (_, index) => QUARTER_PARTS_PER_PART + index,
+);
+
+/**
+ * What only the avis d'imposition knows: the household's revenu fiscal de
+ * référence and parts, which decide whether the versement libératoire is still
+ * allowed, and the prélèvement à la source rate, which prices the income tax
+ * to set aside once it is not.
+ */
+export function IncomeTaxSettingsFields({
+  form,
+  timezone,
+}: {
+  form: SettingsForm;
+  timezone: string;
+}) {
+  const format = useMoneyFormat();
+  const latestYear = latestAvisIncomeYear(timezone);
+  const partsFormatter = cachedFormatter(format.locale, {
+    maximumFractionDigits: 2,
+  });
+
+  return (
+    <SettingsSection
+      className="mt-4"
+      description={m.settings_income_tax_intro()}
+      title={m.settings_income_tax_title()}
+    >
+      <div className="grid gap-5 sm:grid-cols-2">
+        <form.Field
+          name="referenceTaxIncome"
+          validators={{ onChange: optionalAmountValidator(format.locale) }}
+        >
+          {(field) => (
+            <FormTextField
+              adornment={currencySymbol(format)}
+              field={field}
+              font="mono"
+              inputMode="decimal"
+              label={m.settings_reference_tax_income_label()}
+              labelClassName="text-foreground-3 text-sm"
+            />
+          )}
+        </form.Field>
+
+        <div className="grid grid-cols-2 gap-5">
+          <form.Field name="referenceTaxIncomeYear">
+            {(field) => (
+              <Field>
+                <FieldLabel
+                  className="text-foreground-3 text-sm"
+                  htmlFor={field.name}
+                >
+                  {m.settings_reference_tax_income_year_label()}
+                </FieldLabel>
+                <NativeSelect
+                  id={field.name}
+                  onBlur={field.handleBlur}
+                  onChange={(event) =>
+                    field.handleChange(Number(event.target.value))
+                  }
+                  value={String(field.state.value)}
+                >
+                  {avisIncomeYears(latestYear, field.state.value).map(
+                    (year) => (
+                      <option key={year} value={String(year)}>
+                        {year}
+                      </option>
+                    ),
+                  )}
+                </NativeSelect>
+              </Field>
+            )}
+          </form.Field>
+
+          <form.Field name="taxHouseholdQuarterParts">
+            {(field) => (
+              <Field>
+                <FieldLabel
+                  className="text-foreground-3 text-sm"
+                  htmlFor={field.name}
+                >
+                  {m.settings_tax_household_parts_label()}
+                </FieldLabel>
+                <NativeSelect
+                  id={field.name}
+                  onBlur={field.handleBlur}
+                  onChange={(event) =>
+                    field.handleChange(Number(event.target.value))
+                  }
+                  value={String(field.state.value)}
+                >
+                  {QUARTER_PART_OPTIONS.map((quarters) => (
+                    <option key={quarters} value={String(quarters)}>
+                      {partsFormatter.format(quarters / QUARTER_PARTS_PER_PART)}
+                    </option>
+                  ))}
+                </NativeSelect>
+              </Field>
+            )}
+          </form.Field>
+        </div>
+
+        <form.Field
+          name="incomeTaxRate"
+          validators={{ onChange: optionalRatePercentValidator(format.locale) }}
+        >
+          {(field) => (
+            <FormTextField
+              adornment="%"
+              description={m.settings_income_tax_rate_hint()}
+              field={field}
+              font="mono"
+              inputMode="decimal"
+              label={m.settings_income_tax_rate_label()}
+              labelClassName="text-foreground-3 text-sm"
+            />
+          )}
+        </form.Field>
+      </div>
+    </SettingsSection>
+  );
+}
+
+/** This summer's avis and the one before, plus a stored year that has since aged out. */
+function avisIncomeYears(latestYear: number, storedYear: number): number[] {
+  const years = [latestYear, latestYear - 1];
+
+  return years.includes(storedYear)
+    ? years
+    : [...years, storedYear].sort((a, b) => b - a);
 }
 
 /**

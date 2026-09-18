@@ -11557,6 +11557,34 @@
                             }
                         ]
                     },
+                    "referenceTaxIncome": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "referenceTaxIncomeYear": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "taxHouseholdQuarterParts": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "incomeTaxRateBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
                     "currency": {
                         "$ref": "#/components/schemas/Currency"
                     },
@@ -11622,6 +11650,10 @@
                     "invoiceNumberFormat",
                     "treasuryBuffer",
                     "cfeExpected",
+                    "referenceTaxIncome",
+                    "referenceTaxIncomeYear",
+                    "taxHouseholdQuarterParts",
+                    "incomeTaxRateBp",
                     "currency",
                     "currencyLocked",
                     "locale",
@@ -13327,6 +13359,50 @@
                             "amount",
                             "currency"
                         ]
+                    },
+                    "referenceTaxIncome": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100000000000
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "referenceTaxIncomeYear": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 2000,
+                        "maximum": 2100
+                    },
+                    "taxHouseholdQuarterParts": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 4,
+                        "maximum": 80
+                    },
+                    "incomeTaxRateBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 10000
                     }
                 },
                 "required": [

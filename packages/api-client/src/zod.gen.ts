@@ -2450,6 +2450,10 @@ export const zSettingsData = z.object({
     invoiceNumberFormat: z.string(),
     treasuryBuffer: z.nullable(zMoneyData),
     cfeExpected: z.nullable(zMoneyData),
+    referenceTaxIncome: z.nullable(zMoneyData),
+    referenceTaxIncomeYear: z.nullable(z.int()),
+    taxHouseholdQuarterParts: z.nullable(z.int()),
+    incomeTaxRateBp: z.nullable(z.int()),
     currency: zCurrency,
     currencyLocked: z.boolean(),
     locale: zLocale,
@@ -2503,7 +2507,14 @@ export const zUpdateSettingsData = z.object({
     cfeExpected: z.nullish(z.object({
         amount: z.int().check(z.gte(1), z.lte(100000000000)),
         currency: zCurrency
-    }))
+    })),
+    referenceTaxIncome: z.nullish(z.object({
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
+        currency: zCurrency
+    })),
+    referenceTaxIncomeYear: z.nullish(z.int().check(z.gte(2000), z.lte(2100))),
+    taxHouseholdQuarterParts: z.nullish(z.int().check(z.gte(4), z.lte(80))),
+    incomeTaxRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000)))
 });
 
 /**

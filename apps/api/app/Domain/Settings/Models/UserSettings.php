@@ -50,6 +50,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $contribution_rate_bp
  * @property bool $liberating_payment
  * @property int $liberating_payment_rate_bp
+ * @property ?Money $reference_tax_income_cents
+ * @property ?int $reference_tax_income_year
+ * @property ?int $tax_household_quarter_parts
+ * @property ?int $income_tax_rate_bp
  * @property VatRegime $vat_regime
  * @property int $default_vat_rate_bp
  * @property int $default_payment_terms_days
@@ -102,6 +106,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'contribution_rate_bp',
     'liberating_payment',
     'liberating_payment_rate_bp',
+    'reference_tax_income_cents',
+    'reference_tax_income_year',
+    'tax_household_quarter_parts',
+    'income_tax_rate_bp',
     'vat_regime',
     'default_vat_rate_bp',
     'default_payment_terms_days',
@@ -147,6 +155,7 @@ class UserSettings extends Model
         'treasury_buffer_cents',
         'bank_balance_cents',
         'cfe_expected_cents',
+        'reference_tax_income_cents',
     ];
 
     /**
@@ -168,6 +177,10 @@ class UserSettings extends Model
             'contribution_rate_bp' => 'integer',
             'liberating_payment' => 'boolean',
             'liberating_payment_rate_bp' => 'integer',
+            'reference_tax_income_cents' => MoneyIntegerCast::class.':currency',
+            'reference_tax_income_year' => 'integer',
+            'tax_household_quarter_parts' => 'integer',
+            'income_tax_rate_bp' => 'integer',
             'vat_regime' => VatRegime::class,
             'default_vat_rate_bp' => 'integer',
             'default_payment_terms_days' => 'integer',
