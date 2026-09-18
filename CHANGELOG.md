@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.28.4](https://github.com/opusline/opusline/compare/v0.28.3...v0.28.4) (2026-09-18)
+
+
+### Bug Fixes
+
+* **api:** keep the typed balance as the anchor ([#421](https://github.com/opusline/opusline/issues/421)) ([5fad956](https://github.com/opusline/opusline/commit/5fad95660553e3aafa3510f913c39895d66f261c))
+* **web:** fit the receipts strip in its column ([#420](https://github.com/opusline/opusline/issues/420)) ([31d2729](https://github.com/opusline/opusline/commit/31d2729e9bde28450d98449c25116863a026468e))
+* **web:** honor the abort signal before uploading ([#418](https://github.com/opusline/opusline/issues/418)) ([76f7673](https://github.com/opusline/opusline/commit/76f76735262f176539c5f38c103fb2cbc07254ba))
+* **web:** rework the two-factor code screen ([#419](https://github.com/opusline/opusline/issues/419)) ([33c19c0](https://github.com/opusline/opusline/commit/33c19c0b687bee4a11f1a96e59030ee95fb997e1))
+
 ## [0.28.3](https://github.com/opusline/opusline/compare/v0.28.2...v0.28.3) (2026-09-16)
 
 
