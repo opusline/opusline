@@ -13,6 +13,7 @@
         "laravel-best-practices",
         "testing-best-practices",
         "configuring-horizon",
-        "octane-development"
+        "octane-development",
+        "telescope-debugging"
     ]
 }
