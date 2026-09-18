@@ -13,6 +13,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.30.0",
+    date: "2026-09-18",
+    items: [
+      {
+        kind: "new",
+        text: "Business account: connect your bank through your own Enable Banking application, and Opusline fetches its movements every night, or when you press Sync — no more statement exports.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.29.1",
     date: "2026-09-18",
     items: [
