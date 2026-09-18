@@ -16,12 +16,14 @@ import {
   subscriptionRegimeLabel,
 } from "../lib/subscriptions";
 import { OccurrenceStrip } from "./occurrence-strip";
-import { SubscriptionRowMenu } from "./subscription-row-menu";
+import {
+  SubscriptionRowMenu,
+  type SubscriptionRowMenuHandlers,
+} from "./subscription-row-menu";
 import { SubscriptionStatusBadge } from "./subscription-status-badge";
 import { SubscriptionSupplierCell } from "./subscription-supplier-cell";
-import type { SubscriptionRowHandlers } from "./subscription-table";
 
-type SubscriptionCardListProps = SubscriptionRowHandlers & {
+type SubscriptionCardListProps = SubscriptionRowMenuHandlers & {
   subscriptions: SubscriptionData[];
   isVatLiable: boolean;
   today: string;
@@ -33,7 +35,6 @@ export function SubscriptionCardList({
   isVatLiable,
   today,
   className,
-  onLinkReceipt,
   ...menuHandlers
 }: SubscriptionCardListProps) {
   const format = useMoneyFormat();
@@ -85,6 +86,7 @@ export function SubscriptionCardList({
             <SubscriptionRowMenu
               className="opacity-100"
               subscription={subscription}
+              today={today}
               {...menuHandlers}
             />
           </div>
@@ -94,7 +96,6 @@ export function SubscriptionCardList({
               subscription={subscription}
             />
             <OccurrenceStrip
-              onLinkReceipt={onLinkReceipt}
               size="sm"
               subscription={subscription}
               today={today}

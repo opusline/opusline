@@ -4,6 +4,7 @@ import {
   annualSubscription,
   cancelledSubscription,
   pausedSubscription,
+  SUBSCRIPTIONS_TODAY,
   subscription,
 } from "../lib/subscription-fixtures";
 import { SubscriptionRowMenu } from "./subscription-row-menu";
@@ -14,6 +15,7 @@ const meta = {
   tags: ["autodocs"],
   args: {
     subscription: subscription(),
+    today: SUBSCRIPTIONS_TODAY,
     className: "opacity-100",
     onEdit: () => {},
     onChangeAmount: () => {},
@@ -23,6 +25,7 @@ const meta = {
     onCancel: () => {},
     onReactivate: () => {},
     onDelete: () => {},
+    onLinkReceipt: () => {},
   },
 } satisfies Meta<typeof SubscriptionRowMenu>;
 

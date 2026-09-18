@@ -18,13 +18,11 @@ import { DetectedDebitBanner } from "./detected-debit-banner";
 import { OccurrenceLegend } from "./occurrence-strip";
 import { SubscriptionCardList } from "./subscription-card-list";
 import { SubscriptionKpiTiles } from "./subscription-kpi-tiles";
-import {
-  type SubscriptionRowHandlers,
-  SubscriptionTable,
-} from "./subscription-table";
+import type { SubscriptionRowMenuHandlers } from "./subscription-row-menu";
+import { SubscriptionTable } from "./subscription-table";
 import { UpcomingDebitsRail } from "./upcoming-debits-rail";
 
-type SubscriptionsTabProps = SubscriptionRowHandlers & {
+type SubscriptionsTabProps = SubscriptionRowMenuHandlers & {
   data: SubscriptionsData;
   isVatLiable: boolean;
   isRefreshing: boolean;

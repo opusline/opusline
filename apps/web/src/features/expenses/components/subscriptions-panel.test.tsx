@@ -484,12 +484,16 @@ it("leaves a refused save behind once the sheet is closed", async () => {
 
 async function pickReceiptFor(month: string, supplier: string, file: File) {
   const table = await screen.findByRole("table");
-  const cell = within(table).getByRole("button", {
-    name: `Lier la facture de ${month} · ${supplier}`,
-  });
-  const input = cell.parentElement?.querySelector(
-    'input[type="file"]',
-  ) as HTMLInputElement;
+  const row = within(table).getByText(supplier).closest("tr") as HTMLElement;
+  fireEvent.click(
+    within(row).getByRole("button", { name: `Actions pour ${supplier}` }),
+  );
+  fireEvent.click(
+    await screen.findByRole("menuitem", {
+      name: `Lier la facture de ${month}`,
+    }),
+  );
+  const input = row.querySelector('input[type="file"]') as HTMLInputElement;
 
   fireEvent.change(input, { target: { files: [file] } });
 }
