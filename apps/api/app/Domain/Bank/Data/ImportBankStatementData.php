@@ -27,8 +27,8 @@ class ImportBankStatementData extends Data
         /**
          * The balance read on the bank at the statement date, in signed cents.
          * Flat scalars rather than a nested money object: multipart cannot
-         * carry nested fields. When given, it beats the file's own ledger
-         * balance as the account's balance anchor.
+         * carry nested fields. When given, it replaces the hand-typed balance,
+         * dated at the statement's end.
          */
         #[IntegerType, RequiredWith('balanceCurrency')]
         public ?int $balanceAmount = null,

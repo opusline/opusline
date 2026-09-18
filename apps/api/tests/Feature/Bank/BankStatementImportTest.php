@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Bank\Enums\BankBalanceSource;
 use App\Domain\Bank\Enums\BankStatementFormat;
 use App\Domain\Users\Models\User;
 use Illuminate\Http\UploadedFile;
@@ -99,9 +100,43 @@ test('lets the typed balance beat the file\'s ledger balance', function (): void
         'balanceCurrency' => 'EUR',
     ])
         ->assertCreated()
-        ->assertJsonPath('account.balance.amount.amount', 999_999);
+        ->assertJsonPath('account.balance.amount.amount', 999_999)
+        ->assertJsonPath('account.balance.source', BankBalanceSource::Manual->value)
+        ->assertJsonPath('account.balance.asOf', '2026-08-10');
 
-    expect($user->bankStatements()->sole()->closing_balance_cents?->getAmount())->toBe('999999');
+    expect($user->bankStatements()->sole()->closing_balance_cents?->getAmount())->toBe('1482000');
+});
+
+test('rolls a hand-typed balance forward through an imported statement instead of taking the file\'s balance', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update([
+        'bank_balance_cents' => 500_000,
+        'bank_balance_recorded_on' => '2026-08-06',
+    ]);
+
+    importStatement($user, 'statement_v102.ofx', 'export.ofx')
+        ->assertCreated()
+        // 5 000 € read on the 6th, plus the 12 540 € credit booked on the 8th;
+        // the 5th's URSSAF debit was already in the typed figure.
+        ->assertJsonPath('account.balance.amount.amount', 1_754_000)
+        ->assertJsonPath('account.balance.source', BankBalanceSource::Manual->value)
+        ->assertJsonPath('account.balance.asOf', '2026-08-06');
+});
+
+test('replaces the hand-typed balance with one typed at import', function (): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update([
+        'bank_balance_cents' => 500_000,
+        'bank_balance_recorded_on' => '2026-08-12',
+    ]);
+
+    importStatement($user, 'statement_v102.ofx', 'export.ofx', [
+        'balanceAmount' => '999999',
+        'balanceCurrency' => 'EUR',
+    ])
+        ->assertCreated()
+        ->assertJsonPath('account.balance.amount.amount', 999_999)
+        ->assertJsonPath('account.balance.asOf', '2026-08-10');
 });
 
 test('refuses a typed balance in another currency', function (): void {
