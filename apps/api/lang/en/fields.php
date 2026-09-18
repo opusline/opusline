@@ -3,10 +3,13 @@
 declare(strict_types=1);
 
 return [
+    'accountUid' => 'bank account',
     'acre' => 'ACRE',
     'amountHt' => 'net amount',
     'amountTtc' => 'gross amount',
+    'applicationId' => 'application ID',
     'applySignature' => 'apply signature',
+    'aspspName' => 'bank',
     'autoCreateExpenses' => 'automatic expense',
     'autoRates' => 'automatic rates',
     'balance' => 'balance',
@@ -88,8 +91,10 @@ return [
     'periodicity' => 'periodicity',
     'periodKey' => 'period',
     'periodStart' => 'period start',
+    'privateKey' => 'private key',
     'proShareBp' => 'business share',
     'provisionMonthly' => 'monthly provision',
+    'psuType' => 'account type',
     'rate' => 'rate',
     'recoveryCode' => 'recovery code',
     'recurringDebitDay' => 'recurring debit day',
@@ -107,6 +112,7 @@ return [
     'spentOn' => 'expense date',
     'startDate' => 'start date',
     'startedOn' => 'start date',
+    'state' => 'authorization state',
     'subscriptionId' => 'subscription',
     'supplier' => 'supplier',
     'taxHouseholdQuarterParts' => 'household tax parts',

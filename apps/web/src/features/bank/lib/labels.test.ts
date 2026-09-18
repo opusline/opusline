@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import type { MoneyFormat } from "@/lib/billing";
 
-import { bankData, bankStatement, emptyBankData } from "./fixtures";
+import {
+  bankData,
+  bankStatement,
+  emptyBankData,
+  syncedBankData,
+} from "./fixtures";
 import {
   movementsSourceNote,
   reconciliationNote,
@@ -76,6 +81,12 @@ describe("movements source note", () => {
   it("cites the newest statement", () => {
     expect(movementsSourceNote(0, bankData())).toBe(
       "Relevé du 01/08/2026 au 10/08/2026, importé le 10/08/2026",
+    );
+  });
+
+  it("names the bank a synced statement keeps reading from", () => {
+    expect(movementsSourceNote(0, syncedBankData())).toBe(
+      "Synchronisé depuis Banque Orvella, du 11/08/2026 au 13/08/2026",
     );
   });
 

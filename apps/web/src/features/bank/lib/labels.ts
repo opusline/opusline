@@ -8,6 +8,7 @@ import type {
 import { formatAmountWithCents, type MoneyFormat } from "@/lib/billing";
 import { calendarDateNumericLabel } from "@/lib/dates";
 import { m } from "@/paraglide/messages.js";
+import { isSyncedStatement } from "./statements";
 
 const BANK_MATCH_REASON_MESSAGES: Record<BankMatchReason, () => string> = {
   0: m.bank_match_reason_reference,
@@ -83,9 +84,20 @@ export function movementsSourceNote(
     return m.bank_movements_source_manual();
   }
 
-  return m.bank_movements_source_statement({
+  const range = {
     start: calendarDateNumericLabel(dateFormat, statement.periodStart),
     end: calendarDateNumericLabel(dateFormat, statement.periodEnd),
+  };
+
+  if (isSyncedStatement(statement)) {
+    return m.bank_movements_source_synced({
+      ...range,
+      bank: statement.fileName,
+    });
+  }
+
+  return m.bank_movements_source_statement({
+    ...range,
     date: calendarDateNumericLabel(dateFormat, statement.importedAt),
   });
 }

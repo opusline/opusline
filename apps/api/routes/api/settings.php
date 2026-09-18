@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Settings\Controllers\InstanceController;
+use App\Http\Settings\Controllers\IntegrationsController;
 use App\Http\Settings\Controllers\SettingsController;
 use App\Http\Settings\Controllers\SignatureController;
 use App\Http\Users\Support\EnsureSessionIsUnlocked;
@@ -17,6 +18,13 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
     Route::post('/settings/rates/refresh', [SettingsController::class, 'refreshRates'])
         ->middleware('throttle:6,1')
         ->name('refreshSettingsRates');
+
+    Route::get('/settings/integrations', [IntegrationsController::class, 'show'])->name('showIntegrations');
+    Route::put('/settings/integrations/enable-banking', [IntegrationsController::class, 'saveEnableBanking'])
+        ->middleware('throttle:6,1')
+        ->name('saveEnableBankingCredentials');
+    Route::delete('/settings/integrations/enable-banking', [IntegrationsController::class, 'deleteEnableBanking'])
+        ->name('deleteEnableBankingCredentials');
 
     Route::post('/user/signature', [SignatureController::class, 'store'])
         ->middleware('throttle:uploads')

@@ -12,6 +12,13 @@ export const zBackupRecordData = z.object({
 });
 
 /**
+ * BankAuthorizationData
+ */
+export const zBankAuthorizationData = z.object({
+    url: z.string()
+});
+
+/**
  * BankBalanceSource
  *
  * | |
@@ -21,6 +28,30 @@ export const zBackupRecordData = z.object({
  * | `2` <br/> No anchor exists: the balance is the sum of every imported movement, as if the account had opened empty just before the first one. Exact once the full history is imported; the hand-typed anchor corrects it otherwise. |
  */
 export const zBankBalanceSource = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * BankConnectionAccountData
+ */
+export const zBankConnectionAccountData = z.object({
+    uid: z.string(),
+    name: z.nullable(z.string()),
+    ibanLast4: z.nullable(z.string())
+});
+
+/**
+ * BankConnectionStatus
+ *
+ * | |
+ * |---|
+ * | `0` <br/>  |
+ * | `1` <br/> The consent covers several accounts in the account currency; the user picks the one to sync. |
+ * | `2` <br/> The consent ended or was revoked: nothing syncs until the user authorizes again at the bank. |
+ */
+export const zBankConnectionStatus = z.union([
     z.literal(0),
     z.literal(1),
     z.literal(2)
@@ -64,17 +95,94 @@ export const zBankMovementInvoiceData = z.object({
 });
 
 /**
+ * BankPsuType
+ *
+ * Which login the bank shows: a business account's or a personal one's. Banks offering both need it said up front, or the consent can miss the account.
+ *
+ */
+export const zBankPsuType = z.union([z.literal(0), z.literal(1)]);
+
+/**
+ * BankAspspData
+ */
+export const zBankAspspData = z.object({
+    name: z.string(),
+    psuTypes: z.array(zBankPsuType),
+    isBeta: z.boolean()
+});
+
+/**
+ * BankAspspListData
+ */
+export const zBankAspspListData = z.object({
+    aspsps: z.array(zBankAspspData)
+});
+
+/**
+ * BankStatementFormat
+ *
+ * | |
+ * |---|
+ * | `0` <br/>  |
+ * | `1` <br/>  |
+ * | `2` <br/>  |
+ * | `3` <br/>  |
+ * | `4` <br/> Not a file: the rolling statement a bank connection keeps extending with each sync. |
+ */
+export const zBankStatementFormat = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4)
+]);
+
+/**
  * BankStatementData
  */
 export const zBankStatementData = z.object({
     id: z.int(),
     fileName: z.string(),
+    format: zBankStatementFormat,
     periodStart: z.iso.date(),
     periodEnd: z.iso.date(),
     lineCount: z.int(),
     importedAt: z.iso.date(),
     matchCount: z.int(),
     validatedMatchCount: z.int()
+});
+
+/**
+ * BankSyncError
+ *
+ * Why a call to the bank through Enable Banking failed. Kept on the connection after a failed sync, so the Compte pro page can say what went wrong with the last nightly run too.
+ * | |
+ * |---|
+ * | `0` <br/> Enable Banking or the bank did not answer, or answered something unreadable. |
+ * | `1` <br/> The bank's quota of unattended reads is spent; it resets within hours. |
+ * | `2` <br/> The consent lapsed or was revoked: only a new authorization at the bank helps. |
+ * | `3` <br/> Enable Banking refused the application id or its key. |
+ * | `4` <br/> The bank reports the account in another currency than this account's. |
+ */
+export const zBankSyncError = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4)
+]);
+
+/**
+ * BankConnectionData
+ */
+export const zBankConnectionData = z.object({
+    aspspName: z.string(),
+    status: zBankConnectionStatus,
+    account: z.nullable(zBankConnectionAccountData),
+    accounts: z.array(zBankConnectionAccountData),
+    validUntil: z.string(),
+    lastSyncedAt: z.nullable(z.string()),
+    lastError: z.nullable(zBankSyncError)
 });
 
 /**
@@ -102,6 +210,13 @@ export const zCalendarFeedData = z.object({
  */
 export const zCancelSubscriptionData = z.object({
     cancelledOn: z.nullish(z.iso.date())
+});
+
+/**
+ * ChooseBankAccountData
+ */
+export const zChooseBankAccountData = z.object({
+    accountUid: z.string().check(z.maxLength(64))
 });
 
 /**
@@ -150,6 +265,14 @@ export const zClientData = z.object({
     paymentTermsDays: z.int(),
     archivedAt: z.nullable(z.iso.datetime()),
     createdAt: z.iso.datetime()
+});
+
+/**
+ * CompleteBankConnectionData
+ */
+export const zCompleteBankConnectionData = z.object({
+    code: z.string().check(z.maxLength(2048)),
+    state: z.string().check(z.regex(/^s[0-9a-f]{32}$/))
 });
 
 /**
@@ -455,6 +578,14 @@ export const zDocumentListData = z.object({
 });
 
 /**
+ * EnableBankingSettingsData
+ */
+export const zEnableBankingSettingsData = z.object({
+    applicationId: z.nullable(z.string()),
+    redirectUrl: z.string()
+});
+
+/**
  * EntryRounding
  *
  * Rounding increment for time entries, expressed as a fraction of the mission's billing unit: half or a quarter of a day/hour, or to the minute.
@@ -686,6 +817,13 @@ export const zInstanceData = z.object({
     version: z.string(),
     database: z.string(),
     backup: z.nullable(zBackupRecordData)
+});
+
+/**
+ * IntegrationsData
+ */
+export const zIntegrationsData = z.object({
+    enableBanking: zEnableBankingSettingsData
 });
 
 /**
@@ -1573,6 +1711,14 @@ export const zRevenueData = z.object({
 });
 
 /**
+ * SaveEnableBankingCredentialsData
+ */
+export const zSaveEnableBankingCredentialsData = z.object({
+    applicationId: z.uuid(),
+    privateKey: z.string().check(z.maxLength(10000))
+});
+
+/**
  * SendCraData
  */
 export const zSendCraData = z.object({
@@ -1646,7 +1792,9 @@ export const zBankAccountData = z.object({
     movements: z.array(zBankMovementData),
     nextMovementsCursor: z.nullable(z.string()),
     hasUnlinkedCredits: z.boolean(),
-    statements: z.array(zBankStatementData)
+    statements: z.array(zBankStatementData),
+    bankSyncConfigured: z.boolean(),
+    connection: z.nullable(zBankConnectionData)
 });
 
 /**
@@ -1814,6 +1962,14 @@ export const zRevenueCeilingData = z.object({
     ceiling: zMoneyData,
     shareBp: z.int(),
     margin: zSignedMoneyData
+});
+
+/**
+ * StartBankConnectionData
+ */
+export const zStartBankConnectionData = z.object({
+    aspspName: z.string().check(z.maxLength(255)),
+    psuType: zBankPsuType
 });
 
 /**
@@ -2651,6 +2807,24 @@ export const zDismissBankMatchPath = z.object({
 
 export const zDismissBankMatchResponse = zBankAccountData;
 
+export const zListBankAspspsResponse = zBankAspspListData;
+
+export const zDisconnectBankConnectionResponse = zBankAccountData;
+
+export const zStartBankConnectionBody = zStartBankConnectionData;
+
+export const zStartBankConnectionResponse = zBankAuthorizationData;
+
+export const zCompleteBankConnectionBody = zCompleteBankConnectionData;
+
+export const zCompleteBankConnectionResponse = zBankAccountData;
+
+export const zChooseBankConnectionAccountBody = zChooseBankAccountData;
+
+export const zChooseBankConnectionAccountResponse = zBankAccountData;
+
+export const zSyncBankConnectionResponse = zBankImportData;
+
 export const zListClientsResponse = zClientListData;
 
 export const zCreateClientBody = zCreateClientData;
@@ -2994,6 +3168,14 @@ export const zAttachExpenseReceiptPath = z.object({
 export const zAttachExpenseReceiptResponse = zExpensesMonthData;
 
 export const zShowInstanceResponse = zInstanceData;
+
+export const zShowIntegrationsResponse = zIntegrationsData;
+
+export const zDeleteEnableBankingCredentialsResponse = zIntegrationsData;
+
+export const zSaveEnableBankingCredentialsBody = zSaveEnableBankingCredentialsData;
+
+export const zSaveEnableBankingCredentialsResponse = zIntegrationsData;
 
 export const zListInvoicesQuery = z.object({
     status: z.nullish(zInvoiceStatus),

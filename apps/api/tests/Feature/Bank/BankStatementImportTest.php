@@ -210,3 +210,26 @@ test('re-importing a statement longer than one lookup chunk imports nothing twic
 
     expect($user->bankMovements()->count())->toBe(1_200);
 });
+
+test('leaves the days a bank connection holds to the connection', function (): void {
+    $user = User::factory()->create();
+    $synced = bankStatementOwnedBy($user, fn ($factory) => $factory->state([
+        'format' => BankStatementFormat::EnableBanking,
+        'period_start' => '2026-07-01',
+        'period_end' => '2026-08-13',
+    ]));
+    bankMovementFor($user, $synced, fn ($factory) => $factory->state(['booked_on' => '2026-08-05', 'amount_cents' => 10_000]));
+    $csv = "Date;Libellé;Montant\n04/08/2026;VIR NORDLYS;50,00\n05/08/2026;VIR NORDLYS;100,00\n";
+
+    test()->actingAs($user)->post(
+        '/api/bank/statements',
+        ['file' => UploadedFile::fake()->createWithContent('releve.csv', $csv)],
+        ['Accept' => 'application/json'],
+    )
+        ->assertCreated()
+        ->assertJsonPath('lineCount', 2)
+        ->assertJsonPath('importedCount', 1);
+
+    // The 5th already holds a synced movement; the 4th holds none.
+    expect($user->bankMovements()->count())->toBe(2);
+});

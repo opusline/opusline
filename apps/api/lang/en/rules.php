@@ -9,4 +9,5 @@ return [
     'expense_vat_rate' => 'The VAT rate does not match the VAT treatment: an exempt purchase carries none, a reverse charge needs one.',
     'subscription_debit_month' => 'An annual subscription needs the month it is debited in.',
     'subscription_amount_before_start' => 'A price change cannot predate the subscription\'s first debit.',
+    'enable_banking_private_key' => 'The key must be the RSA private key (.pem) Enable Banking downloaded when the application was registered.',
 ];

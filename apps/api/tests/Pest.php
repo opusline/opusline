@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Domain\Bank\Factories\BankConnectionFactory;
 use App\Domain\Bank\Factories\BankMatchFactory;
 use App\Domain\Bank\Factories\BankMovementFactory;
 use App\Domain\Bank\Factories\BankStatementFactory;
 use App\Domain\Bank\Factories\PersonalTransferFactory;
+use App\Domain\Bank\Models\BankConnection;
 use App\Domain\Bank\Models\BankMatch;
 use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Bank\Models\BankStatement;
@@ -49,6 +51,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Testing\TestResponse;
+use ParagonIE\ConstantTime\Base64UrlSafe;
 use Tests\Support\FakePasskeyCeremony;
 use Tests\TestCase;
 
@@ -321,6 +324,166 @@ function bankMovementFor(User $user, ?BankStatement $statement = null, ?callable
     $factory = BankMovement::factory()->for($statement ?? bankStatementOwnedBy($user), 'statement');
 
     return configuredFactory($factory, $configure)->create(['user_id' => $user->id]);
+}
+
+/**
+ * An RSA key in the shape Enable Banking issues. Generated once per process
+ * rather than committed: a private key in the tree would trip the secret scan.
+ */
+function enableBankingPrivateKey(): string
+{
+    static $pem = null;
+
+    if ($pem === null) {
+        $key = openssl_pkey_new(['private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA]);
+        openssl_pkey_export($key, $pem);
+    }
+
+    return $pem;
+}
+
+const ENABLE_BANKING_APPLICATION_ID = '6f1c1a52-9d1e-4b9e-8a53-0c1e2f3a4b5c';
+
+/** The user, with an Enable Banking application saved in their settings. */
+function withEnableBankingCredentials(User $user): User
+{
+    $user->settingsOrFail()->forceFill([
+        'enable_banking_application_id' => ENABLE_BANKING_APPLICATION_ID,
+        'enable_banking_private_key' => enableBankingPrivateKey(),
+    ])->save();
+
+    return $user;
+}
+
+/**
+ * An Enable Banking token's header, claims, signed input and raw signature.
+ *
+ * @return array{0: array<string, mixed>, 1: array<string, mixed>, 2: string, 3: string}
+ */
+function decodeJwt(string $token): array
+{
+    [$header, $claims, $signature] = explode('.', $token);
+
+    return [
+        json_decode(Base64UrlSafe::decodeNoPadding($header), true, flags: JSON_THROW_ON_ERROR),
+        json_decode(Base64UrlSafe::decodeNoPadding($claims), true, flags: JSON_THROW_ON_ERROR),
+        $header.'.'.$claims,
+        Base64UrlSafe::decodeNoPadding($signature),
+    ];
+}
+
+/**
+ * An active connection of the given user, credentials included.
+ *
+ * @param  (callable(BankConnectionFactory): BankConnectionFactory)|null  $configure
+ */
+function connectedBankFor(User $user, ?callable $configure = null): BankConnection
+{
+    withEnableBankingCredentials($user);
+
+    return configuredFactory(BankConnection::factory(), $configure)->create(['user_id' => $user->id]);
+}
+
+/**
+ * A booked transaction as Enable Banking returns it.
+ *
+ * @param  array<string, mixed>  $overrides
+ * @return array<string, mixed>
+ */
+function ebTransaction(array $overrides = []): array
+{
+    return array_replace([
+        'entry_reference' => 'ENTRY-'.fake()->unique()->numerify('######'),
+        'transaction_id' => fake()->uuid(),
+        'transaction_amount' => ['currency' => 'EUR', 'amount' => '120.00'],
+        'credit_debit_indicator' => 'CRDT',
+        'status' => 'BOOK',
+        'booking_date' => '2026-08-10',
+        'value_date' => '2026-08-10',
+        'debtor' => ['name' => 'NORDLYS SAS'],
+        'remittance_information' => ['VIR NORDLYS FACTURE F-2026-014'],
+    ], $overrides);
+}
+
+/**
+ * Fakes Enable Banking. Each endpoint answers a sensible default that the
+ * caller overrides by passing the same URL pattern.
+ *
+ * @param  array<string, mixed>  $overrides
+ */
+function fakeEnableBanking(array $overrides = []): void
+{
+    Http::fake(array_replace([
+        'api.enablebanking.com/application' => Http::response([
+            'name' => 'Opusline',
+            'kid' => ENABLE_BANKING_APPLICATION_ID,
+            'environment' => 'PRODUCTION',
+            'redirect_urls' => [config('services.enable_banking.redirect_url')],
+            'active' => true,
+            'countries' => ['FR'],
+            'services' => ['AIS'],
+        ]),
+        'api.enablebanking.com/aspsps*' => Http::response(['aspsps' => [
+            [
+                'name' => 'Banque Orvella',
+                'country' => 'FR',
+                'psu_types' => ['business', 'personal'],
+                'maximum_consent_validity' => 15_552_000,
+                'beta' => true,
+            ],
+            [
+                'name' => 'Caisse Vesterhus',
+                'country' => 'FR',
+                'psu_types' => ['personal'],
+                'maximum_consent_validity' => 7_776_000,
+                'beta' => false,
+            ],
+        ]]),
+        'api.enablebanking.com/auth' => Http::response([
+            'url' => 'https://tilisy.enablebanking.com/welcome?sessionid=73100c65',
+            'authorization_id' => '73100c65-fa8a-4c7f-9ae8-6ad1e2f3b4c5',
+        ]),
+        'api.enablebanking.com/sessions/*' => Http::response(['message' => 'OK']),
+        'api.enablebanking.com/sessions' => Http::response(ebSession()),
+        'api.enablebanking.com/accounts/*/transactions*' => Http::response(['transactions' => [], 'continuation_key' => null]),
+        'api.enablebanking.com/accounts/*/balances' => Http::response(['balances' => []]),
+    ], $overrides));
+}
+
+/**
+ * A POST /sessions answer.
+ *
+ * @param  list<array<string, mixed>>|null  $accounts
+ * @return array<string, mixed>
+ */
+function ebSession(?array $accounts = null): array
+{
+    return [
+        'session_id' => '4b1e7c2a-0d7f-4c0e-9a4e-2f1d3c5b6a70',
+        'accounts' => $accounts ?? [ebAccount()],
+        'aspsp' => ['name' => 'Banque Orvella', 'country' => 'FR'],
+        'psu_type' => 'business',
+        'access' => ['valid_until' => '2027-02-09T12:00:00+00:00'],
+    ];
+}
+
+/**
+ * An account of a POST /sessions answer.
+ *
+ * @param  array<string, mixed>  $overrides
+ * @return array<string, mixed>
+ */
+function ebAccount(array $overrides = []): array
+{
+    return array_replace([
+        'uid' => '07cc67f4-45d6-494b-adac-09b5cbc7e2b5',
+        'identification_hash' => 'WwpbCiJhY2NvdW50Il0K.orvella-pro',
+        'account_id' => ['iban' => 'FR7699999000001234567890185'],
+        'details' => 'Compte pro',
+        'name' => 'ATELIERS RUCHE',
+        'currency' => 'EUR',
+        'cash_account_type' => 'CACC',
+    ], $overrides);
 }
 
 /**

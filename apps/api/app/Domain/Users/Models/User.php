@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Users\Models;
 
+use App\Domain\Bank\Models\BankConnection;
 use App\Domain\Bank\Models\BankMatch;
 use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Bank\Models\BankStatement;
@@ -148,6 +149,12 @@ class User extends Authenticatable implements HasMedia
     public function runningTimer(): HasOne
     {
         return $this->hasOne(RunningTimer::class);
+    }
+
+    /** @return HasOne<BankConnection, $this> */
+    public function bankConnection(): HasOne
+    {
+        return $this->hasOne(BankConnection::class);
     }
 
     /** @return HasMany<BankStatement, $this> */

@@ -50,6 +50,20 @@ return [
     ],
 
     /*
+    | Enable Banking relays PSD2 account data for the bank sync. Each account
+    | supplies its own application (Réglages › Intégrations); this only says
+    | where the bank sends the browser back to, which must be whitelisted in
+    | that application. It is the SPA's Compte pro page — APP_URL serves it in
+    | production, while in development Vite serves it on another port.
+    */
+
+    'enable_banking' => [
+        'url' => 'https://api.enablebanking.com',
+        'redirect_url' => env('ENABLE_BANKING_REDIRECT_URL', rtrim((string) env('APP_URL', 'http://localhost'), '/').'/bank-account'),
+        'timeout' => 20,
+    ],
+
+    /*
     | The browser app's Sentry project, handed over by GET /api/ping. It lives
     | here rather than in config/sentry.php because that file is passed to the
     | PHP SDK's option resolver as-is, and it rejects keys it does not know.

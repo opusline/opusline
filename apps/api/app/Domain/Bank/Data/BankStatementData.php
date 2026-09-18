@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Bank\Data;
 
+use App\Domain\Bank\Enums\BankStatementFormat;
 use App\Domain\Bank\Models\BankStatement;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Attributes\WithTransformer;
@@ -15,6 +16,8 @@ class BankStatementData extends Data
     public function __construct(
         public int $id,
         public string $fileName,
+        /** EnableBanking marks the statement a bank connection keeps extending; its fileName is the bank's name. */
+        public BankStatementFormat $format,
         #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
         public CarbonImmutable $periodStart,
         #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
@@ -32,10 +35,12 @@ class BankStatementData extends Data
         return new self(
             id: $statement->id,
             fileName: $statement->file_name,
+            format: $statement->format,
             periodStart: $statement->period_start,
             periodEnd: $statement->period_end,
             lineCount: $statement->line_count,
-            importedAt: $statement->created_at,
+            // What orders the list: a synced statement's last sync, a file's import.
+            importedAt: $statement->updated_at,
             matchCount: $matchCount,
             validatedMatchCount: $validatedMatchCount,
         );

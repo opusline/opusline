@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Domain\Bank\Actions;
 
 use App\Domain\Bank\Data\BankAccountData;
+use App\Domain\Bank\Data\BankConnectionData;
 use App\Domain\Bank\Data\BankMatchData;
 use App\Domain\Bank\Data\BankStatementData;
 use App\Domain\Bank\Enums\BankMatchStatus;
+use App\Domain\Bank\Models\BankConnection;
 use App\Domain\Bank\Models\BankMatch;
 use App\Domain\Bank\Models\BankStatement;
 use App\Domain\Users\Models\User;
@@ -36,10 +38,14 @@ class SummarizeBankAccount
         // request) — reload it so the answer reflects what was just written.
         $user->load('settings');
 
-        $currency = $user->settingsOrFail()->currency->value;
+        $settings = $user->settingsOrFail();
+        $currency = $settings->currency->value;
+        $connection = $user->bankConnection()->first();
 
+        // A synced statement is extended in place, so its last sync — not its
+        // creation — is what places it among the imports.
         $statements = $user->bankStatements()
-            ->orderByDesc('created_at')
+            ->orderByDesc('updated_at')
             ->orderByDesc('id')
             ->get();
 
@@ -57,6 +63,8 @@ class SummarizeBankAccount
             nextMovementsCursor: $nextMovementsCursor,
             hasUnlinkedCredits: $this->hasUnlinkedCredits($user),
             statements: $this->statements($user, $statements),
+            bankSyncConfigured: $settings->hasEnableBankingCredentials(),
+            connection: $connection instanceof BankConnection ? BankConnectionData::fromModel($connection) : null,
         );
     }
 

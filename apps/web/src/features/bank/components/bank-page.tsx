@@ -1,13 +1,20 @@
 import type { BankAccountData } from "@opusline/api-client";
 import { cn } from "@opusline/ui/lib/utils";
+import type { ComponentProps } from "react";
 
 import type { OlderMovements } from "../lib/use-older-movements";
 
+import { BankConnectionCard } from "./bank-connection-card";
 import { BankHeader } from "./bank-header";
 import { BankKpiTiles } from "./bank-kpi-tiles";
 import { BankMovementsCard } from "./bank-movements-card";
 import { BankReconciliationPanel } from "./bank-reconciliation-panel";
 import { BankStatementsCard } from "./bank-statements-card";
+
+type BankConnectionControls = Omit<
+  ComponentProps<typeof BankConnectionCard>,
+  "data"
+>;
 
 type BankPageProps = {
   data: BankAccountData;
@@ -15,6 +22,7 @@ type BankPageProps = {
   /** The suggestion a validate/dismiss request is in flight for. */
   pendingMatchId: number | null;
   olderMovements?: OlderMovements;
+  connection: BankConnectionControls;
   onImport: () => void;
   onEditBalance: () => void;
   onValidateMatch: (matchId: number) => void;
@@ -27,6 +35,7 @@ export function BankPage({
   isRefreshing,
   pendingMatchId,
   olderMovements,
+  connection,
   onImport,
   onEditBalance,
   onValidateMatch,
@@ -42,6 +51,7 @@ export function BankPage({
       )}
     >
       <BankHeader onImport={onImport} />
+      <BankConnectionCard data={data} {...connection} />
       <BankKpiTiles data={data} onEditBalance={onEditBalance} />
       <BankReconciliationPanel
         data={data}

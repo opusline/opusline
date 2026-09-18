@@ -32,6 +32,31 @@ export type BankAccountData = {
     nextMovementsCursor: string | null;
     hasUnlinkedCredits: boolean;
     statements: Array<BankStatementData>;
+    bankSyncConfigured: boolean;
+    connection: BankConnectionData | null;
+};
+
+/**
+ * BankAspspData
+ */
+export type BankAspspData = {
+    name: string;
+    psuTypes: Array<BankPsuType>;
+    isBeta: boolean;
+};
+
+/**
+ * BankAspspListData
+ */
+export type BankAspspListData = {
+    aspsps: Array<BankAspspData>;
+};
+
+/**
+ * BankAuthorizationData
+ */
+export type BankAuthorizationData = {
+    url: string;
 };
 
 /**
@@ -53,6 +78,39 @@ export type BankBalanceData = {
  * | `2` <br/> No anchor exists: the balance is the sum of every imported movement, as if the account had opened empty just before the first one. Exact once the full history is imported; the hand-typed anchor corrects it otherwise. |
  */
 export type BankBalanceSource = 0 | 1 | 2;
+
+/**
+ * BankConnectionAccountData
+ */
+export type BankConnectionAccountData = {
+    uid: string;
+    name: string | null;
+    ibanLast4: string | null;
+};
+
+/**
+ * BankConnectionData
+ */
+export type BankConnectionData = {
+    aspspName: string;
+    status: BankConnectionStatus;
+    account: BankConnectionAccountData | null;
+    accounts: Array<BankConnectionAccountData>;
+    validUntil: string;
+    lastSyncedAt: string | null;
+    lastError: BankSyncError | null;
+};
+
+/**
+ * BankConnectionStatus
+ *
+ * | |
+ * |---|
+ * | `0` <br/>  |
+ * | `1` <br/> The consent covers several accounts in the account currency; the user picks the one to sync. |
+ * | `2` <br/> The consent ended or was revoked: nothing syncs until the user authorizes again at the bank. |
+ */
+export type BankConnectionStatus = 0 | 1 | 2;
 
 /**
  * BankImportData
@@ -160,11 +218,20 @@ export type BankProvisionsData = {
 };
 
 /**
+ * BankPsuType
+ *
+ * Which login the bank shows: a business account's or a personal one's. Banks offering both need it said up front, or the consent can miss the account.
+ *
+ */
+export type BankPsuType = 0 | 1;
+
+/**
  * BankStatementData
  */
 export type BankStatementData = {
     id: number;
     fileName: string;
+    format: BankStatementFormat;
     periodStart: string;
     periodEnd: string;
     lineCount: number;
@@ -172,6 +239,33 @@ export type BankStatementData = {
     matchCount: number;
     validatedMatchCount: number;
 };
+
+/**
+ * BankStatementFormat
+ *
+ * | |
+ * |---|
+ * | `0` <br/>  |
+ * | `1` <br/>  |
+ * | `2` <br/>  |
+ * | `3` <br/>  |
+ * | `4` <br/> Not a file: the rolling statement a bank connection keeps extending with each sync. |
+ */
+export type BankStatementFormat = 0 | 1 | 2 | 3 | 4;
+
+/**
+ * BankSyncError
+ *
+ * Why a call to the bank through Enable Banking failed. Kept on the connection after a failed sync, so the Compte pro page can say what went wrong with the last nightly run too.
+ * | |
+ * |---|
+ * | `0` <br/> Enable Banking or the bank did not answer, or answered something unreadable. |
+ * | `1` <br/> The bank's quota of unattended reads is spent; it resets within hours. |
+ * | `2` <br/> The consent lapsed or was revoked: only a new authorization at the bank helps. |
+ * | `3` <br/> Enable Banking refused the application id or its key. |
+ * | `4` <br/> The bank reports the account in another currency than this account's. |
+ */
+export type BankSyncError = 0 | 1 | 2 | 3 | 4;
 
 /**
  * BillingMode
@@ -244,6 +338,13 @@ export type ChangeSubscriptionAmountData = {
         currency: Currency;
     };
     effectiveFrom: string;
+};
+
+/**
+ * ChooseBankAccountData
+ */
+export type ChooseBankAccountData = {
+    accountUid: string;
 };
 
 /**
@@ -341,6 +442,14 @@ export type ClientWithMissionsData = {
  * Color
  */
 export type Color = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+/**
+ * CompleteBankConnectionData
+ */
+export type CompleteBankConnectionData = {
+    code: string;
+    state: string;
+};
 
 /**
  * CompleteDeclarationData
@@ -785,6 +894,14 @@ export type DocumentListData = {
 export type DocumentSource = 0 | 1 | 2;
 
 /**
+ * EnableBankingSettingsData
+ */
+export type EnableBankingSettingsData = {
+    applicationId: string | null;
+    redirectUrl: string;
+};
+
+/**
  * EntryRounding
  *
  * Rounding increment for time entries, expressed as a fraction of the mission's billing unit: half or a quarter of a day/hour, or to the minute.
@@ -1124,6 +1241,13 @@ export type InstanceData = {
     version: string;
     database: string;
     backup: BackupRecordData | null;
+};
+
+/**
+ * IntegrationsData
+ */
+export type IntegrationsData = {
+    enableBanking: EnableBankingSettingsData;
 };
 
 /**
@@ -1714,6 +1838,14 @@ export type RevenueVatData = {
 };
 
 /**
+ * SaveEnableBankingCredentialsData
+ */
+export type SaveEnableBankingCredentialsData = {
+    applicationId: string;
+    privateKey: string;
+};
+
+/**
  * SendCraData
  */
 export type SendCraData = {
@@ -1797,6 +1929,14 @@ export type SettingsData = {
 export type SignedMoneyData = {
     amount: number;
     currency: Currency;
+};
+
+/**
+ * StartBankConnectionData
+ */
+export type StartBankConnectionData = {
+    aspspName: string;
+    psuType: BankPsuType;
 };
 
 /**
@@ -2946,6 +3086,168 @@ export type DismissBankMatchResponses = {
 };
 
 export type DismissBankMatchResponse = DismissBankMatchResponses[keyof DismissBankMatchResponses];
+
+export type ListBankAspspsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/bank/aspsps';
+};
+
+export type ListBankAspspsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListBankAspspsError = ListBankAspspsErrors[keyof ListBankAspspsErrors];
+
+export type ListBankAspspsResponses = {
+    200: BankAspspListData;
+};
+
+export type ListBankAspspsResponse = ListBankAspspsResponses[keyof ListBankAspspsResponses];
+
+export type DisconnectBankConnectionData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/bank/connection';
+};
+
+export type DisconnectBankConnectionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DisconnectBankConnectionError = DisconnectBankConnectionErrors[keyof DisconnectBankConnectionErrors];
+
+export type DisconnectBankConnectionResponses = {
+    200: BankAccountData;
+};
+
+export type DisconnectBankConnectionResponse = DisconnectBankConnectionResponses[keyof DisconnectBankConnectionResponses];
+
+export type StartBankConnectionData2 = {
+    body: StartBankConnectionData;
+    path?: never;
+    query?: never;
+    url: '/bank/connection';
+};
+
+export type StartBankConnectionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type StartBankConnectionError = StartBankConnectionErrors[keyof StartBankConnectionErrors];
+
+export type StartBankConnectionResponses = {
+    200: BankAuthorizationData;
+};
+
+export type StartBankConnectionResponse = StartBankConnectionResponses[keyof StartBankConnectionResponses];
+
+export type CompleteBankConnectionData2 = {
+    body: CompleteBankConnectionData;
+    path?: never;
+    query?: never;
+    url: '/bank/connection/complete';
+};
+
+export type CompleteBankConnectionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CompleteBankConnectionError = CompleteBankConnectionErrors[keyof CompleteBankConnectionErrors];
+
+export type CompleteBankConnectionResponses = {
+    200: BankAccountData;
+};
+
+export type CompleteBankConnectionResponse = CompleteBankConnectionResponses[keyof CompleteBankConnectionResponses];
+
+export type ChooseBankConnectionAccountData = {
+    body: ChooseBankAccountData;
+    path?: never;
+    query?: never;
+    url: '/bank/connection/account';
+};
+
+export type ChooseBankConnectionAccountErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ChooseBankConnectionAccountError = ChooseBankConnectionAccountErrors[keyof ChooseBankConnectionAccountErrors];
+
+export type ChooseBankConnectionAccountResponses = {
+    200: BankAccountData;
+};
+
+export type ChooseBankConnectionAccountResponse = ChooseBankConnectionAccountResponses[keyof ChooseBankConnectionAccountResponses];
+
+export type SyncBankConnectionData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/bank/connection/sync';
+};
+
+export type SyncBankConnectionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type SyncBankConnectionError = SyncBankConnectionErrors[keyof SyncBankConnectionErrors];
+
+export type SyncBankConnectionResponses = {
+    200: BankImportData;
+};
+
+export type SyncBankConnectionResponse = SyncBankConnectionResponses[keyof SyncBankConnectionResponses];
 
 export type ListClientsData = {
     body?: never;
@@ -5105,6 +5407,87 @@ export type ShowInstanceResponses = {
 };
 
 export type ShowInstanceResponse = ShowInstanceResponses[keyof ShowInstanceResponses];
+
+export type ShowIntegrationsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/settings/integrations';
+};
+
+export type ShowIntegrationsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowIntegrationsError = ShowIntegrationsErrors[keyof ShowIntegrationsErrors];
+
+export type ShowIntegrationsResponses = {
+    200: IntegrationsData;
+};
+
+export type ShowIntegrationsResponse = ShowIntegrationsResponses[keyof ShowIntegrationsResponses];
+
+export type DeleteEnableBankingCredentialsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/settings/integrations/enable-banking';
+};
+
+export type DeleteEnableBankingCredentialsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteEnableBankingCredentialsError = DeleteEnableBankingCredentialsErrors[keyof DeleteEnableBankingCredentialsErrors];
+
+export type DeleteEnableBankingCredentialsResponses = {
+    200: IntegrationsData;
+};
+
+export type DeleteEnableBankingCredentialsResponse = DeleteEnableBankingCredentialsResponses[keyof DeleteEnableBankingCredentialsResponses];
+
+export type SaveEnableBankingCredentialsData2 = {
+    body: SaveEnableBankingCredentialsData;
+    path?: never;
+    query?: never;
+    url: '/settings/integrations/enable-banking';
+};
+
+export type SaveEnableBankingCredentialsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type SaveEnableBankingCredentialsError = SaveEnableBankingCredentialsErrors[keyof SaveEnableBankingCredentialsErrors];
+
+export type SaveEnableBankingCredentialsResponses = {
+    200: IntegrationsData;
+};
+
+export type SaveEnableBankingCredentialsResponse = SaveEnableBankingCredentialsResponses[keyof SaveEnableBankingCredentialsResponses];
 
 export type ListInvoicesData = {
     body?: never;

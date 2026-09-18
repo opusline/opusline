@@ -397,6 +397,15 @@ later invalidates every registered passkey.
 `mon-entreprise.urssaf.fr`, for an air-gapped install. Contribution rates then
 stay whatever you set in Réglages.
 
+**Bank sync.** Each account can connect its bank through its own Enable
+Banking application ([bank-sync.md](bank-sync.md)). The instance needs nothing
+for it but `https`: the bank sends the browser back to `APP_URL` followed by
+`/bank-account`, and that URL must be whitelisted in each application. Set
+`ENABLE_BANKING_REDIRECT_URL` only if the app is served under a different name
+than `APP_URL`. The applications' private keys are encrypted with `APP_KEY`,
+like the authenticator secrets. The `scheduler` runs the nightly sync
+(`bank:sync`, 05:00).
+
 **Error reporting.** Nothing phones home by default. Set `SENTRY_LARAVEL_DSN`
 and the API reports its exceptions and performance traces (slow endpoints, N+1
 queries, lazy-loaded relations) to that Sentry project; set `SENTRY_WEB_DSN`
@@ -430,6 +439,7 @@ Six services run: `web` (the SPA and the proxy), `api`, `queue` and `scheduler`
 | Logged out at random | `SESSION_SECURE_COOKIE=true` without the proxy sending `X-Forwarded-Proto` |
 | Links point at `http://` | `OCTANE_HTTPS` is not `true` |
 | `The MAC is invalid` | `APP_KEY` changed. Put the old one in `APP_PREVIOUS_KEYS` |
+| Saving an Enable Banking application says the redirect URL is missing | The application in Enable Banking's control panel does not list `APP_URL/bank-account` (or `ENABLE_BANKING_REDIRECT_URL`) exactly |
 | Login throttled instantly for everyone | Every request looks like it comes from the proxy: `TRUSTED_PROXIES` is unset, or `docker/web.Caddyfile` no longer trusts the address your proxy connects from |
 | `no such table: sessions` | An older image. Upgrade — the migration ships now |
 | Forgot the password | There is no reset email. Set a new one from the shell, below |

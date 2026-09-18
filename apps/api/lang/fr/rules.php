@@ -9,4 +9,5 @@ return [
     'expense_vat_rate' => 'Le taux de TVA ne correspond pas au régime : un achat hors TVA n\'en porte aucun, une autoliquidation en exige un.',
     'subscription_debit_month' => 'Un abonnement annuel a besoin de son mois de prélèvement.',
     'subscription_amount_before_start' => 'Un changement de prix ne peut pas précéder le premier prélèvement de l\'abonnement.',
+    'enable_banking_private_key' => 'La clé doit être la clé privée RSA (.pem) téléchargée par Enable Banking à la création de l\'application.',
 ];
