@@ -1891,6 +1891,7 @@
   "settings_rates_source_label": "Source des taux",
   "settings_rates_status": "Barème {year} · dernière vérification le {date}",
   "settings_rates_unsaved": "Enregistrez pour appliquer le barème à cette situation.",
+  "settings_reference_tax_income_hint": "0 si vous n'aviez aucun revenu imposable en France cette année-là, par exemple en vivant à l'étranger.",
   "settings_reference_tax_income_label": "Revenu fiscal de référence",
   "settings_reference_tax_income_year_label": "Revenus de l'année",
   "settings_regional_description": "Pays d'exercice, monnaie dans laquelle Opusline compte votre activité, et langue de l'interface.",

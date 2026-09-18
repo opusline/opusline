@@ -7,6 +7,7 @@ namespace App\Domain\Shared\Validation;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Data\SignedMoneyData;
+use App\Domain\Shared\Data\UnsignedMoneyData;
 use App\Domain\Users\Models\User;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -52,7 +53,7 @@ class AccountCurrency implements ValidationRule
      *
      * @throws ValidationException
      */
-    public static function assertMatchesSettings(UserSettings $settings, MoneyData|SignedMoneyData $money): void
+    public static function assertMatchesSettings(UserSettings $settings, MoneyData|SignedMoneyData|UnsignedMoneyData $money): void
     {
         if ($money->currency !== $settings->currency) {
             throw ValidationException::withMessages([
@@ -82,11 +83,11 @@ class AccountCurrency implements ValidationRule
      *
      * @throws ValidationException
      */
-    public static function assertAllMatchAccountUnderLock(int $userId, MoneyData|SignedMoneyData|null ...$amounts): void
+    public static function assertAllMatchAccountUnderLock(int $userId, MoneyData|SignedMoneyData|UnsignedMoneyData|null ...$amounts): void
     {
         $present = array_filter(
             $amounts,
-            static fn (MoneyData|SignedMoneyData|null $money): bool => $money !== null,
+            static fn (MoneyData|SignedMoneyData|UnsignedMoneyData|null $money): bool => $money !== null,
         );
 
         if ($present === []) {
