@@ -12,6 +12,7 @@ type SixDigitsProps = {
   value?: string;
   disabled?: boolean;
   "aria-invalid"?: boolean;
+  size?: "default" | "lg";
 };
 
 function SixDigits(props: SixDigitsProps) {
@@ -58,4 +59,16 @@ export const Invalid: Story = {
 
 export const Disabled: Story = {
   args: { disabled: true },
+};
+
+/** The slots share out the width they are given — here a 320 px column, as on the sign-in card. */
+export const Large: Story = {
+  args: { size: "lg", value: "482" },
+  decorators: [
+    (Story) => (
+      <div className="w-80">
+        <Story />
+      </div>
+    ),
+  ],
 };

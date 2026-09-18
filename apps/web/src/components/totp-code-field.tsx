@@ -13,12 +13,13 @@ type TotpCodeFieldProps = {
   id: string;
   value: string;
   onChange: (value: string) => void;
-  /** Fires once the sixth digit lands: the code is complete, submit it. */
-  onComplete: (value: string) => void;
+  /** Fires once the sixth digit lands; leave it out where the form carries a choice the user may still be making. */
+  onComplete?: (value: string) => void;
   disabled: boolean;
   /** A refused code; the field takes focus back once it is enabled again. */
   invalid: boolean;
   autoFocus?: boolean;
+  size?: "default" | "lg";
 };
 
 /** The six-digit authenticator code, as the login challenge and the enrolment both ask for it. */
@@ -30,6 +31,7 @@ export function TotpCodeField({
   disabled,
   invalid,
   autoFocus,
+  size,
 }: TotpCodeFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -52,6 +54,7 @@ export function TotpCodeField({
       onComplete={onComplete}
       pattern={REGEXP_ONLY_DIGITS}
       ref={inputRef}
+      size={size}
       value={value}
     >
       <InputOTPGroup>

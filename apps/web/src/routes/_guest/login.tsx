@@ -199,7 +199,10 @@ function LoginPage() {
 
   if (challenge !== null) {
     return (
-      <AuthCard title={m.auth_two_factor_title()}>
+      <AuthCard
+        description={m.auth_two_factor_description()}
+        title={m.auth_two_factor_title()}
+      >
         <TwoFactorChallenge
           error={challengeError}
           isPending={answerChallenge.isPending}
