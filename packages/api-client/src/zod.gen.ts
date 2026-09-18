@@ -802,6 +802,17 @@ export const zInvoiceTodoWorkData = z.object({
 });
 
 /**
+ * LiberatingPaymentEndReason
+ *
+ * Why the versement libératoire stops applying.
+ * | |
+ * |---|
+ * | `0` <br/> The household's revenu fiscal de référence exceeds the limit for its parts. |
+ * | `1` <br/> The receipts crossed the micro-BNC ceiling two calendar years running, which ends the régime itself. |
+ */
+export const zLiberatingPaymentEndReason = z.union([z.literal(0), z.literal(1)]);
+
+/**
  * LinkExpenseBankMovementData
  */
 export const zLinkExpenseBankMovementData = z.object({
@@ -1154,6 +1165,20 @@ export const zInvoiceOverdueData = z.object({
 export const zInvoiceTotalData = z.object({
     amount: zMoneyData,
     count: z.int()
+});
+
+/**
+ * LiberatingPaymentOutlookData
+ */
+export const zLiberatingPaymentOutlookData = z.object({
+    endsOn: z.nullable(z.iso.date()),
+    reason: z.nullable(zLiberatingPaymentEndReason),
+    referenceTaxIncome: z.nullable(zMoneyData),
+    referenceTaxIncomeYear: z.nullable(z.int()),
+    referenceTaxIncomeLimit: z.nullable(zMoneyData),
+    taxHouseholdQuarterParts: z.nullable(z.int()),
+    ceiling: z.nullable(zMoneyData),
+    needsReferenceTaxIncome: z.boolean()
 });
 
 /**
@@ -2546,6 +2571,7 @@ export const zDeclarationsData = z.object({
     vat: z.nullable(zVatDeclarationData),
     cumulative: z.nullable(zRevenueCeilingData),
     annual: z.nullable(zAnnualDeclarationsData),
+    liberatingPayment: z.nullable(zLiberatingPaymentOutlookData),
     history: z.array(zDeclarationHistoryRowData)
 });
 

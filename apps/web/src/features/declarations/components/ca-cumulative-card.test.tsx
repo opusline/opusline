@@ -17,10 +17,10 @@ it("reads the share of the ceiling and the headroom left", () => {
 
   expect(screen.getByRole("meter", { name: "CA cumulé 2026" })).toHaveAttribute(
     "aria-valuenow",
-    "8597",
+    "7990",
   );
-  expect(screen.getByText(/^86\s% du plafond micro-BNC$/)).toBeInTheDocument();
-  expect(screen.getByText(/^10\s900\s€ de marge$/)).toBeInTheDocument();
+  expect(screen.getByText(/^80\s% du plafond micro-BNC$/)).toBeInTheDocument();
+  expect(screen.getByText(/^16\s800\s€ de marge$/)).toBeInTheDocument();
 });
 
 it("says by how much the ceiling is exceeded", () => {

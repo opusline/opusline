@@ -21,8 +21,22 @@ final readonly class MicroBnc
     /** The abatement never drops below this, however small the year. */
     public const int ABATEMENT_FLOOR_CENTS = 30_500;
 
-    /** The annual receipts a service provider may collect and stay in the régime — 77 700 €. */
-    public const int CEILING_CENTS = 7_770_000;
+    /**
+     * The annual receipts a service provider may collect and stay in the
+     * régime. The law revalues it every three years; a year it has not set yet
+     * has no ceiling to read, rather than the last one quietly carried forward.
+     *
+     * @see https://www.autoentrepreneur.urssaf.fr/portail/accueil/sinformer-sur-le-statut/toutes-les-actualites/2026--modification-des-seuils-de.html 83 600 € from 2026
+     */
+    public static function ceilingCentsFor(int $year): ?int
+    {
+        return match (true) {
+            $year >= 2026 && $year <= 2028 => 8_360_000,
+            $year >= 2023 && $year <= 2025 => 7_770_000,
+            $year >= 2020 && $year <= 2022 => 7_260_000,
+            default => null,
+        };
+    }
 
     public static function abatementOf(Money $annualReceiptsHt): Money
     {

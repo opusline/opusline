@@ -16,6 +16,7 @@ import {
 import { CaCumulativeCard } from "./ca-cumulative-card";
 import { DeclarationsHeader } from "./declarations-header";
 import { DeclarationsHistoryCard } from "./declarations-history-card";
+import { LiberatingPaymentNotice } from "./liberating-payment-notice";
 import { UrssafDeclarationCard } from "./urssaf-declaration-card";
 import { VatDeclarationCard } from "./vat-declaration-card";
 
@@ -51,7 +52,7 @@ export function DeclarationsPage({
   today,
   onSaveCfeAmount,
 }: DeclarationsPageProps) {
-  const { urssaf, vat, cumulative, history, annual } = data;
+  const { urssaf, vat, cumulative, history, annual, liberatingPayment } = data;
   const isPending = (target: DeclarationTarget) =>
     pendingTarget !== null &&
     pendingTarget.kind === target.kind &&
@@ -91,6 +92,10 @@ export function DeclarationsPage({
         period={data.period}
         previousPeriod={data.previousPeriod}
       />
+
+      {liberatingPayment !== null && (
+        <LiberatingPaymentNotice outlook={liberatingPayment} today={today} />
+      )}
 
       {isBeforeStart ? (
         <p className="rounded-md border bg-card px-5 py-7 text-center text-muted-foreground-3 text-sm">

@@ -48,7 +48,7 @@ function requestDataFields(): array
         'ContributionLineData', 'RevenueCeilingData',
         'DeclarationHistoryRowData', 'DeclarationHistoryUrssafData', 'DeclarationHistoryVatData',
         'DeclarationSettlementData', 'AnnualDeclarationsData', 'IncomeTaxReturnData',
-        'IncomeTaxReturnPeriodData', 'CfeReturnData',
+        'IncomeTaxReturnPeriodData', 'CfeReturnData', 'LiberatingPaymentOutlookData',
         'ExpenseData', 'ExpensesMonthData', 'ExpensesTotalsData',
         'ExpenseCategoryTotalData', 'ExpenseMonthPointData', 'ExpenseRegimeProjectionData',
         'ExpenseReceiptData', 'ExpensesVatSummaryData',

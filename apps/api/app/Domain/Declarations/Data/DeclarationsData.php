@@ -25,9 +25,12 @@ class DeclarationsData extends Data
         public bool $isDefault,
         public ?UrssafDeclarationData $urssaf,
         public ?VatDeclarationData $vat,
+        /** Null outside French fiscality, and for a year whose micro-BNC ceiling the law has not set. */
         public ?RevenueCeilingData $cumulative,
         /** Null outside French fiscality, and for a year that closed before the business started. */
         public ?AnnualDeclarationsData $annual,
+        /** Null outside French fiscality and whenever the versement libératoire is off. */
+        public ?LiberatingPaymentOutlookData $liberatingPayment,
         /** @var list<DeclarationHistoryRowData> the shown month and the five before it, newest first; empty outside French fiscality */
         #[DataCollectionOf(DeclarationHistoryRowData::class)]
         public array $history,
