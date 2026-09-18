@@ -25,7 +25,7 @@ export function TreasuryBreakdown({ data }: TreasuryBreakdownProps) {
     return null;
   }
 
-  const { vat, urssaf, cfe, subscriptions } = data.provisions;
+  const { vat, urssaf, cfe, incomeTax, subscriptions } = data.provisions;
 
   // Undefined, not an empty string: a provision that does not apply has neither
   // a band nor a caption.
@@ -49,6 +49,20 @@ export function TreasuryBreakdown({ data }: TreasuryBreakdownProps) {
       cfe === null
         ? undefined
         : m.treasury_band_cfe_sub({ year: cfe.periodEnd.slice(0, 4) }),
+    incomeTax:
+      incomeTax === null
+        ? undefined
+        : m.treasury_band_income_tax_sub({
+            rate: m.common_percent({
+              value: formatPercentFromBp(format.locale, incomeTax.rateBp ?? 0),
+            }),
+            years: [
+              ...(incomeTax.carriedPeriods ?? []).map(
+                (period) => period.period,
+              ),
+              incomeTax.periodEnd.slice(0, 4),
+            ].join(" · "),
+          }),
     subscriptions:
       subscriptions === null
         ? undefined

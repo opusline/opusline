@@ -278,3 +278,12 @@
     var(--hatch-2) 4px 8px
   );
 }
+
+/* Upright stripes, for a third hatched slice beside the two diagonals. */
+@utility bg-hatch-upright {
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--hatch-1) 0 4px,
+    var(--hatch-2) 4px 8px
+  );
+}

@@ -14,14 +14,19 @@ type AnnualReturnsCardProps = {
   onOpen: (kind: AnnualReturnKind) => void;
 };
 
-/** « À venir » until the return is done, then the date it was — filed for the 2042, paid for the CFE. */
+/**
+ * « À venir » until the return is done, then the date it was — filed for the
+ * 2042, paid for the CFE — and, once its tax is paid too, the 2042's payment.
+ */
 export function AnnualReturnStatusBadge({
   kind,
   doneOn,
+  paidOn = null,
   shape,
 }: {
   kind: AnnualReturnKind;
   doneOn: string | null;
+  paidOn?: string | null;
   shape?: "pill";
 }) {
   const dateFormat = useDateFormat();
@@ -34,11 +39,11 @@ export function AnnualReturnStatusBadge({
     );
   }
 
-  const date = calendarDateNumericLabel(dateFormat, doneOn);
+  const date = calendarDateNumericLabel(dateFormat, paidOn ?? doneOn);
 
   return (
     <Badge shape={shape} variant="success">
-      {kind === "incomeTax"
+      {kind === "incomeTax" && paidOn === null
         ? m.declarations_annual_filed_on({ date })
         : m.declarations_annual_paid_on({ date })}
     </Badge>
@@ -60,6 +65,7 @@ export function AnnualReturnsCard({ annual, onOpen }: AnnualReturnsCardProps) {
         date: calendarDateNumericLabel(dateFormat, incomeTaxReturn.dueOn),
       }),
       doneOn: incomeTaxReturn.completion?.declaredOn ?? null,
+      paidOn: incomeTaxReturn.completion?.paidOn ?? null,
     },
     ...(cfe === null
       ? []
@@ -70,6 +76,7 @@ export function AnnualReturnsCard({ annual, onOpen }: AnnualReturnsCardProps) {
             description: m.declarations_cfe_description(),
             due: calendarDateNumericLabel(dateFormat, cfe.dueOn),
             doneOn: cfe.completion?.paidOn ?? null,
+            paidOn: null,
           },
         ]),
   ];
@@ -102,7 +109,11 @@ export function AnnualReturnsCard({ annual, onOpen }: AnnualReturnsCardProps) {
             <span className="whitespace-nowrap text-foreground-3 text-sm">
               {row.due}
             </span>
-            <AnnualReturnStatusBadge doneOn={row.doneOn} kind={row.kind} />
+            <AnnualReturnStatusBadge
+              doneOn={row.doneOn}
+              kind={row.kind}
+              paidOn={row.paidOn}
+            />
             <Button
               aria-label={m.declarations_annual_open_aria({ name: row.name })}
               onClick={() => onOpen(row.kind)}

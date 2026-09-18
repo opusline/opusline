@@ -802,6 +802,17 @@ export const zInvoiceTodoWorkData = z.object({
 });
 
 /**
+ * LiberatingPaymentEndReason
+ *
+ * Why the versement libératoire stops applying.
+ * | |
+ * |---|
+ * | `0` <br/> The household's revenu fiscal de référence exceeds the limit for its parts. |
+ * | `1` <br/> The receipts crossed the micro-BNC ceiling two calendar years running, which ends the régime itself. |
+ */
+export const zLiberatingPaymentEndReason = z.union([z.literal(0), z.literal(1)]);
+
+/**
  * LinkExpenseBankMovementData
  */
 export const zLinkExpenseBankMovementData = z.object({
@@ -1157,6 +1168,20 @@ export const zInvoiceTotalData = z.object({
 });
 
 /**
+ * LiberatingPaymentOutlookData
+ */
+export const zLiberatingPaymentOutlookData = z.object({
+    endsOn: z.nullable(z.iso.date()),
+    reason: z.nullable(zLiberatingPaymentEndReason),
+    referenceTaxIncome: z.nullable(zMoneyData),
+    referenceTaxIncomeYear: z.nullable(z.int()),
+    referenceTaxIncomeLimit: z.nullable(zMoneyData),
+    taxHouseholdQuarterParts: z.nullable(z.int()),
+    ceiling: z.nullable(zMoneyData),
+    needsReferenceTaxIncome: z.boolean()
+});
+
+/**
  * MissionData
  */
 export const zMissionData = z.object({
@@ -1297,6 +1322,7 @@ export const zBankProvisionsData = z.object({
     vat: z.nullable(zBankProvisionData),
     urssaf: z.nullable(zBankProvisionData),
     cfe: z.nullable(zBankProvisionData),
+    incomeTax: z.nullable(zBankProvisionData),
     subscriptions: z.nullable(zBankProvisionData),
     buffer: z.nullable(zMoneyData),
     total: zMoneyData
@@ -2450,6 +2476,10 @@ export const zSettingsData = z.object({
     invoiceNumberFormat: z.string(),
     treasuryBuffer: z.nullable(zMoneyData),
     cfeExpected: z.nullable(zMoneyData),
+    referenceTaxIncome: z.nullable(zMoneyData),
+    referenceTaxIncomeYear: z.nullable(z.int()),
+    taxHouseholdQuarterParts: z.nullable(z.int()),
+    incomeTaxRateBp: z.nullable(z.int()),
     currency: zCurrency,
     currencyLocked: z.boolean(),
     locale: zLocale,
@@ -2503,7 +2533,14 @@ export const zUpdateSettingsData = z.object({
     cfeExpected: z.nullish(z.object({
         amount: z.int().check(z.gte(1), z.lte(100000000000)),
         currency: zCurrency
-    }))
+    })),
+    referenceTaxIncome: z.nullish(z.object({
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
+        currency: zCurrency
+    })),
+    referenceTaxIncomeYear: z.nullish(z.int().check(z.gte(2000), z.lte(2100))),
+    taxHouseholdQuarterParts: z.nullish(z.int().check(z.gte(4), z.lte(80))),
+    incomeTaxRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000)))
 });
 
 /**
@@ -2535,6 +2572,7 @@ export const zDeclarationsData = z.object({
     vat: z.nullable(zVatDeclarationData),
     cumulative: z.nullable(zRevenueCeilingData),
     annual: z.nullable(zAnnualDeclarationsData),
+    liberatingPayment: z.nullable(zLiberatingPaymentOutlookData),
     history: z.array(zDeclarationHistoryRowData)
 });
 

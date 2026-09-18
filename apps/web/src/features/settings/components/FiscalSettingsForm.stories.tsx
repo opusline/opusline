@@ -11,6 +11,7 @@ import {
   DeadlineSettingsFields,
   FiscalAbroadPanel,
   FiscalSettingsForm,
+  IncomeTaxSettingsFields,
 } from "./fiscal-settings-form";
 
 function Example({
@@ -109,6 +110,36 @@ export const DeadlineFields: Story = {
   render: () => (
     <SettingsFormStory settings={settingsFixture}>
       {(form) => <DeadlineSettingsFields form={form} />}
+    </SettingsFormStory>
+  ),
+};
+
+/** Nothing copied from the avis yet: the pickers start on this summer's avis and one part. */
+export const IncomeTaxFieldsEmpty: Story = {
+  render: () => (
+    <SettingsFormStory settings={settingsFixture}>
+      {(form) => (
+        <IncomeTaxSettingsFields form={form} timezone="Europe/Paris" />
+      )}
+    </SettingsFormStory>
+  ),
+};
+
+/** A couple with a child in shared custody, copied from their 2025 avis. */
+export const IncomeTaxFields: Story = {
+  render: () => (
+    <SettingsFormStory
+      settings={{
+        ...settingsFixture,
+        referenceTaxIncome: { amount: 5_830_000, currency: "EUR" },
+        referenceTaxIncomeYear: 2025,
+        taxHouseholdQuarterParts: 9,
+        incomeTaxRateBp: 620,
+      }}
+    >
+      {(form) => (
+        <IncomeTaxSettingsFields form={form} timezone="Europe/Paris" />
+      )}
     </SettingsFormStory>
   ),
 };

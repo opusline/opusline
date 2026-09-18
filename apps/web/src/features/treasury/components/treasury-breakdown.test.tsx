@@ -2,7 +2,11 @@ import { render, screen } from "@testing-library/react";
 import { expect, it } from "vitest";
 import { treasuryData } from "@/test/fixtures";
 
-import { emptyTreasuryData, noVatTreasuryData } from "../lib/fixtures";
+import {
+  emptyTreasuryData,
+  incomeTaxTreasuryData,
+  noVatTreasuryData,
+} from "../lib/fixtures";
 import { TreasuryBreakdown } from "./treasury-breakdown";
 
 it("splits the balance into the three provisions and what is left", () => {
@@ -41,4 +45,16 @@ it("draws nothing at all without a balance to split", () => {
   );
 
   expect(container).toBeEmptyDOMElement();
+});
+
+it("sets the income tax aside with its rate and the years it answers for", () => {
+  render(<TreasuryBreakdown data={incomeTaxTreasuryData()} />);
+
+  expect(
+    screen.getByText("Impôt sur le revenu à provisionner"),
+  ).toBeInTheDocument();
+  expect(screen.getByText("2 475 €")).toBeInTheDocument();
+  expect(
+    screen.getByText("taux de prélèvement 7,5 % · revenus 2025 · 2026"),
+  ).toBeInTheDocument();
 });

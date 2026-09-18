@@ -6573,6 +6573,16 @@
                             }
                         ]
                     },
+                    "incomeTax": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BankProvisionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "subscriptions": {
                         "anyOf": [
                             {
@@ -6601,6 +6611,7 @@
                     "vat",
                     "urssaf",
                     "cfe",
+                    "incomeTax",
                     "subscriptions",
                     "buffer",
                     "total"
@@ -8511,6 +8522,16 @@
                             }
                         ]
                     },
+                    "liberatingPayment": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/LiberatingPaymentOutlookData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "history": {
                         "type": "array",
                         "items": {
@@ -8527,6 +8548,7 @@
                     "vat",
                     "cumulative",
                     "annual",
+                    "liberatingPayment",
                     "history"
                 ],
                 "title": "DeclarationsData"
@@ -10338,6 +10360,97 @@
                 ],
                 "title": "InvoiceTotalData"
             },
+            "LiberatingPaymentEndReason": {
+                "type": "integer",
+                "description": "Why the versement libératoire stops applying.\n| |\n|---|\n| `0` <br/> The household's revenu fiscal de référence exceeds the limit for its parts. |\n| `1` <br/> The receipts crossed the micro-BNC ceiling two calendar years running, which ends the régime itself. |",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "ReferenceTaxIncome",
+                    "RevenueCeiling"
+                ],
+                "title": "LiberatingPaymentEndReason"
+            },
+            "LiberatingPaymentOutlookData": {
+                "type": "object",
+                "properties": {
+                    "endsOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "reason": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/LiberatingPaymentEndReason"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "referenceTaxIncome": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "referenceTaxIncomeYear": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "referenceTaxIncomeLimit": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "taxHouseholdQuarterParts": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "ceiling": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "needsReferenceTaxIncome": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "endsOn",
+                    "reason",
+                    "referenceTaxIncome",
+                    "referenceTaxIncomeYear",
+                    "referenceTaxIncomeLimit",
+                    "taxHouseholdQuarterParts",
+                    "ceiling",
+                    "needsReferenceTaxIncome"
+                ],
+                "title": "LiberatingPaymentOutlookData"
+            },
             "LinkExpenseBankMovementData": {
                 "type": "object",
                 "properties": {
@@ -11557,6 +11670,34 @@
                             }
                         ]
                     },
+                    "referenceTaxIncome": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "referenceTaxIncomeYear": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "taxHouseholdQuarterParts": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "incomeTaxRateBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
                     "currency": {
                         "$ref": "#/components/schemas/Currency"
                     },
@@ -11622,6 +11763,10 @@
                     "invoiceNumberFormat",
                     "treasuryBuffer",
                     "cfeExpected",
+                    "referenceTaxIncome",
+                    "referenceTaxIncomeYear",
+                    "taxHouseholdQuarterParts",
+                    "incomeTaxRateBp",
                     "currency",
                     "currencyLocked",
                     "locale",
@@ -13327,6 +13472,50 @@
                             "amount",
                             "currency"
                         ]
+                    },
+                    "referenceTaxIncome": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100000000000
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "referenceTaxIncomeYear": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 2000,
+                        "maximum": 2100
+                    },
+                    "taxHouseholdQuarterParts": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 4,
+                        "maximum": 80
+                    },
+                    "incomeTaxRateBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 10000
                     }
                 },
                 "required": [

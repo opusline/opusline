@@ -29,6 +29,7 @@ import {
   DeadlineSettingsFields,
   FiscalAbroadPanel,
   FiscalSettingsForm,
+  IncomeTaxSettingsFields,
 } from "./fiscal-settings-form";
 import { IdentitySettingsForm } from "./identity-settings-form";
 import {
@@ -197,6 +198,10 @@ export function SettingsPage({
                     ratesYear={settings.ratesYear}
                     savedAcre={settings.acre}
                     savedBusinessStartedOn={settings.businessStartedOn}
+                  />
+                  <IncomeTaxSettingsFields
+                    form={form}
+                    timezone={settings.timezone}
                   />
                   <DeadlineSettingsFields form={form} />
                 </>

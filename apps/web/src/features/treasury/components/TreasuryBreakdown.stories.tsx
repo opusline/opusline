@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { treasuryData } from "@/test/fixtures";
 
 import {
+  incomeTaxTreasuryData,
   noVatTreasuryData,
   pendingTransferTreasuryData,
   shortTreasuryData,
@@ -33,4 +34,9 @@ export const NotVatLiable: Story = {
 /** Nothing left to transfer: the provisions fill the whole bar. */
 export const ProvisionsExceedBalance: Story = {
   args: { data: shortTreasuryData() },
+};
+
+/** Without the versement libératoire: the income tax of last year and this one, at the avis rate. */
+export const WithIncomeTax: Story = {
+  args: { data: incomeTaxTreasuryData() },
 };
