@@ -13,6 +13,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.29.1",
+    date: "2026-09-18",
+    items: [
+      {
+        kind: "fixed",
+        text: "Income tax: a revenu fiscal de référence of 0 €, for a year with no taxable income in France (spent abroad, for instance), now saves, and Déclarations stops asking for one.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.29.0",
     date: "2026-09-18",
     items: [
