@@ -109,16 +109,32 @@ it("shows the cancelled rows on demand, washed and dated", async () => {
   expect(within(row).getByText("le 05/06/2026")).toBeInTheDocument();
 });
 
-it("hands a receipt picked on a missing month to that debit", async () => {
+it("draws the receipts strip as a picture, with nothing to press", async () => {
+  renderTab();
+
+  const table = await screen.findByRole("table");
+
+  for (const strip of within(table).getAllByRole("list", {
+    name: "Factures · 12 mois",
+  })) {
+    expect(within(strip).queryAllByRole("button")).toHaveLength(0);
+  }
+});
+
+it("hands a receipt picked from the row menu to that month's debit", async () => {
   const props = renderTab();
 
   const table = await screen.findByRole("table");
-  const cell = within(table).getByRole("button", {
-    name: "Lier la facture de juillet · Nordlys Cloud",
-  });
-  const input = cell.parentElement?.querySelector(
-    'input[type="file"]',
-  ) as HTMLInputElement;
+  const row = within(table)
+    .getByText("Nordlys Cloud")
+    .closest("tr") as HTMLElement;
+  fireEvent.click(
+    within(row).getByRole("button", { name: "Actions pour Nordlys Cloud" }),
+  );
+  fireEvent.click(
+    await screen.findByRole("menuitem", { name: "Lier la facture de juillet" }),
+  );
+  const input = row.querySelector('input[type="file"]') as HTMLInputElement;
   const file = new File(["%PDF-1.4"], "nordlys.pdf", {
     type: "application/pdf",
   });
