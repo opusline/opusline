@@ -6,17 +6,17 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{}} Bank_Import_Balance_HelpInputs */
 
 const en_bank_import_balance_help = /** @type {(inputs: Bank_Import_Balance_HelpInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Used to compute what can safely be transferred.`)
+	return /** @type {LocalizedString} */ (`Becomes the account's reference balance. Leave empty to keep the one already entered.`)
 };
 
 const fr_bank_import_balance_help = /** @type {(inputs: Bank_Import_Balance_HelpInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sert au calcul du montant virable en sécurité.`)
+	return /** @type {LocalizedString} */ (`Devient le solde de référence du compte. Laissez vide pour garder celui déjà saisi.`)
 };
 
 /**
 * | output |
 * | --- |
-* | "Used to compute what can safely be transferred." |
+* | "Becomes the account's reference balance. Leave empty to keep the one already entered." |
 *
 * @param {Bank_Import_Balance_HelpInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

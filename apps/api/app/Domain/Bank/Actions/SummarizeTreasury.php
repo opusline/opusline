@@ -31,6 +31,8 @@ use Cknow\Money\Money;
  *
  * Every movement-derived figure here is an index-backed aggregate; the
  * movement history itself is never hydrated, whatever the account's age.
+ *
+ * @phpstan-import-type BalanceAnchor from ResolveBankBalance
  */
 class SummarizeTreasury
 {
@@ -66,11 +68,11 @@ class SummarizeTreasury
             ->get();
 
         $pendingCents = (int) $transfers
-            ->filter(fn (PersonalTransfer $transfer): bool => $this->isPending($transfer->transferred_on, $coveredThrough))
+            ->filter(fn (PersonalTransfer $transfer): bool => $this->isPending($transfer->transferred_on, $coveredThrough, $anchor))
             ->sum(static fn (PersonalTransfer $transfer): int => (int) $transfer->amount_cents->getAmount());
 
         $provisions = $this->computeBankProvisions->handle($user);
-        $pendingDeclarationsCents = $this->pendingDeclarationsCents($provisions, $coveredThrough);
+        $pendingDeclarationsCents = $this->pendingDeclarationsCents($provisions, $coveredThrough, $anchor);
 
         // What is left once the transfers and payments the balance cannot know
         // about are taken off it — the figure the provisions then come out of.
@@ -90,19 +92,22 @@ class SummarizeTreasury
             transfers: array_values($transfers
                 ->map(fn (PersonalTransfer $transfer): PersonalTransferData => PersonalTransferData::fromModel(
                     $transfer,
-                    reflectedInBalance: ! $this->isPending($transfer->transferred_on, $coveredThrough),
+                    reflectedInBalance: ! $this->isPending($transfer->transferred_on, $coveredThrough, $anchor),
                 ))
                 ->all()),
         );
     }
 
-    private function pendingDeclarationsCents(BankProvisionsData $provisions, ?CarbonImmutable $coveredThrough): int
+    /**
+     * @param  ?BalanceAnchor  $anchor
+     */
+    private function pendingDeclarationsCents(BankProvisionsData $provisions, ?CarbonImmutable $coveredThrough, ?array $anchor): int
     {
         $cents = 0;
 
         foreach ([$provisions->vat, $provisions->urssaf, $provisions->cfe] as $provision) {
             foreach ($provision->paidPeriods ?? [] as $paidPeriod) {
-                if ($this->isPending($paidPeriod->paidOn, $coveredThrough)) {
+                if ($this->isPending($paidPeriod->paidOn, $coveredThrough, $anchor)) {
                     $cents += $paidPeriod->amount->amount;
                 }
             }
@@ -112,12 +117,27 @@ class SummarizeTreasury
     }
 
     /**
-     * Still waiting on a relevé: dated past what the balance covers, or on an
-     * account whose balance nothing covers at all. One spelling, because the
-     * deducted totals and the per-row badge must never disagree on screen.
+     * Still waiting on a relevé: dated past what the balance covers, on an
+     * account whose balance nothing covers at all, or on the day a typed
+     * balance was read. One spelling, because the deducted totals and the
+     * per-row badge must never disagree on screen.
+     *
+     * A typed balance vouches only for the day before it was read, while the
+     * roll-forward adds only what was booked after its date. A transfer made
+     * that day falls in neither, so no imported movement can ever make the
+     * balance show it: it stays deducted until a newer balance is typed.
+     *
+     * @param  ?BalanceAnchor  $anchor
      */
-    private function isPending(CarbonImmutable $datedOn, ?CarbonImmutable $coveredThrough): bool
+    private function isPending(CarbonImmutable $datedOn, ?CarbonImmutable $coveredThrough, ?array $anchor): bool
     {
-        return ! $coveredThrough instanceof CarbonImmutable || $datedOn->greaterThan($coveredThrough);
+        if (! $coveredThrough instanceof CarbonImmutable || $anchor === null) {
+            return true;
+        }
+
+        $isOnAnchorBlindDay = $datedOn->greaterThan($anchor['coversThrough'])
+            && ! $datedOn->greaterThan($anchor['asOf']);
+
+        return $isOnAnchorBlindDay || $datedOn->greaterThan($coveredThrough);
     }
 }

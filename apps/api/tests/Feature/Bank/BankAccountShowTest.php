@@ -40,12 +40,30 @@ test('shows the hand-typed balance as the manual anchor', function (): void {
         ->assertJsonPath('balance.asOf', '2026-08-11');
 });
 
-test('prefers the anchor that speaks about the later date', function (): void {
+test('rolls the hand-typed balance forward whatever a statement\'s own balance says', function (string $statementClosedOn): void {
     $user = User::factory()->create();
     $user->settings()->sole()->update([
         'bank_balance_cents' => 100_000,
-        'bank_balance_recorded_on' => '2026-08-01',
+        'bank_balance_recorded_on' => '2026-08-05',
     ]);
+    $statement = bankStatementOwnedBy($user, fn (BankStatementFactory $factory): BankStatementFactory => $factory->withClosingBalance(1_482_000, $statementClosedOn));
+    bankMovementFor($user, $statement, fn (BankMovementFactory $factory): BankMovementFactory => $factory->credit(50_000)->on('2026-08-08'));
+
+    $this->actingAs($user)
+        ->getJson('/api/bank')
+        ->assertOk()
+        ->assertJsonPath('balance.amount.amount', 150_000)
+        ->assertJsonPath('balance.source', BankBalanceSource::Manual->value)
+        ->assertJsonPath('balance.asOf', '2026-08-05');
+})->with([
+    'statement closed before' => ['2026-08-01'],
+    'statement closed the same day' => ['2026-08-05'],
+    'statement closed after' => ['2026-08-10'],
+]);
+
+test('anchors on the newest statement\'s own balance when none was typed', function (): void {
+    $user = User::factory()->create();
+    bankStatementOwnedBy($user, fn (BankStatementFactory $factory): BankStatementFactory => $factory->withClosingBalance(900_000, '2026-07-31'));
     bankStatementOwnedBy($user, fn (BankStatementFactory $factory): BankStatementFactory => $factory->withClosingBalance(1_482_000, '2026-08-10'));
 
     $this->actingAs($user)
@@ -54,21 +72,6 @@ test('prefers the anchor that speaks about the later date', function (): void {
         ->assertJsonPath('balance.amount.amount', 1_482_000)
         ->assertJsonPath('balance.source', BankBalanceSource::Statement->value)
         ->assertJsonPath('balance.asOf', '2026-08-10');
-});
-
-test('lets the hand-typed figure win a same-day tie', function (): void {
-    $user = User::factory()->create();
-    $user->settings()->sole()->update([
-        'bank_balance_cents' => 999_999,
-        'bank_balance_recorded_on' => '2026-08-10',
-    ]);
-    bankStatementOwnedBy($user, fn (BankStatementFactory $factory): BankStatementFactory => $factory->withClosingBalance(1_482_000, '2026-08-10'));
-
-    $this->actingAs($user)
-        ->getJson('/api/bank')
-        ->assertOk()
-        ->assertJsonPath('balance.amount.amount', 999_999)
-        ->assertJsonPath('balance.source', BankBalanceSource::Manual->value);
 });
 
 test('rolls the anchor forward so the tile agrees with the newest movement row', function (): void {
