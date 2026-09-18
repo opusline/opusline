@@ -202,6 +202,14 @@ function BankRoute() {
       setActionError(m.bank_connection_cancelled());
       void clearBankCallback();
     },
+    // The first send is still being answered: show what it made of the
+    // connection rather than a failure the replay would report.
+    replayed: () => {
+      void clearBankCallback();
+      void queryClient.invalidateQueries({
+        queryKey: showBankAccountQueryKey(),
+      });
+    },
   });
 
   const chooseAccount = useMutation({

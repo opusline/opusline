@@ -68,7 +68,7 @@ class SyncBankConnection
 
         $currency = $settings->currency->value;
         $to = $settings->today();
-        $from = $this->windowStart($user, $connection, $to);
+        $from = $this->windowStart($connection, $to);
 
         try {
             $movements = EnableBankingStatement::movements(
@@ -151,37 +151,21 @@ class SyncBankConnection
     }
 
     /**
-     * The first day to read: the last day synced less the overlap, or as far
-     * back as banks serve. Days a statement file already covers come back
-     * too, and RecordBankMovements leaves them to the file.
+     * The first day to read: the last day this connection synced less the
+     * overlap, or as far back as banks serve. A new statement — a first
+     * connection, a reconnection, another account — reads the full history:
+     * rows an earlier sync of the same account brought in deduplicate on the
+     * bank's references, and days a statement file covers come back too, for
+     * RecordBankMovements to leave to the file.
      */
-    private function windowStart(User $user, BankConnection $connection, CarbonImmutable $today): CarbonImmutable
+    private function windowStart(BankConnection $connection, CarbonImmutable $today): CarbonImmutable
     {
         $start = $today->subDays(self::MAX_HISTORY_DAYS);
-        // A reconnection starts a new statement, but the account's earlier
-        // synced rows still deduplicate on the bank's references.
-        $lastSyncedDay = $connection->statement->period_end ?? $this->lastSyncedBookedOn($user);
+        $lastSyncedDay = $connection->statement?->period_end;
 
         return $lastSyncedDay instanceof CarbonImmutable
             ? $start->max($lastSyncedDay->subDays(self::OVERLAP_DAYS))
             : $start;
-    }
-
-    private function lastSyncedBookedOn(User $user): ?CarbonImmutable
-    {
-        $syncedStatementIds = $user->bankStatements()->where('format', BankStatementFormat::EnableBanking)->pluck('id');
-
-        if ($syncedStatementIds->isEmpty()) {
-            return null;
-        }
-
-        // value() hydrates through the CalendarDate cast, unlike max().
-        $bookedOn = $user->bankMovements()
-            ->whereIn('bank_statement_id', $syncedStatementIds)
-            ->orderByDesc('booked_on')
-            ->value('booked_on');
-
-        return $bookedOn instanceof CarbonImmutable ? $bookedOn : null;
     }
 
     private function recordSuccess(BankConnection $connection): void

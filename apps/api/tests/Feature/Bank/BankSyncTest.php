@@ -265,19 +265,42 @@ test('never reads further back than banks serve', function (): void {
     expect(fetchedFrom())->toBe(['2026-05-15']);
 });
 
-test('a reconnection to the same account keeps the overlap on what the sync brought in', function (): void {
+test('a reconnection to the same account reads its history again without doubling it', function (): void {
+    fakeEnableBanking([
+        'api.enablebanking.com/accounts/*/transactions*' => transactionsPage([
+            ebTransaction(['entry_reference' => 'E-1', 'booking_date' => '2026-08-10']),
+        ]),
+    ]);
+    $user = User::factory()->create();
+    $sameAccount = fn ($factory) => $factory->state(['account_identification_hash' => 'hash-compte-pro']);
+    connectedBankFor($user, $sameAccount);
+    syncBank($user)->assertOk()->assertJsonPath('importedCount', 1);
+    // Disconnected and connected again: a fresh connection to the same account.
+    $user->bankConnection()->delete();
+    connectedBankFor($user, $sameAccount);
+
+    syncBank($user)->assertOk()->assertJsonPath('importedCount', 0);
+
+    expect(fetchedFrom())->toBe(['2026-05-15', '2026-05-15'])
+        ->and($user->bankMovements()->count())->toBe(1);
+});
+
+test('another account reads its whole history, whatever the previous one had synced', function (): void {
     fakeEnableBanking();
     $user = User::factory()->create();
-    $synced = bankStatementOwnedBy($user, fn ($factory) => $factory->state(['format' => BankStatementFormat::EnableBanking]));
-    bankMovementFor($user, $synced, fn ($factory) => $factory->state(['booked_on' => '2026-08-12']));
-    // Disconnected since: a fresh connection, without statement or sync date.
-    connectedBankFor($user);
+    $previousAccount = bankStatementOwnedBy($user, fn ($factory) => $factory->state([
+        'format' => BankStatementFormat::EnableBanking,
+        'period_start' => '2026-06-01',
+        'period_end' => '2026-08-12',
+    ]));
+    bankMovementFor($user, $previousAccount, fn ($factory) => $factory->state(['booked_on' => '2026-08-12']));
+    // Just pointed at another account: attachAccount() left it no statement yet.
+    connectedBankFor($user, fn ($factory) => $factory->state(['bank_statement_id' => null]));
 
     syncBank($user)->assertOk();
 
-    expect(fetchedFrom())->toBe(['2026-08-05']);
+    expect(fetchedFrom())->toBe(['2026-05-15']);
 });
-
 test('leaves the days a statement file holds to the file', function (): void {
     fakeEnableBanking([
         'api.enablebanking.com/accounts/*/transactions*' => transactionsPage([
