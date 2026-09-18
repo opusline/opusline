@@ -1891,6 +1891,7 @@
   "settings_rates_source_label": "Rate source",
   "settings_rates_status": "{year} scale · last checked on {date}",
   "settings_rates_unsaved": "Save to apply the scale to this situation.",
+  "settings_reference_tax_income_hint": "0 if you had no taxable income in France that year — for instance while living abroad.",
   "settings_reference_tax_income_label": "Revenu fiscal de référence",
   "settings_reference_tax_income_year_label": "Income of",
   "settings_regional_description": "Country of business, the currency Opusline counts your activity in, and the interface language.",

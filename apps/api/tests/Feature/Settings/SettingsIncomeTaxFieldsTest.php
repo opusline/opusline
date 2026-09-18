@@ -25,6 +25,26 @@ test('saves what the avis d\'imposition says about the household', function (): 
         ->assertJsonPath('incomeTaxRateBp', 750);
 });
 
+test('saves a revenu fiscal de référence of zero, as a year spent abroad prints it', function (): void {
+    $this->actingAs(User::factory()->create())
+        ->putJson('/api/settings', avisPayload([
+            'referenceTaxIncome' => ['amount' => 0, 'currency' => 'EUR'],
+            'referenceTaxIncomeYear' => 2024,
+        ]))
+        ->assertOk()
+        ->assertJsonPath('referenceTaxIncome.amount', 0)
+        ->assertJsonPath('referenceTaxIncomeYear', 2024)
+        ->assertJsonPath('taxHouseholdQuarterParts', 6);
+});
+
+test('refuses a negative revenu fiscal de référence', function (): void {
+    $this->actingAs(User::factory()->create())
+        ->putJson('/api/settings', avisPayload([
+            'referenceTaxIncome' => ['amount' => -1, 'currency' => 'EUR'],
+        ]))
+        ->assertJsonValidationErrorFor('referenceTaxIncome.amount');
+});
+
 test('asks for the year and the parts that go with a revenu fiscal de référence', function (string $missing): void {
     $this->actingAs(User::factory()->create())
         ->putJson('/api/settings', avisPayload([$missing => null]))

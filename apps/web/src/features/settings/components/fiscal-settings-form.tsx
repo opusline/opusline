@@ -278,6 +278,7 @@ export function IncomeTaxSettingsFields({
           {(field) => (
             <FormTextField
               adornment={currencySymbol(format)}
+              description={m.settings_reference_tax_income_hint()}
               field={field}
               font="mono"
               inputMode="decimal"

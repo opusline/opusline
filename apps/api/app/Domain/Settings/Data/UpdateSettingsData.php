@@ -9,6 +9,7 @@ use App\Domain\Settings\Enums\Locale;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Shared\Data\MoneyData;
+use App\Domain\Shared\Data\UnsignedMoneyData;
 use App\Domain\Shared\Validation\InvoiceNumberFormat;
 use App\Domain\Shared\Validation\Siret;
 use App\Domain\Shared\Validation\VatNumber;
@@ -98,7 +99,7 @@ class UpdateSettingsData extends Data
          */
         public ?MoneyData $cfeExpected = null,
         /** The household's revenu fiscal de référence, as the avis d'imposition prints it. */
-        public ?MoneyData $referenceTaxIncome = null,
+        public ?UnsignedMoneyData $referenceTaxIncome = null,
         /** The year of income that RFR measures: the avis sent in 2026 prints 2025's. */
         #[IntegerType, Between(2000, 2100), RequiredWith('referenceTaxIncome')]
         public ?int $referenceTaxIncomeYear = null,

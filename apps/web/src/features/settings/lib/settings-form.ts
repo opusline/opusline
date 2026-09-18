@@ -196,11 +196,16 @@ export function toSettingsPayload(
 ): UpdateSettingsData {
   const businessCountry = regional.businessCountry ?? settings.businessCountry;
   // An amount only exists once the user gives one, and a zero says the same
-  // thing as an empty field — the API's Min(1) agrees.
-  const moneyOrNull = (draft: string, appliesHere = true): MoneyData | null => {
+  // thing as an empty field — the API's Min(1) agrees. `allowZero` marks the
+  // figures where zero is an answer, like the RFR of a year spent abroad.
+  const moneyOrNull = (
+    draft: string,
+    appliesHere = true,
+    { allowZero = false } = {},
+  ): MoneyData | null => {
     const cents = parseAmountToCents(format.locale, draft, { allowZero: true });
 
-    return !appliesHere || cents === null || cents === 0
+    return !appliesHere || cents === null || (cents === 0 && !allowZero)
       ? null
       : // settings.currency, not format.currency: the payload must be
         // denominated in the same snapshot it is built from, while the format
@@ -212,7 +217,9 @@ export function toSettingsPayload(
   // the régime pinned. Sending the already-normalized values keeps the saved
   // echo identical to the draft, so the unsaved-changes bar settles at zero.
   const isFrench = isFrenchFiscalityCountry(businessCountry);
-  const referenceTaxIncome = moneyOrNull(values.referenceTaxIncome, isFrench);
+  const referenceTaxIncome = moneyOrNull(values.referenceTaxIncome, isFrench, {
+    allowZero: true,
+  });
 
   return {
     businessCountry,

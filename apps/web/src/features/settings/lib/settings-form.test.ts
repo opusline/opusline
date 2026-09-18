@@ -287,6 +287,25 @@ it("sends the year and the parts only with a revenu fiscal de référence", () =
   });
 });
 
+it("sends a zero revenu fiscal de référence with its year and parts", () => {
+  const payload = toSettingsPayload(
+    DEFAULT_MONEY_FORMAT,
+    {
+      ...values,
+      referenceTaxIncome: "0",
+      referenceTaxIncomeYear: 2024,
+      taxHouseholdQuarterParts: 4,
+    },
+    settingsFixture,
+  );
+
+  expect(payload).toMatchObject({
+    referenceTaxIncome: { amount: 0, currency: "EUR" },
+    referenceTaxIncomeYear: 2024,
+    taxHouseholdQuarterParts: 4,
+  });
+});
+
 it.each([
   ["", null],
   ["7,5", 750],

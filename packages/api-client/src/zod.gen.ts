@@ -2535,7 +2535,7 @@ export const zUpdateSettingsData = z.object({
         currency: zCurrency
     })),
     referenceTaxIncome: z.nullish(z.object({
-        amount: z.int().check(z.gte(1), z.lte(100000000000)),
+        amount: z.int().check(z.gte(0), z.lte(100000000000)),
         currency: zCurrency
     })),
     referenceTaxIncomeYear: z.nullish(z.int().check(z.gte(2000), z.lte(2100))),

@@ -66,6 +66,15 @@ test('keeps the option for an income at the limit', function (): void {
         ->assertJsonPath('liberatingPayment.reason', null);
 });
 
+test('keeps the option and stops asking for an income of zero', function (): void {
+    // A year spent abroad leaves no French taxable income: 0 is an answer, not a blank.
+    $this->actingAs(liberatedAccount(0, 2024))
+        ->getJson('/api/declarations?period=2026-07')
+        ->assertOk()
+        ->assertJsonPath('liberatingPayment.endsOn', null)
+        ->assertJsonPath('liberatingPayment.needsReferenceTaxIncome', false);
+});
+
 test('raises the limit with the household\'s parts', function (int $quarterParts, ?string $endsOn): void {
     // 44 368 €: over one part's 29 579 €, exactly one and a half parts' 44 368,50 €.
     $this->actingAs(liberatedAccount(4_436_800, 2025, $quarterParts))
