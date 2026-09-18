@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.29.1](https://github.com/opusline/opusline/compare/v0.29.0...v0.29.1) (2026-09-18)
+
+
+### Bug Fixes
+
+* **repo:** accept a zero reference tax income ([#431](https://github.com/opusline/opusline/issues/431)) ([cf27eb4](https://github.com/opusline/opusline/commit/cf27eb4a3ab9c08160cbd9042edbbf1fc3b0c42d))
+
 ## [0.29.0](https://github.com/opusline/opusline/compare/v0.28.4...v0.29.0) (2026-09-18)
 
 
