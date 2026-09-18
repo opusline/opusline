@@ -584,6 +584,20 @@ jobs:
         working-directory: apps/api
       - run: cp .env.example .env && php artisan key:generate
         working-directory: apps/api
+      # composer.json's post-update-cmd writes committed files — Boost's
+      # guidelines and skills, the laravel-lang files — and only `composer
+      # update` runs it. composer-scripts.yml commits its output onto
+      # Dependabot's lockfile bumps; this keeps any branch from merging without
+      # it. Before the spec export, so the scripts are the only writer yet.
+      - name: Re-run composer's update scripts, and fail when their output drifts
+        run: |
+          composer run-script --no-interaction post-update-cmd
+          if [ -n "$(git status --porcelain)" ]; then
+            git status --short
+            echo "::error::composer's update scripts rewrite committed files. Dependabot's composer PRs get the output committed by composer-scripts.yml; anywhere else, run 'sh scripts/php.sh composer run-script post-update-cmd' from apps/api and commit the result."
+            exit 1
+          fi
+        working-directory: apps/api
       - run: php artisan scramble:export --path=openapi.json
         working-directory: apps/api
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0

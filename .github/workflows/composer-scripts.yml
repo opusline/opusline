@@ -1,0 +1,140 @@
+name: Composer scripts
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+# Queued rather than cancelled: the commit job's own push re-enters this
+# workflow, and cancelling the run that made it would only paint it grey.
+concurrency:
+  group: composer-scripts-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+# ci.yml's, because its `Generated artifacts drift` check re-runs the same
+# scripts and has to land on the exact files committed here.
+env:
+  DB_CONNECTION: sqlite
+  DB_DATABASE: ":memory:"
+  CACHE_STORE: array
+  SESSION_DRIVER: array
+  QUEUE_CONNECTION: sync
+  BROADCAST_CONNECTION: "null"
+
+jobs:
+  # composer.json's post-update-cmd writes committed files — Boost's guidelines
+  # and skills, the laravel-lang files — but Dependabot bumps the lockfile
+  # without running a single composer script. This job runs them on the PR's
+  # head. That executes the new dependencies' code, so it holds no secret and no
+  # write access: its output leaves as a patch for the next job.
+  regenerate:
+    name: Run composer's update scripts
+    # The PR author, not github.actor: update-prs.yml's merges of main arrive
+    # as the App, and they still need the scripts' output kept current.
+    if: >-
+      github.event.pull_request.user.login == 'dependabot[bot]'
+      && startsWith(github.head_ref, 'dependabot/composer/')
+      && github.repository == 'opusline/opusline'
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.patch.outputs.changed }}
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      # The head, not the merge ref: the patch is applied onto the branch.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: "8.5"
+          extensions: exif, gd
+          coverage: none
+      - name: Resolve composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ hashFiles('apps/api/composer.lock') }}
+          restore-keys: composer-
+      - run: composer install --no-interaction --no-progress --prefer-dist
+      - run: cp .env.example .env && php artisan key:generate
+      - run: composer run-script --no-interaction post-update-cmd
+      - id: patch
+        run: |
+          git add --all
+          if git diff --cached --quiet; then
+            echo "The committed files already match the scripts' output."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git diff --cached --stat
+          git diff --cached --binary > "$RUNNER_TEMP/composer-scripts.patch"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      - if: steps.patch.outputs.changed == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: composer-scripts-patch
+          path: ${{ runner.temp }}/composer-scripts.patch
+          if-no-files-found: error
+          retention-days: 1
+
+  commit:
+    name: Commit the scripts' output onto the PR
+    needs: regenerate
+    if: needs.regenerate.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      # A head pushed with GITHUB_TOKEN fires no workflows, so CI would never
+      # report on it and auto-merge would wait forever. Workflows started by
+      # Dependabot read the Dependabot secret store, which already holds these
+      # for dependabot-auto-merge.yml.
+      - id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.OPUSLINE_BOT_APP_ID }}
+          private-key: ${{ secrets.OPUSLINE_BOT_PRIVATE_KEY }}
+      # Credentials are persisted on purpose, that is what the push
+      # authenticates with. Nothing past this point runs dependency code.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ steps.app-token.outputs.token }}
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: composer-scripts-patch
+          path: ${{ runner.temp }}
+      - name: Commit the patch onto the PR branch
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ "$(git rev-parse HEAD)" != "$HEAD_SHA" ]; then
+            echo "$HEAD_REF moved past $HEAD_SHA — the run for its new head takes over."
+            exit 0
+          fi
+          git apply --index "$RUNNER_TEMP/composer-scripts.patch"
+          # The patch came out of the new dependencies' code, and this token can
+          # push workflows. Only the files composer's scripts own go through; a
+          # package writing anywhere else is exactly what this must not merge.
+          foreign=$(git diff --cached --name-only \
+            | grep -vE '^apps/api/(CLAUDE\.md|AGENTS\.md|boost\.json|\.claude/skills/|\.agents/skills/|lang/)' || true)
+          if [ -n "$foreign" ]; then
+            echo "::error::composer's scripts wrote files they do not own:"
+            echo "$foreign"
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(api): sync composer script output"
+          # A rejected push means Dependabot moved the branch during this run.
+          # The run for the new head redoes it, and the drift check keeps the
+          # old head from merging meanwhile.
+          if ! git push origin "HEAD:$HEAD_REF"; then
+            echo "::warning::$HEAD_REF moved while the scripts ran — the run for its new head redoes it."
+          fi
