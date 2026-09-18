@@ -23,6 +23,7 @@ function renderSheet(
     isBusy: false,
     onOpenChange: vi.fn(),
     onMarkDone: vi.fn(),
+    onMarkIncomeTaxPaid: vi.fn(),
     onUndo: vi.fn(),
     onSaveCfeAmount: vi.fn(async () => {}),
     ...overrides,
@@ -132,6 +133,58 @@ it("offers to undo a filed 2042", async () => {
   expect(await screen.findByText("déclarée le 02/05/2027")).toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "Annuler le marquage" }));
   expect(props.onUndo).toHaveBeenCalled();
+});
+
+it("offers to mark a filed 2042's tax paid without the versement libératoire", async () => {
+  const props = renderSheet({
+    annual: annualDeclarations({
+      incomeTaxReturn: incomeTaxReturn({
+        box: 1,
+        liberatingPaymentPaid: null,
+        completion: { declaredOn: "2027-05-02", paidOn: null },
+      }),
+    }),
+  });
+
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Marquer l'impôt payé" }),
+  );
+  expect(props.onMarkIncomeTaxPaid).toHaveBeenCalled();
+});
+
+it.each([
+  [
+    "under the versement libératoire",
+    incomeTaxReturn({ completion: { declaredOn: "2027-05-02", paidOn: null } }),
+  ],
+  [
+    "before it is filed",
+    incomeTaxReturn({ box: 1, liberatingPaymentPaid: null }),
+  ],
+])("has no tax to mark paid %s", async (_case, incomeTax) => {
+  renderSheet({
+    annual: annualDeclarations({ incomeTaxReturn: incomeTax }),
+    today: "2027-06-02",
+  });
+
+  expect(await screen.findByText(/^66\s800$/)).toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: "Marquer l'impôt payé" }),
+  ).not.toBeInTheDocument();
+});
+
+it("dates a 2042 whose tax is paid by its payment", async () => {
+  renderSheet({
+    annual: annualDeclarations({
+      incomeTaxReturn: incomeTaxReturn({
+        box: 1,
+        liberatingPaymentPaid: null,
+        completion: { declaredOn: "2027-05-02", paidOn: "2027-09-15" },
+      }),
+    }),
+  });
+
+  expect(await screen.findByText("payée le 15/09/2027")).toBeInTheDocument();
 });
 
 it("shows the CFE's estimate, its twelfths and the gap", async () => {

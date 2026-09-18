@@ -33,8 +33,9 @@ const BAR_ORDER: Record<ProvisionKey, number> = {
   vat: 0,
   urssaf: 1,
   cfe: 2,
-  subscriptions: 3,
-  buffer: 4,
+  incomeTax: 3,
+  subscriptions: 4,
+  buffer: 5,
 };
 
 function isProvisionKey(key: string): key is ProvisionKey {

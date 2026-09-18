@@ -105,7 +105,7 @@ class SummarizeTreasury
     {
         $cents = 0;
 
-        foreach ([$provisions->vat, $provisions->urssaf, $provisions->cfe] as $provision) {
+        foreach ([$provisions->vat, $provisions->urssaf, $provisions->cfe, $provisions->incomeTax] as $provision) {
             foreach ($provision->paidPeriods ?? [] as $paidPeriod) {
                 if ($this->isPending($paidPeriod->paidOn, $coveredThrough, $anchor)) {
                     $cents += $paidPeriod->amount->amount;

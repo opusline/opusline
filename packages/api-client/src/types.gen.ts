@@ -153,6 +153,7 @@ export type BankProvisionsData = {
     vat: BankProvisionData | null;
     urssaf: BankProvisionData | null;
     cfe: BankProvisionData | null;
+    incomeTax: BankProvisionData | null;
     subscriptions: BankProvisionData | null;
     buffer: MoneyData | null;
     total: MoneyData;

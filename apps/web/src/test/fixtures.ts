@@ -356,6 +356,7 @@ export function treasuryData(
         periodEnd: "2026-08-31",
       },
       cfe: null,
+      incomeTax: null,
       subscriptions: null,
       buffer: eur(150_000),
       total: eur(630_700),

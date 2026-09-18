@@ -39,6 +39,7 @@ export function emptyTreasuryData(): TreasuryData {
       vat: null,
       urssaf: null,
       cfe: null,
+      incomeTax: null,
       subscriptions: null,
       buffer: eur(150_000),
       total: eur(150_000),
@@ -61,5 +62,29 @@ export function noVatTreasuryData(): TreasuryData {
   return treasuryData({
     provisions: { ...base.provisions, vat: null, total: eur(421_700) },
     transferable: eur(1_060_300),
+  });
+}
+
+/**
+ * Off the versement libératoire at a 7,5 % withholding rate: this year's tax
+ * so far, and 2025's whole bill until its 2042-C PRO is marked paid.
+ */
+export function incomeTaxTreasuryData(): TreasuryData {
+  const base = treasuryData();
+
+  return treasuryData({
+    provisions: {
+      ...base.provisions,
+      incomeTax: {
+        amount: eur(247_500),
+        carried: eur(148_500),
+        rateBp: 750,
+        deductible: null,
+        periodEnd: "2026-12-31",
+        carriedPeriods: [{ period: "2025", amount: eur(148_500) }],
+      },
+      total: eur(878_200),
+    },
+    transferable: eur(603_800),
   });
 }

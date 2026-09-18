@@ -34,6 +34,8 @@ type AnnualReturnSheetProps = {
   onOpenChange: (open: boolean) => void;
   /** Files the 2042, or pays the CFE — whichever sheet is open. */
   onMarkDone: () => void;
+  /** Records that a filed 2042's income tax is paid, which stops the treasury setting it aside. */
+  onMarkIncomeTaxPaid: () => void;
   onUndo: () => void;
   onSaveCfeAmount: (cents: number) => Promise<void>;
 };
@@ -45,6 +47,7 @@ export function AnnualReturnSheet({
   isBusy,
   onOpenChange,
   onMarkDone,
+  onMarkIncomeTaxPaid,
   onUndo,
   onSaveCfeAmount,
 }: AnnualReturnSheetProps) {
@@ -63,6 +66,12 @@ export function AnnualReturnSheet({
             date: calendarDateNumericLabel(dateFormat, incomeTaxReturn.dueOn),
           }),
           doneOn: incomeTaxReturn.completion?.declaredOn ?? null,
+          paidOn: incomeTaxReturn.completion?.paidOn ?? null,
+          // Under the versement libératoire the tax left with the URSSAF: nothing is left to pay.
+          canMarkPaid:
+            incomeTaxReturn.box === 1 &&
+            incomeTaxReturn.completion !== null &&
+            incomeTaxReturn.completion.paidOn === null,
           href: "https://www.impots.gouv.fr",
           linkLabel: m.declarations_vat_link(),
           actionLabel: m.declarations_mark_filed(),
@@ -83,6 +92,8 @@ export function AnnualReturnSheet({
               date: calendarDateNumericLabel(dateFormat, cfe.dueOn),
             }),
             doneOn: cfe.completion?.paidOn ?? null,
+            paidOn: null,
+            canMarkPaid: false,
             href: "https://cfspro.impots.gouv.fr",
             linkLabel: m.declarations_cfe_link(),
             actionLabel: m.declarations_cfe_mark_paid(),
@@ -122,6 +133,7 @@ export function AnnualReturnSheet({
                   <AnnualReturnStatusBadge
                     doneOn={view.doneOn}
                     kind={view.kind}
+                    paidOn={view.paidOn}
                     shape="pill"
                   />
                 </div>
@@ -140,14 +152,26 @@ export function AnnualReturnSheet({
                 {view.linkLabel}
               </a>
               {view.doneOn !== null ? (
-                <Button
-                  disabled={isBusy}
-                  onClick={onUndo}
-                  size="sm"
-                  variant="link"
-                >
-                  {m.declarations_annual_undo()}
-                </Button>
+                <div className="flex items-center gap-3">
+                  <Button
+                    disabled={isBusy}
+                    onClick={onUndo}
+                    size="sm"
+                    variant="link"
+                  >
+                    {m.declarations_annual_undo()}
+                  </Button>
+                  {view.canMarkPaid && (
+                    <Button
+                      disabled={isBusy}
+                      onClick={onMarkIncomeTaxPaid}
+                      size="xl"
+                    >
+                      <CheckIcon aria-hidden />
+                      {m.declarations_income_tax_mark_paid()}
+                    </Button>
+                  )}
+                </div>
               ) : (
                 view.canMarkDone && (
                   <Button disabled={isBusy} onClick={onMarkDone} size="xl">
