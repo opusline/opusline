@@ -1,0 +1,4 @@
+{
+  "kind": "fixed",
+  "text": "Business account: a balance you type, with the pencil or when importing a statement, now stays the reference. Statements imported afterwards move it on with their movements instead of replacing it with the file's own figure."
+}

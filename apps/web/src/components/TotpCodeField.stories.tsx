@@ -4,7 +4,11 @@ import { useState } from "react";
 
 import { TotpCodeField } from "./totp-code-field";
 
-function Example(props: { disabled?: boolean; invalid?: boolean }) {
+function Example(props: {
+  disabled?: boolean;
+  invalid?: boolean;
+  size?: "default" | "lg";
+}) {
   const [value, setValue] = useState("");
 
   return (
@@ -16,6 +20,7 @@ function Example(props: { disabled?: boolean; invalid?: boolean }) {
         invalid={props.invalid ?? false}
         onChange={setValue}
         onComplete={() => {}}
+        size={props.size}
         value={value}
       />
     </Field>
@@ -39,4 +44,16 @@ export const Invalid: Story = {
 
 export const Disabled: Story = {
   args: { disabled: true },
+};
+
+/** As the sign-in challenge shows it: the code is the screen's only field. */
+export const Large: Story = {
+  args: { size: "lg" },
+  decorators: [
+    (Story) => (
+      <div className="w-80">
+        <Story />
+      </div>
+    ),
+  ],
 };

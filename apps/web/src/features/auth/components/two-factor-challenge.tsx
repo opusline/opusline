@@ -131,32 +131,20 @@ export function TwoFactorChallenge({
         </Alert>
       ) : null}
 
-      {/* Above the code field on purpose: that field submits itself on its
-          sixth digit, so a choice placed under it is never reached in time. */}
-      <Field orientation="horizontal">
-        <Checkbox
-          checked={rememberDevice}
-          disabled={isPending}
-          id={rememberId}
-          onCheckedChange={(checked) => setRememberDevice(checked === true)}
-        />
-        <FieldLabel htmlFor={rememberId}>
-          {m.auth_two_factor_remember_label()}
-        </FieldLabel>
-      </Field>
-
       {mode === "code" ? (
         <Field data-invalid={isInvalid}>
           <FieldLabel htmlFor={codeId}>
             {m.auth_two_factor_code_label()}
           </FieldLabel>
+          {/* No onComplete: the code waits for the submit button, so the
+              remember choice below it can still be made. */}
           <TotpCodeField
             autoFocus
             disabled={isPending}
             id={codeId}
             invalid={isInvalid}
             onChange={setCode}
-            onComplete={(value) => void submitCode(value)}
+            size="lg"
             value={code}
           />
           {isInvalid ? (
@@ -197,6 +185,18 @@ export function TwoFactorChallenge({
           )}
         </Field>
       )}
+
+      <Field orientation="horizontal">
+        <Checkbox
+          checked={rememberDevice}
+          disabled={isPending}
+          id={rememberId}
+          onCheckedChange={(checked) => setRememberDevice(checked === true)}
+        />
+        <FieldLabel htmlFor={rememberId}>
+          {m.auth_two_factor_remember_label()}
+        </FieldLabel>
+      </Field>
 
       <Button
         className="mt-1 w-full"

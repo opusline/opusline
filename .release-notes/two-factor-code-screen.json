@@ -1,0 +1,4 @@
+{
+  "kind": "improved",
+  "text": "Two-factor sign-in: the code screen now says what it asks for, the code boxes span the whole card, and \"Remember this browser\" sits under the code, which waits for Verify instead of sending itself on the sixth digit."
+}
