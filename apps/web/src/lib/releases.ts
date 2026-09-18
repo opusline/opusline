@@ -13,6 +13,24 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.28.4",
+    date: "2026-09-18",
+    items: [
+      {
+        kind: "improved",
+        text: 'Two-factor sign-in: the code screen now says what it asks for, the code boxes span the whole card, and "Remember this browser" sits under the code, which waits for Verify instead of sending itself on the sixth digit.', // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "Business account: a balance you type, with the pencil or when importing a statement, now stays the reference. Statements imported afterwards move it on with their movements instead of replacing it with the file's own figure.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: 'Subscriptions: the twelve-month receipts strip fits its column again instead of spilling past the table, and a missing receipt is now linked from the row menu ("Link the July receipt").', // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.28.3",
     date: "2026-09-16",
     items: [
