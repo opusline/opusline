@@ -214,7 +214,7 @@ jobs:
         env:
           COVERAGE: "1"
       - run: node apps/web/scripts/check-bundle-budget.mjs
-      - uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+      - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: apps/web/coverage/lcov.info
           flags: web
@@ -398,17 +398,17 @@ jobs:
           cp .env.production.example .env
           sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=ci|" .env
           docker compose -f compose.prod.yaml config --quiet
-      - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
       # Reads the caches publish-image.yml writes on each release; no cache-to,
       # so this job never evicts the composer/pnpm/playwright caches.
-      - uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           target: api
           load: true
           tags: ghcr.io/opusline/opusline-api:ci
           cache-from: type=gha,scope=opusline-api
-      - uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           target: web
@@ -508,15 +508,15 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
-      - uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           target: api
           load: true
           tags: ghcr.io/opusline/opusline-api:e2e
           cache-from: type=gha,scope=opusline-api
-      - uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           target: web
@@ -698,14 +698,14 @@ jobs:
             fi
           done
       - if: hashFiles('coverage-api/clover.xml') != ''
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: coverage-api/clover.xml
           flags: api
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
       - if: hashFiles('coverage-web/lcov.info') != ''
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: coverage-web/lcov.info
           flags: web
