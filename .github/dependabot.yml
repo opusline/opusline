@@ -26,6 +26,12 @@ updates:
       # pins ^5.9.0); a grouped major bump to TS 7 breaks `pnpm generate-api`.
       - dependency-name: typescript
         update-types: ["version-update:semver-major"]
+      # jsdom 30.1 hides its Blob impl behind a private field, which breaks the
+      # shim vitest's jsdom environment uses to hand Blob/File bodies to fetch
+      # (vitest-dev/vitest#11294): every FormData upload throws in tests. Pinned
+      # in apps/web until a vitest release reads the bytes another way.
+      - dependency-name: jsdom
+        versions: [">=30.1.0"]
 
   - package-ecosystem: github-actions
     directory: /
