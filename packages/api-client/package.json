@@ -14,8 +14,8 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.102.8",
-    "zod": "^4.6.2"
+    "@tanstack/react-query": "^5.103.1",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@hey-api/openapi-ts": "0.99.0",
