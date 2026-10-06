@@ -3,6 +3,17 @@
 declare(strict_types=1);
 
 return [
+    'deadlines' => [
+        'action' => 'Ouvrir mes échéances',
+        'due_in_days' => 'Dans :days jours, le :date : :deadline',
+        'due_today' => 'Aujourd\'hui : :deadline',
+        'due_tomorrow' => 'Demain : :deadline',
+        'footer' => 'Vous recevez cet e-mail parce que les rappels d\'échéances sont activés dans vos réglages de notifications.',
+        'intro' => 'Voici ce qui arrive bientôt à échéance sur votre compte.',
+        'invoice' => 'Facture :number (:client)',
+        'subject' => '{1} Une échéance approche|[2,*] :count échéances approchent',
+        'with_amount' => ':title. :amount',
+    ],
     'security' => [
         'action' => 'Vérifier mes réglages',
         'device' => 'Navigateur : :device',

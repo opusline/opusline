@@ -412,10 +412,14 @@ SMTP relay, plus the `MAIL_FROM_ADDRESS` it lets you send as, and each account
 is emailed when the way into it changes: password or sign-in email changed,
 authenticator app turned on or off, passkey added or removed, browser trusted,
 recovery code used or the set regenerated. A changed sign-in email is reported
-to the address it replaced. Mail goes to the address the account signs in with,
-which Opusline does not verify, in the account's language. The `queue` service
-does the sending: with it down, or with a relay that refuses the message,
-nothing arrives and `queue:failed` says why.
+to the address it replaced. Accounts are also reminded of their deadlines —
+fiscal ones and unpaid invoices — a week before, the day before and on the day:
+the `scheduler` runs `deadlines:send-reminders` every hour, and each account
+gets one email on those mornings, after 07:00 in its own timezone. All other
+mail goes to the address the account signs in with, which Opusline does not
+verify, in the account's language. The `queue` service does the sending: with
+it down, or with a relay that refuses the message, nothing arrives and
+`queue:failed` says why.
 
 **Error reporting.** Nothing phones home by default. Set `SENTRY_LARAVEL_DSN`
 and the API reports its exceptions and performance traces (slow endpoints, N+1
@@ -453,7 +457,7 @@ Six services run: `web` (the SPA and the proxy), `api`, `queue` and `scheduler`
 | Saving an Enable Banking application says the redirect URL is missing | The application in Enable Banking's control panel does not list `APP_URL/bank-account` (or `ENABLE_BANKING_REDIRECT_URL`) exactly |
 | Login throttled instantly for everyone | Every request looks like it comes from the proxy: `TRUSTED_PROXIES` is unset, or `docker/web.Caddyfile` no longer trusts the address your proxy connects from |
 | `no such table: sessions` | An older image. Upgrade — the migration ships now |
-| Security alert emails never arrive | `MAIL_MAILER` is unset, or the relay refused the message: `queue:failed` shows its answer |
+| Alert and reminder emails never arrive | `MAIL_MAILER` is unset, or the relay refused the message: `queue:failed` shows its answer |
 | Forgot the password | There is no reset email. Set a new one from the shell, below |
 
 Opusline has no password reset route, with or without a mailer. A password you

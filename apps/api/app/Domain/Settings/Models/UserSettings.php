@@ -75,6 +75,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property ?CarbonImmutable $calendar_last_synced_at
  * @property bool $mail_security_alerts
  * @property bool $mail_deadline_reminders
+ * @property ?CarbonImmutable $deadline_reminders_mailed_on
  * @property Currency $currency
  * @property Locale $locale
  * @property DateFormat $date_format
@@ -205,6 +206,7 @@ class UserSettings extends Model
             'calendar_last_synced_at' => 'datetime',
             'mail_security_alerts' => 'boolean',
             'mail_deadline_reminders' => 'boolean',
+            'deadline_reminders_mailed_on' => 'date',
             'currency' => Currency::class,
             'locale' => Locale::class,
             'date_format' => DateFormat::class,

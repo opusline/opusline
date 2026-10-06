@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Deadlines\Calendar;
 
+use App\Domain\Settings\Enums\Locale;
 use Cknow\Money\Money;
 
 /**
@@ -29,4 +30,24 @@ final readonly class DeadlineAmount
          */
         public ?Money $base = null,
     ) {}
+
+    /** What an invoice bills: an amount the client owes as written, not a figure derived from collections. */
+    public static function billed(Money $amount): self
+    {
+        return new self($amount, rateBp: null, isEstimate: false);
+    }
+
+    /** The amount as the calendar feed and the reminder email print it, or null while there is none. */
+    public function label(Locale $locale): ?string
+    {
+        if (! $this->amount instanceof Money) {
+            return null;
+        }
+
+        return __(
+            $this->isEstimate ? 'deadlines.event_estimate' : 'deadlines.event_expected',
+            ['amount' => $this->amount->format($locale->value)],
+            $locale->languageTag(),
+        );
+    }
 }

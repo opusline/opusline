@@ -3,6 +3,17 @@
 declare(strict_types=1);
 
 return [
+    'deadlines' => [
+        'action' => 'Open my deadlines',
+        'due_in_days' => 'In :days days, on :date: :deadline',
+        'due_today' => 'Today: :deadline',
+        'due_tomorrow' => 'Tomorrow: :deadline',
+        'footer' => 'You receive this email because deadline reminders are turned on in your notification settings.',
+        'intro' => 'Here is what falls due soon on your account.',
+        'invoice' => 'Invoice :number (:client)',
+        'subject' => '{1} A deadline is coming up|[2,*] :count deadlines are coming up',
+        'with_amount' => ':title. :amount',
+    ],
     'security' => [
         'action' => 'Review my settings',
         'device' => 'Browser: :device',
