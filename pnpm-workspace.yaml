@@ -7,3 +7,16 @@ onlyBuiltDependencies:
 overrides:
   hono@<4.12.34: '>=4.12.34'
   js-yaml@>=4.0.0 <4.3.2: '>=4.3.2'
+  # solid-js (under @tanstack/react-devtools) pins seroval to ~1.5.4, and the
+  # fix for GHSA-p6vx-979v-rg4c / GHSA-jp82-f5mq-hwhp only exists on 1.6. The
+  # plugins are released in lockstep with it, so both move together. Drop the
+  # pair once solid-js widens its range.
+  seroval@<1.6.3: ^1.6.3
+  seroval-plugins@<1.6.3: ^1.6.3
+auditConfig:
+  ignoreGhsas:
+    # braces: stack exhaustion on deeply nested patterns. No patched release
+    # exists (3.0.3 is the latest), and it only reaches us through the shadcn
+    # CLI's fast-glob, which never globs untrusted input. Remove once braces
+    # ships a fix.
+    - GHSA-vfj7-8cjw-p6xm
