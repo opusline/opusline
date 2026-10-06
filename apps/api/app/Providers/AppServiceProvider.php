@@ -153,6 +153,23 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
+        // Asking for a reset link is rationed per caller, and per address by
+        // the hour: the broker already refuses a second link within a minute,
+        // which alone would still let a stranger mail someone 1,440 times a day.
+        RateLimiter::for('password-reset-request', function (Request $request): array {
+            $email = $request->input('email');
+
+            return [
+                Limit::perMinute(6)->by('password-reset-request-ip:'.($request->ip() ?? 'unknown')),
+                Limit::perHour(6)->by('password-reset-request-email:'.(is_string($email) ? mb_strtolower($email) : 'invalid')),
+            ];
+        });
+
+        // Spending a link is rationed per caller only. Keyed on the address,
+        // anyone who knows it could use up the allowance and keep its owner
+        // from ever submitting the link they were sent.
+        RateLimiter::for('password-reset', fn (Request $request): Limit => Limit::perMinute(6)->by('password-reset-ip:'.($request->ip() ?? 'unknown')));
+
         Scramble::configure()->withParametersExtractors(
             fn (ParametersExtractors $extractors): ParametersExtractors => $extractors->prepend(SpatieDataParametersExtractor::class),
         );

@@ -125,7 +125,7 @@ class AuthController extends Controller
      */
     public function updatePassword(UpdateUserPasswordData $data, Request $request, #[CurrentUser] User $user, ChangeUserPassword $changeUserPassword): Response
     {
-        $changeUserPassword->handle($user, $data);
+        $changeUserPassword->handle($user, $data->password);
         $this->renewRememberMe($request, $user);
 
         return response()->noContent();

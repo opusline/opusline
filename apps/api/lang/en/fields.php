@@ -122,6 +122,7 @@ return [
     'timeEntryIds' => 'time entries',
     'timezone' => 'timezone',
     'to' => 'end date',
+    'token' => 'reset link',
     'tradeName' => 'trade name',
     'transferredOn' => 'transfer date',
     'treasuryBuffer' => 'treasury buffer',

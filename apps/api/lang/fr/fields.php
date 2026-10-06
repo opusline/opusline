@@ -122,6 +122,7 @@ return [
     'timeEntryIds' => 'entrées de temps',
     'timezone' => 'fuseau horaire',
     'to' => 'date de fin',
+    'token' => 'lien de réinitialisation',
     'tradeName' => 'nom commercial',
     'transferredOn' => 'date du virement',
     'treasuryBuffer' => 'matelas de trésorerie',

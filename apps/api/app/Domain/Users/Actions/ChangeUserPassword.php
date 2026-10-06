@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Domain\Users\Actions;
 
-use App\Domain\Users\Data\UpdateUserPasswordData;
 use App\Domain\Users\Enums\SecurityAlertKind;
 use App\Domain\Users\Models\User;
 use App\Domain\Users\Notifications\SecurityAlert;
@@ -21,10 +20,10 @@ class ChangeUserPassword
      * remember-me cookies and trusted browsers carry no hash, so they are
      * invalidated here.
      */
-    public function handle(User $user, UpdateUserPasswordData $data): void
+    public function handle(User $user, #[\SensitiveParameter] string $password): void
     {
-        DB::transaction(function () use ($user, $data): void {
-            $user->password = $data->password;
+        DB::transaction(function () use ($user, $password): void {
+            $user->password = $password;
             $user->setRememberToken(Str::random(60));
             $user->save();
 

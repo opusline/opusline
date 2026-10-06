@@ -32,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // a client to archived, and nobody wants to watch that happen mid-morning.
         $schedule->command('clients:retire-dormant')->dailyAt('03:30')->withoutOverlapping();
         $schedule->command('model:prune', ['--model' => [TrustedDevice::class]])->daily();
+        $schedule->command('auth:clear-resets')->daily();
         // One unattended read a day stays well inside the four PSD2 lets banks
         // allow, and by then the night's postings are booked.
         $schedule->command('bank:sync')->dailyAt('05:00')->withoutOverlapping();

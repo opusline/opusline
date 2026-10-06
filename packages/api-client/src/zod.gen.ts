@@ -1643,6 +1643,23 @@ export const zRenamePasskeyData = z.object({
 });
 
 /**
+ * RequestPasswordResetData
+ */
+export const zRequestPasswordResetData = z.object({
+    email: z.email()
+});
+
+/**
+ * ResetPasswordData
+ */
+export const zResetPasswordData = z.object({
+    token: z.string(),
+    email: z.email(),
+    password: z.string().check(z.minLength(8), z.maxLength(255)),
+    password_confirmation: z.string().check(z.minLength(8), z.maxLength(255))
+});
+
+/**
  * RevenueBasis
  *
  * The two ways a freelancer reads their revenue: by what was invoiced, or by what actually landed. URSSAF declares on the cash basis; the invoiced basis is the activity view.
@@ -3422,6 +3439,20 @@ export const zPasskeyLoginOptionsResponse = zPasskeyOptionsData;
 export const zLoginWithPasskeyBody = zPasskeyLoginData;
 
 export const zLoginWithPasskeyResponse = zUserData;
+
+export const zRequestPasswordResetBody = zRequestPasswordResetData;
+
+/**
+ * No content
+ */
+export const zRequestPasswordResetResponse = z.void();
+
+export const zResetPasswordBody = zResetPasswordData;
+
+/**
+ * No content
+ */
+export const zResetPasswordResponse = z.void();
 
 export const zReadExpenseReceiptBody = zReadReceiptData;
 

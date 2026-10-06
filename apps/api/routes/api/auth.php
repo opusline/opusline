@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Http\Users\Controllers\AuthController;
+use App\Http\Users\Controllers\PasswordResetController;
+use App\Http\Users\Support\EnsureMailIsEnabled;
 use App\Http\Users\Support\EnsureRegistrationIsOpen;
 use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use App\Http\Users\Support\RequirePasswordConfirmation;
@@ -15,6 +17,14 @@ Route::post('/register', [AuthController::class, 'register'])
 Route::post('/login', [AuthController::class, 'login'])
     ->middleware('throttle:login')
     ->name('login');
+
+Route::post('/forgot-password', [PasswordResetController::class, 'store'])
+    ->middleware([EnsureMailIsEnabled::class, 'throttle:password-reset-request'])
+    ->name('requestPasswordReset');
+
+Route::post('/reset-password', [PasswordResetController::class, 'update'])
+    ->middleware([EnsureMailIsEnabled::class, 'throttle:password-reset'])
+    ->name('resetPassword');
 
 Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(function (): void {
     // Logout and confirm-password are the two ways out of a locked session.

@@ -4485,6 +4485,58 @@
                 "security": []
             }
         },
+        "/forgot-password": {
+            "post": {
+                "operationId": "requestPasswordReset",
+                "summary": "Answers the same whether or not the address has an account",
+                "tags": [
+                    "PasswordReset"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RequestPasswordResetData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    }
+                },
+                "security": []
+            }
+        },
+        "/reset-password": {
+            "post": {
+                "operationId": "resetPassword",
+                "tags": [
+                    "PasswordReset"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResetPasswordData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                },
+                "security": []
+            }
+        },
         "/expenses/receipt-reading": {
             "post": {
                 "operationId": "readExpenseReceipt",
@@ -11817,6 +11869,48 @@
                     "name"
                 ],
                 "title": "RenamePasskeyData"
+            },
+            "RequestPasswordResetData": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    }
+                },
+                "required": [
+                    "email"
+                ],
+                "title": "RequestPasswordResetData"
+            },
+            "ResetPasswordData": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "minLength": 8,
+                        "maxLength": 255
+                    },
+                    "password_confirmation": {
+                        "type": "string",
+                        "minLength": 8,
+                        "maxLength": 255
+                    }
+                },
+                "required": [
+                    "token",
+                    "email",
+                    "password",
+                    "password_confirmation"
+                ],
+                "title": "ResetPasswordData"
             },
             "RevenueBasis": {
                 "type": "integer",
