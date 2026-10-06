@@ -81,3 +81,29 @@ test("a changed password is the one that signs in afterwards", async ({
 
   await expect(page).toHaveURL(/\/week/);
 });
+
+test("a changed email is the one that signs in afterwards", async ({
+  page,
+  context,
+  account,
+}) => {
+  const newEmail = `changed-${account.email}`;
+
+  await page.goto("/settings?tab=securite");
+  await page.getByTestId("settings-new-email").fill(newEmail);
+  await page.getByTestId("settings-change-email").click();
+
+  await page.getByTestId("confirm-password-input").fill(account.password);
+  await page.getByTestId("confirm-password-submit").click();
+  await expect(page.getByTestId("confirm-password-form")).toBeHidden();
+  // The field empties only once the API has accepted the new address.
+  await expect(page.getByTestId("settings-new-email")).toHaveValue("");
+
+  await context.clearCookies();
+  await page.goto("/login");
+  await page.getByTestId("login-email").fill(newEmail);
+  await page.getByTestId("login-password").fill(account.password);
+  await page.getByTestId("login-submit").click();
+
+  await expect(page).toHaveURL(/\/week/);
+});
