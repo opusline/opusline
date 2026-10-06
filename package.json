@@ -14,12 +14,12 @@
     "generate-api": "turbo run generate"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.14",
+    "@biomejs/biome": "2.5.15",
     "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",
-    "knip": "^6.38.0",
-    "lefthook": "^2.1.14",
-    "turbo": "^2.11.4",
+    "knip": "^6.39.0",
+    "lefthook": "^2.1.16",
+    "turbo": "^2.11.7",
     "typescript": "^7"
   },
   "packageManager": "pnpm@10.33.4",
