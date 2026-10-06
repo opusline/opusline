@@ -35,6 +35,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // One unattended read a day stays well inside the four PSD2 lets banks
         // allow, and by then the night's postings are booked.
         $schedule->command('bank:sync')->dailyAt('05:00')->withoutOverlapping();
+        // Hourly, because accounts keep their own timezone: each one is mailed
+        // once its own morning has started, and only once that day. The lock
+        // expires before the next run: a reminder exists on its lead day alone,
+        // so a lock orphaned by a killed container must not cost a whole day.
+        $schedule->command('deadlines:send-reminders')->hourly()->withoutOverlapping(55);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         Integration::handles($exceptions);

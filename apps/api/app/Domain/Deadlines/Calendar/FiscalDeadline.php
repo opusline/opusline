@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Deadlines\Calendar;
 
 use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
+use App\Domain\Settings\Enums\Locale;
 use Carbon\CarbonImmutable;
 
 /**
@@ -33,6 +34,30 @@ final readonly class FiscalDeadline
     public function key(): string
     {
         return "{$this->kind->value}:{$this->periodKey}";
+    }
+
+    /** « Déclaration URSSAF — juillet 2026 »: the occurrence as the calendar feed and the reminder email name it. */
+    public function title(Locale $locale): string
+    {
+        return __('deadlines.event_title', [
+            'obligation' => __("deadlines.kind.{$this->kind->name}", [], $locale->languageTag()),
+            'period' => $this->periodLabel($locale),
+        ], $locale->languageTag());
+    }
+
+    private function periodLabel(Locale $locale): string
+    {
+        return match ($this->period) {
+            DeadlinePeriod::Year => $this->periodKey,
+            DeadlinePeriod::Quarter => __('deadlines.period_quarter', [
+                'quarter' => $this->periodStart->quarter,
+                'year' => $this->periodStart->year,
+            ], $locale->languageTag()),
+            // settings() returns a Carbon, where locale() is a getter/setter union.
+            DeadlinePeriod::Month => $this->periodStart
+                ->settings(['locale' => $locale->languageTag()])
+                ->translatedFormat('F Y'),
+        };
     }
 
     public function is(FiscalDeadlineKind $kind, string $periodKey): bool

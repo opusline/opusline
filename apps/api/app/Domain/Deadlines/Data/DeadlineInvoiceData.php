@@ -34,6 +34,12 @@ class DeadlineInvoiceData extends Data
         public ?CarbonImmutable $lastRemindedOn,
     ) {}
 
+    /** How the calendar feed and the reminder email name the invoice: by its number, or its id while it has none. */
+    public function reference(): string
+    {
+        return $this->number ?? (string) $this->id;
+    }
+
     /**
      * $invoice must carry the `reminders_sent` count and `last_reminded_on`
      * aggregates ListInvoiceDeadlines selects; reading them via getAttribute is

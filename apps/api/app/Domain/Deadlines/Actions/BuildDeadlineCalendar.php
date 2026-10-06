@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Domain\Deadlines\Actions;
 
 use App\Domain\Deadlines\Calendar\DeadlineAmount;
-use App\Domain\Deadlines\Calendar\DeadlinePeriod;
 use App\Domain\Deadlines\Calendar\DeadlineReminders;
 use App\Domain\Deadlines\Calendar\DeadlineWindow;
 use App\Domain\Deadlines\Calendar\FiscalDeadline;
@@ -16,7 +15,6 @@ use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
 use App\Domain\Settings\Enums\Locale;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Users\Models\User;
-use Cknow\Money\Money;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Spatie\IcalendarGenerator\Components\Calendar;
@@ -141,15 +139,13 @@ class BuildDeadlineCalendar
     private function invoiceEvent(User $user, DeadlineInvoiceData $invoice, Locale $locale): Event
     {
         return Event::create(__('deadlines.event_invoice_title', [
-            'number' => $invoice->number ?? (string) $invoice->id,
+            'number' => $invoice->reference(),
             'client' => $invoice->clientName,
         ], $locale->languageTag()))
             ->uniqueIdentifier(sprintf('opusline-%d-inv-%d', $user->id, $invoice->id))
             ->startsAt($invoice->dueOn)
             ->fullDay()
-            ->description(__('deadlines.event_expected', [
-                'amount' => $invoice->amount->toMoney()->format($locale->value),
-            ], $locale->languageTag()));
+            ->description((string) DeadlineAmount::billed($invoice->amount->toMoney())->label($locale));
     }
 
     /** The nudge, a few days past due — the modal's « trois jours après l'échéance ». */
@@ -157,7 +153,7 @@ class BuildDeadlineCalendar
     {
         return Event::create(__('deadlines.event_reminder_title', [
             'client' => $invoice->clientName,
-            'number' => $invoice->number ?? (string) $invoice->id,
+            'number' => $invoice->reference(),
         ], $locale->languageTag()))
             ->uniqueIdentifier(sprintf('opusline-%d-rem-%d', $user->id, $invoice->id))
             ->startsAt($invoice->dueOn->addDays(self::REMINDER_LAG_DAYS))
@@ -174,7 +170,7 @@ class BuildDeadlineCalendar
         Collection $completions,
         Locale $locale,
     ): Event {
-        $event = Event::create($this->title($deadline, $locale))
+        $event = Event::create($deadline->title($locale))
             // Scoped to the account: two users share no calendar, and a
             // regenerated token must not orphan what is already subscribed.
             ->uniqueIdentifier(sprintf(
@@ -194,14 +190,6 @@ class BuildDeadlineCalendar
         return $event;
     }
 
-    private function title(FiscalDeadline $deadline, Locale $locale): string
-    {
-        return __('deadlines.event_title', [
-            'obligation' => __("deadlines.kind.{$deadline->kind->name}", [], $locale->languageTag()),
-            'period' => $this->periodLabel($deadline, $locale),
-        ], $locale->languageTag());
-    }
-
     /**
      * @param  Collection<string, FiscalDeadlineCompletion>  $completions
      */
@@ -212,13 +200,10 @@ class BuildDeadlineCalendar
         Locale $locale,
     ): string {
         $lines = [];
+        $amount = $price->label($locale);
 
-        if ($price->amount instanceof Money) {
-            $lines[] = __(
-                $price->isEstimate ? 'deadlines.event_estimate' : 'deadlines.event_expected',
-                ['amount' => $price->amount->format($locale->value)],
-                $locale->languageTag(),
-            );
+        if ($amount !== null) {
+            $lines[] = $amount;
         }
 
         if ($completions->has($deadline->key())) {
@@ -226,20 +211,5 @@ class BuildDeadlineCalendar
         }
 
         return implode("\n", $lines);
-    }
-
-    private function periodLabel(FiscalDeadline $deadline, Locale $locale): string
-    {
-        return match ($deadline->period) {
-            DeadlinePeriod::Year => $deadline->periodKey,
-            DeadlinePeriod::Quarter => __('deadlines.period_quarter', [
-                'quarter' => $deadline->periodStart->quarter,
-                'year' => $deadline->periodStart->year,
-            ], $locale->languageTag()),
-            // settings() returns a Carbon, where locale() is a getter/setter union.
-            DeadlinePeriod::Month => $deadline->periodStart
-                ->settings(['locale' => $locale->languageTag()])
-                ->translatedFormat('F Y'),
-        };
     }
 }

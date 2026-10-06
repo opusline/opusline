@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Deadlines\Calendar;
 
+use Carbon\CarbonImmutable;
+
 /**
  * When a deadline starts speaking up, in days before it falls due.
  *
@@ -19,6 +21,21 @@ final readonly class DeadlineReminders
 {
     /** @var list<int> */
     public const array LEAD_DAYS = [7, 1, 0];
+
+    /**
+     * The lead the deadline reaches on this exact date, or null on any other
+     * day — including every day after it fell due.
+     */
+    public static function leadReachedOn(CarbonImmutable $dueOn, CarbonImmutable $today): ?int
+    {
+        foreach (self::LEAD_DAYS as $leadDays) {
+            if ($dueOn->subDays($leadDays)->isSameDay($today)) {
+                return $leadDays;
+            }
+        }
+
+        return null;
+    }
 
     /**
      * The same leads as ICS alarm offsets. The day-of lead is dropped: an alarm
