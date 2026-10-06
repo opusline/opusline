@@ -1,0 +1,11 @@
+# The mailbox the e2e stack sends to, layered over compose.prod.yaml by
+# scripts/stack.sh. It is not part of the production file: a real instance
+# points MAIL_* at a real relay, while the suite needs one it can read back —
+# which Mailpit's HTTP API is, so no test-only route has to exist in the app.
+services:
+  mailpit:
+    image: axllent/mailpit:v1.31.4
+    restart: unless-stopped
+    ports:
+      # 8026, not Mailpit's own 8025: that one is the Sail stack's mailbox.
+      - "127.0.0.1:8026:8025"

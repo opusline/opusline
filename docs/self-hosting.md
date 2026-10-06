@@ -417,10 +417,11 @@ fiscal ones and unpaid invoices — a week before, the day before and on the day
 the `scheduler` runs `deadlines:send-reminders` every hour, and each account
 gets one email on those mornings, after 07:00 in its own timezone. Each account
 turns either kind off under Settings → Notifications, which also tells it when
-the instance has no mailer. All other mail goes to the address the account
-signs in with, which Opusline does not verify, in the account's language. The
-`queue` service does the sending: with it down, or with a relay that refuses
-the message, nothing arrives and `queue:failed` says why.
+the instance has no mailer. A mailer is also what puts « Forgot your password? »
+on the sign-in page. All other mail goes to the address the account signs in
+with, which Opusline does not verify, in the account's language. The `queue`
+service does the sending: with it down, or with a relay that refuses the
+message, nothing arrives and `queue:failed` says why.
 
 **Error reporting.** Nothing phones home by default. Set `SENTRY_LARAVEL_DSN`
 and the API reports its exceptions and performance traces (slow endpoints, N+1
@@ -459,11 +460,15 @@ Six services run: `web` (the SPA and the proxy), `api`, `queue` and `scheduler`
 | Login throttled instantly for everyone | Every request looks like it comes from the proxy: `TRUSTED_PROXIES` is unset, or `docker/web.Caddyfile` no longer trusts the address your proxy connects from |
 | `no such table: sessions` | An older image. Upgrade — the migration ships now |
 | Alert and reminder emails never arrive | `MAIL_MAILER` is unset, or the relay refused the message: `queue:failed` shows its answer |
-| Forgot the password | There is no reset email. Set a new one from the shell, below |
+| Forgot the password | With a mailer, « Forgot your password? » on the sign-in page emails a reset link. Without one, set a new password from the shell, below |
 
-Opusline has no password reset route, with or without a mailer. A password you
-still know is changed under Settings → Security, which also signs out every
-other session; a forgotten one is fixed where you already have root:
+A password you still know is changed under Settings → Security, which also
+signs out every other session. A forgotten one is reset by email on an instance
+that names a mailer: the sign-in page then offers « Forgot your password? »,
+and the emailed link works once, for an hour. Resetting signs nobody in, so an
+account with two-step verification is still asked for its second factor. An
+instance without a mailer shows no such link and has no reset route, and a
+forgotten password is fixed where you already have root:
 
 ```sh
 docker compose -f compose.prod.yaml exec api php artisan tinker \

@@ -80,7 +80,9 @@ pnpm --filter @opusline/e2e stack:down    # volumes included
 ```
 
 Every test registers its own account and creates what it needs through the app,
-so there is nothing to seed and no order to respect. `E2E_BASE_URL=http://localhost:3000
+so there is nothing to seed and no order to respect. The stack sends its email
+to a Mailpit of its own, which the suite reads back over HTTP (and you can open
+on http://localhost:8026). `E2E_BASE_URL=http://localhost:3000
 pnpm e2e` points the same suite at `pnpm dev`; past a handful of tests that needs
 `TRUSTED_PROXIES=*` in `apps/api/.env`, or the register limiter sees one visitor.
 

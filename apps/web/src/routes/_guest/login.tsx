@@ -2,6 +2,7 @@ import type { TwoFactorChallengeData, UserData } from "@opusline/api-client";
 import {
   answerTwoFactorChallengeMutation,
   currentUserQueryKey,
+  getPingOptions,
   loginMutation,
   loginWithPasskeyMutation,
   passkeyLoginOptionsMutation,
@@ -9,7 +10,7 @@ import {
 } from "@opusline/api-client/react-query";
 import { Button } from "@opusline/ui/components/button";
 import { linkVariants } from "@opusline/ui/components/text-link";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
@@ -62,6 +63,7 @@ function LoginPage() {
   const { redirect } = Route.useSearch();
   const queryClient = useQueryClient();
 
+  const ping = useQuery(getPingOptions());
   const login = useMutation(loginMutation());
   const answerChallenge = useMutation(answerTwoFactorChallengeMutation());
   const passkeyLoginOptions = useMutation(passkeyLoginOptionsMutation());
@@ -240,6 +242,17 @@ function LoginPage() {
     >
       <LoginForm
         error={passkeyError ?? passwordStepNotice ?? loginError}
+        forgotPassword={
+          ping.data?.mailEnabled ? (
+            <Link
+              className={linkVariants({ size: "xs", underline: "always" })}
+              data-testid="login-forgot-password"
+              to="/forgot-password"
+            >
+              {m.auth_forgot_link()}
+            </Link>
+          ) : undefined
+        }
         isPending={login.isPending}
         onSubmit={handleSubmit}
         passkey={

@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as GuestRouteImport } from './routes/_guest'
 import { Route as HealthRouteImport } from './routes/health'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthedBankAccountRouteImport } from './routes/_authed/bank-account'
 import { Route as AuthedClientsRouteImport } from './routes/_authed/clients'
 import { Route as AuthedCraRouteImport } from './routes/_authed/cra'
@@ -26,6 +27,7 @@ import { Route as AuthedRevenueRouteImport } from './routes/_authed/revenue'
 import { Route as AuthedSettingsRouteImport } from './routes/_authed/settings'
 import { Route as AuthedTreasuryRouteImport } from './routes/_authed/treasury'
 import { Route as AuthedWeekRouteImport } from './routes/_authed/week'
+import { Route as GuestForgotPasswordRouteImport } from './routes/_guest/forgot-password'
 import { Route as GuestLoginRouteImport } from './routes/_guest/login'
 import { Route as GuestRegisterRouteImport } from './routes/_guest/register'
 import { Route as AuthedClientsClientSlugRouteImport } from './routes/_authed/clients_.$clientSlug'
@@ -49,6 +51,11 @@ const GuestRoute = GuestRouteImport.update({
 const HealthRoute = HealthRouteImport.update({
   id: '/health',
   path: '/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedBankAccountRoute = AuthedBankAccountRouteImport.update({
@@ -116,6 +123,11 @@ const AuthedWeekRoute = AuthedWeekRouteImport.update({
   path: '/week',
   getParentRoute: () => AuthedRoute,
 } as any)
+const GuestForgotPasswordRoute = GuestForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => GuestRoute,
+} as any)
 const GuestLoginRoute = GuestLoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -151,6 +163,7 @@ const AuthedClientsClientSlugMissionsMissionSlugRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/health': typeof HealthRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/bank-account': typeof AuthedBankAccountRoute
   '/clients': typeof AuthedClientsRoute
   '/cra': typeof AuthedCraRoute
@@ -164,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthedSettingsRoute
   '/treasury': typeof AuthedTreasuryRoute
   '/week': typeof AuthedWeekRoute
+  '/forgot-password': typeof GuestForgotPasswordRoute
   '/login': typeof GuestLoginRoute
   '/register': typeof GuestRegisterRoute
   '/clients/$clientSlug': typeof AuthedClientsClientSlugRoute
@@ -174,6 +188,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/health': typeof HealthRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/bank-account': typeof AuthedBankAccountRoute
   '/clients': typeof AuthedClientsRoute
   '/cra': typeof AuthedCraRoute
@@ -187,6 +202,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthedSettingsRoute
   '/treasury': typeof AuthedTreasuryRoute
   '/week': typeof AuthedWeekRoute
+  '/forgot-password': typeof GuestForgotPasswordRoute
   '/login': typeof GuestLoginRoute
   '/register': typeof GuestRegisterRoute
   '/clients/$clientSlug': typeof AuthedClientsClientSlugRoute
@@ -200,6 +216,7 @@ export interface FileRoutesById {
   '/_authed': typeof AuthedRouteWithChildren
   '/_guest': typeof GuestRouteWithChildren
   '/health': typeof HealthRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/_authed/bank-account': typeof AuthedBankAccountRoute
   '/_authed/clients': typeof AuthedClientsRoute
   '/_authed/cra': typeof AuthedCraRoute
@@ -213,6 +230,7 @@ export interface FileRoutesById {
   '/_authed/settings': typeof AuthedSettingsRoute
   '/_authed/treasury': typeof AuthedTreasuryRoute
   '/_authed/week': typeof AuthedWeekRoute
+  '/_guest/forgot-password': typeof GuestForgotPasswordRoute
   '/_guest/login': typeof GuestLoginRoute
   '/_guest/register': typeof GuestRegisterRoute
   '/_authed/clients_/$clientSlug': typeof AuthedClientsClientSlugRoute
@@ -225,6 +243,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/health'
+    | '/reset-password'
     | '/bank-account'
     | '/clients'
     | '/cra'
@@ -238,6 +257,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/treasury'
     | '/week'
+    | '/forgot-password'
     | '/login'
     | '/register'
     | '/clients/$clientSlug'
@@ -248,6 +268,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/health'
+    | '/reset-password'
     | '/bank-account'
     | '/clients'
     | '/cra'
@@ -261,6 +282,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/treasury'
     | '/week'
+    | '/forgot-password'
     | '/login'
     | '/register'
     | '/clients/$clientSlug'
@@ -273,6 +295,7 @@ export interface FileRouteTypes {
     | '/_authed'
     | '/_guest'
     | '/health'
+    | '/reset-password'
     | '/_authed/bank-account'
     | '/_authed/clients'
     | '/_authed/cra'
@@ -286,6 +309,7 @@ export interface FileRouteTypes {
     | '/_authed/settings'
     | '/_authed/treasury'
     | '/_authed/week'
+    | '/_guest/forgot-password'
     | '/_guest/login'
     | '/_guest/register'
     | '/_authed/clients_/$clientSlug'
@@ -299,6 +323,7 @@ export interface RootRouteChildren {
   AuthedRoute: typeof AuthedRouteWithChildren
   GuestRoute: typeof GuestRouteWithChildren
   HealthRoute: typeof HealthRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -329,6 +354,13 @@ declare module '@tanstack/react-router' {
       path: '/health'
       fullPath: '/health'
       preLoaderRoute: typeof HealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authed/bank-account': {
@@ -422,6 +454,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedWeekRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_guest/forgot-password': {
+      id: '/_guest/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof GuestForgotPasswordRouteImport
+      parentRoute: typeof GuestRoute
+    }
     '/_guest/login': {
       id: '/_guest/login'
       path: '/login'
@@ -512,11 +551,13 @@ const AuthedRouteWithChildren =
   AuthedRoute._addFileChildren(AuthedRouteChildren)
 
 interface GuestRouteChildren {
+  GuestForgotPasswordRoute: typeof GuestForgotPasswordRoute
   GuestLoginRoute: typeof GuestLoginRoute
   GuestRegisterRoute: typeof GuestRegisterRoute
 }
 
 const GuestRouteChildren: GuestRouteChildren = {
+  GuestForgotPasswordRoute: GuestForgotPasswordRoute,
   GuestLoginRoute: GuestLoginRoute,
   GuestRegisterRoute: GuestRegisterRoute,
 }
@@ -528,6 +569,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthedRoute: AuthedRouteWithChildren,
   GuestRoute: GuestRouteWithChildren,
   HealthRoute: HealthRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
