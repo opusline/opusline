@@ -7,6 +7,7 @@ import { Input } from "@opusline/ui/components/input";
 import { Separator } from "@opusline/ui/components/separator";
 import { useForm } from "@tanstack/react-form";
 import { CircleAlert, Fingerprint } from "lucide-react";
+import type { ReactNode } from "react";
 import * as z from "zod/mini";
 
 import { m } from "@/paraglide/messages.js";
@@ -28,6 +29,12 @@ type LoginFormProps = {
     onSignIn: (remember: boolean) => void;
     isPending: boolean;
   };
+  /**
+   * The way to the password reset, on an instance that can email one. Sits
+   * under the password rather than beside its label, so Tab still goes from
+   * the address straight to the password.
+   */
+  forgotPassword?: ReactNode;
 };
 
 export function LoginForm({
@@ -35,6 +42,7 @@ export function LoginForm({
   isPending,
   error,
   passkey,
+  forgotPassword,
 }: LoginFormProps) {
   const form = useForm({
     defaultValues: { email: "", password: "", remember: false },
@@ -113,6 +121,9 @@ export function LoginForm({
                   data-testid="login-password-error"
                   errors={field.state.meta.errors}
                 />
+              ) : null}
+              {forgotPassword ? (
+                <div className="flex justify-end">{forgotPassword}</div>
               ) : null}
             </Field>
           );

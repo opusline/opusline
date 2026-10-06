@@ -1,4 +1,5 @@
 import { byTestId } from "../../support/locators";
+import { signIn } from "../../support/sign-in";
 import { expect, test } from "../../support/test";
 
 const LOCALE_FRENCH = "fr-FR";
@@ -98,9 +99,7 @@ test("a changed password is the one that signs in afterwards", async ({
 
   await context.clearCookies();
   await page.goto("/login");
-  await page.getByTestId("login-email").fill(account.email);
-  await page.getByTestId("login-password").fill(newPassword);
-  await page.getByTestId("login-submit").click();
+  await signIn(page, account.email, newPassword);
 
   await expect(page).toHaveURL(/\/week/);
 });

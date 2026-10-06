@@ -13,7 +13,8 @@ API_IMAGE=ghcr.io/opusline/opusline-api:e2e
 WEB_IMAGE=ghcr.io/opusline/opusline-web:e2e
 
 compose() {
-    docker compose -p opusline-e2e --project-directory "$STACK_DIR" -f compose.prod.yaml "$@"
+    docker compose -p opusline-e2e --project-directory "$STACK_DIR" \
+        -f compose.prod.yaml -f apps/e2e/compose.mail.yaml "$@"
 }
 
 set_env() {
@@ -40,6 +41,14 @@ write_env() {
     # A settings save would otherwise queue a call to mon-entreprise.urssaf.fr.
     set_env MON_ENTREPRISE_ENABLED false
     echo "OPUSLINE_VERSION=e2e" >> "$ENV_FILE"
+    # Appended, not set: the example ships the mail block commented out, since
+    # a real instance has to bring its own relay. This one is compose.mail.yaml's.
+    {
+        echo "MAIL_MAILER=smtp"
+        echo "MAIL_HOST=mailpit"
+        echo "MAIL_PORT=1025"
+        echo "MAIL_FROM_ADDRESS=opusline@e2e.test"
+    } >> "$ENV_FILE"
 }
 
 case "${1:-}" in
