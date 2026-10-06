@@ -244,6 +244,42 @@
                 }
             }
         },
+        "/user/email": {
+            "put": {
+                "operationId": "updateUserEmail",
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateUserEmailData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/user/theme": {
             "put": {
                 "operationId": "updateUserTheme",
@@ -14110,6 +14146,20 @@
                     "note"
                 ],
                 "title": "UpdateTimerData"
+            },
+            "UpdateUserEmailData": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 255
+                    }
+                },
+                "required": [
+                    "email"
+                ],
+                "title": "UpdateUserEmailData"
             },
             "UpdateUserPasswordData": {
                 "type": "object",

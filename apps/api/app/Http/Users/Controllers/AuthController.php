@@ -7,6 +7,7 @@ namespace App\Http\Users\Controllers;
 use App\Domain\TwoFactor\Actions\RecognizeTrustedDevice;
 use App\Domain\TwoFactor\Data\TwoFactorChallengeData;
 use App\Domain\TwoFactor\Models\TrustedDevice;
+use App\Domain\Users\Actions\ChangeUserEmail;
 use App\Domain\Users\Actions\ChangeUserPassword;
 use App\Domain\Users\Actions\MarkReleaseNotesSeen;
 use App\Domain\Users\Actions\RegisterUser;
@@ -15,6 +16,7 @@ use App\Domain\Users\Data\ConfirmPasswordData;
 use App\Domain\Users\Data\LoginData;
 use App\Domain\Users\Data\RegisterUserData;
 use App\Domain\Users\Data\UpdateReleaseNotesSeenData;
+use App\Domain\Users\Data\UpdateUserEmailData;
 use App\Domain\Users\Data\UpdateUserPasswordData;
 use App\Domain\Users\Data\UpdateUserThemeData;
 use App\Domain\Users\Data\UserData;
@@ -124,17 +126,20 @@ class AuthController extends Controller
     public function updatePassword(UpdateUserPasswordData $data, Request $request, #[CurrentUser] User $user, ChangeUserPassword $changeUserPassword): Response
     {
         $changeUserPassword->handle($user, $data);
-
-        /** @var SessionGuard $guard */
-        $guard = Auth::guard('web');
-
-        // The new remember token voids this browser's cookie along with every
-        // other; a browser that asked to be remembered keeps that choice.
-        if ($request->cookies->has($guard->getRecallerName())) {
-            $guard->login($user, remember: true);
-        }
+        $this->renewRememberMe($request, $user);
 
         return response()->noContent();
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function updateEmail(UpdateUserEmailData $data, Request $request, #[CurrentUser] User $user, ChangeUserEmail $changeUserEmail): JsonResponse
+    {
+        $user = $changeUserEmail->handle($user, $data);
+        $this->renewRememberMe($request, $user);
+
+        return response()->json(UserData::from($user));
     }
 
     public function logout(Request $request): Response
@@ -168,5 +173,20 @@ class AuthController extends Controller
         $user = $markReleaseNotesSeen->handle($user, $data);
 
         return response()->json(UserData::from($user));
+    }
+
+    /**
+     * A credential change cycles the remember token, which voids this
+     * browser's cookie along with every other; a browser that asked to be
+     * remembered keeps that choice.
+     */
+    private function renewRememberMe(Request $request, User $user): void
+    {
+        /** @var SessionGuard $guard */
+        $guard = Auth::guard('web');
+
+        if ($request->cookies->has($guard->getRecallerName())) {
+            $guard->login($user, remember: true);
+        }
     }
 }

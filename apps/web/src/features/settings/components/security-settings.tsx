@@ -1,5 +1,7 @@
 import {
   confirmTotpMutation,
+  currentUserOptions,
+  currentUserQueryKey,
   deletePasskeyMutation,
   disableTotpMutation,
   passkeyRegistrationOptionsMutation,
@@ -11,11 +13,17 @@ import {
   showTwoFactorOptions,
   showTwoFactorQueryKey,
   startTotpSetupMutation,
+  updateUserEmailMutation,
   updateUserPasswordMutation,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { CircleAlert } from "lucide-react";
 import { useState } from "react";
 
@@ -26,6 +34,7 @@ import { serverErrorMessage, serverFieldErrors } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 import { AuthenticatorAppCard } from "./authenticator-app-card";
 import type { TotpSetupState } from "./authenticator-setup-dialog";
+import { EmailCard } from "./email-card";
 import { PasskeyNameDialog } from "./passkey-name-dialog";
 import { PasskeysCard } from "./passkeys-card";
 import { PasswordCard } from "./password-card";
@@ -53,12 +62,14 @@ export function SecuritySettings({ guarded, webAuthn }: SecuritySettingsProps) {
   const queryClient = useQueryClient();
   const { locale } = useMoneyFormat();
   const status = useQuery(showTwoFactorOptions());
+  const { data: user } = useSuspenseQuery(currentUserOptions());
 
   const [setup, setSetup] = useState<TotpSetupState>({ step: "idle" });
   const [totpError, setTotpError] = useState<string | null>(null);
   const [devicesError, setDevicesError] = useState<string | null>(null);
   const [passkeysError, setPasskeysError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
   // The browser has minted a credential and the API is waiting for its name.
   const [pendingCredential, setPendingCredential] = useState<string | null>(
     null,
@@ -75,6 +86,7 @@ export function SecuritySettings({ guarded, webAuthn }: SecuritySettingsProps) {
   const renamePasskey = useMutation(renamePasskeyMutation());
   const deletePasskey = useMutation(deletePasskeyMutation());
   const updatePassword = useMutation(updateUserPasswordMutation());
+  const updateEmail = useMutation(updateUserEmailMutation());
 
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: showTwoFactorQueryKey() });
@@ -104,6 +116,36 @@ export function SecuritySettings({ guarded, webAuthn }: SecuritySettingsProps) {
       }
 
       setPasswordError(serverErrorMessage(error, m.common_action_failed()));
+
+      return { status: "failed" };
+    }
+  };
+
+  const changeEmail = async (body: {
+    email: string;
+  }): Promise<FormSubmitResult> => {
+    setEmailError(null);
+
+    try {
+      const outcome = await guarded(() => updateEmail.mutateAsync({ body }));
+
+      if (outcome.status === "cancelled") {
+        return { status: "failed" };
+      }
+
+      // The lock screen signs back in with the cached address.
+      queryClient.setQueryData(currentUserQueryKey(), outcome.value);
+      await refresh();
+
+      return { status: "success" };
+    } catch (error) {
+      const fieldErrors = serverFieldErrors(error);
+
+      if (fieldErrors !== null) {
+        return { status: "invalid", fieldErrors };
+      }
+
+      setEmailError(serverErrorMessage(error, m.common_action_failed()));
 
       return { status: "failed" };
     }
@@ -292,6 +334,12 @@ export function SecuritySettings({ guarded, webAuthn }: SecuritySettingsProps) {
 
   return (
     <div className="flex flex-col gap-6">
+      <EmailCard
+        currentEmail={user.email}
+        error={emailError}
+        isPending={updateEmail.isPending}
+        onSubmit={changeEmail}
+      />
       <PasswordCard
         error={passwordError}
         isPending={updatePassword.isPending}

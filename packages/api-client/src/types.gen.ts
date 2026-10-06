@@ -2438,6 +2438,13 @@ export type UpdateTimerData = {
 };
 
 /**
+ * UpdateUserEmailData
+ */
+export type UpdateUserEmailData = {
+    email: string;
+};
+
+/**
  * UpdateUserPasswordData
  */
 export type UpdateUserPasswordData = {
@@ -2825,6 +2832,48 @@ export type UpdateUserPasswordResponses = {
 };
 
 export type UpdateUserPasswordResponse = UpdateUserPasswordResponses[keyof UpdateUserPasswordResponses];
+
+export type UpdateUserEmailData2 = {
+    body: UpdateUserEmailData;
+    path?: never;
+    query?: never;
+    url: '/user/email';
+};
+
+export type UpdateUserEmailErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type UpdateUserEmailError = UpdateUserEmailErrors[keyof UpdateUserEmailErrors];
+
+export type UpdateUserEmailResponses = {
+    200: UserData;
+};
+
+export type UpdateUserEmailResponse = UpdateUserEmailResponses[keyof UpdateUserEmailResponses];
 
 export type UpdateUserThemeData2 = {
     body: UpdateUserThemeData;
