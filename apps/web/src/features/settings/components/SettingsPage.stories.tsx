@@ -8,6 +8,7 @@ import {
 } from "../lib/settings-fixture";
 import type { SettingsTab } from "../lib/settings-form";
 import { AuthenticatorAppCard } from "./authenticator-app-card";
+import { EmailNotificationsCard } from "./email-notifications-card";
 import { EnableBankingCard } from "./enable-banking-card";
 import { SettingsPage } from "./settings-page";
 import { TrustedBrowsersCard } from "./trusted-browsers-card";
@@ -57,6 +58,15 @@ const meta = {
           applicationId: null,
           redirectUrl: "https://opusline.example/bank-account",
         }}
+      />
+    ),
+    notifications: (
+      <EmailNotificationsCard
+        error={null}
+        isMailEnabled
+        isSaving={false}
+        onChange={() => {}}
+        preferences={settingsFixture.notifications}
       />
     ),
     security: (
@@ -109,6 +119,10 @@ export const Billing: Story = {
 
 export const Localisation: Story = {
   args: { activeTab: "regional" },
+};
+
+export const Notifications: Story = {
+  args: { activeTab: "notifications" },
 };
 
 export const Security: Story = {

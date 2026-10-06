@@ -415,11 +415,12 @@ recovery code used or the set regenerated. A changed sign-in email is reported
 to the address it replaced. Accounts are also reminded of their deadlines —
 fiscal ones and unpaid invoices — a week before, the day before and on the day:
 the `scheduler` runs `deadlines:send-reminders` every hour, and each account
-gets one email on those mornings, after 07:00 in its own timezone. All other
-mail goes to the address the account signs in with, which Opusline does not
-verify, in the account's language. The `queue` service does the sending: with
-it down, or with a relay that refuses the message, nothing arrives and
-`queue:failed` says why.
+gets one email on those mornings, after 07:00 in its own timezone. Each account
+turns either kind off under Settings → Notifications, which also tells it when
+the instance has no mailer. All other mail goes to the address the account
+signs in with, which Opusline does not verify, in the account's language. The
+`queue` service does the sending: with it down, or with a relay that refuses
+the message, nothing arrives and `queue:failed` says why.
 
 **Error reporting.** Nothing phones home by default. Set `SENTRY_LARAVEL_DSN`
 and the API reports its exceptions and performance traces (slow endpoints, N+1

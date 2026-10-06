@@ -95,8 +95,9 @@ type SettingsPageProps = {
   signature: SignatureProps;
   rates: RatesProps;
   localisation: LocalisationProps;
-  /** The Intégrations and Sécurité tabs own their data, so they arrive ready to render. */
+  /** The Intégrations, Notifications and Sécurité tabs save outside this form, so they arrive ready to render. */
   integrations: ReactNode;
+  notifications: ReactNode;
   security: ReactNode;
 };
 
@@ -109,6 +110,7 @@ export function SettingsPage({
   rates,
   localisation,
   integrations,
+  notifications,
   security,
 }: SettingsPageProps) {
   const format = useMoneyFormat();
@@ -240,6 +242,7 @@ export function SettingsPage({
             />
           </TabsContent>
           <TabsContent value="integrations">{integrations}</TabsContent>
+          <TabsContent value="notifications">{notifications}</TabsContent>
           <TabsContent value="securite">{security}</TabsContent>
 
           <form.Subscribe<{

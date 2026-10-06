@@ -6,9 +6,11 @@ import type {
 import {
   currentUserQueryKey,
   deleteUserSignatureMutation,
+  getPingOptions,
   refreshSettingsRatesMutation,
   showSettingsOptions,
   showSettingsQueryKey,
+  updateNotificationPreferencesMutation,
   updateSettingsCurrencyMutation,
   updateSettingsMutation,
   uploadUserSignatureMutation,
@@ -32,6 +34,7 @@ import {
   isWebAuthnSupported,
   webAuthnFailure,
 } from "@/features/auth/lib/webauthn";
+import { EmailNotificationsCard } from "@/features/settings/components/email-notifications-card";
 import { IntegrationsSettings } from "@/features/settings/components/integrations-settings";
 import type { LocalisationDraft } from "@/features/settings/components/localisation-settings";
 import { SecuritySettings } from "@/features/settings/components/security-settings";
@@ -122,6 +125,7 @@ function ReglagesRoute() {
   const [localisationError, setLocalisationError] = useState<string | null>(
     null,
   );
+  const ping = useQuery(getPingOptions());
 
   const settings = useQuery({
     ...showSettingsOptions(),
@@ -197,6 +201,13 @@ function ReglagesRoute() {
     },
     onError: (error) =>
       setRatesError(serverErrorMessage(error, m.settings_rates_failed())),
+  });
+
+  // Its own cache write, not applySettingsResponse: which emails an account
+  // wants moves neither the treasury figure nor the fiscal calendar.
+  const updateNotifications = useMutation({
+    ...updateNotificationPreferencesMutation(),
+    onSuccess: (data) => queryClient.setQueryData(showSettingsQueryKey(), data),
   });
 
   const refreshSignature = async () => {
@@ -370,6 +381,28 @@ function ReglagesRoute() {
           onCancel: () => setLocalisationError(null),
         }}
         integrations={<IntegrationsSettings />}
+        notifications={
+          <EmailNotificationsCard
+            error={
+              updateNotifications.isError
+                ? serverErrorMessage(
+                    updateNotifications.error,
+                    m.common_save_failed(),
+                  )
+                : null
+            }
+            // Unknown is not "off": only an instance that said it has no
+            // mailer gets the notice.
+            isMailEnabled={ping.data?.mailEnabled !== false}
+            isSaving={updateNotifications.isPending}
+            onChange={(body) => updateNotifications.mutate({ body })}
+            preferences={
+              updateNotifications.isPending
+                ? updateNotifications.variables.body
+                : savedSettings.notifications
+            }
+          />
+        }
         security={
           <SecuritySettings
             guarded={passwordConfirmation.guarded}
