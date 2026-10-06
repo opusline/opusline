@@ -48,10 +48,12 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Testing\TestResponse;
 use ParagonIE\ConstantTime\Base64UrlSafe;
+use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mime\Email;
 use Tests\Support\FakePasskeyCeremony;
 use Tests\TestCase;
@@ -183,11 +185,23 @@ function freezeTodayAtUtcNoon(): void
  */
 function soleSentMail(): Email
 {
-    $message = app('mailer')->getSymfonyTransport()->messages()->sole()->getOriginalMessage();
+    return sentMails()->sole();
+}
 
-    expect($message)->toBeInstanceOf(Email::class);
+/**
+ * Every email the app sent during the test, in order.
+ *
+ * @return Collection<int, Email>
+ */
+function sentMails(): Collection
+{
+    return app('mailer')->getSymfonyTransport()->messages()->map(function (SentMessage $sent): Email {
+        $message = $sent->getOriginalMessage();
 
-    return $message;
+        expect($message)->toBeInstanceOf(Email::class);
+
+        return $message;
+    });
 }
 
 /**

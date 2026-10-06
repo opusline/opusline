@@ -7136,6 +7136,54 @@ export type UpdateNotificationPreferencesResponses = {
 
 export type UpdateNotificationPreferencesResponse = UpdateNotificationPreferencesResponses[keyof UpdateNotificationPreferencesResponses];
 
+export type SendTestEmailData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/settings/notifications/test-email';
+};
+
+export type SendTestEmailErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    503: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type SendTestEmailError = SendTestEmailErrors[keyof SendTestEmailErrors];
+
+export type SendTestEmailResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type SendTestEmailResponse = SendTestEmailResponses[keyof SendTestEmailResponses];
+
 export type RefreshSettingsRatesData = {
     body?: never;
     path?: never;

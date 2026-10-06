@@ -116,6 +116,10 @@ class AppServiceProvider extends ServiceProvider
         // Both take a password or a six-digit code from a logged-in caller:
         // six tries a minute keeps guessing hopeless without hurting a typo.
         RateLimiter::for('confirm-password', fn (Request $request): Limit => Limit::perMinute(6)->by('confirm:'.$caller($request)));
+        // Each test costs the relay two emails. Named, because an anonymous
+        // `throttle:3,1` counts on the account alone and would share its
+        // allowance with every other route limited that way.
+        RateLimiter::for('mail-test', fn (Request $request): Limit => Limit::perMinute(3)->by('mail-test:'.$caller($request)));
         RateLimiter::for('two-factor-setup', fn (Request $request): Limit => Limit::perMinute(6)->by('2fa-setup:'.$caller($request)));
 
         RateLimiter::for('passkey-login', fn (Request $request): Limit => Limit::perMinute(10)->by('passkey:'.($request->ip() ?? 'unknown')));

@@ -12,7 +12,6 @@ function renderCard(
   render(
     <EmailNotificationsCard
       error={null}
-      isMailEnabled
       isSaving={false}
       onChange={onChange}
       preferences={{ securityAlerts: true, deadlineReminders: true }}
@@ -36,18 +35,6 @@ it("saves both preferences when one switch is flipped", () => {
     securityAlerts: true,
     deadlineReminders: false,
   });
-});
-
-it("says so when the instance sends no email", () => {
-  renderCard({ isMailEnabled: false });
-
-  expect(screen.getByText(m.notifications_mail_disabled())).toBeVisible();
-});
-
-it("stays silent about the mailer on an instance that has one", () => {
-  renderCard();
-
-  expect(screen.queryByText(m.notifications_mail_disabled())).toBeNull();
 });
 
 it("ignores a flip while a save is in flight", () => {

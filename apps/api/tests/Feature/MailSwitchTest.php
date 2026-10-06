@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Deadlines\Calendar\DeadlineReminderLine;
 use App\Domain\Deadlines\Notifications\DeadlineReminderDigest;
+use App\Domain\Settings\Notifications\TestEmail;
 use App\Domain\Users\Enums\SecurityAlertKind;
 use App\Domain\Users\Models\User;
 use App\Domain\Users\Notifications\ResetPasswordLink;
@@ -20,6 +21,7 @@ use Illuminate\Notifications\Notification;
 function everyNotification(): array
 {
     return [
+        TestEmail::class => new TestEmail(isQueued: false),
         SecurityAlert::class => new SecurityAlert(SecurityAlertKind::PasswordChanged, ip: null, userAgent: null),
         ResetPasswordLink::class => new ResetPasswordLink('a-token'),
         DeadlineReminderDigest::class => new DeadlineReminderDigest([

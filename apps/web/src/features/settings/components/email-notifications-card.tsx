@@ -1,7 +1,7 @@
 import type { NotificationPreferencesData } from "@opusline/api-client";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Switch } from "@opusline/ui/components/switch";
-import { CircleAlert, Info } from "lucide-react";
+import { CircleAlert } from "lucide-react";
 
 import { m } from "@/paraglide/messages.js";
 import { SettingsSection } from "./settings-section";
@@ -43,8 +43,6 @@ function PreferenceRow({
 
 type EmailNotificationsCardProps = {
   preferences: NotificationPreferencesData;
-  /** False on an instance whose operator named no mailer: the choices are kept, nothing is sent. */
-  isMailEnabled: boolean;
   isSaving: boolean;
   error: string | null;
   onChange: (preferences: NotificationPreferencesData) => void;
@@ -52,7 +50,6 @@ type EmailNotificationsCardProps = {
 
 export function EmailNotificationsCard({
   preferences,
-  isMailEnabled,
   isSaving,
   error,
   onChange,
@@ -62,16 +59,6 @@ export function EmailNotificationsCard({
       description={m.notifications_email_description()}
       title={m.notifications_email_title()}
     >
-      {isMailEnabled ? null : (
-        <Alert
-          className="mb-5"
-          data-testid="notifications-mail-disabled"
-          variant="brand"
-        >
-          <Info />
-          <AlertDescription>{m.notifications_mail_disabled()}</AlertDescription>
-        </Alert>
-      )}
       {error === null ? null : (
         <Alert className="mb-5" variant="warn">
           <CircleAlert />

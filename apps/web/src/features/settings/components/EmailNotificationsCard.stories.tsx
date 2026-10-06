@@ -15,7 +15,6 @@ const meta = {
   ],
   args: {
     preferences: { securityAlerts: true, deadlineReminders: true },
-    isMailEnabled: true,
     isSaving: false,
     error: null,
     onChange: () => {},
@@ -29,11 +28,6 @@ export const AllOn: Story = {};
 
 export const RemindersOff: Story = {
   args: { preferences: { securityAlerts: true, deadlineReminders: false } },
-};
-
-/** An instance whose operator configured no mailer: the choices are kept for later. */
-export const MailNotConfigured: Story = {
-  args: { isMailEnabled: false },
 };
 
 export const Saving: Story = {

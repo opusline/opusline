@@ -417,11 +417,13 @@ fiscal ones and unpaid invoices — a week before, the day before and on the day
 the `scheduler` runs `deadlines:send-reminders` every hour, and each account
 gets one email on those mornings, after 07:00 in its own timezone. Each account
 turns either kind off under Settings → Notifications, which also tells it when
-the instance has no mailer. A mailer is also what puts « Forgot your password? »
-on the sign-in page. All other mail goes to the address the account signs in
-with, which Opusline does not verify, in the account's language. The `queue`
-service does the sending: with it down, or with a relay that refuses the
-message, nothing arrives and `queue:failed` says why.
+the instance has no mailer and, once it has one, sends a test email: two of
+them, one handed straight to the relay and one through the queue, so that
+whichever fails to arrive names the part to look at. A mailer is also what puts
+« Forgot your password? » on the sign-in page. All other mail goes to the
+address the account signs in with, which Opusline does not verify, in the
+account's language. The `queue` service does the sending: with it down, or with
+a relay that refuses the message, nothing arrives and `queue:failed` says why.
 
 **Error reporting.** Nothing phones home by default. Set `SENTRY_LARAVEL_DSN`
 and the API reports its exceptions and performance traces (slow endpoints, N+1
@@ -459,7 +461,7 @@ Six services run: `web` (the SPA and the proxy), `api`, `queue` and `scheduler`
 | Saving an Enable Banking application says the redirect URL is missing | The application in Enable Banking's control panel does not list `APP_URL/bank-account` (or `ENABLE_BANKING_REDIRECT_URL`) exactly |
 | Login throttled instantly for everyone | Every request looks like it comes from the proxy: `TRUSTED_PROXIES` is unset, or `docker/web.Caddyfile` no longer trusts the address your proxy connects from |
 | `no such table: sessions` | An older image. Upgrade — the migration ships now |
-| Alert and reminder emails never arrive | `MAIL_MAILER` is unset, or the relay refused the message: `queue:failed` shows its answer |
+| Alert and reminder emails never arrive | Send a test email from Settings → Notifications. No button: `MAIL_MAILER` is unset. An error: it is the relay's answer. Only the first of the two emails arrives: the `queue` service is down, and `queue:failed` shows what it choked on |
 | Forgot the password | With a mailer, « Forgot your password? » on the sign-in page emails a reset link. Without one, set a new password from the shell, below |
 
 A password you still know is changed under Settings → Security, which also
