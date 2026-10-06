@@ -1625,6 +1625,7 @@ export type PingData = {
     status: string;
     version: string;
     sentry: SentryWebData | null;
+    mailEnabled: boolean;
 };
 
 /**
