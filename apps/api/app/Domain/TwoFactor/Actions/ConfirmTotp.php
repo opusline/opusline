@@ -6,7 +6,9 @@ namespace App\Domain\TwoFactor\Actions;
 
 use App\Domain\TwoFactor\Recovery\RecoveryCodes;
 use App\Domain\TwoFactor\Totp\TotpVerifier;
+use App\Domain\Users\Enums\SecurityAlertKind;
 use App\Domain\Users\Models\User;
+use App\Domain\Users\Notifications\SecurityAlert;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -55,6 +57,7 @@ class ConfirmTotp
             $locked->save();
 
             Log::warning('Authenticator app turned on.', ['user_id' => $locked->id, 'ip' => request()->ip()]);
+            $locked->notify(SecurityAlert::duringRequest(SecurityAlertKind::TotpEnabled));
 
             return $codes;
         });

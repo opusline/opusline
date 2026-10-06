@@ -8,7 +8,9 @@ use App\Domain\Passkeys\Models\Passkey;
 use App\Domain\Passkeys\Webauthn\PasskeyCeremony;
 use App\Domain\Passkeys\Webauthn\PasskeyVerificationFailed;
 use App\Domain\TwoFactor\Recovery\RecoveryCodes;
+use App\Domain\Users\Enums\SecurityAlertKind;
 use App\Domain\Users\Models\User;
+use App\Domain\Users\Notifications\SecurityAlert;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -84,6 +86,7 @@ class StorePasskey
                 'passkey_id' => $passkey->id,
                 'ip' => request()->ip(),
             ]);
+            $locked->notify(SecurityAlert::duringRequest(SecurityAlertKind::PasskeyAdded));
 
             return $passkey;
         });

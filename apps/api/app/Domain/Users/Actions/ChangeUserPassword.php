@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Domain\Users\Actions;
 
 use App\Domain\Users\Data\UpdateUserPasswordData;
+use App\Domain\Users\Enums\SecurityAlertKind;
 use App\Domain\Users\Models\User;
+use App\Domain\Users\Notifications\SecurityAlert;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -30,5 +32,6 @@ class ChangeUserPassword
         });
 
         Log::warning('Password changed.', ['user_id' => $user->id, 'ip' => request()->ip()]);
+        $user->notify(SecurityAlert::duringRequest(SecurityAlertKind::PasswordChanged));
     }
 }

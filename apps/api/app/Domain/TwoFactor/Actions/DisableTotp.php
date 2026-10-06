@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\TwoFactor\Actions;
 
+use App\Domain\Users\Enums\SecurityAlertKind;
 use App\Domain\Users\Models\User;
+use App\Domain\Users\Notifications\SecurityAlert;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -34,6 +36,7 @@ class DisableTotp
 
             if ($wasEnabled) {
                 Log::warning('Authenticator app turned off.', ['user_id' => $locked->id, 'ip' => request()->ip()]);
+                $locked->notify(SecurityAlert::duringRequest(SecurityAlertKind::TotpDisabled));
             }
         });
     }

@@ -52,6 +52,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Testing\TestResponse;
 use ParagonIE\ConstantTime\Base64UrlSafe;
+use Symfony\Component\Mime\Email;
 use Tests\Support\FakePasskeyCeremony;
 use Tests\TestCase;
 
@@ -174,6 +175,19 @@ function queriesDuring(callable $request): int
 function freezeTodayAtUtcNoon(): void
 {
     test()->travelTo(CarbonImmutable::parse('2026-08-13 12:00:00', 'UTC'));
+}
+
+/**
+ * The one email the app sent during the test, as the array transport caught
+ * it. Shared by the alert, reminder and reset tests, hence its place here.
+ */
+function soleSentMail(): Email
+{
+    $message = app('mailer')->getSymfonyTransport()->messages()->sole()->getOriginalMessage();
+
+    expect($message)->toBeInstanceOf(Email::class);
+
+    return $message;
 }
 
 /**

@@ -25,6 +25,7 @@ use App\Domain\Timers\Models\RunningTimer;
 use App\Domain\TwoFactor\Models\TrustedDevice;
 use App\Domain\Users\Enums\Theme;
 use App\Domain\Users\Factories\UserFactory;
+use App\Domain\Users\Notifications\SecurityAlert;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -35,6 +36,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Notifications\Notification;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -99,6 +101,18 @@ class User extends Authenticatable implements HasLocalePreference, HasMedia
             'totp_confirmed_at' => 'datetime',
             'two_factor_recovery_codes' => 'encrypted:array',
         ];
+    }
+
+    /**
+     * Mail goes to the address the account signs in with, unless an alert
+     * names another: the one about a changed address has to reach the address
+     * that was just replaced, which the account no longer carries.
+     */
+    public function routeNotificationForMail(Notification $notification): string
+    {
+        return $notification instanceof SecurityAlert && $notification->recipient !== null
+            ? $notification->recipient
+            : $this->email;
     }
 
     /** Mail leaves from queue workers and commands, where no request has set the locale. */

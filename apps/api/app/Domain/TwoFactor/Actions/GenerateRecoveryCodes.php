@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Domain\TwoFactor\Actions;
 
 use App\Domain\TwoFactor\Recovery\RecoveryCodes;
+use App\Domain\Users\Enums\SecurityAlertKind;
 use App\Domain\Users\Models\User;
+use App\Domain\Users\Notifications\SecurityAlert;
 use Illuminate\Support\Facades\DB;
 
 class GenerateRecoveryCodes
@@ -26,6 +28,8 @@ class GenerateRecoveryCodes
 
             $locked->two_factor_recovery_codes = $codes;
             $locked->save();
+
+            $locked->notify(SecurityAlert::duringRequest(SecurityAlertKind::RecoveryCodesRegenerated));
 
             return $codes;
         });

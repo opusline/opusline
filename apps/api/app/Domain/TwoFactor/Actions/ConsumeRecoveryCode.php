@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\TwoFactor\Actions;
 
+use App\Domain\Users\Enums\SecurityAlertKind;
 use App\Domain\Users\Models\User;
+use App\Domain\Users\Notifications\SecurityAlert;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -38,6 +40,7 @@ class ConsumeRecoveryCode
                     'ip' => request()->ip(),
                     'remaining' => count($codes),
                 ]);
+                $locked->notify(SecurityAlert::duringRequest(SecurityAlertKind::RecoveryCodeUsed));
 
                 return true;
             }

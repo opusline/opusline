@@ -41,10 +41,9 @@ class SettingsController extends Controller
 
     public function updateNotifications(UpdateNotificationPreferencesData $data, #[CurrentUser] User $user, UpdateNotificationPreferences $updateNotificationPreferences): JsonResponse
     {
-        $settings = $user->settingsOrFail();
-        $updateNotificationPreferences->handle($settings, $data);
+        $updateNotificationPreferences->handle($user, $data);
 
-        return $this->respond($settings, $user);
+        return $this->respond($user->settingsOrFail(), $user);
     }
 
     /**
