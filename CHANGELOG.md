@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.31.0](https://github.com/opusline/opusline/compare/v0.30.5...v0.31.0) (2026-10-06)
+
+
+### Features
+
+* **web:** change the sign-in email in settings ([#459](https://github.com/opusline/opusline/issues/459)) ([1b67e09](https://github.com/opusline/opusline/commit/1b67e09b83999412dc1c255488856f072e94799b))
+
 ## [0.30.5](https://github.com/opusline/opusline/compare/v0.30.4...v0.30.5) (2026-10-06)
 
 
