@@ -1748,7 +1748,8 @@ export const zSentryWebData = z.object({
 export const zPingData = z.object({
     status: z.string(),
     version: z.string(),
-    sentry: z.nullable(zSentryWebData)
+    sentry: z.nullable(zSentryWebData),
+    mailEnabled: z.boolean()
 });
 
 /**

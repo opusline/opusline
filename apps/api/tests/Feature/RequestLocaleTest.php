@@ -50,3 +50,13 @@ test('the configured app locale drives the guest default', function (): void {
 
     expect(loginFailureMessage('de-DE,de;q=0.9'))->toBe(__('auth.failed', locale: 'fr'));
 });
+
+test('mail sent outside a request follows the account language', function (Locale $locale, string $languageTag): void {
+    $user = User::factory()->create();
+    $user->settings()->sole()->update(['locale' => $locale]);
+
+    expect($user->fresh()->preferredLocale())->toBe($languageTag);
+})->with([
+    'French' => [Locale::fr_FR, 'fr'],
+    'English' => [Locale::en_US, 'en'],
+]);

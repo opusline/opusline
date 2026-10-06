@@ -26,6 +26,7 @@ use App\Domain\TwoFactor\Models\TrustedDevice;
 use App\Domain\Users\Enums\Theme;
 use App\Domain\Users\Factories\UserFactory;
 use Carbon\CarbonImmutable;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Builder;
@@ -55,7 +56,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  */
 #[Fillable(['name', 'email', 'password', 'release_notes_seen_version'])]
 #[Hidden(['password', 'remember_token', 'totp_secret', 'totp_confirmed_at', 'totp_last_used_step', 'two_factor_recovery_codes', 'passkey_user_handle'])]
-class User extends Authenticatable implements HasMedia
+class User extends Authenticatable implements HasLocalePreference, HasMedia
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory;
@@ -98,6 +99,12 @@ class User extends Authenticatable implements HasMedia
             'totp_confirmed_at' => 'datetime',
             'two_factor_recovery_codes' => 'encrypted:array',
         ];
+    }
+
+    /** Mail leaves from queue workers and commands, where no request has set the locale. */
+    public function preferredLocale(): string
+    {
+        return $this->settingsOrFail()->locale->languageTag();
     }
 
     public function hasTotpEnabled(): bool

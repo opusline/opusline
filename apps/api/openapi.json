@@ -11434,12 +11434,16 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "mailEnabled": {
+                        "type": "boolean"
                     }
                 },
                 "required": [
                     "status",
                     "version",
-                    "sentry"
+                    "sentry",
+                    "mailEnabled"
                 ],
                 "title": "PingData"
             },

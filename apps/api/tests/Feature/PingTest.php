@@ -33,3 +33,13 @@ test('ping reports no sentry project when none is configured', function (): void
 
     $this->getJson('/api/ping')->assertOk()->assertJsonPath('sentry', null);
 });
+
+test('ping reports that the instance sends mail when a mailer is named', function (): void {
+    $this->getJson('/api/ping')->assertOk()->assertJsonPath('mailEnabled', true);
+});
+
+test('ping reports that the instance sends no mail without a mailer', function (): void {
+    config()->set('mail.enabled', false);
+
+    $this->getJson('/api/ping')->assertOk()->assertJsonPath('mailEnabled', false);
+});

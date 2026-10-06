@@ -6,6 +6,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Outbound Mail Switch
+    |--------------------------------------------------------------------------
+    |
+    | Opusline only sends mail on an instance whose operator named a mailer
+    | that delivers. "log" never counts: it would put password reset links
+    | into the application log and tell users an email is on its way. For
+    | the same reason the default mailer below falls back to "array", which
+    | drops what it is given, rather than to Laravel's usual "log".
+    |
+    */
+
+    'enabled' => ! in_array(env('MAIL_MAILER'), [null, '', 'log'], true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Default Mailer
     |--------------------------------------------------------------------------
     |
@@ -16,7 +31,7 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'log'),
+    'default' => env('MAIL_MAILER', 'array'),
 
     /*
     |--------------------------------------------------------------------------

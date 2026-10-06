@@ -12,6 +12,7 @@ class PingData extends Data
         public string $status,
         public string $version,
         public ?SentryWebData $sentry,
+        public bool $mailEnabled,
     ) {}
 
     public static function fromConfig(): self
@@ -20,6 +21,7 @@ class PingData extends Data
             status: 'ok',
             version: config()->string('app.version'),
             sentry: SentryWebData::fromConfig(),
+            mailEnabled: config()->boolean('mail.enabled'),
         );
     }
 }
