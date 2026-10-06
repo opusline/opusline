@@ -1760,6 +1760,23 @@ export type RenamePasskeyData = {
 };
 
 /**
+ * RequestPasswordResetData
+ */
+export type RequestPasswordResetData = {
+    email: string;
+};
+
+/**
+ * ResetPasswordData
+ */
+export type ResetPasswordData = {
+    token: string;
+    email: string;
+    password: string;
+    password_confirmation: string;
+};
+
+/**
  * RevenueBasis
  *
  * The two ways a freelancer reads their revenue: by what was invoiced, or by what actually landed. URSSAF declares on the cash basis; the invoiced basis is the activity view.
@@ -6807,6 +6824,58 @@ export type LoginWithPasskeyResponses = {
 };
 
 export type LoginWithPasskeyResponse = LoginWithPasskeyResponses[keyof LoginWithPasskeyResponses];
+
+export type RequestPasswordResetData2 = {
+    body: RequestPasswordResetData;
+    path?: never;
+    query?: never;
+    url: '/forgot-password';
+};
+
+export type RequestPasswordResetResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type RequestPasswordResetResponse = RequestPasswordResetResponses[keyof RequestPasswordResetResponses];
+
+export type ResetPasswordData2 = {
+    body: ResetPasswordData;
+    path?: never;
+    query?: never;
+    url: '/reset-password';
+};
+
+export type ResetPasswordErrors = {
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type ResetPasswordError = ResetPasswordErrors[keyof ResetPasswordErrors];
+
+export type ResetPasswordResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type ResetPasswordResponse = ResetPasswordResponses[keyof ResetPasswordResponses];
 
 export type ReadExpenseReceiptData = {
     body: ReadReceiptData;

@@ -21,6 +21,10 @@ const PUBLIC_API_ROUTES = [
     'api/ping',
     'api/login',
     'api/register',
+    // A forgotten password is recovered by someone who cannot sign in; the
+    // emailed token is the credential. See ResetForgottenPassword.
+    'api/forgot-password',
+    'api/reset-password',
     // The caller has proven the password but is not signed in yet; the
     // account it answers for lives in the guest session. See PendingLogin.
     'api/two-factor-challenge',
@@ -34,7 +38,7 @@ const PUBLIC_API_ROUTES = [
     'api/calendar/{token}.ics',
 ];
 
-test('every API route but the eight documented public ones is behind auth:sanctum', function (): void {
+test('every API route but the ten documented public ones is behind auth:sanctum', function (): void {
     $unauthenticated = collect(Route::getRoutes()->getRoutes())
         ->filter(fn (RoutingRoute $route): bool => str_starts_with($route->uri(), 'api/'))
         ->reject(fn (RoutingRoute $route): bool => in_array(

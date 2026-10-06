@@ -25,6 +25,7 @@ use App\Domain\Timers\Models\RunningTimer;
 use App\Domain\TwoFactor\Models\TrustedDevice;
 use App\Domain\Users\Enums\Theme;
 use App\Domain\Users\Factories\UserFactory;
+use App\Domain\Users\Notifications\ResetPasswordLink;
 use App\Domain\Users\Notifications\SecurityAlert;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Translation\HasLocalePreference;
@@ -119,6 +120,13 @@ class User extends Authenticatable implements HasLocalePreference, HasMedia
     public function preferredLocale(): string
     {
         return $this->settingsOrFail()->locale->languageTag();
+    }
+
+    /** The link targets the SPA, which Laravel's own notification cannot know about. */
+    #[\Override]
+    public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void
+    {
+        $this->notify(new ResetPasswordLink($token));
     }
 
     public function hasTotpEnabled(): bool

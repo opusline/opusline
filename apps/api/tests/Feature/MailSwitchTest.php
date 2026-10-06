@@ -6,6 +6,7 @@ use App\Domain\Deadlines\Calendar\DeadlineReminderLine;
 use App\Domain\Deadlines\Notifications\DeadlineReminderDigest;
 use App\Domain\Users\Enums\SecurityAlertKind;
 use App\Domain\Users\Models\User;
+use App\Domain\Users\Notifications\ResetPasswordLink;
 use App\Domain\Users\Notifications\SecurityAlert;
 use Carbon\CarbonImmutable;
 use Illuminate\Notifications\Notification;
@@ -20,6 +21,7 @@ function everyNotification(): array
 {
     return [
         SecurityAlert::class => new SecurityAlert(SecurityAlertKind::PasswordChanged, ip: null, userAgent: null),
+        ResetPasswordLink::class => new ResetPasswordLink('a-token'),
         DeadlineReminderDigest::class => new DeadlineReminderDigest([
             new DeadlineReminderLine('Déclaration URSSAF — juillet 2026', amount: null, dueOn: CarbonImmutable::parse('2026-08-31'), leadDays: 0),
         ]),

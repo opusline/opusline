@@ -14,6 +14,13 @@ return [
         'subject' => '{1} A deadline is coming up|[2,*] :count deadlines are coming up',
         'with_amount' => ':title. :amount',
     ],
+    'password_reset' => [
+        'action' => 'Choose a new password',
+        'expires' => 'This link works once, for the next :count minutes.',
+        'line' => 'A password reset was requested for your account. Use the button below to choose a new password.',
+        'not_you' => 'If you did not ask for it, ignore this email: your password stays as it is.',
+        'subject' => 'Reset your password',
+    ],
     'security' => [
         'action' => 'Review my settings',
         'device' => 'Browser: :device',

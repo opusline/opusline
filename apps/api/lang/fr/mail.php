@@ -14,6 +14,13 @@ return [
         'subject' => '{1} Une échéance approche|[2,*] :count échéances approchent',
         'with_amount' => ':title. :amount',
     ],
+    'password_reset' => [
+        'action' => 'Choisir un nouveau mot de passe',
+        'expires' => 'Ce lien fonctionne une seule fois, pendant les :count prochaines minutes.',
+        'line' => 'Une réinitialisation du mot de passe a été demandée pour votre compte. Utilisez le bouton ci-dessous pour en choisir un nouveau.',
+        'not_you' => 'Si vous n\'êtes pas à l\'origine de cette demande, ignorez cet e-mail : votre mot de passe reste inchangé.',
+        'subject' => 'Réinitialisez votre mot de passe',
+    ],
     'security' => [
         'action' => 'Vérifier mes réglages',
         'device' => 'Navigateur : :device',
