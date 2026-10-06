@@ -57,6 +57,29 @@ test("a business outside France loses the French fiscal screens", async ({
   await expect(page).toHaveURL(/\/week/);
 });
 
+test("an email preference turned off stays off", async ({
+  page,
+  account: _registered,
+}) => {
+  await page.goto("/settings?tab=notifications");
+  await expect(
+    byTestId(page, "notifications-deadline-reminders", { enabled: "true" }),
+  ).toBeVisible();
+
+  await page.getByTestId("notifications-deadline-reminders").click();
+  await expect(
+    byTestId(page, "notifications-deadline-reminders", { enabled: "false" }),
+  ).toBeVisible();
+
+  await page.reload();
+  await expect(
+    byTestId(page, "notifications-deadline-reminders", { enabled: "false" }),
+  ).toBeVisible();
+  await expect(
+    byTestId(page, "notifications-security-alerts", { enabled: "true" }),
+  ).toBeVisible();
+});
+
 test("a changed password is the one that signs in afterwards", async ({
   page,
   context,

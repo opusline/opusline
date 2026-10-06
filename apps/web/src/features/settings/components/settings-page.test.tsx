@@ -45,6 +45,7 @@ function renderPage(
       onCancel: () => {},
     },
     integrations: null,
+    notifications: null,
     security: null,
     ...overrides,
   };
@@ -91,6 +92,7 @@ it("lists every section as a vertical tab", () => {
     "FacturationDélais, numérotation, matelas",
     "LocalisationPays, devise, langue",
     "IntégrationsSynchronisation bancaire",
+    "NotificationsAlertes, rappels",
     "SécuritéVérification en deux étapes, navigateurs",
   ]);
 });
