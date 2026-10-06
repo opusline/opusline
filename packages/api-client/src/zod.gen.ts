@@ -2481,6 +2481,13 @@ export const zUpdateTimerData = z.object({
 });
 
 /**
+ * UpdateUserEmailData
+ */
+export const zUpdateUserEmailData = z.object({
+    email: z.email().check(z.maxLength(255))
+});
+
+/**
  * UpdateUserPasswordData
  */
 export const zUpdateUserPasswordData = z.object({
@@ -2770,6 +2777,10 @@ export const zUpdateUserPasswordBody = zUpdateUserPasswordData;
  * No content
  */
 export const zUpdateUserPasswordResponse = z.void();
+
+export const zUpdateUserEmailBody = zUpdateUserEmailData;
+
+export const zUpdateUserEmailResponse = zUserData;
 
 export const zUpdateUserThemeBody = zUpdateUserThemeData;
 

@@ -30,6 +30,11 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
     Route::put('/user/password', [AuthController::class, 'updatePassword'])
         ->middleware(RequirePasswordConfirmation::class)
         ->name('updateUserPassword');
+    // The "already taken" answer names existing accounts, so it is rationed
+    // like registration's — which may well be closed on this instance.
+    Route::put('/user/email', [AuthController::class, 'updateEmail'])
+        ->middleware([RequirePasswordConfirmation::class, 'throttle:6,1'])
+        ->name('updateUserEmail');
     Route::put('/user/theme', [AuthController::class, 'updateTheme'])->name('updateUserTheme');
     Route::put('/user/release-notes-seen', [AuthController::class, 'updateReleaseNotesSeen'])->name('updateUserReleaseNotesSeen');
 });
