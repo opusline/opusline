@@ -13,6 +13,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.31.0",
+    date: "2026-10-06",
+    items: [
+      {
+        kind: "new",
+        text: "Change the email you sign in with under Settings → Security. Doing so forgets the browsers you trusted and the devices that remembered you.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.30.5",
     date: "2026-10-06",
     items: [
