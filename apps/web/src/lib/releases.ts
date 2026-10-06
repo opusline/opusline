@@ -13,6 +13,32 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.32.0",
+    date: "2026-10-06",
+    items: [
+      {
+        kind: "new",
+        text: "Deadline reminders by email: on an instance with a mailer configured, you get one morning email a week before, the day before and on the day a fiscal deadline or an unpaid invoice falls due.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "Settings → Notifications: choose whether Opusline emails you security alerts and deadline reminders.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "Forgot your password? On an instance with a mailer configured, the sign-in page emails you a link to choose a new one.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "Security alerts by email: on an instance with a mailer configured, you are told when your password or sign-in email changes, when two-step verification or a passkey is added or removed, when a browser is trusted and when a recovery code is used.", // i18n-ignore
+      },
+      {
+        kind: "new",
+        text: "Settings → Notifications now tells you how to turn email on when the instance has no mailer, and sends a test email when it has one.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.31.0",
     date: "2026-10-06",
     items: [
