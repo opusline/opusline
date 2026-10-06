@@ -1564,6 +1564,14 @@ export type NextInvoiceNumberData = {
 };
 
 /**
+ * NotificationPreferencesData
+ */
+export type NotificationPreferencesData = {
+    securityAlerts: boolean;
+    deadlineReminders: boolean;
+};
+
+/**
  * PaidPeriodData
  */
 export type PaidPeriodData = {
@@ -1922,6 +1930,7 @@ export type SettingsData = {
     workdayMinutes: number;
     dormantAfterMonths: number | null;
     hasSignature: boolean;
+    notifications: NotificationPreferencesData;
 };
 
 /**
@@ -2362,6 +2371,14 @@ export type UpdateMissionData = {
     notes?: string | null;
     startDate?: string | null;
     endDate?: string | null;
+};
+
+/**
+ * UpdateNotificationPreferencesData
+ */
+export type UpdateNotificationPreferencesData = {
+    securityAlerts: boolean;
+    deadlineReminders: boolean;
 };
 
 /**
@@ -7022,6 +7039,33 @@ export type UpdateSettingsCurrencyResponses = {
 };
 
 export type UpdateSettingsCurrencyResponse = UpdateSettingsCurrencyResponses[keyof UpdateSettingsCurrencyResponses];
+
+export type UpdateNotificationPreferencesData2 = {
+    body: UpdateNotificationPreferencesData;
+    path?: never;
+    query?: never;
+    url: '/settings/notifications';
+};
+
+export type UpdateNotificationPreferencesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateNotificationPreferencesError = UpdateNotificationPreferencesErrors[keyof UpdateNotificationPreferencesErrors];
+
+export type UpdateNotificationPreferencesResponses = {
+    200: SettingsData;
+};
+
+export type UpdateNotificationPreferencesResponse = UpdateNotificationPreferencesResponses[keyof UpdateNotificationPreferencesResponses];
 
 export type RefreshSettingsRatesData = {
     body?: never;

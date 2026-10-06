@@ -1431,6 +1431,14 @@ export const zNextInvoiceNumberData = z.object({
 });
 
 /**
+ * NotificationPreferencesData
+ */
+export const zNotificationPreferencesData = z.object({
+    securityAlerts: z.boolean(),
+    deadlineReminders: z.boolean()
+});
+
+/**
  * PaidPeriodData
  */
 export const zPaidPeriodData = z.object({
@@ -2461,6 +2469,14 @@ export const zUpdateMissionData = z.object({
 });
 
 /**
+ * UpdateNotificationPreferencesData
+ */
+export const zUpdateNotificationPreferencesData = z.object({
+    securityAlerts: z.boolean(),
+    deadlineReminders: z.boolean()
+});
+
+/**
  * UpdateReleaseNotesSeenData
  */
 export const zUpdateReleaseNotesSeenData = z.object({
@@ -2651,7 +2667,8 @@ export const zSettingsData = z.object({
     timezone: z.string(),
     workdayMinutes: z.int(),
     dormantAfterMonths: z.nullable(z.int()),
-    hasSignature: z.boolean()
+    hasSignature: z.boolean(),
+    notifications: zNotificationPreferencesData
 });
 
 /**
@@ -3430,6 +3447,10 @@ export const zUpdateSettingsResponse = zSettingsData;
 export const zUpdateSettingsCurrencyBody = zUpdateSettingsCurrencyData;
 
 export const zUpdateSettingsCurrencyResponse = zSettingsData;
+
+export const zUpdateNotificationPreferencesBody = zUpdateNotificationPreferencesData;
+
+export const zUpdateNotificationPreferencesResponse = zSettingsData;
 
 export const zRefreshSettingsRatesResponse = zSettingsData;
 

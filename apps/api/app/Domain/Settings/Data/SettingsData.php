@@ -74,6 +74,7 @@ class SettingsData extends Data
          */
         public ?int $dormantAfterMonths,
         public bool $hasSignature,
+        public NotificationPreferencesData $notifications,
     ) {}
 
     public static function fromModel(
@@ -137,6 +138,7 @@ class SettingsData extends Data
             workdayMinutes: $settings->workday_minutes,
             dormantAfterMonths: $settings->dormant_after_months,
             hasSignature: $hasSignature,
+            notifications: NotificationPreferencesData::fromSettings($settings),
         );
     }
 }

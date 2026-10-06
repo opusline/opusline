@@ -210,4 +210,5 @@ export const DEMO_SETTINGS = {
   workdayMinutes: 420,
   dormantAfterMonths: null,
   hasSignature: true,
+  notifications: { securityAlerts: true, deadlineReminders: true },
 } satisfies SettingsData;
