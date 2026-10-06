@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.30.4](https://github.com/opusline/opusline/compare/v0.30.3...v0.30.4) (2026-10-06)
+
+
+### Dependencies
+
+* **deps:** patch audited transitive packages ([#454](https://github.com/opusline/opusline/issues/454)) ([d4dd507](https://github.com/opusline/opusline/commit/d4dd507a30fe2936bffe2dbf86304d111b79603e))
+
 ## [0.30.3](https://github.com/opusline/opusline/compare/v0.30.2...v0.30.3) (2026-09-22)
 
 
