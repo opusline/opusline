@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.32.0](https://github.com/opusline/opusline/compare/v0.31.0...v0.32.0) (2026-10-06)
+
+
+### Features
+
+* **api:** email deadline reminders ([#463](https://github.com/opusline/opusline/issues/463)) ([ca2e48c](https://github.com/opusline/opusline/commit/ca2e48ca440aeb5ec813f9db1b06d849696fa30b))
+* **api:** email security alerts ([#462](https://github.com/opusline/opusline/issues/462)) ([70652f6](https://github.com/opusline/opusline/commit/70652f6583bddda0856b2ffd264667c6cc3d790f))
+* **api:** reset a forgotten password by email ([#465](https://github.com/opusline/opusline/issues/465)) ([6146432](https://github.com/opusline/opusline/commit/6146432c80eb0aa1d24f31da467882ae324746e6))
+* **api:** store email notification preferences ([#461](https://github.com/opusline/opusline/issues/461)) ([a7c27de](https://github.com/opusline/opusline/commit/a7c27de78ee5052bd6cb6b7645fe97838738da8f))
+* **web:** add the forgotten password pages ([#466](https://github.com/opusline/opusline/issues/466)) ([c38d64e](https://github.com/opusline/opusline/commit/c38d64edfa1bc64caacc7814164ca3f99f9e5b16))
+* **web:** add the notifications settings tab ([#464](https://github.com/opusline/opusline/issues/464)) ([2ef5b78](https://github.com/opusline/opusline/commit/2ef5b78d262840fa49c26d6fa2fc693d1cd7dc66))
+* **web:** send a test email from the settings ([#469](https://github.com/opusline/opusline/issues/469)) ([f27d615](https://github.com/opusline/opusline/commit/f27d615106ff62873dc54542b2b1a1d3a8d5dba2))
+
 ## [0.31.0](https://github.com/opusline/opusline/compare/v0.30.5...v0.31.0) (2026-10-06)
 
 
