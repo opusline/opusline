@@ -15,6 +15,7 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
     Route::get('/settings', [SettingsController::class, 'show'])->name('showSettings');
     Route::put('/settings', [SettingsController::class, 'update'])->name('updateSettings');
     Route::put('/settings/currency', [SettingsController::class, 'updateCurrency'])->name('updateSettingsCurrency');
+    Route::put('/settings/notifications', [SettingsController::class, 'updateNotifications'])->name('updateNotificationPreferences');
     Route::post('/settings/rates/refresh', [SettingsController::class, 'refreshRates'])
         ->middleware('throttle:6,1')
         ->name('refreshSettingsRates');

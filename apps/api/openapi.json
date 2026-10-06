@@ -4759,6 +4759,39 @@
                 }
             }
         },
+        "/settings/notifications": {
+            "put": {
+                "operationId": "updateNotificationPreferences",
+                "tags": [
+                    "Settings"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateNotificationPreferencesData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SettingsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/settings/rates/refresh": {
             "post": {
                 "operationId": "refreshSettingsRates",
@@ -11290,6 +11323,22 @@
                 ],
                 "title": "NextInvoiceNumberData"
             },
+            "NotificationPreferencesData": {
+                "type": "object",
+                "properties": {
+                    "securityAlerts": {
+                        "type": "boolean"
+                    },
+                    "deadlineReminders": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "securityAlerts",
+                    "deadlineReminders"
+                ],
+                "title": "NotificationPreferencesData"
+            },
             "PaidPeriodData": {
                 "type": "object",
                 "properties": {
@@ -12304,6 +12353,9 @@
                     },
                     "hasSignature": {
                         "type": "boolean"
+                    },
+                    "notifications": {
+                        "$ref": "#/components/schemas/NotificationPreferencesData"
                     }
                 },
                 "required": [
@@ -12354,7 +12406,8 @@
                     "timezone",
                     "workdayMinutes",
                     "dormantAfterMonths",
-                    "hasSignature"
+                    "hasSignature",
+                    "notifications"
                 ],
                 "title": "SettingsData"
             },
@@ -13826,6 +13879,22 @@
                     "status"
                 ],
                 "title": "UpdateMissionData"
+            },
+            "UpdateNotificationPreferencesData": {
+                "type": "object",
+                "properties": {
+                    "securityAlerts": {
+                        "type": "boolean"
+                    },
+                    "deadlineReminders": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "securityAlerts",
+                    "deadlineReminders"
+                ],
+                "title": "UpdateNotificationPreferencesData"
             },
             "UpdateReleaseNotesSeenData": {
                 "type": "object",

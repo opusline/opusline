@@ -49,6 +49,7 @@ export const settingsFixture: SettingsData = {
   workdayMinutes: 420,
   dormantAfterMonths: null,
   hasSignature: false,
+  notifications: { securityAlerts: true, deadlineReminders: true },
 };
 
 /** The same account established abroad — the two flags always move together. */

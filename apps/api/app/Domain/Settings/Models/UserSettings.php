@@ -73,6 +73,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property bool $calendar_feed_other
  * @property ?CarbonImmutable $calendar_subscribed_on
  * @property ?CarbonImmutable $calendar_last_synced_at
+ * @property bool $mail_security_alerts
+ * @property bool $mail_deadline_reminders
  * @property Currency $currency
  * @property Locale $locale
  * @property DateFormat $date_format
@@ -127,6 +129,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'calendar_feed_other',
     'calendar_subscribed_on',
     'calendar_last_synced_at',
+    'mail_security_alerts',
+    'mail_deadline_reminders',
     'currency',
     'locale',
     'date_format',
@@ -199,6 +203,8 @@ class UserSettings extends Model
             'calendar_feed_other' => 'boolean',
             'calendar_subscribed_on' => 'date',
             'calendar_last_synced_at' => 'datetime',
+            'mail_security_alerts' => 'boolean',
+            'mail_deadline_reminders' => 'boolean',
             'currency' => Currency::class,
             'locale' => Locale::class,
             'date_format' => DateFormat::class,

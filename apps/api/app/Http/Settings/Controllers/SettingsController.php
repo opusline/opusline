@@ -6,8 +6,10 @@ namespace App\Http\Settings\Controllers;
 
 use App\Domain\Settings\Actions\ChangeAccountCurrency;
 use App\Domain\Settings\Actions\RefreshOfficialRates;
+use App\Domain\Settings\Actions\UpdateNotificationPreferences;
 use App\Domain\Settings\Actions\UpdateSettings;
 use App\Domain\Settings\Data\SettingsData;
+use App\Domain\Settings\Data\UpdateNotificationPreferencesData;
 use App\Domain\Settings\Data\UpdateSettingsCurrencyData;
 use App\Domain\Settings\Data\UpdateSettingsData;
 use App\Domain\Settings\Models\UserSettings;
@@ -35,6 +37,14 @@ class SettingsController extends Controller
     public function updateCurrency(UpdateSettingsCurrencyData $data, #[CurrentUser] User $user, ChangeAccountCurrency $changeAccountCurrency): JsonResponse
     {
         return $this->respond($changeAccountCurrency->handle($user->settingsOrFail(), $data), $user);
+    }
+
+    public function updateNotifications(UpdateNotificationPreferencesData $data, #[CurrentUser] User $user, UpdateNotificationPreferences $updateNotificationPreferences): JsonResponse
+    {
+        $settings = $user->settingsOrFail();
+        $updateNotificationPreferences->handle($settings, $data);
+
+        return $this->respond($settings, $user);
     }
 
     /**
