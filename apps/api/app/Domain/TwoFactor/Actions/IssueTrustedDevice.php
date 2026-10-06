@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Domain\TwoFactor\Actions;
 
 use App\Domain\TwoFactor\Models\TrustedDevice;
+use App\Domain\Users\Enums\SecurityAlertKind;
 use App\Domain\Users\Models\User;
+use App\Domain\Users\Notifications\SecurityAlert;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -34,6 +36,7 @@ class IssueTrustedDevice
             'ip' => $ip,
             'user_agent' => $userAgent,
         ]);
+        $user->notify(new SecurityAlert(SecurityAlertKind::BrowserTrusted, $ip, $userAgent));
 
         return $token;
     }

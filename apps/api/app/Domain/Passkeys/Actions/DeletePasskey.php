@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Domain\Passkeys\Actions;
 
 use App\Domain\Passkeys\Models\Passkey;
+use App\Domain\Users\Enums\SecurityAlertKind;
 use App\Domain\Users\Models\User;
+use App\Domain\Users\Notifications\SecurityAlert;
 use Illuminate\Support\Facades\DB;
 
 class DeletePasskey
@@ -26,6 +28,8 @@ class DeletePasskey
                 $locked->save();
                 $locked->trustedDevices()->delete();
             }
+
+            $locked->notify(SecurityAlert::duringRequest(SecurityAlertKind::PasskeyRemoved));
         });
     }
 }

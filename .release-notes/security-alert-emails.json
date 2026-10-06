@@ -1,0 +1,4 @@
+{
+  "kind": "new",
+  "text": "Security alerts by email: on an instance with a mailer configured, you are told when your password or sign-in email changes, when two-step verification or a passkey is added or removed, when a browser is trusted and when a recovery code is used."
+}
