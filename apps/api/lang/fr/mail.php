@@ -70,4 +70,17 @@ return [
         'not_you' => 'Si c\'était vous, il n\'y a rien à faire. Sinon, changez votre mot de passe sans attendre et vérifiez les moyens de connexion à votre compte.',
         'when' => 'Date : :time',
     ],
+    'test' => [
+        'both' => 'Un test d\'envoi produit deux e-mails. Si seul le premier vous parvient, le serveur d\'envoi fonctionne mais le service de file d\'attente n\'est pas démarré.',
+        'direct' => [
+            'line' => 'Voici le premier des deux : l\'instance l\'a remis directement à son serveur d\'envoi, qui l\'a distribué.',
+            'subject' => 'E-mail de test Opusline, 1 sur 2 : envoi direct',
+        ],
+        'queued' => [
+            'line' => 'Voici le second des deux : il a été envoyé par la file d\'attente, comme le sont les alertes de sécurité et les rappels d\'échéances.',
+            'subject' => 'E-mail de test Opusline, 2 sur 2 : envoi par la file d\'attente',
+        ],
+        'queue_failed' => 'Le serveur d\'envoi a accepté le premier e-mail, mais le second n\'a pas pu être remis à la file d\'attente : :reason',
+        'relay_failed' => 'L\'e-mail de test n\'a pas pu être envoyé : :reason',
+    ],
 ];

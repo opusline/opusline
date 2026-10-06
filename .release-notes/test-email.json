@@ -1,0 +1,4 @@
+{
+  "kind": "new",
+  "text": "Settings → Notifications now tells you how to turn email on when the instance has no mailer, and sends a test email when it has one."
+}

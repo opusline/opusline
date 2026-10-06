@@ -62,7 +62,12 @@ return [
             'port' => env('MAIL_PORT', 2525),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
-            'timeout' => null,
+            // Seconds, for the connection and for each answer. Left unset, a
+            // relay that silently drops packets holds on for PHP's 60-second
+            // socket default: past the 30 seconds a request may run, so the
+            // mail test would die without an answer, and a worker would stall
+            // on every mail.
+            'timeout' => (int) env('MAIL_TIMEOUT', 10),
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
 

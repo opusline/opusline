@@ -3,8 +3,7 @@ import { type APIRequestContext, expect } from "@playwright/test";
 const MAILPIT_URL = process.env.E2E_MAILPIT_URL ?? "http://localhost:8026";
 const RESET_LINK = /https?:\/\/[^\s\])]+\/reset-password\?[^\s\])]+/;
 
-/** The text of every email the stack has sent to an address so far. */
-async function emailsSentTo(
+async function messageIdsFor(
   request: APIRequestContext,
   address: string,
 ): Promise<string[]> {
@@ -13,8 +12,24 @@ async function emailsSentTo(
   });
   const { messages } = (await search.json()) as { messages: { ID: string }[] };
 
+  return messages.map(({ ID }) => ID);
+}
+
+/** How many emails the stack has delivered to an address so far. */
+export async function emailCountFor(
+  request: APIRequestContext,
+  address: string,
+): Promise<number> {
+  return (await messageIdsFor(request, address)).length;
+}
+
+/** The text of every email the stack has sent to an address so far. */
+async function emailsSentTo(
+  request: APIRequestContext,
+  address: string,
+): Promise<string[]> {
   return Promise.all(
-    messages.map(async ({ ID }) => {
+    (await messageIdsFor(request, address)).map(async (ID) => {
       const message = await request.get(`${MAILPIT_URL}/api/v1/message/${ID}`);
 
       return ((await message.json()) as { Text: string }).Text;

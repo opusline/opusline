@@ -8,6 +8,7 @@ import {
   deleteUserSignatureMutation,
   getPingOptions,
   refreshSettingsRatesMutation,
+  sendTestEmailMutation,
   showSettingsOptions,
   showSettingsQueryKey,
   updateNotificationPreferencesMutation,
@@ -37,6 +38,7 @@ import {
 import { EmailNotificationsCard } from "@/features/settings/components/email-notifications-card";
 import { IntegrationsSettings } from "@/features/settings/components/integrations-settings";
 import type { LocalisationDraft } from "@/features/settings/components/localisation-settings";
+import { MailDeliveryCard } from "@/features/settings/components/mail-delivery-card";
 import { SecuritySettings } from "@/features/settings/components/security-settings";
 import { SettingsPage } from "@/features/settings/components/settings-page";
 import {
@@ -51,7 +53,11 @@ import {
   invalidateDeadlines,
   invalidateTreasury,
 } from "@/lib/query-invalidation";
-import { serverErrorMessage, serverFieldErrors } from "@/lib/validation";
+import {
+  serverErrorMessage,
+  serverFieldErrors,
+  writeErrorBanner,
+} from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
 type ReglagesSearch = { tab?: SettingsTab };
@@ -107,6 +113,7 @@ function patchCurrentUser(queryClient: QueryClient, settings: SettingsData) {
 
 function ReglagesRoute() {
   const { tab } = Route.useSearch();
+  const { user } = Route.useRouteContext();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const format = useMoneyFormat();
@@ -126,6 +133,7 @@ function ReglagesRoute() {
     null,
   );
   const ping = useQuery(getPingOptions());
+  const sendTestEmail = useMutation(sendTestEmailMutation());
 
   const settings = useQuery({
     ...showSettingsOptions(),
@@ -382,26 +390,34 @@ function ReglagesRoute() {
         }}
         integrations={<IntegrationsSettings />}
         notifications={
-          <EmailNotificationsCard
-            error={
-              updateNotifications.isError
-                ? serverErrorMessage(
-                    updateNotifications.error,
-                    m.common_save_failed(),
-                  )
-                : null
-            }
-            // Unknown is not "off": only an instance that said it has no
-            // mailer gets the notice.
-            isMailEnabled={ping.data?.mailEnabled !== false}
-            isSaving={updateNotifications.isPending}
-            onChange={(body) => updateNotifications.mutate({ body })}
-            preferences={
-              updateNotifications.isPending
-                ? updateNotifications.variables.body
-                : savedSettings.notifications
-            }
-          />
+          <div className="flex flex-col gap-6">
+            <MailDeliveryCard
+              email={user.email}
+              error={writeErrorBanner(
+                sendTestEmail.error,
+                m.mail_delivery_test_failed(),
+              )}
+              // Unknown is not "off": only an instance that said it has no
+              // mailer is told to set one up.
+              isMailEnabled={ping.data?.mailEnabled !== false}
+              isSending={sendTestEmail.isPending}
+              isSent={sendTestEmail.isSuccess}
+              onSendTest={() => sendTestEmail.mutate({})}
+            />
+            <EmailNotificationsCard
+              error={writeErrorBanner(
+                updateNotifications.error,
+                m.common_save_failed(),
+              )}
+              isSaving={updateNotifications.isPending}
+              onChange={(body) => updateNotifications.mutate({ body })}
+              preferences={
+                updateNotifications.isPending
+                  ? updateNotifications.variables.body
+                  : savedSettings.notifications
+              }
+            />
+          </div>
         }
         security={
           <SecuritySettings

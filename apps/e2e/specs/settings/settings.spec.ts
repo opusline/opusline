@@ -1,4 +1,5 @@
 import { byTestId } from "../../support/locators";
+import { emailCountFor } from "../../support/mailbox";
 import { signIn } from "../../support/sign-in";
 import { expect, test } from "../../support/test";
 
@@ -79,6 +80,20 @@ test("an email preference turned off stays off", async ({
   await expect(
     byTestId(page, "notifications-security-alerts", { enabled: "true" }),
   ).toBeVisible();
+});
+
+test("a mail test arrives twice: once directly, once through the queue", async ({
+  page,
+  request,
+  account,
+}) => {
+  await page.goto("/settings?tab=notifications");
+  await page.getByTestId("mail-delivery-send-test").click();
+  await expect(page.getByTestId("mail-delivery-test-sent")).toBeVisible();
+
+  await expect
+    .poll(() => emailCountFor(request, account.email), { timeout: 30_000 })
+    .toBe(2);
 });
 
 test("a changed password is the one that signs in afterwards", async ({

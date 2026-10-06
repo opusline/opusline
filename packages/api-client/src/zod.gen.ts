@@ -3483,6 +3483,11 @@ export const zUpdateNotificationPreferencesBody = zUpdateNotificationPreferences
 
 export const zUpdateNotificationPreferencesResponse = zSettingsData;
 
+/**
+ * No content
+ */
+export const zSendTestEmailResponse = z.void();
+
 export const zRefreshSettingsRatesResponse = zSettingsData;
 
 /**

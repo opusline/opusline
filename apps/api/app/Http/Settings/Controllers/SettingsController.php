@@ -6,6 +6,7 @@ namespace App\Http\Settings\Controllers;
 
 use App\Domain\Settings\Actions\ChangeAccountCurrency;
 use App\Domain\Settings\Actions\RefreshOfficialRates;
+use App\Domain\Settings\Actions\SendTestEmail;
 use App\Domain\Settings\Actions\UpdateNotificationPreferences;
 use App\Domain\Settings\Actions\UpdateSettings;
 use App\Domain\Settings\Data\SettingsData;
@@ -17,6 +18,7 @@ use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class SettingsController extends Controller
@@ -44,6 +46,17 @@ class SettingsController extends Controller
         $updateNotificationPreferences->handle($user, $data);
 
         return $this->respond($user->settingsOrFail(), $user);
+    }
+
+    /**
+     * @throws HttpException<409>
+     * @throws HttpException<503>
+     */
+    public function sendTestEmail(#[CurrentUser] User $user, SendTestEmail $sendTestEmail): Response
+    {
+        $sendTestEmail->handle($user);
+
+        return response()->noContent();
     }
 
     /**

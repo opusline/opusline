@@ -70,4 +70,17 @@ return [
         'not_you' => 'If this was you, there is nothing to do. If it was not, change your password now and review how your account can be signed in to.',
         'when' => 'When: :time',
     ],
+    'test' => [
+        'both' => 'A mail test sends two emails. If only the first one reaches you, the mail relay works but the queue service is not running.',
+        'direct' => [
+            'line' => 'This is the first of the two: the instance handed it straight to its mail relay, and the relay delivered it.',
+            'subject' => 'Opusline test email, 1 of 2: sent directly',
+        ],
+        'queued' => [
+            'line' => 'This is the second of the two: the queue worker sent it, the way it sends security alerts and deadline reminders.',
+            'subject' => 'Opusline test email, 2 of 2: sent by the queue',
+        ],
+        'queue_failed' => 'The mail relay accepted the first email, but the second could not be handed to the queue: :reason',
+        'relay_failed' => 'The test email could not be sent: :reason',
+    ],
 ];

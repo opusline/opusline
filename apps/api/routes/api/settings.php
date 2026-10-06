@@ -6,6 +6,7 @@ use App\Http\Settings\Controllers\InstanceController;
 use App\Http\Settings\Controllers\IntegrationsController;
 use App\Http\Settings\Controllers\SettingsController;
 use App\Http\Settings\Controllers\SignatureController;
+use App\Http\Users\Support\EnsureMailIsEnabled;
 use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +17,9 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
     Route::put('/settings', [SettingsController::class, 'update'])->name('updateSettings');
     Route::put('/settings/currency', [SettingsController::class, 'updateCurrency'])->name('updateSettingsCurrency');
     Route::put('/settings/notifications', [SettingsController::class, 'updateNotifications'])->name('updateNotificationPreferences');
+    Route::post('/settings/notifications/test-email', [SettingsController::class, 'sendTestEmail'])
+        ->middleware([EnsureMailIsEnabled::class, 'throttle:mail-test'])
+        ->name('sendTestEmail');
     Route::post('/settings/rates/refresh', [SettingsController::class, 'refreshRates'])
         ->middleware('throttle:6,1')
         ->name('refreshSettingsRates');

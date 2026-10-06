@@ -10,6 +10,7 @@ import type { SettingsTab } from "../lib/settings-form";
 import { AuthenticatorAppCard } from "./authenticator-app-card";
 import { EmailNotificationsCard } from "./email-notifications-card";
 import { EnableBankingCard } from "./enable-banking-card";
+import { MailDeliveryCard } from "./mail-delivery-card";
 import { SettingsPage } from "./settings-page";
 import { TrustedBrowsersCard } from "./trusted-browsers-card";
 
@@ -61,13 +62,22 @@ const meta = {
       />
     ),
     notifications: (
-      <EmailNotificationsCard
-        error={null}
-        isMailEnabled
-        isSaving={false}
-        onChange={() => {}}
-        preferences={settingsFixture.notifications}
-      />
+      <div className="flex flex-col gap-6">
+        <MailDeliveryCard
+          email="theo@studio-lorem.example"
+          error={null}
+          isMailEnabled
+          isSending={false}
+          isSent={false}
+          onSendTest={() => {}}
+        />
+        <EmailNotificationsCard
+          error={null}
+          isSaving={false}
+          onChange={() => {}}
+          preferences={settingsFixture.notifications}
+        />
+      </div>
     ),
     security: (
       <div className="flex flex-col gap-6">
