@@ -459,5 +459,8 @@ end on their next request. Replace `first()` with
 `where("email", "you@example.com")->sole()` on an instance with more than one
 account.
 
+The address an account signs in with is changed under Settings → Security too,
+and takes effect at once, without a confirmation link.
+
 Found something this page does not cover? Open an issue with the "Self-hosting /
 Docker" area — that template exists for exactly this.

@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { MoneyFormatProvider } from "@/components/money-format-provider";
+import { seedCurrentUser } from "@/test/current-user";
 import {
   twoFactorOffFixture,
   twoFactorOnFixture,
@@ -18,6 +19,7 @@ function Example({ status }: { status: typeof twoFactorOnFixture }) {
     });
 
     client.setQueryData(showTwoFactorQueryKey(), status);
+    seedCurrentUser(client);
 
     return client;
   });

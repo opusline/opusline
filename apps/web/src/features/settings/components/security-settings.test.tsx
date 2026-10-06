@@ -4,6 +4,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 
 import { MoneyFormatProvider } from "@/components/money-format-provider";
+import { CURRENT_USER_FIXTURE, seedCurrentUser } from "@/test/current-user";
 import {
   recoveryCodesFixture,
   totpSetupFixture,
@@ -70,6 +71,8 @@ function renderTab(
     defaultOptions: { queries: { retry: false } },
   });
 
+  seedCurrentUser(queryClient);
+
   if (status !== null) {
     queryClient.setQueryData(showTwoFactorQueryKey(), status);
   }
@@ -113,6 +116,55 @@ it("says so when the status cannot be loaded", async () => {
   renderTab(null);
 
   expect(await screen.findByRole("alert")).toHaveTextContent("Boom");
+});
+
+it("signs in with the new address as soon as the email is changed", async () => {
+  stubApi([
+    {
+      method: "PUT",
+      path: "/user/email",
+      status: 200,
+      body: { ...CURRENT_USER_FIXTURE, email: "theo@nordlys.example" },
+    },
+    {
+      method: "GET",
+      path: "/user/two-factor",
+      status: 200,
+      body: twoFactorOffFixture,
+    },
+  ]);
+  renderTab(twoFactorOffFixture);
+
+  fireEvent.change(screen.getByLabelText("Nouvelle adresse e-mail"), {
+    target: { value: "theo@nordlys.example" },
+  });
+  fireEvent.click(
+    screen.getByRole("button", { name: "Changer l'adresse e-mail" }),
+  );
+
+  expect(
+    await screen.findByText(/vous vous connectez avec theo@nordlys\.example/i),
+  ).toBeInTheDocument();
+});
+
+it("leaves the address alone when the password dialog is dismissed", async () => {
+  const api = stubApi([]);
+  renderTab(twoFactorOffFixture, {}, async () => ({ status: "cancelled" }));
+
+  fireEvent.change(screen.getByLabelText("Nouvelle adresse e-mail"), {
+    target: { value: "theo@nordlys.example" },
+  });
+  fireEvent.click(
+    screen.getByRole("button", { name: "Changer l'adresse e-mail" }),
+  );
+
+  await waitFor(() =>
+    expect(screen.getByLabelText("Nouvelle adresse e-mail")).toBeEnabled(),
+  );
+  expect(api.calls()).not.toContain("PUT /api/user/email");
+  expect(
+    screen.getByText(/vous vous connectez avec theo@example\.com/i),
+  ).toBeInTheDocument();
 });
 
 it("enrols the authenticator: scan, confirm, save the codes", async () => {
