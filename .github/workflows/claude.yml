@@ -32,6 +32,10 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
+          # checkout would otherwise leave the read-only workflow token in git's
+          # config, where it outranks the app token the action puts on the
+          # remote: Claude's pushes then fail as github-actions[bot] (403).
+          persist-credentials: false
 
       # No `cache: pnpm`: this job runs in the default branch's cache scope, and
       # an install Claude runs on a PR head must not seed the store main's CI
