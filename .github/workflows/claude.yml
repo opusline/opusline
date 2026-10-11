@@ -33,6 +33,14 @@ jobs:
         with:
           fetch-depth: 1
 
+      # No `cache: pnpm`: this job runs in the default branch's cache scope, and
+      # an install Claude runs on a PR head must not seed the store main's CI
+      # restores.
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@cab360f6565aa35a51d6ce9e43f1f4287c0a32ea # v1.0.241
@@ -46,8 +54,16 @@ jobs:
           # Optional: Give a custom prompt to Claude. If this is not specified, Claude will perform the instructions specified in the comment that tagged it.
           # prompt: 'Update the pull request description to include a summary of changes.'
 
-          # Optional: Add claude_args to customize behavior and configuration
+          # The action's defaults stop at editing files and committing onto the
+          # branch it was invoked on, and anything outside the allowlist is
+          # denied outright in this headless run. What is added here: the JS
+          # toolchain (a dependency fix has to regenerate pnpm-lock.yaml),
+          # branching off main for a fix that deserves its own pull request,
+          # and opening that pull request instead of only linking to the
+          # compare page. PHP is absent on purpose: it only runs in the Sail
+          # containers, which this job does not boot.
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
-          # or https://code.claude.com/docs/en/cli-reference for available options
-          # claude_args: '--allowed-tools Bash(gh pr *)'
+          claude_args: |
+            --allowedTools "Bash(pnpm install:*),Bash(pnpm update:*),Bash(pnpm audit:*),Bash(pnpm why:*),Bash(pnpm dedupe:*),Bash(pnpm knip),Bash(pnpm format-and-lint:*),Bash(pnpm exec turbo run:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git fetch origin main),Bash(git switch:*),mcp__github__create_pull_request"
+            --append-system-prompt "Once your commits are pushed to a branch that has no pull request yet, open one against main with mcp__github__create_pull_request rather than only linking to the compare page: the title is a Conventional Commit as CLAUDE.md describes, the body follows .github/pull_request_template.md. When a comment on an open pull request asks for the fix in a separate pull request, do not push to that pull request branch: run git fetch origin main, then git switch -c <type>/<short-name> FETCH_HEAD, commit there, push that branch and open its pull request."
 
