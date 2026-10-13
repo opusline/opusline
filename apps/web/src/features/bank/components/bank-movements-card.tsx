@@ -18,6 +18,7 @@ import {
 } from "@/components/money-format-provider";
 import { formatWholeAmount } from "@/lib/billing";
 import { calendarDateNumericLabel } from "@/lib/dates";
+import { useIsPhone } from "@/lib/use-is-phone";
 import { m } from "@/paraglide/messages.js";
 
 import { movementsSourceNote, signedAmountLabel } from "../lib/labels";
@@ -61,13 +62,17 @@ export function BankMovementsCard({
         </p>
       ) : (
         <Table
-          className="min-w-xl table-fixed border-separate border-spacing-0"
+          className="table-fixed border-separate border-spacing-0 sm:min-w-xl"
           containerClassName="max-h-96 overflow-auto"
         >
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead
-                className={cn(eyebrowVariants(), HEAD_CLASSES, "w-26")}
+                className={cn(
+                  eyebrowVariants(),
+                  HEAD_CLASSES,
+                  "w-26 max-sm:hidden",
+                )}
               >
                 {m.bank_movements_date_header()}
               </TableHead>
@@ -75,7 +80,11 @@ export function BankMovementsCard({
                 {m.bank_movements_label_header()}
               </TableHead>
               <TableHead
-                className={cn(eyebrowVariants(), HEAD_CLASSES, "w-26")}
+                className={cn(
+                  eyebrowVariants(),
+                  HEAD_CLASSES,
+                  "w-26 max-sm:hidden",
+                )}
               >
                 {m.bank_movements_link_header()}
               </TableHead>
@@ -92,7 +101,7 @@ export function BankMovementsCard({
                 className={cn(
                   eyebrowVariants(),
                   HEAD_CLASSES,
-                  "w-22 text-right",
+                  "w-22 text-right max-sm:hidden",
                 )}
               >
                 {m.bank_movements_balance_header()}
@@ -124,13 +133,27 @@ const CELL_CLASSES = "border-secondary border-t px-0 py-2.5";
 function MovementRow({ movement }: { movement: BankMovementData }) {
   const format = useMoneyFormat();
   const dateFormat = useDateFormat();
+  const isPhone = useIsPhone();
+
+  const link =
+    movement.invoice !== null ? (
+      <span className="font-mono text-muted-foreground text-xs">
+        {movement.invoice.number ?? "—"}
+      </span>
+    ) : movement.pendingMatchId !== null ? (
+      <Badge variant="brand">{m.bank_movement_pending_chip()}</Badge>
+    ) : null;
+  const balance =
+    movement.runningBalance === null
+      ? null
+      : formatWholeAmount(format, movement.runningBalance.amount);
 
   return (
     <TableRow className="hover:bg-transparent">
       <TableCell
         className={cn(
           CELL_CLASSES,
-          "pr-3 font-mono text-muted-foreground-3 text-sm tabular-nums",
+          "pr-3 font-mono text-muted-foreground-3 text-sm tabular-nums max-sm:hidden",
         )}
       >
         {calendarDateNumericLabel(dateFormat, movement.bookedOn)}
@@ -142,36 +165,39 @@ function MovementRow({ movement }: { movement: BankMovementData }) {
         )}
       >
         {movement.label}
-      </TableCell>
-      <TableCell className={cn(CELL_CLASSES, "pr-3")}>
-        {movement.invoice !== null ? (
-          <span className="font-mono text-muted-foreground text-xs">
-            {movement.invoice.number ?? "—"}
+        {/* Below sm the date, link and balance ride under the label and the
+            amount: five columns leave the label none of a phone's width. */}
+        {isPhone && (
+          <span className="mt-0.75 flex items-center gap-2 font-mono text-muted-foreground-3 text-xs tabular-nums">
+            {calendarDateNumericLabel(dateFormat, movement.bookedOn)}
+            {link}
           </span>
-        ) : movement.pendingMatchId !== null ? (
-          <Badge variant="brand">{m.bank_movement_pending_chip()}</Badge>
-        ) : (
-          <span className="text-muted-foreground-3 text-xs">—</span>
         )}
+      </TableCell>
+      <TableCell className={cn(CELL_CLASSES, "pr-3 max-sm:hidden")}>
+        {link ?? <span className="text-muted-foreground-3 text-xs">—</span>}
       </TableCell>
       <TableCell
         className={cn(
           CELL_CLASSES,
-          "pr-3 text-right font-mono text-sm tabular-nums",
+          "text-right font-mono text-sm tabular-nums sm:pr-3",
           movement.amount.amount > 0 ? "text-success" : "text-foreground-3",
         )}
       >
         {signedAmountLabel(format, movement.amount.amount)}
+        {isPhone && balance !== null && (
+          <span className="mt-0.75 block text-muted-foreground-3 text-xs">
+            {balance}
+          </span>
+        )}
       </TableCell>
       <TableCell
         className={cn(
           CELL_CLASSES,
-          "text-right font-mono text-muted-foreground-3 text-sm tabular-nums",
+          "text-right font-mono text-muted-foreground-3 text-sm tabular-nums max-sm:hidden",
         )}
       >
-        {movement.runningBalance === null
-          ? "—"
-          : formatWholeAmount(format, movement.runningBalance.amount)}
+        {balance ?? "—"}
       </TableCell>
     </TableRow>
   );

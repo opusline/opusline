@@ -160,7 +160,7 @@ export function IncomeTaxReturnBody({
               <TableCell
                 className={cn(
                   CELL_CLASSES,
-                  "py-2.5 text-muted-foreground-3 text-xs",
+                  "whitespace-normal py-2.5 text-muted-foreground-3 text-xs",
                 )}
               >
                 {isRunning && m.declarations_income_tax_provisional()}

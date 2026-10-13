@@ -3,6 +3,7 @@ import { Kbd } from "@opusline/ui/components/kbd";
 import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "lucide-react";
 import { useId } from "react";
 import { useLocale } from "@/components/money-format-provider";
+import { useIsPhone } from "@/lib/use-is-phone";
 import {
   isoWeekOf,
   isoWeekRangeLabel,
@@ -35,21 +36,23 @@ export function WeekToolbar({
 }: WeekToolbarProps) {
   const weekendLockId = useId();
   const locale = useLocale();
+  const isPhone = useIsPhone();
+  const stepSize = isPhone ? "icon-xl" : "icon-lg";
 
   return (
     <div className="flex flex-wrap items-end justify-between gap-4">
-      <div className="flex flex-wrap items-center gap-2.5">
+      <div className="flex flex-wrap items-center gap-2.5 max-sm:w-full">
         <Button
           aria-label={m.week_previous()}
           data-testid="week-previous"
           onClick={() => onWeekChange(shiftIsoWeek(week, -1))}
-          size="icon-lg"
+          size={stepSize}
           title={m.week_previous()}
           variant="outline"
         >
           <ChevronLeftIcon aria-hidden />
         </Button>
-        <h1 className="whitespace-nowrap font-heading font-semibold text-2xl text-foreground-hi leading-tight">
+        <h1 className="font-heading font-semibold text-2xl text-foreground-hi leading-tight max-sm:order-first max-sm:basis-full sm:whitespace-nowrap">
           {isoWeekTitle(week)}{" "}
           <span aria-hidden className="font-normal text-muted-foreground-5">
             ·
@@ -62,53 +65,59 @@ export function WeekToolbar({
           aria-label={m.week_next()}
           data-testid="week-next"
           onClick={() => onWeekChange(shiftIsoWeek(week, 1))}
-          size="icon-lg"
+          size={stepSize}
           title={m.week_next()}
           variant="outline"
         >
           <ChevronRightIcon aria-hidden />
         </Button>
         <Button
+          className="max-sm:ml-auto"
           data-testid="week-today"
           disabled={week === isoWeekOf(today)}
           onClick={() => onWeekChange(isoWeekOf(today))}
+          size={isPhone ? "xl" : "default"}
           variant="outline"
         >
           {m.week_today()}
         </Button>
       </div>
-      <div className="flex flex-wrap items-center gap-2">
-        {/* Locked rather than removed: a button nobody can reach is a button
+      {/* A phone reads the week one day at a time: all seven days are in its
+          day picker, and that day's card carries its own add button. */}
+      {!isPhone && (
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Locked rather than removed: a button nobody can reach is a button
             nobody can ask about, so it stays focusable and says why. */}
-        <Button
-          aria-describedby={isWeekendLocked ? weekendLockId : undefined}
-          data-expanded={weekendShown}
-          data-testid="week-weekend-toggle"
-          disabled={isWeekendLocked}
-          focusableWhenDisabled
-          onClick={onWeekendToggle}
-          size="xl"
-          title={isWeekendLocked ? m.week_weekend_lock_reason() : undefined}
-          variant="outline"
-        >
-          {weekendToggleLabel(weekendShown)}
-        </Button>
-        {isWeekendLocked && (
-          <span className="sr-only" id={weekendLockId}>
-            {m.week_weekend_lock_reason()}
-          </span>
-        )}
-        <Button
-          aria-keyshortcuts="n"
-          data-testid="new-entry-open"
-          onClick={onNewEntry}
-          size="xl"
-        >
-          <PlusIcon aria-hidden data-icon="inline-start" strokeWidth={2.2} />
-          {m.week_new_entry()}
-          <Kbd>N</Kbd>
-        </Button>
-      </div>
+          <Button
+            aria-describedby={isWeekendLocked ? weekendLockId : undefined}
+            data-expanded={weekendShown}
+            data-testid="week-weekend-toggle"
+            disabled={isWeekendLocked}
+            focusableWhenDisabled
+            onClick={onWeekendToggle}
+            size="xl"
+            title={isWeekendLocked ? m.week_weekend_lock_reason() : undefined}
+            variant="outline"
+          >
+            {weekendToggleLabel(weekendShown)}
+          </Button>
+          {isWeekendLocked && (
+            <span className="sr-only" id={weekendLockId}>
+              {m.week_weekend_lock_reason()}
+            </span>
+          )}
+          <Button
+            aria-keyshortcuts="n"
+            data-testid="new-entry-open"
+            onClick={onNewEntry}
+            size="xl"
+          >
+            <PlusIcon aria-hidden data-icon="inline-start" strokeWidth={2.2} />
+            {m.week_new_entry()}
+            <Kbd>N</Kbd>
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

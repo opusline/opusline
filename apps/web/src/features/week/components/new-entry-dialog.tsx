@@ -43,6 +43,8 @@ export type NewEntryDialogProps = {
   timeEntries: TimeEntryData[];
   knownRange: { from: string; to: string };
   today: string;
+  /** `Y-m-d` the date field opens on; today unless the caller picked a day. */
+  initialDate?: string;
   workdayMinutes: number;
   noteSuggestions: string[];
   isSaving: boolean;
@@ -56,6 +58,7 @@ export function NewEntryDialog({
   timeEntries,
   knownRange,
   today,
+  initialDate,
   workdayMinutes,
   noteSuggestions,
   isSaving,
@@ -85,6 +88,7 @@ export function NewEntryDialog({
           <MissionStep missions={missionOptions} onPick={setMission} />
         ) : (
           <EntryStep
+            initialDate={initialDate}
             isSaving={isSaving}
             knownRange={knownRange}
             mission={mission}
@@ -189,6 +193,7 @@ function EntryStep({
   timeEntries,
   knownRange,
   today,
+  initialDate = today,
   workdayMinutes,
   noteSuggestions,
   isSaving,
@@ -200,7 +205,7 @@ function EntryStep({
   const durationId = useId();
   const noteId = useId();
 
-  const [date, setDate] = useState(today);
+  const [date, setDate] = useState(initialDate);
   const [duration, setDuration] = useState("");
   const [note, setNote] = useState("");
   const [replaceExisting, setReplaceExisting] = useState(false);

@@ -2327,6 +2327,7 @@
   "vat_regime_simplified_hint": "VAT-liable · yearly CA12",
   "vat_regime_simplified_label": "Réel simplifié",
   "vat_regime_simplified_note": "Your invoices carry VAT and a CA12 return is expected every year, with instalments.",
+  "week_add_entry": "Add an entry",
   "week_billable_detail": [
     {
       "declarations": ["input count", "local countPlural = count: plural"],
@@ -2381,6 +2382,8 @@
   "week_date_required": "Enter a date.",
   "week_date_shortcuts_label": "Date shortcuts",
   "week_day_before_yesterday": "Two days ago",
+  "week_day_empty": "No entries this day",
+  "week_day_picker_label": "Day of the week",
   "week_day_total": "Day total",
   "week_deadline_none": "Nothing due",
   "week_deadline_none_sub": "no fiscal deadline on the calendar",

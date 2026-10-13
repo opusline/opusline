@@ -137,23 +137,27 @@ function Row({
 }) {
   return (
     <div
-      className="grid grid-cols-[6.5rem_minmax(0,1fr)_auto_auto] items-center gap-4 border-b px-5 py-3 last:border-b-0"
+      // Below sm the row stacks — badge and amount, then the title, then the
+      // action — since four columns leave the title none of a phone's width.
+      className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2.5 border-b px-5 py-3 last:border-b-0 sm:grid-cols-[6.5rem_minmax(0,1fr)_auto_auto] sm:gap-4"
       data-amount-cents={todo.amount.amount}
       data-kind={TODO_KIND_TOKENS[todo.kind]}
       data-mission-id={missionId}
       data-testid="invoice-todo-item"
     >
-      {badge}
-      <div className="min-w-0">
+      <div className="flex">{badge}</div>
+      <div className="min-w-0 max-sm:order-2 max-sm:col-span-2">
         <p className="truncate text-foreground-2 text-sm">{title}</p>
         <p className="mt-0.75 truncate text-muted-foreground-3 text-xs">
           {detail}
         </p>
       </div>
-      <span className="w-28 text-right font-mono text-foreground-hi text-sm tabular-nums">
+      <span className="text-right font-mono text-foreground-hi text-sm tabular-nums max-sm:order-1 sm:w-28">
         {amount}
       </span>
-      <div className="flex justify-end">{action}</div>
+      <div className="flex flex-wrap max-sm:order-3 max-sm:col-span-2 sm:justify-end">
+        {action}
+      </div>
     </div>
   );
 }

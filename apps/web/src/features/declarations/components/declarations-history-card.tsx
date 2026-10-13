@@ -22,6 +22,7 @@ import {
 import { formatWholeAmount } from "@/lib/billing";
 import { calendarDateNumericLabel } from "@/lib/dates";
 import { periodTitle } from "@/lib/periods";
+import { useIsPhone } from "@/lib/use-is-phone";
 import { m } from "@/paraglide/messages.js";
 
 type DeclarationsHistoryCardProps = {
@@ -35,6 +36,7 @@ const HEAD_CLASSES = cn(
   "h-auto px-2 pt-2.5 pb-2 font-normal first:pl-5 last:pr-5",
 );
 const CELL_CLASSES = "px-2 py-2.75 text-sm first:pl-5 last:pr-5";
+const PHONE_HIDDEN_CELL_CLASSES = cn(CELL_CLASSES, "max-sm:hidden");
 const AMOUNT_CLASSES = cn(
   CELL_CLASSES,
   "text-right font-mono text-foreground-2 tabular-nums",
@@ -47,6 +49,7 @@ export function DeclarationsHistoryCard({
   const format = useMoneyFormat();
   const dateFormat = useDateFormat();
   const locale = useLocale();
+  const isPhone = useIsPhone();
 
   const filedCell = (completion: DeclarationCompletionData | null) =>
     completion === null ? (
@@ -72,6 +75,20 @@ export function DeclarationsHistoryCard({
       <span className="text-muted-foreground-3">—</span>
     );
 
+  // Below sm the two date columns of each declaration fold into one line under
+  // its amount — whichever step is still owed, else the date of the last one.
+  const phoneStatus = (
+    completion: DeclarationCompletionData | null,
+    owedCents: number,
+  ) =>
+    isPhone && (
+      <span className="mt-0.75 block font-sans text-xs">
+        {completion !== null && (completion.paidOn != null || owedCents > 0)
+          ? paidCell(completion, owedCents)
+          : filedCell(completion)}
+      </span>
+    );
+
   return (
     <section className="overflow-hidden rounded-md border bg-card">
       <div className="border-b px-5 py-3.5">
@@ -79,28 +96,30 @@ export function DeclarationsHistoryCard({
           {m.declarations_history_title()}
         </h2>
       </div>
-      <Table className="min-w-2xl table-fixed">
+      <Table className="table-fixed sm:min-w-2xl">
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             <TableHead className={HEAD_CLASSES}>
               {m.declarations_history_month()}
             </TableHead>
-            <TableHead className={cn(HEAD_CLASSES, "w-24 text-right")}>
+            <TableHead className={cn(HEAD_CLASSES, "w-28 text-right sm:w-24")}>
               {m.declarations_kind_urssaf()}
             </TableHead>
-            <TableHead className={cn(HEAD_CLASSES, "w-24")}>
+            <TableHead className={cn(HEAD_CLASSES, "w-24 max-sm:hidden")}>
               {m.declarations_history_filed()}
             </TableHead>
-            <TableHead className={cn(HEAD_CLASSES, "w-24")}>
+            <TableHead className={cn(HEAD_CLASSES, "w-24 max-sm:hidden")}>
               {m.declarations_history_paid()}
             </TableHead>
-            <TableHead className={cn(HEAD_CLASSES, "w-28 text-right")}>
+            <TableHead
+              className={cn(HEAD_CLASSES, "w-28 text-right max-sm:pr-5")}
+            >
               {m.declarations_history_vat()}
             </TableHead>
-            <TableHead className={cn(HEAD_CLASSES, "w-24")}>
+            <TableHead className={cn(HEAD_CLASSES, "w-24 max-sm:hidden")}>
               {m.declarations_history_filed()}
             </TableHead>
-            <TableHead className={cn(HEAD_CLASSES, "w-24")}>
+            <TableHead className={cn(HEAD_CLASSES, "w-24 max-sm:hidden")}>
               {m.declarations_history_paid()}
             </TableHead>
           </TableRow>
@@ -127,16 +146,18 @@ export function DeclarationsHistoryCard({
                 {row.urssaf === null
                   ? "—"
                   : formatWholeAmount(format, row.urssaf.total.amount)}
+                {row.urssaf !== null &&
+                  phoneStatus(row.urssaf.completion, row.urssaf.total.amount)}
               </TableCell>
-              <TableCell className={CELL_CLASSES}>
+              <TableCell className={PHONE_HIDDEN_CELL_CLASSES}>
                 {row.urssaf === null ? "—" : filedCell(row.urssaf.completion)}
               </TableCell>
-              <TableCell className={CELL_CLASSES}>
+              <TableCell className={PHONE_HIDDEN_CELL_CLASSES}>
                 {row.urssaf === null
                   ? "—"
                   : paidCell(row.urssaf.completion, row.urssaf.total.amount)}
               </TableCell>
-              <TableCell className={AMOUNT_CLASSES}>
+              <TableCell className={cn(AMOUNT_CLASSES, "max-sm:pr-5")}>
                 {row.vat === null
                   ? "—"
                   : row.vat.credit.amount > 0
@@ -147,11 +168,13 @@ export function DeclarationsHistoryCard({
                         ),
                       })
                     : formatWholeAmount(format, row.vat.due.amount)}
+                {row.vat !== null &&
+                  phoneStatus(row.vat.completion, row.vat.due.amount)}
               </TableCell>
-              <TableCell className={CELL_CLASSES}>
+              <TableCell className={PHONE_HIDDEN_CELL_CLASSES}>
                 {row.vat === null ? "—" : filedCell(row.vat.completion)}
               </TableCell>
-              <TableCell className={CELL_CLASSES}>
+              <TableCell className={PHONE_HIDDEN_CELL_CLASSES}>
                 {row.vat === null
                   ? "—"
                   : paidCell(row.vat.completion, row.vat.due.amount)}

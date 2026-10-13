@@ -117,3 +117,29 @@ export const FormOnAPhone: Story = {
     </Sheet>
   ),
 };
+
+/**
+ * `side="bottom"` is the phone's stand-in for a popover: it rises from the
+ * bottom edge with rounded top corners, as tall as its content up to 85% of
+ * the screen, and scrolls beyond that.
+ */
+export const BottomOnAPhone: Story = {
+  globals: { viewport: { value: "mobile1", isRotated: false } },
+  render: () => (
+    <Sheet defaultOpen>
+      <SheetTrigger render={<Button variant="outline">Ouvrir</Button>} />
+      <SheetContent showCloseButton={false} side="bottom">
+        <SheetHeader>
+          <SheetTitle>Suivre quelle mission ?</SheetTitle>
+          <SheetDescription>
+            Les actions restent à portée de pouce.
+          </SheetDescription>
+        </SheetHeader>
+        <SheetFooter>
+          <Button size="xl">Callisto front</Button>
+          <SheetClose render={<Button variant="outline">Annuler</Button>} />
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  ),
+};

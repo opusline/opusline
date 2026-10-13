@@ -9,6 +9,7 @@ import { cn } from "@opusline/ui/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { collectNoteSuggestions } from "@/components/note-suggestions";
+import { useIsPhone } from "@/lib/use-is-phone";
 import { isoWeekDates } from "@/lib/weeks";
 import type { PillSkin } from "../lib/pill-skins";
 import {
@@ -18,6 +19,7 @@ import {
 } from "../lib/week-grid";
 import { summarizeWeekBillable } from "../lib/week-money";
 import { NewEntryDialog, type NewEntrySubmit } from "./new-entry-dialog";
+import { WeekDayList } from "./week-day-list";
 import { WeekEmptyBanner } from "./week-empty-banner";
 import { WeekGrid, type WeekGridProps } from "./week-grid";
 import { WEEK_SKINS, WeekLegend } from "./week-legend";
@@ -103,16 +105,22 @@ export function WeekPage({
 }: WeekPageProps) {
   const format = useMoneyFormat();
   const [isNewEntryOpen, setIsNewEntryOpen] = useState(false);
+  const [newEntryDate, setNewEntryDate] = useState<string | null>(null);
+  const isPhone = useIsPhone();
+
+  const openNewEntry = (date: string | null = null) => {
+    setNewEntryDate(date);
+    setIsNewEntryOpen(true);
+  };
 
   const liveHere =
     live !== null && isoWeekDates(week).includes(live.date) ? live : null;
 
-  const weekendShown = shouldShowWeekend(
-    weekendOpen,
-    week,
-    timeEntries,
-    liveHere?.date ?? null,
-  );
+  // The day picker of a phone has room for all seven days, so nothing is
+  // gained by folding the weekend away there.
+  const weekendShown =
+    isPhone ||
+    shouldShowWeekend(weekendOpen, week, timeEntries, liveHere?.date ?? null);
   const model = useMemo(
     () =>
       buildWeekGrid({
@@ -159,6 +167,7 @@ export function WeekPage({
       }
 
       event.preventDefault();
+      setNewEntryDate(null);
       setIsNewEntryOpen(true);
     };
 
@@ -185,7 +194,7 @@ export function WeekPage({
     <div className="flex flex-col gap-5">
       <WeekToolbar
         isWeekendLocked={weekendShown && !weekendOpen}
-        onNewEntry={() => setIsNewEntryOpen(true)}
+        onNewEntry={() => openNewEntry()}
         onWeekChange={onWeekChange}
         onWeekendToggle={() => onWeekendToggle(!weekendOpen)}
         today={today}
@@ -213,16 +222,28 @@ export function WeekPage({
         // handlers and a tab stop that must go quiet too while the week lands.
         inert={isRefreshing}
       >
-        <WeekGrid
-          live={liveHere}
-          model={model}
-          noteSuggestions={noteSuggestions}
-          onCreate={onCreate}
-          onDelete={onDelete}
-          onUpdate={onUpdate}
-          pendingCellKeys={pendingCellKeys}
-          workdayMinutes={workdayMinutes}
-        />
+        {isPhone ? (
+          <WeekDayList
+            live={liveHere}
+            model={model}
+            noteSuggestions={noteSuggestions}
+            onAddEntry={openNewEntry}
+            onDelete={onDelete}
+            onUpdate={onUpdate}
+            today={today}
+          />
+        ) : (
+          <WeekGrid
+            live={liveHere}
+            model={model}
+            noteSuggestions={noteSuggestions}
+            onCreate={onCreate}
+            onDelete={onDelete}
+            onUpdate={onUpdate}
+            pendingCellKeys={pendingCellKeys}
+            workdayMinutes={workdayMinutes}
+          />
+        )}
       </div>
       <WeekLegend
         skins={liveHere === null ? WEEK_SKINS : LIVE_SKINS}
@@ -235,6 +256,7 @@ export function WeekPage({
         today={today}
       />
       <NewEntryDialog
+        initialDate={newEntryDate ?? today}
         isSaving={pendingCellKeys.size > 0}
         knownRange={knownEntryRange}
         missionOptions={model.missionOptions}

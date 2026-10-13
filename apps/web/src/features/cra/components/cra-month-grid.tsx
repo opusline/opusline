@@ -154,7 +154,7 @@ export function CraMonthGrid({
   };
 
   return (
-    <div className="flex min-w-0 flex-1 flex-col rounded-md border bg-card p-5.5">
+    <div className="flex min-w-0 flex-1 flex-col rounded-md border bg-card p-3.5 sm:p-5.5">
       <div className="mb-3.5 flex flex-wrap items-center justify-between gap-3">
         <span className="text-muted-foreground-3 text-sm">
           {reportedAgainstTrackedLabel(locale, reportedDays, trackedDays)}
@@ -179,12 +179,12 @@ export function CraMonthGrid({
         aria-label={m.cra_grid_aria()}
         aria-readonly={!editable || undefined}
         aria-rowcount={model.weeks.length + 1}
-        className="grid grid-cols-7 gap-1.5"
+        className="grid grid-cols-7 gap-1 sm:gap-1.5"
         role="grid"
       >
         <GridRow
           aria-rowindex={1}
-          className="col-span-7 grid grid-cols-7 gap-1.5"
+          className="col-span-7 grid grid-cols-7 gap-1 sm:gap-1.5"
         >
           {model.weekdayLabels.map((label, index) => (
             <ColumnHeader
@@ -200,7 +200,7 @@ export function CraMonthGrid({
         {model.weeks.map((week, rowIndex) => (
           <GridRow
             aria-rowindex={rowIndex + 2}
-            className="col-span-7 grid grid-cols-7 gap-1.5"
+            className="col-span-7 grid grid-cols-7 gap-1 sm:gap-1.5"
             key={week.key}
           >
             {week.cells.map((cell, columnIndex) => (
@@ -284,7 +284,7 @@ function DayCell({
       aria-colindex={columnIndex + 1}
       aria-label={cell.ariaLabel}
       className={cn(
-        "flex h-20 flex-col rounded-md px-2 py-1.5 outline-none transition-colors",
+        "flex h-20 min-w-0 flex-col rounded-md px-1 py-1.5 outline-none transition-colors sm:px-2",
         "focus-visible:outline-2 focus-visible:outline-primary-text focus-visible:-outline-offset-2",
         editable && "cursor-pointer",
         cell.isOffDayWorked
@@ -328,9 +328,9 @@ function DayCell({
       <span
         aria-hidden
         className={cn(
-          "mt-auto pb-1 text-center",
+          "mt-auto truncate pb-1 text-center",
           isWorked
-            ? "font-mono text-base text-primary-text tabular-nums"
+            ? "font-mono text-primary-text text-sm tabular-nums sm:text-base"
             : eyebrowVariants(),
         )}
       >
