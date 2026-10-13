@@ -137,6 +137,7 @@ function ScanStep({
           size="sm"
           type="button"
           variant="ghost"
+          wrap
         >
           {m.security_totp_setup_manual_toggle()}
         </Button>
