@@ -54,34 +54,9 @@ export function SubscriptionCardList({
           <div className="flex items-start gap-2.5">
             <div className="min-w-0 flex-1">
               <SubscriptionSupplierCell subscription={subscription} />
-              <div className="mt-1 text-muted-foreground-3 text-xs">
-                {[
-                  subscriptionPeriodicityLabel(subscription.periodicity),
-                  debitDayLabel(locale, subscription),
-                  subscription.nextDebitOn === null
-                    ? null
-                    : m.subscriptions_next_debit({
-                        date: calendarDateNumericLabel(
-                          dateFormat,
-                          subscription.nextDebitOn,
-                        ),
-                      }),
-                ]
-                  .filter((part) => part !== null)
-                  .join(" · ")}
-              </div>
             </div>
-            <div className="shrink-0 text-right">
-              <div className="font-mono text-base text-foreground-hi tabular-nums">
-                {formatAmountWithCents(format, subscription.amountTtc.amount)}
-              </div>
-              {isVatLiable && (
-                <div className="mt-0.5 text-muted-foreground-3 text-xs">
-                  {formatAmountWithCents(format, subscription.amountHt.amount)}{" "}
-                  {m.common_ht()} ·{" "}
-                  {subscriptionRegimeLabel(locale, format, subscription)}
-                </div>
-              )}
+            <div className="shrink-0 font-mono text-base text-foreground-hi tabular-nums">
+              {formatAmountWithCents(format, subscription.amountTtc.amount)}
             </div>
             <SubscriptionRowMenu
               className="opacity-100"
@@ -90,6 +65,31 @@ export function SubscriptionCardList({
               {...menuHandlers}
             />
           </div>
+          {/* Under the head row rather than beside the name: the two lines
+              are long enough to squeeze the supplier out of a phone's width. */}
+          <div className="mt-1.5 text-muted-foreground-3 text-xs">
+            {[
+              subscriptionPeriodicityLabel(subscription.periodicity),
+              debitDayLabel(locale, subscription),
+              subscription.nextDebitOn === null
+                ? null
+                : m.subscriptions_next_debit({
+                    date: calendarDateNumericLabel(
+                      dateFormat,
+                      subscription.nextDebitOn,
+                    ),
+                  }),
+            ]
+              .filter((part) => part !== null)
+              .join(" · ")}
+          </div>
+          {isVatLiable && (
+            <div className="mt-0.5 text-muted-foreground-3 text-xs">
+              {formatAmountWithCents(format, subscription.amountHt.amount)}{" "}
+              {m.common_ht()} ·{" "}
+              {subscriptionRegimeLabel(locale, format, subscription)}
+            </div>
+          )}
           <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2">
             <SubscriptionStatusBadge
               layout="inline"

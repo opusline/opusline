@@ -87,7 +87,7 @@ export function SubscriptionAmountForm({
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-        <div className="grid grid-cols-2 gap-3.5">
+        <div className="grid gap-3.5 sm:grid-cols-2">
           <Field data-invalid={amountError !== undefined}>
             <FieldLabel htmlFor={`${id}-ht`}>
               {m.subscriptions_field_amount_ht()}

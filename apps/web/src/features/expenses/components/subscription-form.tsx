@@ -152,7 +152,7 @@ export function SubscriptionForm({
           </Alert>
         )}
 
-        <div className="grid grid-cols-2 gap-3.5">
+        <div className="grid gap-3.5 sm:grid-cols-2">
           <Field data-invalid={supplierError !== undefined}>
             <FieldLabel htmlFor={`${id}-supplier`}>
               {m.expenses_field_supplier()}
@@ -202,7 +202,7 @@ export function SubscriptionForm({
           />
         </Field>
 
-        <div className="grid grid-cols-2 gap-3.5">
+        <div className="grid gap-3.5 sm:grid-cols-2">
           <Field data-invalid={amountError !== undefined}>
             <FieldLabel htmlFor={`${id}-ht`}>
               {m.subscriptions_field_amount_ht()}
@@ -243,7 +243,7 @@ export function SubscriptionForm({
           />
         )}
 
-        <div className="grid grid-cols-2 gap-3.5">
+        <div className="grid gap-3.5 sm:grid-cols-2">
           <Field>
             <FieldLegend id={`${id}-periodicity`} variant="label">
               {m.subscriptions_col_periodicity()}
