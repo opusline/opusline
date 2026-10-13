@@ -18,7 +18,7 @@ function HelpTip({ label, children, className }: HelpTipProps) {
         aria-label={label}
         data-slot="help-tip-trigger"
         className={cn(
-          "flex size-4.5 shrink-0 cursor-help items-center justify-center rounded-full border border-border-2 bg-transparent text-muted-foreground-4 text-xs transition-colors outline-none hover:border-muted-foreground-5 hover:text-foreground-hi focus-visible:ring-2 focus-visible:ring-ring/30",
+          "relative flex size-4.5 touch-hit-3 shrink-0 cursor-help items-center justify-center rounded-full border border-border-2 bg-transparent text-muted-foreground-4 text-xs transition-colors outline-none hover:border-muted-foreground-5 hover:text-foreground-hi focus-visible:ring-2 focus-visible:ring-ring/30",
           className,
         )}
       >

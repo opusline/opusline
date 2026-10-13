@@ -251,6 +251,38 @@
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+  /* Controls draw their own pressed state, so the grey flash a phone paints
+     over a tapped element only doubles it. */
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Double-tap never zooms a control, so the browser need not wait to see
+     whether a second tap is coming before it fires the first. */
+  a,
+  button,
+  [role="button"],
+  input,
+  select,
+  textarea,
+  label,
+  summary {
+    touch-action: manipulation;
+  }
+}
+
+/*
+ * A control smaller than a fingertip keeps its drawn size and gains an
+ * invisible margin that takes the tap, on touch screens only: `touch-hit-2`
+ * reaches 2 spacing steps past every edge. The element must be positioned.
+ */
+@utility touch-hit-* {
+  @media (pointer: coarse) {
+    &::after {
+      content: "";
+      position: absolute;
+      inset: calc(var(--spacing) * --value(number) * -1);
+    }
+  }
 }
 
 @utility bg-stripes {

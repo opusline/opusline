@@ -15,13 +15,13 @@ function ChipGroup({ className, ...props }: ToggleGroupPrimitive.Props) {
 }
 
 const chipVariants = cva(
-  "group/chip inline-flex items-center whitespace-nowrap border border-border-2 bg-transparent text-muted-foreground-3 transition-colors outline-none hover:border-muted-foreground-6 hover:text-foreground-hi focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:opacity-50 data-pressed:border-primary/45 data-pressed:bg-primary/10 data-pressed:text-primary-text",
+  "group/chip relative inline-flex items-center whitespace-nowrap border border-border-2 bg-transparent text-muted-foreground-3 transition-colors outline-none hover:border-muted-foreground-6 hover:text-foreground-hi focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:opacity-50 data-pressed:border-primary/45 data-pressed:bg-primary/10 data-pressed:text-primary-text",
   {
     variants: {
       size: {
-        sm: "h-7 px-2.5 text-xs",
-        md: "h-8 px-3 text-sm",
-        lg: "h-9 px-3.5 text-sm",
+        sm: "h-7 touch-hit-2 px-2.5 text-xs",
+        md: "h-8 touch-hit-1.5 px-3 text-sm",
+        lg: "h-9 touch-hit-1 px-3.5 text-sm",
         xl: "h-10 px-3.5 text-sm",
       },
       shape: {
