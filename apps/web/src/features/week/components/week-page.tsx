@@ -105,17 +105,22 @@ export function WeekPage({
 }: WeekPageProps) {
   const format = useMoneyFormat();
   const [isNewEntryOpen, setIsNewEntryOpen] = useState(false);
+  const [newEntryDate, setNewEntryDate] = useState<string | null>(null);
   const isPhone = useIsPhone();
+
+  const openNewEntry = (date: string | null = null) => {
+    setNewEntryDate(date);
+    setIsNewEntryOpen(true);
+  };
 
   const liveHere =
     live !== null && isoWeekDates(week).includes(live.date) ? live : null;
 
-  const weekendShown = shouldShowWeekend(
-    weekendOpen,
-    week,
-    timeEntries,
-    liveHere?.date ?? null,
-  );
+  // The day picker of a phone has room for all seven days, so nothing is
+  // gained by folding the weekend away there.
+  const weekendShown =
+    isPhone ||
+    shouldShowWeekend(weekendOpen, week, timeEntries, liveHere?.date ?? null);
   const model = useMemo(
     () =>
       buildWeekGrid({
@@ -162,6 +167,7 @@ export function WeekPage({
       }
 
       event.preventDefault();
+      setNewEntryDate(null);
       setIsNewEntryOpen(true);
     };
 
@@ -188,7 +194,7 @@ export function WeekPage({
     <div className="flex flex-col gap-5">
       <WeekToolbar
         isWeekendLocked={weekendShown && !weekendOpen}
-        onNewEntry={() => setIsNewEntryOpen(true)}
+        onNewEntry={() => openNewEntry()}
         onWeekChange={onWeekChange}
         onWeekendToggle={() => onWeekendToggle(!weekendOpen)}
         today={today}
@@ -221,7 +227,7 @@ export function WeekPage({
             live={liveHere}
             model={model}
             noteSuggestions={noteSuggestions}
-            onAddEntry={() => setIsNewEntryOpen(true)}
+            onAddEntry={openNewEntry}
             onDelete={onDelete}
             onUpdate={onUpdate}
             today={today}
@@ -250,6 +256,7 @@ export function WeekPage({
         today={today}
       />
       <NewEntryDialog
+        initialDate={newEntryDate ?? today}
         isSaving={pendingCellKeys.size > 0}
         knownRange={knownEntryRange}
         missionOptions={model.missionOptions}

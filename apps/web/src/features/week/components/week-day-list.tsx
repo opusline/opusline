@@ -24,7 +24,8 @@ type WeekDayListProps = Pick<
 > & {
   /** `Y-m-d` of the day the list opens on when the week holds today. */
   today: string;
-  onAddEntry: () => void;
+  /** Receives the `Y-m-d` on screen, so the new entry lands on that day. */
+  onAddEntry: (date: string) => void;
 };
 
 type DayColumn = Extract<WeekGridModel["columns"][number], { kind: "day" }>;
@@ -100,14 +101,14 @@ export function WeekDayList({
         aria-label={m.week_day_picker_label()}
         className="m-0 grid min-w-0 grid-cols-7 gap-1.5 border-0 p-0"
       >
-        {model.columns.flatMap((column) =>
+        {model.columns.flatMap((column, index) =>
           column.kind === "day"
             ? [
                 <button
                   aria-label={weekdayDateLabel(model.locale, column.date)}
                   aria-pressed={column.date === day.date}
                   className={cn(
-                    "flex h-10 items-center justify-center rounded-sm border font-mono text-xs uppercase outline-none focus-visible:outline-2 focus-visible:outline-primary-text",
+                    "relative flex h-13 flex-col items-center justify-center gap-0.5 rounded-sm border font-mono outline-none focus-visible:outline-2 focus-visible:outline-primary-text",
                     column.date === day.date
                       ? "border-primary-text bg-primary/10 text-primary-text"
                       : "bg-muted text-muted-foreground-2",
@@ -121,13 +122,26 @@ export function WeekDayList({
                   onClick={() => setChosen(column.date)}
                   type="button"
                 >
-                  {column.weekdayLabel.charAt(0)}
+                  <span className="text-2xs uppercase">
+                    {column.weekdayLabel.charAt(0)}
+                  </span>
+                  <span className="text-sm tabular-nums">
+                    {Number(column.date.slice(-2))}
+                  </span>
+                  {model.rows.some(
+                    (row) => row.cells[index].entries.length > 0,
+                  ) && (
+                    <span
+                      aria-hidden
+                      className="absolute top-1 right-1 size-1 rounded-full bg-primary-text"
+                    />
+                  )}
                 </button>,
               ]
             : column.dates.map((date) => (
                 <span
                   aria-hidden
-                  className="flex h-10 items-center justify-center rounded-sm bg-muted font-mono text-muted-foreground-5 text-xs uppercase"
+                  className="flex h-13 items-center justify-center rounded-sm bg-muted font-mono text-muted-foreground-5 text-xs uppercase"
                   key={date}
                 >
                   {weekdayShortLabel(model.locale, date).charAt(0)}
@@ -236,7 +250,8 @@ export function WeekDayList({
         <Button
           className="w-full"
           data-testid="week-day-add"
-          onClick={onAddEntry}
+          onClick={() => onAddEntry(day.date)}
+          size="2xl"
           type="button"
           variant="outline"
         >

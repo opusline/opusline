@@ -59,12 +59,12 @@ it("lists the entries of the day the user picks", () => {
   expect(monday).toHaveAttribute("aria-pressed", "true");
 });
 
-it("says so when the day is empty, and still offers to add an entry", () => {
+it("says so when the day is empty, and offers to add an entry on that day", () => {
   const { onAddEntry } = renderList([]);
 
   expect(screen.queryAllByTestId("week-day-entry-card")).toHaveLength(0);
 
   fireEvent.click(screen.getByTestId("week-day-add"));
 
-  expect(onAddEntry).toHaveBeenCalledOnce();
+  expect(onAddEntry).toHaveBeenCalledExactlyOnceWith(DEMO_TODAY);
 });
