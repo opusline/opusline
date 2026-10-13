@@ -114,8 +114,10 @@ export function AnnualReturnSheet({
         {view !== null && (
           <>
             <SheetHeader className="border-b pb-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
+              {/* Below sm the status sits under the title: beside it, the pill
+                  left a long title a column four characters wide. */}
+              <div className="flex flex-col items-start gap-2.5 sm:flex-row sm:justify-between sm:gap-3">
+                <div className="min-w-0 max-sm:pr-8">
                   <SheetTitle size="lg">{view.title}</SheetTitle>
                   <SheetDescription className="mt-1.5 text-muted-foreground-3 text-sm">
                     {view.deadline}
@@ -129,7 +131,7 @@ export function AnnualReturnSheet({
                     </Link>
                   </SheetDescription>
                 </div>
-                <div className="mr-8 shrink-0">
+                <div className="shrink-0 sm:mr-8">
                   <AnnualReturnStatusBadge
                     doneOn={view.doneOn}
                     kind={view.kind}
@@ -152,7 +154,7 @@ export function AnnualReturnSheet({
                 {view.linkLabel}
               </a>
               {view.doneOn !== null ? (
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <Button
                     disabled={isBusy}
                     onClick={onUndo}
