@@ -74,6 +74,7 @@ export function IdentitySettingsForm({
                 field={field}
                 font="mono"
                 formatOnBlur={formatSiret}
+                inputMode="numeric"
                 label="SIRET"
                 labelClassName={LABEL}
                 placeholder="000 000 000 00000"
@@ -142,6 +143,7 @@ export function IdentitySettingsForm({
               label={m.settings_phone_label()}
               labelClassName={LABEL}
               placeholder="00 00 00 00 00"
+              type="tel"
             />
           )}
         </form.Field>

@@ -270,6 +270,7 @@ export function ClientEditForm({
                 <FormTextField
                   field={field}
                   formatOnBlur={formatSiret}
+                  inputMode="numeric"
                   label="SIRET"
                   labelClassName={EDIT_LABEL_CLASSES}
                   font="mono"
