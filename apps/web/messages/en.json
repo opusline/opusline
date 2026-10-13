@@ -2327,6 +2327,7 @@
   "vat_regime_simplified_hint": "VAT-liable · yearly CA12",
   "vat_regime_simplified_label": "Réel simplifié",
   "vat_regime_simplified_note": "Your invoices carry VAT and a CA12 return is expected every year, with instalments.",
+  "week_add_entry": "Add an entry",
   "week_billable_detail": [
     {
       "declarations": ["input count", "local countPlural = count: plural"],
@@ -2369,7 +2370,6 @@
       }
     }
   ],
-  "week_add_entry": "Add an entry",
   "week_cell_add": "Add",
   "week_cell_empty_label": "{mission}, {day}: no entries",
   "week_cell_label": "{mission}, {day}: {value}",

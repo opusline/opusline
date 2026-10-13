@@ -2327,6 +2327,7 @@
   "vat_regime_simplified_hint": "Assujetti · CA12 annuelle",
   "vat_regime_simplified_label": "Réel simplifié",
   "vat_regime_simplified_note": "Vos factures portent la TVA et une déclaration CA12 est attendue chaque année, avec acomptes.",
+  "week_add_entry": "Ajouter une entrée",
   "week_billable_detail": [
     {
       "declarations": ["input count", "local countPlural = count: plural"],
@@ -2369,7 +2370,6 @@
       }
     }
   ],
-  "week_add_entry": "Ajouter une entrée",
   "week_cell_add": "Ajouter",
   "week_cell_empty_label": "{mission}, {day} : aucune entrée",
   "week_cell_label": "{mission}, {day} : {value}",
