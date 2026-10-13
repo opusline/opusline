@@ -1,4 +1,0 @@
-{
-  "kind": "fixed",
-  "text": "On a phone, a dialog taller than the screen now scrolls inside itself instead of running off both ends, and wide content no longer spills past a dialog's edge."
-}
