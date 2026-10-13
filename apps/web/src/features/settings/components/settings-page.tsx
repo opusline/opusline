@@ -6,6 +6,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@opusline/ui/components/tabs";
+import { useIsMobile } from "@opusline/ui/hooks/use-mobile";
 import { type ReactNode, useEffect, useMemo } from "react";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
@@ -132,6 +133,10 @@ export function SettingsPage({
     ? SETTINGS_TAB_DETAILS.fiscalite.hint()
     : abroadTaxTerms(isEuVat).name;
 
+  // On a phone the sidebar list becomes a strip of underline tabs above the
+  // panel; there is no room for a column beside it.
+  const isMobile = useIsMobile();
+
   return (
     <div>
       <div className="mb-6.5">
@@ -147,24 +152,31 @@ export function SettingsPage({
       </div>
 
       <Tabs
-        className="items-start gap-8"
+        className={isMobile ? "gap-5" : "items-start gap-8"}
         onValueChange={(value) => onTabChange(value as SettingsTab)}
-        orientation="vertical"
+        orientation={isMobile ? "horizontal" : "vertical"}
         value={activeTab}
       >
-        <TabsList className="w-55 shrink-0" variant="sidebar">
+        <TabsList
+          className={isMobile ? undefined : "w-55 shrink-0"}
+          variant={isMobile ? "underline" : "sidebar"}
+        >
           {SETTINGS_TABS.map((tab) => (
             <TabsTrigger key={tab} value={tab}>
-              <span className="flex flex-col gap-0.75">
-                <span className="text-sm">
-                  {SETTINGS_TAB_DETAILS[tab].label()}
+              {isMobile ? (
+                SETTINGS_TAB_DETAILS[tab].label()
+              ) : (
+                <span className="flex flex-col gap-0.75">
+                  <span className="text-sm">
+                    {SETTINGS_TAB_DETAILS[tab].label()}
+                  </span>
+                  <span className="text-muted-foreground-3 text-xs">
+                    {tab === "fiscalite"
+                      ? fiscaliteHint
+                      : SETTINGS_TAB_DETAILS[tab].hint()}
+                  </span>
                 </span>
-                <span className="text-muted-foreground-3 text-xs">
-                  {tab === "fiscalite"
-                    ? fiscaliteHint
-                    : SETTINGS_TAB_DETAILS[tab].hint()}
-                </span>
-              </span>
+              )}
             </TabsTrigger>
           ))}
         </TabsList>

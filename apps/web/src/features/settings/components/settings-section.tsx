@@ -19,7 +19,7 @@ export function SettingsSection({
   return (
     <section
       aria-labelledby={titleId}
-      className={cn("rounded-md border bg-card px-7 py-6.5", className)}
+      className={cn("rounded-md border bg-card px-5 py-6.5 sm:px-7", className)}
     >
       <h2
         className="mb-1 font-heading font-semibold text-base text-foreground-hi"
