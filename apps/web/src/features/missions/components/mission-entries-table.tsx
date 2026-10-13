@@ -178,7 +178,7 @@ export function MissionEntriesTable({
         </div>
       )}
 
-      <div className="flex items-center justify-between bg-muted px-5 py-3.5">
+      <div className="flex flex-col items-start gap-1.5 bg-muted px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between">
         <span className="text-muted-foreground-3 text-sm">
           {m.missions_entries_from_week()}
         </span>

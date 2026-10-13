@@ -138,3 +138,9 @@ export const Sidebar: Story = {
     </Tabs>
   ),
 };
+
+/** Narrower than its tabs, the strip scrolls sideways instead of widening the page. */
+export const UnderlineOnAPhone: Story = {
+  ...Underline,
+  globals: { viewport: { value: "mobile1", isRotated: false } },
+};

@@ -5,7 +5,7 @@ import { initials } from "@/lib/initials";
 
 const SIZE_CLASSES = {
   sm: "size-9 p-1 font-medium text-xs",
-  lg: "size-18 p-2 font-heading font-medium text-2xl tracking-wide",
+  lg: "size-14 p-1.5 font-heading font-medium text-xl tracking-wide sm:size-18 sm:p-2 sm:text-2xl",
 } as const;
 
 type ClientLogoProps = {

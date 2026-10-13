@@ -146,7 +146,7 @@ export function MissionEditForm({
         void form.handleSubmit();
       }}
     >
-      <div className="mb-5 flex items-center gap-3 border-b pb-3.5">
+      <div className="mb-5 flex flex-wrap items-center gap-x-3 gap-y-1 border-b pb-3.5">
         <PencilIcon
           aria-hidden
           className="size-3.75 shrink-0 text-muted-foreground-2"
@@ -155,8 +155,8 @@ export function MissionEditForm({
         <span className="text-foreground-hi text-sm">
           {m.missions_edit_title()}
         </span>
-        <span className="flex-1" />
-        <span className="text-muted-foreground-3 text-xs">
+        <span className="hidden flex-1 sm:block" />
+        <span className="basis-full text-muted-foreground-3 text-xs sm:basis-auto">
           {m.missions_edit_note()}
         </span>
       </div>
@@ -168,7 +168,7 @@ export function MissionEditForm({
         </Alert>
       ) : null}
 
-      <div className="grid items-start gap-3.5 md:grid-cols-2">
+      <div className="grid grid-cols-1 items-start gap-3.5 md:grid-cols-2">
         <div className="rounded-md border bg-card p-5">
           <div className={`${eyebrowVariants()} mb-4`}>Mission</div>
           <div className="flex flex-col gap-3.5">
@@ -357,7 +357,7 @@ export function MissionEditForm({
               </>
             )}
 
-            <div className="grid gap-3.5 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
               <form.Field name="startDate">
                 {(field) => (
                   <FormDateField
@@ -382,11 +382,17 @@ export function MissionEditForm({
         </div>
       </div>
 
-      <div className="mt-4 flex items-center gap-2 border-t pt-4">
-        <Button disabled={isPending} size="xl" type="submit">
+      <div className="mt-4 flex flex-col gap-2 border-t pt-4 sm:flex-row sm:items-center">
+        <Button
+          className="w-full sm:w-auto"
+          disabled={isPending}
+          size="xl"
+          type="submit"
+        >
           {m.common_save()}
         </Button>
         <Button
+          className="w-full sm:w-auto"
           disabled={isPending}
           onClick={onCancel}
           size="xl"

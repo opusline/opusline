@@ -250,7 +250,7 @@ export function MissionDetailPage({
 
       <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <span
               aria-hidden
               className={cn(
