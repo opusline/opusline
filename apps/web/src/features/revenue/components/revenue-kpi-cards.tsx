@@ -26,7 +26,7 @@ export function RevenueKpiCards({
   const locale = useLocale();
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-3.5">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(min(15rem,100%),1fr))] gap-3.5">
       <section className="rounded-md border bg-card p-5">
         <h2 className={eyebrowVariants()}>{basisText(basis).kpiTitle()}</h2>
         <p

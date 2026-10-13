@@ -91,7 +91,7 @@ export function TreasuryBreakdown({ data }: TreasuryBreakdownProps) {
         ))}
       </div>
 
-      <dl className="mt-5 grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-5">
+      <dl className="mt-5 grid grid-cols-[repeat(auto-fit,minmax(min(10rem,100%),1fr))] gap-5">
         {bands.map((band) => {
           const skin = TREASURY_BAND_SKINS[band.key];
 

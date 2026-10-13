@@ -90,3 +90,30 @@ export const Sizes: Story = {
     </div>
   ),
 };
+
+/** Below `sm`, `md` and `lg` take the full width: 3/4 of a phone is too narrow for a form. */
+export const FormOnAPhone: Story = {
+  globals: { viewport: { value: "mobile1", isRotated: false } },
+  render: () => (
+    <Sheet defaultOpen>
+      <SheetTrigger
+        render={<Button variant="outline">Formulaire (md)</Button>}
+      />
+      <SheetContent size="md">
+        <SheetHeader>
+          <SheetTitle size="lg">Ajouter une dépense</SheetTitle>
+          <SheetDescription>Toute la largeur de l'écran.</SheetDescription>
+        </SheetHeader>
+        <SheetBody>
+          <p className="text-muted-foreground-3 text-sm">
+            Les champs du formulaire défilent ici.
+          </p>
+        </SheetBody>
+        <SheetFooter className="flex-row justify-end">
+          <SheetClose render={<Button variant="outline">Annuler</Button>} />
+          <Button>Enregistrer</Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  ),
+};

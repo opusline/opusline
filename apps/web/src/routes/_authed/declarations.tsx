@@ -199,7 +199,7 @@ function DeclarationsRoute() {
 
   if (declarations.isPending) {
     return (
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] gap-4">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(22rem,100%),1fr))] gap-4">
         <Skeleton className="h-96 w-full" />
         <Skeleton className="h-96 w-full" />
       </div>

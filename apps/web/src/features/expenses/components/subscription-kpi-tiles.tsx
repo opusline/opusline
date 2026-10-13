@@ -24,7 +24,7 @@ export function SubscriptionKpiTiles({ kpis }: { kpis: SubscriptionKpisData }) {
 
   return (
     <StatTileRow
-      className="grid-cols-[repeat(auto-fit,minmax(12rem,1fr))]"
+      className="grid-cols-[repeat(auto-fit,minmax(min(12rem,100%),1fr))]"
       variant="cards"
     >
       <StatTile

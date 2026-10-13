@@ -79,7 +79,7 @@ export function DeclarationsHistoryCard({
           {m.declarations_history_title()}
         </h2>
       </div>
-      <Table className="table-fixed">
+      <Table className="min-w-2xl table-fixed">
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             <TableHead className={HEAD_CLASSES}>

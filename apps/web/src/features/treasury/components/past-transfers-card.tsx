@@ -89,15 +89,17 @@ function TransferRow({
       data-amount-cents={transfer.amount.amount}
       data-testid="transfer-row"
     >
-      <span className="shrink-0 text-foreground-3 text-sm tabular-nums">
-        {dateLabel}
+      <span className="flex min-w-0 flex-1 flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-3">
+        <span className="shrink-0 text-foreground-3 text-sm tabular-nums">
+          {dateLabel}
+        </span>
+        <span className="w-full min-w-0 truncate text-muted-foreground-2 text-sm empty:hidden sm:w-auto sm:flex-1">
+          {transfer.note}
+        </span>
+        {!transfer.reflectedInBalance && (
+          <Badge variant="quiet">{m.treasury_pending_badge()}</Badge>
+        )}
       </span>
-      <span className="min-w-0 flex-1 truncate text-muted-foreground-2 text-sm">
-        {transfer.note}
-      </span>
-      {!transfer.reflectedInBalance && (
-        <Badge variant="quiet">{m.treasury_pending_badge()}</Badge>
-      )}
       <span className="shrink-0 whitespace-nowrap font-mono text-foreground-2 text-sm tabular-nums">
         {valueLabel}
       </span>

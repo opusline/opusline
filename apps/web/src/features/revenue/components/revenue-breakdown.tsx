@@ -27,8 +27,10 @@ import { m } from "@/paraglide/messages.js";
 
 import { basisText, type RevenueBasisKey, shareLabel } from "../lib/labels";
 
+// Below sm the share bar steps aside: the percentage already says it, and the
+// client name needs the width.
 const GROUP_GRID =
-  "grid grid-cols-[minmax(0,1fr)_minmax(3.75rem,12.5rem)_2.75rem_6.5rem] items-center gap-4";
+  "grid grid-cols-[minmax(0,1fr)_2.75rem_6.5rem] items-center gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(3.75rem,12.5rem)_2.75rem_6.5rem] sm:gap-4";
 
 type RevenueBreakdownProps = {
   clients: RevenueClientData[];
@@ -128,11 +130,11 @@ function ClientGroup({
           <span className="truncate font-medium text-foreground-hi text-sm">
             {group.clientName}
           </span>
-          <span className="flex-none whitespace-nowrap text-muted-foreground-3 text-xs">
+          <span className="hidden flex-none whitespace-nowrap text-muted-foreground-3 text-xs sm:inline">
             {m.invoices_count({ count: group.invoiceCount })}
           </span>
         </div>
-        <span className="block h-1.75 overflow-hidden rounded-xs bg-muted">
+        <span className="hidden h-1.75 overflow-hidden rounded-xs bg-muted sm:block">
           <span
             className={cn(
               "block h-full rounded-xs",

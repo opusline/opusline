@@ -66,7 +66,7 @@ export function RevenuePage({
 
       <RevenueKpiCards basis={basis} data={data} />
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] gap-3.5">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(20rem,100%),1fr))] gap-3.5">
         <RevenueChart
           accountToday={accountToday}
           basis={basis}
