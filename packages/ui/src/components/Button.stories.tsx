@@ -103,3 +103,14 @@ export const TouchTargets: Story = {
     </div>
   ),
 };
+
+/** `wrap` lets a long label take two lines instead of leaving its container. */
+export const Wrapping: Story = {
+  render: () => (
+    <div className="w-56 rounded-md border p-3">
+      <Button size="sm" variant="ghost" wrap>
+        Impossible de scanner ? Saisissez la clé à la main
+      </Button>
+    </div>
+  ),
+};

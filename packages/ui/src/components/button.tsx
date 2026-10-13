@@ -45,6 +45,14 @@ const buttonVariants = cva(
         "icon-lg": "size-8 touch-hit-1.5 [&_svg:not([class*='size-'])]:size-4",
         "icon-xl": "size-9 touch-hit-1 [&_svg:not([class*='size-'])]:size-4",
       },
+      /**
+       * A label that may not fit one line of a phone: the button grows to two
+       * lines rather than running past its container.
+       */
+      wrap: {
+        false: "",
+        true: "h-auto max-w-full whitespace-normal py-1 text-center",
+      },
     },
     compoundVariants: [
       { variant: "outline", size: "2xl", class: "px-3.5" },
@@ -55,6 +63,7 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
       surface: "flat",
+      wrap: false,
     },
   },
 );
@@ -64,12 +73,15 @@ function Button({
   variant = "default",
   size = "default",
   surface = "flat",
+  wrap = false,
   ...props
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
   return (
     <ButtonPrimitive
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, surface, className }))}
+      className={cn(
+        buttonVariants({ variant, size, surface, wrap, className }),
+      )}
       {...props}
     />
   );
