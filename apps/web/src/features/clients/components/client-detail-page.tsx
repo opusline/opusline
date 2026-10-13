@@ -67,6 +67,7 @@ import { monthYearLabel } from "@/lib/dates";
 import type { FormSubmitResult } from "@/lib/form";
 import type { LogoUploadResult } from "@/lib/logos";
 import { COLOR_CLASSES } from "@/lib/palette";
+import { useIsPhone } from "@/lib/use-is-phone";
 import { m } from "@/paraglide/messages.js";
 import { formatPostalAddress } from "../lib/client-form";
 import type { ClientTab } from "../lib/tabs";
@@ -151,6 +152,7 @@ export function ClientDetailPage({
 }: ClientDetailPageProps) {
   const format = useMoneyFormat();
   const navigate = useNavigate();
+  const isPhone = useIsPhone();
   const [isEditing, setIsEditing] = useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const missionRevenues = useMemo(
@@ -370,14 +372,18 @@ export function ClientDetailPage({
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
                       <TableHead
-                        className={cn(eyebrowVariants(), "w-1/3 py-3 pl-5")}
+                        className={cn(eyebrowVariants(), "py-3 pl-5 sm:w-1/3")}
                       >
                         {m.clients_head_mission()}
                       </TableHead>
-                      <TableHead className={cn(eyebrowVariants(), "w-1/6")}>
+                      <TableHead
+                        className={cn(eyebrowVariants(), "w-1/6 max-sm:hidden")}
+                      >
                         {m.clients_head_rate()}
                       </TableHead>
-                      <TableHead className={cn(eyebrowVariants(), "w-1/6")}>
+                      <TableHead
+                        className={cn(eyebrowVariants(), "w-1/6 max-sm:hidden")}
+                      >
                         {m.missions_stat_this_month()}
                       </TableHead>
                       <TableHead
@@ -436,11 +442,20 @@ export function ClientDetailPage({
                                 {mission.name}
                               </Link>
                             </div>
+                            {isPhone && (
+                              <span className="mt-0.75 block pl-3.25 text-muted-foreground-3 text-xs">
+                                {formatMissionRate(format, mission)} ·{" "}
+                                {formatTrackedMonth(
+                                  format.locale,
+                                  missionRevenue,
+                                )}
+                              </span>
+                            )}
                           </TableCell>
-                          <TableCell className="py-4 text-muted-foreground-3 text-sm">
+                          <TableCell className="py-4 text-muted-foreground-3 text-sm max-sm:hidden">
                             {formatMissionRate(format, mission)}
                           </TableCell>
-                          <TableCell className="py-4 font-mono text-foreground-2 tabular-nums">
+                          <TableCell className="py-4 font-mono text-foreground-2 tabular-nums max-sm:hidden">
                             {formatTrackedMonth(format.locale, missionRevenue)}
                           </TableCell>
                           <TableCell className="py-4 text-right font-mono text-primary-text tabular-nums">

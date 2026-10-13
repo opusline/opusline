@@ -30,6 +30,7 @@ import {
 } from "@/lib/client-revenue";
 import { clientTypeLabel } from "@/lib/client-types";
 import { COLOR_CLASSES } from "@/lib/palette";
+import { useIsPhone } from "@/lib/use-is-phone";
 
 import { m } from "@/paraglide/messages.js";
 
@@ -63,6 +64,7 @@ type ClientsTableProps = {
 export function ClientsTable({ clients, revenue }: ClientsTableProps) {
   const format = useMoneyFormat();
   const navigate = useNavigate();
+  const isPhone = useIsPhone();
   const [scope, setScope] = useState<ClientScope>("active");
   const revenueByClient = useMemo(() => indexClientRevenue(revenue), [revenue]);
   const revenueByMission = useMemo(
@@ -117,23 +119,42 @@ export function ClientsTable({ clients, revenue }: ClientsTableProps) {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className={cn(eyebrowVariants(), "w-1/4 py-3 pl-5")}>
+              <TableHead
+                className={cn(eyebrowVariants(), "py-3 pl-5 sm:w-1/4")}
+              >
                 {m.clients_head_client()}
               </TableHead>
-              <TableHead className={cn(eyebrowVariants(), "w-3/16")}>
+              <TableHead
+                className={cn(eyebrowVariants(), "w-3/16 max-sm:hidden")}
+              >
                 {m.clients_head_type()}
               </TableHead>
-              <TableHead className={cn(eyebrowVariants(), "w-1/9")}>
+              <TableHead
+                className={cn(eyebrowVariants(), "w-1/9 max-sm:hidden")}
+              >
                 {m.clients_missions_title()}
               </TableHead>
-              <TableHead className={cn(eyebrowVariants(), "w-1/6 text-right")}>
+              <TableHead
+                className={cn(
+                  eyebrowVariants(),
+                  "text-right max-sm:pr-5 sm:w-1/6",
+                )}
+              >
                 {revenueYearLabel(revenue?.year)}
               </TableHead>
-              <TableHead className={cn(eyebrowVariants(), "w-1/6 text-right")}>
+              <TableHead
+                className={cn(
+                  eyebrowVariants(),
+                  "w-1/6 text-right max-sm:hidden",
+                )}
+              >
                 {m.clients_head_pending()}
               </TableHead>
               <TableHead
-                className={cn(eyebrowVariants(), "py-3 pr-5 text-right")}
+                className={cn(
+                  eyebrowVariants(),
+                  "py-3 pr-5 text-right max-sm:hidden",
+                )}
               >
                 {m.clients_head_average_delay()}
               </TableHead>
@@ -200,21 +221,21 @@ export function ClientsTable({ clients, revenue }: ClientsTableProps) {
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="min-w-0 py-4 pr-3">
+                  <TableCell className="min-w-0 py-4 pr-3 max-sm:hidden">
                     <Badge variant={CLIENT_TYPE_BADGE_VARIANTS[client.type]}>
                       {clientTypeLabel(client.type)}
                     </Badge>
                   </TableCell>
-                  <TableCell className="py-4 font-mono text-foreground-4 tabular-nums">
+                  <TableCell className="py-4 font-mono text-foreground-4 tabular-nums max-sm:hidden">
                     {client.missions.length}
                   </TableCell>
-                  <TableCell className="py-4 text-right font-mono tabular-nums">
+                  <TableCell className="py-4 text-right font-mono tabular-nums max-sm:pr-5">
                     {formatRevenue(format, clientRevenue?.yearToDate)}
                   </TableCell>
-                  <TableCell className="py-4 text-right font-mono text-muted-foreground tabular-nums">
+                  <TableCell className="py-4 text-right font-mono text-muted-foreground tabular-nums max-sm:hidden">
                     {formatRevenue(format, clientRevenue?.pending)}
                   </TableCell>
-                  <TableCell className="py-4 pr-5 text-right font-mono text-muted-foreground-3 tabular-nums">
+                  <TableCell className="py-4 pr-5 text-right font-mono text-muted-foreground-3 tabular-nums max-sm:hidden">
                     {formatPaymentDelay(clientRevenue?.averagePaymentDelayDays)}
                   </TableCell>
                 </TableRow>
@@ -259,22 +280,27 @@ export function ClientsTable({ clients, revenue }: ClientsTableProps) {
                             {mission.name}
                           </Link>
                         </div>
+                        {isPhone && (
+                          <span className="mt-0.75 block pl-6.75 text-muted-foreground-2 text-xs">
+                            {formatMissionRate(format, mission)}
+                          </span>
+                        )}
                       </TableCell>
-                      <TableCell className="py-2.5 text-muted-foreground-2 text-xs">
+                      <TableCell className="py-2.5 text-muted-foreground-2 text-xs max-sm:hidden">
                         {formatMissionRate(format, mission)}
                       </TableCell>
-                      <TableCell className="py-2.5 font-mono text-muted-foreground-3 tabular-nums">
+                      <TableCell className="py-2.5 font-mono text-muted-foreground-3 tabular-nums max-sm:hidden">
                         —
                       </TableCell>
-                      <TableCell className="py-2.5 text-right font-mono text-foreground-3 tabular-nums">
+                      <TableCell className="py-2.5 text-right font-mono text-foreground-3 tabular-nums max-sm:pr-5">
                         {formatRevenue(format, missionRevenue?.yearToDate)}
                       </TableCell>
-                      <TableCell className="py-2.5 text-right">
+                      <TableCell className="py-2.5 text-right max-sm:hidden">
                         {budget === null ? null : (
                           <BudgetShareBadge budget={budget} />
                         )}
                       </TableCell>
-                      <TableCell className="py-2.5 pr-5 text-right">
+                      <TableCell className="py-2.5 pr-5 text-right max-sm:hidden">
                         <MissionStatusBadge
                           clientType={client.type}
                           status={mission.status}

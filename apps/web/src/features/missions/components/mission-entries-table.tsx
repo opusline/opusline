@@ -17,6 +17,7 @@ import { useDateFormat, useLocale } from "@/components/money-format-provider";
 import { REVENUE_PLACEHOLDER } from "@/lib/client-revenue";
 import { calendarDateNumericLabel } from "@/lib/dates";
 import { billedQuantityLabel } from "@/lib/durations";
+import { useIsPhone } from "@/lib/use-is-phone";
 import { m } from "@/paraglide/messages.js";
 
 const HEAD_CLASSES = "sticky top-0 z-10 border-b bg-card px-3 py-3 font-normal";
@@ -79,6 +80,7 @@ export function MissionEntriesTable({
 }: MissionEntriesTableProps) {
   const locale = useLocale();
   const dateFormat = useDateFormat();
+  const isPhone = useIsPhone();
 
   return (
     <div className="overflow-hidden rounded-md border bg-card">
@@ -88,7 +90,7 @@ export function MissionEntriesTable({
       */}
       <Table
         aria-label={m.missions_entries_table_label()}
-        className="min-w-124 table-fixed border-separate border-spacing-0"
+        className="table-fixed border-separate border-spacing-0 sm:min-w-124"
         containerClassName="max-h-160 overflow-auto"
       >
         <TableHeader>
@@ -98,7 +100,13 @@ export function MissionEntriesTable({
             >
               {m.common_date_label()}
             </TableHead>
-            <TableHead className={cn(eyebrowVariants(), HEAD_CLASSES, "w-20")}>
+            <TableHead
+              className={cn(
+                eyebrowVariants(),
+                HEAD_CLASSES,
+                "w-20 max-sm:hidden",
+              )}
+            >
               {m.missions_entries_header_quantity()}
             </TableHead>
             <TableHead className={cn(eyebrowVariants(), HEAD_CLASSES)}>
@@ -108,7 +116,7 @@ export function MissionEntriesTable({
               className={cn(
                 eyebrowVariants(),
                 HEAD_CLASSES,
-                "w-29 pr-5 text-right",
+                "w-32 pr-3 text-right sm:w-29 sm:pr-5",
               )}
             >
               {m.missions_entries_header_state()}
@@ -130,11 +138,18 @@ export function MissionEntriesTable({
                     )}
                   >
                     {calendarDateNumericLabel(dateFormat, entry.date)}
+                    {/* Below sm the quantity rides under its date: four
+                        columns leave the note none of a phone's width. */}
+                    {isPhone && (
+                      <span className="mt-0.75 block text-foreground-hi">
+                        {quantityLabel(locale, entry)}
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell
                     className={cn(
                       CELL_CLASSES,
-                      "font-mono text-foreground-hi text-sm tabular-nums",
+                      "font-mono text-foreground-hi text-sm tabular-nums max-sm:hidden",
                     )}
                   >
                     {quantityLabel(locale, entry)}
@@ -147,7 +162,9 @@ export function MissionEntriesTable({
                   >
                     {entry.note ?? ""}
                   </TableCell>
-                  <TableCell className={cn(CELL_CLASSES, "pr-5 text-right")}>
+                  <TableCell
+                    className={cn(CELL_CLASSES, "pr-3 text-right sm:pr-5")}
+                  >
                     <Badge variant={STATE_VARIANTS[state]}>
                       {STATE_MESSAGES[state]()}
                     </Badge>
