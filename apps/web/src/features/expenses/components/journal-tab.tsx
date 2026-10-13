@@ -183,7 +183,7 @@ export function JournalTab({
       </div>
 
       {month.categories.length > 0 && (
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(18rem,1fr))] gap-4">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(18rem,100%),1fr))] gap-4">
           <ExpenseCategoryBars
             categories={month.categories}
             month={month.month}

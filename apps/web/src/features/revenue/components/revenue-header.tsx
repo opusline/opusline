@@ -67,7 +67,7 @@ export function RevenueHeader({
         </p>
       </div>
 
-      <div className="flex flex-none flex-wrap items-center gap-2.5">
+      <div className="flex min-w-0 flex-wrap items-center gap-2.5 sm:flex-none">
         <div className="flex gap-1">
           <Button
             aria-label={m.common_previous_period()}

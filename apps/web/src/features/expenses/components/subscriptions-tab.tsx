@@ -111,7 +111,7 @@ export function SubscriptionsTab({
 
       {/* The table needs the width: the thirty-day rail joins the cards below it. */}
       {data.subscriptions.length > 0 && (
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] gap-4">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(20rem,100%),1fr))] gap-4">
           <UpcomingDebitsRail data={data} today={today} />
           <AnnualSplitCard
             categories={data.categories}

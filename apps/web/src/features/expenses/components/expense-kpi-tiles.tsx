@@ -58,7 +58,7 @@ export function ExpenseKpiTiles({ month, unit }: ExpenseKpiTilesProps) {
 
   return (
     <StatTileRow
-      className="grid-cols-[repeat(auto-fit,minmax(14rem,1fr))]"
+      className="grid-cols-[repeat(auto-fit,minmax(min(14rem,100%),1fr))]"
       variant="cards"
     >
       {month.vat === null ? (

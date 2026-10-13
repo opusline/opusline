@@ -46,10 +46,10 @@ const sheetContentVariants = cva(
     variants: {
       size: {
         default: "data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm",
-        /** A form: the expense and subscription sheets. */
-        md: "data-[side=left]:sm:max-w-120 data-[side=right]:sm:max-w-120",
-        /** A document to read: the annual return sheets. */
-        lg: "data-[side=left]:sm:max-w-140 data-[side=right]:sm:max-w-140",
+        /** A form: the expense and subscription sheets. Full width on a phone, where 3/4 is too narrow to type in. */
+        md: "data-[side=left]:max-sm:w-full data-[side=right]:max-sm:w-full data-[side=left]:sm:max-w-120 data-[side=right]:sm:max-w-120",
+        /** A document to read: the annual return sheets. Full width on a phone, like `md`. */
+        lg: "data-[side=left]:max-sm:w-full data-[side=right]:max-sm:w-full data-[side=left]:sm:max-w-140 data-[side=right]:sm:max-w-140",
       },
     },
     defaultVariants: { size: "default" },

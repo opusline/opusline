@@ -24,7 +24,7 @@ export function BankKpiTiles({ data, onEditBalance }: BankKpiTilesProps) {
   const pendingCount = pendingMatches.length;
 
   return (
-    <StatTileRow className="grid-cols-[repeat(auto-fit,minmax(11.25rem,1fr))]">
+    <StatTileRow className="grid-cols-[repeat(auto-fit,minmax(min(11.25rem,100%),1fr))]">
       <StatTile
         action={
           <Button

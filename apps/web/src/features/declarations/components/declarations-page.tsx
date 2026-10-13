@@ -102,7 +102,7 @@ export function DeclarationsPage({
           {m.declarations_before_start()}
         </p>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(22rem,1fr))] items-stretch gap-4">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(22rem,100%),1fr))] items-stretch gap-4">
           <div className="flex flex-col gap-4">
             {urssaf !== null && (
               <UrssafDeclarationCard
