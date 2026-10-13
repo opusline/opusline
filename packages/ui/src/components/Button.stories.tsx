@@ -82,3 +82,24 @@ export const RaisedSurface: Story = {
     </div>
   ),
 };
+
+/**
+ * On a touch screen every size under 44px takes taps on an invisible margin
+ * around it (`touch-hit-*`), so the drawn size stays what the design asks for.
+ * Nothing changes with a mouse.
+ */
+export const TouchTargets: Story = {
+  globals: { viewport: { value: "mobile1", isRotated: false } },
+  render: () => (
+    <div className="flex flex-wrap items-center gap-6 p-4">
+      <Button size="xs">xs</Button>
+      <Button size="sm">sm</Button>
+      <Button>default</Button>
+      <Button size="lg">lg</Button>
+      <Button size="xl">xl</Button>
+      <Button aria-label="Fermer" size="icon-sm" variant="ghost">
+        ×
+      </Button>
+    </div>
+  ),
+};
