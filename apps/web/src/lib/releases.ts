@@ -13,6 +13,60 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.33.0",
+    date: "2026-10-13",
+    items: [
+      {
+        kind: "improved",
+        text: "Client and mission pages now fit a phone screen: the tabs scroll sideways and the forms no longer run off the edge.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "Revenue, expenses, treasury, bank and declarations now fit a phone screen, and the expense and subscription forms open full width there.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "The invoice list fits a phone screen: the status moves under the mission so every column stays readable.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "Settings work on a phone: the sections become tabs you can swipe through above the form.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "On a phone, the menu now closes once you pick a screen, and the header keeps the timer within reach instead of running off the edge.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "On a touch screen, small buttons, chips, switches and help icons are easier to hit: they take taps a little beyond their edges, and respond without the double-tap delay.", // i18n-ignore
+      },
+      {
+        kind: "improved",
+        text: "On a phone, the week reads one day at a time, the timer opens in a sheet within thumb's reach, lists fit the screen instead of scrolling sideways, and the CRA calendar fits too.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "On a phone, the 2042 and CFE sheets show their title on one line and keep every action button on screen.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "On a phone, subscription cards keep the supplier's name readable, and the subscription form stacks its fields instead of squeezing them into two columns.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "Tapping into a field on an iPhone no longer zooms the page in, and SIRET and phone fields open the numeric keyboard.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "On a phone, a dialog taller than the screen now scrolls inside itself instead of running off both ends, and wide content no longer spills past a dialog's edge.", // i18n-ignore
+      },
+      {
+        kind: "fixed",
+        text: "On a small phone, the « can't scan? » link in the authenticator setup no longer runs past the dialog's edge.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.32.1",
     date: "2026-10-11",
     items: [
