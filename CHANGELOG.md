@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.33.0](https://github.com/opusline/opusline/compare/v0.32.1...v0.33.0) (2026-10-13)
+
+
+### Features
+
+* **ui:** widen small controls' tap area on touch ([#491](https://github.com/opusline/opusline/issues/491)) ([65d6c44](https://github.com/opusline/opusline/commit/65d6c440580cd569bbf453d9bc2c4ea5ca191207))
+* **web:** fit client and mission pages on a phone ([#485](https://github.com/opusline/opusline/issues/485)) ([1b5fbcc](https://github.com/opusline/opusline/commit/1b5fbccbc4e649717484880fd03775d8428a6ee8))
+* **web:** fit the app shell on a phone ([#484](https://github.com/opusline/opusline/issues/484)) ([e57d3fe](https://github.com/opusline/opusline/commit/e57d3fee7649dbc63bf111399624cc66b005e4f0))
+* **web:** fit the finance screens on a phone ([#486](https://github.com/opusline/opusline/issues/486)) ([49f5b90](https://github.com/opusline/opusline/commit/49f5b90331bab59e42a6567854a23bb460e68b02))
+* **web:** fit the invoice list on a phone ([#487](https://github.com/opusline/opusline/issues/487)) ([b5ff142](https://github.com/opusline/opusline/commit/b5ff1429508284cec45ff66060fba7d0e53843f7))
+* **web:** fit the settings on a phone ([#488](https://github.com/opusline/opusline/issues/488)) ([65d568c](https://github.com/opusline/opusline/commit/65d568cc784cc9424f601fcb2ebdd5a63ea95589))
+* **web:** fit the week grid and CRA on a phone ([#489](https://github.com/opusline/opusline/issues/489)) ([7489ef3](https://github.com/opusline/opusline/commit/7489ef306d425ea0b12560a61b6eaf5727165c3b))
+
+
+### Bug Fixes
+
+* **ui:** keep dialogs within a phone screen ([#493](https://github.com/opusline/opusline/issues/493)) ([3ed97cb](https://github.com/opusline/opusline/commit/3ed97cbfbb364d32d281bafed378bcbea62d9f22))
+* **ui:** stop fields zooming the page on a phone ([#492](https://github.com/opusline/opusline/issues/492)) ([77c6c84](https://github.com/opusline/opusline/commit/77c6c845db64ce8caa4fa4d7adc7bb69859b0df1))
+* **web:** fit subscriptions on a phone ([#494](https://github.com/opusline/opusline/issues/494)) ([294162e](https://github.com/opusline/opusline/commit/294162e5d803255c907c772ccd914f3964c0ce8c))
+* **web:** fit the annual return sheet on a phone ([#495](https://github.com/opusline/opusline/issues/495)) ([1d5e599](https://github.com/opusline/opusline/commit/1d5e5995bda49447d75e5d299b0f8ab6ee437c19))
+* **web:** wrap the manual key toggle on a phone ([#496](https://github.com/opusline/opusline/issues/496)) ([a7bab96](https://github.com/opusline/opusline/commit/a7bab965dc27dc0d64a942d4ff6241a5d1a3f98e))
+
 ## [0.32.1](https://github.com/opusline/opusline/compare/v0.32.0...v0.32.1) (2026-10-11)
 
 
