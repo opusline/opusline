@@ -206,7 +206,7 @@ export function InvoicesTable({
                       <span className="block truncate text-foreground-2 text-sm">
                         {mission?.name ?? m.invoices_no_mission()}
                       </span>
-                      <span className="mt-0.75 block text-muted-foreground-3 text-xs">
+                      <span className="mt-0.75 block truncate text-muted-foreground-3 text-xs">
                         {invoiceRowDetail(
                           format.locale,
                           dateFormat,
