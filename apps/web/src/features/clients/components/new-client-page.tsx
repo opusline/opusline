@@ -228,6 +228,7 @@ export function NewClientPage({
                 <FormTextField
                   field={field}
                   formatOnBlur={formatSiret}
+                  inputMode="numeric"
                   label="SIRET"
                   labelClassName="text-foreground-3"
                   font="mono"

@@ -271,6 +271,20 @@
 }
 
 /*
+ * iOS zooms the page in when a focused field sets its text under 16px, and
+ * does not zoom back out. Unlayered on purpose: a layered rule would lose to
+ * the `text-sm` every field carries, and the floor has to hold for raw inputs
+ * as well as the design system's.
+ */
+@media (pointer: coarse) {
+  input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]),
+  select,
+  textarea {
+    font-size: max(1rem, 1em);
+  }
+}
+
+/*
  * A control smaller than a fingertip keeps its drawn size and gains an
  * invisible margin that takes the tap, on touch screens only: `touch-hit-2`
  * reaches 2 spacing steps past every edge. The element must be positioned.
