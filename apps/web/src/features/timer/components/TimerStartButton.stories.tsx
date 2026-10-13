@@ -15,3 +15,8 @@ export default meta;
 type Story = StoryObj<typeof TimerStartButton>;
 
 export const Default: Story = {};
+
+/** Icon-only below `sm`; the label stays the button's accessible name. */
+export const OnAPhone: Story = {
+  globals: { viewport: { value: "mobile1", isRotated: false } },
+};

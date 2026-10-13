@@ -52,7 +52,7 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
-import { useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { InstanceDialog } from "@/components/instance-dialog";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatWholeAmount } from "@/lib/billing";
@@ -102,9 +102,18 @@ function UnreadBadge({ count }: { count: number }) {
   );
 }
 
-export function AppSidebar() {
+/**
+ * `toolbar` is what the layout header carries on a wide screen and has no room
+ * for on a phone; it shows in the sheet's header there instead.
+ */
+export function AppSidebar({ toolbar }: { toolbar?: ReactNode }) {
   const { pathname } = useLocation();
-  const { isMobile, state, toggleSidebar } = useSidebar();
+  const { isMobile, setOpenMobile, state, toggleSidebar } = useSidebar();
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: a navigation is the signal.
+  useEffect(() => {
+    setOpenMobile(false);
+  }, [pathname, setOpenMobile]);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: user } = useSuspenseQuery(currentUserOptions());
@@ -170,6 +179,7 @@ export function AppSidebar() {
                 Opusline
               </span>
             </SidebarMenuButton>
+            {isMobile ? toolbar : null}
             <button
               className="flex size-8 flex-none items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:hidden"
               aria-label={m.sidebar_collapse_menu()}
