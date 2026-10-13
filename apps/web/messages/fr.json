@@ -2369,6 +2369,7 @@
       }
     }
   ],
+  "week_add_entry": "Ajouter une entrée",
   "week_cell_add": "Ajouter",
   "week_cell_empty_label": "{mission}, {day} : aucune entrée",
   "week_cell_label": "{mission}, {day} : {value}",
@@ -2381,6 +2382,8 @@
   "week_date_required": "Indiquez une date.",
   "week_date_shortcuts_label": "Raccourcis de date",
   "week_day_before_yesterday": "Avant-hier",
+  "week_day_empty": "Aucune entrée ce jour",
+  "week_day_picker_label": "Jour de la semaine",
   "week_day_total": "Total jour",
   "week_deadline_none": "Rien à venir",
   "week_deadline_none_sub": "aucune échéance fiscale au calendrier",

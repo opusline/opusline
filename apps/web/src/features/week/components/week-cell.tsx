@@ -36,7 +36,7 @@ type WeekCellProps = {
   onDraftBlur: () => void;
 };
 
-function skinOf(row: WeekRow, cell: WeekCellModel): PillSkin {
+export function skinOf(row: WeekRow, cell: WeekCellModel): PillSkin {
   if (!cell.isBillable) {
     return "nonBillable";
   }
@@ -44,7 +44,7 @@ function skinOf(row: WeekRow, cell: WeekCellModel): PillSkin {
   return isHourly(row.billingMode) ? "hourly" : "billedDay";
 }
 
-function LivePill({ live }: { live: LiveCell }) {
+export function LivePill({ live }: { live: LiveCell }) {
   // The only tick subscriber in the grid: the moving labels are derived here,
   // so each second repaints this pill and nothing else.
   const { elapsedSeconds } = useTimerClock();

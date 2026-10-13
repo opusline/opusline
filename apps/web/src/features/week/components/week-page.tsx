@@ -9,6 +9,7 @@ import { cn } from "@opusline/ui/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { collectNoteSuggestions } from "@/components/note-suggestions";
+import { useIsPhone } from "@/lib/use-is-phone";
 import { isoWeekDates } from "@/lib/weeks";
 import type { PillSkin } from "../lib/pill-skins";
 import {
@@ -18,6 +19,7 @@ import {
 } from "../lib/week-grid";
 import { summarizeWeekBillable } from "../lib/week-money";
 import { NewEntryDialog, type NewEntrySubmit } from "./new-entry-dialog";
+import { WeekDayList } from "./week-day-list";
 import { WeekEmptyBanner } from "./week-empty-banner";
 import { WeekGrid, type WeekGridProps } from "./week-grid";
 import { WEEK_SKINS, WeekLegend } from "./week-legend";
@@ -103,6 +105,7 @@ export function WeekPage({
 }: WeekPageProps) {
   const format = useMoneyFormat();
   const [isNewEntryOpen, setIsNewEntryOpen] = useState(false);
+  const isPhone = useIsPhone();
 
   const liveHere =
     live !== null && isoWeekDates(week).includes(live.date) ? live : null;
@@ -213,16 +216,28 @@ export function WeekPage({
         // handlers and a tab stop that must go quiet too while the week lands.
         inert={isRefreshing}
       >
-        <WeekGrid
-          live={liveHere}
-          model={model}
-          noteSuggestions={noteSuggestions}
-          onCreate={onCreate}
-          onDelete={onDelete}
-          onUpdate={onUpdate}
-          pendingCellKeys={pendingCellKeys}
-          workdayMinutes={workdayMinutes}
-        />
+        {isPhone ? (
+          <WeekDayList
+            live={liveHere}
+            model={model}
+            noteSuggestions={noteSuggestions}
+            onAddEntry={() => setIsNewEntryOpen(true)}
+            onDelete={onDelete}
+            onUpdate={onUpdate}
+            today={today}
+          />
+        ) : (
+          <WeekGrid
+            live={liveHere}
+            model={model}
+            noteSuggestions={noteSuggestions}
+            onCreate={onCreate}
+            onDelete={onDelete}
+            onUpdate={onUpdate}
+            pendingCellKeys={pendingCellKeys}
+            workdayMinutes={workdayMinutes}
+          />
+        )}
       </div>
       <WeekLegend
         skins={liveHere === null ? WEEK_SKINS : LIVE_SKINS}

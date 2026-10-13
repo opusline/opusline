@@ -2369,6 +2369,7 @@
       }
     }
   ],
+  "week_add_entry": "Add an entry",
   "week_cell_add": "Add",
   "week_cell_empty_label": "{mission}, {day}: no entries",
   "week_cell_label": "{mission}, {day}: {value}",
@@ -2381,6 +2382,8 @@
   "week_date_required": "Enter a date.",
   "week_date_shortcuts_label": "Date shortcuts",
   "week_day_before_yesterday": "Two days ago",
+  "week_day_empty": "No entries this day",
+  "week_day_picker_label": "Day of the week",
   "week_day_total": "Day total",
   "week_deadline_none": "Nothing due",
   "week_deadline_none_sub": "no fiscal deadline on the calendar",
