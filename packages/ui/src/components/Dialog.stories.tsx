@@ -65,3 +65,35 @@ export const LargeTitle: Story = {
     </Dialog>
   ),
 };
+
+/**
+ * A dialog taller than the screen scrolls inside itself: it is centred, so
+ * anything past the edges of a phone would otherwise be out of reach.
+ */
+export const TallOnAPhone: Story = {
+  globals: { viewport: { value: "mobile1", isRotated: false } },
+  render: () => (
+    <Dialog defaultOpen>
+      <DialogTrigger render={<Button variant="outline">Ouvrir</Button>} />
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Ajouter une facture</DialogTitle>
+          <DialogDescription>
+            Le contenu défile dans la boîte de dialogue.
+          </DialogDescription>
+        </DialogHeader>
+        {Array.from({ length: 14 }, (_, index) => `Ligne ${index + 1}`).map(
+          (line) => (
+            <p className="rounded-md border px-3 py-4 text-sm" key={line}>
+              {line}
+            </p>
+          ),
+        )}
+        <DialogFooter>
+          <DialogClose render={<Button variant="outline">Annuler</Button>} />
+          <Button>Enregistrer</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  ),
+};
