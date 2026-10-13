@@ -168,7 +168,7 @@ export function MissionEditForm({
         </Alert>
       ) : null}
 
-      <div className="grid items-start gap-3.5 md:grid-cols-2">
+      <div className="grid grid-cols-1 items-start gap-3.5 md:grid-cols-2">
         <div className="rounded-md border bg-card p-5">
           <div className={`${eyebrowVariants()} mb-4`}>Mission</div>
           <div className="flex flex-col gap-3.5">
@@ -357,7 +357,7 @@ export function MissionEditForm({
               </>
             )}
 
-            <div className="grid gap-3.5 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
               <form.Field name="startDate">
                 {(field) => (
                   <FormDateField

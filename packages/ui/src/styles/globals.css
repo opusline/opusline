@@ -287,3 +287,12 @@
     var(--hatch-2) 4px 8px
   );
 }
+
+/* A strip that scrolls sideways on a phone without drawing a scrollbar under it. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

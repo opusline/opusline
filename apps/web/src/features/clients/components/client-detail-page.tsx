@@ -197,7 +197,7 @@ export function ClientDetailPage({
         <div className="flex min-w-0 items-center gap-3.5">
           <ClientLogo name={client.name} size="lg" src={logoSrc} />
           <div className="min-w-0">
-            <div className="flex items-center gap-2.5">
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
               <span
                 aria-hidden
                 className={cn(
