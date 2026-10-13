@@ -117,6 +117,14 @@ function AuthedLayout() {
     pathname.startsWith(prefix),
   )?.[1]?.();
 
+  const modeToggle = (
+    <ModeToggle
+      onChange={setTheme}
+      resolvedTheme={resolvedTheme}
+      theme={theme}
+    />
+  );
+
   return (
     <MoneyFormatProvider
       currency={user.currency}
@@ -132,22 +140,20 @@ function AuthedLayout() {
             <ToastProvider>
               <InvoiceDrawerProvider timezone={user.timezone}>
                 <SidebarProvider>
-                  <AppSidebar />
-                  <SidebarInset>
-                    <header className="flex h-14 items-center gap-4 border-b px-4">
+                  <AppSidebar toolbar={modeToggle} />
+                  <SidebarInset className="min-w-0">
+                    <header className="flex h-14 items-center gap-2 border-b px-4 md:gap-4">
                       <ExpandSidebarButton />
                       {pageTitle ? (
-                        <span className="font-medium text-sm">{pageTitle}</span>
+                        <span className="min-w-0 truncate font-medium text-sm">
+                          {pageTitle}
+                        </span>
                       ) : null}
                       <div className="flex-1" />
-                      <ModeToggle
-                        onChange={setTheme}
-                        resolvedTheme={resolvedTheme}
-                        theme={theme}
-                      />
+                      <div className="hidden md:flex">{modeToggle}</div>
                       <TimerContainer workdayMinutes={user.workdayMinutes} />
                     </header>
-                    <div className="p-6">
+                    <div className="p-4 md:p-6">
                       <Outlet />
                     </div>
                   </SidebarInset>

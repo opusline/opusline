@@ -16,7 +16,7 @@ export function TimerStartButton({ onClick }: TimerStartButtonProps) {
       variant="outline"
     >
       <Play aria-hidden className="size-3 fill-current" />
-      {m.timer_start_button()}
+      <span className="max-sm:sr-only">{m.timer_start_button()}</span>
     </Button>
   );
 }

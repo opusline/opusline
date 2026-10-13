@@ -38,7 +38,7 @@ export function TimerChip({
       data-state={running ? "running" : "paused"}
       data-testid="timer-chip"
       className={cn(
-        "flex h-10 items-center gap-2.5 rounded-md px-3",
+        "flex h-10 items-center gap-2 rounded-md px-2.5 sm:gap-2.5 sm:px-3",
         running
           ? "border border-primary/55 bg-primary/15"
           : "border border-muted-foreground-6 border-dashed bg-card-2",
@@ -61,18 +61,18 @@ export function TimerChip({
         {formatClock(elapsedSeconds)}
       </span>
       {!running && (
-        <span className="whitespace-nowrap font-medium text-muted-foreground-2 text-xs uppercase tracking-[0.06em]">
+        <span className="whitespace-nowrap font-medium text-muted-foreground-2 text-xs uppercase tracking-[0.06em] max-sm:sr-only">
           {m.timer_chip_paused()}
         </span>
       )}
       {isLongRun && (
-        <span className="whitespace-nowrap font-medium text-primary-text text-xs uppercase tracking-[0.06em]">
+        <span className="whitespace-nowrap font-medium text-primary-text text-xs uppercase tracking-[0.06em] max-sm:sr-only">
           {m.timer_long_run_badge()}
         </span>
       )}
       <span
         className={cn(
-          "max-w-40 truncate text-sm",
+          "max-w-40 truncate text-sm max-sm:sr-only",
           running ? "text-foreground-3" : "text-muted-foreground-3",
         )}
       >

@@ -42,3 +42,9 @@ export const LongMissionName: Story = {
 export const PastADay: Story = {
   args: { elapsedSeconds: 93_783 },
 };
+
+/** Below `sm` the labels go screen-reader-only, so the chip fits a phone header. */
+export const OnAPhone: Story = {
+  args: { state: 1, isLongRun: true },
+  globals: { viewport: { value: "mobile1", isRotated: false } },
+};
