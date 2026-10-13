@@ -1,11 +1,13 @@
 import type { TimerData } from "@opusline/api-client";
 import { Popover, PopoverContent } from "@opusline/ui/components/popover";
-import { useRef } from "react";
+import { Sheet, SheetContent } from "@opusline/ui/components/sheet";
+import { type ReactNode, type RefObject, useRef } from "react";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { calendarDateLabel } from "@/lib/dates";
 import { formatWorkedTime, isFixedPrice } from "@/lib/durations";
 import { entryRoundingLabel } from "@/lib/entry-rounding";
 import { formatClock, useTimerClock } from "@/lib/timer-clock";
+import { useIsPhone } from "@/lib/use-is-phone";
 import { useMissionBudgets } from "@/lib/use-mission-budgets";
 import { m } from "@/paraglide/messages.js";
 import { quickDurations } from "../lib/long-run";
@@ -57,41 +59,32 @@ export function TimerContainer({ workdayMinutes }: { workdayMinutes: number }) {
         )}
       </div>
 
-      <Popover
+      <TimerOverlay
+        anchor={anchorRef}
+        label={m.timer_start_title()}
         onOpenChange={closeUnlessFromChip}
         open={timer.overlay === "start"}
+        padding="tight"
       >
-        <PopoverContent
-          align="end"
-          anchor={anchorRef}
-          aria-label={m.timer_start_title()}
-          className="w-84 p-1.5"
-        >
-          <TimerStartPopover
-            error={timer.error}
-            isLoading={timer.isLoadingMissions}
-            isStarting={timer.isStarting}
-            missions={timer.missions}
-            onPick={timer.pick}
-          />
-        </PopoverContent>
-      </Popover>
+        <TimerStartPopover
+          error={timer.error}
+          isLoading={timer.isLoadingMissions}
+          isStarting={timer.isStarting}
+          missions={timer.missions}
+          onPick={timer.pick}
+        />
+      </TimerOverlay>
 
       {running !== null && (
-        <Popover
+        <TimerOverlay
+          anchor={anchorRef}
+          label={running.missionName}
           onOpenChange={closeUnlessFromChip}
           open={timer.overlay === "detail"}
+          padding="roomy"
         >
-          <PopoverContent
-            align="end"
-            anchor={anchorRef}
-            aria-label={running.missionName}
-            className="w-84 p-4"
-            surface="raised"
-          >
-            <LiveDetailPopover running={running} />
-          </PopoverContent>
-        </Popover>
+          <LiveDetailPopover running={running} />
+        </TimerOverlay>
       )}
 
       {isStopping && running !== null && timer.startDate !== null && (
@@ -102,6 +95,64 @@ export function TimerContainer({ workdayMinutes }: { workdayMinutes: number }) {
         />
       )}
     </>
+  );
+}
+
+/**
+ * A popover hanging off the chip, or — on a phone, where it would be wider
+ * than the room beside its anchor — a sheet rising from the bottom edge.
+ */
+function TimerOverlay({
+  anchor,
+  children,
+  label,
+  onOpenChange,
+  open,
+  padding,
+}: {
+  anchor: RefObject<HTMLDivElement | null>;
+  children: ReactNode;
+  label: string;
+  onOpenChange: (open: boolean, details: { event: Event }) => void;
+  open: boolean;
+  padding: "tight" | "roomy";
+}) {
+  const isPhone = useIsPhone();
+  const sheetRef = useRef<HTMLDivElement>(null);
+
+  if (isPhone) {
+    return (
+      <Sheet onOpenChange={onOpenChange} open={open}>
+        <SheetContent
+          aria-label={label}
+          className={padding === "tight" ? "p-2.5" : "p-4"}
+          data-testid="timer-sheet"
+          // The sheet opens from state rather than from a trigger, so Base UI
+          // cannot tell it was a touch: left alone it focuses the note field
+          // and the keyboard covers the buttons the sheet was opened for.
+          initialFocus={sheetRef}
+          ref={sheetRef}
+          showCloseButton={false}
+          side="bottom"
+        >
+          {children}
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  return (
+    <Popover onOpenChange={onOpenChange} open={open}>
+      <PopoverContent
+        align="end"
+        anchor={anchor}
+        aria-label={label}
+        className={padding === "tight" ? "w-84 p-1.5" : "w-84 p-4"}
+        surface={padding === "tight" ? "default" : "raised"}
+      >
+        {children}
+      </PopoverContent>
+    </Popover>
   );
 }
 

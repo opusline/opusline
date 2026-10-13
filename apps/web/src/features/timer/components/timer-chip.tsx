@@ -38,7 +38,7 @@ export function TimerChip({
       data-state={running ? "running" : "paused"}
       data-testid="timer-chip"
       className={cn(
-        "flex h-10 items-center gap-2 rounded-md px-2.5 sm:gap-2.5 sm:px-3",
+        "relative flex h-10 items-center gap-2 rounded-md px-2.5 max-sm:pr-9 sm:gap-2.5 sm:px-3",
         running
           ? "border border-primary/55 bg-primary/15"
           : "border border-muted-foreground-6 border-dashed bg-card-2",
@@ -83,7 +83,7 @@ export function TimerChip({
         aria-label={running ? m.timer_pause() : m.timer_resume()}
         className={cn(
           CONTROL,
-          "text-foreground-2 hover:bg-primary/25 hover:text-primary-text",
+          "text-foreground-2 hover:bg-primary/25 hover:text-primary-text max-sm:hidden",
         )}
         data-testid="timer-pause-toggle"
         disabled={isBusy}
@@ -101,7 +101,7 @@ export function TimerChip({
         aria-label={m.timer_stop()}
         className={cn(
           CONTROL,
-          "text-foreground-2 hover:bg-primary/25 hover:text-primary-text",
+          "text-foreground-2 hover:bg-primary/25 hover:text-primary-text max-sm:hidden",
         )}
         data-testid="timer-stop"
         disabled={isBusy}
@@ -115,9 +115,11 @@ export function TimerChip({
         aria-expanded={isDetailsOpen}
         aria-haspopup="dialog"
         aria-label={m.timer_details()}
+        // Below sm the whole chip is this one target: pause and stop are too
+        // small to hit there, and the sheet it opens carries them full size.
         className={cn(
           CONTROL,
-          "text-muted-foreground-2 hover:text-foreground-hi",
+          "text-muted-foreground-2 hover:text-foreground-hi max-sm:absolute max-sm:inset-0 max-sm:size-auto max-sm:justify-end max-sm:pr-2.5",
         )}
         data-testid="timer-details"
         onClick={onOpenDetails}
