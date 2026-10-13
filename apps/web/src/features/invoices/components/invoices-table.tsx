@@ -115,10 +115,12 @@ export function InvoicesTable({
           {/* The widths the CSS grid used to carry. Layout only — a colgroup is
               invisible to assistive technology, which reads the headers below. */}
           <colgroup>
-            <col className="w-28" />
+            <col className="w-24 sm:w-28" />
             <col />
-            <col className="w-32" />
-            <col className="w-24" />
+            <col className="w-24 sm:w-32" />
+            {/* Below sm the status rides under the mission instead: four
+                columns leave the mission none of a phone's width. */}
+            <col className="w-0 sm:w-24" />
           </colgroup>
           {/* The design draws no header band, so the names live for screen
               readers alone; without them a row reads as four bare values. */}
@@ -127,14 +129,16 @@ export function InvoicesTable({
               <TableHead>{m.invoices_column_number()}</TableHead>
               <TableHead>{m.invoices_column_mission()}</TableHead>
               <TableHead>{m.invoices_column_amount()}</TableHead>
-              <TableHead>{m.invoices_column_status()}</TableHead>
+              <TableHead className="max-sm:hidden">
+                {m.invoices_column_status()}
+              </TableHead>
             </TableRow>
           </TableHeader>
           {groups.map((group) => (
             <TableBody key={group.client.id}>
               <TableRow className="hover:bg-transparent">
                 <TableHead
-                  className="h-auto border-b bg-muted-2 px-5 py-3 whitespace-normal"
+                  className="h-auto border-b bg-muted-2 px-3 py-3 whitespace-normal sm:px-5"
                   colSpan={4}
                   scope="rowgroup"
                 >
@@ -161,7 +165,7 @@ export function InvoicesTable({
                             days: group.averagePaymentDelayDays,
                           })}
                     </span>
-                    <span className="w-32 text-right font-mono text-foreground-hi text-sm tabular-nums">
+                    <span className="w-24 text-right font-mono text-foreground-hi text-sm tabular-nums sm:w-32">
                       {formatWholeAmount(format, group.total)}
                     </span>
                   </span>
@@ -182,7 +186,7 @@ export function InvoicesTable({
                     key={invoice.id}
                     onClick={() => onOpen?.(invoice.id)}
                   >
-                    <TableCell className="px-5 py-3 font-mono text-foreground-2 text-sm tabular-nums">
+                    <TableCell className="px-3 py-3 font-mono text-foreground-2 text-sm tabular-nums sm:px-5">
                       {/* The row follows the mouse, but the keyboard needs a
                           real control — and one per row, not one per cell. */}
                       <button
@@ -202,7 +206,7 @@ export function InvoicesTable({
                       <span className="block truncate text-foreground-2 text-sm">
                         {mission?.name ?? m.invoices_no_mission()}
                       </span>
-                      <span className="mt-0.75 block text-muted-foreground-3 text-xs">
+                      <span className="mt-0.75 block truncate text-muted-foreground-3 text-xs">
                         {invoiceRowDetail(
                           format.locale,
                           dateFormat,
@@ -210,11 +214,17 @@ export function InvoicesTable({
                           accountToday,
                         )}
                       </span>
+                      <Badge
+                        className="mt-1.5 sm:hidden"
+                        variant={badge.variant}
+                      >
+                        {badge.label}
+                      </Badge>
                     </TableCell>
-                    <TableCell className="px-0 py-3 text-right font-mono text-foreground-hi text-sm tabular-nums">
+                    <TableCell className="py-3 pr-3 pl-0 text-right font-mono text-foreground-hi text-sm tabular-nums sm:px-0">
                       {formatWholeAmount(format, invoice.amountTtc.amount)}
                     </TableCell>
-                    <TableCell className="px-5 py-3 text-right">
+                    <TableCell className="px-5 py-3 text-right max-sm:hidden">
                       <Badge variant={badge.variant}>{badge.label}</Badge>
                     </TableCell>
                   </TableRow>
