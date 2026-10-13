@@ -67,8 +67,8 @@ export function RevenueHeader({
         </p>
       </div>
 
-      <div className="flex min-w-0 flex-wrap items-center gap-2.5 sm:flex-none">
-        <div className="flex gap-1">
+      <div className="grid w-full min-w-0 grid-cols-2 items-center gap-2.5 sm:flex sm:w-auto sm:flex-none sm:flex-wrap">
+        <div className="col-span-2 flex gap-1 sm:col-span-1">
           <Button
             aria-label={m.common_previous_period()}
             onClick={() => onPeriodChange(shiftPeriod(period, -1))}
@@ -91,6 +91,7 @@ export function RevenueHeader({
         </div>
 
         <SegmentedControl
+          className="col-span-2 sm:col-span-1"
           aria-label={m.revenue_period_kind_aria()}
           value={[kind]}
           onValueChange={(value) => {
@@ -111,6 +112,7 @@ export function RevenueHeader({
         </SegmentedControl>
 
         <SegmentedControl
+          className="col-span-2 sm:col-span-1"
           aria-label={m.revenue_basis_aria()}
           value={[basis]}
           onValueChange={(value) => {
