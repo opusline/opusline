@@ -49,7 +49,7 @@ export function WeekToolbar({
         >
           <ChevronLeftIcon aria-hidden />
         </Button>
-        <h1 className="whitespace-nowrap font-heading font-semibold text-2xl text-foreground-hi leading-tight">
+        <h1 className="font-heading font-semibold text-2xl text-foreground-hi leading-tight max-sm:order-first max-sm:basis-full sm:whitespace-nowrap">
           {isoWeekTitle(week)}{" "}
           <span aria-hidden className="font-normal text-muted-foreground-5">
             ·

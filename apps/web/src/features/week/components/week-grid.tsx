@@ -20,10 +20,16 @@ import { type WriteRequest, weekMachine } from "../lib/week-machine";
 import { ActivityPopover } from "./activity-popover";
 import { WeekCell } from "./week-cell";
 
+// Narrower tracks below sm, where the grid scrolls sideways under a sticky
+// mission column.
 const COLUMN_TEMPLATES = {
-  open: "grid-cols-[10rem_repeat(7,minmax(5rem,1fr))_8.5rem]",
-  collapsed: "grid-cols-[10rem_repeat(5,minmax(5rem,1fr))_2.75rem_8.5rem]",
+  open: "grid-cols-[7.5rem_repeat(7,minmax(4.5rem,1fr))_6rem] sm:grid-cols-[10rem_repeat(7,minmax(5rem,1fr))_8.5rem]",
+  collapsed:
+    "grid-cols-[7.5rem_repeat(5,minmax(4.5rem,1fr))_2.75rem_6rem] sm:grid-cols-[10rem_repeat(5,minmax(5rem,1fr))_2.75rem_8.5rem]",
 } as const;
+
+/** The mission column stays put while the days scroll under it on a phone. */
+const STICKY_FIRST_COLUMN = "sticky left-0 z-10 max-md:border-r";
 
 const HEAD_CLASSES =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-wider-2";
@@ -324,12 +330,19 @@ export function WeekGrid({
       <div
         aria-colcount={model.columns.length + 2}
         aria-rowcount={model.rows.length + 2}
+        // As wide as its tracks, so the sticky first column has a row to
+        // stick within once the days scroll past the card's edge.
+        className="w-max min-w-full"
         role="grid"
       >
         <GridRow aria-rowindex={1} className={cn("grid", template)}>
           <ColumnHeader
             aria-colindex={1}
-            className={cn(HEAD_CLASSES, "border-b px-3.5 py-3")}
+            className={cn(
+              HEAD_CLASSES,
+              STICKY_FIRST_COLUMN,
+              "border-b bg-card px-3.5 py-3",
+            )}
           >
             {m.week_column_mission()}
           </ColumnHeader>
@@ -391,7 +404,10 @@ export function WeekGrid({
           >
             <RowHeader
               aria-colindex={1}
-              className="flex flex-col gap-0.75 border-secondary border-b p-3.5"
+              className={cn(
+                STICKY_FIRST_COLUMN,
+                "flex flex-col gap-0.75 border-secondary border-b bg-card p-3.5",
+              )}
               data-mission={row.missionId}
               data-testid="week-mission-row"
             >
@@ -484,7 +500,7 @@ export function WeekGrid({
         >
           <RowHeader
             aria-colindex={1}
-            className={cn(HEAD_CLASSES, "bg-muted p-3.5")}
+            className={cn(HEAD_CLASSES, STICKY_FIRST_COLUMN, "bg-muted p-3.5")}
           >
             {m.week_day_total()}
           </RowHeader>

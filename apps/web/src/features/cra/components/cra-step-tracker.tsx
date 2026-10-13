@@ -27,7 +27,7 @@ export function CraStepTracker({ cra, current, onGo }: CraStepTrackerProps) {
         const isDone = index < currentIndex;
 
         return (
-          <li className="min-w-0 flex-1" key={step}>
+          <li className="min-w-0 basis-full sm:flex-1" key={step}>
             <button
               aria-current={isCurrent ? "step" : undefined}
               className={cn(
