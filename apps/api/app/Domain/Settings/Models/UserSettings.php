@@ -28,6 +28,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property ?string $trade_name
  * @property ?string $siret
  * @property ?string $vat_number
+ * @property ?string $iban
+ * @property ?string $bic
+ * @property ?string $trade_registry
  * @property ?string $signature_city
  * @property ?string $contact_email
  * @property ?string $phone
@@ -89,6 +92,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'trade_name',
     'siret',
     'vat_number',
+    'iban',
+    'bic',
+    'trade_registry',
     'signature_city',
     'contact_email',
     'phone',
@@ -174,6 +180,7 @@ class UserSettings extends Model
     protected function casts(): array
     {
         return [
+            'iban' => 'encrypted',
             'home_address_same_as_company' => 'boolean',
             'urssaf_periodicity' => UrssafPeriodicity::class,
             'auto_rates' => 'boolean',

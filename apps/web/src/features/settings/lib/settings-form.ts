@@ -18,6 +18,7 @@ import {
 import { accountTodayCalendarDate } from "@/lib/dates";
 import { isFrenchFiscalityCountry } from "@/lib/fiscality";
 import { valueOrNull } from "@/lib/form";
+import { formatIban } from "@/lib/identifiers";
 import { m } from "@/paraglide/messages.js";
 
 export const SETTINGS_TABS = [
@@ -79,6 +80,9 @@ export type SettingsFormValues = {
   tradeName: string;
   siret: string;
   vatNumber: string;
+  iban: string;
+  bic: string;
+  tradeRegistry: string;
   signatureCity: string;
   contactEmail: string;
   phone: string;
@@ -140,6 +144,9 @@ export function toSettingsValues(
     tradeName: text(settings.tradeName),
     siret: text(settings.siret),
     vatNumber: text(settings.vatNumber),
+    iban: formatIban(text(settings.iban)),
+    bic: text(settings.bic),
+    tradeRegistry: text(settings.tradeRegistry),
     signatureCity: text(settings.signatureCity),
     contactEmail: text(settings.contactEmail),
     phone: text(settings.phone),
@@ -261,6 +268,11 @@ export function toSettingsPayload(
     tradeName: valueOrNull(values.tradeName),
     siret: valueOrNull(values.siret),
     vatNumber: valueOrNull(values.vatNumber),
+    // Compact, as the API stores it: a draft spaced differently from the
+    // saved value is not a change.
+    iban: valueOrNull(values.iban.replace(/\s/g, "").toUpperCase()),
+    bic: valueOrNull(values.bic.trim().toUpperCase()),
+    tradeRegistry: valueOrNull(values.tradeRegistry),
     signatureCity: valueOrNull(values.signatureCity),
     contactEmail: valueOrNull(values.contactEmail),
     phone: valueOrNull(values.phone),
@@ -317,6 +329,9 @@ const FIELD_TAB: Record<keyof SettingsFormValues, SettingsTab> = {
   tradeName: "identite",
   siret: "identite",
   vatNumber: "identite",
+  iban: "identite",
+  bic: "identite",
+  tradeRegistry: "identite",
   signatureCity: "identite",
   contactEmail: "identite",
   phone: "identite",

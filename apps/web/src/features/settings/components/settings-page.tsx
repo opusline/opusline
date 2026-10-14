@@ -32,7 +32,10 @@ import {
   FiscalSettingsForm,
   IncomeTaxSettingsFields,
 } from "./fiscal-settings-form";
-import { IdentitySettingsForm } from "./identity-settings-form";
+import {
+  type CompanyLogoSlot,
+  IdentitySettingsForm,
+} from "./identity-settings-form";
 import {
   type LocalisationDraft,
   LocalisationSettings,
@@ -94,6 +97,7 @@ type SettingsPageProps = {
   onTabChange: (tab: SettingsTab) => void;
   onSubmit: (body: UpdateSettingsData) => Promise<FormSubmitResult>;
   signature: SignatureProps;
+  logo: CompanyLogoSlot;
   rates: RatesProps;
   localisation: LocalisationProps;
   /** The Intégrations, Notifications and Sécurité tabs save outside this form, so they arrive ready to render. */
@@ -108,6 +112,7 @@ export function SettingsPage({
   onTabChange,
   onSubmit,
   signature,
+  logo,
   rates,
   localisation,
   integrations,
@@ -193,6 +198,7 @@ export function SettingsPage({
               <IdentitySettingsForm
                 form={form}
                 hasFrenchFiscality={settings.hasFrenchFiscality}
+                logo={logo}
                 showEuVatNumber={isEuVat}
               />
             </TabsContent>

@@ -10,6 +10,8 @@ use App\Domain\Settings\Enums\UrssafPeriodicity;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Data\UnsignedMoneyData;
+use App\Domain\Shared\Validation\Bic;
+use App\Domain\Shared\Validation\Iban;
 use App\Domain\Shared\Validation\InvoiceNumberFormat;
 use App\Domain\Shared\Validation\Siret;
 use App\Domain\Shared\Validation\VatNumber;
@@ -61,6 +63,13 @@ class UpdateSettingsData extends Data
         public ?string $siret = null,
         #[Max(255), Rule(new VatNumber)]
         public ?string $vatNumber = null,
+        #[Max(64), Rule(new Iban)]
+        public ?string $iban = null,
+        #[Max(16), Rule(new Bic)]
+        public ?string $bic = null,
+        /** The RCS or RM registration a commerçant or artisan prints; a profession libérale has none. */
+        #[Max(255)]
+        public ?string $tradeRegistry = null,
         #[Max(255)]
         public ?string $signatureCity = null,
         #[Max(255), Email]

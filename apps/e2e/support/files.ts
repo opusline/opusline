@@ -11,3 +11,15 @@ export function pdfFile(name: string) {
 
   return { name, mimeType: "application/pdf", buffer: Buffer.from(content) };
 }
+
+/** A one-pixel PNG: enough for an upload that checks the extension and the size. */
+export function pngFile(name: string) {
+  const onePixel =
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+
+  return {
+    name,
+    mimeType: "image/png",
+    buffer: Buffer.from(onePixel, "base64"),
+  };
+}

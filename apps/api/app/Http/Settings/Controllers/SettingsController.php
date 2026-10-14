@@ -77,6 +77,7 @@ class SettingsController extends Controller
         return response()->json(SettingsData::fromModel(
             $settings,
             $user->hasMedia('signature'),
+            $user->hasMedia('company_logo'),
             $user->hasLockedCurrency(),
             $ratesRefreshing,
         ));
