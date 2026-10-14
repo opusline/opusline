@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Settings\Models;
 
+use App\Domain\Invoices\Enums\DocumentLanguage;
+use App\Domain\Invoices\Enums\InvoicingMode;
+use App\Domain\Invoices\Enums\OperationCategory;
 use App\Domain\Settings\Enums\DateFormat;
 use App\Domain\Settings\Enums\Locale;
 use App\Domain\Settings\Enums\UrssafPeriodicity;
@@ -60,7 +63,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property VatRegime $vat_regime
  * @property int $default_vat_rate_bp
  * @property int $default_payment_terms_days
+ * @property bool $default_payment_terms_end_of_month
  * @property string $invoice_number_format
+ * @property InvoicingMode $invoicing_mode
+ * @property int $quote_validity_days
+ * @property ?int $late_penalty_rate_bp
+ * @property OperationCategory $operation_category
+ * @property bool $show_iban_on_invoices
+ * @property bool $show_email_on_documents
+ * @property bool $vat_on_debits
+ * @property ?string $custom_mentions
+ * @property DocumentLanguage $document_language
  * @property ?Money $treasury_buffer_cents
  * @property ?Money $bank_balance_cents
  * @property ?CarbonImmutable $bank_balance_recorded_on
@@ -124,7 +137,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'vat_regime',
     'default_vat_rate_bp',
     'default_payment_terms_days',
+    'default_payment_terms_end_of_month',
     'invoice_number_format',
+    'invoicing_mode',
+    'quote_validity_days',
+    'late_penalty_rate_bp',
+    'operation_category',
+    'show_iban_on_invoices',
+    'show_email_on_documents',
+    'vat_on_debits',
+    'custom_mentions',
+    'document_language',
     'treasury_buffer_cents',
     'bank_balance_cents',
     'bank_balance_recorded_on',
@@ -198,6 +221,15 @@ class UserSettings extends Model
             'vat_regime' => VatRegime::class,
             'default_vat_rate_bp' => 'integer',
             'default_payment_terms_days' => 'integer',
+            'default_payment_terms_end_of_month' => 'boolean',
+            'invoicing_mode' => InvoicingMode::class,
+            'quote_validity_days' => 'integer',
+            'late_penalty_rate_bp' => 'integer',
+            'operation_category' => OperationCategory::class,
+            'show_iban_on_invoices' => 'boolean',
+            'show_email_on_documents' => 'boolean',
+            'vat_on_debits' => 'boolean',
+            'document_language' => DocumentLanguage::class,
             'treasury_buffer_cents' => MoneyIntegerCast::class.':currency',
             'bank_balance_cents' => MoneyIntegerCast::class.':currency',
             'bank_balance_recorded_on' => 'date',

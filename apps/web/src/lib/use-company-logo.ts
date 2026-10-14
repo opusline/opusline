@@ -6,10 +6,9 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
-import { companyLogoHref } from "@/lib/logos";
+import { type CompanyLogoSlot, companyLogoHref } from "@/lib/logos";
 import { serverErrorMessage, serverFieldErrors } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
-import type { CompanyLogoSlot } from "../components/identity-settings-form";
 
 export function useCompanyLogo(hasLogo: boolean): CompanyLogoSlot {
   const queryClient = useQueryClient();

@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
-import { twoFactorOnFixture } from "../lib/security-fixture";
 import {
   abroadSettingsFixture,
   nonEuSettingsFixture,
   settingsFixture,
-} from "../lib/settings-fixture";
+} from "@/test/settings-fixture";
+import { twoFactorOnFixture } from "../lib/security-fixture";
 import type { SettingsTab } from "../lib/settings-form";
 import { AuthenticatorAppCard } from "./authenticator-app-card";
 import { EmailNotificationsCard } from "./email-notifications-card";

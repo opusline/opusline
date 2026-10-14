@@ -18,13 +18,14 @@ import {
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
+import { linkVariants } from "@opusline/ui/components/text-link";
 import {
   type QueryClient,
   useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { CircleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -48,12 +49,12 @@ import {
   toSettingsValues,
 } from "@/features/settings/lib/settings-form";
 import { signatureHref } from "@/features/settings/lib/signature";
-import { useCompanyLogo } from "@/features/settings/lib/use-company-logo";
 import type { FormSubmitResult } from "@/lib/form";
 import {
   invalidateDeadlines,
   invalidateTreasury,
 } from "@/lib/query-invalidation";
+import { useCompanyLogo } from "@/lib/use-company-logo";
 import {
   serverErrorMessage,
   serverFieldErrors,
@@ -363,6 +364,14 @@ function ReglagesRoute() {
           void navigate({ to: "/settings", search: { tab: nextTab } })
         }
         settings={savedSettings}
+        invoicingSettingsLink={
+          <Link
+            className={linkVariants({ underline: "always" })}
+            to="/invoicing/settings"
+          >
+            {m.settings_billing_moved_link()}
+          </Link>
+        }
         logo={companyLogo}
         signature={{
           src: signatureHref(signatureVersion),

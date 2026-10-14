@@ -77,7 +77,7 @@ function requestDataFields(): array
         'RevenueData', 'RevenueMonthData', 'RevenueNetData', 'RevenueVatData',
         'BackupRecordData', 'InstanceData', 'SettingsData', 'TimeEntryData',
         'TimeEntryListData', 'TimerData', 'TimerStateData', 'UserData',
-        'InvoiceListData',
+        'InvoiceListData', 'InvoicingSettingsData', 'LegalReferenceData',
         'RecoveryCodesData', 'TotpSetupData', 'TwoFactorStatusData',
         'TrustedDeviceData', 'TwoFactorChallengeData', 'PasskeyData', 'PasskeyOptionsData',
         'PingData', 'SentryWebData',

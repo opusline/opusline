@@ -3,10 +3,16 @@
 declare(strict_types=1);
 
 use App\Http\Invoices\Controllers\InvoiceController;
+use App\Http\Invoices\Controllers\InvoicingSettingsController;
 use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(function (): void {
+    Route::get('/invoicing/settings', [InvoicingSettingsController::class, 'show'])
+        ->name('showInvoicingSettings');
+    Route::put('/invoicing/settings', [InvoicingSettingsController::class, 'update'])
+        ->name('updateInvoicingSettings');
+
     Route::get('/invoices', [InvoiceController::class, 'index'])
         ->name('listInvoices');
     Route::post('/invoices', [InvoiceController::class, 'store'])

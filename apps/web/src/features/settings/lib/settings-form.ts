@@ -103,7 +103,6 @@ export type SettingsFormValues = {
   liberatingPayment: boolean;
   vatRegime: VatRegime;
   defaultVatRate: string;
-  defaultPaymentTermsDays: number;
   invoiceNumberFormat: string;
   treasuryBuffer: string;
   cfeExpected: string;
@@ -167,7 +166,6 @@ export function toSettingsValues(
     liberatingPayment: settings.liberatingPayment,
     vatRegime: settings.vatRegime,
     defaultVatRate: formatRateBp(format.locale, settings.defaultVatRateBp),
-    defaultPaymentTermsDays: settings.defaultPaymentTermsDays,
     invoiceNumberFormat: settings.invoiceNumberFormat,
     treasuryBuffer:
       settings.treasuryBuffer === null
@@ -262,7 +260,6 @@ export function toSettingsPayload(
     defaultVatRateBp:
       parseRateBp(format.locale, values.defaultVatRate) ??
       settings.defaultVatRateBp,
-    defaultPaymentTermsDays: values.defaultPaymentTermsDays,
     invoiceNumberFormat: values.invoiceNumberFormat.trim(),
     homeAddressSameAsCompany: values.homeAddressSameAsCompany,
     tradeName: valueOrNull(values.tradeName),
@@ -352,7 +349,6 @@ const FIELD_TAB: Record<keyof SettingsFormValues, SettingsTab> = {
   liberatingPayment: "fiscalite",
   vatRegime: "fiscalite",
   defaultVatRate: "fiscalite",
-  defaultPaymentTermsDays: "facturation",
   invoiceNumberFormat: "facturation",
   treasuryBuffer: "facturation",
   cfeExpected: "fiscalite",

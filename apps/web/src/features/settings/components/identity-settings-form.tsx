@@ -12,7 +12,7 @@ import {
   formatSiret,
   formatVatNumber,
 } from "@/lib/identifiers";
-import { COMPANY_LOGO_RULES } from "@/lib/logos";
+import { COMPANY_LOGO_RULES, type CompanyLogoSlot } from "@/lib/logos";
 import { m } from "@/paraglide/messages.js";
 import {
   COMPANY_ADDRESS_NAMES,
@@ -24,16 +24,6 @@ import { SettingsSection } from "./settings-section";
 const EYEBROW =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-wider-2";
 const LABEL = "text-muted-foreground-2 text-xs";
-
-/** The logo uploads on its own, the moment it is picked, outside the form's save. */
-export type CompanyLogoSlot = {
-  /** Set only while a logo is stored, so an empty slot shows its placeholder. */
-  src?: string;
-  isPending: boolean;
-  error: string | null;
-  onPick: (logo: File) => void;
-  onRemove: () => void;
-};
 
 export function IdentitySettingsForm({
   form,

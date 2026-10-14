@@ -140,7 +140,6 @@ function settingsPayload(array $overrides = []): array
         'liberatingPaymentRateBp' => 220,
         'vatRegime' => VatRegime::FranchiseEnBase->value,
         'defaultVatRateBp' => 2000,
-        'defaultPaymentTermsDays' => 45,
         'invoiceNumberFormat' => 'AAAA-NNN',
         'homeAddressSameAsCompany' => true,
     ], $overrides);

@@ -7,7 +7,7 @@ import {
   abroadSettingsFixture,
   nonEuSettingsFixture,
   settingsFixture,
-} from "../lib/settings-fixture";
+} from "@/test/settings-fixture";
 import { SettingsPage } from "./settings-page";
 
 function renderPage(

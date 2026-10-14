@@ -1,7 +1,7 @@
 import { Button } from "@opusline/ui/components/button";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { SaveBar } from "./save-bar";
+import { SaveBar } from "@/components/save-bar";
 
 const meta = {
   title: "Web/SaveBar",

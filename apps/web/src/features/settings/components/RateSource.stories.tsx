@@ -1,7 +1,7 @@
 import type { SettingsData } from "@opusline/api-client";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { settingsFixture } from "../lib/settings-fixture";
+import { settingsFixture } from "@/test/settings-fixture";
 import { SettingsFormStory } from "../lib/settings-form-story";
 import { RateSource } from "./rate-source";
 

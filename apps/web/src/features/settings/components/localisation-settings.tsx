@@ -5,13 +5,12 @@ import { Chip, ChipGroup } from "@opusline/ui/components/chip";
 import { Field, FieldLabel } from "@opusline/ui/components/field";
 import { NativeSelect } from "@opusline/ui/components/native-select";
 import { useEffect, useMemo, useState } from "react";
-
+import { SaveBar } from "@/components/save-bar";
 import { formatAmountWithCents } from "@/lib/billing";
 import { countryOptions } from "@/lib/countries";
 import { calendarDateNumericLabel } from "@/lib/dates";
 import { m } from "@/paraglide/messages.js";
 import { unsavedChangesLabel } from "../lib/settings-form";
-import { SaveBar } from "./save-bar";
 import { SettingsSection } from "./settings-section";
 
 type CurrencyOption = { code: Currency; label: string };
