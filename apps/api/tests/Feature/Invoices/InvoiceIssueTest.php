@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Clients\Models\Client;
 use App\Domain\Invoices\Actions\IssueInvoice;
-use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Enums\InvoiceStatus;
-use App\Domain\Invoices\Enums\LineUnit;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Users\Models\User;
@@ -16,57 +14,6 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 beforeEach(function (): void {
     $this->travelTo('2026-08-10 12:00:00');
 });
-
-function issuableAccount(array $settings = []): User
-{
-    $user = vatLiableUser();
-    $user->settingsOrFail()->update([
-        'trade_name' => 'Théo Marchand',
-        'siret' => '12345678200002',
-        'company_address_line1' => '12 rue de Strasbourg',
-        'company_postal_code' => '44000',
-        'company_city' => 'Nantes',
-        'contact_email' => 'theo@marchand.dev',
-        'iban' => 'FR7630006000011234567890189',
-        'bic' => 'AGRIFRPP',
-        'vat_number' => 'FR11123456782',
-        ...$settings,
-    ]);
-
-    return $user;
-}
-
-function billableClient(User $user, array $attributes = []): Client
-{
-    return Client::factory()->for($user)->create([
-        'name' => 'Nordlys',
-        'siret' => '12345678200002',
-        'billing_address_line1' => '3 impasse des Potiers',
-        'billing_postal_code' => '44100',
-        'billing_city' => 'Nantes',
-        ...$attributes,
-    ]);
-}
-
-function draftFor(User $user, Client $client, array $overrides = []): int
-{
-    return test()->actingAs($user)->postJson('/api/invoicing/invoices', array_merge([
-        'clientId' => $client->id,
-        'issuedOn' => '2026-08-01',
-        'paymentTermsDays' => 30,
-        'paymentTermsEndOfMonth' => false,
-        'showIban' => true,
-        'showEmail' => true,
-        'language' => DocumentLanguage::French->value,
-        'lines' => [[
-            'label' => 'Journée de développement frontend',
-            'quantityMilli' => 19_000,
-            'unit' => LineUnit::Day->value,
-            'unitPrice' => ['amount' => 55_000, 'currency' => 'EUR'],
-            'vatRateBp' => 2000,
-        ]],
-    ], $overrides))->assertCreated()->json('invoice.id');
-}
 
 test('numbers, dates and freezes the invoice it validates', function (): void {
     $user = issuableAccount();

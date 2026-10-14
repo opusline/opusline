@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Domain\Invoices\Documents;
 
 use App\Domain\Clients\Models\Client;
-use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Settings\Models\UserSettings;
 
 /**
@@ -17,7 +16,7 @@ use App\Domain\Settings\Models\UserSettings;
 final class DocumentParties
 {
     /** @return Party */
-    public static function seller(UserSettings $settings, Invoice $invoice): array
+    public static function seller(UserSettings $settings, bool $showIban, bool $showEmail): array
     {
         $isFrench = $settings->hasFrenchFiscality();
 
@@ -34,10 +33,10 @@ final class DocumentParties
                 $settings->company_address_line2,
                 trim($settings->company_postal_code.' '.$settings->company_city),
             ]),
-            'email' => $invoice->show_email ? $settings->contact_email : null,
+            'email' => $showEmail ? $settings->contact_email : null,
             'phone' => $settings->phone,
-            'iban' => $invoice->show_iban ? $settings->iban : null,
-            'bic' => $invoice->show_iban ? $settings->bic : null,
+            'iban' => $showIban ? $settings->iban : null,
+            'bic' => $showIban ? $settings->bic : null,
             'vatExempt' => ! $settings->vat_regime->isLiable(),
         ];
     }

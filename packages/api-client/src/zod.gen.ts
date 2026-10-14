@@ -1603,6 +1603,98 @@ export const zBankProvisionsData = z.object({
 });
 
 /**
+ * PaperLineData
+ */
+export const zPaperLineData = z.object({
+    label: z.string(),
+    detail: z.nullable(z.string()),
+    quantity: z.string(),
+    unitPrice: z.string(),
+    vat: z.string(),
+    total: z.string()
+});
+
+/**
+ * PaperLineHeadData
+ */
+export const zPaperLineHeadData = z.object({
+    description: z.string(),
+    quantity: z.string(),
+    unitPrice: z.string(),
+    vat: z.string(),
+    total: z.string()
+});
+
+/**
+ * PaperPartyData
+ */
+export const zPaperPartyData = z.object({
+    name: z.string(),
+    lines: z.array(z.string())
+});
+
+/**
+ * PaperRowData
+ */
+export const zPaperRowData = z.object({
+    label: z.string(),
+    value: z.string()
+});
+
+/**
+ * PaperTotalData
+ */
+export const zPaperTotalData = z.object({
+    label: z.string(),
+    value: z.string(),
+    emphasis: z.boolean()
+});
+
+/**
+ * PaperVatHeadData
+ */
+export const zPaperVatHeadData = z.object({
+    base: z.string(),
+    rate: z.string(),
+    amount: z.string()
+});
+
+/**
+ * PaperVatRowData
+ */
+export const zPaperVatRowData = z.object({
+    base: z.string(),
+    rate: z.string(),
+    amount: z.string()
+});
+
+/**
+ * InvoicePaperData
+ */
+export const zInvoicePaperData = z.object({
+    language: zDocumentLanguage,
+    labelSeparator: z.string(),
+    title: z.string(),
+    stamp: z.nullable(z.string()),
+    hasLogo: z.boolean(),
+    meta: z.array(zPaperRowData),
+    seller: zPaperPartyData,
+    buyer: zPaperPartyData,
+    documentTitle: z.nullable(z.string()),
+    description: z.nullable(z.string()),
+    head: zPaperLineHeadData,
+    lines: z.array(zPaperLineData),
+    noLinesLabel: z.string(),
+    vatHead: zPaperVatHeadData,
+    vatRows: z.array(zPaperVatRowData),
+    totals: z.array(zPaperTotalData),
+    paymentTitle: z.nullable(z.string()),
+    payment: z.array(zPaperRowData),
+    legal: z.string(),
+    footer: z.string()
+});
+
+/**
  * PasskeyData
  */
 export const zPasskeyData = z.object({
@@ -3622,6 +3714,30 @@ export const zIssueInvoicePath = z.object({
 });
 
 export const zIssueInvoiceResponse = zInvoiceDetailData;
+
+export const zPreviewInvoicePaperBody = zSaveInvoiceDraftData;
+
+export const zPreviewInvoicePaperResponse = zInvoicePaperData;
+
+export const zShowInvoicePaperPath = z.object({
+    invoice: z.int()
+});
+
+export const zShowInvoicePaperQuery = z.object({
+    language: z.nullish(zDocumentLanguage)
+});
+
+export const zShowInvoicePaperResponse = zInvoicePaperData;
+
+export const zDownloadInvoicePdfPath = z.object({
+    invoice: z.int()
+});
+
+export const zDownloadInvoicePdfQuery = z.object({
+    language: z.nullish(zDocumentLanguage)
+});
+
+export const zDownloadInvoicePdfResponse = z.string();
 
 export const zShowInvoicingSettingsResponse = zInvoicingSettingsData;
 

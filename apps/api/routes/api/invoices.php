@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Invoices\Controllers\CatalogItemController;
 use App\Http\Invoices\Controllers\InvoiceController;
 use App\Http\Invoices\Controllers\InvoiceDraftController;
+use App\Http\Invoices\Controllers\InvoicePaperController;
 use App\Http\Invoices\Controllers\InvoicingSettingsController;
 use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,14 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
     Route::put('/invoicing/invoices/{invoice}', [InvoiceDraftController::class, 'update'])
         ->whereNumber('invoice')
         ->name('updateInvoiceDraft');
+    Route::post('/invoicing/invoices/paper', [InvoicePaperController::class, 'preview'])
+        ->name('previewInvoicePaper');
+    Route::get('/invoices/{invoice}/paper', [InvoicePaperController::class, 'show'])
+        ->whereNumber('invoice')
+        ->name('showInvoicePaper');
+    Route::get('/invoices/{invoice}/pdf', [InvoicePaperController::class, 'pdf'])
+        ->whereNumber('invoice')
+        ->name('downloadInvoicePdf');
     Route::post('/invoicing/invoices/{invoice}/issue', [InvoiceDraftController::class, 'issue'])
         ->whereNumber('invoice')
         ->name('issueInvoice');
