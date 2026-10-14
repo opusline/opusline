@@ -21,6 +21,8 @@ export const CURRENT_USER_FIXTURE: UserData = {
   timezone: "Europe/Paris",
   workdayMinutes: 420,
   defaultPaymentTermsDays: 45,
+  // No flagged feature: the app as it is outside any beta.
+  features: [],
 };
 
 /** Seeds the authed layout's current-user cache; override only what the test is about. */

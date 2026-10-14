@@ -21,13 +21,17 @@ import { useMoneyFormat } from "@/components/money-format-provider";
 import { InvoiceDocumentPage } from "@/features/invoices/components/invoice-document-page";
 import { formatAmountWithCents } from "@/lib/billing";
 import { accountTodayCalendarDate } from "@/lib/dates";
+import { requireInvoicing } from "@/lib/features";
 import { companyLogoHref } from "@/lib/logos";
 import { invalidateInvoiceWrites } from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute("/_authed/invoicing/invoices_/$invoiceId")(
-  { component: InvoiceDocumentRoute },
+  {
+    beforeLoad: ({ context }) => requireInvoicing(context.user),
+    component: InvoiceDocumentRoute,
+  },
 );
 
 function pdfHref(invoiceId: number, language: DocumentLanguage): string {

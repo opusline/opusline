@@ -220,6 +220,13 @@ export const zChooseBankAccountData = z.object({
 });
 
 /**
+ * ChooseBetaFeatureData
+ */
+export const zChooseBetaFeatureData = z.object({
+    active: z.boolean()
+});
+
+/**
  * ClientType
  */
 export const zClientType = z.union([
@@ -763,6 +770,32 @@ export const zExpenseInputData = z.object({
     description: z.nullish(z.string().check(z.maxLength(255))),
     subscriptionId: z.nullish(z.int().check(z.gte(1))),
     recurringDebitDay: z.nullish(z.int().check(z.gte(1), z.lte(31)))
+});
+
+/**
+ * FeatureFlag
+ *
+ * A feature still being built, shipped to `main` switched off. Removing a case (and its checks, keeping the code it guarded) is how the feature is released.
+ * | |
+ * |---|
+ * | `0` <br/> Writing, issuing and rendering invoices in Opusline (#498). |
+ */
+export const zFeatureFlag = z.literal(0);
+
+/**
+ * BetaFeatureData
+ */
+export const zBetaFeatureData = z.object({
+    feature: zFeatureFlag,
+    key: z.string(),
+    active: z.boolean()
+});
+
+/**
+ * BetaFeaturesData
+ */
+export const zBetaFeaturesData = z.object({
+    features: z.array(zBetaFeatureData)
 });
 
 /**
@@ -2925,7 +2958,8 @@ export const zUserData = z.object({
     timezone: z.string(),
     workdayMinutes: z.int(),
     defaultPaymentTermsDays: z.int(),
-    effectiveContributionRateBp: z.int()
+    effectiveContributionRateBp: z.int(),
+    features: z.array(zFeatureFlag)
 });
 
 /**
@@ -3089,7 +3123,8 @@ export const zUpdateSettingsData = z.object({
     })),
     referenceTaxIncomeYear: z.nullish(z.int().check(z.gte(2000), z.lte(2100))),
     taxHouseholdQuarterParts: z.nullish(z.int().check(z.gte(4), z.lte(80))),
-    incomeTaxRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000)))
+    incomeTaxRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
+    defaultPaymentTermsDays: z.nullish(z.int().check(z.gte(0), z.lte(365)))
 });
 
 /**
@@ -3221,6 +3256,16 @@ export const zChooseBankConnectionAccountBody = zChooseBankAccountData;
 export const zChooseBankConnectionAccountResponse = zBankAccountData;
 
 export const zSyncBankConnectionResponse = zBankImportData;
+
+export const zListBetaFeaturesResponse = zBetaFeaturesData;
+
+export const zChooseBetaFeatureBody = zChooseBetaFeatureData;
+
+export const zChooseBetaFeaturePath = z.object({
+    feature: z.string()
+});
+
+export const zChooseBetaFeatureResponse = zBetaFeaturesData;
 
 export const zListCatalogItemsResponse = zCatalogData;
 

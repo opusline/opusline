@@ -713,6 +713,75 @@
                 }
             }
         },
+        "/user/features": {
+            "get": {
+                "operationId": "listBetaFeatures",
+                "tags": [
+                    "BetaFeature"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BetaFeaturesData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/user/features/{feature}": {
+            "put": {
+                "operationId": "chooseBetaFeature",
+                "tags": [
+                    "BetaFeature"
+                ],
+                "parameters": [
+                    {
+                        "name": "feature",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChooseBetaFeatureData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BetaFeaturesData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/invoicing/catalog": {
             "get": {
                 "operationId": "listCatalogItems",
@@ -7876,6 +7945,41 @@
                 ],
                 "title": "BankSyncError"
             },
+            "BetaFeatureData": {
+                "type": "object",
+                "properties": {
+                    "feature": {
+                        "$ref": "#/components/schemas/FeatureFlag"
+                    },
+                    "key": {
+                        "type": "string"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "feature",
+                    "key",
+                    "active"
+                ],
+                "title": "BetaFeatureData"
+            },
+            "BetaFeaturesData": {
+                "type": "object",
+                "properties": {
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BetaFeatureData"
+                        }
+                    }
+                },
+                "required": [
+                    "features"
+                ],
+                "title": "BetaFeaturesData"
+            },
             "BillingMode": {
                 "type": "integer",
                 "enum": [
@@ -8209,6 +8313,18 @@
                     "accountUid"
                 ],
                 "title": "ChooseBankAccountData"
+            },
+            "ChooseBetaFeatureData": {
+                "type": "object",
+                "properties": {
+                    "active": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "active"
+                ],
+                "title": "ChooseBetaFeatureData"
             },
             "ClientData": {
                 "type": "object",
@@ -10856,6 +10972,17 @@
                     "balance"
                 ],
                 "title": "ExpensesVatSummaryData"
+            },
+            "FeatureFlag": {
+                "type": "integer",
+                "description": "A feature still being built, shipped to `main` switched off. Removing a case (and its checks, keeping the code it guarded) is how the feature is released.\n| |\n|---|\n| `0` <br/> Writing, issuing and rendering invoices in Opusline (#498). |",
+                "enum": [
+                    0
+                ],
+                "x-enum-varnames": [
+                    "Invoicing"
+                ],
+                "title": "FeatureFlag"
             },
             "FiscalDeadlineData": {
                 "type": "object",
@@ -16027,6 +16154,14 @@
                         ],
                         "minimum": 0,
                         "maximum": 10000
+                    },
+                    "defaultPaymentTermsDays": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 365
                     }
                 },
                 "required": [
@@ -16369,6 +16504,12 @@
                     },
                     "effectiveContributionRateBp": {
                         "type": "integer"
+                    },
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FeatureFlag"
+                        }
                     }
                 },
                 "required": [
@@ -16387,7 +16528,8 @@
                     "timezone",
                     "workdayMinutes",
                     "defaultPaymentTermsDays",
-                    "effectiveContributionRateBp"
+                    "effectiveContributionRateBp",
+                    "features"
                 ],
                 "title": "UserData"
             },

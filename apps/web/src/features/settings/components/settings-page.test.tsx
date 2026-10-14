@@ -53,6 +53,7 @@ function renderPage(
     integrations: null,
     notifications: null,
     security: null,
+    beta: null,
     ...overrides,
   };
 
@@ -100,6 +101,7 @@ it("lists every section as a vertical tab", () => {
     "IntégrationsSynchronisation bancaire",
     "NotificationsAlertes, rappels",
     "SécuritéVérification en deux étapes, navigateurs",
+    "Avant-premièreFonctionnalités en test",
   ]);
 });
 

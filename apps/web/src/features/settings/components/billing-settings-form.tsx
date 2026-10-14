@@ -1,6 +1,7 @@
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldLabel,
 } from "@opusline/ui/components/field";
 import { NativeSelect } from "@opusline/ui/components/native-select";
@@ -9,6 +10,7 @@ import type { ReactNode } from "react";
 
 import { FormTextField } from "@/components/form-text-field";
 import { useMoneyFormat } from "@/components/money-format-provider";
+import { PaymentTermsPicker } from "@/components/payment-terms-picker";
 import { currencySymbol, formatRateDraft } from "@/lib/billing";
 import { formatWorkedTime } from "@/lib/durations";
 import { m } from "@/paraglide/messages.js";
@@ -45,7 +47,10 @@ export function BillingSettingsForm({
 }: {
   form: SettingsForm;
   savedWorkdayMinutes: number;
-  /** Payment terms moved to the invoicing settings; the route draws the link there. */
+  /**
+   * With the invoicing beta, payment terms live in the invoicing settings and
+   * the route draws the link there; without it, they stay in this form.
+   */
   invoicingSettingsLink?: ReactNode;
 }) {
   const format = useMoneyFormat();
@@ -55,12 +60,48 @@ export function BillingSettingsForm({
       description={m.settings_billing_description()}
       title={m.settings_billing_title()}
     >
-      <p className="mb-5.5 rounded-md border bg-muted px-3.5 py-3 text-muted-foreground-3 text-sm leading-relaxed">
-        {m.settings_billing_moved_note()}
-        {invoicingSettingsLink && (
+      {invoicingSettingsLink === undefined ? (
+        <>
+          <form.Field name="defaultPaymentTermsDays">
+            {(field) => {
+              const isInvalid = !field.state.meta.isValid;
+
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel
+                    className="text-foreground-3 text-sm"
+                    htmlFor={`${field.name}-options`}
+                  >
+                    {m.settings_payment_terms_label()}
+                  </FieldLabel>
+                  <PaymentTermsPicker
+                    id={`${field.name}-options`}
+                    isInvalid={isInvalid}
+                    onBlur={field.handleBlur}
+                    onChange={field.handleChange}
+                    value={field.state.value}
+                    variant="inline"
+                  />
+                  {isInvalid ? (
+                    <FieldError errors={field.state.meta.errors} />
+                  ) : (
+                    <FieldDescription>
+                      {m.settings_payment_terms_hint()}
+                    </FieldDescription>
+                  )}
+                </Field>
+              );
+            }}
+          </form.Field>
+
+          <div className="my-5.5 h-px bg-secondary" />
+        </>
+      ) : (
+        <p className="mb-5.5 rounded-md border bg-muted px-3.5 py-3 text-muted-foreground-3 text-sm leading-relaxed">
+          {m.settings_billing_moved_note()}
           <span className="mt-1 block">{invoicingSettingsLink}</span>
-        )}
-      </p>
+        </p>
+      )}
 
       <form.Field
         name="invoiceNumberFormat"

@@ -6,6 +6,7 @@ namespace App\Providers;
 
 use App\Domain\Clients\Models\Client;
 use App\Domain\Expenses\Models\Expense;
+use App\Domain\Features\Enums\FeatureFlag;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Passkeys\Webauthn\PasskeyCeremony;
 use App\Domain\Passkeys\Webauthn\RelyingParty;
@@ -29,6 +30,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Pennant\Feature;
 use Laravel\Telescope\TelescopeServiceProvider;
 use Sentry\Laravel\Integration;
 use Sentry\Laravel\Integration\ModelViolations\LazyLoadingModelViolationReporter;
@@ -98,6 +100,11 @@ class AppServiceProvider extends ServiceProvider
         ]);
 
         DB::prohibitDestructiveCommands($this->app->isProduction());
+
+        // Off until the instance or the account says otherwise (FeatureFlags).
+        foreach (FeatureFlag::cases() as $flag) {
+            Feature::define($flag->key(), false);
+        }
 
         Validator::resolver(fn (Translator $translator, array $data, array $rules, array $messages, array $attributes): LocalizedValidator => new LocalizedValidator($translator, $data, $rules, $messages, $attributes));
 

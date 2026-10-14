@@ -919,3 +919,9 @@ function draftPayloadFor(Client $client, array $overrides = []): array
         ]],
     ], $overrides);
 }
+
+/** How far the instance releases invoicing: "on", "off" or "beta" (FEATURE_INVOICING). */
+function invoicingReleasedAs(string $release): void
+{
+    config(['features.invoicing' => $release]);
+}

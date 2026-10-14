@@ -90,11 +90,37 @@ test('saves the invoice number format', function (): void {
         ->assertJsonPath('invoiceNumberFormat', 'AAAAMM-NNN');
 });
 
-test('leaves the payment terms to the invoicing settings', function (): void {
+test('saves the payment term from Réglages, in days net', function (): void {
     $user = User::factory()->create();
+    $user->settingsOrFail()->update(['default_payment_terms_end_of_month' => true]);
 
     $this->actingAs($user)
         ->putJson('/api/settings', settingsPayload(['defaultPaymentTermsDays' => 15]))
+        ->assertOk()
+        ->assertJsonPath('defaultPaymentTermsDays', 15);
+
+    expect($user->settingsOrFail()->refresh()->default_payment_terms_end_of_month)->toBeFalse();
+});
+
+test('keeps an end-of-month term when Réglages sends back the days it read', function (): void {
+    $user = User::factory()->create();
+    $user->settingsOrFail()->update([
+        'default_payment_terms_days' => 30,
+        'default_payment_terms_end_of_month' => true,
+    ]);
+
+    $this->actingAs($user)
+        ->putJson('/api/settings', settingsPayload(['defaultPaymentTermsDays' => 30]))
+        ->assertOk();
+
+    expect($user->settingsOrFail()->refresh()->default_payment_terms_end_of_month)->toBeTrue();
+});
+
+test('leaves the payment term alone when Réglages does not send one', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->putJson('/api/settings', settingsPayload())
         ->assertOk()
         ->assertJsonPath('defaultPaymentTermsDays', 45);
 });
@@ -137,6 +163,8 @@ test('rejects an invalid payload', function (array $overrides, string $expectedE
     'non integer contribution rate' => [['contributionRateBp' => 'beaucoup'], 'contributionRateBp'],
     'unknown urssaf periodicity' => [['urssafPeriodicity' => 99], 'urssafPeriodicity'],
     'unknown vat regime' => [['vatRegime' => 99], 'vatRegime'],
+    'payment terms above a year' => [['defaultPaymentTermsDays' => 400], 'defaultPaymentTermsDays'],
+    'negative payment terms' => [['defaultPaymentTermsDays' => -1], 'defaultPaymentTermsDays'],
     'invoice format without a counter' => [['invoiceNumberFormat' => 'AAAA-MM'], 'invoiceNumberFormat'],
     'invoice format with an unknown token' => [['invoiceNumberFormat' => 'NNN-<client>'], 'invoiceNumberFormat'],
     'business start date in the wrong format' => [['acre' => true, 'businessStartedOn' => '01/03/2026'], 'businessStartedOn'],

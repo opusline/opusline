@@ -5,6 +5,7 @@ import { CircleAlert } from "lucide-react";
 
 import { InvoiceEditorPage } from "@/features/invoices/components/invoice-editor-page";
 import { useInvoiceEditor } from "@/features/invoices/lib/use-invoice-editor";
+import { requireInvoicing } from "@/lib/features";
 import { m } from "@/paraglide/messages.js";
 
 type NewInvoiceSearch = {
@@ -13,6 +14,7 @@ type NewInvoiceSearch = {
 };
 
 export const Route = createFileRoute("/_authed/invoicing/invoices_/new")({
+  beforeLoad: ({ context }) => requireInvoicing(context.user),
   validateSearch: (search: Record<string, unknown>): NewInvoiceSearch => {
     const duplicate = Number(search.duplicate);
 

@@ -60,6 +60,15 @@ class UpdateSettings
                 $data->referenceTaxIncome,
             );
 
+            // Réglages carries the term for accounts outside the invoicing beta.
+            // It is written only when it changed, so the bulk save of an account
+            // in the beta never undoes an end-of-month term set in the invoicing
+            // settings, which sends back the days it read.
+            if ($data->defaultPaymentTermsDays !== null && $data->defaultPaymentTermsDays !== $settings->default_payment_terms_days) {
+                $settings->default_payment_terms_days = $data->defaultPaymentTermsDays;
+                $settings->default_payment_terms_end_of_month = false;
+            }
+
             $settings->update([
                 'business_country' => $data->businessCountry,
                 'locale' => $data->locale,

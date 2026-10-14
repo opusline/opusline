@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Users\Data;
 
+use App\Domain\Features\Enums\FeatureFlag;
+use App\Domain\Features\FeatureFlags;
 use App\Domain\Settings\Enums\DateFormat;
 use App\Domain\Settings\Enums\Locale;
 use App\Domain\Shared\Enums\Currency;
@@ -13,6 +15,9 @@ use Spatie\LaravelData\Data;
 
 class UserData extends Data
 {
+    /**
+     * @param  list<FeatureFlag>  $features
+     */
     public function __construct(
         public int $id,
         public string $name,
@@ -37,6 +42,8 @@ class UserData extends Data
          * is wrong for exactly the people the projection matters most to.
          */
         public int $effectiveContributionRateBp,
+        /** The flagged features this account sees, so the SPA knows them on boot. */
+        public array $features,
     ) {}
 
     public static function fromModel(User $user): self
@@ -60,6 +67,7 @@ class UserData extends Data
             workdayMinutes: $settings->workday_minutes,
             defaultPaymentTermsDays: $settings->default_payment_terms_days,
             effectiveContributionRateBp: $settings->effectiveContributionRateBp(),
+            features: app(FeatureFlags::class)->activeFor($user),
         );
     }
 }

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Features\Enums\FeatureFlag;
 use App\Domain\Settings\Enums\DateFormat;
 use App\Domain\Settings\Enums\Locale;
 use App\Domain\Shared\Enums\Currency;
@@ -31,6 +32,8 @@ test('the current user endpoint returns the authenticated user', function (): vo
             'workdayMinutes' => 420,
             'defaultPaymentTermsDays' => 45,
             'effectiveContributionRateBp' => 2580,
+            // phpunit.xml releases invoicing to every account.
+            'features' => [FeatureFlag::Invoicing->value],
         ]);
 });
 
