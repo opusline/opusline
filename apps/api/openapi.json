@@ -4054,6 +4054,43 @@
                 }
             }
         },
+        "/invoicing/invoices/{invoice}/issue": {
+            "post": {
+                "operationId": "issueInvoice",
+                "tags": [
+                    "InvoiceDraft"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/invoicing/settings": {
             "get": {
                 "operationId": "showInvoicingSettings",
@@ -9837,6 +9874,92 @@
                 ],
                 "title": "DocumentListData"
             },
+            "DocumentPartyData": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "legalMention": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "siret": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "siren": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "vatNumber": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "tradeRegistry": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "addressLines": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "email": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "phone": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "iban": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "bic": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "vatExempt": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "name",
+                    "legalMention",
+                    "siret",
+                    "siren",
+                    "vatNumber",
+                    "tradeRegistry",
+                    "addressLines",
+                    "email",
+                    "phone",
+                    "iban",
+                    "bic",
+                    "vatExempt"
+                ],
+                "title": "DocumentPartyData"
+            },
             "DocumentSource": {
                 "type": "integer",
                 "enum": [
@@ -10964,6 +11087,26 @@
                         "items": {
                             "$ref": "#/components/schemas/VatBreakdownRowData"
                         }
+                    },
+                    "seller": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DocumentPartyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "buyer": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DocumentPartyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -10977,7 +11120,9 @@
                     "showEmail",
                     "customMentions",
                     "lines",
-                    "vatBreakdown"
+                    "vatBreakdown",
+                    "seller",
+                    "buyer"
                 ],
                 "title": "InvoiceContentData"
             },
@@ -11705,6 +11850,9 @@
                     },
                     "legalReference": {
                         "$ref": "#/components/schemas/LegalReferenceData"
+                    },
+                    "nextInvoiceNumber": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -11720,7 +11868,8 @@
                     "customMentions",
                     "documentLanguage",
                     "vatLiable",
-                    "legalReference"
+                    "legalReference",
+                    "nextInvoiceNumber"
                 ],
                 "title": "InvoicingSettingsData"
             },

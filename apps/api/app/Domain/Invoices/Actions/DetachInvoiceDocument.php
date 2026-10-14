@@ -14,6 +14,8 @@ class DetachInvoiceDocument
     public function handle(Invoice $invoice): void
     {
         $this->lockInvoice->handle($invoice, function (Invoice $locked): void {
+            abort_if($locked->isWrittenInOpusline(), 409, __('invoices.issued_is_frozen'));
+
             $document = $locked->attachedDocument();
 
             abort_if(! $document instanceof Media, 404);

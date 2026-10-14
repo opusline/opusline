@@ -32,9 +32,11 @@ class InvoicingSettingsData extends Data
         /** Whether the VAT-on-debits option applies to this account at all. */
         public bool $vatLiable,
         public LegalReferenceData $legalReference,
+        /** What the next invoice validated today will be numbered: the series continues from the last number. */
+        public string $nextInvoiceNumber,
     ) {}
 
-    public static function fromSettings(UserSettings $settings): self
+    public static function fromSettings(UserSettings $settings, string $nextInvoiceNumber): self
     {
         return new self(
             mode: $settings->invoicing_mode,
@@ -50,6 +52,7 @@ class InvoicingSettingsData extends Data
             documentLanguage: $settings->document_language,
             vatLiable: $settings->vat_regime->isLiable(),
             legalReference: LegalReferenceData::fromReference(LegalReference::current()),
+            nextInvoiceNumber: $nextInvoiceNumber,
         );
     }
 }

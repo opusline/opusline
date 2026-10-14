@@ -33,6 +33,9 @@ class InvoiceContentData extends Data
         public array $lines,
         #[DataCollectionOf(VatBreakdownRowData::class)]
         public array $vatBreakdown,
+        /** As printed on the issued document; null on a draft, which prints the live identity. */
+        public ?DocumentPartyData $seller,
+        public ?DocumentPartyData $buyer,
     ) {}
 
     public static function fromInvoice(Invoice $invoice): self
@@ -63,6 +66,8 @@ class InvoiceContentData extends Data
                 base: SignedMoneyData::fromMoney($row['base']),
                 vat: SignedMoneyData::fromMoney($row['vat']),
             ), $totals->vatBreakdown),
+            seller: $invoice->seller_snapshot === null ? null : DocumentPartyData::from($invoice->seller_snapshot),
+            buyer: $invoice->buyer_snapshot === null ? null : DocumentPartyData::from($invoice->buyer_snapshot),
         );
     }
 }

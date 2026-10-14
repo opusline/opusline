@@ -31,6 +31,8 @@ class CorrectInvoiceDates
     {
         return $this->lockInvoice->handle($invoice, function (Invoice $locked) use ($data): Invoice {
             abort_if(! $locked->status->isIssued(), 409, __('invoices.cannot_correct_dates_unless_issued'));
+            // Its dates were set by validation, in step with its number.
+            abort_if($locked->isWrittenInOpusline(), 409, __('invoices.issued_is_frozen'));
 
             $this->assertSomethingToCorrect($data);
 

@@ -132,6 +132,7 @@ export function InvoicingSettingsPage({
           update={update}
           vatLiable={settings.vatLiable}
         />
+        <NumberingSection nextInvoiceNumber={settings.nextInvoiceNumber} />
         <LegalReferenceSection settings={settings} />
       </div>
 
@@ -562,6 +563,42 @@ function MentionsSection({
           </SegmentedControlItem>
         </SegmentedControl>
       </div>
+    </Section>
+  );
+}
+
+function NumberingSection({
+  nextInvoiceNumber,
+}: {
+  nextInvoiceNumber: string;
+}) {
+  return (
+    <Section
+      aside={
+        <Link
+          className={linkVariants({ size: "sm" })}
+          search={{ tab: "facturation" }}
+          to="/settings"
+        >
+          {m.invoicing_numbering_format()} →
+        </Link>
+      }
+      title={m.invoicing_numbering_title()}
+    >
+      <div className="flex flex-wrap items-baseline justify-between gap-3 text-sm">
+        <span className="text-muted-foreground-3">
+          {m.invoicing_next_invoice()}
+        </span>
+        <span
+          className="font-mono text-foreground-hi"
+          data-testid="invoicing-next-invoice-number"
+        >
+          {nextInvoiceNumber}
+        </span>
+      </div>
+      <p className="mt-3 text-muted-foreground-3 text-xs leading-relaxed">
+        {m.invoicing_numbering_note()}
+      </p>
     </Section>
   );
 }
