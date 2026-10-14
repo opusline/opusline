@@ -7,13 +7,24 @@ import { InvoiceEditorPage } from "@/features/invoices/components/invoice-editor
 import { useInvoiceEditor } from "@/features/invoices/lib/use-invoice-editor";
 import { m } from "@/paraglide/messages.js";
 
+type NewInvoiceSearch = {
+  /** The invoice this one starts as a copy of. */
+  duplicate?: number;
+};
+
 export const Route = createFileRoute("/_authed/invoicing/invoices_/new")({
+  validateSearch: (search: Record<string, unknown>): NewInvoiceSearch => {
+    const duplicate = Number(search.duplicate);
+
+    return Number.isInteger(duplicate) && duplicate > 0 ? { duplicate } : {};
+  },
   component: NewInvoiceRoute,
 });
 
 function NewInvoiceRoute() {
   const { user } = Route.useRouteContext();
-  const editor = useInvoiceEditor(user, null);
+  const { duplicate } = Route.useSearch();
+  const editor = useInvoiceEditor(user, null, duplicate ?? null);
 
   if (editor.status === "pending") {
     return <Skeleton className="h-150 w-full" />;

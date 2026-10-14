@@ -38,6 +38,7 @@ import type { InvoiceEditorPageProps } from "../components/invoice-editor-page";
 import {
   draftFromDetail,
   draftPayload,
+  duplicateDraft,
   type InvoiceDraft,
   newInvoiceDraft,
 } from "./invoice-draft";
@@ -70,6 +71,8 @@ function useSettled<T>(value: T): T {
 export function useInvoiceEditor(
   user: UserData,
   invoiceId: number | null,
+  /** A new invoice may start as a copy of another one. */
+  duplicateOf: number | null = null,
 ): InvoiceEditor {
   const format = useMoneyFormat();
   const queryClient = useQueryClient();
@@ -79,9 +82,10 @@ export function useInvoiceEditor(
   const catalog = useQuery(listCatalogItemsOptions());
   const settings = useQuery(showInvoicingSettingsOptions());
   const identity = useQuery(showSettingsOptions());
+  const sourceId = invoiceId ?? duplicateOf;
   const saved = useQuery({
-    ...showInvoiceOptions({ path: { invoice: invoiceId ?? 0 } }),
-    enabled: invoiceId !== null,
+    ...showInvoiceOptions({ path: { invoice: sourceId ?? 0 } }),
+    enabled: sourceId !== null,
   });
   const [edited, setEdited] = useState<InvoiceDraft | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -92,14 +96,23 @@ export function useInvoiceEditor(
       return null;
     }
 
-    if (invoiceId === null) {
+    if (sourceId === null) {
       return newInvoiceDraft(format.locale, settings.data);
     }
 
-    return saved.data === undefined
-      ? null
-      : draftFromDetail(format, saved.data);
-  }, [format, invoiceId, settings.data, saved.data]);
+    if (saved.data === undefined) {
+      return null;
+    }
+
+    if (invoiceId === null) {
+      return duplicateDraft(format, saved.data);
+    }
+
+    // An issued invoice is part of the record: only a draft reopens here.
+    return saved.data.invoice.status === 0
+      ? draftFromDetail(format, saved.data)
+      : null;
+  }, [format, invoiceId, sourceId, settings.data, saved.data]);
   const draft = edited ?? seed;
   const payload = useDeferredValue(
     draft === null ? null : draftPayload(format, draft),
@@ -179,7 +192,7 @@ export function useInvoiceEditor(
     settings.isError ||
     identity.isError ||
     saved.isError ||
-    (invoiceId !== null && saved.data !== undefined && seed === null)
+    (sourceId !== null && saved.data !== undefined && seed === null)
   ) {
     return { status: "error" };
   }
@@ -238,8 +251,8 @@ export function useInvoiceEditor(
             title: m.editor_issued({ number: data.invoice.number ?? "" }),
           });
           await navigate({
-            to: "/invoicing/invoices",
-            search: { invoice: id },
+            to: "/invoicing/invoices/$invoiceId",
+            params: { invoiceId: String(id) },
           });
         }),
     },

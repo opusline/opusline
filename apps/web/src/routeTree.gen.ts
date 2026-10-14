@@ -36,9 +36,10 @@ import { Route as AuthedInvoicingCatalogRouteImport } from './routes/_authed/inv
 import { Route as AuthedInvoicingInvoicesRouteImport } from './routes/_authed/invoicing.invoices'
 import { Route as AuthedInvoicingSettingsRouteImport } from './routes/_authed/invoicing.settings'
 import { Route as AuthedMissionsNewRouteImport } from './routes/_authed/missions_.new'
+import { Route as AuthedInvoicingInvoicesInvoiceIdRouteImport } from './routes/_authed/invoicing.invoices_.$invoiceId'
 import { Route as AuthedInvoicingInvoicesNewRouteImport } from './routes/_authed/invoicing.invoices_.new'
 import { Route as AuthedClientsClientSlugMissionsMissionSlugRouteImport } from './routes/_authed/clients_.$clientSlug_.missions.$missionSlug'
-import { Route as AuthedInvoicingInvoicesInvoiceIdEditRouteImport } from './routes/_authed/invoicing.invoices_.$invoiceId.edit'
+import { Route as AuthedInvoicingInvoicesInvoiceIdEditRouteImport } from './routes/_authed/invoicing.invoices_.$invoiceId_.edit'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -173,6 +174,12 @@ const AuthedMissionsNewRoute = AuthedMissionsNewRouteImport.update({
   path: '/missions/new',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedInvoicingInvoicesInvoiceIdRoute =
+  AuthedInvoicingInvoicesInvoiceIdRouteImport.update({
+    id: '/invoicing/invoices_/$invoiceId',
+    path: '/invoicing/invoices/$invoiceId',
+    getParentRoute: () => AuthedRoute,
+  } as any)
 const AuthedInvoicingInvoicesNewRoute =
   AuthedInvoicingInvoicesNewRouteImport.update({
     id: '/invoicing/invoices_/new',
@@ -187,7 +194,7 @@ const AuthedClientsClientSlugMissionsMissionSlugRoute =
   } as any)
 const AuthedInvoicingInvoicesInvoiceIdEditRoute =
   AuthedInvoicingInvoicesInvoiceIdEditRouteImport.update({
-    id: '/invoicing/invoices_/$invoiceId/edit',
+    id: '/invoicing/invoices_/$invoiceId_/edit',
     path: '/invoicing/invoices/$invoiceId/edit',
     getParentRoute: () => AuthedRoute,
   } as any)
@@ -218,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/invoicing/invoices': typeof AuthedInvoicingInvoicesRoute
   '/invoicing/settings': typeof AuthedInvoicingSettingsRoute
   '/missions/new': typeof AuthedMissionsNewRoute
+  '/invoicing/invoices/$invoiceId': typeof AuthedInvoicingInvoicesInvoiceIdRoute
   '/invoicing/invoices/new': typeof AuthedInvoicingInvoicesNewRoute
   '/clients/$clientSlug/missions/$missionSlug': typeof AuthedClientsClientSlugMissionsMissionSlugRoute
   '/invoicing/invoices/$invoiceId/edit': typeof AuthedInvoicingInvoicesInvoiceIdEditRoute
@@ -248,6 +256,7 @@ export interface FileRoutesByTo {
   '/invoicing/invoices': typeof AuthedInvoicingInvoicesRoute
   '/invoicing/settings': typeof AuthedInvoicingSettingsRoute
   '/missions/new': typeof AuthedMissionsNewRoute
+  '/invoicing/invoices/$invoiceId': typeof AuthedInvoicingInvoicesInvoiceIdRoute
   '/invoicing/invoices/new': typeof AuthedInvoicingInvoicesNewRoute
   '/clients/$clientSlug/missions/$missionSlug': typeof AuthedClientsClientSlugMissionsMissionSlugRoute
   '/invoicing/invoices/$invoiceId/edit': typeof AuthedInvoicingInvoicesInvoiceIdEditRoute
@@ -281,9 +290,10 @@ export interface FileRoutesById {
   '/_authed/invoicing/invoices': typeof AuthedInvoicingInvoicesRoute
   '/_authed/invoicing/settings': typeof AuthedInvoicingSettingsRoute
   '/_authed/missions_/new': typeof AuthedMissionsNewRoute
+  '/_authed/invoicing/invoices_/$invoiceId': typeof AuthedInvoicingInvoicesInvoiceIdRoute
   '/_authed/invoicing/invoices_/new': typeof AuthedInvoicingInvoicesNewRoute
   '/_authed/clients_/$clientSlug_/missions/$missionSlug': typeof AuthedClientsClientSlugMissionsMissionSlugRoute
-  '/_authed/invoicing/invoices_/$invoiceId/edit': typeof AuthedInvoicingInvoicesInvoiceIdEditRoute
+  '/_authed/invoicing/invoices_/$invoiceId_/edit': typeof AuthedInvoicingInvoicesInvoiceIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -313,6 +323,7 @@ export interface FileRouteTypes {
     | '/invoicing/invoices'
     | '/invoicing/settings'
     | '/missions/new'
+    | '/invoicing/invoices/$invoiceId'
     | '/invoicing/invoices/new'
     | '/clients/$clientSlug/missions/$missionSlug'
     | '/invoicing/invoices/$invoiceId/edit'
@@ -343,6 +354,7 @@ export interface FileRouteTypes {
     | '/invoicing/invoices'
     | '/invoicing/settings'
     | '/missions/new'
+    | '/invoicing/invoices/$invoiceId'
     | '/invoicing/invoices/new'
     | '/clients/$clientSlug/missions/$missionSlug'
     | '/invoicing/invoices/$invoiceId/edit'
@@ -375,9 +387,10 @@ export interface FileRouteTypes {
     | '/_authed/invoicing/invoices'
     | '/_authed/invoicing/settings'
     | '/_authed/missions_/new'
+    | '/_authed/invoicing/invoices_/$invoiceId'
     | '/_authed/invoicing/invoices_/new'
     | '/_authed/clients_/$clientSlug_/missions/$missionSlug'
-    | '/_authed/invoicing/invoices_/$invoiceId/edit'
+    | '/_authed/invoicing/invoices_/$invoiceId_/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -579,6 +592,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedMissionsNewRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/invoicing/invoices_/$invoiceId': {
+      id: '/_authed/invoicing/invoices_/$invoiceId'
+      path: '/invoicing/invoices/$invoiceId'
+      fullPath: '/invoicing/invoices/$invoiceId'
+      preLoaderRoute: typeof AuthedInvoicingInvoicesInvoiceIdRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/invoicing/invoices_/new': {
       id: '/_authed/invoicing/invoices_/new'
       path: '/invoicing/invoices/new'
@@ -593,8 +613,8 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedClientsClientSlugMissionsMissionSlugRouteImport
       parentRoute: typeof AuthedRoute
     }
-    '/_authed/invoicing/invoices_/$invoiceId/edit': {
-      id: '/_authed/invoicing/invoices_/$invoiceId/edit'
+    '/_authed/invoicing/invoices_/$invoiceId_/edit': {
+      id: '/_authed/invoicing/invoices_/$invoiceId_/edit'
       path: '/invoicing/invoices/$invoiceId/edit'
       fullPath: '/invoicing/invoices/$invoiceId/edit'
       preLoaderRoute: typeof AuthedInvoicingInvoicesInvoiceIdEditRouteImport
@@ -623,6 +643,7 @@ interface AuthedRouteChildren {
   AuthedInvoicingInvoicesRoute: typeof AuthedInvoicingInvoicesRoute
   AuthedInvoicingSettingsRoute: typeof AuthedInvoicingSettingsRoute
   AuthedMissionsNewRoute: typeof AuthedMissionsNewRoute
+  AuthedInvoicingInvoicesInvoiceIdRoute: typeof AuthedInvoicingInvoicesInvoiceIdRoute
   AuthedInvoicingInvoicesNewRoute: typeof AuthedInvoicingInvoicesNewRoute
   AuthedClientsClientSlugMissionsMissionSlugRoute: typeof AuthedClientsClientSlugMissionsMissionSlugRoute
   AuthedInvoicingInvoicesInvoiceIdEditRoute: typeof AuthedInvoicingInvoicesInvoiceIdEditRoute
@@ -648,6 +669,7 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedInvoicingInvoicesRoute: AuthedInvoicingInvoicesRoute,
   AuthedInvoicingSettingsRoute: AuthedInvoicingSettingsRoute,
   AuthedMissionsNewRoute: AuthedMissionsNewRoute,
+  AuthedInvoicingInvoicesInvoiceIdRoute: AuthedInvoicingInvoicesInvoiceIdRoute,
   AuthedInvoicingInvoicesNewRoute: AuthedInvoicingInvoicesNewRoute,
   AuthedClientsClientSlugMissionsMissionSlugRoute:
     AuthedClientsClientSlugMissionsMissionSlugRoute,

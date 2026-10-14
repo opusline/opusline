@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import { formatQuantityDraft } from "@/lib/billing";
 import { clientWithMissions } from "@/test/fixtures";
+import { documentDetail } from "./invoice-document-fixture";
 import {
   canImportTime,
   draftPayload,
   dueDate,
+  duplicateDraft,
   freeLine,
   newInvoiceDraft,
   withClient,
@@ -204,5 +206,24 @@ describe("withMission", () => {
     };
 
     expect(withMission(reopened, reopened.missionId)).toBe(reopened);
+  });
+});
+
+describe("duplicateDraft", () => {
+  it("copies the lines but neither the period nor the tracked time", () => {
+    const source = documentDetail({
+      periodStart: "2026-09-01",
+      periodEnd: "2026-09-30",
+    });
+    const copy = duplicateDraft(FORMAT, {
+      ...source,
+      content: source.content && { ...source.content, timeEntryIds: [5, 6] },
+    });
+
+    expect(copy?.lines.map((line) => line.label)).toEqual([
+      "Atelier de cadrage",
+    ]);
+    expect(copy?.periodStart).toBe("");
+    expect(copy?.timeEntryIds).toEqual([]);
   });
 });

@@ -8,7 +8,7 @@ import { useInvoiceEditor } from "@/features/invoices/lib/use-invoice-editor";
 import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute(
-  "/_authed/invoicing/invoices_/$invoiceId/edit",
+  "/_authed/invoicing/invoices_/$invoiceId_/edit",
 )({
   component: EditInvoiceRoute,
 });

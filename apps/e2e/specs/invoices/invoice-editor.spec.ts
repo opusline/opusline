@@ -10,7 +10,7 @@ import { expect, test } from "../../support/test";
 
 const THREE_DAYS_AT_550_CENTS = 165_000;
 
-test("tracked time is imported into a draft invoice and saved", async ({
+test("tracked time is imported into a draft, saved, opened and resumed", async ({
   page,
   api,
   account: _registered,
@@ -56,10 +56,28 @@ test("tracked time is imported into a draft invoice and saved", async ({
   expect((await saved).status()).toBe(201);
 
   await page.goto("/invoicing/invoices");
-  await expect(
-    byTestId(page, "invoice-row", {
-      status: "draft",
-      "amount-cents": THREE_DAYS_AT_550_CENTS,
-    }),
-  ).toBeVisible();
+  const draft = byTestId(page, "invoice-row", {
+    status: "draft",
+    "amount-cents": THREE_DAYS_AT_550_CENTS,
+  });
+  await expect(draft).toBeVisible();
+
+  await draft.click();
+  await expect(page).toHaveURL(/\/invoicing\/invoices\/\d+$/);
+  await expect(page.getByTestId("document-status")).toHaveAttribute(
+    "data-status",
+    "draft",
+  );
+  await expect(page.getByTestId("document-amount")).toHaveAttribute(
+    "data-amount-cents",
+    String(THREE_DAYS_AT_550_CENTS),
+  );
+  await expect(page.getByTestId("invoice-paper")).toBeVisible();
+
+  await page.getByTestId("document-resume-draft").click();
+  await expect(page).toHaveURL(/\/invoicing\/invoices\/\d+\/edit$/);
+  await expect(page.getByTestId("editor-time-linked")).toHaveAttribute(
+    "data-entries",
+    String(ANCHOR_TRACKED_DAYS.length),
+  );
 });

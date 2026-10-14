@@ -20,6 +20,7 @@ import { useEffect } from "react";
 import { afterEach, expect, it, vi } from "vitest";
 
 import { INVOICE_DOCUMENT, invoiceDetail } from "../lib/fixtures";
+import { documentDetail } from "../lib/invoice-document-fixture";
 import {
   InvoiceDrawerProvider,
   useOpenInvoice,
@@ -115,6 +116,11 @@ async function renderApp() {
       getParentRoute: () => rootRoute,
       path: "/lien-profond",
       component: DeepLinkPage,
+    }),
+    createRoute({
+      getParentRoute: () => rootRoute,
+      path: "/invoicing/invoices/$invoiceId",
+      component: () => <p>Document</p>,
     }),
   ]);
 
@@ -292,4 +298,16 @@ it("keeps a fiche a page opens as it arrives, deep-link style", async () => {
 
   await screen.findByText("Factures");
   expect(await screen.findByText("2026-014")).toBeInTheDocument();
+});
+
+it("sends an invoice written in Opusline to its own page", async () => {
+  stubApi(documentDetail());
+  const router = await renderApp();
+
+  fireEvent.click(screen.getByRole("button", { name: "ouvrir" }));
+
+  await waitFor(() =>
+    expect(router.state.location.pathname).toBe("/invoicing/invoices/1"),
+  );
+  expect(screen.queryByRole("dialog")).toBeNull();
 });
