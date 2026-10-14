@@ -3974,6 +3974,86 @@
                 }
             }
         },
+        "/invoicing/invoices": {
+            "post": {
+                "operationId": "createInvoiceDraft",
+                "tags": [
+                    "InvoiceDraft"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SaveInvoiceDraftData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/invoicing/invoices/{invoice}": {
+            "put": {
+                "operationId": "updateInvoiceDraft",
+                "tags": [
+                    "InvoiceDraft"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SaveInvoiceDraftData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/invoicing/settings": {
             "get": {
                 "operationId": "showInvoicingSettings",
@@ -10831,6 +10911,76 @@
                 ],
                 "title": "InvoiceClientTotalsData"
             },
+            "InvoiceContentData": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "language": {
+                        "$ref": "#/components/schemas/DocumentLanguage"
+                    },
+                    "paymentTermsDays": {
+                        "type": "integer"
+                    },
+                    "paymentTermsEndOfMonth": {
+                        "type": "boolean"
+                    },
+                    "latePenaltyRateBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "showIban": {
+                        "type": "boolean"
+                    },
+                    "showEmail": {
+                        "type": "boolean"
+                    },
+                    "customMentions": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoiceLineData"
+                        }
+                    },
+                    "vatBreakdown": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/VatBreakdownRowData"
+                        }
+                    }
+                },
+                "required": [
+                    "title",
+                    "description",
+                    "language",
+                    "paymentTermsDays",
+                    "paymentTermsEndOfMonth",
+                    "latePenaltyRateBp",
+                    "showIban",
+                    "showEmail",
+                    "customMentions",
+                    "lines",
+                    "vatBreakdown"
+                ],
+                "title": "InvoiceContentData"
+            },
             "InvoiceCountsData": {
                 "type": "object",
                 "properties": {
@@ -10882,6 +11032,9 @@
                     },
                     "status": {
                         "$ref": "#/components/schemas/InvoiceStatus"
+                    },
+                    "source": {
+                        "$ref": "#/components/schemas/InvoiceSource"
                     },
                     "isLate": {
                         "type": "boolean"
@@ -10943,6 +11096,7 @@
                     "missionId",
                     "number",
                     "status",
+                    "source",
                     "isLate",
                     "issuedOn",
                     "dueOn",
@@ -10992,6 +11146,16 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "content": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/InvoiceContentData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -10999,7 +11163,8 @@
                     "client",
                     "mission",
                     "history",
-                    "document"
+                    "document",
+                    "content"
                 ],
                 "title": "InvoiceDetailData"
             },
@@ -11082,6 +11247,49 @@
                 ],
                 "title": "InvoiceForecastData"
             },
+            "InvoiceLineData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "detail": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "quantityMilli": {
+                        "type": "integer"
+                    },
+                    "unit": {
+                        "$ref": "#/components/schemas/LineUnit"
+                    },
+                    "unitPrice": {
+                        "$ref": "#/components/schemas/SignedMoneyData"
+                    },
+                    "vatRateBp": {
+                        "type": "integer"
+                    },
+                    "totalHt": {
+                        "$ref": "#/components/schemas/SignedMoneyData"
+                    }
+                },
+                "required": [
+                    "id",
+                    "label",
+                    "detail",
+                    "quantityMilli",
+                    "unit",
+                    "unitPrice",
+                    "vatRateBp",
+                    "totalHt"
+                ],
+                "title": "InvoiceLineData"
+            },
             "InvoiceListData": {
                 "type": "object",
                 "properties": {
@@ -11157,6 +11365,19 @@
                     "maxDaysLate"
                 ],
                 "title": "InvoiceOverdueData"
+            },
+            "InvoiceSource": {
+                "type": "integer",
+                "description": "Who wrote the document: another tool, recorded here; or Opusline, from its lines.\n",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "External",
+                    "Opusline"
+                ],
+                "title": "InvoiceSource"
             },
             "InvoiceStatus": {
                 "type": "integer",
@@ -12747,6 +12968,102 @@
                     "privateKey"
                 ],
                 "title": "SaveEnableBankingCredentialsData"
+            },
+            "SaveInvoiceDraftData": {
+                "type": "object",
+                "properties": {
+                    "clientId": {
+                        "type": "integer"
+                    },
+                    "paymentTermsDays": {
+                        "type": "integer"
+                    },
+                    "paymentTermsEndOfMonth": {
+                        "type": "boolean"
+                    },
+                    "showIban": {
+                        "type": "boolean"
+                    },
+                    "showEmail": {
+                        "type": "boolean"
+                    },
+                    "language": {
+                        "$ref": "#/components/schemas/DocumentLanguage"
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "maxItems": 200
+                    },
+                    "missionId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "title": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 2000
+                    },
+                    "issuedOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "periodStart": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "periodEnd": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "latePenaltyRateBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 10000
+                    },
+                    "customMentions": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 2000
+                    }
+                },
+                "required": [
+                    "clientId",
+                    "paymentTermsDays",
+                    "paymentTermsEndOfMonth",
+                    "showIban",
+                    "showEmail",
+                    "language",
+                    "lines"
+                ],
+                "title": "SaveInvoiceDraftData"
             },
             "SendCraData": {
                 "type": "object",
@@ -15322,6 +15639,26 @@
                     "effectiveContributionRateBp"
                 ],
                 "title": "UserData"
+            },
+            "VatBreakdownRowData": {
+                "type": "object",
+                "properties": {
+                    "rateBp": {
+                        "type": "integer"
+                    },
+                    "base": {
+                        "$ref": "#/components/schemas/SignedMoneyData"
+                    },
+                    "vat": {
+                        "$ref": "#/components/schemas/SignedMoneyData"
+                    }
+                },
+                "required": [
+                    "rateBp",
+                    "base",
+                    "vat"
+                ],
+                "title": "VatBreakdownRowData"
             },
             "VatDeclarationData": {
                 "type": "object",

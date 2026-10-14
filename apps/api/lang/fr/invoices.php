@@ -32,4 +32,7 @@ return [
     'time_entry_already_invoiced' => 'Un des temps sélectionnés figure déjà sur une autre facture.',
     'cannot_delete_client_with_invoices' => 'Impossible de supprimer un client qui a encore des factures. Supprimez-les d\'abord.',
     'cannot_delete_mission_with_invoices' => 'Impossible de supprimer une mission qui a encore des factures. Supprimez-les d\'abord.',
+    'not_an_opusline_draft' => 'Seul un brouillon rédigé dans Opusline se modifie ici.',
+    'written_in_opusline' => 'Cette facture a été rédigée dans Opusline : modifiez-la depuis son éditeur.',
+    'validate_before_send' => 'Validez d\'abord la facture : c\'est ce qui lui attribue son numéro.',
 ];

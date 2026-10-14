@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Invoices\Actions;
 
 use App\Domain\Invoices\Data\CreateInvoiceData;
+use App\Domain\Invoices\Data\SaveInvoiceDraftData;
 use App\Domain\Invoices\Data\UpdateInvoiceData;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
@@ -55,6 +56,19 @@ class ValidateInvoice
         if ($status->isIssued() && $number === null) {
             throw ValidationException::withMessages([
                 'number' => __('invoices.number_required_once_issued'),
+            ]);
+        }
+    }
+
+    /** An Opusline draft: the same mission and period rules as any invoice; its amounts come from its lines. */
+    public function forDraft(User $user, SaveInvoiceDraftData $data): void
+    {
+        $this->assertMissionBelongsToClient($user, $data->clientId, $data->missionId);
+
+        if ($data->periodStart !== null && $data->periodEnd !== null
+            && CarbonImmutable::parse($data->periodEnd)->isBefore(CarbonImmutable::parse($data->periodStart))) {
+            throw ValidationException::withMessages([
+                'periodEnd' => __('invoices.period_end_before_start'),
             ]);
         }
     }

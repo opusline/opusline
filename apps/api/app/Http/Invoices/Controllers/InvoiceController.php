@@ -177,6 +177,6 @@ class InvoiceController extends Controller
      */
     private function detail(Invoice $invoice): InvoiceDetailData
     {
-        return InvoiceDetailData::fromModel($invoice->load(['client', 'mission', 'events']));
+        return InvoiceDetailData::fromModel($invoice->load(['client', 'mission', 'events', 'lines']));
     }
 }

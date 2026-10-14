@@ -21,6 +21,8 @@ class SendInvoice
     {
         return $this->lockInvoice->handle($invoice, function (Invoice $locked) use ($data): Invoice {
             abort_if($locked->status !== InvoiceStatus::Draft, 409, __('invoices.cannot_send_unless_draft'));
+            // An Opusline draft is issued by validating it, which numbers it.
+            abort_if($locked->isWrittenInOpusline(), 409, __('invoices.validate_before_send'));
 
             // The reference belongs to whatever issued the document; an invoice that
             // is out in the world without one cannot be reconciled against anything.

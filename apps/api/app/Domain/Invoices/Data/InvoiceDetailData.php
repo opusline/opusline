@@ -25,6 +25,8 @@ class InvoiceDetailData extends Data
         public array $history,
         /** The document the invoice is, once one has been filed against it. */
         public ?DocumentData $document,
+        /** Its lines and options when Opusline wrote it; null for an invoice recorded from another tool. */
+        public ?InvoiceContentData $content,
     ) {}
 
     public static function fromModel(Invoice $invoice): self
@@ -37,6 +39,7 @@ class InvoiceDetailData extends Data
             mission: $invoice->mission === null ? null : MissionData::from($invoice->mission),
             history: array_values(InvoiceEventData::collect($invoice->events->all(), 'array')),
             document: $document instanceof Media ? DocumentData::fromMedia($document) : null,
+            content: $invoice->isWrittenInOpusline() ? InvoiceContentData::fromInvoice($invoice) : null,
         );
     }
 }

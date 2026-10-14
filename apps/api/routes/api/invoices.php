@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Invoices\Controllers\CatalogItemController;
 use App\Http\Invoices\Controllers\InvoiceController;
+use App\Http\Invoices\Controllers\InvoiceDraftController;
 use App\Http\Invoices\Controllers\InvoicingSettingsController;
 use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use Illuminate\Support\Facades\Route;
@@ -13,6 +14,12 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
         ->name('showInvoicingSettings');
     Route::put('/invoicing/settings', [InvoicingSettingsController::class, 'update'])
         ->name('updateInvoicingSettings');
+
+    Route::post('/invoicing/invoices', [InvoiceDraftController::class, 'store'])
+        ->name('createInvoiceDraft');
+    Route::put('/invoicing/invoices/{invoice}', [InvoiceDraftController::class, 'update'])
+        ->whereNumber('invoice')
+        ->name('updateInvoiceDraft');
 
     Route::get('/invoicing/catalog', [CatalogItemController::class, 'index'])
         ->name('listCatalogItems');

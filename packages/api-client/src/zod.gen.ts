@@ -875,6 +875,14 @@ export const zInvoiceEventData = z.object({
 export const zInvoiceForecastBucket = z.union([z.literal(1), z.literal(2)]);
 
 /**
+ * InvoiceSource
+ *
+ * Who wrote the document: another tool, recorded here; or Opusline, from its lines.
+ *
+ */
+export const zInvoiceSource = z.union([z.literal(0), z.literal(1)]);
+
+/**
  * InvoiceStatus
  */
 export const zInvoiceStatus = z.union([
@@ -1330,6 +1338,7 @@ export const zInvoiceData = z.object({
     missionId: z.nullable(z.int()),
     number: z.nullable(z.string()),
     status: zInvoiceStatus,
+    source: zInvoiceSource,
     isLate: z.boolean(),
     issuedOn: z.iso.date(),
     dueOn: z.iso.date(),
@@ -1462,17 +1471,6 @@ export const zCraDetailData = z.object({
     client: zClientData,
     mission: zMissionData,
     recipientName: z.string()
-});
-
-/**
- * InvoiceDetailData
- */
-export const zInvoiceDetailData = z.object({
-    invoice: zInvoiceData,
-    client: zClientData,
-    mission: z.nullable(zMissionData),
-    history: z.array(zInvoiceEventData),
-    document: z.nullable(zDocumentData)
 });
 
 /**
@@ -1855,6 +1853,27 @@ export const zSaveEnableBankingCredentialsData = z.object({
 });
 
 /**
+ * SaveInvoiceDraftData
+ */
+export const zSaveInvoiceDraftData = z.object({
+    clientId: z.int(),
+    paymentTermsDays: z.int(),
+    paymentTermsEndOfMonth: z.boolean(),
+    showIban: z.boolean(),
+    showEmail: z.boolean(),
+    language: zDocumentLanguage,
+    lines: z.array(z.string()).check(z.maxLength(200)),
+    missionId: z.nullish(z.int()),
+    title: z.nullish(z.string().check(z.maxLength(255))),
+    description: z.nullish(z.string().check(z.maxLength(2000))),
+    issuedOn: z.nullish(z.iso.date()),
+    periodStart: z.nullish(z.iso.date()),
+    periodEnd: z.nullish(z.iso.date()),
+    latePenaltyRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
+    customMentions: z.nullish(z.string().check(z.maxLength(2000)))
+});
+
+/**
  * SendCraData
  */
 export const zSendCraData = z.object({
@@ -2007,6 +2026,20 @@ export const zFixedPriceBudgetData = z.object({
     remaining: zSignedMoneyData,
     invoicedShareBp: z.int(),
     consumption: z.nullable(zFixedPriceConsumptionData)
+});
+
+/**
+ * InvoiceLineData
+ */
+export const zInvoiceLineData = z.object({
+    id: z.int(),
+    label: z.string(),
+    detail: z.nullable(z.string()),
+    quantityMilli: z.int(),
+    unit: zLineUnit,
+    unitPrice: zSignedMoneyData,
+    vatRateBp: z.int(),
+    totalHt: zSignedMoneyData
 });
 
 /**
@@ -2760,6 +2793,44 @@ export const zUserData = z.object({
 });
 
 /**
+ * VatBreakdownRowData
+ */
+export const zVatBreakdownRowData = z.object({
+    rateBp: z.int(),
+    base: zSignedMoneyData,
+    vat: zSignedMoneyData
+});
+
+/**
+ * InvoiceContentData
+ */
+export const zInvoiceContentData = z.object({
+    title: z.nullable(z.string()),
+    description: z.nullable(z.string()),
+    language: zDocumentLanguage,
+    paymentTermsDays: z.int(),
+    paymentTermsEndOfMonth: z.boolean(),
+    latePenaltyRateBp: z.nullable(z.int()),
+    showIban: z.boolean(),
+    showEmail: z.boolean(),
+    customMentions: z.nullable(z.string()),
+    lines: z.array(zInvoiceLineData),
+    vatBreakdown: z.array(zVatBreakdownRowData)
+});
+
+/**
+ * InvoiceDetailData
+ */
+export const zInvoiceDetailData = z.object({
+    invoice: zInvoiceData,
+    client: zClientData,
+    mission: z.nullable(zMissionData),
+    history: z.array(zInvoiceEventData),
+    document: z.nullable(zDocumentData),
+    content: z.nullable(zInvoiceContentData)
+});
+
+/**
  * VatRegime
  */
 export const zVatRegime = z.union([
@@ -3502,6 +3573,18 @@ export const zUploadInvoiceDocumentPath = z.object({
 });
 
 export const zUploadInvoiceDocumentResponse = zInvoiceDetailData;
+
+export const zCreateInvoiceDraftBody = zSaveInvoiceDraftData;
+
+export const zCreateInvoiceDraftResponse = zInvoiceDetailData;
+
+export const zUpdateInvoiceDraftBody = zSaveInvoiceDraftData;
+
+export const zUpdateInvoiceDraftPath = z.object({
+    invoice: z.int()
+});
+
+export const zUpdateInvoiceDraftResponse = zInvoiceDetailData;
 
 export const zShowInvoicingSettingsResponse = zInvoicingSettingsData;
 

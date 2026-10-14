@@ -32,4 +32,7 @@ return [
     'time_entry_already_invoiced' => 'One of the selected time entries is already on another invoice.',
     'cannot_delete_client_with_invoices' => 'A client that still has invoices cannot be deleted. Delete them first.',
     'cannot_delete_mission_with_invoices' => 'A mission that still has invoices cannot be deleted. Delete them first.',
+    'not_an_opusline_draft' => 'Only a draft written in Opusline can be edited here.',
+    'written_in_opusline' => 'This invoice was written in Opusline: edit it from its editor.',
+    'validate_before_send' => 'Validate the invoice first: that is what gives it its number.',
 ];

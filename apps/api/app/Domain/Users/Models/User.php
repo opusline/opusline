@@ -295,6 +295,8 @@ class User extends Authenticatable implements HasLocalePreference, HasMedia
     public const array CURRENCY_LOCKING_COLUMNS = [
         'missions' => ['rate_cents', 'reference_daily_rate_cents'],
         'invoices' => ['amount_ht_cents', 'amount_ttc_cents'],
+        // A line always belongs to an invoice, which locks the currency already.
+        'invoice_lines' => ['unit_price_cents', 'total_ht_cents'],
         'bank_statements' => ['closing_balance_cents'],
         'bank_movements' => ['amount_cents'],
         'personal_transfers' => ['amount_cents'],

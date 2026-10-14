@@ -6,6 +6,8 @@ namespace App\Domain\Invoices\Models;
 
 use App\Domain\Clients\Models\Client;
 use App\Domain\Invoices\Actions\ComputeInvoiceAmounts;
+use App\Domain\Invoices\Enums\DocumentLanguage;
+use App\Domain\Invoices\Enums\InvoiceSource;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Factories\InvoiceFactory;
 use App\Domain\Missions\Models\Mission;
@@ -18,6 +20,7 @@ use Carbon\CarbonImmutable;
 use Cknow\Money\Casts\MoneyIntegerCast;
 use Cknow\Money\Money;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,6 +35,16 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property ?int $mission_id
  * @property ?string $number
  * @property InvoiceStatus $status
+ * @property InvoiceSource $source
+ * @property ?string $title
+ * @property ?string $description
+ * @property ?DocumentLanguage $language
+ * @property ?int $payment_terms_days
+ * @property bool $payment_terms_end_of_month
+ * @property ?int $late_penalty_rate_bp
+ * @property bool $show_iban
+ * @property bool $show_email
+ * @property ?string $custom_mentions
  * @property CarbonImmutable $issued_on
  * @property CarbonImmutable $due_on
  * @property ?CarbonImmutable $paid_on
@@ -47,12 +60,23 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property-read Client $client
  * @property-read User $user
  * @property-read ?Mission $mission
+ * @property-read Collection<int, InvoiceLine> $lines
  */
 #[Fillable([
     'client_id',
     'mission_id',
     'number',
     'status',
+    'source',
+    'title',
+    'description',
+    'language',
+    'payment_terms_days',
+    'payment_terms_end_of_month',
+    'late_penalty_rate_bp',
+    'show_iban',
+    'show_email',
+    'custom_mentions',
     'issued_on',
     'due_on',
     'paid_on',
@@ -78,6 +102,20 @@ class Invoice extends Model
     use HasFactory;
 
     use ResolvesAccountSettings;
+
+    /**
+     * The database defaults, mirrored so a freshly created invoice carries them
+     * before it is ever re-read.
+     *
+     * @var array<string, mixed>
+     */
+    #[\Override]
+    protected $attributes = [
+        'source' => InvoiceSource::External->value,
+        'payment_terms_end_of_month' => false,
+        'show_iban' => false,
+        'show_email' => false,
+    ];
 
     protected static function newFactory(): InvoiceFactory
     {
@@ -111,6 +149,13 @@ class Invoice extends Model
     {
         return [
             'status' => InvoiceStatus::class,
+            'source' => InvoiceSource::class,
+            'language' => DocumentLanguage::class,
+            'payment_terms_days' => 'integer',
+            'payment_terms_end_of_month' => 'boolean',
+            'late_penalty_rate_bp' => 'integer',
+            'show_iban' => 'boolean',
+            'show_email' => 'boolean',
             'issued_on' => CalendarDate::class,
             'due_on' => CalendarDate::class,
             'paid_on' => CalendarDate::class,
@@ -157,6 +202,18 @@ class Invoice extends Model
         return $this->hasMany(InvoiceEvent::class)
             ->orderBy('occurred_on')
             ->orderBy('id');
+    }
+
+    /** @return HasMany<InvoiceLine, $this> */
+    public function lines(): HasMany
+    {
+        return $this->hasMany(InvoiceLine::class)->orderBy('position');
+    }
+
+    /** Written in Opusline from its lines, rather than recorded from another tool. */
+    public function isWrittenInOpusline(): bool
+    {
+        return $this->source === InvoiceSource::Opusline;
     }
 
     /**
@@ -212,6 +269,11 @@ class Invoice extends Model
      */
     public function isTtcOverridden(): bool
     {
+        // Opusline computes its own totals from the lines, per rate: nothing to override.
+        if ($this->isWrittenInOpusline()) {
+            return false;
+        }
+
         return ! $this->amount_ttc_cents->equals(
             (new ComputeInvoiceAmounts)->ttcFor($this->amount_ht_cents, $this->vat_rate_bp),
         );

@@ -1304,6 +1304,23 @@ export type InvoiceClientTotalsData = {
 };
 
 /**
+ * InvoiceContentData
+ */
+export type InvoiceContentData = {
+    title: string | null;
+    description: string | null;
+    language: DocumentLanguage;
+    paymentTermsDays: number;
+    paymentTermsEndOfMonth: boolean;
+    latePenaltyRateBp: number | null;
+    showIban: boolean;
+    showEmail: boolean;
+    customMentions: string | null;
+    lines: Array<InvoiceLineData>;
+    vatBreakdown: Array<VatBreakdownRowData>;
+};
+
+/**
  * InvoiceCountsData
  */
 export type InvoiceCountsData = {
@@ -1323,6 +1340,7 @@ export type InvoiceData = {
     missionId: number | null;
     number: string | null;
     status: InvoiceStatus;
+    source: InvoiceSource;
     isLate: boolean;
     issuedOn: string;
     dueOn: string;
@@ -1346,6 +1364,7 @@ export type InvoiceDetailData = {
     mission: MissionData | null;
     history: Array<InvoiceEventData>;
     document: DocumentData | null;
+    content: InvoiceContentData | null;
 };
 
 /**
@@ -1381,6 +1400,20 @@ export type InvoiceForecastData = {
 };
 
 /**
+ * InvoiceLineData
+ */
+export type InvoiceLineData = {
+    id: number;
+    label: string;
+    detail: string | null;
+    quantityMilli: number;
+    unit: LineUnit;
+    unitPrice: SignedMoneyData;
+    vatRateBp: number;
+    totalHt: SignedMoneyData;
+};
+
+/**
  * InvoiceListData
  */
 export type InvoiceListData = {
@@ -1406,6 +1439,14 @@ export type InvoiceOverdueData = {
     count: number;
     maxDaysLate: number;
 };
+
+/**
+ * InvoiceSource
+ *
+ * Who wrote the document: another tool, recorded here; or Opusline, from its lines.
+ *
+ */
+export type InvoiceSource = 0 | 1;
 
 /**
  * InvoiceStatus
@@ -1973,6 +2014,27 @@ export type RevenueVatData = {
 export type SaveEnableBankingCredentialsData = {
     applicationId: string;
     privateKey: string;
+};
+
+/**
+ * SaveInvoiceDraftData
+ */
+export type SaveInvoiceDraftData = {
+    clientId: number;
+    paymentTermsDays: number;
+    paymentTermsEndOfMonth: boolean;
+    showIban: boolean;
+    showEmail: boolean;
+    language: DocumentLanguage;
+    lines: Array<string>;
+    missionId?: number | null;
+    title?: string | null;
+    description?: string | null;
+    issuedOn?: string | null;
+    periodStart?: string | null;
+    periodEnd?: string | null;
+    latePenaltyRateBp?: number | null;
+    customMentions?: string | null;
 };
 
 /**
@@ -2735,6 +2797,15 @@ export type UserData = {
     workdayMinutes: number;
     defaultPaymentTermsDays: number;
     effectiveContributionRateBp: number;
+};
+
+/**
+ * VatBreakdownRowData
+ */
+export type VatBreakdownRowData = {
+    rateBp: number;
+    base: SignedMoneyData;
+    vat: SignedMoneyData;
 };
 
 /**
@@ -6523,6 +6594,74 @@ export type UploadInvoiceDocumentResponses = {
 };
 
 export type UploadInvoiceDocumentResponse = UploadInvoiceDocumentResponses[keyof UploadInvoiceDocumentResponses];
+
+export type CreateInvoiceDraftData = {
+    body: SaveInvoiceDraftData;
+    path?: never;
+    query?: never;
+    url: '/invoicing/invoices';
+};
+
+export type CreateInvoiceDraftErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateInvoiceDraftError = CreateInvoiceDraftErrors[keyof CreateInvoiceDraftErrors];
+
+export type CreateInvoiceDraftResponses = {
+    201: InvoiceDetailData;
+};
+
+export type CreateInvoiceDraftResponse = CreateInvoiceDraftResponses[keyof CreateInvoiceDraftResponses];
+
+export type UpdateInvoiceDraftData = {
+    body: SaveInvoiceDraftData;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoicing/invoices/{invoice}';
+};
+
+export type UpdateInvoiceDraftErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateInvoiceDraftError = UpdateInvoiceDraftErrors[keyof UpdateInvoiceDraftErrors];
+
+export type UpdateInvoiceDraftResponses = {
+    200: InvoiceDetailData;
+};
+
+export type UpdateInvoiceDraftResponse = UpdateInvoiceDraftResponses[keyof UpdateInvoiceDraftResponses];
 
 export type ShowInvoicingSettingsData = {
     body?: never;
