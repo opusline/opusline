@@ -16,6 +16,7 @@ use App\Domain\Documents\Concerns\InteractsWithDocuments;
 use App\Domain\Expenses\Models\Expense;
 use App\Domain\Expenses\Models\RecurringDebitDismissal;
 use App\Domain\Expenses\Models\Subscription;
+use App\Domain\Invoices\Models\CatalogItem;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Passkeys\Models\Passkey;
@@ -169,6 +170,12 @@ class User extends Authenticatable implements HasLocalePreference, HasMedia
         return $this->hasMany(Invoice::class);
     }
 
+    /** @return HasMany<CatalogItem, $this> */
+    public function catalogItems(): HasMany
+    {
+        return $this->hasMany(CatalogItem::class);
+    }
+
     /** @return HasMany<Cra, $this> */
     public function cras(): HasMany
     {
@@ -293,13 +300,14 @@ class User extends Authenticatable implements HasLocalePreference, HasMedia
         'personal_transfers' => ['amount_cents'],
         'expenses' => ['amount_ttc_cents', 'amount_ht_cents'],
         'subscription_amounts' => ['amount_ht_cents'],
+        'catalog_items' => ['unit_price_cents'],
     ];
 
     /**
      * Whether the account currency can still change. It is fixed the moment any
      * amount is stored in it — a priced mission, an invoice, an imported bank
      * statement, a recorded personal transfer, an expense or a priced
-     * subscription — so every stored amount
+     * subscription or a catalogue price — so every stored amount
      * provably shares one currency and aggregations never have to guard
      * against a mix.
      */
@@ -338,6 +346,10 @@ class User extends Authenticatable implements HasLocalePreference, HasMedia
 
         // Every subscription carries its opening price, so the subscription
         // row is the amount's witness.
-        return $this->subscriptions()->exists();
+        if ($this->subscriptions()->exists()) {
+            return true;
+        }
+
+        return $this->catalogItems()->exists();
     }
 }

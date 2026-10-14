@@ -32,6 +32,7 @@ import { Route as GuestLoginRouteImport } from './routes/_guest/login'
 import { Route as GuestRegisterRouteImport } from './routes/_guest/register'
 import { Route as AuthedClientsClientSlugRouteImport } from './routes/_authed/clients_.$clientSlug'
 import { Route as AuthedClientsNewRouteImport } from './routes/_authed/clients_.new'
+import { Route as AuthedInvoicingCatalogRouteImport } from './routes/_authed/invoicing.catalog'
 import { Route as AuthedInvoicingInvoicesRouteImport } from './routes/_authed/invoicing.invoices'
 import { Route as AuthedInvoicingSettingsRouteImport } from './routes/_authed/invoicing.settings'
 import { Route as AuthedMissionsNewRouteImport } from './routes/_authed/missions_.new'
@@ -150,6 +151,11 @@ const AuthedClientsNewRoute = AuthedClientsNewRouteImport.update({
   path: '/clients/new',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedInvoicingCatalogRoute = AuthedInvoicingCatalogRouteImport.update({
+  id: '/invoicing/catalog',
+  path: '/invoicing/catalog',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedInvoicingInvoicesRoute = AuthedInvoicingInvoicesRouteImport.update({
   id: '/invoicing/invoices',
   path: '/invoicing/invoices',
@@ -194,6 +200,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof GuestRegisterRoute
   '/clients/$clientSlug': typeof AuthedClientsClientSlugRoute
   '/clients/new': typeof AuthedClientsNewRoute
+  '/invoicing/catalog': typeof AuthedInvoicingCatalogRoute
   '/invoicing/invoices': typeof AuthedInvoicingInvoicesRoute
   '/invoicing/settings': typeof AuthedInvoicingSettingsRoute
   '/missions/new': typeof AuthedMissionsNewRoute
@@ -221,6 +228,7 @@ export interface FileRoutesByTo {
   '/register': typeof GuestRegisterRoute
   '/clients/$clientSlug': typeof AuthedClientsClientSlugRoute
   '/clients/new': typeof AuthedClientsNewRoute
+  '/invoicing/catalog': typeof AuthedInvoicingCatalogRoute
   '/invoicing/invoices': typeof AuthedInvoicingInvoicesRoute
   '/invoicing/settings': typeof AuthedInvoicingSettingsRoute
   '/missions/new': typeof AuthedMissionsNewRoute
@@ -251,6 +259,7 @@ export interface FileRoutesById {
   '/_guest/register': typeof GuestRegisterRoute
   '/_authed/clients_/$clientSlug': typeof AuthedClientsClientSlugRoute
   '/_authed/clients_/new': typeof AuthedClientsNewRoute
+  '/_authed/invoicing/catalog': typeof AuthedInvoicingCatalogRoute
   '/_authed/invoicing/invoices': typeof AuthedInvoicingInvoicesRoute
   '/_authed/invoicing/settings': typeof AuthedInvoicingSettingsRoute
   '/_authed/missions_/new': typeof AuthedMissionsNewRoute
@@ -280,6 +289,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/clients/$clientSlug'
     | '/clients/new'
+    | '/invoicing/catalog'
     | '/invoicing/invoices'
     | '/invoicing/settings'
     | '/missions/new'
@@ -307,6 +317,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/clients/$clientSlug'
     | '/clients/new'
+    | '/invoicing/catalog'
     | '/invoicing/invoices'
     | '/invoicing/settings'
     | '/missions/new'
@@ -336,6 +347,7 @@ export interface FileRouteTypes {
     | '/_guest/register'
     | '/_authed/clients_/$clientSlug'
     | '/_authed/clients_/new'
+    | '/_authed/invoicing/catalog'
     | '/_authed/invoicing/invoices'
     | '/_authed/invoicing/settings'
     | '/_authed/missions_/new'
@@ -513,6 +525,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedClientsNewRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/invoicing/catalog': {
+      id: '/_authed/invoicing/catalog'
+      path: '/invoicing/catalog'
+      fullPath: '/invoicing/catalog'
+      preLoaderRoute: typeof AuthedInvoicingCatalogRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/invoicing/invoices': {
       id: '/_authed/invoicing/invoices'
       path: '/invoicing/invoices'
@@ -560,6 +579,7 @@ interface AuthedRouteChildren {
   AuthedWeekRoute: typeof AuthedWeekRoute
   AuthedClientsClientSlugRoute: typeof AuthedClientsClientSlugRoute
   AuthedClientsNewRoute: typeof AuthedClientsNewRoute
+  AuthedInvoicingCatalogRoute: typeof AuthedInvoicingCatalogRoute
   AuthedInvoicingInvoicesRoute: typeof AuthedInvoicingInvoicesRoute
   AuthedInvoicingSettingsRoute: typeof AuthedInvoicingSettingsRoute
   AuthedMissionsNewRoute: typeof AuthedMissionsNewRoute
@@ -582,6 +602,7 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedWeekRoute: AuthedWeekRoute,
   AuthedClientsClientSlugRoute: AuthedClientsClientSlugRoute,
   AuthedClientsNewRoute: AuthedClientsNewRoute,
+  AuthedInvoicingCatalogRoute: AuthedInvoicingCatalogRoute,
   AuthedInvoicingInvoicesRoute: AuthedInvoicingInvoicesRoute,
   AuthedInvoicingSettingsRoute: AuthedInvoicingSettingsRoute,
   AuthedMissionsNewRoute: AuthedMissionsNewRoute,
