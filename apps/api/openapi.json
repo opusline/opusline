@@ -4054,6 +4054,50 @@
                 }
             }
         },
+        "/invoicing/unbilled-time": {
+            "get": {
+                "operationId": "showUnbilledTime",
+                "summary": "What « Importer le temps saisi » would add for a mission",
+                "tags": [
+                    "InvoiceDraft"
+                ],
+                "parameters": [
+                    {
+                        "name": "missionId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "invoiceId",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnbilledTimeData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/invoicing/invoices/{invoice}/issue": {
             "post": {
                 "operationId": "issueInvoice",
@@ -11270,6 +11314,12 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "timeEntryIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
                     }
                 },
                 "required": [
@@ -11285,7 +11335,8 @@
                     "lines",
                     "vatBreakdown",
                     "seller",
-                    "buyer"
+                    "buyer",
+                    "timeEntryIds"
                 ],
                 "title": "InvoiceContentData"
             },
@@ -13584,6 +13635,13 @@
                                     "type": "string",
                                     "maxLength": 255
                                 },
+                                "detail": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ],
+                                    "maxLength": 1000
+                                },
                                 "quantityMilli": {
                                     "type": "integer",
                                     "minimum": 1,
@@ -13613,13 +13671,6 @@
                                     "type": "integer",
                                     "minimum": 0,
                                     "maximum": 10000
-                                },
-                                "detail": {
-                                    "type": [
-                                        "string",
-                                        "null"
-                                    ],
-                                    "maxLength": 1000
                                 }
                             },
                             "required": [
@@ -13687,6 +13738,13 @@
                             "null"
                         ],
                         "maxLength": 2000
+                    },
+                    "timeEntryIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "maxItems": 5000
                     }
                 },
                 "required": [
@@ -15066,6 +15124,64 @@
                     "trustedDevices"
                 ],
                 "title": "TwoFactorStatusData"
+            },
+            "UnbilledTimeData": {
+                "type": "object",
+                "properties": {
+                    "missionId": {
+                        "type": "integer"
+                    },
+                    "missionName": {
+                        "type": "string"
+                    },
+                    "timeEntryIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "firstEntryOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "lastEntryOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "quantityMilli": {
+                        "type": "integer"
+                    },
+                    "unit": {
+                        "$ref": "#/components/schemas/LineUnit"
+                    },
+                    "unitPrice": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "missionId",
+                    "missionName",
+                    "timeEntryIds",
+                    "firstEntryOn",
+                    "lastEntryOn",
+                    "quantityMilli",
+                    "unit",
+                    "unitPrice"
+                ],
+                "title": "UnbilledTimeData"
             },
             "UpcomingDebitData": {
                 "type": "object",

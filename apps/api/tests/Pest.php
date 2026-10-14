@@ -896,7 +896,13 @@ function billableClient(User $user, array $attributes = []): Client
 
 function draftFor(User $user, Client $client, array $overrides = []): int
 {
-    return test()->actingAs($user)->postJson('/api/invoicing/invoices', array_merge([
+    return test()->actingAs($user)->postJson('/api/invoicing/invoices', draftPayloadFor($client, $overrides))->assertCreated()->json('invoice.id');
+}
+
+/** What the editor sends for a one-line draft. */
+function draftPayloadFor(Client $client, array $overrides = []): array
+{
+    return array_merge([
         'clientId' => $client->id,
         'issuedOn' => '2026-08-01',
         'paymentTermsDays' => 30,
@@ -911,5 +917,5 @@ function draftFor(User $user, Client $client, array $overrides = []): int
             'unitPrice' => ['amount' => 55_000, 'currency' => 'EUR'],
             'vatRateBp' => 2000,
         ]],
-    ], $overrides))->assertCreated()->json('invoice.id');
+    ], $overrides);
 }

@@ -9,6 +9,7 @@ use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Models\InvoiceLine;
 use App\Domain\Shared\Data\SignedMoneyData;
+use App\Domain\TimeEntries\Models\TimeEntry;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 
@@ -18,6 +19,7 @@ class InvoiceContentData extends Data
     /**
      * @param  list<InvoiceLineData>  $lines
      * @param  list<VatBreakdownRowData>  $vatBreakdown
+     * @param  list<int>  $timeEntryIds  Tracked time the invoice covers.
      */
     public function __construct(
         public ?string $title,
@@ -36,6 +38,7 @@ class InvoiceContentData extends Data
         /** As printed on the issued document; null on a draft, which prints the live identity. */
         public ?DocumentPartyData $seller,
         public ?DocumentPartyData $buyer,
+        public array $timeEntryIds,
     ) {}
 
     public static function fromInvoice(Invoice $invoice): self
@@ -68,6 +71,7 @@ class InvoiceContentData extends Data
             ), $totals->vatBreakdown),
             seller: $invoice->seller_snapshot === null ? null : DocumentPartyData::from($invoice->seller_snapshot),
             buyer: $invoice->buyer_snapshot === null ? null : DocumentPartyData::from($invoice->buyer_snapshot),
+            timeEntryIds: array_values($invoice->timeEntries()->get(['id'])->map(static fn (TimeEntry $entry): int => $entry->id)->all()),
         );
     }
 }
