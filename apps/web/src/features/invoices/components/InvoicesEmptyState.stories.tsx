@@ -20,3 +20,8 @@ export const NoInvoices: Story = {
 export const FilteredOut: Story = {
   args: { hasInvoices: true },
 };
+
+/** Writing invoices in Opusline: the invitation is to create the first one. */
+export const NoInvoicesWrittenHere: Story = {
+  args: { hasInvoices: false, writesInOpusline: true },
+};

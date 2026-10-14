@@ -9,10 +9,10 @@ import {
   remindInvoiceMutation,
   showBankAccountOptions,
   showInvoiceSummaryOptions,
+  showInvoicingSettingsOptions,
   showNextInvoiceNumberOptions,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
-import { Button } from "@opusline/ui/components/button";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import {
   useInfiniteQuery,
@@ -21,7 +21,6 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { PlusIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { LoadMoreButton } from "@/components/load-more-button";
 import { useMoneyFormat } from "@/components/money-format-provider";
@@ -34,6 +33,7 @@ import {
   CreateInvoiceDialog,
   type CreateInvoiceSubmit,
 } from "@/features/invoices/components/create-invoice-dialog";
+import { CreateInvoiceMenu } from "@/features/invoices/components/create-invoice-menu";
 import { useOpenInvoice } from "@/features/invoices/components/invoice-drawer-provider";
 import { InvoiceForecastCard } from "@/features/invoices/components/invoice-forecast-card";
 import { InvoiceMonthCard } from "@/features/invoices/components/invoice-month-card";
@@ -88,6 +88,10 @@ function FacturesPage() {
   });
 
   const openInvoice = useOpenInvoice();
+  const invoicingSettings = useQuery(showInvoicingSettingsOptions());
+  // Until the settings answer, the ledger reads as it always did: recorded.
+  const invoicingMode = invoicingSettings.data?.mode ?? 1;
+  const writesInOpusline = invoicingMode === 0;
   const [creatingFor, setCreatingFor] = useState<InvoiceTodoData | null>(null);
   // Null while closed; the mission id is the one « Facturer le reste » preselects.
   const [adding, setAdding] = useState<{ missionId: number | null } | null>(
@@ -233,20 +237,19 @@ function FacturesPage() {
             {m.nav_invoices()}
           </h1>
           <p className="mt-1 max-w-[60ch] text-muted-foreground-3 text-sm text-pretty">
-            {m.invoices_page_intro()}
+            {writesInOpusline
+              ? m.invoices_page_intro_opusline()
+              : m.invoices_page_intro()}
           </p>
         </div>
-        <Button
-          data-testid="invoice-add-open"
-          onClick={() => {
+        <CreateInvoiceMenu
+          mode={invoicingMode}
+          onAddElsewhere={() => {
             setCreateError(null);
             setAdding({ missionId: null });
           }}
-          size="xl"
-        >
-          <PlusIcon aria-hidden />
-          {m.invoices_add_title()}
-        </Button>
+          onCreate={() => void navigate({ to: "/invoicing/invoices/new" })}
+        />
       </div>
 
       {summary.isPending && <Skeleton className="h-24 w-full" />}
@@ -322,6 +325,7 @@ function FacturesPage() {
                 clientTotals={invoices.data.pages[0]?.clientTotals ?? []}
                 invoices={invoices.data.pages.flatMap((page) => page.invoices)}
                 onOpen={openInvoice}
+                writesInOpusline={writesInOpusline}
               />
               {invoices.hasNextPage && (
                 <LoadMoreButton

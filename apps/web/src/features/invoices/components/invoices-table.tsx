@@ -48,6 +48,8 @@ type InvoicesTableProps = {
   clientRevenue: ClientRevenueData[];
   /** Today in the account's timezone — the date isLate was derived from. */
   accountToday: string;
+  /** The account writes its invoices here: the others are marked as issued elsewhere. */
+  writesInOpusline?: boolean;
   onOpen?: (invoiceId: number, source: InvoiceSource) => void;
 };
 
@@ -56,6 +58,7 @@ export function InvoicesTable({
   clientTotals,
   clientRevenue,
   accountToday,
+  writesInOpusline = false,
   onOpen,
 }: InvoicesTableProps) {
   const format = useMoneyFormat();
@@ -106,7 +109,10 @@ export function InvoicesTable({
       </ChipGroup>
 
       {groups.length === 0 ? (
-        <InvoicesEmptyState hasInvoices={invoices.length > 0} />
+        <InvoicesEmptyState
+          hasInvoices={invoices.length > 0}
+          writesInOpusline={writesInOpusline}
+        />
       ) : (
         <Table
           className="table-fixed"
@@ -213,6 +219,12 @@ export function InvoicesTable({
                           invoice,
                           accountToday,
                         )}
+                        {writesInOpusline && invoice.source === 0 ? (
+                          <span data-testid="invoice-issued-elsewhere">
+                            {" · "}
+                            {m.invoices_issued_elsewhere()}
+                          </span>
+                        ) : null}
                       </span>
                       <Badge
                         className="mt-1.5 sm:hidden"

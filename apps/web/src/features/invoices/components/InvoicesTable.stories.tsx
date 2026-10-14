@@ -71,3 +71,8 @@ export const Empty: Story = {
     invoices: [],
   },
 };
+
+/** Writing in Opusline: what was recorded from another tool says so. */
+export const WritesInOpusline: Story = {
+  args: { ...Default.args, writesInOpusline: true },
+};
