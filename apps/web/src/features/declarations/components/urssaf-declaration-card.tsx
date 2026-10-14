@@ -84,7 +84,7 @@ export function UrssafDeclarationCard({
             data-amount-cents={urssaf.base.amount}
             data-invoice-count={urssaf.invoiceCount}
             data-testid="declaration-collected"
-            to="/invoices"
+            to="/invoicing/invoices"
           >
             <span className="whitespace-nowrap border-primary/50 border-b border-dashed font-mono text-4xl text-primary-text leading-none tabular-nums">
               {formatWholeFigure(format, urssaf.base.amount)}

@@ -34,7 +34,7 @@ it("names an invoice line by its number and client, linking to the invoice", asy
     name: /F-2026-028 · Lunaprint/,
   });
 
-  expect(link).toHaveAttribute("href", "/invoices?invoice=28");
+  expect(link).toHaveAttribute("href", "/invoicing/invoices?invoice=28");
 });
 
 it("puts the relance under the invoice it chases, with its history", async () => {

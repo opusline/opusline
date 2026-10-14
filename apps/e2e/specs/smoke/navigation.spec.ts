@@ -8,7 +8,7 @@ const screens = [
   { route: "/clients", landmark: PAGE_HEADING },
   // The CRA screen titles itself after the open report, and a new account has none.
   { route: "/cra", landmark: "cra-empty" },
-  { route: "/invoices", landmark: PAGE_HEADING },
+  { route: "/invoicing/invoices", landmark: PAGE_HEADING },
   { route: "/revenue", landmark: PAGE_HEADING },
   { route: "/expenses", landmark: PAGE_HEADING },
   { route: "/treasury", landmark: PAGE_HEADING },

@@ -47,7 +47,7 @@ test("an imported payment is matched to its invoice, and validating it marks the
     .click();
   await expect(reconciliation).toHaveAttribute("data-state", "reconciled");
 
-  await page.goto("/invoices");
+  await page.goto("/invoicing/invoices");
   await expect(
     byTestId(page, "invoice-row", { reference: REFERENCE }),
   ).toHaveAttribute("data-status", "paid");

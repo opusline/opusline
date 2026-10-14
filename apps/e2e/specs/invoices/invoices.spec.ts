@@ -25,7 +25,7 @@ const invoiceFilter = (page: Page, filter: string) =>
   byTestId(page, "invoice-filter", { filter });
 
 async function invoiceUnbilledTime(page: Page, reference: string) {
-  await page.goto("/invoices");
+  await page.goto("/invoicing/invoices");
   await unbilledWork(page).getByTestId("invoice-todo-create").click();
 
   const dialog = page.getByTestId("invoice-create-dialog");
@@ -69,7 +69,7 @@ test.beforeEach(async ({ api, account: _registered }) => {
 test("tracked days wait to be invoiced at the mission's rate", async ({
   page,
 }) => {
-  await page.goto("/invoices");
+  await page.goto("/invoicing/invoices");
 
   await expect(unbilledWork(page)).toContainText(mission.name);
   await expect(unbilledWork(page)).toHaveAttribute(
@@ -139,7 +139,7 @@ test("an invoice without a reference is a draft, and deleting it frees the days"
 });
 
 test("an invoice issued elsewhere is added by hand", async ({ page }) => {
-  await page.goto("/invoices");
+  await page.goto("/invoicing/invoices");
   await page.getByTestId("invoice-add-open").click();
 
   const dialog = page.getByTestId("invoice-add-dialog");

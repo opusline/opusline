@@ -62,7 +62,7 @@ it("links the sales and the purchases to where they come from", async () => {
 
   expect(await screen.findByRole("link", { name: /10\s450/ })).toHaveAttribute(
     "href",
-    "/invoices",
+    "/invoicing/invoices",
   );
   expect(screen.getByRole("link", { name: /9 dépenses →/ })).toHaveAttribute(
     "href",

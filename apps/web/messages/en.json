@@ -1592,6 +1592,7 @@
     }
   ],
   "invoicing_document_language": "Default document language",
+  "invoicing_exit": "Back to Opusline",
   "invoicing_identity_address": "Address",
   "invoicing_identity_edit": "Edit in Settings",
   "invoicing_identity_name": "Business name",
@@ -1621,6 +1622,34 @@
   "invoicing_mode_opusline": "In Opusline",
   "invoicing_mode_opusline_detail": "Opusline numbers them, generates the PDF and sends it to the client. Reminders go out on their own.",
   "invoicing_mode_title": "Where do you write your invoices and quotes?",
+  "invoicing_nav_settings": "Settings",
+  "invoicing_new": "New",
+  "invoicing_new_external_invoice": "Invoice issued elsewhere",
+  "invoicing_new_external_invoice_detail": "Amount and PDF from another tool",
+  "invoicing_open_invoices": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} open invoice",
+        "countPlural=other": "{count} open invoices"
+      }
+    }
+  ],
+  "invoicing_open_invoices_late": [
+    {
+      "declarations": [
+        "input count",
+        "input late",
+        "local countPlural = count: plural"
+      ],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} open invoice · {late} late",
+        "countPlural=other": "{count} open invoices · {late} late"
+      }
+    }
+  ],
   "invoicing_penalty_below_floor": "Below the legal minimum: the rate cannot be lower than three times the legal interest rate, {rate} % this semester.",
   "invoicing_penalty_floor": "Legal minimum · {rate} %",
   "invoicing_penalty_hint": "A rate of your choice, at least three times the legal interest rate. With no rate written, the ECB rate plus 10 points applies.",
@@ -1629,6 +1658,7 @@
   "invoicing_penalty_placeholder": "ECB rate + 10 points",
   "invoicing_penalty_statutory": "ECB + 10 points · {rate} %",
   "invoicing_quote_validity": "Quote validity",
+  "invoicing_section_title": "Invoicing",
   "invoicing_settings_load_failed": "The invoicing settings could not be loaded.",
   "invoicing_settings_saved": "Invoicing settings saved",
   "invoicing_settings_subtitle": "Applied by default to every new invoice and every new quote. A document already issued does not change.",
@@ -1646,6 +1676,7 @@
   "invoicing_terms_default": "Default payment term",
   "invoicing_terms_note": "« End of month »: the due date runs from the last day of the month of issue. A client's own term, set on its record, wins over this one.",
   "invoicing_terms_title": "Payment terms",
+  "invoicing_to_collect": "To collect",
   "invoicing_vat_on_debits": "I opted to pay VAT on debits",
   "logo_reject_size": "too heavy (max 2 MB)",
   "logo_reject_type": "PNG or SVG only",
