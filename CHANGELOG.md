@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.3](https://github.com/opusline/opusline/compare/v0.33.2...v0.33.3) (2026-10-15)
+
+
+### Dependencies
+
+* **deps:** bump the composer-minor group in /apps/api with 10 updates ([#543](https://github.com/opusline/opusline/issues/543)) ([4de69ee](https://github.com/opusline/opusline/commit/4de69ee215b8e5dff21524cd2fe52ea48614ab3a))
+
 ## [0.33.2](https://github.com/opusline/opusline/compare/v0.33.1...v0.33.2) (2026-10-15)
 
 
