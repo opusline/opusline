@@ -43,7 +43,6 @@ describe("reportError", () => {
         dsn: config.dsn,
         environment: "staging",
         tracesSampleRate: 0.2,
-        sendDefaultPii: false,
       }),
     );
     expect(sentry.tanstackRouterBrowserTracingIntegration).toHaveBeenCalledWith(
