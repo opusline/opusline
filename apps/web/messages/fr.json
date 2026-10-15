@@ -1624,6 +1624,7 @@
   "invoicing_penalty_below_floor": "En dessous du minimum légal : le taux ne peut être inférieur à trois fois le taux d'intérêt légal, soit {rate} % ce semestre.",
   "invoicing_penalty_floor": "Minimum légal · {rate} %",
   "invoicing_penalty_hint": "Taux libre, au moins égal à trois fois le taux d'intérêt légal. Sans taux écrit, c'est le taux BCE + 10 points qui s'applique.",
+  "invoicing_penalty_invalid": "Saisissez un taux entre 0 et 100, ou laissez vide pour appliquer le taux BCE + 10 points.",
   "invoicing_penalty_label": "Pénalités de retard (% annuel)",
   "invoicing_penalty_placeholder": "Taux BCE + 10 points",
   "invoicing_penalty_statutory": "BCE + 10 points · {rate} %",

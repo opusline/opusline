@@ -1,6 +1,7 @@
 import { expect, it } from "vitest";
 import {
   hasUnsavedChanges,
+  isPenaltyRateInvalid,
   legalReferenceTitle,
   parsePaymentTermKey,
   paymentTermKey,
@@ -54,6 +55,20 @@ it("sends an empty penalty rate as null, the statutory rate", () => {
       invoicingSettingsFixture,
     ).latePenaltyRateBp,
   ).toBe(1240);
+});
+
+it("flags a typed penalty rate that does not read as a rate", () => {
+  expect(isPenaltyRateInvalid(LOCALE, "")).toBe(false);
+  expect(isPenaltyRateInvalid(LOCALE, "12,4")).toBe(false);
+  expect(isPenaltyRateInvalid(LOCALE, "abc")).toBe(true);
+  expect(isPenaltyRateInvalid(LOCALE, "150")).toBe(true);
+  expect(
+    hasUnsavedChanges(
+      LOCALE,
+      { ...invoicingSettingsFixture, latePenaltyRateBp: 1240 },
+      { ...draft, latePenaltyRate: "abc" },
+    ),
+  ).toBe(true);
 });
 
 it("splits the term key into days and end of month", () => {

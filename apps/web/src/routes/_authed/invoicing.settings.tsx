@@ -72,7 +72,7 @@ function InvoicingSettingsRoute() {
       identity={identity.data}
       isSaving={save.isPending}
       logo={logo}
-      onSave={(body) => save.mutate({ body })}
+      onSave={(body, onSaved) => save.mutate({ body }, { onSuccess: onSaved })}
       settings={settings.data}
     />
   );

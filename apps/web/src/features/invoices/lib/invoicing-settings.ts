@@ -126,6 +126,12 @@ export function penaltyRateBp(locale: Locale, draft: string): number | null {
   return draft.trim() === "" ? null : parseRateBp(locale, draft);
 }
 
+/** Blank is valid (the statutory rate applies); anything else must read as a rate. */
+export function isPenaltyRateInvalid(locale: Locale, draft: string): boolean {
+  return draft.trim() !== "" && parseRateBp(locale, draft) === null;
+}
+
+/** Check `isPenaltyRateInvalid` first: an unreadable rate would be sent as no rate. */
 export function toInvoicingPayload(
   locale: Locale,
   draft: InvoicingSettingsDraft,
@@ -139,13 +145,7 @@ export function toInvoicingPayload(
     defaultPaymentTermsDays: term.days,
     defaultPaymentTermsEndOfMonth: term.endOfMonth,
     quoteValidityDays: draft.quoteValidityDays,
-    // An unreadable rate keeps the saved one rather than silently dropping
-    // the clause from every future invoice.
-    latePenaltyRateBp:
-      draft.latePenaltyRate.trim() === ""
-        ? null
-        : (parseRateBp(locale, draft.latePenaltyRate) ??
-          settings.latePenaltyRateBp),
+    latePenaltyRateBp: penaltyRateBp(locale, draft.latePenaltyRate),
     operationCategory: draft.operationCategory,
     showIbanOnInvoices: draft.showIbanOnInvoices,
     showEmailOnDocuments: draft.showEmailOnDocuments,
@@ -160,6 +160,10 @@ export function hasUnsavedChanges(
   saved: InvoicingSettingsData,
   draft: InvoicingSettingsDraft,
 ): boolean {
+  if (isPenaltyRateInvalid(locale, draft.latePenaltyRate)) {
+    return true;
+  }
+
   return (
     JSON.stringify(toInvoicingPayload(locale, draft, saved)) !==
     JSON.stringify(

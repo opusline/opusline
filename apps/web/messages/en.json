@@ -1624,6 +1624,7 @@
   "invoicing_penalty_below_floor": "Below the legal minimum: the rate cannot be lower than three times the legal interest rate, {rate} % this semester.",
   "invoicing_penalty_floor": "Legal minimum · {rate} %",
   "invoicing_penalty_hint": "A rate of your choice, at least three times the legal interest rate. With no rate written, the ECB rate plus 10 points applies.",
+  "invoicing_penalty_invalid": "Enter a rate between 0 and 100, or leave it empty for the ECB rate plus 10 points.",
   "invoicing_penalty_label": "Late-payment penalties (% per year)",
   "invoicing_penalty_placeholder": "ECB rate + 10 points",
   "invoicing_penalty_statutory": "ECB + 10 points · {rate} %",

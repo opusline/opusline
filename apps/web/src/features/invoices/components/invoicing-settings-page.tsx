@@ -27,7 +27,7 @@ import { linkVariants } from "@opusline/ui/components/text-link";
 import { Textarea } from "@opusline/ui/components/textarea";
 import { Link } from "@tanstack/react-router";
 import { CircleAlert } from "lucide-react";
-import { type ReactNode, useEffect, useId, useState } from "react";
+import { type ReactNode, useId, useState } from "react";
 
 import { LogoPicker } from "@/components/logo-picker";
 import {
@@ -45,6 +45,7 @@ import {
   formatRate,
   hasUnsavedChanges,
   type InvoicingSettingsDraft,
+  isPenaltyRateInvalid,
   legalReferenceTitle,
   OPERATION_CATEGORY_LABELS,
   parsePaymentTermKey,
@@ -67,7 +68,11 @@ type InvoicingSettingsPageProps = {
   logo: CompanyLogoSlot;
   isSaving: boolean;
   error: string | null;
-  onSave: (body: UpdateInvoicingSettingsData) => void;
+  /** `onSaved` receives the stored settings, which the draft re-seeds from. */
+  onSave: (
+    body: UpdateInvoicingSettingsData,
+    onSaved: (saved: InvoicingSettingsData) => void,
+  ) => void;
 };
 
 export function InvoicingSettingsPage({
@@ -80,15 +85,22 @@ export function InvoicingSettingsPage({
 }: InvoicingSettingsPageProps) {
   const { locale } = useMoneyFormat();
   const [draft, setDraft] = useState(() => toInvoicingDraft(locale, settings));
+  const [seed, setSeed] = useState({ locale, settings });
 
-  // A save answers with the stored settings: the draft re-seeds from them.
-  useEffect(() => {
-    setDraft(toInvoicingDraft(locale, settings));
-  }, [locale, settings]);
+  // A refetch (another tab saved, the locale changed) only replaces a draft
+  // holding no edit of its own.
+  if (seed.locale !== locale || seed.settings !== settings) {
+    setSeed({ locale, settings });
+
+    if (!hasUnsavedChanges(seed.locale, seed.settings, draft)) {
+      setDraft(toInvoicingDraft(locale, settings));
+    }
+  }
 
   const update = (patch: Partial<InvoicingSettingsDraft>) =>
     setDraft((current) => ({ ...current, ...patch }));
   const isDirty = hasUnsavedChanges(locale, settings, draft);
+  const isRateInvalid = isPenaltyRateInvalid(locale, draft.latePenaltyRate);
 
   return (
     <div className="max-w-180 pb-24">
@@ -132,9 +144,11 @@ export function InvoicingSettingsPage({
           >
             <Button
               data-testid="invoicing-settings-save"
-              disabled={isSaving}
+              disabled={isSaving || isRateInvalid}
               onClick={() =>
-                onSave(toInvoicingPayload(locale, draft, settings))
+                onSave(toInvoicingPayload(locale, draft, settings), (saved) =>
+                  setDraft(toInvoicingDraft(locale, saved)),
+                )
               }
               size="xl"
             >
@@ -316,7 +330,9 @@ function TermsSection({
   const penaltyId = useId();
   const { minimumPenaltyRateBp, statutoryPenaltyRateBp } =
     settings.legalReference;
+  const hintId = useId();
   const typedRateBp = penaltyRateBp(locale, draft.latePenaltyRate);
+  const isInvalid = isPenaltyRateInvalid(locale, draft.latePenaltyRate);
   const isBelowFloor =
     typedRateBp !== null && typedRateBp < minimumPenaltyRateBp;
 
@@ -373,6 +389,8 @@ function TermsSection({
           </FieldLabel>
           <div className="flex flex-wrap items-center gap-2.5">
             <Input
+              aria-describedby={hintId}
+              aria-invalid={isInvalid}
               className="w-40"
               data-testid="invoicing-penalty-rate"
               id={penaltyId}
@@ -413,18 +431,22 @@ function TermsSection({
         </Field>
         <p
           className={
-            isBelowFloor
+            isInvalid || isBelowFloor
               ? "mt-2 text-destructive-strong text-xs leading-relaxed"
               : "mt-2 text-muted-foreground-3 text-xs leading-relaxed"
           }
           data-testid="invoicing-penalty-hint"
           data-below-floor={isBelowFloor}
+          data-invalid={isInvalid}
+          id={hintId}
         >
-          {isBelowFloor
-            ? m.invoicing_penalty_below_floor({
-                rate: formatRate(locale, minimumPenaltyRateBp),
-              })
-            : m.invoicing_penalty_hint()}
+          {isInvalid
+            ? m.invoicing_penalty_invalid()
+            : isBelowFloor
+              ? m.invoicing_penalty_below_floor({
+                  rate: formatRate(locale, minimumPenaltyRateBp),
+                })
+              : m.invoicing_penalty_hint()}
         </p>
       </div>
     </Section>
