@@ -13,6 +13,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.33.2",
+    date: "2026-10-15",
+    items: [
+      {
+        kind: "improved",
+        text: "Screen readers and voice control now hear the same words you see on calendar days, week and CRA cells, totals, deadlines, documents and revenue bars.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.33.1",
     date: "2026-10-15",
     items: [
