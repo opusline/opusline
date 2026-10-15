@@ -48,7 +48,7 @@ class ResolveLiberatingPaymentOutlook
             ? LiberatingPaymentThreshold::centsFor(LiberatingPaymentThreshold::optionYearFor($incomeYear), $settings->tax_household_quarter_parts)
             : null;
         $ceilingCents = $reason === LiberatingPaymentEndReason::RevenueCeiling
-            ? MicroBnc::ceilingCentsFor($endsOn->year - 1)
+            ? MicroBnc::ceilingCentsFor($byCeiling->year - 1)
             : null;
 
         return new LiberatingPaymentOutlookData(

@@ -160,7 +160,7 @@ class ListExpenses
         foreach ($expenses as $expense) {
             // A subscription's debit files under « Abonnements » whatever it buys — the bar answers "what do my subscriptions cost".
             $category = $expense->subscription_id === null ? $expense->category : null;
-            $key = $category === null ? 'subscriptions' : $category->name;
+            $key = $category->name ?? 'subscriptions';
             $totals[$key] ??= ['category' => $category, 'ht' => 0, 'ttc' => 0];
             $totals[$key]['ht'] += (int) $expense->amount_ht_cents->getAmount();
             $totals[$key]['ttc'] += (int) $expense->amount_ttc_cents->getAmount();
