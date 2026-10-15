@@ -1005,7 +1005,6 @@
     }
   ],
   "documents_source_client_badge": "client",
-  "documents_toggle_group": "Afficher ou masquer les documents de {name}",
   "documents_type_aria": "Type de {name}",
   "documents_uploading_status": "{size} · envoi en cours…",
   "documents_uploading_title": "Envois en cours",

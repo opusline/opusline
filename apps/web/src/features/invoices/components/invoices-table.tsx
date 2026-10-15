@@ -94,13 +94,12 @@ export function InvoicesTable({
             key={invoiceScope}
             value={invoiceScope}
             shape="pill"
-            aria-label={`${invoiceScopeLabel(invoiceScope)} (${counts[invoiceScope]})`}
             data-count={counts[invoiceScope]}
             data-filter={invoiceScope}
             data-testid="invoice-filter"
           >
-            {invoiceScopeLabel(invoiceScope)}
-            <ChipCount aria-hidden>{counts[invoiceScope]}</ChipCount>
+            {invoiceScopeLabel(invoiceScope)}{" "}
+            <ChipCount>{counts[invoiceScope]}</ChipCount>
           </Chip>
         ))}
       </ChipGroup>

@@ -62,24 +62,14 @@ export function DocumentFilterBar({
         }}
         value={[filter === "all" ? "all" : String(filter)]}
       >
-        <Chip
-          aria-label={`${m.common_all()} (${total})`}
-          shape="pill"
-          value="all"
-        >
-          {m.common_all()}
-          <ChipCount aria-hidden>{total}</ChipCount>
+        <Chip shape="pill" value="all">
+          {m.common_all()} <ChipCount>{total}</ChipCount>
         </Chip>
         {DOCUMENT_CATEGORIES.filter((category) => counts[category] > 0).map(
           (category) => (
-            <Chip
-              aria-label={`${documentCategoryLabel(category)} (${counts[category]})`}
-              key={category}
-              shape="pill"
-              value={String(category)}
-            >
-              {documentCategoryLabel(category)}
-              <ChipCount aria-hidden>{counts[category]}</ChipCount>
+            <Chip key={category} shape="pill" value={String(category)}>
+              {documentCategoryLabel(category)}{" "}
+              <ChipCount>{counts[category]}</ChipCount>
             </Chip>
           ),
         )}

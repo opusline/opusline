@@ -103,15 +103,12 @@ export function ClientsTable({ clients, revenue }: ClientsTableProps) {
             key={clientScope}
             value={clientScope}
             shape="pill"
-            aria-label={`${CLIENT_SCOPE_MESSAGES[clientScope]()} (${scopedClients[clientScope].length})`}
             data-count={scopedClients[clientScope].length}
             data-scope={clientScope}
             data-testid="clients-scope"
           >
-            {CLIENT_SCOPE_MESSAGES[clientScope]()}
-            <ChipCount aria-hidden>
-              {scopedClients[clientScope].length}
-            </ChipCount>
+            {CLIENT_SCOPE_MESSAGES[clientScope]()}{" "}
+            <ChipCount>{scopedClients[clientScope].length}</ChipCount>
           </Chip>
         ))}
       </ChipGroup>

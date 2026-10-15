@@ -68,10 +68,10 @@ it("counts an overdue invoice under both Envoyées and En retard", () => {
 
   // Lateness is derived from the due date, not a fourth status.
   expect(
-    screen.getByRole("button", { name: "À encaisser (2)" }),
+    screen.getByRole("button", { name: "À encaisser 2" }),
   ).toBeInTheDocument();
   expect(
-    screen.getByRole("button", { name: "En retard (1)" }),
+    screen.getByRole("button", { name: "En retard 1" }),
   ).toBeInTheDocument();
 });
 
@@ -85,7 +85,7 @@ it("narrows the rows to the chosen filter", () => {
     />,
   );
 
-  fireEvent.click(screen.getByRole("button", { name: "Brouillons (1)" }));
+  fireEvent.click(screen.getByRole("button", { name: "Brouillons 1" }));
 
   expect(screen.queryByText("2026-014")).not.toBeInTheDocument();
   expect(screen.getByText("—")).toBeInTheDocument();
@@ -101,7 +101,7 @@ it("explains an empty filter differently from an empty account", () => {
     />,
   );
 
-  fireEvent.click(screen.getByRole("button", { name: "Payées (1)" }));
+  fireEvent.click(screen.getByRole("button", { name: "Payées 1" }));
   const paid = screen.getByText("Orvella");
   expect(
     within(paid.closest("tbody") as HTMLElement).getByText("2026-009"),

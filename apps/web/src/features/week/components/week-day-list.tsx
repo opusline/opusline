@@ -105,7 +105,6 @@ export function WeekDayList({
           column.kind === "day"
             ? [
                 <button
-                  aria-label={weekdayDateLabel(model.locale, column.date)}
                   aria-pressed={column.date === day.date}
                   className={cn(
                     "relative flex h-13 flex-col items-center justify-center gap-0.5 rounded-sm border font-mono outline-none focus-visible:outline-2 focus-visible:outline-primary-text",
@@ -122,10 +121,13 @@ export function WeekDayList({
                   onClick={() => setChosen(column.date)}
                   type="button"
                 >
-                  <span className="text-2xs uppercase">
+                  <span className="sr-only">
+                    {weekdayDateLabel(model.locale, column.date)}
+                  </span>
+                  <span aria-hidden className="text-2xs uppercase">
                     {column.weekdayLabel.charAt(0)}
                   </span>
-                  <span className="text-sm tabular-nums">
+                  <span aria-hidden className="text-sm tabular-nums">
                     {Number(column.date.slice(-2))}
                   </span>
                   {model.rows.some(
@@ -169,7 +171,6 @@ export function WeekDayList({
                 open={openKey === cell.key}
               >
                 <PopoverTrigger
-                  aria-label={cell.ariaLabel}
                   className={cn(
                     "relative flex min-h-14 w-full flex-col gap-1 rounded-sm border px-3 py-2.5 text-left outline-none focus-visible:outline-2 focus-visible:outline-primary-text",
                     PILL_SKINS[skinOf(row, cell)].pill,
@@ -180,6 +181,7 @@ export function WeekDayList({
                   )}
                   data-testid="week-day-entry-card"
                 >
+                  <span className="sr-only">{cell.ariaLabel}</span>
                   {cell.hasUninvoicedTime && (
                     <span
                       aria-hidden
@@ -190,7 +192,10 @@ export function WeekDayList({
                       title={m.week_uninvoiced_marker()}
                     />
                   )}
-                  <span className="flex items-baseline justify-between gap-3">
+                  <span
+                    aria-hidden
+                    className="flex items-baseline justify-between gap-3"
+                  >
                     <span className="flex min-w-0 items-center gap-2">
                       <span
                         aria-hidden
@@ -208,6 +213,7 @@ export function WeekDayList({
                     </span>
                   </span>
                   <span
+                    aria-hidden
                     className={cn(
                       "flex min-w-0 items-center gap-2 text-xs",
                       PILL_SKINS[skinOf(row, cell)].note,
