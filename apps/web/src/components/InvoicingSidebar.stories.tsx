@@ -9,7 +9,15 @@ import { eur, invoiceSummary } from "@/test/fixtures";
 import { StoryRouter } from "@/test/story-router";
 import { InvoicingSidebar } from "./invoicing-sidebar";
 
-function Example({ open, late }: { open?: number; late?: number }) {
+function Example({
+  open,
+  late,
+  collapsed = false,
+}: {
+  open?: number;
+  late?: number;
+  collapsed?: boolean;
+}) {
   const [queryClient] = useState(() => {
     const client = new QueryClient({
       defaultOptions: { queries: { retry: false, staleTime: Infinity } },
@@ -33,7 +41,7 @@ function Example({ open, late }: { open?: number; late?: number }) {
   return (
     <QueryClientProvider client={queryClient}>
       <StoryRouter>
-        <SidebarProvider>
+        <SidebarProvider defaultOpen={!collapsed}>
           <InvoicingSidebar />
         </SidebarProvider>
       </StoryRouter>
@@ -62,4 +70,9 @@ export const NothingToCollect: Story = {
 /** Until the summary arrives, the tile shows a dash rather than a zero. */
 export const Loading: Story = {
   render: () => <Example />,
+};
+
+/** Collapsed to icons: « Nouveau » keeps an icon trigger of its own. */
+export const Collapsed: Story = {
+  render: () => <Example collapsed late={1} open={4} />,
 };

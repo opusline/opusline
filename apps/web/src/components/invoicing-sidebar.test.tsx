@@ -1,7 +1,7 @@
 import { showInvoiceSummaryQueryKey } from "@opusline/api-client/react-query";
 import { SidebarProvider } from "@opusline/ui/components/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it } from "vitest";
 
 import { seedCurrentUser } from "@/test/current-user";
@@ -59,4 +59,24 @@ it("leads back to the rest of the app", async () => {
     "href",
     "/week",
   );
+});
+
+it("keeps the New menu within reach of a collapsed sidebar, as links", async () => {
+  renderSidebar(0, 0);
+
+  fireEvent.click(await screen.findByTestId("invoicing-new-collapsed"));
+
+  const items = await screen.findAllByTestId("invoicing-new-item");
+  const external = items.find(
+    (item) => item.dataset.kind === "external-invoice",
+  );
+
+  expect(external).toHaveAttribute("href", "/invoicing/invoices?add=external");
+});
+
+it("names the open count in the Factures link", async () => {
+  renderSidebar(4, 0);
+
+  const link = await screen.findByRole("link", { name: /^Factures/ });
+  expect(link).toHaveAccessibleName("Factures 4 factures ouvertes");
 });

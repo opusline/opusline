@@ -20,7 +20,7 @@ import {
   useSidebar,
 } from "@opusline/ui/components/sidebar";
 import { useQuery } from "@tanstack/react-query";
-import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import {
   ArrowLeft,
   FileUp,
@@ -42,7 +42,6 @@ import { m } from "@/paraglide/messages.js";
  */
 export function InvoicingSidebar({ toolbar }: { toolbar?: ReactNode }) {
   const { pathname } = useLocation();
-  const navigate = useNavigate();
   const { isMobile, setOpenMobile, toggleSidebar } = useSidebar();
   const format = useMoneyFormat();
   const summary = useQuery(showInvoiceSummaryOptions());
@@ -95,27 +94,26 @@ export function InvoicingSidebar({ toolbar }: { toolbar?: ReactNode }) {
               </Button>
             }
           />
-          <DropdownMenuContent align="start" className="w-64" sideOffset={6}>
-            <DropdownMenuItem
-              data-testid="invoicing-new-item"
-              data-kind="external-invoice"
-              onClick={() =>
-                void navigate({
-                  to: "/invoicing/invoices",
-                  search: { add: "external" },
-                })
-              }
-            >
-              <FileUp />
-              <span className="flex flex-col">
-                <span>{m.invoicing_new_external_invoice()}</span>
-                <span className="text-muted-foreground text-xs">
-                  {m.invoicing_new_external_invoice_detail()}
-                </span>
-              </span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
+          <NewMenuContent />
         </DropdownMenu>
+        <SidebarMenu className="hidden group-data-[collapsible=icon]:flex">
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <SidebarMenuButton
+                    data-testid="invoicing-new-collapsed"
+                    tooltip={m.invoicing_new()}
+                  >
+                    <Plus />
+                    <span>{m.invoicing_new()}</span>
+                  </SidebarMenuButton>
+                }
+              />
+              <NewMenuContent side="right" />
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
 
       <SidebarContent>
@@ -131,12 +129,19 @@ export function InvoicingSidebar({ toolbar }: { toolbar?: ReactNode }) {
                   tooltip={m.nav_invoices()}
                 >
                   <ReceiptText />
-                  <span>{m.nav_invoices()}</span>
-                  {openCount === 0 ? null : (
-                    <span className="sr-only">
-                      {m.invoicing_open_invoices({ count: openCount })}
-                    </span>
-                  )}
+                  {/* The count sits inside the label: collapsed to icons, the
+                      sidebar hides an item's last span, which must be the label. */}
+                  <span>
+                    {m.nav_invoices()}
+                    {openCount === 0 ? null : (
+                      <>
+                        {" "}
+                        <span className="sr-only">
+                          {m.invoicing_open_invoices({ count: openCount })}
+                        </span>
+                      </>
+                    )}
+                  </span>
                 </SidebarMenuButton>
                 {openCount === 0 ? null : (
                   <SidebarMenuBadge aria-hidden className="font-mono text-xs">
@@ -205,5 +210,30 @@ export function InvoicingSidebar({ toolbar }: { toolbar?: ReactNode }) {
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
+  );
+}
+
+function NewMenuContent({ side }: { side?: "right" }) {
+  return (
+    <DropdownMenuContent
+      align="start"
+      className="w-64"
+      side={side}
+      sideOffset={6}
+    >
+      <DropdownMenuItem
+        data-testid="invoicing-new-item"
+        data-kind="external-invoice"
+        render={<Link search={{ add: "external" }} to="/invoicing/invoices" />}
+      >
+        <FileUp />
+        <span className="flex flex-col">
+          <span>{m.invoicing_new_external_invoice()}</span>
+          <span className="text-muted-foreground text-xs">
+            {m.invoicing_new_external_invoice_detail()}
+          </span>
+        </span>
+      </DropdownMenuItem>
+    </DropdownMenuContent>
   );
 }
