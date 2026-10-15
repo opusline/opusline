@@ -1005,7 +1005,6 @@
     }
   ],
   "documents_source_client_badge": "client",
-  "documents_toggle_group": "Show or hide the documents of {name}",
   "documents_type_aria": "Type of {name}",
   "documents_uploading_status": "{size} · uploading…",
   "documents_uploading_title": "Uploads in progress",

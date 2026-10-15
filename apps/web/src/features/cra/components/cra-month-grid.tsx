@@ -282,7 +282,6 @@ function DayCell({
     <div
       aria-busy={isPending || undefined}
       aria-colindex={columnIndex + 1}
-      aria-label={cell.ariaLabel}
       className={cn(
         "flex h-20 min-w-0 flex-col rounded-md px-1 py-1.5 outline-none transition-colors sm:px-2",
         "focus-visible:outline-2 focus-visible:outline-primary-text focus-visible:-outline-offset-2",
@@ -311,6 +310,7 @@ function DayCell({
       tabIndex={isFocused ? 0 : -1}
       title={cell.holidayName ?? undefined}
     >
+      <span className="sr-only">{cell.spokenLabel}</span>
       <span
         aria-hidden
         className={cn(

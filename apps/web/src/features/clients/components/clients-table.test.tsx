@@ -215,7 +215,7 @@ it("marks an archived client with a badge", async () => {
     <ClientsTable clients={[client({ archivedAt: daysAgo(30) })]} />,
   );
 
-  fireEvent.click(await screen.findByRole("button", { name: "Archivés (1)" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Archivés 1" }));
 
   expect(screen.getByText("Archivé")).toBeInTheDocument();
 });
@@ -225,7 +225,7 @@ it("explains that an archived client cannot receive missions", async () => {
     <ClientsTable clients={[client({ archivedAt: daysAgo(30) })]} />,
   );
 
-  fireEvent.click(await screen.findByRole("button", { name: "Archivés (1)" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Archivés 1" }));
 
   expect(
     screen.getByText("Client archivé — réactivez-le pour ajouter une mission."),
@@ -242,7 +242,7 @@ it("does not flag an archived client as new", async () => {
     />,
   );
 
-  fireEvent.click(await screen.findByRole("button", { name: "Archivés (1)" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Archivés 1" }));
 
   expect(screen.getByText("Archivé")).toBeInTheDocument();
   expect(screen.queryByText("Nouveau")).not.toBeInTheDocument();
@@ -264,12 +264,12 @@ it("shows only active clients by default, with every scope count", async () => {
   );
 
   expect(
-    await screen.findByRole("button", { name: "Actifs (1)" }),
+    await screen.findByRole("button", { name: "Actifs 1" }),
   ).toBeInTheDocument();
   expect(
-    screen.getByRole("button", { name: "Archivés (1)" }),
+    screen.getByRole("button", { name: "Archivés 1" }),
   ).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "Tous (2)" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Tous 2" })).toBeInTheDocument();
   expect(screen.getByText("Nordlys")).toBeInTheDocument();
   expect(screen.queryByText("Studio Lorem")).not.toBeInTheDocument();
 });
@@ -289,7 +289,7 @@ it("filters the list when picking the archived scope", async () => {
     />,
   );
 
-  fireEvent.click(await screen.findByRole("button", { name: "Archivés (1)" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Archivés 1" }));
 
   expect(screen.getByText("Studio Lorem")).toBeInTheDocument();
   expect(screen.queryByText("Nordlys")).not.toBeInTheDocument();
@@ -298,7 +298,7 @@ it("filters the list when picking the archived scope", async () => {
 it("explains an empty scope instead of showing a bare table", async () => {
   renderWithRouter(<ClientsTable clients={[client({})]} />);
 
-  fireEvent.click(await screen.findByRole("button", { name: "Archivés (0)" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Archivés 0" }));
 
   expect(screen.getByText("Aucun client dans cette vue.")).toBeInTheDocument();
 });

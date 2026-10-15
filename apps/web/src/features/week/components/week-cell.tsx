@@ -58,7 +58,6 @@ export function LivePill({ live }: { live: LiveCell }) {
 
   return (
     <button
-      aria-label={m.week_stop_tracking()}
       data-testid="week-cell-live-stop"
       className={cn(
         "min-h-11 w-full rounded-sm border px-2.5 py-2 text-left transition-colors hover:bg-primary/20",
@@ -72,7 +71,8 @@ export function LivePill({ live }: { live: LiveCell }) {
       title={m.week_stop_tracking()}
       type="button"
     >
-      <div className="flex items-center gap-1.5">
+      <span className="sr-only">{m.week_stop_tracking()}</span>
+      <div aria-hidden className="flex items-center gap-1.5">
         <span
           aria-hidden
           className={cn(
@@ -84,7 +84,10 @@ export function LivePill({ live }: { live: LiveCell }) {
           {billedLabel}
         </span>
       </div>
-      <div className={cn("mt-0.5 truncate text-xs", PILL_SKINS.live.note)}>
+      <div
+        aria-hidden
+        className={cn("mt-0.5 truncate text-xs", PILL_SKINS.live.note)}
+      >
         {liveCellLabel(live.isRunning, formatClock(elapsedSeconds))}
       </div>
     </button>
@@ -126,14 +129,6 @@ export function WeekCell({
     <div
       aria-busy={isPending || undefined}
       aria-colindex={columnIndex + 2}
-      // Running/paused only, no ticking clock: a label that changed every
-      // second would chatter at screen readers, and the moving figure is
-      // already inside the pill.
-      aria-label={
-        live === null
-          ? cell.ariaLabel
-          : `${cell.ariaLabel} — ${liveStateLabel(live.isRunning)}`
-      }
       className={cn(
         "group relative border-secondary border-b border-l border-card-2 p-2.5 outline-none focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-primary-text",
         cell.isWeekend && "bg-muted",
@@ -162,10 +157,19 @@ export function WeekCell({
       role="gridcell"
       tabIndex={isFocused ? 0 : -1}
     >
+      {/* Running/paused only, no ticking clock: a name that changed every
+          second would chatter at screen readers, and the moving figure is
+          already inside the pill. */}
+      <span className="sr-only">
+        {live === null
+          ? cell.ariaLabel
+          : `${cell.ariaLabel} — ${liveStateLabel(live.isRunning)}`}
+      </span>
       {editor === null ? (
         <div className="flex flex-col gap-1.5">
           {cell.entries.length === 0 ? (
             <span
+              aria-hidden
               className={cn(
                 "flex h-full items-center justify-center gap-1.5 text-xs",
                 live === null ? "min-h-11" : "min-h-6 text-muted-foreground-2",
@@ -176,6 +180,7 @@ export function WeekCell({
             </span>
           ) : (
             <div
+              aria-hidden
               className={cn(
                 "relative min-h-11 rounded-sm border px-2.5 py-2 transition-colors",
                 PILL_SKINS[skin].pill,

@@ -30,7 +30,6 @@ export function DocumentGroup({ group, isOpen, onToggle }: DocumentGroupProps) {
     <div className="overflow-hidden rounded-md border bg-card">
       <button
         aria-expanded={isOpen}
-        aria-label={m.documents_toggle_group({ name: group.name })}
         className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
         onClick={onToggle}
         type="button"

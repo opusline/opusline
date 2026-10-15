@@ -1,4 +1,5 @@
 import { Button, buttonVariants } from "@opusline/ui/components/button";
+import { calendarLocale } from "@opusline/ui/lib/calendar-locale";
 import { cn } from "@opusline/ui/lib/utils";
 import {
   ChevronDownIcon,
@@ -19,7 +20,7 @@ function Calendar({
   showOutsideDays = true,
   captionLayout = "label",
   buttonVariant = "ghost",
-  locale,
+  locale = calendarLocale("en"),
   formatters,
   components,
   ...props

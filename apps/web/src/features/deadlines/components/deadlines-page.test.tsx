@@ -35,20 +35,16 @@ it("counts each category on its chip", async () => {
   renderPage();
 
   expect(
-    await screen.findByRole("button", { name: "Tout (7)" }),
+    await screen.findByRole("button", { name: "Tout 7" }),
   ).toBeInTheDocument();
   expect(
-    screen.getByRole("button", { name: "Factures (2)" }),
+    screen.getByRole("button", { name: "Factures 2" }),
   ).toBeInTheDocument();
   expect(
-    screen.getByRole("button", { name: "Relances (1)" }),
+    screen.getByRole("button", { name: "Relances 1" }),
   ).toBeInTheDocument();
-  expect(
-    screen.getByRole("button", { name: "URSSAF (3)" }),
-  ).toBeInTheDocument();
-  expect(
-    screen.getByRole("button", { name: "Autres (1)" }),
-  ).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "URSSAF 3" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Autres 1" })).toBeInTheDocument();
 });
 
 it("sums the board up in one line", async () => {
@@ -70,7 +66,7 @@ it("narrows the timeline to the picked category", async () => {
 it("hands the filter change back", async () => {
   const { onFilterChange } = renderPage();
 
-  fireEvent.click(await screen.findByRole("button", { name: "TVA (0)" }));
+  fireEvent.click(await screen.findByRole("button", { name: "TVA 0" }));
 
   expect(onFilterChange).toHaveBeenCalledWith("vat");
 });

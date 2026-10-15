@@ -520,8 +520,8 @@ it("totals a day across both units, billable time only", () => {
   renderGrid();
 
   expect(
-    screen.getByRole("gridcell", { name: "Total de la semaine" }),
-  ).toHaveTextContent("4,5 j · 3,5 h");
+    screen.getByRole("gridcell", { name: "Total de la semaine 4,5 j · 3,5 h" }),
+  ).toBeInTheDocument();
 });
 
 const RUNNING_ON_MONDAY: LiveCell = {

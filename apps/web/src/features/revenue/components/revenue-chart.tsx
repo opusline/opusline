@@ -52,7 +52,6 @@ export function RevenueChart({
 
           return (
             <button
-              aria-label={`${monthTitle(locale, bar.month)} · ${formatWholeAmount(format, bar.total.amount)}`}
               className={cn(
                 "flex h-full min-w-0 flex-1 cursor-pointer flex-col justify-end rounded-sm px-0.5 pt-6 outline-none focus-visible:ring-2 focus-visible:ring-ring/30 disabled:cursor-default",
                 bar.inPeriod && "bg-primary/6",
@@ -64,7 +63,12 @@ export function RevenueChart({
               onClick={() => onSelectMonth(bar.month)}
               type="button"
             >
+              <span className="sr-only">
+                {monthTitle(locale, bar.month)} ·{" "}
+                {formatWholeAmount(format, bar.total.amount)}
+              </span>
               <span
+                aria-hidden
                 className="relative w-full"
                 style={{ height: `${bar.shareBp / 100}%` }}
               >
@@ -88,7 +92,10 @@ export function RevenueChart({
                 />
               </span>
               {bar.inPeriod && bar.total.amount === 0 && (
-                <span className="h-0.5 w-full rounded-full bg-primary/45" />
+                <span
+                  aria-hidden
+                  className="h-0.5 w-full rounded-full bg-primary/45"
+                />
               )}
             </button>
           );
