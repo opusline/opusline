@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Connection_DisconnectInputs */
 
+const en_bank_connection_disconnect = /** @type {(inputs: Bank_Connection_DisconnectInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Disconnect`)
+};
 
+const fr_bank_connection_disconnect = /** @type {(inputs: Bank_Connection_DisconnectInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Déconnecter`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const bank_connection_disconnect = /** @type {((inputs?: Bank_Connection_DisconnectInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Connection_DisconnectInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Déconnecter")
-	return /** @type {LocalizedString} */ ("Disconnect")
+	if (locale === "fr") return fr_bank_connection_disconnect(inputs)
+	return en_bank_connection_disconnect(inputs)
 });

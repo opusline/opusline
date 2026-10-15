@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Payment_Terms_OrInputs */
 
+const en_payment_terms_or = /** @type {(inputs: Payment_Terms_OrInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`or`)
+};
 
+const fr_payment_terms_or = /** @type {(inputs: Payment_Terms_OrInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`ou`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const payment_terms_or = /** @type {((inputs?: Payment_Terms_OrInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Payment_Terms_OrInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("ou")
-	return /** @type {LocalizedString} */ ("or")
+	if (locale === "fr") return fr_payment_terms_or(inputs)
+	return en_payment_terms_or(inputs)
 });

@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Pending_DoneInputs */
 
+const en_bank_pending_done = /** @type {(inputs: Bank_Pending_DoneInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`everything is reconciled`)
+};
 
+const fr_bank_pending_done = /** @type {(inputs: Bank_Pending_DoneInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`tout est rapproché`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const bank_pending_done = /** @type {((inputs?: Bank_Pending_DoneInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Pending_DoneInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("tout est rapproché")
-	return /** @type {LocalizedString} */ ("everything is reconciled")
+	if (locale === "fr") return fr_bank_pending_done(inputs)
+	return en_bank_pending_done(inputs)
 });

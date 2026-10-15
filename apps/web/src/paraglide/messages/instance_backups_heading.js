@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Instance_Backups_HeadingInputs */
 
+const en_instance_backups_heading = /** @type {(inputs: Instance_Backups_HeadingInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Backups`)
+};
 
+const fr_instance_backups_heading = /** @type {(inputs: Instance_Backups_HeadingInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Sauvegardes`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const instance_backups_heading = /** @type {((inputs?: Instance_Backups_HeadingInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Instance_Backups_HeadingInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Sauvegardes")
-	return /** @type {LocalizedString} */ ("Backups")
+	if (locale === "fr") return fr_instance_backups_heading(inputs)
+	return en_instance_backups_heading(inputs)
 });

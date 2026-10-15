@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Connection_Badge_AwaitingInputs */
 
+const en_bank_connection_badge_awaiting = /** @type {(inputs: Bank_Connection_Badge_AwaitingInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`To complete`)
+};
 
+const fr_bank_connection_badge_awaiting = /** @type {(inputs: Bank_Connection_Badge_AwaitingInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`À compléter`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const bank_connection_badge_awaiting = /** @type {((inputs?: Bank_Connection_Badge_AwaitingInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Connection_Badge_AwaitingInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("À compléter")
-	return /** @type {LocalizedString} */ ("To complete")
+	if (locale === "fr") return fr_bank_connection_badge_awaiting(inputs)
+	return en_bank_connection_badge_awaiting(inputs)
 });

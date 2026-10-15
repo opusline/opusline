@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Theme_ChooseInputs */
 
+const en_theme_choose = /** @type {(inputs: Theme_ChooseInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Choose the theme`)
+};
 
+const fr_theme_choose = /** @type {(inputs: Theme_ChooseInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Choisir le thème`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const theme_choose = /** @type {((inputs?: Theme_ChooseInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_ChooseInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Choisir le thème")
-	return /** @type {LocalizedString} */ ("Choose the theme")
+	if (locale === "fr") return fr_theme_choose(inputs)
+	return en_theme_choose(inputs)
 });

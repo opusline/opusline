@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Scan_Hint_CategoryInputs */
 
+const en_expenses_scan_hint_category = /** @type {(inputs: Expenses_Scan_Hint_CategoryInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Check the category and the pro share, then save. Every field stays editable.`)
+};
 
+const fr_expenses_scan_hint_category = /** @type {(inputs: Expenses_Scan_Hint_CategoryInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Vérifiez la catégorie et la quote-part pro, puis enregistrez. Les champs restent modifiables.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const expenses_scan_hint_category = /** @type {((inputs?: Expenses_Scan_Hint_CategoryInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Scan_Hint_CategoryInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Vérifiez la catégorie et la quote-part pro, puis enregistrez. Les champs restent modifiables.")
-	return /** @type {LocalizedString} */ ("Check the category and the pro share, then save. Every field stays editable.")
+	if (locale === "fr") return fr_expenses_scan_hint_category(inputs)
+	return en_expenses_scan_hint_category(inputs)
 });

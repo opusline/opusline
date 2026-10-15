@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Declarations_Load_FailedInputs */
 
+const en_declarations_load_failed = /** @type {(inputs: Declarations_Load_FailedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`The declarations could not be loaded. Try again in a moment.`)
+};
 
+const fr_declarations_load_failed = /** @type {(inputs: Declarations_Load_FailedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Les déclarations n'ont pas pu être chargées. Réessayez dans un instant.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const declarations_load_failed = /** @type {((inputs?: Declarations_Load_FailedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Declarations_Load_FailedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Les déclarations n'ont pas pu être chargées. Réessayez dans un instant.")
-	return /** @type {LocalizedString} */ ("The declarations could not be loaded. Try again in a moment.")
+	if (locale === "fr") return fr_declarations_load_failed(inputs)
+	return en_declarations_load_failed(inputs)
 });

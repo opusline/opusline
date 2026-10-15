@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Timer_Start_TitleInputs */
 
+const en_timer_start_title = /** @type {(inputs: Timer_Start_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Track which mission?`)
+};
 
+const fr_timer_start_title = /** @type {(inputs: Timer_Start_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Suivre quelle mission ?`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const timer_start_title = /** @type {((inputs?: Timer_Start_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Timer_Start_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Suivre quelle mission ?")
-	return /** @type {LocalizedString} */ ("Track which mission?")
+	if (locale === "fr") return fr_timer_start_title(inputs)
+	return en_timer_start_title(inputs)
 });

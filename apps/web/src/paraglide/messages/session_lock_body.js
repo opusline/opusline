@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Session_Lock_BodyInputs */
 
+const en_session_lock_body = /** @type {(inputs: Session_Lock_BodyInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Opusline locked itself while you were away. Sign back in to carry on where you left off.`)
+};
 
+const fr_session_lock_body = /** @type {(inputs: Session_Lock_BodyInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Opusline s'est verrouillé pendant votre absence. Reconnectez-vous pour reprendre où vous en étiez.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const session_lock_body = /** @type {((inputs?: Session_Lock_BodyInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Session_Lock_BodyInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Opusline s'est verrouillé pendant votre absence. Reconnectez-vous pour reprendre où vous en étiez.")
-	return /** @type {LocalizedString} */ ("Opusline locked itself while you were away. Sign back in to carry on where you left off.")
+	if (locale === "fr") return fr_session_lock_body(inputs)
+	return en_session_lock_body(inputs)
 });

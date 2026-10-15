@@ -195,17 +195,15 @@ function DeadlineRow({
         </Link>
       ) : (
         <button
-          aria-label={
-            done
-              ? `${m.deadlines_mark_not_done()} — ${title} ${dueLabel}`
-              : `${m.deadlines_mark_done()} — ${title} ${dueLabel}`
-          }
           className={cardClasses}
           data-testid="deadline-toggle"
           disabled={isPending}
           onClick={() => onToggleFiscal(item)}
           type="button"
         >
+          <span className="sr-only">
+            {done ? m.deadlines_mark_not_done() : m.deadlines_mark_done()} —
+          </span>{" "}
           {card}
         </button>
       )}

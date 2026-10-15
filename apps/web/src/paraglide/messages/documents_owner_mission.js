@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Documents_Owner_MissionInputs */
 
+const en_documents_owner_mission = /** @type {(inputs: Documents_Owner_MissionInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`mission`)
+};
 
+const fr_documents_owner_mission = /** @type {(inputs: Documents_Owner_MissionInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`mission`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const documents_owner_mission = /** @type {((inputs?: Documents_Owner_MissionInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Documents_Owner_MissionInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("mission")
-	return /** @type {LocalizedString} */ ("mission")
+	if (locale === "fr") return fr_documents_owner_mission(inputs)
+	return en_documents_owner_mission(inputs)
 });

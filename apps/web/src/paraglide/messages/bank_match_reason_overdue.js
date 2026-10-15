@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Match_Reason_OverdueInputs */
 
+const en_bank_match_reason_overdue = /** @type {(inputs: Bank_Match_Reason_OverdueInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Exact amount, overdue invoice`)
+};
 
+const fr_bank_match_reason_overdue = /** @type {(inputs: Bank_Match_Reason_OverdueInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Montant exact, facture en retard`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const bank_match_reason_overdue = /** @type {((inputs?: Bank_Match_Reason_OverdueInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Match_Reason_OverdueInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Montant exact, facture en retard")
-	return /** @type {LocalizedString} */ ("Exact amount, overdue invoice")
+	if (locale === "fr") return fr_bank_match_reason_overdue(inputs)
+	return en_bank_match_reason_overdue(inputs)
 });

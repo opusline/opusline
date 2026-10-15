@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Receipt_UploadingInputs */
 
+const en_expenses_receipt_uploading = /** @type {(inputs: Expenses_Receipt_UploadingInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Sending…`)
+};
 
+const fr_expenses_receipt_uploading = /** @type {(inputs: Expenses_Receipt_UploadingInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Envoi…`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const expenses_receipt_uploading = /** @type {((inputs?: Expenses_Receipt_UploadingInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Receipt_UploadingInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Envoi…")
-	return /** @type {LocalizedString} */ ("Sending…")
+	if (locale === "fr") return fr_expenses_receipt_uploading(inputs)
+	return en_expenses_receipt_uploading(inputs)
 });

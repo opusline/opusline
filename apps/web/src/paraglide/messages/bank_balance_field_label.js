@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Balance_Field_LabelInputs */
 
+const en_bank_balance_field_label = /** @type {(inputs: Bank_Balance_Field_LabelInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Balance`)
+};
 
+const fr_bank_balance_field_label = /** @type {(inputs: Bank_Balance_Field_LabelInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Solde`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const bank_balance_field_label = /** @type {((inputs?: Bank_Balance_Field_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Balance_Field_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Solde")
-	return /** @type {LocalizedString} */ ("Balance")
+	if (locale === "fr") return fr_bank_balance_field_label(inputs)
+	return en_bank_balance_field_label(inputs)
 });

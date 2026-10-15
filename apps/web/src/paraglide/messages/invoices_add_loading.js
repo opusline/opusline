@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Add_LoadingInputs */
 
+const en_invoices_add_loading = /** @type {(inputs: Invoices_Add_LoadingInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Loading your missions…`)
+};
 
+const fr_invoices_add_loading = /** @type {(inputs: Invoices_Add_LoadingInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Chargement de vos missions…`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const invoices_add_loading = /** @type {((inputs?: Invoices_Add_LoadingInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Add_LoadingInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Chargement de vos missions…")
-	return /** @type {LocalizedString} */ ("Loading your missions…")
+	if (locale === "fr") return fr_invoices_add_loading(inputs)
+	return en_invoices_add_loading(inputs)
 });

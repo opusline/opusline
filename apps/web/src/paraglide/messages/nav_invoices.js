@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Nav_InvoicesInputs */
 
+const en_nav_invoices = /** @type {(inputs: Nav_InvoicesInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Invoices`)
+};
 
+const fr_nav_invoices = /** @type {(inputs: Nav_InvoicesInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Factures`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const nav_invoices = /** @type {((inputs?: Nav_InvoicesInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Nav_InvoicesInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Factures")
-	return /** @type {LocalizedString} */ ("Invoices")
+	if (locale === "fr") return fr_nav_invoices(inputs)
+	return en_nav_invoices(inputs)
 });

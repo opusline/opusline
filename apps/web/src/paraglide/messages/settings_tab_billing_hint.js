@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Settings_Tab_Billing_HintInputs */
 
+const en_settings_tab_billing_hint = /** @type {(inputs: Settings_Tab_Billing_HintInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Terms, numbering, buffer`)
+};
 
+const fr_settings_tab_billing_hint = /** @type {(inputs: Settings_Tab_Billing_HintInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Délais, numérotation, matelas`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const settings_tab_billing_hint = /** @type {((inputs?: Settings_Tab_Billing_HintInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Tab_Billing_HintInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Délais, numérotation, matelas")
-	return /** @type {LocalizedString} */ ("Terms, numbering, buffer")
+	if (locale === "fr") return fr_settings_tab_billing_hint(inputs)
+	return en_settings_tab_billing_hint(inputs)
 });

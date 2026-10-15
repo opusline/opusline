@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Common_More_ActionsInputs */
 
+const en_common_more_actions = /** @type {(inputs: Common_More_ActionsInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`More actions`)
+};
 
+const fr_common_more_actions = /** @type {(inputs: Common_More_ActionsInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Plus d'actions`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const common_more_actions = /** @type {((inputs?: Common_More_ActionsInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_More_ActionsInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Plus d'actions")
-	return /** @type {LocalizedString} */ ("More actions")
+	if (locale === "fr") return fr_common_more_actions(inputs)
+	return en_common_more_actions(inputs)
 });

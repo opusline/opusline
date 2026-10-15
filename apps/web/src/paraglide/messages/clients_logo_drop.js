@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Clients_Logo_DropInputs */
 
+const en_clients_logo_drop = /** @type {(inputs: Clients_Logo_DropInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Drop the logo`)
+};
 
+const fr_clients_logo_drop = /** @type {(inputs: Clients_Logo_DropInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Déposez le logo`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const clients_logo_drop = /** @type {((inputs?: Clients_Logo_DropInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Clients_Logo_DropInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Déposez le logo")
-	return /** @type {LocalizedString} */ ("Drop the logo")
+	if (locale === "fr") return fr_clients_logo_drop(inputs)
+	return en_clients_logo_drop(inputs)
 });

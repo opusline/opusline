@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Menu_EditInputs */
 
+const en_expenses_menu_edit = /** @type {(inputs: Expenses_Menu_EditInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Edit`)
+};
 
+const fr_expenses_menu_edit = /** @type {(inputs: Expenses_Menu_EditInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Modifier`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const expenses_menu_edit = /** @type {((inputs?: Expenses_Menu_EditInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Menu_EditInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Modifier")
-	return /** @type {LocalizedString} */ ("Edit")
+	if (locale === "fr") return fr_expenses_menu_edit(inputs)
+	return en_expenses_menu_edit(inputs)
 });

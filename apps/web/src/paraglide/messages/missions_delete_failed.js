@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Missions_Delete_FailedInputs */
 
+const en_missions_delete_failed = /** @type {(inputs: Missions_Delete_FailedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`The mission could not be deleted.`)
+};
 
+const fr_missions_delete_failed = /** @type {(inputs: Missions_Delete_FailedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`La mission n'a pas pu être supprimée.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const missions_delete_failed = /** @type {((inputs?: Missions_Delete_FailedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Missions_Delete_FailedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("La mission n'a pas pu être supprimée.")
-	return /** @type {LocalizedString} */ ("The mission could not be deleted.")
+	if (locale === "fr") return fr_missions_delete_failed(inputs)
+	return en_missions_delete_failed(inputs)
 });

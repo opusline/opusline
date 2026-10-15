@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Treasury_See_BankInputs */
 
+const en_treasury_see_bank = /** @type {(inputs: Treasury_See_BankInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`See the business account`)
+};
 
+const fr_treasury_see_bank = /** @type {(inputs: Treasury_See_BankInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Voir le compte pro`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const treasury_see_bank = /** @type {((inputs?: Treasury_See_BankInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Treasury_See_BankInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Voir le compte pro")
-	return /** @type {LocalizedString} */ ("See the business account")
+	if (locale === "fr") return fr_treasury_see_bank(inputs)
+	return en_treasury_see_bank(inputs)
 });

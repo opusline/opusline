@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Settings_Tab_Integrations_HintInputs */
 
+const en_settings_tab_integrations_hint = /** @type {(inputs: Settings_Tab_Integrations_HintInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Bank sync`)
+};
 
+const fr_settings_tab_integrations_hint = /** @type {(inputs: Settings_Tab_Integrations_HintInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Synchronisation bancaire`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const settings_tab_integrations_hint = /** @type {((inputs?: Settings_Tab_Integrations_HintInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Tab_Integrations_HintInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Synchronisation bancaire")
-	return /** @type {LocalizedString} */ ("Bank sync")
+	if (locale === "fr") return fr_settings_tab_integrations_hint(inputs)
+	return en_settings_tab_integrations_hint(inputs)
 });

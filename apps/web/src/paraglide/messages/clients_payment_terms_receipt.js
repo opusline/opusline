@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Clients_Payment_Terms_ReceiptInputs */
 
+const en_clients_payment_terms_receipt = /** @type {(inputs: Clients_Payment_Terms_ReceiptInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`on receipt`)
+};
 
+const fr_clients_payment_terms_receipt = /** @type {(inputs: Clients_Payment_Terms_ReceiptInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`réception`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const clients_payment_terms_receipt = /** @type {((inputs?: Clients_Payment_Terms_ReceiptInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Clients_Payment_Terms_ReceiptInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("réception")
-	return /** @type {LocalizedString} */ ("on receipt")
+	if (locale === "fr") return fr_clients_payment_terms_receipt(inputs)
+	return en_clients_payment_terms_receipt(inputs)
 });

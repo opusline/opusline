@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Timer_PauseInputs */
 
+const en_timer_pause = /** @type {(inputs: Timer_PauseInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Pause`)
+};
 
+const fr_timer_pause = /** @type {(inputs: Timer_PauseInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Mettre en pause`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const timer_pause = /** @type {((inputs?: Timer_PauseInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Timer_PauseInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Mettre en pause")
-	return /** @type {LocalizedString} */ ("Pause")
+	if (locale === "fr") return fr_timer_pause(inputs)
+	return en_timer_pause(inputs)
 });

@@ -27,7 +27,7 @@ export type CraCell = {
   /** Worked on a day nobody was expected to — the design's amber badge. */
   isOffDayWorked: boolean;
   valueLabel: string;
-  ariaLabel: string;
+  spokenLabel: string;
 };
 
 export type CraWeek = { key: string; cells: CraCell[] };
@@ -101,7 +101,7 @@ export function buildCraGrid(input: {
         holidayName: day.holidayName,
         isOffDayWorked,
         valueLabel: formatDayFraction(input.locale, day.dayFractionBp),
-        ariaLabel: cellAriaLabel(input.locale, day),
+        spokenLabel: cellAriaLabel(input.locale, day),
       };
     });
 
@@ -123,7 +123,7 @@ function paddingCell(date: string): CraCell {
     holidayName: null,
     isOffDayWorked: false,
     valueLabel: "",
-    ariaLabel: "",
+    spokenLabel: "",
   };
 }
 

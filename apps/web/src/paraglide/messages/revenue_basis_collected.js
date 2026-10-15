@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Revenue_Basis_CollectedInputs */
 
+const en_revenue_basis_collected = /** @type {(inputs: Revenue_Basis_CollectedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Collected`)
+};
 
+const fr_revenue_basis_collected = /** @type {(inputs: Revenue_Basis_CollectedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Encaissé`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const revenue_basis_collected = /** @type {((inputs?: Revenue_Basis_CollectedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Revenue_Basis_CollectedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Encaissé")
-	return /** @type {LocalizedString} */ ("Collected")
+	if (locale === "fr") return fr_revenue_basis_collected(inputs)
+	return en_revenue_basis_collected(inputs)
 });

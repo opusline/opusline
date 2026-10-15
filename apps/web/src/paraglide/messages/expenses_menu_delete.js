@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Menu_DeleteInputs */
 
+const en_expenses_menu_delete = /** @type {(inputs: Expenses_Menu_DeleteInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Delete`)
+};
 
+const fr_expenses_menu_delete = /** @type {(inputs: Expenses_Menu_DeleteInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Supprimer`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const expenses_menu_delete = /** @type {((inputs?: Expenses_Menu_DeleteInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Menu_DeleteInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Supprimer")
-	return /** @type {LocalizedString} */ ("Delete")
+	if (locale === "fr") return fr_expenses_menu_delete(inputs)
+	return en_expenses_menu_delete(inputs)
 });

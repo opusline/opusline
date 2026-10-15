@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Deadlines_TitleInputs */
 
+const en_deadlines_title = /** @type {(inputs: Deadlines_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Deadlines`)
+};
 
+const fr_deadlines_title = /** @type {(inputs: Deadlines_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Échéances`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const deadlines_title = /** @type {((inputs?: Deadlines_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Deadlines_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Échéances")
-	return /** @type {LocalizedString} */ ("Deadlines")
+	if (locale === "fr") return fr_deadlines_title(inputs)
+	return en_deadlines_title(inputs)
 });

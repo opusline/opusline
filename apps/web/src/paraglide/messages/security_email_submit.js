@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Security_Email_SubmitInputs */
 
+const en_security_email_submit = /** @type {(inputs: Security_Email_SubmitInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Change email`)
+};
 
+const fr_security_email_submit = /** @type {(inputs: Security_Email_SubmitInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Changer l'adresse e-mail`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const security_email_submit = /** @type {((inputs?: Security_Email_SubmitInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Email_SubmitInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Changer l'adresse e-mail")
-	return /** @type {LocalizedString} */ ("Change email")
+	if (locale === "fr") return fr_security_email_submit(inputs)
+	return en_security_email_submit(inputs)
 });

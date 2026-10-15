@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Connection_Choose_AccountInputs */
 
+const en_bank_connection_choose_account = /** @type {(inputs: Bank_Connection_Choose_AccountInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Choose the account`)
+};
 
+const fr_bank_connection_choose_account = /** @type {(inputs: Bank_Connection_Choose_AccountInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Choisir le compte`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const bank_connection_choose_account = /** @type {((inputs?: Bank_Connection_Choose_AccountInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Connection_Choose_AccountInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Choisir le compte")
-	return /** @type {LocalizedString} */ ("Choose the account")
+	if (locale === "fr") return fr_bank_connection_choose_account(inputs)
+	return en_bank_connection_choose_account(inputs)
 });

@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Clients_Logo_HintInputs */
 
+const en_clients_logo_hint = /** @type {(inputs: Clients_Logo_HintInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`PNG or SVG, transparent background.`)
+};
 
+const fr_clients_logo_hint = /** @type {(inputs: Clients_Logo_HintInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`PNG ou SVG, fond transparent.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const clients_logo_hint = /** @type {((inputs?: Clients_Logo_HintInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Clients_Logo_HintInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("PNG ou SVG, fond transparent.")
-	return /** @type {LocalizedString} */ ("PNG or SVG, transparent background.")
+	if (locale === "fr") return fr_clients_logo_hint(inputs)
+	return en_clients_logo_hint(inputs)
 });

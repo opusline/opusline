@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Cra_Stat_ReportedInputs */
 
+const en_cra_stat_reported = /** @type {(inputs: Cra_Stat_ReportedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Days reported`)
+};
 
+const fr_cra_stat_reported = /** @type {(inputs: Cra_Stat_ReportedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Jours reportés`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const cra_stat_reported = /** @type {((inputs?: Cra_Stat_ReportedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Cra_Stat_ReportedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Jours reportés")
-	return /** @type {LocalizedString} */ ("Days reported")
+	if (locale === "fr") return fr_cra_stat_reported(inputs)
+	return en_cra_stat_reported(inputs)
 });

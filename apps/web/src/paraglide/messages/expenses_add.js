@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_AddInputs */
 
+const en_expenses_add = /** @type {(inputs: Expenses_AddInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Add an expense`)
+};
 
+const fr_expenses_add = /** @type {(inputs: Expenses_AddInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ajouter une dépense`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const expenses_add = /** @type {((inputs?: Expenses_AddInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_AddInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Ajouter une dépense")
-	return /** @type {LocalizedString} */ ("Add an expense")
+	if (locale === "fr") return fr_expenses_add(inputs)
+	return en_expenses_add(inputs)
 });

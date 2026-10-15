@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Connection_Badge_ExpiredInputs */
 
+const en_bank_connection_badge_expired = /** @type {(inputs: Bank_Connection_Badge_ExpiredInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Expired`)
+};
 
+const fr_bank_connection_badge_expired = /** @type {(inputs: Bank_Connection_Badge_ExpiredInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Expirée`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const bank_connection_badge_expired = /** @type {((inputs?: Bank_Connection_Badge_ExpiredInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Connection_Badge_ExpiredInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Expirée")
-	return /** @type {LocalizedString} */ ("Expired")
+	if (locale === "fr") return fr_bank_connection_badge_expired(inputs)
+	return en_bank_connection_badge_expired(inputs)
 });

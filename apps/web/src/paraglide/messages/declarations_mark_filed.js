@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Declarations_Mark_FiledInputs */
 
+const en_declarations_mark_filed = /** @type {(inputs: Declarations_Mark_FiledInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Mark as filed`)
+};
 
+const fr_declarations_mark_filed = /** @type {(inputs: Declarations_Mark_FiledInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Marquer comme déclarée`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const declarations_mark_filed = /** @type {((inputs?: Declarations_Mark_FiledInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Declarations_Mark_FiledInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Marquer comme déclarée")
-	return /** @type {LocalizedString} */ ("Mark as filed")
+	if (locale === "fr") return fr_declarations_mark_filed(inputs)
+	return en_declarations_mark_filed(inputs)
 });

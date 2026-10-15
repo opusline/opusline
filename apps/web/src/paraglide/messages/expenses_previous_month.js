@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Previous_MonthInputs */
 
+const en_expenses_previous_month = /** @type {(inputs: Expenses_Previous_MonthInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Previous month`)
+};
 
+const fr_expenses_previous_month = /** @type {(inputs: Expenses_Previous_MonthInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Mois précédent`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const expenses_previous_month = /** @type {((inputs?: Expenses_Previous_MonthInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Previous_MonthInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Mois précédent")
-	return /** @type {LocalizedString} */ ("Previous month")
+	if (locale === "fr") return fr_expenses_previous_month(inputs)
+	return en_expenses_previous_month(inputs)
 });

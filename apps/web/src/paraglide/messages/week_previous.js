@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Week_PreviousInputs */
 
+const en_week_previous = /** @type {(inputs: Week_PreviousInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Previous week`)
+};
 
+const fr_week_previous = /** @type {(inputs: Week_PreviousInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Semaine précédente`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const week_previous = /** @type {((inputs?: Week_PreviousInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Week_PreviousInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Semaine précédente")
-	return /** @type {LocalizedString} */ ("Previous week")
+	if (locale === "fr") return fr_week_previous(inputs)
+	return en_week_previous(inputs)
 });

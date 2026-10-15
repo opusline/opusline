@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Missions_Open_WeekInputs */
 
+const en_missions_open_week = /** @type {(inputs: Missions_Open_WeekInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Open the week →`)
+};
 
+const fr_missions_open_week = /** @type {(inputs: Missions_Open_WeekInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ouvrir la semaine →`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const missions_open_week = /** @type {((inputs?: Missions_Open_WeekInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Missions_Open_WeekInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Ouvrir la semaine →")
-	return /** @type {LocalizedString} */ ("Open the week →")
+	if (locale === "fr") return fr_missions_open_week(inputs)
+	return en_missions_open_week(inputs)
 });

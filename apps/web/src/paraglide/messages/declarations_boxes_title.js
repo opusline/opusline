@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Declarations_Boxes_TitleInputs */
 
+const en_declarations_boxes_title = /** @type {(inputs: Declarations_Boxes_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Form boxes`)
+};
 
+const fr_declarations_boxes_title = /** @type {(inputs: Declarations_Boxes_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Cases du formulaire`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const declarations_boxes_title = /** @type {((inputs?: Declarations_Boxes_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Declarations_Boxes_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Cases du formulaire")
-	return /** @type {LocalizedString} */ ("Form boxes")
+	if (locale === "fr") return fr_declarations_boxes_title(inputs)
+	return en_declarations_boxes_title(inputs)
 });

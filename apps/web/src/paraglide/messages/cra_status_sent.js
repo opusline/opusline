@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Cra_Status_SentInputs */
 
+const en_cra_status_sent = /** @type {(inputs: Cra_Status_SentInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Sent`)
+};
 
+const fr_cra_status_sent = /** @type {(inputs: Cra_Status_SentInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Envoyé`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const cra_status_sent = /** @type {((inputs?: Cra_Status_SentInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Cra_Status_SentInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Envoyé")
-	return /** @type {LocalizedString} */ ("Sent")
+	if (locale === "fr") return fr_cra_status_sent(inputs)
+	return en_cra_status_sent(inputs)
 });

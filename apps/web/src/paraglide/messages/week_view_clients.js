@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Week_View_ClientsInputs */
 
+const en_week_view_clients = /** @type {(inputs: Week_View_ClientsInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`View my clients`)
+};
 
+const fr_week_view_clients = /** @type {(inputs: Week_View_ClientsInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Voir mes clients`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const week_view_clients = /** @type {((inputs?: Week_View_ClientsInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Week_View_ClientsInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Voir mes clients")
-	return /** @type {LocalizedString} */ ("View my clients")
+	if (locale === "fr") return fr_week_view_clients(inputs)
+	return en_week_view_clients(inputs)
 });

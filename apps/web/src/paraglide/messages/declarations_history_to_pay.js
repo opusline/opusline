@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Declarations_History_To_PayInputs */
 
+const en_declarations_history_to_pay = /** @type {(inputs: Declarations_History_To_PayInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`to pay`)
+};
 
+const fr_declarations_history_to_pay = /** @type {(inputs: Declarations_History_To_PayInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`à payer`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const declarations_history_to_pay = /** @type {((inputs?: Declarations_History_To_PayInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Declarations_History_To_PayInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("à payer")
-	return /** @type {LocalizedString} */ ("to pay")
+	if (locale === "fr") return fr_declarations_history_to_pay(inputs)
+	return en_declarations_history_to_pay(inputs)
 });

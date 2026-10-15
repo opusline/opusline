@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Nav_TreasuryInputs */
 
+const en_nav_treasury = /** @type {(inputs: Nav_TreasuryInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Transfer`)
+};
 
+const fr_nav_treasury = /** @type {(inputs: Nav_TreasuryInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Virement`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const nav_treasury = /** @type {((inputs?: Nav_TreasuryInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Nav_TreasuryInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Virement")
-	return /** @type {LocalizedString} */ ("Transfer")
+	if (locale === "fr") return fr_nav_treasury(inputs)
+	return en_nav_treasury(inputs)
 });

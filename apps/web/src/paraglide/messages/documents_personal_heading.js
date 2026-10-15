@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Documents_Personal_HeadingInputs */
 
+const en_documents_personal_heading = /** @type {(inputs: Documents_Personal_HeadingInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`My administrative pieces`)
+};
 
+const fr_documents_personal_heading = /** @type {(inputs: Documents_Personal_HeadingInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Mes pièces administratives`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const documents_personal_heading = /** @type {((inputs?: Documents_Personal_HeadingInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Documents_Personal_HeadingInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Mes pièces administratives")
-	return /** @type {LocalizedString} */ ("My administrative pieces")
+	if (locale === "fr") return fr_documents_personal_heading(inputs)
+	return en_documents_personal_heading(inputs)
 });

@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Movements_Amount_HeaderInputs */
 
+const en_bank_movements_amount_header = /** @type {(inputs: Bank_Movements_Amount_HeaderInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Amount`)
+};
 
+const fr_bank_movements_amount_header = /** @type {(inputs: Bank_Movements_Amount_HeaderInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Montant`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const bank_movements_amount_header = /** @type {((inputs?: Bank_Movements_Amount_HeaderInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Movements_Amount_HeaderInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Montant")
-	return /** @type {LocalizedString} */ ("Amount")
+	if (locale === "fr") return fr_bank_movements_amount_header(inputs)
+	return en_bank_movements_amount_header(inputs)
 });

@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Declarations_Copy_AllInputs */
 
+const en_declarations_copy_all = /** @type {(inputs: Declarations_Copy_AllInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Copy all`)
+};
 
+const fr_declarations_copy_all = /** @type {(inputs: Declarations_Copy_AllInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Tout copier`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const declarations_copy_all = /** @type {((inputs?: Declarations_Copy_AllInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Declarations_Copy_AllInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Tout copier")
-	return /** @type {LocalizedString} */ ("Copy all")
+	if (locale === "fr") return fr_declarations_copy_all(inputs)
+	return en_declarations_copy_all(inputs)
 });

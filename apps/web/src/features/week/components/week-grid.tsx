@@ -478,7 +478,6 @@ export function WeekGrid({
             ))}
             <ReadOnlyCell
               aria-colindex={model.columns.length + 2}
-              aria-label={m.week_row_total_label({ mission: row.name })}
               data-minutes={trackedMinutes(row.cells)}
               data-mission={row.missionId}
               data-testid="week-mission-total"
@@ -489,6 +488,9 @@ export function WeekGrid({
                   : "text-foreground-2",
               )}
             >
+              <span className="sr-only">
+                {m.week_row_total_label({ mission: row.name })}
+              </span>{" "}
               {row.totalLabel}
             </ReadOnlyCell>
           </GridRow>
@@ -525,7 +527,6 @@ export function WeekGrid({
           })}
           <ReadOnlyCell
             aria-colindex={model.columns.length + 2}
-            aria-label={m.week_week_total_label()}
             data-minutes={trackedMinutes(
               model.rows.flatMap((row) => row.cells),
             )}
@@ -534,6 +535,7 @@ export function WeekGrid({
             // track, and wrapping beats spilling over the card edge.
             className="border-l bg-muted px-3 py-3.5 text-right font-mono font-medium text-primary-text text-sm tabular-nums"
           >
+            <span className="sr-only">{m.week_week_total_label()}</span>{" "}
             {model.weekTotal}
           </ReadOnlyCell>
         </GridRow>

@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Clients_Load_FailedInputs */
 
+const en_clients_load_failed = /** @type {(inputs: Clients_Load_FailedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`The clients could not be loaded. Try again in a moment.`)
+};
 
+const fr_clients_load_failed = /** @type {(inputs: Clients_Load_FailedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Impossible de charger les clients. Réessayez dans un instant.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const clients_load_failed = /** @type {((inputs?: Clients_Load_FailedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Clients_Load_FailedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Impossible de charger les clients. Réessayez dans un instant.")
-	return /** @type {LocalizedString} */ ("The clients could not be loaded. Try again in a moment.")
+	if (locale === "fr") return fr_clients_load_failed(inputs)
+	return en_clients_load_failed(inputs)
 });

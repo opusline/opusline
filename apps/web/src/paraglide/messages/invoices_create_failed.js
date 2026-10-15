@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Create_FailedInputs */
 
+const en_invoices_create_failed = /** @type {(inputs: Invoices_Create_FailedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`The invoice could not be created.`)
+};
 
+const fr_invoices_create_failed = /** @type {(inputs: Invoices_Create_FailedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`La facture n'a pas pu être créée.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const invoices_create_failed = /** @type {((inputs?: Invoices_Create_FailedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Create_FailedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("La facture n'a pas pu être créée.")
-	return /** @type {LocalizedString} */ ("The invoice could not be created.")
+	if (locale === "fr") return fr_invoices_create_failed(inputs)
+	return en_invoices_create_failed(inputs)
 });

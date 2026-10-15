@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Declarations_Cfe_Amount_HintInputs */
 
+const en_declarations_cfe_amount_hint = /** @type {(inputs: Declarations_Cfe_Amount_HintInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`The notice amount replaces the estimate, in Treasury as here.`)
+};
 
+const fr_declarations_cfe_amount_hint = /** @type {(inputs: Declarations_Cfe_Amount_HintInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Le montant de l'avis remplace l'estimation, dans Trésorerie comme ici.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const declarations_cfe_amount_hint = /** @type {((inputs?: Declarations_Cfe_Amount_HintInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Declarations_Cfe_Amount_HintInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Le montant de l'avis remplace l'estimation, dans Trésorerie comme ici.")
-	return /** @type {LocalizedString} */ ("The notice amount replaces the estimate, in Treasury as here.")
+	if (locale === "fr") return fr_declarations_cfe_amount_hint(inputs)
+	return en_declarations_cfe_amount_hint(inputs)
 });

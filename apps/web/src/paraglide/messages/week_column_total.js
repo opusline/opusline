@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Week_Column_TotalInputs */
 
+const en_week_column_total = /** @type {(inputs: Week_Column_TotalInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Total`)
+};
 
+const fr_week_column_total = /** @type {(inputs: Week_Column_TotalInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Total`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const week_column_total = /** @type {((inputs?: Week_Column_TotalInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Week_Column_TotalInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Total")
-	return /** @type {LocalizedString} */ ("Total")
+	if (locale === "fr") return fr_week_column_total(inputs)
+	return en_week_column_total(inputs)
 });

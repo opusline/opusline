@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Auth_Passwords_MismatchInputs */
 
+const en_auth_passwords_mismatch = /** @type {(inputs: Auth_Passwords_MismatchInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`The passwords do not match.`)
+};
 
+const fr_auth_passwords_mismatch = /** @type {(inputs: Auth_Passwords_MismatchInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Les mots de passe ne correspondent pas.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const auth_passwords_mismatch = /** @type {((inputs?: Auth_Passwords_MismatchInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Auth_Passwords_MismatchInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Les mots de passe ne correspondent pas.")
-	return /** @type {LocalizedString} */ ("The passwords do not match.")
+	if (locale === "fr") return fr_auth_passwords_mismatch(inputs)
+	return en_auth_passwords_mismatch(inputs)
 });

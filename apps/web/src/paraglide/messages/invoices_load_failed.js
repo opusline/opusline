@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Load_FailedInputs */
 
+const en_invoices_load_failed = /** @type {(inputs: Invoices_Load_FailedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`The invoices could not be loaded. Try again in a moment.`)
+};
 
+const fr_invoices_load_failed = /** @type {(inputs: Invoices_Load_FailedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Impossible de charger les factures. Réessayez dans un instant.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const invoices_load_failed = /** @type {((inputs?: Invoices_Load_FailedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Load_FailedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Impossible de charger les factures. Réessayez dans un instant.")
-	return /** @type {LocalizedString} */ ("The invoices could not be loaded. Try again in a moment.")
+	if (locale === "fr") return fr_invoices_load_failed(inputs)
+	return en_invoices_load_failed(inputs)
 });

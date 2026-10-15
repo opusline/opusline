@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Receipt_ReplaceInputs */
 
+const en_expenses_receipt_replace = /** @type {(inputs: Expenses_Receipt_ReplaceInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Replace`)
+};
 
+const fr_expenses_receipt_replace = /** @type {(inputs: Expenses_Receipt_ReplaceInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Remplacer`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const expenses_receipt_replace = /** @type {((inputs?: Expenses_Receipt_ReplaceInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Receipt_ReplaceInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Remplacer")
-	return /** @type {LocalizedString} */ ("Replace")
+	if (locale === "fr") return fr_expenses_receipt_replace(inputs)
+	return en_expenses_receipt_replace(inputs)
 });

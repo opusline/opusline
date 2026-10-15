@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Documents_Add_AriaInputs */
 
+const en_documents_add_aria = /** @type {(inputs: Documents_Add_AriaInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Add documents`)
+};
 
+const fr_documents_add_aria = /** @type {(inputs: Documents_Add_AriaInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ajouter des documents`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const documents_add_aria = /** @type {((inputs?: Documents_Add_AriaInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Documents_Add_AriaInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Ajouter des documents")
-	return /** @type {LocalizedString} */ ("Add documents")
+	if (locale === "fr") return fr_documents_add_aria(inputs)
+	return en_documents_add_aria(inputs)
 });

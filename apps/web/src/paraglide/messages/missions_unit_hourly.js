@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Missions_Unit_HourlyInputs */
 
+const en_missions_unit_hourly = /** @type {(inputs: Missions_Unit_HourlyInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (` / hour`)
+};
 
+const fr_missions_unit_hourly = /** @type {(inputs: Missions_Unit_HourlyInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (` / heure`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const missions_unit_hourly = /** @type {((inputs?: Missions_Unit_HourlyInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Missions_Unit_HourlyInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ (" / heure")
-	return /** @type {LocalizedString} */ (" / hour")
+	if (locale === "fr") return fr_missions_unit_hourly(inputs)
+	return en_missions_unit_hourly(inputs)
 });

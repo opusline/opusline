@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Cra_State_Pdf_ReadyInputs */
 
+const en_cra_state_pdf_ready = /** @type {(inputs: Cra_State_Pdf_ReadyInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`PDF ready`)
+};
 
+const fr_cra_state_pdf_ready = /** @type {(inputs: Cra_State_Pdf_ReadyInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`PDF prêt`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const cra_state_pdf_ready = /** @type {((inputs?: Cra_State_Pdf_ReadyInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Cra_State_Pdf_ReadyInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("PDF prêt")
-	return /** @type {LocalizedString} */ ("PDF ready")
+	if (locale === "fr") return fr_cra_state_pdf_ready(inputs)
+	return en_cra_state_pdf_ready(inputs)
 });

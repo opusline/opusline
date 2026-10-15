@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Revenue_Subtitle_Fallback_InvoicedInputs */
 
+const en_revenue_subtitle_fallback_invoiced = /** @type {(inputs: Revenue_Subtitle_Fallback_InvoicedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Nothing invoiced this month: here is the last period with activity.`)
+};
 
+const fr_revenue_subtitle_fallback_invoiced = /** @type {(inputs: Revenue_Subtitle_Fallback_InvoicedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Rien de facturé sur le mois en cours : voici la dernière période avec activité.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const revenue_subtitle_fallback_invoiced = /** @type {((inputs?: Revenue_Subtitle_Fallback_InvoicedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Revenue_Subtitle_Fallback_InvoicedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Rien de facturé sur le mois en cours : voici la dernière période avec activité.")
-	return /** @type {LocalizedString} */ ("Nothing invoiced this month: here is the last period with activity.")
+	if (locale === "fr") return fr_revenue_subtitle_fallback_invoiced(inputs)
+	return en_revenue_subtitle_fallback_invoiced(inputs)
 });

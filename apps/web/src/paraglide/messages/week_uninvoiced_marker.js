@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Week_Uninvoiced_MarkerInputs */
 
+const en_week_uninvoiced_marker = /** @type {(inputs: Week_Uninvoiced_MarkerInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Not invoiced`)
+};
 
+const fr_week_uninvoiced_marker = /** @type {(inputs: Week_Uninvoiced_MarkerInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Non facturé`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const week_uninvoiced_marker = /** @type {((inputs?: Week_Uninvoiced_MarkerInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Week_Uninvoiced_MarkerInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Non facturé")
-	return /** @type {LocalizedString} */ ("Not invoiced")
+	if (locale === "fr") return fr_week_uninvoiced_marker(inputs)
+	return en_week_uninvoiced_marker(inputs)
 });

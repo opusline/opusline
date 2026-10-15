@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Release_Notes_Unread_CountInputs */
 
-const en_release_notes_unread_count = /** @type {(inputs: Release_Notes_Unread_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
+const en_release_notes_unread_count = /** @type {(inputs: Release_Notes_Unread_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} unread release note`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} unread release notes`);
 	return /** @type {LocalizedString} */ ("release_notes_unread_count");
 };
 
-const fr_release_notes_unread_count = /** @type {(inputs: Release_Notes_Unread_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
+const fr_release_notes_unread_count = /** @type {(inputs: Release_Notes_Unread_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} note de version non lue`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} notes de version non lues`);
 	return /** @type {LocalizedString} */ ("release_notes_unread_count");

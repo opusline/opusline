@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Balance_Edit_AriaInputs */
 
+const en_bank_balance_edit_aria = /** @type {(inputs: Bank_Balance_Edit_AriaInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Edit the balance`)
+};
 
+const fr_bank_balance_edit_aria = /** @type {(inputs: Bank_Balance_Edit_AriaInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Modifier le solde`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const bank_balance_edit_aria = /** @type {((inputs?: Bank_Balance_Edit_AriaInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Balance_Edit_AriaInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Modifier le solde")
-	return /** @type {LocalizedString} */ ("Edit the balance")
+	if (locale === "fr") return fr_bank_balance_edit_aria(inputs)
+	return en_bank_balance_edit_aria(inputs)
 });

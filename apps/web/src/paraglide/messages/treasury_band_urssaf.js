@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Treasury_Band_UrssafInputs */
 
+const en_treasury_band_urssaf = /** @type {(inputs: Treasury_Band_UrssafInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`URSSAF provision`)
+};
 
+const fr_treasury_band_urssaf = /** @type {(inputs: Treasury_Band_UrssafInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Provision URSSAF`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const treasury_band_urssaf = /** @type {((inputs?: Treasury_Band_UrssafInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Treasury_Band_UrssafInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Provision URSSAF")
-	return /** @type {LocalizedString} */ ("URSSAF provision")
+	if (locale === "fr") return fr_treasury_band_urssaf(inputs)
+	return en_treasury_band_urssaf(inputs)
 });

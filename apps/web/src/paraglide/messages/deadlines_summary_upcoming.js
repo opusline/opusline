@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Deadlines_Summary_UpcomingInputs */
 
-const en_deadlines_summary_upcoming = /** @type {(inputs: Deadlines_Summary_UpcomingInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
+const en_deadlines_summary_upcoming = /** @type {(inputs: Deadlines_Summary_UpcomingInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} coming up`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} coming up`);
 	return /** @type {LocalizedString} */ ("deadlines_summary_upcoming");
 };
 
-const fr_deadlines_summary_upcoming = /** @type {(inputs: Deadlines_Summary_UpcomingInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
+const fr_deadlines_summary_upcoming = /** @type {(inputs: Deadlines_Summary_UpcomingInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} à venir`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} à venir`);
 	return /** @type {LocalizedString} */ ("deadlines_summary_upcoming");

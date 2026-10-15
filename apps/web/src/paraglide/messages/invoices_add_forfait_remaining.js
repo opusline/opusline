@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Add_Forfait_RemainingInputs */
 
+const en_invoices_add_forfait_remaining = /** @type {(inputs: Invoices_Add_Forfait_RemainingInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Left to invoice`)
+};
 
+const fr_invoices_add_forfait_remaining = /** @type {(inputs: Invoices_Add_Forfait_RemainingInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Reste à facturer`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const invoices_add_forfait_remaining = /** @type {((inputs?: Invoices_Add_Forfait_RemainingInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Add_Forfait_RemainingInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Reste à facturer")
-	return /** @type {LocalizedString} */ ("Left to invoice")
+	if (locale === "fr") return fr_invoices_add_forfait_remaining(inputs)
+	return en_invoices_add_forfait_remaining(inputs)
 });

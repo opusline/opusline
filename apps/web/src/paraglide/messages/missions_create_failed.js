@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Missions_Create_FailedInputs */
 
+const en_missions_create_failed = /** @type {(inputs: Missions_Create_FailedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`The mission could not be created. Try again in a moment.`)
+};
 
+const fr_missions_create_failed = /** @type {(inputs: Missions_Create_FailedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Impossible de créer la mission. Réessayez dans un instant.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const missions_create_failed = /** @type {((inputs?: Missions_Create_FailedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Missions_Create_FailedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Impossible de créer la mission. Réessayez dans un instant.")
-	return /** @type {LocalizedString} */ ("The mission could not be created. Try again in a moment.")
+	if (locale === "fr") return fr_missions_create_failed(inputs)
+	return en_missions_create_failed(inputs)
 });

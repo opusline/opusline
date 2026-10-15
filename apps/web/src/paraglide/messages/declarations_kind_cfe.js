@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Declarations_Kind_CfeInputs */
 
+const en_declarations_kind_cfe = /** @type {(inputs: Declarations_Kind_CfeInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`CFE`)
+};
 
+const fr_declarations_kind_cfe = /** @type {(inputs: Declarations_Kind_CfeInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`CFE`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const declarations_kind_cfe = /** @type {((inputs?: Declarations_Kind_CfeInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Declarations_Kind_CfeInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("CFE")
-	return /** @type {LocalizedString} */ ("CFE")
+	if (locale === "fr") return fr_declarations_kind_cfe(inputs)
+	return en_declarations_kind_cfe(inputs)
 });

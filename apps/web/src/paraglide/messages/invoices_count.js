@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Invoices_CountInputs */
 
-const en_invoices_count = /** @type {(inputs: Invoices_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
+const en_invoices_count = /** @type {(inputs: Invoices_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} invoice`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} invoices`);
 	return /** @type {LocalizedString} */ ("invoices_count");
 };
 
-const fr_invoices_count = /** @type {(inputs: Invoices_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
+const fr_invoices_count = /** @type {(inputs: Invoices_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} facture`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} factures`);
 	return /** @type {LocalizedString} */ ("invoices_count");

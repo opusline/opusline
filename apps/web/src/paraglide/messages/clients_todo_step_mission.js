@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Clients_Todo_Step_MissionInputs */
 
+const en_clients_todo_step_mission = /** @type {(inputs: Clients_Todo_Step_MissionInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Attach a mission and its rate`)
+};
 
+const fr_clients_todo_step_mission = /** @type {(inputs: Clients_Todo_Step_MissionInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Lui associer une mission et son tarif`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const clients_todo_step_mission = /** @type {((inputs?: Clients_Todo_Step_MissionInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Clients_Todo_Step_MissionInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Lui associer une mission et son tarif")
-	return /** @type {LocalizedString} */ ("Attach a mission and its rate")
+	if (locale === "fr") return fr_clients_todo_step_mission(inputs)
+	return en_clients_todo_step_mission(inputs)
 });

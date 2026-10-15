@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Rounding_MinutesInputs */
 
+const en_rounding_minutes = /** @type {(inputs: Rounding_MinutesInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`minutes`)
+};
 
+const fr_rounding_minutes = /** @type {(inputs: Rounding_MinutesInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`minutes`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const rounding_minutes = /** @type {((inputs?: Rounding_MinutesInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Rounding_MinutesInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("minutes")
-	return /** @type {LocalizedString} */ ("minutes")
+	if (locale === "fr") return fr_rounding_minutes(inputs)
+	return en_rounding_minutes(inputs)
 });

@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Connect_Bank_LabelInputs */
 
+const en_bank_connect_bank_label = /** @type {(inputs: Bank_Connect_Bank_LabelInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Bank`)
+};
 
+const fr_bank_connect_bank_label = /** @type {(inputs: Bank_Connect_Bank_LabelInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Banque`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const bank_connect_bank_label = /** @type {((inputs?: Bank_Connect_Bank_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Connect_Bank_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Banque")
-	return /** @type {LocalizedString} */ ("Bank")
+	if (locale === "fr") return fr_bank_connect_bank_label(inputs)
+	return en_bank_connect_bank_label(inputs)
 });

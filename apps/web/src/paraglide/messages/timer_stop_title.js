@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Timer_Stop_TitleInputs */
 
+const en_timer_stop_title = /** @type {(inputs: Timer_Stop_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Save the entry`)
+};
 
+const fr_timer_stop_title = /** @type {(inputs: Timer_Stop_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Enregistrer l'entrée`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const timer_stop_title = /** @type {((inputs?: Timer_Stop_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Timer_Stop_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Enregistrer l'entrée")
-	return /** @type {LocalizedString} */ ("Save the entry")
+	if (locale === "fr") return fr_timer_stop_title(inputs)
+	return en_timer_stop_title(inputs)
 });

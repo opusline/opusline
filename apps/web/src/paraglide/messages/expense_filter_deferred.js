@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expense_Filter_DeferredInputs */
 
+const en_expense_filter_deferred = /** @type {(inputs: Expense_Filter_DeferredInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Deferred`)
+};
 
+const fr_expense_filter_deferred = /** @type {(inputs: Expense_Filter_DeferredInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Reportées`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const expense_filter_deferred = /** @type {((inputs?: Expense_Filter_DeferredInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expense_Filter_DeferredInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Reportées")
-	return /** @type {LocalizedString} */ ("Deferred")
+	if (locale === "fr") return fr_expense_filter_deferred(inputs)
+	return en_expense_filter_deferred(inputs)
 });

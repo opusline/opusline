@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Cra_Empty_TitleInputs */
 
+const en_cra_empty_title = /** @type {(inputs: Cra_Empty_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`No mission requires a CRA`)
+};
 
+const fr_cra_empty_title = /** @type {(inputs: Cra_Empty_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Aucune mission ne demande de CRA`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const cra_empty_title = /** @type {((inputs?: Cra_Empty_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Cra_Empty_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Aucune mission ne demande de CRA")
-	return /** @type {LocalizedString} */ ("No mission requires a CRA")
+	if (locale === "fr") return fr_cra_empty_title(inputs)
+	return en_cra_empty_title(inputs)
 });

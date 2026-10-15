@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Not_Found_TitleInputs */
 
+const en_not_found_title = /** @type {(inputs: Not_Found_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Page not found`)
+};
 
+const fr_not_found_title = /** @type {(inputs: Not_Found_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Page introuvable`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const not_found_title = /** @type {((inputs?: Not_Found_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Not_Found_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Page introuvable")
-	return /** @type {LocalizedString} */ ("Page not found")
+	if (locale === "fr") return fr_not_found_title(inputs)
+	return en_not_found_title(inputs)
 });

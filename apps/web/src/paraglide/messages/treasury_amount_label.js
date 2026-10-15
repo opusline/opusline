@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Treasury_Amount_LabelInputs */
 
+const en_treasury_amount_label = /** @type {(inputs: Treasury_Amount_LabelInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Amount`)
+};
 
+const fr_treasury_amount_label = /** @type {(inputs: Treasury_Amount_LabelInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Montant`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const treasury_amount_label = /** @type {((inputs?: Treasury_Amount_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Treasury_Amount_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Montant")
-	return /** @type {LocalizedString} */ ("Amount")
+	if (locale === "fr") return fr_treasury_amount_label(inputs)
+	return en_treasury_amount_label(inputs)
 });

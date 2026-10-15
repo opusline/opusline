@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Timer_Not_Billable_ValueInputs */
 
+const en_timer_not_billable_value = /** @type {(inputs: Timer_Not_Billable_ValueInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`non-billable`)
+};
 
+const fr_timer_not_billable_value = /** @type {(inputs: Timer_Not_Billable_ValueInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`non facturable`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const timer_not_billable_value = /** @type {((inputs?: Timer_Not_Billable_ValueInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Timer_Not_Billable_ValueInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("non facturable")
-	return /** @type {LocalizedString} */ ("non-billable")
+	if (locale === "fr") return fr_timer_not_billable_value(inputs)
+	return en_timer_not_billable_value(inputs)
 });

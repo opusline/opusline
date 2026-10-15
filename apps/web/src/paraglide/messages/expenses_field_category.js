@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Field_CategoryInputs */
 
+const en_expenses_field_category = /** @type {(inputs: Expenses_Field_CategoryInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Category`)
+};
 
+const fr_expenses_field_category = /** @type {(inputs: Expenses_Field_CategoryInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Catégorie`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const expenses_field_category = /** @type {((inputs?: Expenses_Field_CategoryInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Field_CategoryInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Catégorie")
-	return /** @type {LocalizedString} */ ("Category")
+	if (locale === "fr") return fr_expenses_field_category(inputs)
+	return en_expenses_field_category(inputs)
 });

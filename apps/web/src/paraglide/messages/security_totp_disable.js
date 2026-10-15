@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Security_Totp_DisableInputs */
 
+const en_security_totp_disable = /** @type {(inputs: Security_Totp_DisableInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Turn off`)
+};
 
+const fr_security_totp_disable = /** @type {(inputs: Security_Totp_DisableInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Désactiver`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const security_totp_disable = /** @type {((inputs?: Security_Totp_DisableInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Totp_DisableInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Désactiver")
-	return /** @type {LocalizedString} */ ("Turn off")
+	if (locale === "fr") return fr_security_totp_disable(inputs)
+	return en_security_totp_disable(inputs)
 });

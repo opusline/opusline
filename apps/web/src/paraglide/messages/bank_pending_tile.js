@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Pending_TileInputs */
 
+const en_bank_pending_tile = /** @type {(inputs: Bank_Pending_TileInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`To reconcile`)
+};
 
+const fr_bank_pending_tile = /** @type {(inputs: Bank_Pending_TileInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`À rapprocher`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const bank_pending_tile = /** @type {((inputs?: Bank_Pending_TileInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Pending_TileInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("À rapprocher")
-	return /** @type {LocalizedString} */ ("To reconcile")
+	if (locale === "fr") return fr_bank_pending_tile(inputs)
+	return en_bank_pending_tile(inputs)
 });

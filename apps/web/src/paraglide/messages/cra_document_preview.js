@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Cra_Document_PreviewInputs */
 
+const en_cra_document_preview = /** @type {(inputs: Cra_Document_PreviewInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Document preview`)
+};
 
+const fr_cra_document_preview = /** @type {(inputs: Cra_Document_PreviewInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Aperçu du document`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const cra_document_preview = /** @type {((inputs?: Cra_Document_PreviewInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Cra_Document_PreviewInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Aperçu du document")
-	return /** @type {LocalizedString} */ ("Document preview")
+	if (locale === "fr") return fr_cra_document_preview(inputs)
+	return en_cra_document_preview(inputs)
 });

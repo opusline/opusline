@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Missions_Tab_ConfigurationInputs */
 
+const en_missions_tab_configuration = /** @type {(inputs: Missions_Tab_ConfigurationInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Configuration`)
+};
 
+const fr_missions_tab_configuration = /** @type {(inputs: Missions_Tab_ConfigurationInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Configuration`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const missions_tab_configuration = /** @type {((inputs?: Missions_Tab_ConfigurationInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Missions_Tab_ConfigurationInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Configuration")
-	return /** @type {LocalizedString} */ ("Configuration")
+	if (locale === "fr") return fr_missions_tab_configuration(inputs)
+	return en_missions_tab_configuration(inputs)
 });

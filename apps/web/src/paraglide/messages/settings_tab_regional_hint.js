@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Settings_Tab_Regional_HintInputs */
 
+const en_settings_tab_regional_hint = /** @type {(inputs: Settings_Tab_Regional_HintInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Country, currency, language`)
+};
 
+const fr_settings_tab_regional_hint = /** @type {(inputs: Settings_Tab_Regional_HintInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Pays, devise, langue`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const settings_tab_regional_hint = /** @type {((inputs?: Settings_Tab_Regional_HintInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Tab_Regional_HintInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Pays, devise, langue")
-	return /** @type {LocalizedString} */ ("Country, currency, language")
+	if (locale === "fr") return fr_settings_tab_regional_hint(inputs)
+	return en_settings_tab_regional_hint(inputs)
 });

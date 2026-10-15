@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Subscriptions_Field_Description_PlaceholderInputs */
 
+const en_subscriptions_field_description_placeholder = /** @type {(inputs: Subscriptions_Field_Description_PlaceholderInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Business fibre, VPS + domain…`)
+};
 
+const fr_subscriptions_field_description_placeholder = /** @type {(inputs: Subscriptions_Field_Description_PlaceholderInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Fibre pro, VPS + domaine…`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const subscriptions_field_description_placeholder = /** @type {((inputs?: Subscriptions_Field_Description_PlaceholderInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Subscriptions_Field_Description_PlaceholderInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Fibre pro, VPS + domaine…")
-	return /** @type {LocalizedString} */ ("Business fibre, VPS + domain…")
+	if (locale === "fr") return fr_subscriptions_field_description_placeholder(inputs)
+	return en_subscriptions_field_description_placeholder(inputs)
 });

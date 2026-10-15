@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Vat_Regime_Normal_LabelInputs */
 
+const en_vat_regime_normal_label = /** @type {(inputs: Vat_Regime_Normal_LabelInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Réel normal`)
+};
 
+const fr_vat_regime_normal_label = /** @type {(inputs: Vat_Regime_Normal_LabelInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Réel normal`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const vat_regime_normal_label = /** @type {((inputs?: Vat_Regime_Normal_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Vat_Regime_Normal_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Réel normal")
-	return /** @type {LocalizedString} */ ("Réel normal")
+	if (locale === "fr") return fr_vat_regime_normal_label(inputs)
+	return en_vat_regime_normal_label(inputs)
 });

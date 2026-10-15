@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Missions_DeleteInputs */
 
+const en_missions_delete = /** @type {(inputs: Missions_DeleteInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Delete this mission`)
+};
 
+const fr_missions_delete = /** @type {(inputs: Missions_DeleteInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Supprimer cette mission`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const missions_delete = /** @type {((inputs?: Missions_DeleteInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Missions_DeleteInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Supprimer cette mission")
-	return /** @type {LocalizedString} */ ("Delete this mission")
+	if (locale === "fr") return fr_missions_delete(inputs)
+	return en_missions_delete(inputs)
 });

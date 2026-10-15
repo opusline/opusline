@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Client_Type_Short_DirectInputs */
 
+const en_client_type_short_direct = /** @type {(inputs: Client_Type_Short_DirectInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Direct client`)
+};
 
+const fr_client_type_short_direct = /** @type {(inputs: Client_Type_Short_DirectInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Client direct`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const client_type_short_direct = /** @type {((inputs?: Client_Type_Short_DirectInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Client_Type_Short_DirectInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Client direct")
-	return /** @type {LocalizedString} */ ("Direct client")
+	if (locale === "fr") return fr_client_type_short_direct(inputs)
+	return en_client_type_short_direct(inputs)
 });

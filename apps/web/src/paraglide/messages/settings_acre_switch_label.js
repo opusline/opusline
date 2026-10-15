@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Settings_Acre_Switch_LabelInputs */
 
+const en_settings_acre_switch_label = /** @type {(inputs: Settings_Acre_Switch_LabelInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`I benefit from the ACRE`)
+};
 
+const fr_settings_acre_switch_label = /** @type {(inputs: Settings_Acre_Switch_LabelInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Je bénéficie de l'ACRE`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const settings_acre_switch_label = /** @type {((inputs?: Settings_Acre_Switch_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Acre_Switch_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Je bénéficie de l'ACRE")
-	return /** @type {LocalizedString} */ ("I benefit from the ACRE")
+	if (locale === "fr") return fr_settings_acre_switch_label(inputs)
+	return en_settings_acre_switch_label(inputs)
 });

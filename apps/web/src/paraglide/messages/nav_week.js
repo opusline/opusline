@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Nav_WeekInputs */
 
+const en_nav_week = /** @type {(inputs: Nav_WeekInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Week`)
+};
 
+const fr_nav_week = /** @type {(inputs: Nav_WeekInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Semaine`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const nav_week = /** @type {((inputs?: Nav_WeekInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Nav_WeekInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Semaine")
-	return /** @type {LocalizedString} */ ("Week")
+	if (locale === "fr") return fr_nav_week(inputs)
+	return en_nav_week(inputs)
 });

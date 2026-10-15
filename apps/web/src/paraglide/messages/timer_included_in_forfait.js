@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Timer_Included_In_ForfaitInputs */
 
+const en_timer_included_in_forfait = /** @type {(inputs: Timer_Included_In_ForfaitInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`included in the fixed price`)
+};
 
+const fr_timer_included_in_forfait = /** @type {(inputs: Timer_Included_In_ForfaitInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`compris dans le forfait`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const timer_included_in_forfait = /** @type {((inputs?: Timer_Included_In_ForfaitInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Timer_Included_In_ForfaitInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("compris dans le forfait")
-	return /** @type {LocalizedString} */ ("included in the fixed price")
+	if (locale === "fr") return fr_timer_included_in_forfait(inputs)
+	return en_timer_included_in_forfait(inputs)
 });

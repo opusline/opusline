@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Release_Notes_Kind_NewInputs */
 
+const en_release_notes_kind_new = /** @type {(inputs: Release_Notes_Kind_NewInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`New`)
+};
 
+const fr_release_notes_kind_new = /** @type {(inputs: Release_Notes_Kind_NewInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Nouveau`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const release_notes_kind_new = /** @type {((inputs?: Release_Notes_Kind_NewInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Release_Notes_Kind_NewInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Nouveau")
-	return /** @type {LocalizedString} */ ("New")
+	if (locale === "fr") return fr_release_notes_kind_new(inputs)
+	return en_release_notes_kind_new(inputs)
 });

@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Settings_Unsaved_ChangesInputs */
 
-const en_settings_unsaved_changes = /** @type {(inputs: Settings_Unsaved_ChangesInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
+const en_settings_unsaved_changes = /** @type {(inputs: Settings_Unsaved_ChangesInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} unsaved change`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} unsaved changes`);
 	return /** @type {LocalizedString} */ ("settings_unsaved_changes");
 };
 
-const fr_settings_unsaved_changes = /** @type {(inputs: Settings_Unsaved_ChangesInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
+const fr_settings_unsaved_changes = /** @type {(inputs: Settings_Unsaved_ChangesInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} modification non enregistrée`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} modifications non enregistrées`);
 	return /** @type {LocalizedString} */ ("settings_unsaved_changes");

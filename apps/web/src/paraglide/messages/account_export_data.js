@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Account_Export_DataInputs */
 
+const en_account_export_data = /** @type {(inputs: Account_Export_DataInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Export my data`)
+};
 
+const fr_account_export_data = /** @type {(inputs: Account_Export_DataInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Exporter mes données`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const account_export_data = /** @type {((inputs?: Account_Export_DataInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Account_Export_DataInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Exporter mes données")
-	return /** @type {LocalizedString} */ ("Export my data")
+	if (locale === "fr") return fr_account_export_data(inputs)
+	return en_account_export_data(inputs)
 });

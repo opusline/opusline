@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Clients_ArchiveInputs */
 
+const en_clients_archive = /** @type {(inputs: Clients_ArchiveInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Archive this client`)
+};
 
+const fr_clients_archive = /** @type {(inputs: Clients_ArchiveInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Archiver ce client`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const clients_archive = /** @type {((inputs?: Clients_ArchiveInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Clients_ArchiveInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Archiver ce client")
-	return /** @type {LocalizedString} */ ("Archive this client")
+	if (locale === "fr") return fr_clients_archive(inputs)
+	return en_clients_archive(inputs)
 });

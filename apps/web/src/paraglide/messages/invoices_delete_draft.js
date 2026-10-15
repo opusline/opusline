@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Delete_DraftInputs */
 
+const en_invoices_delete_draft = /** @type {(inputs: Invoices_Delete_DraftInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Delete the draft`)
+};
 
+const fr_invoices_delete_draft = /** @type {(inputs: Invoices_Delete_DraftInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Supprimer le brouillon`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const invoices_delete_draft = /** @type {((inputs?: Invoices_Delete_DraftInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Delete_DraftInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Supprimer le brouillon")
-	return /** @type {LocalizedString} */ ("Delete the draft")
+	if (locale === "fr") return fr_invoices_delete_draft(inputs)
+	return en_invoices_delete_draft(inputs)
 });

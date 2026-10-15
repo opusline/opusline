@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Entry_Mode_AriaInputs */
 
+const en_expenses_entry_mode_aria = /** @type {(inputs: Expenses_Entry_Mode_AriaInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Entry mode`)
+};
 
+const fr_expenses_entry_mode_aria = /** @type {(inputs: Expenses_Entry_Mode_AriaInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Mode de saisie`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const expenses_entry_mode_aria = /** @type {((inputs?: Expenses_Entry_Mode_AriaInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Entry_Mode_AriaInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Mode de saisie")
-	return /** @type {LocalizedString} */ ("Entry mode")
+	if (locale === "fr") return fr_expenses_entry_mode_aria(inputs)
+	return en_expenses_entry_mode_aria(inputs)
 });

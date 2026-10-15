@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoice_Status_SentInputs */
 
+const en_invoice_status_sent = /** @type {(inputs: Invoice_Status_SentInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Sent`)
+};
 
+const fr_invoice_status_sent = /** @type {(inputs: Invoice_Status_SentInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Envoyée`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const invoice_status_sent = /** @type {((inputs?: Invoice_Status_SentInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoice_Status_SentInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Envoyée")
-	return /** @type {LocalizedString} */ ("Sent")
+	if (locale === "fr") return fr_invoice_status_sent(inputs)
+	return en_invoice_status_sent(inputs)
 });

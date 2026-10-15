@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Clients_Badge_NewInputs */
 
+const en_clients_badge_new = /** @type {(inputs: Clients_Badge_NewInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`New`)
+};
 
+const fr_clients_badge_new = /** @type {(inputs: Clients_Badge_NewInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Nouveau`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const clients_badge_new = /** @type {((inputs?: Clients_Badge_NewInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Clients_Badge_NewInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Nouveau")
-	return /** @type {LocalizedString} */ ("New")
+	if (locale === "fr") return fr_clients_badge_new(inputs)
+	return en_clients_badge_new(inputs)
 });

@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Document_ReplaceInputs */
 
+const en_invoices_document_replace = /** @type {(inputs: Invoices_Document_ReplaceInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Replace`)
+};
 
+const fr_invoices_document_replace = /** @type {(inputs: Invoices_Document_ReplaceInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Remplacer`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const invoices_document_replace = /** @type {((inputs?: Invoices_Document_ReplaceInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Document_ReplaceInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Remplacer")
-	return /** @type {LocalizedString} */ ("Replace")
+	if (locale === "fr") return fr_invoices_document_replace(inputs)
+	return en_invoices_document_replace(inputs)
 });

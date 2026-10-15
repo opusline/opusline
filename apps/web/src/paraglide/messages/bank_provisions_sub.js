@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Provisions_SubInputs */
 
+const en_bank_provisions_sub = /** @type {(inputs: Bank_Provisions_SubInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`VAT, URSSAF and buffer`)
+};
 
+const fr_bank_provisions_sub = /** @type {(inputs: Bank_Provisions_SubInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`TVA, URSSAF et matelas`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const bank_provisions_sub = /** @type {((inputs?: Bank_Provisions_SubInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Provisions_SubInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("TVA, URSSAF et matelas")
-	return /** @type {LocalizedString} */ ("VAT, URSSAF and buffer")
+	if (locale === "fr") return fr_bank_provisions_sub(inputs)
+	return en_bank_provisions_sub(inputs)
 });

@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Documents_Owner_ClientInputs */
 
+const en_documents_owner_client = /** @type {(inputs: Documents_Owner_ClientInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`client`)
+};
 
+const fr_documents_owner_client = /** @type {(inputs: Documents_Owner_ClientInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`client`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const documents_owner_client = /** @type {((inputs?: Documents_Owner_ClientInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Documents_Owner_ClientInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("client")
-	return /** @type {LocalizedString} */ ("client")
+	if (locale === "fr") return fr_documents_owner_client(inputs)
+	return en_documents_owner_client(inputs)
 });

@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Bank_Import_Success_SuggestionsInputs */
 
-const en_bank_import_success_suggestions = /** @type {(inputs: Bank_Import_Success_SuggestionsInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
+const en_bank_import_success_suggestions = /** @type {(inputs: Bank_Import_Success_SuggestionsInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} match suggested`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} matches suggested`);
 	return /** @type {LocalizedString} */ ("bank_import_success_suggestions");
 };
 
-const fr_bank_import_success_suggestions = /** @type {(inputs: Bank_Import_Success_SuggestionsInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
+const fr_bank_import_success_suggestions = /** @type {(inputs: Bank_Import_Success_SuggestionsInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} rapprochement proposé`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} rapprochements proposés`);
 	return /** @type {LocalizedString} */ ("bank_import_success_suggestions");

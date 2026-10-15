@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Treasury_Tile_CaptionInputs */
 
+const en_treasury_tile_caption = /** @type {(inputs: Treasury_Tile_CaptionInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`provisions deducted`)
+};
 
+const fr_treasury_tile_caption = /** @type {(inputs: Treasury_Tile_CaptionInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`provisions déduites`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const treasury_tile_caption = /** @type {((inputs?: Treasury_Tile_CaptionInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Treasury_Tile_CaptionInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("provisions déduites")
-	return /** @type {LocalizedString} */ ("provisions deducted")
+	if (locale === "fr") return fr_treasury_tile_caption(inputs)
+	return en_treasury_tile_caption(inputs)
 });

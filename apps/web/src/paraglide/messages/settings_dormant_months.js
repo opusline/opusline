@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Settings_Dormant_MonthsInputs */
 
-const en_settings_dormant_months = /** @type {(inputs: Settings_Dormant_MonthsInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
+const en_settings_dormant_months = /** @type {(inputs: Settings_Dormant_MonthsInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`After ${i?.count} month`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`After ${i?.count} months`);
 	return /** @type {LocalizedString} */ ("settings_dormant_months");
 };
 
-const fr_settings_dormant_months = /** @type {(inputs: Settings_Dormant_MonthsInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
+const fr_settings_dormant_months = /** @type {(inputs: Settings_Dormant_MonthsInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`Au bout d’${i?.count} mois`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`Au bout de ${i?.count} mois`);
 	return /** @type {LocalizedString} */ ("settings_dormant_months");

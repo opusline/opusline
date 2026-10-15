@@ -81,7 +81,7 @@ it("toggles a fiscal line when it is pressed", async () => {
 
   fireEvent.click(
     await screen.findByRole("button", {
-      name: "Marquer comme faite — Déclaration URSSAF 31/08/2026",
+      name: /^Marquer comme faite — Déclaration URSSAF.*31\/08\/2026$/,
     }),
   );
 

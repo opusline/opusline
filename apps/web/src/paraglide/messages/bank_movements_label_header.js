@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Movements_Label_HeaderInputs */
 
+const en_bank_movements_label_header = /** @type {(inputs: Bank_Movements_Label_HeaderInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Label`)
+};
 
+const fr_bank_movements_label_header = /** @type {(inputs: Bank_Movements_Label_HeaderInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Libellé`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const bank_movements_label_header = /** @type {((inputs?: Bank_Movements_Label_HeaderInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Movements_Label_HeaderInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Libellé")
-	return /** @type {LocalizedString} */ ("Label")
+	if (locale === "fr") return fr_bank_movements_label_header(inputs)
+	return en_bank_movements_label_header(inputs)
 });

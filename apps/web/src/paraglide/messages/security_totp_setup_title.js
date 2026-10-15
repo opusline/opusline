@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Security_Totp_Setup_TitleInputs */
 
+const en_security_totp_setup_title = /** @type {(inputs: Security_Totp_Setup_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Set up the authenticator app`)
+};
 
+const fr_security_totp_setup_title = /** @type {(inputs: Security_Totp_Setup_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Configurer l'application d'authentification`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const security_totp_setup_title = /** @type {((inputs?: Security_Totp_Setup_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Totp_Setup_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Configurer l'application d'authentification")
-	return /** @type {LocalizedString} */ ("Set up the authenticator app")
+	if (locale === "fr") return fr_security_totp_setup_title(inputs)
+	return en_security_totp_setup_title(inputs)
 });

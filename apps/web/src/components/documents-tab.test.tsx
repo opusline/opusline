@@ -85,7 +85,7 @@ it("filters the list from the category chips", () => {
     ],
   });
 
-  fireEvent.click(screen.getByRole("button", { name: "Devis (1)" }));
+  fireEvent.click(screen.getByRole("button", { name: "Devis 1" }));
 
   expect(screen.getByText("devis-callisto.pdf")).toBeInTheDocument();
   expect(

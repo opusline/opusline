@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Empty_FilteredInputs */
 
+const en_invoices_empty_filtered = /** @type {(inputs: Invoices_Empty_FilteredInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Change the filter, or add an invoice issued elsewhere.`)
+};
 
+const fr_invoices_empty_filtered = /** @type {(inputs: Invoices_Empty_FilteredInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Changez de filtre, ou ajoutez une facture émise ailleurs.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const invoices_empty_filtered = /** @type {((inputs?: Invoices_Empty_FilteredInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Empty_FilteredInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Changez de filtre, ou ajoutez une facture émise ailleurs.")
-	return /** @type {LocalizedString} */ ("Change the filter, or add an invoice issued elsewhere.")
+	if (locale === "fr") return fr_invoices_empty_filtered(inputs)
+	return en_invoices_empty_filtered(inputs)
 });

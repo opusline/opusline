@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Deadlines_Feed_Types_CountInputs */
 
-const en_deadlines_feed_types_count = /** @type {(inputs: Deadlines_Feed_Types_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
+const en_deadlines_feed_types_count = /** @type {(inputs: Deadlines_Feed_Types_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} deadline type published at this address.`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} deadline types published at this address.`);
 	return /** @type {LocalizedString} */ ("deadlines_feed_types_count");
 };
 
-const fr_deadlines_feed_types_count = /** @type {(inputs: Deadlines_Feed_Types_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
+const fr_deadlines_feed_types_count = /** @type {(inputs: Deadlines_Feed_Types_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} type d'échéances publié sur cette adresse.`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} types d'échéances publiés sur cette adresse.`);
 	return /** @type {LocalizedString} */ ("deadlines_feed_types_count");

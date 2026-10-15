@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Pro_Share_ExampleInputs */
 
+const en_expenses_pro_share_example = /** @type {(inputs: Expenses_Pro_Share_ExampleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`E.g. a mobile plan also used privately → 70 %.`)
+};
 
+const fr_expenses_pro_share_example = /** @type {(inputs: Expenses_Pro_Share_ExampleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ex. : forfait mobile utilisé aussi à titre perso → 70 %.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const expenses_pro_share_example = /** @type {((inputs?: Expenses_Pro_Share_ExampleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Pro_Share_ExampleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Ex. : forfait mobile utilisé aussi à titre perso → 70 %.")
-	return /** @type {LocalizedString} */ ("E.g. a mobile plan also used privately → 70 %.")
+	if (locale === "fr") return fr_expenses_pro_share_example(inputs)
+	return en_expenses_pro_share_example(inputs)
 });

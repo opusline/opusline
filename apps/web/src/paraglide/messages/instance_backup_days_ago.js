@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Instance_Backup_Days_AgoInputs */
 
-const en_instance_backup_days_ago = /** @type {(inputs: Instance_Backup_Days_AgoInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
+const en_instance_backup_days_ago = /** @type {(inputs: Instance_Backup_Days_AgoInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} day ago`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} days ago`);
 	return /** @type {LocalizedString} */ ("instance_backup_days_ago");
 };
 
-const fr_instance_backup_days_ago = /** @type {(inputs: Instance_Backup_Days_AgoInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
+const fr_instance_backup_days_ago = /** @type {(inputs: Instance_Backup_Days_AgoInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`il y a ${i?.count} jour`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`il y a ${i?.count} jours`);
 	return /** @type {LocalizedString} */ ("instance_backup_days_ago");

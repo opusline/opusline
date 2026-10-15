@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Subscriptions_Detected_DismissInputs */
 
+const en_subscriptions_detected_dismiss = /** @type {(inputs: Subscriptions_Detected_DismissInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ignore`)
+};
 
+const fr_subscriptions_detected_dismiss = /** @type {(inputs: Subscriptions_Detected_DismissInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ignorer`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const subscriptions_detected_dismiss = /** @type {((inputs?: Subscriptions_Detected_DismissInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Subscriptions_Detected_DismissInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Ignorer")
-	return /** @type {LocalizedString} */ ("Ignore")
+	if (locale === "fr") return fr_subscriptions_detected_dismiss(inputs)
+	return en_subscriptions_detected_dismiss(inputs)
 });

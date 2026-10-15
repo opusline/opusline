@@ -127,11 +127,6 @@ export function DeadlinesPage({
         >
           {(["all", ...DEADLINE_CATEGORIES] as const).map((category) => (
             <Chip
-              aria-label={`${
-                category === "all"
-                  ? m.deadline_category_all()
-                  : deadlineCategoryLabel(category)
-              } (${counts.get(category) ?? 0})`}
               data-count={counts.get(category) ?? 0}
               data-filter={category}
               data-testid="deadline-filter"

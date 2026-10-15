@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Missions_Mark_DoneInputs */
 
+const en_missions_mark_done = /** @type {(inputs: Missions_Mark_DoneInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Mark as completed`)
+};
 
+const fr_missions_mark_done = /** @type {(inputs: Missions_Mark_DoneInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Marquer comme terminée`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const missions_mark_done = /** @type {((inputs?: Missions_Mark_DoneInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Missions_Mark_DoneInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Marquer comme terminée")
-	return /** @type {LocalizedString} */ ("Mark as completed")
+	if (locale === "fr") return fr_missions_mark_done(inputs)
+	return en_missions_mark_done(inputs)
 });

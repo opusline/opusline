@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Subscription_Periodicity_Quarterly_ShortInputs */
 
+const en_subscription_periodicity_quarterly_short = /** @type {(inputs: Subscription_Periodicity_Quarterly_ShortInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Quarterly`)
+};
 
+const fr_subscription_periodicity_quarterly_short = /** @type {(inputs: Subscription_Periodicity_Quarterly_ShortInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Trim.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const subscription_periodicity_quarterly_short = /** @type {((inputs?: Subscription_Periodicity_Quarterly_ShortInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Subscription_Periodicity_Quarterly_ShortInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Trim.")
-	return /** @type {LocalizedString} */ ("Quarterly")
+	if (locale === "fr") return fr_subscription_periodicity_quarterly_short(inputs)
+	return en_subscription_periodicity_quarterly_short(inputs)
 });

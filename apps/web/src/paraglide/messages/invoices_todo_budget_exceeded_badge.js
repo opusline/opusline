@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Todo_Budget_Exceeded_BadgeInputs */
 
+const en_invoices_todo_budget_exceeded_badge = /** @type {(inputs: Invoices_Todo_Budget_Exceeded_BadgeInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Over budget`)
+};
 
+const fr_invoices_todo_budget_exceeded_badge = /** @type {(inputs: Invoices_Todo_Budget_Exceeded_BadgeInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Budget dépassé`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const invoices_todo_budget_exceeded_badge = /** @type {((inputs?: Invoices_Todo_Budget_Exceeded_BadgeInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Todo_Budget_Exceeded_BadgeInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Budget dépassé")
-	return /** @type {LocalizedString} */ ("Over budget")
+	if (locale === "fr") return fr_invoices_todo_budget_exceeded_badge(inputs)
+	return en_invoices_todo_budget_exceeded_badge(inputs)
 });

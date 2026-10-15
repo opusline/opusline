@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Add_Forfait_DraftInputs */
 
+const en_invoices_add_forfait_draft = /** @type {(inputs: Invoices_Add_Forfait_DraftInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Held by a draft`)
+};
 
+const fr_invoices_add_forfait_draft = /** @type {(inputs: Invoices_Add_Forfait_DraftInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Retenu par un brouillon`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const invoices_add_forfait_draft = /** @type {((inputs?: Invoices_Add_Forfait_DraftInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Add_Forfait_DraftInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Retenu par un brouillon")
-	return /** @type {LocalizedString} */ ("Held by a draft")
+	if (locale === "fr") return fr_invoices_add_forfait_draft(inputs)
+	return en_invoices_add_forfait_draft(inputs)
 });

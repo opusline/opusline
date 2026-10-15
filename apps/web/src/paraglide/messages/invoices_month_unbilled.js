@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Month_UnbilledInputs */
 
+const en_invoices_month_unbilled = /** @type {(inputs: Invoices_Month_UnbilledInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`tracked this month, not yet invoiced.`)
+};
 
+const fr_invoices_month_unbilled = /** @type {(inputs: Invoices_Month_UnbilledInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`saisis ce mois-ci, pas encore facturés.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const invoices_month_unbilled = /** @type {((inputs?: Invoices_Month_UnbilledInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Month_UnbilledInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("saisis ce mois-ci, pas encore facturés.")
-	return /** @type {LocalizedString} */ ("tracked this month, not yet invoiced.")
+	if (locale === "fr") return fr_invoices_month_unbilled(inputs)
+	return en_invoices_month_unbilled(inputs)
 });

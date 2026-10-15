@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Deadlines_Overdue_ByInputs */
 
-const en_deadlines_overdue_by = /** @type {(inputs: Deadlines_Overdue_ByInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
+const en_deadlines_overdue_by = /** @type {(inputs: Deadlines_Overdue_ByInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} day late`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} days late`);
 	return /** @type {LocalizedString} */ ("deadlines_overdue_by");
 };
 
-const fr_deadlines_overdue_by = /** @type {(inputs: Deadlines_Overdue_ByInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
+const fr_deadlines_overdue_by = /** @type {(inputs: Deadlines_Overdue_ByInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`en retard d’${i?.count} jour`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`en retard de ${i?.count} jours`);
 	return /** @type {LocalizedString} */ ("deadlines_overdue_by");

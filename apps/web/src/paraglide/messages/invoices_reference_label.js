@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Reference_LabelInputs */
 
+const en_invoices_reference_label = /** @type {(inputs: Invoices_Reference_LabelInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Reference`)
+};
 
+const fr_invoices_reference_label = /** @type {(inputs: Invoices_Reference_LabelInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Référence`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const invoices_reference_label = /** @type {((inputs?: Invoices_Reference_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Reference_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Référence")
-	return /** @type {LocalizedString} */ ("Reference")
+	if (locale === "fr") return fr_invoices_reference_label(inputs)
+	return en_invoices_reference_label(inputs)
 });

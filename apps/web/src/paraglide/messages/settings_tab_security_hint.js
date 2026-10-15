@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Settings_Tab_Security_HintInputs */
 
+const en_settings_tab_security_hint = /** @type {(inputs: Settings_Tab_Security_HintInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Two-step verification, browsers`)
+};
 
+const fr_settings_tab_security_hint = /** @type {(inputs: Settings_Tab_Security_HintInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Vérification en deux étapes, navigateurs`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const settings_tab_security_hint = /** @type {((inputs?: Settings_Tab_Security_HintInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Tab_Security_HintInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Vérification en deux étapes, navigateurs")
-	return /** @type {LocalizedString} */ ("Two-step verification, browsers")
+	if (locale === "fr") return fr_settings_tab_security_hint(inputs)
+	return en_settings_tab_security_hint(inputs)
 });

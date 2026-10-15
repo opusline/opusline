@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Missions_Stat_ConsumedInputs */
 
+const en_missions_stat_consumed = /** @type {(inputs: Missions_Stat_ConsumedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Consumed`)
+};
 
+const fr_missions_stat_consumed = /** @type {(inputs: Missions_Stat_ConsumedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Consommé`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const missions_stat_consumed = /** @type {((inputs?: Missions_Stat_ConsumedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Missions_Stat_ConsumedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Consommé")
-	return /** @type {LocalizedString} */ ("Consumed")
+	if (locale === "fr") return fr_missions_stat_consumed(inputs)
+	return en_missions_stat_consumed(inputs)
 });

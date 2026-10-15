@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Timer_Discard_ConfirmInputs */
 
+const en_timer_discard_confirm = /** @type {(inputs: Timer_Discard_ConfirmInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Confirm discard`)
+};
 
+const fr_timer_discard_confirm = /** @type {(inputs: Timer_Discard_ConfirmInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Confirmer l'abandon`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const timer_discard_confirm = /** @type {((inputs?: Timer_Discard_ConfirmInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Timer_Discard_ConfirmInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Confirmer l'abandon")
-	return /** @type {LocalizedString} */ ("Confirm discard")
+	if (locale === "fr") return fr_timer_discard_confirm(inputs)
+	return en_timer_discard_confirm(inputs)
 });

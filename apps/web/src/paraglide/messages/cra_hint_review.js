@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Cra_Hint_ReviewInputs */
 
+const en_cra_hint_review = /** @type {(inputs: Cra_Hint_ReviewInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Review before sending`)
+};
 
+const fr_cra_hint_review = /** @type {(inputs: Cra_Hint_ReviewInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Vérifiez avant d'envoyer`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const cra_hint_review = /** @type {((inputs?: Cra_Hint_ReviewInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Cra_Hint_ReviewInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Vérifiez avant d'envoyer")
-	return /** @type {LocalizedString} */ ("Review before sending")
+	if (locale === "fr") return fr_cra_hint_review(inputs)
+	return en_cra_hint_review(inputs)
 });

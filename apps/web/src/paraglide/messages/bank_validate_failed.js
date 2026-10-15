@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Validate_FailedInputs */
 
+const en_bank_validate_failed = /** @type {(inputs: Bank_Validate_FailedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`The match could not be validated.`)
+};
 
+const fr_bank_validate_failed = /** @type {(inputs: Bank_Validate_FailedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Le rapprochement n'a pas pu être validé.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const bank_validate_failed = /** @type {((inputs?: Bank_Validate_FailedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Validate_FailedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Le rapprochement n'a pas pu être validé.")
-	return /** @type {LocalizedString} */ ("The match could not be validated.")
+	if (locale === "fr") return fr_bank_validate_failed(inputs)
+	return en_bank_validate_failed(inputs)
 });

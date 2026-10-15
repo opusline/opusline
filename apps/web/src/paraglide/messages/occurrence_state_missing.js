@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Occurrence_State_MissingInputs */
 
+const en_occurrence_state_missing = /** @type {(inputs: Occurrence_State_MissingInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`receipt missing`)
+};
 
+const fr_occurrence_state_missing = /** @type {(inputs: Occurrence_State_MissingInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`facture manquante`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const occurrence_state_missing = /** @type {((inputs?: Occurrence_State_MissingInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Occurrence_State_MissingInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("facture manquante")
-	return /** @type {LocalizedString} */ ("receipt missing")
+	if (locale === "fr") return fr_occurrence_state_missing(inputs)
+	return en_occurrence_state_missing(inputs)
 });

@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Clients_Create_FailedInputs */
 
+const en_clients_create_failed = /** @type {(inputs: Clients_Create_FailedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`The client could not be created. Try again in a moment.`)
+};
 
+const fr_clients_create_failed = /** @type {(inputs: Clients_Create_FailedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Impossible de créer le client. Réessayez dans un instant.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const clients_create_failed = /** @type {((inputs?: Clients_Create_FailedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Clients_Create_FailedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Impossible de créer le client. Réessayez dans un instant.")
-	return /** @type {LocalizedString} */ ("The client could not be created. Try again in a moment.")
+	if (locale === "fr") return fr_clients_create_failed(inputs)
+	return en_clients_create_failed(inputs)
 });

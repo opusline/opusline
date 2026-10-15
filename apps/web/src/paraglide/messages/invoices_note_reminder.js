@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Note_ReminderInputs */
 
+const en_invoices_note_reminder = /** @type {(inputs: Invoices_Note_ReminderInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Note a reminder`)
+};
 
+const fr_invoices_note_reminder = /** @type {(inputs: Invoices_Note_ReminderInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Noter une relance`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const invoices_note_reminder = /** @type {((inputs?: Invoices_Note_ReminderInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Note_ReminderInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Noter une relance")
-	return /** @type {LocalizedString} */ ("Note a reminder")
+	if (locale === "fr") return fr_invoices_note_reminder(inputs)
+	return en_invoices_note_reminder(inputs)
 });

@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Reconciliation_TitleInputs */
 
+const en_bank_reconciliation_title = /** @type {(inputs: Bank_Reconciliation_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Reconciliation`)
+};
 
+const fr_bank_reconciliation_title = /** @type {(inputs: Bank_Reconciliation_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Rapprochement`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const bank_reconciliation_title = /** @type {((inputs?: Bank_Reconciliation_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Reconciliation_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Rapprochement")
-	return /** @type {LocalizedString} */ ("Reconciliation")
+	if (locale === "fr") return fr_bank_reconciliation_title(inputs)
+	return en_bank_reconciliation_title(inputs)
 });

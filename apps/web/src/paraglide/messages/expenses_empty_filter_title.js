@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Empty_Filter_TitleInputs */
 
+const en_expenses_empty_filter_title = /** @type {(inputs: Expenses_Empty_Filter_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`No expense in this filter`)
+};
 
+const fr_expenses_empty_filter_title = /** @type {(inputs: Expenses_Empty_Filter_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Aucune dépense dans ce filtre`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const expenses_empty_filter_title = /** @type {((inputs?: Expenses_Empty_Filter_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Empty_Filter_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Aucune dépense dans ce filtre")
-	return /** @type {LocalizedString} */ ("No expense in this filter")
+	if (locale === "fr") return fr_expenses_empty_filter_title(inputs)
+	return en_expenses_empty_filter_title(inputs)
 });

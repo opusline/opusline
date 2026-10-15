@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Subscription_AriaInputs */
 
+const en_expenses_subscription_aria = /** @type {(inputs: Expenses_Subscription_AriaInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Subscription`)
+};
 
+const fr_expenses_subscription_aria = /** @type {(inputs: Expenses_Subscription_AriaInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Abonnement`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const expenses_subscription_aria = /** @type {((inputs?: Expenses_Subscription_AriaInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Subscription_AriaInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Abonnement")
-	return /** @type {LocalizedString} */ ("Subscription")
+	if (locale === "fr") return fr_expenses_subscription_aria(inputs)
+	return en_expenses_subscription_aria(inputs)
 });

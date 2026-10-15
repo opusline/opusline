@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Subscriptions_Auto_CreateInputs */
 
+const en_subscriptions_auto_create = /** @type {(inputs: Subscriptions_Auto_CreateInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Create the expense automatically`)
+};
 
+const fr_subscriptions_auto_create = /** @type {(inputs: Subscriptions_Auto_CreateInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Créer automatiquement la dépense`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const subscriptions_auto_create = /** @type {((inputs?: Subscriptions_Auto_CreateInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Subscriptions_Auto_CreateInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Créer automatiquement la dépense")
-	return /** @type {LocalizedString} */ ("Create the expense automatically")
+	if (locale === "fr") return fr_subscriptions_auto_create(inputs)
+	return en_subscriptions_auto_create(inputs)
 });

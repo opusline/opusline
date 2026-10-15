@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Week_Weekend_ShortInputs */
 
+const en_week_weekend_short = /** @type {(inputs: Week_Weekend_ShortInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`S-S`)
+};
 
+const fr_week_weekend_short = /** @type {(inputs: Week_Weekend_ShortInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`S-D`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const week_weekend_short = /** @type {((inputs?: Week_Weekend_ShortInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Week_Weekend_ShortInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("S-D")
-	return /** @type {LocalizedString} */ ("S-S")
+	if (locale === "fr") return fr_week_weekend_short(inputs)
+	return en_week_weekend_short(inputs)
 });

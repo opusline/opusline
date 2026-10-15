@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown>, label: NonNullable<unknown>, amount: NonNullable<unknown>, day: NonNullable<unknown> }} Subscriptions_Detected_TitleInputs */
 
-const en_subscriptions_detected_title = /** @type {(inputs: Subscriptions_Detected_TitleInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
+const en_subscriptions_detected_title = /** @type {(inputs: Subscriptions_Detected_TitleInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`Recurring debit found: ${i?.label} · ${i?.amount} · on the ${i?.day} of the month · ${i?.count} month`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`Recurring debit found: ${i?.label} · ${i?.amount} · on the ${i?.day} of the month · ${i?.count} months running`);
 	return /** @type {LocalizedString} */ ("subscriptions_detected_title");
 };
 
-const fr_subscriptions_detected_title = /** @type {(inputs: Subscriptions_Detected_TitleInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
+const fr_subscriptions_detected_title = /** @type {(inputs: Subscriptions_Detected_TitleInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`Prélèvement récurrent détecté : ${i?.label} · ${i?.amount} · le ${i?.day} du mois · ${i?.count} mois`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`Prélèvement récurrent détecté : ${i?.label} · ${i?.amount} · le ${i?.day} du mois · ${i?.count} mois consécutifs`);
 	return /** @type {LocalizedString} */ ("subscriptions_detected_title");

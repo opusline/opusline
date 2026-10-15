@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown>, year: NonNullable<unknown>, income: NonNullable<unknown>, limit: NonNullable<unknown>, parts: NonNullable<unknown> }} Declarations_Liberating_Income_ReasonInputs */
 
-const en_declarations_liberating_income_reason = /** @type {(inputs: Declarations_Liberating_Income_ReasonInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
+const en_declarations_liberating_income_reason = /** @type {(inputs: Declarations_Liberating_Income_ReasonInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`Your ${i?.year} revenu fiscal de référence (${i?.income}) exceeds the ${i?.limit} limit for ${i?.parts} part.`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`Your ${i?.year} revenu fiscal de référence (${i?.income}) exceeds the ${i?.limit} limit for ${i?.parts} parts.`);
 	return /** @type {LocalizedString} */ ("declarations_liberating_income_reason");
 };
 
-const fr_declarations_liberating_income_reason = /** @type {(inputs: Declarations_Liberating_Income_ReasonInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
+const fr_declarations_liberating_income_reason = /** @type {(inputs: Declarations_Liberating_Income_ReasonInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`Votre revenu fiscal de référence ${i?.year} (${i?.income}) dépasse la limite de ${i?.limit} pour ${i?.parts} part.`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`Votre revenu fiscal de référence ${i?.year} (${i?.income}) dépasse la limite de ${i?.limit} pour ${i?.parts} parts.`);
 	return /** @type {LocalizedString} */ ("declarations_liberating_income_reason");

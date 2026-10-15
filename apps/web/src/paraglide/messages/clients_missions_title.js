@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Clients_Missions_TitleInputs */
 
+const en_clients_missions_title = /** @type {(inputs: Clients_Missions_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Missions`)
+};
 
+const fr_clients_missions_title = /** @type {(inputs: Clients_Missions_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Missions`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const clients_missions_title = /** @type {((inputs?: Clients_Missions_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Clients_Missions_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Missions")
-	return /** @type {LocalizedString} */ ("Missions")
+	if (locale === "fr") return fr_clients_missions_title(inputs)
+	return en_clients_missions_title(inputs)
 });

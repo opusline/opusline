@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Deadlines_Chip_TodoInputs */
 
+const en_deadlines_chip_todo = /** @type {(inputs: Deadlines_Chip_TodoInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`To send`)
+};
 
+const fr_deadlines_chip_todo = /** @type {(inputs: Deadlines_Chip_TodoInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`À faire`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const deadlines_chip_todo = /** @type {((inputs?: Deadlines_Chip_TodoInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Deadlines_Chip_TodoInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("À faire")
-	return /** @type {LocalizedString} */ ("To send")
+	if (locale === "fr") return fr_deadlines_chip_todo(inputs)
+	return en_deadlines_chip_todo(inputs)
 });

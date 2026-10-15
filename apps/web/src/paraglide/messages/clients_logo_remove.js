@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Clients_Logo_RemoveInputs */
 
+const en_clients_logo_remove = /** @type {(inputs: Clients_Logo_RemoveInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Remove the client logo`)
+};
 
+const fr_clients_logo_remove = /** @type {(inputs: Clients_Logo_RemoveInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Retirer le logo du client`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const clients_logo_remove = /** @type {((inputs?: Clients_Logo_RemoveInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Clients_Logo_RemoveInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Retirer le logo du client")
-	return /** @type {LocalizedString} */ ("Remove the client logo")
+	if (locale === "fr") return fr_clients_logo_remove(inputs)
+	return en_clients_logo_remove(inputs)
 });

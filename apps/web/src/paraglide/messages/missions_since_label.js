@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Missions_Since_LabelInputs */
 
+const en_missions_since_label = /** @type {(inputs: Missions_Since_LabelInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Since`)
+};
 
+const fr_missions_since_label = /** @type {(inputs: Missions_Since_LabelInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Depuis`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const missions_since_label = /** @type {((inputs?: Missions_Since_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Missions_Since_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Depuis")
-	return /** @type {LocalizedString} */ ("Since")
+	if (locale === "fr") return fr_missions_since_label(inputs)
+	return en_missions_since_label(inputs)
 });

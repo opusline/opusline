@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Deadlines_Subscribed_BadgeInputs */
 
+const en_deadlines_subscribed_badge = /** @type {(inputs: Deadlines_Subscribed_BadgeInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Subscribed`)
+};
 
+const fr_deadlines_subscribed_badge = /** @type {(inputs: Deadlines_Subscribed_BadgeInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Abonné`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const deadlines_subscribed_badge = /** @type {((inputs?: Deadlines_Subscribed_BadgeInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Deadlines_Subscribed_BadgeInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Abonné")
-	return /** @type {LocalizedString} */ ("Subscribed")
+	if (locale === "fr") return fr_deadlines_subscribed_badge(inputs)
+	return en_deadlines_subscribed_badge(inputs)
 });

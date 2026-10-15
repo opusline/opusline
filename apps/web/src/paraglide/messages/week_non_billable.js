@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Week_Non_BillableInputs */
 
+const en_week_non_billable = /** @type {(inputs: Week_Non_BillableInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Non-billable`)
+};
 
+const fr_week_non_billable = /** @type {(inputs: Week_Non_BillableInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Non facturable`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const week_non_billable = /** @type {((inputs?: Week_Non_BillableInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Week_Non_BillableInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Non facturable")
-	return /** @type {LocalizedString} */ ("Non-billable")
+	if (locale === "fr") return fr_week_non_billable(inputs)
+	return en_week_non_billable(inputs)
 });

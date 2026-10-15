@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Deadlines_Due_TodayInputs */
 
+const en_deadlines_due_today = /** @type {(inputs: Deadlines_Due_TodayInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`today`)
+};
 
+const fr_deadlines_due_today = /** @type {(inputs: Deadlines_Due_TodayInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`aujourd’hui`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const deadlines_due_today = /** @type {((inputs?: Deadlines_Due_TodayInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Deadlines_Due_TodayInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("aujourd’hui")
-	return /** @type {LocalizedString} */ ("today")
+	if (locale === "fr") return fr_deadlines_due_today(inputs)
+	return en_deadlines_due_today(inputs)
 });

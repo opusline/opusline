@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Balance_Save_FailedInputs */
 
+const en_bank_balance_save_failed = /** @type {(inputs: Bank_Balance_Save_FailedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`The balance could not be saved.`)
+};
 
+const fr_bank_balance_save_failed = /** @type {(inputs: Bank_Balance_Save_FailedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Le solde n'a pas pu être enregistré.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const bank_balance_save_failed = /** @type {((inputs?: Bank_Balance_Save_FailedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Balance_Save_FailedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Le solde n'a pas pu être enregistré.")
-	return /** @type {LocalizedString} */ ("The balance could not be saved.")
+	if (locale === "fr") return fr_bank_balance_save_failed(inputs)
+	return en_bank_balance_save_failed(inputs)
 });

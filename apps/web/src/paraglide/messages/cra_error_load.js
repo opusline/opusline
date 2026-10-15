@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Cra_Error_LoadInputs */
 
+const en_cra_error_load = /** @type {(inputs: Cra_Error_LoadInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`The activity reports could not be loaded. Try again in a moment.`)
+};
 
+const fr_cra_error_load = /** @type {(inputs: Cra_Error_LoadInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Impossible de charger les comptes rendus. Réessayez dans un instant.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const cra_error_load = /** @type {((inputs?: Cra_Error_LoadInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Cra_Error_LoadInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Impossible de charger les comptes rendus. Réessayez dans un instant.")
-	return /** @type {LocalizedString} */ ("The activity reports could not be loaded. Try again in a moment.")
+	if (locale === "fr") return fr_cra_error_load(inputs)
+	return en_cra_error_load(inputs)
 });

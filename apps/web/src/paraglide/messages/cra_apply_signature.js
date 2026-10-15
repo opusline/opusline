@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Cra_Apply_SignatureInputs */
 
+const en_cra_apply_signature = /** @type {(inputs: Cra_Apply_SignatureInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Apply my signature`)
+};
 
+const fr_cra_apply_signature = /** @type {(inputs: Cra_Apply_SignatureInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Apposer ma signature`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const cra_apply_signature = /** @type {((inputs?: Cra_Apply_SignatureInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Cra_Apply_SignatureInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Apposer ma signature")
-	return /** @type {LocalizedString} */ ("Apply my signature")
+	if (locale === "fr") return fr_cra_apply_signature(inputs)
+	return en_cra_apply_signature(inputs)
 });

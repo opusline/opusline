@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Subscriptions_Field_Effective_FromInputs */
 
+const en_subscriptions_field_effective_from = /** @type {(inputs: Subscriptions_Field_Effective_FromInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`From`)
+};
 
+const fr_subscriptions_field_effective_from = /** @type {(inputs: Subscriptions_Field_Effective_FromInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`À partir du`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const subscriptions_field_effective_from = /** @type {((inputs?: Subscriptions_Field_Effective_FromInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Subscriptions_Field_Effective_FromInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("À partir du")
-	return /** @type {LocalizedString} */ ("From")
+	if (locale === "fr") return fr_subscriptions_field_effective_from(inputs)
+	return en_subscriptions_field_effective_from(inputs)
 });

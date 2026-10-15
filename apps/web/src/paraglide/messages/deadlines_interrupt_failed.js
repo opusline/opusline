@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Deadlines_Interrupt_FailedInputs */
 
+const en_deadlines_interrupt_failed = /** @type {(inputs: Deadlines_Interrupt_FailedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`The subscription could not be stopped.`)
+};
 
+const fr_deadlines_interrupt_failed = /** @type {(inputs: Deadlines_Interrupt_FailedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`L'abonnement n'a pas pu être interrompu.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const deadlines_interrupt_failed = /** @type {((inputs?: Deadlines_Interrupt_FailedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Deadlines_Interrupt_FailedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("L'abonnement n'a pas pu être interrompu.")
-	return /** @type {LocalizedString} */ ("The subscription could not be stopped.")
+	if (locale === "fr") return fr_deadlines_interrupt_failed(inputs)
+	return en_deadlines_interrupt_failed(inputs)
 });

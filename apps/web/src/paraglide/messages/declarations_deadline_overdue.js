@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Declarations_Deadline_OverdueInputs */
 
+const en_declarations_deadline_overdue = /** @type {(inputs: Declarations_Deadline_OverdueInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`· overdue`)
+};
 
+const fr_declarations_deadline_overdue = /** @type {(inputs: Declarations_Deadline_OverdueInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`· échéance dépassée`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const declarations_deadline_overdue = /** @type {((inputs?: Declarations_Deadline_OverdueInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Declarations_Deadline_OverdueInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("· échéance dépassée")
-	return /** @type {LocalizedString} */ ("· overdue")
+	if (locale === "fr") return fr_declarations_deadline_overdue(inputs)
+	return en_declarations_deadline_overdue(inputs)
 });

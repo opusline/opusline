@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_No_OverdueInputs */
 
+const en_invoices_no_overdue = /** @type {(inputs: Invoices_No_OverdueInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`no overdue invoices`)
+};
 
+const fr_invoices_no_overdue = /** @type {(inputs: Invoices_No_OverdueInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`aucune échéance dépassée`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const invoices_no_overdue = /** @type {((inputs?: Invoices_No_OverdueInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_No_OverdueInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("aucune échéance dépassée")
-	return /** @type {LocalizedString} */ ("no overdue invoices")
+	if (locale === "fr") return fr_invoices_no_overdue(inputs)
+	return en_invoices_no_overdue(inputs)
 });

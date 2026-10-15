@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Select_Col_AriaInputs */
 
+const en_expenses_select_col_aria = /** @type {(inputs: Expenses_Select_Col_AriaInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Select`)
+};
 
+const fr_expenses_select_col_aria = /** @type {(inputs: Expenses_Select_Col_AriaInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Sélection`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const expenses_select_col_aria = /** @type {((inputs?: Expenses_Select_Col_AriaInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Select_Col_AriaInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Sélection")
-	return /** @type {LocalizedString} */ ("Select")
+	if (locale === "fr") return fr_expenses_select_col_aria(inputs)
+	return en_expenses_select_col_aria(inputs)
 });

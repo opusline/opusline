@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Clients_Delete_TitleInputs */
 
+const en_clients_delete_title = /** @type {(inputs: Clients_Delete_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Delete this client?`)
+};
 
+const fr_clients_delete_title = /** @type {(inputs: Clients_Delete_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Supprimer ce client ?`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const clients_delete_title = /** @type {((inputs?: Clients_Delete_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Clients_Delete_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Supprimer ce client ?")
-	return /** @type {LocalizedString} */ ("Delete this client?")
+	if (locale === "fr") return fr_clients_delete_title(inputs)
+	return en_clients_delete_title(inputs)
 });

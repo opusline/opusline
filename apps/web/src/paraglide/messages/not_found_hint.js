@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Not_Found_HintInputs */
 
+const en_not_found_hint = /** @type {(inputs: Not_Found_HintInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`This address leads nowhere — the link may be stale.`)
+};
 
+const fr_not_found_hint = /** @type {(inputs: Not_Found_HintInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Cette adresse ne mène nulle part — le lien est peut-être ancien.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const not_found_hint = /** @type {((inputs?: Not_Found_HintInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Not_Found_HintInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Cette adresse ne mène nulle part — le lien est peut-être ancien.")
-	return /** @type {LocalizedString} */ ("This address leads nowhere — the link may be stale.")
+	if (locale === "fr") return fr_not_found_hint(inputs)
+	return en_not_found_hint(inputs)
 });

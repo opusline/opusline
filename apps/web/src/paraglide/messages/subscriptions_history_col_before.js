@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Subscriptions_History_Col_BeforeInputs */
 
+const en_subscriptions_history_col_before = /** @type {(inputs: Subscriptions_History_Col_BeforeInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Before`)
+};
 
+const fr_subscriptions_history_col_before = /** @type {(inputs: Subscriptions_History_Col_BeforeInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Avant`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const subscriptions_history_col_before = /** @type {((inputs?: Subscriptions_History_Col_BeforeInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Subscriptions_History_Col_BeforeInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Avant")
-	return /** @type {LocalizedString} */ ("Before")
+	if (locale === "fr") return fr_subscriptions_history_col_before(inputs)
+	return en_subscriptions_history_col_before(inputs)
 });

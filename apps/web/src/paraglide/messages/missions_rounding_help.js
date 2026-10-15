@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Missions_Rounding_HelpInputs */
 
+const en_missions_rounding_help = /** @type {(inputs: Missions_Rounding_HelpInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`What is rounding?`)
+};
 
+const fr_missions_rounding_help = /** @type {(inputs: Missions_Rounding_HelpInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Qu'est-ce que l'arrondi ?`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const missions_rounding_help = /** @type {((inputs?: Missions_Rounding_HelpInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Missions_Rounding_HelpInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Qu'est-ce que l'arrondi ?")
-	return /** @type {LocalizedString} */ ("What is rounding?")
+	if (locale === "fr") return fr_missions_rounding_help(inputs)
+	return en_missions_rounding_help(inputs)
 });

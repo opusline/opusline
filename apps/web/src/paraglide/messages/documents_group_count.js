@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Documents_Group_CountInputs */
 
-const en_documents_group_count = /** @type {(inputs: Documents_Group_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
+const en_documents_group_count = /** @type {(inputs: Documents_Group_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} document`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} documents`);
 	return /** @type {LocalizedString} */ ("documents_group_count");
 };
 
-const fr_documents_group_count = /** @type {(inputs: Documents_Group_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
+const fr_documents_group_count = /** @type {(inputs: Documents_Group_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} document`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} documents`);
 	return /** @type {LocalizedString} */ ("documents_group_count");

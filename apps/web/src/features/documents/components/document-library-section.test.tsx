@@ -82,7 +82,7 @@ it("tells the user when nothing matches", async () => {
 it("narrows the groups to one category", async () => {
   await renderSection();
 
-  fireEvent.click(screen.getByRole("button", { name: /CRA signé \(1\)/ }));
+  fireEvent.click(screen.getByRole("button", { name: "CRA signé 1" }));
 
   const groups = screen.getAllByRole("button", { expanded: false });
 

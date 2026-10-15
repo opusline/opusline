@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Bulk_Clear_AriaInputs */
 
+const en_expenses_bulk_clear_aria = /** @type {(inputs: Expenses_Bulk_Clear_AriaInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Clear the selection`)
+};
 
+const fr_expenses_bulk_clear_aria = /** @type {(inputs: Expenses_Bulk_Clear_AriaInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Désélectionner`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const expenses_bulk_clear_aria = /** @type {((inputs?: Expenses_Bulk_Clear_AriaInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Bulk_Clear_AriaInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Désélectionner")
-	return /** @type {LocalizedString} */ ("Clear the selection")
+	if (locale === "fr") return fr_expenses_bulk_clear_aria(inputs)
+	return en_expenses_bulk_clear_aria(inputs)
 });

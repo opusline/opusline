@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Mail_Delivery_Test_ButtonInputs */
 
+const en_mail_delivery_test_button = /** @type {(inputs: Mail_Delivery_Test_ButtonInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Send a test email`)
+};
 
+const fr_mail_delivery_test_button = /** @type {(inputs: Mail_Delivery_Test_ButtonInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Envoyer un e-mail de test`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const mail_delivery_test_button = /** @type {((inputs?: Mail_Delivery_Test_ButtonInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Mail_Delivery_Test_ButtonInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Envoyer un e-mail de test")
-	return /** @type {LocalizedString} */ ("Send a test email")
+	if (locale === "fr") return fr_mail_delivery_test_button(inputs)
+	return en_mail_delivery_test_button(inputs)
 });

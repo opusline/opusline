@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Subscriptions_Field_Amount_HtInputs */
 
+const en_subscriptions_field_amount_ht = /** @type {(inputs: Subscriptions_Field_Amount_HtInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`HT amount`)
+};
 
+const fr_subscriptions_field_amount_ht = /** @type {(inputs: Subscriptions_Field_Amount_HtInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Montant HT`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const subscriptions_field_amount_ht = /** @type {((inputs?: Subscriptions_Field_Amount_HtInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Subscriptions_Field_Amount_HtInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Montant HT")
-	return /** @type {LocalizedString} */ ("HT amount")
+	if (locale === "fr") return fr_subscriptions_field_amount_ht(inputs)
+	return en_subscriptions_field_amount_ht(inputs)
 });

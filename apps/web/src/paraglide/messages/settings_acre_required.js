@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Settings_Acre_RequiredInputs */
 
+const en_settings_acre_required = /** @type {(inputs: Settings_Acre_RequiredInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Required to apply the ACRE.`)
+};
 
+const fr_settings_acre_required = /** @type {(inputs: Settings_Acre_RequiredInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Requis pour appliquer l'ACRE.`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const settings_acre_required = /** @type {((inputs?: Settings_Acre_RequiredInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Acre_RequiredInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Requis pour appliquer l'ACRE.")
-	return /** @type {LocalizedString} */ ("Required to apply the ACRE.")
+	if (locale === "fr") return fr_settings_acre_required(inputs)
+	return en_settings_acre_required(inputs)
 });

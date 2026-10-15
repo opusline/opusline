@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Deadlines_Reminder_Sent_TimesInputs */
 
-const en_deadlines_reminder_sent_times = /** @type {(inputs: Deadlines_Reminder_Sent_TimesInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
+const en_deadlines_reminder_sent_times = /** @type {(inputs: Deadlines_Reminder_Sent_TimesInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`already reminded once`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`already reminded ${i?.count} times`);
 	return /** @type {LocalizedString} */ ("deadlines_reminder_sent_times");
 };
 
-const fr_deadlines_reminder_sent_times = /** @type {(inputs: Deadlines_Reminder_Sent_TimesInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
+const fr_deadlines_reminder_sent_times = /** @type {(inputs: Deadlines_Reminder_Sent_TimesInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`déjà relancée une fois`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`déjà relancée ${i?.count} fois`);
 	return /** @type {LocalizedString} */ ("deadlines_reminder_sent_times");

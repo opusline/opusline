@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Clients_ReactivateInputs */
 
+const en_clients_reactivate = /** @type {(inputs: Clients_ReactivateInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Reactivate this client`)
+};
 
+const fr_clients_reactivate = /** @type {(inputs: Clients_ReactivateInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Réactiver ce client`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const clients_reactivate = /** @type {((inputs?: Clients_ReactivateInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Clients_ReactivateInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Réactiver ce client")
-	return /** @type {LocalizedString} */ ("Reactivate this client")
+	if (locale === "fr") return fr_clients_reactivate(inputs)
+	return en_clients_reactivate(inputs)
 });

@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Sheet_Edit_TitleInputs */
 
+const en_expenses_sheet_edit_title = /** @type {(inputs: Expenses_Sheet_Edit_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Edit the expense`)
+};
 
+const fr_expenses_sheet_edit_title = /** @type {(inputs: Expenses_Sheet_Edit_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Modifier la dépense`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const expenses_sheet_edit_title = /** @type {((inputs?: Expenses_Sheet_Edit_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Sheet_Edit_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Modifier la dépense")
-	return /** @type {LocalizedString} */ ("Edit the expense")
+	if (locale === "fr") return fr_expenses_sheet_edit_title(inputs)
+	return en_expenses_sheet_edit_title(inputs)
 });

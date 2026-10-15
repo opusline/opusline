@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Account_LogoutInputs */
 
+const en_account_logout = /** @type {(inputs: Account_LogoutInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Log out`)
+};
 
+const fr_account_logout = /** @type {(inputs: Account_LogoutInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Se déconnecter`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const account_logout = /** @type {((inputs?: Account_LogoutInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Account_LogoutInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Se déconnecter")
-	return /** @type {LocalizedString} */ ("Log out")
+	if (locale === "fr") return fr_account_logout(inputs)
+	return en_account_logout(inputs)
 });

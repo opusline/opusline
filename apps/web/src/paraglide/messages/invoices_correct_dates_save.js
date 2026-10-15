@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Correct_Dates_SaveInputs */
 
+const en_invoices_correct_dates_save = /** @type {(inputs: Invoices_Correct_Dates_SaveInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Save the dates`)
+};
 
+const fr_invoices_correct_dates_save = /** @type {(inputs: Invoices_Correct_Dates_SaveInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Enregistrer les dates`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const invoices_correct_dates_save = /** @type {((inputs?: Invoices_Correct_Dates_SaveInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Correct_Dates_SaveInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Enregistrer les dates")
-	return /** @type {LocalizedString} */ ("Save the dates")
+	if (locale === "fr") return fr_invoices_correct_dates_save(inputs)
+	return en_invoices_correct_dates_save(inputs)
 });

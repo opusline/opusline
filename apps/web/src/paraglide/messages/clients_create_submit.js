@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Clients_Create_SubmitInputs */
 
+const en_clients_create_submit = /** @type {(inputs: Clients_Create_SubmitInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Create the client`)
+};
 
+const fr_clients_create_submit = /** @type {(inputs: Clients_Create_SubmitInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Créer le client`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const clients_create_submit = /** @type {((inputs?: Clients_Create_SubmitInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Clients_Create_SubmitInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Créer le client")
-	return /** @type {LocalizedString} */ ("Create the client")
+	if (locale === "fr") return fr_clients_create_submit(inputs)
+	return en_clients_create_submit(inputs)
 });

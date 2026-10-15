@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Week_Mission_Step_TitleInputs */
 
+const en_week_mission_step_title = /** @type {(inputs: Week_Mission_Step_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Which mission?`)
+};
 
+const fr_week_mission_step_title = /** @type {(inputs: Week_Mission_Step_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Sur quelle mission ?`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const week_mission_step_title = /** @type {((inputs?: Week_Mission_Step_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Week_Mission_Step_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Sur quelle mission ?")
-	return /** @type {LocalizedString} */ ("Which mission?")
+	if (locale === "fr") return fr_week_mission_step_title(inputs)
+	return en_week_mission_step_title(inputs)
 });

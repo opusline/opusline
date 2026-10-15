@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Session_Lock_Sign_OutInputs */
 
+const en_session_lock_sign_out = /** @type {(inputs: Session_Lock_Sign_OutInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Sign out completely`)
+};
 
+const fr_session_lock_sign_out = /** @type {(inputs: Session_Lock_Sign_OutInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Se déconnecter complètement`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const session_lock_sign_out = /** @type {((inputs?: Session_Lock_Sign_OutInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Session_Lock_Sign_OutInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Se déconnecter complètement")
-	return /** @type {LocalizedString} */ ("Sign out completely")
+	if (locale === "fr") return fr_session_lock_sign_out(inputs)
+	return en_session_lock_sign_out(inputs)
 });

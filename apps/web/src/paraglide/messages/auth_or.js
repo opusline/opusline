@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Auth_OrInputs */
 
+const en_auth_or = /** @type {(inputs: Auth_OrInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`or`)
+};
 
+const fr_auth_or = /** @type {(inputs: Auth_OrInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`ou`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const auth_or = /** @type {((inputs?: Auth_OrInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Auth_OrInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("ou")
-	return /** @type {LocalizedString} */ ("or")
+	if (locale === "fr") return fr_auth_or(inputs)
+	return en_auth_or(inputs)
 });

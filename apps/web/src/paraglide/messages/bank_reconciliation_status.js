@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Bank_Reconciliation_StatusInputs */
 
-const en_bank_reconciliation_status = /** @type {(inputs: Bank_Reconciliation_StatusInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
+const en_bank_reconciliation_status = /** @type {(inputs: Bank_Reconciliation_StatusInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} reconciliation left to validate`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} reconciliations left to validate`);
 	return /** @type {LocalizedString} */ ("bank_reconciliation_status");
 };
 
-const fr_bank_reconciliation_status = /** @type {(inputs: Bank_Reconciliation_StatusInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
+const fr_bank_reconciliation_status = /** @type {(inputs: Bank_Reconciliation_StatusInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} rapprochement restant à valider`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} rapprochements restants à valider`);
 	return /** @type {LocalizedString} */ ("bank_reconciliation_status");

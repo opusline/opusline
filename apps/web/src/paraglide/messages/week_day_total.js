@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Week_Day_TotalInputs */
 
+const en_week_day_total = /** @type {(inputs: Week_Day_TotalInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Day total`)
+};
 
+const fr_week_day_total = /** @type {(inputs: Week_Day_TotalInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Total jour`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const week_day_total = /** @type {((inputs?: Week_Day_TotalInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Week_Day_TotalInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Total jour")
-	return /** @type {LocalizedString} */ ("Day total")
+	if (locale === "fr") return fr_week_day_total(inputs)
+	return en_week_day_total(inputs)
 });

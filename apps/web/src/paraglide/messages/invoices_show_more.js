@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Show_MoreInputs */
 
+const en_invoices_show_more = /** @type {(inputs: Invoices_Show_MoreInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Show older invoices`)
+};
 
+const fr_invoices_show_more = /** @type {(inputs: Invoices_Show_MoreInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Afficher les factures plus anciennes`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const invoices_show_more = /** @type {((inputs?: Invoices_Show_MoreInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Show_MoreInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Afficher les factures plus anciennes")
-	return /** @type {LocalizedString} */ ("Show older invoices")
+	if (locale === "fr") return fr_invoices_show_more(inputs)
+	return en_invoices_show_more(inputs)
 });

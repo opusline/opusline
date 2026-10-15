@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Settings_Email_PlaceholderInputs */
 
+const en_settings_email_placeholder = /** @type {(inputs: Settings_Email_PlaceholderInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`contact@example.com`)
+};
 
+const fr_settings_email_placeholder = /** @type {(inputs: Settings_Email_PlaceholderInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`contact@exemple.fr`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const settings_email_placeholder = /** @type {((inputs?: Settings_Email_PlaceholderInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Email_PlaceholderInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("contact@exemple.fr")
-	return /** @type {LocalizedString} */ ("contact@example.com")
+	if (locale === "fr") return fr_settings_email_placeholder(inputs)
+	return en_settings_email_placeholder(inputs)
 });

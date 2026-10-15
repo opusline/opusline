@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Cra_Holiday_FallbackInputs */
 
+const en_cra_holiday_fallback = /** @type {(inputs: Cra_Holiday_FallbackInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`public holiday`)
+};
 
+const fr_cra_holiday_fallback = /** @type {(inputs: Cra_Holiday_FallbackInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`jour férié`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const cra_holiday_fallback = /** @type {((inputs?: Cra_Holiday_FallbackInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Cra_Holiday_FallbackInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("jour férié")
-	return /** @type {LocalizedString} */ ("public holiday")
+	if (locale === "fr") return fr_cra_holiday_fallback(inputs)
+	return en_cra_holiday_fallback(inputs)
 });

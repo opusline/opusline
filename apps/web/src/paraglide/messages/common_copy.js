@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Common_CopyInputs */
 
+const en_common_copy = /** @type {(inputs: Common_CopyInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Copy`)
+};
 
+const fr_common_copy = /** @type {(inputs: Common_CopyInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Copier`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const common_copy = /** @type {((inputs?: Common_CopyInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_CopyInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Copier")
-	return /** @type {LocalizedString} */ ("Copy")
+	if (locale === "fr") return fr_common_copy(inputs)
+	return en_common_copy(inputs)
 });

@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Quick_AriaInputs */
 
+const en_expenses_quick_aria = /** @type {(inputs: Expenses_Quick_AriaInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Quick entry`)
+};
 
+const fr_expenses_quick_aria = /** @type {(inputs: Expenses_Quick_AriaInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Saisie rapide`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const expenses_quick_aria = /** @type {((inputs?: Expenses_Quick_AriaInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Quick_AriaInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Saisie rapide")
-	return /** @type {LocalizedString} */ ("Quick entry")
+	if (locale === "fr") return fr_expenses_quick_aria(inputs)
+	return en_expenses_quick_aria(inputs)
 });

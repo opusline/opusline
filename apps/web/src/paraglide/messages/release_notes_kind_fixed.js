@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Release_Notes_Kind_FixedInputs */
 
+const en_release_notes_kind_fixed = /** @type {(inputs: Release_Notes_Kind_FixedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Fixed`)
+};
 
+const fr_release_notes_kind_fixed = /** @type {(inputs: Release_Notes_Kind_FixedInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Corrigé`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const release_notes_kind_fixed = /** @type {((inputs?: Release_Notes_Kind_FixedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Release_Notes_Kind_FixedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Corrigé")
-	return /** @type {LocalizedString} */ ("Fixed")
+	if (locale === "fr") return fr_release_notes_kind_fixed(inputs)
+	return en_release_notes_kind_fixed(inputs)
 });

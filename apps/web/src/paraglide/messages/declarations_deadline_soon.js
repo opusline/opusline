@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Declarations_Deadline_SoonInputs */
 
-const en_declarations_deadline_soon = /** @type {(inputs: Declarations_Deadline_SoonInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
+const en_declarations_deadline_soon = /** @type {(inputs: Declarations_Deadline_SoonInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`· in ${i?.count} day`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`· in ${i?.count} days`);
 	return /** @type {LocalizedString} */ ("declarations_deadline_soon");
 };
 
-const fr_declarations_deadline_soon = /** @type {(inputs: Declarations_Deadline_SoonInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
+const fr_declarations_deadline_soon = /** @type {(inputs: Declarations_Deadline_SoonInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`· dans ${i?.count} j`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`· dans ${i?.count} j`);
 	return /** @type {LocalizedString} */ ("declarations_deadline_soon");

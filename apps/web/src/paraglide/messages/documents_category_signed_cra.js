@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Documents_Category_Signed_CraInputs */
 
+const en_documents_category_signed_cra = /** @type {(inputs: Documents_Category_Signed_CraInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Signed CRA`)
+};
 
+const fr_documents_category_signed_cra = /** @type {(inputs: Documents_Category_Signed_CraInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`CRA signé`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const documents_category_signed_cra = /** @type {((inputs?: Documents_Category_Signed_CraInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Documents_Category_Signed_CraInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("CRA signé")
-	return /** @type {LocalizedString} */ ("Signed CRA")
+	if (locale === "fr") return fr_documents_category_signed_cra(inputs)
+	return en_documents_category_signed_cra(inputs)
 });

@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Vat_Regime_Normal_HintInputs */
 
+const en_vat_regime_normal_hint = /** @type {(inputs: Vat_Regime_Normal_HintInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`VAT-liable · monthly CA3`)
+};
 
+const fr_vat_regime_normal_hint = /** @type {(inputs: Vat_Regime_Normal_HintInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Assujetti · CA3 mensuelle`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const vat_regime_normal_hint = /** @type {((inputs?: Vat_Regime_Normal_HintInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Vat_Regime_Normal_HintInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Assujetti · CA3 mensuelle")
-	return /** @type {LocalizedString} */ ("VAT-liable · monthly CA3")
+	if (locale === "fr") return fr_vat_regime_normal_hint(inputs)
+	return en_vat_regime_normal_hint(inputs)
 });

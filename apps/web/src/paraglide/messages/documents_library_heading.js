@@ -5,7 +5,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Documents_Library_HeadingInputs */
 
+const en_documents_library_heading = /** @type {(inputs: Documents_Library_HeadingInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Received from clients and missions`)
+};
 
+const fr_documents_library_heading = /** @type {(inputs: Documents_Library_HeadingInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Reçus des clients et missions`)
+};
 
 /**
 * | output |
@@ -17,8 +23,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 * @returns {LocalizedString}
 */
 export const documents_library_heading = /** @type {((inputs?: Documents_Library_HeadingInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Documents_Library_HeadingInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
-	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return /** @type {LocalizedString} */ ("Reçus des clients et missions")
-	return /** @type {LocalizedString} */ ("Received from clients and missions")
+	if (locale === "fr") return fr_documents_library_heading(inputs)
+	return en_documents_library_heading(inputs)
 });
