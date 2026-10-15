@@ -141,8 +141,8 @@ export function DeadlinesPage({
             >
               {category === "all"
                 ? m.deadline_category_all()
-                : deadlineCategoryLabel(category)}
-              <ChipCount aria-hidden>{counts.get(category) ?? 0}</ChipCount>
+                : deadlineCategoryLabel(category)}{" "}
+              <ChipCount>{counts.get(category) ?? 0}</ChipCount>
             </Chip>
           ))}
         </ChipGroup>
