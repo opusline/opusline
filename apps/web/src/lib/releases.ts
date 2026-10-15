@@ -13,6 +13,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.33.4",
+    date: "2026-10-15",
+    items: [
+      {
+        kind: "fixed",
+        text: "Bank sync: listing banks and connecting one no longer fails with an error after the first try.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.33.3",
     date: "2026-10-15",
     items: [
