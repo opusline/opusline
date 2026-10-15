@@ -107,6 +107,49 @@ test('accepts the legal maximums', function (int $days, bool $endOfMonth): void 
     'end of month itself' => [0, true],
 ]);
 
+test('keeps a longer term saved before the legal cap while it is left unchanged', function (): void {
+    $user = User::factory()->create();
+    $user->settingsOrFail()->update(['default_payment_terms_days' => 90]);
+
+    $this->actingAs($user)
+        ->putJson('/api/invoicing/settings', invoicingSettingsPayload([
+            'defaultPaymentTermsDays' => 90,
+            'quoteValidityDays' => 60,
+        ]))
+        ->assertOk()
+        ->assertJsonPath('defaultPaymentTermsDays', 90)
+        ->assertJsonPath('quoteValidityDays', 60);
+});
+
+test('still caps a longer term saved before the legal cap once it changes', function (int $days, bool $endOfMonth): void {
+    $user = User::factory()->create();
+    $user->settingsOrFail()->update(['default_payment_terms_days' => 90]);
+
+    $this->actingAs($user)
+        ->putJson('/api/invoicing/settings', invoicingSettingsPayload([
+            'defaultPaymentTermsDays' => $days,
+            'defaultPaymentTermsEndOfMonth' => $endOfMonth,
+        ]))
+        ->assertJsonValidationErrorFor('defaultPaymentTermsDays');
+})->with([
+    'another illegal term' => [61, false],
+    'the same days from the end of the month' => [90, true],
+]);
+
+test('keeps invoicing settings isolated between accounts', function (): void {
+    $other = User::factory()->create();
+    $other->settingsOrFail()->update(['quote_validity_days' => 30]);
+
+    $this->actingAs(User::factory()->create())
+        ->putJson('/api/invoicing/settings', invoicingSettingsPayload(['quoteValidityDays' => 90]))
+        ->assertOk();
+
+    $this->actingAs($other)
+        ->getJson('/api/invoicing/settings')
+        ->assertJsonPath('quoteValidityDays', 30);
+    expect($other->settingsOrFail()->fresh()->quote_validity_days)->toBe(30);
+});
+
 test('keeps the option for VAT on debits off under the franchise', function (): void {
     $user = User::factory()->create();
     $user->settingsOrFail()->update(['vat_regime' => VatRegime::FranchiseEnBase]);

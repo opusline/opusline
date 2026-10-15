@@ -12,13 +12,20 @@ use Illuminate\Support\Arr;
 /**
  * Art. L441-10 C. com.: an agreed payment term may not exceed 60 days from
  * the invoice date, or 45 days counted from the end of its month.
+ *
+ * A stored term saved before the cap existed passes while it is resubmitted
+ * unchanged, so editing an unrelated setting never forces it to change.
  */
 class LegalPaymentTerms implements DataAwareRule, ValidationRule
 {
     /** @var array<string, mixed> */
     private array $data = [];
 
-    public function __construct(private readonly string $endOfMonthField) {}
+    public function __construct(
+        private readonly string $endOfMonthField,
+        private readonly ?int $storedDays = null,
+        private readonly ?bool $storedEndOfMonth = null,
+    ) {}
 
     /** @param  array<string, mixed>  $data */
     public function setData(array $data): static
@@ -31,6 +38,11 @@ class LegalPaymentTerms implements DataAwareRule, ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $endOfMonth = filter_var(Arr::get($this->data, $this->endOfMonthField), FILTER_VALIDATE_BOOLEAN);
+
+        if ($value === $this->storedDays && $endOfMonth === $this->storedEndOfMonth) {
+            return;
+        }
+
         $maximum = $endOfMonth ? 45 : 60;
 
         if (! is_int($value) || $value < 0 || $value > $maximum) {
