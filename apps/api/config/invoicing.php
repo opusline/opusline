@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+/** @var array{semester: string, checked_on: string, next_revision_on: string, legal_interest_rate_bp: int, ecb_rate_bp: int} $semesterFigures */
+$semesterFigures = json_decode((string) file_get_contents(__DIR__.'/legal-reference.json'), true, flags: JSON_THROW_ON_ERROR);
+
 return [
 
     /*
@@ -25,7 +28,7 @@ return [
     */
 
     'legal_reference' => [
-        ...json_decode((string) file_get_contents(__DIR__.'/legal-reference.json'), true, flags: JSON_THROW_ON_ERROR),
+        ...$semesterFigures,
         'recovery_fee_cents' => 4000,
         'sources' => [
             'legal_interest_rate' => 'https://www.service-public.gouv.fr/particuliers/vosdroits/F20688',
