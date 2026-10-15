@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.2](https://github.com/opusline/opusline/compare/v0.33.1...v0.33.2) (2026-10-15)
+
+
+### Dependencies
+
+* **deps:** bump the npm-minor group with 28 updates ([#544](https://github.com/opusline/opusline/issues/544)) ([57fd206](https://github.com/opusline/opusline/commit/57fd2060393684b9ef5afa498993e18e4a2f04d8))
+
 ## [0.33.1](https://github.com/opusline/opusline/compare/v0.33.0...v0.33.1) (2026-10-15)
 
 
