@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Documents_RetryInputs */
 
-const en_documents_retry = /** @type {(inputs: Documents_RetryInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Retry`)
-};
 
-const fr_documents_retry = /** @type {(inputs: Documents_RetryInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Réessayer`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_documents_retry = /** @type {(inputs: Documents_RetryInputs) => Localiz
 * @returns {LocalizedString}
 */
 export const documents_retry = /** @type {((inputs?: Documents_RetryInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Documents_RetryInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_documents_retry(inputs)
-	return en_documents_retry(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Réessayer")
+	return /** @type {LocalizedString} */ ("Retry")
 });

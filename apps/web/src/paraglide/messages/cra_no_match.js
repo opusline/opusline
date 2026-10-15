@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Cra_No_MatchInputs */
 
-const en_cra_no_match = /** @type {(inputs: Cra_No_MatchInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No CRA matches`)
-};
 
-const fr_cra_no_match = /** @type {(inputs: Cra_No_MatchInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Aucun CRA ne correspond`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_cra_no_match = /** @type {(inputs: Cra_No_MatchInputs) => LocalizedStri
 * @returns {LocalizedString}
 */
 export const cra_no_match = /** @type {((inputs?: Cra_No_MatchInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Cra_No_MatchInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_cra_no_match(inputs)
-	return en_cra_no_match(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Aucun CRA ne correspond")
+	return /** @type {LocalizedString} */ ("No CRA matches")
 });

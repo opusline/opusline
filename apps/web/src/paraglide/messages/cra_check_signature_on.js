@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Cra_Check_Signature_OnInputs */
 
-const en_cra_check_signature_on = /** @type {(inputs: Cra_Check_Signature_OnInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saved`)
-};
 
-const fr_cra_check_signature_on = /** @type {(inputs: Cra_Check_Signature_OnInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enregistrée`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_cra_check_signature_on = /** @type {(inputs: Cra_Check_Signature_OnInpu
 * @returns {LocalizedString}
 */
 export const cra_check_signature_on = /** @type {((inputs?: Cra_Check_Signature_OnInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Cra_Check_Signature_OnInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_cra_check_signature_on(inputs)
-	return en_cra_check_signature_on(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Enregistrée")
+	return /** @type {LocalizedString} */ ("Saved")
 });

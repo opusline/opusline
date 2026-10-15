@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Week_Cell_AddInputs */
 
-const en_week_cell_add = /** @type {(inputs: Week_Cell_AddInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add`)
-};
 
-const fr_week_cell_add = /** @type {(inputs: Week_Cell_AddInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ajouter`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_week_cell_add = /** @type {(inputs: Week_Cell_AddInputs) => LocalizedSt
 * @returns {LocalizedString}
 */
 export const week_cell_add = /** @type {((inputs?: Week_Cell_AddInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Week_Cell_AddInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_week_cell_add(inputs)
-	return en_week_cell_add(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Ajouter")
+	return /** @type {LocalizedString} */ ("Add")
 });

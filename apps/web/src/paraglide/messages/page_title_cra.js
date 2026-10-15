@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Page_Title_CraInputs */
 
-const en_page_title_cra = /** @type {(inputs: Page_Title_CraInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Activity report (CRA)`)
-};
 
-const fr_page_title_cra = /** @type {(inputs: Page_Title_CraInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Compte rendu d'activité`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_page_title_cra = /** @type {(inputs: Page_Title_CraInputs) => Localized
 * @returns {LocalizedString}
 */
 export const page_title_cra = /** @type {((inputs?: Page_Title_CraInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Page_Title_CraInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_page_title_cra(inputs)
-	return en_page_title_cra(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Compte rendu d'activité")
+	return /** @type {LocalizedString} */ ("Activity report (CRA)")
 });

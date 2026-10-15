@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Invoices_Covered_CountInputs */
 
-const en_invoices_covered_count = /** @type {(inputs: Invoices_Covered_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_invoices_covered_count = /** @type {(inputs: Invoices_Covered_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} tracked time will be marked as invoiced and leave “to invoice”.`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} tracked times will be marked as invoiced and leave “to invoice”.`);
 	return /** @type {LocalizedString} */ ("invoices_covered_count");
 };
 
-const fr_invoices_covered_count = /** @type {(inputs: Invoices_Covered_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_invoices_covered_count = /** @type {(inputs: Invoices_Covered_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} temps saisi sera marqué comme facturé et disparaîtra de « à facturer ».`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} temps saisis seront marqués comme facturés et disparaîtront de « à facturer ».`);
 	return /** @type {LocalizedString} */ ("invoices_covered_count");

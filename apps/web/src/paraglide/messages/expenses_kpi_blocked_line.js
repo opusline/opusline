@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown>, amount: NonNullable<unknown> }} Expenses_Kpi_Blocked_LineInputs */
 
-const en_expenses_kpi_blocked_line = /** @type {(inputs: Expenses_Kpi_Blocked_LineInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_expenses_kpi_blocked_line = /** @type {(inputs: Expenses_Kpi_Blocked_LineInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`+ ${i?.amount} blocked · ${i?.count} receipt to link`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`+ ${i?.amount} blocked · ${i?.count} receipts to link`);
 	return /** @type {LocalizedString} */ ("expenses_kpi_blocked_line");
 };
 
-const fr_expenses_kpi_blocked_line = /** @type {(inputs: Expenses_Kpi_Blocked_LineInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_expenses_kpi_blocked_line = /** @type {(inputs: Expenses_Kpi_Blocked_LineInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`+ ${i?.amount} bloqués · ${i?.count} facture à lier`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`+ ${i?.amount} bloqués · ${i?.count} factures à lier`);
 	return /** @type {LocalizedString} */ ("expenses_kpi_blocked_line");

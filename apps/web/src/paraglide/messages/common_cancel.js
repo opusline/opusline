@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Common_CancelInputs */
 
-const en_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
-};
 
-const fr_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Annuler`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedSt
 * @returns {LocalizedString}
 */
 export const common_cancel = /** @type {((inputs?: Common_CancelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_CancelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_common_cancel(inputs)
-	return en_common_cancel(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Annuler")
+	return /** @type {LocalizedString} */ ("Cancel")
 });

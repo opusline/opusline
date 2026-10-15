@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Clients_Mission_CountInputs */
 
-const en_clients_mission_count = /** @type {(inputs: Clients_Mission_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_clients_mission_count = /** @type {(inputs: Clients_Mission_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} mission`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} missions`);
 	return /** @type {LocalizedString} */ ("clients_mission_count");
 };
 
-const fr_clients_mission_count = /** @type {(inputs: Clients_Mission_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_clients_mission_count = /** @type {(inputs: Clients_Mission_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} mission`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} missions`);
 	return /** @type {LocalizedString} */ ("clients_mission_count");

@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Expenses_RecategorizedInputs */
 
-const en_expenses_recategorized = /** @type {(inputs: Expenses_RecategorizedInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_expenses_recategorized = /** @type {(inputs: Expenses_RecategorizedInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} expense recategorised`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} expenses recategorised`);
 	return /** @type {LocalizedString} */ ("expenses_recategorized");
 };
 
-const fr_expenses_recategorized = /** @type {(inputs: Expenses_RecategorizedInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_expenses_recategorized = /** @type {(inputs: Expenses_RecategorizedInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} dépense reclassée`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} dépenses reclassées`);
 	return /** @type {LocalizedString} */ ("expenses_recategorized");

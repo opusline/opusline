@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Security_Trusted_Revoke_AllInputs */
 
-const en_security_trusted_revoke_all = /** @type {(inputs: Security_Trusted_Revoke_AllInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Revoke all`)
-};
 
-const fr_security_trusted_revoke_all = /** @type {(inputs: Security_Trusted_Revoke_AllInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tout révoquer`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_security_trusted_revoke_all = /** @type {(inputs: Security_Trusted_Revo
 * @returns {LocalizedString}
 */
 export const security_trusted_revoke_all = /** @type {((inputs?: Security_Trusted_Revoke_AllInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Trusted_Revoke_AllInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_security_trusted_revoke_all(inputs)
-	return en_security_trusted_revoke_all(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Tout révoquer")
+	return /** @type {LocalizedString} */ ("Revoke all")
 });

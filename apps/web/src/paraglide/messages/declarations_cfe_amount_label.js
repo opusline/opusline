@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Declarations_Cfe_Amount_LabelInputs */
 
-const en_declarations_cfe_amount_label = /** @type {(inputs: Declarations_Cfe_Amount_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Notice amount`)
-};
 
-const fr_declarations_cfe_amount_label = /** @type {(inputs: Declarations_Cfe_Amount_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Montant de l'avis`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_declarations_cfe_amount_label = /** @type {(inputs: Declarations_Cfe_Am
 * @returns {LocalizedString}
 */
 export const declarations_cfe_amount_label = /** @type {((inputs?: Declarations_Cfe_Amount_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Declarations_Cfe_Amount_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_declarations_cfe_amount_label(inputs)
-	return en_declarations_cfe_amount_label(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Montant de l'avis")
+	return /** @type {LocalizedString} */ ("Notice amount")
 });

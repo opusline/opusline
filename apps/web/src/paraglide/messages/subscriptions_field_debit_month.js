@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Subscriptions_Field_Debit_MonthInputs */
 
-const en_subscriptions_field_debit_month = /** @type {(inputs: Subscriptions_Field_Debit_MonthInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Debit month`)
-};
 
-const fr_subscriptions_field_debit_month = /** @type {(inputs: Subscriptions_Field_Debit_MonthInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mois du prélèvement`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_subscriptions_field_debit_month = /** @type {(inputs: Subscriptions_Fie
 * @returns {LocalizedString}
 */
 export const subscriptions_field_debit_month = /** @type {((inputs?: Subscriptions_Field_Debit_MonthInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Subscriptions_Field_Debit_MonthInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_subscriptions_field_debit_month(inputs)
-	return en_subscriptions_field_debit_month(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Mois du prélèvement")
+	return /** @type {LocalizedString} */ ("Debit month")
 });

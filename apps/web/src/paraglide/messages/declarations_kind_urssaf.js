@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Declarations_Kind_UrssafInputs */
 
-const en_declarations_kind_urssaf = /** @type {(inputs: Declarations_Kind_UrssafInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`URSSAF`)
-};
 
-const fr_declarations_kind_urssaf = /** @type {(inputs: Declarations_Kind_UrssafInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`URSSAF`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_declarations_kind_urssaf = /** @type {(inputs: Declarations_Kind_Urssaf
 * @returns {LocalizedString}
 */
 export const declarations_kind_urssaf = /** @type {((inputs?: Declarations_Kind_UrssafInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Declarations_Kind_UrssafInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_declarations_kind_urssaf(inputs)
-	return en_declarations_kind_urssaf(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("URSSAF")
+	return /** @type {LocalizedString} */ ("URSSAF")
 });

@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expense_Vat_ExemptInputs */
 
-const en_expense_vat_exempt = /** @type {(inputs: Expense_Vat_ExemptInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`no TVA`)
-};
 
-const fr_expense_vat_exempt = /** @type {(inputs: Expense_Vat_ExemptInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`hors TVA`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expense_vat_exempt = /** @type {(inputs: Expense_Vat_ExemptInputs) => L
 * @returns {LocalizedString}
 */
 export const expense_vat_exempt = /** @type {((inputs?: Expense_Vat_ExemptInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expense_Vat_ExemptInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expense_vat_exempt(inputs)
-	return en_expense_vat_exempt(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("hors TVA")
+	return /** @type {LocalizedString} */ ("no TVA")
 });

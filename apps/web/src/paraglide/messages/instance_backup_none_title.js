@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Instance_Backup_None_TitleInputs */
 
-const en_instance_backup_none_title = /** @type {(inputs: Instance_Backup_None_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No backup recorded`)
-};
 
-const fr_instance_backup_none_title = /** @type {(inputs: Instance_Backup_None_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Aucune sauvegarde enregistrée`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_instance_backup_none_title = /** @type {(inputs: Instance_Backup_None_T
 * @returns {LocalizedString}
 */
 export const instance_backup_none_title = /** @type {((inputs?: Instance_Backup_None_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Instance_Backup_None_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_instance_backup_none_title(inputs)
-	return en_instance_backup_none_title(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Aucune sauvegarde enregistrée")
+	return /** @type {LocalizedString} */ ("No backup recorded")
 });

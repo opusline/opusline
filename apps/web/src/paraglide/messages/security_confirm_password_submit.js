@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Security_Confirm_Password_SubmitInputs */
 
-const en_security_confirm_password_submit = /** @type {(inputs: Security_Confirm_Password_SubmitInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm`)
-};
 
-const fr_security_confirm_password_submit = /** @type {(inputs: Security_Confirm_Password_SubmitInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirmer`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_security_confirm_password_submit = /** @type {(inputs: Security_Confirm
 * @returns {LocalizedString}
 */
 export const security_confirm_password_submit = /** @type {((inputs?: Security_Confirm_Password_SubmitInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Confirm_Password_SubmitInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_security_confirm_password_submit(inputs)
-	return en_security_confirm_password_submit(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Confirmer")
+	return /** @type {LocalizedString} */ ("Confirm")
 });

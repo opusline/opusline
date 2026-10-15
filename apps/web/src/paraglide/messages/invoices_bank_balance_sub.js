@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Bank_Balance_SubInputs */
 
-const en_invoices_bank_balance_sub = /** @type {(inputs: Invoices_Bank_Balance_SubInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`entered by hand · import a statement`)
-};
 
-const fr_invoices_bank_balance_sub = /** @type {(inputs: Invoices_Bank_Balance_SubInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`saisi à la main · importer un relevé`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_invoices_bank_balance_sub = /** @type {(inputs: Invoices_Bank_Balance_S
 * @returns {LocalizedString}
 */
 export const invoices_bank_balance_sub = /** @type {((inputs?: Invoices_Bank_Balance_SubInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Bank_Balance_SubInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_invoices_bank_balance_sub(inputs)
-	return en_invoices_bank_balance_sub(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("saisi à la main · importer un relevé")
+	return /** @type {LocalizedString} */ ("entered by hand · import a statement")
 });

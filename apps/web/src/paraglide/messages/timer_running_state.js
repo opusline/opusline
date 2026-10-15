@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Timer_Running_StateInputs */
 
-const en_timer_running_state = /** @type {(inputs: Timer_Running_StateInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tracking in progress`)
-};
 
-const fr_timer_running_state = /** @type {(inputs: Timer_Running_StateInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Suivi en cours`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_timer_running_state = /** @type {(inputs: Timer_Running_StateInputs) =>
 * @returns {LocalizedString}
 */
 export const timer_running_state = /** @type {((inputs?: Timer_Running_StateInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Timer_Running_StateInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_timer_running_state(inputs)
-	return en_timer_running_state(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Suivi en cours")
+	return /** @type {LocalizedString} */ ("Tracking in progress")
 });

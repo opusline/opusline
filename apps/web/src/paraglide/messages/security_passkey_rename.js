@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Security_Passkey_RenameInputs */
 
-const en_security_passkey_rename = /** @type {(inputs: Security_Passkey_RenameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Rename`)
-};
 
-const fr_security_passkey_rename = /** @type {(inputs: Security_Passkey_RenameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Renommer`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_security_passkey_rename = /** @type {(inputs: Security_Passkey_RenameIn
 * @returns {LocalizedString}
 */
 export const security_passkey_rename = /** @type {((inputs?: Security_Passkey_RenameInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Passkey_RenameInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_security_passkey_rename(inputs)
-	return en_security_passkey_rename(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Renommer")
+	return /** @type {LocalizedString} */ ("Rename")
 });

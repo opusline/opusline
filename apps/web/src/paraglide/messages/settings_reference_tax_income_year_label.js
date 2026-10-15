@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Settings_Reference_Tax_Income_Year_LabelInputs */
 
-const en_settings_reference_tax_income_year_label = /** @type {(inputs: Settings_Reference_Tax_Income_Year_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Income of`)
-};
 
-const fr_settings_reference_tax_income_year_label = /** @type {(inputs: Settings_Reference_Tax_Income_Year_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Revenus de l'année`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_settings_reference_tax_income_year_label = /** @type {(inputs: Settings
 * @returns {LocalizedString}
 */
 export const settings_reference_tax_income_year_label = /** @type {((inputs?: Settings_Reference_Tax_Income_Year_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Reference_Tax_Income_Year_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_settings_reference_tax_income_year_label(inputs)
-	return en_settings_reference_tax_income_year_label(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Revenus de l'année")
+	return /** @type {LocalizedString} */ ("Income of")
 });

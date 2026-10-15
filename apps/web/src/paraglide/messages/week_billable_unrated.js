@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Week_Billable_UnratedInputs */
 
-const en_week_billable_unrated = /** @type {(inputs: Week_Billable_UnratedInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_week_billable_unrated = /** @type {(inputs: Week_Billable_UnratedInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} without a rate`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} without a rate`);
 	return /** @type {LocalizedString} */ ("week_billable_unrated");
 };
 
-const fr_week_billable_unrated = /** @type {(inputs: Week_Billable_UnratedInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_week_billable_unrated = /** @type {(inputs: Week_Billable_UnratedInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} sans tarif`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} sans tarif`);
 	return /** @type {LocalizedString} */ ("week_billable_unrated");

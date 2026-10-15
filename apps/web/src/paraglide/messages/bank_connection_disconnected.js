@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Connection_DisconnectedInputs */
 
-const en_bank_connection_disconnected = /** @type {(inputs: Bank_Connection_DisconnectedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Enable Banking application is ready: connect your bank.`)
-};
 
-const fr_bank_connection_disconnected = /** @type {(inputs: Bank_Connection_DisconnectedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Votre application Enable Banking est prête : connectez votre banque.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_bank_connection_disconnected = /** @type {(inputs: Bank_Connection_Disc
 * @returns {LocalizedString}
 */
 export const bank_connection_disconnected = /** @type {((inputs?: Bank_Connection_DisconnectedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Connection_DisconnectedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_bank_connection_disconnected(inputs)
-	return en_bank_connection_disconnected(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Votre application Enable Banking est prête : connectez votre banque.")
+	return /** @type {LocalizedString} */ ("Your Enable Banking application is ready: connect your bank.")
 });

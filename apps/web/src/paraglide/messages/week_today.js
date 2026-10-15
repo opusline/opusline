@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Week_TodayInputs */
 
-const en_week_today = /** @type {(inputs: Week_TodayInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Today`)
-};
 
-const fr_week_today = /** @type {(inputs: Week_TodayInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Aujourd'hui`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_week_today = /** @type {(inputs: Week_TodayInputs) => LocalizedString} 
 * @returns {LocalizedString}
 */
 export const week_today = /** @type {((inputs?: Week_TodayInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Week_TodayInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_week_today(inputs)
-	return en_week_today(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Aujourd'hui")
+	return /** @type {LocalizedString} */ ("Today")
 });

@@ -6,8 +6,8 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ copied: NonNullable<unknown>, failed: NonNullable<unknown>, message: NonNullable<unknown> }} Week_Repeat_ResultInputs */
 
-const en_week_repeat_result = /** @type {(inputs: Week_Repeat_ResultInputs) => LocalizedString} */ (i) => {const copiedPlural = registry.plural("en", i?.copied, {});
-	const failedPlural = registry.plural("en", i?.failed, {});
+const en_week_repeat_result = /** @type {(inputs: Week_Repeat_ResultInputs) => LocalizedString} */ (i) => {const copiedPlural = registry.plural("en", i?.copied, {}, true);
+	const failedPlural = registry.plural("en", i?.failed, {}, true);
 	if (copiedPlural === "one" && failedPlural === "one") return /** @type {LocalizedString} */ (`${i?.copied} entry copied, ${i?.failed} failed: ${i?.message}`);
 	if (copiedPlural === "one" && failedPlural === "other") return /** @type {LocalizedString} */ (`${i?.copied} entry copied, ${i?.failed} failed: ${i?.message}`);
 	if (copiedPlural === "other" && failedPlural === "one") return /** @type {LocalizedString} */ (`${i?.copied} entries copied, ${i?.failed} failed: ${i?.message}`);
@@ -15,8 +15,8 @@ const en_week_repeat_result = /** @type {(inputs: Week_Repeat_ResultInputs) => L
 	return /** @type {LocalizedString} */ ("week_repeat_result");
 };
 
-const fr_week_repeat_result = /** @type {(inputs: Week_Repeat_ResultInputs) => LocalizedString} */ (i) => {const copiedPlural = registry.plural("fr", i?.copied, {});
-	const failedPlural = registry.plural("fr", i?.failed, {});
+const fr_week_repeat_result = /** @type {(inputs: Week_Repeat_ResultInputs) => LocalizedString} */ (i) => {const copiedPlural = registry.plural("fr", i?.copied, {}, true);
+	const failedPlural = registry.plural("fr", i?.failed, {}, true);
 	if (copiedPlural === "one" && failedPlural === "one") return /** @type {LocalizedString} */ (`${i?.copied} entrée reprise, ${i?.failed} échouée : ${i?.message}`);
 	if (copiedPlural === "one" && failedPlural === "other") return /** @type {LocalizedString} */ (`${i?.copied} entrée reprise, ${i?.failed} échouées : ${i?.message}`);
 	if (copiedPlural === "other" && failedPlural === "one") return /** @type {LocalizedString} */ (`${i?.copied} entrées reprises, ${i?.failed} échouée : ${i?.message}`);

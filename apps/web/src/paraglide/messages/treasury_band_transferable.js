@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Treasury_Band_TransferableInputs */
 
-const en_treasury_band_transferable = /** @type {(inputs: Treasury_Band_TransferableInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transferable`)
-};
 
-const fr_treasury_band_transferable = /** @type {(inputs: Treasury_Band_TransferableInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Virable`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_treasury_band_transferable = /** @type {(inputs: Treasury_Band_Transfer
 * @returns {LocalizedString}
 */
 export const treasury_band_transferable = /** @type {((inputs?: Treasury_Band_TransferableInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Treasury_Band_TransferableInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_treasury_band_transferable(inputs)
-	return en_treasury_band_transferable(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Virable")
+	return /** @type {LocalizedString} */ ("Transferable")
 });

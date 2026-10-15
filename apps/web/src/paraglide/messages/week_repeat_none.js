@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Week_Repeat_NoneInputs */
 
-const en_week_repeat_none = /** @type {(inputs: Week_Repeat_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No entries to copy from last week.`)
-};
 
-const fr_week_repeat_none = /** @type {(inputs: Week_Repeat_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Aucune entrée à reprendre sur la semaine précédente.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_week_repeat_none = /** @type {(inputs: Week_Repeat_NoneInputs) => Local
 * @returns {LocalizedString}
 */
 export const week_repeat_none = /** @type {((inputs?: Week_Repeat_NoneInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Week_Repeat_NoneInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_week_repeat_none(inputs)
-	return en_week_repeat_none(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Aucune entrée à reprendre sur la semaine précédente.")
+	return /** @type {LocalizedString} */ ("No entries to copy from last week.")
 });

@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Declarations_Payment_RecordedInputs */
 
-const en_declarations_payment_recorded = /** @type {(inputs: Declarations_Payment_RecordedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Payment recorded · debited from the business account`)
-};
 
-const fr_declarations_payment_recorded = /** @type {(inputs: Declarations_Payment_RecordedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Paiement enregistré · prélèvement sur le compte pro`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_declarations_payment_recorded = /** @type {(inputs: Declarations_Paymen
 * @returns {LocalizedString}
 */
 export const declarations_payment_recorded = /** @type {((inputs?: Declarations_Payment_RecordedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Declarations_Payment_RecordedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_declarations_payment_recorded(inputs)
-	return en_declarations_payment_recorded(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Paiement enregistré · prélèvement sur le compte pro")
+	return /** @type {LocalizedString} */ ("Payment recorded · debited from the business account")
 });

@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Ca3_Box_25Inputs */
 
-const en_ca3_box_25 = /** @type {(inputs: Ca3_Box_25Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`TVA credit`)
-};
 
-const fr_ca3_box_25 = /** @type {(inputs: Ca3_Box_25Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Crédit de TVA`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_ca3_box_25 = /** @type {(inputs: Ca3_Box_25Inputs) => LocalizedString} 
 * @returns {LocalizedString}
 */
 export const ca3_box_25 = /** @type {((inputs?: Ca3_Box_25Inputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Ca3_Box_25Inputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_ca3_box_25(inputs)
-	return en_ca3_box_25(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Crédit de TVA")
+	return /** @type {LocalizedString} */ ("TVA credit")
 });

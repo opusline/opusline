@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Release_Notes_Repo_NoteInputs */
 
-const en_release_notes_repo_note = /** @type {(inputs: Release_Notes_Repo_NoteInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Full history and migration notes in the repository.`)
-};
 
-const fr_release_notes_repo_note = /** @type {(inputs: Release_Notes_Repo_NoteInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Historique complet et notes de migration dans le dépôt.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_release_notes_repo_note = /** @type {(inputs: Release_Notes_Repo_NoteIn
 * @returns {LocalizedString}
 */
 export const release_notes_repo_note = /** @type {((inputs?: Release_Notes_Repo_NoteInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Release_Notes_Repo_NoteInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_release_notes_repo_note(inputs)
-	return en_release_notes_repo_note(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Historique complet et notes de migration dans le dépôt.")
+	return /** @type {LocalizedString} */ ("Full history and migration notes in the repository.")
 });

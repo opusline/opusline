@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Release_Notes_Kind_ImprovedInputs */
 
-const en_release_notes_kind_improved = /** @type {(inputs: Release_Notes_Kind_ImprovedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Improved`)
-};
 
-const fr_release_notes_kind_improved = /** @type {(inputs: Release_Notes_Kind_ImprovedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Amélioré`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_release_notes_kind_improved = /** @type {(inputs: Release_Notes_Kind_Im
 * @returns {LocalizedString}
 */
 export const release_notes_kind_improved = /** @type {((inputs?: Release_Notes_Kind_ImprovedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Release_Notes_Kind_ImprovedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_release_notes_kind_improved(inputs)
-	return en_release_notes_kind_improved(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Amélioré")
+	return /** @type {LocalizedString} */ ("Improved")
 });

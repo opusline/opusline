@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_ReintegratedInputs */
 
-const en_expenses_reintegrated = /** @type {(inputs: Expenses_ReintegratedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back on the CA3`)
-};
 
-const fr_expenses_reintegrated = /** @type {(inputs: Expenses_ReintegratedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Réintégrée dans la CA3`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expenses_reintegrated = /** @type {(inputs: Expenses_ReintegratedInputs
 * @returns {LocalizedString}
 */
 export const expenses_reintegrated = /** @type {((inputs?: Expenses_ReintegratedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_ReintegratedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expenses_reintegrated(inputs)
-	return en_expenses_reintegrated(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Réintégrée dans la CA3")
+	return /** @type {LocalizedString} */ ("Back on the CA3")
 });

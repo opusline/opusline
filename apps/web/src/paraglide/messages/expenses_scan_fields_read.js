@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown>, file: NonNullable<unknown> }} Expenses_Scan_Fields_ReadInputs */
 
-const en_expenses_scan_fields_read = /** @type {(inputs: Expenses_Scan_Fields_ReadInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_expenses_scan_fields_read = /** @type {(inputs: Expenses_Scan_Fields_ReadInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} field read from ${i?.file}`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} fields read from ${i?.file}`);
 	return /** @type {LocalizedString} */ ("expenses_scan_fields_read");
 };
 
-const fr_expenses_scan_fields_read = /** @type {(inputs: Expenses_Scan_Fields_ReadInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_expenses_scan_fields_read = /** @type {(inputs: Expenses_Scan_Fields_ReadInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} champ lu sur ${i?.file}`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} champs lus sur ${i?.file}`);
 	return /** @type {LocalizedString} */ ("expenses_scan_fields_read");

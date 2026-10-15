@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Cra_Empty_Open_ClientsInputs */
 
-const en_cra_empty_open_clients = /** @type {(inputs: Cra_Empty_Open_ClientsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open my clients`)
-};
 
-const fr_cra_empty_open_clients = /** @type {(inputs: Cra_Empty_Open_ClientsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ouvrir mes clients`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_cra_empty_open_clients = /** @type {(inputs: Cra_Empty_Open_ClientsInpu
 * @returns {LocalizedString}
 */
 export const cra_empty_open_clients = /** @type {((inputs?: Cra_Empty_Open_ClientsInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Cra_Empty_Open_ClientsInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_cra_empty_open_clients(inputs)
-	return en_cra_empty_open_clients(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Ouvrir mes clients")
+	return /** @type {LocalizedString} */ ("Open my clients")
 });

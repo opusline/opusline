@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Cra_Check_Recipient_DetailInputs */
 
-const en_cra_check_recipient_detail = /** @type {(inputs: Cra_Check_Recipient_DetailInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`will sign the approval`)
-};
 
-const fr_cra_check_recipient_detail = /** @type {(inputs: Cra_Check_Recipient_DetailInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`signera le bon pour accord`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_cra_check_recipient_detail = /** @type {(inputs: Cra_Check_Recipient_De
 * @returns {LocalizedString}
 */
 export const cra_check_recipient_detail = /** @type {((inputs?: Cra_Check_Recipient_DetailInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Cra_Check_Recipient_DetailInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_cra_check_recipient_detail(inputs)
-	return en_cra_check_recipient_detail(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("signera le bon pour accord")
+	return /** @type {LocalizedString} */ ("will sign the approval")
 });

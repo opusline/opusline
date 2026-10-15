@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Treasury_Empty_TitleInputs */
 
-const en_treasury_empty_title = /** @type {(inputs: Treasury_Empty_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No business account balance yet`)
-};
 
-const fr_treasury_empty_title = /** @type {(inputs: Treasury_Empty_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Pas encore de solde du compte pro`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_treasury_empty_title = /** @type {(inputs: Treasury_Empty_TitleInputs) 
 * @returns {LocalizedString}
 */
 export const treasury_empty_title = /** @type {((inputs?: Treasury_Empty_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Treasury_Empty_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_treasury_empty_title(inputs)
-	return en_treasury_empty_title(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Pas encore de solde du compte pro")
+	return /** @type {LocalizedString} */ ("No business account balance yet")
 });

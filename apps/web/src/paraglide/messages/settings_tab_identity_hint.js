@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Settings_Tab_Identity_HintInputs */
 
-const en_settings_tab_identity_hint = /** @type {(inputs: Settings_Tab_Identity_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Contact details, address`)
-};
 
-const fr_settings_tab_identity_hint = /** @type {(inputs: Settings_Tab_Identity_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Coordonnées, adresse`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_settings_tab_identity_hint = /** @type {(inputs: Settings_Tab_Identity_
 * @returns {LocalizedString}
 */
 export const settings_tab_identity_hint = /** @type {((inputs?: Settings_Tab_Identity_HintInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Tab_Identity_HintInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_settings_tab_identity_hint(inputs)
-	return en_settings_tab_identity_hint(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Coordonnées, adresse")
+	return /** @type {LocalizedString} */ ("Contact details, address")
 });

@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Revenue_Trend_None_QuarterInputs */
 
-const en_revenue_trend_none_quarter = /** @type {(inputs: Revenue_Trend_None_QuarterInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Nothing comparable in the previous quarter`)
-};
 
-const fr_revenue_trend_none_quarter = /** @type {(inputs: Revenue_Trend_None_QuarterInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Rien de comparable sur le trimestre précédent`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_revenue_trend_none_quarter = /** @type {(inputs: Revenue_Trend_None_Qua
 * @returns {LocalizedString}
 */
 export const revenue_trend_none_quarter = /** @type {((inputs?: Revenue_Trend_None_QuarterInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Revenue_Trend_None_QuarterInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_revenue_trend_none_quarter(inputs)
-	return en_revenue_trend_none_quarter(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Rien de comparable sur le trimestre précédent")
+	return /** @type {LocalizedString} */ ("Nothing comparable in the previous quarter")
 });

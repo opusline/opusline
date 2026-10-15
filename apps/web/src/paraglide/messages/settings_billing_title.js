@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Settings_Billing_TitleInputs */
 
-const en_settings_billing_title = /** @type {(inputs: Settings_Billing_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Billing and treasury`)
-};
 
-const fr_settings_billing_title = /** @type {(inputs: Settings_Billing_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Facturation et trésorerie`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_settings_billing_title = /** @type {(inputs: Settings_Billing_TitleInpu
 * @returns {LocalizedString}
 */
 export const settings_billing_title = /** @type {((inputs?: Settings_Billing_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Billing_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_settings_billing_title(inputs)
-	return en_settings_billing_title(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Facturation et trésorerie")
+	return /** @type {LocalizedString} */ ("Billing and treasury")
 });

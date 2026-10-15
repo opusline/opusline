@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Mode_ScanInputs */
 
-const en_expenses_mode_scan = /** @type {(inputs: Expenses_Mode_ScanInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`From the receipt`)
-};
 
-const fr_expenses_mode_scan = /** @type {(inputs: Expenses_Mode_ScanInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Depuis la facture`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expenses_mode_scan = /** @type {(inputs: Expenses_Mode_ScanInputs) => L
 * @returns {LocalizedString}
 */
 export const expenses_mode_scan = /** @type {((inputs?: Expenses_Mode_ScanInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Mode_ScanInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expenses_mode_scan(inputs)
-	return en_expenses_mode_scan(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Depuis la facture")
+	return /** @type {LocalizedString} */ ("From the receipt")
 });

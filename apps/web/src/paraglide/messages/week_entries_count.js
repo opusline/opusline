@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Week_Entries_CountInputs */
 
-const en_week_entries_count = /** @type {(inputs: Week_Entries_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_week_entries_count = /** @type {(inputs: Week_Entries_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} entry`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} entries`);
 	return /** @type {LocalizedString} */ ("week_entries_count");
 };
 
-const fr_week_entries_count = /** @type {(inputs: Week_Entries_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_week_entries_count = /** @type {(inputs: Week_Entries_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} entrée`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} entrées`);
 	return /** @type {LocalizedString} */ ("week_entries_count");

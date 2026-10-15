@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Integrations_Enable_Banking_Application_Id_LabelInputs */
 
-const en_integrations_enable_banking_application_id_label = /** @type {(inputs: Integrations_Enable_Banking_Application_Id_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Application ID`)
-};
 
-const fr_integrations_enable_banking_application_id_label = /** @type {(inputs: Integrations_Enable_Banking_Application_Id_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Identifiant de l'application`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_integrations_enable_banking_application_id_label = /** @type {(inputs: 
 * @returns {LocalizedString}
 */
 export const integrations_enable_banking_application_id_label = /** @type {((inputs?: Integrations_Enable_Banking_Application_Id_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Integrations_Enable_Banking_Application_Id_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_integrations_enable_banking_application_id_label(inputs)
-	return en_integrations_enable_banking_application_id_label(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Identifiant de l'application")
+	return /** @type {LocalizedString} */ ("Application ID")
 });

@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Bank_Sync_SuccessInputs */
 
-const en_bank_sync_success = /** @type {(inputs: Bank_Sync_SuccessInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_bank_sync_success = /** @type {(inputs: Bank_Sync_SuccessInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} new movement`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} new movements`);
 	return /** @type {LocalizedString} */ ("bank_sync_success");
 };
 
-const fr_bank_sync_success = /** @type {(inputs: Bank_Sync_SuccessInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_bank_sync_success = /** @type {(inputs: Bank_Sync_SuccessInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} nouveau mouvement`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} nouveaux mouvements`);
 	return /** @type {LocalizedString} */ ("bank_sync_success");

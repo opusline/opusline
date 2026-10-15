@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Todo_CreateInputs */
 
-const en_expenses_todo_create = /** @type {(inputs: Expenses_Todo_CreateInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create the expense`)
-};
 
-const fr_expenses_todo_create = /** @type {(inputs: Expenses_Todo_CreateInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Créer la dépense`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expenses_todo_create = /** @type {(inputs: Expenses_Todo_CreateInputs) 
 * @returns {LocalizedString}
 */
 export const expenses_todo_create = /** @type {((inputs?: Expenses_Todo_CreateInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Todo_CreateInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expenses_todo_create(inputs)
-	return en_expenses_todo_create(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Créer la dépense")
+	return /** @type {LocalizedString} */ ("Create the expense")
 });

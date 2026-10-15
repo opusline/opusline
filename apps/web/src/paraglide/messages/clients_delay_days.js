@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ days: NonNullable<unknown> }} Clients_Delay_DaysInputs */
 
-const en_clients_delay_days = /** @type {(inputs: Clients_Delay_DaysInputs) => LocalizedString} */ (i) => {const daysPlural = registry.plural("en", i?.days, {});
+const en_clients_delay_days = /** @type {(inputs: Clients_Delay_DaysInputs) => LocalizedString} */ (i) => {const daysPlural = registry.plural("en", i?.days, {}, true);
 	if (daysPlural === "one") return /** @type {LocalizedString} */ (`${i?.days} day`);
 	if (daysPlural === "other") return /** @type {LocalizedString} */ (`${i?.days} days`);
 	return /** @type {LocalizedString} */ ("clients_delay_days");
 };
 
-const fr_clients_delay_days = /** @type {(inputs: Clients_Delay_DaysInputs) => LocalizedString} */ (i) => {const daysPlural = registry.plural("fr", i?.days, {});
+const fr_clients_delay_days = /** @type {(inputs: Clients_Delay_DaysInputs) => LocalizedString} */ (i) => {const daysPlural = registry.plural("fr", i?.days, {}, true);
 	if (daysPlural === "one") return /** @type {LocalizedString} */ (`${i?.days} jour`);
 	if (daysPlural === "other") return /** @type {LocalizedString} */ (`${i?.days} jours`);
 	return /** @type {LocalizedString} */ ("clients_delay_days");

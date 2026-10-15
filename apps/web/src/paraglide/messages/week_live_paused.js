@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Week_Live_PausedInputs */
 
-const en_week_live_paused = /** @type {(inputs: Week_Live_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`paused`)
-};
 
-const fr_week_live_paused = /** @type {(inputs: Week_Live_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`en pause`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_week_live_paused = /** @type {(inputs: Week_Live_PausedInputs) => Local
 * @returns {LocalizedString}
 */
 export const week_live_paused = /** @type {((inputs?: Week_Live_PausedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Week_Live_PausedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_week_live_paused(inputs)
-	return en_week_live_paused(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("en pause")
+	return /** @type {LocalizedString} */ ("paused")
 });

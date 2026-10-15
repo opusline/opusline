@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Upload_FinishingInputs */
 
-const en_upload_finishing = /** @type {(inputs: Upload_FinishingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Filing it…`)
-};
 
-const fr_upload_finishing = /** @type {(inputs: Upload_FinishingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Classement en cours…`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_upload_finishing = /** @type {(inputs: Upload_FinishingInputs) => Local
 * @returns {LocalizedString}
 */
 export const upload_finishing = /** @type {((inputs?: Upload_FinishingInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Upload_FinishingInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_upload_finishing(inputs)
-	return en_upload_finishing(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Classement en cours…")
+	return /** @type {LocalizedString} */ ("Filing it…")
 });

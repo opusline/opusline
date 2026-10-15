@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Security_Totp_Status_OnInputs */
 
-const en_security_totp_status_on = /** @type {(inputs: Security_Totp_Status_OnInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`On`)
-};
 
-const fr_security_totp_status_on = /** @type {(inputs: Security_Totp_Status_OnInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Activée`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_security_totp_status_on = /** @type {(inputs: Security_Totp_Status_OnIn
 * @returns {LocalizedString}
 */
 export const security_totp_status_on = /** @type {((inputs?: Security_Totp_Status_OnInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Totp_Status_OnInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_security_totp_status_on(inputs)
-	return en_security_totp_status_on(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Activée")
+	return /** @type {LocalizedString} */ ("On")
 });

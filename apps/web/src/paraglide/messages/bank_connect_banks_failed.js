@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Connect_Banks_FailedInputs */
 
-const en_bank_connect_banks_failed = /** @type {(inputs: Bank_Connect_Banks_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`The list of banks could not be loaded.`)
-};
 
-const fr_bank_connect_banks_failed = /** @type {(inputs: Bank_Connect_Banks_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`La liste des banques n'a pas pu être chargée.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_bank_connect_banks_failed = /** @type {(inputs: Bank_Connect_Banks_Fail
 * @returns {LocalizedString}
 */
 export const bank_connect_banks_failed = /** @type {((inputs?: Bank_Connect_Banks_FailedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Connect_Banks_FailedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_bank_connect_banks_failed(inputs)
-	return en_bank_connect_banks_failed(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("La liste des banques n'a pas pu être chargée.")
+	return /** @type {LocalizedString} */ ("The list of banks could not be loaded.")
 });

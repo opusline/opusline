@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Instance_Backup_HowInputs */
 
-const en_instance_backup_how = /** @type {(inputs: Instance_Backup_HowInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Run this from the directory holding compose.prod.yaml:`)
-};
 
-const fr_instance_backup_how = /** @type {(inputs: Instance_Backup_HowInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Lancez ceci depuis le dossier qui contient compose.prod.yaml :`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_instance_backup_how = /** @type {(inputs: Instance_Backup_HowInputs) =>
 * @returns {LocalizedString}
 */
 export const instance_backup_how = /** @type {((inputs?: Instance_Backup_HowInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Instance_Backup_HowInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_instance_backup_how(inputs)
-	return en_instance_backup_how(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Lancez ceci depuis le dossier qui contient compose.prod.yaml :")
+	return /** @type {LocalizedString} */ ("Run this from the directory holding compose.prod.yaml:")
 });

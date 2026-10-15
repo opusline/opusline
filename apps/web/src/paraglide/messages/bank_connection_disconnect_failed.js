@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Connection_Disconnect_FailedInputs */
 
-const en_bank_connection_disconnect_failed = /** @type {(inputs: Bank_Connection_Disconnect_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`The bank could not be disconnected.`)
-};
 
-const fr_bank_connection_disconnect_failed = /** @type {(inputs: Bank_Connection_Disconnect_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`La banque n'a pas pu être déconnectée.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_bank_connection_disconnect_failed = /** @type {(inputs: Bank_Connection
 * @returns {LocalizedString}
 */
 export const bank_connection_disconnect_failed = /** @type {((inputs?: Bank_Connection_Disconnect_FailedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Connection_Disconnect_FailedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_bank_connection_disconnect_failed(inputs)
-	return en_bank_connection_disconnect_failed(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("La banque n'a pas pu être déconnectée.")
+	return /** @type {LocalizedString} */ ("The bank could not be disconnected.")
 });

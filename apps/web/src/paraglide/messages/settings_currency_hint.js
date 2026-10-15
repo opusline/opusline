@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Settings_Currency_HintInputs */
 
-const en_settings_currency_hint = /** @type {(inputs: Settings_Currency_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Every amount in the app is counted and displayed in this currency: revenue, invoices, treasury buffer, provisions. It becomes final with the first amount recorded in it.`)
-};
 
-const fr_settings_currency_hint = /** @type {(inputs: Settings_Currency_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tous les montants de l'application sont comptés et affichés dans cette devise : revenus, factures, matelas de trésorerie, provisions. Elle devient définitive dès le premier montant enregistré.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_settings_currency_hint = /** @type {(inputs: Settings_Currency_HintInpu
 * @returns {LocalizedString}
 */
 export const settings_currency_hint = /** @type {((inputs?: Settings_Currency_HintInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Currency_HintInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_settings_currency_hint(inputs)
-	return en_settings_currency_hint(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Tous les montants de l'application sont comptés et affichés dans cette devise : revenus, factures, matelas de trésorerie, provisions. Elle devient définitive dès le premier montant enregistré.")
+	return /** @type {LocalizedString} */ ("Every amount in the app is counted and displayed in this currency: revenue, invoices, treasury buffer, provisions. It becomes final with the first amount recorded in it.")
 });

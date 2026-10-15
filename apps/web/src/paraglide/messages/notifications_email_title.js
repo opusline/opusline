@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Notifications_Email_TitleInputs */
 
-const en_notifications_email_title = /** @type {(inputs: Notifications_Email_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email notifications`)
-};
 
-const fr_notifications_email_title = /** @type {(inputs: Notifications_Email_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Notifications par e-mail`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_notifications_email_title = /** @type {(inputs: Notifications_Email_Tit
 * @returns {LocalizedString}
 */
 export const notifications_email_title = /** @type {((inputs?: Notifications_Email_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Notifications_Email_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_notifications_email_title(inputs)
-	return en_notifications_email_title(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Notifications par e-mail")
+	return /** @type {LocalizedString} */ ("Email notifications")
 });

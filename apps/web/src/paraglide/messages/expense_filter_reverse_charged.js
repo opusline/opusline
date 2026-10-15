@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expense_Filter_Reverse_ChargedInputs */
 
-const en_expense_filter_reverse_charged = /** @type {(inputs: Expense_Filter_Reverse_ChargedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse charged`)
-};
 
-const fr_expense_filter_reverse_charged = /** @type {(inputs: Expense_Filter_Reverse_ChargedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Autoliquidées`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expense_filter_reverse_charged = /** @type {(inputs: Expense_Filter_Rev
 * @returns {LocalizedString}
 */
 export const expense_filter_reverse_charged = /** @type {((inputs?: Expense_Filter_Reverse_ChargedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expense_Filter_Reverse_ChargedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expense_filter_reverse_charged(inputs)
-	return en_expense_filter_reverse_charged(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Autoliquidées")
+	return /** @type {LocalizedString} */ ("Reverse charged")
 });

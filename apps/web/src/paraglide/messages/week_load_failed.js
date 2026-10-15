@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Week_Load_FailedInputs */
 
-const en_week_load_failed = /** @type {(inputs: Week_Load_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`The week could not be loaded. Try again in a moment.`)
-};
 
-const fr_week_load_failed = /** @type {(inputs: Week_Load_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Impossible de charger la semaine. Réessayez dans un instant.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_week_load_failed = /** @type {(inputs: Week_Load_FailedInputs) => Local
 * @returns {LocalizedString}
 */
 export const week_load_failed = /** @type {((inputs?: Week_Load_FailedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Week_Load_FailedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_week_load_failed(inputs)
-	return en_week_load_failed(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Impossible de charger la semaine. Réessayez dans un instant.")
+	return /** @type {LocalizedString} */ ("The week could not be loaded. Try again in a moment.")
 });

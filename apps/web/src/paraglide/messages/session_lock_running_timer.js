@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Session_Lock_Running_TimerInputs */
 
-const en_session_lock_running_timer = /** @type {(inputs: Session_Lock_Running_TimerInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Timer running`)
-};
 
-const fr_session_lock_running_timer = /** @type {(inputs: Session_Lock_Running_TimerInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Suivi en cours`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_session_lock_running_timer = /** @type {(inputs: Session_Lock_Running_T
 * @returns {LocalizedString}
 */
 export const session_lock_running_timer = /** @type {((inputs?: Session_Lock_Running_TimerInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Session_Lock_Running_TimerInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_session_lock_running_timer(inputs)
-	return en_session_lock_running_timer(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Suivi en cours")
+	return /** @type {LocalizedString} */ ("Timer running")
 });

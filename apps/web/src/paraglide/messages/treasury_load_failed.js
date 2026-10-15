@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Treasury_Load_FailedInputs */
 
-const en_treasury_load_failed = /** @type {(inputs: Treasury_Load_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`The transferable amount could not be loaded.`)
-};
 
-const fr_treasury_load_failed = /** @type {(inputs: Treasury_Load_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Le montant virable n'a pas pu être chargé.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_treasury_load_failed = /** @type {(inputs: Treasury_Load_FailedInputs) 
 * @returns {LocalizedString}
 */
 export const treasury_load_failed = /** @type {((inputs?: Treasury_Load_FailedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Treasury_Load_FailedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_treasury_load_failed(inputs)
-	return en_treasury_load_failed(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Le montant virable n'a pas pu être chargé.")
+	return /** @type {LocalizedString} */ ("The transferable amount could not be loaded.")
 });

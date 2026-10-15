@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Deadlines_Sync_Just_NowInputs */
 
-const en_deadlines_sync_just_now = /** @type {(inputs: Deadlines_Sync_Just_NowInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Last synchronised just now`)
-};
 
-const fr_deadlines_sync_just_now = /** @type {(inputs: Deadlines_Sync_Just_NowInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dernière synchronisation à l'instant`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_deadlines_sync_just_now = /** @type {(inputs: Deadlines_Sync_Just_NowIn
 * @returns {LocalizedString}
 */
 export const deadlines_sync_just_now = /** @type {((inputs?: Deadlines_Sync_Just_NowInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Deadlines_Sync_Just_NowInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_deadlines_sync_just_now(inputs)
-	return en_deadlines_sync_just_now(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Dernière synchronisation à l'instant")
+	return /** @type {LocalizedString} */ ("Last synchronised just now")
 });

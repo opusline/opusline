@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Field_Recurring_DayInputs */
 
-const en_expenses_field_recurring_day = /** @type {(inputs: Expenses_Field_Recurring_DayInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Debit day`)
-};
 
-const fr_expenses_field_recurring_day = /** @type {(inputs: Expenses_Field_Recurring_DayInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Jour du prélèvement`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expenses_field_recurring_day = /** @type {(inputs: Expenses_Field_Recur
 * @returns {LocalizedString}
 */
 export const expenses_field_recurring_day = /** @type {((inputs?: Expenses_Field_Recurring_DayInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Field_Recurring_DayInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expenses_field_recurring_day(inputs)
-	return en_expenses_field_recurring_day(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Jour du prélèvement")
+	return /** @type {LocalizedString} */ ("Debit day")
 });

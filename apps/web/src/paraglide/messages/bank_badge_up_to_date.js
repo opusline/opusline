@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Badge_Up_To_DateInputs */
 
-const en_bank_badge_up_to_date = /** @type {(inputs: Bank_Badge_Up_To_DateInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Up to date`)
-};
 
-const fr_bank_badge_up_to_date = /** @type {(inputs: Bank_Badge_Up_To_DateInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`À jour`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_bank_badge_up_to_date = /** @type {(inputs: Bank_Badge_Up_To_DateInputs
 * @returns {LocalizedString}
 */
 export const bank_badge_up_to_date = /** @type {((inputs?: Bank_Badge_Up_To_DateInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Badge_Up_To_DateInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_bank_badge_up_to_date(inputs)
-	return en_bank_badge_up_to_date(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("À jour")
+	return /** @type {LocalizedString} */ ("Up to date")
 });

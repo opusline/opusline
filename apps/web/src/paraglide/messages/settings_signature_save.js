@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Settings_Signature_SaveInputs */
 
-const en_settings_signature_save = /** @type {(inputs: Settings_Signature_SaveInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save the signature`)
-};
 
-const fr_settings_signature_save = /** @type {(inputs: Settings_Signature_SaveInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enregistrer la signature`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_settings_signature_save = /** @type {(inputs: Settings_Signature_SaveIn
 * @returns {LocalizedString}
 */
 export const settings_signature_save = /** @type {((inputs?: Settings_Signature_SaveInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Signature_SaveInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_settings_signature_save(inputs)
-	return en_settings_signature_save(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Enregistrer la signature")
+	return /** @type {LocalizedString} */ ("Save the signature")
 });

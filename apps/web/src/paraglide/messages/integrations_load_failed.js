@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Integrations_Load_FailedInputs */
 
-const en_integrations_load_failed = /** @type {(inputs: Integrations_Load_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`The integrations could not be loaded.`)
-};
 
-const fr_integrations_load_failed = /** @type {(inputs: Integrations_Load_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Les intégrations n'ont pas pu être chargées.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_integrations_load_failed = /** @type {(inputs: Integrations_Load_Failed
 * @returns {LocalizedString}
 */
 export const integrations_load_failed = /** @type {((inputs?: Integrations_Load_FailedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Integrations_Load_FailedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_integrations_load_failed(inputs)
-	return en_integrations_load_failed(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Les intégrations n'ont pas pu être chargées.")
+	return /** @type {LocalizedString} */ ("The integrations could not be loaded.")
 });

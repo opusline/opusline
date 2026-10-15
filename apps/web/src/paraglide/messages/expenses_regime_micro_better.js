@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Regime_Micro_BetterInputs */
 
-const en_expenses_regime_micro_better = /** @type {(inputs: Expenses_Regime_Micro_BetterInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`The micro-BNC regime stays the better one.`)
-};
 
-const fr_expenses_regime_micro_better = /** @type {(inputs: Expenses_Regime_Micro_BetterInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Le régime micro-BNC reste plus favorable.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expenses_regime_micro_better = /** @type {(inputs: Expenses_Regime_Micr
 * @returns {LocalizedString}
 */
 export const expenses_regime_micro_better = /** @type {((inputs?: Expenses_Regime_Micro_BetterInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Regime_Micro_BetterInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expenses_regime_micro_better(inputs)
-	return en_expenses_regime_micro_better(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Le régime micro-BNC reste plus favorable.")
+	return /** @type {LocalizedString} */ ("The micro-BNC regime stays the better one.")
 });

@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Expenses_Selected_CountInputs */
 
-const en_expenses_selected_count = /** @type {(inputs: Expenses_Selected_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_expenses_selected_count = /** @type {(inputs: Expenses_Selected_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} selected`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} selected`);
 	return /** @type {LocalizedString} */ ("expenses_selected_count");
 };
 
-const fr_expenses_selected_count = /** @type {(inputs: Expenses_Selected_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_expenses_selected_count = /** @type {(inputs: Expenses_Selected_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} sélectionnée`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} sélectionnées`);
 	return /** @type {LocalizedString} */ ("expenses_selected_count");

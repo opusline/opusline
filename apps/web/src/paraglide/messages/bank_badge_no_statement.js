@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Badge_No_StatementInputs */
 
-const en_bank_badge_no_statement = /** @type {(inputs: Bank_Badge_No_StatementInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No statement`)
-};
 
-const fr_bank_badge_no_statement = /** @type {(inputs: Bank_Badge_No_StatementInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Aucun relevé`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_bank_badge_no_statement = /** @type {(inputs: Bank_Badge_No_StatementIn
 * @returns {LocalizedString}
 */
 export const bank_badge_no_statement = /** @type {((inputs?: Bank_Badge_No_StatementInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Badge_No_StatementInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_bank_badge_no_statement(inputs)
-	return en_bank_badge_no_statement(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Aucun relevé")
+	return /** @type {LocalizedString} */ ("No statement")
 });

@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Menu_DetachInputs */
 
-const en_expenses_menu_detach = /** @type {(inputs: Expenses_Menu_DetachInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Detach the receipt`)
-};
 
-const fr_expenses_menu_detach = /** @type {(inputs: Expenses_Menu_DetachInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Détacher la facture`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expenses_menu_detach = /** @type {(inputs: Expenses_Menu_DetachInputs) 
 * @returns {LocalizedString}
 */
 export const expenses_menu_detach = /** @type {((inputs?: Expenses_Menu_DetachInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Menu_DetachInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expenses_menu_detach(inputs)
-	return en_expenses_menu_detach(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Détacher la facture")
+	return /** @type {LocalizedString} */ ("Detach the receipt")
 });

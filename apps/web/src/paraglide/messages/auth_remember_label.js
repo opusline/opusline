@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Auth_Remember_LabelInputs */
 
-const en_auth_remember_label = /** @type {(inputs: Auth_Remember_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stay signed in for 30 days`)
-};
 
-const fr_auth_remember_label = /** @type {(inputs: Auth_Remember_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Rester connecté 30 jours`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_auth_remember_label = /** @type {(inputs: Auth_Remember_LabelInputs) =>
 * @returns {LocalizedString}
 */
 export const auth_remember_label = /** @type {((inputs?: Auth_Remember_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Auth_Remember_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_auth_remember_label(inputs)
-	return en_auth_remember_label(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Rester connecté 30 jours")
+	return /** @type {LocalizedString} */ ("Stay signed in for 30 days")
 });

@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Subscription_Periodicity_Monthly_ShortInputs */
 
-const en_subscription_periodicity_monthly_short = /** @type {(inputs: Subscription_Periodicity_Monthly_ShortInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Monthly`)
-};
 
-const fr_subscription_periodicity_monthly_short = /** @type {(inputs: Subscription_Periodicity_Monthly_ShortInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mensuel`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_subscription_periodicity_monthly_short = /** @type {(inputs: Subscripti
 * @returns {LocalizedString}
 */
 export const subscription_periodicity_monthly_short = /** @type {((inputs?: Subscription_Periodicity_Monthly_ShortInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Subscription_Periodicity_Monthly_ShortInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_subscription_periodicity_monthly_short(inputs)
-	return en_subscription_periodicity_monthly_short(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Mensuel")
+	return /** @type {LocalizedString} */ ("Monthly")
 });

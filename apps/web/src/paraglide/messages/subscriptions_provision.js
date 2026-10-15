@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Subscriptions_ProvisionInputs */
 
-const en_subscriptions_provision = /** @type {(inputs: Subscriptions_ProvisionInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set aside monthly`)
-};
 
-const fr_subscriptions_provision = /** @type {(inputs: Subscriptions_ProvisionInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Provisionner mensuellement`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_subscriptions_provision = /** @type {(inputs: Subscriptions_ProvisionIn
 * @returns {LocalizedString}
 */
 export const subscriptions_provision = /** @type {((inputs?: Subscriptions_ProvisionInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Subscriptions_ProvisionInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_subscriptions_provision(inputs)
-	return en_subscriptions_provision(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Provisionner mensuellement")
+	return /** @type {LocalizedString} */ ("Set aside monthly")
 });

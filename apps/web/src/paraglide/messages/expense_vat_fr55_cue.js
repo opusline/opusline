@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expense_Vat_Fr55_CueInputs */
 
-const en_expense_vat_fr55_cue = /** @type {(inputs: Expense_Vat_Fr55_CueInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`“TVA 5,5 %”.`)
-};
 
-const fr_expense_vat_fr55_cue = /** @type {(inputs: Expense_Vat_Fr55_CueInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`« TVA 5,5 % ».`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expense_vat_fr55_cue = /** @type {(inputs: Expense_Vat_Fr55_CueInputs) 
 * @returns {LocalizedString}
 */
 export const expense_vat_fr55_cue = /** @type {((inputs?: Expense_Vat_Fr55_CueInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expense_Vat_Fr55_CueInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expense_vat_fr55_cue(inputs)
-	return en_expense_vat_fr55_cue(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("« TVA 5,5 % ».")
+	return /** @type {LocalizedString} */ ("“TVA 5,5 %”.")
 });

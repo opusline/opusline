@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Documents_Pending_CountInputs */
 
-const en_documents_pending_count = /** @type {(inputs: Documents_Pending_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_documents_pending_count = /** @type {(inputs: Documents_Pending_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} file to sort`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} files to sort`);
 	return /** @type {LocalizedString} */ ("documents_pending_count");
 };
 
-const fr_documents_pending_count = /** @type {(inputs: Documents_Pending_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_documents_pending_count = /** @type {(inputs: Documents_Pending_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} fichier à classer`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} fichiers à classer`);
 	return /** @type {LocalizedString} */ ("documents_pending_count");

@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Documents_Send_CountInputs */
 
-const en_documents_send_count = /** @type {(inputs: Documents_Send_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_documents_send_count = /** @type {(inputs: Documents_Send_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`Send ${i?.count} document`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`Send ${i?.count} documents`);
 	return /** @type {LocalizedString} */ ("documents_send_count");
 };
 
-const fr_documents_send_count = /** @type {(inputs: Documents_Send_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_documents_send_count = /** @type {(inputs: Documents_Send_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`Envoyer ${i?.count} document`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`Envoyer ${i?.count} documents`);
 	return /** @type {LocalizedString} */ ("documents_send_count");

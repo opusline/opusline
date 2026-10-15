@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Add_Mission_LabelInputs */
 
-const en_invoices_add_mission_label = /** @type {(inputs: Invoices_Add_Mission_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mission`)
-};
 
-const fr_invoices_add_mission_label = /** @type {(inputs: Invoices_Add_Mission_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mission`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_invoices_add_mission_label = /** @type {(inputs: Invoices_Add_Mission_L
 * @returns {LocalizedString}
 */
 export const invoices_add_mission_label = /** @type {((inputs?: Invoices_Add_Mission_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Add_Mission_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_invoices_add_mission_label(inputs)
-	return en_invoices_add_mission_label(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Mission")
+	return /** @type {LocalizedString} */ ("Mission")
 });

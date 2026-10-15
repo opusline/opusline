@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Subscription_Status_CancelledInputs */
 
-const en_subscription_status_cancelled = /** @type {(inputs: Subscription_Status_CancelledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancelled`)
-};
 
-const fr_subscription_status_cancelled = /** @type {(inputs: Subscription_Status_CancelledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Résilié`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_subscription_status_cancelled = /** @type {(inputs: Subscription_Status
 * @returns {LocalizedString}
 */
 export const subscription_status_cancelled = /** @type {((inputs?: Subscription_Status_CancelledInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Subscription_Status_CancelledInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_subscription_status_cancelled(inputs)
-	return en_subscription_status_cancelled(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Résilié")
+	return /** @type {LocalizedString} */ ("Cancelled")
 });

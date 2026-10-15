@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Scan_Hint_ManualInputs */
 
-const en_expenses_scan_hint_manual = /** @type {(inputs: Expenses_Scan_Hint_ManualInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`The receipt stays attached; fill the fields by hand. Photos are not read yet.`)
-};
 
-const fr_expenses_scan_hint_manual = /** @type {(inputs: Expenses_Scan_Hint_ManualInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`La facture reste jointe ; saisissez les champs à la main. Les photos ne sont pas encore lues.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expenses_scan_hint_manual = /** @type {(inputs: Expenses_Scan_Hint_Manu
 * @returns {LocalizedString}
 */
 export const expenses_scan_hint_manual = /** @type {((inputs?: Expenses_Scan_Hint_ManualInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Scan_Hint_ManualInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expenses_scan_hint_manual(inputs)
-	return en_expenses_scan_hint_manual(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("La facture reste jointe ; saisissez les champs à la main. Les photos ne sont pas encore lues.")
+	return /** @type {LocalizedString} */ ("The receipt stays attached; fill the fields by hand. Photos are not read yet.")
 });

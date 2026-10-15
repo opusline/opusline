@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Cra_Step_ReviewInputs */
 
-const en_cra_step_review = /** @type {(inputs: Cra_Step_ReviewInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Review`)
-};
 
-const fr_cra_step_review = /** @type {(inputs: Cra_Step_ReviewInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Vérifier`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_cra_step_review = /** @type {(inputs: Cra_Step_ReviewInputs) => Localiz
 * @returns {LocalizedString}
 */
 export const cra_step_review = /** @type {((inputs?: Cra_Step_ReviewInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Cra_Step_ReviewInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_cra_step_review(inputs)
-	return en_cra_step_review(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Vérifier")
+	return /** @type {LocalizedString} */ ("Review")
 });

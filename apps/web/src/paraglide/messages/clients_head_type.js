@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Clients_Head_TypeInputs */
 
-const en_clients_head_type = /** @type {(inputs: Clients_Head_TypeInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Type`)
-};
 
-const fr_clients_head_type = /** @type {(inputs: Clients_Head_TypeInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Type`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_clients_head_type = /** @type {(inputs: Clients_Head_TypeInputs) => Loc
 * @returns {LocalizedString}
 */
 export const clients_head_type = /** @type {((inputs?: Clients_Head_TypeInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Clients_Head_TypeInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_clients_head_type(inputs)
-	return en_clients_head_type(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Type")
+	return /** @type {LocalizedString} */ ("Type")
 });

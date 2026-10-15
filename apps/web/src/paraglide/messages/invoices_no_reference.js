@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_No_ReferenceInputs */
 
-const en_invoices_no_reference = /** @type {(inputs: Invoices_No_ReferenceInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No reference`)
-};
 
-const fr_invoices_no_reference = /** @type {(inputs: Invoices_No_ReferenceInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sans référence`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_invoices_no_reference = /** @type {(inputs: Invoices_No_ReferenceInputs
 * @returns {LocalizedString}
 */
 export const invoices_no_reference = /** @type {((inputs?: Invoices_No_ReferenceInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_No_ReferenceInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_invoices_no_reference(inputs)
-	return en_invoices_no_reference(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Sans référence")
+	return /** @type {LocalizedString} */ ("No reference")
 });

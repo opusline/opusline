@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Balance_ManualInputs */
 
-const en_bank_balance_manual = /** @type {(inputs: Bank_Balance_ManualInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`entered by hand`)
-};
 
-const fr_bank_balance_manual = /** @type {(inputs: Bank_Balance_ManualInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`saisi à la main`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_bank_balance_manual = /** @type {(inputs: Bank_Balance_ManualInputs) =>
 * @returns {LocalizedString}
 */
 export const bank_balance_manual = /** @type {((inputs?: Bank_Balance_ManualInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Balance_ManualInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_bank_balance_manual(inputs)
-	return en_bank_balance_manual(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("saisi à la main")
+	return /** @type {LocalizedString} */ ("entered by hand")
 });

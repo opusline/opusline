@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Deadline_Category_RemindersInputs */
 
-const en_deadline_category_reminders = /** @type {(inputs: Deadline_Category_RemindersInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reminders`)
-};
 
-const fr_deadline_category_reminders = /** @type {(inputs: Deadline_Category_RemindersInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Relances`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_deadline_category_reminders = /** @type {(inputs: Deadline_Category_Rem
 * @returns {LocalizedString}
 */
 export const deadline_category_reminders = /** @type {((inputs?: Deadline_Category_RemindersInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Deadline_Category_RemindersInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_deadline_category_reminders(inputs)
-	return en_deadline_category_reminders(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Relances")
+	return /** @type {LocalizedString} */ ("Reminders")
 });

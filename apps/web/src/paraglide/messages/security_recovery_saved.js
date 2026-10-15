@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Security_Recovery_SavedInputs */
 
-const en_security_recovery_saved = /** @type {(inputs: Security_Recovery_SavedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I saved my codes`)
-};
 
-const fr_security_recovery_saved = /** @type {(inputs: Security_Recovery_SavedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`J'ai enregistré mes codes`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_security_recovery_saved = /** @type {(inputs: Security_Recovery_SavedIn
 * @returns {LocalizedString}
 */
 export const security_recovery_saved = /** @type {((inputs?: Security_Recovery_SavedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Recovery_SavedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_security_recovery_saved(inputs)
-	return en_security_recovery_saved(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("J'ai enregistré mes codes")
+	return /** @type {LocalizedString} */ ("I saved my codes")
 });

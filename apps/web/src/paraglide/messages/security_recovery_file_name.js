@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Security_Recovery_File_NameInputs */
 
-const en_security_recovery_file_name = /** @type {(inputs: Security_Recovery_File_NameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`opusline-recovery-codes.txt`)
-};
 
-const fr_security_recovery_file_name = /** @type {(inputs: Security_Recovery_File_NameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`opusline-codes-de-secours.txt`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_security_recovery_file_name = /** @type {(inputs: Security_Recovery_Fil
 * @returns {LocalizedString}
 */
 export const security_recovery_file_name = /** @type {((inputs?: Security_Recovery_File_NameInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Recovery_File_NameInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_security_recovery_file_name(inputs)
-	return en_security_recovery_file_name(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("opusline-codes-de-secours.txt")
+	return /** @type {LocalizedString} */ ("opusline-recovery-codes.txt")
 });

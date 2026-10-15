@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Missions_Billed_ToInputs */
 
-const en_missions_billed_to = /** @type {(inputs: Missions_Billed_ToInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Billed to`)
-};
 
-const fr_missions_billed_to = /** @type {(inputs: Missions_Billed_ToInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Facturé à`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_missions_billed_to = /** @type {(inputs: Missions_Billed_ToInputs) => L
 * @returns {LocalizedString}
 */
 export const missions_billed_to = /** @type {((inputs?: Missions_Billed_ToInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Missions_Billed_ToInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_missions_billed_to(inputs)
-	return en_missions_billed_to(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Facturé à")
+	return /** @type {LocalizedString} */ ("Billed to")
 });

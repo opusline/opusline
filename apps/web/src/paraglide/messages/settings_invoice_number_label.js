@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Settings_Invoice_Number_LabelInputs */
 
-const en_settings_invoice_number_label = /** @type {(inputs: Settings_Invoice_Number_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Invoice numbering`)
-};
 
-const fr_settings_invoice_number_label = /** @type {(inputs: Settings_Invoice_Number_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Numérotation des factures`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_settings_invoice_number_label = /** @type {(inputs: Settings_Invoice_Nu
 * @returns {LocalizedString}
 */
 export const settings_invoice_number_label = /** @type {((inputs?: Settings_Invoice_Number_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Invoice_Number_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_settings_invoice_number_label(inputs)
-	return en_settings_invoice_number_label(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Numérotation des factures")
+	return /** @type {LocalizedString} */ ("Invoice numbering")
 });

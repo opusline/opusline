@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Subscriptions_History_Col_SubscriptionInputs */
 
-const en_subscriptions_history_col_subscription = /** @type {(inputs: Subscriptions_History_Col_SubscriptionInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subscription`)
-};
 
-const fr_subscriptions_history_col_subscription = /** @type {(inputs: Subscriptions_History_Col_SubscriptionInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Abonnement`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_subscriptions_history_col_subscription = /** @type {(inputs: Subscripti
 * @returns {LocalizedString}
 */
 export const subscriptions_history_col_subscription = /** @type {((inputs?: Subscriptions_History_Col_SubscriptionInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Subscriptions_History_Col_SubscriptionInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_subscriptions_history_col_subscription(inputs)
-	return en_subscriptions_history_col_subscription(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Abonnement")
+	return /** @type {LocalizedString} */ ("Subscription")
 });

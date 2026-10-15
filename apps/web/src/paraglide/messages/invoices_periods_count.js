@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Invoices_Periods_CountInputs */
 
-const en_invoices_periods_count = /** @type {(inputs: Invoices_Periods_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_invoices_periods_count = /** @type {(inputs: Invoices_Periods_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} period awaiting an invoice`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} periods awaiting an invoice`);
 	return /** @type {LocalizedString} */ ("invoices_periods_count");
 };
 
-const fr_invoices_periods_count = /** @type {(inputs: Invoices_Periods_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_invoices_periods_count = /** @type {(inputs: Invoices_Periods_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} période en attente de facture`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} périodes en attente de facture`);
 	return /** @type {LocalizedString} */ ("invoices_periods_count");

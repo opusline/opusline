@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Field_DateInputs */
 
-const en_expenses_field_date = /** @type {(inputs: Expenses_Field_DateInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Date`)
-};
 
-const fr_expenses_field_date = /** @type {(inputs: Expenses_Field_DateInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Date`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expenses_field_date = /** @type {(inputs: Expenses_Field_DateInputs) =>
 * @returns {LocalizedString}
 */
 export const expenses_field_date = /** @type {((inputs?: Expenses_Field_DateInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Field_DateInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expenses_field_date(inputs)
-	return en_expenses_field_date(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Date")
+	return /** @type {LocalizedString} */ ("Date")
 });

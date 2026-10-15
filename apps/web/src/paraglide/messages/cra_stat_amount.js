@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Cra_Stat_AmountInputs */
 
-const en_cra_stat_amount = /** @type {(inputs: Cra_Stat_AmountInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Net amount`)
-};
 
-const fr_cra_stat_amount = /** @type {(inputs: Cra_Stat_AmountInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Montant HT`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_cra_stat_amount = /** @type {(inputs: Cra_Stat_AmountInputs) => Localiz
 * @returns {LocalizedString}
 */
 export const cra_stat_amount = /** @type {((inputs?: Cra_Stat_AmountInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Cra_Stat_AmountInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_cra_stat_amount(inputs)
-	return en_cra_stat_amount(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Montant HT")
+	return /** @type {LocalizedString} */ ("Net amount")
 });

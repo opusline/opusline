@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Todo_Open_MissionInputs */
 
-const en_invoices_todo_open_mission = /** @type {(inputs: Invoices_Todo_Open_MissionInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open the mission`)
-};
 
-const fr_invoices_todo_open_mission = /** @type {(inputs: Invoices_Todo_Open_MissionInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ouvrir la mission`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_invoices_todo_open_mission = /** @type {(inputs: Invoices_Todo_Open_Mis
 * @returns {LocalizedString}
 */
 export const invoices_todo_open_mission = /** @type {((inputs?: Invoices_Todo_Open_MissionInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Todo_Open_MissionInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_invoices_todo_open_mission(inputs)
-	return en_invoices_todo_open_mission(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Ouvrir la mission")
+	return /** @type {LocalizedString} */ ("Open the mission")
 });

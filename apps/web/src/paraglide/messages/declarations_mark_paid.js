@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Declarations_Mark_PaidInputs */
 
-const en_declarations_mark_paid = /** @type {(inputs: Declarations_Mark_PaidInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mark as paid`)
-};
 
-const fr_declarations_mark_paid = /** @type {(inputs: Declarations_Mark_PaidInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Marquer payée`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_declarations_mark_paid = /** @type {(inputs: Declarations_Mark_PaidInpu
 * @returns {LocalizedString}
 */
 export const declarations_mark_paid = /** @type {((inputs?: Declarations_Mark_PaidInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Declarations_Mark_PaidInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_declarations_mark_paid(inputs)
-	return en_declarations_mark_paid(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Marquer payée")
+	return /** @type {LocalizedString} */ ("Mark as paid")
 });

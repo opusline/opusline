@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Kpi_SubscriptionsInputs */
 
-const en_expenses_kpi_subscriptions = /** @type {(inputs: Expenses_Kpi_SubscriptionsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subscriptions`)
-};
 
-const fr_expenses_kpi_subscriptions = /** @type {(inputs: Expenses_Kpi_SubscriptionsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Abonnements`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expenses_kpi_subscriptions = /** @type {(inputs: Expenses_Kpi_Subscript
 * @returns {LocalizedString}
 */
 export const expenses_kpi_subscriptions = /** @type {((inputs?: Expenses_Kpi_SubscriptionsInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Kpi_SubscriptionsInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expenses_kpi_subscriptions(inputs)
-	return en_expenses_kpi_subscriptions(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Abonnements")
+	return /** @type {LocalizedString} */ ("Subscriptions")
 });

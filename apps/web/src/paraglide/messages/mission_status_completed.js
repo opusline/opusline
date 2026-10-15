@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Mission_Status_CompletedInputs */
 
-const en_mission_status_completed = /** @type {(inputs: Mission_Status_CompletedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Completed`)
-};
 
-const fr_mission_status_completed = /** @type {(inputs: Mission_Status_CompletedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Terminée`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_mission_status_completed = /** @type {(inputs: Mission_Status_Completed
 * @returns {LocalizedString}
 */
 export const mission_status_completed = /** @type {((inputs?: Mission_Status_CompletedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Mission_Status_CompletedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_mission_status_completed(inputs)
-	return en_mission_status_completed(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Terminée")
+	return /** @type {LocalizedString} */ ("Completed")
 });

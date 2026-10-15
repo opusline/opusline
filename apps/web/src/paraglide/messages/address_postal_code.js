@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Address_Postal_CodeInputs */
 
-const en_address_postal_code = /** @type {(inputs: Address_Postal_CodeInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Postal code`)
-};
 
-const fr_address_postal_code = /** @type {(inputs: Address_Postal_CodeInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Code postal`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_address_postal_code = /** @type {(inputs: Address_Postal_CodeInputs) =>
 * @returns {LocalizedString}
 */
 export const address_postal_code = /** @type {((inputs?: Address_Postal_CodeInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Address_Postal_CodeInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_address_postal_code(inputs)
-	return en_address_postal_code(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Code postal")
+	return /** @type {LocalizedString} */ ("Postal code")
 });

@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Revenue_Load_FailedInputs */
 
-const en_revenue_load_failed = /** @type {(inputs: Revenue_Load_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`The revenue could not be loaded. Try again in a moment.`)
-};
 
-const fr_revenue_load_failed = /** @type {(inputs: Revenue_Load_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Les revenus n'ont pas pu être chargés. Réessayez dans un instant.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_revenue_load_failed = /** @type {(inputs: Revenue_Load_FailedInputs) =>
 * @returns {LocalizedString}
 */
 export const revenue_load_failed = /** @type {((inputs?: Revenue_Load_FailedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Revenue_Load_FailedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_revenue_load_failed(inputs)
-	return en_revenue_load_failed(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Les revenus n'ont pas pu être chargés. Réessayez dans un instant.")
+	return /** @type {LocalizedString} */ ("The revenue could not be loaded. Try again in a moment.")
 });

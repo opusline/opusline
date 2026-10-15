@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Receipt_FillInputs */
 
-const en_expenses_receipt_fill = /** @type {(inputs: Expenses_Receipt_FillInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fill from the receipt`)
-};
 
-const fr_expenses_receipt_fill = /** @type {(inputs: Expenses_Receipt_FillInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remplir depuis la facture`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expenses_receipt_fill = /** @type {(inputs: Expenses_Receipt_FillInputs
 * @returns {LocalizedString}
 */
 export const expenses_receipt_fill = /** @type {((inputs?: Expenses_Receipt_FillInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Receipt_FillInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expenses_receipt_fill(inputs)
-	return en_expenses_receipt_fill(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Remplir depuis la facture")
+	return /** @type {LocalizedString} */ ("Fill from the receipt")
 });

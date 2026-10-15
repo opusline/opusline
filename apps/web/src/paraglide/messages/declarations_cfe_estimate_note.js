@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Declarations_Cfe_Estimate_NoteInputs */
 
-const en_declarations_cfe_estimate_note = /** @type {(inputs: Declarations_Cfe_Estimate_NoteInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`estimated from last year or the commune's scale · enter the notice as soon as it is online`)
-};
 
-const fr_declarations_cfe_estimate_note = /** @type {(inputs: Declarations_Cfe_Estimate_NoteInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`estimation d'après l'an dernier ou le barème de la commune · saisissez l'avis dès qu'il est en ligne`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_declarations_cfe_estimate_note = /** @type {(inputs: Declarations_Cfe_E
 * @returns {LocalizedString}
 */
 export const declarations_cfe_estimate_note = /** @type {((inputs?: Declarations_Cfe_Estimate_NoteInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Declarations_Cfe_Estimate_NoteInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_declarations_cfe_estimate_note(inputs)
-	return en_declarations_cfe_estimate_note(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("estimation d'après l'an dernier ou le barème de la commune · saisissez l'avis dès qu'il est en ligne")
+	return /** @type {LocalizedString} */ ("estimated from last year or the commune's scale · enter the notice as soon as it is online")
 });

@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Settings_Date_Format_LabelInputs */
 
-const en_settings_date_format_label = /** @type {(inputs: Settings_Date_Format_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Date format`)
-};
 
-const fr_settings_date_format_label = /** @type {(inputs: Settings_Date_Format_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Format des dates`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_settings_date_format_label = /** @type {(inputs: Settings_Date_Format_L
 * @returns {LocalizedString}
 */
 export const settings_date_format_label = /** @type {((inputs?: Settings_Date_Format_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Date_Format_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_settings_date_format_label(inputs)
-	return en_settings_date_format_label(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Format des dates")
+	return /** @type {LocalizedString} */ ("Date format")
 });

@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Account_Help_ShortcutsInputs */
 
-const en_account_help_shortcuts = /** @type {(inputs: Account_Help_ShortcutsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Help and shortcuts`)
-};
 
-const fr_account_help_shortcuts = /** @type {(inputs: Account_Help_ShortcutsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Aide et raccourcis`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_account_help_shortcuts = /** @type {(inputs: Account_Help_ShortcutsInpu
 * @returns {LocalizedString}
 */
 export const account_help_shortcuts = /** @type {((inputs?: Account_Help_ShortcutsInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Account_Help_ShortcutsInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_account_help_shortcuts(inputs)
-	return en_account_help_shortcuts(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Aide et raccourcis")
+	return /** @type {LocalizedString} */ ("Help and shortcuts")
 });

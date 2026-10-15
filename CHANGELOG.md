@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.1](https://github.com/opusline/opusline/compare/v0.33.0...v0.33.1) (2026-10-15)
+
+
+### Dependencies
+
+* **deps:** bump @sentry/react from 10.75.0 to 11.6.0 ([#545](https://github.com/opusline/opusline/issues/545)) ([f68ed91](https://github.com/opusline/opusline/commit/f68ed91c1c70952b0216f0d6793457841e90747b))
+
 ## [0.33.0](https://github.com/opusline/opusline/compare/v0.32.1...v0.33.0) (2026-10-13)
 
 

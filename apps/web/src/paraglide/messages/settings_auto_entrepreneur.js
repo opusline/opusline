@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Settings_Auto_EntrepreneurInputs */
 
-const en_settings_auto_entrepreneur = /** @type {(inputs: Settings_Auto_EntrepreneurInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auto-entrepreneur`)
-};
 
-const fr_settings_auto_entrepreneur = /** @type {(inputs: Settings_Auto_EntrepreneurInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auto-entrepreneur`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_settings_auto_entrepreneur = /** @type {(inputs: Settings_Auto_Entrepre
 * @returns {LocalizedString}
 */
 export const settings_auto_entrepreneur = /** @type {((inputs?: Settings_Auto_EntrepreneurInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Auto_EntrepreneurInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_settings_auto_entrepreneur(inputs)
-	return en_settings_auto_entrepreneur(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Auto-entrepreneur")
+	return /** @type {LocalizedString} */ ("Auto-entrepreneur")
 });

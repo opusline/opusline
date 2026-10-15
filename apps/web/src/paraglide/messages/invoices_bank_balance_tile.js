@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Bank_Balance_TileInputs */
 
-const en_invoices_bank_balance_tile = /** @type {(inputs: Invoices_Bank_Balance_TileInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Business account balance`)
-};
 
-const fr_invoices_bank_balance_tile = /** @type {(inputs: Invoices_Bank_Balance_TileInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Solde compte pro`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_invoices_bank_balance_tile = /** @type {(inputs: Invoices_Bank_Balance_
 * @returns {LocalizedString}
 */
 export const invoices_bank_balance_tile = /** @type {((inputs?: Invoices_Bank_Balance_TileInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Bank_Balance_TileInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_invoices_bank_balance_tile(inputs)
-	return en_invoices_bank_balance_tile(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Solde compte pro")
+	return /** @type {LocalizedString} */ ("Business account balance")
 });

@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Match_IgnoreInputs */
 
-const en_bank_match_ignore = /** @type {(inputs: Bank_Match_IgnoreInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ignore`)
-};
 
-const fr_bank_match_ignore = /** @type {(inputs: Bank_Match_IgnoreInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ignorer`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_bank_match_ignore = /** @type {(inputs: Bank_Match_IgnoreInputs) => Loc
 * @returns {LocalizedString}
 */
 export const bank_match_ignore = /** @type {((inputs?: Bank_Match_IgnoreInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Match_IgnoreInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_bank_match_ignore(inputs)
-	return en_bank_match_ignore(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Ignorer")
+	return /** @type {LocalizedString} */ ("Ignore")
 });

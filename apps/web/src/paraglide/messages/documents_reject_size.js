@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Documents_Reject_SizeInputs */
 
-const en_documents_reject_size = /** @type {(inputs: Documents_Reject_SizeInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`too heavy (max 20 MB)`)
-};
 
-const fr_documents_reject_size = /** @type {(inputs: Documents_Reject_SizeInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`trop lourd (max 20 Mo)`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_documents_reject_size = /** @type {(inputs: Documents_Reject_SizeInputs
 * @returns {LocalizedString}
 */
 export const documents_reject_size = /** @type {((inputs?: Documents_Reject_SizeInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Documents_Reject_SizeInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_documents_reject_size(inputs)
-	return en_documents_reject_size(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("trop lourd (max 20 Mo)")
+	return /** @type {LocalizedString} */ ("too heavy (max 20 MB)")
 });

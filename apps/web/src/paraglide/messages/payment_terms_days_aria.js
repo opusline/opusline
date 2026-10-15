@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Payment_Terms_Days_AriaInputs */
 
-const en_payment_terms_days_aria = /** @type {(inputs: Payment_Terms_Days_AriaInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Payment terms in days`)
-};
 
-const fr_payment_terms_days_aria = /** @type {(inputs: Payment_Terms_Days_AriaInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Délai de paiement en jours`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_payment_terms_days_aria = /** @type {(inputs: Payment_Terms_Days_AriaIn
 * @returns {LocalizedString}
 */
 export const payment_terms_days_aria = /** @type {((inputs?: Payment_Terms_Days_AriaInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Payment_Terms_Days_AriaInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_payment_terms_days_aria(inputs)
-	return en_payment_terms_days_aria(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Délai de paiement en jours")
+	return /** @type {LocalizedString} */ ("Payment terms in days")
 });

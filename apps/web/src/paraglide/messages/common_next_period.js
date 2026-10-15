@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Common_Next_PeriodInputs */
 
-const en_common_next_period = /** @type {(inputs: Common_Next_PeriodInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next period`)
-};
 
-const fr_common_next_period = /** @type {(inputs: Common_Next_PeriodInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Période suivante`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_common_next_period = /** @type {(inputs: Common_Next_PeriodInputs) => L
 * @returns {LocalizedString}
 */
 export const common_next_period = /** @type {((inputs?: Common_Next_PeriodInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_Next_PeriodInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_common_next_period(inputs)
-	return en_common_next_period(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Période suivante")
+	return /** @type {LocalizedString} */ ("Next period")
 });

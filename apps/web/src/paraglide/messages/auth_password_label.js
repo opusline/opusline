@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Auth_Password_LabelInputs */
 
-const en_auth_password_label = /** @type {(inputs: Auth_Password_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
-};
 
-const fr_auth_password_label = /** @type {(inputs: Auth_Password_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mot de passe`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_auth_password_label = /** @type {(inputs: Auth_Password_LabelInputs) =>
 * @returns {LocalizedString}
 */
 export const auth_password_label = /** @type {((inputs?: Auth_Password_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Auth_Password_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_auth_password_label(inputs)
-	return en_auth_password_label(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Mot de passe")
+	return /** @type {LocalizedString} */ ("Password")
 });

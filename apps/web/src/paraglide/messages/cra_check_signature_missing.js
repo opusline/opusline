@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Cra_Check_Signature_MissingInputs */
 
-const en_cra_check_signature_missing = /** @type {(inputs: Cra_Check_Signature_MissingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`no signature saved in your settings`)
-};
 
-const fr_cra_check_signature_missing = /** @type {(inputs: Cra_Check_Signature_MissingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`aucune signature enregistrée dans vos réglages`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_cra_check_signature_missing = /** @type {(inputs: Cra_Check_Signature_M
 * @returns {LocalizedString}
 */
 export const cra_check_signature_missing = /** @type {((inputs?: Cra_Check_Signature_MissingInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Cra_Check_Signature_MissingInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_cra_check_signature_missing(inputs)
-	return en_cra_check_signature_missing(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("aucune signature enregistrée dans vos réglages")
+	return /** @type {LocalizedString} */ ("no signature saved in your settings")
 });

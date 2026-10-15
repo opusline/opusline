@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Import_SubmitInputs */
 
-const en_bank_import_submit = /** @type {(inputs: Bank_Import_SubmitInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Analyse the statement`)
-};
 
-const fr_bank_import_submit = /** @type {(inputs: Bank_Import_SubmitInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Analyser le relevé`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_bank_import_submit = /** @type {(inputs: Bank_Import_SubmitInputs) => L
 * @returns {LocalizedString}
 */
 export const bank_import_submit = /** @type {((inputs?: Bank_Import_SubmitInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Import_SubmitInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_bank_import_submit(inputs)
-	return en_bank_import_submit(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Analyser le relevé")
+	return /** @type {LocalizedString} */ ("Analyse the statement")
 });

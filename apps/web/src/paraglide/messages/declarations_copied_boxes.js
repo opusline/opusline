@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Declarations_Copied_BoxesInputs */
 
-const en_declarations_copied_boxes = /** @type {(inputs: Declarations_Copied_BoxesInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_declarations_copied_boxes = /** @type {(inputs: Declarations_Copied_BoxesInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} box copied`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} boxes copied`);
 	return /** @type {LocalizedString} */ ("declarations_copied_boxes");
 };
 
-const fr_declarations_copied_boxes = /** @type {(inputs: Declarations_Copied_BoxesInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_declarations_copied_boxes = /** @type {(inputs: Declarations_Copied_BoxesInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} case copiée`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} cases copiées`);
 	return /** @type {LocalizedString} */ ("declarations_copied_boxes");

@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Month_All_BilledInputs */
 
-const en_invoices_month_all_billed = /** @type {(inputs: Invoices_Month_All_BilledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`All time tracked this month is invoiced.`)
-};
 
-const fr_invoices_month_all_billed = /** @type {(inputs: Invoices_Month_All_BilledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tout le temps saisi ce mois-ci est facturé.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_invoices_month_all_billed = /** @type {(inputs: Invoices_Month_All_Bill
 * @returns {LocalizedString}
 */
 export const invoices_month_all_billed = /** @type {((inputs?: Invoices_Month_All_BilledInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Month_All_BilledInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_invoices_month_all_billed(inputs)
-	return en_invoices_month_all_billed(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Tout le temps saisi ce mois-ci est facturé.")
+	return /** @type {LocalizedString} */ ("All time tracked this month is invoiced.")
 });

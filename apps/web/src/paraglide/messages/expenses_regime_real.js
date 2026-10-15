@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Regime_RealInputs */
 
-const en_expenses_regime_real = /** @type {(inputs: Expenses_Regime_RealInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Real charges · projection`)
-};
 
-const fr_expenses_regime_real = /** @type {(inputs: Expenses_Regime_RealInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Charges réelles · projection`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expenses_regime_real = /** @type {(inputs: Expenses_Regime_RealInputs) 
 * @returns {LocalizedString}
 */
 export const expenses_regime_real = /** @type {((inputs?: Expenses_Regime_RealInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Regime_RealInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expenses_regime_real(inputs)
-	return en_expenses_regime_real(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Charges réelles · projection")
+	return /** @type {LocalizedString} */ ("Real charges · projection")
 });

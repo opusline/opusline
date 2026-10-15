@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Clients_Scope_AllInputs */
 
-const en_clients_scope_all = /** @type {(inputs: Clients_Scope_AllInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`All`)
-};
 
-const fr_clients_scope_all = /** @type {(inputs: Clients_Scope_AllInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tous`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_clients_scope_all = /** @type {(inputs: Clients_Scope_AllInputs) => Loc
 * @returns {LocalizedString}
 */
 export const clients_scope_all = /** @type {((inputs?: Clients_Scope_AllInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Clients_Scope_AllInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_clients_scope_all(inputs)
-	return en_clients_scope_all(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Tous")
+	return /** @type {LocalizedString} */ ("All")
 });

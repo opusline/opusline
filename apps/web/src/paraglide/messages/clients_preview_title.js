@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Clients_Preview_TitleInputs */
 
-const en_clients_preview_title = /** @type {(inputs: Clients_Preview_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview in the list`)
-};
 
-const fr_clients_preview_title = /** @type {(inputs: Clients_Preview_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Aperçu dans la liste`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_clients_preview_title = /** @type {(inputs: Clients_Preview_TitleInputs
 * @returns {LocalizedString}
 */
 export const clients_preview_title = /** @type {((inputs?: Clients_Preview_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Clients_Preview_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_clients_preview_title(inputs)
-	return en_clients_preview_title(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Aperçu dans la liste")
+	return /** @type {LocalizedString} */ ("Preview in the list")
 });

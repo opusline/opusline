@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expense_Category_HotelInputs */
 
-const en_expense_category_hotel = /** @type {(inputs: Expense_Category_HotelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hotel`)
-};
 
-const fr_expense_category_hotel = /** @type {(inputs: Expense_Category_HotelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hôtel`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expense_category_hotel = /** @type {(inputs: Expense_Category_HotelInpu
 * @returns {LocalizedString}
 */
 export const expense_category_hotel = /** @type {((inputs?: Expense_Category_HotelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expense_Category_HotelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expense_category_hotel(inputs)
-	return en_expense_category_hotel(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Hôtel")
+	return /** @type {LocalizedString} */ ("Hotel")
 });

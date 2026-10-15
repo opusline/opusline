@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Timer_Default_BadgeInputs */
 
-const en_timer_default_badge = /** @type {(inputs: Timer_Default_BadgeInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
-};
 
-const fr_timer_default_badge = /** @type {(inputs: Timer_Default_BadgeInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Défaut`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_timer_default_badge = /** @type {(inputs: Timer_Default_BadgeInputs) =>
 * @returns {LocalizedString}
 */
 export const timer_default_badge = /** @type {((inputs?: Timer_Default_BadgeInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Timer_Default_BadgeInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_timer_default_badge(inputs)
-	return en_timer_default_badge(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Défaut")
+	return /** @type {LocalizedString} */ ("Default")
 });

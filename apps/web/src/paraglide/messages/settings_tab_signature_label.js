@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Settings_Tab_Signature_LabelInputs */
 
-const en_settings_tab_signature_label = /** @type {(inputs: Settings_Tab_Signature_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Signature`)
-};
 
-const fr_settings_tab_signature_label = /** @type {(inputs: Settings_Tab_Signature_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Signature`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_settings_tab_signature_label = /** @type {(inputs: Settings_Tab_Signatu
 * @returns {LocalizedString}
 */
 export const settings_tab_signature_label = /** @type {((inputs?: Settings_Tab_Signature_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Tab_Signature_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_settings_tab_signature_label(inputs)
-	return en_settings_tab_signature_label(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Signature")
+	return /** @type {LocalizedString} */ ("Signature")
 });

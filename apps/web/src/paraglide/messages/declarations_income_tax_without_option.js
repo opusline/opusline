@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Declarations_Income_Tax_Without_OptionInputs */
 
-const en_declarations_income_tax_without_option = /** @type {(inputs: Declarations_Income_Tax_Without_OptionInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Without the option: box 5HQ.`)
-};
 
-const fr_declarations_income_tax_without_option = /** @type {(inputs: Declarations_Income_Tax_Without_OptionInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sans option : case 5HQ.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_declarations_income_tax_without_option = /** @type {(inputs: Declaratio
 * @returns {LocalizedString}
 */
 export const declarations_income_tax_without_option = /** @type {((inputs?: Declarations_Income_Tax_Without_OptionInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Declarations_Income_Tax_Without_OptionInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_declarations_income_tax_without_option(inputs)
-	return en_declarations_income_tax_without_option(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Sans option : case 5HQ.")
+	return /** @type {LocalizedString} */ ("Without the option: box 5HQ.")
 });

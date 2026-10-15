@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Treasury_Past_TitleInputs */
 
-const en_treasury_past_title = /** @type {(inputs: Treasury_Past_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Past transfers`)
-};
 
-const fr_treasury_past_title = /** @type {(inputs: Treasury_Past_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Virements passés`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_treasury_past_title = /** @type {(inputs: Treasury_Past_TitleInputs) =>
 * @returns {LocalizedString}
 */
 export const treasury_past_title = /** @type {((inputs?: Treasury_Past_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Treasury_Past_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_treasury_past_title(inputs)
-	return en_treasury_past_title(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Virements passés")
+	return /** @type {LocalizedString} */ ("Past transfers")
 });

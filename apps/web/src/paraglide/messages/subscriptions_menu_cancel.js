@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Subscriptions_Menu_CancelInputs */
 
-const en_subscriptions_menu_cancel = /** @type {(inputs: Subscriptions_Menu_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel the subscription`)
-};
 
-const fr_subscriptions_menu_cancel = /** @type {(inputs: Subscriptions_Menu_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Résilier`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_subscriptions_menu_cancel = /** @type {(inputs: Subscriptions_Menu_Canc
 * @returns {LocalizedString}
 */
 export const subscriptions_menu_cancel = /** @type {((inputs?: Subscriptions_Menu_CancelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Subscriptions_Menu_CancelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_subscriptions_menu_cancel(inputs)
-	return en_subscriptions_menu_cancel(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Résilier")
+	return /** @type {LocalizedString} */ ("Cancel the subscription")
 });

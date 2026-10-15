@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoice_Status_DraftInputs */
 
-const en_invoice_status_draft = /** @type {(inputs: Invoice_Status_DraftInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Draft`)
-};
 
-const fr_invoice_status_draft = /** @type {(inputs: Invoice_Status_DraftInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Brouillon`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_invoice_status_draft = /** @type {(inputs: Invoice_Status_DraftInputs) 
 * @returns {LocalizedString}
 */
 export const invoice_status_draft = /** @type {((inputs?: Invoice_Status_DraftInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoice_Status_DraftInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_invoice_status_draft(inputs)
-	return en_invoice_status_draft(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Brouillon")
+	return /** @type {LocalizedString} */ ("Draft")
 });

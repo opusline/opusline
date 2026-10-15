@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Declarations_Settlement_ExpectedInputs */
 
-const en_declarations_settlement_expected = /** @type {(inputs: Declarations_Settlement_ExpectedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Expected`)
-};
 
-const fr_declarations_settlement_expected = /** @type {(inputs: Declarations_Settlement_ExpectedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Attendu`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_declarations_settlement_expected = /** @type {(inputs: Declarations_Set
 * @returns {LocalizedString}
 */
 export const declarations_settlement_expected = /** @type {((inputs?: Declarations_Settlement_ExpectedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Declarations_Settlement_ExpectedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_declarations_settlement_expected(inputs)
-	return en_declarations_settlement_expected(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Attendu")
+	return /** @type {LocalizedString} */ ("Expected")
 });

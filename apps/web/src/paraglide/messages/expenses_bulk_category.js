@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Bulk_CategoryInputs */
 
-const en_expenses_bulk_category = /** @type {(inputs: Expenses_Bulk_CategoryInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Category`)
-};
 
-const fr_expenses_bulk_category = /** @type {(inputs: Expenses_Bulk_CategoryInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Catégorie`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expenses_bulk_category = /** @type {(inputs: Expenses_Bulk_CategoryInpu
 * @returns {LocalizedString}
 */
 export const expenses_bulk_category = /** @type {((inputs?: Expenses_Bulk_CategoryInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Bulk_CategoryInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expenses_bulk_category(inputs)
-	return en_expenses_bulk_category(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Catégorie")
+	return /** @type {LocalizedString} */ ("Category")
 });

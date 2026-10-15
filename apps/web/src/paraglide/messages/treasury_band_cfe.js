@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Treasury_Band_CfeInputs */
 
-const en_treasury_band_cfe = /** @type {(inputs: Treasury_Band_CfeInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`CFE to set aside`)
-};
 
-const fr_treasury_band_cfe = /** @type {(inputs: Treasury_Band_CfeInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`CFE à provisionner`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_treasury_band_cfe = /** @type {(inputs: Treasury_Band_CfeInputs) => Loc
 * @returns {LocalizedString}
 */
 export const treasury_band_cfe = /** @type {((inputs?: Treasury_Band_CfeInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Treasury_Band_CfeInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_treasury_band_cfe(inputs)
-	return en_treasury_band_cfe(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("CFE à provisionner")
+	return /** @type {LocalizedString} */ ("CFE to set aside")
 });

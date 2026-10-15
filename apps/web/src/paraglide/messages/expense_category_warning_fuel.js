@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expense_Category_Warning_FuelInputs */
 
-const en_expense_category_warning_fuel = /** @type {(inputs: Expense_Category_Warning_FuelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`TVA not recoverable.`)
-};
 
-const fr_expense_category_warning_fuel = /** @type {(inputs: Expense_Category_Warning_FuelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`TVA non récupérable.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expense_category_warning_fuel = /** @type {(inputs: Expense_Category_Wa
 * @returns {LocalizedString}
 */
 export const expense_category_warning_fuel = /** @type {((inputs?: Expense_Category_Warning_FuelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expense_Category_Warning_FuelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expense_category_warning_fuel(inputs)
-	return en_expense_category_warning_fuel(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("TVA non récupérable.")
+	return /** @type {LocalizedString} */ ("TVA not recoverable.")
 });

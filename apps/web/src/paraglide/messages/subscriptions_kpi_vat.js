@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Subscriptions_Kpi_VatInputs */
 
-const en_subscriptions_kpi_vat = /** @type {(inputs: Subscriptions_Kpi_VatInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recoverable TVA`)
-};
 
-const fr_subscriptions_kpi_vat = /** @type {(inputs: Subscriptions_Kpi_VatInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`TVA récupérable`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_subscriptions_kpi_vat = /** @type {(inputs: Subscriptions_Kpi_VatInputs
 * @returns {LocalizedString}
 */
 export const subscriptions_kpi_vat = /** @type {((inputs?: Subscriptions_Kpi_VatInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Subscriptions_Kpi_VatInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_subscriptions_kpi_vat(inputs)
-	return en_subscriptions_kpi_vat(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("TVA récupérable")
+	return /** @type {LocalizedString} */ ("Recoverable TVA")
 });

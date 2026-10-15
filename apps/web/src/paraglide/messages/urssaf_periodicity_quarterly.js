@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Urssaf_Periodicity_QuarterlyInputs */
 
-const en_urssaf_periodicity_quarterly = /** @type {(inputs: Urssaf_Periodicity_QuarterlyInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Quarterly`)
-};
 
-const fr_urssaf_periodicity_quarterly = /** @type {(inputs: Urssaf_Periodicity_QuarterlyInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trimestrielle`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_urssaf_periodicity_quarterly = /** @type {(inputs: Urssaf_Periodicity_Q
 * @returns {LocalizedString}
 */
 export const urssaf_periodicity_quarterly = /** @type {((inputs?: Urssaf_Periodicity_QuarterlyInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Urssaf_Periodicity_QuarterlyInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_urssaf_periodicity_quarterly(inputs)
-	return en_urssaf_periodicity_quarterly(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Trimestrielle")
+	return /** @type {LocalizedString} */ ("Quarterly")
 });

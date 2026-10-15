@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Deadlines_Summary_RemindersInputs */
 
-const en_deadlines_summary_reminders = /** @type {(inputs: Deadlines_Summary_RemindersInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_deadlines_summary_reminders = /** @type {(inputs: Deadlines_Summary_RemindersInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} reminder to send`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} reminders to send`);
 	return /** @type {LocalizedString} */ ("deadlines_summary_reminders");
 };
 
-const fr_deadlines_summary_reminders = /** @type {(inputs: Deadlines_Summary_RemindersInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_deadlines_summary_reminders = /** @type {(inputs: Deadlines_Summary_RemindersInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} relance à envoyer`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} relances à envoyer`);
 	return /** @type {LocalizedString} */ ("deadlines_summary_reminders");

@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Declarations_History_To_FileInputs */
 
-const en_declarations_history_to_file = /** @type {(inputs: Declarations_History_To_FileInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to file`)
-};
 
-const fr_declarations_history_to_file = /** @type {(inputs: Declarations_History_To_FileInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`à déclarer`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_declarations_history_to_file = /** @type {(inputs: Declarations_History
 * @returns {LocalizedString}
 */
 export const declarations_history_to_file = /** @type {((inputs?: Declarations_History_To_FileInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Declarations_History_To_FileInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_declarations_history_to_file(inputs)
-	return en_declarations_history_to_file(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("à déclarer")
+	return /** @type {LocalizedString} */ ("to file")
 });

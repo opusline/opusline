@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Missions_Rate_Not_BillableInputs */
 
-const en_missions_rate_not_billable = /** @type {(inputs: Missions_Rate_Not_BillableInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`not billable`)
-};
 
-const fr_missions_rate_not_billable = /** @type {(inputs: Missions_Rate_Not_BillableInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`non facturable`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_missions_rate_not_billable = /** @type {(inputs: Missions_Rate_Not_Bill
 * @returns {LocalizedString}
 */
 export const missions_rate_not_billable = /** @type {((inputs?: Missions_Rate_Not_BillableInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Missions_Rate_Not_BillableInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_missions_rate_not_billable(inputs)
-	return en_missions_rate_not_billable(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("non facturable")
+	return /** @type {LocalizedString} */ ("not billable")
 });

@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Ca3_Box_08Inputs */
 
-const en_ca3_box_08 = /** @type {(inputs: Ca3_Box_08Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Taxable base · TVA collected`)
-};
 
-const fr_ca3_box_08 = /** @type {(inputs: Ca3_Box_08Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base imposable · TVA collectée`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_ca3_box_08 = /** @type {(inputs: Ca3_Box_08Inputs) => LocalizedString} 
 * @returns {LocalizedString}
 */
 export const ca3_box_08 = /** @type {((inputs?: Ca3_Box_08Inputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Ca3_Box_08Inputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_ca3_box_08(inputs)
-	return en_ca3_box_08(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Base imposable · TVA collectée")
+	return /** @type {LocalizedString} */ ("Taxable base · TVA collected")
 });

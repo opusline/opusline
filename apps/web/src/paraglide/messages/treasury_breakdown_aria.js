@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Treasury_Breakdown_AriaInputs */
 
-const en_treasury_breakdown_aria = /** @type {(inputs: Treasury_Breakdown_AriaInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Breakdown of the business account balance`)
-};
 
-const fr_treasury_breakdown_aria = /** @type {(inputs: Treasury_Breakdown_AriaInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Répartition du solde du compte pro`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_treasury_breakdown_aria = /** @type {(inputs: Treasury_Breakdown_AriaIn
 * @returns {LocalizedString}
 */
 export const treasury_breakdown_aria = /** @type {((inputs?: Treasury_Breakdown_AriaInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Treasury_Breakdown_AriaInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_treasury_breakdown_aria(inputs)
-	return en_treasury_breakdown_aria(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Répartition du solde du compte pro")
+	return /** @type {LocalizedString} */ ("Breakdown of the business account balance")
 });

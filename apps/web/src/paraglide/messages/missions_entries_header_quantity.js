@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Missions_Entries_Header_QuantityInputs */
 
-const en_missions_entries_header_quantity = /** @type {(inputs: Missions_Entries_Header_QuantityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Quantity`)
-};
 
-const fr_missions_entries_header_quantity = /** @type {(inputs: Missions_Entries_Header_QuantityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Quantité`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_missions_entries_header_quantity = /** @type {(inputs: Missions_Entries
 * @returns {LocalizedString}
 */
 export const missions_entries_header_quantity = /** @type {((inputs?: Missions_Entries_Header_QuantityInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Missions_Entries_Header_QuantityInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_missions_entries_header_quantity(inputs)
-	return en_missions_entries_header_quantity(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Quantité")
+	return /** @type {LocalizedString} */ ("Quantity")
 });

@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Expenses_Unread_CountInputs */
 
-const en_expenses_unread_count = /** @type {(inputs: Expenses_Unread_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_expenses_unread_count = /** @type {(inputs: Expenses_Unread_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} receipt to link`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} receipts to link`);
 	return /** @type {LocalizedString} */ ("expenses_unread_count");
 };
 
-const fr_expenses_unread_count = /** @type {(inputs: Expenses_Unread_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_expenses_unread_count = /** @type {(inputs: Expenses_Unread_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} facture à lier`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} factures à lier`);
 	return /** @type {LocalizedString} */ ("expenses_unread_count");

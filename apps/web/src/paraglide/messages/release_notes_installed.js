@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Release_Notes_InstalledInputs */
 
-const en_release_notes_installed = /** @type {(inputs: Release_Notes_InstalledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`installed`)
-};
 
-const fr_release_notes_installed = /** @type {(inputs: Release_Notes_InstalledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`installée`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_release_notes_installed = /** @type {(inputs: Release_Notes_InstalledIn
 * @returns {LocalizedString}
 */
 export const release_notes_installed = /** @type {((inputs?: Release_Notes_InstalledInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Release_Notes_InstalledInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_release_notes_installed(inputs)
-	return en_release_notes_installed(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("installée")
+	return /** @type {LocalizedString} */ ("installed")
 });

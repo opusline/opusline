@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Timer_DiscardInputs */
 
-const en_timer_discard = /** @type {(inputs: Timer_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard without saving`)
-};
 
-const fr_timer_discard = /** @type {(inputs: Timer_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Abandonner sans enregistrer`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_timer_discard = /** @type {(inputs: Timer_DiscardInputs) => LocalizedSt
 * @returns {LocalizedString}
 */
 export const timer_discard = /** @type {((inputs?: Timer_DiscardInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Timer_DiscardInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_timer_discard(inputs)
-	return en_timer_discard(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Abandonner sans enregistrer")
+	return /** @type {LocalizedString} */ ("Discard without saving")
 });

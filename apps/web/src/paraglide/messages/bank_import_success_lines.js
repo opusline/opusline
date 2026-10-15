@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Bank_Import_Success_LinesInputs */
 
-const en_bank_import_success_lines = /** @type {(inputs: Bank_Import_Success_LinesInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_bank_import_success_lines = /** @type {(inputs: Bank_Import_Success_LinesInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} line read`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} lines read`);
 	return /** @type {LocalizedString} */ ("bank_import_success_lines");
 };
 
-const fr_bank_import_success_lines = /** @type {(inputs: Bank_Import_Success_LinesInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_bank_import_success_lines = /** @type {(inputs: Bank_Import_Success_LinesInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} ligne lue`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} lignes lues`);
 	return /** @type {LocalizedString} */ ("bank_import_success_lines");

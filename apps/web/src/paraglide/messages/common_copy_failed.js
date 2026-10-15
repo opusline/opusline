@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Common_Copy_FailedInputs */
 
-const en_common_copy_failed = /** @type {(inputs: Common_Copy_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Copy failed`)
-};
 
-const fr_common_copy_failed = /** @type {(inputs: Common_Copy_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Échec de la copie`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_common_copy_failed = /** @type {(inputs: Common_Copy_FailedInputs) => L
 * @returns {LocalizedString}
 */
 export const common_copy_failed = /** @type {((inputs?: Common_Copy_FailedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_Copy_FailedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_common_copy_failed(inputs)
-	return en_common_copy_failed(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Échec de la copie")
+	return /** @type {LocalizedString} */ ("Copy failed")
 });

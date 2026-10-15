@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Declarations_UnmarkedInputs */
 
-const en_declarations_unmarked = /** @type {(inputs: Declarations_UnmarkedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mark removed`)
-};
 
-const fr_declarations_unmarked = /** @type {(inputs: Declarations_UnmarkedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Marquage annulé`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_declarations_unmarked = /** @type {(inputs: Declarations_UnmarkedInputs
 * @returns {LocalizedString}
 */
 export const declarations_unmarked = /** @type {((inputs?: Declarations_UnmarkedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Declarations_UnmarkedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_declarations_unmarked(inputs)
-	return en_declarations_unmarked(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Marquage annulé")
+	return /** @type {LocalizedString} */ ("Mark removed")
 });

@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Release_Notes_Unread_TitleInputs */
 
-const en_release_notes_unread_title = /** @type {(inputs: Release_Notes_Unread_TitleInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_release_notes_unread_title = /** @type {(inputs: Release_Notes_Unread_TitleInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} release note you haven't read`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} release notes you haven't read`);
 	return /** @type {LocalizedString} */ ("release_notes_unread_title");
 };
 
-const fr_release_notes_unread_title = /** @type {(inputs: Release_Notes_Unread_TitleInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_release_notes_unread_title = /** @type {(inputs: Release_Notes_Unread_TitleInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} note de version que vous n'avez pas lue`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} notes de version que vous n'avez pas lues`);
 	return /** @type {LocalizedString} */ ("release_notes_unread_title");

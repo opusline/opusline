@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Subscriptions_Kpi_Annual_CountInputs */
 
-const en_subscriptions_kpi_annual_count = /** @type {(inputs: Subscriptions_Kpi_Annual_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_subscriptions_kpi_annual_count = /** @type {(inputs: Subscriptions_Kpi_Annual_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} annual subscription`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} annual subscriptions`);
 	return /** @type {LocalizedString} */ ("subscriptions_kpi_annual_count");
 };
 
-const fr_subscriptions_kpi_annual_count = /** @type {(inputs: Subscriptions_Kpi_Annual_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_subscriptions_kpi_annual_count = /** @type {(inputs: Subscriptions_Kpi_Annual_CountInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} abonnement annuel`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} abonnements annuels`);
 	return /** @type {LocalizedString} */ ("subscriptions_kpi_annual_count");

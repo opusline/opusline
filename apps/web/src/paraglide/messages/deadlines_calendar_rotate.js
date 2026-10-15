@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Deadlines_Calendar_RotateInputs */
 
-const en_deadlines_calendar_rotate = /** @type {(inputs: Deadlines_Calendar_RotateInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Regenerate the address`)
-};
 
-const fr_deadlines_calendar_rotate = /** @type {(inputs: Deadlines_Calendar_RotateInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Régénérer l'adresse`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_deadlines_calendar_rotate = /** @type {(inputs: Deadlines_Calendar_Rota
 * @returns {LocalizedString}
 */
 export const deadlines_calendar_rotate = /** @type {((inputs?: Deadlines_Calendar_RotateInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Deadlines_Calendar_RotateInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_deadlines_calendar_rotate(inputs)
-	return en_deadlines_calendar_rotate(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Régénérer l'adresse")
+	return /** @type {LocalizedString} */ ("Regenerate the address")
 });

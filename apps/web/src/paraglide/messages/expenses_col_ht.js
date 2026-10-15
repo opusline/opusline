@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Col_HtInputs */
 
-const en_expenses_col_ht = /** @type {(inputs: Expenses_Col_HtInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`HT`)
-};
 
-const fr_expenses_col_ht = /** @type {(inputs: Expenses_Col_HtInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`HT`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expenses_col_ht = /** @type {(inputs: Expenses_Col_HtInputs) => Localiz
 * @returns {LocalizedString}
 */
 export const expenses_col_ht = /** @type {((inputs?: Expenses_Col_HtInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Col_HtInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expenses_col_ht(inputs)
-	return en_expenses_col_ht(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("HT")
+	return /** @type {LocalizedString} */ ("HT")
 });

@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Subscriptions_Per_YearInputs */
 
-const en_subscriptions_per_year = /** @type {(inputs: Subscriptions_Per_YearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`/ year`)
-};
 
-const fr_subscriptions_per_year = /** @type {(inputs: Subscriptions_Per_YearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`/ an`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_subscriptions_per_year = /** @type {(inputs: Subscriptions_Per_YearInpu
 * @returns {LocalizedString}
 */
 export const subscriptions_per_year = /** @type {((inputs?: Subscriptions_Per_YearInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Subscriptions_Per_YearInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_subscriptions_per_year(inputs)
-	return en_subscriptions_per_year(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("/ an")
+	return /** @type {LocalizedString} */ ("/ year")
 });

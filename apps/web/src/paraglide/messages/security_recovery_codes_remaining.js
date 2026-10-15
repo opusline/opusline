@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Security_Recovery_Codes_RemainingInputs */
 
-const en_security_recovery_codes_remaining = /** @type {(inputs: Security_Recovery_Codes_RemainingInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_security_recovery_codes_remaining = /** @type {(inputs: Security_Recovery_Codes_RemainingInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} recovery code left`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} recovery codes left`);
 	return /** @type {LocalizedString} */ ("security_recovery_codes_remaining");
 };
 
-const fr_security_recovery_codes_remaining = /** @type {(inputs: Security_Recovery_Codes_RemainingInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_security_recovery_codes_remaining = /** @type {(inputs: Security_Recovery_Codes_RemainingInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} code de secours restant`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} codes de secours restants`);
 	return /** @type {LocalizedString} */ ("security_recovery_codes_remaining");

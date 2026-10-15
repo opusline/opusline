@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Common_CloseInputs */
 
-const en_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
-};
 
-const fr_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fermer`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedStri
 * @returns {LocalizedString}
 */
 export const common_close = /** @type {((inputs?: Common_CloseInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_CloseInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_common_close(inputs)
-	return en_common_close(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Fermer")
+	return /** @type {LocalizedString} */ ("Close")
 });

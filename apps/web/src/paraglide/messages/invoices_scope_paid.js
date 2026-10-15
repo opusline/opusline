@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Scope_PaidInputs */
 
-const en_invoices_scope_paid = /** @type {(inputs: Invoices_Scope_PaidInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Paid`)
-};
 
-const fr_invoices_scope_paid = /** @type {(inputs: Invoices_Scope_PaidInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Payées`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_invoices_scope_paid = /** @type {(inputs: Invoices_Scope_PaidInputs) =>
 * @returns {LocalizedString}
 */
 export const invoices_scope_paid = /** @type {((inputs?: Invoices_Scope_PaidInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Scope_PaidInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_invoices_scope_paid(inputs)
-	return en_invoices_scope_paid(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Payées")
+	return /** @type {LocalizedString} */ ("Paid")
 });

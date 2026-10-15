@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expense_Category_InsuranceInputs */
 
-const en_expense_category_insurance = /** @type {(inputs: Expense_Category_InsuranceInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Insurance`)
-};
 
-const fr_expense_category_insurance = /** @type {(inputs: Expense_Category_InsuranceInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Assurance`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expense_category_insurance = /** @type {(inputs: Expense_Category_Insur
 * @returns {LocalizedString}
 */
 export const expense_category_insurance = /** @type {((inputs?: Expense_Category_InsuranceInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expense_Category_InsuranceInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expense_category_insurance(inputs)
-	return en_expense_category_insurance(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Assurance")
+	return /** @type {LocalizedString} */ ("Insurance")
 });

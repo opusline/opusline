@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Deadlines_Feed_Reminders_DescInputs */
 
-const en_deadlines_feed_reminders_desc = /** @type {(inputs: Deadlines_Feed_Reminders_DescInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`A nudge three days after an unpaid invoice's due date.`)
-};
 
-const fr_deadlines_feed_reminders_desc = /** @type {(inputs: Deadlines_Feed_Reminders_DescInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Un rappel trois jours après l'échéance d'une facture non réglée.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_deadlines_feed_reminders_desc = /** @type {(inputs: Deadlines_Feed_Remi
 * @returns {LocalizedString}
 */
 export const deadlines_feed_reminders_desc = /** @type {((inputs?: Deadlines_Feed_Reminders_DescInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Deadlines_Feed_Reminders_DescInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_deadlines_feed_reminders_desc(inputs)
-	return en_deadlines_feed_reminders_desc(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Un rappel trois jours après l'échéance d'une facture non réglée.")
+	return /** @type {LocalizedString} */ ("A nudge three days after an unpaid invoice's due date.")
 });

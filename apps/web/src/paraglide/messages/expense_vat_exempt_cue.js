@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expense_Vat_Exempt_CueInputs */
 
-const en_expense_vat_exempt_cue = /** @type {(inputs: Expense_Vat_Exempt_CueInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`no TVA line at all.`)
-};
 
-const fr_expense_vat_exempt_cue = /** @type {(inputs: Expense_Vat_Exempt_CueInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`aucune ligne de TVA.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expense_vat_exempt_cue = /** @type {(inputs: Expense_Vat_Exempt_CueInpu
 * @returns {LocalizedString}
 */
 export const expense_vat_exempt_cue = /** @type {((inputs?: Expense_Vat_Exempt_CueInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expense_Vat_Exempt_CueInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expense_vat_exempt_cue(inputs)
-	return en_expense_vat_exempt_cue(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("aucune ligne de TVA.")
+	return /** @type {LocalizedString} */ ("no TVA line at all.")
 });

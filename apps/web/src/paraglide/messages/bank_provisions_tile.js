@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Provisions_TileInputs */
 
-const en_bank_provisions_tile = /** @type {(inputs: Bank_Provisions_TileInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Provisions to keep`)
-};
 
-const fr_bank_provisions_tile = /** @type {(inputs: Bank_Provisions_TileInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Provisions à garder`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_bank_provisions_tile = /** @type {(inputs: Bank_Provisions_TileInputs) 
 * @returns {LocalizedString}
 */
 export const bank_provisions_tile = /** @type {((inputs?: Bank_Provisions_TileInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Provisions_TileInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_bank_provisions_tile(inputs)
-	return en_bank_provisions_tile(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Provisions à garder")
+	return /** @type {LocalizedString} */ ("Provisions to keep")
 });

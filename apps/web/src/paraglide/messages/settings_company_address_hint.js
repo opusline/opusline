@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Settings_Company_Address_HintInputs */
 
-const en_settings_company_address_hint = /** @type {(inputs: Settings_Company_Address_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Shown on documents`)
-};
 
-const fr_settings_company_address_hint = /** @type {(inputs: Settings_Company_Address_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Figure sur les documents`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_settings_company_address_hint = /** @type {(inputs: Settings_Company_Ad
 * @returns {LocalizedString}
 */
 export const settings_company_address_hint = /** @type {((inputs?: Settings_Company_Address_HintInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Company_Address_HintInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_settings_company_address_hint(inputs)
-	return en_settings_company_address_hint(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Figure sur les documents")
+	return /** @type {LocalizedString} */ ("Shown on documents")
 });

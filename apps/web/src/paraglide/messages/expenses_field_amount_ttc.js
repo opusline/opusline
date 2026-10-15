@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Field_Amount_TtcInputs */
 
-const en_expenses_field_amount_ttc = /** @type {(inputs: Expenses_Field_Amount_TtcInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Amount TTC`)
-};
 
-const fr_expenses_field_amount_ttc = /** @type {(inputs: Expenses_Field_Amount_TtcInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Montant TTC`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expenses_field_amount_ttc = /** @type {(inputs: Expenses_Field_Amount_T
 * @returns {LocalizedString}
 */
 export const expenses_field_amount_ttc = /** @type {((inputs?: Expenses_Field_Amount_TtcInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Field_Amount_TtcInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expenses_field_amount_ttc(inputs)
-	return en_expenses_field_amount_ttc(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Montant TTC")
+	return /** @type {LocalizedString} */ ("Amount TTC")
 });

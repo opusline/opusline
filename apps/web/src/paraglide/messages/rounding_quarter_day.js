@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Rounding_Quarter_DayInputs */
 
-const en_rounding_quarter_day = /** @type {(inputs: Rounding_Quarter_DayInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`0.25 d`)
-};
 
-const fr_rounding_quarter_day = /** @type {(inputs: Rounding_Quarter_DayInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`0,25 j`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_rounding_quarter_day = /** @type {(inputs: Rounding_Quarter_DayInputs) 
 * @returns {LocalizedString}
 */
 export const rounding_quarter_day = /** @type {((inputs?: Rounding_Quarter_DayInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Rounding_Quarter_DayInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_rounding_quarter_day(inputs)
-	return en_rounding_quarter_day(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("0,25 j")
+	return /** @type {LocalizedString} */ ("0.25 d")
 });

@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Missions_End_LabelInputs */
 
-const en_missions_end_label = /** @type {(inputs: Missions_End_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Planned end`)
-};
 
-const fr_missions_end_label = /** @type {(inputs: Missions_End_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fin prévue`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_missions_end_label = /** @type {(inputs: Missions_End_LabelInputs) => L
 * @returns {LocalizedString}
 */
 export const missions_end_label = /** @type {((inputs?: Missions_End_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Missions_End_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_missions_end_label(inputs)
-	return en_missions_end_label(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Fin prévue")
+	return /** @type {LocalizedString} */ ("Planned end")
 });

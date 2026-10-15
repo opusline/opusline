@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Deadlines_Sync_HoursInputs */
 
-const en_deadlines_sync_hours = /** @type {(inputs: Deadlines_Sync_HoursInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_deadlines_sync_hours = /** @type {(inputs: Deadlines_Sync_HoursInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`Last synchronised ${i?.count} h ago`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`Last synchronised ${i?.count} h ago`);
 	return /** @type {LocalizedString} */ ("deadlines_sync_hours");
 };
 
-const fr_deadlines_sync_hours = /** @type {(inputs: Deadlines_Sync_HoursInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_deadlines_sync_hours = /** @type {(inputs: Deadlines_Sync_HoursInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`Dernière synchronisation il y a ${i?.count} h`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`Dernière synchronisation il y a ${i?.count} h`);
 	return /** @type {LocalizedString} */ ("deadlines_sync_hours");

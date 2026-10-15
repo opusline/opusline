@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Send_FailedInputs */
 
-const en_invoices_send_failed = /** @type {(inputs: Invoices_Send_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`The invoice could not be marked as sent.`)
-};
 
-const fr_invoices_send_failed = /** @type {(inputs: Invoices_Send_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`La facture n'a pas pu être marquée envoyée.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_invoices_send_failed = /** @type {(inputs: Invoices_Send_FailedInputs) 
 * @returns {LocalizedString}
 */
 export const invoices_send_failed = /** @type {((inputs?: Invoices_Send_FailedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Send_FailedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_invoices_send_failed(inputs)
-	return en_invoices_send_failed(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("La facture n'a pas pu être marquée envoyée.")
+	return /** @type {LocalizedString} */ ("The invoice could not be marked as sent.")
 });

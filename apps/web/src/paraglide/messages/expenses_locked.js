@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_LockedInputs */
 
-const en_expenses_locked = /** @type {(inputs: Expenses_LockedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Locked · month filed`)
-};
 
-const fr_expenses_locked = /** @type {(inputs: Expenses_LockedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Verrouillée · mois déclaré`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expenses_locked = /** @type {(inputs: Expenses_LockedInputs) => Localiz
 * @returns {LocalizedString}
 */
 export const expenses_locked = /** @type {((inputs?: Expenses_LockedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_LockedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expenses_locked(inputs)
-	return en_expenses_locked(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Verrouillée · mois déclaré")
+	return /** @type {LocalizedString} */ ("Locked · month filed")
 });

@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ start: NonNullable<unknown>, end: NonNullable<unknown>, date: NonNullable<unknown>, lines: NonNullable<unknown> }} Bank_Statement_DetailInputs */
 
-const en_bank_statement_detail = /** @type {(inputs: Bank_Statement_DetailInputs) => LocalizedString} */ (i) => {const linesPlural = registry.plural("en", i?.lines, {});
+const en_bank_statement_detail = /** @type {(inputs: Bank_Statement_DetailInputs) => LocalizedString} */ (i) => {const linesPlural = registry.plural("en", i?.lines, {}, true);
 	if (linesPlural === "one") return /** @type {LocalizedString} */ (`${i?.start} → ${i?.end} · ${i?.lines} line · imported on ${i?.date}`);
 	if (linesPlural === "other") return /** @type {LocalizedString} */ (`${i?.start} → ${i?.end} · ${i?.lines} lines · imported on ${i?.date}`);
 	return /** @type {LocalizedString} */ ("bank_statement_detail");
 };
 
-const fr_bank_statement_detail = /** @type {(inputs: Bank_Statement_DetailInputs) => LocalizedString} */ (i) => {const linesPlural = registry.plural("fr", i?.lines, {});
+const fr_bank_statement_detail = /** @type {(inputs: Bank_Statement_DetailInputs) => LocalizedString} */ (i) => {const linesPlural = registry.plural("fr", i?.lines, {}, true);
 	if (linesPlural === "one") return /** @type {LocalizedString} */ (`${i?.start} → ${i?.end} · ${i?.lines} ligne · importé le ${i?.date}`);
 	if (linesPlural === "other") return /** @type {LocalizedString} */ (`${i?.start} → ${i?.end} · ${i?.lines} lignes · importé le ${i?.date}`);
 	return /** @type {LocalizedString} */ ("bank_statement_detail");

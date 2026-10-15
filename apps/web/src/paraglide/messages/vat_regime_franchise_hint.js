@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Vat_Regime_Franchise_HintInputs */
 
-const en_vat_regime_franchise_hint = /** @type {(inputs: Vat_Regime_Franchise_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I do not charge VAT`)
-};
 
-const fr_vat_regime_franchise_hint = /** @type {(inputs: Vat_Regime_Franchise_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Je ne facture pas la TVA`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_vat_regime_franchise_hint = /** @type {(inputs: Vat_Regime_Franchise_Hi
 * @returns {LocalizedString}
 */
 export const vat_regime_franchise_hint = /** @type {((inputs?: Vat_Regime_Franchise_HintInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Vat_Regime_Franchise_HintInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_vat_regime_franchise_hint(inputs)
-	return en_vat_regime_franchise_hint(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Je ne facture pas la TVA")
+	return /** @type {LocalizedString} */ ("I do not charge VAT")
 });

@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Declarations_Cfe_ProvisionedInputs */
 
-const en_declarations_cfe_provisioned = /** @type {(inputs: Declarations_Cfe_ProvisionedInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_declarations_cfe_provisioned = /** @type {(inputs: Declarations_Cfe_ProvisionedInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`Set aside · ${i?.count} month`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`Set aside · ${i?.count} months`);
 	return /** @type {LocalizedString} */ ("declarations_cfe_provisioned");
 };
 
-const fr_declarations_cfe_provisioned = /** @type {(inputs: Declarations_Cfe_ProvisionedInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_declarations_cfe_provisioned = /** @type {(inputs: Declarations_Cfe_ProvisionedInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`Provisionné · ${i?.count} mois`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`Provisionné · ${i?.count} mois`);
 	return /** @type {LocalizedString} */ ("declarations_cfe_provisioned");

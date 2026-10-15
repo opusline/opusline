@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Treasury_Record_ButtonInputs */
 
-const en_treasury_record_button = /** @type {(inputs: Treasury_Record_ButtonInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Record a transfer`)
-};
 
-const fr_treasury_record_button = /** @type {(inputs: Treasury_Record_ButtonInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enregistrer un virement`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_treasury_record_button = /** @type {(inputs: Treasury_Record_ButtonInpu
 * @returns {LocalizedString}
 */
 export const treasury_record_button = /** @type {((inputs?: Treasury_Record_ButtonInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Treasury_Record_ButtonInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_treasury_record_button(inputs)
-	return en_treasury_record_button(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Enregistrer un virement")
+	return /** @type {LocalizedString} */ ("Record a transfer")
 });

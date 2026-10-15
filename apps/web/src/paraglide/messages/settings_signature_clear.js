@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Settings_Signature_ClearInputs */
 
-const en_settings_signature_clear = /** @type {(inputs: Settings_Signature_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
-};
 
-const fr_settings_signature_clear = /** @type {(inputs: Settings_Signature_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Effacer`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_settings_signature_clear = /** @type {(inputs: Settings_Signature_Clear
 * @returns {LocalizedString}
 */
 export const settings_signature_clear = /** @type {((inputs?: Settings_Signature_ClearInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Signature_ClearInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_settings_signature_clear(inputs)
-	return en_settings_signature_clear(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Effacer")
+	return /** @type {LocalizedString} */ ("Clear")
 });

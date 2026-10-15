@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Clients_Esn_Card_TitleInputs */
 
-const en_clients_esn_card_title = /** @type {(inputs: Clients_Esn_Card_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Billing through an intermediary`)
-};
 
-const fr_clients_esn_card_title = /** @type {(inputs: Clients_Esn_Card_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Facturation via intermédiaire`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_clients_esn_card_title = /** @type {(inputs: Clients_Esn_Card_TitleInpu
 * @returns {LocalizedString}
 */
 export const clients_esn_card_title = /** @type {((inputs?: Clients_Esn_Card_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Clients_Esn_Card_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_clients_esn_card_title(inputs)
-	return en_clients_esn_card_title(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Facturation via intermédiaire")
+	return /** @type {LocalizedString} */ ("Billing through an intermediary")
 });

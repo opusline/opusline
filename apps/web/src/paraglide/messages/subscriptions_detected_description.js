@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Subscriptions_Detected_DescriptionInputs */
 
-const en_subscriptions_detected_description = /** @type {(inputs: Subscriptions_Detected_DescriptionInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Found on the business account`)
-};
 
-const fr_subscriptions_detected_description = /** @type {(inputs: Subscriptions_Detected_DescriptionInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Détecté · compte pro`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_subscriptions_detected_description = /** @type {(inputs: Subscriptions_
 * @returns {LocalizedString}
 */
 export const subscriptions_detected_description = /** @type {((inputs?: Subscriptions_Detected_DescriptionInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Subscriptions_Detected_DescriptionInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_subscriptions_detected_description(inputs)
-	return en_subscriptions_detected_description(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Détecté · compte pro")
+	return /** @type {LocalizedString} */ ("Found on the business account")
 });

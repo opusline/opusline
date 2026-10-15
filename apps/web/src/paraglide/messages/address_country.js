@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Address_CountryInputs */
 
-const en_address_country = /** @type {(inputs: Address_CountryInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Country`)
-};
 
-const fr_address_country = /** @type {(inputs: Address_CountryInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Pays`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_address_country = /** @type {(inputs: Address_CountryInputs) => Localiz
 * @returns {LocalizedString}
 */
 export const address_country = /** @type {((inputs?: Address_CountryInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Address_CountryInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_address_country(inputs)
-	return en_address_country(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Pays")
+	return /** @type {LocalizedString} */ ("Country")
 });

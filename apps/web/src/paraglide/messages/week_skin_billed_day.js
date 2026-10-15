@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Week_Skin_Billed_DayInputs */
 
-const en_week_skin_billed_day = /** @type {(inputs: Week_Skin_Billed_DayInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Day billed at the TJM`)
-};
 
-const fr_week_skin_billed_day = /** @type {(inputs: Week_Skin_Billed_DayInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Jour facturé au TJM`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_week_skin_billed_day = /** @type {(inputs: Week_Skin_Billed_DayInputs) 
 * @returns {LocalizedString}
 */
 export const week_skin_billed_day = /** @type {((inputs?: Week_Skin_Billed_DayInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Week_Skin_Billed_DayInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_week_skin_billed_day(inputs)
-	return en_week_skin_billed_day(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Jour facturé au TJM")
+	return /** @type {LocalizedString} */ ("Day billed at the TJM")
 });

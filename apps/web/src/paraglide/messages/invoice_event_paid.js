@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoice_Event_PaidInputs */
 
-const en_invoice_event_paid = /** @type {(inputs: Invoice_Event_PaidInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Payment received`)
-};
 
-const fr_invoice_event_paid = /** @type {(inputs: Invoice_Event_PaidInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Encaissement`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_invoice_event_paid = /** @type {(inputs: Invoice_Event_PaidInputs) => L
 * @returns {LocalizedString}
 */
 export const invoice_event_paid = /** @type {((inputs?: Invoice_Event_PaidInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoice_Event_PaidInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_invoice_event_paid(inputs)
-	return en_invoice_event_paid(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Encaissement")
+	return /** @type {LocalizedString} */ ("Payment received")
 });

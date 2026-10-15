@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Security_Passkey_DeleteInputs */
 
-const en_security_passkey_delete = /** @type {(inputs: Security_Passkey_DeleteInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete`)
-};
 
-const fr_security_passkey_delete = /** @type {(inputs: Security_Passkey_DeleteInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Supprimer`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_security_passkey_delete = /** @type {(inputs: Security_Passkey_DeleteIn
 * @returns {LocalizedString}
 */
 export const security_passkey_delete = /** @type {((inputs?: Security_Passkey_DeleteInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Passkey_DeleteInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_security_passkey_delete(inputs)
-	return en_security_passkey_delete(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Supprimer")
+	return /** @type {LocalizedString} */ ("Delete")
 });

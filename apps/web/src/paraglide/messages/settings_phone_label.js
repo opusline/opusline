@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Settings_Phone_LabelInputs */
 
-const en_settings_phone_label = /** @type {(inputs: Settings_Phone_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Phone`)
-};
 
-const fr_settings_phone_label = /** @type {(inputs: Settings_Phone_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Téléphone`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_settings_phone_label = /** @type {(inputs: Settings_Phone_LabelInputs) 
 * @returns {LocalizedString}
 */
 export const settings_phone_label = /** @type {((inputs?: Settings_Phone_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Phone_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_settings_phone_label(inputs)
-	return en_settings_phone_label(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Téléphone")
+	return /** @type {LocalizedString} */ ("Phone")
 });

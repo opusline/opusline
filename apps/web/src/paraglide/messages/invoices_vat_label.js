@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Invoices_Vat_LabelInputs */
 
-const en_invoices_vat_label = /** @type {(inputs: Invoices_Vat_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VAT`)
-};
 
-const fr_invoices_vat_label = /** @type {(inputs: Invoices_Vat_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`TVA`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_invoices_vat_label = /** @type {(inputs: Invoices_Vat_LabelInputs) => L
 * @returns {LocalizedString}
 */
 export const invoices_vat_label = /** @type {((inputs?: Invoices_Vat_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Invoices_Vat_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_invoices_vat_label(inputs)
-	return en_invoices_vat_label(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("TVA")
+	return /** @type {LocalizedString} */ ("VAT")
 });

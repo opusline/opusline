@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Week_Weekend_CollapsedInputs */
 
-const en_week_weekend_collapsed = /** @type {(inputs: Week_Weekend_CollapsedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Weekend collapsed`)
-};
 
-const fr_week_weekend_collapsed = /** @type {(inputs: Week_Weekend_CollapsedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Week-end replié`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_week_weekend_collapsed = /** @type {(inputs: Week_Weekend_CollapsedInpu
 * @returns {LocalizedString}
 */
 export const week_weekend_collapsed = /** @type {((inputs?: Week_Weekend_CollapsedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Week_Weekend_CollapsedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_week_weekend_collapsed(inputs)
-	return en_week_weekend_collapsed(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Week-end replié")
+	return /** @type {LocalizedString} */ ("Weekend collapsed")
 });

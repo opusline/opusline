@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Deadline_Category_OtherInputs */
 
-const en_deadline_category_other = /** @type {(inputs: Deadline_Category_OtherInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Other`)
-};
 
-const fr_deadline_category_other = /** @type {(inputs: Deadline_Category_OtherInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Autres`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_deadline_category_other = /** @type {(inputs: Deadline_Category_OtherIn
 * @returns {LocalizedString}
 */
 export const deadline_category_other = /** @type {((inputs?: Deadline_Category_OtherInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Deadline_Category_OtherInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_deadline_category_other(inputs)
-	return en_deadline_category_other(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Autres")
+	return /** @type {LocalizedString} */ ("Other")
 });

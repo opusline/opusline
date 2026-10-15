@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Declarations_Settlement_GapInputs */
 
-const en_declarations_settlement_gap = /** @type {(inputs: Declarations_Settlement_GapInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Gap`)
-};
 
-const fr_declarations_settlement_gap = /** @type {(inputs: Declarations_Settlement_GapInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Écart`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_declarations_settlement_gap = /** @type {(inputs: Declarations_Settleme
 * @returns {LocalizedString}
 */
 export const declarations_settlement_gap = /** @type {((inputs?: Declarations_Settlement_GapInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Declarations_Settlement_GapInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_declarations_settlement_gap(inputs)
-	return en_declarations_settlement_gap(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Écart")
+	return /** @type {LocalizedString} */ ("Gap")
 });

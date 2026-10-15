@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Declarations_Invoices_CollectedInputs */
 
-const en_declarations_invoices_collected = /** @type {(inputs: Declarations_Invoices_CollectedInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_declarations_invoices_collected = /** @type {(inputs: Declarations_Invoices_CollectedInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} invoice collected`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} invoices collected`);
 	return /** @type {LocalizedString} */ ("declarations_invoices_collected");
 };
 
-const fr_declarations_invoices_collected = /** @type {(inputs: Declarations_Invoices_CollectedInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_declarations_invoices_collected = /** @type {(inputs: Declarations_Invoices_CollectedInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} facture encaissée`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} factures encaissées`);
 	return /** @type {LocalizedString} */ ("declarations_invoices_collected");

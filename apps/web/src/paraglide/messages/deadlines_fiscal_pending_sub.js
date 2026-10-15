@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Deadlines_Fiscal_Pending_SubInputs */
 
-const en_deadlines_fiscal_pending_sub = /** @type {(inputs: Deadlines_Fiscal_Pending_SubInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Computed from the period's collections`)
-};
 
-const fr_deadlines_fiscal_pending_sub = /** @type {(inputs: Deadlines_Fiscal_Pending_SubInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Calculée sur les encaissements de la période`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_deadlines_fiscal_pending_sub = /** @type {(inputs: Deadlines_Fiscal_Pen
 * @returns {LocalizedString}
 */
 export const deadlines_fiscal_pending_sub = /** @type {((inputs?: Deadlines_Fiscal_Pending_SubInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Deadlines_Fiscal_Pending_SubInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_deadlines_fiscal_pending_sub(inputs)
-	return en_deadlines_fiscal_pending_sub(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Calculée sur les encaissements de la période")
+	return /** @type {LocalizedString} */ ("Computed from the period's collections")
 });

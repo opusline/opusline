@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Connection_ReconnectInputs */
 
-const en_bank_connection_reconnect = /** @type {(inputs: Bank_Connection_ReconnectInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reconnect`)
-};
 
-const fr_bank_connection_reconnect = /** @type {(inputs: Bank_Connection_ReconnectInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reconnecter`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_bank_connection_reconnect = /** @type {(inputs: Bank_Connection_Reconne
 * @returns {LocalizedString}
 */
 export const bank_connection_reconnect = /** @type {((inputs?: Bank_Connection_ReconnectInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Connection_ReconnectInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_bank_connection_reconnect(inputs)
-	return en_bank_connection_reconnect(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Reconnecter")
+	return /** @type {LocalizedString} */ ("Reconnect")
 });

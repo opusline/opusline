@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Documents_Category_QuoteInputs */
 
-const en_documents_category_quote = /** @type {(inputs: Documents_Category_QuoteInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Quote`)
-};
 
-const fr_documents_category_quote = /** @type {(inputs: Documents_Category_QuoteInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Devis`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_documents_category_quote = /** @type {(inputs: Documents_Category_Quote
 * @returns {LocalizedString}
 */
 export const documents_category_quote = /** @type {((inputs?: Documents_Category_QuoteInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Documents_Category_QuoteInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_documents_category_quote(inputs)
-	return en_documents_category_quote(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Devis")
+	return /** @type {LocalizedString} */ ("Quote")
 });

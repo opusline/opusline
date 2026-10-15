@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ days: NonNullable<unknown>, count: NonNullable<unknown> }} Invoices_Overdue_Up_ToInputs */
 
-const en_invoices_overdue_up_to = /** @type {(inputs: Invoices_Overdue_Up_ToInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_invoices_overdue_up_to = /** @type {(inputs: Invoices_Overdue_Up_ToInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} overdue · up to ${i?.days} d`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} overdue · up to ${i?.days} d`);
 	return /** @type {LocalizedString} */ ("invoices_overdue_up_to");
 };
 
-const fr_invoices_overdue_up_to = /** @type {(inputs: Invoices_Overdue_Up_ToInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_invoices_overdue_up_to = /** @type {(inputs: Invoices_Overdue_Up_ToInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} échue · jusqu'à ${i?.days} j`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} échues · jusqu'à ${i?.days} j`);
 	return /** @type {LocalizedString} */ ("invoices_overdue_up_to");

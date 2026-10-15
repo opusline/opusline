@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Bank_Connection_CancelledInputs */
 
-const en_bank_connection_cancelled = /** @type {(inputs: Bank_Connection_CancelledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bank connection cancelled.`)
-};
 
-const fr_bank_connection_cancelled = /** @type {(inputs: Bank_Connection_CancelledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connexion à la banque annulée.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_bank_connection_cancelled = /** @type {(inputs: Bank_Connection_Cancell
 * @returns {LocalizedString}
 */
 export const bank_connection_cancelled = /** @type {((inputs?: Bank_Connection_CancelledInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Bank_Connection_CancelledInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_bank_connection_cancelled(inputs)
-	return en_bank_connection_cancelled(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Connexion à la banque annulée.")
+	return /** @type {LocalizedString} */ ("Bank connection cancelled.")
 });

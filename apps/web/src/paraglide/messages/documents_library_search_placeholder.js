@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Documents_Library_Search_PlaceholderInputs */
 
-const en_documents_library_search_placeholder = /** @type {(inputs: Documents_Library_Search_PlaceholderInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Search a document`)
-};
 
-const fr_documents_library_search_placeholder = /** @type {(inputs: Documents_Library_Search_PlaceholderInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Rechercher un document`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_documents_library_search_placeholder = /** @type {(inputs: Documents_Li
 * @returns {LocalizedString}
 */
 export const documents_library_search_placeholder = /** @type {((inputs?: Documents_Library_Search_PlaceholderInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Documents_Library_Search_PlaceholderInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_documents_library_search_placeholder(inputs)
-	return en_documents_library_search_placeholder(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Rechercher un document")
+	return /** @type {LocalizedString} */ ("Search a document")
 });

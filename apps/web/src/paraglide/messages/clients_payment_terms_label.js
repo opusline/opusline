@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Clients_Payment_Terms_LabelInputs */
 
-const en_clients_payment_terms_label = /** @type {(inputs: Clients_Payment_Terms_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Payment terms`)
-};
 
-const fr_clients_payment_terms_label = /** @type {(inputs: Clients_Payment_Terms_LabelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Délai de paiement`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_clients_payment_terms_label = /** @type {(inputs: Clients_Payment_Terms
 * @returns {LocalizedString}
 */
 export const clients_payment_terms_label = /** @type {((inputs?: Clients_Payment_Terms_LabelInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Clients_Payment_Terms_LabelInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_clients_payment_terms_label(inputs)
-	return en_clients_payment_terms_label(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Délai de paiement")
+	return /** @type {LocalizedString} */ ("Payment terms")
 });

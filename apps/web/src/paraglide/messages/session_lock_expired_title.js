@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Session_Lock_Expired_TitleInputs */
 
-const en_session_lock_expired_title = /** @type {(inputs: Session_Lock_Expired_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Session expired`)
-};
 
-const fr_session_lock_expired_title = /** @type {(inputs: Session_Lock_Expired_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Session expirée`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_session_lock_expired_title = /** @type {(inputs: Session_Lock_Expired_T
 * @returns {LocalizedString}
 */
 export const session_lock_expired_title = /** @type {((inputs?: Session_Lock_Expired_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Session_Lock_Expired_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_session_lock_expired_title(inputs)
-	return en_session_lock_expired_title(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Session expirée")
+	return /** @type {LocalizedString} */ ("Session expired")
 });

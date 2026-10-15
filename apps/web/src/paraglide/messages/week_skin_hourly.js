@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Week_Skin_HourlyInputs */
 
-const en_week_skin_hourly = /** @type {(inputs: Week_Skin_HourlyInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hours`)
-};
 
-const fr_week_skin_hourly = /** @type {(inputs: Week_Skin_HourlyInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Heures`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_week_skin_hourly = /** @type {(inputs: Week_Skin_HourlyInputs) => Local
 * @returns {LocalizedString}
 */
 export const week_skin_hourly = /** @type {((inputs?: Week_Skin_HourlyInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Week_Skin_HourlyInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_week_skin_hourly(inputs)
-	return en_week_skin_hourly(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Heures")
+	return /** @type {LocalizedString} */ ("Hours")
 });

@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Deadlines_Calendar_CopiedInputs */
 
-const en_deadlines_calendar_copied = /** @type {(inputs: Deadlines_Calendar_CopiedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Address copied.`)
-};
 
-const fr_deadlines_calendar_copied = /** @type {(inputs: Deadlines_Calendar_CopiedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Adresse copiée.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_deadlines_calendar_copied = /** @type {(inputs: Deadlines_Calendar_Copi
 * @returns {LocalizedString}
 */
 export const deadlines_calendar_copied = /** @type {((inputs?: Deadlines_Calendar_CopiedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Deadlines_Calendar_CopiedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_deadlines_calendar_copied(inputs)
-	return en_deadlines_calendar_copied(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Adresse copiée.")
+	return /** @type {LocalizedString} */ ("Address copied.")
 });

@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Color_OliveInputs */
 
-const en_color_olive = /** @type {(inputs: Color_OliveInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Olive`)
-};
 
-const fr_color_olive = /** @type {(inputs: Color_OliveInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Olive`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_color_olive = /** @type {(inputs: Color_OliveInputs) => LocalizedString
 * @returns {LocalizedString}
 */
 export const color_olive = /** @type {((inputs?: Color_OliveInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Color_OliveInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_color_olive(inputs)
-	return en_color_olive(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Olive")
+	return /** @type {LocalizedString} */ ("Olive")
 });

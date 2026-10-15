@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Clients_Empty_ScopeInputs */
 
-const en_clients_empty_scope = /** @type {(inputs: Clients_Empty_ScopeInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No clients in this view.`)
-};
 
-const fr_clients_empty_scope = /** @type {(inputs: Clients_Empty_ScopeInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Aucun client dans cette vue.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_clients_empty_scope = /** @type {(inputs: Clients_Empty_ScopeInputs) =>
 * @returns {LocalizedString}
 */
 export const clients_empty_scope = /** @type {((inputs?: Clients_Empty_ScopeInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Clients_Empty_ScopeInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_clients_empty_scope(inputs)
-	return en_clients_empty_scope(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Aucun client dans cette vue.")
+	return /** @type {LocalizedString} */ ("No clients in this view.")
 });

@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Integrations_Enable_Banking_Key_FileInputs */
 
-const en_integrations_enable_banking_key_file = /** @type {(inputs: Integrations_Enable_Banking_Key_FileInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Import the .pem file`)
-};
 
-const fr_integrations_enable_banking_key_file = /** @type {(inputs: Integrations_Enable_Banking_Key_FileInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Importer le fichier .pem`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_integrations_enable_banking_key_file = /** @type {(inputs: Integrations
 * @returns {LocalizedString}
 */
 export const integrations_enable_banking_key_file = /** @type {((inputs?: Integrations_Enable_Banking_Key_FileInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Integrations_Enable_Banking_Key_FileInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_integrations_enable_banking_key_file(inputs)
-	return en_integrations_enable_banking_key_file(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Importer le fichier .pem")
+	return /** @type {LocalizedString} */ ("Import the .pem file")
 });

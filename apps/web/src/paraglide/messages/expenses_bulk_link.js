@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Bulk_LinkInputs */
 
-const en_expenses_bulk_link = /** @type {(inputs: Expenses_Bulk_LinkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Link a receipt`)
-};
 
-const fr_expenses_bulk_link = /** @type {(inputs: Expenses_Bulk_LinkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Lier une facture`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expenses_bulk_link = /** @type {(inputs: Expenses_Bulk_LinkInputs) => L
 * @returns {LocalizedString}
 */
 export const expenses_bulk_link = /** @type {((inputs?: Expenses_Bulk_LinkInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Bulk_LinkInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expenses_bulk_link(inputs)
-	return en_expenses_bulk_link(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Lier une facture")
+	return /** @type {LocalizedString} */ ("Link a receipt")
 });

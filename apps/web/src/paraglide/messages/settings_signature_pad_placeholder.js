@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Settings_Signature_Pad_PlaceholderInputs */
 
-const en_settings_signature_pad_placeholder = /** @type {(inputs: Settings_Signature_Pad_PlaceholderInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Draw your signature here`)
-};
 
-const fr_settings_signature_pad_placeholder = /** @type {(inputs: Settings_Signature_Pad_PlaceholderInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tracez votre signature ici`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_settings_signature_pad_placeholder = /** @type {(inputs: Settings_Signa
 * @returns {LocalizedString}
 */
 export const settings_signature_pad_placeholder = /** @type {((inputs?: Settings_Signature_Pad_PlaceholderInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Signature_Pad_PlaceholderInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_settings_signature_pad_placeholder(inputs)
-	return en_settings_signature_pad_placeholder(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Tracez votre signature ici")
+	return /** @type {LocalizedString} */ ("Draw your signature here")
 });

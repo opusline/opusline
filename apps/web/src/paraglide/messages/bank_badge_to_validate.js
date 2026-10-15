@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Bank_Badge_To_ValidateInputs */
 
-const en_bank_badge_to_validate = /** @type {(inputs: Bank_Badge_To_ValidateInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_bank_badge_to_validate = /** @type {(inputs: Bank_Badge_To_ValidateInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} to validate`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} to validate`);
 	return /** @type {LocalizedString} */ ("bank_badge_to_validate");
 };
 
-const fr_bank_badge_to_validate = /** @type {(inputs: Bank_Badge_To_ValidateInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_bank_badge_to_validate = /** @type {(inputs: Bank_Badge_To_ValidateInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} à valider`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} à valider`);
 	return /** @type {LocalizedString} */ ("bank_badge_to_validate");

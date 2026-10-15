@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Auth_Register_FailedInputs */
 
-const en_auth_register_failed = /** @type {(inputs: Auth_Register_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Registration failed. Try again.`)
-};
 
-const fr_auth_register_failed = /** @type {(inputs: Auth_Register_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`L'inscription a échoué. Réessayez.`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_auth_register_failed = /** @type {(inputs: Auth_Register_FailedInputs) 
 * @returns {LocalizedString}
 */
 export const auth_register_failed = /** @type {((inputs?: Auth_Register_FailedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Auth_Register_FailedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_auth_register_failed(inputs)
-	return en_auth_register_failed(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("L'inscription a échoué. Réessayez.")
+	return /** @type {LocalizedString} */ ("Registration failed. Try again.")
 });

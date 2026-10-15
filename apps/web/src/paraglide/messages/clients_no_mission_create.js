@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Clients_No_Mission_CreateInputs */
 
-const en_clients_no_mission_create = /** @type {(inputs: Clients_No_Mission_CreateInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No missions — create one`)
-};
 
-const fr_clients_no_mission_create = /** @type {(inputs: Clients_No_Mission_CreateInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Aucune mission — en créer une`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_clients_no_mission_create = /** @type {(inputs: Clients_No_Mission_Crea
 * @returns {LocalizedString}
 */
 export const clients_no_mission_create = /** @type {((inputs?: Clients_No_Mission_CreateInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Clients_No_Mission_CreateInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_clients_no_mission_create(inputs)
-	return en_clients_no_mission_create(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Aucune mission — en créer une")
+	return /** @type {LocalizedString} */ ("No missions — create one")
 });

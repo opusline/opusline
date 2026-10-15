@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Expenses_Kpi_Subscriptions_NoneInputs */
 
-const en_expenses_kpi_subscriptions_none = /** @type {(inputs: Expenses_Kpi_Subscriptions_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`no subscription yet`)
-};
 
-const fr_expenses_kpi_subscriptions_none = /** @type {(inputs: Expenses_Kpi_Subscriptions_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`aucun abonnement pour l'instant`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_expenses_kpi_subscriptions_none = /** @type {(inputs: Expenses_Kpi_Subs
 * @returns {LocalizedString}
 */
 export const expenses_kpi_subscriptions_none = /** @type {((inputs?: Expenses_Kpi_Subscriptions_NoneInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Expenses_Kpi_Subscriptions_NoneInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_expenses_kpi_subscriptions_none(inputs)
-	return en_expenses_kpi_subscriptions_none(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("aucun abonnement pour l'instant")
+	return /** @type {LocalizedString} */ ("no subscription yet")
 });

@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Subscriptions_History_TitleInputs */
 
-const en_subscriptions_history_title = /** @type {(inputs: Subscriptions_History_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Amount history`)
-};
 
-const fr_subscriptions_history_title = /** @type {(inputs: Subscriptions_History_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Historique des montants`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_subscriptions_history_title = /** @type {(inputs: Subscriptions_History
 * @returns {LocalizedString}
 */
 export const subscriptions_history_title = /** @type {((inputs?: Subscriptions_History_TitleInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Subscriptions_History_TitleInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_subscriptions_history_title(inputs)
-	return en_subscriptions_history_title(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Historique des montants")
+	return /** @type {LocalizedString} */ ("Amount history")
 });

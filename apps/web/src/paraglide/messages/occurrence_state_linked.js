@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Occurrence_State_LinkedInputs */
 
-const en_occurrence_state_linked = /** @type {(inputs: Occurrence_State_LinkedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`receipt linked`)
-};
 
-const fr_occurrence_state_linked = /** @type {(inputs: Occurrence_State_LinkedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`facture liée`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_occurrence_state_linked = /** @type {(inputs: Occurrence_State_LinkedIn
 * @returns {LocalizedString}
 */
 export const occurrence_state_linked = /** @type {((inputs?: Occurrence_State_LinkedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Occurrence_State_LinkedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_occurrence_state_linked(inputs)
-	return en_occurrence_state_linked(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("facture liée")
+	return /** @type {LocalizedString} */ ("receipt linked")
 });

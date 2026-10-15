@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Cra_Group_SignedInputs */
 
-const en_cra_group_signed = /** @type {(inputs: Cra_Group_SignedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Signed`)
-};
 
-const fr_cra_group_signed = /** @type {(inputs: Cra_Group_SignedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Signés`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_cra_group_signed = /** @type {(inputs: Cra_Group_SignedInputs) => Local
 * @returns {LocalizedString}
 */
 export const cra_group_signed = /** @type {((inputs?: Cra_Group_SignedInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Cra_Group_SignedInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_cra_group_signed(inputs)
-	return en_cra_group_signed(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Signés")
+	return /** @type {LocalizedString} */ ("Signed")
 });

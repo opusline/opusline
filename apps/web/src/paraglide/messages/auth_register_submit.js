@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Auth_Register_SubmitInputs */
 
-const en_auth_register_submit = /** @type {(inputs: Auth_Register_SubmitInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create the account`)
-};
 
-const fr_auth_register_submit = /** @type {(inputs: Auth_Register_SubmitInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Créer le compte`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_auth_register_submit = /** @type {(inputs: Auth_Register_SubmitInputs) 
 * @returns {LocalizedString}
 */
 export const auth_register_submit = /** @type {((inputs?: Auth_Register_SubmitInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Auth_Register_SubmitInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_auth_register_submit(inputs)
-	return en_auth_register_submit(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("Créer le compte")
+	return /** @type {LocalizedString} */ ("Create the account")
 });

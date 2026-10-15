@@ -6,13 +6,13 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{ count: NonNullable<unknown> }} Deadlines_Summary_LateInputs */
 
-const en_deadlines_summary_late = /** @type {(inputs: Deadlines_Summary_LateInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {});
+const en_deadlines_summary_late = /** @type {(inputs: Deadlines_Summary_LateInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("en", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} late`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} late`);
 	return /** @type {LocalizedString} */ ("deadlines_summary_late");
 };
 
-const fr_deadlines_summary_late = /** @type {(inputs: Deadlines_Summary_LateInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {});
+const fr_deadlines_summary_late = /** @type {(inputs: Deadlines_Summary_LateInputs) => LocalizedString} */ (i) => {const countPlural = registry.plural("fr", i?.count, {}, true);
 	if (countPlural === "one") return /** @type {LocalizedString} */ (`${i?.count} en retard`);
 	if (countPlural === "other") return /** @type {LocalizedString} */ (`${i?.count} en retard`);
 	return /** @type {LocalizedString} */ ("deadlines_summary_late");

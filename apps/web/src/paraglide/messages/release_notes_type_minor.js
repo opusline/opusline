@@ -5,13 +5,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 
 /** @typedef {{}} Release_Notes_Type_MinorInputs */
 
-const en_release_notes_type_minor = /** @type {(inputs: Release_Notes_Type_MinorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`minor`)
-};
 
-const fr_release_notes_type_minor = /** @type {(inputs: Release_Notes_Type_MinorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`mineure`)
-};
 
 /**
 * | output |
@@ -23,7 +17,8 @@ const fr_release_notes_type_minor = /** @type {(inputs: Release_Notes_Type_Minor
 * @returns {LocalizedString}
 */
 export const release_notes_type_minor = /** @type {((inputs?: Release_Notes_Type_MinorInputs, options?: { locale?: "en" | "fr" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Release_Notes_Type_MinorInputs, { locale?: "en" | "fr" }, {}>} */ ((inputs = {}, options = {}) => {
+	void inputs;
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
-	if (locale === "fr") return fr_release_notes_type_minor(inputs)
-	return en_release_notes_type_minor(inputs)
+	if (locale === "fr") return /** @type {LocalizedString} */ ("mineure")
+	return /** @type {LocalizedString} */ ("minor")
 });
