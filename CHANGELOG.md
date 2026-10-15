@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.4](https://github.com/opusline/opusline/compare/v0.33.3...v0.33.4) (2026-10-15)
+
+
+### Bug Fixes
+
+* **api:** cache the bank list as scalars ([#552](https://github.com/opusline/opusline/issues/552)) ([b99199e](https://github.com/opusline/opusline/commit/b99199edd3a963dd925b128727ca288d317335bc))
+
 ## [0.33.3](https://github.com/opusline/opusline/compare/v0.33.2...v0.33.3) (2026-10-15)
 
 

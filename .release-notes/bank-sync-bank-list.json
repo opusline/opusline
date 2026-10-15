@@ -1,4 +1,0 @@
-{
-  "kind": "fixed",
-  "text": "Bank sync: listing banks and connecting one no longer fails with an error after the first try."
-}
