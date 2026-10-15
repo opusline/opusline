@@ -8,8 +8,8 @@ use Carbon\CarbonImmutable;
 
 /**
  * The late-payment figures in force this semester (art. L441-10 C. com.),
- * read from config/invoicing.php, where they are updated by hand when the
- * State publishes the next semester's rates.
+ * read from config/legal-reference.json, which the Legal reference workflow
+ * refreshes when the next semester's rates are published.
  */
 final readonly class LegalReference
 {
