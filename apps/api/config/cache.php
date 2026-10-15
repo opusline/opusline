@@ -38,7 +38,9 @@ return [
 
         'array' => [
             'driver' => 'array',
-            'serialize' => false,
+            // Tests turn this on so the array store round-trips values the way
+            // redis and the database do in production — serializable_classes included.
+            'serialize' => (bool) env('CACHE_ARRAY_SERIALIZE', false),
         ],
 
         'database' => [

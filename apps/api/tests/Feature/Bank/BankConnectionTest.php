@@ -65,6 +65,20 @@ test('lists the banks of the business country', function (): void {
         && $request['country'] === 'FR' && $request['service'] === 'AIS');
 });
 
+test('the banks read back from the cache still list and connect', function (): void {
+    fakeEnableBanking();
+    $user = withEnableBankingCredentials(User::factory()->create());
+
+    test()->actingAs($user)->getJson('/api/bank/aspsps')->assertOk();
+    test()->actingAs($user)->getJson('/api/bank/aspsps')
+        ->assertOk()
+        ->assertJsonPath('aspsps.0.name', 'Banque Orvella')
+        ->assertJsonPath('aspsps.0.psuTypes', [BankPsuType::Business->value, BankPsuType::Personal->value]);
+    startConnection($user)->assertOk();
+
+    Http::assertSentCount(2);
+});
+
 test('asks for the application before anything else', function (): void {
     Http::fake();
     $user = User::factory()->create();
