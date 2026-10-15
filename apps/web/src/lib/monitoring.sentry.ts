@@ -19,7 +19,6 @@ export function createSentryBackend(
     release: APP_VERSION,
     environment: config.environment,
     tracesSampleRate: config.tracesSampleRate,
-    sendDefaultPii: false,
     integrations: [Sentry.tanstackRouterBrowserTracingIntegration(router)],
     // The default global handlers also see unhandled promise rejections,
     // where an un-awaited mutateAsync() would surface a raw API failure;
