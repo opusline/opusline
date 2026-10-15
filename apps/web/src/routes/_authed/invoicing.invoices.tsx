@@ -116,6 +116,7 @@ function FacturesPage() {
       return;
     }
 
+    setCreateError(null);
     setAdding({ missionId: null });
     void navigate({ to: "/invoicing/invoices", search: {}, replace: true });
   }, [search.add, navigate]);
