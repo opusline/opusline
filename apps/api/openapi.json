@@ -3845,6 +3845,60 @@
                 }
             }
         },
+        "/invoicing/settings": {
+            "get": {
+                "operationId": "showInvoicingSettings",
+                "tags": [
+                    "InvoicingSettings"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoicingSettingsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "updateInvoicingSettings",
+                "tags": [
+                    "InvoicingSettings"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateInvoicingSettingsData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoicingSettingsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/clients/{client}/missions/{mission}": {
             "get": {
                 "operationId": "showMission",
@@ -9433,6 +9487,19 @@
                 ],
                 "title": "DocumentGroupData"
             },
+            "DocumentLanguage": {
+                "type": "integer",
+                "description": "The language a document is rendered in, chosen per document; independent of the interface locale.\n",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "French",
+                    "English"
+                ],
+                "title": "DocumentLanguage"
+            },
             "DocumentLibraryData": {
                 "type": "object",
                 "properties": {
@@ -11130,6 +11197,134 @@
                 ],
                 "title": "InvoiceTotalData"
             },
+            "InvoicingMode": {
+                "type": "integer",
+                "description": "Where the account's invoices and quotes are written: it decides what the Create button does.\n| |\n|---|\n| `0` <br/> Opusline numbers them, renders the PDF and sends them. |\n| `1` <br/> Another tool issues them; Opusline only records and tracks them. |",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "Opusline",
+                    "Elsewhere"
+                ],
+                "title": "InvoicingMode"
+            },
+            "InvoicingSettingsData": {
+                "type": "object",
+                "properties": {
+                    "mode": {
+                        "$ref": "#/components/schemas/InvoicingMode"
+                    },
+                    "defaultPaymentTermsDays": {
+                        "type": "integer"
+                    },
+                    "defaultPaymentTermsEndOfMonth": {
+                        "type": "boolean"
+                    },
+                    "quoteValidityDays": {
+                        "type": "integer"
+                    },
+                    "latePenaltyRateBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "operationCategory": {
+                        "$ref": "#/components/schemas/OperationCategory"
+                    },
+                    "showIbanOnInvoices": {
+                        "type": "boolean"
+                    },
+                    "showEmailOnDocuments": {
+                        "type": "boolean"
+                    },
+                    "vatOnDebits": {
+                        "type": "boolean"
+                    },
+                    "customMentions": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "documentLanguage": {
+                        "$ref": "#/components/schemas/DocumentLanguage"
+                    },
+                    "vatLiable": {
+                        "type": "boolean"
+                    },
+                    "legalReference": {
+                        "$ref": "#/components/schemas/LegalReferenceData"
+                    }
+                },
+                "required": [
+                    "mode",
+                    "defaultPaymentTermsDays",
+                    "defaultPaymentTermsEndOfMonth",
+                    "quoteValidityDays",
+                    "latePenaltyRateBp",
+                    "operationCategory",
+                    "showIbanOnInvoices",
+                    "showEmailOnDocuments",
+                    "vatOnDebits",
+                    "customMentions",
+                    "documentLanguage",
+                    "vatLiable",
+                    "legalReference"
+                ],
+                "title": "InvoicingSettingsData"
+            },
+            "LegalReferenceData": {
+                "type": "object",
+                "properties": {
+                    "semester": {
+                        "type": "string"
+                    },
+                    "checkedOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "nextRevisionOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "legalInterestRateBp": {
+                        "type": "integer"
+                    },
+                    "minimumPenaltyRateBp": {
+                        "type": "integer"
+                    },
+                    "ecbRateBp": {
+                        "type": "integer"
+                    },
+                    "statutoryPenaltyRateBp": {
+                        "type": "integer"
+                    },
+                    "recoveryFee": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "sources": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "semester",
+                    "checkedOn",
+                    "nextRevisionOn",
+                    "legalInterestRateBp",
+                    "minimumPenaltyRateBp",
+                    "ecbRateBp",
+                    "statutoryPenaltyRateBp",
+                    "recoveryFee",
+                    "sources"
+                ],
+                "title": "LegalReferenceData"
+            },
             "LiberatingPaymentEndReason": {
                 "type": "integer",
                 "description": "Why the versement libératoire stops applying.\n| |\n|---|\n| `0` <br/> The household's revenu fiscal de référence exceeds the limit for its parts. |\n| `1` <br/> The receipts crossed the micro-BNC ceiling two calendar years running, which ends the régime itself. |",
@@ -11517,6 +11712,21 @@
                     "deadlineReminders"
                 ],
                 "title": "NotificationPreferencesData"
+            },
+            "OperationCategory": {
+                "type": "integer",
+                "description": "A mandatory invoice mention since 1 September 2026 (e-invoicing reform).\n",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "Services",
+                    "Goods",
+                    "Mixed"
+                ],
+                "title": "OperationCategory"
             },
             "PaidPeriodData": {
                 "type": "object",
@@ -14009,6 +14219,67 @@
                 ],
                 "title": "UpdateInvoiceData"
             },
+            "UpdateInvoicingSettingsData": {
+                "type": "object",
+                "properties": {
+                    "mode": {
+                        "$ref": "#/components/schemas/InvoicingMode"
+                    },
+                    "defaultPaymentTermsDays": {
+                        "type": "integer"
+                    },
+                    "defaultPaymentTermsEndOfMonth": {
+                        "type": "boolean"
+                    },
+                    "quoteValidityDays": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 365
+                    },
+                    "operationCategory": {
+                        "$ref": "#/components/schemas/OperationCategory"
+                    },
+                    "showIbanOnInvoices": {
+                        "type": "boolean"
+                    },
+                    "showEmailOnDocuments": {
+                        "type": "boolean"
+                    },
+                    "vatOnDebits": {
+                        "type": "boolean"
+                    },
+                    "documentLanguage": {
+                        "$ref": "#/components/schemas/DocumentLanguage"
+                    },
+                    "latePenaltyRateBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 10000
+                    },
+                    "customMentions": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 2000
+                    }
+                },
+                "required": [
+                    "mode",
+                    "defaultPaymentTermsDays",
+                    "defaultPaymentTermsEndOfMonth",
+                    "quoteValidityDays",
+                    "operationCategory",
+                    "showIbanOnInvoices",
+                    "showEmailOnDocuments",
+                    "vatOnDebits",
+                    "documentLanguage"
+                ],
+                "title": "UpdateInvoicingSettingsData"
+            },
             "UpdateMissionData": {
                 "type": "object",
                 "properties": {
@@ -14218,11 +14489,6 @@
                         "type": "integer",
                         "minimum": 0,
                         "maximum": 10000
-                    },
-                    "defaultPaymentTermsDays": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 365
                     },
                     "invoiceNumberFormat": {
                         "type": "string",
@@ -14465,7 +14731,6 @@
                     "liberatingPaymentRateBp",
                     "vatRegime",
                     "defaultVatRateBp",
-                    "defaultPaymentTermsDays",
                     "invoiceNumberFormat",
                     "homeAddressSameAsCompany"
                 ],

@@ -2,17 +2,14 @@ import type { SettingsData } from "@opusline/api-client";
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { hasEuVat } from "@/lib/countries";
-
+import type { CompanyLogoSlot } from "@/lib/logos";
 import {
   abroadSettingsFixture,
   nonEuSettingsFixture,
   settingsFixture,
-} from "../lib/settings-fixture";
+} from "@/test/settings-fixture";
 import { SettingsFormStory } from "../lib/settings-form-story";
-import {
-  type CompanyLogoSlot,
-  IdentitySettingsForm,
-} from "./identity-settings-form";
+import { IdentitySettingsForm } from "./identity-settings-form";
 
 const EMPTY_LOGO: CompanyLogoSlot = {
   isPending: false,

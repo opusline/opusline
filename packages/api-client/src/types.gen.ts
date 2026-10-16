@@ -875,6 +875,14 @@ export type DocumentGroupData = {
 };
 
 /**
+ * DocumentLanguage
+ *
+ * The language a document is rendered in, chosen per document; independent of the interface locale.
+ *
+ */
+export type DocumentLanguage = 0 | 1;
+
+/**
  * DocumentLibraryData
  */
 export type DocumentLibraryData = {
@@ -1453,6 +1461,53 @@ export type InvoiceTotalData = {
 };
 
 /**
+ * InvoicingMode
+ *
+ * Where the account's invoices and quotes are written: it decides what the Create button does.
+ * | |
+ * |---|
+ * | `0` <br/> Opusline numbers them, renders the PDF and sends them. |
+ * | `1` <br/> Another tool issues them; Opusline only records and tracks them. |
+ */
+export type InvoicingMode = 0 | 1;
+
+/**
+ * InvoicingSettingsData
+ */
+export type InvoicingSettingsData = {
+    mode: InvoicingMode;
+    defaultPaymentTermsDays: number;
+    defaultPaymentTermsEndOfMonth: boolean;
+    quoteValidityDays: number;
+    latePenaltyRateBp: number | null;
+    operationCategory: OperationCategory;
+    showIbanOnInvoices: boolean;
+    showEmailOnDocuments: boolean;
+    vatOnDebits: boolean;
+    customMentions: string | null;
+    documentLanguage: DocumentLanguage;
+    vatLiable: boolean;
+    legalReference: LegalReferenceData;
+};
+
+/**
+ * LegalReferenceData
+ */
+export type LegalReferenceData = {
+    semester: string;
+    checkedOn: string;
+    nextRevisionOn: string;
+    legalInterestRateBp: number;
+    minimumPenaltyRateBp: number;
+    ecbRateBp: number;
+    statutoryPenaltyRateBp: number;
+    recoveryFee: MoneyData;
+    sources: {
+        [key: string]: string;
+    };
+};
+
+/**
  * LiberatingPaymentEndReason
  *
  * Why the versement libératoire stops applying.
@@ -1570,6 +1625,14 @@ export type NotificationPreferencesData = {
     securityAlerts: boolean;
     deadlineReminders: boolean;
 };
+
+/**
+ * OperationCategory
+ *
+ * A mandatory invoice mention since 1 September 2026 (e-invoicing reform).
+ *
+ */
+export type OperationCategory = 0 | 1 | 2;
 
 /**
  * PaidPeriodData
@@ -2371,6 +2434,23 @@ export type UpdateInvoiceData = {
 };
 
 /**
+ * UpdateInvoicingSettingsData
+ */
+export type UpdateInvoicingSettingsData = {
+    mode: InvoicingMode;
+    defaultPaymentTermsDays: number;
+    defaultPaymentTermsEndOfMonth: boolean;
+    quoteValidityDays: number;
+    operationCategory: OperationCategory;
+    showIbanOnInvoices: boolean;
+    showEmailOnDocuments: boolean;
+    vatOnDebits: boolean;
+    documentLanguage: DocumentLanguage;
+    latePenaltyRateBp?: number | null;
+    customMentions?: string | null;
+};
+
+/**
  * UpdateMissionData
  */
 export type UpdateMissionData = {
@@ -2433,7 +2513,6 @@ export type UpdateSettingsData = {
     liberatingPaymentRateBp: number;
     vatRegime: VatRegime;
     defaultVatRateBp: number;
-    defaultPaymentTermsDays: number;
     invoiceNumberFormat: string;
     homeAddressSameAsCompany: boolean;
     tradeName?: string | null;
@@ -6264,6 +6343,60 @@ export type UploadInvoiceDocumentResponses = {
 };
 
 export type UploadInvoiceDocumentResponse = UploadInvoiceDocumentResponses[keyof UploadInvoiceDocumentResponses];
+
+export type ShowInvoicingSettingsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/invoicing/settings';
+};
+
+export type ShowInvoicingSettingsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowInvoicingSettingsError = ShowInvoicingSettingsErrors[keyof ShowInvoicingSettingsErrors];
+
+export type ShowInvoicingSettingsResponses = {
+    200: InvoicingSettingsData;
+};
+
+export type ShowInvoicingSettingsResponse = ShowInvoicingSettingsResponses[keyof ShowInvoicingSettingsResponses];
+
+export type UpdateInvoicingSettingsData2 = {
+    body: UpdateInvoicingSettingsData;
+    path?: never;
+    query?: never;
+    url: '/invoicing/settings';
+};
+
+export type UpdateInvoicingSettingsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateInvoicingSettingsError = UpdateInvoicingSettingsErrors[keyof UpdateInvoicingSettingsErrors];
+
+export type UpdateInvoicingSettingsResponses = {
+    200: InvoicingSettingsData;
+};
+
+export type UpdateInvoicingSettingsResponse = UpdateInvoicingSettingsResponses[keyof UpdateInvoicingSettingsResponses];
 
 export type DeleteMissionData = {
     body?: never;

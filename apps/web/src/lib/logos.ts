@@ -40,6 +40,16 @@ export const COMPANY_LOGO_RULES: LogoRules = {
   }),
 };
 
+/** The logo uploads on its own, the moment it is picked, outside the form's save. */
+export type CompanyLogoSlot = {
+  /** Set only while a logo is stored, so an empty slot shows its placeholder. */
+  src?: string;
+  isPending: boolean;
+  error: string | null;
+  onPick: (logo: File) => void;
+  onRemove: () => void;
+};
+
 export function companyLogoHref(version = 0): string {
   const url = apiClient.buildUrl({ url: "/user/logo" });
 

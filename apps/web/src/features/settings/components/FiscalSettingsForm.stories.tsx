@@ -5,7 +5,7 @@ import {
   abroadSettingsFixture,
   nonEuSettingsFixture,
   settingsFixture,
-} from "../lib/settings-fixture";
+} from "@/test/settings-fixture";
 import { SettingsFormStory } from "../lib/settings-form-story";
 import {
   DeadlineSettingsFields,

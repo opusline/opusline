@@ -102,7 +102,6 @@ class UpdateSettings
                 'liberating_payment' => $hasFrenchFiscality && $data->liberatingPayment,
                 'vat_regime' => $hasFrenchFiscality ? $data->vatRegime : VatRegime::ReelNormal,
                 'default_vat_rate_bp' => $data->defaultVatRateBp,
-                'default_payment_terms_days' => $data->defaultPaymentTermsDays,
                 'invoice_number_format' => $data->invoiceNumberFormat,
                 'treasury_buffer_cents' => $data->treasuryBuffer?->toMoney(),
                 // The CFE is a French tax like the rest: outside France it is

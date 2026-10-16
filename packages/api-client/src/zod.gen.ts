@@ -530,6 +530,14 @@ export const zDocumentCategory = z.union([
 ]);
 
 /**
+ * DocumentLanguage
+ *
+ * The language a document is rendered in, chosen per document; independent of the interface locale.
+ *
+ */
+export const zDocumentLanguage = z.union([z.literal(0), z.literal(1)]);
+
+/**
  * DocumentSource
  */
 export const zDocumentSource = z.union([
@@ -940,6 +948,17 @@ export const zInvoiceTodoWorkData = z.object({
 });
 
 /**
+ * InvoicingMode
+ *
+ * Where the account's invoices and quotes are written: it decides what the Create button does.
+ * | |
+ * |---|
+ * | `0` <br/> Opusline numbers them, renders the PDF and sends them. |
+ * | `1` <br/> Another tool issues them; Opusline only records and tracks them. |
+ */
+export const zInvoicingMode = z.union([z.literal(0), z.literal(1)]);
+
+/**
  * LiberatingPaymentEndReason
  *
  * Why the versement libératoire stops applying.
@@ -1306,6 +1325,21 @@ export const zInvoiceTotalData = z.object({
 });
 
 /**
+ * LegalReferenceData
+ */
+export const zLegalReferenceData = z.object({
+    semester: z.string(),
+    checkedOn: z.iso.date(),
+    nextRevisionOn: z.iso.date(),
+    legalInterestRateBp: z.int(),
+    minimumPenaltyRateBp: z.int(),
+    ecbRateBp: z.int(),
+    statutoryPenaltyRateBp: z.int(),
+    recoveryFee: zMoneyData,
+    sources: z.record(z.string(), z.string())
+});
+
+/**
  * LiberatingPaymentOutlookData
  */
 export const zLiberatingPaymentOutlookData = z.object({
@@ -1436,6 +1470,37 @@ export const zNextInvoiceNumberData = z.object({
 export const zNotificationPreferencesData = z.object({
     securityAlerts: z.boolean(),
     deadlineReminders: z.boolean()
+});
+
+/**
+ * OperationCategory
+ *
+ * A mandatory invoice mention since 1 September 2026 (e-invoicing reform).
+ *
+ */
+export const zOperationCategory = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * InvoicingSettingsData
+ */
+export const zInvoicingSettingsData = z.object({
+    mode: zInvoicingMode,
+    defaultPaymentTermsDays: z.int(),
+    defaultPaymentTermsEndOfMonth: z.boolean(),
+    quoteValidityDays: z.int(),
+    latePenaltyRateBp: z.nullable(z.int()),
+    operationCategory: zOperationCategory,
+    showIbanOnInvoices: z.boolean(),
+    showEmailOnDocuments: z.boolean(),
+    vatOnDebits: z.boolean(),
+    customMentions: z.nullable(z.string()),
+    documentLanguage: zDocumentLanguage,
+    vatLiable: z.boolean(),
+    legalReference: zLegalReferenceData
 });
 
 /**
@@ -2462,6 +2527,23 @@ export const zUpdateInvoiceData = z.object({
 });
 
 /**
+ * UpdateInvoicingSettingsData
+ */
+export const zUpdateInvoicingSettingsData = z.object({
+    mode: zInvoicingMode,
+    defaultPaymentTermsDays: z.int(),
+    defaultPaymentTermsEndOfMonth: z.boolean(),
+    quoteValidityDays: z.int().check(z.gte(1), z.lte(365)),
+    operationCategory: zOperationCategory,
+    showIbanOnInvoices: z.boolean(),
+    showEmailOnDocuments: z.boolean(),
+    vatOnDebits: z.boolean(),
+    documentLanguage: zDocumentLanguage,
+    latePenaltyRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
+    customMentions: z.nullish(z.string().check(z.maxLength(2000)))
+});
+
+/**
  * UpdateMissionData
  */
 export const zUpdateMissionData = z.object({
@@ -2716,7 +2798,6 @@ export const zUpdateSettingsData = z.object({
     liberatingPaymentRateBp: z.int().check(z.gte(0), z.lte(10000)),
     vatRegime: zVatRegime,
     defaultVatRateBp: z.int().check(z.gte(0), z.lte(10000)),
-    defaultPaymentTermsDays: z.int().check(z.gte(0), z.lte(365)),
     invoiceNumberFormat: z.string().check(z.maxLength(64)),
     homeAddressSameAsCompany: z.boolean(),
     tradeName: z.nullish(z.string().check(z.maxLength(255))),
@@ -3352,6 +3433,12 @@ export const zUploadInvoiceDocumentPath = z.object({
 });
 
 export const zUploadInvoiceDocumentResponse = zInvoiceDetailData;
+
+export const zShowInvoicingSettingsResponse = zInvoicingSettingsData;
+
+export const zUpdateInvoicingSettingsBody = zUpdateInvoicingSettingsData;
+
+export const zUpdateInvoicingSettingsResponse = zInvoicingSettingsData;
 
 export const zDeleteMissionPath = z.object({
     client: z.string(),

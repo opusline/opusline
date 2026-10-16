@@ -83,15 +83,20 @@ test('saves the fiscal settings and recomputes the effective rate', function ():
         ->assertJsonPath('effectiveContributionRateBp', 2690);
 });
 
-test('saves the billing defaults', function (): void {
+test('saves the invoice number format', function (): void {
     $this->actingAs(User::factory()->create())
-        ->putJson('/api/settings', settingsPayload([
-            'defaultPaymentTermsDays' => 60,
-            'invoiceNumberFormat' => 'AAAAMM-NNN',
-        ]))
+        ->putJson('/api/settings', settingsPayload(['invoiceNumberFormat' => 'AAAAMM-NNN']))
         ->assertOk()
-        ->assertJsonPath('defaultPaymentTermsDays', 60)
         ->assertJsonPath('invoiceNumberFormat', 'AAAAMM-NNN');
+});
+
+test('leaves the payment terms to the invoicing settings', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->putJson('/api/settings', settingsPayload(['defaultPaymentTermsDays' => 15]))
+        ->assertOk()
+        ->assertJsonPath('defaultPaymentTermsDays', 45);
 });
 
 test('saves the treasury buffer as money', function (): void {
@@ -132,8 +137,6 @@ test('rejects an invalid payload', function (array $overrides, string $expectedE
     'non integer contribution rate' => [['contributionRateBp' => 'beaucoup'], 'contributionRateBp'],
     'unknown urssaf periodicity' => [['urssafPeriodicity' => 99], 'urssafPeriodicity'],
     'unknown vat regime' => [['vatRegime' => 99], 'vatRegime'],
-    'payment terms above a year' => [['defaultPaymentTermsDays' => 400], 'defaultPaymentTermsDays'],
-    'negative payment terms' => [['defaultPaymentTermsDays' => -1], 'defaultPaymentTermsDays'],
     'invoice format without a counter' => [['invoiceNumberFormat' => 'AAAA-MM'], 'invoiceNumberFormat'],
     'invoice format with an unknown token' => [['invoiceNumberFormat' => 'NNN-<client>'], 'invoiceNumberFormat'],
     'business start date in the wrong format' => [['acre' => true, 'businessStartedOn' => '01/03/2026'], 'businessStartedOn'],

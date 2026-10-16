@@ -10,9 +10,11 @@ import { useIsMobile } from "@opusline/ui/hooks/use-mobile";
 import { type ReactNode, useEffect, useMemo } from "react";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
+import { SaveBar } from "@/components/save-bar";
 import { hasEuVat } from "@/lib/countries";
 import { abroadTaxTerms } from "@/lib/fiscality";
 import type { FormSubmitResult } from "@/lib/form";
+import type { CompanyLogoSlot } from "@/lib/logos";
 import { m } from "@/paraglide/messages.js";
 import type { SettingsFormValues } from "../lib/settings-form";
 import {
@@ -32,15 +34,11 @@ import {
   FiscalSettingsForm,
   IncomeTaxSettingsFields,
 } from "./fiscal-settings-form";
-import {
-  type CompanyLogoSlot,
-  IdentitySettingsForm,
-} from "./identity-settings-form";
+import { IdentitySettingsForm } from "./identity-settings-form";
 import {
   type LocalisationDraft,
   LocalisationSettings,
 } from "./localisation-settings";
-import { SaveBar } from "./save-bar";
 import { SignatureSettings } from "./signature-settings";
 
 const FORM_ID = "settings-form";
@@ -104,6 +102,8 @@ type SettingsPageProps = {
   integrations: ReactNode;
   notifications: ReactNode;
   security: ReactNode;
+  /** Drawn by the route, which can link: the Facturation tab points to the invoicing settings. */
+  invoicingSettingsLink?: ReactNode;
 };
 
 export function SettingsPage({
@@ -118,6 +118,7 @@ export function SettingsPage({
   integrations,
   notifications,
   security,
+  invoicingSettingsLink,
 }: SettingsPageProps) {
   const format = useMoneyFormat();
   const form = useSettingsForm(settings, onSubmit);
@@ -234,6 +235,7 @@ export function SettingsPage({
             <TabsContent keepMounted value="facturation">
               <BillingSettingsForm
                 form={form}
+                invoicingSettingsLink={invoicingSettingsLink}
                 savedWorkdayMinutes={settings.workdayMinutes}
               />
             </TabsContent>
