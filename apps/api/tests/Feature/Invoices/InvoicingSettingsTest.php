@@ -171,6 +171,20 @@ test('records the option for VAT on debits of a VAT-liable account', function ()
         ->assertJsonPath('vatOnDebits', true);
 });
 
+test('hides a stored VAT-on-debits choice once the account leaves VAT liability', function (): void {
+    $user = User::factory()->create();
+    $user->settingsOrFail()->update(['vat_regime' => VatRegime::ReelSimplifie]);
+    $this->actingAs($user)->putJson('/api/invoicing/settings', invoicingSettingsPayload(['vatOnDebits' => true]))->assertOk();
+
+    $user->settingsOrFail()->update(['vat_regime' => VatRegime::FranchiseEnBase]);
+
+    $this->actingAs($user)
+        ->getJson('/api/invoicing/settings')
+        ->assertOk()
+        ->assertJsonPath('vatOnDebits', false)
+        ->assertJsonPath('vatLiable', false);
+});
+
 test('refuses an unknown mode or category and overlong mentions', function (array $overrides, string $field): void {
     $this->actingAs(User::factory()->create())
         ->putJson('/api/invoicing/settings', invoicingSettingsPayload($overrides))

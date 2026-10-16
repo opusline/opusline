@@ -25,7 +25,7 @@ class InvoicingSettingsData extends Data
         public OperationCategory $operationCategory,
         public bool $showIbanOnInvoices,
         public bool $showEmailOnDocuments,
-        /** Only ever true for an account liable for VAT. */
+        /** Only ever true for an account liable for VAT: a stored choice is hidden once the account leaves liability. */
         public bool $vatOnDebits,
         public ?string $customMentions,
         public DocumentLanguage $documentLanguage,
@@ -45,7 +45,7 @@ class InvoicingSettingsData extends Data
             operationCategory: $settings->operation_category,
             showIbanOnInvoices: $settings->show_iban_on_invoices,
             showEmailOnDocuments: $settings->show_email_on_documents,
-            vatOnDebits: $settings->vat_on_debits,
+            vatOnDebits: $settings->vat_regime->isLiable() && $settings->vat_on_debits,
             customMentions: $settings->custom_mentions,
             documentLanguage: $settings->document_language,
             vatLiable: $settings->vat_regime->isLiable(),
