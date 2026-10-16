@@ -112,9 +112,10 @@ test("a quote issued elsewhere is recorded, its PDF filed, and invoiced whole", 
     "data-status",
     "accepted",
   );
+  // A new account is under the franchise en base: nothing is added to the HT.
   await expect(page.getByTestId("document-amount")).toHaveAttribute(
     "data-amount-cents",
-    "576000",
+    "480000",
   );
   await expect(page.getByTestId("document-source")).toBeVisible();
   await expect(page.getByTestId("invoice-paper-signature")).toBeHidden();
