@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 use App\Domain\Clients\Models\Client;
+use App\Domain\Invoices\Actions\IssueInvoice;
 use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Enums\LineUnit;
 use App\Domain\Invoices\Models\Invoice;
-use App\Domain\Invoices\Actions\IssueInvoice;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Users\Models\User;
 use Illuminate\Http\UploadedFile;
