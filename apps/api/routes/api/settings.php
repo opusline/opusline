@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Settings\Controllers\CompanyLogoController;
 use App\Http\Settings\Controllers\InstanceController;
 use App\Http\Settings\Controllers\IntegrationsController;
 use App\Http\Settings\Controllers\SettingsController;
@@ -38,4 +39,12 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
         ->name('showUserSignature');
     Route::delete('/user/signature', [SignatureController::class, 'destroy'])
         ->name('deleteUserSignature');
+
+    Route::post('/user/logo', [CompanyLogoController::class, 'store'])
+        ->middleware('throttle:uploads')
+        ->name('uploadCompanyLogo');
+    Route::get('/user/logo', [CompanyLogoController::class, 'show'])
+        ->name('showCompanyLogo');
+    Route::delete('/user/logo', [CompanyLogoController::class, 'destroy'])
+        ->name('deleteCompanyLogo');
 });

@@ -3,13 +3,16 @@ import { Switch } from "@opusline/ui/components/switch";
 import { House } from "lucide-react";
 
 import { AddressFields } from "@/components/address-fields";
+import { CompanyLogoField } from "@/components/company-logo-field";
 import { ExemptField } from "@/components/exempt-field";
 import { FormTextField } from "@/components/form-text-field";
 import {
   formatFrenchPhone,
+  formatIban,
   formatSiret,
   formatVatNumber,
 } from "@/lib/identifiers";
+import type { CompanyLogoSlot } from "@/lib/logos";
 import { m } from "@/paraglide/messages.js";
 import {
   COMPANY_ADDRESS_NAMES,
@@ -26,8 +29,10 @@ export function IdentitySettingsForm({
   form,
   hasFrenchFiscality,
   showEuVatNumber,
+  logo,
 }: {
   form: SettingsForm;
+  logo: CompanyLogoSlot;
   /** The auto-entrepreneur status and the SIRET only exist in France. */
   hasFrenchFiscality: boolean;
   /** The intra-community VAT number only exists inside the EU. */
@@ -53,6 +58,8 @@ export function IdentitySettingsForm({
           </span>
         </div>
       )}
+
+      <CompanyLogoField className="mb-5" logo={logo} testId="settings-logo" />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <form.Field name="tradeName">
@@ -147,6 +154,20 @@ export function IdentitySettingsForm({
             />
           )}
         </form.Field>
+
+        {hasFrenchFiscality && (
+          <form.Field name="tradeRegistry">
+            {(field) => (
+              <FormTextField
+                field={field}
+                description={m.settings_trade_registry_hint()}
+                label={m.settings_trade_registry_label()}
+                labelClassName={LABEL}
+                placeholder={m.settings_trade_registry_placeholder()}
+              />
+            )}
+          </form.Field>
+        )}
       </div>
 
       <div className="mt-6.5 mb-3 flex items-baseline justify-between gap-3">
@@ -167,6 +188,43 @@ export function IdentitySettingsForm({
         streetLabel={m.address_label()}
         withPlaceholders
       />
+
+      <div className="mt-6.5 mb-3 flex items-baseline justify-between gap-3">
+        <span className={EYEBROW}>{m.settings_bank_title()}</span>
+        <span className="text-muted-foreground-3 text-xs">
+          {m.settings_bank_hint()}
+        </span>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="sm:col-span-2">
+          <form.Field name="iban">
+            {(field) => (
+              <FormTextField
+                field={field}
+                font="mono"
+                formatOnBlur={formatIban}
+                label={m.settings_iban_label()}
+                labelClassName={LABEL}
+                placeholder={m.settings_iban_placeholder()}
+                testId="settings-iban"
+              />
+            )}
+          </form.Field>
+        </div>
+        <form.Field name="bic">
+          {(field) => (
+            <FormTextField
+              field={field}
+              font="mono"
+              formatOnBlur={(value) => value.trim().toUpperCase()}
+              label={m.settings_bic_label()}
+              labelClassName={LABEL}
+              placeholder={m.settings_bic_placeholder()}
+              testId="settings-bic"
+            />
+          )}
+        </form.Field>
+      </div>
 
       <div className="mt-6.5 mb-3 flex items-baseline justify-between gap-3">
         <span className={EYEBROW}>{m.settings_home_address_title()}</span>

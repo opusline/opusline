@@ -86,3 +86,11 @@ export async function addInvoice(
 ): Promise<InvoiceData> {
   return api.post<InvoiceData>("/api/invoices", invoice);
 }
+
+/**
+ * Writing invoices in Opusline is in beta: the stack offers it, and an account
+ * sees it once it opts in, as it would from Réglages → Avant-première.
+ */
+export async function joinInvoicingBeta(api: Api): Promise<void> {
+  await api.put("/api/user/features/invoicing", { active: true });
+}

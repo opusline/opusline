@@ -3,7 +3,13 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
+use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Support\DataConfig;
+use Tests\TestCase;
+
+uses(TestCase::class);
 
 /**
  * @return array<string, list<string>>
@@ -23,79 +29,46 @@ function langCatalogKeys(string $locale): array
 }
 
 /**
- * Constructor property names of every request-bound Data class. Every class
- * under app/Domain/*\/Data is included by default; a class must opt out by
- * joining the response-only list below. The inversion is deliberate: a new
- * request DTO can only over-cover (a visible test failure asking for display
- * names), never silently fall outside the guard the way a name heuristic
- * would let it.
+ * Property names of every Data class a route validates a request into: the
+ * ones its actions inject, and every Data nested in those. Read off the routes
+ * the way SpatieDataParametersExtractor builds the spec, so a response class
+ * never needs listing and a new request class can never be missed.
  *
  * @return list<string>
  */
 function requestDataFields(): array
 {
-    $responseOnly = [
-        'BankAccountData', 'BankBalanceData', 'BankImportData',
-        'BankMatchData', 'BankMatchInvoiceData', 'BankMovementData',
-        'BankMovementInvoiceData', 'BankMovementExpenseData', 'BankMovementPageData',
-        'BankProvisionData', 'BankProvisionsData',
-        'BankStatementData', 'PersonalTransferData', 'TreasuryData',
-        'BankAspspData', 'BankAspspListData', 'BankAuthorizationData',
-        'BankConnectionAccountData', 'BankConnectionData', 'EnableBankingSettingsData', 'IntegrationsData',
-        'SignedMoneyData',
-        'CalendarFeedData', 'DeadlineBoardData', 'DeadlineInvoiceData',
-        'DeadlineItemData', 'DeadlineReminderData', 'FiscalDeadlineData',
-        'DeclarationsData', 'UrssafDeclarationData', 'VatDeclarationData',
-        'Ca3BoxesData', 'DeclarationDeadlineData', 'DeclarationCompletionData',
-        'ContributionLineData', 'RevenueCeilingData',
-        'DeclarationHistoryRowData', 'DeclarationHistoryUrssafData', 'DeclarationHistoryVatData',
-        'DeclarationSettlementData', 'AnnualDeclarationsData', 'IncomeTaxReturnData',
-        'IncomeTaxReturnPeriodData', 'CfeReturnData', 'LiberatingPaymentOutlookData',
-        'ExpenseData', 'ExpensesMonthData', 'ExpensesTotalsData',
-        'ExpenseCategoryTotalData', 'ExpenseMonthPointData', 'ExpenseRegimeProjectionData',
-        'ExpenseReceiptData', 'ExpensesVatSummaryData',
-        'SubscriptionData', 'SubscriptionAmountData', 'SubscriptionKpisData', 'SubscriptionsData',
-        'UpcomingDebitData', 'SubscriptionCategoryTotalData', 'SubscriptionAmountChangeData',
-        'SubscriptionOccurrenceData', 'ExpenseSubscriptionData', 'ExpensesSubscriptionsData', 'ExpenseTodoData',
-        'ExpenseBankMovementData', 'RecurringDebitData',
-        'ReceiptSuggestionData', 'ReceiptTextFieldData', 'ReceiptDateFieldData', 'ReceiptAmountFieldData', 'ReceiptVatFieldData',
-        'ClientData', 'ClientListData', 'ClientRevenueData',
-        'ClientRevenueDetailData', 'ClientRevenueListData',
-        'ClientWithMissionsData',
-        'CraCountsData', 'CraData', 'CraDayData', 'CraDetailData',
-        'CraListData', 'CraListItemData', 'DocumentData', 'DocumentGroupData',
-        'DocumentLibraryData', 'DocumentListData',
-        'FixedPriceBudgetData', 'FixedPriceConsumptionData',
-        'InvoiceClientTotalsData', 'InvoiceCountsData', 'InvoiceData',
-        'InvoiceDetailData', 'InvoiceEventData', 'InvoiceForecastData',
-        'InvoiceListItemData', 'InvoiceOverdueData', 'InvoiceSummaryData',
-        'InvoiceTodoBudgetData', 'InvoiceTodoData', 'InvoiceTodoOverdueData',
-        'InvoiceTodoWorkData',
-        'InvoiceTotalData', 'MissionData', 'MissionRevenueData', 'MoneyData',
-        'MonthWorkloadData',
-        'NextInvoiceNumberData', 'RevenueClientData', 'RevenueComparisonData',
-        'RevenueData', 'RevenueMonthData', 'RevenueNetData', 'RevenueVatData',
-        'BackupRecordData', 'InstanceData', 'SettingsData', 'TimeEntryData',
-        'TimeEntryListData', 'TimerData', 'TimerStateData', 'UserData',
-        'InvoiceListData',
-        'RecoveryCodesData', 'TotpSetupData', 'TwoFactorStatusData',
-        'TrustedDeviceData', 'TwoFactorChallengeData', 'PasskeyData', 'PasskeyOptionsData',
-        'PingData', 'SentryWebData',
-    ];
+    $dataConfig = app(DataConfig::class);
+    $pending = [];
 
+    foreach (Route::getRoutes()->getRoutes() as $route) {
+        foreach ($route->signatureParameters() as $parameter) {
+            $type = $parameter->getType();
+
+            if ($type instanceof ReflectionNamedType && is_a($type->getName(), Data::class, true)) {
+                $pending[] = $type->getName();
+            }
+        }
+    }
+
+    $visited = [];
     $fields = [];
 
-    foreach (glob(dirname(__DIR__, 2).'/app/Domain/*/Data/*.php') ?: [] as $path) {
-        $class = basename($path, '.php');
+    while ($pending !== []) {
+        $class = array_pop($pending);
 
-        if (in_array($class, $responseOnly, strict: true)) {
+        if (isset($visited[$class])) {
             continue;
         }
 
-        $fqcn = 'App\\Domain\\'.basename(dirname($path, 2)).'\\Data\\'.$class;
+        $visited[$class] = true;
 
-        foreach (new ReflectionClass($fqcn)->getConstructor()?->getParameters() ?? [] as $parameter) {
-            $fields[$parameter->getName()] = true;
+        foreach ($dataConfig->getDataClass($class)->properties as $property) {
+            $fields[$property->name] = true;
+
+            if ($property->type->dataClass !== null) {
+                $pending[] = $property->type->dataClass;
+            }
         }
     }
 

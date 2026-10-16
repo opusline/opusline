@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Domain\Shared\Validation\Bic;
+use App\Domain\Shared\Validation\Iban;
 use App\Domain\Shared\Validation\Siret;
 use App\Domain\Shared\Validation\VatNumber;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -75,4 +77,46 @@ test('explains the rejection in the request language', function (string $locale,
 })->with(['fr', 'en'])->with([
     'SIRET' => [new Siret, 'rules.siret'],
     'VAT number' => [new VatNumber, 'rules.vat_number'],
+]);
+
+// The textbook examples of ISO 13616 and the banks' own documentation, not accounts.
+test('accepts a valid IBAN, spaced or not, from several countries', function (string $iban): void {
+    expect(rejects(new Iban, $iban))->toBeFalse();
+})->with([
+    'France' => ['FR7630006000011234567890189'],
+    'France, printed in groups' => ['FR76 3000 6000 0112 3456 7890 189'],
+    'lowercase' => ['fr7630006000011234567890189'],
+    'Germany' => ['DE89370400440532013000'],
+    'United Kingdom' => ['GB82WEST12345698765432'],
+    'Belgium' => ['BE68539007547034'],
+]);
+
+test('rejects a malformed or mistyped IBAN', function (mixed $iban): void {
+    expect(rejects(new Iban, $iban))->toBeTrue();
+})->with([
+    'one digit off' => ['DE89370400440532013001'],
+    'swapped check digits' => ['FR6730006000011234567890189'],
+    'too short' => ['FR763000'],
+    'valid checksum but not the French length' => ['FR9112345678901'],
+    'valid checksum under a country the registry does not list' => ['ZZ8112345678901'],
+    'no country' => ['7630006000011234567890189'],
+    'empty' => [''],
+    'not a string' => [7630006000011234567],
+]);
+
+test('accepts a BIC of 8 or 11 characters', function (string $bic): void {
+    expect(rejects(new Bic, $bic))->toBeFalse();
+})->with([
+    'head office' => ['AGRIFRPP'],
+    'branch' => ['AGRIFRPP882'],
+    'lowercase, padded' => [' agrifrpp '],
+]);
+
+test('rejects a BIC of the wrong shape', function (mixed $bic): void {
+    expect(rejects(new Bic, $bic))->toBeTrue();
+})->with([
+    'too short' => ['AGRIFR'],
+    'nine characters' => ['AGRIFRPP1'],
+    'digits in the bank code' => ['12RIFRPP'],
+    'not a string' => [12345678],
 ]);

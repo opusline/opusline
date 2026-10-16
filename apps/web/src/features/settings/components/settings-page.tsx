@@ -10,9 +10,11 @@ import { useIsMobile } from "@opusline/ui/hooks/use-mobile";
 import { type ReactNode, useEffect, useMemo } from "react";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
+import { SaveBar } from "@/components/save-bar";
 import { hasEuVat } from "@/lib/countries";
 import { abroadTaxTerms } from "@/lib/fiscality";
 import type { FormSubmitResult } from "@/lib/form";
+import type { CompanyLogoSlot } from "@/lib/logos";
 import { m } from "@/paraglide/messages.js";
 import type { SettingsFormValues } from "../lib/settings-form";
 import {
@@ -37,7 +39,6 @@ import {
   type LocalisationDraft,
   LocalisationSettings,
 } from "./localisation-settings";
-import { SaveBar } from "./save-bar";
 import { SignatureSettings } from "./signature-settings";
 
 const FORM_ID = "settings-form";
@@ -94,12 +95,16 @@ type SettingsPageProps = {
   onTabChange: (tab: SettingsTab) => void;
   onSubmit: (body: UpdateSettingsData) => Promise<FormSubmitResult>;
   signature: SignatureProps;
+  logo: CompanyLogoSlot;
   rates: RatesProps;
   localisation: LocalisationProps;
-  /** The Intégrations, Notifications and Sécurité tabs save outside this form, so they arrive ready to render. */
+  /** The Intégrations, Notifications, Sécurité and Avant-première tabs save outside this form, so they arrive ready to render. */
   integrations: ReactNode;
   notifications: ReactNode;
   security: ReactNode;
+  beta: ReactNode;
+  /** Drawn by the route, which can link: the Facturation tab points to the invoicing settings. */
+  invoicingSettingsLink?: ReactNode;
 };
 
 export function SettingsPage({
@@ -108,11 +113,14 @@ export function SettingsPage({
   onTabChange,
   onSubmit,
   signature,
+  logo,
   rates,
   localisation,
   integrations,
   notifications,
   security,
+  beta,
+  invoicingSettingsLink,
 }: SettingsPageProps) {
   const format = useMoneyFormat();
   const form = useSettingsForm(settings, onSubmit);
@@ -193,6 +201,7 @@ export function SettingsPage({
               <IdentitySettingsForm
                 form={form}
                 hasFrenchFiscality={settings.hasFrenchFiscality}
+                logo={logo}
                 showEuVatNumber={isEuVat}
               />
             </TabsContent>
@@ -228,6 +237,7 @@ export function SettingsPage({
             <TabsContent keepMounted value="facturation">
               <BillingSettingsForm
                 form={form}
+                invoicingSettingsLink={invoicingSettingsLink}
                 savedWorkdayMinutes={settings.workdayMinutes}
               />
             </TabsContent>
@@ -256,6 +266,7 @@ export function SettingsPage({
           <TabsContent value="integrations">{integrations}</TabsContent>
           <TabsContent value="notifications">{notifications}</TabsContent>
           <TabsContent value="securite">{security}</TabsContent>
+          <TabsContent value="beta">{beta}</TabsContent>
 
           <form.Subscribe<{
             values: SettingsFormValues;

@@ -220,6 +220,13 @@ export const zChooseBankAccountData = z.object({
 });
 
 /**
+ * ChooseBetaFeatureData
+ */
+export const zChooseBetaFeatureData = z.object({
+    active: z.boolean()
+});
+
+/**
  * ClientType
  */
 export const zClientType = z.union([
@@ -530,6 +537,32 @@ export const zDocumentCategory = z.union([
 ]);
 
 /**
+ * DocumentLanguage
+ *
+ * The language a document is rendered in, chosen per document; independent of the interface locale.
+ *
+ */
+export const zDocumentLanguage = z.union([z.literal(0), z.literal(1)]);
+
+/**
+ * DocumentPartyData
+ */
+export const zDocumentPartyData = z.object({
+    name: z.string(),
+    legalMention: z.nullable(z.string()),
+    siret: z.nullable(z.string()),
+    siren: z.nullable(z.string()),
+    vatNumber: z.nullable(z.string()),
+    tradeRegistry: z.nullable(z.string()),
+    addressLines: z.array(z.string()),
+    email: z.nullable(z.string()),
+    phone: z.nullable(z.string()),
+    iban: z.nullable(z.string()),
+    bic: z.nullable(z.string()),
+    vatExempt: z.boolean()
+});
+
+/**
  * DocumentSource
  */
 export const zDocumentSource = z.union([
@@ -740,6 +773,32 @@ export const zExpenseInputData = z.object({
 });
 
 /**
+ * FeatureFlag
+ *
+ * A feature still being built, shipped to `main` switched off. Removing a case (and its checks, keeping the code it guarded) is how the feature is released.
+ * | |
+ * |---|
+ * | `0` <br/> Writing, issuing and rendering invoices in Opusline (#498). |
+ */
+export const zFeatureFlag = z.literal(0);
+
+/**
+ * BetaFeatureData
+ */
+export const zBetaFeatureData = z.object({
+    feature: zFeatureFlag,
+    key: z.string(),
+    active: z.boolean()
+});
+
+/**
+ * BetaFeaturesData
+ */
+export const zBetaFeaturesData = z.object({
+    features: z.array(zBetaFeatureData)
+});
+
+/**
  * FiscalDeadlineKind
  *
  * The recurring French fiscal deadlines the app tracks. Declaration and payment share a case wherever they share a date, which is every case here: URSSAF télépaie on the declaration date, and the CA3 is due and paid the same day.
@@ -867,6 +926,14 @@ export const zInvoiceEventData = z.object({
 export const zInvoiceForecastBucket = z.union([z.literal(1), z.literal(2)]);
 
 /**
+ * InvoiceSource
+ *
+ * Who wrote the document: another tool, recorded here; or Opusline, from its lines.
+ *
+ */
+export const zInvoiceSource = z.union([z.literal(0), z.literal(1)]);
+
+/**
  * InvoiceStatus
  */
 export const zInvoiceStatus = z.union([
@@ -940,6 +1007,17 @@ export const zInvoiceTodoWorkData = z.object({
 });
 
 /**
+ * InvoicingMode
+ *
+ * Where the account's invoices and quotes are written: it decides what the Create button does.
+ * | |
+ * |---|
+ * | `0` <br/> Opusline numbers them, renders the PDF and sends them. |
+ * | `1` <br/> Another tool issues them; Opusline only records and tracks them. |
+ */
+export const zInvoicingMode = z.union([z.literal(0), z.literal(1)]);
+
+/**
  * LiberatingPaymentEndReason
  *
  * Why the versement libératoire stops applying.
@@ -949,6 +1027,33 @@ export const zInvoiceTodoWorkData = z.object({
  * | `1` <br/> The receipts crossed the micro-BNC ceiling two calendar years running, which ends the régime itself. |
  */
 export const zLiberatingPaymentEndReason = z.union([z.literal(0), z.literal(1)]);
+
+/**
+ * LineUnit
+ *
+ * What one unit of a catalogue item or a document line counts.
+ *
+ */
+export const zLineUnit = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3)
+]);
+
+/**
+ * CatalogItemInputData
+ */
+export const zCatalogItemInputData = z.object({
+    label: z.string().check(z.maxLength(255)),
+    unit: zLineUnit,
+    unitPrice: z.object({
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
+        currency: zCurrency
+    }),
+    vatRateBp: z.int().check(z.gte(0), z.lte(10000)),
+    detail: z.nullish(z.string().check(z.maxLength(1000)))
+});
 
 /**
  * LinkExpenseBankMovementData
@@ -1024,6 +1129,25 @@ export const zCa3BoxesData = z.object({
 export const zCarriedPeriodData = z.object({
     period: z.string(),
     amount: zMoneyData
+});
+
+/**
+ * CatalogItemData
+ */
+export const zCatalogItemData = z.object({
+    id: z.int(),
+    label: z.string(),
+    detail: z.nullable(z.string()),
+    unit: zLineUnit,
+    unitPrice: zMoneyData,
+    vatRateBp: z.int()
+});
+
+/**
+ * CatalogData
+ */
+export const zCatalogData = z.object({
+    items: z.array(zCatalogItemData)
 });
 
 /**
@@ -1265,6 +1389,7 @@ export const zInvoiceData = z.object({
     missionId: z.nullable(z.int()),
     number: z.nullable(z.string()),
     status: zInvoiceStatus,
+    source: zInvoiceSource,
     isLate: z.boolean(),
     issuedOn: z.iso.date(),
     dueOn: z.iso.date(),
@@ -1303,6 +1428,21 @@ export const zInvoiceOverdueData = z.object({
 export const zInvoiceTotalData = z.object({
     amount: zMoneyData,
     count: z.int()
+});
+
+/**
+ * LegalReferenceData
+ */
+export const zLegalReferenceData = z.object({
+    semester: z.string(),
+    checkedOn: z.iso.date(),
+    nextRevisionOn: z.iso.date(),
+    legalInterestRateBp: z.int(),
+    minimumPenaltyRateBp: z.int(),
+    ecbRateBp: z.int(),
+    statutoryPenaltyRateBp: z.int(),
+    recoveryFee: zMoneyData,
+    sources: z.record(z.string(), z.string())
 });
 
 /**
@@ -1385,17 +1525,6 @@ export const zCraDetailData = z.object({
 });
 
 /**
- * InvoiceDetailData
- */
-export const zInvoiceDetailData = z.object({
-    invoice: zInvoiceData,
-    client: zClientData,
-    mission: z.nullable(zMissionData),
-    history: z.array(zInvoiceEventData),
-    document: z.nullable(zDocumentData)
-});
-
-/**
  * InvoiceListItemData
  */
 export const zInvoiceListItemData = z.object({
@@ -1439,6 +1568,38 @@ export const zNotificationPreferencesData = z.object({
 });
 
 /**
+ * OperationCategory
+ *
+ * A mandatory invoice mention since 1 September 2026 (e-invoicing reform).
+ *
+ */
+export const zOperationCategory = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * InvoicingSettingsData
+ */
+export const zInvoicingSettingsData = z.object({
+    mode: zInvoicingMode,
+    defaultPaymentTermsDays: z.int(),
+    defaultPaymentTermsEndOfMonth: z.boolean(),
+    quoteValidityDays: z.int(),
+    latePenaltyRateBp: z.nullable(z.int()),
+    operationCategory: zOperationCategory,
+    showIbanOnInvoices: z.boolean(),
+    showEmailOnDocuments: z.boolean(),
+    vatOnDebits: z.boolean(),
+    customMentions: z.nullable(z.string()),
+    documentLanguage: zDocumentLanguage,
+    vatLiable: z.boolean(),
+    legalReference: zLegalReferenceData,
+    nextInvoiceNumber: z.string()
+});
+
+/**
  * PaidPeriodData
  */
 export const zPaidPeriodData = z.object({
@@ -1472,6 +1633,98 @@ export const zBankProvisionsData = z.object({
     subscriptions: z.nullable(zBankProvisionData),
     buffer: z.nullable(zMoneyData),
     total: zMoneyData
+});
+
+/**
+ * PaperLineData
+ */
+export const zPaperLineData = z.object({
+    label: z.string(),
+    detail: z.nullable(z.string()),
+    quantity: z.string(),
+    unitPrice: z.string(),
+    vat: z.string(),
+    total: z.string()
+});
+
+/**
+ * PaperLineHeadData
+ */
+export const zPaperLineHeadData = z.object({
+    description: z.string(),
+    quantity: z.string(),
+    unitPrice: z.string(),
+    vat: z.string(),
+    total: z.string()
+});
+
+/**
+ * PaperPartyData
+ */
+export const zPaperPartyData = z.object({
+    name: z.string(),
+    lines: z.array(z.string())
+});
+
+/**
+ * PaperRowData
+ */
+export const zPaperRowData = z.object({
+    label: z.string(),
+    value: z.string()
+});
+
+/**
+ * PaperTotalData
+ */
+export const zPaperTotalData = z.object({
+    label: z.string(),
+    value: z.string(),
+    emphasis: z.boolean()
+});
+
+/**
+ * PaperVatHeadData
+ */
+export const zPaperVatHeadData = z.object({
+    base: z.string(),
+    rate: z.string(),
+    amount: z.string()
+});
+
+/**
+ * PaperVatRowData
+ */
+export const zPaperVatRowData = z.object({
+    base: z.string(),
+    rate: z.string(),
+    amount: z.string()
+});
+
+/**
+ * InvoicePaperData
+ */
+export const zInvoicePaperData = z.object({
+    language: zDocumentLanguage,
+    labelSeparator: z.string(),
+    title: z.string(),
+    stamp: z.nullable(z.string()),
+    hasLogo: z.boolean(),
+    meta: z.array(zPaperRowData),
+    seller: zPaperPartyData,
+    buyer: zPaperPartyData,
+    documentTitle: z.nullable(z.string()),
+    description: z.nullable(z.string()),
+    head: zPaperLineHeadData,
+    lines: z.array(zPaperLineData),
+    noLinesLabel: z.string(),
+    vatHead: zPaperVatHeadData,
+    vatRows: z.array(zPaperVatRowData),
+    totals: z.array(zPaperTotalData),
+    paymentTitle: z.nullable(z.string()),
+    payment: z.array(zPaperRowData),
+    legal: z.string(),
+    footer: z.string()
 });
 
 /**
@@ -1744,6 +1997,38 @@ export const zSaveEnableBankingCredentialsData = z.object({
 });
 
 /**
+ * SaveInvoiceDraftData
+ */
+export const zSaveInvoiceDraftData = z.object({
+    clientId: z.int(),
+    paymentTermsDays: z.int(),
+    paymentTermsEndOfMonth: z.boolean(),
+    showIban: z.boolean(),
+    showEmail: z.boolean(),
+    language: zDocumentLanguage,
+    lines: z.array(z.object({
+        label: z.string().check(z.maxLength(255)),
+        detail: z.nullish(z.string().check(z.maxLength(1000))),
+        quantityMilli: z.int().check(z.gte(1), z.lte(100000000)),
+        unit: zLineUnit,
+        unitPrice: z.object({
+            amount: z.int().check(z.gte(-100000000000), z.lte(100000000000)),
+            currency: zCurrency
+        }),
+        vatRateBp: z.int().check(z.gte(0), z.lte(10000))
+    })).check(z.maxLength(200)),
+    missionId: z.nullish(z.int()),
+    title: z.nullish(z.string().check(z.maxLength(255))),
+    description: z.nullish(z.string().check(z.maxLength(2000))),
+    issuedOn: z.nullish(z.iso.date()),
+    periodStart: z.nullish(z.iso.date()),
+    periodEnd: z.nullish(z.iso.date()),
+    latePenaltyRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
+    customMentions: z.nullish(z.string().check(z.maxLength(2000))),
+    timeEntryIds: z.optional(z.array(z.int()).check(z.maxLength(5000)))
+});
+
+/**
  * SendCraData
  */
 export const zSendCraData = z.object({
@@ -1896,6 +2181,20 @@ export const zFixedPriceBudgetData = z.object({
     remaining: zSignedMoneyData,
     invoicedShareBp: z.int(),
     consumption: z.nullable(zFixedPriceConsumptionData)
+});
+
+/**
+ * InvoiceLineData
+ */
+export const zInvoiceLineData = z.object({
+    id: z.int(),
+    label: z.string(),
+    detail: z.nullable(z.string()),
+    quantityMilli: z.int(),
+    unit: zLineUnit,
+    unitPrice: zSignedMoneyData,
+    vatRateBp: z.int(),
+    totalHt: zSignedMoneyData
 });
 
 /**
@@ -2354,6 +2653,20 @@ export const zTwoFactorStatusData = z.object({
 });
 
 /**
+ * UnbilledTimeData
+ */
+export const zUnbilledTimeData = z.object({
+    missionId: z.int(),
+    missionName: z.string(),
+    timeEntryIds: z.array(z.int()),
+    firstEntryOn: z.nullable(z.iso.date()),
+    lastEntryOn: z.nullable(z.iso.date()),
+    quantityMilli: z.int(),
+    unit: zLineUnit,
+    unitPrice: z.nullable(zMoneyData)
+});
+
+/**
  * UpcomingDebitData
  */
 export const zUpcomingDebitData = z.object({
@@ -2462,6 +2775,23 @@ export const zUpdateInvoiceData = z.object({
 });
 
 /**
+ * UpdateInvoicingSettingsData
+ */
+export const zUpdateInvoicingSettingsData = z.object({
+    mode: zInvoicingMode,
+    defaultPaymentTermsDays: z.int(),
+    defaultPaymentTermsEndOfMonth: z.boolean(),
+    quoteValidityDays: z.int().check(z.gte(1), z.lte(365)),
+    operationCategory: zOperationCategory,
+    showIbanOnInvoices: z.boolean(),
+    showEmailOnDocuments: z.boolean(),
+    vatOnDebits: z.boolean(),
+    documentLanguage: zDocumentLanguage,
+    latePenaltyRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
+    customMentions: z.nullish(z.string().check(z.maxLength(2000)))
+});
+
+/**
  * UpdateMissionData
  */
 export const zUpdateMissionData = z.object({
@@ -2544,6 +2874,13 @@ export const zUploadClientLogoData = z.object({
 });
 
 /**
+ * UploadCompanyLogoData
+ */
+export const zUploadCompanyLogoData = z.object({
+    logo: z.string()
+});
+
+/**
  * UploadDocumentData
  */
 export const zUploadDocumentData = z.object({
@@ -2621,7 +2958,49 @@ export const zUserData = z.object({
     timezone: z.string(),
     workdayMinutes: z.int(),
     defaultPaymentTermsDays: z.int(),
-    effectiveContributionRateBp: z.int()
+    effectiveContributionRateBp: z.int(),
+    features: z.array(zFeatureFlag)
+});
+
+/**
+ * VatBreakdownRowData
+ */
+export const zVatBreakdownRowData = z.object({
+    rateBp: z.int(),
+    base: zSignedMoneyData,
+    vat: zSignedMoneyData
+});
+
+/**
+ * InvoiceContentData
+ */
+export const zInvoiceContentData = z.object({
+    title: z.nullable(z.string()),
+    description: z.nullable(z.string()),
+    language: zDocumentLanguage,
+    paymentTermsDays: z.int(),
+    paymentTermsEndOfMonth: z.boolean(),
+    latePenaltyRateBp: z.nullable(z.int()),
+    showIban: z.boolean(),
+    showEmail: z.boolean(),
+    customMentions: z.nullable(z.string()),
+    lines: z.array(zInvoiceLineData),
+    vatBreakdown: z.array(zVatBreakdownRowData),
+    seller: z.nullable(zDocumentPartyData),
+    buyer: z.nullable(zDocumentPartyData),
+    timeEntryIds: z.array(z.int())
+});
+
+/**
+ * InvoiceDetailData
+ */
+export const zInvoiceDetailData = z.object({
+    invoice: zInvoiceData,
+    client: zClientData,
+    mission: z.nullable(zMissionData),
+    history: z.array(zInvoiceEventData),
+    document: z.nullable(zDocumentData),
+    content: z.nullable(zInvoiceContentData)
 });
 
 /**
@@ -2640,6 +3019,9 @@ export const zSettingsData = z.object({
     tradeName: z.nullable(z.string()),
     siret: z.nullable(z.string()),
     vatNumber: z.nullable(z.string()),
+    iban: z.nullable(z.string()),
+    bic: z.nullable(z.string()),
+    tradeRegistry: z.nullable(z.string()),
     signatureCity: z.nullable(z.string()),
     contactEmail: z.nullable(z.string()),
     phone: z.nullable(z.string()),
@@ -2685,6 +3067,7 @@ export const zSettingsData = z.object({
     workdayMinutes: z.int(),
     dormantAfterMonths: z.nullable(z.int()),
     hasSignature: z.boolean(),
+    hasLogo: z.boolean(),
     notifications: zNotificationPreferencesData
 });
 
@@ -2705,12 +3088,14 @@ export const zUpdateSettingsData = z.object({
     liberatingPaymentRateBp: z.int().check(z.gte(0), z.lte(10000)),
     vatRegime: zVatRegime,
     defaultVatRateBp: z.int().check(z.gte(0), z.lte(10000)),
-    defaultPaymentTermsDays: z.int().check(z.gte(0), z.lte(365)),
     invoiceNumberFormat: z.string().check(z.maxLength(64)),
     homeAddressSameAsCompany: z.boolean(),
     tradeName: z.nullish(z.string().check(z.maxLength(255))),
     siret: z.nullish(z.string().check(z.maxLength(255))),
     vatNumber: z.nullish(z.string().check(z.maxLength(255))),
+    iban: z.nullish(z.string().check(z.maxLength(64))),
+    bic: z.nullish(z.string().check(z.maxLength(16))),
+    tradeRegistry: z.nullish(z.string().check(z.maxLength(255))),
     signatureCity: z.nullish(z.string().check(z.maxLength(255))),
     contactEmail: z.nullish(z.email().check(z.maxLength(255))),
     phone: z.nullish(z.string().check(z.maxLength(64))),
@@ -2738,7 +3123,8 @@ export const zUpdateSettingsData = z.object({
     })),
     referenceTaxIncomeYear: z.nullish(z.int().check(z.gte(2000), z.lte(2100))),
     taxHouseholdQuarterParts: z.nullish(z.int().check(z.gte(4), z.lte(80))),
-    incomeTaxRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000)))
+    incomeTaxRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
+    defaultPaymentTermsDays: z.nullish(z.int().check(z.gte(0), z.lte(365)))
 });
 
 /**
@@ -2871,6 +3257,39 @@ export const zChooseBankConnectionAccountResponse = zBankAccountData;
 
 export const zSyncBankConnectionResponse = zBankImportData;
 
+export const zListBetaFeaturesResponse = zBetaFeaturesData;
+
+export const zChooseBetaFeatureBody = zChooseBetaFeatureData;
+
+export const zChooseBetaFeaturePath = z.object({
+    feature: z.string()
+});
+
+export const zChooseBetaFeatureResponse = zBetaFeaturesData;
+
+export const zListCatalogItemsResponse = zCatalogData;
+
+export const zCreateCatalogItemBody = zCatalogItemInputData;
+
+export const zCreateCatalogItemResponse = zCatalogItemData;
+
+export const zDeleteCatalogItemPath = z.object({
+    catalogItem: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteCatalogItemResponse = z.void();
+
+export const zUpdateCatalogItemBody = zCatalogItemInputData;
+
+export const zUpdateCatalogItemPath = z.object({
+    catalogItem: z.int()
+});
+
+export const zUpdateCatalogItemResponse = zCatalogItemData;
+
 export const zListClientsResponse = zClientListData;
 
 export const zCreateClientBody = zCreateClientData;
@@ -2992,6 +3411,20 @@ export const zShowMissionRevenuePath = z.object({
 export const zShowMissionRevenueResponse = zMissionRevenueData;
 
 export const zListClientRevenueResponse = zClientRevenueListData;
+
+/**
+ * No content
+ */
+export const zDeleteCompanyLogoResponse = z.void();
+
+export const zShowCompanyLogoResponse = z.string();
+
+export const zUploadCompanyLogoBody = zUploadCompanyLogoData;
+
+/**
+ * No content
+ */
+export const zUploadCompanyLogoResponse = z.void();
 
 export const zListCrasQuery = z.object({
     month: z.nullish(z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/)))
@@ -3324,6 +3757,61 @@ export const zUploadInvoiceDocumentPath = z.object({
 });
 
 export const zUploadInvoiceDocumentResponse = zInvoiceDetailData;
+
+export const zCreateInvoiceDraftBody = zSaveInvoiceDraftData;
+
+export const zCreateInvoiceDraftResponse = zInvoiceDetailData;
+
+export const zUpdateInvoiceDraftBody = zSaveInvoiceDraftData;
+
+export const zUpdateInvoiceDraftPath = z.object({
+    invoice: z.int()
+});
+
+export const zUpdateInvoiceDraftResponse = zInvoiceDetailData;
+
+export const zShowUnbilledTimeQuery = z.object({
+    missionId: z.int(),
+    invoiceId: z.nullish(z.int())
+});
+
+export const zShowUnbilledTimeResponse = zUnbilledTimeData;
+
+export const zIssueInvoicePath = z.object({
+    invoice: z.int()
+});
+
+export const zIssueInvoiceResponse = zInvoiceDetailData;
+
+export const zPreviewInvoicePaperBody = zSaveInvoiceDraftData;
+
+export const zPreviewInvoicePaperResponse = zInvoicePaperData;
+
+export const zShowInvoicePaperPath = z.object({
+    invoice: z.int()
+});
+
+export const zShowInvoicePaperQuery = z.object({
+    language: z.nullish(zDocumentLanguage)
+});
+
+export const zShowInvoicePaperResponse = zInvoicePaperData;
+
+export const zDownloadInvoicePdfPath = z.object({
+    invoice: z.int()
+});
+
+export const zDownloadInvoicePdfQuery = z.object({
+    language: z.nullish(zDocumentLanguage)
+});
+
+export const zDownloadInvoicePdfResponse = z.string();
+
+export const zShowInvoicingSettingsResponse = zInvoicingSettingsData;
+
+export const zUpdateInvoicingSettingsBody = zUpdateInvoicingSettingsData;
+
+export const zUpdateInvoicingSettingsResponse = zInvoicingSettingsData;
 
 export const zDeleteMissionPath = z.object({
     client: z.string(),

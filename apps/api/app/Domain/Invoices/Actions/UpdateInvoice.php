@@ -35,6 +35,9 @@ class UpdateInvoice
 
     public function handle(User $user, Invoice $invoice, UpdateInvoiceData $data): Invoice
     {
+        // Its totals come from its lines: only the editor may change an Opusline invoice.
+        abort_if($invoice->isWrittenInOpusline(), 409, __('invoices.written_in_opusline'));
+
         return $this->lockInvoice->handle($invoice, function (Invoice $locked) use ($user, $data): Invoice {
             // An omitted issue date keeps the stored one. The validator is given the
             // same resolved value, so it cannot disagree about what is being saved.

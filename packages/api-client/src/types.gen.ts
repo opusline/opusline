@@ -268,6 +268,22 @@ export type BankStatementFormat = 0 | 1 | 2 | 3 | 4;
 export type BankSyncError = 0 | 1 | 2 | 3 | 4;
 
 /**
+ * BetaFeatureData
+ */
+export type BetaFeatureData = {
+    feature: FeatureFlag;
+    key: string;
+    active: boolean;
+};
+
+/**
+ * BetaFeaturesData
+ */
+export type BetaFeaturesData = {
+    features: Array<BetaFeatureData>;
+};
+
+/**
  * BillingMode
  */
 export type BillingMode = 0 | 1 | 2;
@@ -316,6 +332,39 @@ export type CarriedPeriodData = {
 };
 
 /**
+ * CatalogData
+ */
+export type CatalogData = {
+    items: Array<CatalogItemData>;
+};
+
+/**
+ * CatalogItemData
+ */
+export type CatalogItemData = {
+    id: number;
+    label: string;
+    detail: string | null;
+    unit: LineUnit;
+    unitPrice: MoneyData;
+    vatRateBp: number;
+};
+
+/**
+ * CatalogItemInputData
+ */
+export type CatalogItemInputData = {
+    label: string;
+    unit: LineUnit;
+    unitPrice: {
+        amount: number;
+        currency: Currency;
+    };
+    vatRateBp: number;
+    detail?: string | null;
+};
+
+/**
  * CfeReturnData
  */
 export type CfeReturnData = {
@@ -345,6 +394,13 @@ export type ChangeSubscriptionAmountData = {
  */
 export type ChooseBankAccountData = {
     accountUid: string;
+};
+
+/**
+ * ChooseBetaFeatureData
+ */
+export type ChooseBetaFeatureData = {
+    active: boolean;
 };
 
 /**
@@ -875,6 +931,14 @@ export type DocumentGroupData = {
 };
 
 /**
+ * DocumentLanguage
+ *
+ * The language a document is rendered in, chosen per document; independent of the interface locale.
+ *
+ */
+export type DocumentLanguage = 0 | 1;
+
+/**
  * DocumentLibraryData
  */
 export type DocumentLibraryData = {
@@ -886,6 +950,24 @@ export type DocumentLibraryData = {
  */
 export type DocumentListData = {
     documents: Array<DocumentData>;
+};
+
+/**
+ * DocumentPartyData
+ */
+export type DocumentPartyData = {
+    name: string;
+    legalMention: string | null;
+    siret: string | null;
+    siren: string | null;
+    vatNumber: string | null;
+    tradeRegistry: string | null;
+    addressLines: Array<string>;
+    email: string | null;
+    phone: string | null;
+    iban: string | null;
+    bic: string | null;
+    vatExempt: boolean;
 };
 
 /**
@@ -1124,6 +1206,16 @@ export type ExpensesVatSummaryData = {
 };
 
 /**
+ * FeatureFlag
+ *
+ * A feature still being built, shipped to `main` switched off. Removing a case (and its checks, keeping the code it guarded) is how the feature is released.
+ * | |
+ * |---|
+ * | `0` <br/> Writing, issuing and rendering invoices in Opusline (#498). |
+ */
+export type FeatureFlag = 0;
+
+/**
  * FiscalDeadlineData
  */
 export type FiscalDeadlineData = {
@@ -1263,6 +1355,26 @@ export type InvoiceClientTotalsData = {
 };
 
 /**
+ * InvoiceContentData
+ */
+export type InvoiceContentData = {
+    title: string | null;
+    description: string | null;
+    language: DocumentLanguage;
+    paymentTermsDays: number;
+    paymentTermsEndOfMonth: boolean;
+    latePenaltyRateBp: number | null;
+    showIban: boolean;
+    showEmail: boolean;
+    customMentions: string | null;
+    lines: Array<InvoiceLineData>;
+    vatBreakdown: Array<VatBreakdownRowData>;
+    seller: DocumentPartyData | null;
+    buyer: DocumentPartyData | null;
+    timeEntryIds: Array<number>;
+};
+
+/**
  * InvoiceCountsData
  */
 export type InvoiceCountsData = {
@@ -1282,6 +1394,7 @@ export type InvoiceData = {
     missionId: number | null;
     number: string | null;
     status: InvoiceStatus;
+    source: InvoiceSource;
     isLate: boolean;
     issuedOn: string;
     dueOn: string;
@@ -1305,6 +1418,7 @@ export type InvoiceDetailData = {
     mission: MissionData | null;
     history: Array<InvoiceEventData>;
     document: DocumentData | null;
+    content: InvoiceContentData | null;
 };
 
 /**
@@ -1340,6 +1454,20 @@ export type InvoiceForecastData = {
 };
 
 /**
+ * InvoiceLineData
+ */
+export type InvoiceLineData = {
+    id: number;
+    label: string;
+    detail: string | null;
+    quantityMilli: number;
+    unit: LineUnit;
+    unitPrice: SignedMoneyData;
+    vatRateBp: number;
+    totalHt: SignedMoneyData;
+};
+
+/**
  * InvoiceListData
  */
 export type InvoiceListData = {
@@ -1365,6 +1493,40 @@ export type InvoiceOverdueData = {
     count: number;
     maxDaysLate: number;
 };
+
+/**
+ * InvoicePaperData
+ */
+export type InvoicePaperData = {
+    language: DocumentLanguage;
+    labelSeparator: string;
+    title: string;
+    stamp: string | null;
+    hasLogo: boolean;
+    meta: Array<PaperRowData>;
+    seller: PaperPartyData;
+    buyer: PaperPartyData;
+    documentTitle: string | null;
+    description: string | null;
+    head: PaperLineHeadData;
+    lines: Array<PaperLineData>;
+    noLinesLabel: string;
+    vatHead: PaperVatHeadData;
+    vatRows: Array<PaperVatRowData>;
+    totals: Array<PaperTotalData>;
+    paymentTitle: string | null;
+    payment: Array<PaperRowData>;
+    legal: string;
+    footer: string;
+};
+
+/**
+ * InvoiceSource
+ *
+ * Who wrote the document: another tool, recorded here; or Opusline, from its lines.
+ *
+ */
+export type InvoiceSource = 0 | 1;
 
 /**
  * InvoiceStatus
@@ -1453,6 +1615,54 @@ export type InvoiceTotalData = {
 };
 
 /**
+ * InvoicingMode
+ *
+ * Where the account's invoices and quotes are written: it decides what the Create button does.
+ * | |
+ * |---|
+ * | `0` <br/> Opusline numbers them, renders the PDF and sends them. |
+ * | `1` <br/> Another tool issues them; Opusline only records and tracks them. |
+ */
+export type InvoicingMode = 0 | 1;
+
+/**
+ * InvoicingSettingsData
+ */
+export type InvoicingSettingsData = {
+    mode: InvoicingMode;
+    defaultPaymentTermsDays: number;
+    defaultPaymentTermsEndOfMonth: boolean;
+    quoteValidityDays: number;
+    latePenaltyRateBp: number | null;
+    operationCategory: OperationCategory;
+    showIbanOnInvoices: boolean;
+    showEmailOnDocuments: boolean;
+    vatOnDebits: boolean;
+    customMentions: string | null;
+    documentLanguage: DocumentLanguage;
+    vatLiable: boolean;
+    legalReference: LegalReferenceData;
+    nextInvoiceNumber: string;
+};
+
+/**
+ * LegalReferenceData
+ */
+export type LegalReferenceData = {
+    semester: string;
+    checkedOn: string;
+    nextRevisionOn: string;
+    legalInterestRateBp: number;
+    minimumPenaltyRateBp: number;
+    ecbRateBp: number;
+    statutoryPenaltyRateBp: number;
+    recoveryFee: MoneyData;
+    sources: {
+        [key: string]: string;
+    };
+};
+
+/**
  * LiberatingPaymentEndReason
  *
  * Why the versement libératoire stops applying.
@@ -1476,6 +1686,14 @@ export type LiberatingPaymentOutlookData = {
     ceiling: MoneyData | null;
     needsReferenceTaxIncome: boolean;
 };
+
+/**
+ * LineUnit
+ *
+ * What one unit of a catalogue item or a document line counts.
+ *
+ */
+export type LineUnit = 0 | 1 | 2 | 3;
 
 /**
  * LinkExpenseBankMovementData
@@ -1572,12 +1790,86 @@ export type NotificationPreferencesData = {
 };
 
 /**
+ * OperationCategory
+ *
+ * A mandatory invoice mention since 1 September 2026 (e-invoicing reform).
+ *
+ */
+export type OperationCategory = 0 | 1 | 2;
+
+/**
  * PaidPeriodData
  */
 export type PaidPeriodData = {
     period: string;
     amount: MoneyData;
     paidOn: string;
+};
+
+/**
+ * PaperLineData
+ */
+export type PaperLineData = {
+    label: string;
+    detail: string | null;
+    quantity: string;
+    unitPrice: string;
+    vat: string;
+    total: string;
+};
+
+/**
+ * PaperLineHeadData
+ */
+export type PaperLineHeadData = {
+    description: string;
+    quantity: string;
+    unitPrice: string;
+    vat: string;
+    total: string;
+};
+
+/**
+ * PaperPartyData
+ */
+export type PaperPartyData = {
+    name: string;
+    lines: Array<string>;
+};
+
+/**
+ * PaperRowData
+ */
+export type PaperRowData = {
+    label: string;
+    value: string;
+};
+
+/**
+ * PaperTotalData
+ */
+export type PaperTotalData = {
+    label: string;
+    value: string;
+    emphasis: boolean;
+};
+
+/**
+ * PaperVatHeadData
+ */
+export type PaperVatHeadData = {
+    base: string;
+    rate: string;
+    amount: string;
+};
+
+/**
+ * PaperVatRowData
+ */
+export type PaperVatRowData = {
+    base: string;
+    rate: string;
+    amount: string;
 };
 
 /**
@@ -1872,6 +2164,38 @@ export type SaveEnableBankingCredentialsData = {
 };
 
 /**
+ * SaveInvoiceDraftData
+ */
+export type SaveInvoiceDraftData = {
+    clientId: number;
+    paymentTermsDays: number;
+    paymentTermsEndOfMonth: boolean;
+    showIban: boolean;
+    showEmail: boolean;
+    language: DocumentLanguage;
+    lines: Array<{
+        label: string;
+        detail?: string | null;
+        quantityMilli: number;
+        unit: LineUnit;
+        unitPrice: {
+            amount: number;
+            currency: Currency;
+        };
+        vatRateBp: number;
+    }>;
+    missionId?: number | null;
+    title?: string | null;
+    description?: string | null;
+    issuedOn?: string | null;
+    periodStart?: string | null;
+    periodEnd?: string | null;
+    latePenaltyRateBp?: number | null;
+    customMentions?: string | null;
+    timeEntryIds?: Array<number>;
+};
+
+/**
  * SendCraData
  */
 export type SendCraData = {
@@ -1902,6 +2226,9 @@ export type SettingsData = {
     tradeName: string | null;
     siret: string | null;
     vatNumber: string | null;
+    iban: string | null;
+    bic: string | null;
+    tradeRegistry: string | null;
     signatureCity: string | null;
     contactEmail: string | null;
     phone: string | null;
@@ -1947,6 +2274,7 @@ export type SettingsData = {
     workdayMinutes: number;
     dormantAfterMonths: number | null;
     hasSignature: boolean;
+    hasLogo: boolean;
     notifications: NotificationPreferencesData;
 };
 
@@ -2272,6 +2600,20 @@ export type TwoFactorStatusData = {
 };
 
 /**
+ * UnbilledTimeData
+ */
+export type UnbilledTimeData = {
+    missionId: number;
+    missionName: string;
+    timeEntryIds: Array<number>;
+    firstEntryOn: string | null;
+    lastEntryOn: string | null;
+    quantityMilli: number;
+    unit: LineUnit;
+    unitPrice: MoneyData | null;
+};
+
+/**
  * UpcomingDebitData
  */
 export type UpcomingDebitData = {
@@ -2367,6 +2709,23 @@ export type UpdateInvoiceData = {
 };
 
 /**
+ * UpdateInvoicingSettingsData
+ */
+export type UpdateInvoicingSettingsData = {
+    mode: InvoicingMode;
+    defaultPaymentTermsDays: number;
+    defaultPaymentTermsEndOfMonth: boolean;
+    quoteValidityDays: number;
+    operationCategory: OperationCategory;
+    showIbanOnInvoices: boolean;
+    showEmailOnDocuments: boolean;
+    vatOnDebits: boolean;
+    documentLanguage: DocumentLanguage;
+    latePenaltyRateBp?: number | null;
+    customMentions?: string | null;
+};
+
+/**
  * UpdateMissionData
  */
 export type UpdateMissionData = {
@@ -2429,12 +2788,14 @@ export type UpdateSettingsData = {
     liberatingPaymentRateBp: number;
     vatRegime: VatRegime;
     defaultVatRateBp: number;
-    defaultPaymentTermsDays: number;
     invoiceNumberFormat: string;
     homeAddressSameAsCompany: boolean;
     tradeName?: string | null;
     siret?: string | null;
     vatNumber?: string | null;
+    iban?: string | null;
+    bic?: string | null;
+    tradeRegistry?: string | null;
     signatureCity?: string | null;
     contactEmail?: string | null;
     phone?: string | null;
@@ -2463,6 +2824,7 @@ export type UpdateSettingsData = {
     referenceTaxIncomeYear?: number | null;
     taxHouseholdQuarterParts?: number | null;
     incomeTaxRateBp?: number | null;
+    defaultPaymentTermsDays?: number | null;
 };
 
 /**
@@ -2500,6 +2862,16 @@ export type UpdateUserThemeData = {
 export type UploadClientLogoData = {
     /**
      * Maximum file size: 2048 kilobytes.
+     */
+    logo: Blob | File;
+};
+
+/**
+ * UploadCompanyLogoData
+ */
+export type UploadCompanyLogoData = {
+    /**
+     * Maximum file size: 1536 kilobytes.
      */
     logo: Blob | File;
 };
@@ -2598,6 +2970,16 @@ export type UserData = {
     workdayMinutes: number;
     defaultPaymentTermsDays: number;
     effectiveContributionRateBp: number;
+    features: Array<FeatureFlag>;
+};
+
+/**
+ * VatBreakdownRowData
+ */
+export type VatBreakdownRowData = {
+    rateBp: number;
+    base: SignedMoneyData;
+    vat: SignedMoneyData;
 };
 
 /**
@@ -3333,6 +3715,210 @@ export type SyncBankConnectionResponses = {
 
 export type SyncBankConnectionResponse = SyncBankConnectionResponses[keyof SyncBankConnectionResponses];
 
+export type ListBetaFeaturesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/features';
+};
+
+export type ListBetaFeaturesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListBetaFeaturesError = ListBetaFeaturesErrors[keyof ListBetaFeaturesErrors];
+
+export type ListBetaFeaturesResponses = {
+    200: BetaFeaturesData;
+};
+
+export type ListBetaFeaturesResponse = ListBetaFeaturesResponses[keyof ListBetaFeaturesResponses];
+
+export type ChooseBetaFeatureData2 = {
+    body: ChooseBetaFeatureData;
+    path: {
+        feature: string;
+    };
+    query?: never;
+    url: '/user/features/{feature}';
+};
+
+export type ChooseBetaFeatureErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ChooseBetaFeatureError = ChooseBetaFeatureErrors[keyof ChooseBetaFeatureErrors];
+
+export type ChooseBetaFeatureResponses = {
+    200: BetaFeaturesData;
+};
+
+export type ChooseBetaFeatureResponse = ChooseBetaFeatureResponses[keyof ChooseBetaFeatureResponses];
+
+export type ListCatalogItemsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/invoicing/catalog';
+};
+
+export type ListCatalogItemsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListCatalogItemsError = ListCatalogItemsErrors[keyof ListCatalogItemsErrors];
+
+export type ListCatalogItemsResponses = {
+    200: CatalogData;
+};
+
+export type ListCatalogItemsResponse = ListCatalogItemsResponses[keyof ListCatalogItemsResponses];
+
+export type CreateCatalogItemData = {
+    body: CatalogItemInputData;
+    path?: never;
+    query?: never;
+    url: '/invoicing/catalog';
+};
+
+export type CreateCatalogItemErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateCatalogItemError = CreateCatalogItemErrors[keyof CreateCatalogItemErrors];
+
+export type CreateCatalogItemResponses = {
+    201: CatalogItemData;
+};
+
+export type CreateCatalogItemResponse = CreateCatalogItemResponses[keyof CreateCatalogItemResponses];
+
+export type DeleteCatalogItemData = {
+    body?: never;
+    path: {
+        /**
+         * The catalog item ID
+         */
+        catalogItem: number;
+    };
+    query?: never;
+    url: '/invoicing/catalog/{catalogItem}';
+};
+
+export type DeleteCatalogItemErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteCatalogItemError = DeleteCatalogItemErrors[keyof DeleteCatalogItemErrors];
+
+export type DeleteCatalogItemResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteCatalogItemResponse = DeleteCatalogItemResponses[keyof DeleteCatalogItemResponses];
+
+export type UpdateCatalogItemData = {
+    body: CatalogItemInputData;
+    path: {
+        /**
+         * The catalog item ID
+         */
+        catalogItem: number;
+    };
+    query?: never;
+    url: '/invoicing/catalog/{catalogItem}';
+};
+
+export type UpdateCatalogItemErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateCatalogItemError = UpdateCatalogItemErrors[keyof UpdateCatalogItemErrors];
+
+export type UpdateCatalogItemResponses = {
+    200: CatalogItemData;
+};
+
+export type UpdateCatalogItemResponse = UpdateCatalogItemResponses[keyof UpdateCatalogItemResponses];
+
 export type ListClientsData = {
     body?: never;
     path?: never;
@@ -4056,6 +4642,93 @@ export type ListClientRevenueResponses = {
 };
 
 export type ListClientRevenueResponse = ListClientRevenueResponses[keyof ListClientRevenueResponses];
+
+export type DeleteCompanyLogoData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/logo';
+};
+
+export type DeleteCompanyLogoErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteCompanyLogoError = DeleteCompanyLogoErrors[keyof DeleteCompanyLogoErrors];
+
+export type DeleteCompanyLogoResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteCompanyLogoResponse = DeleteCompanyLogoResponses[keyof DeleteCompanyLogoResponses];
+
+export type ShowCompanyLogoData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/logo';
+};
+
+export type ShowCompanyLogoErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowCompanyLogoError = ShowCompanyLogoErrors[keyof ShowCompanyLogoErrors];
+
+export type ShowCompanyLogoResponses = {
+    200: Blob | File;
+};
+
+export type ShowCompanyLogoResponse = ShowCompanyLogoResponses[keyof ShowCompanyLogoResponses];
+
+export type UploadCompanyLogoData2 = {
+    body: UploadCompanyLogoData;
+    path?: never;
+    query?: never;
+    url: '/user/logo';
+};
+
+export type UploadCompanyLogoErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UploadCompanyLogoError = UploadCompanyLogoErrors[keyof UploadCompanyLogoErrors];
+
+export type UploadCompanyLogoResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type UploadCompanyLogoResponse = UploadCompanyLogoResponses[keyof UploadCompanyLogoResponses];
 
 export type ListCrasData = {
     body?: never;
@@ -6160,6 +6833,312 @@ export type UploadInvoiceDocumentResponses = {
 };
 
 export type UploadInvoiceDocumentResponse = UploadInvoiceDocumentResponses[keyof UploadInvoiceDocumentResponses];
+
+export type CreateInvoiceDraftData = {
+    body: SaveInvoiceDraftData;
+    path?: never;
+    query?: never;
+    url: '/invoicing/invoices';
+};
+
+export type CreateInvoiceDraftErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateInvoiceDraftError = CreateInvoiceDraftErrors[keyof CreateInvoiceDraftErrors];
+
+export type CreateInvoiceDraftResponses = {
+    201: InvoiceDetailData;
+};
+
+export type CreateInvoiceDraftResponse = CreateInvoiceDraftResponses[keyof CreateInvoiceDraftResponses];
+
+export type UpdateInvoiceDraftData = {
+    body: SaveInvoiceDraftData;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoicing/invoices/{invoice}';
+};
+
+export type UpdateInvoiceDraftErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateInvoiceDraftError = UpdateInvoiceDraftErrors[keyof UpdateInvoiceDraftErrors];
+
+export type UpdateInvoiceDraftResponses = {
+    200: InvoiceDetailData;
+};
+
+export type UpdateInvoiceDraftResponse = UpdateInvoiceDraftResponses[keyof UpdateInvoiceDraftResponses];
+
+export type ShowUnbilledTimeData = {
+    body?: never;
+    path?: never;
+    query: {
+        missionId: number;
+        invoiceId?: number | null;
+    };
+    url: '/invoicing/unbilled-time';
+};
+
+export type ShowUnbilledTimeErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowUnbilledTimeError = ShowUnbilledTimeErrors[keyof ShowUnbilledTimeErrors];
+
+export type ShowUnbilledTimeResponses = {
+    200: UnbilledTimeData;
+};
+
+export type ShowUnbilledTimeResponse = ShowUnbilledTimeResponses[keyof ShowUnbilledTimeResponses];
+
+export type IssueInvoiceData = {
+    body?: never;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoicing/invoices/{invoice}/issue';
+};
+
+export type IssueInvoiceErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type IssueInvoiceError = IssueInvoiceErrors[keyof IssueInvoiceErrors];
+
+export type IssueInvoiceResponses = {
+    200: InvoiceDetailData;
+};
+
+export type IssueInvoiceResponse = IssueInvoiceResponses[keyof IssueInvoiceResponses];
+
+export type PreviewInvoicePaperData = {
+    body: SaveInvoiceDraftData;
+    path?: never;
+    query?: never;
+    url: '/invoicing/invoices/paper';
+};
+
+export type PreviewInvoicePaperErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type PreviewInvoicePaperError = PreviewInvoicePaperErrors[keyof PreviewInvoicePaperErrors];
+
+export type PreviewInvoicePaperResponses = {
+    200: InvoicePaperData;
+};
+
+export type PreviewInvoicePaperResponse = PreviewInvoicePaperResponses[keyof PreviewInvoicePaperResponses];
+
+export type ShowInvoicePaperData = {
+    body?: never;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: {
+        language?: DocumentLanguage | null;
+    };
+    url: '/invoices/{invoice}/paper';
+};
+
+export type ShowInvoicePaperErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowInvoicePaperError = ShowInvoicePaperErrors[keyof ShowInvoicePaperErrors];
+
+export type ShowInvoicePaperResponses = {
+    200: InvoicePaperData;
+};
+
+export type ShowInvoicePaperResponse = ShowInvoicePaperResponses[keyof ShowInvoicePaperResponses];
+
+export type DownloadInvoicePdfData = {
+    body?: never;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: {
+        language?: DocumentLanguage | null;
+    };
+    url: '/invoices/{invoice}/pdf';
+};
+
+export type DownloadInvoicePdfErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DownloadInvoicePdfError = DownloadInvoicePdfErrors[keyof DownloadInvoicePdfErrors];
+
+export type DownloadInvoicePdfResponses = {
+    200: Blob | File;
+};
+
+export type DownloadInvoicePdfResponse = DownloadInvoicePdfResponses[keyof DownloadInvoicePdfResponses];
+
+export type ShowInvoicingSettingsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/invoicing/settings';
+};
+
+export type ShowInvoicingSettingsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowInvoicingSettingsError = ShowInvoicingSettingsErrors[keyof ShowInvoicingSettingsErrors];
+
+export type ShowInvoicingSettingsResponses = {
+    200: InvoicingSettingsData;
+};
+
+export type ShowInvoicingSettingsResponse = ShowInvoicingSettingsResponses[keyof ShowInvoicingSettingsResponses];
+
+export type UpdateInvoicingSettingsData2 = {
+    body: UpdateInvoicingSettingsData;
+    path?: never;
+    query?: never;
+    url: '/invoicing/settings';
+};
+
+export type UpdateInvoicingSettingsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateInvoicingSettingsError = UpdateInvoicingSettingsErrors[keyof UpdateInvoicingSettingsErrors];
+
+export type UpdateInvoicingSettingsResponses = {
+    200: InvoicingSettingsData;
+};
+
+export type UpdateInvoicingSettingsResponse = UpdateInvoicingSettingsResponses[keyof UpdateInvoicingSettingsResponses];
 
 export type DeleteMissionData = {
     body?: never;

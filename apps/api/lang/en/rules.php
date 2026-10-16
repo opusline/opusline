@@ -9,5 +9,9 @@ return [
     'expense_vat_rate' => 'The VAT rate does not match the VAT treatment: an exempt purchase carries none, a reverse charge needs one.',
     'subscription_debit_month' => 'An annual subscription needs the month it is debited in.',
     'subscription_amount_before_start' => 'A price change cannot predate the subscription\'s first debit.',
+    'payment_terms' => 'A payment term may not exceed 60 days from the invoice date.',
+    'payment_terms_end_of_month' => 'A payment term counted from the end of the month may not exceed 45 days.',
+    'iban' => 'The IBAN is invalid: check its length and its two check digits.',
+    'bic' => 'The BIC must be 8 or 11 letters and digits, as the bank prints it.',
     'enable_banking_private_key' => 'The key must be the RSA private key (.pem) Enable Banking downloaded when the application was registered.',
 ];

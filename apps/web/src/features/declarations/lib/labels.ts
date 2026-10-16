@@ -87,7 +87,7 @@ export type Ca3Row = {
   tone: "default" | "success" | "quiet" | "due";
   /** Where the figure comes from, linked under it with a caption. */
   source?:
-    | { to: "/invoices"; caption: string }
+    | { to: "/invoicing/invoices"; caption: string }
     | { to: "/expenses"; period: string; caption: string };
 };
 
@@ -111,7 +111,7 @@ export function ca3Rows(
       valueCents: boxes.salesHt.amount,
       tone: "default",
       source: {
-        to: "/invoices",
+        to: "/invoicing/invoices",
         caption: m.declarations_invoices_collected({ count: vat.invoiceCount }),
       },
     },

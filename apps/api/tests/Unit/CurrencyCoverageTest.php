@@ -7,6 +7,8 @@ use App\Domain\Bank\Models\BankStatement;
 use App\Domain\Bank\Models\PersonalTransfer;
 use App\Domain\Expenses\Models\Expense;
 use App\Domain\Expenses\Models\Subscription;
+use App\Domain\Invoices\Enums\LineUnit;
+use App\Domain\Invoices\Models\CatalogItem;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Settings\Models\UserSettings;
@@ -61,11 +63,27 @@ function currencyLockingArrangements(): array
     return [
         'missions' => [fn (User $user): Mission => missionOwnedBy($user)],
         'invoices' => [fn (User $user): Invoice => invoiceOwnedBy($user)],
+        'invoice_lines' => [function (User $user): Invoice {
+            $invoice = invoiceOwnedBy($user);
+            $invoice->lines()->create([
+                'position' => 0,
+                'label' => 'Atelier de cadrage',
+                'quantity_milli' => 1000,
+                'unit' => LineUnit::Flat,
+                'currency' => 'EUR',
+                'unit_price_cents' => 30_000,
+                'vat_rate_bp' => 2000,
+                'total_ht_cents' => 30_000,
+            ]);
+
+            return $invoice;
+        }],
         'bank_statements' => [fn (User $user): BankStatement => bankStatementOwnedBy($user)],
         'bank_movements' => [fn (User $user): BankMovement => bankMovementFor($user)],
         'personal_transfers' => [fn (User $user): PersonalTransfer => personalTransferFor($user)],
         'expenses' => [fn (User $user): Expense => expenseOwnedBy($user)],
         'subscription_amounts' => [fn (User $user): Subscription => subscriptionOwnedBy($user)],
+        'catalog_items' => [fn (User $user): CatalogItem => CatalogItem::factory()->for($user)->create()],
     ];
 }
 

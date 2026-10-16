@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import type { ComponentProps } from "react";
 import { expect, it, vi } from "vitest";
 
-import { MAX_LOGO_BYTES } from "@/lib/logos";
+import { COMPANY_LOGO_RULES, MAX_LOGO_BYTES } from "@/lib/logos";
 import { LogoPicker } from "./logo-picker";
 
 function renderPicker(
@@ -65,6 +65,26 @@ it("refuses a logo over the size limit", () => {
 
   expect(onPick).not.toHaveBeenCalled();
   expect(screen.getByText("trop lourd (max 2 Mo)")).toBeInTheDocument();
+});
+
+it("takes the formats of the rules it is given", () => {
+  const { onPick } = renderPicker({ rules: COMPANY_LOGO_RULES });
+  const photo = new File(["x"], "marchand.jpg", { type: "image/jpeg" });
+
+  pick(photo);
+
+  expect(onPick).toHaveBeenCalledWith(photo);
+});
+
+it("refuses a company logo over 1.5 MB", () => {
+  const { onPick } = renderPicker({ rules: COMPANY_LOGO_RULES });
+  const oversized = new File(["x"], "marchand.png", { type: "image/png" });
+  Object.defineProperty(oversized, "size", { value: 1536 * 1024 + 1 });
+
+  pick(oversized);
+
+  expect(onPick).not.toHaveBeenCalled();
+  expect(screen.getByText("trop lourd (max 1,5 Mo)")).toBeInTheDocument();
 });
 
 it("shows the placeholder and no remove action while empty", () => {

@@ -96,6 +96,7 @@ export function invoiceDetail(
     client: item.client,
     mission: item.mission,
     document,
+    content: null,
     history: [
       { id: 1, kind: 0, occurredOn: "2026-06-30", note: null },
       { id: 2, kind: 1, occurredOn: "2026-06-30", note: null },

@@ -24,6 +24,8 @@ use App\Domain\Expenses\Factories\ExpenseFactory;
 use App\Domain\Expenses\Factories\SubscriptionFactory;
 use App\Domain\Expenses\Models\Expense;
 use App\Domain\Expenses\Models\Subscription;
+use App\Domain\Invoices\Enums\DocumentLanguage;
+use App\Domain\Invoices\Enums\LineUnit;
 use App\Domain\Invoices\Factories\InvoiceFactory;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Factories\MissionFactory;
@@ -140,7 +142,6 @@ function settingsPayload(array $overrides = []): array
         'liberatingPaymentRateBp' => 220,
         'vatRegime' => VatRegime::FranchiseEnBase->value,
         'defaultVatRateBp' => 2000,
-        'defaultPaymentTermsDays' => 45,
         'invoiceNumberFormat' => 'AAAA-NNN',
         'homeAddressSameAsCompany' => true,
     ], $overrides);
@@ -859,4 +860,68 @@ function runningTimerFor(User $user, ?Mission $mission = null, ?callable $config
     $factory = RunningTimer::factory()->for($mission ?? missionOwnedBy($user), 'mission');
 
     return configuredFactory($factory, $configure)->create(['user_id' => $user->id]);
+}
+
+/** An account with every identity mention an invoice needs to be issued. */
+function issuableAccount(array $settings = []): User
+{
+    $user = vatLiableUser();
+    $user->settingsOrFail()->update([
+        'trade_name' => 'Théo Marchand',
+        'siret' => '12345678200002',
+        'company_address_line1' => '12 rue de Strasbourg',
+        'company_postal_code' => '44000',
+        'company_city' => 'Nantes',
+        'contact_email' => 'theo@marchand.dev',
+        'iban' => 'FR7630006000011234567890189',
+        'bic' => 'AGRIFRPP',
+        'vat_number' => 'FR11123456782',
+        ...$settings,
+    ]);
+
+    return $user;
+}
+
+function billableClient(User $user, array $attributes = []): Client
+{
+    return Client::factory()->for($user)->create([
+        'name' => 'Nordlys',
+        'siret' => '12345678200002',
+        'billing_address_line1' => '3 impasse des Potiers',
+        'billing_postal_code' => '44100',
+        'billing_city' => 'Nantes',
+        ...$attributes,
+    ]);
+}
+
+function draftFor(User $user, Client $client, array $overrides = []): int
+{
+    return test()->actingAs($user)->postJson('/api/invoicing/invoices', draftPayloadFor($client, $overrides))->assertCreated()->json('invoice.id');
+}
+
+/** What the editor sends for a one-line draft. */
+function draftPayloadFor(Client $client, array $overrides = []): array
+{
+    return array_merge([
+        'clientId' => $client->id,
+        'issuedOn' => '2026-08-01',
+        'paymentTermsDays' => 30,
+        'paymentTermsEndOfMonth' => false,
+        'showIban' => true,
+        'showEmail' => true,
+        'language' => DocumentLanguage::French->value,
+        'lines' => [[
+            'label' => 'Journée de développement frontend',
+            'quantityMilli' => 19_000,
+            'unit' => LineUnit::Day->value,
+            'unitPrice' => ['amount' => 55_000, 'currency' => 'EUR'],
+            'vatRateBp' => 2000,
+        ]],
+    ], $overrides);
+}
+
+/** How far the instance releases invoicing: "on", "off" or "beta" (FEATURE_INVOICING). */
+function invoicingReleasedAs(string $release): void
+{
+    config(['features.invoicing' => $release]);
 }

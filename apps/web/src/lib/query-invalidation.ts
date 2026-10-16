@@ -184,6 +184,7 @@ export async function invalidateInvoiceWrites(
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: listInvoicesQueryKey() }),
     queryClient.invalidateQueries(operationFilter("showInvoice")),
+    queryClient.invalidateQueries(operationFilter("showInvoicePaper")),
     queryClient.invalidateQueries({ queryKey: showInvoiceSummaryQueryKey() }),
     queryClient.invalidateQueries({
       queryKey: showNextInvoiceNumberQueryKey(),

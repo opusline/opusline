@@ -33,13 +33,14 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
   );
 }
 
+/** Extra props (a test id, a data attribute) land on the clickable label. */
 function RadioCard({
   className,
   description,
   title,
   value,
-}: {
-  className?: string;
+  ...props
+}: Omit<React.ComponentProps<"label">, "children" | "htmlFor" | "title"> & {
   description: string;
   title: string;
   value: string;
@@ -53,6 +54,7 @@ function RadioCard({
         className,
       )}
       htmlFor={id}
+      {...props}
     >
       <span className="flex min-w-0 flex-1 flex-col gap-1">
         <span className="font-medium text-foreground-hi text-sm">{title}</span>

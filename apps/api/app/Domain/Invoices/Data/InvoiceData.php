@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Data;
 
+use App\Domain\Invoices\Enums\InvoiceSource;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Shared\Data\MoneyData;
@@ -20,6 +21,7 @@ class InvoiceData extends Data
         public ?int $missionId,
         public ?string $number,
         public InvoiceStatus $status,
+        public InvoiceSource $source,
         public bool $isLate,
         #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
         public CarbonImmutable $issuedOn,
@@ -47,6 +49,7 @@ class InvoiceData extends Data
             missionId: $invoice->mission_id,
             number: $invoice->number,
             status: $invoice->status,
+            source: $invoice->source,
             isLate: $invoice->isLate(),
             issuedOn: $invoice->issued_on,
             dueOn: $invoice->due_on,

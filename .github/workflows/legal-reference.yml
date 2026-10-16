@@ -1,0 +1,73 @@
+name: Legal reference
+
+# The late-payment figures change every semester: the ECB rate on 1 January
+# and 1 July, and the taux de l'intérêt légal by an arrêté published around
+# then. Daily for the first fortnight, so a day the ECB API is down only
+# delays the PR.
+on:
+  schedule:
+    - cron: "0 6 1-15 1,7 *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: legal-reference
+  cancel-in-progress: false
+
+jobs:
+  roll-over:
+    name: Open a PR with the new semester's rates
+    if: github.repository == 'opusline/opusline'
+    runs-on: ubuntu-latest
+    steps:
+      # A PR opened with GITHUB_TOKEN fires no workflows, so its CI would
+      # never report.
+      - id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.OPUSLINE_BOT_APP_ID }}
+          private-key: ${{ secrets.OPUSLINE_BOT_PRIVATE_KEY }}
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+      - id: roll
+        run: node scripts/legal-reference.mjs | tee -a "$GITHUB_OUTPUT"
+      - if: steps.roll.outputs.changed == 'true'
+        name: Open or refresh the draft PR
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          SEMESTER: ${{ steps.roll.outputs.semester }}
+          ECB_RATE_BP: ${{ steps.roll.outputs.ecb_rate_bp }}
+        run: |
+          branch="chore/legal-reference-$SEMESTER"
+          if [ -n "$(gh pr list --head "$branch" --state open --json number --jq '.[]')" ]; then
+            echo "The PR for $SEMESTER is already open."
+            exit 0
+          fi
+          cat > ".release-notes/legal-reference-$SEMESTER.json" <<JSON
+          {
+            "kind": "improved",
+            "text": "Invoicing settings: the late-payment legal rates are updated for $SEMESTER."
+          }
+          JSON
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add apps/api/config/legal-reference.json .release-notes
+          git commit -m "fix(api): update legal rates for $SEMESTER"
+          git push --force origin "$branch"
+          ecb_rate=$(awk -v bp="$ECB_RATE_BP" 'BEGIN { printf "%.2f", bp / 100 }')
+          gh pr create --draft --head "$branch" \
+            --title "fix(api): update legal rates for $SEMESTER" \
+            --body "$(cat <<BODY
+          Rolls the late-payment legal reference over to $SEMESTER.
+
+          - **ECB main refinancing rate** on the semester's first day: $ecb_rate %, from the ECB Data API (series FM.B.U2.EUR.4F.KR.MRR_FR.LEV).
+          - **Taux de l'intérêt légal** (professional creditor): **still last semester's figure**. No open API publishes it: copy it from the semester's arrêté (https://www.service-public.gouv.fr/particuliers/vosdroits/F20688) into \`legal_interest_rate_bp\`, then mark this PR ready.
+          BODY
+          )"

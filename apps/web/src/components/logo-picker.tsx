@@ -3,7 +3,7 @@ import { cn } from "@opusline/ui/lib/utils";
 import { XIcon } from "lucide-react";
 import { useId, useState } from "react";
 
-import { LOGO_ACCEPT, rejectLogoReason } from "@/lib/logos";
+import { CLIENT_LOGO_RULES, type LogoRules } from "@/lib/logos";
 
 const BOX_CLASSES = {
   sm: "h-15 w-22",
@@ -36,6 +36,10 @@ type LogoPickerProps = {
   isPending?: boolean;
   /** Failure coming back from the server, shown under the slot. */
   error?: string | null;
+  /** The formats and size the slot takes; a client's logo by default. */
+  rules?: LogoRules;
+  /** On the file input, and with `-remove` on the remove action, for the e2e suite. */
+  testId?: string;
 };
 
 export function LogoPicker({
@@ -48,6 +52,8 @@ export function LogoPicker({
   onRemove,
   isPending,
   error,
+  rules = CLIENT_LOGO_RULES,
+  testId,
 }: LogoPickerProps) {
   const messageId = useId();
   const [isDragOver, setIsDragOver] = useState(false);
@@ -62,7 +68,7 @@ export function LogoPicker({
       return;
     }
 
-    const reason = rejectLogoReason(file);
+    const reason = rules.reject(file);
     setRejected(reason);
 
     if (reason === null) {
@@ -103,9 +109,10 @@ export function LogoPicker({
           }}
         >
           <input
-            accept={LOGO_ACCEPT}
+            accept={rules.accept}
             aria-label={label}
             className="sr-only"
+            data-testid={testId}
             disabled={isPending}
             onChange={(event) => {
               pick(event.target.files);
@@ -128,6 +135,7 @@ export function LogoPicker({
           <Button
             aria-label={removeLabel}
             className="absolute top-1 right-1"
+            data-testid={testId === undefined ? undefined : `${testId}-remove`}
             disabled={isPending}
             onClick={onRemove}
             size={REMOVE_SIZES[size]}

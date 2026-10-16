@@ -2,11 +2,55 @@
 
 declare(strict_types=1);
 
+use App\Http\Features\Support\EnsureFeatureIsActive;
+use App\Http\Invoices\Controllers\CatalogItemController;
 use App\Http\Invoices\Controllers\InvoiceController;
+use App\Http\Invoices\Controllers\InvoiceDraftController;
+use App\Http\Invoices\Controllers\InvoicePaperController;
+use App\Http\Invoices\Controllers\InvoicingSettingsController;
 use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(function (): void {
+    // Writing invoices in Opusline is still in beta: these answer 404 until the
+    // account (or the instance) has the flag.
+    Route::middleware(EnsureFeatureIsActive::class.':invoicing')->group(function (): void {
+        Route::get('/invoicing/settings', [InvoicingSettingsController::class, 'show'])
+            ->name('showInvoicingSettings');
+        Route::put('/invoicing/settings', [InvoicingSettingsController::class, 'update'])
+            ->name('updateInvoicingSettings');
+
+        Route::post('/invoicing/invoices', [InvoiceDraftController::class, 'store'])
+            ->name('createInvoiceDraft');
+        Route::put('/invoicing/invoices/{invoice}', [InvoiceDraftController::class, 'update'])
+            ->whereNumber('invoice')
+            ->name('updateInvoiceDraft');
+        Route::get('/invoicing/unbilled-time', [InvoiceDraftController::class, 'unbilledTime'])
+            ->name('showUnbilledTime');
+        Route::post('/invoicing/invoices/paper', [InvoicePaperController::class, 'preview'])
+            ->name('previewInvoicePaper');
+        Route::get('/invoices/{invoice}/paper', [InvoicePaperController::class, 'show'])
+            ->whereNumber('invoice')
+            ->name('showInvoicePaper');
+        Route::get('/invoices/{invoice}/pdf', [InvoicePaperController::class, 'pdf'])
+            ->whereNumber('invoice')
+            ->name('downloadInvoicePdf');
+        Route::post('/invoicing/invoices/{invoice}/issue', [InvoiceDraftController::class, 'issue'])
+            ->whereNumber('invoice')
+            ->name('issueInvoice');
+
+        Route::get('/invoicing/catalog', [CatalogItemController::class, 'index'])
+            ->name('listCatalogItems');
+        Route::post('/invoicing/catalog', [CatalogItemController::class, 'store'])
+            ->name('createCatalogItem');
+        Route::put('/invoicing/catalog/{catalogItem}', [CatalogItemController::class, 'update'])
+            ->whereNumber('catalogItem')
+            ->name('updateCatalogItem');
+        Route::delete('/invoicing/catalog/{catalogItem}', [CatalogItemController::class, 'destroy'])
+            ->whereNumber('catalogItem')
+            ->name('deleteCatalogItem');
+    });
+
     Route::get('/invoices', [InvoiceController::class, 'index'])
         ->name('listInvoices');
     Route::post('/invoices', [InvoiceController::class, 'store'])

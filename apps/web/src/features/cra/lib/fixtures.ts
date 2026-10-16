@@ -165,6 +165,9 @@ export const DEMO_SETTINGS = {
   tradeName: "Théo Marchand",
   siret: "123 456 782 00002",
   vatNumber: "FR11123456782",
+  iban: null,
+  bic: null,
+  tradeRegistry: null,
   signatureCity: "Nantes",
   contactEmail: "theo@marchand.dev",
   phone: "06 12 34 56 78",
@@ -210,5 +213,6 @@ export const DEMO_SETTINGS = {
   workdayMinutes: 420,
   dormantAfterMonths: null,
   hasSignature: true,
+  hasLogo: false,
   notifications: { securityAlerts: true, deadlineReminders: true },
 } satisfies SettingsData;

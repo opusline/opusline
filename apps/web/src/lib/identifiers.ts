@@ -52,3 +52,19 @@ export function formatFrenchPhone(value: string): string {
 
   return value;
 }
+
+/**
+ * `fr7630006000011234567890189` → `FR76 3000 6000 0112 3456 7890 189`.
+ *
+ * Not French-only like the rest of this file: ISO 13616 itself prints every
+ * IBAN in groups of four, whatever the country.
+ */
+export function formatIban(value: string): string {
+  const compact = value.replace(/\s/g, "").toUpperCase();
+
+  if (!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(compact)) {
+    return value;
+  }
+
+  return (compact.match(/.{1,4}/g) ?? []).join(" ");
+}

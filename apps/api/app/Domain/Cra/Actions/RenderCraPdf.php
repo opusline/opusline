@@ -11,10 +11,9 @@ use App\Domain\Missions\Enums\BillingMode;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Shared\Enums\Currency;
+use App\Domain\Shared\Pdf\HtmlToPdf;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
-use Dompdf\Dompdf;
-use Dompdf\Options;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\View;
 use RuntimeException;
@@ -43,74 +42,16 @@ class RenderCraPdf
         'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.',
     ];
 
-    public function __construct(private readonly DescribeCra $describeCra) {}
+    public function __construct(
+        private readonly DescribeCra $describeCra,
+        private readonly HtmlToPdf $htmlToPdf,
+    ) {}
 
     public function handle(Cra $cra, bool $applySignature = false): string
     {
         $cra->loadMissing(['days', 'mission.client', 'user.settings']);
 
-        return $this->render(View::make('cra.document', $this->viewData($cra, $applySignature))->render());
-    }
-
-    /**
-     * Renders one line per face the document uses, so dompdf extracts and
-     * caches the TTF metrics now. The entrypoint calls this once per boot —
-     * metric extraction is what made the first render after a deploy take
-     * seconds, inside a request.
-     */
-    public function warmFontCache(): void
-    {
-        $fontFaces = View::make('cra.fonts', ['fontPath' => resource_path('fonts')])->render();
-
-        $this->render(<<<HTML
-            <html lang="fr"><head><style>{$fontFaces}</style></head><body>
-            <span style="font-family: 'Geist'; font-weight: 400;">a</span>
-            <span style="font-family: 'Geist'; font-weight: 600;">a</span>
-            <span style="font-family: 'Lora'; font-weight: 400;">a</span>
-            <span style="font-family: 'Lora'; font-weight: 600;">a</span>
-            </body></html>
-            HTML);
-    }
-
-    private function render(string $html): string
-    {
-        $options = new Options;
-        // The template loads its fonts and the signature from disk and from data URIs;
-        // nothing it renders should ever reach the network.
-        $options->setIsRemoteEnabled(false);
-        // dompdf refuses any local file outside its chroot, which defaults to its own
-        // package directory: without this the @font-face rules resolve to "none", every
-        // src is dropped and the document silently falls back to the built-in Helvetica.
-        $options->setChroot([resource_path('fonts')]);
-        // And it caches the metrics it extracts from a TTF next to the font itself, which
-        // by default means writing into vendor/. Keep that under storage/.
-        $options->setFontDir($this->fontCachePath());
-        $options->setFontCache($this->fontCachePath());
-        $options->setDefaultFont('Geist');
-
-        $dompdf = new Dompdf($options);
-        $dompdf->setPaper('A4');
-        $dompdf->loadHtml($html);
-        $dompdf->render();
-
-        return (string) $dompdf->output();
-    }
-
-    private function fontCachePath(): string
-    {
-        // Under framework/, not app/: storage/app is the user-data volume in
-        // production, and font metrics are an artifact of the image's own TTF
-        // files — they must version with the container, not outlive it.
-        $path = storage_path('framework/cache/dompdf-fonts');
-
-        // Two Octane workers can clear is_dir() at the same time, so the loser's mkdir
-        // fails on a directory that now exists. Only that race is silenced; the recheck
-        // is what tells it apart from a real failure.
-        if (! is_dir($path) && ! @mkdir($path, 0775, true) && ! is_dir($path)) {
-            throw new RuntimeException("Could not create the dompdf font cache at [{$path}].");
-        }
-
-        return $path;
+        return $this->htmlToPdf->render(View::make('cra.document', $this->viewData($cra, $applySignature))->render());
     }
 
     /** The file name the client sees: "CRA-callisto-front-2026-07.pdf". */

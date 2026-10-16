@@ -4,6 +4,10 @@ export const settingsFixture: SettingsData = {
   tradeName: "Théo Marchand",
   siret: "123 456 782 00002",
   vatNumber: null,
+  // The ISO 13616 textbook example, not an account.
+  iban: "FR7630006000011234567890189",
+  bic: "AGRIFRPP",
+  tradeRegistry: null,
   signatureCity: "Nantes",
   contactEmail: "theo@marchand.dev",
   phone: "06 12 34 56 78",
@@ -49,6 +53,7 @@ export const settingsFixture: SettingsData = {
   workdayMinutes: 420,
   dormantAfterMonths: null,
   hasSignature: false,
+  hasLogo: false,
   notifications: { securityAlerts: true, deadlineReminders: true },
 };
 

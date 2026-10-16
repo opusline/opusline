@@ -4,9 +4,12 @@ import type {
   UserData,
 } from "@opusline/api-client";
 import {
+  chooseBetaFeatureMutation,
   currentUserQueryKey,
   deleteUserSignatureMutation,
   getPingOptions,
+  listBetaFeaturesOptions,
+  listBetaFeaturesQueryKey,
   refreshSettingsRatesMutation,
   sendTestEmailMutation,
   showSettingsOptions,
@@ -18,13 +21,15 @@ import {
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
+import { linkVariants } from "@opusline/ui/components/text-link";
+import { useToast } from "@opusline/ui/components/toast";
 import {
   type QueryClient,
   useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { CircleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -35,6 +40,7 @@ import {
   isWebAuthnSupported,
   webAuthnFailure,
 } from "@/features/auth/lib/webauthn";
+import { BetaFeaturesCard } from "@/features/settings/components/beta-features-card";
 import { EmailNotificationsCard } from "@/features/settings/components/email-notifications-card";
 import { IntegrationsSettings } from "@/features/settings/components/integrations-settings";
 import type { LocalisationDraft } from "@/features/settings/components/localisation-settings";
@@ -48,11 +54,13 @@ import {
   toSettingsValues,
 } from "@/features/settings/lib/settings-form";
 import { signatureHref } from "@/features/settings/lib/signature";
+import { INVOICING, useFeature } from "@/lib/features";
 import type { FormSubmitResult } from "@/lib/form";
 import {
   invalidateDeadlines,
   invalidateTreasury,
 } from "@/lib/query-invalidation";
+import { useCompanyLogo } from "@/lib/use-company-logo";
 import {
   serverErrorMessage,
   serverFieldErrors,
@@ -115,9 +123,21 @@ function ReglagesRoute() {
   const { tab } = Route.useSearch();
   const { user } = Route.useRouteContext();
   const navigate = useNavigate();
+  const invoicing = useFeature(INVOICING);
   const queryClient = useQueryClient();
   const format = useMoneyFormat();
   const passwordConfirmation = usePasswordConfirmation();
+  const toast = useToast();
+  const betaFeatures = useQuery(listBetaFeaturesOptions());
+  const chooseBeta = useMutation({
+    ...chooseBetaFeatureMutation(),
+    onSuccess: async (saved) => {
+      queryClient.setQueryData(listBetaFeaturesQueryKey(), saved);
+      toast.add({ title: m.beta_saved() });
+      // The flags ride on the current user: the sidebar and the guards follow it.
+      await queryClient.invalidateQueries({ queryKey: currentUserQueryKey() });
+    },
+  });
 
   const [signatureVersion, setSignatureVersion] = useState(0);
   const [signatureError, setSignatureError] = useState<string | null>(null);
@@ -241,6 +261,8 @@ function ReglagesRoute() {
     onError: () => setSignatureError(m.common_upload_failed()),
   });
 
+  const companyLogo = useCompanyLogo(settings.data?.hasLogo ?? false);
+
   const isSavingLocalisation =
     saveLocalisationSettings.isPending || updateCurrency.isPending;
 
@@ -360,6 +382,17 @@ function ReglagesRoute() {
           void navigate({ to: "/settings", search: { tab: nextTab } })
         }
         settings={savedSettings}
+        invoicingSettingsLink={
+          invoicing ? (
+            <Link
+              className={linkVariants({ underline: "always" })}
+              to="/invoicing/settings"
+            >
+              {m.settings_billing_moved_link()}
+            </Link>
+          ) : undefined
+        }
+        logo={companyLogo}
         signature={{
           src: signatureHref(signatureVersion),
           isPending: uploadSignature.isPending || deleteSignature.isPending,
@@ -389,6 +422,27 @@ function ReglagesRoute() {
           onCancel: () => setLocalisationError(null),
         }}
         integrations={<IntegrationsSettings />}
+        beta={
+          betaFeatures.isError ? (
+            <Alert variant="warn">
+              <CircleAlert />
+              <AlertDescription>{m.beta_load_failed()}</AlertDescription>
+            </Alert>
+          ) : (
+            <BetaFeaturesCard
+              error={
+                chooseBeta.isError
+                  ? serverErrorMessage(chooseBeta.error, m.common_save_failed())
+                  : null
+              }
+              features={betaFeatures.data?.features ?? []}
+              isSaving={chooseBeta.isPending || betaFeatures.isPending}
+              onChange={(feature, active) =>
+                chooseBeta.mutate({ path: { feature }, body: { active } })
+              }
+            />
+          )
+        }
         notifications={
           <div className="flex flex-col gap-6">
             <MailDeliveryCard

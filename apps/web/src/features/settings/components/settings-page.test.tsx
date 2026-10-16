@@ -7,7 +7,7 @@ import {
   abroadSettingsFixture,
   nonEuSettingsFixture,
   settingsFixture,
-} from "../lib/settings-fixture";
+} from "@/test/settings-fixture";
 import { SettingsPage } from "./settings-page";
 
 function renderPage(
@@ -23,6 +23,12 @@ function renderPage(
       isPending: false,
       error: null,
       onSave: vi.fn(),
+      onRemove: vi.fn(),
+    },
+    logo: {
+      isPending: false,
+      error: null,
+      onPick: vi.fn(),
       onRemove: vi.fn(),
     },
     rates: {
@@ -47,6 +53,7 @@ function renderPage(
     integrations: null,
     notifications: null,
     security: null,
+    beta: null,
     ...overrides,
   };
 
@@ -94,6 +101,7 @@ it("lists every section as a vertical tab", () => {
     "IntégrationsSynchronisation bancaire",
     "NotificationsAlertes, rappels",
     "SécuritéVérification en deux étapes, navigateurs",
+    "Avant-premièreFonctionnalités en test",
   ]);
 });
 

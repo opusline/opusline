@@ -713,6 +713,204 @@
                 }
             }
         },
+        "/user/features": {
+            "get": {
+                "operationId": "listBetaFeatures",
+                "tags": [
+                    "BetaFeature"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BetaFeaturesData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/user/features/{feature}": {
+            "put": {
+                "operationId": "chooseBetaFeature",
+                "tags": [
+                    "BetaFeature"
+                ],
+                "parameters": [
+                    {
+                        "name": "feature",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChooseBetaFeatureData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BetaFeaturesData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/invoicing/catalog": {
+            "get": {
+                "operationId": "listCatalogItems",
+                "tags": [
+                    "CatalogItem"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CatalogData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "createCatalogItem",
+                "tags": [
+                    "CatalogItem"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CatalogItemInputData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CatalogItemData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/invoicing/catalog/{catalogItem}": {
+            "put": {
+                "operationId": "updateCatalogItem",
+                "tags": [
+                    "CatalogItem"
+                ],
+                "parameters": [
+                    {
+                        "name": "catalogItem",
+                        "in": "path",
+                        "required": true,
+                        "description": "The catalog item ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CatalogItemInputData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CatalogItemData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteCatalogItem",
+                "tags": [
+                    "CatalogItem"
+                ],
+                "parameters": [
+                    {
+                        "name": "catalogItem",
+                        "in": "path",
+                        "required": true,
+                        "description": "The catalog item ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/clients": {
             "get": {
                 "operationId": "listClients",
@@ -1415,6 +1613,79 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/user/logo": {
+            "post": {
+                "operationId": "uploadCompanyLogo",
+                "tags": [
+                    "CompanyLogo"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UploadCompanyLogoData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "get": {
+                "operationId": "showCompanyLogo",
+                "tags": [
+                    "CompanyLogo"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Transfer-Encoding": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "chunked"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteCompanyLogo",
+                "tags": [
+                    "CompanyLogo"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
@@ -3768,6 +4039,384 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/invoicing/invoices": {
+            "post": {
+                "operationId": "createInvoiceDraft",
+                "tags": [
+                    "InvoiceDraft"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SaveInvoiceDraftData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/invoicing/invoices/{invoice}": {
+            "put": {
+                "operationId": "updateInvoiceDraft",
+                "tags": [
+                    "InvoiceDraft"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SaveInvoiceDraftData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/invoicing/unbilled-time": {
+            "get": {
+                "operationId": "showUnbilledTime",
+                "summary": "What « Importer le temps saisi » would add for a mission",
+                "tags": [
+                    "InvoiceDraft"
+                ],
+                "parameters": [
+                    {
+                        "name": "missionId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "invoiceId",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnbilledTimeData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/invoicing/invoices/{invoice}/issue": {
+            "post": {
+                "operationId": "issueInvoice",
+                "tags": [
+                    "InvoiceDraft"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/invoicing/invoices/paper": {
+            "post": {
+                "operationId": "previewInvoicePaper",
+                "summary": "The live preview of an editor draft that was never saved",
+                "tags": [
+                    "InvoicePaper"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SaveInvoiceDraftData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoicePaperData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/invoices/{invoice}/paper": {
+            "get": {
+                "operationId": "showInvoicePaper",
+                "tags": [
+                    "InvoicePaper"
+                ],
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/DocumentLanguage"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoicePaperData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/invoices/{invoice}/pdf": {
+            "get": {
+                "operationId": "downloadInvoicePdf",
+                "tags": [
+                    "InvoicePaper"
+                ],
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/DocumentLanguage"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Content-Disposition": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store"
+                                }
+                            },
+                            "Transfer-Encoding": {
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "chunked"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/invoicing/settings": {
+            "get": {
+                "operationId": "showInvoicingSettings",
+                "tags": [
+                    "InvoicingSettings"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoicingSettingsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "updateInvoicingSettings",
+                "tags": [
+                    "InvoicingSettings"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateInvoicingSettingsData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoicingSettingsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -7296,6 +7945,41 @@
                 ],
                 "title": "BankSyncError"
             },
+            "BetaFeatureData": {
+                "type": "object",
+                "properties": {
+                    "feature": {
+                        "$ref": "#/components/schemas/FeatureFlag"
+                    },
+                    "key": {
+                        "type": "string"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "feature",
+                    "key",
+                    "active"
+                ],
+                "title": "BetaFeatureData"
+            },
+            "BetaFeaturesData": {
+                "type": "object",
+                "properties": {
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BetaFeatureData"
+                        }
+                    }
+                },
+                "required": [
+                    "features"
+                ],
+                "title": "BetaFeaturesData"
+            },
             "BillingMode": {
                 "type": "integer",
                 "enum": [
@@ -7419,6 +8103,104 @@
                 ],
                 "title": "CarriedPeriodData"
             },
+            "CatalogData": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CatalogItemData"
+                        }
+                    }
+                },
+                "required": [
+                    "items"
+                ],
+                "title": "CatalogData"
+            },
+            "CatalogItemData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "detail": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "unit": {
+                        "$ref": "#/components/schemas/LineUnit"
+                    },
+                    "unitPrice": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "vatRateBp": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "id",
+                    "label",
+                    "detail",
+                    "unit",
+                    "unitPrice",
+                    "vatRateBp"
+                ],
+                "title": "CatalogItemData"
+            },
+            "CatalogItemInputData": {
+                "type": "object",
+                "properties": {
+                    "label": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "unit": {
+                        "$ref": "#/components/schemas/LineUnit"
+                    },
+                    "unitPrice": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100000000000
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "vatRateBp": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 10000
+                    },
+                    "detail": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 1000
+                    }
+                },
+                "required": [
+                    "label",
+                    "unit",
+                    "unitPrice",
+                    "vatRateBp"
+                ],
+                "title": "CatalogItemInputData"
+            },
             "CfeReturnData": {
                 "type": "object",
                 "properties": {
@@ -7531,6 +8313,18 @@
                     "accountUid"
                 ],
                 "title": "ChooseBankAccountData"
+            },
+            "ChooseBetaFeatureData": {
+                "type": "object",
+                "properties": {
+                    "active": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "active"
+                ],
+                "title": "ChooseBetaFeatureData"
             },
             "ClientData": {
                 "type": "object",
@@ -9360,6 +10154,19 @@
                 ],
                 "title": "DocumentGroupData"
             },
+            "DocumentLanguage": {
+                "type": "integer",
+                "description": "The language a document is rendered in, chosen per document; independent of the interface locale.\n",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "French",
+                    "English"
+                ],
+                "title": "DocumentLanguage"
+            },
             "DocumentLibraryData": {
                 "type": "object",
                 "properties": {
@@ -9389,6 +10196,92 @@
                     "documents"
                 ],
                 "title": "DocumentListData"
+            },
+            "DocumentPartyData": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "legalMention": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "siret": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "siren": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "vatNumber": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "tradeRegistry": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "addressLines": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "email": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "phone": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "iban": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "bic": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "vatExempt": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "name",
+                    "legalMention",
+                    "siret",
+                    "siren",
+                    "vatNumber",
+                    "tradeRegistry",
+                    "addressLines",
+                    "email",
+                    "phone",
+                    "iban",
+                    "bic",
+                    "vatExempt"
+                ],
+                "title": "DocumentPartyData"
             },
             "DocumentSource": {
                 "type": "integer",
@@ -10080,6 +10973,17 @@
                 ],
                 "title": "ExpensesVatSummaryData"
             },
+            "FeatureFlag": {
+                "type": "integer",
+                "description": "A feature still being built, shipped to `main` switched off. Removing a case (and its checks, keeping the code it guarded) is how the feature is released.\n| |\n|---|\n| `0` <br/> Writing, issuing and rendering invoices in Opusline (#498). |",
+                "enum": [
+                    0
+                ],
+                "x-enum-varnames": [
+                    "Invoicing"
+                ],
+                "title": "FeatureFlag"
+            },
             "FiscalDeadlineData": {
                 "type": "object",
                 "properties": {
@@ -10464,6 +11368,105 @@
                 ],
                 "title": "InvoiceClientTotalsData"
             },
+            "InvoiceContentData": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "language": {
+                        "$ref": "#/components/schemas/DocumentLanguage"
+                    },
+                    "paymentTermsDays": {
+                        "type": "integer"
+                    },
+                    "paymentTermsEndOfMonth": {
+                        "type": "boolean"
+                    },
+                    "latePenaltyRateBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "showIban": {
+                        "type": "boolean"
+                    },
+                    "showEmail": {
+                        "type": "boolean"
+                    },
+                    "customMentions": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoiceLineData"
+                        }
+                    },
+                    "vatBreakdown": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/VatBreakdownRowData"
+                        }
+                    },
+                    "seller": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DocumentPartyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "buyer": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DocumentPartyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "timeEntryIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "required": [
+                    "title",
+                    "description",
+                    "language",
+                    "paymentTermsDays",
+                    "paymentTermsEndOfMonth",
+                    "latePenaltyRateBp",
+                    "showIban",
+                    "showEmail",
+                    "customMentions",
+                    "lines",
+                    "vatBreakdown",
+                    "seller",
+                    "buyer",
+                    "timeEntryIds"
+                ],
+                "title": "InvoiceContentData"
+            },
             "InvoiceCountsData": {
                 "type": "object",
                 "properties": {
@@ -10515,6 +11518,9 @@
                     },
                     "status": {
                         "$ref": "#/components/schemas/InvoiceStatus"
+                    },
+                    "source": {
+                        "$ref": "#/components/schemas/InvoiceSource"
                     },
                     "isLate": {
                         "type": "boolean"
@@ -10576,6 +11582,7 @@
                     "missionId",
                     "number",
                     "status",
+                    "source",
                     "isLate",
                     "issuedOn",
                     "dueOn",
@@ -10625,6 +11632,16 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "content": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/InvoiceContentData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -10632,7 +11649,8 @@
                     "client",
                     "mission",
                     "history",
-                    "document"
+                    "document",
+                    "content"
                 ],
                 "title": "InvoiceDetailData"
             },
@@ -10715,6 +11733,49 @@
                 ],
                 "title": "InvoiceForecastData"
             },
+            "InvoiceLineData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "detail": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "quantityMilli": {
+                        "type": "integer"
+                    },
+                    "unit": {
+                        "$ref": "#/components/schemas/LineUnit"
+                    },
+                    "unitPrice": {
+                        "$ref": "#/components/schemas/SignedMoneyData"
+                    },
+                    "vatRateBp": {
+                        "type": "integer"
+                    },
+                    "totalHt": {
+                        "$ref": "#/components/schemas/SignedMoneyData"
+                    }
+                },
+                "required": [
+                    "id",
+                    "label",
+                    "detail",
+                    "quantityMilli",
+                    "unit",
+                    "unitPrice",
+                    "vatRateBp",
+                    "totalHt"
+                ],
+                "title": "InvoiceLineData"
+            },
             "InvoiceListData": {
                 "type": "object",
                 "properties": {
@@ -10790,6 +11851,134 @@
                     "maxDaysLate"
                 ],
                 "title": "InvoiceOverdueData"
+            },
+            "InvoicePaperData": {
+                "type": "object",
+                "properties": {
+                    "language": {
+                        "$ref": "#/components/schemas/DocumentLanguage"
+                    },
+                    "labelSeparator": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "stamp": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "hasLogo": {
+                        "type": "boolean"
+                    },
+                    "meta": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PaperRowData"
+                        }
+                    },
+                    "seller": {
+                        "$ref": "#/components/schemas/PaperPartyData"
+                    },
+                    "buyer": {
+                        "$ref": "#/components/schemas/PaperPartyData"
+                    },
+                    "documentTitle": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "head": {
+                        "$ref": "#/components/schemas/PaperLineHeadData"
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PaperLineData"
+                        }
+                    },
+                    "noLinesLabel": {
+                        "type": "string"
+                    },
+                    "vatHead": {
+                        "$ref": "#/components/schemas/PaperVatHeadData"
+                    },
+                    "vatRows": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PaperVatRowData"
+                        }
+                    },
+                    "totals": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PaperTotalData"
+                        }
+                    },
+                    "paymentTitle": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "payment": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PaperRowData"
+                        }
+                    },
+                    "legal": {
+                        "type": "string"
+                    },
+                    "footer": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "language",
+                    "labelSeparator",
+                    "title",
+                    "stamp",
+                    "hasLogo",
+                    "meta",
+                    "seller",
+                    "buyer",
+                    "documentTitle",
+                    "description",
+                    "head",
+                    "lines",
+                    "noLinesLabel",
+                    "vatHead",
+                    "vatRows",
+                    "totals",
+                    "paymentTitle",
+                    "payment",
+                    "legal",
+                    "footer"
+                ],
+                "title": "InvoicePaperData"
+            },
+            "InvoiceSource": {
+                "type": "integer",
+                "description": "Who wrote the document: another tool, recorded here; or Opusline, from its lines.\n",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "External",
+                    "Opusline"
+                ],
+                "title": "InvoiceSource"
             },
             "InvoiceStatus": {
                 "type": "integer",
@@ -11057,6 +12246,138 @@
                 ],
                 "title": "InvoiceTotalData"
             },
+            "InvoicingMode": {
+                "type": "integer",
+                "description": "Where the account's invoices and quotes are written: it decides what the Create button does.\n| |\n|---|\n| `0` <br/> Opusline numbers them, renders the PDF and sends them. |\n| `1` <br/> Another tool issues them; Opusline only records and tracks them. |",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "Opusline",
+                    "Elsewhere"
+                ],
+                "title": "InvoicingMode"
+            },
+            "InvoicingSettingsData": {
+                "type": "object",
+                "properties": {
+                    "mode": {
+                        "$ref": "#/components/schemas/InvoicingMode"
+                    },
+                    "defaultPaymentTermsDays": {
+                        "type": "integer"
+                    },
+                    "defaultPaymentTermsEndOfMonth": {
+                        "type": "boolean"
+                    },
+                    "quoteValidityDays": {
+                        "type": "integer"
+                    },
+                    "latePenaltyRateBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "operationCategory": {
+                        "$ref": "#/components/schemas/OperationCategory"
+                    },
+                    "showIbanOnInvoices": {
+                        "type": "boolean"
+                    },
+                    "showEmailOnDocuments": {
+                        "type": "boolean"
+                    },
+                    "vatOnDebits": {
+                        "type": "boolean"
+                    },
+                    "customMentions": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "documentLanguage": {
+                        "$ref": "#/components/schemas/DocumentLanguage"
+                    },
+                    "vatLiable": {
+                        "type": "boolean"
+                    },
+                    "legalReference": {
+                        "$ref": "#/components/schemas/LegalReferenceData"
+                    },
+                    "nextInvoiceNumber": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "mode",
+                    "defaultPaymentTermsDays",
+                    "defaultPaymentTermsEndOfMonth",
+                    "quoteValidityDays",
+                    "latePenaltyRateBp",
+                    "operationCategory",
+                    "showIbanOnInvoices",
+                    "showEmailOnDocuments",
+                    "vatOnDebits",
+                    "customMentions",
+                    "documentLanguage",
+                    "vatLiable",
+                    "legalReference",
+                    "nextInvoiceNumber"
+                ],
+                "title": "InvoicingSettingsData"
+            },
+            "LegalReferenceData": {
+                "type": "object",
+                "properties": {
+                    "semester": {
+                        "type": "string"
+                    },
+                    "checkedOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "nextRevisionOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "legalInterestRateBp": {
+                        "type": "integer"
+                    },
+                    "minimumPenaltyRateBp": {
+                        "type": "integer"
+                    },
+                    "ecbRateBp": {
+                        "type": "integer"
+                    },
+                    "statutoryPenaltyRateBp": {
+                        "type": "integer"
+                    },
+                    "recoveryFee": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "sources": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "semester",
+                    "checkedOn",
+                    "nextRevisionOn",
+                    "legalInterestRateBp",
+                    "minimumPenaltyRateBp",
+                    "ecbRateBp",
+                    "statutoryPenaltyRateBp",
+                    "recoveryFee",
+                    "sources"
+                ],
+                "title": "LegalReferenceData"
+            },
             "LiberatingPaymentEndReason": {
                 "type": "integer",
                 "description": "Why the versement libératoire stops applying.\n| |\n|---|\n| `0` <br/> The household's revenu fiscal de référence exceeds the limit for its parts. |\n| `1` <br/> The receipts crossed the micro-BNC ceiling two calendar years running, which ends the régime itself. |",
@@ -11147,6 +12468,23 @@
                     "needsReferenceTaxIncome"
                 ],
                 "title": "LiberatingPaymentOutlookData"
+            },
+            "LineUnit": {
+                "type": "integer",
+                "description": "What one unit of a catalogue item or a document line counts.\n",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3
+                ],
+                "x-enum-varnames": [
+                    "Day",
+                    "Hour",
+                    "Flat",
+                    "Unit"
+                ],
+                "title": "LineUnit"
             },
             "LinkExpenseBankMovementData": {
                 "type": "object",
@@ -11445,6 +12783,21 @@
                 ],
                 "title": "NotificationPreferencesData"
             },
+            "OperationCategory": {
+                "type": "integer",
+                "description": "A mandatory invoice mention since 1 September 2026 (e-invoicing reform).\n",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "Services",
+                    "Goods",
+                    "Mixed"
+                ],
+                "title": "OperationCategory"
+            },
             "PaidPeriodData": {
                 "type": "object",
                 "properties": {
@@ -11465,6 +12818,164 @@
                     "paidOn"
                 ],
                 "title": "PaidPeriodData"
+            },
+            "PaperLineData": {
+                "type": "object",
+                "properties": {
+                    "label": {
+                        "type": "string"
+                    },
+                    "detail": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "quantity": {
+                        "type": "string"
+                    },
+                    "unitPrice": {
+                        "type": "string"
+                    },
+                    "vat": {
+                        "type": "string"
+                    },
+                    "total": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "label",
+                    "detail",
+                    "quantity",
+                    "unitPrice",
+                    "vat",
+                    "total"
+                ],
+                "title": "PaperLineData"
+            },
+            "PaperLineHeadData": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": "string"
+                    },
+                    "quantity": {
+                        "type": "string"
+                    },
+                    "unitPrice": {
+                        "type": "string"
+                    },
+                    "vat": {
+                        "type": "string"
+                    },
+                    "total": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "description",
+                    "quantity",
+                    "unitPrice",
+                    "vat",
+                    "total"
+                ],
+                "title": "PaperLineHeadData"
+            },
+            "PaperPartyData": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "name",
+                    "lines"
+                ],
+                "title": "PaperPartyData"
+            },
+            "PaperRowData": {
+                "type": "object",
+                "properties": {
+                    "label": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "label",
+                    "value"
+                ],
+                "title": "PaperRowData"
+            },
+            "PaperTotalData": {
+                "type": "object",
+                "properties": {
+                    "label": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
+                    },
+                    "emphasis": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "label",
+                    "value",
+                    "emphasis"
+                ],
+                "title": "PaperTotalData"
+            },
+            "PaperVatHeadData": {
+                "type": "object",
+                "properties": {
+                    "base": {
+                        "type": "string"
+                    },
+                    "rate": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "base",
+                    "rate",
+                    "amount"
+                ],
+                "title": "PaperVatHeadData"
+            },
+            "PaperVatRowData": {
+                "type": "object",
+                "properties": {
+                    "base": {
+                        "type": "string"
+                    },
+                    "rate": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "base",
+                    "rate",
+                    "amount"
+                ],
+                "title": "PaperVatRowData"
             },
             "PasskeyData": {
                 "type": "object",
@@ -12221,6 +13732,159 @@
                 ],
                 "title": "SaveEnableBankingCredentialsData"
             },
+            "SaveInvoiceDraftData": {
+                "type": "object",
+                "properties": {
+                    "clientId": {
+                        "type": "integer"
+                    },
+                    "paymentTermsDays": {
+                        "type": "integer"
+                    },
+                    "paymentTermsEndOfMonth": {
+                        "type": "boolean"
+                    },
+                    "showIban": {
+                        "type": "boolean"
+                    },
+                    "showEmail": {
+                        "type": "boolean"
+                    },
+                    "language": {
+                        "$ref": "#/components/schemas/DocumentLanguage"
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "label": {
+                                    "type": "string",
+                                    "maxLength": 255
+                                },
+                                "detail": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ],
+                                    "maxLength": 1000
+                                },
+                                "quantityMilli": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 100000000
+                                },
+                                "unit": {
+                                    "$ref": "#/components/schemas/LineUnit"
+                                },
+                                "unitPrice": {
+                                    "type": "object",
+                                    "properties": {
+                                        "amount": {
+                                            "type": "integer",
+                                            "minimum": -100000000000,
+                                            "maximum": 100000000000
+                                        },
+                                        "currency": {
+                                            "$ref": "#/components/schemas/Currency"
+                                        }
+                                    },
+                                    "required": [
+                                        "amount",
+                                        "currency"
+                                    ]
+                                },
+                                "vatRateBp": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 10000
+                                }
+                            },
+                            "required": [
+                                "label",
+                                "quantityMilli",
+                                "unit",
+                                "unitPrice",
+                                "vatRateBp"
+                            ]
+                        },
+                        "maxItems": 200
+                    },
+                    "missionId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "title": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 2000
+                    },
+                    "issuedOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "periodStart": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "periodEnd": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "latePenaltyRateBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 10000
+                    },
+                    "customMentions": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 2000
+                    },
+                    "timeEntryIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "maxItems": 5000
+                    }
+                },
+                "required": [
+                    "clientId",
+                    "paymentTermsDays",
+                    "paymentTermsEndOfMonth",
+                    "showIban",
+                    "showEmail",
+                    "language",
+                    "lines"
+                ],
+                "title": "SaveInvoiceDraftData"
+            },
             "SendCraData": {
                 "type": "object",
                 "properties": {
@@ -12286,6 +13950,24 @@
                         ]
                     },
                     "vatNumber": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "iban": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "bic": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "tradeRegistry": {
                         "type": [
                             "string",
                             "null"
@@ -12502,6 +14184,9 @@
                     "hasSignature": {
                         "type": "boolean"
                     },
+                    "hasLogo": {
+                        "type": "boolean"
+                    },
                     "notifications": {
                         "$ref": "#/components/schemas/NotificationPreferencesData"
                     }
@@ -12510,6 +14195,9 @@
                     "tradeName",
                     "siret",
                     "vatNumber",
+                    "iban",
+                    "bic",
+                    "tradeRegistry",
                     "signatureCity",
                     "contactEmail",
                     "phone",
@@ -12555,6 +14243,7 @@
                     "workdayMinutes",
                     "dormantAfterMonths",
                     "hasSignature",
+                    "hasLogo",
                     "notifications"
                 ],
                 "title": "SettingsData"
@@ -13563,6 +15252,64 @@
                 ],
                 "title": "TwoFactorStatusData"
             },
+            "UnbilledTimeData": {
+                "type": "object",
+                "properties": {
+                    "missionId": {
+                        "type": "integer"
+                    },
+                    "missionName": {
+                        "type": "string"
+                    },
+                    "timeEntryIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "firstEntryOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "lastEntryOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "quantityMilli": {
+                        "type": "integer"
+                    },
+                    "unit": {
+                        "$ref": "#/components/schemas/LineUnit"
+                    },
+                    "unitPrice": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "missionId",
+                    "missionName",
+                    "timeEntryIds",
+                    "firstEntryOn",
+                    "lastEntryOn",
+                    "quantityMilli",
+                    "unit",
+                    "unitPrice"
+                ],
+                "title": "UnbilledTimeData"
+            },
             "UpcomingDebitData": {
                 "type": "object",
                 "properties": {
@@ -13911,6 +15658,67 @@
                 ],
                 "title": "UpdateInvoiceData"
             },
+            "UpdateInvoicingSettingsData": {
+                "type": "object",
+                "properties": {
+                    "mode": {
+                        "$ref": "#/components/schemas/InvoicingMode"
+                    },
+                    "defaultPaymentTermsDays": {
+                        "type": "integer"
+                    },
+                    "defaultPaymentTermsEndOfMonth": {
+                        "type": "boolean"
+                    },
+                    "quoteValidityDays": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 365
+                    },
+                    "operationCategory": {
+                        "$ref": "#/components/schemas/OperationCategory"
+                    },
+                    "showIbanOnInvoices": {
+                        "type": "boolean"
+                    },
+                    "showEmailOnDocuments": {
+                        "type": "boolean"
+                    },
+                    "vatOnDebits": {
+                        "type": "boolean"
+                    },
+                    "documentLanguage": {
+                        "$ref": "#/components/schemas/DocumentLanguage"
+                    },
+                    "latePenaltyRateBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 10000
+                    },
+                    "customMentions": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 2000
+                    }
+                },
+                "required": [
+                    "mode",
+                    "defaultPaymentTermsDays",
+                    "defaultPaymentTermsEndOfMonth",
+                    "quoteValidityDays",
+                    "operationCategory",
+                    "showIbanOnInvoices",
+                    "showEmailOnDocuments",
+                    "vatOnDebits",
+                    "documentLanguage"
+                ],
+                "title": "UpdateInvoicingSettingsData"
+            },
             "UpdateMissionData": {
                 "type": "object",
                 "properties": {
@@ -14121,11 +15929,6 @@
                         "minimum": 0,
                         "maximum": 10000
                     },
-                    "defaultPaymentTermsDays": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 365
-                    },
                     "invoiceNumberFormat": {
                         "type": "string",
                         "maxLength": 64
@@ -14148,6 +15951,27 @@
                         "maxLength": 255
                     },
                     "vatNumber": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "iban": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 64
+                    },
+                    "bic": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 16
+                    },
+                    "tradeRegistry": {
                         "type": [
                             "string",
                             "null"
@@ -14330,6 +16154,14 @@
                         ],
                         "minimum": 0,
                         "maximum": 10000
+                    },
+                    "defaultPaymentTermsDays": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 365
                     }
                 },
                 "required": [
@@ -14346,7 +16178,6 @@
                     "liberatingPaymentRateBp",
                     "vatRegime",
                     "defaultVatRateBp",
-                    "defaultPaymentTermsDays",
                     "invoiceNumberFormat",
                     "homeAddressSameAsCompany"
                 ],
@@ -14428,6 +16259,21 @@
                     "logo"
                 ],
                 "title": "UploadClientLogoData"
+            },
+            "UploadCompanyLogoData": {
+                "type": "object",
+                "properties": {
+                    "logo": {
+                        "type": "string",
+                        "format": "binary",
+                        "contentMediaType": "application/octet-stream",
+                        "description": "Maximum file size: 1536 kilobytes."
+                    }
+                },
+                "required": [
+                    "logo"
+                ],
+                "title": "UploadCompanyLogoData"
             },
             "UploadDocumentData": {
                 "type": "object",
@@ -14658,6 +16504,12 @@
                     },
                     "effectiveContributionRateBp": {
                         "type": "integer"
+                    },
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FeatureFlag"
+                        }
                     }
                 },
                 "required": [
@@ -14676,9 +16528,30 @@
                     "timezone",
                     "workdayMinutes",
                     "defaultPaymentTermsDays",
-                    "effectiveContributionRateBp"
+                    "effectiveContributionRateBp",
+                    "features"
                 ],
                 "title": "UserData"
+            },
+            "VatBreakdownRowData": {
+                "type": "object",
+                "properties": {
+                    "rateBp": {
+                        "type": "integer"
+                    },
+                    "base": {
+                        "$ref": "#/components/schemas/SignedMoneyData"
+                    },
+                    "vat": {
+                        "$ref": "#/components/schemas/SignedMoneyData"
+                    }
+                },
+                "required": [
+                    "rateBp",
+                    "base",
+                    "vat"
+                ],
+                "title": "VatBreakdownRowData"
             },
             "VatDeclarationData": {
                 "type": "object",

@@ -83,15 +83,46 @@ test('saves the fiscal settings and recomputes the effective rate', function ():
         ->assertJsonPath('effectiveContributionRateBp', 2690);
 });
 
-test('saves the billing defaults', function (): void {
+test('saves the invoice number format', function (): void {
     $this->actingAs(User::factory()->create())
-        ->putJson('/api/settings', settingsPayload([
-            'defaultPaymentTermsDays' => 60,
-            'invoiceNumberFormat' => 'AAAAMM-NNN',
-        ]))
+        ->putJson('/api/settings', settingsPayload(['invoiceNumberFormat' => 'AAAAMM-NNN']))
         ->assertOk()
-        ->assertJsonPath('defaultPaymentTermsDays', 60)
         ->assertJsonPath('invoiceNumberFormat', 'AAAAMM-NNN');
+});
+
+test('saves the payment term from Réglages, in days net', function (): void {
+    $user = User::factory()->create();
+    $user->settingsOrFail()->update(['default_payment_terms_end_of_month' => true]);
+
+    $this->actingAs($user)
+        ->putJson('/api/settings', settingsPayload(['defaultPaymentTermsDays' => 15]))
+        ->assertOk()
+        ->assertJsonPath('defaultPaymentTermsDays', 15);
+
+    expect($user->settingsOrFail()->refresh()->default_payment_terms_end_of_month)->toBeFalse();
+});
+
+test('keeps an end-of-month term when Réglages sends back the days it read', function (): void {
+    $user = User::factory()->create();
+    $user->settingsOrFail()->update([
+        'default_payment_terms_days' => 30,
+        'default_payment_terms_end_of_month' => true,
+    ]);
+
+    $this->actingAs($user)
+        ->putJson('/api/settings', settingsPayload(['defaultPaymentTermsDays' => 30]))
+        ->assertOk();
+
+    expect($user->settingsOrFail()->refresh()->default_payment_terms_end_of_month)->toBeTrue();
+});
+
+test('leaves the payment term alone when Réglages does not send one', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->putJson('/api/settings', settingsPayload())
+        ->assertOk()
+        ->assertJsonPath('defaultPaymentTermsDays', 45);
 });
 
 test('saves the treasury buffer as money', function (): void {

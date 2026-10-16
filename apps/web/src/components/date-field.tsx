@@ -52,6 +52,7 @@ type DateFieldProps = {
   className?: string;
   "aria-describedby"?: string;
   "aria-invalid"?: boolean;
+  "data-testid"?: string;
   onBlur?: () => void;
 };
 

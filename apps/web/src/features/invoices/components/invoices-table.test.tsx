@@ -183,7 +183,7 @@ it("opens the invoice it was asked to open", () => {
     screen.getByRole("button", { name: "Ouvrir la facture 2026-014" }),
   );
 
-  expect(onOpen).toHaveBeenCalledWith(7);
+  expect(onOpen).toHaveBeenCalledWith(7, 0);
 });
 
 it("reads each row against a column header", () => {
@@ -225,4 +225,37 @@ it("heads each client's rows with the client itself", () => {
   expect(
     within(group.closest("tbody") as HTMLElement).getAllByRole("row"),
   ).toHaveLength(2);
+});
+
+it("marks what was issued elsewhere once invoices are written here", () => {
+  const { rerender } = render(
+    <InvoicesTable
+      accountToday="2026-08-14"
+      clientRevenue={[]}
+      clientTotals={totals}
+      invoices={[
+        ...invoices,
+        invoiceItem({ id: 5, number: "2026-020", source: 1 }),
+      ]}
+    />,
+  );
+
+  expect(screen.queryByTestId("invoice-issued-elsewhere")).toBeNull();
+
+  rerender(
+    <InvoicesTable
+      accountToday="2026-08-14"
+      clientRevenue={[]}
+      clientTotals={totals}
+      invoices={[
+        ...invoices,
+        invoiceItem({ id: 5, number: "2026-020", source: 1 }),
+      ]}
+      writesInOpusline
+    />,
+  );
+
+  expect(screen.getAllByTestId("invoice-issued-elsewhere")).toHaveLength(
+    invoices.length,
+  );
 });

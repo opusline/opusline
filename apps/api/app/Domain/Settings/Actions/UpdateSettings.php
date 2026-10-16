@@ -14,6 +14,8 @@ use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Settings\Rates\LiberatingPayment;
 use App\Domain\Settings\Rates\RateSituation;
 use App\Domain\Shared\Validation\AccountCurrency;
+use App\Domain\Shared\Validation\Bic;
+use App\Domain\Shared\Validation\Iban;
 use Illuminate\Support\Facades\DB;
 
 class UpdateSettings
@@ -58,6 +60,15 @@ class UpdateSettings
                 $data->referenceTaxIncome,
             );
 
+            // Réglages carries the term for accounts outside the invoicing beta.
+            // It is written only when it changed, so the bulk save of an account
+            // in the beta never undoes an end-of-month term set in the invoicing
+            // settings, which sends back the days it read.
+            if ($data->defaultPaymentTermsDays !== null && $data->defaultPaymentTermsDays !== $settings->default_payment_terms_days) {
+                $settings->default_payment_terms_days = $data->defaultPaymentTermsDays;
+                $settings->default_payment_terms_end_of_month = false;
+            }
+
             $settings->update([
                 'business_country' => $data->businessCountry,
                 'locale' => $data->locale,
@@ -68,6 +79,9 @@ class UpdateSettings
                 'trade_name' => $data->tradeName,
                 'siret' => $data->siret,
                 'vat_number' => $data->vatNumber,
+                'iban' => $data->iban === null ? null : Iban::normalize($data->iban),
+                'bic' => $data->bic === null ? null : Bic::normalize($data->bic),
+                'trade_registry' => $data->tradeRegistry,
                 'signature_city' => $data->signatureCity,
                 'contact_email' => $data->contactEmail,
                 'phone' => $data->phone,
@@ -97,7 +111,6 @@ class UpdateSettings
                 'liberating_payment' => $hasFrenchFiscality && $data->liberatingPayment,
                 'vat_regime' => $hasFrenchFiscality ? $data->vatRegime : VatRegime::ReelNormal,
                 'default_vat_rate_bp' => $data->defaultVatRateBp,
-                'default_payment_terms_days' => $data->defaultPaymentTermsDays,
                 'invoice_number_format' => $data->invoiceNumberFormat,
                 'treasury_buffer_cents' => $data->treasuryBuffer?->toMoney(),
                 // The CFE is a French tax like the rest: outside France it is

@@ -1,4 +1,4 @@
-import type { InvoiceDetailData } from "@opusline/api-client";
+import type { InvoiceDetailData, InvoiceSource } from "@opusline/api-client";
 import {
   correctInvoiceDatesMutation,
   deleteInvoiceDocumentMutation,
@@ -11,7 +11,7 @@ import {
 } from "@opusline/api-client/react-query";
 import { useToast } from "@opusline/ui/components/toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import {
   createContext,
   type ReactNode,
@@ -25,6 +25,7 @@ import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatAmountWithCents } from "@/lib/billing";
 import { accountTodayCalendarDate } from "@/lib/dates";
+import { INVOICING, useFeature } from "@/lib/features";
 import { invalidateInvoiceWrites } from "@/lib/query-invalidation";
 import { uploadWithProgress } from "@/lib/upload-with-progress";
 import { serverErrorMessage } from "@/lib/validation";
@@ -37,7 +38,8 @@ import { InvoiceDocumentPanel } from "./invoice-document-panel";
 import { InvoiceDrawer } from "./invoice-drawer";
 import { InvoiceLifecycleActions } from "./invoice-lifecycle-actions";
 
-type OpenInvoice = (invoiceId: number) => void;
+/** The source, when the caller knows it, spares an invoice written in Opusline the drawer. */
+type OpenInvoice = (invoiceId: number, source?: InvoiceSource) => void;
 
 const InvoiceDrawerContext = createContext<OpenInvoice | null>(null);
 
@@ -59,6 +61,8 @@ export function InvoiceDrawerProvider({
 }) {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const navigate = useNavigate();
+  const invoicing = useFeature(INVOICING);
   const toast = useToast();
   const format = useMoneyFormat();
   const [openInvoiceId, setOpenInvoiceId] = useState<number | null>(null);
@@ -85,12 +89,39 @@ export function InvoiceDrawerProvider({
     setDocumentError(null);
   };
 
-  const openInvoice = useCallback((invoiceId: number) => {
-    setActionError(null);
-    setCorrectionError(null);
-    setDocumentError(null);
-    setOpenInvoiceId(invoiceId);
-  }, []);
+  const openInvoice = useCallback(
+    (invoiceId: number, source?: InvoiceSource) => {
+      if (source === 1 && invoicing) {
+        void navigate({
+          to: "/invoicing/invoices/$invoiceId",
+          params: { invoiceId: String(invoiceId) },
+        });
+        return;
+      }
+
+      setActionError(null);
+      setCorrectionError(null);
+      setDocumentError(null);
+      setOpenInvoiceId(invoiceId);
+    },
+    [navigate, invoicing],
+  );
+
+  // An invoice written in Opusline is a document with a page of its own; a
+  // caller that only had its id finds out once the fiche has loaded.
+  const openedContent = detail.data?.content;
+
+  useEffect(() => {
+    // Without the beta the page is out of reach (an account that left it
+    // still has its invoices): the fiche stays the drawer.
+    if (openInvoiceId !== null && openedContent != null && invoicing) {
+      setOpenInvoiceId(null);
+      void navigate({
+        to: "/invoicing/invoices/$invoiceId",
+        params: { invoiceId: String(openInvoiceId) },
+      });
+    }
+  }, [openInvoiceId, openedContent, navigate, invoicing]);
 
   // The fiche is mounted above the Outlet, so a route change never unmounts it
   // and browser Back would leave a modal sheet stranded over the page behind.
