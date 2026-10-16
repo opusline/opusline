@@ -94,9 +94,39 @@ proxies `/api` and `/sanctum`.
 
 ## Work tracking
 
-- Issues are the backlog. The public Project [Opusline roadmap](https://github.com/orgs/opusline/projects/1) holds their status (Triage → Backlog → Next → In progress → Done); `gh project item-list 1 --owner opusline` lists it.
-- An issue carries one **type** (Bug, Feature, Task), the **area labels** it touches (`api`, `web`, `ui`, `ci`, `docs`, `self-hosting`) and, in the Project, a **Priority** and an **Effort**. Never create labels; never encode priority or status in a label.
-- A multi-PR feature is a parent issue with sub-issues. A PR `Closes` its sub-issue, never the parent.
+The plan lives on GitHub, not in this file: the public Project
+[Opusline roadmap](https://github.com/orgs/opusline/projects/1) (`gh project item-list 1 --owner opusline`).
+Its README holds the « order of play » and the reasoning; milestone titles are
+numbered in delivery order (`01 · Invoicing beta` … `10 · Later`) because
+GitHub sorts milestones alphabetically, so the milestones page, the Roadmap
+view and an issue's sidebar all read as the sequence. Issue dependencies
+(« Blocked by » on the issue page) carry the hard constraints.
+
+**Vocabulary.** An issue carries one **type** (Bug, Feature, Task), the
+**area labels** it touches (`api`, `web`, `ui`, `ci`, `docs`, `self-hosting`),
+a **milestone**, and, in the Project, a **Priority** (Urgent / High / Medium /
+Low), an **Effort** (Low / Medium / High) and a **Status**: Triage (just filed)
+→ Backlog (not committed) → Next (ordered, ≤ 5) → In progress (a PR exists) →
+Done. Never create labels; never encode priority or status in a label. A
+multi-PR feature is a parent issue with sub-issues; a PR `Closes` its
+sub-issue, never the parent.
+
+**Picking the next thing, step by step.**
+
+1. Open the « Now » view (or `gh project item-list 1 --owner opusline --format json | jq '.items[] | select(.status=="In progress" or .status=="Next")'`).
+   Something In progress? Continue it: its PR is linked on the card.
+2. Otherwise take the **top card of Next**. Do not pick from Backlog while Next has items.
+3. `gh issue view <n>`: read the body, its parent issue (cross-cutting rules such as #498's legal
+   rules live there), and « Blocked by ». A blocked issue waits for its blocker, whatever its priority.
+4. Branch from `main`, one focused PR per issue, `Closes #<n>` in the body. Status moves on its own
+   (PR linked → In progress, merged → Done); set nothing by hand.
+5. When Next runs dry, refill it from Backlog in milestone order (`01` before `02`), highest
+   Priority first, and keep it at five or fewer. Milestone numbers, not dates, say what comes first.
+
+**Filing work.** `gh issue create --type <Bug|Feature|Task> --label <areas> --milestone "<NN · name>"`,
+then set Priority and Effort in the Project (new issues land in Triage; move them to Backlog or
+Next once triaged). Part of a feature? Add it as a sub-issue of the parent and a « blocked by »
+link if it depends on another issue. Ideas with no goal go to `10 · Later`.
 
 ## Code style preferences
 
