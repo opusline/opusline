@@ -71,11 +71,17 @@ class SyncBankConnection
         $from = $this->windowStart($connection, $to);
 
         try {
+            // Shine returns an empty list whenever date_to is sent.
+            $transactionEnd = $connection->aspsp_name === 'Shine' ? null : $to;
             $movements = EnableBankingStatement::movements(
-                $this->enableBankingClient->transactions($credentials, $connection->account_uid, $from, $to, $psu),
+                $this->enableBankingClient->transactions($credentials, $connection->account_uid, $from, $transactionEnd, $psu),
                 $currency,
                 $connection->account_identification_hash,
             );
+            $movements = array_values(array_filter(
+                $movements,
+                static fn (ParsedMovement $movement): bool => $movement->bookedOn->betweenIncluded($from, $to),
+            ));
             $closingBalance = EnableBankingStatement::closingBalance(
                 $this->enableBankingClient->balances($credentials, $connection->account_uid, $psu),
                 $currency,
@@ -152,8 +158,8 @@ class SyncBankConnection
 
     /**
      * The first day to read: the last day this connection synced less the
-     * overlap, or as far back as banks serve. A new statement — a first
-     * connection, a reconnection, another account — reads the full history:
+     * overlap, or as far back as banks serve. A new or still-empty statement
+     * reads the full history so an earlier empty bank response leaves no gap:
      * rows an earlier sync of the same account brought in deduplicate on the
      * bank's references, and days a statement file covers come back too, for
      * RecordBankMovements to leave to the file.
@@ -161,11 +167,13 @@ class SyncBankConnection
     private function windowStart(BankConnection $connection, CarbonImmutable $today): CarbonImmutable
     {
         $start = $today->subDays(self::MAX_HISTORY_DAYS);
-        $lastSyncedDay = $connection->statement?->period_end;
+        $statement = $connection->statement;
 
-        return $lastSyncedDay instanceof CarbonImmutable
-            ? $start->max($lastSyncedDay->subDays(self::OVERLAP_DAYS))
-            : $start;
+        if ($statement === null || $statement->line_count === 0) {
+            return $start;
+        }
+
+        return $start->max($statement->period_end->subDays(self::OVERLAP_DAYS));
     }
 
     private function recordSuccess(BankConnection $connection): void

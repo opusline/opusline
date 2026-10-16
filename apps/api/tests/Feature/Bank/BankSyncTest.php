@@ -117,6 +117,110 @@ test('follows the pages of a long answer', function (): void {
         && ($request['continuation_key'] ?? null) === 'page-2');
 });
 
+test('syncs a bank whose end-date filter returns an empty list on every page', function (): void {
+    fakeEnableBanking([
+        'api.enablebanking.com/accounts/*/transactions*' => function (Request $request): mixed {
+            if (isset($request['date_to'])) {
+                return transactionsPage([]);
+            }
+
+            return ($request['continuation_key'] ?? null) === 'page-2'
+                ? transactionsPage([ebTransaction([
+                    'entry_reference' => 'E-NEW',
+                    'booking_date' => '2026-08-13',
+                    'transaction_amount' => ['currency' => 'EUR', 'amount' => '8640.00'],
+                ])])
+                : transactionsPage([ebTransaction([
+                    'entry_reference' => 'E-FILED',
+                    'booking_date' => '2026-08-10',
+                ])], 'page-2');
+        },
+    ]);
+    $user = accountWithBankBalance('2026-08-11', 112_000);
+    connectedBankFor($user, fn ($factory) => $factory->state(['aspsp_name' => 'Shine']));
+    bankMovementFor($user, configure: fn ($factory) => $factory->state(['booked_on' => '2026-08-10']));
+
+    syncBank($user)
+        ->assertOk()
+        ->assertJsonPath('lineCount', 2)
+        ->assertJsonPath('importedCount', 1)
+        ->assertJsonPath('account.balance.amount.amount', 976_000)
+        ->assertJsonPath('account.balance.source', BankBalanceSource::Manual->value);
+
+    syncBank($user)
+        ->assertOk()
+        ->assertJsonPath('importedCount', 0)
+        ->assertJsonPath('account.balance.amount.amount', 976_000);
+
+    expect($user->bankMovements()->count())->toBe(2);
+    Http::assertNotSent(fn (Request $request): bool => str_contains($request->url(), '/transactions')
+        && isset($request['date_to']));
+});
+
+test('keeps the end-date filter for other banks', function (): void {
+    fakeEnableBanking([
+        'api.enablebanking.com/accounts/*/transactions*' => fn (Request $request): mixed => transactionsPage(
+            ($request['date_to'] ?? null) === '2026-08-13' ? [ebTransaction()] : [],
+        ),
+    ]);
+    $user = User::factory()->create();
+    connectedBankFor($user);
+
+    syncBank($user)->assertOk()->assertJsonPath('importedCount', 1);
+});
+
+test('imports only the inclusive sync window when the bank ignores date filters', function (string $bank): void {
+    fakeEnableBanking([
+        'api.enablebanking.com/accounts/*/transactions*' => Http::sequence()
+            ->push(['transactions' => [
+                ebTransaction(['entry_reference' => 'E-OLD', 'booking_date' => '2026-05-14']),
+                ebTransaction(['entry_reference' => 'E-START', 'booking_date' => '2026-05-15']),
+            ], 'continuation_key' => 'page-2'])
+            ->push(['transactions' => [
+                ebTransaction(['entry_reference' => 'E-END', 'booking_date' => '2026-08-13']),
+                ebTransaction(['entry_reference' => 'E-FUTURE', 'booking_date' => '2026-08-14']),
+                ebTransaction(['entry_reference' => 'E-PENDING', 'booking_date' => '2026-08-13', 'status' => 'PDNG']),
+            ], 'continuation_key' => null]),
+    ]);
+    $user = User::factory()->create();
+    connectedBankFor($user, fn ($factory) => $factory->state(['aspsp_name' => $bank]));
+
+    syncBank($user)
+        ->assertOk()
+        ->assertJsonPath('lineCount', 2)
+        ->assertJsonPath('importedCount', 2)
+        ->assertJsonPath('account.balance.amount.amount', 24_000)
+        ->assertJsonPath('account.movements.0.bookedOn', '2026-08-13')
+        ->assertJsonPath('account.movements.1.bookedOn', '2026-05-15');
+
+    expect($user->bankMovements()->count())->toBe(2);
+})->with(['bank without end-date support' => 'Shine', 'other bank' => 'Banque Orvella']);
+
+test('recovers the full history after earlier syncs left an empty statement', function (): void {
+    fakeEnableBanking([
+        'api.enablebanking.com/accounts/*/transactions*' => fn (Request $request): mixed => transactionsPage(array_values(array_filter([
+            ebTransaction(['entry_reference' => 'E-HISTORY', 'booking_date' => '2026-06-10']),
+            ebTransaction(['entry_reference' => 'E-TODAY', 'booking_date' => '2026-08-13']),
+        ], fn (array $transaction): bool => $transaction['booking_date'] >= $request['date_from']))),
+    ]);
+    $user = User::factory()->create();
+    $statement = bankStatementOwnedBy($user, fn ($factory) => $factory->state([
+        'format' => BankStatementFormat::EnableBanking,
+        'period_start' => '2026-05-14',
+        'period_end' => '2026-08-12',
+        'line_count' => 0,
+    ]));
+    connectedBankFor($user, fn ($factory) => $factory->state(['bank_statement_id' => $statement->id]));
+
+    syncBank($user)
+        ->assertOk()
+        ->assertJsonPath('importedCount', 2)
+        ->assertJsonPath('account.statements.0.lineCount', 2);
+
+    expect(fetchedFrom())->toBe(['2026-05-15']);
+    expect($user->bankMovements()->count())->toBe(2);
+});
+
 test('tells the bank the account holder is present when they ask', function (): void {
     fakeEnableBanking();
     $user = User::factory()->create();
