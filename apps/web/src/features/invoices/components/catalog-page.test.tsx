@@ -92,3 +92,18 @@ it("says the catalogue is empty", () => {
 
   expect(screen.getByTestId("catalog-empty")).toBeInTheDocument();
 });
+
+it("points each invalid input at its own error message", async () => {
+  renderPage();
+
+  fireEvent.click(screen.getByTestId("catalog-add"));
+  fireEvent.click(screen.getByTestId("catalog-form-save"));
+
+  for (const testId of ["catalog-form-label", "catalog-form-price"]) {
+    const input = screen.getByTestId(testId);
+    expect(input).toHaveAttribute("aria-invalid", "true");
+    const errorId = input.getAttribute("aria-describedby");
+    expect(errorId).not.toBeNull();
+    expect(document.getElementById(errorId as string)).toHaveTextContent(/./);
+  }
+});

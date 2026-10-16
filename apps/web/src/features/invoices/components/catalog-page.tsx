@@ -257,6 +257,8 @@ function CatalogItemForm({
     unit: useId(),
     price: useId(),
     vat: useId(),
+    labelError: useId(),
+    priceError: useId(),
   };
   const [showErrors, setShowErrors] = useState(false);
   const cents = parseAmountToCents(format.locale, draft.unitPrice);
@@ -300,6 +302,9 @@ function CatalogItemForm({
             {m.catalog_label()}
           </FieldLabel>
           <Input
+            aria-describedby={
+              showErrors && labelError !== null ? ids.labelError : undefined
+            }
             aria-invalid={showErrors && labelError !== null}
             data-testid="catalog-form-label"
             id={ids.label}
@@ -308,7 +313,10 @@ function CatalogItemForm({
             value={draft.label}
           />
           {showErrors && labelError !== null ? (
-            <FieldError errors={[{ message: labelError }]} />
+            <FieldError
+              errors={[{ message: labelError }]}
+              id={ids.labelError}
+            />
           ) : null}
         </Field>
         <Field className="sm:col-span-6">
@@ -351,6 +359,9 @@ function CatalogItemForm({
           </FieldLabel>
           <InputGroup>
             <InputGroupInput
+              aria-describedby={
+                showErrors && priceError !== null ? ids.priceError : undefined
+              }
               aria-invalid={showErrors && priceError !== null}
               data-testid="catalog-form-price"
               id={ids.price}
@@ -365,7 +376,10 @@ function CatalogItemForm({
             <InputGroupSuffix>{currencySymbol(format)}</InputGroupSuffix>
           </InputGroup>
           {showErrors && priceError !== null ? (
-            <FieldError errors={[{ message: priceError }]} />
+            <FieldError
+              errors={[{ message: priceError }]}
+              id={ids.priceError}
+            />
           ) : null}
         </Field>
         <Field className="sm:col-span-2">
