@@ -2,6 +2,7 @@ import type { DocumentLanguage } from "@opusline/api-client";
 import { client as apiClient } from "@opusline/api-client/client";
 import {
   acceptQuoteMutation,
+  createQuoteInvoiceMutation,
   deleteQuoteMutation,
   refuseQuoteMutation,
   reopenQuoteMutation,
@@ -23,7 +24,10 @@ import { QuoteDocumentPage } from "@/features/invoices/components/quote-document
 import { formatAmountWithCents } from "@/lib/billing";
 import { requireInvoicing } from "@/lib/features";
 import { companyLogoHref } from "@/lib/logos";
-import { invalidateQuoteWrites } from "@/lib/query-invalidation";
+import {
+  invalidateInvoiceWrites,
+  invalidateQuoteWrites,
+} from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -95,6 +99,19 @@ function QuoteDocumentRoute() {
     onError: (failure) =>
       setError(serverErrorMessage(failure, m.quote_reopen_failed())),
   });
+  const invoice = useMutation({
+    ...createQuoteInvoiceMutation(),
+    onMutate: () => setError(null),
+    onSuccess: async (created) => {
+      await Promise.all([refresh(), invalidateInvoiceWrites(queryClient)]);
+      await navigate({
+        to: "/invoicing/invoices/$invoiceId/edit",
+        params: { invoiceId: String(created.invoice.id) },
+      });
+    },
+    onError: (failure) =>
+      setError(serverErrorMessage(failure, m.quote_invoice_failed())),
+  });
   const remove = useMutation({
     ...deleteQuoteMutation(),
     onMutate: () => setError(null),
@@ -131,13 +148,21 @@ function QuoteDocumentRoute() {
           accept.isPending ||
           refuse.isPending ||
           reopen.isPending ||
+          invoice.isPending ||
           remove.isPending
         }
         language={language}
         logoSrc={identity.data?.hasLogo ? companyLogoHref() : undefined}
         onAccept={() => accept.mutate({ ...path, body: {} })}
         onDelete={() => setIsConfirmingDelete(true)}
+        onInvoice={(billing) => invoice.mutate({ ...path, body: { billing } })}
         onLanguageChange={setLanguage}
+        onOpenInvoice={(invoiceId) =>
+          void navigate({
+            to: "/invoicing/invoices/$invoiceId",
+            params: { invoiceId: String(invoiceId) },
+          })
+        }
         onRefuse={() => refuse.mutate({ ...path, body: {} })}
         onReopen={() => reopen.mutate(path)}
         onRetryPaper={paper.isError ? () => void paper.refetch() : undefined}

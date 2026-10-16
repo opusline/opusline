@@ -211,6 +211,10 @@ final class PaperBuilder
             $sentences[] = $this->text($format, 'legal.debits');
         }
 
+        if ($document->quoteMention !== null) {
+            $sentences[] = $document->quoteMention;
+        }
+
         if (! blank($document->customMentions)) {
             $sentences[] = trim($document->customMentions);
         }

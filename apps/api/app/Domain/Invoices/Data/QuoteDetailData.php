@@ -20,6 +20,7 @@ class QuoteDetailData extends Data
         public QuoteContentData $content,
         /** The PDF filed with the client's documents when the quote was validated. */
         public ?DocumentData $document,
+        public QuoteBillingData $billing,
     ) {}
 
     public static function fromModel(Quote $quote): self
@@ -32,6 +33,7 @@ class QuoteDetailData extends Data
             mission: $quote->mission === null ? null : MissionData::from($quote->mission),
             content: QuoteContentData::fromQuote($quote),
             document: $document instanceof Media ? DocumentData::fromMedia($document) : null,
+            billing: QuoteBillingData::fromQuote($quote),
         );
     }
 }

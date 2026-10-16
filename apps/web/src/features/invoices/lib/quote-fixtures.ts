@@ -1,5 +1,6 @@
 import type {
   InvoicePaperData,
+  QuoteBillingData,
   QuoteContentData,
   QuoteData,
   QuoteDetailData,
@@ -74,9 +75,37 @@ export function quoteItem(
   };
 }
 
+/** Nothing invoiced and nothing offered: what a quote not yet accepted carries. */
+export const NO_BILLING: QuoteBillingData = {
+  invoices: [],
+  invoicedTtc: eur(0),
+  canInvoiceDeposit: false,
+  canInvoiceBalance: false,
+  canInvoiceFull: false,
+};
+
+/** An accepted quote whose deposit invoice went out: the balance is next. */
+export const DEPOSIT_BILLED: QuoteBillingData = {
+  invoices: [
+    {
+      id: 41,
+      number: "2026-041",
+      status: 1,
+      isLate: false,
+      billing: 0,
+      amountTtc: eur(1_144_800),
+    },
+  ],
+  invoicedTtc: eur(1_144_800),
+  canInvoiceDeposit: false,
+  canInvoiceBalance: true,
+  canInvoiceFull: false,
+};
+
 /** A quote written in Opusline, sent and awaiting the client's answer. */
 export function quoteDetail(
   overrides: Partial<QuoteData> = {},
+  billing: QuoteBillingData = NO_BILLING,
 ): QuoteDetailData {
   return {
     quote: { ...QUOTE_FIXTURE, ...overrides },
@@ -84,6 +113,7 @@ export function quoteDetail(
     mission: MISSION_FIXTURE,
     content: CONTENT,
     document: null,
+    billing,
   };
 }
 

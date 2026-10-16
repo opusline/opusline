@@ -3213,18 +3213,6 @@ export const zInvoiceContentData = z.object({
 });
 
 /**
- * InvoiceDetailData
- */
-export const zInvoiceDetailData = z.object({
-    invoice: zInvoiceData,
-    client: zClientData,
-    mission: z.nullable(zMissionData),
-    history: z.array(zInvoiceEventData),
-    document: z.nullable(zDocumentData),
-    content: z.nullable(zInvoiceContentData)
-});
-
-/**
  * QuoteContentData
  */
 export const zQuoteContentData = z.object({
@@ -3237,17 +3225,6 @@ export const zQuoteContentData = z.object({
     vatBreakdown: z.array(zVatBreakdownRowData),
     seller: z.nullable(zDocumentPartyData),
     buyer: z.nullable(zDocumentPartyData)
-});
-
-/**
- * QuoteDetailData
- */
-export const zQuoteDetailData = z.object({
-    quote: zQuoteData,
-    client: zClientData,
-    mission: z.nullable(zMissionData),
-    content: zQuoteContentData,
-    document: z.nullable(zDocumentData)
 });
 
 /**
@@ -3405,6 +3382,82 @@ export const zDeclarationsData = z.object({
     annual: z.nullable(zAnnualDeclarationsData),
     liberatingPayment: z.nullable(zLiberatingPaymentOutlookData),
     history: z.array(zDeclarationHistoryRowData)
+});
+
+/**
+ * QuoteBilling
+ *
+ * Which part of an accepted quote an invoice bills.
+ *
+ */
+export const zQuoteBilling = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * InvoiceQuoteData
+ */
+export const zInvoiceQuoteData = z.object({
+    billing: zQuoteBilling
+});
+
+/**
+ * InvoiceQuoteLinkData
+ */
+export const zInvoiceQuoteLinkData = z.object({
+    quoteId: z.int(),
+    number: z.nullable(z.string()),
+    billing: zQuoteBilling
+});
+
+/**
+ * InvoiceDetailData
+ */
+export const zInvoiceDetailData = z.object({
+    invoice: zInvoiceData,
+    client: zClientData,
+    mission: z.nullable(zMissionData),
+    history: z.array(zInvoiceEventData),
+    document: z.nullable(zDocumentData),
+    content: z.nullable(zInvoiceContentData),
+    quote: z.nullable(zInvoiceQuoteLinkData)
+});
+
+/**
+ * QuoteInvoiceLinkData
+ */
+export const zQuoteInvoiceLinkData = z.object({
+    id: z.int(),
+    number: z.nullable(z.string()),
+    status: zInvoiceStatus,
+    isLate: z.boolean(),
+    billing: zQuoteBilling,
+    amountTtc: zMoneyData
+});
+
+/**
+ * QuoteBillingData
+ */
+export const zQuoteBillingData = z.object({
+    invoices: z.array(zQuoteInvoiceLinkData),
+    invoicedTtc: zMoneyData,
+    canInvoiceDeposit: z.boolean(),
+    canInvoiceBalance: z.boolean(),
+    canInvoiceFull: z.boolean()
+});
+
+/**
+ * QuoteDetailData
+ */
+export const zQuoteDetailData = z.object({
+    quote: zQuoteData,
+    client: zClientData,
+    mission: z.nullable(zMissionData),
+    content: zQuoteContentData,
+    document: z.nullable(zDocumentData),
+    billing: zQuoteBillingData
 });
 
 export const zGetPingResponse = zPingData;
@@ -4532,3 +4585,11 @@ export const zDownloadUserDocumentPath = z.object({
 });
 
 export const zDownloadUserDocumentResponse = z.string();
+
+export const zCreateQuoteInvoiceBody = zInvoiceQuoteData;
+
+export const zCreateQuoteInvoicePath = z.object({
+    quote: z.int()
+});
+
+export const zCreateQuoteInvoiceResponse = zInvoiceDetailData;

@@ -10,6 +10,7 @@ use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Enums\InvoiceSource;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Enums\OperationCategory;
+use App\Domain\Invoices\Enums\QuoteBilling;
 use App\Domain\Invoices\Factories\InvoiceFactory;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Casts\CalendarDate;
@@ -34,6 +35,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property int $user_id
  * @property int $client_id
  * @property ?int $mission_id
+ * @property ?int $quote_id
+ * @property ?QuoteBilling $quote_billing
  * @property ?string $number
  * @property InvoiceStatus $status
  * @property InvoiceSource $source
@@ -65,11 +68,14 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property-read Client $client
  * @property-read User $user
  * @property-read ?Mission $mission
+ * @property-read ?Quote $quote
  * @property-read Collection<int, InvoiceLine> $lines
  */
 #[Fillable([
     'client_id',
     'mission_id',
+    'quote_id',
+    'quote_billing',
     'number',
     'status',
     'source',
@@ -160,6 +166,7 @@ class Invoice extends Model
         return [
             'status' => InvoiceStatus::class,
             'source' => InvoiceSource::class,
+            'quote_billing' => QuoteBilling::class,
             'language' => DocumentLanguage::class,
             'payment_terms_days' => 'integer',
             'payment_terms_end_of_month' => 'boolean',
@@ -202,6 +209,16 @@ class Invoice extends Model
     public function mission(): BelongsTo
     {
         return $this->belongsTo(Mission::class);
+    }
+
+    /**
+     * The quote this invoice bills a part of, when it came from one.
+     *
+     * @return BelongsTo<Quote, $this>
+     */
+    public function quote(): BelongsTo
+    {
+        return $this->belongsTo(Quote::class);
     }
 
     /**

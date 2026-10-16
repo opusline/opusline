@@ -18,4 +18,8 @@ return [
     'issue_needs_buyer_address' => 'Complete the client\'s billing address on its record: it is mandatory on a quote.',
     'cannot_delete_client_with_quotes' => 'A client that still has quotes cannot be deleted. Delete them first.',
     'cannot_delete_mission_with_quotes' => 'A mission that still has quotes cannot be deleted. Delete them first.',
+    'cannot_invoice_unless_accepted' => 'Only an accepted quote can be invoiced.',
+    'deposit_already_invoiced' => 'The deposit of this quote is already invoiced.',
+    'balance_needs_deposit' => 'The balance follows an issued deposit invoice; invoice the whole quote instead.',
+    'already_invoiced' => 'This quote is already being invoiced: finish with its balance.',
 ];

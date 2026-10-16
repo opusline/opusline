@@ -7917,6 +7917,72 @@
                     }
                 }
             }
+        },
+        "/invoicing/quotes/{quote}/invoices": {
+            "post": {
+                "operationId": "createQuoteInvoice",
+                "tags": [
+                    "QuoteInvoice"
+                ],
+                "parameters": [
+                    {
+                        "name": "quote",
+                        "in": "path",
+                        "required": true,
+                        "description": "The quote ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InvoiceQuoteData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -12541,6 +12607,16 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "quote": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/InvoiceQuoteLinkData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -12549,7 +12625,8 @@
                     "mission",
                     "history",
                     "document",
-                    "content"
+                    "content",
+                    "quote"
                 ],
                 "title": "InvoiceDetailData"
             },
@@ -14305,6 +14382,9 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "billing": {
+                        "$ref": "#/components/schemas/QuoteBillingData"
                     }
                 },
                 "required": [
@@ -14312,7 +14392,8 @@
                     "client",
                     "mission",
                     "content",
-                    "document"
+                    "document",
+                    "billing"
                 ],
                 "title": "QuoteDetailData"
             },
@@ -18101,6 +18182,122 @@
                     "ReelNormal"
                 ],
                 "title": "VatRegime"
+            },
+            "InvoiceQuoteData": {
+                "type": "object",
+                "properties": {
+                    "billing": {
+                        "$ref": "#/components/schemas/QuoteBilling"
+                    }
+                },
+                "required": [
+                    "billing"
+                ],
+                "title": "InvoiceQuoteData"
+            },
+            "InvoiceQuoteLinkData": {
+                "type": "object",
+                "properties": {
+                    "quoteId": {
+                        "type": "integer"
+                    },
+                    "number": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "billing": {
+                        "$ref": "#/components/schemas/QuoteBilling"
+                    }
+                },
+                "required": [
+                    "quoteId",
+                    "number",
+                    "billing"
+                ],
+                "title": "InvoiceQuoteLinkData"
+            },
+            "QuoteBilling": {
+                "type": "integer",
+                "description": "Which part of an accepted quote an invoice bills.\n",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "Deposit",
+                    "Balance",
+                    "Full"
+                ],
+                "title": "QuoteBilling"
+            },
+            "QuoteBillingData": {
+                "type": "object",
+                "properties": {
+                    "invoices": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QuoteInvoiceLinkData"
+                        }
+                    },
+                    "invoicedTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "canInvoiceDeposit": {
+                        "type": "boolean"
+                    },
+                    "canInvoiceBalance": {
+                        "type": "boolean"
+                    },
+                    "canInvoiceFull": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "invoices",
+                    "invoicedTtc",
+                    "canInvoiceDeposit",
+                    "canInvoiceBalance",
+                    "canInvoiceFull"
+                ],
+                "title": "QuoteBillingData"
+            },
+            "QuoteInvoiceLinkData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "number": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/InvoiceStatus"
+                    },
+                    "isLate": {
+                        "type": "boolean"
+                    },
+                    "billing": {
+                        "$ref": "#/components/schemas/QuoteBilling"
+                    },
+                    "amountTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "id",
+                    "number",
+                    "status",
+                    "isLate",
+                    "billing",
+                    "amountTtc"
+                ],
+                "title": "QuoteInvoiceLinkData"
             }
         },
         "responses": {

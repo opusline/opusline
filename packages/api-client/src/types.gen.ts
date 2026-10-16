@@ -1476,6 +1476,7 @@ export type InvoiceDetailData = {
     history: Array<InvoiceEventData>;
     document: DocumentData | null;
     content: InvoiceContentData | null;
+    quote: InvoiceQuoteLinkData | null;
 };
 
 /**
@@ -2073,6 +2074,7 @@ export type QuoteDetailData = {
     mission: MissionData | null;
     content: QuoteContentData;
     document: DocumentData | null;
+    billing: QuoteBillingData;
 };
 
 /**
@@ -3226,6 +3228,53 @@ export type VatDeclarationData = {
  * VatRegime
  */
 export type VatRegime = 0 | 1 | 2;
+
+/**
+ * InvoiceQuoteData
+ */
+export type InvoiceQuoteData = {
+    billing: QuoteBilling;
+};
+
+/**
+ * InvoiceQuoteLinkData
+ */
+export type InvoiceQuoteLinkData = {
+    quoteId: number;
+    number: string | null;
+    billing: QuoteBilling;
+};
+
+/**
+ * QuoteBilling
+ *
+ * Which part of an accepted quote an invoice bills.
+ *
+ */
+export type QuoteBilling = 0 | 1 | 2;
+
+/**
+ * QuoteBillingData
+ */
+export type QuoteBillingData = {
+    invoices: Array<QuoteInvoiceLinkData>;
+    invoicedTtc: MoneyData;
+    canInvoiceDeposit: boolean;
+    canInvoiceBalance: boolean;
+    canInvoiceFull: boolean;
+};
+
+/**
+ * QuoteInvoiceLinkData
+ */
+export type QuoteInvoiceLinkData = {
+    id: number;
+    number: string | null;
+    status: InvoiceStatus;
+    isLate: boolean;
+    billing: QuoteBilling;
+    amountTtc: MoneyData;
+};
 
 export type GetPingData = {
     body?: never;
@@ -10534,3 +10583,53 @@ export type DownloadUserDocumentResponses = {
 };
 
 export type DownloadUserDocumentResponse = DownloadUserDocumentResponses[keyof DownloadUserDocumentResponses];
+
+export type CreateQuoteInvoiceData = {
+    body: InvoiceQuoteData;
+    path: {
+        /**
+         * The quote ID
+         */
+        quote: number;
+    };
+    query?: never;
+    url: '/invoicing/quotes/{quote}/invoices';
+};
+
+export type CreateQuoteInvoiceErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateQuoteInvoiceError = CreateQuoteInvoiceErrors[keyof CreateQuoteInvoiceErrors];
+
+export type CreateQuoteInvoiceResponses = {
+    201: InvoiceDetailData;
+};
+
+export type CreateQuoteInvoiceResponse = CreateQuoteInvoiceResponses[keyof CreateQuoteInvoiceResponses];

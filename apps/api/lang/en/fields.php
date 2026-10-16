@@ -20,6 +20,7 @@ return [
     'basis' => 'basis',
     'bic' => 'BIC',
     'billable' => 'billable',
+    'billing' => 'billing',
     'billingAddressLine1' => 'billing address line 1',
     'billingAddressLine2' => 'billing address line 2',
     'billingCity' => 'billing city',

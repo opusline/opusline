@@ -73,3 +73,15 @@ it("offers to retry when the sheet failed, instead of waiting for it", async () 
 
   expect(onRetryPaper).toHaveBeenCalledOnce();
 });
+
+it("links back to the quote an invoice was built from", async () => {
+  renderPage({
+    ...documentDetail(),
+    quote: { quoteId: 7, number: "D-2026-003", billing: 0 },
+  });
+
+  expect(await screen.findByTestId("document-from-quote")).toHaveAttribute(
+    "href",
+    "/invoicing/quotes/7",
+  );
+});
