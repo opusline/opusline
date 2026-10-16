@@ -86,3 +86,30 @@ test('serves only the signed-in account its own logo', function (): void {
 
     $this->actingAs(User::factory()->create())->getJson('/api/user/logo')->assertNotFound();
 });
+
+test('uploading a logo leaves another account\'s logo untouched', function (): void {
+    Storage::fake('local');
+    $owner = User::factory()->create();
+    $other = User::factory()->create();
+    $this->actingAs($owner)->post('/api/user/logo', ['logo' => UploadedFile::fake()->image('owner.png')]);
+
+    $this->actingAs($other)->post('/api/user/logo', ['logo' => UploadedFile::fake()->image('other.png')])->assertNoContent();
+
+    expect($owner->fresh()?->getMedia('company_logo'))->toHaveCount(1)
+        ->and($owner->fresh()?->getFirstMedia('company_logo')?->file_name)->toBe('owner.png');
+    $this->actingAs($owner)->get('/api/user/logo')->assertOk();
+});
+
+test('deleting a logo leaves another account\'s logo untouched', function (): void {
+    Storage::fake('local');
+    $owner = User::factory()->create();
+    $other = User::factory()->create();
+    $this->actingAs($owner)->post('/api/user/logo', ['logo' => UploadedFile::fake()->image('owner.png')]);
+    $this->actingAs($other)->post('/api/user/logo', ['logo' => UploadedFile::fake()->image('other.png')]);
+
+    $this->actingAs($other)->deleteJson('/api/user/logo')->assertNoContent();
+
+    expect($owner->fresh()?->getFirstMedia('company_logo')?->file_name)->toBe('owner.png')
+        ->and($other->fresh()?->getFirstMedia('company_logo'))->toBeNull();
+    $this->actingAs($owner)->get('/api/user/logo')->assertOk();
+});

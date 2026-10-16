@@ -97,6 +97,8 @@ test('rejects a malformed or mistyped IBAN', function (mixed $iban): void {
     'one digit off' => ['DE89370400440532013001'],
     'swapped check digits' => ['FR6730006000011234567890189'],
     'too short' => ['FR763000'],
+    'valid checksum but not the French length' => ['FR9112345678901'],
+    'valid checksum under a country the registry does not list' => ['ZZ8112345678901'],
     'no country' => ['7630006000011234567890189'],
     'empty' => [''],
     'not a string' => [7630006000011234567],
