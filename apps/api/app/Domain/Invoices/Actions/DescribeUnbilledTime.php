@@ -35,9 +35,9 @@ class DescribeUnbilledTime
         $workdayMinutes = $user->settingsOrFail()->workday_minutes;
         $entries = $mission->timeEntries()
             ->where('billable', true)
-            ->where(fn ($query) => $draft === null
-                ? $query->whereNull('invoice_id')
-                : $query->whereNull('invoice_id')->orWhere('invoice_id', $draft->id))
+            ->where(fn ($query) => $draft instanceof Invoice
+                ? $query->whereNull('invoice_id')->orWhere('invoice_id', $draft->id)
+                : $query->whereNull('invoice_id'))
             ->orderBy('date')
             ->get();
         $isHourly = $mission->billing_mode === BillingMode::Hourly;
