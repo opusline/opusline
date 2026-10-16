@@ -12993,7 +12993,57 @@
                     "lines": {
                         "type": "array",
                         "items": {
-                            "type": "string"
+                            "type": "object",
+                            "properties": {
+                                "label": {
+                                    "type": "string",
+                                    "maxLength": 255
+                                },
+                                "quantityMilli": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 100000000
+                                },
+                                "unit": {
+                                    "$ref": "#/components/schemas/LineUnit"
+                                },
+                                "unitPrice": {
+                                    "type": "object",
+                                    "properties": {
+                                        "amount": {
+                                            "type": "integer",
+                                            "minimum": -100000000000,
+                                            "maximum": 100000000000
+                                        },
+                                        "currency": {
+                                            "$ref": "#/components/schemas/Currency"
+                                        }
+                                    },
+                                    "required": [
+                                        "amount",
+                                        "currency"
+                                    ]
+                                },
+                                "vatRateBp": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 10000
+                                },
+                                "detail": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ],
+                                    "maxLength": 1000
+                                }
+                            },
+                            "required": [
+                                "label",
+                                "quantityMilli",
+                                "unit",
+                                "unitPrice",
+                                "vatRateBp"
+                            ]
                         },
                         "maxItems": 200
                     },

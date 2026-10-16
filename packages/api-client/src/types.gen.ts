@@ -2026,7 +2026,17 @@ export type SaveInvoiceDraftData = {
     showIban: boolean;
     showEmail: boolean;
     language: DocumentLanguage;
-    lines: Array<string>;
+    lines: Array<{
+        label: string;
+        quantityMilli: number;
+        unit: LineUnit;
+        unitPrice: {
+            amount: number;
+            currency: Currency;
+        };
+        vatRateBp: number;
+        detail?: string | null;
+    }>;
     missionId?: number | null;
     title?: string | null;
     description?: string | null;

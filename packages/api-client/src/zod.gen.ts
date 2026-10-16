@@ -1862,7 +1862,17 @@ export const zSaveInvoiceDraftData = z.object({
     showIban: z.boolean(),
     showEmail: z.boolean(),
     language: zDocumentLanguage,
-    lines: z.array(z.string()).check(z.maxLength(200)),
+    lines: z.array(z.object({
+        label: z.string().check(z.maxLength(255)),
+        quantityMilli: z.int().check(z.gte(1), z.lte(100000000)),
+        unit: zLineUnit,
+        unitPrice: z.object({
+            amount: z.int().check(z.gte(-100000000000), z.lte(100000000000)),
+            currency: zCurrency
+        }),
+        vatRateBp: z.int().check(z.gte(0), z.lte(10000)),
+        detail: z.nullish(z.string().check(z.maxLength(1000)))
+    })).check(z.maxLength(200)),
     missionId: z.nullish(z.int()),
     title: z.nullish(z.string().check(z.maxLength(255))),
     description: z.nullish(z.string().check(z.maxLength(2000))),
