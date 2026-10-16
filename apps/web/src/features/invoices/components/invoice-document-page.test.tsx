@@ -1,4 +1,5 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
+import type { ComponentProps } from "react";
 import { expect, it, vi } from "vitest";
 
 import { StoryRouter } from "@/test/story-router";
@@ -6,7 +7,10 @@ import { documentDetail } from "../lib/invoice-document-fixture";
 import { invoicePaperFixture } from "../lib/invoice-paper-fixture";
 import { InvoiceDocumentPage } from "./invoice-document-page";
 
-function renderPage(detail = documentDetail()) {
+function renderPage(
+  detail = documentDetail(),
+  overrides: Partial<ComponentProps<typeof InvoiceDocumentPage>> = {},
+) {
   render(
     <StoryRouter>
       <InvoiceDocumentPage
@@ -21,6 +25,7 @@ function renderPage(detail = documentDetail()) {
         onRemind={vi.fn()}
         paper={invoicePaperFixture}
         pdfHref={(language) => `/api/invoices/1/pdf?language=${language}`}
+        {...overrides}
       />
     </StoryRouter>,
   );
@@ -55,4 +60,16 @@ it("duplicates into a new invoice", async () => {
     "href",
     "/invoicing/invoices/new?duplicate=1",
   );
+});
+
+it("offers to retry when the sheet failed, instead of waiting for it", async () => {
+  const onRetryPaper = vi.fn();
+  renderPage(documentDetail(), { paper: null, onRetryPaper });
+
+  expect(
+    await screen.findByTestId("document-paper-failed"),
+  ).toBeInTheDocument();
+  fireEvent.click(screen.getByTestId("document-paper-retry"));
+
+  expect(onRetryPaper).toHaveBeenCalledOnce();
 });

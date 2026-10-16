@@ -6,7 +6,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{ amount: NonNullable<unknown> }} Editor_TotalInputs */
 
 const en_editor_total = /** @type {(inputs: Editor_TotalInputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Total incl. VAT ${i?.amount}`)
+	return /** @type {LocalizedString} */ (`Total TTC ${i?.amount}`)
 };
 
 const fr_editor_total = /** @type {(inputs: Editor_TotalInputs) => LocalizedString} */ (i) => {
@@ -16,7 +16,7 @@ const fr_editor_total = /** @type {(inputs: Editor_TotalInputs) => LocalizedStri
 /**
 * | output |
 * | --- |
-* | "Total incl. VAT {amount}" |
+* | "Total TTC {amount}" |
 *
 * @param {Editor_TotalInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

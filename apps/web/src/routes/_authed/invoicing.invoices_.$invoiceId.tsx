@@ -130,6 +130,7 @@ function InvoiceDocumentRoute() {
             body: { occurredOn: accountToday, note: null },
           })
         }
+        onRetryPaper={paper.isError ? () => void paper.refetch() : undefined}
         paper={paper.data ?? null}
         pdfHref={(chosen) => pdfHref(invoiceId, chosen)}
       />

@@ -6,7 +6,7 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{ ht: NonNullable<unknown>, due: NonNullable<unknown> }} Document_Amount_Note_DueInputs */
 
 const en_document_amount_note_due = /** @type {(inputs: Document_Amount_Note_DueInputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`incl. VAT · ${i?.ht} excl. VAT · due ${i?.due}`)
+	return /** @type {LocalizedString} */ (`TTC · ${i?.ht} HT · due ${i?.due}`)
 };
 
 const fr_document_amount_note_due = /** @type {(inputs: Document_Amount_Note_DueInputs) => LocalizedString} */ (i) => {
@@ -16,7 +16,7 @@ const fr_document_amount_note_due = /** @type {(inputs: Document_Amount_Note_Due
 /**
 * | output |
 * | --- |
-* | "incl. VAT · {ht} excl. VAT · due {due}" |
+* | "TTC · {ht} HT · due {due}" |
 *
 * @param {Document_Amount_Note_DueInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

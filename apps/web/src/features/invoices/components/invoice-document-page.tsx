@@ -3,6 +3,7 @@ import type {
   InvoiceDetailData,
   InvoicePaperData,
 } from "@opusline/api-client";
+import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Badge } from "@opusline/ui/components/badge";
 import { Button, buttonVariants } from "@opusline/ui/components/button";
 import {
@@ -18,7 +19,7 @@ import {
 } from "@opusline/ui/components/segmented-control";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { Link } from "@tanstack/react-router";
-import { ChevronDown, ChevronLeft, Download } from "lucide-react";
+import { ChevronDown, ChevronLeft, CircleAlert, Download } from "lucide-react";
 
 import {
   useDateFormat,
@@ -38,8 +39,10 @@ import { InvoicePaper } from "./invoice-paper";
 
 type InvoiceDocumentPageProps = {
   detail: InvoiceDetailData;
-  /** The sheet in `language`; null while it loads. */
+  /** The sheet in `language`; null while it loads or after it failed. */
   paper: InvoicePaperData | null;
+  /** Set once the sheet failed to load: the page then offers to try again instead of waiting. */
+  onRetryPaper?: () => void;
   language: DocumentLanguage;
   onLanguageChange: (language: DocumentLanguage) => void;
   pdfHref: (language: DocumentLanguage) => string;
@@ -59,6 +62,7 @@ type InvoiceDocumentPageProps = {
 export function InvoiceDocumentPage({
   detail,
   paper,
+  onRetryPaper,
   language,
   onLanguageChange,
   pdfHref,
@@ -213,7 +217,22 @@ export function InvoiceDocumentPage({
               </SegmentedControlItem>
             </SegmentedControl>
           </div>
-          {paper === null ? (
+          {paper === null && onRetryPaper !== undefined ? (
+            <Alert data-testid="document-paper-failed" variant="warn">
+              <CircleAlert />
+              <AlertDescription>
+                {m.document_paper_load_failed()}
+              </AlertDescription>
+              <Button
+                data-testid="document-paper-retry"
+                onClick={onRetryPaper}
+                size="sm"
+                variant="outline"
+              >
+                {m.error_retry()}
+              </Button>
+            </Alert>
+          ) : paper === null ? (
             <Skeleton className="h-200 w-full" />
           ) : (
             // The sheet keeps its print proportions: a phone scrolls across it.

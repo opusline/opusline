@@ -979,6 +979,7 @@
   "document_duplicate": "Dupliquer",
   "document_heading": "Facture {number}",
   "document_load_failed": "La facture n'a pas pu être chargée.",
+  "document_paper_load_failed": "Le document n'a pas pu être affiché.",
   "document_preview": "Aperçu du document · page 1 sur 1",
   "documents_add_aria": "Ajouter des documents",
   "documents_added_on": "{size} · ajouté le {date}",
