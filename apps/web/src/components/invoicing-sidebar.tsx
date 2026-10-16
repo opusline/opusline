@@ -1,4 +1,5 @@
 import { showInvoiceSummaryOptions } from "@opusline/api-client/react-query";
+import { Badge } from "@opusline/ui/components/badge";
 import { Button } from "@opusline/ui/components/button";
 import {
   DropdownMenu,
@@ -67,8 +68,13 @@ export function InvoicingSidebar({ toolbar }: { toolbar?: ReactNode }) {
           >
             <img alt="" className="size-6 rounded" src="/logo.svg" />
             <span className="flex flex-col leading-tight">
-              <span className="font-heading font-semibold text-lg">
-                {m.invoicing_section_title()}
+              <span className="flex items-center gap-2">
+                <span className="font-heading font-semibold text-lg">
+                  {m.invoicing_section_title()}
+                </span>
+                <Badge data-testid="invoicing-beta" variant="brand">
+                  {m.beta_badge()}
+                </Badge>
               </span>
               <span className="text-muted-foreground text-xs">Opusline</span>
             </span>

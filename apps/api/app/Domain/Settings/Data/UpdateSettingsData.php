@@ -116,6 +116,12 @@ class UpdateSettingsData extends Data
         /** The prélèvement à la source rate from the avis, which prices the income tax set aside without the versement libératoire. */
         #[IntegerType, Between(0, 10000)]
         public ?int $incomeTaxRateBp = null,
+        /**
+         * The payment term in days net, from Réglages, for accounts without the
+         * invoicing beta (whose term lives in the invoicing settings).
+         */
+        #[IntegerType, Between(0, 365)]
+        public ?int $defaultPaymentTermsDays = null,
     ) {}
 
     /**

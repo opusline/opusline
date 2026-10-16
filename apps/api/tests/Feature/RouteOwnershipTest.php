@@ -30,6 +30,9 @@ const SCALAR_ROUTE_PARAMETERS = [
     // counterparts do the same — through a relation of a parent this test has
     // already proved owner-scoped.
     'document',
+    // A FeatureFlag's key (`invoicing`), the same for every account: what an
+    // account chose is stored against the authenticated user, never the URL.
+    'feature',
     // An int-backed FiscalDeadlineKind, constrained by whereNumber: an enum
     // case, identical for every account and owned by none.
     'kind',

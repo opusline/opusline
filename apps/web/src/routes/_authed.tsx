@@ -28,6 +28,7 @@ import {
 import { TimerContainer } from "@/features/timer/components/timer-container";
 import { TimerLockStatus } from "@/features/timer/components/timer-lock-status";
 import { TimerProvider } from "@/features/timer/components/timer-provider";
+import { hasFeature, INVOICING } from "@/lib/features";
 import { syncLocale } from "@/lib/i18n";
 import { setMonitoredUser } from "@/lib/monitoring";
 import { serverStatus } from "@/lib/validation";
@@ -144,7 +145,8 @@ function AuthedLayout() {
             <ToastProvider>
               <InvoiceDrawerProvider timezone={user.timezone}>
                 <SidebarProvider>
-                  {pathname.startsWith("/invoicing") ? (
+                  {pathname.startsWith("/invoicing") &&
+                  hasFeature(user, INVOICING) ? (
                     <InvoicingSidebar toolbar={modeToggle} />
                   ) : (
                     <AppSidebar toolbar={modeToggle} />

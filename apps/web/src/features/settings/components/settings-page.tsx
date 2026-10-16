@@ -98,10 +98,11 @@ type SettingsPageProps = {
   logo: CompanyLogoSlot;
   rates: RatesProps;
   localisation: LocalisationProps;
-  /** The Intégrations, Notifications and Sécurité tabs save outside this form, so they arrive ready to render. */
+  /** The Intégrations, Notifications, Sécurité and Avant-première tabs save outside this form, so they arrive ready to render. */
   integrations: ReactNode;
   notifications: ReactNode;
   security: ReactNode;
+  beta: ReactNode;
   /** Drawn by the route, which can link: the Facturation tab points to the invoicing settings. */
   invoicingSettingsLink?: ReactNode;
 };
@@ -118,6 +119,7 @@ export function SettingsPage({
   integrations,
   notifications,
   security,
+  beta,
   invoicingSettingsLink,
 }: SettingsPageProps) {
   const format = useMoneyFormat();
@@ -264,6 +266,7 @@ export function SettingsPage({
           <TabsContent value="integrations">{integrations}</TabsContent>
           <TabsContent value="notifications">{notifications}</TabsContent>
           <TabsContent value="securite">{security}</TabsContent>
+          <TabsContent value="beta">{beta}</TabsContent>
 
           <form.Subscribe<{
             values: SettingsFormValues;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 return [
     'accountUid' => 'compte bancaire',
+    'active' => 'activation',
     'acre' => 'ACRE',
     'amountHt' => 'montant HT',
     'amountTtc' => 'montant TTC',

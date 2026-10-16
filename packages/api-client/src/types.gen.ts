@@ -268,6 +268,22 @@ export type BankStatementFormat = 0 | 1 | 2 | 3 | 4;
 export type BankSyncError = 0 | 1 | 2 | 3 | 4;
 
 /**
+ * BetaFeatureData
+ */
+export type BetaFeatureData = {
+    feature: FeatureFlag;
+    key: string;
+    active: boolean;
+};
+
+/**
+ * BetaFeaturesData
+ */
+export type BetaFeaturesData = {
+    features: Array<BetaFeatureData>;
+};
+
+/**
  * BillingMode
  */
 export type BillingMode = 0 | 1 | 2;
@@ -378,6 +394,13 @@ export type ChangeSubscriptionAmountData = {
  */
 export type ChooseBankAccountData = {
     accountUid: string;
+};
+
+/**
+ * ChooseBetaFeatureData
+ */
+export type ChooseBetaFeatureData = {
+    active: boolean;
 };
 
 /**
@@ -1181,6 +1204,16 @@ export type ExpensesVatSummaryData = {
     collected: MoneyData;
     balance: SignedMoneyData;
 };
+
+/**
+ * FeatureFlag
+ *
+ * A feature still being built, shipped to `main` switched off. Removing a case (and its checks, keeping the code it guarded) is how the feature is released.
+ * | |
+ * |---|
+ * | `0` <br/> Writing, issuing and rendering invoices in Opusline (#498). |
+ */
+export type FeatureFlag = 0;
 
 /**
  * FiscalDeadlineData
@@ -2791,6 +2824,7 @@ export type UpdateSettingsData = {
     referenceTaxIncomeYear?: number | null;
     taxHouseholdQuarterParts?: number | null;
     incomeTaxRateBp?: number | null;
+    defaultPaymentTermsDays?: number | null;
 };
 
 /**
@@ -2936,6 +2970,7 @@ export type UserData = {
     workdayMinutes: number;
     defaultPaymentTermsDays: number;
     effectiveContributionRateBp: number;
+    features: Array<FeatureFlag>;
 };
 
 /**
@@ -3679,6 +3714,71 @@ export type SyncBankConnectionResponses = {
 };
 
 export type SyncBankConnectionResponse = SyncBankConnectionResponses[keyof SyncBankConnectionResponses];
+
+export type ListBetaFeaturesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/features';
+};
+
+export type ListBetaFeaturesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListBetaFeaturesError = ListBetaFeaturesErrors[keyof ListBetaFeaturesErrors];
+
+export type ListBetaFeaturesResponses = {
+    200: BetaFeaturesData;
+};
+
+export type ListBetaFeaturesResponse = ListBetaFeaturesResponses[keyof ListBetaFeaturesResponses];
+
+export type ChooseBetaFeatureData2 = {
+    body: ChooseBetaFeatureData;
+    path: {
+        feature: string;
+    };
+    query?: never;
+    url: '/user/features/{feature}';
+};
+
+export type ChooseBetaFeatureErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ChooseBetaFeatureError = ChooseBetaFeatureErrors[keyof ChooseBetaFeatureErrors];
+
+export type ChooseBetaFeatureResponses = {
+    200: BetaFeaturesData;
+};
+
+export type ChooseBetaFeatureResponse = ChooseBetaFeatureResponses[keyof ChooseBetaFeatureResponses];
 
 export type ListCatalogItemsData = {
     body?: never;

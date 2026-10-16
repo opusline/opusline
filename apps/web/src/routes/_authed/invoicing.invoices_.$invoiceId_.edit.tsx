@@ -5,11 +5,13 @@ import { CircleAlert } from "lucide-react";
 
 import { InvoiceEditorPage } from "@/features/invoices/components/invoice-editor-page";
 import { useInvoiceEditor } from "@/features/invoices/lib/use-invoice-editor";
+import { requireInvoicing } from "@/lib/features";
 import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute(
   "/_authed/invoicing/invoices_/$invoiceId_/edit",
 )({
+  beforeLoad: ({ context }) => requireInvoicing(context.user),
   component: EditInvoiceRoute,
 });
 

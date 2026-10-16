@@ -1,5 +1,10 @@
 import { byTestId } from "../../support/locators";
+import { joinInvoicingBeta } from "../../support/provision";
 import { expect, test } from "../../support/test";
+
+test.beforeEach(async ({ api, account: _registered }) => {
+  await joinInvoicingBeta(api);
+});
 
 test("a service is added to the catalogue, edited and removed", async ({
   page,

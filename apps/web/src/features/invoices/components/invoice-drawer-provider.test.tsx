@@ -1,3 +1,5 @@
+import type { FeatureFlag } from "@opusline/api-client";
+import { currentUserQueryKey } from "@opusline/api-client/react-query";
 import { ToastProvider } from "@opusline/ui/components/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
@@ -19,6 +21,8 @@ import {
 import { useEffect } from "react";
 import { afterEach, expect, it, vi } from "vitest";
 
+import { INVOICING } from "@/lib/features";
+import { seedCurrentUser } from "@/test/current-user";
 import { INVOICE_DOCUMENT, invoiceDetail } from "../lib/fixtures";
 import { documentDetail } from "../lib/invoice-document-fixture";
 import {
@@ -91,7 +95,7 @@ function DeepLinkPage() {
   return <p>Factures</p>;
 }
 
-async function renderApp() {
+async function renderApp(features: FeatureFlag[] = []) {
   const rootRoute = createRootRoute({
     component: () => (
       <ToastProvider>
@@ -129,12 +133,15 @@ async function renderApp() {
     history: createMemoryHistory({ initialEntries: ["/"] }),
   });
 
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  seedCurrentUser(queryClient, { features });
+  // Seeded once: the stubbed API answers every GET with the fiche.
+  queryClient.setQueryDefaults(currentUserQueryKey(), { staleTime: Infinity });
+
   render(
-    <QueryClientProvider
-      client={
-        new QueryClient({ defaultOptions: { queries: { retry: false } } })
-      }
-    >
+    <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
     </QueryClientProvider>,
   );
@@ -302,7 +309,7 @@ it("keeps a fiche a page opens as it arrives, deep-link style", async () => {
 
 it("sends an invoice written in Opusline to its own page", async () => {
   stubApi(documentDetail());
-  const router = await renderApp();
+  const router = await renderApp([INVOICING]);
 
   fireEvent.click(screen.getByRole("button", { name: "ouvrir" }));
 
@@ -310,4 +317,14 @@ it("sends an invoice written in Opusline to its own page", async () => {
     expect(router.state.location.pathname).toBe("/invoicing/invoices/1"),
   );
   expect(screen.queryByRole("dialog")).toBeNull();
+});
+
+it("keeps the drawer for it once the account left the beta", async () => {
+  stubApi(documentDetail());
+  const router = await renderApp([]);
+
+  fireEvent.click(screen.getByRole("button", { name: "ouvrir" }));
+
+  expect(await screen.findByRole("dialog")).toBeInTheDocument();
+  expect(router.state.location.pathname).toBe("/");
 });

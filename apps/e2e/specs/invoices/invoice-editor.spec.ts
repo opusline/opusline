@@ -3,10 +3,15 @@ import { byTestId } from "../../support/locators";
 import {
   createClient,
   createMission,
+  joinInvoicingBeta,
   logTime,
   WORKDAY_MINUTES,
 } from "../../support/provision";
 import { expect, test } from "../../support/test";
+
+test.beforeEach(async ({ api, account: _registered }) => {
+  await joinInvoicingBeta(api);
+});
 
 const THREE_DAYS_AT_550_CENTS = 165_000;
 

@@ -8,6 +8,7 @@ import {
 import { twoFactorOnFixture } from "../lib/security-fixture";
 import type { SettingsTab } from "../lib/settings-form";
 import { AuthenticatorAppCard } from "./authenticator-app-card";
+import { BetaFeaturesCard } from "./beta-features-card";
 import { EmailNotificationsCard } from "./email-notifications-card";
 import { EnableBankingCard } from "./enable-banking-card";
 import { MailDeliveryCard } from "./mail-delivery-card";
@@ -84,6 +85,14 @@ const meta = {
           preferences={settingsFixture.notifications}
         />
       </div>
+    ),
+    beta: (
+      <BetaFeaturesCard
+        error={null}
+        features={[{ feature: 0, key: "invoicing", active: false }]}
+        isSaving={false}
+        onChange={() => {}}
+      />
     ),
     security: (
       <div className="flex flex-col gap-6">

@@ -1,5 +1,10 @@
 import { byTestId } from "../../support/locators";
+import { joinInvoicingBeta } from "../../support/provision";
 import { expect, test } from "../../support/test";
+
+test.beforeEach(async ({ api, account: _registered }) => {
+  await joinInvoicingBeta(api);
+});
 
 test("the Facturation section has its own navigation and a way back", async ({
   page,

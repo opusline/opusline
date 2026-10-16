@@ -15,11 +15,13 @@ import { CircleAlert } from "lucide-react";
 import { useState } from "react";
 
 import { InvoicingSettingsPage } from "@/features/invoices/components/invoicing-settings-page";
+import { requireInvoicing } from "@/lib/features";
 import { useCompanyLogo } from "@/lib/use-company-logo";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute("/_authed/invoicing/settings")({
+  beforeLoad: ({ context }) => requireInvoicing(context.user),
   component: InvoicingSettingsRoute,
 });
 

@@ -15,10 +15,12 @@ import { CircleAlert } from "lucide-react";
 import { useState } from "react";
 
 import { CatalogPage } from "@/features/invoices/components/catalog-page";
+import { requireInvoicing } from "@/lib/features";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
 export const Route = createFileRoute("/_authed/invoicing/catalog")({
+  beforeLoad: ({ context }) => requireInvoicing(context.user),
   component: CatalogRoute,
 });
 

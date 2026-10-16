@@ -25,6 +25,7 @@ import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatAmountWithCents } from "@/lib/billing";
 import { accountTodayCalendarDate } from "@/lib/dates";
+import { INVOICING, useFeature } from "@/lib/features";
 import { invalidateInvoiceWrites } from "@/lib/query-invalidation";
 import { uploadWithProgress } from "@/lib/upload-with-progress";
 import { serverErrorMessage } from "@/lib/validation";
@@ -61,6 +62,7 @@ export function InvoiceDrawerProvider({
   const queryClient = useQueryClient();
   const router = useRouter();
   const navigate = useNavigate();
+  const invoicing = useFeature(INVOICING);
   const toast = useToast();
   const format = useMoneyFormat();
   const [openInvoiceId, setOpenInvoiceId] = useState<number | null>(null);
@@ -89,7 +91,7 @@ export function InvoiceDrawerProvider({
 
   const openInvoice = useCallback(
     (invoiceId: number, source?: InvoiceSource) => {
-      if (source === 1) {
+      if (source === 1 && invoicing) {
         void navigate({
           to: "/invoicing/invoices/$invoiceId",
           params: { invoiceId: String(invoiceId) },
@@ -102,7 +104,7 @@ export function InvoiceDrawerProvider({
       setDocumentError(null);
       setOpenInvoiceId(invoiceId);
     },
-    [navigate],
+    [navigate, invoicing],
   );
 
   // An invoice written in Opusline is a document with a page of its own; a
@@ -110,14 +112,16 @@ export function InvoiceDrawerProvider({
   const openedContent = detail.data?.content;
 
   useEffect(() => {
-    if (openInvoiceId !== null && openedContent != null) {
+    // Without the beta the page is out of reach (an account that left it
+    // still has its invoices): the fiche stays the drawer.
+    if (openInvoiceId !== null && openedContent != null && invoicing) {
       setOpenInvoiceId(null);
       void navigate({
         to: "/invoicing/invoices/$invoiceId",
         params: { invoiceId: String(openInvoiceId) },
       });
     }
-  }, [openInvoiceId, openedContent, navigate]);
+  }, [openInvoiceId, openedContent, navigate, invoicing]);
 
   // The fiche is mounted above the Outlet, so a route change never unmounts it
   // and browser Back would leave a modal sheet stranded over the page behind.

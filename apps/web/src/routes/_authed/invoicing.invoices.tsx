@@ -13,6 +13,7 @@ import {
   showNextInvoiceNumberOptions,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
+import { Button } from "@opusline/ui/components/button";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import {
   useInfiniteQuery,
@@ -21,6 +22,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { PlusIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { LoadMoreButton } from "@/components/load-more-button";
 import { useMoneyFormat } from "@/components/money-format-provider";
@@ -41,6 +43,7 @@ import { InvoiceSummaryTiles } from "@/features/invoices/components/invoice-summ
 import { InvoiceTodoPanel } from "@/features/invoices/components/invoice-todo-panel";
 import { InvoicesTable } from "@/features/invoices/components/invoices-table";
 import { accountTodayCalendarDate } from "@/lib/dates";
+import { INVOICING, useFeature } from "@/lib/features";
 import { invoicePagesOptions } from "@/lib/invoice-pages";
 import { isMissionOpenForInvoicing } from "@/lib/mission-status";
 import { invalidateInvoiceWrites } from "@/lib/query-invalidation";
@@ -88,10 +91,14 @@ function FacturesPage() {
   });
 
   const openInvoice = useOpenInvoice();
-  const invoicingSettings = useQuery(showInvoicingSettingsOptions());
+  const invoicing = useFeature(INVOICING);
+  const invoicingSettings = useQuery({
+    ...showInvoicingSettingsOptions(),
+    enabled: invoicing,
+  });
   // Until the settings answer, the ledger reads as it always did: recorded.
   const invoicingMode = invoicingSettings.data?.mode ?? 1;
-  const writesInOpusline = invoicingMode === 0;
+  const writesInOpusline = invoicing && invoicingMode === 0;
   const [creatingFor, setCreatingFor] = useState<InvoiceTodoData | null>(null);
   // Null while closed; the mission id is the one « Facturer le reste » preselects.
   const [adding, setAdding] = useState<{ missionId: number | null } | null>(
@@ -175,6 +182,11 @@ function FacturesPage() {
     },
   });
 
+  const openAddDialog = () => {
+    setCreateError(null);
+    setAdding({ missionId: null });
+  };
+
   const noteReminder = (invoiceId: number) => {
     remind.mutate({
       path: { invoice: invoiceId },
@@ -242,14 +254,22 @@ function FacturesPage() {
               : m.invoices_page_intro()}
           </p>
         </div>
-        <CreateInvoiceMenu
-          mode={invoicingMode}
-          onAddElsewhere={() => {
-            setCreateError(null);
-            setAdding({ missionId: null });
-          }}
-          onCreate={() => void navigate({ to: "/invoicing/invoices/new" })}
-        />
+        {invoicing ? (
+          <CreateInvoiceMenu
+            mode={invoicingMode}
+            onAddElsewhere={openAddDialog}
+            onCreate={() => void navigate({ to: "/invoicing/invoices/new" })}
+          />
+        ) : (
+          <Button
+            data-testid="invoice-add-open"
+            onClick={openAddDialog}
+            size="xl"
+          >
+            <PlusIcon aria-hidden />
+            {m.invoices_add_title()}
+          </Button>
+        )}
       </div>
 
       {summary.isPending && <Skeleton className="h-24 w-full" />}

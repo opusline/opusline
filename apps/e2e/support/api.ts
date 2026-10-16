@@ -2,6 +2,7 @@ import type { APIResponse, BrowserContext } from "@playwright/test";
 
 export type Api = {
   post: <ResponseBody>(path: string, body: unknown) => Promise<ResponseBody>;
+  put: <ResponseBody>(path: string, body: unknown) => Promise<ResponseBody>;
   /** The raw response, for files the app serves: status, headers and bytes. */
   download: (url: string) => Promise<APIResponse>;
 };
@@ -44,27 +45,37 @@ export function createApi(context: BrowserContext, baseURL: string): Api {
     return decodeURIComponent(token);
   }
 
+  async function send<ResponseBody>(
+    method: "POST" | "PUT",
+    path: string,
+    body: unknown,
+  ): Promise<ResponseBody> {
+    const response = await context.request.fetch(`${origin}${path}`, {
+      method,
+      data: body,
+      headers: { ...spaHeaders, "X-XSRF-TOKEN": await csrfToken() },
+    });
+
+    if (response.status() === 429) {
+      throw new Error(
+        `${method} ${path} was throttled. Every test browses as its own visitor through X-Forwarded-For, which the production stack's Caddy honours; against turbo dev, Laravel only does with TRUSTED_PROXIES=* in apps/api/.env.`,
+      );
+    }
+
+    if (!response.ok()) {
+      throw new Error(
+        `${method} ${path} answered ${response.status()}: ${await response.text()}`,
+      );
+    }
+
+    return (await response.json()) as ResponseBody;
+  }
+
   return {
-    async post<ResponseBody>(path: string, body: unknown) {
-      const response = await context.request.post(`${origin}${path}`, {
-        data: body,
-        headers: { ...spaHeaders, "X-XSRF-TOKEN": await csrfToken() },
-      });
-
-      if (response.status() === 429) {
-        throw new Error(
-          `POST ${path} was throttled. Every test browses as its own visitor through X-Forwarded-For, which the production stack's Caddy honours; against turbo dev, Laravel only does with TRUSTED_PROXIES=* in apps/api/.env.`,
-        );
-      }
-
-      if (!response.ok()) {
-        throw new Error(
-          `POST ${path} answered ${response.status()}: ${await response.text()}`,
-        );
-      }
-
-      return (await response.json()) as ResponseBody;
-    },
+    post: <ResponseBody>(path: string, body: unknown) =>
+      send<ResponseBody>("POST", path, body),
+    put: <ResponseBody>(path: string, body: unknown) =>
+      send<ResponseBody>("PUT", path, body),
 
     download(url: string) {
       return context.request.get(new URL(url, origin).href, {

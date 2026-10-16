@@ -30,6 +30,7 @@ export const SETTINGS_TABS = [
   "integrations",
   "notifications",
   "securite",
+  "beta",
 ] as const;
 
 export type SettingsTab = (typeof SETTINGS_TABS)[number];
@@ -70,6 +71,10 @@ export const SETTINGS_TAB_DETAILS: Record<
     label: m.settings_tab_security_label,
     hint: m.settings_tab_security_hint,
   },
+  beta: {
+    label: m.settings_tab_beta_label,
+    hint: m.settings_tab_beta_hint,
+  },
 };
 
 export function isSettingsTab(value: unknown): value is SettingsTab {
@@ -103,6 +108,8 @@ export type SettingsFormValues = {
   liberatingPayment: boolean;
   vatRegime: VatRegime;
   defaultVatRate: string;
+  /** Edited here only outside the invoicing beta; sent back unchanged otherwise. */
+  defaultPaymentTermsDays: number;
   invoiceNumberFormat: string;
   treasuryBuffer: string;
   cfeExpected: string;
@@ -166,6 +173,7 @@ export function toSettingsValues(
     liberatingPayment: settings.liberatingPayment,
     vatRegime: settings.vatRegime,
     defaultVatRate: formatRateBp(format.locale, settings.defaultVatRateBp),
+    defaultPaymentTermsDays: settings.defaultPaymentTermsDays,
     invoiceNumberFormat: settings.invoiceNumberFormat,
     treasuryBuffer:
       settings.treasuryBuffer === null
@@ -260,6 +268,7 @@ export function toSettingsPayload(
     defaultVatRateBp:
       parseRateBp(format.locale, values.defaultVatRate) ??
       settings.defaultVatRateBp,
+    defaultPaymentTermsDays: values.defaultPaymentTermsDays,
     invoiceNumberFormat: values.invoiceNumberFormat.trim(),
     homeAddressSameAsCompany: values.homeAddressSameAsCompany,
     tradeName: valueOrNull(values.tradeName),
@@ -349,6 +358,7 @@ const FIELD_TAB: Record<keyof SettingsFormValues, SettingsTab> = {
   liberatingPayment: "fiscalite",
   vatRegime: "fiscalite",
   defaultVatRate: "fiscalite",
+  defaultPaymentTermsDays: "facturation",
   invoiceNumberFormat: "facturation",
   treasuryBuffer: "facturation",
   cfeExpected: "fiscalite",
