@@ -611,6 +611,38 @@ export const zDocumentListData = z.object({
 });
 
 /**
+ * EInvoiceSyncData
+ */
+export const zEInvoiceSyncData = z.object({
+    fetched: z.int(),
+    imported: z.int(),
+    updated: z.int(),
+    skipped: z.int()
+});
+
+/**
+ * EInvoicingError
+ *
+ * Why a call to the plateforme agréée did not deliver; the user reads the reason's translation.
+ * | |
+ * |---|
+ * | `0` <br/> The platform did not answer, or answered something unreadable. |
+ * | `1` <br/> The platform refused the client id or its secret. |
+ * | `2` <br/> The platform has not finished verifying the company: business routes answer 403 until it has. |
+ * | `3` <br/> No platform credentials are saved for the account. |
+ * | `4` <br/> The platform refused the document it was handed. |
+ * | `5` <br/> The platform knows no invoice under that id. |
+ */
+export const zEInvoicingError = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4),
+    z.literal(5)
+]);
+
+/**
  * EnableBankingSettingsData
  */
 export const zEnableBankingSettingsData = z.object({
@@ -1020,6 +1052,46 @@ export const zInvoicingMode = z.union([z.literal(0), z.literal(1)]);
  * | `1` <br/> The receipts crossed the micro-BNC ceiling two calendar years running, which ends the régime itself. |
  */
 export const zLiberatingPaymentEndReason = z.union([z.literal(0), z.literal(1)]);
+
+/**
+ * LifecycleStatus
+ *
+ * The statuses an invoice goes through once a plateforme agréée carries it, backed by the codes of the reform's cycle de vie (CDV). Only the statuses Opusline will read or report are listed; the full catalogue lives in the DGFiP's external specifications, which #520 checks before wiring them.
+ * | |
+ * |---|
+ * | `200` <br/> Handed to the platform: the mandatory starting point. |
+ * | `201` <br/> The sender's platform passed it on. |
+ * | `202` <br/> The recipient's platform took it. |
+ * | `204` <br/> The buyer acknowledged it. |
+ * | `205` <br/>  |
+ * | `206` <br/>  |
+ * | `207` <br/>  |
+ * | `210` <br/> Mandatory: the buyer refuses the invoice. |
+ * | `211` <br/> The buyer sent the payment. |
+ * | `212` <br/> Mandatory: paid, which is what cash-basis VAT reads. |
+ * | `213` <br/> The platform itself rejected the file: it never reached the buyer. |
+ */
+export const zLifecycleStatus = z.union([
+    z.literal(200),
+    z.literal(201),
+    z.literal(202),
+    z.literal(204),
+    z.literal(205),
+    z.literal(206),
+    z.literal(207),
+    z.literal(210),
+    z.literal(211),
+    z.literal(212),
+    z.literal(213)
+]);
+
+/**
+ * ExpenseEInvoiceData
+ */
+export const zExpenseEInvoiceData = z.object({
+    platformId: z.string(),
+    status: zLifecycleStatus
+});
 
 /**
  * LineUnit
@@ -1782,7 +1854,9 @@ export const zEInvoicingSettingsData = z.object({
     environment: z.nullable(zPlatformEnvironment),
     companyVerified: z.boolean(),
     receivingAddress: z.nullable(z.string()),
-    checkedAt: z.nullable(z.string())
+    checkedAt: z.nullable(z.string()),
+    lastSyncedAt: z.nullable(z.string()),
+    lastError: z.nullable(zEInvoicingError)
 });
 
 /**
@@ -2457,7 +2531,8 @@ export const zExpenseData = z.object({
     bankMovement: z.nullable(zExpenseBankMovementData),
     vatStatus: zExpenseVatStatus,
     vatClaimPeriod: z.string(),
-    isRegularisation: z.boolean()
+    isRegularisation: z.boolean(),
+    eInvoice: z.nullable(zExpenseEInvoiceData)
 });
 
 /**
@@ -3600,6 +3675,8 @@ export const zRecordDeclarationPaymentPath = z.object({
 export const zRecordDeclarationPaymentResponse = zDeclarationsData;
 
 export const zListDocumentLibraryResponse = zDocumentLibraryData;
+
+export const zSyncReceivedEInvoicesResponse = zEInvoiceSyncData;
 
 export const zListExpensesQuery = z.object({
     month: z.nullish(z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/)))

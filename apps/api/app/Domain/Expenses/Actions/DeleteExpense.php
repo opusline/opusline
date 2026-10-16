@@ -25,7 +25,9 @@ class DeleteExpense
             // nullOnDelete only fires on the hard delete; a tombstone keeps the FK alive.
             $expense->bankMovement()->update(['expense_id' => null]);
 
-            if ($expense->subscription_id === null) {
+            // A received e-invoice leaves the same tombstone a subscription's
+            // debit does: the next sync must not record it again.
+            if ($expense->subscription_id === null && $expense->e_invoice_platform_id === null) {
                 $expense->forceDelete();
 
                 return;
