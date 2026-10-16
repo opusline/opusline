@@ -6,17 +6,17 @@ import { getLocale, experimentalStaticLocale } from '../runtime.js';
 /** @typedef {{}} Settings_Billing_Moved_NoteInputs */
 
 const en_settings_billing_moved_note = /** @type {(inputs: Settings_Billing_Moved_NoteInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Payment terms, penalties and the mentions printed on invoices are set in`)
+	return /** @type {LocalizedString} */ (`Payment terms, penalties and the mentions printed on invoices are now set in the invoicing settings.`)
 };
 
 const fr_settings_billing_moved_note = /** @type {(inputs: Settings_Billing_Moved_NoteInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Les conditions de paiement, les pénalités et les mentions des factures se règlent dans`)
+	return /** @type {LocalizedString} */ (`Les conditions de paiement, les pénalités et les mentions des factures se règlent désormais dans les réglages de facturation.`)
 };
 
 /**
 * | output |
 * | --- |
-* | "Payment terms, penalties and the mentions printed on invoices are set in" |
+* | "Payment terms, penalties and the mentions printed on invoices are now set in the invoicing settings." |
 *
 * @param {Settings_Billing_Moved_NoteInputs} inputs
 * @param {{ locale?: "en" | "fr" }} options

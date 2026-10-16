@@ -3,16 +3,16 @@ import { Switch } from "@opusline/ui/components/switch";
 import { House } from "lucide-react";
 
 import { AddressFields } from "@/components/address-fields";
+import { CompanyLogoField } from "@/components/company-logo-field";
 import { ExemptField } from "@/components/exempt-field";
 import { FormTextField } from "@/components/form-text-field";
-import { LogoPicker } from "@/components/logo-picker";
 import {
   formatFrenchPhone,
   formatIban,
   formatSiret,
   formatVatNumber,
 } from "@/lib/identifiers";
-import { COMPANY_LOGO_RULES, type CompanyLogoSlot } from "@/lib/logos";
+import type { CompanyLogoSlot } from "@/lib/logos";
 import { m } from "@/paraglide/messages.js";
 import {
   COMPANY_ADDRESS_NAMES,
@@ -59,29 +59,7 @@ export function IdentitySettingsForm({
         </div>
       )}
 
-      <div className="mb-5 flex flex-wrap items-center gap-4">
-        <LogoPicker
-          error={logo.error}
-          isPending={logo.isPending}
-          label={m.settings_logo_input_aria()}
-          onPick={logo.onPick}
-          onRemove={logo.onRemove}
-          placeholder={m.settings_logo_pick()}
-          removeLabel={m.settings_logo_remove_aria()}
-          rules={COMPANY_LOGO_RULES}
-          size="sm"
-          src={logo.src}
-          testId="settings-logo"
-        />
-        <span className="min-w-40 flex-1">
-          <span className="block text-foreground-hi text-sm">
-            {m.settings_logo_title()}
-          </span>
-          <span className="mt-0.5 block text-muted-foreground-3 text-xs">
-            {m.settings_logo_hint()}
-          </span>
-        </span>
-      </div>
+      <CompanyLogoField className="mb-5" logo={logo} testId="settings-logo" />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <form.Field name="tradeName">

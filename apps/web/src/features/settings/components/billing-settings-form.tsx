@@ -56,7 +56,10 @@ export function BillingSettingsForm({
       title={m.settings_billing_title()}
     >
       <p className="mb-5.5 rounded-md border bg-muted px-3.5 py-3 text-muted-foreground-3 text-sm leading-relaxed">
-        {m.settings_billing_moved_note()} {invoicingSettingsLink}
+        {m.settings_billing_moved_note()}
+        {invoicingSettingsLink && (
+          <span className="mt-1 block">{invoicingSettingsLink}</span>
+        )}
       </p>
 
       <form.Field

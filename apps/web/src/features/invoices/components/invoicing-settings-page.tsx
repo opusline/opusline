@@ -29,7 +29,7 @@ import { Link } from "@tanstack/react-router";
 import { CircleAlert } from "lucide-react";
 import { type ReactNode, useId, useState } from "react";
 
-import { LogoPicker } from "@/components/logo-picker";
+import { CompanyLogoField } from "@/components/company-logo-field";
 import {
   useDateFormat,
   useMoneyFormat,
@@ -38,7 +38,7 @@ import { SaveBar } from "@/components/save-bar";
 import { formatAmountWithCents } from "@/lib/billing";
 import { calendarDateLabel, calendarDateNumericLabel } from "@/lib/dates";
 import { formatIban } from "@/lib/identifiers";
-import { COMPANY_LOGO_RULES, type CompanyLogoSlot } from "@/lib/logos";
+import type { CompanyLogoSlot } from "@/lib/logos";
 import { m } from "@/paraglide/messages.js";
 
 import {
@@ -288,29 +288,11 @@ function IdentitySection({
         ))}
       </dl>
 
-      <div className="mt-5 flex flex-wrap items-center gap-4 border-t pt-5">
-        <LogoPicker
-          error={logo.error}
-          isPending={logo.isPending}
-          label={m.settings_logo_input_aria()}
-          onPick={logo.onPick}
-          onRemove={logo.onRemove}
-          placeholder={m.settings_logo_pick()}
-          removeLabel={m.settings_logo_remove_aria()}
-          rules={COMPANY_LOGO_RULES}
-          size="sm"
-          src={logo.src}
-          testId="invoicing-logo"
-        />
-        <span className="min-w-40 flex-1">
-          <span className="block text-foreground-hi text-sm">
-            {m.settings_logo_title()}
-          </span>
-          <span className="mt-0.5 block text-muted-foreground-3 text-xs">
-            {m.settings_logo_hint()}
-          </span>
-        </span>
-      </div>
+      <CompanyLogoField
+        className="mt-5 border-t pt-5"
+        logo={logo}
+        testId="invoicing-logo"
+      />
     </Section>
   );
 }
