@@ -4,6 +4,8 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 
+import { INVOICING } from "@/lib/features";
+import { seedCurrentUser } from "@/test/current-user";
 import { StoryRouter } from "@/test/story-router";
 import { IntegrationsSettings } from "./integrations-settings";
 
@@ -15,6 +17,7 @@ function Example({ integrations }: { integrations: IntegrationsData }) {
     });
 
     client.setQueryData(showIntegrationsQueryKey(), integrations);
+    seedCurrentUser(client, { features: [INVOICING] });
 
     return client;
   });

@@ -19,6 +19,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CircleAlert } from "lucide-react";
 import { useState } from "react";
 
+import { INVOICING, useFeature } from "@/lib/features";
 import type { FormSubmitResult } from "@/lib/form";
 import { serverErrorMessage, serverFieldErrors } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
@@ -29,6 +30,7 @@ import { SuperPdpCard } from "./super-pdp-card";
 export function IntegrationsSettings() {
   const queryClient = useQueryClient();
   const integrations = useQuery(showIntegrationsOptions());
+  const hasInvoicing = useFeature(INVOICING);
   const [error, setError] = useState<string | null>(null);
 
   const saveCredentials = useMutation(saveEnableBankingCredentialsMutation());
@@ -41,10 +43,15 @@ export function IntegrationsSettings() {
   const checkSuperPdp = useMutation(checkSuperPdpConnectionMutation());
   const deleteSuperPdp = useMutation(deleteSuperPdpCredentialsMutation());
 
-  // Both answers carry the tab's whole state; the Compte pro page reads the
-  // same credentials to decide which connection step to offer.
+  // Every answer carries the tab's whole state.
   const applyIntegrations = (data: IntegrationsData) => {
     queryClient.setQueryData(showIntegrationsQueryKey(), data);
+  };
+
+  // The Compte pro page reads the bank credentials to decide which
+  // connection step to offer, so it follows their changes.
+  const applyBankIntegrations = (data: IntegrationsData) => {
+    applyIntegrations(data);
     void queryClient.invalidateQueries({ queryKey: showBankAccountQueryKey() });
   };
 
@@ -54,7 +61,7 @@ export function IntegrationsSettings() {
     setError(null);
 
     try {
-      applyIntegrations(await saveCredentials.mutateAsync({ body }));
+      applyBankIntegrations(await saveCredentials.mutateAsync({ body }));
 
       return { status: "success" };
     } catch (saveError) {
@@ -75,7 +82,7 @@ export function IntegrationsSettings() {
     deleteCredentials.mutate(
       {},
       {
-        onSuccess: applyIntegrations,
+        onSuccess: applyBankIntegrations,
         onError: (removeError) =>
           setError(serverErrorMessage(removeError, m.common_action_failed())),
       },
@@ -162,16 +169,18 @@ export function IntegrationsSettings() {
         onSave={save}
         settings={integrations.data.enableBanking}
       />
-      <SuperPdpCard
-        error={superPdpError}
-        isChecking={checkSuperPdp.isPending}
-        isRemoving={deleteSuperPdp.isPending}
-        notice={superPdpNotice}
-        onCheck={recheckSuperPdp}
-        onRemove={disconnectSuperPdp}
-        onSave={connectSuperPdp}
-        settings={integrations.data.eInvoicing}
-      />
+      {hasInvoicing ? (
+        <SuperPdpCard
+          error={superPdpError}
+          isChecking={checkSuperPdp.isPending}
+          isRemoving={deleteSuperPdp.isPending}
+          notice={superPdpNotice}
+          onCheck={recheckSuperPdp}
+          onRemove={disconnectSuperPdp}
+          onSave={connectSuperPdp}
+          settings={integrations.data.eInvoicing}
+        />
+      ) : null}
     </div>
   );
 }

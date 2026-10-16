@@ -177,3 +177,18 @@ test('needs a signed-in account', function (): void {
     test()->postJson('/api/settings/integrations/super-pdp/check')->assertUnauthorized();
     test()->deleteJson('/api/settings/integrations/super-pdp')->assertUnauthorized();
 });
+
+test('keeps the platform endpoints off an instance without invoicing', function (string $method, string $uri): void {
+    invoicingReleasedAs('off');
+    Http::fake();
+    $user = User::factory()->create();
+    withSuperPdpConnection($user);
+
+    test()->actingAs($user)->json($method, $uri, ['clientId' => SUPER_PDP_CLIENT_ID, 'clientSecret' => SUPER_PDP_CLIENT_SECRET])->assertNotFound();
+
+    Http::assertNothingSent();
+})->with([
+    ['PUT', '/api/settings/integrations/super-pdp'],
+    ['POST', '/api/settings/integrations/super-pdp/check'],
+    ['DELETE', '/api/settings/integrations/super-pdp'],
+]);

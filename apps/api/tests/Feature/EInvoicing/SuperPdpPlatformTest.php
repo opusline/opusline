@@ -7,6 +7,7 @@ use App\Domain\EInvoicing\Enums\LifecycleStatus;
 use App\Domain\EInvoicing\Platform\EInvoicingPlatformException;
 use App\Domain\EInvoicing\Platform\SubmittedInvoice;
 use App\Domain\EInvoicing\SuperPdp\SuperPdpClient;
+use App\Domain\EInvoicing\SuperPdp\SuperPdpConnectionCheck;
 use App\Domain\EInvoicing\SuperPdp\SuperPdpCredentials;
 use App\Domain\EInvoicing\SuperPdp\SuperPdpPlatform;
 use Carbon\CarbonImmutable;
@@ -80,13 +81,71 @@ test('lists the inbox page by page into received invoices', function (): void {
     Http::assertSentCount(1 + 2 + 3);
 });
 
-test('leaves out invoices issued before the asked date', function (): void {
+test('keeps only the invoices the platform touched since the asked moment', function (): void {
     fakeSuperPdp([
-        'api.superpdp.tech/v1.beta/invoices?*' => Http::response(['data' => [['id' => 7]], 'has_more' => false]),
+        'api.superpdp.tech/v1.beta/invoices?*' => Http::response(['data' => [['id' => 7], ['id' => 8]], 'has_more' => false]),
+        'api.superpdp.tech/v1.beta/invoices/7?*' => Http::response(superPdpInvoice(7, ['fr:202'])),
+        'api.superpdp.tech/v1.beta/invoices/8?*' => Http::response([
+            ...superPdpInvoice(8, ['fr:202']),
+            'events' => [['status_code' => 'fr:202', 'created_at' => '2026-09-20T09:00:00Z'], ['status_code' => 'fr:210', 'created_at' => '2026-10-05T09:00:00Z']],
+        ]),
+    ]);
+
+    $changed = superPdp()->listReceivedInvoices(CarbonImmutable::parse('2026-10-03'));
+
+    expect($changed)->toHaveCount(1)
+        ->and($changed[0]->platformId)->toBe('8')
+        ->and($changed[0]->status)->toBe(LifecycleStatus::Refused);
+});
+
+test('stops walking a platform that repeats its page', function (): void {
+    fakeSuperPdp([
+        'api.superpdp.tech/v1.beta/invoices?*' => Http::response(['data' => [['id' => 7]], 'has_more' => true]),
         'api.superpdp.tech/v1.beta/invoices/7?*' => Http::response(superPdpInvoice(7, ['fr:202'])),
     ]);
 
-    expect(superPdp()->listReceivedInvoices(CarbonImmutable::parse('2026-10-02')))->toBe([]);
+    expect(superPdp()->listReceivedInvoices())->toHaveCount(2);
+    Http::assertSentCount(1 + 2 + 2);
+});
+
+test('leaves the supplier siren out when the identifier is not one', function (): void {
+    $invoice = superPdpInvoice(7, ['fr:202']);
+    $invoice['en_invoice']['seller']['legal_registration_identifier'] = ['scheme' => '9957', 'value' => 'FR32123456789'];
+    fakeSuperPdp([
+        'api.superpdp.tech/v1.beta/invoices?*' => Http::response(['data' => [['id' => 7]], 'has_more' => false]),
+        'api.superpdp.tech/v1.beta/invoices/7?*' => Http::response($invoice),
+    ]);
+
+    expect(superPdp()->listReceivedInvoices()[0]->supplierSiren)->toBeNull();
+});
+
+test('drops a token the platform revoked early and tries once more', function (): void {
+    fakeSuperPdp([
+        'api.superpdp.tech/oauth2/token' => Http::sequence()
+            ->push(['access_token' => 'tok_stale', 'expires_in' => 1800])
+            ->push(['access_token' => 'tok_fresh', 'expires_in' => 1800]),
+        'api.superpdp.tech/v1.beta/oauth2_sessions/me' => Http::sequence()
+            ->push(['company_verification_status' => 'verified'])
+            ->push(['error' => 'token_revoked'], 401)
+            ->push(['company_verification_status' => 'verified']),
+    ]);
+    $platform = superPdp();
+
+    $platform->verifyConnection();
+    $platform->verifyConnection();
+
+    Http::assertSentCount(5);
+    Http::assertSent(fn (Request $request): bool => ($request->header('Authorization')[0] ?? null) === 'Bearer tok_fresh');
+});
+
+test('reads a missing route as an outage, not a missing invoice', function (): void {
+    fakeSuperPdp([
+        'api.superpdp.tech/v1.beta/companies/me' => Http::response(['message' => 'Not found'], 404),
+        'api.superpdp.tech/v1.beta/invoices/404?*' => Http::response(['message' => 'Not found'], 404),
+    ]);
+
+    expect(platformFailure(fn (): SuperPdpConnectionCheck => superPdp()->check()))->toBe(EInvoicingError::Unavailable)
+        ->and(platformFailure(fn (): LifecycleStatus => superPdp()->invoiceStatus('404')))->toBe(EInvoicingError::NotFound);
 });
 
 test('fetches one token for a run of calls', function (): void {

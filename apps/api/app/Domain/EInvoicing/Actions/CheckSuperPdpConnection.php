@@ -10,6 +10,7 @@ use App\Domain\EInvoicing\SuperPdp\SuperPdpClient;
 use App\Domain\EInvoicing\SuperPdp\SuperPdpCredentials;
 use App\Domain\EInvoicing\SuperPdp\SuperPdpPlatform;
 use App\Domain\Users\Models\User;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Asks Super PDP again about the saved application: a verification that
@@ -27,12 +28,18 @@ class CheckSuperPdpConnection
      */
     public function handle(User $user): void
     {
-        $connection = $user->eInvoicingConnection()->first();
-        $credentials = SuperPdpCredentials::ofOrFail($connection);
+        $credentials = SuperPdpCredentials::ofOrFail($user->eInvoicingConnection()->first());
 
         $check = new SuperPdpPlatform($this->client, $credentials)->check();
 
-        /** @var EInvoicingConnection $connection */
-        $connection->forceFill(ConnectSuperPdp::snapshot($check))->save();
+        DB::transaction(function () use ($user, $credentials, $check): void {
+            $connection = User::lockRow($user->id)->eInvoicingConnection()->first();
+
+            // Replaced while the platform was answering: the answer is about
+            // the old application and has nothing to say about this row.
+            if ($connection instanceof EInvoicingConnection && $connection->client_id === $credentials->clientId) {
+                $connection->forceFill(ConnectSuperPdp::snapshot($check))->save();
+            }
+        });
     }
 }

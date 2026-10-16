@@ -1,8 +1,10 @@
-import type { IntegrationsData } from "@opusline/api-client";
+import type { FeatureFlag, IntegrationsData } from "@opusline/api-client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 
+import { INVOICING } from "@/lib/features";
+import { seedCurrentUser } from "@/test/current-user";
 import { StoryRouter } from "@/test/story-router";
 import { IntegrationsSettings } from "./integrations-settings";
 
@@ -72,10 +74,15 @@ function stubApi(routes: Route[]): void {
   );
 }
 
-function renderTab() {
+function renderTab({
+  features = [INVOICING],
+}: {
+  features?: FeatureFlag[];
+} = {}) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
+  seedCurrentUser(queryClient, { features });
 
   render(
     <QueryClientProvider client={queryClient}>
@@ -353,4 +360,19 @@ it("forgets super pdp once removal is confirmed", async () => {
       "unconfigured",
     ),
   );
+});
+
+it("keeps the e-invoicing card out of an account without the invoicing beta", async () => {
+  stubApi([
+    {
+      method: "GET",
+      path: "/settings/integrations",
+      status: 200,
+      body: integrations(null, CLIENT_ID),
+    },
+  ]);
+  renderTab({ features: [] });
+
+  expect(await screen.findByTestId("enable-banking-card")).toBeInTheDocument();
+  expect(screen.queryByTestId("super-pdp-card")).toBeNull();
 });

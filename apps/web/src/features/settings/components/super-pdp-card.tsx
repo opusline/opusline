@@ -38,8 +38,8 @@ import {
 import { useState } from "react";
 
 import { FormTextField } from "@/components/form-text-field";
-import { useDateFormat } from "@/components/money-format-provider";
-import { calendarDateNumericLabel } from "@/lib/dates";
+import { useMoneyFormat } from "@/components/money-format-provider";
+import { fullDateTimeLabel } from "@/lib/dates";
 import type { FormSubmitResult } from "@/lib/form";
 import { m } from "@/paraglide/messages.js";
 import { SettingsSection } from "./settings-section";
@@ -286,7 +286,7 @@ function ConnectionStatus({
   onReplace,
   onRemove,
 }: ConnectionStatusProps) {
-  const dateFormat = useDateFormat();
+  const { locale } = useMoneyFormat();
   const environment = settings.environment === 1 ? "production" : "sandbox";
 
   return (
@@ -347,10 +347,7 @@ function ConnectionStatus({
             {settings.checkedAt === null ? null : (
               <span>
                 {m.integrations_super_pdp_checked({
-                  date: calendarDateNumericLabel(
-                    dateFormat,
-                    settings.checkedAt.slice(0, 10),
-                  ),
+                  date: fullDateTimeLabel(locale, settings.checkedAt),
                 })}
               </span>
             )}

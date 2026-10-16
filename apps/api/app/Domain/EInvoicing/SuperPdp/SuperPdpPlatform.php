@@ -20,6 +20,12 @@ class SuperPdpPlatform implements EInvoicingPlatform
     /** One page of the inbox; the sync walks pages until the platform has no more. */
     private const int PAGE_SIZE = 100;
 
+    /** Pages of one inbox walk. The cap stops a platform that keeps answering has_more. */
+    private const int MAX_PAGES = 50;
+
+    /** EN 16931 identifier schemes under which the value is a SIREN or a SIRET. */
+    private const array FRENCH_REGISTRATION_SCHEMES = ['0002', '0009'];
+
     public function __construct(
         private readonly SuperPdpClient $client,
         private readonly SuperPdpCredentials $credentials,
@@ -33,14 +39,13 @@ class SuperPdpPlatform implements EInvoicingPlatform
      */
     public function check(): SuperPdpConnectionCheck
     {
-        $verified = $this->client->isCompanyVerified($this->credentials);
-
+        // Until the platform verified the company, its routes answer 403: the
+        // credentials still hold, so they are kept and checked again later.
         try {
+            $verified = $this->client->isCompanyVerified($this->credentials);
             $company = $this->client->company($this->credentials);
         } catch (EInvoicingPlatformException $exception) {
-            // Until the platform verified the company, its routes answer 403:
-            // the credentials still hold, so they are kept and checked later.
-            if ($verified || $exception->reason !== EInvoicingError::CompanyUnverified) {
+            if ($exception->reason !== EInvoicingError::CompanyUnverified) {
                 throw $exception;
             }
 
@@ -90,8 +95,9 @@ class SuperPdpPlatform implements EInvoicingPlatform
         $received = [];
         $after = null;
 
-        do {
+        for ($pages = 0; $pages < self::MAX_PAGES; $pages++) {
             $page = $this->client->invoices($this->credentials, 'in', $after, self::PAGE_SIZE);
+            $last = null;
 
             foreach ($page['data'] as $entry) {
                 $id = $entry['id'] ?? null;
@@ -100,16 +106,24 @@ class SuperPdpPlatform implements EInvoicingPlatform
                     continue;
                 }
 
-                $after = (int) $id;
-                $invoice = $this->receivedInvoice($this->client->invoice($this->credentials, (string) $id));
+                $last = (string) $id;
+                $detail = $this->client->invoice($this->credentials, $last);
+                $invoice = $this->receivedInvoice($detail);
 
-                if ($invoice instanceof ReceivedInvoice && (! $since instanceof CarbonImmutable || $invoice->issuedOn->greaterThanOrEqualTo($since))) {
+                if ($invoice instanceof ReceivedInvoice && $this->changedSince($detail, $since)) {
                     $received[] = $invoice;
                 }
             }
-        } while ($page['hasMore'] && $page['data'] !== []);
 
-        return $received;
+            // A page without ids, or one that repeats its cursor, cannot be walked past.
+            if (! $page['hasMore'] || $last === null || $last === $after) {
+                return $received;
+            }
+
+            $after = $last;
+        }
+
+        throw new EInvoicingPlatformException(EInvoicingError::Unavailable, 'Super PDP kept paginating past '.self::MAX_PAGES.' pages.');
     }
 
     public function downloadReceivedInvoice(string $platformId): string
@@ -120,6 +134,47 @@ class SuperPdpPlatform implements EInvoicingPlatform
     public function reportStatus(string $platformId, LifecycleStatus $status, ?string $reason = null): void
     {
         $this->client->createInvoiceEvent($this->credentials, $platformId, $status->code(), $reason);
+    }
+
+    /**
+     * Whether the platform touched the invoice since the given moment: its
+     * latest event, or its own timestamps when it recorded none. Without a
+     * moment, or without any date to compare, the invoice is kept.
+     *
+     * @param  array<array-key, mixed>  $invoice
+     */
+    private function changedSince(array $invoice, ?CarbonImmutable $since): bool
+    {
+        if (! $since instanceof CarbonImmutable) {
+            return true;
+        }
+
+        $events = is_array($invoice['events'] ?? null) ? $invoice['events'] : [];
+        $stamps = array_map(static fn (mixed $event): mixed => is_array($event) ? ($event['created_at'] ?? null) : null, $events);
+        $latest = null;
+
+        foreach ([...$stamps, $invoice['updated_at'] ?? null, $invoice['created_at'] ?? null] as $value) {
+            $moment = $this->instant($value);
+
+            if ($moment instanceof CarbonImmutable && (! $latest instanceof CarbonImmutable || $moment->greaterThan($latest))) {
+                $latest = $moment;
+            }
+        }
+
+        return ! $latest instanceof CarbonImmutable || $latest->greaterThanOrEqualTo($since);
+    }
+
+    private function instant(mixed $value): ?CarbonImmutable
+    {
+        if (! is_string($value) || $value === '') {
+            return null;
+        }
+
+        try {
+            return CarbonImmutable::parse($value);
+        } catch (Throwable) {
+            return null;
+        }
     }
 
     /**
@@ -166,7 +221,7 @@ class SuperPdpPlatform implements EInvoicingPlatform
             return null;
         }
 
-        $siren = $registration['value'] ?? null;
+        $siren = in_array($registration['scheme'] ?? null, self::FRENCH_REGISTRATION_SCHEMES, true) ? $registration['value'] ?? null : null;
         $currency = $content['currency_code'] ?? 'EUR';
 
         return new ReceivedInvoice(
