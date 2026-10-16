@@ -146,7 +146,7 @@ printf '%s' "$unresolved" \
       continue
     fi
 
-    printf '%s\n' "$body" | gh issue create --label sentry --label bug --title "$title" --body-file -
+    printf '%s\n' "$body" | gh issue create --label sentry --type Bug --title "$title" --body-file -
   done
 
 # Sentry is the source of truth for whether something is still happening: an

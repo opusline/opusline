@@ -3,3 +3,6 @@ contact_links:
   - name: Self-hosting help
     url: https://github.com/opusline/opusline/blob/main/docs/self-hosting.md
     about: TLS, backups, upgrades and the settings behind the usual 419s.
+  - name: Security vulnerability
+    url: https://github.com/opusline/opusline/blob/main/SECURITY.md
+    about: Report it privately, not in a public issue.

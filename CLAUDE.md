@@ -92,6 +92,12 @@ proxies `/api` and `/sanctum`.
 - **TypeScript**: strict. No `any` without justification. Prefer inferred types over redundant annotations.
 - **Language**: code, comments, commits, and docs in English. UI copy may have French strings (target market includes FR freelances) — keep user-facing strings ready for i18n, don't hardcode.
 
+## Work tracking
+
+- Issues are the backlog. The public Project [Opusline roadmap](https://github.com/orgs/opusline/projects/1) holds their status (Triage → Backlog → Next → In progress → Done); `gh project item-list 1 --owner opusline` lists it.
+- An issue carries one **type** (Bug, Feature, Task), the **area labels** it touches (`api`, `web`, `ui`, `ci`, `docs`, `self-hosting`) and, in the Project, a **Priority** and an **Effort**. Never create labels; never encode priority or status in a label.
+- A multi-PR feature is a parent issue with sub-issues. A PR `Closes` its sub-issue, never the parent.
+
 ## Code style preferences
 
 - Prefer clean, idiomatic, structural solutions over convention-dependent workarounds or clever hacks.

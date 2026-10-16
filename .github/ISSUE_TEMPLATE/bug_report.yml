@@ -1,13 +1,22 @@
 name: Bug report
 description: Something in Opusline is broken
-labels: [bug]
+type: Bug
 body:
   - type: textarea
     id: what-happened
     attributes:
       label: What happened?
-      description: What did you do, and what went wrong?
-      placeholder: Steps to reproduce, what you saw, error messages…
+      description: What went wrong? Paste error messages without secrets or personal data.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open…
+        2. Click…
+        3. See…
     validations:
       required: true
   - type: textarea
@@ -24,6 +33,11 @@ body:
       placeholder: 0.33.5 # x-release-please-version
     validations:
       required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: How you run it (compose release, dev stack), database, browser. No credentials, no unredacted .env.
   - type: dropdown
     id: area
     attributes:
