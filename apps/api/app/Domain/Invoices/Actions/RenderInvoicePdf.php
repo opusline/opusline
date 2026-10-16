@@ -25,7 +25,7 @@ class RenderInvoicePdf
 
         return $this->htmlToPdf->render(View::make('invoices.document', [
             'paper' => $paper->toArray(),
-            'locale' => $language === DocumentLanguage::English ? 'en' : 'fr',
+            'locale' => $language->locale(),
             'fontPath' => resource_path('fonts'),
             'logoDataUri' => $paper->hasLogo ? $this->logoDataUri($invoice) : null,
         ])->render());

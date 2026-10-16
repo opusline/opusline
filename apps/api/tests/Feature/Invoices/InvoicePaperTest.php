@@ -2,17 +2,39 @@
 
 declare(strict_types=1);
 
+use App\Domain\Clients\Models\Client;
 use App\Domain\Documents\Enums\DocumentCategory;
 use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Enums\LineUnit;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Settings\Enums\VatRegime;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function (): void {
     $this->travelTo('2026-08-10 12:00:00');
     Storage::fake('local');
 });
+
+function paperDraftPayload(Client $client, array $overrides = []): array
+{
+    return array_merge([
+        'clientId' => $client->id,
+        'issuedOn' => '2026-08-01',
+        'paymentTermsDays' => 30,
+        'paymentTermsEndOfMonth' => false,
+        'showIban' => true,
+        'showEmail' => true,
+        'language' => DocumentLanguage::French->value,
+        'lines' => [[
+            'label' => 'Journée de développement frontend',
+            'quantityMilli' => 19_000,
+            'unit' => LineUnit::Day->value,
+            'unitPrice' => ['amount' => 55_000, 'currency' => 'EUR'],
+            'vatRateBp' => 2000,
+        ]],
+    ], $overrides);
+}
 
 test('prints a draft with the live identity under a draft stamp', function (): void {
     $user = issuableAccount();
@@ -160,4 +182,46 @@ test('has no sheet for an invoice recorded from another tool', function (): void
 
     $this->actingAs($user)->getJson("/api/invoices/{$recorded->id}/paper")->assertNotFound();
     $this->actingAs($user)->get("/api/invoices/{$recorded->id}/pdf")->assertNotFound();
+});
+
+test('downloads the copy filed at issue, whatever the settings became since', function (): void {
+    $user = issuableAccount();
+    $this->actingAs($user)->post('/api/user/logo', ['logo' => UploadedFile::fake()->image('logo.png')])->assertNoContent();
+    $id = draftFor($user, billableClient($user));
+    $this->actingAs($user)->postJson("/api/invoicing/invoices/{$id}/issue")->assertOk();
+    $filed = $this->actingAs($user)->get("/api/invoices/{$id}/pdf")->assertOk()->streamedContent();
+
+    $this->actingAs($user)->deleteJson('/api/user/logo')->assertNoContent();
+    $user->settingsOrFail()->update(['company_city' => 'Lyon']);
+
+    $response = $this->actingAs($user)->get("/api/invoices/{$id}/pdf")->assertOk();
+    $document = Invoice::query()->findOrFail($id)->attachedDocument();
+    expect($response->streamedContent())->toBe($filed)
+        ->and($filed)->toBe(Storage::disk($document?->disk ?? 'local')->get((string) $document?->getPathRelativeToRoot()))
+        ->and($response->headers->get('Content-Disposition'))->toContain('Facture-2026-001.pdf');
+});
+
+test('keeps another account\'s sheet, PDF and clients out of reach', function (): void {
+    $owner = issuableAccount();
+    $ownerClient = billableClient($owner);
+    $id = draftFor($owner, $ownerClient);
+    $user = issuableAccount();
+
+    $this->actingAs($user)->getJson("/api/invoices/{$id}/paper")->assertNotFound();
+    $this->actingAs($user)->get("/api/invoices/{$id}/pdf")->assertNotFound();
+    $this->actingAs($user)
+        ->postJson('/api/invoicing/invoices/paper', paperDraftPayload($ownerClient))
+        ->assertNotFound();
+});
+
+test('refuses a language it does not print in, and a preview it cannot price', function (): void {
+    $user = issuableAccount();
+    $client = billableClient($user);
+    $id = draftFor($user, $client);
+
+    $this->actingAs($user)->getJson("/api/invoices/{$id}/paper?language=9")->assertJsonValidationErrorFor('language');
+    $this->actingAs($user)->get("/api/invoices/{$id}/pdf?language=9")->assertUnprocessable();
+    $this->actingAs($user)
+        ->postJson('/api/invoicing/invoices/paper', paperDraftPayload($client, ['lines' => [['label' => 'Atelier']]]))
+        ->assertJsonValidationErrorFor('lines.0.quantityMilli');
 });

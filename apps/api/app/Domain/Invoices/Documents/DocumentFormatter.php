@@ -22,10 +22,9 @@ final readonly class DocumentFormatter
         private DateFormat $dateFormat,
     ) {}
 
-    /** The locale for __() and for the number formatters. */
     public function locale(): string
     {
-        return $this->language === DocumentLanguage::English ? 'en' : 'fr';
+        return $this->language->locale();
     }
 
     public function money(Money $amount): string
@@ -72,6 +71,6 @@ final readonly class DocumentFormatter
 
     private function intlLocale(): string
     {
-        return $this->language === DocumentLanguage::English ? 'en_GB' : 'fr_FR';
+        return $this->language->intlLocale();
     }
 }

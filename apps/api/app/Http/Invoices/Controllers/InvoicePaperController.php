@@ -16,6 +16,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /** The printed sheet of an invoice written in Opusline: as data for the preview, or as the PDF. */
 class InvoicePaperController extends Controller
@@ -31,9 +34,19 @@ class InvoicePaperController extends Controller
         return response()->json($buildInvoicePaper->forDraft($user, $data));
     }
 
-    public function pdf(Invoice $invoice, InvoicePaperQueryData $query, RenderInvoicePdf $renderInvoicePdf): Response
+    public function pdf(Invoice $invoice, InvoicePaperQueryData $query, RenderInvoicePdf $renderInvoicePdf): Response|StreamedResponse
     {
-        $language = $this->language($this->written($invoice), $query);
+        $archived = $this->written($invoice)->status->isIssued() ? $invoice->attachedDocument() : null;
+
+        // Issuing filed the legal copy; a later change of logo or settings must
+        // not alter what the same number downloads as.
+        if ($archived instanceof Media && Storage::disk($archived->disk)->exists($archived->getPathRelativeToRoot())) {
+            return Storage::disk($archived->disk)->download($archived->getPathRelativeToRoot(), $archived->file_name, [
+                'Cache-Control' => 'no-store',
+            ]);
+        }
+
+        $language = $this->language($invoice, $query);
 
         return response($renderInvoicePdf->handle($invoice, $language), 200, [
             'Content-Type' => 'application/pdf',
