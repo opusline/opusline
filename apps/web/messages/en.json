@@ -1152,6 +1152,7 @@
   "einvoice_status_taken_in_charge": "Acknowledged",
   "einvoicing_error_company_unverified": "Super PDP has not verified your company yet. Test the connection in Settings › Integrations once it has.",
   "einvoicing_error_credentials_rejected": "Super PDP refused the saved credentials. Check them in Settings › Integrations.",
+  "einvoicing_error_credentials_rejected_here": "Super PDP refused the saved credentials. Replace them below.",
   "einvoicing_error_not_connected": "Connect your e-invoicing platform in Settings › Integrations first.",
   "einvoicing_error_not_found": "The platform has no invoice under that reference.",
   "einvoicing_error_rejected": "The platform refused the document.",

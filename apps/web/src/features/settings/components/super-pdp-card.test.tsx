@@ -133,3 +133,20 @@ it("offers the form again when replacing the application", async () => {
 
   expect(await screen.findByTestId("super-pdp-client-id")).toBeInTheDocument();
 });
+
+it("says what to do here when the platform refused the saved credentials", async () => {
+  renderCard({ settings: { ...eInvoicingConnected, lastError: 1 } });
+
+  expect(await screen.findByTestId("super-pdp-sync-error")).toHaveTextContent(
+    /below|ci-dessous/,
+  );
+});
+
+it("leaves the unverified company to its own notice", async () => {
+  renderCard({
+    settings: { ...eInvoicingConnected, companyVerified: false, lastError: 2 },
+  });
+
+  await screen.findByTestId("super-pdp-unverified");
+  expect(screen.queryByTestId("super-pdp-sync-error")).toBeNull();
+});
