@@ -301,6 +301,19 @@ function NewMenuContent({ side }: { side?: "right" }) {
           </span>
         </span>
       </DropdownMenuItem>
+      <DropdownMenuItem
+        data-testid="invoicing-new-item"
+        data-kind="external-quote"
+        render={<Link to="/invoicing/quotes/external" />}
+      >
+        <FileUp />
+        <span className="flex flex-col">
+          <span>{m.invoicing_new_external_quote()}</span>
+          <span className="text-muted-foreground text-xs">
+            {m.invoicing_new_external_quote_detail()}
+          </span>
+        </span>
+      </DropdownMenuItem>
     </DropdownMenuContent>
   );
 }

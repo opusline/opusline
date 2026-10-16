@@ -3,6 +3,7 @@ import { client as apiClient } from "@opusline/api-client/client";
 import {
   acceptQuoteMutation,
   createQuoteInvoiceMutation,
+  deleteQuoteDocumentMutation,
   deleteQuoteMutation,
   refuseQuoteMutation,
   reopenQuoteMutation,
@@ -28,6 +29,7 @@ import {
   invalidateInvoiceWrites,
   invalidateQuoteWrites,
 } from "@/lib/query-invalidation";
+import { uploadWithProgress } from "@/lib/upload-with-progress";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -57,17 +59,48 @@ function QuoteDocumentRoute() {
   const identity = useQuery(showSettingsOptions());
   const [chosenLanguage, setLanguage] = useState<DocumentLanguage | null>(null);
   const language = chosenLanguage ?? detail.data?.quote.language ?? 0;
+  const isExternal = detail.data?.quote.source === 0;
+  // A quote recorded from another tool has no sheet: the API answers 404.
   const paper = useQuery({
     ...showQuotePaperOptions({
       path: { quote: quoteId },
       query: { language },
     }),
-    enabled: detail.data !== undefined,
+    enabled: detail.data !== undefined && !isExternal,
   });
   const [error, setError] = useState<string | null>(null);
+  const [documentError, setDocumentError] = useState<string | null>(null);
+  const [uploadPercent, setUploadPercent] = useState<number | null>(null);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   const refresh = () => invalidateQuoteWrites(queryClient);
+  const fileDocument = useMutation({
+    mutationFn: (file: File) =>
+      uploadWithProgress({
+        url: "/invoicing/quotes/{quote}/document",
+        path: { quote: quoteId },
+        field: "file",
+        file,
+        onProgress: ({ percent }) => setUploadPercent(percent),
+      }),
+    onMutate: () => {
+      setDocumentError(null);
+      setUploadPercent(0);
+    },
+    onSuccess: refresh,
+    onError: (failure) =>
+      setDocumentError(serverErrorMessage(failure, m.quote_document_failed())),
+    onSettled: () => setUploadPercent(null),
+  });
+  const unfileDocument = useMutation({
+    ...deleteQuoteDocumentMutation(),
+    onMutate: () => setDocumentError(null),
+    onSuccess: refresh,
+    onError: (failure) =>
+      setDocumentError(
+        serverErrorMessage(failure, m.quote_document_remove_failed()),
+      ),
+  });
   const number = () => detail.data?.quote.number ?? "";
   const accept = useMutation({
     ...acceptQuoteMutation(),
@@ -144,6 +177,18 @@ function QuoteDocumentRoute() {
       <QuoteDocumentPage
         detail={detail.data}
         error={error}
+        filing={
+          isExternal
+            ? {
+                isPending: fileDocument.isPending || unfileDocument.isPending,
+                isUploading: fileDocument.isPending,
+                uploadPercent,
+                error: documentError,
+                onUpload: (file) => fileDocument.mutate(file),
+                onRemove: () => unfileDocument.mutate(path),
+              }
+            : undefined
+        }
         isPending={
           accept.isPending ||
           refuse.isPending ||

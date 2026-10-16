@@ -26,6 +26,10 @@ const STATUS_TONES: Record<QuoteStatus, BadgeTone> = {
   3: "neutral",
 };
 
+export function quoteStatusLabel(status: QuoteStatus): string {
+  return QUOTE_STATUS_MESSAGES[status]();
+}
+
 /** The token the row carries: « expired » is derived by the API, never stored. */
 export function quoteStatusToken(quote: QuoteData): string {
   return quote.isExpired ? "expired" : QUOTE_STATUS_TOKENS[quote.status];

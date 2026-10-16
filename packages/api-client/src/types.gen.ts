@@ -675,6 +675,24 @@ export type CreateCraData = {
 };
 
 /**
+ * CreateExternalQuoteData
+ */
+export type CreateExternalQuoteData = {
+    clientId: number;
+    number: string;
+    amountHt: {
+        amount: number;
+        currency: Currency;
+    };
+    issuedOn: string;
+    status: QuoteStatus;
+    missionId?: number | null;
+    title?: string | null;
+    vatRateBp?: number | null;
+    decidedOn?: string | null;
+};
+
+/**
  * CreateInvoiceData
  */
 export type CreateInvoiceData = {
@@ -2084,6 +2102,7 @@ export type QuoteData = {
     missionId: number | null;
     number: string | null;
     status: QuoteStatus;
+    source: InvoiceSource;
     isExpired: boolean;
     title: string | null;
     language: DocumentLanguage;
@@ -6437,6 +6456,33 @@ export type AttachExpenseReceiptResponses = {
 
 export type AttachExpenseReceiptResponse = AttachExpenseReceiptResponses[keyof AttachExpenseReceiptResponses];
 
+export type CreateExternalQuoteData2 = {
+    body: CreateExternalQuoteData;
+    path?: never;
+    query?: never;
+    url: '/invoicing/quotes/external';
+};
+
+export type CreateExternalQuoteErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateExternalQuoteError = CreateExternalQuoteErrors[keyof CreateExternalQuoteErrors];
+
+export type CreateExternalQuoteResponses = {
+    201: QuoteDetailData;
+};
+
+export type CreateExternalQuoteResponse = CreateExternalQuoteResponses[keyof CreateExternalQuoteResponses];
+
 export type ShowInstanceData = {
     body?: never;
     path?: never;
@@ -8429,6 +8475,100 @@ export type UpdateQuoteDraftResponses = {
 };
 
 export type UpdateQuoteDraftResponse = UpdateQuoteDraftResponses[keyof UpdateQuoteDraftResponses];
+
+export type DeleteQuoteDocumentData = {
+    body?: never;
+    path: {
+        /**
+         * The quote ID
+         */
+        quote: number;
+    };
+    query?: never;
+    url: '/invoicing/quotes/{quote}/document';
+};
+
+export type DeleteQuoteDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteQuoteDocumentError = DeleteQuoteDocumentErrors[keyof DeleteQuoteDocumentErrors];
+
+export type DeleteQuoteDocumentResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteQuoteDocumentResponse = DeleteQuoteDocumentResponses[keyof DeleteQuoteDocumentResponses];
+
+export type UploadQuoteDocumentData = {
+    body: UploadInvoiceDocumentData;
+    path: {
+        /**
+         * The quote ID
+         */
+        quote: number;
+    };
+    query?: never;
+    url: '/invoicing/quotes/{quote}/document';
+};
+
+export type UploadQuoteDocumentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UploadQuoteDocumentError = UploadQuoteDocumentErrors[keyof UploadQuoteDocumentErrors];
+
+export type UploadQuoteDocumentResponses = {
+    201: QuoteDetailData;
+};
+
+export type UploadQuoteDocumentResponse = UploadQuoteDocumentResponses[keyof UploadQuoteDocumentResponses];
 
 export type IssueQuoteData = {
     body?: never;

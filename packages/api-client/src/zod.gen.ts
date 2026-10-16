@@ -1950,6 +1950,24 @@ export const zQuoteStatus = z.union([
 ]);
 
 /**
+ * CreateExternalQuoteData
+ */
+export const zCreateExternalQuoteData = z.object({
+    clientId: z.int(),
+    number: z.string().check(z.minLength(1), z.maxLength(255)),
+    amountHt: z.object({
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
+        currency: zCurrency
+    }),
+    issuedOn: z.iso.date(),
+    status: zQuoteStatus,
+    missionId: z.nullish(z.int()),
+    title: z.nullish(z.string().check(z.maxLength(255))),
+    vatRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
+    decidedOn: z.nullish(z.iso.date())
+});
+
+/**
  * QuoteData
  */
 export const zQuoteData = z.object({
@@ -1958,6 +1976,7 @@ export const zQuoteData = z.object({
     missionId: z.nullable(z.int()),
     number: z.nullable(z.string()),
     status: zQuoteStatus,
+    source: zInvoiceSource,
     isExpired: z.boolean(),
     title: z.nullable(z.string()),
     language: zDocumentLanguage,
@@ -3948,6 +3967,10 @@ export const zAttachExpenseReceiptPath = z.object({
 
 export const zAttachExpenseReceiptResponse = zExpensesMonthData;
 
+export const zCreateExternalQuoteBody = zCreateExternalQuoteData;
+
+export const zCreateExternalQuoteResponse = zQuoteDetailData;
+
 export const zShowInstanceResponse = zInstanceData;
 
 export const zShowIntegrationsResponse = zIntegrationsData;
@@ -4287,6 +4310,23 @@ export const zUpdateQuoteDraftPath = z.object({
 });
 
 export const zUpdateQuoteDraftResponse = zQuoteDetailData;
+
+export const zDeleteQuoteDocumentPath = z.object({
+    quote: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteQuoteDocumentResponse = z.void();
+
+export const zUploadQuoteDocumentBody = zUploadInvoiceDocumentData;
+
+export const zUploadQuoteDocumentPath = z.object({
+    quote: z.int()
+});
+
+export const zUploadQuoteDocumentResponse = zQuoteDetailData;
 
 export const zIssueQuotePath = z.object({
     quote: z.int()

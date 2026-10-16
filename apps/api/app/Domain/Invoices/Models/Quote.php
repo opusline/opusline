@@ -6,6 +6,7 @@ namespace App\Domain\Invoices\Models;
 
 use App\Domain\Clients\Models\Client;
 use App\Domain\Invoices\Enums\DocumentLanguage;
+use App\Domain\Invoices\Enums\InvoiceSource;
 use App\Domain\Invoices\Enums\QuoteStatus;
 use App\Domain\Invoices\Factories\QuoteFactory;
 use App\Domain\Missions\Models\Mission;
@@ -32,6 +33,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property ?int $mission_id
  * @property ?string $number
  * @property QuoteStatus $status
+ * @property InvoiceSource $source
  * @property ?string $title
  * @property ?string $description
  * @property ?DocumentLanguage $language
@@ -64,6 +66,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
     'mission_id',
     'number',
     'status',
+    'source',
     'title',
     'description',
     'language',
@@ -97,6 +100,7 @@ class Quote extends Model
     /** @var array<string, mixed> */
     #[\Override]
     protected $attributes = [
+        'source' => InvoiceSource::Opusline->value,
         'payment_terms_end_of_month' => false,
         'show_email' => false,
     ];
@@ -128,6 +132,7 @@ class Quote extends Model
     {
         return [
             'status' => QuoteStatus::class,
+            'source' => InvoiceSource::class,
             'language' => DocumentLanguage::class,
             'issued_on' => CalendarDate::class,
             'validity_days' => 'integer',
@@ -204,6 +209,12 @@ class Quote extends Model
     public function documentProperties(): array
     {
         return [self::DOCUMENT_QUOTE_PROPERTY => $this->id];
+    }
+
+    /** Written in Opusline from its lines, rather than recorded from another tool. */
+    public function isWrittenInOpusline(): bool
+    {
+        return $this->source === InvoiceSource::Opusline;
     }
 
     public function vatAmount(): Money

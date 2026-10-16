@@ -1,24 +1,25 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { INVOICE_DOCUMENT, invoiceDetail } from "../lib/fixtures";
-import { InvoiceDocumentPanel } from "./invoice-document-panel";
+import { INVOICE_DOCUMENT } from "../lib/fixtures";
+import { FiledDocumentPanel } from "./filed-document-panel";
 
 const meta = {
-  title: "Web/Invoices/InvoiceDocumentPanel",
-  component: InvoiceDocumentPanel,
+  title: "Web/Invoices/FiledDocumentPanel",
+  component: FiledDocumentPanel,
   tags: ["autodocs"],
   args: {
-    invoice: invoiceDetail({ status: 1 }).invoice,
+    subject: "invoice",
+    downloadHref: "#",
     document: null,
     isPending: false,
     error: null,
     onUpload: () => {},
     onRemove: () => {},
   },
-} satisfies Meta<typeof InvoiceDocumentPanel>;
+} satisfies Meta<typeof FiledDocumentPanel>;
 
 export default meta;
-type Story = StoryObj<typeof InvoiceDocumentPanel>;
+type Story = StoryObj<typeof FiledDocumentPanel>;
 
 /** Nothing filed yet: Opusline never produced the document, so it asks for it. */
 export const Empty: Story = {};
@@ -31,7 +32,7 @@ export const Refused: Story = {
   args: { error: "Le document n'a pas pu être classé." },
 };
 
-/** A draft was never issued, so there is no document to file against it. */
-export const Draft: Story = {
-  args: { invoice: invoiceDetail({ status: 0 }).invoice },
+/** The same panel on a quote recorded from another tool. */
+export const Quote: Story = {
+  args: { subject: "quote" },
 };

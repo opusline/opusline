@@ -25,7 +25,7 @@ class QuotePaperController extends Controller
 {
     public function show(Quote $quote, InvoicePaperQueryData $query, BuildQuotePaper $buildQuotePaper): InvoicePaperData
     {
-        return $buildQuotePaper->forQuote($quote, $this->language($quote, $query));
+        return $buildQuotePaper->forQuote($this->written($quote), $this->language($quote, $query));
     }
 
     /** The live preview of an editor draft that was never saved. */
@@ -46,13 +46,21 @@ class QuotePaperController extends Controller
             ]);
         }
 
-        $language = $this->language($quote, $query);
+        $language = $this->language($this->written($quote), $query);
 
         return response($renderQuotePdf->handle($quote, $language), 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => sprintf('attachment; filename="%s"', $renderQuotePdf->fileName($quote, $language)),
             'Cache-Control' => 'no-store',
         ]);
+    }
+
+    /** A quote recorded from another tool has no sheet here: its document is the PDF that tool produced. */
+    private function written(Quote $quote): Quote
+    {
+        abort_if(! $quote->isWrittenInOpusline(), 404);
+
+        return $quote;
     }
 
     private function language(Quote $quote, InvoicePaperQueryData $query): DocumentLanguage

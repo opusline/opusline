@@ -22,4 +22,6 @@ return [
     'deposit_already_invoiced' => 'L\'acompte de ce devis est déjà facturé.',
     'balance_needs_deposit' => 'Le solde suit une facture d\'acompte émise ; facturez plutôt la totalité du devis.',
     'already_invoiced' => 'Ce devis est déjà en cours de facturation : terminez par son solde.',
+    'external_never_draft' => 'Un devis enregistré depuis un autre outil a été envoyé, accepté ou refusé : il ne peut pas être un brouillon.',
+    'document_is_opuslines' => 'Opusline a classé le PDF qu\'il a généré pour ce devis ; aucun autre ne peut le remplacer.',
 ];

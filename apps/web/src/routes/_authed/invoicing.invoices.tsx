@@ -31,11 +31,11 @@ import {
   type AddInvoiceMission,
   type AddInvoiceSubmit,
 } from "@/features/invoices/components/add-invoice-dialog";
+import { CreateDocumentMenu } from "@/features/invoices/components/create-document-menu";
 import {
   CreateInvoiceDialog,
   type CreateInvoiceSubmit,
 } from "@/features/invoices/components/create-invoice-dialog";
-import { CreateInvoiceMenu } from "@/features/invoices/components/create-invoice-menu";
 import { useOpenInvoice } from "@/features/invoices/components/invoice-drawer-provider";
 import { InvoiceForecastCard } from "@/features/invoices/components/invoice-forecast-card";
 import { InvoiceMonthCard } from "@/features/invoices/components/invoice-month-card";
@@ -255,7 +255,8 @@ function FacturesPage() {
           </p>
         </div>
         {invoicing ? (
-          <CreateInvoiceMenu
+          <CreateDocumentMenu
+            document="invoice"
             mode={invoicingMode}
             onAddElsewhere={openAddDialog}
             onCreate={() => void navigate({ to: "/invoicing/invoices/new" })}

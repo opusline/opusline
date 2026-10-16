@@ -1,4 +1,4 @@
-import type { DocumentData, InvoiceData } from "@opusline/api-client";
+import type { DocumentData } from "@opusline/api-client";
 import { Button } from "@opusline/ui/components/button";
 import { eyebrowVariants } from "@opusline/ui/components/eyebrow";
 import {
@@ -13,24 +13,33 @@ import { UploadIcon } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { DocumentDownloadButton, DocumentRow } from "@/components/document-row";
-import { invoiceDocumentDownloadHref } from "@/lib/documents";
-import { fileRejector } from "@/lib/files";
+import {
+  ISSUED_DOCUMENT_ACCEPT,
+  rejectIssuedDocumentReason,
+} from "@/lib/documents";
 import { m } from "@/paraglide/messages.js";
 
-/** Mirrors UploadInvoiceDocumentData's Mimes and Max(20480) KB — refused before the upload. */
-const ACCEPT = ".pdf,.jpg,.jpeg,.png";
-const MAX_BYTES = 20_480 * 1024;
+/** What each kind of document says of itself: the copy is the one thing that differs. */
+const COPY = {
+  invoice: {
+    title: m.invoices_document_title,
+    empty: m.invoices_document_empty,
+    drop: m.invoices_document_drop,
+    hint: m.invoices_document_hint,
+  },
+  quote: {
+    title: m.quote_document_title,
+    empty: m.quote_document_empty,
+    drop: m.quote_document_drop,
+    hint: m.quote_document_hint,
+  },
+};
 
-const rejectReason = fileRejector({
-  accept: ACCEPT,
-  maxBytes: MAX_BYTES,
-  rejectType: m.documents_reject_type,
-  rejectSize: m.documents_reject_size,
-});
-
-type InvoiceDocumentPanelProps = {
-  invoice: InvoiceData;
-  /** The filed document, or null while the invoice carries none. */
+type FiledDocumentPanelProps = {
+  subject: keyof typeof COPY;
+  /** Where the filed document downloads from. */
+  downloadHref: string;
+  /** The filed document, or null while the record carries none. */
   document: DocumentData | null;
   isPending: boolean;
   /** Narrower than isPending: a removal is not an upload and has nothing to show. */
@@ -43,14 +52,14 @@ type InvoiceDocumentPanelProps = {
 };
 
 /**
- * The invoice itself, filed against the record of it.
+ * The document itself, filed against the record of it.
  *
- * Opusline never produces the document — the user's billing tool does — so until it
- * is dropped here the only copy is in someone's downloads folder. A draft has none:
- * nothing has been issued yet.
+ * Opusline never produced it — the user's other tool did — so until it is
+ * dropped here the only copy is in someone's downloads folder.
  */
-export function InvoiceDocumentPanel({
-  invoice,
+export function FiledDocumentPanel({
+  subject,
+  downloadHref,
   document,
   isPending,
   isUploading = false,
@@ -58,7 +67,8 @@ export function InvoiceDocumentPanel({
   error,
   onUpload,
   onRemove,
-}: InvoiceDocumentPanelProps) {
+}: FiledDocumentPanelProps) {
+  const copy = COPY[subject];
   // Hidden rather than sr-only, and opened by the visible controls: a file input
   // in the tab order is a focus stop nobody can see.
   const picker = useRef<HTMLInputElement>(null);
@@ -68,16 +78,12 @@ export function InvoiceDocumentPanel({
   // picked, and the name is the only thing that makes the bar mean anything.
   const [uploadingFile, setUploadingFile] = useState<string | null>(null);
 
-  if (invoice.status === 0) {
-    return null;
-  }
-
   const pick = (candidate: File | undefined) => {
     if (candidate === undefined) {
       return;
     }
 
-    const reason = rejectReason(candidate);
+    const reason = rejectIssuedDocumentReason(candidate);
 
     setRejected(
       reason === null
@@ -93,11 +99,12 @@ export function InvoiceDocumentPanel({
 
   return (
     <section className="border-t px-4 py-5">
-      <h3 className={eyebrowVariants()}>{m.invoices_document_title()}</h3>
+      <h2 className={eyebrowVariants()}>{copy.title()}</h2>
 
       <input
-        accept={ACCEPT}
+        accept={ISSUED_DOCUMENT_ACCEPT}
         className="hidden"
+        data-testid="filed-document-picker"
         onChange={(event) => {
           pick(event.target.files?.[0]);
           // The same file picked twice in a row must still fire a change.
@@ -125,15 +132,14 @@ export function InvoiceDocumentPanel({
 
       {document === null ? (
         <>
-          <p className="mt-3 text-muted-foreground-3 text-sm">
-            {m.invoices_document_empty()}
-          </p>
+          <p className="mt-3 text-muted-foreground-3 text-sm">{copy.empty()}</p>
           <button
             className={cn(
               "mt-3 flex w-full cursor-pointer items-center gap-3.5 rounded-md border border-border-3 border-dashed px-5 py-5 text-left transition-colors",
               "hover:border-muted-foreground-6 focus-visible:border-primary focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary/20",
               isDragOver && "border-primary bg-primary/7",
             )}
+            data-testid="filed-document-drop"
             disabled={isPending}
             onClick={() => picker.current?.click()}
             onDragLeave={() => setIsDragOver(false)}
@@ -155,11 +161,9 @@ export function InvoiceDocumentPanel({
               />
             </span>
             <span className="flex min-w-0 flex-col gap-0.75">
-              <span className="text-foreground-hi text-sm">
-                {m.invoices_document_drop()}
-              </span>
+              <span className="text-foreground-hi text-sm">{copy.drop()}</span>
               <span className="text-muted-foreground-3 text-xs">
-                {m.invoices_document_hint()}
+                {copy.hint()}
               </span>
             </span>
           </button>
@@ -167,10 +171,7 @@ export function InvoiceDocumentPanel({
       ) : (
         <div className="mt-3 rounded-md border">
           <DocumentRow document={document}>
-            <DocumentDownloadButton
-              document={document}
-              href={invoiceDocumentDownloadHref(invoice.id)}
-            />
+            <DocumentDownloadButton document={document} href={downloadHref} />
           </DocumentRow>
           <div className="flex flex-wrap gap-2 border-t px-4 py-3">
             <Button

@@ -87,6 +87,9 @@ it("keeps the New menu within reach of a collapsed sidebar, as links", async () 
   );
 
   expect(external).toHaveAttribute("href", "/invoicing/invoices?add=external");
+  expect(
+    items.find((item) => item.dataset.kind === "external-quote"),
+  ).toHaveAttribute("href", "/invoicing/quotes/external");
 });
 
 it("names the open count in the Factures link", async () => {

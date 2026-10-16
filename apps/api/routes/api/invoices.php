@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 use App\Http\Features\Support\EnsureFeatureIsActive;
 use App\Http\Invoices\Controllers\CatalogItemController;
+use App\Http\Invoices\Controllers\ExternalQuoteController;
 use App\Http\Invoices\Controllers\InvoiceController;
 use App\Http\Invoices\Controllers\InvoiceDraftController;
 use App\Http\Invoices\Controllers\InvoicePaperController;
 use App\Http\Invoices\Controllers\InvoicingSettingsController;
 use App\Http\Invoices\Controllers\QuoteController;
+use App\Http\Invoices\Controllers\QuoteDocumentController;
 use App\Http\Invoices\Controllers\QuoteDraftController;
 use App\Http\Invoices\Controllers\QuoteInvoiceController;
 use App\Http\Invoices\Controllers\QuotePaperController;
@@ -49,6 +51,8 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
             ->name('createQuoteDraft');
         Route::post('/invoicing/quotes/paper', [QuotePaperController::class, 'preview'])
             ->name('previewQuotePaper');
+        Route::post('/invoicing/quotes/external', [ExternalQuoteController::class, 'store'])
+            ->name('createExternalQuote');
         Route::get('/invoicing/quotes/{quote}', [QuoteController::class, 'show'])
             ->whereNumber('quote')
             ->name('showQuote');
@@ -73,6 +77,13 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
         Route::post('/invoicing/quotes/{quote}/invoices', [QuoteInvoiceController::class, 'store'])
             ->whereNumber('quote')
             ->name('createQuoteInvoice');
+        Route::post('/invoicing/quotes/{quote}/document', [QuoteDocumentController::class, 'store'])
+            ->whereNumber('quote')
+            ->middleware('throttle:uploads')
+            ->name('uploadQuoteDocument');
+        Route::delete('/invoicing/quotes/{quote}/document', [QuoteDocumentController::class, 'destroy'])
+            ->whereNumber('quote')
+            ->name('deleteQuoteDocument');
         Route::get('/invoicing/quotes/{quote}/paper', [QuotePaperController::class, 'show'])
             ->whereNumber('quote')
             ->name('showQuotePaper');

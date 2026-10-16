@@ -1,8 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { StoryRouter } from "@/test/story-router";
+import { INVOICE_DOCUMENT } from "../lib/fixtures";
 import {
   DEPOSIT_BILLED,
+  externalQuoteDetail,
   quoteDetail,
   quotePaperFixture,
 } from "../lib/quote-fixtures";
@@ -84,4 +86,39 @@ export const Expired: Story = {
 /** Refused, with the reopen option. */
 export const Refused: Story = {
   args: { detail: quoteDetail({ status: 3, refusedOn: "2026-10-12" }) },
+};
+
+const FILING = {
+  isPending: false,
+  isUploading: false,
+  uploadPercent: null,
+  error: null,
+  onUpload: () => {},
+  onRemove: () => {},
+};
+
+/** Issued in another tool: no sheet, the PDF is asked for instead. */
+export const External: Story = {
+  args: { detail: externalQuoteDetail(), paper: null, filing: FILING },
+};
+
+/** Issued elsewhere, accepted, its PDF filed: the whole quote can be invoiced. */
+export const ExternalFiled: Story = {
+  args: {
+    detail: {
+      ...externalQuoteDetail(
+        { status: 2, acceptedOn: "2026-10-12" },
+        {
+          invoices: [],
+          invoicedTtc: { amount: 0, currency: "EUR" },
+          canInvoiceDeposit: false,
+          canInvoiceBalance: false,
+          canInvoiceFull: true,
+        },
+      ),
+      document: { ...INVOICE_DOCUMENT, fileName: "DEV-118.pdf", category: 1 },
+    },
+    paper: null,
+    filing: FILING,
+  },
 };

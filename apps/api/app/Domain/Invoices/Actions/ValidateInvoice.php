@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Actions;
 
+use App\Domain\Invoices\Data\CreateExternalQuoteData;
 use App\Domain\Invoices\Data\CreateInvoiceData;
 use App\Domain\Invoices\Data\SaveInvoiceDraftData;
 use App\Domain\Invoices\Data\SaveQuoteDraftData;
@@ -70,6 +71,12 @@ class ValidateInvoice
 
     /** A quote draft: a mission must be the client's; its amounts come from its lines. */
     public function forQuoteDraft(User $user, SaveQuoteDraftData $data): void
+    {
+        $this->assertMissionBelongsToClient($user, $data->clientId, $data->missionId);
+    }
+
+    /** A quote recorded from another tool: the same mission rule. */
+    public function forExternalQuote(User $user, CreateExternalQuoteData $data): void
     {
         $this->assertMissionBelongsToClient($user, $data->clientId, $data->missionId);
     }

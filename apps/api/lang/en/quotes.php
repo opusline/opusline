@@ -22,4 +22,6 @@ return [
     'deposit_already_invoiced' => 'The deposit of this quote is already invoiced.',
     'balance_needs_deposit' => 'The balance follows an issued deposit invoice; invoice the whole quote instead.',
     'already_invoiced' => 'This quote is already being invoiced: finish with its balance.',
+    'external_never_draft' => 'A quote recorded from another tool was sent, accepted or refused: it cannot be a draft.',
+    'document_is_opuslines' => 'Opusline filed the PDF it rendered for this quote; no other may stand in for it.',
 ];
