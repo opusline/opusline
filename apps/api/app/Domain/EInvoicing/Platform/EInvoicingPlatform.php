@@ -23,11 +23,12 @@ use Carbon\CarbonImmutable;
 interface EInvoicingPlatform
 {
     /**
-     * Whether the credentials work and the account is enrolled on the platform.
+     * What the platform says about the account: its company, whether it is
+     * verified yet, and where the annuaire routes its invoices.
      *
-     * @throws EInvoicingPlatformException with what to fix
+     * @throws EInvoicingPlatformException when the credentials are refused or the platform is down
      */
-    public function verifyConnection(): void;
+    public function check(): ConnectionCheck;
 
     /**
      * Whether a company can be sent an electronic invoice, from the annuaire.

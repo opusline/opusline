@@ -7,6 +7,7 @@ namespace App\Domain\EInvoicing\Models;
 use App\Domain\EInvoicing\Enums\EInvoicingPlatformKind;
 use App\Domain\EInvoicing\Enums\PlatformEnvironment;
 use App\Domain\EInvoicing\Factories\EInvoicingConnectionFactory;
+use App\Domain\EInvoicing\Platform\ConnectionCheck;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -61,6 +62,19 @@ class EInvoicingConnection extends Model
             'company_verified' => 'boolean',
             'checked_at' => 'datetime',
         ];
+    }
+
+    /** What the platform just said about the company, dated now. */
+    public function recordCheck(ConnectionCheck $check): static
+    {
+        return $this->fill([
+            'company_name' => $check->companyName,
+            'company_number' => $check->companyNumber,
+            'environment' => $check->environment,
+            'company_verified' => $check->companyVerified,
+            'receiving_address' => $check->receivingAddress,
+            'checked_at' => CarbonImmutable::now(),
+        ]);
     }
 
     /** @return BelongsTo<User, $this> */

@@ -16,11 +16,6 @@ final readonly class SuperPdpCredentials
         public string $clientSecret,
     ) {}
 
-    public static function of(EInvoicingConnection $connection): self
-    {
-        return new self($connection->client_id, $connection->client_secret);
-    }
-
     /**
      * @throws EInvoicingPlatformException
      */
@@ -30,6 +25,6 @@ final readonly class SuperPdpCredentials
             throw new EInvoicingPlatformException(EInvoicingError::NotConnected, 'No e-invoicing platform is connected.');
         }
 
-        return self::of($connection);
+        return new self($connection->client_id, $connection->client_secret);
     }
 }

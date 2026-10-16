@@ -29,6 +29,8 @@ class SuperPdpClient
     /** Refetch the token a little before the platform expires it. */
     private const int TOKEN_SKEW_SECONDS = 60;
 
+    private const int DEFAULT_TOKEN_SECONDS = 1800;
+
     /**
      * @throws EInvoicingPlatformException
      */
@@ -117,7 +119,7 @@ class SuperPdpClient
      */
     public function invoice(SuperPdpCredentials $credentials, string $id): array
     {
-        return $this->json($this->get($credentials, '/invoices/'.rawurlencode($id), ['format' => 'en16931'], invoiceCall: true));
+        return $this->json($this->get($credentials, '/invoices/'.rawurlencode($id), ['format' => 'en16931'], invoiceRoute: true));
     }
 
     /**
@@ -127,7 +129,7 @@ class SuperPdpClient
      */
     public function download(SuperPdpCredentials $credentials, string $id): string
     {
-        return $this->get($credentials, '/invoices/'.rawurlencode($id), ['format' => 'original'], invoiceCall: true)->body();
+        return $this->get($credentials, '/invoices/'.rawurlencode($id), ['format' => 'original'], invoiceRoute: true)->body();
     }
 
     /**
@@ -140,9 +142,9 @@ class SuperPdpClient
      */
     public function createInvoice(SuperPdpCredentials $credentials, string $facturX, string $externalId): array
     {
-        return $this->json($this->call(fn (): Response => $this->request($credentials)
+        return $this->json($this->call($credentials, fn (): Response => $this->request($credentials)
             ->withBody($facturX, 'application/pdf')
-            ->post(self::API_PREFIX.'/invoices?'.http_build_query(['external_id' => $externalId])), credentials: $credentials));
+            ->post(self::API_PREFIX.'/invoices?'.http_build_query(['external_id' => $externalId]))));
     }
 
     /**
@@ -152,11 +154,11 @@ class SuperPdpClient
      */
     public function createInvoiceEvent(SuperPdpCredentials $credentials, string $invoiceId, string $statusCode, ?string $reason): void
     {
-        $this->call(fn (): Response => $this->request($credentials)->post(self::API_PREFIX.'/invoice_events', array_filter([
+        $this->call($credentials, fn (): Response => $this->request($credentials)->post(self::API_PREFIX.'/invoice_events', array_filter([
             'invoice_id' => $invoiceId,
             'status_code' => $statusCode,
             'data' => $reason === null ? null : ['reason' => $reason],
-        ], static fn (mixed $value): bool => $value !== null)), credentials: $credentials, invoiceCall: true);
+        ], static fn (mixed $value): bool => $value !== null)), invoiceRoute: true);
     }
 
     /**
@@ -164,14 +166,9 @@ class SuperPdpClient
      *
      * @throws EInvoicingPlatformException
      */
-    private function get(SuperPdpCredentials $credentials, string $path, array $query = [], bool $invoiceCall = false): Response
+    private function get(SuperPdpCredentials $credentials, string $path, array $query = [], bool $invoiceRoute = false): Response
     {
-        return $this->call(fn (): Response => $this->request($credentials)->get(self::API_PREFIX.$path, $query), credentials: $credentials, invoiceCall: $invoiceCall);
-    }
-
-    private function tokenKey(SuperPdpCredentials $credentials): string
-    {
-        return 'super-pdp:token:'.hash('sha256', $credentials->clientId.':'.$credentials->clientSecret);
+        return $this->call($credentials, fn (): Response => $this->request($credentials)->get(self::API_PREFIX.$path, $query), $invoiceRoute);
     }
 
     /**
@@ -204,42 +201,58 @@ class SuperPdpClient
             return $cached;
         }
 
-        $response = $this->call(fn (): Response => $this->http()->asForm()->post('/oauth2/token', [
+        $response = $this->send(fn (): Response => $this->http()->asForm()->post('/oauth2/token', [
             'grant_type' => 'client_credentials',
             'client_id' => $credentials->clientId,
             'client_secret' => $credentials->clientSecret,
-        ]), credentialsCall: true);
+        ]));
+
+        // The token route is the one place a 400 means refused credentials.
+        if ($response->failed()) {
+            throw new EInvoicingPlatformException(
+                in_array($response->status(), [400, 401], true) ? EInvoicingError::CredentialsRejected : EInvoicingError::Unavailable,
+                "Super PDP's token route answered {$response->status()}.",
+            );
+        }
+
         $body = $this->json($response);
         $token = $body['access_token'] ?? null;
-        $expiresIn = $body['expires_in'] ?? 1800;
+        $expiresIn = is_int($body['expires_in'] ?? null) ? $body['expires_in'] : self::DEFAULT_TOKEN_SECONDS;
 
         if (! is_string($token) || $token === '') {
             throw $this->unexpected('/oauth2/token');
         }
 
-        Cache::put($key, $token, max(60, (is_int($expiresIn) ? $expiresIn : 1800) - self::TOKEN_SKEW_SECONDS));
+        Cache::put($key, $token, max(60, $expiresIn - self::TOKEN_SKEW_SECONDS));
 
         return $token;
     }
 
+    private function tokenKey(SuperPdpCredentials $credentials): string
+    {
+        return 'super-pdp:token:'.hash('sha256', $credentials->clientId.':'.$credentials->clientSecret);
+    }
+
     /**
+     * Sends an authenticated call. On a 401 under a cached token the token is
+     * dropped and the call made once more: the platform may revoke a token
+     * before the cache expects it.
+     *
      * @param  callable(): Response  $send
+     * @param  bool  $invoiceRoute  A route about one invoice, where a 404 means that invoice and nothing else.
      *
      * @throws EInvoicingPlatformException
      */
-    private function call(callable $send, bool $credentialsCall = false, ?SuperPdpCredentials $credentials = null, bool $invoiceCall = false): Response
+    private function call(SuperPdpCredentials $credentials, callable $send, bool $invoiceRoute = false): Response
     {
         $response = $this->send($send);
 
-        // A 401 under a cached token: the platform may revoke one before the
-        // cache expects it, so the token is dropped and the call made once more.
-        if ($response->status() === 401 && $credentials instanceof SuperPdpCredentials && Cache::has($this->tokenKey($credentials))) {
-            Cache::forget($this->tokenKey($credentials));
+        if ($response->status() === 401 && Cache::forget($this->tokenKey($credentials))) {
             $response = $this->send($send);
         }
 
         if ($response->failed()) {
-            throw $this->failure($response, $credentialsCall, $invoiceCall);
+            throw $this->failure($response, $invoiceRoute);
         }
 
         return $response;
@@ -259,14 +272,13 @@ class SuperPdpClient
         }
     }
 
-    /** $invoiceCall: a route about one invoice, where a 404 means that invoice and nothing else. */
-    private function failure(Response $response, bool $credentialsCall, bool $invoiceCall): EInvoicingPlatformException
+    private function failure(Response $response, bool $invoiceRoute): EInvoicingPlatformException
     {
         $status = $response->status();
         $reason = match (true) {
-            $status === 401, $credentialsCall && $status === 400 => EInvoicingError::CredentialsRejected,
+            $status === 401 => EInvoicingError::CredentialsRejected,
             $status === 403 => EInvoicingError::CompanyUnverified,
-            $invoiceCall && $status === 404 => EInvoicingError::NotFound,
+            $invoiceRoute && $status === 404 => EInvoicingError::NotFound,
             $status === 400, $status === 409, $status === 422 => EInvoicingError::Rejected,
             default => EInvoicingError::Unavailable,
         };

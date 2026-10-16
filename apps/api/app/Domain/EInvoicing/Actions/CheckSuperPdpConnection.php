@@ -38,7 +38,7 @@ class CheckSuperPdpConnection
             // Replaced while the platform was answering: the answer is about
             // the old application and has nothing to say about this row.
             if ($connection instanceof EInvoicingConnection && $connection->client_id === $credentials->clientId) {
-                $connection->forceFill(ConnectSuperPdp::snapshot($check))->save();
+                $connection->recordCheck($check)->save();
             }
         });
     }

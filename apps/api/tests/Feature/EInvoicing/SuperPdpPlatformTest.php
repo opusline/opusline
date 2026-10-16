@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\EInvoicing\Enums\EInvoicingError;
 use App\Domain\EInvoicing\Enums\LifecycleStatus;
+use App\Domain\EInvoicing\Platform\ConnectionCheck;
 use App\Domain\EInvoicing\Platform\EInvoicingPlatformException;
 use App\Domain\EInvoicing\Platform\SubmittedInvoice;
 use App\Domain\EInvoicing\SuperPdp\SuperPdpClient;
@@ -125,14 +126,14 @@ test('drops a token the platform revoked early and tries once more', function ()
             ->push(['access_token' => 'tok_stale', 'expires_in' => 1800])
             ->push(['access_token' => 'tok_fresh', 'expires_in' => 1800]),
         'api.superpdp.tech/v1.beta/oauth2_sessions/me' => Http::sequence()
-            ->push(['company_verification_status' => 'verified'])
+            ->push(['company_verification_status' => 'pending'])
             ->push(['error' => 'token_revoked'], 401)
-            ->push(['company_verification_status' => 'verified']),
+            ->push(['company_verification_status' => 'pending']),
     ]);
     $platform = superPdp();
 
-    $platform->verifyConnection();
-    $platform->verifyConnection();
+    expect($platform->check()->companyVerified)->toBeFalse()
+        ->and($platform->check()->companyVerified)->toBeFalse();
 
     Http::assertSentCount(5);
     Http::assertSent(fn (Request $request): bool => ($request->header('Authorization')[0] ?? null) === 'Bearer tok_fresh');
@@ -217,12 +218,13 @@ test('names revoked credentials and an unreachable platform', function (): void 
         ->push(['error' => 'invalid_client'], 401)
         ->push(['message' => 'Down'], 502)]);
 
-    expect(platformFailure(fn () => superPdp()->verifyConnection()))->toBe(EInvoicingError::CredentialsRejected);
-    expect(platformFailure(fn () => superPdp()->verifyConnection()))->toBe(EInvoicingError::Unavailable);
+    expect(platformFailure(fn (): ConnectionCheck => superPdp()->check()))->toBe(EInvoicingError::CredentialsRejected)
+        ->and(platformFailure(fn (): ConnectionCheck => superPdp()->check()))->toBe(EInvoicingError::Unavailable);
 });
 
-test('refuses to act for a company the platform has not verified', function (): void {
+test('reports a company the platform has not verified without asking it more', function (): void {
     fakeSuperPdp(['api.superpdp.tech/v1.beta/oauth2_sessions/me' => Http::response(['company_verification_status' => 'pending'])]);
 
-    expect(platformFailure(fn () => superPdp()->verifyConnection()))->toBe(EInvoicingError::CompanyUnverified);
+    expect(superPdp()->check()->companyVerified)->toBeFalse();
+    Http::assertSentCount(2);
 });

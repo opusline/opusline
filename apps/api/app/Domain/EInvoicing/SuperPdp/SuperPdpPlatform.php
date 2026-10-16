@@ -6,6 +6,7 @@ namespace App\Domain\EInvoicing\SuperPdp;
 
 use App\Domain\EInvoicing\Enums\EInvoicingError;
 use App\Domain\EInvoicing\Enums\LifecycleStatus;
+use App\Domain\EInvoicing\Platform\ConnectionCheck;
 use App\Domain\EInvoicing\Platform\EInvoicingPlatform;
 use App\Domain\EInvoicing\Platform\EInvoicingPlatformException;
 use App\Domain\EInvoicing\Platform\ReceivedInvoice;
@@ -31,39 +32,20 @@ class SuperPdpPlatform implements EInvoicingPlatform
         private readonly SuperPdpCredentials $credentials,
     ) {}
 
-    /**
-     * What the settings page shows: the company, its environment, whether the
-     * platform verified it and where the annuaire routes its invoices.
-     *
-     * @throws EInvoicingPlatformException
-     */
-    public function check(): SuperPdpConnectionCheck
+    public function check(): ConnectionCheck
     {
-        // Until the platform verified the company, its routes answer 403: the
-        // credentials still hold, so they are kept and checked again later.
-        try {
-            $verified = $this->client->isCompanyVerified($this->credentials);
-            $company = $this->client->company($this->credentials);
-        } catch (EInvoicingPlatformException $exception) {
-            if ($exception->reason !== EInvoicingError::CompanyUnverified) {
-                throw $exception;
-            }
-
-            return new SuperPdpConnectionCheck(null, null, null, false, null);
-        }
-
-        $address = $verified && $company->number !== null
-            ? $this->client->directoryEntries($this->credentials, $company->number)[0] ?? null
-            : null;
-
-        return new SuperPdpConnectionCheck($company->name, $company->number, $company->environment, $verified, $address);
-    }
-
-    public function verifyConnection(): void
-    {
+        // Until the platform verified the company, its other routes answer 403:
+        // the credentials still hold, so the check stops here and is run again later.
         if (! $this->client->isCompanyVerified($this->credentials)) {
-            throw new EInvoicingPlatformException(EInvoicingError::CompanyUnverified, 'Super PDP has not verified the company yet.');
+            return ConnectionCheck::unverified();
         }
+
+        $company = $this->client->company($this->credentials);
+        $address = $company->number === null
+            ? null
+            : $this->client->directoryEntries($this->credentials, $company->number)[0] ?? null;
+
+        return new ConnectionCheck($company->name, $company->number, $company->environment, true, $address);
     }
 
     public function lookupRecipient(string $siren): RecipientLookup
@@ -76,13 +58,13 @@ class SuperPdpPlatform implements EInvoicingPlatform
     public function sendInvoice(string $facturX, string $recipientSiren): SubmittedInvoice
     {
         $invoice = $this->client->createInvoice($this->credentials, $facturX, $recipientSiren);
-        $id = $invoice['id'] ?? null;
+        $id = $this->platformId($invoice);
 
-        if (! is_int($id) && ! is_string($id)) {
+        if ($id === null) {
             throw new EInvoicingPlatformException(EInvoicingError::Unavailable, "Super PDP's deposit answer carries no id.");
         }
 
-        return new SubmittedInvoice((string) $id, $this->lastStatus($invoice) ?? LifecycleStatus::Deposited);
+        return new SubmittedInvoice($id, $this->lastStatus($invoice) ?? LifecycleStatus::Deposited);
     }
 
     public function invoiceStatus(string $platformId): LifecycleStatus
@@ -100,14 +82,21 @@ class SuperPdpPlatform implements EInvoicingPlatform
             $last = null;
 
             foreach ($page['data'] as $entry) {
-                $id = $entry['id'] ?? null;
+                $id = $this->platformId($entry);
 
-                if (! is_int($id) && ! is_string($id)) {
+                if ($id === null) {
                     continue;
                 }
 
-                $last = (string) $id;
-                $detail = $this->client->invoice($this->credentials, $last);
+                $last = $id;
+
+                // The listing carries the invoice's own dates: an untouched one
+                // is not worth its detail call.
+                if (! $this->changedSince($entry, $since)) {
+                    continue;
+                }
+
+                $detail = $this->client->invoice($this->credentials, $id);
                 $invoice = $this->receivedInvoice($detail);
 
                 if ($invoice instanceof ReceivedInvoice && $this->changedSince($detail, $since)) {
@@ -137,9 +126,28 @@ class SuperPdpPlatform implements EInvoicingPlatform
     }
 
     /**
+     * @param  array<array-key, mixed>  $invoice
+     */
+    private function platformId(array $invoice): ?string
+    {
+        $id = $invoice['id'] ?? null;
+
+        return is_int($id) || (is_string($id) && $id !== '') ? (string) $id : null;
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $invoice
+     * @return list<array<array-key, mixed>>
+     */
+    private function events(array $invoice): array
+    {
+        return is_array($invoice['events'] ?? null) ? array_values(array_filter($invoice['events'], is_array(...))) : [];
+    }
+
+    /**
      * Whether the platform touched the invoice since the given moment: its
      * latest event, or its own timestamps when it recorded none. Without a
-     * moment, or without any date to compare, the invoice is kept.
+     * moment, or without any date to compare, the invoice counts as touched.
      *
      * @param  array<array-key, mixed>  $invoice
      */
@@ -149,32 +157,10 @@ class SuperPdpPlatform implements EInvoicingPlatform
             return true;
         }
 
-        $events = is_array($invoice['events'] ?? null) ? $invoice['events'] : [];
-        $stamps = array_map(static fn (mixed $event): mixed => is_array($event) ? ($event['created_at'] ?? null) : null, $events);
-        $latest = null;
+        $stamps = array_map(static fn (array $event): mixed => $event['created_at'] ?? null, $this->events($invoice));
+        $moments = array_filter(array_map($this->instant(...), [...$stamps, $invoice['updated_at'] ?? null, $invoice['created_at'] ?? null]));
 
-        foreach ([...$stamps, $invoice['updated_at'] ?? null, $invoice['created_at'] ?? null] as $value) {
-            $moment = $this->instant($value);
-
-            if ($moment instanceof CarbonImmutable && (! $latest instanceof CarbonImmutable || $moment->greaterThan($latest))) {
-                $latest = $moment;
-            }
-        }
-
-        return ! $latest instanceof CarbonImmutable || $latest->greaterThanOrEqualTo($since);
-    }
-
-    private function instant(mixed $value): ?CarbonImmutable
-    {
-        if (! is_string($value) || $value === '') {
-            return null;
-        }
-
-        try {
-            return CarbonImmutable::parse($value);
-        } catch (Throwable) {
-            return null;
-        }
+        return $moments === [] || max($moments)->greaterThanOrEqualTo($since);
     }
 
     /**
@@ -184,11 +170,10 @@ class SuperPdpPlatform implements EInvoicingPlatform
      */
     private function lastStatus(array $invoice): ?LifecycleStatus
     {
-        $events = is_array($invoice['events'] ?? null) ? $invoice['events'] : [];
         $status = null;
 
-        foreach ($events as $event) {
-            $code = is_array($event) ? ($event['status_code'] ?? null) : null;
+        foreach ($this->events($invoice) as $event) {
+            $code = $event['status_code'] ?? null;
             $status = LifecycleStatus::fromCode(is_string($code) ? $code : null) ?? $status;
         }
 
@@ -203,10 +188,10 @@ class SuperPdpPlatform implements EInvoicingPlatform
      */
     private function receivedInvoice(array $invoice): ?ReceivedInvoice
     {
-        $id = $invoice['id'] ?? null;
+        $id = $this->platformId($invoice);
         $content = is_array($invoice['en_invoice'] ?? null) ? $invoice['en_invoice'] : null;
 
-        if ((! is_int($id) && ! is_string($id)) || $content === null) {
+        if ($id === null || $content === null) {
             return null;
         }
 
@@ -225,7 +210,7 @@ class SuperPdpPlatform implements EInvoicingPlatform
         $currency = $content['currency_code'] ?? 'EUR';
 
         return new ReceivedInvoice(
-            platformId: (string) $id,
+            platformId: $id,
             supplierName: $sellerName,
             supplierSiren: is_string($siren) && $siren !== '' ? substr(preg_replace('/\D/', '', $siren) ?? '', 0, 9) : null,
             number: $number,
@@ -238,17 +223,22 @@ class SuperPdpPlatform implements EInvoicingPlatform
         );
     }
 
-    private function date(mixed $value): ?CarbonImmutable
+    private function instant(mixed $value): ?CarbonImmutable
     {
         if (! is_string($value) || $value === '') {
             return null;
         }
 
         try {
-            return CarbonImmutable::parse($value)->startOfDay();
+            return CarbonImmutable::parse($value);
         } catch (Throwable) {
             return null;
         }
+    }
+
+    private function date(mixed $value): ?CarbonImmutable
+    {
+        return $this->instant($value)?->startOfDay();
     }
 
     /** EN 16931 amounts travel as decimal strings, « 1234.56 »; stored as cents. */

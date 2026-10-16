@@ -9,3 +9,9 @@ description = "Vendored skill doc showing a STRIPE_SECRET placeholder (sk_live_a
 paths = [
   '''apps/api/\.(agents|claude)/skills/laravel-best-practices/rules/config\.md''',
 ]
+
+[[allowlists]]
+description = "Fixture client secret of the Super PDP tests on an early commit of feat/e-invoicing-connection — invented, never a real credential; later commits use a plain placeholder"
+regexes = [
+  '''secret_0b8f3c2e1a4d4e6f9b7c5d2e1f0a3b4c''',
+]

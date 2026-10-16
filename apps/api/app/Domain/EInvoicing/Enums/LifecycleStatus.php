@@ -46,7 +46,7 @@ enum LifecycleStatus: int
 
     public static function fromCode(?string $code): ?self
     {
-        if (! is_string($code) || ! str_starts_with($code, 'fr:')) {
+        if ($code === null || ! str_starts_with($code, 'fr:')) {
             return null;
         }
 

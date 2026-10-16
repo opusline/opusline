@@ -28,18 +28,14 @@ class EInvoicingSettingsData extends Data
 
     public static function fromConnection(?EInvoicingConnection $connection): self
     {
-        if (! $connection instanceof EInvoicingConnection) {
-            return new self(null, null, null, null, false, null, null);
-        }
-
         return new self(
-            clientId: $connection->client_id,
-            companyName: $connection->company_name,
-            companyNumber: $connection->company_number,
-            environment: $connection->environment,
-            companyVerified: $connection->company_verified,
-            receivingAddress: $connection->receiving_address,
-            checkedAt: $connection->checked_at?->toIso8601String(),
+            clientId: $connection?->client_id,
+            companyName: $connection?->company_name,
+            companyNumber: $connection?->company_number,
+            environment: $connection?->environment,
+            companyVerified: $connection instanceof EInvoicingConnection && $connection->company_verified,
+            receivingAddress: $connection?->receiving_address,
+            checkedAt: $connection?->checked_at?->toIso8601String(),
         );
     }
 }

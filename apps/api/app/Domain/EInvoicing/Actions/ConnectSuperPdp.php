@@ -9,11 +9,9 @@ use App\Domain\EInvoicing\Enums\EInvoicingError;
 use App\Domain\EInvoicing\Enums\EInvoicingPlatformKind;
 use App\Domain\EInvoicing\Platform\EInvoicingPlatformException;
 use App\Domain\EInvoicing\SuperPdp\SuperPdpClient;
-use App\Domain\EInvoicing\SuperPdp\SuperPdpConnectionCheck;
 use App\Domain\EInvoicing\SuperPdp\SuperPdpCredentials;
 use App\Domain\EInvoicing\SuperPdp\SuperPdpPlatform;
 use App\Domain\Users\Models\User;
-use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -30,7 +28,7 @@ class ConnectSuperPdp
 
     public function handle(User $user, SaveSuperPdpCredentialsData $data): void
     {
-        $credentials = new SuperPdpCredentials(trim($data->clientId), trim($data->clientSecret));
+        $credentials = new SuperPdpCredentials($data->clientId, $data->clientSecret);
 
         try {
             $check = new SuperPdpPlatform($this->client, $credentials)->check();
@@ -43,29 +41,11 @@ class ConnectSuperPdp
         }
 
         DB::transaction(function () use ($user, $credentials, $check): void {
-            $locked = User::lockRow($user->id);
-
-            $locked->eInvoicingConnection()->updateOrCreate([], [
+            User::lockRow($user->id)->eInvoicingConnection()->firstOrNew()->fill([
                 'platform' => EInvoicingPlatformKind::SuperPdp,
                 'client_id' => $credentials->clientId,
                 'client_secret' => $credentials->clientSecret,
-                ...self::snapshot($check),
-            ]);
+            ])->recordCheck($check)->save();
         });
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public static function snapshot(SuperPdpConnectionCheck $check): array
-    {
-        return [
-            'company_name' => $check->companyName,
-            'company_number' => $check->companyNumber,
-            'environment' => $check->environment,
-            'company_verified' => $check->companyVerified,
-            'receiving_address' => $check->receivingAddress,
-            'checked_at' => CarbonImmutable::now(),
-        ];
     }
 }
