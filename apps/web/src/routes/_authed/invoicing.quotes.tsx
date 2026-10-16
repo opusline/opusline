@@ -1,11 +1,13 @@
-import { listQuotesOptions } from "@opusline/api-client/react-query";
+import {
+  listQuotesOptions,
+  showInvoicingSettingsOptions,
+} from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
-import { buttonVariants } from "@opusline/ui/components/button";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { PlusIcon } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
+import { CreateDocumentMenu } from "@/features/invoices/components/create-document-menu";
 import { QuoteSummaryTiles } from "@/features/invoices/components/quote-summary-tiles";
 import { QuotesTable } from "@/features/invoices/components/quotes-table";
 import { requireInvoicing } from "@/lib/features";
@@ -19,6 +21,7 @@ export const Route = createFileRoute("/_authed/invoicing/quotes")({
 function QuotesPage() {
   const navigate = useNavigate();
   const quotes = useQuery(listQuotesOptions());
+  const invoicingSettings = useQuery(showInvoicingSettingsOptions());
 
   return (
     <div className="flex flex-col gap-5">
@@ -34,14 +37,14 @@ function QuotesPage() {
             {m.quotes_page_intro()}
           </p>
         </div>
-        <Link
-          className={buttonVariants({ size: "xl" })}
-          data-testid="quote-create"
-          to="/invoicing/quotes/new"
-        >
-          <PlusIcon aria-hidden />
-          {m.quotes_create()}
-        </Link>
+        <CreateDocumentMenu
+          document="quote"
+          mode={invoicingSettings.data?.mode ?? 0}
+          onAddElsewhere={() =>
+            void navigate({ to: "/invoicing/quotes/external" })
+          }
+          onCreate={() => void navigate({ to: "/invoicing/quotes/new" })}
+        />
       </div>
 
       {quotes.isPending ? (

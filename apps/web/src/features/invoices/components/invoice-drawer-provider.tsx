@@ -25,6 +25,7 @@ import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatAmountWithCents } from "@/lib/billing";
 import { accountTodayCalendarDate } from "@/lib/dates";
+import { invoiceDocumentDownloadHref } from "@/lib/documents";
 import { INVOICING, useFeature } from "@/lib/features";
 import { invalidateInvoiceWrites } from "@/lib/query-invalidation";
 import { uploadWithProgress } from "@/lib/upload-with-progress";
@@ -32,9 +33,9 @@ import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
 import { sentOnFrom } from "../lib/history";
+import { FiledDocumentPanel } from "./filed-document-panel";
 import type { InvoiceDateCorrection } from "./invoice-date-corrections";
 import { InvoiceDateCorrections } from "./invoice-date-corrections";
-import { InvoiceDocumentPanel } from "./invoice-document-panel";
 import { InvoiceDrawer } from "./invoice-drawer";
 import { InvoiceLifecycleActions } from "./invoice-lifecycle-actions";
 
@@ -362,25 +363,30 @@ export function InvoiceDrawerProvider({
                 }
                 sentOn={sentOnFrom(detail.data)}
               />
-              <InvoiceDocumentPanel
-                document={detail.data.document}
-                error={documentError}
-                invoice={detail.data.invoice}
-                isPending={fileDocument.isPending || unfileDocument.isPending}
-                isUploading={fileDocument.isPending}
-                uploadPercent={uploadPercent}
-                onRemove={() =>
-                  unfileDocument.mutate({
-                    path: { invoice: detail.data.invoice.id },
-                  })
-                }
-                onUpload={(file) =>
-                  fileDocument.mutate({
-                    invoice: detail.data.invoice.id,
-                    file,
-                  })
-                }
-              />
+              {detail.data.invoice.status === 0 ? null : (
+                <FiledDocumentPanel
+                  document={detail.data.document}
+                  downloadHref={invoiceDocumentDownloadHref(
+                    detail.data.invoice.id,
+                  )}
+                  error={documentError}
+                  isPending={fileDocument.isPending || unfileDocument.isPending}
+                  isUploading={fileDocument.isPending}
+                  uploadPercent={uploadPercent}
+                  onRemove={() =>
+                    unfileDocument.mutate({
+                      path: { invoice: detail.data.invoice.id },
+                    })
+                  }
+                  onUpload={(file) =>
+                    fileDocument.mutate({
+                      invoice: detail.data.invoice.id,
+                      file,
+                    })
+                  }
+                  subject="invoice"
+                />
+              )}
             </>
           )
         }

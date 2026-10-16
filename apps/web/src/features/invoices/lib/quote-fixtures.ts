@@ -15,6 +15,7 @@ export const QUOTE_FIXTURE = {
   missionId: 10,
   number: "D-2026-003",
   status: 1,
+  source: 1,
   isExpired: false,
   title: "Refonte de l'espace client",
   language: 0,
@@ -114,6 +115,30 @@ export function quoteDetail(
     content: CONTENT,
     document: null,
     billing,
+  };
+}
+
+/** A quote recorded from another tool: its own reference, no lines, no deposit, no sheet. */
+export function externalQuoteDetail(
+  overrides: Partial<QuoteData> = {},
+  billing: QuoteBillingData = NO_BILLING,
+): QuoteDetailData {
+  return {
+    ...quoteDetail(
+      {
+        number: "DEV-118",
+        source: 0,
+        title: "Refonte du back-office",
+        depositRateBp: null,
+        depositAmount: null,
+        amountHt: eur(480_000),
+        amountVat: eur(96_000),
+        amountTtc: eur(576_000),
+        ...overrides,
+      },
+      billing,
+    ),
+    content: { ...CONTENT, lines: [], vatBreakdown: [] },
   };
 }
 

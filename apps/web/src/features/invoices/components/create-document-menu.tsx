@@ -15,8 +15,33 @@ import { ChevronDown, PlusIcon } from "lucide-react";
 
 import { m } from "@/paraglide/messages.js";
 
-type CreateInvoiceMenuProps = {
-  /** Where the account writes its invoices: that way is the button's own. */
+/** Each document's two ways in, as the design names them. */
+const COPY = {
+  invoice: {
+    group: m.invoices_create_invoice,
+    create: m.invoices_create_invoice,
+    add: m.invoices_add_title,
+    other: m.invoices_create_other,
+    inOpusline: m.invoices_create_in_opusline,
+    inOpuslineDetail: m.invoices_create_in_opusline_detail,
+    elsewhere: m.invoices_create_elsewhere,
+    elsewhereDetail: m.invoices_create_elsewhere_detail,
+  },
+  quote: {
+    group: m.quotes_create,
+    create: m.quotes_create,
+    add: m.quotes_create_elsewhere,
+    other: m.quotes_create_other,
+    inOpusline: m.quotes_create_in_opusline,
+    inOpuslineDetail: m.quotes_create_in_opusline_detail,
+    elsewhere: m.quotes_create_elsewhere,
+    elsewhereDetail: m.quotes_create_elsewhere_detail,
+  },
+};
+
+type CreateDocumentMenuProps = {
+  document: keyof typeof COPY;
+  /** Where the account writes its documents: that way is the button's own. */
   mode: InvoicingMode;
   onCreate: () => void;
   onAddElsewhere: () => void;
@@ -24,49 +49,51 @@ type CreateInvoiceMenuProps = {
 
 /**
  * « Créer » as the settings' default action, the other one a click away in
- * its menu, for the invoice that does not follow the habit.
+ * its menu, for the document that does not follow the habit.
  */
-export function CreateInvoiceMenu({
+export function CreateDocumentMenu({
+  document,
   mode,
   onCreate,
   onAddElsewhere,
-}: CreateInvoiceMenuProps) {
+}: CreateDocumentMenuProps) {
+  const copy = COPY[document];
   const writesHere = mode === 0;
   const options = [
     {
       kind: "opusline",
-      label: m.invoices_create_in_opusline(),
-      detail: m.invoices_create_in_opusline_detail(),
+      label: copy.inOpusline(),
+      detail: copy.inOpuslineDetail(),
       isDefault: writesHere,
       go: onCreate,
     },
     {
       kind: "elsewhere",
-      label: m.invoices_create_elsewhere(),
-      detail: m.invoices_create_elsewhere_detail(),
+      label: copy.elsewhere(),
+      detail: copy.elsewhereDetail(),
       isDefault: !writesHere,
       go: onAddElsewhere,
     },
   ];
 
   return (
-    <ButtonGroup aria-label={m.invoices_create_invoice()}>
+    <ButtonGroup aria-label={copy.group()}>
       <Button
         data-kind={writesHere ? "opusline" : "elsewhere"}
-        data-testid="invoice-create"
+        data-testid={`${document}-create`}
         onClick={writesHere ? onCreate : onAddElsewhere}
         size="xl"
       >
         <PlusIcon aria-hidden />
-        {writesHere ? m.invoices_create_invoice() : m.invoices_add_title()}
+        {writesHere ? copy.create() : copy.add()}
       </Button>
       <ButtonGroupSeparator />
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
             <Button
-              aria-label={m.invoices_create_other()}
-              data-testid="invoice-create-menu"
+              aria-label={copy.other()}
+              data-testid={`${document}-create-menu`}
               size="icon-xl"
             >
               <ChevronDown />
@@ -77,7 +104,7 @@ export function CreateInvoiceMenu({
           {options.map((option) => (
             <DropdownMenuItem
               data-kind={option.kind}
-              data-testid="invoice-create-item"
+              data-testid={`${document}-create-item`}
               key={option.kind}
               onClick={option.go}
             >

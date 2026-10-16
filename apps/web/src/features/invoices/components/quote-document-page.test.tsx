@@ -2,14 +2,19 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
 import { StoryRouter } from "@/test/story-router";
+import { INVOICE_DOCUMENT } from "../lib/fixtures";
 import {
   DEPOSIT_BILLED,
+  externalQuoteDetail,
   quoteDetail,
   quotePaperFixture,
 } from "../lib/quote-fixtures";
 import { QuoteDocumentPage } from "./quote-document-page";
 
-function renderPage(detail = quoteDetail()) {
+function renderPage(
+  detail = quoteDetail(),
+  filing?: Parameters<typeof QuoteDocumentPage>[0]["filing"],
+) {
   const onAccept = vi.fn();
   const onRefuse = vi.fn();
   const onReopen = vi.fn();
@@ -22,6 +27,7 @@ function renderPage(detail = quoteDetail()) {
       <QuoteDocumentPage
         detail={detail}
         error={null}
+        filing={filing}
         isPending={false}
         language={0}
         onAccept={onAccept}
@@ -138,4 +144,51 @@ it("lists the invoices built from the quote and opens one", async () => {
   fireEvent.click(linked);
 
   expect(onOpenInvoice).toHaveBeenCalledWith(41);
+});
+
+it("asks for the PDF of a quote issued elsewhere instead of printing a sheet", async () => {
+  const onUpload = vi.fn();
+  renderPage(externalQuoteDetail(), {
+    isPending: false,
+    isUploading: false,
+    uploadPercent: null,
+    error: null,
+    onUpload,
+    onRemove: vi.fn(),
+  });
+
+  expect(await screen.findByTestId("document-source")).toBeInTheDocument();
+  expect(screen.queryByTestId("invoice-paper-signature")).toBeNull();
+  expect(screen.queryByTestId("document-duplicate")).toBeNull();
+  expect(screen.queryByTestId("document-download")).toBeNull();
+  expect(screen.getByTestId("quote-tracking")).toBeInTheDocument();
+
+  const file = new File(["%PDF-1.4"], "devis.pdf", { type: "application/pdf" });
+  fireEvent.change(screen.getByTestId("filed-document-picker"), {
+    target: { files: [file] },
+  });
+
+  expect(onUpload).toHaveBeenCalledWith(file);
+});
+
+it("downloads the filed PDF of a quote issued elsewhere", async () => {
+  renderPage(
+    {
+      ...externalQuoteDetail({ status: 2, acceptedOn: "2026-10-12" }),
+      document: { ...INVOICE_DOCUMENT, fileName: "DEV-118.pdf", category: 1 },
+    },
+    {
+      isPending: false,
+      isUploading: false,
+      uploadPercent: null,
+      error: null,
+      onUpload: vi.fn(),
+      onRemove: vi.fn(),
+    },
+  );
+
+  expect(await screen.findByTestId("quote-document-download")).toHaveAttribute(
+    "href",
+    expect.stringContaining("/invoicing/quotes/1/pdf"),
+  );
 });

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Invoices\Data;
 
 use App\Domain\Invoices\Enums\DocumentLanguage;
+use App\Domain\Invoices\Enums\InvoiceSource;
 use App\Domain\Invoices\Enums\QuoteStatus;
 use App\Domain\Invoices\Models\Quote;
 use App\Domain\Shared\Data\MoneyData;
@@ -22,6 +23,7 @@ class QuoteData extends Data
         public ?int $missionId,
         public ?string $number,
         public QuoteStatus $status,
+        public InvoiceSource $source,
         /** Sent, undecided and past its validity: derived, never stored. */
         public bool $isExpired,
         public ?string $title,
@@ -52,6 +54,7 @@ class QuoteData extends Data
             missionId: $quote->mission_id,
             number: $quote->number,
             status: $quote->status,
+            source: $quote->source,
             isExpired: $quote->isExpired(),
             title: $quote->title,
             language: $quote->language ?? DocumentLanguage::French,

@@ -99,6 +99,17 @@ class InvoiceQuote
             return $this->depositLines($quote, $format);
         }
 
+        // A quote recorded from another tool has no lines: its figure is the line.
+        if (! $quote->isWrittenInOpusline()) {
+            return [new InvoiceLineInputData(
+                label: $quote->title ?? (string) $quote->number,
+                quantityMilli: self::WHOLE,
+                unit: LineUnit::Flat,
+                unitPrice: SignedMoneyData::fromMoney($quote->amount_ht_cents),
+                vatRateBp: $quote->vat_rate_bp,
+            )];
+        }
+
         $lines = array_values($quote->lines->map(static fn (QuoteLine $line): InvoiceLineInputData => new InvoiceLineInputData(
             label: $line->label,
             quantityMilli: $line->quantity_milli,

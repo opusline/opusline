@@ -2,25 +2,26 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
 import { MoneyFormatProvider } from "@/components/money-format-provider";
-import { INVOICE_DOCUMENT, invoiceDetail } from "../lib/fixtures";
-import { InvoiceDocumentPanel } from "./invoice-document-panel";
+import { INVOICE_DOCUMENT } from "../lib/fixtures";
+import { FiledDocumentPanel } from "./filed-document-panel";
 
 function renderPanel(
-  props: Partial<Parameters<typeof InvoiceDocumentPanel>[0]> = {},
+  props: Partial<Parameters<typeof FiledDocumentPanel>[0]> = {},
 ) {
   const onUpload = vi.fn();
   const onRemove = vi.fn();
   const panel = (
-    extra: Partial<Parameters<typeof InvoiceDocumentPanel>[0]> = {},
+    extra: Partial<Parameters<typeof FiledDocumentPanel>[0]> = {},
   ) => (
     <MoneyFormatProvider currency="EUR" dateFormat={0} locale="fr-FR">
-      <InvoiceDocumentPanel
+      <FiledDocumentPanel
         document={null}
+        downloadHref="/api/invoices/1/document"
         error={null}
-        invoice={invoiceDetail({ status: 1 }).invoice}
         isPending={false}
         onRemove={onRemove}
         onUpload={onUpload}
+        subject="invoice"
         {...props}
         {...extra}
       />
@@ -33,7 +34,7 @@ function renderPanel(
     onUpload,
     onRemove,
     /** The upload is the parent's to run, so its state arrives as new props. */
-    uploading: (extra: Partial<Parameters<typeof InvoiceDocumentPanel>[0]>) =>
+    uploading: (extra: Partial<Parameters<typeof FiledDocumentPanel>[0]>) =>
       rerender(panel(extra)),
   };
 }
@@ -50,12 +51,6 @@ function picker(): HTMLInputElement {
 
 const pdf = (name = "facture.pdf") =>
   new File(["%PDF-1.4"], name, { type: "application/pdf" });
-
-it("offers nothing on a draft, which was never issued", () => {
-  renderPanel({ invoice: invoiceDetail({ status: 0 }).invoice });
-
-  expect(screen.queryByRole("button")).not.toBeInTheDocument();
-});
 
 it("asks for the document while the invoice carries none", () => {
   renderPanel();

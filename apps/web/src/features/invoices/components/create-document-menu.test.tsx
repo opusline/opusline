@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
-import { CreateInvoiceMenu } from "./create-invoice-menu";
+import { CreateDocumentMenu } from "./create-document-menu";
 
 it.each([
   [0, "opusline"],
@@ -13,7 +13,8 @@ it.each([
     const onAddElsewhere = vi.fn();
 
     render(
-      <CreateInvoiceMenu
+      <CreateDocumentMenu
+        document="invoice"
         mode={mode}
         onAddElsewhere={onAddElsewhere}
         onCreate={onCreate}
@@ -34,7 +35,8 @@ it("keeps the other way in its menu", async () => {
   const onAddElsewhere = vi.fn();
 
   render(
-    <CreateInvoiceMenu
+    <CreateDocumentMenu
+      document="invoice"
       mode={0}
       onAddElsewhere={onAddElsewhere}
       onCreate={vi.fn()}
@@ -53,5 +55,23 @@ it("keeps the other way in its menu", async () => {
 
   fireEvent.click(elsewhere);
 
+  expect(onAddElsewhere).toHaveBeenCalled();
+});
+
+it("names the quote's ways under the quote's ids", () => {
+  const onAddElsewhere = vi.fn();
+
+  render(
+    <CreateDocumentMenu
+      document="quote"
+      mode={1}
+      onAddElsewhere={onAddElsewhere}
+      onCreate={vi.fn()}
+    />,
+  );
+
+  fireEvent.click(screen.getByTestId("quote-create"));
+
+  expect(screen.queryByTestId("invoice-create")).toBeNull();
   expect(onAddElsewhere).toHaveBeenCalled();
 });

@@ -256,6 +256,24 @@ export function invoiceDocumentDownloadHref(invoiceId: number): string {
   });
 }
 
+/** A quote recorded from another tool downloads as the PDF filed against it. */
+export function quoteDocumentDownloadHref(quoteId: number): string {
+  return apiClient.buildUrl({
+    url: "/invoicing/quotes/{quote}/pdf",
+    path: { quote: quoteId },
+  });
+}
+
+/** Mirrors UploadInvoiceDocumentData's Mimes and Max(20480) KB — refused before the upload. */
+export const ISSUED_DOCUMENT_ACCEPT = ".pdf,.jpg,.jpeg,.png";
+
+export const rejectIssuedDocumentReason = fileRejector({
+  accept: ISSUED_DOCUMENT_ACCEPT,
+  maxBytes: MAX_DOCUMENT_BYTES,
+  rejectType: m.documents_reject_type,
+  rejectSize: m.documents_reject_size,
+});
+
 export function clientDocumentDownloadHref(
   clientSlug: string,
   documentId: number,

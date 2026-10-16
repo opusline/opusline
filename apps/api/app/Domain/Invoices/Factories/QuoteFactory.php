@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Invoices\Factories;
 
 use App\Domain\Clients\Models\Client;
+use App\Domain\Invoices\Enums\InvoiceSource;
 use App\Domain\Invoices\Enums\QuoteStatus;
 use App\Domain\Invoices\Models\Quote;
 use Carbon\CarbonImmutable;
@@ -62,6 +63,15 @@ class QuoteFactory extends Factory
         return $this->sent()->state(fn (array $attributes): array => [
             'status' => QuoteStatus::Accepted,
             'accepted_on' => CarbonImmutable::today(),
+        ]);
+    }
+
+    /** Recorded from another tool: its own reference, no lines, no deposit. */
+    public function external(): static
+    {
+        return $this->sent()->state(fn (array $attributes): array => [
+            'source' => InvoiceSource::External,
+            'number' => 'DEV-'.fake()->unique()->numberBetween(100, 999),
         ]);
     }
 

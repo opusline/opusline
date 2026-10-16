@@ -1,0 +1,4 @@
+{
+  "kind": "new",
+  "text": "In beta (Réglages → Avant-première): a quote issued in another tool is recorded from Nouveau → « Devis émis ailleurs », with its own reference, its amount before tax, the day it went out and the client's answer, its PDF filed under the client. Opusline follows it like its own quotes — accepted, refused, expired — and invoices it as one line at its figure. When your settings say quotes are written elsewhere, the Devis page's button records one by default."
+}

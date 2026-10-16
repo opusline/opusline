@@ -35,13 +35,25 @@ import {
   formatPercentFromBp,
 } from "@/lib/billing";
 import { calendarDateNumericLabel } from "@/lib/dates";
+import { quoteDocumentDownloadHref } from "@/lib/documents";
 import {
   INVOICE_STATUS_TOKENS,
   invoiceStatusLabel,
 } from "@/lib/invoice-status";
 import { m } from "@/paraglide/messages.js";
 import { quoteStatusBadge, quoteStatusToken } from "../lib/quote-status";
+import { FiledDocumentPanel } from "./filed-document-panel";
 import { InvoicePaper } from "./invoice-paper";
+
+/** Filing the PDF of a quote recorded from another tool: Opusline has no sheet of it. */
+export type QuoteDocumentFiling = {
+  isPending: boolean;
+  isUploading: boolean;
+  uploadPercent: number | null;
+  error: string | null;
+  onUpload: (file: File) => void;
+  onRemove: () => void;
+};
 
 type QuoteDocumentPageProps = {
   detail: QuoteDetailData;
@@ -61,6 +73,8 @@ type QuoteDocumentPageProps = {
   /** Builds the deposit, balance or whole invoice as a draft, then opens it. */
   onInvoice: (billing: QuoteBilling) => void;
   onOpenInvoice: (invoiceId: number) => void;
+  /** Only a quote issued elsewhere takes a document; one written here filed its own. */
+  filing?: QuoteDocumentFiling;
 };
 
 /** A quote as the document it is, with « Suivi du devis » beside it. */
@@ -80,10 +94,12 @@ export function QuoteDocumentPage({
   onDelete,
   onInvoice,
   onOpenInvoice,
+  filing,
 }: QuoteDocumentPageProps) {
   const format = useMoneyFormat();
   const { quote, client } = detail;
   const isDraft = quote.status === 0;
+  const isExternal = quote.source === 0;
   const badge = quoteStatusBadge(quote);
   const ht = formatAmountWithCents(format, quote.amountHt.amount);
 
@@ -122,45 +138,61 @@ export function QuoteDocumentPage({
               : `${client.name} · ${quote.title}`}
           </span>
         </div>
-        <Link
-          className={buttonVariants({ size: "xl", variant: "ghost" })}
-          data-testid="document-duplicate"
-          search={{ duplicate: quote.id }}
-          to="/invoicing/quotes/new"
-        >
-          {m.document_duplicate()}
-        </Link>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                data-testid="document-download"
-                size="xl"
-                variant="outline"
+        {isExternal ? null : (
+          <Link
+            className={buttonVariants({ size: "xl", variant: "ghost" })}
+            data-testid="document-duplicate"
+            search={{ duplicate: quote.id }}
+            to="/invoicing/quotes/new"
+          >
+            {m.document_duplicate()}
+          </Link>
+        )}
+        {isExternal ? (
+          detail.document === null ? null : (
+            <a
+              className={buttonVariants({ size: "xl", variant: "outline" })}
+              data-testid="quote-document-download"
+              download
+              href={quoteDocumentDownloadHref(quote.id)}
+            >
+              <Download data-icon="inline-start" />
+              {m.document_download()}
+            </a>
+          )
+        ) : (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  data-testid="document-download"
+                  size="xl"
+                  variant="outline"
+                >
+                  <Download data-icon="inline-start" />
+                  {m.document_download()}
+                  <ChevronDown data-icon="inline-end" />
+                </Button>
+              }
+            />
+            <DropdownMenuContent align="end" sideOffset={6}>
+              <DropdownMenuItem
+                data-language="fr"
+                data-testid="document-download-item"
+                render={<a download href={pdfHref(0)} />}
               >
-                <Download data-icon="inline-start" />
-                {m.document_download()}
-                <ChevronDown data-icon="inline-end" />
-              </Button>
-            }
-          />
-          <DropdownMenuContent align="end" sideOffset={6}>
-            <DropdownMenuItem
-              data-language="fr"
-              data-testid="document-download-item"
-              render={<a download href={pdfHref(0)} />}
-            >
-              {m.document_download_fr()}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              data-language="en"
-              data-testid="document-download-item"
-              render={<a download href={pdfHref(1)} />}
-            >
-              {m.document_download_en()}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+                {m.document_download_fr()}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                data-language="en"
+                data-testid="document-download-item"
+                render={<a download href={pdfHref(1)} />}
+              >
+                {m.document_download_en()}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
@@ -180,64 +212,89 @@ export function QuoteDocumentPage({
             >
               {badge.label}
             </Badge>
+            {isExternal ? (
+              <Badge data-testid="document-source" variant="quiet">
+                {m.quote_source_external()}
+              </Badge>
+            ) : null}
             <span className="text-muted-foreground-3 text-sm">
               {m.quote_document_amount_note({ ht })}
             </span>
           </div>
 
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <span className="text-muted-foreground-3 text-xs">
-              {m.document_preview()}
-            </span>
-            <SegmentedControl
-              aria-label={m.invoicing_document_language()}
-              onValueChange={(value) => {
-                const next = value[0];
-
-                if (next === "0" || next === "1") {
-                  onLanguageChange(Number(next) as DocumentLanguage);
-                }
-              }}
-              size="sm"
-              value={[String(language)]}
-            >
-              <SegmentedControlItem
-                data-testid="document-language-fr"
-                value="0"
-              >
-                {m.invoicing_language_french()}
-              </SegmentedControlItem>
-              <SegmentedControlItem
-                data-testid="document-language-en"
-                value="1"
-              >
-                {m.invoicing_language_english()}
-              </SegmentedControlItem>
-            </SegmentedControl>
-          </div>
-          {paper === null && onRetryPaper !== undefined ? (
-            <Alert data-testid="document-paper-failed" variant="warn">
-              <CircleAlert />
-              <AlertDescription>
-                {m.document_paper_load_failed()}
-              </AlertDescription>
-              <Button
-                data-testid="document-paper-retry"
-                onClick={onRetryPaper}
-                size="sm"
-                variant="outline"
-              >
-                {m.error_retry()}
-              </Button>
-            </Alert>
-          ) : paper === null ? (
-            <Skeleton className="h-200 w-full" />
+          {isExternal ? (
+            filing === undefined ? null : (
+              <Panel data-testid="quote-document" padding="none">
+                <FiledDocumentPanel
+                  document={detail.document}
+                  downloadHref={quoteDocumentDownloadHref(quote.id)}
+                  error={filing.error}
+                  isPending={filing.isPending}
+                  isUploading={filing.isUploading}
+                  onRemove={filing.onRemove}
+                  onUpload={filing.onUpload}
+                  subject="quote"
+                  uploadPercent={filing.uploadPercent}
+                />
+              </Panel>
+            )
           ) : (
-            <div className="overflow-x-auto">
-              <div className="min-w-150">
-                <InvoicePaper logoSrc={logoSrc} paper={paper} />
+            <>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <span className="text-muted-foreground-3 text-xs">
+                  {m.document_preview()}
+                </span>
+                <SegmentedControl
+                  aria-label={m.invoicing_document_language()}
+                  onValueChange={(value) => {
+                    const next = value[0];
+
+                    if (next === "0" || next === "1") {
+                      onLanguageChange(Number(next) as DocumentLanguage);
+                    }
+                  }}
+                  size="sm"
+                  value={[String(language)]}
+                >
+                  <SegmentedControlItem
+                    data-testid="document-language-fr"
+                    value="0"
+                  >
+                    {m.invoicing_language_french()}
+                  </SegmentedControlItem>
+                  <SegmentedControlItem
+                    data-testid="document-language-en"
+                    value="1"
+                  >
+                    {m.invoicing_language_english()}
+                  </SegmentedControlItem>
+                </SegmentedControl>
               </div>
-            </div>
+              {paper === null && onRetryPaper !== undefined ? (
+                <Alert data-testid="document-paper-failed" variant="warn">
+                  <CircleAlert />
+                  <AlertDescription>
+                    {m.document_paper_load_failed()}
+                  </AlertDescription>
+                  <Button
+                    data-testid="document-paper-retry"
+                    onClick={onRetryPaper}
+                    size="sm"
+                    variant="outline"
+                  >
+                    {m.error_retry()}
+                  </Button>
+                </Alert>
+              ) : paper === null ? (
+                <Skeleton className="h-200 w-full" />
+              ) : (
+                <div className="overflow-x-auto">
+                  <div className="min-w-150">
+                    <InvoicePaper logoSrc={logoSrc} paper={paper} />
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
 

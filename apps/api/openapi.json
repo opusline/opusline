@@ -3243,6 +3243,39 @@
                 }
             }
         },
+        "/invoicing/quotes/external": {
+            "post": {
+                "operationId": "createExternalQuote",
+                "tags": [
+                    "ExternalQuote"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateExternalQuoteData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuoteDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/instance": {
             "get": {
                 "operationId": "showInstance",
@@ -5505,6 +5538,100 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/invoicing/quotes/{quote}/document": {
+            "post": {
+                "operationId": "uploadQuoteDocument",
+                "tags": [
+                    "QuoteDocument"
+                ],
+                "parameters": [
+                    {
+                        "name": "quote",
+                        "in": "path",
+                        "required": true,
+                        "description": "The quote ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UploadInvoiceDocumentData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuoteDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteQuoteDocument",
+                "tags": [
+                    "QuoteDocument"
+                ],
+                "parameters": [
+                    {
+                        "name": "quote",
+                        "in": "path",
+                        "required": true,
+                        "description": "The quote ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
@@ -10025,6 +10152,79 @@
                 ],
                 "title": "CreateCraData"
             },
+            "CreateExternalQuoteData": {
+                "type": "object",
+                "properties": {
+                    "clientId": {
+                        "type": "integer"
+                    },
+                    "number": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 255
+                    },
+                    "amountHt": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100000000000
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "issuedOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/QuoteStatus"
+                    },
+                    "missionId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "title": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "vatRateBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 10000
+                    },
+                    "decidedOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "clientId",
+                    "number",
+                    "amountHt",
+                    "issuedOn",
+                    "status"
+                ],
+                "title": "CreateExternalQuoteData"
+            },
             "CreateInvoiceData": {
                 "type": "object",
                 "properties": {
@@ -14343,6 +14543,9 @@
                     "status": {
                         "$ref": "#/components/schemas/QuoteStatus"
                     },
+                    "source": {
+                        "$ref": "#/components/schemas/InvoiceSource"
+                    },
                     "isExpired": {
                         "type": "boolean"
                     },
@@ -14415,6 +14618,7 @@
                     "missionId",
                     "number",
                     "status",
+                    "source",
                     "isExpired",
                     "title",
                     "language",
