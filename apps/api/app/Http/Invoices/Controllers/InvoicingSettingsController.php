@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Invoices\Controllers;
 
 use App\Domain\Invoices\Actions\SuggestInvoiceNumber;
+use App\Domain\Invoices\Actions\SuggestQuoteNumber;
 use App\Domain\Invoices\Actions\UpdateInvoicingSettings;
 use App\Domain\Invoices\Data\InvoicingSettingsData;
 use App\Domain\Invoices\Data\UpdateInvoicingSettingsData;
@@ -14,7 +15,10 @@ use Illuminate\Container\Attributes\CurrentUser;
 
 class InvoicingSettingsController extends Controller
 {
-    public function __construct(private readonly SuggestInvoiceNumber $suggestInvoiceNumber) {}
+    public function __construct(
+        private readonly SuggestInvoiceNumber $suggestInvoiceNumber,
+        private readonly SuggestQuoteNumber $suggestQuoteNumber,
+    ) {}
 
     public function show(#[CurrentUser] User $user): InvoicingSettingsData
     {
@@ -30,6 +34,10 @@ class InvoicingSettingsController extends Controller
 
     private function settingsOf(User $user): InvoicingSettingsData
     {
-        return InvoicingSettingsData::fromSettings($user->settingsOrFail(), $this->suggestInvoiceNumber->handle($user)->number);
+        return InvoicingSettingsData::fromSettings(
+            $user->settingsOrFail(),
+            $this->suggestInvoiceNumber->handle($user)->number,
+            $this->suggestQuoteNumber->handle($user),
+        );
     }
 }

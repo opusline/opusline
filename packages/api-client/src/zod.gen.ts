@@ -477,6 +477,13 @@ export const zDeadlineItemType = z.union([
 ]);
 
 /**
+ * DecideQuoteData
+ */
+export const zDecideQuoteData = z.object({
+    decidedOn: z.nullish(z.iso.date())
+});
+
+/**
  * DeclarationCompletionData
  */
 export const zDeclarationCompletionData = z.object({
@@ -1661,7 +1668,9 @@ export const zInvoicingSettingsData = z.object({
     documentLanguage: zDocumentLanguage,
     vatLiable: z.boolean(),
     legalReference: zLegalReferenceData,
-    nextInvoiceNumber: z.string()
+    nextInvoiceNumber: z.string(),
+    quoteNumberFormat: z.string(),
+    nextQuoteNumber: z.string()
 });
 
 /**
@@ -1740,6 +1749,14 @@ export const zPaperRowData = z.object({
 });
 
 /**
+ * PaperSignatureData
+ */
+export const zPaperSignatureData = z.object({
+    title: z.string(),
+    caption: z.string()
+});
+
+/**
  * PaperTotalData
  */
 export const zPaperTotalData = z.object({
@@ -1789,6 +1806,7 @@ export const zInvoicePaperData = z.object({
     paymentTitle: z.nullable(z.string()),
     payment: z.array(zPaperRowData),
     legal: z.string(),
+    signature: z.nullable(zPaperSignatureData),
     footer: z.string()
 });
 
@@ -1865,6 +1883,60 @@ export const zEInvoicingSettingsData = z.object({
 export const zIntegrationsData = z.object({
     enableBanking: zEnableBankingSettingsData,
     eInvoicing: zEInvoicingSettingsData
+});
+
+/**
+ * QuoteStatus
+ *
+ * Where a quote stands. « Expiré » is not a status: a sent quote past its validity is expired, and a column would need a cron to say so.
+ *
+ */
+export const zQuoteStatus = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3)
+]);
+
+/**
+ * QuoteData
+ */
+export const zQuoteData = z.object({
+    id: z.int(),
+    clientId: z.int(),
+    missionId: z.nullable(z.int()),
+    number: z.nullable(z.string()),
+    status: zQuoteStatus,
+    isExpired: z.boolean(),
+    title: z.nullable(z.string()),
+    language: zDocumentLanguage,
+    issuedOn: z.iso.date(),
+    validityDays: z.int(),
+    validUntil: z.iso.date(),
+    depositRateBp: z.nullable(z.int()),
+    depositAmount: z.nullable(zMoneyData),
+    acceptedOn: z.nullable(z.iso.date()),
+    refusedOn: z.nullable(z.iso.date()),
+    amountHt: zMoneyData,
+    amountVat: zMoneyData,
+    amountTtc: zMoneyData,
+    vatRateBp: z.int()
+});
+
+/**
+ * QuoteListItemData
+ */
+export const zQuoteListItemData = z.object({
+    quote: zQuoteData,
+    client: zClientData,
+    mission: z.nullable(zMissionData)
+});
+
+/**
+ * QuoteListData
+ */
+export const zQuoteListData = z.object({
+    quotes: z.array(zQuoteListItemData)
 });
 
 /**
@@ -2125,6 +2197,35 @@ export const zSaveInvoiceDraftData = z.object({
 });
 
 /**
+ * SaveQuoteDraftData
+ */
+export const zSaveQuoteDraftData = z.object({
+    clientId: z.int(),
+    validityDays: z.int().check(z.gte(1), z.lte(365)),
+    paymentTermsDays: z.int(),
+    paymentTermsEndOfMonth: z.boolean(),
+    showEmail: z.boolean(),
+    language: zDocumentLanguage,
+    lines: z.array(z.object({
+        label: z.string().check(z.maxLength(255)),
+        detail: z.nullish(z.string().check(z.maxLength(1000))),
+        quantityMilli: z.int().check(z.gte(1), z.lte(100000000)),
+        unit: zLineUnit,
+        unitPrice: z.object({
+            amount: z.int().check(z.gte(-100000000000), z.lte(100000000000)),
+            currency: zCurrency
+        }),
+        vatRateBp: z.int().check(z.gte(0), z.lte(10000))
+    })).check(z.maxLength(200)),
+    missionId: z.nullish(z.int()),
+    title: z.nullish(z.string().check(z.maxLength(255))),
+    description: z.nullish(z.string().check(z.maxLength(2000))),
+    issuedOn: z.nullish(z.iso.date()),
+    depositRateBp: z.nullish(z.int().check(z.gte(1), z.lte(10000))),
+    customMentions: z.nullish(z.string().check(z.maxLength(2000)))
+});
+
+/**
  * SaveSuperPdpCredentialsData
  */
 export const zSaveSuperPdpCredentialsData = z.object({
@@ -2380,6 +2481,20 @@ export const zClientRevenueDetailData = z.object({
 export const zClientRevenueListData = z.object({
     year: z.int(),
     clients: z.array(zClientRevenueData)
+});
+
+/**
+ * QuoteLineData
+ */
+export const zQuoteLineData = z.object({
+    id: z.int(),
+    label: z.string(),
+    detail: z.nullable(z.string()),
+    quantityMilli: z.int(),
+    unit: zLineUnit,
+    unitPrice: zSignedMoneyData,
+    vatRateBp: z.int(),
+    totalHt: zSignedMoneyData
 });
 
 /**
@@ -2893,7 +3008,8 @@ export const zUpdateInvoicingSettingsData = z.object({
     vatOnDebits: z.boolean(),
     documentLanguage: zDocumentLanguage,
     latePenaltyRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
-    customMentions: z.nullish(z.string().check(z.maxLength(2000)))
+    customMentions: z.nullish(z.string().check(z.maxLength(2000))),
+    quoteNumberFormat: z.nullish(z.string().check(z.maxLength(64)))
 });
 
 /**
@@ -3106,6 +3222,32 @@ export const zInvoiceDetailData = z.object({
     history: z.array(zInvoiceEventData),
     document: z.nullable(zDocumentData),
     content: z.nullable(zInvoiceContentData)
+});
+
+/**
+ * QuoteContentData
+ */
+export const zQuoteContentData = z.object({
+    description: z.nullable(z.string()),
+    paymentTermsDays: z.int(),
+    paymentTermsEndOfMonth: z.boolean(),
+    showEmail: z.boolean(),
+    customMentions: z.nullable(z.string()),
+    lines: z.array(zQuoteLineData),
+    vatBreakdown: z.array(zVatBreakdownRowData),
+    seller: z.nullable(zDocumentPartyData),
+    buyer: z.nullable(zDocumentPartyData)
+});
+
+/**
+ * QuoteDetailData
+ */
+export const zQuoteDetailData = z.object({
+    quote: zQuoteData,
+    client: zClientData,
+    mission: z.nullable(zMissionData),
+    content: zQuoteContentData,
+    document: z.nullable(zDocumentData)
 });
 
 /**
@@ -4056,6 +4198,94 @@ export const zResetPasswordBody = zResetPasswordData;
  * No content
  */
 export const zResetPasswordResponse = z.void();
+
+export const zListQuotesQuery = z.object({
+    status: z.nullish(zQuoteStatus),
+    expired: z.nullish(z.boolean()),
+    clientId: z.nullish(z.int()),
+    missionId: z.nullish(z.int())
+});
+
+export const zListQuotesResponse = zQuoteListData;
+
+export const zCreateQuoteDraftBody = zSaveQuoteDraftData;
+
+export const zCreateQuoteDraftResponse = zQuoteDetailData;
+
+export const zDeleteQuotePath = z.object({
+    quote: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteQuoteResponse = z.void();
+
+export const zShowQuotePath = z.object({
+    quote: z.int()
+});
+
+export const zShowQuoteResponse = zQuoteDetailData;
+
+export const zUpdateQuoteDraftBody = zSaveQuoteDraftData;
+
+export const zUpdateQuoteDraftPath = z.object({
+    quote: z.int()
+});
+
+export const zUpdateQuoteDraftResponse = zQuoteDetailData;
+
+export const zIssueQuotePath = z.object({
+    quote: z.int()
+});
+
+export const zIssueQuoteResponse = zQuoteDetailData;
+
+export const zAcceptQuoteBody = zDecideQuoteData;
+
+export const zAcceptQuotePath = z.object({
+    quote: z.int()
+});
+
+export const zAcceptQuoteResponse = zQuoteDetailData;
+
+export const zRefuseQuoteBody = zDecideQuoteData;
+
+export const zRefuseQuotePath = z.object({
+    quote: z.int()
+});
+
+export const zRefuseQuoteResponse = zQuoteDetailData;
+
+export const zReopenQuotePath = z.object({
+    quote: z.int()
+});
+
+export const zReopenQuoteResponse = zQuoteDetailData;
+
+export const zPreviewQuotePaperBody = zSaveQuoteDraftData;
+
+export const zPreviewQuotePaperResponse = zInvoicePaperData;
+
+export const zShowQuotePaperPath = z.object({
+    quote: z.int()
+});
+
+export const zShowQuotePaperQuery = z.object({
+    language: z.nullish(zDocumentLanguage)
+});
+
+export const zShowQuotePaperResponse = zInvoicePaperData;
+
+export const zDownloadQuotePdfPath = z.object({
+    quote: z.int()
+});
+
+export const zDownloadQuotePdfQuery = z.object({
+    language: z.nullish(zDocumentLanguage)
+});
+
+export const zDownloadQuotePdfResponse = z.string();
 
 export const zReadExpenseReceiptBody = zReadReceiptData;
 

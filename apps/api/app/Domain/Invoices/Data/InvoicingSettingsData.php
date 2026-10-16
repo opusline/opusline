@@ -34,9 +34,12 @@ class InvoicingSettingsData extends Data
         public LegalReferenceData $legalReference,
         /** What the next invoice validated today will be numbered: the series continues from the last number. */
         public string $nextInvoiceNumber,
+        /** The quotes' own series, with the same tokens as the invoices' (AAAA, MM, NNN). */
+        public string $quoteNumberFormat,
+        public string $nextQuoteNumber,
     ) {}
 
-    public static function fromSettings(UserSettings $settings, string $nextInvoiceNumber): self
+    public static function fromSettings(UserSettings $settings, string $nextInvoiceNumber, string $nextQuoteNumber): self
     {
         return new self(
             mode: $settings->invoicing_mode,
@@ -53,6 +56,8 @@ class InvoicingSettingsData extends Data
             vatLiable: $settings->vat_regime->isLiable(),
             legalReference: LegalReferenceData::fromReference(LegalReference::current()),
             nextInvoiceNumber: $nextInvoiceNumber,
+            quoteNumberFormat: $settings->quote_number_format,
+            nextQuoteNumber: $nextQuoteNumber,
         );
     }
 }

@@ -5,11 +5,13 @@ declare(strict_types=1);
 use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Bank\Models\BankStatement;
 use App\Domain\Bank\Models\PersonalTransfer;
+use App\Domain\Clients\Models\Client;
 use App\Domain\Expenses\Models\Expense;
 use App\Domain\Expenses\Models\Subscription;
 use App\Domain\Invoices\Enums\LineUnit;
 use App\Domain\Invoices\Models\CatalogItem;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Models\Quote;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Users\Models\User;
@@ -77,6 +79,22 @@ function currencyLockingArrangements(): array
             ]);
 
             return $invoice;
+        }],
+        'quotes' => [fn (User $user): Quote => Quote::factory()->for($user)->for(Client::factory()->for($user)->create())->create()],
+        'quote_lines' => [function (User $user): Quote {
+            $quote = Quote::factory()->for($user)->for(Client::factory()->for($user)->create())->create();
+            $quote->lines()->create([
+                'position' => 0,
+                'label' => 'Atelier de cadrage',
+                'quantity_milli' => 1000,
+                'unit' => LineUnit::Flat,
+                'currency' => 'EUR',
+                'unit_price_cents' => 30_000,
+                'vat_rate_bp' => 2000,
+                'total_ht_cents' => 30_000,
+            ]);
+
+            return $quote;
         }],
         'bank_statements' => [fn (User $user): BankStatement => bankStatementOwnedBy($user)],
         'bank_movements' => [fn (User $user): BankMovement => bankMovementFor($user)],

@@ -16,6 +16,7 @@ class DeleteMission
             User::lockRow($mission->user_id);
 
             abort_if($mission->invoices()->exists(), 409, __('invoices.cannot_delete_mission_with_invoices'));
+            abort_if($mission->quotes()->exists(), 409, __('quotes.cannot_delete_mission_with_quotes'));
 
             abort_if($mission->timeEntries()->exists(), 409, __('missions.cannot_delete_with_time_entries'));
 
