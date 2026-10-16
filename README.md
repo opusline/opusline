@@ -137,6 +137,8 @@ cd apps/api && sh scripts/php.sh php artisan migrate --seed
 (`test@example.com` / `password`). Contributions welcome — see
 [CONTRIBUTING.md](CONTRIBUTING.md), and [SECURITY.md](SECURITY.md) if you found
 something that should not be filed in public.
+The [roadmap](https://github.com/orgs/opusline/projects/1) shows what is in
+progress and what comes next.
 
 The stack in `apps/api/compose.yaml` is for development only — it builds from
 your host's `vendor/` and bind-mounts the repository. `compose.prod.yaml` is the

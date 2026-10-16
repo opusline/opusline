@@ -3,6 +3,9 @@
 <!-- What changes, and the reason it needed to. The diff shows the what; this is
      for the why a reviewer cannot read off it. -->
 
+<!-- `Closes #123` when this finishes the issue, `Refs #123` for one step of it.
+     Close the sub-issue, not its parent. -->
+
 ## Checklist
 
 - [ ] The PR title is a conventional commit — it becomes the squashed commit,

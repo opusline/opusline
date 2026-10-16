@@ -101,6 +101,32 @@ and the i18n, release-notes and compose-doc guards, then the same build, test
 and lint battery CI does. It is slow on purpose: a push that survives it merges
 green.
 
+## Where the work is
+
+The [Opusline roadmap](https://github.com/orgs/opusline/projects/1) is the
+public backlog: every open issue is on it, with a status that says where it
+stands.
+
+| Status | Meaning |
+| --- | --- |
+| Triage | Filed, not read yet |
+| Backlog | Worth doing, not committed — not a promise |
+| Next | What follows the current work, in order |
+| In progress | A PR exists |
+| Done | Merged or closed |
+
+Each fact about an issue lives in one place. The **type** (Bug, Feature, Task)
+says what kind of work it is; **labels** say where it lives (`api`, `web`,
+`ui`, `ci`, `docs`, `self-hosting`); the **Priority** and **Effort** fields in
+the Project say how much it matters and how big it is; **milestones** group the
+few issues behind a delivery goal. A big feature is a parent issue with
+sub-issues, and the parent stays open until the whole thing ships.
+
+To pick something up, comment on the issue so nobody starts the same work,
+then open a PR that `Closes` it. `good first issue` marks what is approachable
+without knowing the codebase; `needs-info` means the issue is waiting on its
+reporter.
+
 ## What a PR needs
 
 - **A conventional title.** PRs are squash-merged, so the title becomes the

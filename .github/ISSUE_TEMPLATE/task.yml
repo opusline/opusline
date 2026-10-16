@@ -1,0 +1,16 @@
+name: Task
+description: Refactoring, tooling, tests or docs — work with no user-facing change
+type: Task
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What, and why?
+      description: The concrete problem, not only the proposed rewrite.
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Done when
+      description: What is observably different once this is merged, and what must stay unchanged.
