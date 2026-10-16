@@ -10,7 +10,7 @@ const APPLICATION_ID = "6f1c1a52-9d1e-4b9e-8a53-0c1e2f3a4b5c";
 const PEM = "-----BEGIN PRIVATE KEY-----\nMIIEvQ\n-----END PRIVATE KEY-----";
 
 const CLIENT_ID = "opusline_8f3c2e1a4d6f9b7c";
-const CLIENT_SECRET = "secret_0b8f3c2e1a4d4e6f9b7c5d2e1f0a3b4c";
+const CLIENT_SECRET = "secret-for-the-sandbox-only";
 
 function integrations(
   applicationId: string | null,

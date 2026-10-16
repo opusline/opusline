@@ -1765,6 +1765,35 @@ export const zPersonalTransferData = z.object({
 });
 
 /**
+ * PlatformEnvironment
+ *
+ * Which side of the platform the credentials open: the sandbox files nothing with the administration.
+ *
+ */
+export const zPlatformEnvironment = z.union([z.literal(0), z.literal(1)]);
+
+/**
+ * EInvoicingSettingsData
+ */
+export const zEInvoicingSettingsData = z.object({
+    clientId: z.nullable(z.string()),
+    companyName: z.nullable(z.string()),
+    companyNumber: z.nullable(z.string()),
+    environment: z.nullable(zPlatformEnvironment),
+    companyVerified: z.boolean(),
+    receivingAddress: z.nullable(z.string()),
+    checkedAt: z.nullable(z.string())
+});
+
+/**
+ * IntegrationsData
+ */
+export const zIntegrationsData = z.object({
+    enableBanking: zEnableBankingSettingsData,
+    eInvoicing: zEInvoicingSettingsData
+});
+
+/**
  * ReadReceiptData
  */
 export const zReadReceiptData = z.object({
@@ -2019,6 +2048,14 @@ export const zSaveInvoiceDraftData = z.object({
     latePenaltyRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
     customMentions: z.nullish(z.string().check(z.maxLength(2000))),
     timeEntryIds: z.optional(z.array(z.int()).check(z.maxLength(5000)))
+});
+
+/**
+ * SaveSuperPdpCredentialsData
+ */
+export const zSaveSuperPdpCredentialsData = z.object({
+    clientId: z.string().check(z.minLength(8), z.maxLength(128)),
+    clientSecret: z.string().check(z.minLength(8), z.maxLength(512))
 });
 
 /**
@@ -3153,43 +3190,6 @@ export const zDeclarationsData = z.object({
     history: z.array(zDeclarationHistoryRowData)
 });
 
-/**
- * PlatformEnvironment
- *
- * Which side of the platform the credentials open: the sandbox files nothing with the administration.
- *
- */
-export const zPlatformEnvironment = z.union([z.literal(0), z.literal(1)]);
-
-/**
- * EInvoicingSettingsData
- */
-export const zEInvoicingSettingsData = z.object({
-    clientId: z.nullable(z.string()),
-    companyName: z.nullable(z.string()),
-    companyNumber: z.nullable(z.string()),
-    environment: z.nullable(zPlatformEnvironment),
-    companyVerified: z.boolean(),
-    receivingAddress: z.nullable(z.string()),
-    checkedAt: z.nullable(z.string())
-});
-
-/**
- * IntegrationsData
- */
-export const zIntegrationsData = z.object({
-    enableBanking: zEnableBankingSettingsData,
-    eInvoicing: zEInvoicingSettingsData
-});
-
-/**
- * SaveSuperPdpCredentialsData
- */
-export const zSaveSuperPdpCredentialsData = z.object({
-    clientId: z.string().check(z.minLength(8), z.maxLength(128)),
-    clientSecret: z.string().check(z.minLength(8), z.maxLength(512))
-});
-
 export const zGetPingResponse = zPingData;
 
 export const zRegisterBody = zRegisterUserData;
@@ -3685,6 +3685,14 @@ export const zDeleteEnableBankingCredentialsResponse = zIntegrationsData;
 export const zSaveEnableBankingCredentialsBody = zSaveEnableBankingCredentialsData;
 
 export const zSaveEnableBankingCredentialsResponse = zIntegrationsData;
+
+export const zDeleteSuperPdpCredentialsResponse = zIntegrationsData;
+
+export const zSaveSuperPdpCredentialsBody = zSaveSuperPdpCredentialsData;
+
+export const zSaveSuperPdpCredentialsResponse = zIntegrationsData;
+
+export const zCheckSuperPdpConnectionResponse = zIntegrationsData;
 
 export const zListInvoicesQuery = z.object({
     status: z.nullish(zInvoiceStatus),
@@ -4217,11 +4225,3 @@ export const zDownloadUserDocumentPath = z.object({
 });
 
 export const zDownloadUserDocumentResponse = z.string();
-
-export const zDeleteSuperPdpCredentialsResponse = zIntegrationsData;
-
-export const zSaveSuperPdpCredentialsBody = zSaveSuperPdpCredentialsData;
-
-export const zSaveSuperPdpCredentialsResponse = zIntegrationsData;
-
-export const zCheckSuperPdpConnectionResponse = zIntegrationsData;

@@ -1070,6 +1070,40 @@ export const saveEnableBankingCredentials = <ThrowOnError extends boolean = fals
     }
 });
 
+export const deleteSuperPdpCredentials = <ThrowOnError extends boolean = false>(options?: Options<DeleteSuperPdpCredentialsData, ThrowOnError>): RequestResult<DeleteSuperPdpCredentialsResponses, DeleteSuperPdpCredentialsErrors, ThrowOnError> => (options?.client ?? client).delete<DeleteSuperPdpCredentialsResponses, DeleteSuperPdpCredentialsErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/settings/integrations/super-pdp',
+    ...options
+});
+
+export const saveSuperPdpCredentials = <ThrowOnError extends boolean = false>(options: Options<SaveSuperPdpCredentialsData2, ThrowOnError>): RequestResult<SaveSuperPdpCredentialsResponses, SaveSuperPdpCredentialsErrors, ThrowOnError> => (options.client ?? client).put<SaveSuperPdpCredentialsResponses, SaveSuperPdpCredentialsErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/settings/integrations/super-pdp',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const checkSuperPdpConnection = <ThrowOnError extends boolean = false>(options?: Options<CheckSuperPdpConnectionData, ThrowOnError>): RequestResult<CheckSuperPdpConnectionResponses, CheckSuperPdpConnectionErrors, ThrowOnError> => (options?.client ?? client).post<CheckSuperPdpConnectionResponses, CheckSuperPdpConnectionErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/settings/integrations/super-pdp/check',
+    ...options
+});
+
 export const listInvoices = <ThrowOnError extends boolean = false>(options?: Options<ListInvoicesData, ThrowOnError>): RequestResult<ListInvoicesResponses, ListInvoicesErrors, ThrowOnError> => (options?.client ?? client).get<ListInvoicesResponses, ListInvoicesErrors, ThrowOnError>({
     security: [{
             in: 'cookie',
@@ -2145,39 +2179,5 @@ export const downloadUserDocument = <ThrowOnError extends boolean = false>(optio
             type: 'apiKey'
         }],
     url: '/user/documents/{document}/download',
-    ...options
-});
-
-export const deleteSuperPdpCredentials = <ThrowOnError extends boolean = false>(options?: Options<DeleteSuperPdpCredentialsData, ThrowOnError>): RequestResult<DeleteSuperPdpCredentialsResponses, DeleteSuperPdpCredentialsErrors, ThrowOnError> => (options?.client ?? client).delete<DeleteSuperPdpCredentialsResponses, DeleteSuperPdpCredentialsErrors, ThrowOnError>({
-    security: [{
-            in: 'cookie',
-            name: 'opusline-session',
-            type: 'apiKey'
-        }],
-    url: '/settings/integrations/super-pdp',
-    ...options
-});
-
-export const saveSuperPdpCredentials = <ThrowOnError extends boolean = false>(options: Options<SaveSuperPdpCredentialsData2, ThrowOnError>): RequestResult<SaveSuperPdpCredentialsResponses, SaveSuperPdpCredentialsErrors, ThrowOnError> => (options.client ?? client).put<SaveSuperPdpCredentialsResponses, SaveSuperPdpCredentialsErrors, ThrowOnError>({
-    security: [{
-            in: 'cookie',
-            name: 'opusline-session',
-            type: 'apiKey'
-        }],
-    url: '/settings/integrations/super-pdp',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-export const checkSuperPdpConnection = <ThrowOnError extends boolean = false>(options?: Options<CheckSuperPdpConnectionData, ThrowOnError>): RequestResult<CheckSuperPdpConnectionResponses, CheckSuperPdpConnectionErrors, ThrowOnError> => (options?.client ?? client).post<CheckSuperPdpConnectionResponses, CheckSuperPdpConnectionErrors, ThrowOnError>({
-    security: [{
-            in: 'cookie',
-            name: 'opusline-session',
-            type: 'apiKey'
-        }],
-    url: '/settings/integrations/super-pdp/check',
     ...options
 });

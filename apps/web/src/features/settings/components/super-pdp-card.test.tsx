@@ -7,7 +7,7 @@ import { StoryRouter } from "@/test/story-router";
 import { SuperPdpCard } from "./super-pdp-card";
 
 const CLIENT_ID = "opusline_8f3c2e1a4d6f9b7c";
-const CLIENT_SECRET = "secret_0b8f3c2e1a4d4e6f9b7c5d2e1f0a3b4c";
+const CLIENT_SECRET = "secret-for-the-sandbox-only";
 
 const unconfigured: EInvoicingSettingsData = {
   clientId: null,

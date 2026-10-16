@@ -375,7 +375,7 @@ function enableBankingPrivateKey(): string
 const ENABLE_BANKING_APPLICATION_ID = '6f1c1a52-9d1e-4b9e-8a53-0c1e2f3a4b5c';
 
 const SUPER_PDP_CLIENT_ID = 'opusline_8f3c2e1a4d6f9b7c';
-const SUPER_PDP_CLIENT_SECRET = 'secret_0b8f3c2e1a4d4e6f9b7c5d2e1f0a3b4c';
+const SUPER_PDP_CLIENT_SECRET = 'secret-for-the-sandbox-only';
 
 /** The user, with a verified Super PDP application saved. */
 function withSuperPdpConnection(User $user, array $attributes = []): EInvoicingConnection

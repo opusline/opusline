@@ -1414,6 +1414,48 @@ export const saveEnableBankingCredentialsMutation = (options?: Partial<Options<S
     return mutationOptions;
 };
 
+export const deleteSuperPdpCredentialsMutation = (options?: Partial<Options<DeleteSuperPdpCredentialsData>>): UseMutationOptions<DeleteSuperPdpCredentialsResponse, DeleteSuperPdpCredentialsError, Options<DeleteSuperPdpCredentialsData>> => {
+    const mutationOptions: UseMutationOptions<DeleteSuperPdpCredentialsResponse, DeleteSuperPdpCredentialsError, Options<DeleteSuperPdpCredentialsData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteSuperPdpCredentials({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const saveSuperPdpCredentialsMutation = (options?: Partial<Options<SaveSuperPdpCredentialsData2>>): UseMutationOptions<SaveSuperPdpCredentialsResponse, SaveSuperPdpCredentialsError, Options<SaveSuperPdpCredentialsData2>> => {
+    const mutationOptions: UseMutationOptions<SaveSuperPdpCredentialsResponse, SaveSuperPdpCredentialsError, Options<SaveSuperPdpCredentialsData2>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await saveSuperPdpCredentials({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const checkSuperPdpConnectionMutation = (options?: Partial<Options<CheckSuperPdpConnectionData>>): UseMutationOptions<CheckSuperPdpConnectionResponse, CheckSuperPdpConnectionError, Options<CheckSuperPdpConnectionData>> => {
+    const mutationOptions: UseMutationOptions<CheckSuperPdpConnectionResponse, CheckSuperPdpConnectionError, Options<CheckSuperPdpConnectionData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await checkSuperPdpConnection({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const listInvoicesQueryKey = (options?: Options<ListInvoicesData>) => createQueryKey('listInvoices', options);
 
 export const listInvoicesOptions = (options?: Options<ListInvoicesData>) => queryOptions<ListInvoicesResponse, ListInvoicesError, ListInvoicesResponse, ReturnType<typeof listInvoicesQueryKey>>({
@@ -2782,45 +2824,3 @@ export const downloadUserDocumentOptions = (options: Options<DownloadUserDocumen
     },
     queryKey: downloadUserDocumentQueryKey(options)
 });
-
-export const deleteSuperPdpCredentialsMutation = (options?: Partial<Options<DeleteSuperPdpCredentialsData>>): UseMutationOptions<DeleteSuperPdpCredentialsResponse, DeleteSuperPdpCredentialsError, Options<DeleteSuperPdpCredentialsData>> => {
-    const mutationOptions: UseMutationOptions<DeleteSuperPdpCredentialsResponse, DeleteSuperPdpCredentialsError, Options<DeleteSuperPdpCredentialsData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await deleteSuperPdpCredentials({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-export const saveSuperPdpCredentialsMutation = (options?: Partial<Options<SaveSuperPdpCredentialsData2>>): UseMutationOptions<SaveSuperPdpCredentialsResponse, SaveSuperPdpCredentialsError, Options<SaveSuperPdpCredentialsData2>> => {
-    const mutationOptions: UseMutationOptions<SaveSuperPdpCredentialsResponse, SaveSuperPdpCredentialsError, Options<SaveSuperPdpCredentialsData2>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await saveSuperPdpCredentials({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-export const checkSuperPdpConnectionMutation = (options?: Partial<Options<CheckSuperPdpConnectionData>>): UseMutationOptions<CheckSuperPdpConnectionResponse, CheckSuperPdpConnectionError, Options<CheckSuperPdpConnectionData>> => {
-    const mutationOptions: UseMutationOptions<CheckSuperPdpConnectionResponse, CheckSuperPdpConnectionError, Options<CheckSuperPdpConnectionData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await checkSuperPdpConnection({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
