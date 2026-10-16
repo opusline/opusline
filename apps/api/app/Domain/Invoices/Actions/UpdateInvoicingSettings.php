@@ -25,6 +25,7 @@ class UpdateInvoicingSettings
             'vat_on_debits' => $settings->vat_regime->isLiable() && $data->vatOnDebits,
             'custom_mentions' => blank($data->customMentions) ? null : trim($data->customMentions),
             'document_language' => $data->documentLanguage,
+            ...($data->quoteNumberFormat === null ? [] : ['quote_number_format' => $data->quoteNumberFormat]),
         ]);
     }
 }

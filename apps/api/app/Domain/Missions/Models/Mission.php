@@ -8,6 +8,7 @@ use App\Domain\Clients\Models\Client;
 use App\Domain\Cra\Models\Cra;
 use App\Domain\Documents\Concerns\InteractsWithDocuments;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Models\Quote;
 use App\Domain\Missions\Enums\BillingMode;
 use App\Domain\Missions\Enums\EntryRounding;
 use App\Domain\Missions\Enums\MissionStatus;
@@ -168,6 +169,12 @@ class Mission extends Model implements HasMedia
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    /** @return HasMany<Quote, $this> */
+    public function quotes(): HasMany
+    {
+        return $this->hasMany(Quote::class);
     }
 
     /** @return HasMany<Cra, $this> */

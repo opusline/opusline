@@ -7,11 +7,13 @@ namespace App\Domain\Invoices\Data;
 use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Enums\InvoicingMode;
 use App\Domain\Invoices\Enums\OperationCategory;
+use App\Domain\Shared\Validation\InvoiceNumberFormat;
 use App\Domain\Shared\Validation\LegalPaymentTerms;
 use App\Domain\Users\Models\User;
 use Spatie\LaravelData\Attributes\Validation\Between;
 use Spatie\LaravelData\Attributes\Validation\IntegerType;
 use Spatie\LaravelData\Attributes\Validation\Max;
+use Spatie\LaravelData\Attributes\Validation\Rule;
 use Spatie\LaravelData\Data;
 
 class UpdateInvoicingSettingsData extends Data
@@ -32,6 +34,9 @@ class UpdateInvoicingSettingsData extends Data
         public ?int $latePenaltyRateBp = null,
         #[Max(2000)]
         public ?string $customMentions = null,
+        /** Omitted, the stored format stays. */
+        #[Max(64), Rule(new InvoiceNumberFormat)]
+        public ?string $quoteNumberFormat = null,
     ) {}
 
     /**

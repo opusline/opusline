@@ -806,6 +806,13 @@ export type DeadlineReminderData = {
 };
 
 /**
+ * DecideQuoteData
+ */
+export type DecideQuoteData = {
+    decidedOn?: string | null;
+};
+
+/**
  * DeclarationCompletionData
  */
 export type DeclarationCompletionData = {
@@ -1567,6 +1574,7 @@ export type InvoicePaperData = {
     paymentTitle: string | null;
     payment: Array<PaperRowData>;
     legal: string;
+    signature: PaperSignatureData | null;
     footer: string;
 };
 
@@ -1693,6 +1701,8 @@ export type InvoicingSettingsData = {
     vatLiable: boolean;
     legalReference: LegalReferenceData;
     nextInvoiceNumber: string;
+    quoteNumberFormat: string;
+    nextQuoteNumber: string;
 };
 
 /**
@@ -1916,6 +1926,14 @@ export type PaperRowData = {
 };
 
 /**
+ * PaperSignatureData
+ */
+export type PaperSignatureData = {
+    title: string;
+    caption: string;
+};
+
+/**
  * PaperTotalData
  */
 export type PaperTotalData = {
@@ -2005,6 +2023,95 @@ export type PingData = {
  *
  */
 export type PlatformEnvironment = 0 | 1;
+
+/**
+ * QuoteContentData
+ */
+export type QuoteContentData = {
+    description: string | null;
+    paymentTermsDays: number;
+    paymentTermsEndOfMonth: boolean;
+    showEmail: boolean;
+    customMentions: string | null;
+    lines: Array<QuoteLineData>;
+    vatBreakdown: Array<VatBreakdownRowData>;
+    seller: DocumentPartyData | null;
+    buyer: DocumentPartyData | null;
+};
+
+/**
+ * QuoteData
+ */
+export type QuoteData = {
+    id: number;
+    clientId: number;
+    missionId: number | null;
+    number: string | null;
+    status: QuoteStatus;
+    isExpired: boolean;
+    title: string | null;
+    language: DocumentLanguage;
+    issuedOn: string;
+    validityDays: number;
+    validUntil: string;
+    depositRateBp: number | null;
+    depositAmount: MoneyData | null;
+    acceptedOn: string | null;
+    refusedOn: string | null;
+    amountHt: MoneyData;
+    amountVat: MoneyData;
+    amountTtc: MoneyData;
+    vatRateBp: number;
+};
+
+/**
+ * QuoteDetailData
+ */
+export type QuoteDetailData = {
+    quote: QuoteData;
+    client: ClientData;
+    mission: MissionData | null;
+    content: QuoteContentData;
+    document: DocumentData | null;
+};
+
+/**
+ * QuoteLineData
+ */
+export type QuoteLineData = {
+    id: number;
+    label: string;
+    detail: string | null;
+    quantityMilli: number;
+    unit: LineUnit;
+    unitPrice: SignedMoneyData;
+    vatRateBp: number;
+    totalHt: SignedMoneyData;
+};
+
+/**
+ * QuoteListData
+ */
+export type QuoteListData = {
+    quotes: Array<QuoteListItemData>;
+};
+
+/**
+ * QuoteListItemData
+ */
+export type QuoteListItemData = {
+    quote: QuoteData;
+    client: ClientData;
+    mission: MissionData | null;
+};
+
+/**
+ * QuoteStatus
+ *
+ * Where a quote stands. « Expiré » is not a status: a sent quote past its validity is expired, and a column would need a cron to say so.
+ *
+ */
+export type QuoteStatus = 0 | 1 | 2 | 3;
 
 /**
  * ReadReceiptData
@@ -2271,6 +2378,35 @@ export type SaveInvoiceDraftData = {
     latePenaltyRateBp?: number | null;
     customMentions?: string | null;
     timeEntryIds?: Array<number>;
+};
+
+/**
+ * SaveQuoteDraftData
+ */
+export type SaveQuoteDraftData = {
+    clientId: number;
+    validityDays: number;
+    paymentTermsDays: number;
+    paymentTermsEndOfMonth: boolean;
+    showEmail: boolean;
+    language: DocumentLanguage;
+    lines: Array<{
+        label: string;
+        detail?: string | null;
+        quantityMilli: number;
+        unit: LineUnit;
+        unitPrice: {
+            amount: number;
+            currency: Currency;
+        };
+        vatRateBp: number;
+    }>;
+    missionId?: number | null;
+    title?: string | null;
+    description?: string | null;
+    issuedOn?: string | null;
+    depositRateBp?: number | null;
+    customMentions?: string | null;
 };
 
 /**
@@ -2809,6 +2945,7 @@ export type UpdateInvoicingSettingsData = {
     documentLanguage: DocumentLanguage;
     latePenaltyRateBp?: number | null;
     customMentions?: string | null;
+    quoteNumberFormat?: string | null;
 };
 
 /**
@@ -8049,6 +8186,513 @@ export type ResetPasswordResponses = {
 };
 
 export type ResetPasswordResponse = ResetPasswordResponses[keyof ResetPasswordResponses];
+
+export type ListQuotesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        status?: QuoteStatus | null;
+        expired?: boolean | null;
+        clientId?: number | null;
+        missionId?: number | null;
+    };
+    url: '/invoicing/quotes';
+};
+
+export type ListQuotesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListQuotesError = ListQuotesErrors[keyof ListQuotesErrors];
+
+export type ListQuotesResponses = {
+    200: QuoteListData;
+};
+
+export type ListQuotesResponse = ListQuotesResponses[keyof ListQuotesResponses];
+
+export type CreateQuoteDraftData = {
+    body: SaveQuoteDraftData;
+    path?: never;
+    query?: never;
+    url: '/invoicing/quotes';
+};
+
+export type CreateQuoteDraftErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateQuoteDraftError = CreateQuoteDraftErrors[keyof CreateQuoteDraftErrors];
+
+export type CreateQuoteDraftResponses = {
+    201: QuoteDetailData;
+};
+
+export type CreateQuoteDraftResponse = CreateQuoteDraftResponses[keyof CreateQuoteDraftResponses];
+
+export type DeleteQuoteData = {
+    body?: never;
+    path: {
+        /**
+         * The quote ID
+         */
+        quote: number;
+    };
+    query?: never;
+    url: '/invoicing/quotes/{quote}';
+};
+
+export type DeleteQuoteErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteQuoteError = DeleteQuoteErrors[keyof DeleteQuoteErrors];
+
+export type DeleteQuoteResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteQuoteResponse = DeleteQuoteResponses[keyof DeleteQuoteResponses];
+
+export type ShowQuoteData = {
+    body?: never;
+    path: {
+        /**
+         * The quote ID
+         */
+        quote: number;
+    };
+    query?: never;
+    url: '/invoicing/quotes/{quote}';
+};
+
+export type ShowQuoteErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowQuoteError = ShowQuoteErrors[keyof ShowQuoteErrors];
+
+export type ShowQuoteResponses = {
+    200: QuoteDetailData;
+};
+
+export type ShowQuoteResponse = ShowQuoteResponses[keyof ShowQuoteResponses];
+
+export type UpdateQuoteDraftData = {
+    body: SaveQuoteDraftData;
+    path: {
+        /**
+         * The quote ID
+         */
+        quote: number;
+    };
+    query?: never;
+    url: '/invoicing/quotes/{quote}';
+};
+
+export type UpdateQuoteDraftErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateQuoteDraftError = UpdateQuoteDraftErrors[keyof UpdateQuoteDraftErrors];
+
+export type UpdateQuoteDraftResponses = {
+    200: QuoteDetailData;
+};
+
+export type UpdateQuoteDraftResponse = UpdateQuoteDraftResponses[keyof UpdateQuoteDraftResponses];
+
+export type IssueQuoteData = {
+    body?: never;
+    path: {
+        /**
+         * The quote ID
+         */
+        quote: number;
+    };
+    query?: never;
+    url: '/invoicing/quotes/{quote}/issue';
+};
+
+export type IssueQuoteErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type IssueQuoteError = IssueQuoteErrors[keyof IssueQuoteErrors];
+
+export type IssueQuoteResponses = {
+    200: QuoteDetailData;
+};
+
+export type IssueQuoteResponse = IssueQuoteResponses[keyof IssueQuoteResponses];
+
+export type AcceptQuoteData = {
+    body?: DecideQuoteData;
+    path: {
+        /**
+         * The quote ID
+         */
+        quote: number;
+    };
+    query?: never;
+    url: '/invoicing/quotes/{quote}/accept';
+};
+
+export type AcceptQuoteErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type AcceptQuoteError = AcceptQuoteErrors[keyof AcceptQuoteErrors];
+
+export type AcceptQuoteResponses = {
+    200: QuoteDetailData;
+};
+
+export type AcceptQuoteResponse = AcceptQuoteResponses[keyof AcceptQuoteResponses];
+
+export type RefuseQuoteData = {
+    body?: DecideQuoteData;
+    path: {
+        /**
+         * The quote ID
+         */
+        quote: number;
+    };
+    query?: never;
+    url: '/invoicing/quotes/{quote}/refuse';
+};
+
+export type RefuseQuoteErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type RefuseQuoteError = RefuseQuoteErrors[keyof RefuseQuoteErrors];
+
+export type RefuseQuoteResponses = {
+    200: QuoteDetailData;
+};
+
+export type RefuseQuoteResponse = RefuseQuoteResponses[keyof RefuseQuoteResponses];
+
+export type ReopenQuoteData = {
+    body?: never;
+    path: {
+        /**
+         * The quote ID
+         */
+        quote: number;
+    };
+    query?: never;
+    url: '/invoicing/quotes/{quote}/reopen';
+};
+
+export type ReopenQuoteErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ReopenQuoteError = ReopenQuoteErrors[keyof ReopenQuoteErrors];
+
+export type ReopenQuoteResponses = {
+    200: QuoteDetailData;
+};
+
+export type ReopenQuoteResponse = ReopenQuoteResponses[keyof ReopenQuoteResponses];
+
+export type PreviewQuotePaperData = {
+    body: SaveQuoteDraftData;
+    path?: never;
+    query?: never;
+    url: '/invoicing/quotes/paper';
+};
+
+export type PreviewQuotePaperErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type PreviewQuotePaperError = PreviewQuotePaperErrors[keyof PreviewQuotePaperErrors];
+
+export type PreviewQuotePaperResponses = {
+    200: InvoicePaperData;
+};
+
+export type PreviewQuotePaperResponse = PreviewQuotePaperResponses[keyof PreviewQuotePaperResponses];
+
+export type ShowQuotePaperData = {
+    body?: never;
+    path: {
+        /**
+         * The quote ID
+         */
+        quote: number;
+    };
+    query?: {
+        language?: DocumentLanguage | null;
+    };
+    url: '/invoicing/quotes/{quote}/paper';
+};
+
+export type ShowQuotePaperErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowQuotePaperError = ShowQuotePaperErrors[keyof ShowQuotePaperErrors];
+
+export type ShowQuotePaperResponses = {
+    200: InvoicePaperData;
+};
+
+export type ShowQuotePaperResponse = ShowQuotePaperResponses[keyof ShowQuotePaperResponses];
+
+export type DownloadQuotePdfData = {
+    body?: never;
+    path: {
+        /**
+         * The quote ID
+         */
+        quote: number;
+    };
+    query?: {
+        language?: DocumentLanguage | null;
+    };
+    url: '/invoicing/quotes/{quote}/pdf';
+};
+
+export type DownloadQuotePdfErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DownloadQuotePdfError = DownloadQuotePdfErrors[keyof DownloadQuotePdfErrors];
+
+export type DownloadQuotePdfResponses = {
+    200: Blob | File;
+};
+
+export type DownloadQuotePdfResponse = DownloadQuotePdfResponses[keyof DownloadQuotePdfResponses];
 
 export type ReadExpenseReceiptData = {
     body: ReadReceiptData;

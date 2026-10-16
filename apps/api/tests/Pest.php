@@ -989,6 +989,34 @@ function superPdpInvoice(int $id, array $codes = ['fr:202'], array $overrides = 
     ], $overrides);
 }
 
+function quoteDraftFor(User $user, Client $client, array $overrides = []): int
+{
+    return test()->actingAs($user)->postJson('/api/invoicing/quotes', quotePayloadFor($client, $overrides))->assertCreated()->json('quote.id');
+}
+
+/** What the editor sends for a one-line quote draft. */
+function quotePayloadFor(Client $client, array $overrides = []): array
+{
+    return array_merge([
+        'clientId' => $client->id,
+        'title' => "Refonte de l'espace client",
+        'issuedOn' => '2026-08-01',
+        'validityDays' => 30,
+        'depositRateBp' => 3000,
+        'paymentTermsDays' => 30,
+        'paymentTermsEndOfMonth' => false,
+        'showEmail' => true,
+        'language' => DocumentLanguage::French->value,
+        'lines' => [[
+            'label' => 'Journée de développement frontend',
+            'quantityMilli' => 19_000,
+            'unit' => LineUnit::Day->value,
+            'unitPrice' => ['amount' => 55_000, 'currency' => 'EUR'],
+            'vatRateBp' => 2000,
+        ]],
+    ], $overrides);
+}
+
 /** How far the instance releases invoicing: "on", "off" or "beta" (FEATURE_INVOICING). */
 function invoicingReleasedAs(string $release): void
 {

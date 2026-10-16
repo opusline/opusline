@@ -65,6 +65,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $default_payment_terms_days
  * @property bool $default_payment_terms_end_of_month
  * @property string $invoice_number_format
+ * @property string $quote_number_format
  * @property InvoicingMode $invoicing_mode
  * @property int $quote_validity_days
  * @property ?int $late_penalty_rate_bp
@@ -139,6 +140,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'default_payment_terms_days',
     'default_payment_terms_end_of_month',
     'invoice_number_format',
+    'quote_number_format',
     'invoicing_mode',
     'quote_validity_days',
     'late_penalty_rate_bp',

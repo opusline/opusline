@@ -5286,6 +5286,640 @@
                 "security": []
             }
         },
+        "/invoicing/quotes": {
+            "get": {
+                "operationId": "listQuotes",
+                "tags": [
+                    "Quote"
+                ],
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/QuoteStatus"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "expired",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "boolean",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "clientId",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "missionId",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuoteListData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "createQuoteDraft",
+                "tags": [
+                    "QuoteDraft"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SaveQuoteDraftData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuoteDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/invoicing/quotes/{quote}": {
+            "get": {
+                "operationId": "showQuote",
+                "tags": [
+                    "Quote"
+                ],
+                "parameters": [
+                    {
+                        "name": "quote",
+                        "in": "path",
+                        "required": true,
+                        "description": "The quote ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuoteDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteQuote",
+                "tags": [
+                    "Quote"
+                ],
+                "parameters": [
+                    {
+                        "name": "quote",
+                        "in": "path",
+                        "required": true,
+                        "description": "The quote ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "operationId": "updateQuoteDraft",
+                "tags": [
+                    "QuoteDraft"
+                ],
+                "parameters": [
+                    {
+                        "name": "quote",
+                        "in": "path",
+                        "required": true,
+                        "description": "The quote ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SaveQuoteDraftData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuoteDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/invoicing/quotes/{quote}/issue": {
+            "post": {
+                "operationId": "issueQuote",
+                "tags": [
+                    "QuoteDraft"
+                ],
+                "parameters": [
+                    {
+                        "name": "quote",
+                        "in": "path",
+                        "required": true,
+                        "description": "The quote ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuoteDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/invoicing/quotes/{quote}/accept": {
+            "post": {
+                "operationId": "acceptQuote",
+                "tags": [
+                    "QuoteDraft"
+                ],
+                "parameters": [
+                    {
+                        "name": "quote",
+                        "in": "path",
+                        "required": true,
+                        "description": "The quote ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DecideQuoteData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuoteDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/invoicing/quotes/{quote}/refuse": {
+            "post": {
+                "operationId": "refuseQuote",
+                "tags": [
+                    "QuoteDraft"
+                ],
+                "parameters": [
+                    {
+                        "name": "quote",
+                        "in": "path",
+                        "required": true,
+                        "description": "The quote ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DecideQuoteData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuoteDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/invoicing/quotes/{quote}/reopen": {
+            "post": {
+                "operationId": "reopenQuote",
+                "tags": [
+                    "QuoteDraft"
+                ],
+                "parameters": [
+                    {
+                        "name": "quote",
+                        "in": "path",
+                        "required": true,
+                        "description": "The quote ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuoteDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/invoicing/quotes/paper": {
+            "post": {
+                "operationId": "previewQuotePaper",
+                "summary": "The live preview of an editor draft that was never saved",
+                "tags": [
+                    "QuotePaper"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SaveQuoteDraftData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoicePaperData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/invoicing/quotes/{quote}/paper": {
+            "get": {
+                "operationId": "showQuotePaper",
+                "tags": [
+                    "QuotePaper"
+                ],
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/DocumentLanguage"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "quote",
+                        "in": "path",
+                        "required": true,
+                        "description": "The quote ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoicePaperData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/invoicing/quotes/{quote}/pdf": {
+            "get": {
+                "operationId": "downloadQuotePdf",
+                "tags": [
+                    "QuotePaper"
+                ],
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/DocumentLanguage"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "quote",
+                        "in": "path",
+                        "required": true,
+                        "description": "The quote ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Content-Disposition": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store"
+                                }
+                            },
+                            "Transfer-Encoding": {
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "chunked"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/expenses/receipt-reading": {
             "post": {
                 "operationId": "readExpenseReceipt",
@@ -9860,6 +10494,19 @@
                 ],
                 "title": "DeadlineReminderData"
             },
+            "DecideQuoteData": {
+                "type": "object",
+                "properties": {
+                    "decidedOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    }
+                },
+                "title": "DecideQuoteData"
+            },
             "DeclarationCompletionData": {
                 "type": "object",
                 "properties": {
@@ -12191,6 +12838,16 @@
                     "legal": {
                         "type": "string"
                     },
+                    "signature": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PaperSignatureData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "footer": {
                         "type": "string"
                     }
@@ -12215,6 +12872,7 @@
                     "paymentTitle",
                     "payment",
                     "legal",
+                    "signature",
                     "footer"
                 ],
                 "title": "InvoicePaperData"
@@ -12561,6 +13219,12 @@
                     },
                     "nextInvoiceNumber": {
                         "type": "string"
+                    },
+                    "quoteNumberFormat": {
+                        "type": "string"
+                    },
+                    "nextQuoteNumber": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -12577,7 +13241,9 @@
                     "documentLanguage",
                     "vatLiable",
                     "legalReference",
-                    "nextInvoiceNumber"
+                    "nextInvoiceNumber",
+                    "quoteNumberFormat",
+                    "nextQuoteNumber"
                 ],
                 "title": "InvoicingSettingsData"
             },
@@ -13200,6 +13866,22 @@
                 ],
                 "title": "PaperRowData"
             },
+            "PaperSignatureData": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "caption": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "title",
+                    "caption"
+                ],
+                "title": "PaperSignatureData"
+            },
             "PaperTotalData": {
                 "type": "object",
                 "properties": {
@@ -13408,6 +14090,333 @@
                     "Production"
                 ],
                 "title": "PlatformEnvironment"
+            },
+            "QuoteContentData": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "paymentTermsDays": {
+                        "type": "integer"
+                    },
+                    "paymentTermsEndOfMonth": {
+                        "type": "boolean"
+                    },
+                    "showEmail": {
+                        "type": "boolean"
+                    },
+                    "customMentions": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QuoteLineData"
+                        }
+                    },
+                    "vatBreakdown": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/VatBreakdownRowData"
+                        }
+                    },
+                    "seller": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DocumentPartyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "buyer": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DocumentPartyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "description",
+                    "paymentTermsDays",
+                    "paymentTermsEndOfMonth",
+                    "showEmail",
+                    "customMentions",
+                    "lines",
+                    "vatBreakdown",
+                    "seller",
+                    "buyer"
+                ],
+                "title": "QuoteContentData"
+            },
+            "QuoteData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "clientId": {
+                        "type": "integer"
+                    },
+                    "missionId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "number": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/QuoteStatus"
+                    },
+                    "isExpired": {
+                        "type": "boolean"
+                    },
+                    "title": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "language": {
+                        "$ref": "#/components/schemas/DocumentLanguage"
+                    },
+                    "issuedOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "validityDays": {
+                        "type": "integer"
+                    },
+                    "validUntil": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "depositRateBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "depositAmount": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MoneyData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "acceptedOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "refusedOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "amountHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "amountVat": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "amountTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "vatRateBp": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "id",
+                    "clientId",
+                    "missionId",
+                    "number",
+                    "status",
+                    "isExpired",
+                    "title",
+                    "language",
+                    "issuedOn",
+                    "validityDays",
+                    "validUntil",
+                    "depositRateBp",
+                    "depositAmount",
+                    "acceptedOn",
+                    "refusedOn",
+                    "amountHt",
+                    "amountVat",
+                    "amountTtc",
+                    "vatRateBp"
+                ],
+                "title": "QuoteData"
+            },
+            "QuoteDetailData": {
+                "type": "object",
+                "properties": {
+                    "quote": {
+                        "$ref": "#/components/schemas/QuoteData"
+                    },
+                    "client": {
+                        "$ref": "#/components/schemas/ClientData"
+                    },
+                    "mission": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MissionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "content": {
+                        "$ref": "#/components/schemas/QuoteContentData"
+                    },
+                    "document": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DocumentData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "quote",
+                    "client",
+                    "mission",
+                    "content",
+                    "document"
+                ],
+                "title": "QuoteDetailData"
+            },
+            "QuoteLineData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "detail": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "quantityMilli": {
+                        "type": "integer"
+                    },
+                    "unit": {
+                        "$ref": "#/components/schemas/LineUnit"
+                    },
+                    "unitPrice": {
+                        "$ref": "#/components/schemas/SignedMoneyData"
+                    },
+                    "vatRateBp": {
+                        "type": "integer"
+                    },
+                    "totalHt": {
+                        "$ref": "#/components/schemas/SignedMoneyData"
+                    }
+                },
+                "required": [
+                    "id",
+                    "label",
+                    "detail",
+                    "quantityMilli",
+                    "unit",
+                    "unitPrice",
+                    "vatRateBp",
+                    "totalHt"
+                ],
+                "title": "QuoteLineData"
+            },
+            "QuoteListData": {
+                "type": "object",
+                "properties": {
+                    "quotes": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QuoteListItemData"
+                        }
+                    }
+                },
+                "required": [
+                    "quotes"
+                ],
+                "title": "QuoteListData"
+            },
+            "QuoteListItemData": {
+                "type": "object",
+                "properties": {
+                    "quote": {
+                        "$ref": "#/components/schemas/QuoteData"
+                    },
+                    "client": {
+                        "$ref": "#/components/schemas/ClientData"
+                    },
+                    "mission": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/MissionData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "quote",
+                    "client",
+                    "mission"
+                ],
+                "title": "QuoteListItemData"
+            },
+            "QuoteStatus": {
+                "type": "integer",
+                "description": "Where a quote stands. « Expiré » is not a status: a sent quote past its validity is expired, and a column would need a cron to say so.\n",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3
+                ],
+                "x-enum-varnames": [
+                    "Draft",
+                    "Sent",
+                    "Accepted",
+                    "Refused"
+                ],
+                "title": "QuoteStatus"
             },
             "ReadReceiptData": {
                 "type": "object",
@@ -14180,6 +15189,140 @@
                     "lines"
                 ],
                 "title": "SaveInvoiceDraftData"
+            },
+            "SaveQuoteDraftData": {
+                "type": "object",
+                "properties": {
+                    "clientId": {
+                        "type": "integer"
+                    },
+                    "validityDays": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 365
+                    },
+                    "paymentTermsDays": {
+                        "type": "integer"
+                    },
+                    "paymentTermsEndOfMonth": {
+                        "type": "boolean"
+                    },
+                    "showEmail": {
+                        "type": "boolean"
+                    },
+                    "language": {
+                        "$ref": "#/components/schemas/DocumentLanguage"
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "label": {
+                                    "type": "string",
+                                    "maxLength": 255
+                                },
+                                "detail": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ],
+                                    "maxLength": 1000
+                                },
+                                "quantityMilli": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 100000000
+                                },
+                                "unit": {
+                                    "$ref": "#/components/schemas/LineUnit"
+                                },
+                                "unitPrice": {
+                                    "type": "object",
+                                    "properties": {
+                                        "amount": {
+                                            "type": "integer",
+                                            "minimum": -100000000000,
+                                            "maximum": 100000000000
+                                        },
+                                        "currency": {
+                                            "$ref": "#/components/schemas/Currency"
+                                        }
+                                    },
+                                    "required": [
+                                        "amount",
+                                        "currency"
+                                    ]
+                                },
+                                "vatRateBp": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 10000
+                                }
+                            },
+                            "required": [
+                                "label",
+                                "quantityMilli",
+                                "unit",
+                                "unitPrice",
+                                "vatRateBp"
+                            ]
+                        },
+                        "maxItems": 200
+                    },
+                    "missionId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "title": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 2000
+                    },
+                    "issuedOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "depositRateBp": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 1,
+                        "maximum": 10000
+                    },
+                    "customMentions": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 2000
+                    }
+                },
+                "required": [
+                    "clientId",
+                    "validityDays",
+                    "paymentTermsDays",
+                    "paymentTermsEndOfMonth",
+                    "showEmail",
+                    "language",
+                    "lines"
+                ],
+                "title": "SaveQuoteDraftData"
             },
             "SaveSuperPdpCredentialsData": {
                 "type": "object",
@@ -16020,6 +17163,13 @@
                             "null"
                         ],
                         "maxLength": 2000
+                    },
+                    "quoteNumberFormat": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 64
                     }
                 },
                 "required": [

@@ -9,10 +9,12 @@ declare(strict_types=1);
 return [
     'label_separator' => ' :',
     'invoice' => 'Facture',
+    'quote' => 'Devis',
     'number' => 'n° :number',
     'draft' => 'Brouillon',
     'issued_on' => 'Émise le',
     'due_on' => 'Échéance',
+    'valid_until' => 'Valable jusqu\'au',
     'service' => 'Prestation',
     'period' => 'du :start au :end',
     'category' => 'Catégorie',
@@ -48,6 +50,7 @@ return [
         'ht' => 'Total HT',
         'vat' => 'TVA',
         'ttc' => 'Total TTC',
+        'deposit' => 'Acompte à l\'acceptation (:rate %)',
     ],
     'payment' => [
         'title' => 'Informations de paiement',
@@ -63,5 +66,14 @@ return [
         'penalties_statutory' => 'En cas de retard, pénalités au taux de la BCE majoré de 10 points, exigibles dès le lendemain de l\'échéance, et indemnité forfaitaire pour frais de recouvrement de 40 € (art. L441-10 du Code de commerce). Pas d\'escompte pour paiement anticipé.',
         'franchise' => 'TVA non applicable, art. 293 B du CGI.',
         'debits' => 'Option pour le paiement de la taxe d\'après les débits.',
+        'validity' => 'Devis valable jusqu\'au :date.',
+        'deposit' => 'Un acompte de :rate % du total TTC est dû à l\'acceptation.',
+        'quote_on_receipt' => 'Factures payables à réception.',
+        'quote_term' => 'Factures payables à :days jours.',
+        'quote_term_end_of_month' => 'Factures payables à :days jours fin de mois.',
+    ],
+    'signature' => [
+        'title' => 'Bon pour accord',
+        'caption' => 'Date, signature et cachet, précédés de la mention « Bon pour accord ».',
     ],
 ];

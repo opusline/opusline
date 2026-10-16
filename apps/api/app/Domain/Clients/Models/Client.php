@@ -8,6 +8,7 @@ use App\Domain\Clients\Enums\ClientType;
 use App\Domain\Clients\Factories\ClientFactory;
 use App\Domain\Documents\Concerns\InteractsWithDocuments;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Models\Quote;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Enums\Color;
 use App\Domain\Shared\Routing\OwnedRouteBinding;
@@ -146,6 +147,12 @@ class Client extends Model implements HasMedia
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    /** @return HasMany<Quote, $this> */
+    public function quotes(): HasMany
+    {
+        return $this->hasMany(Quote::class);
     }
 
     /**
