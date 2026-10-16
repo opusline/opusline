@@ -4,19 +4,7 @@ import type {
 } from "@opusline/api-client";
 import { zSaveEnableBankingCredentialsData } from "@opusline/api-client/zod";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@opusline/ui/components/alert-dialog";
 import { Button } from "@opusline/ui/components/button";
-import { CopyButton } from "@opusline/ui/components/copy-button";
 import { FieldError } from "@opusline/ui/components/field";
 import {
   StatusRow,
@@ -41,6 +29,8 @@ import { useRef, useState } from "react";
 import { FormTextField } from "@/components/form-text-field";
 import type { FormSubmitResult } from "@/lib/form";
 import { m } from "@/paraglide/messages.js";
+import { CopyableCode } from "./copyable-code";
+import { IntegrationRemoveButton } from "./integration-remove-button";
 import { SettingsSection } from "./settings-section";
 
 const SETUP_GUIDE =
@@ -145,7 +135,14 @@ export function EnableBankingCard({
               >
                 {m.integrations_enable_banking_replace()}
               </Button>
-              <RemoveButton isRemoving={isRemoving} onRemove={onRemove} />
+              <IntegrationRemoveButton
+                confirmBody={m.integrations_enable_banking_remove_confirm_body()}
+                confirmTitle={m.integrations_enable_banking_remove_confirm_title()}
+                isRemoving={isRemoving}
+                label={m.integrations_enable_banking_remove()}
+                onRemove={onRemove}
+                testId="enable-banking-remove"
+              />
             </StatusRowActions>
           </StatusRow>
         )}
@@ -172,21 +169,11 @@ function SetupSteps({ redirectUrl }: { redirectUrl: string }) {
       <li>{m.integrations_enable_banking_step_create()}</li>
       <li>
         {m.integrations_enable_banking_step_redirect()}
-        <span className="mt-1.5 flex items-center gap-2">
-          <code
-            className="min-w-0 break-all rounded-md border bg-muted px-2.5 py-1.5 font-mono text-foreground-hi text-xs"
-            data-testid="enable-banking-redirect-url"
-          >
-            {redirectUrl}
-          </code>
-          <CopyButton
-            aria-label={m.integrations_enable_banking_copy_redirect()}
-            copiedLabel={m.common_copied()}
-            failedLabel={m.common_copy_failed()}
-            size="icon"
-            value={redirectUrl}
-          />
-        </span>
+        <CopyableCode
+          copyLabel={m.integrations_enable_banking_copy_redirect()}
+          testId="enable-banking-redirect-url"
+          value={redirectUrl}
+        />
       </li>
       <li>{m.integrations_enable_banking_step_link()}</li>
       <li>{m.integrations_enable_banking_step_paste()}</li>
@@ -315,50 +302,5 @@ function CredentialsForm({ onSave, onCancel }: CredentialsFormProps) {
         )}
       </form.Subscribe>
     </form>
-  );
-}
-
-function RemoveButton({
-  isRemoving,
-  onRemove,
-}: {
-  isRemoving: boolean;
-  onRemove: () => void;
-}) {
-  return (
-    <AlertDialog>
-      <AlertDialogTrigger
-        render={
-          <Button
-            data-testid="enable-banking-remove"
-            disabled={isRemoving}
-            size="lg"
-            variant="destructive"
-          />
-        }
-      >
-        {m.integrations_enable_banking_remove()}
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>
-            {m.integrations_enable_banking_remove_confirm_title()}
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            {m.integrations_enable_banking_remove_confirm_body()}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>{m.common_cancel()}</AlertDialogCancel>
-          <AlertDialogAction
-            data-testid="enable-banking-remove-confirm"
-            onClick={onRemove}
-            render={<Button size="2xl" variant="destructive" />}
-          >
-            {m.integrations_enable_banking_remove()}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
   );
 }

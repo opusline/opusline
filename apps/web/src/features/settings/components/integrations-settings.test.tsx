@@ -5,6 +5,7 @@ import { afterEach, expect, it, vi } from "vitest";
 
 import { INVOICING } from "@/lib/features";
 import { seedCurrentUser } from "@/test/current-user";
+import { eInvoicingConnected, eInvoicingUnconfigured } from "@/test/fixtures";
 import { StoryRouter } from "@/test/story-router";
 import { IntegrationsSettings } from "./integrations-settings";
 
@@ -23,16 +24,10 @@ function integrations(
       applicationId,
       redirectUrl: "https://opusline.example/bank-account",
     },
-    eInvoicing: {
-      clientId: superPdpClientId,
-      companyName: superPdpClientId === null ? null : "Théo Marchand",
-      companyNumber: superPdpClientId === null ? null : "123456782",
-      environment: superPdpClientId === null ? null : 0,
-      companyVerified: superPdpClientId !== null,
-      receivingAddress:
-        superPdpClientId === null ? null : "0225:12345678200002",
-      checkedAt: superPdpClientId === null ? null : "2026-10-16T09:12:00+02:00",
-    },
+    eInvoicing:
+      superPdpClientId === null
+        ? eInvoicingUnconfigured
+        : { ...eInvoicingConnected, clientId: superPdpClientId },
   };
 }
 

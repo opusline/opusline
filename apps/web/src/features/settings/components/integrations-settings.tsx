@@ -38,12 +38,10 @@ export function IntegrationsSettings() {
     deleteEnableBankingCredentialsMutation(),
   );
   const [superPdpError, setSuperPdpError] = useState<string | null>(null);
-  const [superPdpNotice, setSuperPdpNotice] = useState<string | null>(null);
   const saveSuperPdp = useMutation(saveSuperPdpCredentialsMutation());
   const checkSuperPdp = useMutation(checkSuperPdpConnectionMutation());
   const deleteSuperPdp = useMutation(deleteSuperPdpCredentialsMutation());
 
-  // Every answer carries the tab's whole state.
   const applyIntegrations = (data: IntegrationsData) => {
     queryClient.setQueryData(showIntegrationsQueryKey(), data);
   };
@@ -93,7 +91,6 @@ export function IntegrationsSettings() {
     body: SaveSuperPdpCredentialsData,
   ): Promise<FormSubmitResult> => {
     setSuperPdpError(null);
-    setSuperPdpNotice(null);
 
     try {
       applyIntegrations(await saveSuperPdp.mutateAsync({ body }));
@@ -112,27 +109,24 @@ export function IntegrationsSettings() {
     }
   };
 
-  const recheckSuperPdp = () => {
+  const recheckSuperPdp = async (): Promise<boolean> => {
     setSuperPdpError(null);
-    setSuperPdpNotice(null);
-    checkSuperPdp.mutate(
-      {},
-      {
-        onSuccess: (data) => {
-          applyIntegrations(data);
-          setSuperPdpNotice(m.integrations_super_pdp_checked_ok());
-        },
-        onError: (checkError) =>
-          setSuperPdpError(
-            serverErrorMessage(checkError, m.common_action_failed()),
-          ),
-      },
-    );
+
+    try {
+      applyIntegrations(await checkSuperPdp.mutateAsync({}));
+
+      return true;
+    } catch (checkError) {
+      setSuperPdpError(
+        serverErrorMessage(checkError, m.common_action_failed()),
+      );
+
+      return false;
+    }
   };
 
   const disconnectSuperPdp = () => {
     setSuperPdpError(null);
-    setSuperPdpNotice(null);
     deleteSuperPdp.mutate(
       {},
       {
@@ -174,7 +168,6 @@ export function IntegrationsSettings() {
           error={superPdpError}
           isChecking={checkSuperPdp.isPending}
           isRemoving={deleteSuperPdp.isPending}
-          notice={superPdpNotice}
           onCheck={recheckSuperPdp}
           onRemove={disconnectSuperPdp}
           onSave={connectSuperPdp}

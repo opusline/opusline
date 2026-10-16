@@ -1,23 +1,12 @@
 import type {
   EInvoicingSettingsData,
+  PlatformEnvironment,
   SaveSuperPdpCredentialsData,
 } from "@opusline/api-client";
 import { zSaveSuperPdpCredentialsData } from "@opusline/api-client/zod";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@opusline/ui/components/alert-dialog";
 import { Badge } from "@opusline/ui/components/badge";
 import { Button } from "@opusline/ui/components/button";
-import { CopyButton } from "@opusline/ui/components/copy-button";
 import {
   StatusRow,
   StatusRowActions,
@@ -38,29 +27,44 @@ import {
 import { useState } from "react";
 
 import { FormTextField } from "@/components/form-text-field";
-import { useMoneyFormat } from "@/components/money-format-provider";
+import { useLocale } from "@/components/money-format-provider";
 import { fullDateTimeLabel } from "@/lib/dates";
 import type { FormSubmitResult } from "@/lib/form";
 import { m } from "@/paraglide/messages.js";
+import { CopyableCode } from "./copyable-code";
+import { IntegrationRemoveButton } from "./integration-remove-button";
 import { SettingsSection } from "./settings-section";
 
 const SETUP_GUIDE =
   "https://github.com/opusline/opusline/blob/main/docs/e-invoicing.md";
 const SCOPES = "invoice:read invoice:write company:read";
 
+type EnvironmentToken = "sandbox" | "production";
+
+const ENVIRONMENT_TOKENS: Record<PlatformEnvironment, EnvironmentToken> = {
+  0: "sandbox",
+  1: "production",
+};
+
+const ENVIRONMENT_LABELS: Record<EnvironmentToken, () => string> = {
+  sandbox: () => m.integrations_super_pdp_environment_sandbox(),
+  production: () => m.integrations_super_pdp_environment_production(),
+};
+
+type CardStatus = "unconfigured" | "unverified" | "connected";
+
 type SuperPdpCardProps = {
   settings: EInvoicingSettingsData;
   isChecking: boolean;
   isRemoving: boolean;
   error: string | null;
-  /** Set after a successful check, so the card can say so. */
-  notice: string | null;
   onSave: (values: SaveSuperPdpCredentialsData) => Promise<FormSubmitResult>;
-  onCheck: () => void;
+  /** Resolves to whether the platform answered; the card says so. */
+  onCheck: () => Promise<boolean>;
   onRemove: () => void;
 };
 
-function cardStatus(settings: EInvoicingSettingsData): string {
+function cardStatus(settings: EInvoicingSettingsData): CardStatus {
   if (settings.clientId === null) {
     return "unconfigured";
   }
@@ -78,13 +82,12 @@ export function SuperPdpCard({
   isChecking,
   isRemoving,
   error,
-  notice,
   onSave,
   onCheck,
   onRemove,
 }: SuperPdpCardProps) {
   const [isReplacing, setIsReplacing] = useState(false);
-  const [hasJustSaved, setHasJustSaved] = useState(false);
+  const [justDid, setJustDid] = useState<"saved" | "checked" | null>(null);
   const { clientId } = settings;
 
   return (
@@ -103,14 +106,16 @@ export function SuperPdpCard({
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-        {notice !== null || (hasJustSaved && clientId !== null) ? (
+        {justDid === null || clientId === null ? null : (
           <Alert data-testid="super-pdp-notice" variant="success">
             <CircleCheck />
             <AlertDescription>
-              {notice ?? m.integrations_super_pdp_saved()}
+              {justDid === "saved"
+                ? m.integrations_super_pdp_saved()
+                : m.integrations_super_pdp_checked_ok()}
             </AlertDescription>
           </Alert>
-        ) : null}
+        )}
 
         {clientId === null || isReplacing ? (
           <>
@@ -118,12 +123,12 @@ export function SuperPdpCard({
             <CredentialsForm
               onCancel={clientId === null ? null : () => setIsReplacing(false)}
               onSave={async (values) => {
-                setHasJustSaved(false);
+                setJustDid(null);
                 const result = await onSave(values);
 
                 if (result.status === "success") {
                   setIsReplacing(false);
-                  setHasJustSaved(true);
+                  setJustDid("saved");
                 }
 
                 return result;
@@ -134,7 +139,10 @@ export function SuperPdpCard({
           <ConnectionStatus
             isChecking={isChecking}
             isRemoving={isRemoving}
-            onCheck={onCheck}
+            onCheck={async () => {
+              setJustDid(null);
+              setJustDid((await onCheck()) ? "checked" : null);
+            }}
             onRemove={onRemove}
             onReplace={() => setIsReplacing(true)}
             settings={settings}
@@ -165,21 +173,11 @@ function SetupSteps() {
       <li>{m.integrations_super_pdp_step_directory()}</li>
       <li>
         {m.integrations_super_pdp_step_application()}
-        <span className="mt-1.5 flex items-center gap-2">
-          <code
-            className="min-w-0 break-all rounded-md border bg-muted px-2.5 py-1.5 font-mono text-foreground-hi text-xs"
-            data-testid="super-pdp-scopes"
-          >
-            {SCOPES}
-          </code>
-          <CopyButton
-            aria-label={m.integrations_super_pdp_copy_scopes()}
-            copiedLabel={m.common_copied()}
-            failedLabel={m.common_copy_failed()}
-            size="icon"
-            value={SCOPES}
-          />
-        </span>
+        <CopyableCode
+          copyLabel={m.integrations_super_pdp_copy_scopes()}
+          testId="super-pdp-scopes"
+          value={SCOPES}
+        />
       </li>
       <li>{m.integrations_super_pdp_step_paste()}</li>
     </ol>
@@ -286,8 +284,11 @@ function ConnectionStatus({
   onReplace,
   onRemove,
 }: ConnectionStatusProps) {
-  const { locale } = useMoneyFormat();
-  const environment = settings.environment === 1 ? "production" : "sandbox";
+  const locale = useLocale();
+  const environment =
+    settings.environment === null
+      ? null
+      : ENVIRONMENT_TOKENS[settings.environment];
 
   return (
     <div className="flex flex-col gap-4">
@@ -306,15 +307,13 @@ function ConnectionStatus({
         <StatusRowContent>
           <StatusRowTitle className="flex flex-wrap items-center gap-2">
             {settings.companyName ?? settings.clientId}
-            {settings.environment === null ? null : (
+            {environment === null ? null : (
               <Badge
                 data-environment={environment}
                 data-testid="super-pdp-environment"
                 variant={environment === "production" ? "success" : "neutral"}
               >
-                {environment === "production"
-                  ? m.integrations_super_pdp_environment_production()
-                  : m.integrations_super_pdp_environment_sandbox()}
+                {ENVIRONMENT_LABELS[environment]()}
               </Badge>
             )}
           </StatusRowTitle>
@@ -341,7 +340,7 @@ function ConnectionStatus({
                 })}
               </span>
             )}
-            {settings.environment === 0 ? (
+            {environment === "sandbox" ? (
               <span>{m.integrations_super_pdp_sandbox_hint()}</span>
             ) : null}
             {settings.checkedAt === null ? null : (
@@ -372,54 +371,16 @@ function ConnectionStatus({
           >
             {m.integrations_super_pdp_replace()}
           </Button>
-          <RemoveButton isRemoving={isRemoving} onRemove={onRemove} />
+          <IntegrationRemoveButton
+            confirmBody={m.integrations_super_pdp_remove_confirm_body()}
+            confirmTitle={m.integrations_super_pdp_remove_confirm_title()}
+            isRemoving={isRemoving}
+            label={m.integrations_super_pdp_remove()}
+            onRemove={onRemove}
+            testId="super-pdp-remove"
+          />
         </StatusRowActions>
       </StatusRow>
     </div>
-  );
-}
-
-function RemoveButton({
-  isRemoving,
-  onRemove,
-}: {
-  isRemoving: boolean;
-  onRemove: () => void;
-}) {
-  return (
-    <AlertDialog>
-      <AlertDialogTrigger
-        render={
-          <Button
-            data-testid="super-pdp-remove"
-            disabled={isRemoving}
-            size="lg"
-            variant="destructive"
-          />
-        }
-      >
-        {m.integrations_super_pdp_remove()}
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>
-            {m.integrations_super_pdp_remove_confirm_title()}
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            {m.integrations_super_pdp_remove_confirm_body()}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>{m.common_cancel()}</AlertDialogCancel>
-          <AlertDialogAction
-            data-testid="super-pdp-remove-confirm"
-            onClick={onRemove}
-            render={<Button size="2xl" variant="destructive" />}
-          >
-            {m.integrations_super_pdp_remove()}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
   );
 }

@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { INVOICING } from "@/lib/features";
 import { seedCurrentUser } from "@/test/current-user";
+import { eInvoicingConnected, eInvoicingUnconfigured } from "@/test/fixtures";
 import { StoryRouter } from "@/test/story-router";
 import { IntegrationsSettings } from "./integrations-settings";
 
@@ -43,15 +44,7 @@ const meta = {
         applicationId: null,
         redirectUrl: "https://opusline.example/bank-account",
       },
-      eInvoicing: {
-        clientId: null,
-        companyName: null,
-        companyNumber: null,
-        environment: null,
-        companyVerified: false,
-        receivingAddress: null,
-        checkedAt: null,
-      },
+      eInvoicing: eInvoicingUnconfigured,
     },
   },
 } satisfies Meta<typeof Example>;
@@ -68,15 +61,7 @@ export const Configured: Story = {
         applicationId: "6f1c1a52-9d1e-4b9e-8a53-0c1e2f3a4b5c",
         redirectUrl: "https://opusline.example/bank-account",
       },
-      eInvoicing: {
-        clientId: "opusline_8f3c2e1a4d6f9b7c",
-        companyName: "Théo Marchand",
-        companyNumber: "123456782",
-        environment: 0,
-        companyVerified: true,
-        receivingAddress: "0225:12345678200002",
-        checkedAt: "2026-10-16T09:12:00+02:00",
-      },
+      eInvoicing: eInvoicingConnected,
     },
   },
 };

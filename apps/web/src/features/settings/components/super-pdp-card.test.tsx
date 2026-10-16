@@ -3,41 +3,22 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
 import type { FormSubmitResult } from "@/lib/form";
+import { eInvoicingConnected, eInvoicingUnconfigured } from "@/test/fixtures";
 import { StoryRouter } from "@/test/story-router";
 import { SuperPdpCard } from "./super-pdp-card";
 
 const CLIENT_ID = "opusline_8f3c2e1a4d6f9b7c";
 const CLIENT_SECRET = "secret-for-the-sandbox-only";
 
-const unconfigured: EInvoicingSettingsData = {
-  clientId: null,
-  companyName: null,
-  companyNumber: null,
-  environment: null,
-  companyVerified: false,
-  receivingAddress: null,
-  checkedAt: null,
-};
-
-const connected: EInvoicingSettingsData = {
-  clientId: CLIENT_ID,
-  companyName: "Théo Marchand",
-  companyNumber: "123456782",
-  environment: 0,
-  companyVerified: true,
-  receivingAddress: "0225:12345678200002",
-  checkedAt: "2026-10-16T09:12:00+02:00",
-};
-
 function renderCard({
-  settings = unconfigured,
+  settings = eInvoicingUnconfigured,
   onSave = async () => ({ status: "success" }),
 }: {
   settings?: EInvoicingSettingsData;
   onSave?: () => Promise<FormSubmitResult>;
 } = {}) {
   const save = vi.fn(onSave);
-  const check = vi.fn();
+  const check = vi.fn(async () => true);
   const remove = vi.fn();
 
   render(
@@ -46,7 +27,6 @@ function renderCard({
         error={null}
         isChecking={false}
         isRemoving={false}
-        notice={null}
         onCheck={check}
         onRemove={remove}
         onSave={save}
@@ -97,7 +77,7 @@ it("refuses an empty secret before asking the API", async () => {
 });
 
 it("shows the company, its environment and where it receives invoices", async () => {
-  const { check } = renderCard({ settings: connected });
+  const { check } = renderCard({ settings: eInvoicingConnected });
 
   expect(await screen.findByTestId("super-pdp-card")).toHaveAttribute(
     "data-status",
@@ -115,11 +95,16 @@ it("shows the company, its environment and where it receives invoices", async ()
   fireEvent.click(screen.getByTestId("super-pdp-check"));
 
   expect(check).toHaveBeenCalledOnce();
+  expect(await screen.findByTestId("super-pdp-notice")).toBeInTheDocument();
 });
 
 it("flags a company the platform has not verified yet", async () => {
   renderCard({
-    settings: { ...connected, companyVerified: false, receivingAddress: null },
+    settings: {
+      ...eInvoicingConnected,
+      companyVerified: false,
+      receivingAddress: null,
+    },
   });
 
   expect(await screen.findByTestId("super-pdp-card")).toHaveAttribute(
@@ -131,7 +116,7 @@ it("flags a company the platform has not verified yet", async () => {
 });
 
 it("removes only once confirmed", async () => {
-  const { remove } = renderCard({ settings: connected });
+  const { remove } = renderCard({ settings: eInvoicingConnected });
 
   fireEvent.click(await screen.findByTestId("super-pdp-remove"));
   expect(remove).not.toHaveBeenCalled();
@@ -142,7 +127,7 @@ it("removes only once confirmed", async () => {
 });
 
 it("offers the form again when replacing the application", async () => {
-  renderCard({ settings: connected });
+  renderCard({ settings: eInvoicingConnected });
 
   fireEvent.click(await screen.findByTestId("super-pdp-replace"));
 

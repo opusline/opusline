@@ -1,19 +1,9 @@
-import type { EInvoicingSettingsData } from "@opusline/api-client";
 import type { Meta, StoryObj } from "@storybook/react";
 
 import type { FormSubmitResult } from "@/lib/form";
+import { eInvoicingConnected, eInvoicingUnconfigured } from "@/test/fixtures";
 import { StoryRouter } from "@/test/story-router";
 import { SuperPdpCard } from "./super-pdp-card";
-
-const connected: EInvoicingSettingsData = {
-  clientId: "opusline_8f3c2e1a4d6f9b7c",
-  companyName: "Théo Marchand",
-  companyNumber: "123456782",
-  environment: 0,
-  companyVerified: true,
-  receivingAddress: "0225:12345678200002",
-  checkedAt: "2026-10-16T09:12:00+02:00",
-};
 
 const meta = {
   title: "Web/Settings/SuperPdpCard",
@@ -29,21 +19,12 @@ const meta = {
     ),
   ],
   args: {
-    settings: {
-      clientId: null,
-      companyName: null,
-      companyNumber: null,
-      environment: null,
-      companyVerified: false,
-      receivingAddress: null,
-      checkedAt: null,
-    },
+    settings: eInvoicingUnconfigured,
     isChecking: false,
     isRemoving: false,
     error: null,
-    notice: null,
     onSave: async (): Promise<FormSubmitResult> => ({ status: "success" }),
-    onCheck: () => {},
+    onCheck: async () => true,
     onRemove: () => {},
   },
 } satisfies Meta<typeof SuperPdpCard>;
@@ -55,13 +36,12 @@ export const NotConnected: Story = {};
 
 /** A verified sandbox company, registered in the annuaire. */
 export const ConnectedSandbox: Story = {
-  args: { settings: connected },
+  args: { settings: eInvoicingConnected },
 };
 
 export const ConnectedProduction: Story = {
   args: {
-    settings: { ...connected, environment: 1 },
-    notice: "Connexion vérifiée.",
+    settings: { ...eInvoicingConnected, environment: 1 },
   },
 };
 
@@ -69,7 +49,7 @@ export const ConnectedProduction: Story = {
 export const AwaitingVerification: Story = {
   args: {
     settings: {
-      ...connected,
+      ...eInvoicingConnected,
       companyName: null,
       companyNumber: null,
       environment: null,
@@ -80,7 +60,7 @@ export const AwaitingVerification: Story = {
 };
 
 export const NotInTheAnnuaire: Story = {
-  args: { settings: { ...connected, receivingAddress: null } },
+  args: { settings: { ...eInvoicingConnected, receivingAddress: null } },
 };
 
 export const RefusedBySuperPdp: Story = {
@@ -99,7 +79,7 @@ export const RefusedBySuperPdp: Story = {
 
 export const Unreachable: Story = {
   args: {
-    settings: connected,
+    settings: eInvoicingConnected,
     error: "La plateforme de facturation électronique est injoignable.",
   },
 };
