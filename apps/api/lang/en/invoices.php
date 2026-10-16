@@ -7,6 +7,7 @@ return [
     'ttc_below_ht' => 'The gross amount cannot be lower than the net amount.',
     'due_before_issued' => 'The due date cannot precede the issue date.',
     'period_end_before_start' => 'The period end cannot precede its start.',
+    'negative_total' => 'The lines cannot add up to a negative total.',
     'number_taken' => 'Another invoice already uses that reference.',
     'number_required_once_issued' => 'Set the invoice reference before marking it as sent.',
     'paid_on_required' => 'A payment date is required for a paid invoice.',

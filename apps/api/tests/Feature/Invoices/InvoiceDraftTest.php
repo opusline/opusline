@@ -152,19 +152,55 @@ test('refuses another account\'s client and draft', function (): void {
         ->assertNotFound();
 });
 
-test('refuses lines it cannot price', function (array $line, string $field): void {
+test('refuses lines it cannot price, on a new or saved draft', function (string $method, array $line, string $field): void {
     $user = vatLiableUser();
     $client = Client::factory()->for($user)->create();
+    $id = $this->actingAs($user)->postJson('/api/invoicing/invoices', draftPayload($client))->json('invoice.id');
+    $url = $method === 'PUT' ? "/api/invoicing/invoices/{$id}" : '/api/invoicing/invoices';
 
     $this->actingAs($user)
-        ->postJson('/api/invoicing/invoices', draftPayload($client, ['lines' => [draftLine($line)]]))
+        ->json($method, $url, draftPayload($client, ['lines' => [draftLine($line)]]))
+        ->assertUnprocessable()
         ->assertJsonValidationErrorFor("lines.0.{$field}");
-})->with([
+
+    expect(Invoice::query()->findOrFail($id)->lines()->count())->toBe(2);
+})->with(['POST', 'PUT'])->with([
     'no quantity' => [['quantityMilli' => 0], 'quantityMilli'],
     'unknown unit' => [['unit' => 9], 'unit'],
     'foreign currency' => [['unitPrice' => ['amount' => 100, 'currency' => 'USD']], 'unitPrice.currency'],
     'rate above 100 %' => [['vatRateBp' => 10_001], 'vatRateBp'],
 ]);
+
+test('refuses lines that add up to a negative total', function (): void {
+    $user = vatLiableUser();
+    $client = Client::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->postJson('/api/invoicing/invoices', draftPayload($client, ['lines' => [
+            draftLine(['quantityMilli' => 1000, 'unit' => LineUnit::Flat->value, 'unitPrice' => ['amount' => 30_000, 'currency' => 'EUR']]),
+            draftLine(['label' => "Déduction de l'avoir A-2026-001", 'quantityMilli' => 1000, 'unit' => LineUnit::Flat->value, 'unitPrice' => ['amount' => -40_000, 'currency' => 'EUR']]),
+        ]]))
+        ->assertUnprocessable()
+        ->assertJsonValidationErrorFor('lines');
+
+    expect(Invoice::query()->count())->toBe(0);
+});
+
+test('keeps another account\'s draft out of reach on update', function (): void {
+    $owner = vatLiableUser();
+    $ownerClient = Client::factory()->for($owner)->create();
+    $id = $this->actingAs($owner)->postJson('/api/invoicing/invoices', draftPayload($ownerClient))->json('invoice.id');
+    $user = vatLiableUser();
+    $client = Client::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->putJson("/api/invoicing/invoices/{$id}", draftPayload($client, ['title' => 'Détournée', 'lines' => [draftLine()]]))
+        ->assertNotFound();
+
+    $draft = Invoice::query()->findOrFail($id);
+    expect($draft->title)->toBe("Refonte de l'espace client")
+        ->and($draft->lines()->count())->toBe(2);
+});
 
 test('caps the payment term at the legal maximum', function (): void {
     $user = vatLiableUser();

@@ -7,6 +7,7 @@ return [
     'ttc_below_ht' => 'Le montant TTC ne peut pas être inférieur au montant HT.',
     'due_before_issued' => 'L\'échéance ne peut pas précéder la date d\'émission.',
     'period_end_before_start' => 'La fin de période ne peut pas précéder son début.',
+    'negative_total' => 'Les lignes ne peuvent pas totaliser un montant négatif.',
     'number_taken' => 'Une autre facture porte déjà cette référence.',
     'number_required_once_issued' => 'Renseignez la référence de la facture avant de la marquer envoyée.',
     'paid_on_required' => 'La date d\'encaissement est requise pour une facture payée.',

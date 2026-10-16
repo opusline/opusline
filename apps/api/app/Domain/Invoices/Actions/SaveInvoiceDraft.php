@@ -12,10 +12,12 @@ use App\Domain\Invoices\Enums\InvoiceEventKind;
 use App\Domain\Invoices\Enums\InvoiceSource;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Shared\Data\SignedMoneyData;
 use App\Domain\Shared\Validation\AccountCurrency;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Creates or updates an invoice drafted in Opusline. A draft has no number
@@ -50,6 +52,7 @@ class SaveInvoiceDraft
             'vatRateBp' => $vatApplies ? $line->vatRateBp : 0,
         ], $data->lines);
         $totals = DocumentTotals::of($lines, $currency);
+        $this->assertTotalsNotNegative($totals);
         $issuedOn = $data->issuedOn === null ? $settings->today() : CarbonImmutable::parse($data->issuedOn);
         $term = new PaymentTerm($data->paymentTermsDays, $data->paymentTermsEndOfMonth);
 
@@ -76,9 +79,10 @@ class SaveInvoiceDraft
         ];
 
         return DB::transaction(function () use ($user, $data, $invoice, $attributes, $lines, $totals, $issuedOn, $currency): Invoice {
-            foreach ($data->lines as $line) {
-                AccountCurrency::assertMatchesAccountUnderLock($user->id, $line->unitPrice);
-            }
+            AccountCurrency::assertAllMatchAccountUnderLock(
+                $user->id,
+                ...array_map(static fn (InvoiceLineInputData $line): SignedMoneyData => $line->unitPrice, $data->lines),
+            );
 
             if ($invoice instanceof Invoice) {
                 $invoice->update($attributes);
@@ -108,5 +112,18 @@ class SaveInvoiceDraft
 
             return $invoice->load('lines');
         });
+    }
+
+    /**
+     * A deduction line may lower the total, never turn it negative: the header
+     * amounts are unsigned, and a negative invoice is an avoir, not an invoice.
+     */
+    private function assertTotalsNotNegative(DocumentTotals $totals): void
+    {
+        if ($totals->ht->isNegative() || $totals->ttc->isNegative()) {
+            throw ValidationException::withMessages([
+                'lines' => __('invoices.negative_total'),
+            ]);
+        }
     }
 }

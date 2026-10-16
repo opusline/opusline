@@ -64,13 +64,7 @@ class ValidateInvoice
     public function forDraft(User $user, SaveInvoiceDraftData $data): void
     {
         $this->assertMissionBelongsToClient($user, $data->clientId, $data->missionId);
-
-        if ($data->periodStart !== null && $data->periodEnd !== null
-            && CarbonImmutable::parse($data->periodEnd)->isBefore(CarbonImmutable::parse($data->periodStart))) {
-            throw ValidationException::withMessages([
-                'periodEnd' => __('invoices.period_end_before_start'),
-            ]);
-        }
+        $this->assertPeriodOrdered($data->periodStart, $data->periodEnd);
     }
 
     private function assertMissionBelongsToClient(User $user, int $clientId, ?int $missionId): void
@@ -114,6 +108,11 @@ class ValidateInvoice
             ]);
         }
 
+        $this->assertPeriodOrdered($periodStart, $periodEnd);
+    }
+
+    private function assertPeriodOrdered(?string $periodStart, ?string $periodEnd): void
+    {
         if ($periodStart !== null && $periodEnd !== null
             && CarbonImmutable::parse($periodEnd)->isBefore(CarbonImmutable::parse($periodStart))) {
             throw ValidationException::withMessages([
