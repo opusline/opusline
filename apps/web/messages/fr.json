@@ -1567,6 +1567,7 @@
   "integrations_super_pdp_docs": "Guide de configuration",
   "integrations_super_pdp_environment_production": "Production",
   "integrations_super_pdp_environment_sandbox": "Bac à sable",
+  "integrations_super_pdp_last_sync": "Boîte de réception lue le {date}.",
   "integrations_super_pdp_no_address": "Pas encore inscrit dans l'annuaire : les autres plateformes ne peuvent pas vous adresser de factures.",
   "integrations_super_pdp_remove": "Retirer",
   "integrations_super_pdp_remove_confirm_body": "Opusline oublie les identifiants. Super PDP conserve votre compte et les factures qu'il détient.",

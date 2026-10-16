@@ -13,9 +13,8 @@ import { CircleAlert, Inbox, RefreshCw } from "lucide-react";
 
 import { useLocale } from "@/components/money-format-provider";
 import { fullDateTimeLabel } from "@/lib/dates";
+import { eInvoicingErrorLabel } from "@/lib/e-invoicing";
 import { m } from "@/paraglide/messages.js";
-
-import { eInvoicingErrorLabel } from "../lib/e-invoice";
 
 type PlatformInboxCardProps = {
   settings: EInvoicingSettingsData;

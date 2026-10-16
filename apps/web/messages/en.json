@@ -1567,6 +1567,7 @@
   "integrations_super_pdp_docs": "Setup guide",
   "integrations_super_pdp_environment_production": "Production",
   "integrations_super_pdp_environment_sandbox": "Sandbox",
+  "integrations_super_pdp_last_sync": "Inbox last read on {date}.",
   "integrations_super_pdp_no_address": "Not registered in the annuaire yet: other platforms cannot route invoices to you.",
   "integrations_super_pdp_remove": "Remove",
   "integrations_super_pdp_remove_confirm_body": "Opusline forgets the credentials. Super PDP keeps your account and the invoices it holds.",

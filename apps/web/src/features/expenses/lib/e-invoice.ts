@@ -1,4 +1,4 @@
-import type { EInvoicingError, LifecycleStatus } from "@opusline/api-client";
+import type { LifecycleStatus } from "@opusline/api-client";
 
 import { m } from "@/paraglide/messages.js";
 
@@ -31,23 +31,10 @@ const STATUS_MESSAGES: Record<LifecycleStatus, () => string> = {
   213: m.einvoice_status_rejected,
 };
 
-const ERROR_MESSAGES: Record<EInvoicingError, () => string> = {
-  0: m.einvoicing_error_unavailable,
-  1: m.einvoicing_error_credentials_rejected,
-  2: m.einvoicing_error_company_unverified,
-  3: m.einvoicing_error_not_connected,
-  4: m.einvoicing_error_rejected,
-  5: m.einvoicing_error_not_found,
-};
-
 export function eInvoiceStatusToken(status: LifecycleStatus): string {
   return STATUS_TOKENS[status];
 }
 
 export function eInvoiceStatusLabel(status: LifecycleStatus): string {
   return STATUS_MESSAGES[status]();
-}
-
-export function eInvoicingErrorLabel(error: EInvoicingError): string {
-  return ERROR_MESSAGES[error]();
 }

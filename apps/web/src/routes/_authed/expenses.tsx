@@ -139,19 +139,20 @@ function ExpensesRoute() {
   const syncInbox = useMutation({
     ...syncReceivedEInvoicesMutation(),
     onMutate: () => setInboxError(null),
-    onSuccess: async (result) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: showIntegrationsQueryKey() }),
-        invalidateExpenseWrites(queryClient),
-      ]);
+    onSuccess: (result) =>
       toast.add({
         title: m.expenses_platform_inbox_synced({ count: result.imported }),
-      });
-    },
+      }),
     onError: (error) =>
       setInboxError(
         serverErrorMessage(error, m.expenses_platform_inbox_failed()),
       ),
+    // A read that failed halfway has still recorded invoices and its refusal.
+    onSettled: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: showIntegrationsQueryKey() }),
+        invalidateExpenseWrites(queryClient),
+      ]),
   });
   const subscriptions = useQuery({
     ...listSubscriptionsOptions(),
@@ -642,8 +643,7 @@ function ExpensesRoute() {
           )
         ) : (
           <>
-            {integrations.data !== undefined &&
-            integrations.data.eInvoicing.clientId !== null ? (
+            {integrations.data?.eInvoicing.companyVerified ? (
               <PlatformInboxCard
                 count={
                   journal.data.expenses.filter(
