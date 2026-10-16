@@ -1,10 +1,14 @@
 import type {
   IntegrationsData,
   SaveEnableBankingCredentialsData,
+  SaveSuperPdpCredentialsData,
 } from "@opusline/api-client";
 import {
+  checkSuperPdpConnectionMutation,
   deleteEnableBankingCredentialsMutation,
+  deleteSuperPdpCredentialsMutation,
   saveEnableBankingCredentialsMutation,
+  saveSuperPdpCredentialsMutation,
   showBankAccountQueryKey,
   showIntegrationsOptions,
   showIntegrationsQueryKey,
@@ -19,6 +23,7 @@ import type { FormSubmitResult } from "@/lib/form";
 import { serverErrorMessage, serverFieldErrors } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 import { EnableBankingCard } from "./enable-banking-card";
+import { SuperPdpCard } from "./super-pdp-card";
 
 /** The Intégrations tab: owns the account's third-party credentials. */
 export function IntegrationsSettings() {
@@ -30,6 +35,11 @@ export function IntegrationsSettings() {
   const deleteCredentials = useMutation(
     deleteEnableBankingCredentialsMutation(),
   );
+  const [superPdpError, setSuperPdpError] = useState<string | null>(null);
+  const [superPdpNotice, setSuperPdpNotice] = useState<string | null>(null);
+  const saveSuperPdp = useMutation(saveSuperPdpCredentialsMutation());
+  const checkSuperPdp = useMutation(checkSuperPdpConnectionMutation());
+  const deleteSuperPdp = useMutation(deleteSuperPdpCredentialsMutation());
 
   // Both answers carry the tab's whole state; the Compte pro page reads the
   // same credentials to decide which connection step to offer.
@@ -72,6 +82,62 @@ export function IntegrationsSettings() {
     );
   };
 
+  const connectSuperPdp = async (
+    body: SaveSuperPdpCredentialsData,
+  ): Promise<FormSubmitResult> => {
+    setSuperPdpError(null);
+    setSuperPdpNotice(null);
+
+    try {
+      applyIntegrations(await saveSuperPdp.mutateAsync({ body }));
+
+      return { status: "success" };
+    } catch (saveError) {
+      const fieldErrors = serverFieldErrors(saveError);
+
+      if (fieldErrors !== null) {
+        return { status: "invalid", fieldErrors };
+      }
+
+      setSuperPdpError(serverErrorMessage(saveError, m.common_save_failed()));
+
+      return { status: "failed" };
+    }
+  };
+
+  const recheckSuperPdp = () => {
+    setSuperPdpError(null);
+    setSuperPdpNotice(null);
+    checkSuperPdp.mutate(
+      {},
+      {
+        onSuccess: (data) => {
+          applyIntegrations(data);
+          setSuperPdpNotice(m.integrations_super_pdp_checked_ok());
+        },
+        onError: (checkError) =>
+          setSuperPdpError(
+            serverErrorMessage(checkError, m.common_action_failed()),
+          ),
+      },
+    );
+  };
+
+  const disconnectSuperPdp = () => {
+    setSuperPdpError(null);
+    setSuperPdpNotice(null);
+    deleteSuperPdp.mutate(
+      {},
+      {
+        onSuccess: applyIntegrations,
+        onError: (removeError) =>
+          setSuperPdpError(
+            serverErrorMessage(removeError, m.common_action_failed()),
+          ),
+      },
+    );
+  };
+
   if (integrations.isPending) {
     return <Skeleton className="h-96 w-full" />;
   }
@@ -88,12 +154,24 @@ export function IntegrationsSettings() {
   }
 
   return (
-    <EnableBankingCard
-      error={error}
-      isRemoving={deleteCredentials.isPending}
-      onRemove={remove}
-      onSave={save}
-      settings={integrations.data.enableBanking}
-    />
+    <div className="flex flex-col gap-6">
+      <EnableBankingCard
+        error={error}
+        isRemoving={deleteCredentials.isPending}
+        onRemove={remove}
+        onSave={save}
+        settings={integrations.data.enableBanking}
+      />
+      <SuperPdpCard
+        error={superPdpError}
+        isChecking={checkSuperPdp.isPending}
+        isRemoving={deleteSuperPdp.isPending}
+        notice={superPdpNotice}
+        onCheck={recheckSuperPdp}
+        onRemove={disconnectSuperPdp}
+        onSave={connectSuperPdp}
+        settings={integrations.data.eInvoicing}
+      />
+    </div>
   );
 }
