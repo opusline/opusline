@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Invoices\Controllers\CatalogItemController;
 use App\Http\Invoices\Controllers\InvoiceController;
 use App\Http\Invoices\Controllers\InvoicingSettingsController;
 use App\Http\Users\Support\EnsureSessionIsUnlocked;
@@ -12,6 +13,17 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
         ->name('showInvoicingSettings');
     Route::put('/invoicing/settings', [InvoicingSettingsController::class, 'update'])
         ->name('updateInvoicingSettings');
+
+    Route::get('/invoicing/catalog', [CatalogItemController::class, 'index'])
+        ->name('listCatalogItems');
+    Route::post('/invoicing/catalog', [CatalogItemController::class, 'store'])
+        ->name('createCatalogItem');
+    Route::put('/invoicing/catalog/{catalogItem}', [CatalogItemController::class, 'update'])
+        ->whereNumber('catalogItem')
+        ->name('updateCatalogItem');
+    Route::delete('/invoicing/catalog/{catalogItem}', [CatalogItemController::class, 'destroy'])
+        ->whereNumber('catalogItem')
+        ->name('deleteCatalogItem');
 
     Route::get('/invoices', [InvoiceController::class, 'index'])
         ->name('listInvoices');

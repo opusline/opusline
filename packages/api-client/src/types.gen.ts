@@ -316,6 +316,39 @@ export type CarriedPeriodData = {
 };
 
 /**
+ * CatalogData
+ */
+export type CatalogData = {
+    items: Array<CatalogItemData>;
+};
+
+/**
+ * CatalogItemData
+ */
+export type CatalogItemData = {
+    id: number;
+    label: string;
+    detail: string | null;
+    unit: LineUnit;
+    unitPrice: MoneyData;
+    vatRateBp: number;
+};
+
+/**
+ * CatalogItemInputData
+ */
+export type CatalogItemInputData = {
+    label: string;
+    unit: LineUnit;
+    unitPrice: {
+        amount: number;
+        currency: Currency;
+    };
+    vatRateBp: number;
+    detail?: string | null;
+};
+
+/**
  * CfeReturnData
  */
 export type CfeReturnData = {
@@ -1531,6 +1564,14 @@ export type LiberatingPaymentOutlookData = {
     ceiling: MoneyData | null;
     needsReferenceTaxIncome: boolean;
 };
+
+/**
+ * LineUnit
+ *
+ * What one unit of a catalogue item or a document line counts.
+ *
+ */
+export type LineUnit = 0 | 1 | 2 | 3;
 
 /**
  * LinkExpenseBankMovementData
@@ -3428,6 +3469,145 @@ export type SyncBankConnectionResponses = {
 };
 
 export type SyncBankConnectionResponse = SyncBankConnectionResponses[keyof SyncBankConnectionResponses];
+
+export type ListCatalogItemsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/invoicing/catalog';
+};
+
+export type ListCatalogItemsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListCatalogItemsError = ListCatalogItemsErrors[keyof ListCatalogItemsErrors];
+
+export type ListCatalogItemsResponses = {
+    200: CatalogData;
+};
+
+export type ListCatalogItemsResponse = ListCatalogItemsResponses[keyof ListCatalogItemsResponses];
+
+export type CreateCatalogItemData = {
+    body: CatalogItemInputData;
+    path?: never;
+    query?: never;
+    url: '/invoicing/catalog';
+};
+
+export type CreateCatalogItemErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateCatalogItemError = CreateCatalogItemErrors[keyof CreateCatalogItemErrors];
+
+export type CreateCatalogItemResponses = {
+    201: CatalogItemData;
+};
+
+export type CreateCatalogItemResponse = CreateCatalogItemResponses[keyof CreateCatalogItemResponses];
+
+export type DeleteCatalogItemData = {
+    body?: never;
+    path: {
+        /**
+         * The catalog item ID
+         */
+        catalogItem: number;
+    };
+    query?: never;
+    url: '/invoicing/catalog/{catalogItem}';
+};
+
+export type DeleteCatalogItemErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteCatalogItemError = DeleteCatalogItemErrors[keyof DeleteCatalogItemErrors];
+
+export type DeleteCatalogItemResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteCatalogItemResponse = DeleteCatalogItemResponses[keyof DeleteCatalogItemResponses];
+
+export type UpdateCatalogItemData = {
+    body: CatalogItemInputData;
+    path: {
+        /**
+         * The catalog item ID
+         */
+        catalogItem: number;
+    };
+    query?: never;
+    url: '/invoicing/catalog/{catalogItem}';
+};
+
+export type UpdateCatalogItemErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateCatalogItemError = UpdateCatalogItemErrors[keyof UpdateCatalogItemErrors];
+
+export type UpdateCatalogItemResponses = {
+    200: CatalogItemData;
+};
+
+export type UpdateCatalogItemResponse = UpdateCatalogItemResponses[keyof UpdateCatalogItemResponses];
 
 export type ListClientsData = {
     body?: never;

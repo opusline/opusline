@@ -970,6 +970,33 @@ export const zInvoicingMode = z.union([z.literal(0), z.literal(1)]);
 export const zLiberatingPaymentEndReason = z.union([z.literal(0), z.literal(1)]);
 
 /**
+ * LineUnit
+ *
+ * What one unit of a catalogue item or a document line counts.
+ *
+ */
+export const zLineUnit = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3)
+]);
+
+/**
+ * CatalogItemInputData
+ */
+export const zCatalogItemInputData = z.object({
+    label: z.string().check(z.maxLength(255)),
+    unit: zLineUnit,
+    unitPrice: z.object({
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
+        currency: zCurrency
+    }),
+    vatRateBp: z.int().check(z.gte(0), z.lte(10000)),
+    detail: z.nullish(z.string().check(z.maxLength(1000)))
+});
+
+/**
  * LinkExpenseBankMovementData
  */
 export const zLinkExpenseBankMovementData = z.object({
@@ -1043,6 +1070,25 @@ export const zCa3BoxesData = z.object({
 export const zCarriedPeriodData = z.object({
     period: z.string(),
     amount: zMoneyData
+});
+
+/**
+ * CatalogItemData
+ */
+export const zCatalogItemData = z.object({
+    id: z.int(),
+    label: z.string(),
+    detail: z.nullable(z.string()),
+    unit: zLineUnit,
+    unitPrice: zMoneyData,
+    vatRateBp: z.int()
+});
+
+/**
+ * CatalogData
+ */
+export const zCatalogData = z.object({
+    items: z.array(zCatalogItemData)
 });
 
 /**
@@ -2965,6 +3011,29 @@ export const zChooseBankConnectionAccountBody = zChooseBankAccountData;
 export const zChooseBankConnectionAccountResponse = zBankAccountData;
 
 export const zSyncBankConnectionResponse = zBankImportData;
+
+export const zListCatalogItemsResponse = zCatalogData;
+
+export const zCreateCatalogItemBody = zCatalogItemInputData;
+
+export const zCreateCatalogItemResponse = zCatalogItemData;
+
+export const zDeleteCatalogItemPath = z.object({
+    catalogItem: z.int()
+});
+
+/**
+ * No content
+ */
+export const zDeleteCatalogItemResponse = z.void();
+
+export const zUpdateCatalogItemBody = zCatalogItemInputData;
+
+export const zUpdateCatalogItemPath = z.object({
+    catalogItem: z.int()
+});
+
+export const zUpdateCatalogItemResponse = zCatalogItemData;
 
 export const zListClientsResponse = zClientListData;
 

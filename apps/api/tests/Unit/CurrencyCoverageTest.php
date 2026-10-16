@@ -7,6 +7,7 @@ use App\Domain\Bank\Models\BankStatement;
 use App\Domain\Bank\Models\PersonalTransfer;
 use App\Domain\Expenses\Models\Expense;
 use App\Domain\Expenses\Models\Subscription;
+use App\Domain\Invoices\Models\CatalogItem;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Settings\Models\UserSettings;
@@ -66,6 +67,7 @@ function currencyLockingArrangements(): array
         'personal_transfers' => [fn (User $user): PersonalTransfer => personalTransferFor($user)],
         'expenses' => [fn (User $user): Expense => expenseOwnedBy($user)],
         'subscription_amounts' => [fn (User $user): Subscription => subscriptionOwnedBy($user)],
+        'catalog_items' => [fn (User $user): CatalogItem => CatalogItem::factory()->for($user)->create()],
     ];
 }
 

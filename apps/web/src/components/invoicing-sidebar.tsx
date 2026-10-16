@@ -28,6 +28,7 @@ import {
   Plus,
   ReceiptText,
   SlidersHorizontal,
+  Tag,
 } from "lucide-react";
 import { type ReactNode, useEffect } from "react";
 
@@ -148,6 +149,18 @@ export function InvoicingSidebar({ toolbar }: { toolbar?: ReactNode }) {
                     {openCount}
                   </SidebarMenuBadge>
                 )}
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  data-route="/invoicing/catalog"
+                  data-testid="invoicing-nav-link"
+                  isActive={pathname.startsWith("/invoicing/catalog")}
+                  render={<Link to="/invoicing/catalog" />}
+                  tooltip={m.invoicing_nav_catalog()}
+                >
+                  <Tag />
+                  <span>{m.invoicing_nav_catalog()}</span>
+                </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton

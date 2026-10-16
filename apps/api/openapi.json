@@ -713,6 +713,135 @@
                 }
             }
         },
+        "/invoicing/catalog": {
+            "get": {
+                "operationId": "listCatalogItems",
+                "tags": [
+                    "CatalogItem"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CatalogData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "createCatalogItem",
+                "tags": [
+                    "CatalogItem"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CatalogItemInputData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CatalogItemData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/invoicing/catalog/{catalogItem}": {
+            "put": {
+                "operationId": "updateCatalogItem",
+                "tags": [
+                    "CatalogItem"
+                ],
+                "parameters": [
+                    {
+                        "name": "catalogItem",
+                        "in": "path",
+                        "required": true,
+                        "description": "The catalog item ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CatalogItemInputData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CatalogItemData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteCatalogItem",
+                "tags": [
+                    "CatalogItem"
+                ],
+                "parameters": [
+                    {
+                        "name": "catalogItem",
+                        "in": "path",
+                        "required": true,
+                        "description": "The catalog item ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/clients": {
             "get": {
                 "operationId": "listClients",
@@ -7546,6 +7675,104 @@
                 ],
                 "title": "CarriedPeriodData"
             },
+            "CatalogData": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CatalogItemData"
+                        }
+                    }
+                },
+                "required": [
+                    "items"
+                ],
+                "title": "CatalogData"
+            },
+            "CatalogItemData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "detail": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "unit": {
+                        "$ref": "#/components/schemas/LineUnit"
+                    },
+                    "unitPrice": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "vatRateBp": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "id",
+                    "label",
+                    "detail",
+                    "unit",
+                    "unitPrice",
+                    "vatRateBp"
+                ],
+                "title": "CatalogItemData"
+            },
+            "CatalogItemInputData": {
+                "type": "object",
+                "properties": {
+                    "label": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "unit": {
+                        "$ref": "#/components/schemas/LineUnit"
+                    },
+                    "unitPrice": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100000000000
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
+                    },
+                    "vatRateBp": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 10000
+                    },
+                    "detail": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 1000
+                    }
+                },
+                "required": [
+                    "label",
+                    "unit",
+                    "unitPrice",
+                    "vatRateBp"
+                ],
+                "title": "CatalogItemInputData"
+            },
             "CfeReturnData": {
                 "type": "object",
                 "properties": {
@@ -11415,6 +11642,23 @@
                     "needsReferenceTaxIncome"
                 ],
                 "title": "LiberatingPaymentOutlookData"
+            },
+            "LineUnit": {
+                "type": "integer",
+                "description": "What one unit of a catalogue item or a document line counts.\n",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3
+                ],
+                "x-enum-varnames": [
+                    "Day",
+                    "Hour",
+                    "Flat",
+                    "Unit"
+                ],
+                "title": "LineUnit"
             },
             "LinkExpenseBankMovementData": {
                 "type": "object",
