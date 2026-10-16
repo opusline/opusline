@@ -9,10 +9,10 @@ use App\Domain\Users\Models\User;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Removes the purchase and its receipt. A subscription's debit leaves a
- * tombstone behind — the bank did not take it, and the next read must not
- * write it again — where a purchase entered by hand simply goes. It frees
- * its debit under the account lock, like every other bank writer.
+ * Removes the purchase and its receipt. A purchase a sync recorded leaves a
+ * tombstone behind — the next run must not write it again — where a purchase
+ * entered by hand simply goes. It frees its debit under the account lock,
+ * like every other bank writer.
  */
 class DeleteExpense
 {
@@ -25,13 +25,13 @@ class DeleteExpense
             // nullOnDelete only fires on the hard delete; a tombstone keeps the FK alive.
             $expense->bankMovement()->update(['expense_id' => null]);
 
-            if ($expense->subscription_id === null) {
-                $expense->forceDelete();
+            if ($expense->isRecordedBySync()) {
+                $expense->delete();
 
                 return;
             }
 
-            $expense->delete();
+            $expense->forceDelete();
         });
     }
 }

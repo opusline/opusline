@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Bank\EnableBanking;
 
 use App\Domain\Bank\Enums\BankSyncError;
+use App\Domain\Shared\Sync\SyncRefused;
 use RuntimeException;
 use Throwable;
 
@@ -13,7 +14,7 @@ use Throwable;
  * is for logs only — the user reads the reason's translation — and never
  * carries a response body, which could hold the account's transactions.
  */
-class BankSyncFailed extends RuntimeException
+class BankSyncFailed extends RuntimeException implements SyncRefused
 {
     public function __construct(
         public readonly BankSyncError $reason,

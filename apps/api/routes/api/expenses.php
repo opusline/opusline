@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Http\Expenses\Controllers\EInvoiceSyncController;
 use App\Http\Expenses\Controllers\ExpenseController;
 use App\Http\Expenses\Controllers\ExpenseReceiptController;
 use App\Http\Expenses\Controllers\ReceiptReadingController;
+use App\Http\Features\Support\EnsureFeatureIsActive;
 use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +26,10 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
     Route::post('/expenses/receipt-reading', ReceiptReadingController::class)
         ->middleware('throttle:uploads')
         ->name('readExpenseReceipt');
+
+    Route::post('/expenses/e-invoices/sync', EInvoiceSyncController::class)
+        ->middleware([EnsureFeatureIsActive::class.':invoicing', 'throttle:6,1'])
+        ->name('syncReceivedEInvoices');
 
     Route::delete('/expenses/{expense}/vat-deferral', [ExpenseController::class, 'reintegrateVat'])
         ->whereNumber('expense')

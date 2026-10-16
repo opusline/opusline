@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\EInvoicing\Data;
 
+use App\Domain\EInvoicing\Enums\EInvoicingError;
 use App\Domain\EInvoicing\Enums\PlatformEnvironment;
 use App\Domain\EInvoicing\Models\EInvoicingConnection;
 use Spatie\LaravelData\Data;
@@ -24,6 +25,10 @@ class EInvoicingSettingsData extends Data
         public ?string $receivingAddress,
         /** When the platform was last asked, ISO 8601. */
         public ?string $checkedAt,
+        /** When the inbox was last read to the end, ISO 8601. */
+        public ?string $lastSyncedAt,
+        /** Why the last sync failed; null once one succeeds again. */
+        public ?EInvoicingError $lastError,
     ) {}
 
     public static function fromConnection(?EInvoicingConnection $connection): self
@@ -36,6 +41,8 @@ class EInvoicingSettingsData extends Data
             companyVerified: $connection instanceof EInvoicingConnection && $connection->company_verified,
             receivingAddress: $connection?->receiving_address,
             checkedAt: $connection?->checked_at?->toIso8601String(),
+            lastSyncedAt: $connection?->last_synced_at?->toIso8601String(),
+            lastError: $connection?->last_error,
         );
     }
 }

@@ -32,28 +32,6 @@ function superPdp(): SuperPdpPlatform
     return new SuperPdpPlatform(app(SuperPdpClient::class), new SuperPdpCredentials(SUPER_PDP_CLIENT_ID, SUPER_PDP_CLIENT_SECRET));
 }
 
-/**
- * @param  list<string>  $codes
- * @return array<string, mixed>
- */
-function superPdpInvoice(int $id, array $codes, string $direction = 'in'): array
-{
-    return [
-        'id' => $id,
-        'direction' => $direction,
-        'external_id' => null,
-        'events' => array_map(static fn (string $code): array => ['status_code' => $code, 'created_at' => '2026-10-02T09:00:00Z'], $codes),
-        'en_invoice' => [
-            'number' => 'LUN-2026-0'.$id,
-            'issue_date' => '2026-10-01',
-            'payment_due_date' => '2026-10-31',
-            'currency_code' => 'EUR',
-            'seller' => ['name' => 'Lunaprint', 'legal_registration_identifier' => ['scheme' => '0002', 'value' => '851234567']],
-            'totals' => ['total_without_vat' => '120.00', 'total_vat_amount' => '24.00', 'total_with_vat' => '144.00'],
-        ],
-    ];
-}
-
 test('lists the inbox page by page into received invoices', function (): void {
     fakeSuperPdp([
         'api.superpdp.tech/v1.beta/invoices?*' => Http::sequence()
@@ -71,8 +49,8 @@ test('lists the inbox page by page into received invoices', function (): void {
         ->and($received[0]->supplierName)->toBe('Lunaprint')
         ->and($received[0]->supplierSiren)->toBe('851234567')
         ->and($received[0]->number)->toBe('LUN-2026-07')
-        ->and($received[0]->issuedOn->toDateString())->toBe('2026-10-01')
-        ->and($received[0]->dueOn?->toDateString())->toBe('2026-10-31')
+        ->and($received[0]->issuedOn->toDateString())->toBe('2026-08-01')
+        ->and($received[0]->dueOn?->toDateString())->toBe('2026-08-31')
         ->and($received[0]->amountHtCents)->toBe(12_000)
         ->and($received[0]->amountTtcCents)->toBe(14_400)
         ->and($received[1]->status)->toBe(LifecycleStatus::TakenInCharge)
@@ -169,7 +147,7 @@ test('downloads the file as it was deposited', function (): void {
 });
 
 test('deposits a factur-x file and reads back the id and status', function (): void {
-    fakeSuperPdp(['api.superpdp.tech/v1.beta/invoices?*' => Http::response(superPdpInvoice(42, ['fr:200'], 'out'), 201)]);
+    fakeSuperPdp(['api.superpdp.tech/v1.beta/invoices?*' => Http::response(superPdpInvoice(42, ['fr:200'], ['direction' => 'out']), 201)]);
 
     $submitted = superPdp()->sendInvoice('%PDF-1.7 facture', '851234567');
 
@@ -187,7 +165,7 @@ test('says when the platform refused the file', function (): void {
 });
 
 test('reads an invoice status off its last known event', function (): void {
-    fakeSuperPdp(['api.superpdp.tech/v1.beta/invoices/42?*' => Http::response(superPdpInvoice(42, ['fr:200', 'fr:201', 'fr:202', 'fr:999', 'fr:210'], 'out'))]);
+    fakeSuperPdp(['api.superpdp.tech/v1.beta/invoices/42?*' => Http::response(superPdpInvoice(42, ['fr:200', 'fr:201', 'fr:202', 'fr:999', 'fr:210'], ['direction' => 'out']))]);
 
     expect(superPdp()->invoiceStatus('42'))->toBe(LifecycleStatus::Refused);
 });

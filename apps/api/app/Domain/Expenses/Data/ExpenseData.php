@@ -47,6 +47,8 @@ class ExpenseData extends Data
         public string $vatClaimPeriod,
         /** The purchase month was declared without this row: the CA3 lists it as « autre TVA à déduire » (case 21). */
         public bool $isRegularisation,
+        /** Set when the plateforme agréée delivered the invoice; null for a purchase recorded by hand. */
+        public ?ExpenseEInvoiceData $eInvoice,
     ) {}
 
     /** @param  ?DeclaredCa3Months  $declared  null for an account that files no CA3 */
@@ -74,6 +76,7 @@ class ExpenseData extends Data
             vatStatus: $expense->vatStatus($declared),
             vatClaimPeriod: $expense->vat_claim_period,
             isRegularisation: $expense->isRegularisation($declared),
+            eInvoice: ExpenseEInvoiceData::fromModel($expense),
         );
     }
 }

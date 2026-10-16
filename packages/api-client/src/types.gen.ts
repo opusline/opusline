@@ -976,6 +976,31 @@ export type DocumentPartyData = {
 export type DocumentSource = 0 | 1 | 2;
 
 /**
+ * EInvoiceSyncData
+ */
+export type EInvoiceSyncData = {
+    fetched: number;
+    imported: number;
+    updated: number;
+    skipped: number;
+};
+
+/**
+ * EInvoicingError
+ *
+ * Why a call to the plateforme agréée did not deliver; the user reads the reason's translation.
+ * | |
+ * |---|
+ * | `0` <br/> The platform did not answer, or answered something unreadable. |
+ * | `1` <br/> The platform refused the client id or its secret. |
+ * | `2` <br/> The platform has not finished verifying the company: business routes answer 403 until it has. |
+ * | `3` <br/> No platform credentials are saved for the account. |
+ * | `4` <br/> The platform refused the document it was handed. |
+ * | `5` <br/> The platform knows no invoice under that id. |
+ */
+export type EInvoicingError = 0 | 1 | 2 | 3 | 4 | 5;
+
+/**
  * EInvoicingSettingsData
  */
 export type EInvoicingSettingsData = {
@@ -986,6 +1011,8 @@ export type EInvoicingSettingsData = {
     companyVerified: boolean;
     receivingAddress: string | null;
     checkedAt: string | null;
+    lastSyncedAt: string | null;
+    lastError: EInvoicingError | null;
 };
 
 /**
@@ -1050,6 +1077,15 @@ export type ExpenseData = {
     vatStatus: ExpenseVatStatus;
     vatClaimPeriod: string;
     isRegularisation: boolean;
+    eInvoice: ExpenseEInvoiceData | null;
+};
+
+/**
+ * ExpenseEInvoiceData
+ */
+export type ExpenseEInvoiceData = {
+    platformId: string;
+    status: LifecycleStatus;
 };
 
 /**
@@ -1700,6 +1736,26 @@ export type LiberatingPaymentOutlookData = {
     ceiling: MoneyData | null;
     needsReferenceTaxIncome: boolean;
 };
+
+/**
+ * LifecycleStatus
+ *
+ * The statuses an invoice goes through once a plateforme agréée carries it, backed by the codes of the reform's cycle de vie (CDV). Only the statuses Opusline will read or report are listed; the full catalogue lives in the DGFiP's external specifications, which #520 checks before wiring them.
+ * | |
+ * |---|
+ * | `200` <br/> Handed to the platform: the mandatory starting point. |
+ * | `201` <br/> The sender's platform passed it on. |
+ * | `202` <br/> The recipient's platform took it. |
+ * | `204` <br/> The buyer acknowledged it. |
+ * | `205` <br/>  |
+ * | `206` <br/>  |
+ * | `207` <br/>  |
+ * | `210` <br/> Mandatory: the buyer refuses the invoice. |
+ * | `211` <br/> The buyer sent the payment. |
+ * | `212` <br/> Mandatory: paid, which is what cash-basis VAT reads. |
+ * | `213` <br/> The platform itself rejected the file: it never reached the buyer. |
+ */
+export type LifecycleStatus = 200 | 201 | 202 | 204 | 205 | 206 | 207 | 210 | 211 | 212 | 213;
 
 /**
  * LineUnit
@@ -5711,6 +5767,33 @@ export type ListDocumentLibraryResponses = {
 };
 
 export type ListDocumentLibraryResponse = ListDocumentLibraryResponses[keyof ListDocumentLibraryResponses];
+
+export type SyncReceivedEInvoicesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/expenses/e-invoices/sync';
+};
+
+export type SyncReceivedEInvoicesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type SyncReceivedEInvoicesError = SyncReceivedEInvoicesErrors[keyof SyncReceivedEInvoicesErrors];
+
+export type SyncReceivedEInvoicesResponses = {
+    200: EInvoiceSyncData;
+};
+
+export type SyncReceivedEInvoicesResponse = SyncReceivedEInvoicesResponses[keyof SyncReceivedEInvoicesResponses];
 
 export type ListExpensesData = {
     body?: never;

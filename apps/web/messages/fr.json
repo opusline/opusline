@@ -1139,6 +1139,23 @@
   "editor_title": "Titre",
   "editor_total": "Total TTC {amount}",
   "editor_validate": "Valider la facture",
+  "einvoice_status_approved": "Approuvée",
+  "einvoice_status_collected": "Encaissée",
+  "einvoice_status_deposited": "Déposée",
+  "einvoice_status_disputed": "En litige",
+  "einvoice_status_issued": "Émise",
+  "einvoice_status_partially_approved": "Approuvée partiellement",
+  "einvoice_status_payment_sent": "Paiement transmis",
+  "einvoice_status_received": "Reçue",
+  "einvoice_status_refused": "Refusée",
+  "einvoice_status_rejected": "Rejetée par la plateforme",
+  "einvoice_status_taken_in_charge": "Prise en charge",
+  "einvoicing_error_company_unverified": "Super PDP n'a pas encore vérifié votre entreprise. Testez la connexion dans Réglages › Intégrations une fois fait.",
+  "einvoicing_error_credentials_rejected": "Super PDP a refusé les identifiants enregistrés. Vérifiez-les dans Réglages › Intégrations.",
+  "einvoicing_error_not_connected": "Connectez d'abord votre plateforme de facturation électronique dans Réglages › Intégrations.",
+  "einvoicing_error_not_found": "La plateforme ne connaît aucune facture sous cette référence.",
+  "einvoicing_error_rejected": "La plateforme a refusé le document.",
+  "einvoicing_error_unavailable": "La plateforme de facturation électronique est injoignable. Réessayez plus tard.",
   "error_hint": "Une erreur est survenue en affichant cette page. Réessayer suffit souvent ; sinon, retournez au tableau de bord.",
   "error_home": "Retour au tableau de bord",
   "error_retry": "Réessayer",
@@ -1162,6 +1179,7 @@
   "expense_filter_all": "Toutes",
   "expense_filter_blocked": "Sans justificatif",
   "expense_filter_deferred": "Reportées",
+  "expense_filter_platform": "Via la plateforme",
   "expense_filter_reverse_charged": "Autoliquidées",
   "expense_status_blocked": "Bloquée",
   "expense_status_blocked_deferred_sub": "facture manquante · CA3 {month}",
@@ -1259,6 +1277,7 @@
   "expenses_delete_failed": "La dépense n'a pas pu être supprimée. Réessayez dans un instant.",
   "expenses_delete_title": "Supprimer cette dépense ?",
   "expenses_deleted": "Dépense supprimée",
+  "expenses_einvoice_badge": "Plateforme · {status}",
   "expenses_empty_filter_sub": "Changez de filtre ou ajoutez une dépense.",
   "expenses_empty_filter_title": "Aucune dépense dans ce filtre",
   "expenses_empty_month_sub": "Les abonnements seront créés à leur prélèvement.",
@@ -1342,6 +1361,32 @@
   "expenses_mode_type": "Saisir",
   "expenses_next_month": "Mois suivant",
   "expenses_per_month": "/ mois",
+  "expenses_platform_inbox_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} facture fournisseur ce mois-ci, classée avec son PDF.",
+        "countPlural=other": "{count} factures fournisseurs ce mois-ci, classées avec leur PDF."
+      }
+    }
+  ],
+  "expenses_platform_inbox_failed": "La boîte de réception de la plateforme n'a pas pu être lue.",
+  "expenses_platform_inbox_last_sync": "Lue chaque nuit ; dernière lecture le {date}.",
+  "expenses_platform_inbox_never": "Pas encore lue : la première lecture rapporte tout ce que la plateforme détient.",
+  "expenses_platform_inbox_sync": "Lire maintenant",
+  "expenses_platform_inbox_synced": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} nouvelle facture fournisseur enregistrée.",
+        "countPlural=other": "{count} nouvelles factures fournisseurs enregistrées."
+      }
+    }
+  ],
+  "expenses_platform_inbox_syncing": "Lecture…",
+  "expenses_platform_inbox_title": "Reçues par la plateforme",
   "expenses_previous_month": "Mois précédent",
   "expenses_pro_share": "{share} % pro",
   "expenses_pro_share_example": "Ex. : forfait mobile utilisé aussi à titre perso → 70 %.",
@@ -1522,6 +1567,7 @@
   "integrations_super_pdp_docs": "Guide de configuration",
   "integrations_super_pdp_environment_production": "Production",
   "integrations_super_pdp_environment_sandbox": "Bac à sable",
+  "integrations_super_pdp_last_sync": "Boîte de réception lue le {date}.",
   "integrations_super_pdp_no_address": "Pas encore inscrit dans l'annuaire : les autres plateformes ne peuvent pas vous adresser de factures.",
   "integrations_super_pdp_remove": "Retirer",
   "integrations_super_pdp_remove_confirm_body": "Opusline oublie les identifiants. Super PDP conserve votre compte et les factures qu'il détient.",

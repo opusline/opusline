@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\EInvoicing\Platform;
 
 use App\Domain\EInvoicing\Enums\EInvoicingError;
+use App\Domain\Shared\Sync\SyncRefused;
 use RuntimeException;
 use Throwable;
 
@@ -13,7 +14,7 @@ use Throwable;
  * logs only; the user reads the reason's translation, and the message never
  * carries a response body, which could hold a supplier's invoice.
  */
-class EInvoicingPlatformException extends RuntimeException
+class EInvoicingPlatformException extends RuntimeException implements SyncRefused
 {
     public function __construct(
         public readonly EInvoicingError $reason,

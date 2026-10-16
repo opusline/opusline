@@ -15,6 +15,9 @@ import {
   listSubscriptionsOptions,
   recategorizeExpensesMutation,
   reintegrateExpenseVatMutation,
+  showIntegrationsOptions,
+  showIntegrationsQueryKey,
+  syncReceivedEInvoicesMutation,
   unmarkDeclarationFiledMutation,
   updateExpenseMutation,
 } from "@opusline/api-client/react-query";
@@ -49,6 +52,7 @@ import {
   type ExpensesTab,
 } from "@/features/expenses/components/expenses-page";
 import { JournalTab } from "@/features/expenses/components/journal-tab";
+import { PlatformInboxCard } from "@/features/expenses/components/platform-inbox-card";
 import type { SubscriptionSheetState } from "@/features/expenses/components/subscription-sheet";
 import { SubscriptionsPanel } from "@/features/expenses/components/subscriptions-panel";
 import { type AmountUnit, isAmountUnit } from "@/features/expenses/lib/amounts";
@@ -58,11 +62,13 @@ import {
   type ExpenseDraft,
   emptyExpenseDraft,
 } from "@/features/expenses/lib/expense-draft";
+import { isPlatformExpense } from "@/features/expenses/lib/filters";
 import { monthName } from "@/features/expenses/lib/labels";
 import { receiptRejection } from "@/features/expenses/lib/receipts";
 import { emptySubscriptionDraft } from "@/features/expenses/lib/subscription-draft";
 import { formatAmount } from "@/lib/billing";
 import { accountTodayCalendarDate } from "@/lib/dates";
+import { INVOICING, useFeature } from "@/lib/features";
 import { requireFrenchFiscality } from "@/lib/fiscality";
 import {
   isAtOrAfterCurrent,
@@ -71,7 +77,10 @@ import {
   periodTitle,
   shiftPeriod,
 } from "@/lib/periods";
-import { invalidateExpenseWrites } from "@/lib/query-invalidation";
+import {
+  expensesFilter,
+  invalidateExpenseWrites,
+} from "@/lib/query-invalidation";
 import {
   serverErrorMessage,
   serverFieldErrors,
@@ -124,6 +133,28 @@ function ExpensesRoute() {
     placeholderData: keepPreviousData,
   });
   const tab: ExpensesTab = search.tab ?? "journal";
+  const hasInvoicing = useFeature(INVOICING);
+  const integrations = useQuery({
+    ...showIntegrationsOptions(),
+    enabled: hasInvoicing && tab === "journal",
+  });
+  const syncInbox = useMutation({
+    ...syncReceivedEInvoicesMutation(),
+    onSuccess: (result) =>
+      toast.add({
+        title: m.expenses_platform_inbox_synced({ count: result.imported }),
+      }),
+    // A read that failed halfway has still recorded invoices and its refusal.
+    onSettled: (result, error) =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: showIntegrationsQueryKey() }),
+        error !== null || (result?.imported ?? 0) > 0
+          ? invalidateExpenseWrites(queryClient)
+          : (result?.updated ?? 0) > 0
+            ? queryClient.invalidateQueries(expensesFilter())
+            : undefined,
+      ]),
+  });
   const subscriptions = useQuery({
     ...listSubscriptionsOptions(),
     enabled: tab === "subscriptions",
@@ -612,64 +643,82 @@ function ExpensesRoute() {
             />
           )
         ) : (
-          <JournalTab
-            isRefreshing={journal.isPlaceholderData}
-            key={loadedMonth}
-            month={journal.data}
-            onAttachReceipt={onAttachReceipt}
-            onDelete={setExpenseToDelete}
-            onDetachReceipt={(expense) =>
-              detachReceipt.mutate({ path: { expense: expense.id } })
-            }
-            onDuplicate={(expense) =>
-              setSheet({
-                mode: "create",
-                initial: duplicateExpenseDraft(format, expense, today),
-              })
-            }
-            onEdit={(expense) => setSheet({ mode: "edit", expense })}
-            isBulkBusy={recategorize.isPending || deferVat.isPending}
-            isUndoBusy={undoDeclared.isPending}
-            onCreateFromDebit={(todo) => {
-              setDebitToLink(todo.bankMovementId);
-              setSheet({
-                mode: "create",
-                initial: {
-                  ...emptyExpenseDraft(today),
-                  supplier: todo.label,
-                  spentOn: todo.date,
-                  ttc: formatAmount(format, todo.amount.amount),
-                },
-              });
-            }}
-            onDeferSelectedVat={(expenseIds) =>
-              deferVat.mutate({ body: { expenseIds } })
-            }
-            onDeferVat={(expense) =>
-              deferVat.mutate({ body: { expenseIds: [expense.id] } })
-            }
-            onLinkReceiptHint={() =>
-              toast.add({ title: m.expenses_bulk_link_hint() })
-            }
-            onRecategorize={(expenseIds, category) =>
-              recategorize.mutate({ body: { expenseIds, category } })
-            }
-            onReintegrateVat={(expense) =>
-              reintegrateVat.mutate({ path: { expense: expense.id } })
-            }
-            onUndoDeclared={() =>
-              undoDeclared.mutate({
-                path: { kind: 1, periodKey: loadedMonth },
-                query: { period: loadedMonth },
-              })
-            }
-            unit={isVatLiable ? unit : "ttc"}
-            uploadingExpenseId={
-              attachReceipt.isPending
-                ? (attachReceipt.variables?.path.expense ?? null)
-                : null
-            }
-          />
+          <>
+            {integrations.data?.eInvoicing.companyVerified ? (
+              <PlatformInboxCard
+                count={journal.data.expenses.filter(isPlatformExpense).length}
+                error={
+                  syncInbox.isError
+                    ? serverErrorMessage(
+                        syncInbox.error,
+                        m.expenses_platform_inbox_failed(),
+                      )
+                    : null
+                }
+                isSyncing={syncInbox.isPending}
+                onSync={() => syncInbox.mutate({})}
+                settings={integrations.data.eInvoicing}
+              />
+            ) : null}
+            <JournalTab
+              isRefreshing={journal.isPlaceholderData}
+              key={loadedMonth}
+              month={journal.data}
+              onAttachReceipt={onAttachReceipt}
+              onDelete={setExpenseToDelete}
+              onDetachReceipt={(expense) =>
+                detachReceipt.mutate({ path: { expense: expense.id } })
+              }
+              onDuplicate={(expense) =>
+                setSheet({
+                  mode: "create",
+                  initial: duplicateExpenseDraft(format, expense, today),
+                })
+              }
+              onEdit={(expense) => setSheet({ mode: "edit", expense })}
+              isBulkBusy={recategorize.isPending || deferVat.isPending}
+              isUndoBusy={undoDeclared.isPending}
+              onCreateFromDebit={(todo) => {
+                setDebitToLink(todo.bankMovementId);
+                setSheet({
+                  mode: "create",
+                  initial: {
+                    ...emptyExpenseDraft(today),
+                    supplier: todo.label,
+                    spentOn: todo.date,
+                    ttc: formatAmount(format, todo.amount.amount),
+                  },
+                });
+              }}
+              onDeferSelectedVat={(expenseIds) =>
+                deferVat.mutate({ body: { expenseIds } })
+              }
+              onDeferVat={(expense) =>
+                deferVat.mutate({ body: { expenseIds: [expense.id] } })
+              }
+              onLinkReceiptHint={() =>
+                toast.add({ title: m.expenses_bulk_link_hint() })
+              }
+              onRecategorize={(expenseIds, category) =>
+                recategorize.mutate({ body: { expenseIds, category } })
+              }
+              onReintegrateVat={(expense) =>
+                reintegrateVat.mutate({ path: { expense: expense.id } })
+              }
+              onUndoDeclared={() =>
+                undoDeclared.mutate({
+                  path: { kind: 1, periodKey: loadedMonth },
+                  query: { period: loadedMonth },
+                })
+              }
+              unit={isVatLiable ? unit : "ttc"}
+              uploadingExpenseId={
+                attachReceipt.isPending
+                  ? (attachReceipt.variables?.path.expense ?? null)
+                  : null
+              }
+            />
+          </>
         )}
       </ExpensesPage>
 

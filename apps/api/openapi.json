@@ -2761,6 +2761,29 @@
                 }
             }
         },
+        "/expenses/e-invoices/sync": {
+            "post": {
+                "operationId": "syncReceivedEInvoices",
+                "tags": [
+                    "EInvoiceSync"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EInvoiceSyncData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/expenses": {
             "get": {
                 "operationId": "listExpenses",
@@ -10374,6 +10397,51 @@
                 ],
                 "title": "DocumentSource"
             },
+            "EInvoiceSyncData": {
+                "type": "object",
+                "properties": {
+                    "fetched": {
+                        "type": "integer"
+                    },
+                    "imported": {
+                        "type": "integer"
+                    },
+                    "updated": {
+                        "type": "integer"
+                    },
+                    "skipped": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "fetched",
+                    "imported",
+                    "updated",
+                    "skipped"
+                ],
+                "title": "EInvoiceSyncData"
+            },
+            "EInvoicingError": {
+                "type": "integer",
+                "description": "Why a call to the plateforme agréée did not deliver; the user reads the reason's translation.\n| |\n|---|\n| `0` <br/> The platform did not answer, or answered something unreadable. |\n| `1` <br/> The platform refused the client id or its secret. |\n| `2` <br/> The platform has not finished verifying the company: business routes answer 403 until it has. |\n| `3` <br/> No platform credentials are saved for the account. |\n| `4` <br/> The platform refused the document it was handed. |\n| `5` <br/> The platform knows no invoice under that id. |",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                ],
+                "x-enum-varnames": [
+                    "Unavailable",
+                    "CredentialsRejected",
+                    "CompanyUnverified",
+                    "NotConnected",
+                    "Rejected",
+                    "NotFound"
+                ],
+                "title": "EInvoicingError"
+            },
             "EInvoicingSettingsData": {
                 "type": "object",
                 "properties": {
@@ -10419,6 +10487,22 @@
                             "string",
                             "null"
                         ]
+                    },
+                    "lastSyncedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "lastError": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/EInvoicingError"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -10428,7 +10512,9 @@
                     "environment",
                     "companyVerified",
                     "receivingAddress",
-                    "checkedAt"
+                    "checkedAt",
+                    "lastSyncedAt",
+                    "lastError"
                 ],
                 "title": "EInvoicingSettingsData"
             },
@@ -10633,6 +10719,16 @@
                     },
                     "isRegularisation": {
                         "type": "boolean"
+                    },
+                    "eInvoice": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ExpenseEInvoiceData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -10653,9 +10749,26 @@
                     "bankMovement",
                     "vatStatus",
                     "vatClaimPeriod",
-                    "isRegularisation"
+                    "isRegularisation",
+                    "eInvoice"
                 ],
                 "title": "ExpenseData"
+            },
+            "ExpenseEInvoiceData": {
+                "type": "object",
+                "properties": {
+                    "platformId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/LifecycleStatus"
+                    }
+                },
+                "required": [
+                    "platformId",
+                    "status"
+                ],
+                "title": "ExpenseEInvoiceData"
             },
             "ExpenseInputData": {
                 "type": "object",
@@ -12607,6 +12720,37 @@
                     "needsReferenceTaxIncome"
                 ],
                 "title": "LiberatingPaymentOutlookData"
+            },
+            "LifecycleStatus": {
+                "type": "integer",
+                "description": "The statuses an invoice goes through once a plateforme agréée carries it, backed by the codes of the reform's cycle de vie (CDV). Only the statuses Opusline will read or report are listed; the full catalogue lives in the DGFiP's external specifications, which #520 checks before wiring them.\n| |\n|---|\n| `200` <br/> Handed to the platform: the mandatory starting point. |\n| `201` <br/> The sender's platform passed it on. |\n| `202` <br/> The recipient's platform took it. |\n| `204` <br/> The buyer acknowledged it. |\n| `205` <br/>  |\n| `206` <br/>  |\n| `207` <br/>  |\n| `210` <br/> Mandatory: the buyer refuses the invoice. |\n| `211` <br/> The buyer sent the payment. |\n| `212` <br/> Mandatory: paid, which is what cash-basis VAT reads. |\n| `213` <br/> The platform itself rejected the file: it never reached the buyer. |",
+                "enum": [
+                    200,
+                    201,
+                    202,
+                    204,
+                    205,
+                    206,
+                    207,
+                    210,
+                    211,
+                    212,
+                    213
+                ],
+                "x-enum-varnames": [
+                    "Deposited",
+                    "Issued",
+                    "Received",
+                    "TakenInCharge",
+                    "Approved",
+                    "PartiallyApproved",
+                    "Disputed",
+                    "Refused",
+                    "PaymentSent",
+                    "Collected",
+                    "Rejected"
+                ],
+                "title": "LifecycleStatus"
             },
             "LineUnit": {
                 "type": "integer",

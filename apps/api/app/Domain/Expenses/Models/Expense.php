@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Expenses\Models;
 
 use App\Domain\Bank\Models\BankMovement;
+use App\Domain\EInvoicing\Enums\LifecycleStatus;
 use App\Domain\Expenses\Enums\ExpenseCategory;
 use App\Domain\Expenses\Enums\ExpenseVatStatus;
 use App\Domain\Expenses\Enums\ExpenseVatTreatment;
@@ -38,6 +39,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property int $user_id
  * @property ?int $subscription_id
  * @property ?string $subscription_period_key
+ * @property ?string $e_invoice_platform_id
+ * @property ?LifecycleStatus $e_invoice_status
  * @property string $supplier
  * @property ExpenseCategory $category
  * @property ?string $description
@@ -59,6 +62,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 #[Fillable([
     'subscription_id',
     'subscription_period_key',
+    'e_invoice_platform_id',
+    'e_invoice_status',
     'supplier',
     'category',
     'description',
@@ -96,6 +101,7 @@ class Expense extends Model implements HasMedia
     {
         return [
             'category' => ExpenseCategory::class,
+            'e_invoice_status' => LifecycleStatus::class,
             'spent_on' => CalendarDate::class,
             'vat_treatment' => ExpenseVatTreatment::class,
             'amount_ttc_cents' => MoneyIntegerCast::class.':currency',
@@ -152,6 +158,15 @@ class Expense extends Model implements HasMedia
     public function month(): string
     {
         return $this->spent_on->format('Y-m');
+    }
+
+    /**
+     * Whether a sync wrote it — a subscription's debit, a received e-invoice —
+     * and would write it again unless deleting it left a tombstone.
+     */
+    public function isRecordedBySync(): bool
+    {
+        return $this->subscription_id !== null || $this->e_invoice_platform_id !== null;
     }
 
     /** Whether the claim landed on a later month than the purchase, by hand or because its own was declared. */

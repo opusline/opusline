@@ -10,6 +10,7 @@ import { RefreshCwIcon, TriangleAlertIcon } from "lucide-react";
 import { useLocale } from "@/components/money-format-provider";
 import { m } from "@/paraglide/messages.js";
 
+import { eInvoiceStatusLabel, eInvoiceStatusToken } from "../lib/e-invoice";
 import {
   expenseCategoryLabel,
   expenseCategoryWarning,
@@ -53,6 +54,18 @@ export function ExpenseSupplierCell({ expense }: { expense: ExpenseData }) {
             </TooltipTrigger>
             <TooltipContent>{warning}</TooltipContent>
           </Tooltip>
+        )}
+        {expense.eInvoice !== null && (
+          <Badge
+            className="shrink-0"
+            data-status={eInvoiceStatusToken(expense.eInvoice.status)}
+            data-testid="expense-einvoice"
+            variant="brand"
+          >
+            {m.expenses_einvoice_badge({
+              status: eInvoiceStatusLabel(expense.eInvoice.status),
+            })}
+          </Badge>
         )}
         {expense.proShareBp < 10_000 && (
           <Badge className="shrink-0 font-mono" variant="brand">
