@@ -6,6 +6,7 @@ namespace App\Domain\Invoices\Actions;
 
 use App\Domain\Invoices\Data\CreateInvoiceData;
 use App\Domain\Invoices\Data\SaveInvoiceDraftData;
+use App\Domain\Invoices\Data\SaveQuoteDraftData;
 use App\Domain\Invoices\Data\UpdateInvoiceData;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
@@ -65,6 +66,12 @@ class ValidateInvoice
     {
         $this->assertMissionBelongsToClient($user, $data->clientId, $data->missionId);
         $this->assertPeriodOrdered($data->periodStart, $data->periodEnd);
+    }
+
+    /** A quote draft: a mission must be the client's; its amounts come from its lines. */
+    public function forQuoteDraft(User $user, SaveQuoteDraftData $data): void
+    {
+        $this->assertMissionBelongsToClient($user, $data->clientId, $data->missionId);
     }
 
     private function assertMissionBelongsToClient(User $user, int $clientId, ?int $missionId): void

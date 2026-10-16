@@ -1,5 +1,5 @@
 {{--
-    An invoice as the client receives it, rendered from InvoicePaperData — the
+    An invoice or a quote as the client receives it, rendered from InvoicePaperData — the
     same shape the web preview (apps/web/src/features/invoices/components/invoice-paper.tsx)
     renders, so the wording lives in one place, BuildInvoicePaper.
 
@@ -59,6 +59,11 @@
         .payment-rows { padding: 8px 10px; }
 
         .legal { margin-top: 22px; font-size: 10px; line-height: 1.55; color: #6A615A; }
+
+        .signature { margin-top: 26px; }
+        .signature-box { width: 250px; height: 92px; border: 1px solid #D8D1C7; padding: 8px 10px; }
+        .signature-title { font-weight: 600; color: #141210; }
+        .signature-caption { font-size: 9px; color: #7C736B; margin-top: 2px; }
 
         .footer { position: fixed; bottom: -26px; left: 34px; right: 34px; border-top: 1px solid #EFEBE5; padding-top: 6px; text-align: right; font-size: 9px; color: #7C736B; }
         .footer .page:after { content: counter(page); }
@@ -187,6 +192,20 @@
         @endif
 
         <div class="legal">{{ $paper['legal'] }}</div>
+
+        @if ($paper['signature'])
+            <table class="signature">
+                <tr>
+                    <td></td>
+                    <td style="width: 250px;">
+                        <div class="signature-box">
+                            <div class="signature-title">{{ $paper['signature']['title'] }}</div>
+                            <div class="signature-caption">{{ $paper['signature']['caption'] }}</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        @endif
     </div>
 </body>
 </html>

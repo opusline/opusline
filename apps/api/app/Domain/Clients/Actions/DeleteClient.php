@@ -15,6 +15,7 @@ class DeleteClient
     public function handle(Client $client): void
     {
         abort_if($client->invoices()->exists(), 409, __('invoices.cannot_delete_client_with_invoices'));
+        abort_if($client->quotes()->exists(), 409, __('quotes.cannot_delete_client_with_quotes'));
         abort_if($client->missions()->exists(), 409, __('clients.cannot_delete_with_missions'));
 
         try {

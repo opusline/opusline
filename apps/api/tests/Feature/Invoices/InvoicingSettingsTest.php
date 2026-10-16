@@ -200,3 +200,22 @@ test('needs a signed-in account', function (): void {
     $this->getJson('/api/invoicing/settings')->assertUnauthorized();
     $this->putJson('/api/invoicing/settings', invoicingSettingsPayload())->assertUnauthorized();
 });
+
+test('saves the quotes\' number format and keeps it when omitted', function (): void {
+    $user = vatLiableUser();
+    $payload = collect($this->actingAs($user)->getJson('/api/invoicing/settings')->json())->except('quoteNumberFormat')->all();
+
+    $this->actingAs($user)
+        ->putJson('/api/invoicing/settings', [...$payload, 'quoteNumberFormat' => 'DEV-AAAA-NNN'])
+        ->assertOk()
+        ->assertJsonPath('quoteNumberFormat', 'DEV-AAAA-NNN')
+        ->assertJsonPath('nextQuoteNumber', 'DEV-2026-001');
+    $this->actingAs($user)
+        ->putJson('/api/invoicing/settings', $payload)
+        ->assertOk()
+        ->assertJsonPath('quoteNumberFormat', 'DEV-AAAA-NNN');
+    $this->actingAs($user)
+        ->putJson('/api/invoicing/settings', [...$payload, 'quoteNumberFormat' => 'DEV-AAAA'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrorFor('quoteNumberFormat');
+});

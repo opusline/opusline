@@ -8,6 +8,9 @@ use App\Http\Invoices\Controllers\InvoiceController;
 use App\Http\Invoices\Controllers\InvoiceDraftController;
 use App\Http\Invoices\Controllers\InvoicePaperController;
 use App\Http\Invoices\Controllers\InvoicingSettingsController;
+use App\Http\Invoices\Controllers\QuoteController;
+use App\Http\Invoices\Controllers\QuoteDraftController;
+use App\Http\Invoices\Controllers\QuotePaperController;
 use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +41,40 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
         Route::post('/invoicing/invoices/{invoice}/issue', [InvoiceDraftController::class, 'issue'])
             ->whereNumber('invoice')
             ->name('issueInvoice');
+
+        Route::get('/invoicing/quotes', [QuoteController::class, 'index'])
+            ->name('listQuotes');
+        Route::post('/invoicing/quotes', [QuoteDraftController::class, 'store'])
+            ->name('createQuoteDraft');
+        Route::post('/invoicing/quotes/paper', [QuotePaperController::class, 'preview'])
+            ->name('previewQuotePaper');
+        Route::get('/invoicing/quotes/{quote}', [QuoteController::class, 'show'])
+            ->whereNumber('quote')
+            ->name('showQuote');
+        Route::put('/invoicing/quotes/{quote}', [QuoteDraftController::class, 'update'])
+            ->whereNumber('quote')
+            ->name('updateQuoteDraft');
+        Route::delete('/invoicing/quotes/{quote}', [QuoteController::class, 'destroy'])
+            ->whereNumber('quote')
+            ->name('deleteQuote');
+        Route::post('/invoicing/quotes/{quote}/issue', [QuoteDraftController::class, 'issue'])
+            ->whereNumber('quote')
+            ->name('issueQuote');
+        Route::post('/invoicing/quotes/{quote}/accept', [QuoteDraftController::class, 'accept'])
+            ->whereNumber('quote')
+            ->name('acceptQuote');
+        Route::post('/invoicing/quotes/{quote}/refuse', [QuoteDraftController::class, 'refuse'])
+            ->whereNumber('quote')
+            ->name('refuseQuote');
+        Route::post('/invoicing/quotes/{quote}/reopen', [QuoteDraftController::class, 'reopen'])
+            ->whereNumber('quote')
+            ->name('reopenQuote');
+        Route::get('/invoicing/quotes/{quote}/paper', [QuotePaperController::class, 'show'])
+            ->whereNumber('quote')
+            ->name('showQuotePaper');
+        Route::get('/invoicing/quotes/{quote}/pdf', [QuotePaperController::class, 'pdf'])
+            ->whereNumber('quote')
+            ->name('downloadQuotePdf');
 
         Route::get('/invoicing/catalog', [CatalogItemController::class, 'index'])
             ->name('listCatalogItems');

@@ -19,6 +19,7 @@ use App\Domain\Expenses\Models\RecurringDebitDismissal;
 use App\Domain\Expenses\Models\Subscription;
 use App\Domain\Invoices\Models\CatalogItem;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Models\Quote;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Passkeys\Models\Passkey;
 use App\Domain\Settings\Models\UserSettings;
@@ -171,6 +172,12 @@ class User extends Authenticatable implements HasLocalePreference, HasMedia
         return $this->hasMany(Invoice::class);
     }
 
+    /** @return HasMany<Quote, $this> */
+    public function quotes(): HasMany
+    {
+        return $this->hasMany(Quote::class);
+    }
+
     /** @return HasMany<CatalogItem, $this> */
     public function catalogItems(): HasMany
     {
@@ -304,6 +311,8 @@ class User extends Authenticatable implements HasLocalePreference, HasMedia
         'invoices' => ['amount_ht_cents', 'amount_ttc_cents'],
         // A line always belongs to an invoice, which locks the currency already.
         'invoice_lines' => ['unit_price_cents', 'total_ht_cents'],
+        'quotes' => ['amount_ht_cents', 'amount_ttc_cents'],
+        'quote_lines' => ['unit_price_cents', 'total_ht_cents'],
         'bank_statements' => ['closing_balance_cents'],
         'bank_movements' => ['amount_cents'],
         'personal_transfers' => ['amount_cents'],
@@ -332,7 +341,7 @@ class User extends Authenticatable implements HasLocalePreference, HasMedia
             return true;
         }
 
-        if ($this->invoices()->exists()) {
+        if ($this->invoices()->exists() || $this->quotes()->exists()) {
             return true;
         }
 

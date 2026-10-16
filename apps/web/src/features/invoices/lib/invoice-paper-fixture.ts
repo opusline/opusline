@@ -79,5 +79,6 @@ export const invoicePaperFixture: InvoicePaperData = {
   ],
   legal:
     "Paiement à 30 jours fin de mois, au plus tard le 30/09/2026. En cas de retard, pénalités au taux annuel de 12,4 %, exigibles dès le lendemain de l'échéance, et indemnité forfaitaire pour frais de recouvrement de 40 € (art. L441-10 du Code de commerce). Pas d'escompte pour paiement anticipé.",
+  signature: null,
   footer: "2026-001",
 };

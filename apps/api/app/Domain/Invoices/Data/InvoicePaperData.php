@@ -9,7 +9,7 @@ use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 
 /**
- * An invoice as its sheet prints it: every label, amount and mention already
+ * An invoice or a quote as its sheet prints it: every label, amount and mention already
  * resolved in the document's language. The PDF and the web preview both
  * render this one shape, so their wording cannot drift.
  */
@@ -49,6 +49,8 @@ class InvoicePaperData extends Data
         #[DataCollectionOf(PaperRowData::class)]
         public array $payment,
         public string $legal,
+        /** A quote ends with the box the client signs; an invoice has none. */
+        public ?PaperSignatureData $signature,
         public string $footer,
     ) {}
 }
