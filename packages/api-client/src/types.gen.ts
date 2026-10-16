@@ -1461,6 +1461,32 @@ export type InvoiceOverdueData = {
 };
 
 /**
+ * InvoicePaperData
+ */
+export type InvoicePaperData = {
+    language: DocumentLanguage;
+    labelSeparator: string;
+    title: string;
+    stamp: string | null;
+    hasLogo: boolean;
+    meta: Array<PaperRowData>;
+    seller: PaperPartyData;
+    buyer: PaperPartyData;
+    documentTitle: string | null;
+    description: string | null;
+    head: PaperLineHeadData;
+    lines: Array<PaperLineData>;
+    noLinesLabel: string;
+    vatHead: PaperVatHeadData;
+    vatRows: Array<PaperVatRowData>;
+    totals: Array<PaperTotalData>;
+    paymentTitle: string | null;
+    payment: Array<PaperRowData>;
+    legal: string;
+    footer: string;
+};
+
+/**
  * InvoiceSource
  *
  * Who wrote the document: another tool, recorded here; or Opusline, from its lines.
@@ -1744,6 +1770,72 @@ export type PaidPeriodData = {
     period: string;
     amount: MoneyData;
     paidOn: string;
+};
+
+/**
+ * PaperLineData
+ */
+export type PaperLineData = {
+    label: string;
+    detail: string | null;
+    quantity: string;
+    unitPrice: string;
+    vat: string;
+    total: string;
+};
+
+/**
+ * PaperLineHeadData
+ */
+export type PaperLineHeadData = {
+    description: string;
+    quantity: string;
+    unitPrice: string;
+    vat: string;
+    total: string;
+};
+
+/**
+ * PaperPartyData
+ */
+export type PaperPartyData = {
+    name: string;
+    lines: Array<string>;
+};
+
+/**
+ * PaperRowData
+ */
+export type PaperRowData = {
+    label: string;
+    value: string;
+};
+
+/**
+ * PaperTotalData
+ */
+export type PaperTotalData = {
+    label: string;
+    value: string;
+    emphasis: boolean;
+};
+
+/**
+ * PaperVatHeadData
+ */
+export type PaperVatHeadData = {
+    base: string;
+    rate: string;
+    amount: string;
+};
+
+/**
+ * PaperVatRowData
+ */
+export type PaperVatRowData = {
+    base: string;
+    rate: string;
+    amount: string;
 };
 
 /**
@@ -6734,6 +6826,119 @@ export type IssueInvoiceResponses = {
 };
 
 export type IssueInvoiceResponse = IssueInvoiceResponses[keyof IssueInvoiceResponses];
+
+export type PreviewInvoicePaperData = {
+    body: SaveInvoiceDraftData;
+    path?: never;
+    query?: never;
+    url: '/invoicing/invoices/paper';
+};
+
+export type PreviewInvoicePaperErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type PreviewInvoicePaperError = PreviewInvoicePaperErrors[keyof PreviewInvoicePaperErrors];
+
+export type PreviewInvoicePaperResponses = {
+    200: InvoicePaperData;
+};
+
+export type PreviewInvoicePaperResponse = PreviewInvoicePaperResponses[keyof PreviewInvoicePaperResponses];
+
+export type ShowInvoicePaperData = {
+    body?: never;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: {
+        language?: DocumentLanguage | null;
+    };
+    url: '/invoices/{invoice}/paper';
+};
+
+export type ShowInvoicePaperErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowInvoicePaperError = ShowInvoicePaperErrors[keyof ShowInvoicePaperErrors];
+
+export type ShowInvoicePaperResponses = {
+    200: InvoicePaperData;
+};
+
+export type ShowInvoicePaperResponse = ShowInvoicePaperResponses[keyof ShowInvoicePaperResponses];
+
+export type DownloadInvoicePdfData = {
+    body?: never;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: {
+        language?: DocumentLanguage | null;
+    };
+    url: '/invoices/{invoice}/pdf';
+};
+
+export type DownloadInvoicePdfErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DownloadInvoicePdfError = DownloadInvoicePdfErrors[keyof DownloadInvoicePdfErrors];
+
+export type DownloadInvoicePdfResponses = {
+    200: Blob | File;
+};
+
+export type DownloadInvoicePdfResponse = DownloadInvoicePdfResponses[keyof DownloadInvoicePdfResponses];
 
 export type ShowInvoicingSettingsData = {
     body?: never;

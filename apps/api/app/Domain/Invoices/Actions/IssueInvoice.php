@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Actions;
 
+use App\Domain\Documents\Actions\StoreGeneratedDocument;
+use App\Domain\Documents\Enums\DocumentCategory;
 use App\Domain\Invoices\Documents\DocumentParties;
 use App\Domain\Invoices\Documents\PaymentTerm;
+use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Enums\InvoiceEventKind;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
@@ -30,6 +33,8 @@ class IssueInvoice
         private readonly LockInvoice $lockInvoice,
         private readonly SuggestInvoiceNumber $suggestInvoiceNumber,
         private readonly RecordInvoiceEvent $recordInvoiceEvent,
+        private readonly RenderInvoicePdf $renderInvoicePdf,
+        private readonly StoreGeneratedDocument $storeGeneratedDocument,
     ) {}
 
     public function handle(User $user, Invoice $invoice): Invoice
@@ -58,7 +63,9 @@ class IssueInvoice
                     'status' => InvoiceStatus::Sent,
                     'issued_on' => $issuedOn,
                     'due_on' => $term->dueOn($issuedOn),
-                    'seller_snapshot' => DocumentParties::seller($settings, $locked),
+                    'seller_snapshot' => DocumentParties::seller($settings, $locked->show_iban, $locked->show_email),
+                    'operation_category' => $settings->operation_category,
+                    'vat_on_debits' => $settings->vat_regime->isLiable() && $settings->vat_on_debits,
                     'buyer_snapshot' => DocumentParties::buyer($locked->client),
                 ]);
             } catch (UniqueConstraintViolationException) {
@@ -68,6 +75,17 @@ class IssueInvoice
             }
 
             $this->recordInvoiceEvent->handle($locked, InvoiceEventKind::Sent, $issuedOn);
+
+            // The legal copy: filed with the client's documents, in the language
+            // the invoice was written in, inside the same transaction as its number.
+            $language = $locked->language ?? DocumentLanguage::French;
+            $this->storeGeneratedDocument->handle(
+                $locked->client,
+                $this->renderInvoicePdf->handle($locked, $language),
+                $this->renderInvoicePdf->fileName($locked, $language),
+                DocumentCategory::IssuedInvoice,
+                $locked->documentProperties(),
+            );
 
             return $locked;
         });

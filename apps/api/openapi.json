@@ -4091,6 +4091,169 @@
                 }
             }
         },
+        "/invoicing/invoices/paper": {
+            "post": {
+                "operationId": "previewInvoicePaper",
+                "summary": "The live preview of an editor draft that was never saved",
+                "tags": [
+                    "InvoicePaper"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SaveInvoiceDraftData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoicePaperData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/invoices/{invoice}/paper": {
+            "get": {
+                "operationId": "showInvoicePaper",
+                "tags": [
+                    "InvoicePaper"
+                ],
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/DocumentLanguage"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoicePaperData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/invoices/{invoice}/pdf": {
+            "get": {
+                "operationId": "downloadInvoicePdf",
+                "tags": [
+                    "InvoicePaper"
+                ],
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/DocumentLanguage"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Content-Disposition": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store"
+                                }
+                            },
+                            "Transfer-Encoding": {
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "chunked"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/invoicing/settings": {
             "get": {
                 "operationId": "showInvoicingSettings",
@@ -11511,6 +11674,121 @@
                 ],
                 "title": "InvoiceOverdueData"
             },
+            "InvoicePaperData": {
+                "type": "object",
+                "properties": {
+                    "language": {
+                        "$ref": "#/components/schemas/DocumentLanguage"
+                    },
+                    "labelSeparator": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "stamp": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "hasLogo": {
+                        "type": "boolean"
+                    },
+                    "meta": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PaperRowData"
+                        }
+                    },
+                    "seller": {
+                        "$ref": "#/components/schemas/PaperPartyData"
+                    },
+                    "buyer": {
+                        "$ref": "#/components/schemas/PaperPartyData"
+                    },
+                    "documentTitle": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "head": {
+                        "$ref": "#/components/schemas/PaperLineHeadData"
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PaperLineData"
+                        }
+                    },
+                    "noLinesLabel": {
+                        "type": "string"
+                    },
+                    "vatHead": {
+                        "$ref": "#/components/schemas/PaperVatHeadData"
+                    },
+                    "vatRows": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PaperVatRowData"
+                        }
+                    },
+                    "totals": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PaperTotalData"
+                        }
+                    },
+                    "paymentTitle": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "payment": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PaperRowData"
+                        }
+                    },
+                    "legal": {
+                        "type": "string"
+                    },
+                    "footer": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "language",
+                    "labelSeparator",
+                    "title",
+                    "stamp",
+                    "hasLogo",
+                    "meta",
+                    "seller",
+                    "buyer",
+                    "documentTitle",
+                    "description",
+                    "head",
+                    "lines",
+                    "noLinesLabel",
+                    "vatHead",
+                    "vatRows",
+                    "totals",
+                    "paymentTitle",
+                    "payment",
+                    "legal",
+                    "footer"
+                ],
+                "title": "InvoicePaperData"
+            },
             "InvoiceSource": {
                 "type": "integer",
                 "description": "Who wrote the document: another tool, recorded here; or Opusline, from its lines.\n",
@@ -12362,6 +12640,164 @@
                     "paidOn"
                 ],
                 "title": "PaidPeriodData"
+            },
+            "PaperLineData": {
+                "type": "object",
+                "properties": {
+                    "label": {
+                        "type": "string"
+                    },
+                    "detail": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "quantity": {
+                        "type": "string"
+                    },
+                    "unitPrice": {
+                        "type": "string"
+                    },
+                    "vat": {
+                        "type": "string"
+                    },
+                    "total": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "label",
+                    "detail",
+                    "quantity",
+                    "unitPrice",
+                    "vat",
+                    "total"
+                ],
+                "title": "PaperLineData"
+            },
+            "PaperLineHeadData": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": "string"
+                    },
+                    "quantity": {
+                        "type": "string"
+                    },
+                    "unitPrice": {
+                        "type": "string"
+                    },
+                    "vat": {
+                        "type": "string"
+                    },
+                    "total": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "description",
+                    "quantity",
+                    "unitPrice",
+                    "vat",
+                    "total"
+                ],
+                "title": "PaperLineHeadData"
+            },
+            "PaperPartyData": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "name",
+                    "lines"
+                ],
+                "title": "PaperPartyData"
+            },
+            "PaperRowData": {
+                "type": "object",
+                "properties": {
+                    "label": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "label",
+                    "value"
+                ],
+                "title": "PaperRowData"
+            },
+            "PaperTotalData": {
+                "type": "object",
+                "properties": {
+                    "label": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
+                    },
+                    "emphasis": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "label",
+                    "value",
+                    "emphasis"
+                ],
+                "title": "PaperTotalData"
+            },
+            "PaperVatHeadData": {
+                "type": "object",
+                "properties": {
+                    "base": {
+                        "type": "string"
+                    },
+                    "rate": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "base",
+                    "rate",
+                    "amount"
+                ],
+                "title": "PaperVatHeadData"
+            },
+            "PaperVatRowData": {
+                "type": "object",
+                "properties": {
+                    "base": {
+                        "type": "string"
+                    },
+                    "rate": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "base",
+                    "rate",
+                    "amount"
+                ],
+                "title": "PaperVatRowData"
             },
             "PasskeyData": {
                 "type": "object",

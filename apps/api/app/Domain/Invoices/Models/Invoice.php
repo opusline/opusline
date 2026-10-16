@@ -9,6 +9,7 @@ use App\Domain\Invoices\Actions\ComputeInvoiceAmounts;
 use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Enums\InvoiceSource;
 use App\Domain\Invoices\Enums\InvoiceStatus;
+use App\Domain\Invoices\Enums\OperationCategory;
 use App\Domain\Invoices\Factories\InvoiceFactory;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Casts\CalendarDate;
@@ -45,6 +46,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property bool $show_iban
  * @property bool $show_email
  * @property ?string $custom_mentions
+ * @property ?OperationCategory $operation_category
+ * @property bool $vat_on_debits
  * @property ?array<string, mixed> $seller_snapshot
  * @property ?array<string, mixed> $buyer_snapshot
  * @property CarbonImmutable $issued_on
@@ -79,6 +82,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
     'show_iban',
     'show_email',
     'custom_mentions',
+    'operation_category',
+    'vat_on_debits',
     'seller_snapshot',
     'buyer_snapshot',
     'issued_on',
@@ -119,6 +124,7 @@ class Invoice extends Model
         'payment_terms_end_of_month' => false,
         'show_iban' => false,
         'show_email' => false,
+        'vat_on_debits' => false,
     ];
 
     protected static function newFactory(): InvoiceFactory
@@ -160,6 +166,8 @@ class Invoice extends Model
             'late_penalty_rate_bp' => 'integer',
             'show_iban' => 'boolean',
             'show_email' => 'boolean',
+            'operation_category' => OperationCategory::class,
+            'vat_on_debits' => 'boolean',
             'seller_snapshot' => 'array',
             'buyer_snapshot' => 'array',
             'issued_on' => CalendarDate::class,
