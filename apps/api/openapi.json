@@ -4215,6 +4215,12 @@
                                 "schema": {
                                     "type": "string"
                                 }
+                            },
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
                             }
                         },
                         "headers": {
@@ -4227,6 +4233,14 @@
                                 "schema": {
                                     "type": "string",
                                     "const": "no-store"
+                                }
+                            },
+                            "Transfer-Encoding": {
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "chunked"
+                                    ]
                                 }
                             }
                         }
