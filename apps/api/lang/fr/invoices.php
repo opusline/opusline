@@ -41,5 +41,7 @@ return [
     'issue_needs_seller_identity' => 'Complétez votre nom, votre adresse et votre SIRET dans Réglages : ils sont obligatoires sur une facture.',
     'issue_needs_buyer_address' => 'Complétez l\'adresse de facturation du client sur sa fiche : elle est obligatoire sur une facture.',
     'issue_needs_iban' => 'Ajoutez votre IBAN dans Réglages, ou masquez-le sur cette facture.',
+    'issue_needs_vat_number' => 'Ajoutez votre numéro de TVA dans Réglages : une entreprise assujettie doit l\'imprimer sur ses factures.',
+    'issue_needs_vat_rework' => 'Votre régime de TVA a changé depuis l\'enregistrement de ce brouillon : rouvrez-le dans l\'éditeur et enregistrez-le à nouveau.',
     'issued_is_frozen' => 'Une facture émise ne se modifie plus : corrigez-la par un avoir.',
 ];

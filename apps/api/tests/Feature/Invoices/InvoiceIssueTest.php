@@ -7,8 +7,11 @@ use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Enums\LineUnit;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Actions\IssueInvoice;
+use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Users\Models\User;
 use Illuminate\Http\UploadedFile;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 beforeEach(function (): void {
     $this->travelTo('2026-08-10 12:00:00');
@@ -26,6 +29,7 @@ function issuableAccount(array $settings = []): User
         'contact_email' => 'theo@marchand.dev',
         'iban' => 'FR7630006000011234567890189',
         'bic' => 'AGRIFRPP',
+        'vat_number' => 'FR11123456782',
         ...$settings,
     ]);
 
@@ -149,6 +153,7 @@ test('refuses to issue an invoice missing a mandatory mention', function (callab
     expect(Invoice::query()->findOrFail($id)->number)->toBeNull();
 })->with([
     'no siret' => [fn (User $user) => $user->settingsOrFail()->update(['siret' => null]), 'seller'],
+    'no vat number while liable' => [fn (User $user) => $user->settingsOrFail()->update(['vat_number' => null]), 'seller'],
     'no seller address' => [fn (User $user) => $user->settingsOrFail()->update(['company_address_line1' => null]), 'seller'],
     'no client address' => [fn (User $user, Client $client) => $client->update(['billing_address_line1' => null]), 'buyer'],
     'iban shown but missing' => [fn (User $user) => $user->settingsOrFail()->update(['iban' => null]), 'showIban'],
@@ -173,6 +178,7 @@ test('freezes an issued invoice against every edit', function (string $method, s
         'showEmail' => false, 'language' => 0, 'lines' => [],
     ]],
     'delete' => ['DELETE', '/api/invoices/{id}', []],
+    'detach the document' => ['DELETE', '/api/invoices/{id}/document', []],
     'correct the dates' => ['PATCH', '/api/invoices/{id}/dates', ['issuedOn' => '2026-08-09']],
 ]);
 
@@ -184,4 +190,44 @@ test('refuses another PDF in place of the one Opusline issues', function (): voi
     $this->actingAs($user)
         ->post("/api/invoices/{$id}/document", ['file' => UploadedFile::fake()->create('facture.pdf', 10, 'application/pdf')])
         ->assertConflict();
+});
+
+test('sends a draft back to the editor when the VAT regime changed since it was saved', function (): void {
+    $user = issuableAccount();
+    $id = draftFor($user, billableClient($user));
+    $user->settingsOrFail()->update(['vat_regime' => VatRegime::FranchiseEnBase]);
+
+    $this->actingAs($user)
+        ->postJson("/api/invoicing/invoices/{$id}/issue")
+        ->assertJsonValidationErrorFor('lines');
+
+    expect(Invoice::query()->findOrFail($id)->number)->toBeNull();
+});
+
+test('numbers a draft once, however stale the copy a racing request holds', function (): void {
+    $user = issuableAccount();
+    $id = draftFor($user, billableClient($user));
+    $stale = Invoice::query()->findOrFail($id);
+    $this->actingAs($user)->postJson("/api/invoicing/invoices/{$id}/issue")->assertOk();
+
+    expect(fn () => app(IssueInvoice::class)->handle($user, $stale))->toThrow(HttpException::class);
+
+    $issued = Invoice::query()->findOrFail($id);
+    expect($issued->number)->toBe('2026-001')
+        ->and($issued->events()->count())->toBe(2);
+});
+
+test('keeps another account\'s draft from being issued', function (): void {
+    $owner = issuableAccount();
+    $id = draftFor($owner, billableClient($owner));
+
+    $this->actingAs(issuableAccount())
+        ->postJson("/api/invoicing/invoices/{$id}/issue")
+        ->assertNotFound();
+
+    $draft = Invoice::query()->findOrFail($id);
+    expect($draft->number)->toBeNull()
+        ->and($draft->status)->toBe(InvoiceStatus::Draft)
+        ->and($draft->seller_snapshot)->toBeNull()
+        ->and($draft->events()->count())->toBe(1);
 });

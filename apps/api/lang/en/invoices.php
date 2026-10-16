@@ -41,5 +41,7 @@ return [
     'issue_needs_seller_identity' => 'Complete your name, address and SIRET in Settings: they are mandatory on an invoice.',
     'issue_needs_buyer_address' => 'Complete the client\'s billing address on its record: it is mandatory on an invoice.',
     'issue_needs_iban' => 'Add your IBAN in Settings, or hide it from this invoice.',
+    'issue_needs_vat_number' => 'Add your VAT number in Settings: a VAT-liable business must print it on its invoices.',
+    'issue_needs_vat_rework' => 'Your VAT regime changed since this draft was saved: open it in the editor and save it again.',
     'issued_is_frozen' => 'An issued invoice cannot change: correct it with a credit note.',
 ];

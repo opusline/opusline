@@ -9,6 +9,7 @@ use App\Domain\Invoices\Documents\PaymentTerm;
 use App\Domain\Invoices\Enums\InvoiceEventKind;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Models\InvoiceLine;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Users\Models\User;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -33,13 +34,15 @@ class IssueInvoice
 
     public function handle(User $user, Invoice $invoice): Invoice
     {
-        abort_if(
-            ! $invoice->isWrittenInOpusline() || $invoice->status !== InvoiceStatus::Draft,
-            409,
-            __('invoices.not_an_opusline_draft'),
-        );
-
         return $this->lockInvoice->handle($invoice, function (Invoice $locked) use ($user): Invoice {
+            // Judged on the refreshed row, under the lock: two requests racing
+            // on the same draft would otherwise both pass and number it twice.
+            abort_if(
+                ! $locked->isWrittenInOpusline() || $locked->status !== InvoiceStatus::Draft,
+                409,
+                __('invoices.not_an_opusline_draft'),
+            );
+
             $settings = $user->settingsOrFail();
             $locked->load(['client', 'lines']);
             $this->assertIssuable($locked, $settings);
@@ -79,11 +82,17 @@ class IssueInvoice
             $errors['lines'] = __('invoices.issue_needs_lines');
         } elseif (! $invoice->amount_ht_cents->isPositive()) {
             $errors['lines'] = __('invoices.issue_needs_positive_total');
+        } elseif (! $settings->vat_regime->isLiable() && $invoice->lines->contains(static fn (InvoiceLine $line): bool => $line->vat_rate_bp > 0)) {
+            // The lines were priced under a regime the account has since left;
+            // only the editor can re-derive them, so the draft goes back there.
+            $errors['lines'] = __('invoices.issue_needs_vat_rework');
         }
 
         if (blank($settings->trade_name) || blank($settings->company_address_line1) || blank($settings->company_city)
             || ($settings->hasFrenchFiscality() && blank($settings->siret))) {
             $errors['seller'] = __('invoices.issue_needs_seller_identity');
+        } elseif ($settings->hasFrenchFiscality() && $settings->vat_regime->isLiable() && blank($settings->vat_number)) {
+            $errors['seller'] = __('invoices.issue_needs_vat_number');
         }
 
         if (blank($invoice->client->billing_address_line1) || blank($invoice->client->billing_city)) {
