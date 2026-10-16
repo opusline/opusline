@@ -160,4 +160,5 @@ return [
     'vatTreatment' => 'VAT treatment',
     'version' => 'version',
     'workdayMinutes' => 'workday length',
+    'clientSecret' => 'client secret',
 ];

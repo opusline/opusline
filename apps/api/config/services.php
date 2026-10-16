@@ -64,6 +64,16 @@ return [
     ],
 
     /*
+    | Super PDP, the plateforme agréée (docs/e-invoicing.md). One host for the
+    | sandbox and production: the account's credentials pick the side.
+    */
+
+    'super_pdp' => [
+        'url' => 'https://api.superpdp.tech',
+        'timeout' => 20,
+    ],
+
+    /*
     | The browser app's Sentry project, handed over by GET /api/ping. It lives
     | here rather than in config/sentry.php because that file is passed to the
     | PHP SDK's option resolver as-is, and it rejects keys it does not know.

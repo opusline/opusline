@@ -101,13 +101,41 @@ webhooks or JSON.
   API rate applies beyond it. State it on the Integrations tab so nobody is
   surprised.
 
+## Setting it up
+
+Each Opusline account connects its own Super PDP account; on an instance shared
+by several people each one sets up theirs. Nothing in the setup costs anything
+at a freelancer's volumes.
+
+1. **Create a Super PDP account** at [app.superpdp.com](https://app.superpdp.com)
+   with your SIRET and VAT number.
+2. **Let Super PDP verify your company.** Under its settings, upload the legal
+   representative's identity document and a recent Kbis. It takes one to three
+   days; until it is done, Super PDP refuses every business call, and Opusline
+   shows the connection as « awaiting verification ».
+3. **Register in the annuaire** from Super PDP's Directory page. That is what
+   lets other platforms route invoices to you; Opusline shows the resulting
+   receiving address on the Integrations tab.
+4. **Create an application** under Developers → Applications, with the scopes
+   `invoice:read`, `invoice:write` and `company:read`. Super PDP shows the
+   client secret once.
+5. **Paste the client ID and secret** under **Settings → Integrations →
+   E-invoicing** and connect. Opusline asks Super PDP about the application
+   before saving, stores the secret encrypted, and shows the company, whether
+   it is verified, its environment (sandbox or production: the credentials
+   decide) and its receiving address. **Test the connection** asks again at any
+   time, for instance once the verification completed.
+
+Sandbox credentials work the same way and file nothing with the administration:
+useful to try the flow before the company is verified in production.
+
 ## Where the pieces go
 
 - `app/Domain/EInvoicing/Platform/` — the contract and its value objects
   (`RecipientLookup`, `SubmittedInvoice`, `ReceivedInvoice`,
   `EInvoicingPlatformException`).
 - `app/Domain/EInvoicing/Enums/LifecycleStatus.php` — CDV codes.
-- `app/Domain/EInvoicing/SuperPdp/` — the first adapter (#520), next to the
-  per-user credentials and the Integrations card.
+- `app/Domain/EInvoicing/SuperPdp/` — the Super PDP client and adapter; the
+  per-user credentials live in `e_invoicing_connections`, one row per account.
 - `app/Domain/Expenses/` — the receiving side (#521) consumes `ReceivedInvoice`
   and the Factur-X file through the existing receipt pipeline.

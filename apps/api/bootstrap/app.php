@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Bank\EnableBanking\BankSyncFailed;
+use App\Domain\EInvoicing\Platform\EInvoicingPlatformException;
 use App\Domain\Settings\Rates\RatesUnavailable;
 use App\Domain\TwoFactor\Models\TrustedDevice;
 use App\Http\Support\SetLocale;
@@ -53,6 +54,11 @@ return Application::configure(basePath: dirname(__DIR__))
         ));
 
         $exceptions->render(fn (BankSyncFailed $exception) => response()->json(
+            ['message' => __($exception->reason->messageKey())],
+            $exception->reason->httpStatus(),
+        ));
+
+        $exceptions->render(fn (EInvoicingPlatformException $exception) => response()->json(
             ['message' => __($exception->reason->messageKey())],
             $exception->reason->httpStatus(),
         ));

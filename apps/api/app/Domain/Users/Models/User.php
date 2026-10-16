@@ -13,6 +13,7 @@ use App\Domain\Clients\Models\Client;
 use App\Domain\Cra\Models\Cra;
 use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
 use App\Domain\Documents\Concerns\InteractsWithDocuments;
+use App\Domain\EInvoicing\Models\EInvoicingConnection;
 use App\Domain\Expenses\Models\Expense;
 use App\Domain\Expenses\Models\RecurringDebitDismissal;
 use App\Domain\Expenses\Models\Subscription;
@@ -192,6 +193,12 @@ class User extends Authenticatable implements HasLocalePreference, HasMedia
     public function bankConnection(): HasOne
     {
         return $this->hasOne(BankConnection::class);
+    }
+
+    /** @return HasOne<EInvoicingConnection, $this> */
+    public function eInvoicingConnection(): HasOne
+    {
+        return $this->hasOne(EInvoicingConnection::class);
     }
 
     /** @return HasMany<BankStatement, $this> */

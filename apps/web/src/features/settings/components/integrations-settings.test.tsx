@@ -1,20 +1,33 @@
-import type { IntegrationsData } from "@opusline/api-client";
+import type { FeatureFlag, IntegrationsData } from "@opusline/api-client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 
+import { INVOICING } from "@/lib/features";
+import { seedCurrentUser } from "@/test/current-user";
+import { eInvoicingConnected, eInvoicingUnconfigured } from "@/test/fixtures";
 import { StoryRouter } from "@/test/story-router";
 import { IntegrationsSettings } from "./integrations-settings";
 
 const APPLICATION_ID = "6f1c1a52-9d1e-4b9e-8a53-0c1e2f3a4b5c";
 const PEM = "-----BEGIN PRIVATE KEY-----\nMIIEvQ\n-----END PRIVATE KEY-----";
 
-function integrations(applicationId: string | null): IntegrationsData {
+const CLIENT_ID = "opusline_8f3c2e1a4d6f9b7c";
+const CLIENT_SECRET = "secret-for-the-sandbox-only";
+
+function integrations(
+  applicationId: string | null,
+  superPdpClientId: string | null = null,
+): IntegrationsData {
   return {
     enableBanking: {
       applicationId,
       redirectUrl: "https://opusline.example/bank-account",
     },
+    eInvoicing:
+      superPdpClientId === null
+        ? eInvoicingUnconfigured
+        : { ...eInvoicingConnected, clientId: superPdpClientId },
   };
 }
 
@@ -56,10 +69,15 @@ function stubApi(routes: Route[]): void {
   );
 }
 
-function renderTab() {
+function renderTab({
+  features = [INVOICING],
+}: {
+  features?: FeatureFlag[];
+} = {}) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
+  seedCurrentUser(queryClient, { features });
 
   render(
     <QueryClientProvider client={queryClient}>
@@ -193,4 +211,163 @@ it("forgets the application once removal is confirmed", async () => {
       "unconfigured",
     ),
   );
+});
+
+it("connects super pdp and shows what it said about the company", async () => {
+  stubApi([
+    {
+      method: "GET",
+      path: "/settings/integrations",
+      status: 200,
+      body: integrations(null),
+    },
+    {
+      method: "PUT",
+      path: "/settings/integrations/super-pdp",
+      status: 200,
+      body: integrations(null, CLIENT_ID),
+    },
+  ]);
+  renderTab();
+
+  fireEvent.change(await screen.findByTestId("super-pdp-client-id"), {
+    target: { value: CLIENT_ID },
+  });
+  fireEvent.change(screen.getByTestId("super-pdp-client-secret"), {
+    target: { value: CLIENT_SECRET },
+  });
+  fireEvent.click(screen.getByTestId("super-pdp-save"));
+
+  await waitFor(() =>
+    expect(screen.getByTestId("super-pdp-card")).toHaveAttribute(
+      "data-status",
+      "connected",
+    ),
+  );
+  expect(screen.getByTestId("super-pdp-receiving-address")).toHaveAttribute(
+    "data-address",
+    "0225:12345678200002",
+  );
+});
+
+it("puts a refused secret on its field", async () => {
+  stubApi([
+    {
+      method: "GET",
+      path: "/settings/integrations",
+      status: 200,
+      body: integrations(null),
+    },
+    {
+      method: "PUT",
+      path: "/settings/integrations/super-pdp",
+      status: 422,
+      body: {
+        message: "Invalid.",
+        errors: { clientSecret: ["Super PDP a refusé ces identifiants."] },
+      },
+    },
+  ]);
+  renderTab();
+
+  fireEvent.change(await screen.findByTestId("super-pdp-client-id"), {
+    target: { value: CLIENT_ID },
+  });
+  fireEvent.change(screen.getByTestId("super-pdp-client-secret"), {
+    target: { value: CLIENT_SECRET },
+  });
+  fireEvent.click(screen.getByTestId("super-pdp-save"));
+
+  expect(
+    await screen.findByText("Super PDP a refusé ces identifiants."),
+  ).toBeInTheDocument();
+});
+
+it("rechecks the super pdp connection on demand", async () => {
+  stubApi([
+    {
+      method: "GET",
+      path: "/settings/integrations",
+      status: 200,
+      body: integrations(null, CLIENT_ID),
+    },
+    {
+      method: "POST",
+      path: "/settings/integrations/super-pdp/check",
+      status: 200,
+      body: integrations(null, CLIENT_ID),
+    },
+  ]);
+  renderTab();
+
+  fireEvent.click(await screen.findByTestId("super-pdp-check"));
+
+  expect(await screen.findByTestId("super-pdp-notice")).toBeInTheDocument();
+});
+
+it("says why when a super pdp check fails", async () => {
+  stubApi([
+    {
+      method: "GET",
+      path: "/settings/integrations",
+      status: 200,
+      body: integrations(null, CLIENT_ID),
+    },
+    {
+      method: "POST",
+      path: "/settings/integrations/super-pdp/check",
+      status: 409,
+      body: { message: "Super PDP a refusé ces identifiants." },
+    },
+  ]);
+  renderTab();
+
+  fireEvent.click(await screen.findByTestId("super-pdp-check"));
+
+  expect(
+    await screen.findByText("Super PDP a refusé ces identifiants."),
+  ).toBeInTheDocument();
+});
+
+it("forgets super pdp once removal is confirmed", async () => {
+  stubApi([
+    {
+      method: "GET",
+      path: "/settings/integrations",
+      status: 200,
+      body: integrations(null, CLIENT_ID),
+    },
+    {
+      method: "DELETE",
+      path: "/settings/integrations/super-pdp",
+      status: 200,
+      body: integrations(null),
+    },
+  ]);
+  renderTab();
+
+  fireEvent.click(await screen.findByTestId("super-pdp-remove"));
+  fireEvent.click(await screen.findByTestId("super-pdp-remove-confirm"));
+
+  await waitFor(() =>
+    expect(screen.getByTestId("super-pdp-card")).toHaveAttribute(
+      "data-status",
+      "unconfigured",
+    ),
+  );
+});
+
+it("keeps the e-invoicing card out of an account without the invoicing beta", async () => {
+  stubApi([
+    {
+      method: "GET",
+      path: "/settings/integrations",
+      status: 200,
+      body: integrations(null, CLIENT_ID),
+    },
+  ]);
+  renderTab({ features: [] });
+
+  expect(await screen.findByTestId("enable-banking-card")).toBeInTheDocument();
+  expect(screen.queryByTestId("super-pdp-card")).toBeNull();
 });

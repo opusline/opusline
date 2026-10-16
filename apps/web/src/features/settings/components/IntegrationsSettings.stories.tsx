@@ -4,6 +4,9 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 
+import { INVOICING } from "@/lib/features";
+import { seedCurrentUser } from "@/test/current-user";
+import { eInvoicingConnected, eInvoicingUnconfigured } from "@/test/fixtures";
 import { StoryRouter } from "@/test/story-router";
 import { IntegrationsSettings } from "./integrations-settings";
 
@@ -15,6 +18,7 @@ function Example({ integrations }: { integrations: IntegrationsData }) {
     });
 
     client.setQueryData(showIntegrationsQueryKey(), integrations);
+    seedCurrentUser(client, { features: [INVOICING] });
 
     return client;
   });
@@ -40,6 +44,7 @@ const meta = {
         applicationId: null,
         redirectUrl: "https://opusline.example/bank-account",
       },
+      eInvoicing: eInvoicingUnconfigured,
     },
   },
 } satisfies Meta<typeof Example>;
@@ -56,6 +61,7 @@ export const Configured: Story = {
         applicationId: "6f1c1a52-9d1e-4b9e-8a53-0c1e2f3a4b5c",
         redirectUrl: "https://opusline.example/bank-account",
       },
+      eInvoicing: eInvoicingConnected,
     },
   },
 };

@@ -4,6 +4,7 @@ import type {
   ClientRevenueDetailData,
   ClientWithMissionsData,
   DeadlineItemData,
+  EInvoicingSettingsData,
   FiscalDeadlineData,
   FixedPriceBudgetData,
   InvoiceData,
@@ -375,3 +376,25 @@ export function treasuryData(
     ...overrides,
   };
 }
+
+/** Réglages → Intégrations before any plateforme agréée is saved. */
+export const eInvoicingUnconfigured: EInvoicingSettingsData = {
+  clientId: null,
+  companyName: null,
+  companyNumber: null,
+  environment: null,
+  companyVerified: false,
+  receivingAddress: null,
+  checkedAt: null,
+};
+
+/** A verified sandbox company on Super PDP, registered in the annuaire. */
+export const eInvoicingConnected: EInvoicingSettingsData = {
+  clientId: "opusline_8f3c2e1a4d6f9b7c",
+  companyName: "Théo Marchand",
+  companyNumber: "123456782",
+  environment: 0,
+  companyVerified: true,
+  receivingAddress: "0225:12345678200002",
+  checkedAt: "2026-10-16T09:12:00+02:00",
+};

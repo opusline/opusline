@@ -160,4 +160,5 @@ return [
     'vatTreatment' => 'traitement de TVA',
     'version' => 'version',
     'workdayMinutes' => 'durée de journée',
+    'clientSecret' => 'secret client',
 ];

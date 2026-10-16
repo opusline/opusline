@@ -976,6 +976,19 @@ export type DocumentPartyData = {
 export type DocumentSource = 0 | 1 | 2;
 
 /**
+ * EInvoicingSettingsData
+ */
+export type EInvoicingSettingsData = {
+    clientId: string | null;
+    companyName: string | null;
+    companyNumber: string | null;
+    environment: PlatformEnvironment | null;
+    companyVerified: boolean;
+    receivingAddress: string | null;
+    checkedAt: string | null;
+};
+
+/**
  * EnableBankingSettingsData
  */
 export type EnableBankingSettingsData = {
@@ -1340,6 +1353,7 @@ export type InstanceData = {
  */
 export type IntegrationsData = {
     enableBanking: EnableBankingSettingsData;
+    eInvoicing: EInvoicingSettingsData;
 };
 
 /**
@@ -1929,6 +1943,14 @@ export type PingData = {
 };
 
 /**
+ * PlatformEnvironment
+ *
+ * Which side of the platform the credentials open: the sandbox files nothing with the administration.
+ *
+ */
+export type PlatformEnvironment = 0 | 1;
+
+/**
  * ReadReceiptData
  */
 export type ReadReceiptData = {
@@ -2193,6 +2215,14 @@ export type SaveInvoiceDraftData = {
     latePenaltyRateBp?: number | null;
     customMentions?: string | null;
     timeEntryIds?: Array<number>;
+};
+
+/**
+ * SaveSuperPdpCredentialsData
+ */
+export type SaveSuperPdpCredentialsData = {
+    clientId: string;
+    clientSecret: string;
 };
 
 /**
@@ -6245,6 +6275,87 @@ export type SaveEnableBankingCredentialsResponses = {
 };
 
 export type SaveEnableBankingCredentialsResponse = SaveEnableBankingCredentialsResponses[keyof SaveEnableBankingCredentialsResponses];
+
+export type DeleteSuperPdpCredentialsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/settings/integrations/super-pdp';
+};
+
+export type DeleteSuperPdpCredentialsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteSuperPdpCredentialsError = DeleteSuperPdpCredentialsErrors[keyof DeleteSuperPdpCredentialsErrors];
+
+export type DeleteSuperPdpCredentialsResponses = {
+    200: IntegrationsData;
+};
+
+export type DeleteSuperPdpCredentialsResponse = DeleteSuperPdpCredentialsResponses[keyof DeleteSuperPdpCredentialsResponses];
+
+export type SaveSuperPdpCredentialsData2 = {
+    body: SaveSuperPdpCredentialsData;
+    path?: never;
+    query?: never;
+    url: '/settings/integrations/super-pdp';
+};
+
+export type SaveSuperPdpCredentialsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type SaveSuperPdpCredentialsError = SaveSuperPdpCredentialsErrors[keyof SaveSuperPdpCredentialsErrors];
+
+export type SaveSuperPdpCredentialsResponses = {
+    200: IntegrationsData;
+};
+
+export type SaveSuperPdpCredentialsResponse = SaveSuperPdpCredentialsResponses[keyof SaveSuperPdpCredentialsResponses];
+
+export type CheckSuperPdpConnectionData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/settings/integrations/super-pdp/check';
+};
+
+export type CheckSuperPdpConnectionErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CheckSuperPdpConnectionError = CheckSuperPdpConnectionErrors[keyof CheckSuperPdpConnectionErrors];
+
+export type CheckSuperPdpConnectionResponses = {
+    200: IntegrationsData;
+};
+
+export type CheckSuperPdpConnectionResponse = CheckSuperPdpConnectionResponses[keyof CheckSuperPdpConnectionResponses];
 
 export type ListInvoicesData = {
     body?: never;
