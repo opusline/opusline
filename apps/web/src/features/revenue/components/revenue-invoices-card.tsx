@@ -39,7 +39,7 @@ export function RevenueInvoicesCard({
         </h2>
         <Link
           className="text-primary-text text-xs hover:text-primary-text-strong"
-          to="/invoices"
+          to="/invoicing/invoices"
         >
           {m.revenue_invoices_link()}
         </Link>

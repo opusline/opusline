@@ -61,7 +61,7 @@ export function Ca3BoxRow({ row }: { row: Ca3Row }) {
             {sourceFigure}
           </Link>
         ) : (
-          <Link className={LINK_CLASSES} to="/invoices">
+          <Link className={LINK_CLASSES} to="/invoicing/invoices">
             {sourceFigure}
           </Link>
         )}

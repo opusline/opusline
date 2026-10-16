@@ -374,7 +374,10 @@ function BankRoute() {
           setImportOpen(true);
         }}
         onOpenInvoice={(invoiceId) =>
-          navigate({ to: "/invoices", search: { invoice: invoiceId } })
+          navigate({
+            to: "/invoicing/invoices",
+            search: { invoice: invoiceId },
+          })
         }
         onValidateMatch={(matchId) =>
           validate.mutate({ path: { match: matchId } })

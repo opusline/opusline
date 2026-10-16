@@ -189,7 +189,7 @@ function DeadlineRow({
         <Link
           className={cardClasses}
           search={{ invoice: item.invoice.id }}
-          to="/invoices"
+          to="/invoicing/invoices"
         >
           {card}
         </Link>

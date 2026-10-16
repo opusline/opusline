@@ -104,7 +104,7 @@ function RevenusRoute() {
         data={revenue.data}
         isRefreshing={revenue.isPlaceholderData}
         onBasisChange={showBasis}
-        onGoToInvoices={() => navigate({ to: "/invoices" })}
+        onGoToInvoices={() => navigate({ to: "/invoicing/invoices" })}
         onOpenInvoice={openInvoice}
         onPeriodChange={showPeriod}
         requestedBasis={basis}

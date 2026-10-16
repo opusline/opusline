@@ -1592,6 +1592,7 @@
     }
   ],
   "invoicing_document_language": "Langue par défaut des documents",
+  "invoicing_exit": "Retour à Opusline",
   "invoicing_identity_address": "Adresse",
   "invoicing_identity_edit": "Modifier dans Réglages",
   "invoicing_identity_name": "Raison sociale",
@@ -1621,6 +1622,34 @@
   "invoicing_mode_opusline": "Dans Opusline",
   "invoicing_mode_opusline_detail": "Opusline numérote, génère le PDF et l'envoie au client. Les relances partent toutes seules.",
   "invoicing_mode_title": "Où éditez-vous vos factures et devis ?",
+  "invoicing_nav_settings": "Réglages",
+  "invoicing_new": "Nouveau",
+  "invoicing_new_external_invoice": "Facture émise ailleurs",
+  "invoicing_new_external_invoice_detail": "Montant et PDF d'un autre outil",
+  "invoicing_open_invoices": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} facture ouverte",
+        "countPlural=other": "{count} factures ouvertes"
+      }
+    }
+  ],
+  "invoicing_open_invoices_late": [
+    {
+      "declarations": [
+        "input count",
+        "input late",
+        "local countPlural = count: plural"
+      ],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} facture ouverte · {late} en retard",
+        "countPlural=other": "{count} factures ouvertes · {late} en retard"
+      }
+    }
+  ],
   "invoicing_penalty_below_floor": "En dessous du minimum légal : le taux ne peut être inférieur à trois fois le taux d'intérêt légal, soit {rate} % ce semestre.",
   "invoicing_penalty_floor": "Minimum légal · {rate} %",
   "invoicing_penalty_hint": "Taux libre, au moins égal à trois fois le taux d'intérêt légal. Sans taux écrit, c'est le taux BCE + 10 points qui s'applique.",
@@ -1629,6 +1658,7 @@
   "invoicing_penalty_placeholder": "Taux BCE + 10 points",
   "invoicing_penalty_statutory": "BCE + 10 points · {rate} %",
   "invoicing_quote_validity": "Validité des devis",
+  "invoicing_section_title": "Facturation",
   "invoicing_settings_load_failed": "Les réglages de facturation n'ont pas pu être chargés.",
   "invoicing_settings_saved": "Réglages de facturation enregistrés",
   "invoicing_settings_subtitle": "Appliqués par défaut à chaque nouvelle facture et à chaque nouveau devis. Un document déjà émis ne change pas.",
@@ -1646,6 +1676,7 @@
   "invoicing_terms_default": "Délai de paiement par défaut",
   "invoicing_terms_note": "« Fin de mois » : l'échéance part du dernier jour du mois d'émission. Le délai d'un client, renseigné sur sa fiche, l'emporte sur celui-ci.",
   "invoicing_terms_title": "Conditions de paiement",
+  "invoicing_to_collect": "À encaisser",
   "invoicing_vat_on_debits": "J'ai opté pour le paiement de la TVA d'après les débits",
   "logo_reject_size": "trop lourd (max 2 Mo)",
   "logo_reject_type": "PNG ou SVG uniquement",

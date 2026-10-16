@@ -16,6 +16,7 @@ import { Menu } from "lucide-react";
 import { useEffect } from "react";
 import { AddressAutocompleteProvider } from "@/components/address-autocomplete-provider";
 import { AppSidebar } from "@/components/app-sidebar";
+import { InvoicingSidebar } from "@/components/invoicing-sidebar";
 import { MoneyFormatProvider } from "@/components/money-format-provider";
 import { SessionLockProvider } from "@/features/auth/components/session-lock-provider";
 import { InvoiceDrawerProvider } from "@/features/invoices/components/invoice-drawer-provider";
@@ -64,6 +65,8 @@ const pageTitles: Record<string, () => string> = {
   "/week": m.page_title_week,
   "/clients": m.page_title_clients,
   "/cra": m.page_title_cra,
+  "/invoicing/invoices": m.nav_invoices,
+  "/invoicing/settings": m.invoicing_settings_title,
   "/revenue": m.page_title_revenue,
   "/expenses": m.page_title_expenses,
   "/treasury": m.page_title_treasury,
@@ -140,7 +143,11 @@ function AuthedLayout() {
             <ToastProvider>
               <InvoiceDrawerProvider timezone={user.timezone}>
                 <SidebarProvider>
-                  <AppSidebar toolbar={modeToggle} />
+                  {pathname.startsWith("/invoicing") ? (
+                    <InvoicingSidebar toolbar={modeToggle} />
+                  ) : (
+                    <AppSidebar toolbar={modeToggle} />
+                  )}
                   <SidebarInset className="min-w-0">
                     <header className="flex h-14 items-center gap-2 border-b px-4 md:gap-4">
                       <ExpandSidebarButton />

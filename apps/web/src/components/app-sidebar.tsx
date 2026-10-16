@@ -233,10 +233,10 @@ export function AppSidebar({ toolbar }: { toolbar?: ReactNode }) {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    data-route="/invoices"
+                    data-route="/invoicing/invoices"
                     data-testid="nav-link"
-                    isActive={pathname.startsWith("/invoices")}
-                    render={<Link to="/invoices" />}
+                    isActive={pathname.startsWith("/invoicing")}
+                    render={<Link to="/invoicing/invoices" />}
                     tooltip={m.nav_invoices()}
                   >
                     <ReceiptText />
