@@ -7183,6 +7183,83 @@
                     }
                 }
             }
+        },
+        "/settings/integrations/super-pdp": {
+            "put": {
+                "operationId": "saveSuperPdpCredentials",
+                "tags": [
+                    "Integrations"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SaveSuperPdpCredentialsData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IntegrationsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteSuperPdpCredentials",
+                "tags": [
+                    "Integrations"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IntegrationsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/settings/integrations/super-pdp/check": {
+            "post": {
+                "operationId": "checkSuperPdpConnection",
+                "tags": [
+                    "Integrations"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IntegrationsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -11329,10 +11406,14 @@
                 "properties": {
                     "enableBanking": {
                         "$ref": "#/components/schemas/EnableBankingSettingsData"
+                    },
+                    "eInvoicing": {
+                        "$ref": "#/components/schemas/EInvoicingSettingsData"
                     }
                 },
                 "required": [
-                    "enableBanking"
+                    "enableBanking",
+                    "eInvoicing"
                 ],
                 "title": "IntegrationsData"
             },
@@ -16635,6 +16716,97 @@
                     "ReelNormal"
                 ],
                 "title": "VatRegime"
+            },
+            "EInvoicingSettingsData": {
+                "type": "object",
+                "properties": {
+                    "clientId": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "companyName": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "companyNumber": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "environment": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PlatformEnvironment"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "companyVerified": {
+                        "type": "boolean"
+                    },
+                    "receivingAddress": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "checkedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "clientId",
+                    "companyName",
+                    "companyNumber",
+                    "environment",
+                    "companyVerified",
+                    "receivingAddress",
+                    "checkedAt"
+                ],
+                "title": "EInvoicingSettingsData"
+            },
+            "PlatformEnvironment": {
+                "type": "integer",
+                "description": "Which side of the platform the credentials open: the sandbox files nothing with the administration.\n",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "Sandbox",
+                    "Production"
+                ],
+                "title": "PlatformEnvironment"
+            },
+            "SaveSuperPdpCredentialsData": {
+                "type": "object",
+                "properties": {
+                    "clientId": {
+                        "type": "string",
+                        "minLength": 8,
+                        "maxLength": 128
+                    },
+                    "clientSecret": {
+                        "type": "string",
+                        "minLength": 8,
+                        "maxLength": 512
+                    }
+                },
+                "required": [
+                    "clientId",
+                    "clientSecret"
+                ],
+                "title": "SaveSuperPdpCredentialsData"
             }
         },
         "responses": {

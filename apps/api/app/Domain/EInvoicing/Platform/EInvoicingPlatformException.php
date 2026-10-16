@@ -4,7 +4,22 @@ declare(strict_types=1);
 
 namespace App\Domain\EInvoicing\Platform;
 
+use App\Domain\EInvoicing\Enums\EInvoicingError;
 use RuntimeException;
+use Throwable;
 
-/** The platform refused or could not complete a call: the message is what the user reads. */
-class EInvoicingPlatformException extends RuntimeException {}
+/**
+ * A call to the plateforme agréée that did not deliver. The message is for
+ * logs only; the user reads the reason's translation, and the message never
+ * carries a response body, which could hold a supplier's invoice.
+ */
+class EInvoicingPlatformException extends RuntimeException
+{
+    public function __construct(
+        public readonly EInvoicingError $reason,
+        string $message,
+        ?Throwable $previous = null,
+    ) {
+        parent::__construct($message, previous: $previous);
+    }
+}

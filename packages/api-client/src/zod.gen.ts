@@ -879,13 +879,6 @@ export const zInstanceData = z.object({
 });
 
 /**
- * IntegrationsData
- */
-export const zIntegrationsData = z.object({
-    enableBanking: zEnableBankingSettingsData
-});
-
-/**
  * InvoiceCountsData
  */
 export const zInvoiceCountsData = z.object({
@@ -3160,6 +3153,43 @@ export const zDeclarationsData = z.object({
     history: z.array(zDeclarationHistoryRowData)
 });
 
+/**
+ * PlatformEnvironment
+ *
+ * Which side of the platform the credentials open: the sandbox files nothing with the administration.
+ *
+ */
+export const zPlatformEnvironment = z.union([z.literal(0), z.literal(1)]);
+
+/**
+ * EInvoicingSettingsData
+ */
+export const zEInvoicingSettingsData = z.object({
+    clientId: z.nullable(z.string()),
+    companyName: z.nullable(z.string()),
+    companyNumber: z.nullable(z.string()),
+    environment: z.nullable(zPlatformEnvironment),
+    companyVerified: z.boolean(),
+    receivingAddress: z.nullable(z.string()),
+    checkedAt: z.nullable(z.string())
+});
+
+/**
+ * IntegrationsData
+ */
+export const zIntegrationsData = z.object({
+    enableBanking: zEnableBankingSettingsData,
+    eInvoicing: zEInvoicingSettingsData
+});
+
+/**
+ * SaveSuperPdpCredentialsData
+ */
+export const zSaveSuperPdpCredentialsData = z.object({
+    clientId: z.string().check(z.minLength(8), z.maxLength(128)),
+    clientSecret: z.string().check(z.minLength(8), z.maxLength(512))
+});
+
 export const zGetPingResponse = zPingData;
 
 export const zRegisterBody = zRegisterUserData;
@@ -4187,3 +4217,11 @@ export const zDownloadUserDocumentPath = z.object({
 });
 
 export const zDownloadUserDocumentResponse = z.string();
+
+export const zDeleteSuperPdpCredentialsResponse = zIntegrationsData;
+
+export const zSaveSuperPdpCredentialsBody = zSaveSuperPdpCredentialsData;
+
+export const zSaveSuperPdpCredentialsResponse = zIntegrationsData;
+
+export const zCheckSuperPdpConnectionResponse = zIntegrationsData;

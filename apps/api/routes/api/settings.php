@@ -31,6 +31,14 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
         ->name('saveEnableBankingCredentials');
     Route::delete('/settings/integrations/enable-banking', [IntegrationsController::class, 'deleteEnableBanking'])
         ->name('deleteEnableBankingCredentials');
+    Route::put('/settings/integrations/super-pdp', [IntegrationsController::class, 'saveSuperPdp'])
+        ->middleware('throttle:6,1')
+        ->name('saveSuperPdpCredentials');
+    Route::post('/settings/integrations/super-pdp/check', [IntegrationsController::class, 'checkSuperPdp'])
+        ->middleware('throttle:6,1')
+        ->name('checkSuperPdpConnection');
+    Route::delete('/settings/integrations/super-pdp', [IntegrationsController::class, 'deleteSuperPdp'])
+        ->name('deleteSuperPdpCredentials');
 
     Route::post('/user/signature', [SignatureController::class, 'store'])
         ->middleware('throttle:uploads')

@@ -17,6 +17,7 @@ use App\Domain\Cra\Factories\CraFactory;
 use App\Domain\Cra\Models\Cra;
 use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
 use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
+use App\Domain\EInvoicing\Models\EInvoicingConnection;
 use App\Domain\Expenses\Enums\ExpenseCategory;
 use App\Domain\Expenses\Enums\ExpenseVatTreatment;
 use App\Domain\Expenses\Enums\SubscriptionPeriodicity;
@@ -372,6 +373,48 @@ function enableBankingPrivateKey(): string
 }
 
 const ENABLE_BANKING_APPLICATION_ID = '6f1c1a52-9d1e-4b9e-8a53-0c1e2f3a4b5c';
+
+const SUPER_PDP_CLIENT_ID = 'opusline_8f3c2e1a4d6f9b7c';
+const SUPER_PDP_CLIENT_SECRET = 'secret_0b8f3c2e1a4d4e6f9b7c5d2e1f0a3b4c';
+
+/** The user, with a verified Super PDP application saved. */
+function withSuperPdpConnection(User $user, array $attributes = []): EInvoicingConnection
+{
+    return EInvoicingConnection::factory()->for($user)->create([
+        'client_id' => SUPER_PDP_CLIENT_ID,
+        'client_secret' => SUPER_PDP_CLIENT_SECRET,
+        ...$attributes,
+    ]);
+}
+
+/**
+ * Super PDP as it answers a verified sandbox company registered in the annuaire.
+ *
+ * @param  array<string, mixed>  $overrides
+ */
+function fakeSuperPdp(array $overrides = []): void
+{
+    Http::fake(array_replace([
+        'api.superpdp.tech/oauth2/token' => Http::response(['access_token' => 'tok_sandbox', 'token_type' => 'Bearer', 'expires_in' => 1800]),
+        'api.superpdp.tech/v1.beta/oauth2_sessions/me' => Http::response([
+            'client_id' => SUPER_PDP_CLIENT_ID,
+            'company_verification_status' => 'verified',
+            'user_identity_verification_status' => 'verified',
+        ]),
+        'api.superpdp.tech/v1.beta/companies/me' => Http::response([
+            'id' => 4821,
+            'formal_name' => 'THEO MARCHAND',
+            'trade_name' => 'Théo Marchand',
+            'number' => '123456782',
+            'number_scheme' => 'fr_siren',
+            'env' => 'sandbox',
+            'vat_regime' => 'vat_exemption',
+        ]),
+        'api.superpdp.tech/v1.beta/french_directory/entries*' => Http::response(['data' => [
+            ['id' => 91, 'addressing_identifier' => '0225:12345678200002', 'platform_type' => 'WK', 'status' => 'Enabled'],
+        ]]),
+    ], $overrides));
+}
 
 /** The user, with an Enable Banking application saved in their settings. */
 function withEnableBankingCredentials(User $user): User
