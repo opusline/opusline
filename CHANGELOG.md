@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.5](https://github.com/opusline/opusline/compare/v0.33.4...v0.33.5) (2026-10-16)
+
+
+### Bug Fixes
+
+* **api:** restore shine bank sync ([#554](https://github.com/opusline/opusline/issues/554)) ([5a42a9e](https://github.com/opusline/opusline/commit/5a42a9e8914366400db227b190e037d9f4d48cff))
+
 ## [0.33.4](https://github.com/opusline/opusline/compare/v0.33.3...v0.33.4) (2026-10-15)
 
 
