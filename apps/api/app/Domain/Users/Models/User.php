@@ -84,6 +84,7 @@ class User extends Authenticatable implements HasLocalePreference, HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('signature')->singleFile();
+        $this->addMediaCollection('company_logo')->singleFile();
     }
 
     /**

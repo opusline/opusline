@@ -5,11 +5,14 @@ import { House } from "lucide-react";
 import { AddressFields } from "@/components/address-fields";
 import { ExemptField } from "@/components/exempt-field";
 import { FormTextField } from "@/components/form-text-field";
+import { LogoPicker } from "@/components/logo-picker";
 import {
   formatFrenchPhone,
+  formatIban,
   formatSiret,
   formatVatNumber,
 } from "@/lib/identifiers";
+import { COMPANY_LOGO_RULES } from "@/lib/logos";
 import { m } from "@/paraglide/messages.js";
 import {
   COMPANY_ADDRESS_NAMES,
@@ -22,12 +25,24 @@ const EYEBROW =
   "font-medium text-muted-foreground-2 text-xs uppercase tracking-wider-2";
 const LABEL = "text-muted-foreground-2 text-xs";
 
+/** The logo uploads on its own, the moment it is picked, outside the form's save. */
+export type CompanyLogoSlot = {
+  /** Set only while a logo is stored, so an empty slot shows its placeholder. */
+  src?: string;
+  isPending: boolean;
+  error: string | null;
+  onPick: (logo: File) => void;
+  onRemove: () => void;
+};
+
 export function IdentitySettingsForm({
   form,
   hasFrenchFiscality,
   showEuVatNumber,
+  logo,
 }: {
   form: SettingsForm;
+  logo: CompanyLogoSlot;
   /** The auto-entrepreneur status and the SIRET only exist in France. */
   hasFrenchFiscality: boolean;
   /** The intra-community VAT number only exists inside the EU. */
@@ -53,6 +68,30 @@ export function IdentitySettingsForm({
           </span>
         </div>
       )}
+
+      <div className="mb-5 flex flex-wrap items-center gap-4">
+        <LogoPicker
+          error={logo.error}
+          isPending={logo.isPending}
+          label={m.settings_logo_input_aria()}
+          onPick={logo.onPick}
+          onRemove={logo.onRemove}
+          placeholder={m.settings_logo_pick()}
+          removeLabel={m.settings_logo_remove_aria()}
+          rules={COMPANY_LOGO_RULES}
+          size="sm"
+          src={logo.src}
+          testId="settings-logo"
+        />
+        <span className="min-w-40 flex-1">
+          <span className="block text-foreground-hi text-sm">
+            {m.settings_logo_title()}
+          </span>
+          <span className="mt-0.5 block text-muted-foreground-3 text-xs">
+            {m.settings_logo_hint()}
+          </span>
+        </span>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <form.Field name="tradeName">
@@ -147,6 +186,20 @@ export function IdentitySettingsForm({
             />
           )}
         </form.Field>
+
+        {hasFrenchFiscality && (
+          <form.Field name="tradeRegistry">
+            {(field) => (
+              <FormTextField
+                field={field}
+                description={m.settings_trade_registry_hint()}
+                label={m.settings_trade_registry_label()}
+                labelClassName={LABEL}
+                placeholder={m.settings_trade_registry_placeholder()}
+              />
+            )}
+          </form.Field>
+        )}
       </div>
 
       <div className="mt-6.5 mb-3 flex items-baseline justify-between gap-3">
@@ -167,6 +220,43 @@ export function IdentitySettingsForm({
         streetLabel={m.address_label()}
         withPlaceholders
       />
+
+      <div className="mt-6.5 mb-3 flex items-baseline justify-between gap-3">
+        <span className={EYEBROW}>{m.settings_bank_title()}</span>
+        <span className="text-muted-foreground-3 text-xs">
+          {m.settings_bank_hint()}
+        </span>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="sm:col-span-2">
+          <form.Field name="iban">
+            {(field) => (
+              <FormTextField
+                field={field}
+                font="mono"
+                formatOnBlur={formatIban}
+                label={m.settings_iban_label()}
+                labelClassName={LABEL}
+                placeholder={m.settings_iban_placeholder()}
+                testId="settings-iban"
+              />
+            )}
+          </form.Field>
+        </div>
+        <form.Field name="bic">
+          {(field) => (
+            <FormTextField
+              field={field}
+              font="mono"
+              formatOnBlur={(value) => value.trim().toUpperCase()}
+              label={m.settings_bic_label()}
+              labelClassName={LABEL}
+              placeholder={m.settings_bic_placeholder()}
+              testId="settings-bic"
+            />
+          )}
+        </form.Field>
+      </div>
 
       <div className="mt-6.5 mb-3 flex items-baseline justify-between gap-3">
         <span className={EYEBROW}>{m.settings_home_address_title()}</span>

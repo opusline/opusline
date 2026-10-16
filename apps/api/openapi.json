@@ -1422,6 +1422,79 @@
                 }
             }
         },
+        "/user/logo": {
+            "post": {
+                "operationId": "uploadCompanyLogo",
+                "tags": [
+                    "CompanyLogo"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UploadCompanyLogoData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "get": {
+                "operationId": "showCompanyLogo",
+                "tags": [
+                    "CompanyLogo"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Transfer-Encoding": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "chunked"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteCompanyLogo",
+                "tags": [
+                    "CompanyLogo"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/cras": {
             "get": {
                 "operationId": "listCras",
@@ -12291,6 +12364,24 @@
                             "null"
                         ]
                     },
+                    "iban": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "bic": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "tradeRegistry": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
                     "signatureCity": {
                         "type": [
                             "string",
@@ -12502,6 +12593,9 @@
                     "hasSignature": {
                         "type": "boolean"
                     },
+                    "hasLogo": {
+                        "type": "boolean"
+                    },
                     "notifications": {
                         "$ref": "#/components/schemas/NotificationPreferencesData"
                     }
@@ -12510,6 +12604,9 @@
                     "tradeName",
                     "siret",
                     "vatNumber",
+                    "iban",
+                    "bic",
+                    "tradeRegistry",
                     "signatureCity",
                     "contactEmail",
                     "phone",
@@ -12555,6 +12652,7 @@
                     "workdayMinutes",
                     "dormantAfterMonths",
                     "hasSignature",
+                    "hasLogo",
                     "notifications"
                 ],
                 "title": "SettingsData"
@@ -14154,6 +14252,27 @@
                         ],
                         "maxLength": 255
                     },
+                    "iban": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 64
+                    },
+                    "bic": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 16
+                    },
+                    "tradeRegistry": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
                     "signatureCity": {
                         "type": [
                             "string",
@@ -14428,6 +14547,21 @@
                     "logo"
                 ],
                 "title": "UploadClientLogoData"
+            },
+            "UploadCompanyLogoData": {
+                "type": "object",
+                "properties": {
+                    "logo": {
+                        "type": "string",
+                        "format": "binary",
+                        "contentMediaType": "application/octet-stream",
+                        "description": "Maximum file size: 1536 kilobytes."
+                    }
+                },
+                "required": [
+                    "logo"
+                ],
+                "title": "UploadCompanyLogoData"
             },
             "UploadDocumentData": {
                 "type": "object",

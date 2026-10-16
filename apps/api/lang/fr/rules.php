@@ -9,5 +9,7 @@ return [
     'expense_vat_rate' => 'Le taux de TVA ne correspond pas au régime : un achat hors TVA n\'en porte aucun, une autoliquidation en exige un.',
     'subscription_debit_month' => 'Un abonnement annuel a besoin de son mois de prélèvement.',
     'subscription_amount_before_start' => 'Un changement de prix ne peut pas précéder le premier prélèvement de l\'abonnement.',
+    'iban' => 'L\'IBAN est invalide : vérifiez sa longueur et ses deux chiffres de contrôle.',
+    'bic' => 'Le BIC compte 8 ou 11 lettres et chiffres, tel que la banque l\'imprime.',
     'enable_banking_private_key' => 'La clé doit être la clé privée RSA (.pem) téléchargée par Enable Banking à la création de l\'application.',
 ];

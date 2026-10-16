@@ -14,6 +14,8 @@ use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Settings\Rates\LiberatingPayment;
 use App\Domain\Settings\Rates\RateSituation;
 use App\Domain\Shared\Validation\AccountCurrency;
+use App\Domain\Shared\Validation\Bic;
+use App\Domain\Shared\Validation\Iban;
 use Illuminate\Support\Facades\DB;
 
 class UpdateSettings
@@ -68,6 +70,9 @@ class UpdateSettings
                 'trade_name' => $data->tradeName,
                 'siret' => $data->siret,
                 'vat_number' => $data->vatNumber,
+                'iban' => $data->iban === null ? null : Iban::normalize($data->iban),
+                'bic' => $data->bic === null ? null : Bic::normalize($data->bic),
+                'trade_registry' => $data->tradeRegistry,
                 'signature_city' => $data->signatureCity,
                 'contact_email' => $data->contactEmail,
                 'phone' => $data->phone,

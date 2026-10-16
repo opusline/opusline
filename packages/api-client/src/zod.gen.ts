@@ -2544,6 +2544,13 @@ export const zUploadClientLogoData = z.object({
 });
 
 /**
+ * UploadCompanyLogoData
+ */
+export const zUploadCompanyLogoData = z.object({
+    logo: z.string()
+});
+
+/**
  * UploadDocumentData
  */
 export const zUploadDocumentData = z.object({
@@ -2640,6 +2647,9 @@ export const zSettingsData = z.object({
     tradeName: z.nullable(z.string()),
     siret: z.nullable(z.string()),
     vatNumber: z.nullable(z.string()),
+    iban: z.nullable(z.string()),
+    bic: z.nullable(z.string()),
+    tradeRegistry: z.nullable(z.string()),
     signatureCity: z.nullable(z.string()),
     contactEmail: z.nullable(z.string()),
     phone: z.nullable(z.string()),
@@ -2685,6 +2695,7 @@ export const zSettingsData = z.object({
     workdayMinutes: z.int(),
     dormantAfterMonths: z.nullable(z.int()),
     hasSignature: z.boolean(),
+    hasLogo: z.boolean(),
     notifications: zNotificationPreferencesData
 });
 
@@ -2711,6 +2722,9 @@ export const zUpdateSettingsData = z.object({
     tradeName: z.nullish(z.string().check(z.maxLength(255))),
     siret: z.nullish(z.string().check(z.maxLength(255))),
     vatNumber: z.nullish(z.string().check(z.maxLength(255))),
+    iban: z.nullish(z.string().check(z.maxLength(64))),
+    bic: z.nullish(z.string().check(z.maxLength(16))),
+    tradeRegistry: z.nullish(z.string().check(z.maxLength(255))),
     signatureCity: z.nullish(z.string().check(z.maxLength(255))),
     contactEmail: z.nullish(z.email().check(z.maxLength(255))),
     phone: z.nullish(z.string().check(z.maxLength(64))),
@@ -2992,6 +3006,20 @@ export const zShowMissionRevenuePath = z.object({
 export const zShowMissionRevenueResponse = zMissionRevenueData;
 
 export const zListClientRevenueResponse = zClientRevenueListData;
+
+/**
+ * No content
+ */
+export const zDeleteCompanyLogoResponse = z.void();
+
+export const zShowCompanyLogoResponse = z.string();
+
+export const zUploadCompanyLogoBody = zUploadCompanyLogoData;
+
+/**
+ * No content
+ */
+export const zUploadCompanyLogoResponse = z.void();
 
 export const zListCrasQuery = z.object({
     month: z.nullish(z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/)))

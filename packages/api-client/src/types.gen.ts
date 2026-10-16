@@ -1902,6 +1902,9 @@ export type SettingsData = {
     tradeName: string | null;
     siret: string | null;
     vatNumber: string | null;
+    iban: string | null;
+    bic: string | null;
+    tradeRegistry: string | null;
     signatureCity: string | null;
     contactEmail: string | null;
     phone: string | null;
@@ -1947,6 +1950,7 @@ export type SettingsData = {
     workdayMinutes: number;
     dormantAfterMonths: number | null;
     hasSignature: boolean;
+    hasLogo: boolean;
     notifications: NotificationPreferencesData;
 };
 
@@ -2435,6 +2439,9 @@ export type UpdateSettingsData = {
     tradeName?: string | null;
     siret?: string | null;
     vatNumber?: string | null;
+    iban?: string | null;
+    bic?: string | null;
+    tradeRegistry?: string | null;
     signatureCity?: string | null;
     contactEmail?: string | null;
     phone?: string | null;
@@ -2500,6 +2507,16 @@ export type UpdateUserThemeData = {
 export type UploadClientLogoData = {
     /**
      * Maximum file size: 2048 kilobytes.
+     */
+    logo: Blob | File;
+};
+
+/**
+ * UploadCompanyLogoData
+ */
+export type UploadCompanyLogoData = {
+    /**
+     * Maximum file size: 1536 kilobytes.
      */
     logo: Blob | File;
 };
@@ -4056,6 +4073,93 @@ export type ListClientRevenueResponses = {
 };
 
 export type ListClientRevenueResponse = ListClientRevenueResponses[keyof ListClientRevenueResponses];
+
+export type DeleteCompanyLogoData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/logo';
+};
+
+export type DeleteCompanyLogoErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DeleteCompanyLogoError = DeleteCompanyLogoErrors[keyof DeleteCompanyLogoErrors];
+
+export type DeleteCompanyLogoResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type DeleteCompanyLogoResponse = DeleteCompanyLogoResponses[keyof DeleteCompanyLogoResponses];
+
+export type ShowCompanyLogoData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/logo';
+};
+
+export type ShowCompanyLogoErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowCompanyLogoError = ShowCompanyLogoErrors[keyof ShowCompanyLogoErrors];
+
+export type ShowCompanyLogoResponses = {
+    200: Blob | File;
+};
+
+export type ShowCompanyLogoResponse = ShowCompanyLogoResponses[keyof ShowCompanyLogoResponses];
+
+export type UploadCompanyLogoData2 = {
+    body: UploadCompanyLogoData;
+    path?: never;
+    query?: never;
+    url: '/user/logo';
+};
+
+export type UploadCompanyLogoErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UploadCompanyLogoError = UploadCompanyLogoErrors[keyof UploadCompanyLogoErrors];
+
+export type UploadCompanyLogoResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type UploadCompanyLogoResponse = UploadCompanyLogoResponses[keyof UploadCompanyLogoResponses];
 
 export type ListCrasData = {
     body?: never;

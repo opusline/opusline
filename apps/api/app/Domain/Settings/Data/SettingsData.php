@@ -22,6 +22,9 @@ class SettingsData extends Data
         public ?string $tradeName,
         public ?string $siret,
         public ?string $vatNumber,
+        public ?string $iban,
+        public ?string $bic,
+        public ?string $tradeRegistry,
         public ?string $signatureCity,
         public ?string $contactEmail,
         public ?string $phone,
@@ -74,12 +77,15 @@ class SettingsData extends Data
          */
         public ?int $dormantAfterMonths,
         public bool $hasSignature,
+        /** Whether the company logo printed on documents and e-mails is uploaded. */
+        public bool $hasLogo,
         public NotificationPreferencesData $notifications,
     ) {}
 
     public static function fromModel(
         UserSettings $settings,
         bool $hasSignature,
+        bool $hasLogo,
         bool $currencyLocked,
         bool $ratesRefreshing = false,
     ): self {
@@ -87,6 +93,9 @@ class SettingsData extends Data
             tradeName: $settings->trade_name,
             siret: $settings->siret,
             vatNumber: $settings->vat_number,
+            iban: $settings->iban,
+            bic: $settings->bic,
+            tradeRegistry: $settings->trade_registry,
             signatureCity: $settings->signature_city,
             contactEmail: $settings->contact_email,
             phone: $settings->phone,
@@ -138,6 +147,7 @@ class SettingsData extends Data
             workdayMinutes: $settings->workday_minutes,
             dormantAfterMonths: $settings->dormant_after_months,
             hasSignature: $hasSignature,
+            hasLogo: $hasLogo,
             notifications: NotificationPreferencesData::fromSettings($settings),
         );
     }

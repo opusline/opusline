@@ -39,6 +39,27 @@ it("sends the whole object so one edited field does not blank the others", () =>
   expect(payload.invoiceNumberFormat).toBe(settingsFixture.invoiceNumberFormat);
 });
 
+it("shows the IBAN in groups of four and sends it compact", () => {
+  expect(values.iban).toBe("FR76 3000 6000 0112 3456 7890 189");
+
+  const payload = toSettingsPayload(
+    DEFAULT_MONEY_FORMAT,
+    { ...values, iban: "fr76 30006000 0112 3456 7890 189", bic: " agrifrpp" },
+    settingsFixture,
+  );
+
+  expect(payload.iban).toBe("FR7630006000011234567890189");
+  expect(payload.bic).toBe("AGRIFRPP");
+  expect(
+    countChanges(
+      DEFAULT_MONEY_FORMAT,
+      values,
+      { ...values, iban: "FR7630006000011234567890189" },
+      settingsFixture,
+    ),
+  ).toBe(0);
+});
+
 it("leaves derived read-only fields out of the payload", () => {
   const payload = toSettingsPayload(
     DEFAULT_MONEY_FORMAT,

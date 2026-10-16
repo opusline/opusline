@@ -30,6 +30,12 @@ const meta = {
       onSave: async () => true,
       onRemove: () => {},
     },
+    logo: {
+      isPending: false,
+      error: null,
+      onPick: () => {},
+      onRemove: () => {},
+    },
     rates: {
       isBackgroundRefresh: false,
       isRefreshing: false,

@@ -25,6 +25,12 @@ function renderPage(
       onSave: vi.fn(),
       onRemove: vi.fn(),
     },
+    logo: {
+      isPending: false,
+      error: null,
+      onPick: vi.fn(),
+      onRemove: vi.fn(),
+    },
     rates: {
       isBackgroundRefresh: false,
       isRefreshing: false,

@@ -48,6 +48,7 @@ import {
   toSettingsValues,
 } from "@/features/settings/lib/settings-form";
 import { signatureHref } from "@/features/settings/lib/signature";
+import { useCompanyLogo } from "@/features/settings/lib/use-company-logo";
 import type { FormSubmitResult } from "@/lib/form";
 import {
   invalidateDeadlines,
@@ -241,6 +242,8 @@ function ReglagesRoute() {
     onError: () => setSignatureError(m.common_upload_failed()),
   });
 
+  const companyLogo = useCompanyLogo(settings.data?.hasLogo ?? false);
+
   const isSavingLocalisation =
     saveLocalisationSettings.isPending || updateCurrency.isPending;
 
@@ -360,6 +363,7 @@ function ReglagesRoute() {
           void navigate({ to: "/settings", search: { tab: nextTab } })
         }
         settings={savedSettings}
+        logo={companyLogo}
         signature={{
           src: signatureHref(signatureVersion),
           isPending: uploadSignature.isPending || deleteSignature.isPending,

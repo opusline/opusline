@@ -1,3 +1,4 @@
+import { pngFile } from "../../support/files";
 import { byTestId } from "../../support/locators";
 import { emailCountFor } from "../../support/mailbox";
 import { signIn } from "../../support/sign-in";
@@ -20,6 +21,40 @@ test("the trade name is saved with the identity", async ({
   await expect(page.getByTestId("settings-trade-name")).toHaveValue(
     "Aubrac Conseil",
   );
+});
+
+test("the bank details printed on invoices are saved and shown grouped", async ({
+  page,
+  account: _registered,
+}) => {
+  await page.goto("/settings?tab=identite");
+  await page.getByTestId("settings-iban").fill("fr7630006000011234567890189");
+  await page.getByTestId("settings-bic").fill("agrifrpp");
+  await page.getByTestId("settings-save").click();
+  await expect(page.getByTestId("settings-save")).toBeHidden();
+
+  await page.reload();
+  await expect(page.getByTestId("settings-iban")).toHaveValue(
+    "FR76 3000 6000 0112 3456 7890 189",
+  );
+  await expect(page.getByTestId("settings-bic")).toHaveValue("AGRIFRPP");
+});
+
+test("the company logo uploads on its own and can be removed", async ({
+  page,
+  account: _registered,
+}) => {
+  await page.goto("/settings?tab=identite");
+  await expect(page.getByTestId("settings-logo-remove")).toBeHidden();
+
+  await page.getByTestId("settings-logo").setInputFiles(pngFile("logo.png"));
+  await expect(page.getByTestId("settings-logo-remove")).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByTestId("settings-logo-remove")).toBeVisible();
+
+  await page.getByTestId("settings-logo-remove").click();
+  await expect(page.getByTestId("settings-logo-remove")).toBeHidden();
 });
 
 test("switching the interface to French translates the app for good", async ({
