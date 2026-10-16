@@ -16,7 +16,7 @@ class EInvoiceSyncData extends Data
         public int $imported,
         /** Expenses already there whose lifecycle status moved. */
         public int $updated,
-        /** Invoices left aside: not in the account currency, or without the structured part. */
+        /** Invoices left aside because they are not in the account currency. */
         public int $skipped,
     ) {}
 }

@@ -138,7 +138,7 @@ expense:
 
 - the supplier, the invoice number, the date, the amounts and the VAT rate come
   from the invoice's structured data, so nothing is read off the PDF;
-- the invoice's own PDF is filed as the receipt;
+- the invoice's own file, a Factur-X PDF or a UBL/CII XML, is filed as the receipt;
 - the category starts as « Autre » for you to set;
 - an invoice dated in the future is dated today;
 - an invoice in another currency than the account's is left aside.
@@ -146,8 +146,7 @@ expense:
 A received invoice is recorded once, whatever later syncs see; a later sync only
 follows its status (acknowledged, approved, refused, paid…), shown on the row.
 Deleting such an expense keeps it from coming back. When the platform refuses a
-run, the Dépenses page says why, and Réglages → Intégrations carries the same
-error.
+run, the Dépenses page and the Integrations tab both say why.
 
 ## Where the pieces go
 

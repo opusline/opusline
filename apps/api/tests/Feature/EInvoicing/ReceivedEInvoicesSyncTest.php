@@ -242,3 +242,41 @@ test('the nightly run reads every verified inbox and one failure stops no one el
         ->and($synced->expenses()->count())->toBe(1)
         ->and($waiting->expenses()->count())->toBe(0);
 });
+
+test('files an xml original under its own extension and a number stripped of odd characters', function (): void {
+    fakeInbox([receivedInvoice(7, ['fr:202'], ['en_invoice' => ['number' => '2026.php/07']])], [
+        'api.superpdp.tech/v1.beta/invoices/7?format=original' => Http::response('<?xml version="1.0"?><Invoice/>', 200, ['Content-Type' => 'application/xml']),
+    ]);
+    $user = User::factory()->create();
+    withSuperPdpConnection($user);
+
+    test()->actingAs($user)->postJson('/api/expenses/e-invoices/sync')->assertOk()->assertJson(['imported' => 1]);
+
+    expect($user->expenses()->sole()->receipt()?->file_name)->toBe('Facture-2026-php-07.xml');
+});
+
+test('leaves a deleted expense alone when its invoice moves on', function (): void {
+    fakeInboxRuns([[receivedInvoice(7)], [receivedInvoice(7, ['fr:202', 'fr:210'])]]);
+    $user = User::factory()->create();
+    withSuperPdpConnection($user);
+    test()->actingAs($user)->postJson('/api/expenses/e-invoices/sync')->assertOk();
+    test()->actingAs($user)->deleteJson("/api/expenses/{$user->expenses()->sole()->id}")->assertNoContent();
+
+    test()->actingAs($user)->postJson('/api/expenses/e-invoices/sync')->assertOk()->assertJson(['imported' => 0, 'updated' => 0]);
+
+    expect($user->expenses()->withTrashed()->sole()->e_invoice_status)->toBe(LifecycleStatus::Received);
+});
+
+test('records nothing when a file cannot be fetched, and says so on the connection', function (): void {
+    fakeInbox([receivedInvoice(7), receivedInvoice(8)], [
+        'api.superpdp.tech/v1.beta/invoices/8?format=original' => Http::response(['message' => 'Down'], 502),
+    ]);
+    $user = User::factory()->create();
+    $connection = withSuperPdpConnection($user);
+
+    test()->actingAs($user)->postJson('/api/expenses/e-invoices/sync')->assertServiceUnavailable();
+
+    expect($user->expenses()->count())->toBe(0)
+        ->and($connection->refresh()->last_error)->toBe(EInvoicingError::Unavailable)
+        ->and($connection->last_synced_at)->toBeNull();
+});
