@@ -214,6 +214,11 @@ export function InvoicingSidebar({ toolbar }: { toolbar?: ReactNode }) {
 }
 
 function NewMenuContent({ side }: { side?: "right" }) {
+  const { setOpenMobile } = useSidebar();
+  // Opening the dialog from the list only changes the search, which the
+  // pathname effect above does not see, so the item closes the sheet itself.
+  const closeMobileSidebar = () => setOpenMobile(false);
+
   return (
     <DropdownMenuContent
       align="start"
@@ -224,6 +229,7 @@ function NewMenuContent({ side }: { side?: "right" }) {
       <DropdownMenuItem
         data-testid="invoicing-new-item"
         data-kind="external-invoice"
+        onClick={closeMobileSidebar}
         render={<Link search={{ add: "external" }} to="/invoicing/invoices" />}
       >
         <FileUp />

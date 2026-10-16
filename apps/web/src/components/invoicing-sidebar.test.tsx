@@ -1,13 +1,27 @@
 import { showInvoiceSummaryQueryKey } from "@opusline/api-client/react-query";
-import { SidebarProvider } from "@opusline/ui/components/sidebar";
+import { SidebarProvider, useSidebar } from "@opusline/ui/components/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { expect, it } from "vitest";
 
 import { seedCurrentUser } from "@/test/current-user";
 import { eur, invoiceSummary } from "@/test/fixtures";
 import { StoryRouter } from "@/test/story-router";
 import { InvoicingSidebar } from "./invoicing-sidebar";
+
+function OpenOnMobile() {
+  const { setOpenMobile } = useSidebar();
+
+  return (
+    <button
+      data-testid="open-mobile"
+      onClick={() => setOpenMobile(true)}
+      type="button"
+    >
+      open
+    </button>
+  );
+}
 
 function renderSidebar(open: number, late: number) {
   const client = new QueryClient({
@@ -27,6 +41,7 @@ function renderSidebar(open: number, late: number) {
       <StoryRouter>
         <SidebarProvider>
           <InvoicingSidebar />
+          <OpenOnMobile />
         </SidebarProvider>
       </StoryRouter>
     </QueryClientProvider>,
@@ -79,4 +94,19 @@ it("names the open count in the Factures link", async () => {
 
   const link = await screen.findByRole("link", { name: /^Factures/ });
   expect(link).toHaveAccessibleName("Factures 4 factures ouvertes");
+});
+
+it("closes the phone sheet when the New menu only changes the search", async () => {
+  window.innerWidth = 500;
+  renderSidebar(0, 0);
+  fireEvent.click(await screen.findByTestId("open-mobile"));
+  fireEvent.click(await screen.findByTestId("invoicing-new"));
+  const items = await screen.findAllByTestId("invoicing-new-item");
+
+  fireEvent.click(items[0] as HTMLElement);
+
+  await waitFor(() =>
+    expect(screen.queryByTestId("invoicing-new")).not.toBeInTheDocument(),
+  );
+  window.innerWidth = 1024;
 });
