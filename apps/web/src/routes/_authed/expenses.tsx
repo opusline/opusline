@@ -62,6 +62,7 @@ import {
   type ExpenseDraft,
   emptyExpenseDraft,
 } from "@/features/expenses/lib/expense-draft";
+import { isPlatformExpense } from "@/features/expenses/lib/filters";
 import { monthName } from "@/features/expenses/lib/labels";
 import { receiptRejection } from "@/features/expenses/lib/receipts";
 import { emptySubscriptionDraft } from "@/features/expenses/lib/subscription-draft";
@@ -76,7 +77,10 @@ import {
   periodTitle,
   shiftPeriod,
 } from "@/lib/periods";
-import { invalidateExpenseWrites } from "@/lib/query-invalidation";
+import {
+  expensesFilter,
+  invalidateExpenseWrites,
+} from "@/lib/query-invalidation";
 import {
   serverErrorMessage,
   serverFieldErrors,
@@ -129,29 +133,26 @@ function ExpensesRoute() {
     placeholderData: keepPreviousData,
   });
   const tab: ExpensesTab = search.tab ?? "journal";
-  // The platform's inbox only exists with the invoicing beta and a saved application.
   const hasInvoicing = useFeature(INVOICING);
   const integrations = useQuery({
     ...showIntegrationsOptions(),
     enabled: hasInvoicing && tab === "journal",
   });
-  const [inboxError, setInboxError] = useState<string | null>(null);
   const syncInbox = useMutation({
     ...syncReceivedEInvoicesMutation(),
-    onMutate: () => setInboxError(null),
     onSuccess: (result) =>
       toast.add({
         title: m.expenses_platform_inbox_synced({ count: result.imported }),
       }),
-    onError: (error) =>
-      setInboxError(
-        serverErrorMessage(error, m.expenses_platform_inbox_failed()),
-      ),
     // A read that failed halfway has still recorded invoices and its refusal.
-    onSettled: () =>
+    onSettled: (result, error) =>
       Promise.all([
         queryClient.invalidateQueries({ queryKey: showIntegrationsQueryKey() }),
-        invalidateExpenseWrites(queryClient),
+        error !== null || (result?.imported ?? 0) > 0
+          ? invalidateExpenseWrites(queryClient)
+          : (result?.updated ?? 0) > 0
+            ? queryClient.invalidateQueries(expensesFilter())
+            : undefined,
       ]),
   });
   const subscriptions = useQuery({
@@ -645,12 +646,15 @@ function ExpensesRoute() {
           <>
             {integrations.data?.eInvoicing.companyVerified ? (
               <PlatformInboxCard
-                count={
-                  journal.data.expenses.filter(
-                    (expense) => expense.eInvoice !== null,
-                  ).length
+                count={journal.data.expenses.filter(isPlatformExpense).length}
+                error={
+                  syncInbox.isError
+                    ? serverErrorMessage(
+                        syncInbox.error,
+                        m.expenses_platform_inbox_failed(),
+                      )
+                    : null
                 }
-                error={inboxError}
                 isSyncing={syncInbox.isPending}
                 onSync={() => syncInbox.mutate({})}
                 settings={integrations.data.eInvoicing}

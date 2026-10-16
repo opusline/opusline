@@ -27,7 +27,6 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
         ->middleware('throttle:uploads')
         ->name('readExpenseReceipt');
 
-    // Each sync walks the inbox on the plateforme agréée; the nightly run does it unasked.
     Route::post('/expenses/e-invoices/sync', EInvoiceSyncController::class)
         ->middleware([EnsureFeatureIsActive::class.':invoicing', 'throttle:6,1'])
         ->name('syncReceivedEInvoices');

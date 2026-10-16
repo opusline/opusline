@@ -160,6 +160,15 @@ class Expense extends Model implements HasMedia
         return $this->spent_on->format('Y-m');
     }
 
+    /**
+     * Whether a sync wrote it — a subscription's debit, a received e-invoice —
+     * and would write it again unless deleting it left a tombstone.
+     */
+    public function isRecordedBySync(): bool
+    {
+        return $this->subscription_id !== null || $this->e_invoice_platform_id !== null;
+    }
+
     /** Whether the claim landed on a later month than the purchase, by hand or because its own was declared. */
     public function isDeferred(): bool
     {

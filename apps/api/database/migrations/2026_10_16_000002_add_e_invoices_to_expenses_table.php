@@ -22,14 +22,13 @@ return new class extends Migration
         Schema::table('e_invoicing_connections', function (Blueprint $table): void {
             $table->timestamp('last_synced_at')->nullable()->after('checked_at');
             $table->unsignedTinyInteger('last_error')->nullable()->after('last_synced_at');
-            $table->timestamp('last_failed_at')->nullable()->after('last_error');
         });
     }
 
     public function down(): void
     {
         Schema::table('e_invoicing_connections', function (Blueprint $table): void {
-            $table->dropColumn(['last_synced_at', 'last_error', 'last_failed_at']);
+            $table->dropColumn(['last_synced_at', 'last_error']);
         });
 
         Schema::table('expenses', function (Blueprint $table): void {

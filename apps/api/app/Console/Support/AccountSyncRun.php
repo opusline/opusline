@@ -42,7 +42,7 @@ final readonly class AccountSyncRun
                     $counts['refused']++;
                     Log::warning("Could not sync {$this->subject}.", [
                         'user_id' => $connection->getAttribute('user_id'),
-                        'reason' => $exception->reasonName(),
+                        'reason' => $exception->reason->name,
                     ]);
                 } catch (Throwable $exception) {
                     // One account's bug must not stop everyone else's sync.

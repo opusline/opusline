@@ -23,9 +23,4 @@ class EInvoicingPlatformException extends RuntimeException implements SyncRefuse
     ) {
         parent::__construct($message, previous: $previous);
     }
-
-    public function reasonName(): string
-    {
-        return $this->reason->name;
-    }
 }

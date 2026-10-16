@@ -26,25 +26,9 @@ class StoreGeneratedDocument
      */
     public function handle(HasMedia $model, string $contents, string $fileName, DocumentCategory $category, array $customProperties = []): Media
     {
-        // Through a temp file rather than addMediaFromString(): only addMedia() is on the
-        // HasMedia contract, and the media library consumes the file it is handed.
-        $source = tempnam(sys_get_temp_dir(), 'opusline-');
-
-        if ($source === false) {
-            throw new \RuntimeException('Could not open a temporary file for the generated document.');
-        }
-
-        // A short write files a truncated PDF as the archived document, which nothing
-        // downstream would ever notice — the media row looks perfectly healthy.
-        if (file_put_contents($source, $contents) !== strlen($contents)) {
-            unlink($source);
-
-            throw new \RuntimeException('Could not write the generated document to a temporary file.');
-        }
-
-        return $this->storeMediaFile->handle(
+        return $this->storeMediaFile->fromContents(
             $model,
-            $source,
+            $contents,
             $fileName,
             'documents',
             ['category' => $category->value, ...$customProperties],

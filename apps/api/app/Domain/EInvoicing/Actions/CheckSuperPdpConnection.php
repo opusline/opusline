@@ -28,7 +28,7 @@ class CheckSuperPdpConnection
      */
     public function handle(User $user): void
     {
-        $credentials = SuperPdpCredentials::ofOrFail($user->eInvoicingConnection()->first());
+        $credentials = SuperPdpCredentials::of(EInvoicingConnection::ofOrFail($user));
 
         $check = new SuperPdpPlatform($this->client, $credentials)->check();
 

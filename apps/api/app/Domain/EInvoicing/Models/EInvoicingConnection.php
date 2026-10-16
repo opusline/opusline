@@ -9,6 +9,7 @@ use App\Domain\EInvoicing\Enums\EInvoicingPlatformKind;
 use App\Domain\EInvoicing\Enums\PlatformEnvironment;
 use App\Domain\EInvoicing\Factories\EInvoicingConnectionFactory;
 use App\Domain\EInvoicing\Platform\ConnectionCheck;
+use App\Domain\EInvoicing\Platform\EInvoicingPlatformException;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -35,7 +36,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property ?CarbonImmutable $checked_at
  * @property ?CarbonImmutable $last_synced_at
  * @property ?EInvoicingError $last_error
- * @property ?CarbonImmutable $last_failed_at
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  * @property-read User $user
@@ -67,8 +67,16 @@ class EInvoicingConnection extends Model
             'checked_at' => 'datetime',
             'last_synced_at' => 'datetime',
             'last_error' => EInvoicingError::class,
-            'last_failed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * @throws EInvoicingPlatformException
+     */
+    public static function ofOrFail(User $user): self
+    {
+        return $user->eInvoicingConnection()->first()
+            ?? throw new EInvoicingPlatformException(EInvoicingError::NotConnected, 'No e-invoicing platform is connected.');
     }
 
     /** What the platform just said about the company, dated now. */
@@ -93,7 +101,7 @@ class EInvoicingConnection extends Model
     /** A sync the platform refused or that could not reach it: the Dépenses page says why. */
     public function recordFailure(EInvoicingError $reason): static
     {
-        return $this->forceFill(['last_error' => $reason, 'last_failed_at' => CarbonImmutable::now()]);
+        return $this->forceFill(['last_error' => $reason]);
     }
 
     /** @return BelongsTo<User, $this> */

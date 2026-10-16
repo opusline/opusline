@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Bank\Factories\BankMovementFactory;
 use App\Domain\EInvoicing\Enums\EInvoicingError;
 use App\Domain\EInvoicing\Enums\LifecycleStatus;
 use App\Domain\Expenses\Enums\ExpenseCategory;
@@ -16,28 +17,6 @@ beforeEach(function (): void {
     freezeTodayAtUtcNoon();
     Storage::fake('local');
 });
-
-/**
- * @param  list<string>  $codes
- * @return array<string, mixed>
- */
-function receivedInvoice(int $id, array $codes = ['fr:202'], array $overrides = []): array
-{
-    return array_replace_recursive([
-        'id' => $id,
-        'direction' => 'in',
-        'created_at' => '2026-08-12T09:00:00Z',
-        'events' => array_map(static fn (string $code): array => ['status_code' => $code, 'created_at' => '2026-08-12T09:00:00Z'], $codes),
-        'en_invoice' => [
-            'number' => 'LUN-2026-0'.$id,
-            'issue_date' => '2026-08-01',
-            'payment_due_date' => '2026-08-31',
-            'currency_code' => 'EUR',
-            'seller' => ['name' => 'Lunaprint', 'legal_registration_identifier' => ['scheme' => '0002', 'value' => '851234567']],
-            'totals' => ['total_without_vat' => '120.00', 'total_vat_amount' => '24.00', 'total_with_vat' => '144.00'],
-        ],
-    ], $overrides);
-}
 
 /**
  * The inbox as successive syncs see it: one run per sync, each a list of
@@ -81,7 +60,7 @@ function fakeInbox(array $invoices, array $overrides = []): void
 }
 
 test('records each received invoice as an expense with its pdf as receipt', function (): void {
-    fakeInbox([receivedInvoice(7), receivedInvoice(8, ['fr:202', 'fr:204'], ['en_invoice' => ['number' => 'LUN/2026/08', 'totals' => ['total_without_vat' => '50.00', 'total_with_vat' => '50.00']]])]);
+    fakeInbox([superPdpInvoice(7), superPdpInvoice(8, ['fr:202', 'fr:204'], ['en_invoice' => ['number' => 'LUN/2026/08', 'totals' => ['total_without_vat' => '50.00', 'total_with_vat' => '50.00']]])]);
     $user = User::factory()->create();
     withSuperPdpConnection($user);
 
@@ -113,8 +92,19 @@ test('records each received invoice as an expense with its pdf as receipt', func
         ->assertJsonPath('expenses.0.receipt.fileName', 'Facture-LUN-2026-08.pdf');
 });
 
+test('pairs a recorded invoice with the debit that already paid it', function (): void {
+    fakeInbox([superPdpInvoice(7)]);
+    $user = User::factory()->create();
+    withSuperPdpConnection($user);
+    $debit = bankMovementFor($user, configure: fn (BankMovementFactory $factory): BankMovementFactory => $factory->debit(14_400)->on('2026-08-03')->state(['label' => 'CARTE 02/08 LUNAPRINT SAS']));
+
+    test()->actingAs($user)->postJson('/api/expenses/e-invoices/sync')->assertOk()->assertJson(['imported' => 1]);
+
+    expect($debit->fresh()?->expense_id)->toBe($user->expenses()->sole()->id);
+});
+
 test('never records the same received invoice twice, but follows its status', function (): void {
-    fakeInboxRuns([[receivedInvoice(7)], [receivedInvoice(7, ['fr:202', 'fr:210'])]]);
+    fakeInboxRuns([[superPdpInvoice(7)], [superPdpInvoice(7, ['fr:202', 'fr:210'])]]);
     $user = User::factory()->create();
     withSuperPdpConnection($user);
     test()->actingAs($user)->postJson('/api/expenses/e-invoices/sync')->assertOk();
@@ -130,7 +120,7 @@ test('never records the same received invoice twice, but follows its status', fu
 });
 
 test('keeps a received invoice out of the journal once its expense was deleted', function (): void {
-    fakeInboxRuns([[receivedInvoice(7)], [receivedInvoice(7)]]);
+    fakeInboxRuns([[superPdpInvoice(7)], [superPdpInvoice(7)]]);
     $user = User::factory()->create();
     withSuperPdpConnection($user);
     test()->actingAs($user)->postJson('/api/expenses/e-invoices/sync')->assertOk();
@@ -144,8 +134,8 @@ test('keeps a received invoice out of the journal once its expense was deleted',
 
 test('dates a post-dated invoice today and leaves another currency aside', function (): void {
     fakeInbox([
-        receivedInvoice(7, ['fr:202'], ['en_invoice' => ['issue_date' => '2026-12-24']]),
-        receivedInvoice(8, ['fr:202'], ['en_invoice' => ['currency_code' => 'USD']]),
+        superPdpInvoice(7, ['fr:202'], ['en_invoice' => ['issue_date' => '2026-12-24']]),
+        superPdpInvoice(8, ['fr:202'], ['en_invoice' => ['currency_code' => 'USD']]),
     ]);
     $user = User::factory()->create();
     withSuperPdpConnection($user);
@@ -159,9 +149,9 @@ test('dates a post-dated invoice today and leaves another currency aside', funct
 });
 
 test('reads the whole inbox the first time, then only what moved since the last sync', function (): void {
-    $stale = receivedInvoice(9, ['fr:202'], ['created_at' => '2026-07-01T09:00:00Z']);
+    $stale = superPdpInvoice(9, ['fr:202'], ['created_at' => '2026-07-01T09:00:00Z']);
     $stale['events'] = [['status_code' => 'fr:202', 'created_at' => '2026-07-01T09:00:00Z']];
-    fakeInboxRuns([[receivedInvoice(7)], [receivedInvoice(7), $stale]]);
+    fakeInboxRuns([[superPdpInvoice(7)], [superPdpInvoice(7), $stale]]);
     $user = User::factory()->create();
     $connection = withSuperPdpConnection($user);
     test()->actingAs($user)->postJson('/api/expenses/e-invoices/sync')->assertOk();
@@ -182,8 +172,7 @@ test('says why when the platform refuses, on the connection too', function (): v
         ->assertConflict()
         ->assertJsonPath('message', __('einvoicing.credentials_rejected'));
 
-    expect($connection->refresh()->last_error)->toBe(EInvoicingError::CredentialsRejected)
-        ->and($connection->last_failed_at)->not->toBeNull();
+    expect($connection->refresh()->last_error)->toBe(EInvoicingError::CredentialsRejected);
     test()->actingAs($user)->getJson('/api/settings/integrations')
         ->assertJsonPath('eInvoicing.lastError', EInvoicingError::CredentialsRejected->value);
 });
@@ -214,7 +203,7 @@ test('needs a connected platform, the invoicing beta and a signed-in account', f
 });
 
 test('keeps each account\'s inbox to itself', function (): void {
-    fakeInbox([receivedInvoice(7)]);
+    fakeInbox([superPdpInvoice(7)]);
     $owner = User::factory()->create();
     withSuperPdpConnection($owner);
     $other = User::factory()->create();
@@ -232,7 +221,7 @@ test('the nightly run reads every verified inbox and one failure stops no one el
     $refusedConnection = withSuperPdpConnection($refused, ['client_id' => 'opusline_refused_app']);
     withSuperPdpConnection($synced);
     withSuperPdpConnection($waiting, ['client_id' => 'opusline_waiting_app', 'company_verified' => false]);
-    fakeInbox([receivedInvoice(7)], ['api.superpdp.tech/oauth2/token' => Http::sequence()
+    fakeInbox([superPdpInvoice(7)], ['api.superpdp.tech/oauth2/token' => Http::sequence()
         ->push(['error' => 'invalid_client'], 401)
         ->push(['access_token' => 'tok_sandbox', 'expires_in' => 1800])]);
 
@@ -244,7 +233,7 @@ test('the nightly run reads every verified inbox and one failure stops no one el
 });
 
 test('files an xml original under its own extension and a number stripped of odd characters', function (): void {
-    fakeInbox([receivedInvoice(7, ['fr:202'], ['en_invoice' => ['number' => '2026.php/07']])], [
+    fakeInbox([superPdpInvoice(7, ['fr:202'], ['en_invoice' => ['number' => '2026.php/07']])], [
         'api.superpdp.tech/v1.beta/invoices/7?format=original' => Http::response('<?xml version="1.0"?><Invoice/>', 200, ['Content-Type' => 'application/xml']),
     ]);
     $user = User::factory()->create();
@@ -256,7 +245,7 @@ test('files an xml original under its own extension and a number stripped of odd
 });
 
 test('leaves a deleted expense alone when its invoice moves on', function (): void {
-    fakeInboxRuns([[receivedInvoice(7)], [receivedInvoice(7, ['fr:202', 'fr:210'])]]);
+    fakeInboxRuns([[superPdpInvoice(7)], [superPdpInvoice(7, ['fr:202', 'fr:210'])]]);
     $user = User::factory()->create();
     withSuperPdpConnection($user);
     test()->actingAs($user)->postJson('/api/expenses/e-invoices/sync')->assertOk();
@@ -268,7 +257,7 @@ test('leaves a deleted expense alone when its invoice moves on', function (): vo
 });
 
 test('records nothing when a file cannot be fetched, and says so on the connection', function (): void {
-    fakeInbox([receivedInvoice(7), receivedInvoice(8)], [
+    fakeInbox([superPdpInvoice(7), superPdpInvoice(8)], [
         'api.superpdp.tech/v1.beta/invoices/8?format=original' => Http::response(['message' => 'Down'], 502),
     ]);
     $user = User::factory()->create();

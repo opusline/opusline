@@ -21,6 +21,11 @@ export function expenseFilterLabel(filter: ExpenseFilter): string {
   return FILTER_MESSAGES[filter]();
 }
 
+/** Whether the plateforme agréée delivered the expense's invoice. */
+export function isPlatformExpense(expense: ExpenseData): boolean {
+  return expense.eInvoice !== null;
+}
+
 /**
  * The chips a month offers: the TVA ones only mean something under réel
  * normal, and the platform one only once an invoice came through it.
@@ -33,9 +38,7 @@ export function expenseFilters(
       ? ["all", "blocked"]
       : ["all", "blocked", "reverseCharged", "deferred"];
 
-  return month.expenses.some((expense) => expense.eInvoice !== null)
-    ? [...base, "platform"]
-    : base;
+  return month.expenses.some(isPlatformExpense) ? [...base, "platform"] : base;
 }
 
 export function matchesExpenseFilter(
@@ -55,7 +58,7 @@ export function matchesExpenseFilter(
     case "deferred":
       return expense.vatStatus === 2;
     case "platform":
-      return expense.eInvoice !== null;
+      return isPlatformExpense(expense);
   }
 }
 

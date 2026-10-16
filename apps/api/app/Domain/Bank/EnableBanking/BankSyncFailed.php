@@ -23,9 +23,4 @@ class BankSyncFailed extends RuntimeException implements SyncRefused
     ) {
         parent::__construct($message, previous: $previous);
     }
-
-    public function reasonName(): string
-    {
-        return $this->reason->name;
-    }
 }

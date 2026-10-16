@@ -963,6 +963,32 @@ function draftPayloadFor(Client $client, array $overrides = []): array
     ], $overrides);
 }
 
+/**
+ * A Super PDP invoice as `GET /v1.beta/invoices/{id}?format=en16931` answers it.
+ *
+ * @param  list<string>  $codes
+ * @param  array<string, mixed>  $overrides
+ * @return array<string, mixed>
+ */
+function superPdpInvoice(int $id, array $codes = ['fr:202'], array $overrides = []): array
+{
+    return array_replace_recursive([
+        'id' => $id,
+        'direction' => 'in',
+        'external_id' => null,
+        'created_at' => '2026-08-12T09:00:00Z',
+        'events' => array_map(static fn (string $code): array => ['status_code' => $code, 'created_at' => '2026-08-12T09:00:00Z'], $codes),
+        'en_invoice' => [
+            'number' => 'LUN-2026-0'.$id,
+            'issue_date' => '2026-08-01',
+            'payment_due_date' => '2026-08-31',
+            'currency_code' => 'EUR',
+            'seller' => ['name' => 'Lunaprint', 'legal_registration_identifier' => ['scheme' => '0002', 'value' => '851234567']],
+            'totals' => ['total_without_vat' => '120.00', 'total_vat_amount' => '24.00', 'total_with_vat' => '144.00'],
+        ],
+    ], $overrides);
+}
+
 /** How far the instance releases invoicing: "on", "off" or "beta" (FEATURE_INVOICING). */
 function invoicingReleasedAs(string $release): void
 {
