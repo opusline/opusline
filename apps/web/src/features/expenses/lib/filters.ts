@@ -2,26 +2,40 @@ import type { ExpenseData, ExpensesMonthData } from "@opusline/api-client";
 
 import { m } from "@/paraglide/messages.js";
 
-export type ExpenseFilter = "all" | "blocked" | "reverseCharged" | "deferred";
+export type ExpenseFilter =
+  | "all"
+  | "blocked"
+  | "reverseCharged"
+  | "deferred"
+  | "platform";
 
 const FILTER_MESSAGES: Record<ExpenseFilter, () => string> = {
   all: m.expense_filter_all,
   blocked: m.expense_filter_blocked,
   reverseCharged: m.expense_filter_reverse_charged,
   deferred: m.expense_filter_deferred,
+  platform: m.expense_filter_platform,
 };
 
 export function expenseFilterLabel(filter: ExpenseFilter): string {
   return FILTER_MESSAGES[filter]();
 }
 
-/** The chips a month offers: the TVA ones only mean something under réel normal. */
+/**
+ * The chips a month offers: the TVA ones only mean something under réel
+ * normal, and the platform one only once an invoice came through it.
+ */
 export function expenseFilters(
-  month: Pick<ExpensesMonthData, "vat">,
+  month: Pick<ExpensesMonthData, "vat" | "expenses">,
 ): readonly ExpenseFilter[] {
-  return month.vat === null
-    ? ["all", "blocked"]
-    : ["all", "blocked", "reverseCharged", "deferred"];
+  const base: ExpenseFilter[] =
+    month.vat === null
+      ? ["all", "blocked"]
+      : ["all", "blocked", "reverseCharged", "deferred"];
+
+  return month.expenses.some((expense) => expense.eInvoice !== null)
+    ? [...base, "platform"]
+    : base;
 }
 
 export function matchesExpenseFilter(
@@ -40,6 +54,8 @@ export function matchesExpenseFilter(
       return expense.vatStatus === 4;
     case "deferred":
       return expense.vatStatus === 2;
+    case "platform":
+      return expense.eInvoice !== null;
   }
 }
 

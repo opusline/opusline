@@ -386,6 +386,8 @@ export const eInvoicingUnconfigured: EInvoicingSettingsData = {
   companyVerified: false,
   receivingAddress: null,
   checkedAt: null,
+  lastSyncedAt: null,
+  lastError: null,
 };
 
 /** A verified sandbox company on Super PDP, registered in the annuaire. */
@@ -397,4 +399,6 @@ export const eInvoicingConnected: EInvoicingSettingsData = {
   companyVerified: true,
   receivingAddress: "0225:12345678200002",
   checkedAt: "2026-10-16T09:12:00+02:00",
+  lastSyncedAt: null,
+  lastError: null,
 };

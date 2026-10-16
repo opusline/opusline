@@ -31,6 +31,7 @@ export function expense(overrides: Partial<ExpenseData> = {}): ExpenseData {
     vatStatus: 0,
     vatClaimPeriod: "2026-08",
     isRegularisation: false,
+    eInvoice: null,
     ...overrides,
   };
 }
