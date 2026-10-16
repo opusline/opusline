@@ -37,6 +37,7 @@ function renderEditor(overrides: Partial<Props> = {}) {
         }}
         error={null}
         invoiceId={null}
+        kind="invoice"
         isSaving={false}
         onChange={() => {}}
         onSave={onSave}
@@ -132,4 +133,32 @@ it("releases the imported time when the mission changes", async () => {
 
   expect(screen.queryByTestId("editor-line")).not.toBeInTheDocument();
   expect(screen.queryByTestId("editor-time-linked")).not.toBeInTheDocument();
+});
+
+it("asks a quote for its validity and deposit, nothing about payment or time", async () => {
+  const { onValidate } = renderEditor({
+    kind: "quote",
+    draft: {
+      ...newInvoiceDraft("fr-FR", invoicingSettingsFixture),
+      clientId: 1,
+      lines: [{ ...freeLine(2000), label: "Audit", unitPrice: "1 200" }],
+    },
+  });
+
+  expect(await screen.findByTestId("editor-validity")).toBeInTheDocument();
+  expect(screen.queryByTestId("editor-import-time")).toBeNull();
+  expect(screen.queryByTestId("editor-term")).toBeNull();
+  expect(screen.queryByTestId("editor-period-start")).toBeNull();
+
+  fireEvent.change(screen.getByTestId("editor-validity"), {
+    target: { value: "60" },
+  });
+  fireEvent.change(screen.getByTestId("editor-deposit"), {
+    target: { value: "3000" },
+  });
+  fireEvent.click(screen.getByTestId("editor-validate"));
+
+  expect(onValidate).toHaveBeenCalledWith(
+    expect.objectContaining({ validityDays: 60, depositRateBp: 3000 }),
+  );
 });

@@ -1,6 +1,8 @@
 import {
   listInvoicesQueryKey,
+  listQuotesQueryKey,
   showInvoiceSummaryQueryKey,
+  showInvoicingSettingsQueryKey,
   showNextInvoiceNumberQueryKey,
 } from "@opusline/api-client/react-query";
 import {
@@ -171,6 +173,20 @@ export async function invalidateDeadlines(
  * and the per-client and per-mission lists alike — so a write does not have to
  * know which ones happen to be mounted.
  */
+/** A quote written, validated, answered or deleted: the list, its sheet, and the next number. */
+export async function invalidateQuoteWrites(
+  queryClient: QueryClient,
+): Promise<void> {
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: listQuotesQueryKey() }),
+    queryClient.invalidateQueries(operationFilter("showQuote")),
+    queryClient.invalidateQueries(operationFilter("showQuotePaper")),
+    queryClient.invalidateQueries({
+      queryKey: showInvoicingSettingsQueryKey(),
+    }),
+  ]);
+}
+
 export async function invalidateInvoiceWrites(
   queryClient: QueryClient,
 ): Promise<void> {

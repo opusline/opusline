@@ -26,6 +26,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import {
   ArrowLeft,
   FilePen,
+  FileSignature,
   FileUp,
   PanelLeft,
   Plus,
@@ -160,6 +161,18 @@ export function InvoicingSidebar({ toolbar }: { toolbar?: ReactNode }) {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
+                  data-route="/invoicing/quotes"
+                  data-testid="invoicing-nav-link"
+                  isActive={pathname.startsWith("/invoicing/quotes")}
+                  render={<Link to="/invoicing/quotes" />}
+                  tooltip={m.invoicing_nav_quotes()}
+                >
+                  <FileSignature />
+                  <span>{m.invoicing_nav_quotes()}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
                   data-route="/invoicing/catalog"
                   data-testid="invoicing-nav-link"
                   isActive={pathname.startsWith("/invoicing/catalog")}
@@ -257,6 +270,19 @@ function NewMenuContent({ side }: { side?: "right" }) {
           <span>{m.invoicing_new_invoice()}</span>
           <span className="text-muted-foreground text-xs">
             {m.invoicing_new_invoice_detail()}
+          </span>
+        </span>
+      </DropdownMenuItem>
+      <DropdownMenuItem
+        data-testid="invoicing-new-item"
+        data-kind="quote"
+        render={<Link to="/invoicing/quotes/new" />}
+      >
+        <FileSignature />
+        <span className="flex flex-col">
+          <span>{m.invoicing_new_quote()}</span>
+          <span className="text-muted-foreground text-xs">
+            {m.invoicing_new_quote_detail()}
           </span>
         </span>
       </DropdownMenuItem>

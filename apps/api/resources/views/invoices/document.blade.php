@@ -61,7 +61,7 @@
         .legal { margin-top: 22px; font-size: 10px; line-height: 1.55; color: #6A615A; }
 
         .signature { margin-top: 26px; }
-        .signature-box { width: 250px; height: 92px; border: 1px solid #D8D1C7; padding: 8px 10px; }
+        .signature-box { width: 240px; height: 90px; border: 1px dashed #CFC7BC; padding: 8px 10px; }
         .signature-title { font-weight: 600; color: #141210; }
         .signature-caption { font-size: 9px; color: #7C736B; margin-top: 2px; }
 
@@ -191,8 +191,6 @@
             </div>
         @endif
 
-        <div class="legal">{{ $paper['legal'] }}</div>
-
         @if ($paper['signature'])
             <table class="signature">
                 <tr>
@@ -206,6 +204,9 @@
                 </tr>
             </table>
         @endif
+
+        <div class="legal">{{ $paper['legal'] }}</div>
+
     </div>
 </body>
 </html>

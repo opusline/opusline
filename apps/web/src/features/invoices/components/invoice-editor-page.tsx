@@ -5,7 +5,6 @@ import type {
   InvoicePaperData,
   InvoicingSettingsData,
   LineUnit,
-  SaveInvoiceDraftData,
   UnbilledTimeData,
 } from "@opusline/api-client";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
@@ -59,14 +58,13 @@ import {
   formatRateDraft,
   formatSignedDraft,
 } from "@/lib/billing";
-import { calendarDateNumericLabel } from "@/lib/dates";
+import { addCalendarDays, calendarDateNumericLabel } from "@/lib/dates";
 import { formatIban } from "@/lib/identifiers";
 import { m } from "@/paraglide/messages.js";
 
 import {
   canImportTime,
   catalogLine,
-  draftPayload,
   dueDate,
   formatQuantity,
   freeLine,
@@ -80,10 +78,12 @@ import {
   withTimeReleased,
 } from "../lib/invoice-draft";
 import {
+  depositRateOptions,
   parsePaymentTermKey,
   paymentTermKey,
   paymentTermLabel,
   paymentTermOptions,
+  quoteValidityOptions,
 } from "../lib/invoicing-settings";
 import {
   LINE_UNIT_LABELS,
@@ -95,8 +95,12 @@ import { SwitchRow } from "./switch-row";
 
 const LABEL = "text-muted-foreground-2 text-xs";
 
+export type EditorKind = "invoice" | "quote";
+
 export type InvoiceEditorPageProps = {
-  /** Null for a new invoice, the draft's id once it is saved. */
+  /** The same editor writes invoices and quotes; the kind decides what it asks and where it leads. */
+  kind: EditorKind;
+  /** Null for a new document, the draft's id once it is saved. */
   invoiceId: number | null;
   draft: InvoiceDraft;
   onChange: (draft: InvoiceDraft) => void;
@@ -116,11 +120,13 @@ export type InvoiceEditorPageProps = {
   unbilledTime: UnbilledTimeData | null;
   isSaving: boolean;
   error: string | null;
-  onSave: (body: SaveInvoiceDraftData) => void;
-  onValidate: (body: SaveInvoiceDraftData) => void;
+  /** Handed the draft once every line is complete; the route's hook builds the request. */
+  onSave: (draft: InvoiceDraft) => void;
+  onValidate: (draft: InvoiceDraft) => void;
 };
 
 export function InvoiceEditorPage({
+  kind,
   invoiceId,
   draft,
   onChange,
@@ -138,6 +144,7 @@ export function InvoiceEditorPage({
   onSave,
   onValidate,
 }: InvoiceEditorPageProps) {
+  const isQuote = kind === "quote";
   const format = useMoneyFormat();
   const [showErrors, setShowErrors] = useState(false);
   const update = (patch: Partial<InvoiceDraft>) =>
@@ -147,24 +154,28 @@ export function InvoiceEditorPage({
   );
   const total = paper?.totals.find((row) => row.emphasis)?.value ?? null;
 
-  const submit = (action: (body: SaveInvoiceDraftData) => void) => {
-    const body = draftPayload(format, draft);
-
-    if (body === null || linesIncomplete) {
+  const submit = (action: (draft: InvoiceDraft) => void) => {
+    if (draft.clientId === null || linesIncomplete) {
       setShowErrors(true);
       return;
     }
 
     setShowErrors(false);
-    action(body);
+    action(draft);
   };
 
   return (
     <div className="pb-16">
       <nav className="mb-2 flex items-center gap-1.5 text-muted-foreground-3 text-sm">
-        <Link className={linkVariants()} to="/invoicing/invoices">
-          {m.nav_invoices()}
-        </Link>
+        {isQuote ? (
+          <Link className={linkVariants()} to="/invoicing/quotes">
+            {m.invoicing_nav_quotes()}
+          </Link>
+        ) : (
+          <Link className={linkVariants()} to="/invoicing/invoices">
+            {m.nav_invoices()}
+          </Link>
+        )}
         <ChevronRight aria-hidden className="size-3.5" />
       </nav>
       <div className="mb-6.5 flex flex-wrap items-end justify-between gap-4">
@@ -173,9 +184,13 @@ export function InvoiceEditorPage({
             className="font-heading font-semibold text-2xl text-foreground-hi"
             data-testid="page-heading"
           >
-            {invoiceId === null
-              ? m.editor_new_invoice()
-              : m.editor_edit_invoice()}
+            {isQuote
+              ? invoiceId === null
+                ? m.editor_new_quote()
+                : m.editor_edit_quote()
+              : invoiceId === null
+                ? m.editor_new_invoice()
+                : m.editor_edit_invoice()}
           </h1>
           {draft.timeEntryIds.length > 0 ? (
             <p className="mt-1 text-muted-foreground-3 text-sm">
@@ -207,7 +222,7 @@ export function InvoiceEditorPage({
             onClick={() => submit(onValidate)}
             size="xl"
           >
-            {m.editor_validate()}
+            {isQuote ? m.editor_validate_quote() : m.editor_validate()}
           </Button>
         </div>
       </div>
@@ -234,7 +249,10 @@ export function InvoiceEditorPage({
           <GeneralSection
             clients={clients}
             draft={draft}
-            nextInvoiceNumber={settings.nextInvoiceNumber}
+            isQuote={isQuote}
+            nextNumber={
+              isQuote ? settings.nextQuoteNumber : settings.nextInvoiceNumber
+            }
             onChange={onChange}
             settings={settings}
             today={today}
@@ -243,36 +261,42 @@ export function InvoiceEditorPage({
             catalog={catalog}
             defaultVatRateBp={defaultVatRateBp}
             draft={draft}
+            isQuote={isQuote}
             onChange={onChange}
             showErrors={showErrors}
             unbilledTime={unbilledTime}
             vatLiable={settings.vatLiable}
           />
-          <Section title={m.editor_section_payment()}>
-            {seller.iban === null ? (
-              <p className="text-muted-foreground-3 text-sm">
-                {m.editor_payment_no_iban()}
-              </p>
-            ) : (
-              <>
-                <p className="text-foreground-2 text-sm">
-                  {m.editor_payment_transfer({ iban: formatIban(seller.iban) })}
+          {isQuote ? null : (
+            <Section title={m.editor_section_payment()}>
+              {seller.iban === null ? (
+                <p className="text-muted-foreground-3 text-sm">
+                  {m.editor_payment_no_iban()}
                 </p>
-                <p className="mt-1 mb-3 text-muted-foreground-3 text-xs">
-                  {m.editor_payment_reference()}
-                </p>
-                <SwitchRow
-                  checked={draft.showIban}
-                  label={m.editor_show_iban()}
-                  onChange={(showIban) => update({ showIban })}
-                  testId="editor-show-iban"
-                />
-              </>
-            )}
-          </Section>
+              ) : (
+                <>
+                  <p className="text-foreground-2 text-sm">
+                    {m.editor_payment_transfer({
+                      iban: formatIban(seller.iban),
+                    })}
+                  </p>
+                  <p className="mt-1 mb-3 text-muted-foreground-3 text-xs">
+                    {m.editor_payment_reference()}
+                  </p>
+                  <SwitchRow
+                    checked={draft.showIban}
+                    label={m.editor_show_iban()}
+                    onChange={(showIban) => update({ showIban })}
+                    testId="editor-show-iban"
+                  />
+                </>
+              )}
+            </Section>
+          )}
           <OptionsSection
             draft={draft}
             email={seller.email}
+            isQuote={isQuote}
             onChange={onChange}
             today={today}
           />
@@ -308,7 +332,9 @@ export function InvoiceEditorPage({
               className="flex min-h-60 items-center justify-center text-center text-muted-foreground-3 text-sm"
               data-testid="editor-preview-empty"
             >
-              {m.editor_preview_pick_client()}
+              {isQuote
+                ? m.editor_quote_preview_pick_client()
+                : m.editor_preview_pick_client()}
             </Panel>
           ) : (
             // The sheet keeps its print proportions: a phone scrolls across it.
@@ -338,14 +364,16 @@ function GeneralSection({
   onChange,
   clients,
   settings,
-  nextInvoiceNumber,
+  isQuote,
+  nextNumber,
   today,
 }: {
   draft: InvoiceDraft;
   onChange: (draft: InvoiceDraft) => void;
   clients: ClientWithMissionsData[];
   settings: InvoicingSettingsData;
-  nextInvoiceNumber: string;
+  isQuote: boolean;
+  nextNumber: string;
   today: string;
 }) {
   const dateFormat = useDateFormat();
@@ -406,7 +434,7 @@ function GeneralSection({
         </Field>
         <Field>
           <FieldLabel className={LABEL} htmlFor={ids.mission}>
-            {m.editor_mission()}
+            {isQuote ? m.editor_mission_plain() : m.editor_mission()}
           </FieldLabel>
           <NativeSelect
             data-testid="editor-mission"
@@ -472,42 +500,46 @@ function GeneralSection({
           className="text-muted-foreground-3 text-xs sm:col-span-2"
           data-testid="editor-number-note"
         >
-          {m.editor_number_note({ number: nextInvoiceNumber })}
+          {isQuote
+            ? m.editor_quote_number_note({ number: nextNumber })
+            : m.editor_number_note({ number: nextNumber })}
         </p>
-        <fieldset className="sm:col-span-2">
-          <legend className={LABEL}>{m.editor_period()}</legend>
-          <div className="mt-1.5 grid gap-3 sm:grid-cols-2">
-            <Field>
-              <FieldLabel className="sr-only" htmlFor={ids.periodStart}>
-                {m.editor_period_start()}
-              </FieldLabel>
-              <DateField
-                clearable
-                data-testid="editor-period-start"
-                id={ids.periodStart}
-                max={draft.periodEnd || undefined}
-                onChange={(periodStart) => update({ periodStart })}
-                value={draft.periodStart}
-              />
-            </Field>
-            <Field>
-              <FieldLabel className="sr-only" htmlFor={ids.periodEnd}>
-                {m.editor_period_end()}
-              </FieldLabel>
-              <DateField
-                clearable
-                data-testid="editor-period-end"
-                id={ids.periodEnd}
-                min={draft.periodStart || undefined}
-                onChange={(periodEnd) => update({ periodEnd })}
-                value={draft.periodEnd}
-              />
-            </Field>
-          </div>
-          <p className="mt-1.5 text-muted-foreground-3 text-xs">
-            {m.editor_period_hint()}
-          </p>
-        </fieldset>
+        {isQuote ? null : (
+          <fieldset className="sm:col-span-2">
+            <legend className={LABEL}>{m.editor_period()}</legend>
+            <div className="mt-1.5 grid gap-3 sm:grid-cols-2">
+              <Field>
+                <FieldLabel className="sr-only" htmlFor={ids.periodStart}>
+                  {m.editor_period_start()}
+                </FieldLabel>
+                <DateField
+                  clearable
+                  data-testid="editor-period-start"
+                  id={ids.periodStart}
+                  max={draft.periodEnd || undefined}
+                  onChange={(periodStart) => update({ periodStart })}
+                  value={draft.periodStart}
+                />
+              </Field>
+              <Field>
+                <FieldLabel className="sr-only" htmlFor={ids.periodEnd}>
+                  {m.editor_period_end()}
+                </FieldLabel>
+                <DateField
+                  clearable
+                  data-testid="editor-period-end"
+                  id={ids.periodEnd}
+                  min={draft.periodStart || undefined}
+                  onChange={(periodEnd) => update({ periodEnd })}
+                  value={draft.periodEnd}
+                />
+              </Field>
+            </div>
+            <p className="mt-1.5 text-muted-foreground-3 text-xs">
+              {m.editor_period_hint()}
+            </p>
+          </fieldset>
+        )}
       </div>
     </Section>
   );
@@ -520,6 +552,7 @@ function LinesSection({
   unbilledTime,
   defaultVatRateBp,
   vatLiable,
+  isQuote,
   showErrors,
 }: {
   draft: InvoiceDraft;
@@ -528,6 +561,7 @@ function LinesSection({
   unbilledTime: UnbilledTimeData | null;
   defaultVatRateBp: number;
   vatLiable: boolean;
+  isQuote: boolean;
   showErrors: boolean;
 }) {
   const format = useMoneyFormat();
@@ -593,13 +627,19 @@ function LinesSection({
           </Button>
         </div>
       )}
-      <div className="grid gap-2 sm:grid-cols-3">
-        <TimeImport
-          canImport={canImportTime(draft)}
-          hasMission={draft.missionId !== null}
-          onImport={importTime}
-          time={unbilledTime}
-        />
+      <div
+        className={
+          isQuote ? "grid gap-2 sm:grid-cols-2" : "grid gap-2 sm:grid-cols-3"
+        }
+      >
+        {isQuote ? null : (
+          <TimeImport
+            canImport={canImportTime(draft)}
+            hasMission={draft.missionId !== null}
+            onImport={importTime}
+            time={unbilledTime}
+          />
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
@@ -894,15 +934,23 @@ function OptionsSection({
   draft,
   onChange,
   email,
+  isQuote,
   today,
 }: {
   draft: InvoiceDraft;
   onChange: (draft: InvoiceDraft) => void;
   email: string;
+  isQuote: boolean;
   today: string;
 }) {
   const dateFormat = useDateFormat();
-  const ids = { term: useId(), penalty: useId(), mentions: useId() };
+  const ids = {
+    term: useId(),
+    penalty: useId(),
+    mentions: useId(),
+    validity: useId(),
+    deposit: useId(),
+  };
   const update = (patch: Partial<InvoiceDraft>) =>
     onChange({ ...draft, ...patch });
   const { locale } = useMoneyFormat();
@@ -910,50 +958,123 @@ function OptionsSection({
   return (
     <Section title={m.editor_section_options()}>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field className="sm:col-span-2">
-          <FieldLabel className={LABEL} htmlFor={ids.term}>
-            {m.editor_term()}
-          </FieldLabel>
-          <NativeSelect
-            data-testid="editor-term"
-            id={ids.term}
-            onChange={(event) => update({ paymentTerm: event.target.value })}
-            value={draft.paymentTerm}
-          >
-            {paymentTermOptions(parsePaymentTermKey(draft.paymentTerm)).map(
-              (term) => (
-                <option key={paymentTermKey(term)} value={paymentTermKey(term)}>
-                  {paymentTermLabel(term)}
-                </option>
-              ),
-            )}
-          </NativeSelect>
-          <FieldDescription data-testid="editor-term-hint">
-            {m.editor_term_hint({
-              due: calendarDateNumericLabel(
-                dateFormat,
-                dueDate(today, draft.paymentTerm),
-              ),
-            })}
-          </FieldDescription>
-        </Field>
-        <Field>
-          <FieldLabel className={LABEL} htmlFor={ids.penalty}>
-            {m.editor_penalty()}
-          </FieldLabel>
-          <Input
-            data-testid="editor-penalty"
-            id={ids.penalty}
-            inputMode="decimal"
-            onChange={(event) =>
-              update({
-                latePenaltyRate: formatRateDraft(locale, event.target.value),
-              })
-            }
-            placeholder={m.invoicing_penalty_placeholder()}
-            value={draft.latePenaltyRate}
-          />
-        </Field>
+        {isQuote ? (
+          <>
+            <Field>
+              <FieldLabel className={LABEL} htmlFor={ids.validity}>
+                {m.editor_validity()}
+              </FieldLabel>
+              <NativeSelect
+                data-testid="editor-validity"
+                id={ids.validity}
+                onChange={(event) =>
+                  update({ validityDays: Number(event.target.value) })
+                }
+                value={String(draft.validityDays)}
+              >
+                {quoteValidityOptions(draft.validityDays).map((days) => (
+                  <option key={days} value={String(days)}>
+                    {m.invoicing_days({ count: days })}
+                  </option>
+                ))}
+              </NativeSelect>
+              <FieldDescription data-testid="editor-validity-hint">
+                {m.editor_validity_hint({
+                  date: calendarDateNumericLabel(
+                    dateFormat,
+                    addCalendarDays(today, draft.validityDays),
+                  ),
+                })}
+              </FieldDescription>
+            </Field>
+            <Field>
+              <FieldLabel className={LABEL} htmlFor={ids.deposit}>
+                {m.editor_deposit()}
+              </FieldLabel>
+              <NativeSelect
+                data-testid="editor-deposit"
+                id={ids.deposit}
+                onChange={(event) =>
+                  update({
+                    depositRateBp:
+                      event.target.value === ""
+                        ? null
+                        : Number(event.target.value),
+                  })
+                }
+                value={
+                  draft.depositRateBp === null
+                    ? ""
+                    : String(draft.depositRateBp)
+                }
+              >
+                <option value="">{m.editor_deposit_none()}</option>
+                {depositRateOptions(draft.depositRateBp).map((rate) => (
+                  <option key={rate} value={String(rate)}>
+                    {m.editor_deposit_rate({
+                      rate: formatPercentFromBp(locale, rate),
+                    })}
+                  </option>
+                ))}
+              </NativeSelect>
+            </Field>
+          </>
+        ) : (
+          <>
+            <Field className="sm:col-span-2">
+              <FieldLabel className={LABEL} htmlFor={ids.term}>
+                {m.editor_term()}
+              </FieldLabel>
+              <NativeSelect
+                data-testid="editor-term"
+                id={ids.term}
+                onChange={(event) =>
+                  update({ paymentTerm: event.target.value })
+                }
+                value={draft.paymentTerm}
+              >
+                {paymentTermOptions(parsePaymentTermKey(draft.paymentTerm)).map(
+                  (term) => (
+                    <option
+                      key={paymentTermKey(term)}
+                      value={paymentTermKey(term)}
+                    >
+                      {paymentTermLabel(term)}
+                    </option>
+                  ),
+                )}
+              </NativeSelect>
+              <FieldDescription data-testid="editor-term-hint">
+                {m.editor_term_hint({
+                  due: calendarDateNumericLabel(
+                    dateFormat,
+                    dueDate(today, draft.paymentTerm),
+                  ),
+                })}
+              </FieldDescription>
+            </Field>
+            <Field>
+              <FieldLabel className={LABEL} htmlFor={ids.penalty}>
+                {m.editor_penalty()}
+              </FieldLabel>
+              <Input
+                data-testid="editor-penalty"
+                id={ids.penalty}
+                inputMode="decimal"
+                onChange={(event) =>
+                  update({
+                    latePenaltyRate: formatRateDraft(
+                      locale,
+                      event.target.value,
+                    ),
+                  })
+                }
+                placeholder={m.invoicing_penalty_placeholder()}
+                value={draft.latePenaltyRate}
+              />
+            </Field>
+          </>
+        )}
         <Field className="sm:col-span-2">
           <FieldLabel className={LABEL} htmlFor={ids.mentions}>
             {m.editor_mentions()}

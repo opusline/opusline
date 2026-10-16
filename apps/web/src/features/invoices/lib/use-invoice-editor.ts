@@ -51,7 +51,7 @@ type InvoiceEditor =
   | { status: "ready"; page: InvoiceEditorPageProps };
 
 /** Waits for typing to settle, so the preview is not re-rendered on every key. */
-function useSettled<T>(value: T): T {
+export function useSettled<T>(value: T): T {
   const [settled, setSettled] = useState(value);
 
   useEffect(() => {
@@ -141,6 +141,10 @@ export function useInvoiceEditor(
     enabled: missionId !== null,
   });
 
+  // The page only hands over a draft with a client and complete lines.
+  const bodyOf = (complete: InvoiceDraft): SaveInvoiceDraftData =>
+    draftPayload(format, complete) ?? ({} as SaveInvoiceDraftData);
+
   const store = async (body: SaveInvoiceDraftData): Promise<number> => {
     if (invoiceId === null) {
       const { data } = await createInvoiceDraft({ body, throwOnError: true });
@@ -210,6 +214,7 @@ export function useInvoiceEditor(
   return {
     status: "ready",
     page: {
+      kind: "invoice",
       invoiceId,
       draft,
       onChange: setEdited,
@@ -227,16 +232,16 @@ export function useInvoiceEditor(
       unbilledTime: missionId === null ? null : (unbilled.data ?? null),
       isSaving,
       error,
-      onSave: (body) =>
+      onSave: (complete) =>
         void run(async () => {
-          const id = await store(body);
+          const id = await store(bodyOf(complete));
           await refresh();
           toast.add({ title: m.editor_draft_saved() });
           await openSaved(id);
         }),
-      onValidate: (body) =>
+      onValidate: (complete) =>
         void run(async () => {
-          const id = await store(body);
+          const id = await store(bodyOf(complete));
           // A refused validation (missing SIRET, client address…) still
           // leaves the draft saved, so the list shows it.
           const { data } = await issueInvoice({

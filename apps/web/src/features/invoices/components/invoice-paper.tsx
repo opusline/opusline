@@ -243,6 +243,19 @@ export function InvoicePaper({ paper, logoSrc }: InvoicePaperProps) {
           </div>
         )}
 
+        {paper.signature === null ? null : (
+          <div
+            className="mt-6 ml-auto h-22.5 w-60 px-2.5 py-2 text-2xs"
+            data-testid="invoice-paper-signature"
+            style={{ border: `1px dashed ${P.stamp}`, color: P.stampInk }}
+          >
+            <div className="font-semibold" style={{ color: P.strong }}>
+              {paper.signature.title}
+            </div>
+            <div className="mt-0.5">{paper.signature.caption}</div>
+          </div>
+        )}
+
         <p
           className="mt-5.5 text-2xs leading-relaxed text-pretty"
           data-testid="invoice-paper-legal"
