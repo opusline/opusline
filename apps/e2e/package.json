@@ -9,6 +9,7 @@
     "stack:build": "sh scripts/stack.sh build",
     "stack:up": "sh scripts/stack.sh up",
     "stack:down": "sh scripts/stack.sh down",
+    "screenshots": "node scripts/readme-screenshots.mjs",
     "check-types": "tsc --noEmit"
   },
   "devDependencies": {

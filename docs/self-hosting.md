@@ -178,8 +178,8 @@ volumes:
 <!-- compose-prod-end -->
 
 Six services: `web` serves the SPA and proxies `/api`, `api` is Laravel,
-`scheduler` runs the nightly barème refresh, `queue` moves uploaded files to
-their final disk, and `postgres` + `redis` hold the state. The three that share
+`scheduler` runs the nightly jobs, `queue` moves uploaded files to their final
+disk and sends the email, and `postgres` + `redis` hold the state. The three that share
 the API image differ only in their command, which is what the YAML anchors say.
 
 Nothing here is host-specific, and the images are published for arm64 as well as
@@ -195,6 +195,27 @@ change:
   somewhere you can see, swap that one line on the `x-api` anchor for a bind
   mount — `- /srv/opusline/storage:/app/storage/app`. Leave Postgres on its named
   volume; a database does not belong on a network share.
+
+### What the scheduler runs
+
+Every job is a Laravel scheduled command on the `scheduler` service. The
+times are UTC — the API's own timezone, whatever the host's — and the account's
+timezone only decides *its* mornings for the reminders:
+
+| When | Command | What it does |
+| --- | --- | --- |
+| 03:00 | `rates:refresh` | Reads the URSSAF barème from mon-entreprise (see `MON_ENTREPRISE_ENABLED`) |
+| 03:30 | `clients:retire-dormant` | Finishes missions and archives clients nothing has happened on, for the accounts that asked |
+| 05:00 | `bank:sync` | Fetches movements for every connected bank account |
+| 05:30 | `einvoicing:sync` | Records the supplier e-invoices every connected plateforme agréée received |
+| hourly | `deadlines:send-reminders` | Emails the accounts whose deadline falls a week away, tomorrow or today, once their morning has come |
+| daily | `model:prune`, `auth:clear-resets` | Forgets expired trusted browsers and password-reset tokens |
+
+A job that one account's third party refuses — a bank consent that expired, a
+platform that rejected the credentials — is recorded on that account, which
+reads the reason in the app; it never stops the other accounts, and the
+command still exits 0. Only a crash exits non-zero, and `docker compose logs
+scheduler` has it.
 
 ## Putting it behind TLS
 
@@ -413,6 +434,18 @@ than `APP_URL`. The applications' private keys are encrypted with `APP_KEY`,
 like the authenticator secrets. The `scheduler` runs the nightly sync
 (`bank:sync`, 05:00).
 
+**Electronic invoicing.** Each account connects its own Super PDP application
+under Réglages → Intégrations ([e-invoicing.md](e-invoicing.md)); the instance
+holds nothing for it, and the credentials are encrypted with `APP_KEY`. The
+`scheduler` reads every connected inbox nightly (`einvoicing:sync`, 05:30)
+and records the supplier invoices it finds in Dépenses. Everything that writes
+*to* the platform is part of the invoicing beta (`FEATURE_INVOICING`).
+
+**Receipt reading.** Dépenses reads a dropped PDF receipt with heuristics, or,
+when the account pasted an Anthropic API key under Réglages → Intégrations,
+with a Claude model. Per account, encrypted with `APP_KEY`, and nothing leaves
+the instance without that key.
+
 **Email.** Opusline sends none until you name a mailer. Set `MAIL_MAILER=smtp`
 with the `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME` and `MAIL_PASSWORD` of any
 SMTP relay, plus the `MAIL_FROM_ADDRESS` it lets you send as, and each account
@@ -470,6 +503,10 @@ Six services run: `web` (the SPA and the proxy), `api`, `queue` and `scheduler`
 | `no such table: sessions` | An older image. Upgrade — the migration ships now |
 | Alert and reminder emails never arrive | Send a test email from Settings → Notifications. No button: `MAIL_MAILER` is unset. An error: it is the relay's answer. Only the first of the two emails arrives: the `queue` service is down, and `queue:failed` shows what it choked on |
 | Forgot the password | With a mailer, « Forgot your password? » on the sign-in page emails a reset link. Without one, set a new password from the shell, below |
+| A bank account stopped syncing | The bank's consent lapsed (banks grant a few months at a time): Compte pro says so and offers to reconnect. `bank:sync` logs the reason per account in `docker compose logs scheduler` |
+| Dépenses says the platform refused the sync | Réglages → Intégrations shows the same reason: credentials revoked, or a company Super PDP has not verified yet. « Tester la connexion » asks it again |
+| Nightly jobs never run | The `scheduler` service is down — or ran at 05:00 UTC, which is not 05:00 on your wall |
+| A feature from the release notes is missing | It is in beta: `FEATURE_*` is `beta` (opt in from Réglages → Avant-première) or `off`. `on` shows it to everyone |
 
 A password you still know is changed under Settings → Security, which also
 signs out every other session. A forgotten one is reset by email on an instance
