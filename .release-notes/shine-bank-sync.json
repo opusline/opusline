@@ -1,0 +1,4 @@
+{
+  "kind": "fixed",
+  "text": "Shine bank sync now retrieves booked transactions and recovers recent history after earlier syncs returned no movements."
+}

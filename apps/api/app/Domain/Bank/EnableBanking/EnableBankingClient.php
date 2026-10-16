@@ -155,7 +155,7 @@ class EnableBankingClient
     }
 
     /**
-     * Booked transactions between two dates, both included, every page.
+     * Booked transactions from a date, every page. A null end omits date_to.
      *
      * @return list<array<array-key, mixed>>
      *
@@ -165,7 +165,7 @@ class EnableBankingClient
         EnableBankingCredentials $credentials,
         string $accountUid,
         CarbonImmutable $from,
-        CarbonImmutable $to,
+        ?CarbonImmutable $to,
         ?PsuContext $psu,
     ): array {
         $transactions = [];
@@ -175,9 +175,12 @@ class EnableBankingClient
         for ($page = 0; $page < self::MAX_PAGES; $page++) {
             $query = [
                 'date_from' => $from->toDateString(),
-                'date_to' => $to->toDateString(),
                 'transaction_status' => 'BOOK',
             ];
+
+            if ($to instanceof CarbonImmutable) {
+                $query['date_to'] = $to->toDateString();
+            }
 
             if ($continuationKey !== null) {
                 $query['continuation_key'] = $continuationKey;
