@@ -2221,6 +2221,20 @@ export const reopenQuoteMutation = (options?: Partial<Options<ReopenQuoteData>>)
     return mutationOptions;
 };
 
+export const createQuoteInvoiceMutation = (options?: Partial<Options<CreateQuoteInvoiceData>>): UseMutationOptions<CreateQuoteInvoiceResponse, CreateQuoteInvoiceError, Options<CreateQuoteInvoiceData>> => {
+    const mutationOptions: UseMutationOptions<CreateQuoteInvoiceResponse, CreateQuoteInvoiceError, Options<CreateQuoteInvoiceData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await createQuoteInvoice({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 /**
  * The live preview of an editor draft that was never saved
  */
@@ -3013,17 +3027,3 @@ export const downloadUserDocumentOptions = (options: Options<DownloadUserDocumen
     },
     queryKey: downloadUserDocumentQueryKey(options)
 });
-
-export const createQuoteInvoiceMutation = (options?: Partial<Options<CreateQuoteInvoiceData>>): UseMutationOptions<CreateQuoteInvoiceResponse, CreateQuoteInvoiceError, Options<CreateQuoteInvoiceData>> => {
-    const mutationOptions: UseMutationOptions<CreateQuoteInvoiceResponse, CreateQuoteInvoiceError, Options<CreateQuoteInvoiceData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await createQuoteInvoice({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};

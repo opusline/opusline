@@ -1698,6 +1698,20 @@ export const reopenQuote = <ThrowOnError extends boolean = false>(options: Optio
     ...options
 });
 
+export const createQuoteInvoice = <ThrowOnError extends boolean = false>(options: Options<CreateQuoteInvoiceData, ThrowOnError>): RequestResult<CreateQuoteInvoiceResponses, CreateQuoteInvoiceErrors, ThrowOnError> => (options.client ?? client).post<CreateQuoteInvoiceResponses, CreateQuoteInvoiceErrors, ThrowOnError>({
+    security: [{
+            in: 'cookie',
+            name: 'opusline-session',
+            type: 'apiKey'
+        }],
+    url: '/invoicing/quotes/{quote}/invoices',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
 /**
  * The live preview of an editor draft that was never saved
  */
@@ -2333,18 +2347,4 @@ export const downloadUserDocument = <ThrowOnError extends boolean = false>(optio
         }],
     url: '/user/documents/{document}/download',
     ...options
-});
-
-export const createQuoteInvoice = <ThrowOnError extends boolean = false>(options: Options<CreateQuoteInvoiceData, ThrowOnError>): RequestResult<CreateQuoteInvoiceResponses, CreateQuoteInvoiceErrors, ThrowOnError> => (options.client ?? client).post<CreateQuoteInvoiceResponses, CreateQuoteInvoiceErrors, ThrowOnError>({
-    security: [{
-            in: 'cookie',
-            name: 'opusline-session',
-            type: 'apiKey'
-        }],
-    url: '/invoicing/quotes/{quote}/invoices',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
 });

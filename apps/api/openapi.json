@@ -12954,6 +12954,41 @@
                 ],
                 "title": "InvoicePaperData"
             },
+            "InvoiceQuoteData": {
+                "type": "object",
+                "properties": {
+                    "billing": {
+                        "$ref": "#/components/schemas/QuoteBilling"
+                    }
+                },
+                "required": [
+                    "billing"
+                ],
+                "title": "InvoiceQuoteData"
+            },
+            "InvoiceQuoteLinkData": {
+                "type": "object",
+                "properties": {
+                    "quoteId": {
+                        "type": "integer"
+                    },
+                    "number": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "billing": {
+                        "$ref": "#/components/schemas/QuoteBilling"
+                    }
+                },
+                "required": [
+                    "quoteId",
+                    "number",
+                    "billing"
+                ],
+                "title": "InvoiceQuoteLinkData"
+            },
             "InvoiceSource": {
                 "type": "integer",
                 "description": "Who wrote the document: another tool, recorded here; or Opusline, from its lines.\n",
@@ -14168,6 +14203,52 @@
                 ],
                 "title": "PlatformEnvironment"
             },
+            "QuoteBilling": {
+                "type": "integer",
+                "description": "Which part of an accepted quote an invoice bills.\n",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "Deposit",
+                    "Balance",
+                    "Full"
+                ],
+                "title": "QuoteBilling"
+            },
+            "QuoteBillingData": {
+                "type": "object",
+                "properties": {
+                    "invoices": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QuoteInvoiceLinkData"
+                        }
+                    },
+                    "invoicedTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "canInvoiceDeposit": {
+                        "type": "boolean"
+                    },
+                    "canInvoiceBalance": {
+                        "type": "boolean"
+                    },
+                    "canInvoiceFull": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "invoices",
+                    "invoicedTtc",
+                    "canInvoiceDeposit",
+                    "canInvoiceBalance",
+                    "canInvoiceFull"
+                ],
+                "title": "QuoteBillingData"
+            },
             "QuoteContentData": {
                 "type": "object",
                 "properties": {
@@ -14396,6 +14477,41 @@
                     "billing"
                 ],
                 "title": "QuoteDetailData"
+            },
+            "QuoteInvoiceLinkData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "number": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/InvoiceStatus"
+                    },
+                    "isLate": {
+                        "type": "boolean"
+                    },
+                    "billing": {
+                        "$ref": "#/components/schemas/QuoteBilling"
+                    },
+                    "amountTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "id",
+                    "number",
+                    "status",
+                    "isLate",
+                    "billing",
+                    "amountTtc"
+                ],
+                "title": "QuoteInvoiceLinkData"
             },
             "QuoteLineData": {
                 "type": "object",
@@ -18182,122 +18298,6 @@
                     "ReelNormal"
                 ],
                 "title": "VatRegime"
-            },
-            "InvoiceQuoteData": {
-                "type": "object",
-                "properties": {
-                    "billing": {
-                        "$ref": "#/components/schemas/QuoteBilling"
-                    }
-                },
-                "required": [
-                    "billing"
-                ],
-                "title": "InvoiceQuoteData"
-            },
-            "InvoiceQuoteLinkData": {
-                "type": "object",
-                "properties": {
-                    "quoteId": {
-                        "type": "integer"
-                    },
-                    "number": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "billing": {
-                        "$ref": "#/components/schemas/QuoteBilling"
-                    }
-                },
-                "required": [
-                    "quoteId",
-                    "number",
-                    "billing"
-                ],
-                "title": "InvoiceQuoteLinkData"
-            },
-            "QuoteBilling": {
-                "type": "integer",
-                "description": "Which part of an accepted quote an invoice bills.\n",
-                "enum": [
-                    0,
-                    1,
-                    2
-                ],
-                "x-enum-varnames": [
-                    "Deposit",
-                    "Balance",
-                    "Full"
-                ],
-                "title": "QuoteBilling"
-            },
-            "QuoteBillingData": {
-                "type": "object",
-                "properties": {
-                    "invoices": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/QuoteInvoiceLinkData"
-                        }
-                    },
-                    "invoicedTtc": {
-                        "$ref": "#/components/schemas/MoneyData"
-                    },
-                    "canInvoiceDeposit": {
-                        "type": "boolean"
-                    },
-                    "canInvoiceBalance": {
-                        "type": "boolean"
-                    },
-                    "canInvoiceFull": {
-                        "type": "boolean"
-                    }
-                },
-                "required": [
-                    "invoices",
-                    "invoicedTtc",
-                    "canInvoiceDeposit",
-                    "canInvoiceBalance",
-                    "canInvoiceFull"
-                ],
-                "title": "QuoteBillingData"
-            },
-            "QuoteInvoiceLinkData": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer"
-                    },
-                    "number": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "status": {
-                        "$ref": "#/components/schemas/InvoiceStatus"
-                    },
-                    "isLate": {
-                        "type": "boolean"
-                    },
-                    "billing": {
-                        "$ref": "#/components/schemas/QuoteBilling"
-                    },
-                    "amountTtc": {
-                        "$ref": "#/components/schemas/MoneyData"
-                    }
-                },
-                "required": [
-                    "id",
-                    "number",
-                    "status",
-                    "isLate",
-                    "billing",
-                    "amountTtc"
-                ],
-                "title": "QuoteInvoiceLinkData"
             }
         },
         "responses": {
