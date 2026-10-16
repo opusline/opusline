@@ -29,7 +29,7 @@ import { useState } from "react";
 import { FormTextField } from "@/components/form-text-field";
 import { useLocale } from "@/components/money-format-provider";
 import { fullDateTimeLabel } from "@/lib/dates";
-import { eInvoicingErrorLabel } from "@/lib/e-invoicing";
+import { eInvoicingErrorLabelInSettings } from "@/lib/e-invoicing";
 import type { FormSubmitResult } from "@/lib/form";
 import { m } from "@/paraglide/messages.js";
 import { CopyableCode } from "./copyable-code";
@@ -290,6 +290,10 @@ function ConnectionStatus({
     settings.environment === null
       ? null
       : ENVIRONMENT_TOKENS[settings.environment];
+  const syncError =
+    settings.lastError === null
+      ? null
+      : eInvoicingErrorLabelInSettings(settings.lastError);
 
   return (
     <div className="flex flex-col gap-4">
@@ -301,12 +305,10 @@ function ConnectionStatus({
           </AlertDescription>
         </Alert>
       )}
-      {settings.lastError === null ? null : (
+      {syncError === null ? null : (
         <Alert data-testid="super-pdp-sync-error" variant="warn">
           <CircleAlert />
-          <AlertDescription>
-            {eInvoicingErrorLabel(settings.lastError)}
-          </AlertDescription>
+          <AlertDescription>{syncError}</AlertDescription>
         </Alert>
       )}
       <StatusRow>

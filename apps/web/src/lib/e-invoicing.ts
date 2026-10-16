@@ -15,3 +15,20 @@ const ERROR_MESSAGES: Record<EInvoicingError, () => string> = {
 export function eInvoicingErrorLabel(error: EInvoicingError): string {
   return ERROR_MESSAGES[error]();
 }
+
+/**
+ * The same on the Integrations tab itself, where a pointer to that tab is
+ * noise and an unverified company already has its own notice.
+ */
+export function eInvoicingErrorLabelInSettings(
+  error: EInvoicingError,
+): string | null {
+  switch (error) {
+    case 1:
+      return m.einvoicing_error_credentials_rejected_here();
+    case 2:
+      return null;
+    default:
+      return eInvoicingErrorLabel(error);
+  }
+}

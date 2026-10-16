@@ -1152,6 +1152,7 @@
   "einvoice_status_taken_in_charge": "Prise en charge",
   "einvoicing_error_company_unverified": "Super PDP n'a pas encore vérifié votre entreprise. Testez la connexion dans Réglages › Intégrations une fois fait.",
   "einvoicing_error_credentials_rejected": "Super PDP a refusé les identifiants enregistrés. Vérifiez-les dans Réglages › Intégrations.",
+  "einvoicing_error_credentials_rejected_here": "Super PDP a refusé les identifiants enregistrés. Remplacez-les ci-dessous.",
   "einvoicing_error_not_connected": "Connectez d'abord votre plateforme de facturation électronique dans Réglages › Intégrations.",
   "einvoicing_error_not_found": "La plateforme ne connaît aucune facture sous cette référence.",
   "einvoicing_error_rejected": "La plateforme a refusé le document.",
