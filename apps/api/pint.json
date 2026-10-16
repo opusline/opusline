@@ -1,5 +1,6 @@
 {
   "preset": "laravel",
+  "exclude": [".cache"],
   "notPath": ["public/frankenphp-worker.php"],
   "rules": {
     "declare_strict_types": true
