@@ -151,6 +151,21 @@ export function draftFromDetail(
   };
 }
 
+/**
+ * A copy to issue again: same client, lines and options, but neither the
+ * period nor the tracked time, which belong to the invoice copied.
+ */
+export function duplicateDraft(
+  format: MoneyFormat,
+  detail: InvoiceDetailData,
+): InvoiceDraft | null {
+  const copy = draftFromDetail(format, detail);
+
+  return copy === null
+    ? null
+    : { ...copy, periodStart: "", periodEnd: "", timeEntryIds: [] };
+}
+
 export function freeLine(vatRateBp: number): LineDraft {
   return {
     key: lineKey(),

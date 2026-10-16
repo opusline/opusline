@@ -183,7 +183,7 @@ it("opens the invoice it was asked to open", () => {
     screen.getByRole("button", { name: "Ouvrir la facture 2026-014" }),
   );
 
-  expect(onOpen).toHaveBeenCalledWith(7);
+  expect(onOpen).toHaveBeenCalledWith(7, 0);
 });
 
 it("reads each row against a column header", () => {

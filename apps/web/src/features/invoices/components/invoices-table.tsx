@@ -2,6 +2,7 @@ import type {
   ClientRevenueData,
   InvoiceClientTotalsData,
   InvoiceListItemData,
+  InvoiceSource,
 } from "@opusline/api-client";
 import { Badge } from "@opusline/ui/components/badge";
 import { Chip, ChipCount, ChipGroup } from "@opusline/ui/components/chip";
@@ -47,7 +48,7 @@ type InvoicesTableProps = {
   clientRevenue: ClientRevenueData[];
   /** Today in the account's timezone — the date isLate was derived from. */
   accountToday: string;
-  onOpen?: (invoiceId: number) => void;
+  onOpen?: (invoiceId: number, source: InvoiceSource) => void;
 };
 
 export function InvoicesTable({
@@ -183,7 +184,7 @@ export function InvoicesTable({
                     data-status={INVOICE_STATUS_TOKENS[invoice.status]}
                     data-testid="invoice-row"
                     key={invoice.id}
-                    onClick={() => onOpen?.(invoice.id)}
+                    onClick={() => onOpen?.(invoice.id, invoice.source)}
                   >
                     <TableCell className="px-3 py-3 font-mono text-foreground-2 text-sm tabular-nums sm:px-5">
                       {/* The row follows the mouse, but the keyboard needs a
@@ -194,7 +195,7 @@ export function InvoicesTable({
                         data-testid="invoice-open"
                         onClick={(event) => {
                           event.stopPropagation();
-                          onOpen?.(invoice.id);
+                          onOpen?.(invoice.id, invoice.source);
                         }}
                         type="button"
                       >

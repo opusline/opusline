@@ -1,3 +1,4 @@
+import type { DocumentLanguage } from "@opusline/api-client";
 import {
   listClientRevenueQueryKey,
   listCrasQueryKey,
@@ -12,6 +13,7 @@ import {
   showClientRevenueQueryKey,
   showCraQueryKey,
   showDeclarationsQueryKey,
+  showInvoicePaperQueryKey,
   showInvoiceSummaryQueryKey,
   showMissionRevenueQueryKey,
   showTreasuryQueryKey,
@@ -26,6 +28,7 @@ import {
   expensesFilter,
   invalidateDeclarationWrites,
   invalidateExpenseWrites,
+  invalidateInvoiceWrites,
   missionTimeEntriesFilter,
   operationFilter,
   revenueFilter,
@@ -343,5 +346,27 @@ describe("subscriptionsFilter", () => {
       true,
     );
     expect(filter.predicate(queryWithKey(listExpensesQueryKey()))).toBe(false);
+  });
+});
+
+describe("invalidateInvoiceWrites", () => {
+  it("marks the saved sheet stale in every language", async () => {
+    const queryClient = new QueryClient();
+    const languages: DocumentLanguage[] = [0, 1];
+    const keys = languages.map((language) =>
+      showInvoicePaperQueryKey({
+        path: { invoice: 1 },
+        query: { language },
+      }),
+    );
+    for (const queryKey of keys) {
+      queryClient.setQueryData(queryKey, {});
+    }
+
+    await invalidateInvoiceWrites(queryClient);
+
+    for (const queryKey of keys) {
+      expect(queryClient.getQueryState(queryKey)?.isInvalidated).toBe(true);
+    }
   });
 });
