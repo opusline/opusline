@@ -34,6 +34,7 @@ const meta = {
   ],
   render: (args) => <ControlledEditor {...args} />,
   args: {
+    kind: "invoice",
     invoiceId: null,
     draft: newInvoiceDraft(FORMAT.locale, invoicingSettingsFixture),
     onChange: () => {},
@@ -103,5 +104,19 @@ export const ValidationRefused: Story = {
   args: {
     ...Filled.args,
     error: "Complétez votre SIRET dans Réglages avant de valider une facture.",
+  },
+};
+
+/** Quote mode: validity and deposit instead of the payment term, no tracked time. */
+export const Quote: Story = {
+  args: {
+    kind: "quote",
+    draft: {
+      ...newInvoiceDraft(FORMAT.locale, invoicingSettingsFixture),
+      clientId: 1,
+      depositRateBp: 3000,
+      lines: [catalogLine(FORMAT, catalogFixture[0])],
+    },
+    paper: { ...editorPaper, title: "Devis", paymentTitle: null, payment: [] },
   },
 };

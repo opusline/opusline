@@ -27,6 +27,24 @@ export const PAYMENT_TERMS: readonly PaymentTerm[] = [
 
 export const QUOTE_VALIDITY_DAYS = [15, 30, 60, 90] as const;
 
+/** What a draft reopened without its settings at hand assumes; the editor shows the stored value. */
+export const DEFAULT_QUOTE_VALIDITY_DAYS = 30;
+
+/** The deposits a quote usually asks for, in basis points of the total incl. VAT. */
+export const DEPOSIT_RATES_BP = [2000, 3000, 4000, 5000] as const;
+
+/** The usual deposits, plus the one stored on the draft if it is not among them. */
+export function depositRateOptions(current: number | null): number[] {
+  const rates: number[] = [...DEPOSIT_RATES_BP];
+
+  if (current !== null && !rates.includes(current)) {
+    rates.push(current);
+    rates.sort((a, b) => a - b);
+  }
+
+  return rates;
+}
+
 export function paymentTermKey(term: PaymentTerm): string {
   return `${term.days}${term.endOfMonth ? "fm" : ""}`;
 }

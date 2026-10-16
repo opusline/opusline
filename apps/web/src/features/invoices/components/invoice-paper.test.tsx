@@ -44,3 +44,22 @@ it("leaves the logo out until one is stored", () => {
 
   expect(container.querySelector("img")).toBeNull();
 });
+
+it("ends a quote with its signature box, and an invoice without", () => {
+  const { rerender } = render(
+    <InvoicePaper
+      paper={{
+        ...invoicePaperFixture,
+        signature: { title: "Bon pour accord", caption: "Date et signature" },
+      }}
+    />,
+  );
+
+  expect(screen.getByTestId("invoice-paper-signature")).toHaveTextContent(
+    "Bon pour accord",
+  );
+
+  rerender(<InvoicePaper paper={invoicePaperFixture} />);
+
+  expect(screen.queryByTestId("invoice-paper-signature")).toBeNull();
+});

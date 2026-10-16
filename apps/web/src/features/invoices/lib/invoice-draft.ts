@@ -20,6 +20,7 @@ import {
 import { addCalendarDays, fromCalendarDate, toCalendarDate } from "@/lib/dates";
 
 import {
+  DEFAULT_QUOTE_VALIDITY_DAYS,
   formatRate,
   parsePaymentTermKey,
   paymentTermKey,
@@ -60,11 +61,15 @@ export type InvoiceDraft = {
    * and its time is released explicitly.
    */
   timeLineKey: string | null;
+  /** Quote mode only: how long the offer stands, from the day it is validated. */
+  validityDays: number;
+  /** Quote mode only: the share of the total incl. VAT due on acceptance; null for none. */
+  depositRateBp: number | null;
 };
 
 let nextLineKey = 0;
 
-function lineKey(): string {
+export function lineKey(): string {
   nextLineKey += 1;
 
   return `line-${nextLineKey}`;
@@ -104,6 +109,8 @@ export function newInvoiceDraft(
     language: settings.documentLanguage,
     timeEntryIds: [],
     timeLineKey: null,
+    validityDays: settings.quoteValidityDays,
+    depositRateBp: null,
   };
 }
 
@@ -148,6 +155,8 @@ export function draftFromDetail(
     language: content.language,
     timeEntryIds: content.timeEntryIds,
     timeLineKey: null,
+    validityDays: DEFAULT_QUOTE_VALIDITY_DAYS,
+    depositRateBp: null,
   };
 }
 
