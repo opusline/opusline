@@ -13,6 +13,16 @@ export type Release = {
 export const RELEASES: Release[] = [
   // release-notes:insert
   {
+    version: "0.33.5",
+    date: "2026-10-16",
+    items: [
+      {
+        kind: "fixed",
+        text: "Shine bank sync now retrieves booked transactions and recovers recent history after earlier syncs returned no movements.", // i18n-ignore
+      },
+    ],
+  },
+  {
     version: "0.33.4",
     date: "2026-10-15",
     items: [
