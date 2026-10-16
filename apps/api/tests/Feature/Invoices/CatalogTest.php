@@ -84,11 +84,19 @@ test('refuses a price in another currency than the account\'s', function (): voi
         ->assertJsonValidationErrorFor('unitPrice.currency');
 });
 
-test('refuses an incomplete service', function (array $overrides, string $field): void {
-    $this->actingAs(User::factory()->create())
-        ->postJson('/api/invoicing/catalog', catalogPayload($overrides))
+test('refuses an incomplete service, new or edited', function (string $method, array $overrides, string $field): void {
+    $user = User::factory()->create();
+    $item = CatalogItem::factory()->for($user)->create(['label' => 'Heure de maintenance']);
+    $url = $method === 'PUT' ? "/api/invoicing/catalog/{$item->id}" : '/api/invoicing/catalog';
+
+    $this->actingAs($user)
+        ->json($method, $url, catalogPayload($overrides))
+        ->assertUnprocessable()
         ->assertJsonValidationErrorFor($field);
-})->with([
+
+    expect($user->catalogItems()->count())->toBe(1)
+        ->and($item->fresh()?->label)->toBe('Heure de maintenance');
+})->with(['POST', 'PUT'])->with([
     'no label' => [['label' => ''], 'label'],
     'free' => [['unitPrice' => ['amount' => 0, 'currency' => 'EUR']], 'unitPrice.amount'],
     'unknown unit' => [['unit' => 9], 'unit'],
