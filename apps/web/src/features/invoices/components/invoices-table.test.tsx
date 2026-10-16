@@ -226,3 +226,36 @@ it("heads each client's rows with the client itself", () => {
     within(group.closest("tbody") as HTMLElement).getAllByRole("row"),
   ).toHaveLength(2);
 });
+
+it("marks what was issued elsewhere once invoices are written here", () => {
+  const { rerender } = render(
+    <InvoicesTable
+      accountToday="2026-08-14"
+      clientRevenue={[]}
+      clientTotals={totals}
+      invoices={[
+        ...invoices,
+        invoiceItem({ id: 5, number: "2026-020", source: 1 }),
+      ]}
+    />,
+  );
+
+  expect(screen.queryByTestId("invoice-issued-elsewhere")).toBeNull();
+
+  rerender(
+    <InvoicesTable
+      accountToday="2026-08-14"
+      clientRevenue={[]}
+      clientTotals={totals}
+      invoices={[
+        ...invoices,
+        invoiceItem({ id: 5, number: "2026-020", source: 1 }),
+      ]}
+      writesInOpusline
+    />,
+  );
+
+  expect(screen.getAllByTestId("invoice-issued-elsewhere")).toHaveLength(
+    invoices.length,
+  );
+});

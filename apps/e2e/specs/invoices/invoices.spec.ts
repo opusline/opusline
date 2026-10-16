@@ -140,7 +140,9 @@ test("an invoice without a reference is a draft, and deleting it frees the days"
 
 test("an invoice issued elsewhere is added by hand", async ({ page }) => {
   await page.goto("/invoicing/invoices");
-  await page.getByTestId("invoice-add-open").click();
+  // Whatever the account's default, recording one stays in the « Créer » menu.
+  await page.getByTestId("invoice-create-menu").click();
+  await byTestId(page, "invoice-create-item", { kind: "elsewhere" }).click();
 
   const dialog = page.getByTestId("invoice-add-dialog");
   await dialog.getByTestId("invoice-add-reference").fill("2026-037");
