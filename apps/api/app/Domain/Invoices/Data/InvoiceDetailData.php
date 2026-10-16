@@ -27,6 +27,8 @@ class InvoiceDetailData extends Data
         public ?DocumentData $document,
         /** Its lines and options when Opusline wrote it; null for an invoice recorded from another tool. */
         public ?InvoiceContentData $content,
+        /** The quote it was built from, when it was. */
+        public ?InvoiceQuoteLinkData $quote,
     ) {}
 
     public static function fromModel(Invoice $invoice): self
@@ -40,6 +42,7 @@ class InvoiceDetailData extends Data
             history: array_values(InvoiceEventData::collect($invoice->events->all(), 'array')),
             document: $document instanceof Media ? DocumentData::fromMedia($document) : null,
             content: $invoice->isWrittenInOpusline() ? InvoiceContentData::fromInvoice($invoice) : null,
+            quote: InvoiceQuoteLinkData::fromInvoice($invoice),
         );
     }
 }

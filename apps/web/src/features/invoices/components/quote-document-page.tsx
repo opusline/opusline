@@ -1,7 +1,9 @@
 import type {
   DocumentLanguage,
   InvoicePaperData,
+  QuoteBilling,
   QuoteDetailData,
+  QuoteInvoiceLinkData,
 } from "@opusline/api-client";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Badge } from "@opusline/ui/components/badge";
@@ -12,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@opusline/ui/components/dropdown-menu";
+import { Meter } from "@opusline/ui/components/meter";
 import { Panel, PanelTitle } from "@opusline/ui/components/panel";
 import {
   SegmentedControl,
@@ -20,13 +23,22 @@ import {
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, ChevronLeft, CircleAlert, Download } from "lucide-react";
+import { useId } from "react";
 
 import {
   useDateFormat,
   useMoneyFormat,
 } from "@/components/money-format-provider";
-import { formatAmountWithCents, formatPercentFromBp } from "@/lib/billing";
+import {
+  centsShare,
+  formatAmountWithCents,
+  formatPercentFromBp,
+} from "@/lib/billing";
 import { calendarDateNumericLabel } from "@/lib/dates";
+import {
+  INVOICE_STATUS_TOKENS,
+  invoiceStatusLabel,
+} from "@/lib/invoice-status";
 import { m } from "@/paraglide/messages.js";
 import { quoteStatusBadge, quoteStatusToken } from "../lib/quote-status";
 import { InvoicePaper } from "./invoice-paper";
@@ -46,6 +58,9 @@ type QuoteDocumentPageProps = {
   onRefuse: () => void;
   onReopen: () => void;
   onDelete: () => void;
+  /** Builds the deposit, balance or whole invoice as a draft, then opens it. */
+  onInvoice: (billing: QuoteBilling) => void;
+  onOpenInvoice: (invoiceId: number) => void;
 };
 
 /** A quote as the document it is, with « Suivi du devis » beside it. */
@@ -63,6 +78,8 @@ export function QuoteDocumentPage({
   onRefuse,
   onReopen,
   onDelete,
+  onInvoice,
+  onOpenInvoice,
 }: QuoteDocumentPageProps) {
   const format = useMoneyFormat();
   const { quote, client } = detail;
@@ -303,6 +320,25 @@ export function QuoteDocumentPage({
               <ActionError error={error} />
             </Panel>
           )}
+
+          {quote.status === 2 || detail.billing.invoices.length > 0 ? (
+            <Panel
+              className="px-5 py-5"
+              data-invoiced-cents={detail.billing.invoicedTtc.amount}
+              data-testid="quote-billing"
+              padding="none"
+            >
+              <PanelTitle className="mb-3.5">
+                {m.quote_billing_title()}
+              </PanelTitle>
+              <QuoteBillingPanel
+                detail={detail}
+                isPending={isPending}
+                onInvoice={onInvoice}
+                onOpenInvoice={onOpenInvoice}
+              />
+            </Panel>
+          ) : null}
         </aside>
       </div>
     </div>
@@ -381,6 +417,141 @@ function QuoteTracking({ detail }: { detail: QuoteDetailData }) {
         >
           {m.quote_tracking_accepted()}
         </p>
+      ) : null}
+    </div>
+  );
+}
+
+const BILLING_KIND_MESSAGES: Record<QuoteBilling, () => string> = {
+  0: m.quote_billing_kind_deposit,
+  1: m.quote_billing_kind_balance,
+  2: m.quote_billing_kind_full,
+};
+
+function linkBadge(link: QuoteInvoiceLinkData): {
+  variant: "brand" | "neutral" | "success" | "warn";
+  label: string;
+} {
+  if (link.isLate) {
+    return { variant: "warn", label: m.invoice_status_late() };
+  }
+
+  return {
+    variant:
+      link.status === 0 ? "neutral" : link.status === 1 ? "brand" : "success",
+    label: invoiceStatusLabel(link.status),
+  };
+}
+
+/** What the quote has billed, and what it can bill next, as the design's « Factures liées ». */
+function QuoteBillingPanel({
+  detail,
+  isPending,
+  onInvoice,
+  onOpenInvoice,
+}: {
+  detail: QuoteDetailData;
+  isPending: boolean;
+  onInvoice: (billing: QuoteBilling) => void;
+  onOpenInvoice: (invoiceId: number) => void;
+}) {
+  const format = useMoneyFormat();
+  const billedId = useId();
+  const { quote, billing } = detail;
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div>
+        <p className="text-foreground-2 text-sm" id={billedId}>
+          {billing.invoicedTtc.amount === 0
+            ? m.quote_billing_none()
+            : m.quote_billing_invoiced({
+                invoiced: formatAmountWithCents(
+                  format,
+                  billing.invoicedTtc.amount,
+                ),
+                total: formatAmountWithCents(format, quote.amountTtc.amount),
+              })}
+        </p>
+        <Meter
+          aria-labelledby={billedId}
+          className="mt-2"
+          data-testid="quote-billing-bar"
+          tone="brand"
+          value={centsShare(billing.invoicedTtc.amount, quote.amountTtc.amount)}
+        />
+      </div>
+
+      {billing.invoices.length === 0 ? null : (
+        <ul className="flex flex-col gap-2">
+          {billing.invoices.map((link) => {
+            const badge = linkBadge(link);
+
+            return (
+              <li key={link.id}>
+                <button
+                  className="flex w-full items-center justify-between gap-3 rounded-md border px-3 py-2 text-left transition-colors hover:bg-accent"
+                  data-billing={link.billing}
+                  data-status={INVOICE_STATUS_TOKENS[link.status]}
+                  data-testid="quote-linked-invoice"
+                  onClick={() => onOpenInvoice(link.id)}
+                  type="button"
+                >
+                  <span className="min-w-0">
+                    <span className="block font-mono text-foreground-2 text-sm">
+                      {link.number ?? "—"}
+                    </span>
+                    <span className="block text-muted-foreground-3 text-xs">
+                      {BILLING_KIND_MESSAGES[link.billing]()} ·{" "}
+                      {formatAmountWithCents(format, link.amountTtc.amount)}
+                    </span>
+                  </span>
+                  <Badge variant={badge.variant}>{badge.label}</Badge>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {billing.canInvoiceDeposit ||
+      billing.canInvoiceBalance ||
+      billing.canInvoiceFull ? (
+        <div className="flex flex-col gap-2">
+          {billing.canInvoiceDeposit && quote.depositRateBp !== null ? (
+            <Button
+              data-testid="quote-invoice-deposit"
+              disabled={isPending}
+              onClick={() => onInvoice(0)}
+              size="xl"
+            >
+              {m.quote_invoice_deposit({
+                rate: formatPercentFromBp(format.locale, quote.depositRateBp),
+              })}
+            </Button>
+          ) : null}
+          {billing.canInvoiceBalance ? (
+            <Button
+              data-testid="quote-invoice-balance"
+              disabled={isPending}
+              onClick={() => onInvoice(1)}
+              size="xl"
+            >
+              {m.quote_invoice_balance()}
+            </Button>
+          ) : null}
+          {billing.canInvoiceFull ? (
+            <Button
+              data-testid="quote-invoice-full"
+              disabled={isPending}
+              onClick={() => onInvoice(2)}
+              size="xl"
+              variant={billing.canInvoiceDeposit ? "outline" : "default"}
+            >
+              {m.quote_invoice_full()}
+            </Button>
+          ) : null}
+        </div>
       ) : null}
     </div>
   );

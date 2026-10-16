@@ -10,6 +10,7 @@ use App\Http\Invoices\Controllers\InvoicePaperController;
 use App\Http\Invoices\Controllers\InvoicingSettingsController;
 use App\Http\Invoices\Controllers\QuoteController;
 use App\Http\Invoices\Controllers\QuoteDraftController;
+use App\Http\Invoices\Controllers\QuoteInvoiceController;
 use App\Http\Invoices\Controllers\QuotePaperController;
 use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use Illuminate\Support\Facades\Route;
@@ -69,6 +70,9 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
         Route::post('/invoicing/quotes/{quote}/reopen', [QuoteDraftController::class, 'reopen'])
             ->whereNumber('quote')
             ->name('reopenQuote');
+        Route::post('/invoicing/quotes/{quote}/invoices', [QuoteInvoiceController::class, 'store'])
+            ->whereNumber('quote')
+            ->name('createQuoteInvoice');
         Route::get('/invoicing/quotes/{quote}/paper', [QuotePaperController::class, 'show'])
             ->whereNumber('quote')
             ->name('showQuotePaper');

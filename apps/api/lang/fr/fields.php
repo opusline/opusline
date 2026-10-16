@@ -20,6 +20,7 @@ return [
     'basis' => 'base',
     'bic' => 'BIC',
     'billable' => 'facturable',
+    'billing' => 'facturation',
     'billingAddressLine1' => 'adresse de facturation (ligne 1)',
     'billingAddressLine2' => 'adresse de facturation (ligne 2)',
     'billingCity' => 'ville de facturation',

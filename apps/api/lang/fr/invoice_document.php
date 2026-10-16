@@ -71,6 +71,17 @@ return [
         'quote_on_receipt' => 'Factures payables à réception.',
         'quote_term' => 'Factures payables à :days jours.',
         'quote_term_end_of_month' => 'Factures payables à :days jours fin de mois.',
+        'from_quote' => 'Établie au titre du devis n° :number.',
+        'deposit_invoice' => 'Facture d\'acompte de :rate % sur le devis n° :number.',
+        'deducted_deposit' => 'n° :number du :date (:amount TTC)',
+        'deposits_deducted' => 'Acompte déjà facturé et déduit : :list.',
+    ],
+    'quote_invoice' => [
+        'deposit_line' => 'Acompte de :rate % sur le devis n° :number',
+        'deposit_line_detail' => 'Part soumise à la TVA à :vat',
+        'deducted_line' => 'Acompte facturé · :number du :date',
+        'deposit_title' => 'Acompte · :title',
+        'balance_title' => 'Solde · :title',
     ],
     'signature' => [
         'title' => 'Bon pour accord',

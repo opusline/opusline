@@ -72,6 +72,6 @@ class QuoteDraftController extends Controller
 
     private function detail(Quote $quote): QuoteDetailData
     {
-        return QuoteDetailData::fromModel($quote->load(['client', 'mission', 'lines']));
+        return QuoteDetailData::fromModel($quote->load(['client', 'mission', 'lines', 'invoices']));
     }
 }

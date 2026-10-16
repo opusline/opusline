@@ -1886,6 +1886,57 @@ export const zIntegrationsData = z.object({
 });
 
 /**
+ * QuoteBilling
+ *
+ * Which part of an accepted quote an invoice bills.
+ *
+ */
+export const zQuoteBilling = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * InvoiceQuoteData
+ */
+export const zInvoiceQuoteData = z.object({
+    billing: zQuoteBilling
+});
+
+/**
+ * InvoiceQuoteLinkData
+ */
+export const zInvoiceQuoteLinkData = z.object({
+    quoteId: z.int(),
+    number: z.nullable(z.string()),
+    billing: zQuoteBilling
+});
+
+/**
+ * QuoteInvoiceLinkData
+ */
+export const zQuoteInvoiceLinkData = z.object({
+    id: z.int(),
+    number: z.nullable(z.string()),
+    status: zInvoiceStatus,
+    isLate: z.boolean(),
+    billing: zQuoteBilling,
+    amountTtc: zMoneyData
+});
+
+/**
+ * QuoteBillingData
+ */
+export const zQuoteBillingData = z.object({
+    invoices: z.array(zQuoteInvoiceLinkData),
+    invoicedTtc: zMoneyData,
+    canInvoiceDeposit: z.boolean(),
+    canInvoiceBalance: z.boolean(),
+    canInvoiceFull: z.boolean()
+});
+
+/**
  * QuoteStatus
  *
  * Where a quote stands. « Expiré » is not a status: a sent quote past its validity is expired, and a column would need a cron to say so.
@@ -3221,7 +3272,8 @@ export const zInvoiceDetailData = z.object({
     mission: z.nullable(zMissionData),
     history: z.array(zInvoiceEventData),
     document: z.nullable(zDocumentData),
-    content: z.nullable(zInvoiceContentData)
+    content: z.nullable(zInvoiceContentData),
+    quote: z.nullable(zInvoiceQuoteLinkData)
 });
 
 /**
@@ -3247,7 +3299,8 @@ export const zQuoteDetailData = z.object({
     client: zClientData,
     mission: z.nullable(zMissionData),
     content: zQuoteContentData,
-    document: z.nullable(zDocumentData)
+    document: z.nullable(zDocumentData),
+    billing: zQuoteBillingData
 });
 
 /**
@@ -4262,6 +4315,14 @@ export const zReopenQuotePath = z.object({
 });
 
 export const zReopenQuoteResponse = zQuoteDetailData;
+
+export const zCreateQuoteInvoiceBody = zInvoiceQuoteData;
+
+export const zCreateQuoteInvoicePath = z.object({
+    quote: z.int()
+});
+
+export const zCreateQuoteInvoiceResponse = zInvoiceDetailData;
 
 export const zPreviewQuotePaperBody = zSaveQuoteDraftData;
 

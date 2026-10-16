@@ -300,6 +300,23 @@ export function InvoiceDocumentPage({
             </Panel>
           ) : null}
 
+          {detail.quote === null ? null : (
+            <Link
+              className="flex items-center justify-between gap-3 rounded-lg border bg-card px-4 py-3 text-sm transition-colors hover:bg-accent"
+              data-quote={detail.quote.quoteId}
+              data-testid="document-from-quote"
+              params={{ quoteId: String(detail.quote.quoteId) }}
+              to="/invoicing/quotes/$quoteId"
+            >
+              <span className="text-muted-foreground">
+                {m.document_from_quote()}
+              </span>
+              <span className="font-mono text-primary-text">
+                {detail.quote.number ?? "—"}
+              </span>
+            </Link>
+          )}
+
           {history.length === 0 ? null : (
             <Panel className="px-5 py-5" padding="none">
               <PanelTitle className="mb-3.5">

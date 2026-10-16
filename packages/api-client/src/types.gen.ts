@@ -1476,6 +1476,7 @@ export type InvoiceDetailData = {
     history: Array<InvoiceEventData>;
     document: DocumentData | null;
     content: InvoiceContentData | null;
+    quote: InvoiceQuoteLinkData | null;
 };
 
 /**
@@ -1576,6 +1577,22 @@ export type InvoicePaperData = {
     legal: string;
     signature: PaperSignatureData | null;
     footer: string;
+};
+
+/**
+ * InvoiceQuoteData
+ */
+export type InvoiceQuoteData = {
+    billing: QuoteBilling;
+};
+
+/**
+ * InvoiceQuoteLinkData
+ */
+export type InvoiceQuoteLinkData = {
+    quoteId: number;
+    number: string | null;
+    billing: QuoteBilling;
 };
 
 /**
@@ -2025,6 +2042,25 @@ export type PingData = {
 export type PlatformEnvironment = 0 | 1;
 
 /**
+ * QuoteBilling
+ *
+ * Which part of an accepted quote an invoice bills.
+ *
+ */
+export type QuoteBilling = 0 | 1 | 2;
+
+/**
+ * QuoteBillingData
+ */
+export type QuoteBillingData = {
+    invoices: Array<QuoteInvoiceLinkData>;
+    invoicedTtc: MoneyData;
+    canInvoiceDeposit: boolean;
+    canInvoiceBalance: boolean;
+    canInvoiceFull: boolean;
+};
+
+/**
  * QuoteContentData
  */
 export type QuoteContentData = {
@@ -2073,6 +2109,19 @@ export type QuoteDetailData = {
     mission: MissionData | null;
     content: QuoteContentData;
     document: DocumentData | null;
+    billing: QuoteBillingData;
+};
+
+/**
+ * QuoteInvoiceLinkData
+ */
+export type QuoteInvoiceLinkData = {
+    id: number;
+    number: string | null;
+    status: InvoiceStatus;
+    isLate: boolean;
+    billing: QuoteBilling;
+    amountTtc: MoneyData;
 };
 
 /**
@@ -8580,6 +8629,56 @@ export type ReopenQuoteResponses = {
 };
 
 export type ReopenQuoteResponse = ReopenQuoteResponses[keyof ReopenQuoteResponses];
+
+export type CreateQuoteInvoiceData = {
+    body: InvoiceQuoteData;
+    path: {
+        /**
+         * The quote ID
+         */
+        quote: number;
+    };
+    query?: never;
+    url: '/invoicing/quotes/{quote}/invoices';
+};
+
+export type CreateQuoteInvoiceErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateQuoteInvoiceError = CreateQuoteInvoiceErrors[keyof CreateQuoteInvoiceErrors];
+
+export type CreateQuoteInvoiceResponses = {
+    201: InvoiceDetailData;
+};
+
+export type CreateQuoteInvoiceResponse = CreateQuoteInvoiceResponses[keyof CreateQuoteInvoiceResponses];
 
 export type PreviewQuotePaperData = {
     body: SaveQuoteDraftData;

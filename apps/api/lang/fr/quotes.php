@@ -18,4 +18,8 @@ return [
     'issue_needs_buyer_address' => 'Complétez l\'adresse de facturation du client sur sa fiche : elle est obligatoire sur un devis.',
     'cannot_delete_client_with_quotes' => 'Un client qui a encore des devis ne peut pas être supprimé. Supprimez-les d\'abord.',
     'cannot_delete_mission_with_quotes' => 'Une mission qui a encore des devis ne peut pas être supprimée. Supprimez-les d\'abord.',
+    'cannot_invoice_unless_accepted' => 'Seul un devis accepté peut être facturé.',
+    'deposit_already_invoiced' => 'L\'acompte de ce devis est déjà facturé.',
+    'balance_needs_deposit' => 'Le solde suit une facture d\'acompte émise ; facturez plutôt la totalité du devis.',
+    'already_invoiced' => 'Ce devis est déjà en cours de facturation : terminez par son solde.',
 ];

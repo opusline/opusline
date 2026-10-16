@@ -55,3 +55,13 @@ export const Paid: Story = {
 
 /** The sheet still loading in the other language. */
 export const LoadingSheet: Story = { args: { paper: null, language: 1 } };
+
+/** Built from a quote: the page links back to it. */
+export const FromQuote: Story = {
+  args: {
+    detail: {
+      ...documentDetail(),
+      quote: { quoteId: 7, number: "D-2026-003", billing: 0 },
+    },
+  },
+};

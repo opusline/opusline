@@ -57,6 +57,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property-read User $user
  * @property-read ?Mission $mission
  * @property-read Collection<int, QuoteLine> $lines
+ * @property-read Collection<int, Invoice> $invoices
  */
 #[Fillable([
     'client_id',
@@ -167,6 +168,16 @@ class Quote extends Model
     public function lines(): HasMany
     {
         return $this->hasMany(QuoteLine::class)->orderBy('position');
+    }
+
+    /**
+     * The invoices built from this quote, oldest first: the deposit before the balance.
+     *
+     * @return HasMany<Invoice, $this>
+     */
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class)->orderBy('id');
     }
 
     /**

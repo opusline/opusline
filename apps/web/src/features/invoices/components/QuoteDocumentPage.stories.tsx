@@ -1,7 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { StoryRouter } from "@/test/story-router";
-import { quoteDetail, quotePaperFixture } from "../lib/quote-fixtures";
+import {
+  DEPOSIT_BILLED,
+  quoteDetail,
+  quotePaperFixture,
+} from "../lib/quote-fixtures";
 import { QuoteDocumentPage } from "./quote-document-page";
 
 const meta = {
@@ -27,6 +31,8 @@ const meta = {
     onRefuse: () => {},
     onReopen: () => {},
     onDelete: () => {},
+    onInvoice: () => {},
+    onOpenInvoice: () => {},
   },
 } satisfies Meta<typeof QuoteDocumentPage>;
 
@@ -44,9 +50,30 @@ export const Draft: Story = {
   },
 };
 
-/** The client said yes. */
+/** The client said yes: the deposit or the whole quote can be invoiced. */
 export const Accepted: Story = {
-  args: { detail: quoteDetail({ status: 2, acceptedOn: "2026-10-12" }) },
+  args: {
+    detail: quoteDetail(
+      { status: 2, acceptedOn: "2026-10-12" },
+      {
+        invoices: [],
+        invoicedTtc: { amount: 0, currency: "EUR" },
+        canInvoiceDeposit: true,
+        canInvoiceBalance: false,
+        canInvoiceFull: true,
+      },
+    ),
+  },
+};
+
+/** The deposit went out: the balance is what remains. */
+export const DepositInvoiced: Story = {
+  args: {
+    detail: quoteDetail(
+      { status: 2, acceptedOn: "2026-10-12" },
+      DEPOSIT_BILLED,
+    ),
+  },
 };
 
 /** Past its validity: only reopening remains. */

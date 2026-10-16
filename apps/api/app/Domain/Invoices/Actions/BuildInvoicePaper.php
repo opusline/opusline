@@ -14,6 +14,7 @@ use App\Domain\Invoices\Documents\PaymentTerm;
 use App\Domain\Invoices\Enums\DocumentKind;
 use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Enums\OperationCategory;
+use App\Domain\Invoices\Enums\QuoteBilling;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Models\InvoiceLine;
 use App\Domain\Users\Models\User;
@@ -33,10 +34,11 @@ class BuildInvoicePaper
 
     public function forInvoice(Invoice $invoice, DocumentLanguage $language): InvoicePaperData
     {
-        $invoice->loadMissing(['client', 'lines', 'user.settings', 'user.media']);
+        $invoice->loadMissing(['client', 'lines', 'user.settings', 'user.media', 'quote.invoices']);
         $user = $invoice->user;
         $settings = $user->settingsOrFail();
         $isIssued = $invoice->status->isIssued();
+        $format = new DocumentFormatter($language, $settings->date_format);
 
         /** @var Party $seller */
         $seller = $isIssued && $invoice->seller_snapshot !== null
@@ -76,7 +78,48 @@ class BuildInvoicePaper
             vatOnDebits: $isIssued ? $invoice->vat_on_debits : ($settings->vat_regime->isLiable() && $settings->vat_on_debits),
             customMentions: $invoice->custom_mentions,
             hasLogo: $user->hasMedia('company_logo'),
-        ), new DocumentFormatter($language, $settings->date_format), $isIssued ? null : 'draft');
+            quoteMention: $this->quoteMention($invoice, $format),
+        ), $format, $isIssued ? null : 'draft');
+    }
+
+    /** « Établie au titre du devis n° … », and for a balance the deposits it deducts. */
+    private function quoteMention(Invoice $invoice, DocumentFormatter $format): ?string
+    {
+        $quote = $invoice->quote;
+
+        if ($quote === null || $invoice->quote_billing === null) {
+            return null;
+        }
+
+        $number = (string) $quote->number;
+        $sentences = [match ($invoice->quote_billing) {
+            QuoteBilling::Deposit => $this->text($format, 'legal.deposit_invoice', ['rate' => rtrim($format->rate((int) $quote->deposit_rate_bp), ' %'), 'number' => $number]),
+            default => $this->text($format, 'legal.from_quote', ['number' => $number]),
+        }];
+
+        if ($invoice->quote_billing === QuoteBilling::Balance) {
+            $deducted = $quote->invoices
+                ->filter(static fn (Invoice $other): bool => $other->quote_billing === QuoteBilling::Deposit && $other->status->isIssued())
+                ->map(fn (Invoice $other): string => $this->text($format, 'legal.deducted_deposit', [
+                    'number' => (string) $other->number,
+                    'date' => $format->date($other->issued_on),
+                    'amount' => $format->money($other->amount_ttc_cents),
+                ]));
+
+            if ($deducted->isNotEmpty()) {
+                $sentences[] = $this->text($format, 'legal.deposits_deducted', ['list' => $deducted->implode(', ')]);
+            }
+        }
+
+        return implode(' ', $sentences);
+    }
+
+    /**
+     * @param  array<string, string>  $replace
+     */
+    private function text(DocumentFormatter $format, string $key, array $replace = []): string
+    {
+        return (string) __("invoice_document.{$key}", $replace, $format->locale());
     }
 
     /** The sheet of an editor draft that was never saved: the live preview. */

@@ -71,6 +71,17 @@ return [
         'quote_on_receipt' => 'Invoices are payable on receipt.',
         'quote_term' => 'Invoices are payable within :days days.',
         'quote_term_end_of_month' => 'Invoices are payable within :days days end of month.',
+        'from_quote' => 'Issued under quote no. :number.',
+        'deposit_invoice' => 'Deposit invoice of :rate % on quote no. :number.',
+        'deducted_deposit' => 'no. :number of :date (:amount incl. VAT)',
+        'deposits_deducted' => 'Deposit already invoiced and deducted: :list.',
+    ],
+    'quote_invoice' => [
+        'deposit_line' => 'Deposit of :rate % on quote no. :number',
+        'deposit_line_detail' => 'Share subject to :vat VAT',
+        'deducted_line' => 'Deposit invoiced · :number on :date',
+        'deposit_title' => 'Deposit · :title',
+        'balance_title' => 'Balance · :title',
     ],
     'signature' => [
         'title' => 'Accepted and agreed',

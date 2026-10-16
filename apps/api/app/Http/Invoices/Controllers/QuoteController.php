@@ -28,7 +28,7 @@ class QuoteController extends Controller
 
     public function show(Quote $quote): JsonResponse
     {
-        return response()->json(QuoteDetailData::fromModel($quote->load(['client', 'mission', 'lines'])));
+        return response()->json(QuoteDetailData::fromModel($quote->load(['client', 'mission', 'lines', 'invoices'])));
     }
 
     /**

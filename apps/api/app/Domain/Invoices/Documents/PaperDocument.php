@@ -47,5 +47,7 @@ final readonly class PaperDocument
         public bool $vatOnDebits,
         public ?string $customMentions,
         public bool $hasLogo,
+        /** An invoice built from a quote says so, and a balance names the deposits it deducts. */
+        public ?string $quoteMention = null,
     ) {}
 }
