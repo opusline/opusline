@@ -191,6 +191,19 @@ function numberSeparators(locale: Locale): NumberSeparators {
 }
 
 export function formatRateDraft(locale: Locale, raw: string): string {
+  return formatDecimalDraft(locale, raw, 2);
+}
+
+/** Quantities go to the thousandth: a third of a day is 0,333, imported time keeps it. */
+export function formatQuantityDraft(locale: Locale, raw: string): string {
+  return formatDecimalDraft(locale, raw, 3);
+}
+
+function formatDecimalDraft(
+  locale: Locale,
+  raw: string,
+  fractionDigits: number,
+): string {
   const { group, decimal } = numberSeparators(locale);
   const typed = raw.replace(/[^0-9.,]/g, "");
 
@@ -226,7 +239,7 @@ export function formatRateDraft(locale: Locale, raw: string): string {
     return grouped;
   }
 
-  return `${grouped}${decimal}${decimalParts.join("").slice(0, 2)}`;
+  return `${grouped}${decimal}${decimalParts.join("").slice(0, fractionDigits)}`;
 }
 
 const DECIMAL = /^\d+(?:\.\d+)?$/;

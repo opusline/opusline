@@ -84,11 +84,6 @@ export function useInvoiceEditor(
     enabled: invoiceId !== null,
   });
   const [edited, setEdited] = useState<InvoiceDraft | null>(null);
-  // A new invoice keeps its page once first saved: moving to the edit URL
-  // would remount the editor and drop what the session holds (an error, the
-  // line its time was imported on).
-  const [createdId, setCreatedId] = useState<number | null>(null);
-  const currentId = invoiceId ?? createdId;
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -128,27 +123,37 @@ export function useInvoiceEditor(
   const missionId = draft?.missionId ?? null;
   const unbilled = useQuery({
     ...showUnbilledTimeOptions({
-      query: { missionId: missionId ?? 0, invoiceId: currentId },
+      query: { missionId: missionId ?? 0, invoiceId },
     }),
     enabled: missionId !== null,
   });
 
   const store = async (body: SaveInvoiceDraftData): Promise<number> => {
-    if (currentId === null) {
+    if (invoiceId === null) {
       const { data } = await createInvoiceDraft({ body, throwOnError: true });
-
-      setCreatedId(data.invoice.id);
 
       return data.invoice.id;
     }
 
     await updateInvoiceDraft({
       body,
-      path: { invoice: currentId },
+      path: { invoice: invoiceId },
       throwOnError: true,
     });
 
-    return currentId;
+    return invoiceId;
+  };
+
+  // A new invoice moves to its edit URL once saved, so « Nouveau → Facture »
+  // always opens an empty editor instead of writing over the draft just saved.
+  const openSaved = async (id: number) => {
+    if (invoiceId === null) {
+      await navigate({
+        to: "/invoicing/invoices/$invoiceId/edit",
+        params: { invoiceId: String(id) },
+        replace: true,
+      });
+    }
   };
 
   const refresh = async () => {
@@ -192,7 +197,7 @@ export function useInvoiceEditor(
   return {
     status: "ready",
     page: {
-      invoiceId: currentId,
+      invoiceId,
       draft,
       onChange: setEdited,
       clients: clients.data.clients,
@@ -211,9 +216,10 @@ export function useInvoiceEditor(
       error,
       onSave: (body) =>
         void run(async () => {
-          await store(body);
+          const id = await store(body);
           await refresh();
           toast.add({ title: m.editor_draft_saved() });
+          await openSaved(id);
         }),
       onValidate: (body) =>
         void run(async () => {

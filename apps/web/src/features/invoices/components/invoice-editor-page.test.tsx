@@ -119,3 +119,17 @@ it("cannot save before a client is chosen", async () => {
   expect(await screen.findByTestId("editor-save")).toBeDisabled();
   expect(screen.getByTestId("editor-mission")).toBeDisabled();
 });
+
+it("releases the imported time when the mission changes", async () => {
+  renderEditor();
+
+  fireEvent.click(await screen.findByTestId("editor-import-time"));
+  expect(screen.getAllByTestId("editor-line")).toHaveLength(1);
+
+  fireEvent.change(screen.getByTestId("editor-mission"), {
+    target: { value: "" },
+  });
+
+  expect(screen.queryByTestId("editor-line")).not.toBeInTheDocument();
+  expect(screen.queryByTestId("editor-time-linked")).not.toBeInTheDocument();
+});

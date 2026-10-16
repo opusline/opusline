@@ -1,16 +1,20 @@
 import { describe, expect, it } from "vitest";
 
+import { formatQuantityDraft } from "@/lib/billing";
+import { clientWithMissions } from "@/test/fixtures";
 import {
   canImportTime,
   draftPayload,
   dueDate,
   freeLine,
   newInvoiceDraft,
+  withClient,
+  withMission,
   withoutLine,
   withTimeImported,
   withTimeReleased,
 } from "./invoice-draft";
-import { editorUnbilledTime } from "./invoice-editor-fixture";
+import { editorClients, editorUnbilledTime } from "./invoice-editor-fixture";
 import { invoicingSettingsFixture } from "./invoicing-settings-fixture";
 
 const FORMAT = { locale: "fr-FR", currency: "EUR" } as const;
@@ -124,5 +128,81 @@ describe("tracked time", () => {
 
     expect(withoutLine(imported, other.key).timeEntryIds).toHaveLength(3);
     expect(withTimeReleased(imported).timeEntryIds).toEqual([]);
+  });
+});
+
+describe("quantities", () => {
+  it("keeps three decimals while typing", () => {
+    expect(formatQuantityDraft("fr-FR", "0,125")).toBe("0,125");
+    expect(formatQuantityDraft("fr-FR", "0,3334")).toBe("0,333");
+    expect(formatQuantityDraft("en-US", "0.001")).toBe("0.001");
+  });
+});
+
+describe("withClient", () => {
+  const sixtyDays = clientWithMissions({
+    id: 7,
+    slug: "lunaprint",
+    name: "Lunaprint",
+    paymentTermsDays: 60,
+  });
+  const defaultTerm = clientWithMissions({
+    id: 8,
+    slug: "orvella",
+    name: "Orvella",
+    paymentTermsDays: invoicingSettingsFixture.defaultPaymentTermsDays,
+  });
+
+  it("takes the client's own term, then the account default again", () => {
+    const first = withClient(draft(), sixtyDays, invoicingSettingsFixture);
+    expect(first.paymentTerm).toBe("60");
+
+    const second = withClient(first, defaultTerm, invoicingSettingsFixture);
+    expect(second.paymentTerm).toBe(
+      newInvoiceDraft(FORMAT.locale, invoicingSettingsFixture).paymentTerm,
+    );
+  });
+
+  it("releases imported time when the client no longer owns the mission", () => {
+    const imported = withTimeImported(
+      FORMAT,
+      { ...draft(), missionId: editorUnbilledTime.missionId },
+      editorUnbilledTime,
+      { vatRateBp: 0, detail: "" },
+    );
+
+    const moved = withClient(imported, sixtyDays, invoicingSettingsFixture);
+
+    expect(moved.missionId).toBeNull();
+    expect(moved.timeEntryIds).toEqual([]);
+    expect(moved.lines).toHaveLength(0);
+  });
+});
+
+describe("withMission", () => {
+  it("gives the time back with its line when the mission changes", () => {
+    const imported = withTimeImported(
+      FORMAT,
+      { ...draft(), missionId: editorUnbilledTime.missionId },
+      editorUnbilledTime,
+      { vatRateBp: 0, detail: "" },
+    );
+
+    const changed = withMission(imported, 99);
+
+    expect(changed.missionId).toBe(99);
+    expect(changed.timeEntryIds).toEqual([]);
+    expect(changed.lines).toHaveLength(0);
+    expect(canImportTime(changed)).toBe(true);
+  });
+
+  it("keeps a reopened draft's time when the mission stays", () => {
+    const reopened = {
+      ...draft(),
+      missionId: editorClients[0]?.missions[0]?.id ?? null,
+      timeEntryIds: [101],
+    };
+
+    expect(withMission(reopened, reopened.missionId)).toBe(reopened);
   });
 });

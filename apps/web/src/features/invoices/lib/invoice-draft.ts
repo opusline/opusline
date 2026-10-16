@@ -318,7 +318,10 @@ export function dueDate(issuedOn: string, key: string): string {
   return addCalendarDays(toCalendarDate(monthEnd), term.days);
 }
 
-/** The client's own term, when it differs from the account default, wins. */
+/**
+ * The client's own term, when it differs from the account default, wins;
+ * otherwise the account default applies, whatever the previous client's was.
+ */
 export function withClient(
   draft: InvoiceDraft,
   client: ClientWithMissionsData,
@@ -326,16 +329,35 @@ export function withClient(
 ): InvoiceDraft {
   const clientTerm =
     client.paymentTermsDays === settings.defaultPaymentTermsDays
-      ? draft.paymentTerm
+      ? paymentTermKey({
+          days: settings.defaultPaymentTermsDays,
+          endOfMonth: settings.defaultPaymentTermsEndOfMonth,
+        })
       : paymentTermKey({ days: client.paymentTermsDays, endOfMonth: false });
   const keepsMission = client.missions.some(
     (mission) => mission.id === draft.missionId,
   );
 
   return {
-    ...draft,
+    ...withMission(draft, keepsMission ? draft.missionId : null),
     clientId: client.id,
-    missionId: keepsMission ? draft.missionId : null,
     paymentTerm: clientTerm,
   };
+}
+
+/** Imported time belongs to one mission: leaving it gives the time back, line included. */
+export function withMission(
+  draft: InvoiceDraft,
+  missionId: number | null,
+): InvoiceDraft {
+  if (missionId === draft.missionId) {
+    return draft;
+  }
+
+  const released =
+    draft.timeLineKey === null
+      ? withTimeReleased(draft)
+      : withoutLine(draft, draft.timeLineKey);
+
+  return { ...released, missionId };
 }

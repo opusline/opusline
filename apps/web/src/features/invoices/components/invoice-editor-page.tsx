@@ -55,6 +55,7 @@ import {
   currencySymbol,
   formatAmountWithCents,
   formatPercentFromBp,
+  formatQuantityDraft,
   formatRateDraft,
   formatSignedDraft,
 } from "@/lib/billing";
@@ -73,6 +74,7 @@ import {
   isLineComplete,
   type LineDraft,
   withClient,
+  withMission,
   withoutLine,
   withTimeImported,
   withTimeReleased,
@@ -411,10 +413,12 @@ function GeneralSection({
             disabled={client === undefined}
             id={ids.mission}
             onChange={(event) =>
-              update({
-                missionId:
+              onChange(
+                withMission(
+                  draft,
                   event.target.value === "" ? null : Number(event.target.value),
-              })
+                ),
+              )
             }
             value={draft.missionId === null ? "" : String(draft.missionId)}
           >
@@ -791,7 +795,7 @@ function LineRow({
                 inputMode="decimal"
                 onChange={(event) =>
                   onChange({
-                    quantity: formatRateDraft(
+                    quantity: formatQuantityDraft(
                       format.locale,
                       event.target.value,
                     ),
