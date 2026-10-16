@@ -29,6 +29,8 @@ class AttachInvoiceDocument
     {
         return $this->lockInvoice->handle($invoice, function (Invoice $locked) use ($data): Media {
             abort_if(! $locked->status->isIssued(), 409, __('invoices.cannot_attach_document_unless_issued'));
+            // Opusline files the PDF it rendered; no other may stand in for it.
+            abort_if($locked->isWrittenInOpusline(), 409, __('invoices.issued_is_frozen'));
 
             // One document per invoice: a re-upload is a correction, not a second copy.
             $locked->attachedDocument()?->delete();

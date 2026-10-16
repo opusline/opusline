@@ -13,6 +13,7 @@ export const invoicingSettingsFixture: InvoicingSettingsData = {
   customMentions: null,
   documentLanguage: 0,
   vatLiable: false,
+  nextInvoiceNumber: "2026-044",
   legalReference: {
     semester: "2026-H2",
     checkedOn: "2026-10-14",

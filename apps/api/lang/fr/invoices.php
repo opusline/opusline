@@ -36,4 +36,12 @@ return [
     'not_an_opusline_draft' => 'Seul un brouillon rédigé dans Opusline se modifie ici.',
     'written_in_opusline' => 'Cette facture a été rédigée dans Opusline : modifiez-la depuis son éditeur.',
     'validate_before_send' => 'Validez d\'abord la facture : c\'est ce qui lui attribue son numéro.',
+    'issue_needs_lines' => 'Ajoutez au moins une ligne avant de valider.',
+    'issue_needs_positive_total' => 'Une facture ne peut pas totaliser zéro ou moins : un avoir sert à corriger.',
+    'issue_needs_seller_identity' => 'Complétez votre nom, votre adresse et votre SIRET dans Réglages : ils sont obligatoires sur une facture.',
+    'issue_needs_buyer_address' => 'Complétez l\'adresse de facturation du client sur sa fiche : elle est obligatoire sur une facture.',
+    'issue_needs_iban' => 'Ajoutez votre IBAN dans Réglages, ou masquez-le sur cette facture.',
+    'issue_needs_vat_number' => 'Ajoutez votre numéro de TVA dans Réglages : une entreprise assujettie doit l\'imprimer sur ses factures.',
+    'issue_needs_vat_rework' => 'Votre régime de TVA a changé depuis l\'enregistrement de ce brouillon : rouvrez-le dans l\'éditeur et enregistrez-le à nouveau.',
+    'issued_is_frozen' => 'Une facture émise ne se modifie plus : corrigez-la par un avoir.',
 ];

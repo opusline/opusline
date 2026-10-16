@@ -1660,6 +1660,10 @@
   "invoicing_new": "New",
   "invoicing_new_external_invoice": "Invoice issued elsewhere",
   "invoicing_new_external_invoice_detail": "Amount and PDF from another tool",
+  "invoicing_next_invoice": "Next invoice",
+  "invoicing_numbering_format": "Change the format",
+  "invoicing_numbering_note": "One continuous sequence per year, assigned on validation. A deleted draft leaves no gap, and the series carries on from the last number, whichever tool issued it.",
+  "invoicing_numbering_title": "Numbering",
   "invoicing_open_invoices": [
     {
       "declarations": ["input count", "local countPlural = count: plural"],

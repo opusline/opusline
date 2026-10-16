@@ -930,6 +930,24 @@ export type DocumentListData = {
 };
 
 /**
+ * DocumentPartyData
+ */
+export type DocumentPartyData = {
+    name: string;
+    legalMention: string | null;
+    siret: string | null;
+    siren: string | null;
+    vatNumber: string | null;
+    tradeRegistry: string | null;
+    addressLines: Array<string>;
+    email: string | null;
+    phone: string | null;
+    iban: string | null;
+    bic: string | null;
+    vatExempt: boolean;
+};
+
+/**
  * DocumentSource
  */
 export type DocumentSource = 0 | 1 | 2;
@@ -1318,6 +1336,8 @@ export type InvoiceContentData = {
     customMentions: string | null;
     lines: Array<InvoiceLineData>;
     vatBreakdown: Array<VatBreakdownRowData>;
+    seller: DocumentPartyData | null;
+    buyer: DocumentPartyData | null;
 };
 
 /**
@@ -1562,6 +1582,7 @@ export type InvoicingSettingsData = {
     documentLanguage: DocumentLanguage;
     vatLiable: boolean;
     legalReference: LegalReferenceData;
+    nextInvoiceNumber: string;
 };
 
 /**
@@ -6672,6 +6693,47 @@ export type UpdateInvoiceDraftResponses = {
 };
 
 export type UpdateInvoiceDraftResponse = UpdateInvoiceDraftResponses[keyof UpdateInvoiceDraftResponses];
+
+export type IssueInvoiceData = {
+    body?: never;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoicing/invoices/{invoice}/issue';
+};
+
+export type IssueInvoiceErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type IssueInvoiceError = IssueInvoiceErrors[keyof IssueInvoiceErrors];
+
+export type IssueInvoiceResponses = {
+    200: InvoiceDetailData;
+};
+
+export type IssueInvoiceResponse = IssueInvoiceResponses[keyof IssueInvoiceResponses];
 
 export type ShowInvoicingSettingsData = {
     body?: never;

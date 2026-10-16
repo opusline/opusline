@@ -20,6 +20,9 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
     Route::put('/invoicing/invoices/{invoice}', [InvoiceDraftController::class, 'update'])
         ->whereNumber('invoice')
         ->name('updateInvoiceDraft');
+    Route::post('/invoicing/invoices/{invoice}/issue', [InvoiceDraftController::class, 'issue'])
+        ->whereNumber('invoice')
+        ->name('issueInvoice');
 
     Route::get('/invoicing/catalog', [CatalogItemController::class, 'index'])
         ->name('listCatalogItems');

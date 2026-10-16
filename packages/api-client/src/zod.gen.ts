@@ -538,6 +538,24 @@ export const zDocumentCategory = z.union([
 export const zDocumentLanguage = z.union([z.literal(0), z.literal(1)]);
 
 /**
+ * DocumentPartyData
+ */
+export const zDocumentPartyData = z.object({
+    name: z.string(),
+    legalMention: z.nullable(z.string()),
+    siret: z.nullable(z.string()),
+    siren: z.nullable(z.string()),
+    vatNumber: z.nullable(z.string()),
+    tradeRegistry: z.nullable(z.string()),
+    addressLines: z.array(z.string()),
+    email: z.nullable(z.string()),
+    phone: z.nullable(z.string()),
+    iban: z.nullable(z.string()),
+    bic: z.nullable(z.string()),
+    vatExempt: z.boolean()
+});
+
+/**
  * DocumentSource
  */
 export const zDocumentSource = z.union([
@@ -1544,7 +1562,8 @@ export const zInvoicingSettingsData = z.object({
     customMentions: z.nullable(z.string()),
     documentLanguage: zDocumentLanguage,
     vatLiable: z.boolean(),
-    legalReference: zLegalReferenceData
+    legalReference: zLegalReferenceData,
+    nextInvoiceNumber: z.string()
 });
 
 /**
@@ -2825,7 +2844,9 @@ export const zInvoiceContentData = z.object({
     showEmail: z.boolean(),
     customMentions: z.nullable(z.string()),
     lines: z.array(zInvoiceLineData),
-    vatBreakdown: z.array(zVatBreakdownRowData)
+    vatBreakdown: z.array(zVatBreakdownRowData),
+    seller: z.nullable(zDocumentPartyData),
+    buyer: z.nullable(zDocumentPartyData)
 });
 
 /**
@@ -3595,6 +3616,12 @@ export const zUpdateInvoiceDraftPath = z.object({
 });
 
 export const zUpdateInvoiceDraftResponse = zInvoiceDetailData;
+
+export const zIssueInvoicePath = z.object({
+    invoice: z.int()
+});
+
+export const zIssueInvoiceResponse = zInvoiceDetailData;
 
 export const zShowInvoicingSettingsResponse = zInvoicingSettingsData;
 

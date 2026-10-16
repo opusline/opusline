@@ -1660,6 +1660,10 @@
   "invoicing_new": "Nouveau",
   "invoicing_new_external_invoice": "Facture émise ailleurs",
   "invoicing_new_external_invoice_detail": "Montant et PDF d'un autre outil",
+  "invoicing_next_invoice": "Prochaine facture",
+  "invoicing_numbering_format": "Changer le format",
+  "invoicing_numbering_note": "Séquence continue par année, attribuée à la validation. Un brouillon supprimé ne laisse pas de trou, et la série reprend au dernier numéro, quel que soit l'outil qui l'a émis.",
+  "invoicing_numbering_title": "Numérotation",
   "invoicing_open_invoices": [
     {
       "declarations": ["input count", "local countPlural = count: plural"],

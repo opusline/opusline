@@ -45,6 +45,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property bool $show_iban
  * @property bool $show_email
  * @property ?string $custom_mentions
+ * @property ?array<string, mixed> $seller_snapshot
+ * @property ?array<string, mixed> $buyer_snapshot
  * @property CarbonImmutable $issued_on
  * @property CarbonImmutable $due_on
  * @property ?CarbonImmutable $paid_on
@@ -77,6 +79,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
     'show_iban',
     'show_email',
     'custom_mentions',
+    'seller_snapshot',
+    'buyer_snapshot',
     'issued_on',
     'due_on',
     'paid_on',
@@ -156,6 +160,8 @@ class Invoice extends Model
             'late_penalty_rate_bp' => 'integer',
             'show_iban' => 'boolean',
             'show_email' => 'boolean',
+            'seller_snapshot' => 'array',
+            'buyer_snapshot' => 'array',
             'issued_on' => CalendarDate::class,
             'due_on' => CalendarDate::class,
             'paid_on' => CalendarDate::class,

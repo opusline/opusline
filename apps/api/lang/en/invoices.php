@@ -36,4 +36,12 @@ return [
     'not_an_opusline_draft' => 'Only a draft written in Opusline can be edited here.',
     'written_in_opusline' => 'This invoice was written in Opusline: edit it from its editor.',
     'validate_before_send' => 'Validate the invoice first: that is what gives it its number.',
+    'issue_needs_lines' => 'Add at least one line before validating.',
+    'issue_needs_positive_total' => 'An invoice cannot total zero or less: a credit note corrects one.',
+    'issue_needs_seller_identity' => 'Complete your name, address and SIRET in Settings: they are mandatory on an invoice.',
+    'issue_needs_buyer_address' => 'Complete the client\'s billing address on its record: it is mandatory on an invoice.',
+    'issue_needs_iban' => 'Add your IBAN in Settings, or hide it from this invoice.',
+    'issue_needs_vat_number' => 'Add your VAT number in Settings: a VAT-liable business must print it on its invoices.',
+    'issue_needs_vat_rework' => 'Your VAT regime changed since this draft was saved: open it in the editor and save it again.',
+    'issued_is_frozen' => 'An issued invoice cannot change: correct it with a credit note.',
 ];

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Invoices\Controllers;
 
+use App\Domain\Invoices\Actions\IssueInvoice;
 use App\Domain\Invoices\Actions\SaveInvoiceDraft;
 use App\Domain\Invoices\Data\InvoiceDetailData;
 use App\Domain\Invoices\Data\SaveInvoiceDraftData;
@@ -13,7 +14,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 
-/** Drafts written in Opusline; issuing one is a separate step (validation). */
+/** Invoices written in Opusline: drafted, then issued by validating them. */
 class InvoiceDraftController extends Controller
 {
     public function store(SaveInvoiceDraftData $data, #[CurrentUser] User $user, SaveInvoiceDraft $saveInvoiceDraft): JsonResponse
@@ -26,6 +27,11 @@ class InvoiceDraftController extends Controller
     public function update(SaveInvoiceDraftData $data, Invoice $invoice, #[CurrentUser] User $user, SaveInvoiceDraft $saveInvoiceDraft): InvoiceDetailData
     {
         return $this->detail($saveInvoiceDraft->handle($user, $data, $invoice));
+    }
+
+    public function issue(Invoice $invoice, #[CurrentUser] User $user, IssueInvoice $issueInvoice): JsonResponse
+    {
+        return response()->json($this->detail($issueInvoice->handle($user, $invoice)));
     }
 
     private function detail(Invoice $invoice): InvoiceDetailData
