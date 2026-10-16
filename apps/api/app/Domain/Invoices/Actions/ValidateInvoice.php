@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Invoices\Actions;
 
 use App\Domain\Invoices\Data\CreateInvoiceData;
+use App\Domain\Invoices\Data\SaveInvoiceDraftData;
 use App\Domain\Invoices\Data\UpdateInvoiceData;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
@@ -59,6 +60,13 @@ class ValidateInvoice
         }
     }
 
+    /** An Opusline draft: the same mission and period rules as any invoice; its amounts come from its lines. */
+    public function forDraft(User $user, SaveInvoiceDraftData $data): void
+    {
+        $this->assertMissionBelongsToClient($user, $data->clientId, $data->missionId);
+        $this->assertPeriodOrdered($data->periodStart, $data->periodEnd);
+    }
+
     private function assertMissionBelongsToClient(User $user, int $clientId, ?int $missionId): void
     {
         if ($missionId === null) {
@@ -100,6 +108,11 @@ class ValidateInvoice
             ]);
         }
 
+        $this->assertPeriodOrdered($periodStart, $periodEnd);
+    }
+
+    private function assertPeriodOrdered(?string $periodStart, ?string $periodEnd): void
+    {
         if ($periodStart !== null && $periodEnd !== null
             && CarbonImmutable::parse($periodEnd)->isBefore(CarbonImmutable::parse($periodStart))) {
             throw ValidationException::withMessages([

@@ -206,6 +206,7 @@ export const INVOICE_FIXTURE = {
   missionId: 10,
   number: "2026-014",
   status: 1,
+  source: 0,
   isLate: false,
   issuedOn: "2026-07-01",
   dueOn: "2026-08-15",

@@ -34,7 +34,7 @@ class SpatieDataParametersExtractor implements ParameterExtractor
             return $parameterExtractionResults;
         }
 
-        $rules = $dataClassName::getValidationRules($this->fullPayload($dataClassName));
+        $rules = $this->expandCollectionRules($dataClassName, $dataClassName::getValidationRules($this->fullPayload($dataClassName)));
 
         $parameters = $this->makeParameters(
             rules: $rules,
@@ -118,6 +118,40 @@ class SpatieDataParametersExtractor implements ParameterExtractor
         }
 
         return $parameters;
+    }
+
+    /**
+     * laravel-data validates a #[DataCollectionOf] property through a forEach
+     * closure under `<name>.*`, which Scramble cannot read, so the items came out
+     * as strings. Resolve the item class's own rules and spell them out as
+     * `<name>.*.<field>`, the shape Scramble turns into an items schema. Rules a
+     * class already spells out by hand are kept.
+     *
+     * @param  class-string<Data>  $dataClassName
+     * @param  array<string, mixed>  $rules
+     * @return array<string, mixed>
+     */
+    private function expandCollectionRules(string $dataClassName, array $rules): array
+    {
+        foreach ($this->dataConfig->getDataClass($dataClassName)->properties as $property) {
+            $itemClassName = $property->type->dataClass;
+
+            if (! $property->type->kind->isDataCollectable() || $itemClassName === null) {
+                continue;
+            }
+
+            $inputName = $property->inputMappedName ?? $property->name;
+            unset($rules["{$inputName}.*"]);
+
+            /** @var class-string<Data> $itemClassName */
+            $itemRules = $this->expandCollectionRules($itemClassName, $itemClassName::getValidationRules($this->fullPayload($itemClassName)));
+
+            foreach ($itemRules as $key => $rule) {
+                $rules["{$inputName}.*.{$key}"] ??= $rule;
+            }
+        }
+
+        return $rules;
     }
 
     /**

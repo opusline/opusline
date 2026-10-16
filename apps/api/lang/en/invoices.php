@@ -7,6 +7,7 @@ return [
     'ttc_below_ht' => 'The gross amount cannot be lower than the net amount.',
     'due_before_issued' => 'The due date cannot precede the issue date.',
     'period_end_before_start' => 'The period end cannot precede its start.',
+    'negative_total' => 'The lines cannot add up to a negative total.',
     'number_taken' => 'Another invoice already uses that reference.',
     'number_required_once_issued' => 'Set the invoice reference before marking it as sent.',
     'paid_on_required' => 'A payment date is required for a paid invoice.',
@@ -32,4 +33,7 @@ return [
     'time_entry_already_invoiced' => 'One of the selected time entries is already on another invoice.',
     'cannot_delete_client_with_invoices' => 'A client that still has invoices cannot be deleted. Delete them first.',
     'cannot_delete_mission_with_invoices' => 'A mission that still has invoices cannot be deleted. Delete them first.',
+    'not_an_opusline_draft' => 'Only a draft written in Opusline can be edited here.',
+    'written_in_opusline' => 'This invoice was written in Opusline: edit it from its editor.',
+    'validate_before_send' => 'Validate the invoice first: that is what gives it its number.',
 ];
