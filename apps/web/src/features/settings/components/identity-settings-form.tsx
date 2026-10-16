@@ -195,7 +195,7 @@ export function IdentitySettingsForm({
                 description={m.settings_trade_registry_hint()}
                 label={m.settings_trade_registry_label()}
                 labelClassName={LABEL}
-                placeholder="RCS Lyon 000 000 000"
+                placeholder={m.settings_trade_registry_placeholder()}
               />
             )}
           </form.Field>
@@ -235,9 +235,9 @@ export function IdentitySettingsForm({
                 field={field}
                 font="mono"
                 formatOnBlur={formatIban}
-                label="IBAN"
+                label={m.settings_iban_label()}
                 labelClassName={LABEL}
-                placeholder="FR76 0000 0000 0000 0000 0000 000"
+                placeholder={m.settings_iban_placeholder()}
                 testId="settings-iban"
               />
             )}
@@ -249,9 +249,9 @@ export function IdentitySettingsForm({
               field={field}
               font="mono"
               formatOnBlur={(value) => value.trim().toUpperCase()}
-              label="BIC"
+              label={m.settings_bic_label()}
               labelClassName={LABEL}
-              placeholder="AAAAFRPP"
+              placeholder={m.settings_bic_placeholder()}
               testId="settings-bic"
             />
           )}

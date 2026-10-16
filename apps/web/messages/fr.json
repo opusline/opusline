@@ -1942,6 +1942,8 @@
   "settings_auto_entrepreneur_hint": "Seul statut géré pour l'instant. Les sociétés arriveront plus tard.",
   "settings_bank_hint": "Imprimées sur vos factures, pour le paiement par virement",
   "settings_bank_title": "Coordonnées bancaires",
+  "settings_bic_label": "BIC",
+  "settings_bic_placeholder": "AAAAFRPP",
   "settings_billing_description": "Valeurs proposées à la création d'un client, et seuil utilisé par la page Trésorerie.",
   "settings_billing_title": "Facturation et trésorerie",
   "settings_buffer_hint": "Somme gardée sur le compte pro avant tout virement vers votre compte personnel.",
@@ -1989,6 +1991,8 @@
   "settings_home_address_title": "Adresse personnelle",
   "settings_home_same_label": "Identique à la société",
   "settings_home_same_note": "Vous êtes domicilié à l'adresse de la société.",
+  "settings_iban_label": "IBAN",
+  "settings_iban_placeholder": "FR76 0000 0000 0000 0000 0000 000",
   "settings_identity_description": "Composent l'en-tête de vos CRA et de vos factures.",
   "settings_identity_title": "Identité et coordonnées",
   "settings_income_tax_intro": "Recopiez-les depuis votre dernier avis d'imposition. Ils disent quand le versement libératoire n'est plus permis et, sans lui, combien mettre de côté pour l'impôt sur le revenu.",
@@ -2068,6 +2072,7 @@
   "settings_trade_name_placeholder": "Nom sous lequel vous facturez",
   "settings_trade_registry_hint": "Seulement si vous êtes immatriculé comme commerçant (RCS) ou artisan (RM).",
   "settings_trade_registry_label": "Immatriculation (RCS / RM)",
+  "settings_trade_registry_placeholder": "RCS Lyon 000 000 000",
   "settings_unsaved_changes": [
     {
       "declarations": ["input count", "local countPlural = count: plural"],

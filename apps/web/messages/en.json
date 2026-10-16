@@ -1942,6 +1942,8 @@
   "settings_auto_entrepreneur_hint": "The only status handled for now. Companies will come later.",
   "settings_bank_hint": "Printed on your invoices, for payment by transfer",
   "settings_bank_title": "Bank details",
+  "settings_bic_label": "BIC",
+  "settings_bic_placeholder": "AAAAFRPP",
   "settings_billing_description": "Defaults offered when creating a client, and the threshold the Treasury page uses.",
   "settings_billing_title": "Billing and treasury",
   "settings_buffer_hint": "Amount kept in the business account before any transfer to your personal account.",
@@ -1989,6 +1991,8 @@
   "settings_home_address_title": "Home address",
   "settings_home_same_label": "Same as the company",
   "settings_home_same_note": "Your home address is the company's.",
+  "settings_iban_label": "IBAN",
+  "settings_iban_placeholder": "FR76 0000 0000 0000 0000 0000 000",
   "settings_identity_description": "Make up the header of your CRAs and invoices.",
   "settings_identity_title": "Identity and contact details",
   "settings_income_tax_intro": "Copy them from your latest avis d'imposition. They tell when the versement libératoire is no longer allowed and, without it, how much to set aside for income tax.",
@@ -2068,6 +2072,7 @@
   "settings_trade_name_placeholder": "The name you invoice under",
   "settings_trade_registry_hint": "Only if you are registered as a commerçant (RCS) or an artisan (RM).",
   "settings_trade_registry_label": "Trade registry (RCS / RM)",
+  "settings_trade_registry_placeholder": "RCS Lyon 000 000 000",
   "settings_unsaved_changes": [
     {
       "declarations": ["input count", "local countPlural = count: plural"],
