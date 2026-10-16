@@ -4,6 +4,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@opusline/ui/components/dropdown-menu";
 import {
@@ -23,6 +24,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   ArrowLeft,
+  FilePen,
   FileUp,
   PanelLeft,
   Plus,
@@ -239,6 +241,20 @@ function NewMenuContent({ side }: { side?: "right" }) {
       side={side}
       sideOffset={6}
     >
+      <DropdownMenuItem
+        data-testid="invoicing-new-item"
+        data-kind="invoice"
+        render={<Link to="/invoicing/invoices/new" />}
+      >
+        <FilePen />
+        <span className="flex flex-col">
+          <span>{m.invoicing_new_invoice()}</span>
+          <span className="text-muted-foreground text-xs">
+            {m.invoicing_new_invoice_detail()}
+          </span>
+        </span>
+      </DropdownMenuItem>
+      <DropdownMenuSeparator />
       <DropdownMenuItem
         data-testid="invoicing-new-item"
         data-kind="external-invoice"

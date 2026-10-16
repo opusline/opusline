@@ -1338,6 +1338,7 @@ export type InvoiceContentData = {
     vatBreakdown: Array<VatBreakdownRowData>;
     seller: DocumentPartyData | null;
     buyer: DocumentPartyData | null;
+    timeEntryIds: Array<number>;
 };
 
 /**
@@ -2141,6 +2142,7 @@ export type SaveInvoiceDraftData = {
     language: DocumentLanguage;
     lines: Array<{
         label: string;
+        detail?: string | null;
         quantityMilli: number;
         unit: LineUnit;
         unitPrice: {
@@ -2148,7 +2150,6 @@ export type SaveInvoiceDraftData = {
             currency: Currency;
         };
         vatRateBp: number;
-        detail?: string | null;
     }>;
     missionId?: number | null;
     title?: string | null;
@@ -2158,6 +2159,7 @@ export type SaveInvoiceDraftData = {
     periodEnd?: string | null;
     latePenaltyRateBp?: number | null;
     customMentions?: string | null;
+    timeEntryIds?: Array<number>;
 };
 
 /**
@@ -2562,6 +2564,20 @@ export type TwoFactorStatusData = {
     recoveryCodesRemaining: number;
     passkeys: Array<PasskeyData>;
     trustedDevices: Array<TrustedDeviceData>;
+};
+
+/**
+ * UnbilledTimeData
+ */
+export type UnbilledTimeData = {
+    missionId: number;
+    missionName: string;
+    timeEntryIds: Array<number>;
+    firstEntryOn: string | null;
+    lastEntryOn: string | null;
+    quantityMilli: number;
+    unit: LineUnit;
+    unitPrice: MoneyData | null;
 };
 
 /**
@@ -6785,6 +6801,36 @@ export type UpdateInvoiceDraftResponses = {
 };
 
 export type UpdateInvoiceDraftResponse = UpdateInvoiceDraftResponses[keyof UpdateInvoiceDraftResponses];
+
+export type ShowUnbilledTimeData = {
+    body?: never;
+    path?: never;
+    query: {
+        missionId: number;
+        invoiceId?: number | null;
+    };
+    url: '/invoicing/unbilled-time';
+};
+
+export type ShowUnbilledTimeErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowUnbilledTimeError = ShowUnbilledTimeErrors[keyof ShowUnbilledTimeErrors];
+
+export type ShowUnbilledTimeResponses = {
+    200: UnbilledTimeData;
+};
+
+export type ShowUnbilledTimeResponse = ShowUnbilledTimeResponses[keyof ShowUnbilledTimeResponses];
 
 export type IssueInvoiceData = {
     body?: never;

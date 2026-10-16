@@ -74,6 +74,7 @@ return [
     'homePostalCode' => 'code postal du domicile',
     'iban' => 'IBAN',
     'incomeTaxRateBp' => 'taux du prélèvement à la source',
+    'invoiceId' => 'facture',
     'invoiceNumberFormat' => 'format de numérotation des factures',
     'invoices' => 'échéances de factures',
     'issuedOn' => 'date d\'émission',

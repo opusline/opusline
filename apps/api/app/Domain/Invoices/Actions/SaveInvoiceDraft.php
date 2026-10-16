@@ -29,6 +29,7 @@ class SaveInvoiceDraft
     public function __construct(
         private readonly ValidateInvoice $validateInvoice,
         private readonly RecordInvoiceEvent $recordInvoiceEvent,
+        private readonly LinkInvoiceTimeEntries $linkInvoiceTimeEntries,
     ) {}
 
     public function handle(User $user, SaveInvoiceDraftData $data, ?Invoice $invoice = null): Invoice
@@ -109,6 +110,11 @@ class SaveInvoiceDraft
                     'total_ht_cents' => $totals->lineTotals[$position],
                 ]);
             }
+
+            // The covered time follows the draft: what it no longer imports goes
+            // back to unbilled, what it imports is marked as billed by it.
+            $invoice->timeEntries()->whereNotIn('id', $data->timeEntryIds)->update(['invoice_id' => null]);
+            $this->linkInvoiceTimeEntries->handle($invoice, $data->timeEntryIds);
 
             return $invoice->load('lines');
         });

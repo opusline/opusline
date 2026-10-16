@@ -5,7 +5,13 @@ declare(strict_types=1);
 namespace App\Domain\Invoices\Data;
 
 use App\Domain\Invoices\Enums\DocumentLanguage;
+use App\Domain\Invoices\Enums\LineUnit;
+use App\Domain\Shared\Data\MoneyData;
+use App\Domain\Shared\Enums\Currency;
+use App\Domain\Shared\Money\Rate;
+use App\Domain\Shared\Validation\AccountCurrency;
 use App\Domain\Shared\Validation\LegalPaymentTerms;
+use Illuminate\Validation\Rules\Enum as EnumRule;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Attributes\Validation\Between;
 use Spatie\LaravelData\Attributes\Validation\DateFormat;
@@ -20,6 +26,7 @@ class SaveInvoiceDraftData extends Data
 {
     /**
      * @param  list<InvoiceLineInputData>  $lines
+     * @param  list<int>  $timeEntryIds
      */
     public function __construct(
         #[IntegerType]
@@ -31,7 +38,7 @@ class SaveInvoiceDraftData extends Data
         public bool $showEmail,
         #[Enum(DocumentLanguage::class)]
         public DocumentLanguage $language,
-        #[DataCollectionOf(InvoiceLineInputData::class), Max(200)]
+        #[DataCollectionOf(InvoiceLineInputData::class)]
         public array $lines,
         #[IntegerType]
         public ?int $missionId = null,
@@ -50,5 +57,31 @@ class SaveInvoiceDraftData extends Data
         public ?int $latePenaltyRateBp = null,
         #[Max(2000)]
         public ?string $customMentions = null,
+        /** Tracked time the draft covers (imported from its mission), marked as billed by it. */
+        public array $timeEntryIds = [],
     ) {}
+
+    /**
+     * The line keys are spelled out because a rules() entry replaces every rule for
+     * its property, and the request body's OpenAPI schema is built from the resolved
+     * rules: capping `lines` alone generated `lines: string[]` (see UpdateCraDaysData).
+     *
+     * @return array<string, list<mixed>>
+     */
+    public static function rules(): array
+    {
+        return [
+            'lines' => ['present', 'array', 'max:200'],
+            'lines.*.label' => ['required', 'string', 'max:255'],
+            'lines.*.detail' => ['nullable', 'string', 'max:1000'],
+            'lines.*.quantityMilli' => ['required', 'integer', 'between:1,100000000'],
+            'lines.*.unit' => ['required', new EnumRule(LineUnit::class)],
+            'lines.*.unitPrice' => ['required', 'array'],
+            'lines.*.unitPrice.amount' => ['required', 'integer', 'min:'.-MoneyData::MAX_AMOUNT, 'max:'.MoneyData::MAX_AMOUNT],
+            'lines.*.unitPrice.currency' => ['required', new EnumRule(Currency::class), new AccountCurrency],
+            'lines.*.vatRateBp' => ['required', 'integer', 'between:0,'.Rate::BASIS_POINTS],
+            'timeEntryIds' => ['array', 'max:5000'],
+            'timeEntryIds.*' => ['integer'],
+        ];
+    }
 }

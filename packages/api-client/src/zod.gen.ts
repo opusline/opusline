@@ -1975,14 +1975,14 @@ export const zSaveInvoiceDraftData = z.object({
     language: zDocumentLanguage,
     lines: z.array(z.object({
         label: z.string().check(z.maxLength(255)),
+        detail: z.nullish(z.string().check(z.maxLength(1000))),
         quantityMilli: z.int().check(z.gte(1), z.lte(100000000)),
         unit: zLineUnit,
         unitPrice: z.object({
             amount: z.int().check(z.gte(-100000000000), z.lte(100000000000)),
             currency: zCurrency
         }),
-        vatRateBp: z.int().check(z.gte(0), z.lte(10000)),
-        detail: z.nullish(z.string().check(z.maxLength(1000)))
+        vatRateBp: z.int().check(z.gte(0), z.lte(10000))
     })).check(z.maxLength(200)),
     missionId: z.nullish(z.int()),
     title: z.nullish(z.string().check(z.maxLength(255))),
@@ -1991,7 +1991,8 @@ export const zSaveInvoiceDraftData = z.object({
     periodStart: z.nullish(z.iso.date()),
     periodEnd: z.nullish(z.iso.date()),
     latePenaltyRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
-    customMentions: z.nullish(z.string().check(z.maxLength(2000)))
+    customMentions: z.nullish(z.string().check(z.maxLength(2000))),
+    timeEntryIds: z.optional(z.array(z.int()).check(z.maxLength(5000)))
 });
 
 /**
@@ -2619,6 +2620,20 @@ export const zTwoFactorStatusData = z.object({
 });
 
 /**
+ * UnbilledTimeData
+ */
+export const zUnbilledTimeData = z.object({
+    missionId: z.int(),
+    missionName: z.string(),
+    timeEntryIds: z.array(z.int()),
+    firstEntryOn: z.nullable(z.iso.date()),
+    lastEntryOn: z.nullable(z.iso.date()),
+    quantityMilli: z.int(),
+    unit: zLineUnit,
+    unitPrice: z.nullable(zMoneyData)
+});
+
+/**
  * UpcomingDebitData
  */
 export const zUpcomingDebitData = z.object({
@@ -2938,7 +2953,8 @@ export const zInvoiceContentData = z.object({
     lines: z.array(zInvoiceLineData),
     vatBreakdown: z.array(zVatBreakdownRowData),
     seller: z.nullable(zDocumentPartyData),
-    buyer: z.nullable(zDocumentPartyData)
+    buyer: z.nullable(zDocumentPartyData),
+    timeEntryIds: z.array(z.int())
 });
 
 /**
@@ -3708,6 +3724,13 @@ export const zUpdateInvoiceDraftPath = z.object({
 });
 
 export const zUpdateInvoiceDraftResponse = zInvoiceDetailData;
+
+export const zShowUnbilledTimeQuery = z.object({
+    missionId: z.int(),
+    invoiceId: z.nullish(z.int())
+});
+
+export const zShowUnbilledTimeResponse = zUnbilledTimeData;
 
 export const zIssueInvoicePath = z.object({
     invoice: z.int()

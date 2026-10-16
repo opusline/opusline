@@ -21,6 +21,8 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
     Route::put('/invoicing/invoices/{invoice}', [InvoiceDraftController::class, 'update'])
         ->whereNumber('invoice')
         ->name('updateInvoiceDraft');
+    Route::get('/invoicing/unbilled-time', [InvoiceDraftController::class, 'unbilledTime'])
+        ->name('showUnbilledTime');
     Route::post('/invoicing/invoices/paper', [InvoicePaperController::class, 'preview'])
         ->name('previewInvoicePaper');
     Route::get('/invoices/{invoice}/paper', [InvoicePaperController::class, 'show'])

@@ -74,6 +74,7 @@ return [
     'homePostalCode' => 'home postal code',
     'iban' => 'IBAN',
     'incomeTaxRateBp' => 'withholding tax rate',
+    'invoiceId' => 'invoice',
     'invoiceNumberFormat' => 'invoice number format',
     'invoices' => 'invoice deadlines',
     'issuedOn' => 'issue date',
