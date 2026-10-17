@@ -1,4 +1,7 @@
-import { showTwoFactorQueryKey } from "@opusline/api-client/react-query";
+import {
+  listAccessTokensQueryKey,
+  showTwoFactorQueryKey,
+} from "@opusline/api-client/react-query";
 import type { Meta, StoryObj } from "@storybook/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
@@ -6,6 +9,7 @@ import { useState } from "react";
 import { MoneyFormatProvider } from "@/components/money-format-provider";
 import { seedCurrentUser } from "@/test/current-user";
 import {
+  accessTokensFixture,
   twoFactorOffFixture,
   twoFactorOnFixture,
 } from "../lib/security-fixture";
@@ -19,6 +23,9 @@ function Example({ status }: { status: typeof twoFactorOnFixture }) {
     });
 
     client.setQueryData(showTwoFactorQueryKey(), status);
+    client.setQueryData(listAccessTokensQueryKey(), {
+      tokens: accessTokensFixture,
+    });
     seedCurrentUser(client);
 
     return client;

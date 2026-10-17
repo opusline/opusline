@@ -23,4 +23,7 @@ enum SecurityAlertKind: int
     case AlertsTurnedOff = 8;
     /** Sent to the address that was replaced: the new one may not be the owner's. */
     case EmailChanged = 9;
+    /** A standing way into the account's data from another application. */
+    case AccessTokenCreated = 10;
+    case AccessTokenRevoked = 11;
 }

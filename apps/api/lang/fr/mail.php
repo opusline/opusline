@@ -26,6 +26,14 @@ return [
         'device' => 'Navigateur : :device',
         'ip' => 'Adresse IP : :ip',
         'kind' => [
+            'AccessTokenCreated' => [
+                'line' => 'Un jeton d\'accès personnel a été créé pour votre compte. Une autre application peut lire vos factures avec lui jusqu\'à sa révocation.',
+                'subject' => 'Un jeton d\'accès a été créé pour votre compte',
+            ],
+            'AccessTokenRevoked' => [
+                'line' => 'Un jeton d\'accès personnel a été révoqué de votre compte. L\'application qui l\'utilisait ne peut plus lire vos factures.',
+                'subject' => 'Un jeton d\'accès a été révoqué de votre compte',
+            ],
             'AlertsTurnedOff' => [
                 'line' => 'Les alertes de sécurité ont été désactivées pour votre compte. Celle-ci est la dernière que vous recevrez tant qu\'elles ne sont pas réactivées.',
                 'subject' => 'Les alertes de sécurité ont été désactivées',

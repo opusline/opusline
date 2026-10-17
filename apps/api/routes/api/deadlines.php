@@ -7,9 +7,10 @@ use App\Domain\Deadlines\Data\CompleteFiscalDeadlineData;
 use App\Http\Deadlines\Controllers\DeadlineCalendarController;
 use App\Http\Deadlines\Controllers\DeadlineController;
 use App\Http\Users\Support\EnsureSessionIsUnlocked;
+use App\Http\Users\Support\RefuseAccessTokens;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(function (): void {
+Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class, RefuseAccessTokens::class])->group(function (): void {
     Route::get('/deadlines', [DeadlineController::class, 'index'])
         ->name('listDeadlines');
 
