@@ -34,7 +34,8 @@ test("an invoice is e-mailed to the client with its PDF, and the history says so
     amountHt: { amount: 120_000, currency: "EUR" },
   });
 
-  await page.goto(`/invoicing/invoices/${invoice.id}`);
+  // Recorded from another tool: its fiche is the drawer on the list.
+  await page.goto(`/invoicing/invoices?invoice=${invoice.id}`);
   await page
     .getByTestId("filed-document-picker")
     .setInputFiles(pdfFile("facture-2026-041.pdf"));
@@ -60,7 +61,7 @@ test("an invoice is e-mailed to the client with its PDF, and the history says so
   );
   await page.getByTestId("send-submit").click();
   expect((await sent).status()).toBe(201);
-  await expect(page).toHaveURL(/\/invoicing\/invoices\/\d+$/);
+  await expect(page).toHaveURL(/\/invoicing\/invoices\?invoice=\d+$/);
   await expect(
     byTestId(page, "invoice-history-item", { event: "emailed" }),
   ).toBeVisible();
