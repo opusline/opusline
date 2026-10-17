@@ -325,6 +325,17 @@ class Invoice extends Model
     }
 
     /**
+     * The credit notes of earlier invoices this one deducts: claimed by its
+     * draft, settled when it is issued.
+     *
+     * @return HasMany<CreditNote, $this>
+     */
+    public function deductedCreditNotes(): HasMany
+    {
+        return $this->hasMany(CreditNote::class, 'deduction_invoice_id')->orderBy('id');
+    }
+
+    /**
      * The payment figures a screen reads on every row, computed by the
      * database once per query instead of once per invoice: what landed, the
      * day the last of it did, and what credit notes took off.

@@ -8,6 +8,8 @@ use App\Domain\Invoices\Data\InvoiceLineInputData;
 use App\Domain\Invoices\Data\SaveInvoiceDraftData;
 use App\Domain\Invoices\Documents\DocumentTotals;
 use App\Domain\Invoices\Documents\PaymentTerm;
+use App\Domain\Invoices\Enums\CreditNoteSettlement;
+use App\Domain\Invoices\Enums\CreditNoteStatus;
 use App\Domain\Invoices\Enums\InvoiceEventKind;
 use App\Domain\Invoices\Enums\InvoiceSource;
 use App\Domain\Invoices\Enums\InvoiceStatus;
@@ -115,9 +117,41 @@ class SaveInvoiceDraft
             // back to unbilled, what it imports is marked as billed by it.
             $invoice->timeEntries()->whereNotIn('id', $data->timeEntryIds)->update(['invoice_id' => null]);
             $this->linkInvoiceTimeEntries->handle($invoice, $data->timeEntryIds);
+            $this->claimCreditNotes($user, $invoice, $data->creditNoteIds);
 
             return $invoice->load('lines');
         });
+    }
+
+    /**
+     * The credit notes the draft deducts follow it, as its tracked time does:
+     * only the same client's, waiting to be deducted, not claimed by another draft.
+     *
+     * @param  list<int>  $creditNoteIds
+     *
+     * @throws ValidationException
+     */
+    private function claimCreditNotes(User $user, Invoice $invoice, array $creditNoteIds): void
+    {
+        $invoice->deductedCreditNotes()->whereNotIn('id', $creditNoteIds)->update(['deduction_invoice_id' => null]);
+
+        if ($creditNoteIds === []) {
+            return;
+        }
+
+        $claimable = $user->creditNotes()
+            ->whereKey($creditNoteIds)
+            ->where('client_id', $invoice->client_id)
+            ->where('status', CreditNoteStatus::Issued)
+            ->where('settlement', CreditNoteSettlement::DeductFromNextInvoice)
+            ->where(fn ($query) => $query->whereNull('deduction_invoice_id')->orWhere('deduction_invoice_id', $invoice->id))
+            ->pluck('id');
+
+        if ($claimable->count() !== count($creditNoteIds)) {
+            throw ValidationException::withMessages(['creditNoteIds' => __('credit_notes.not_deductible')]);
+        }
+
+        $user->creditNotes()->whereKey($creditNoteIds)->update(['deduction_invoice_id' => $invoice->id]);
     }
 
     /**

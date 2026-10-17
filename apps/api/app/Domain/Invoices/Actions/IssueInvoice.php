@@ -10,6 +10,7 @@ use App\Domain\Invoices\Documents\DocumentParties;
 use App\Domain\Invoices\Documents\PaymentTerm;
 use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Enums\InvoiceEventKind;
+use App\Domain\Invoices\Lifecycle\Invoice\InvoicePaid;
 use App\Domain\Invoices\Lifecycle\Invoice\InvoiceSent;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Models\InvoiceLine;
@@ -35,6 +36,7 @@ class IssueInvoice
         private readonly RecordInvoiceEvent $recordInvoiceEvent,
         private readonly RenderInvoicePdf $renderInvoicePdf,
         private readonly StoreGeneratedDocument $storeGeneratedDocument,
+        private readonly DeductCreditNotes $deductCreditNotes,
     ) {}
 
     public function handle(User $user, Invoice $invoice): Invoice
@@ -51,6 +53,7 @@ class IssueInvoice
             $settings = $user->settingsOrFail();
             $locked->load(['client', 'lines']);
             $this->assertIssuable($locked, $settings);
+            $this->deductCreditNotes->assertFits($locked);
 
             $issuedOn = $settings->today();
             $term = new PaymentTerm($locked->payment_terms_days ?? 0, $locked->payment_terms_end_of_month);
@@ -75,6 +78,13 @@ class IssueInvoice
             }
 
             $this->recordInvoiceEvent->handle($locked, InvoiceEventKind::Sent, $issuedOn);
+            $this->deductCreditNotes->handle($locked, $issuedOn);
+
+            // Credit notes that cover it whole leave nothing to pay.
+            if (! $locked->balanceDue()->isPositive()) {
+                $locked->lifecycle->transitionTo(InvoicePaid::class);
+                $this->recordInvoiceEvent->handle($locked, InvoiceEventKind::Paid, $issuedOn);
+            }
 
             // The legal copy: filed with the client's documents, in the language
             // the invoice was written in, inside the same transaction as its number.

@@ -110,6 +110,7 @@ export function invoiceDetail(
     emails: [],
     payments: [],
     creditNotes: [],
+    deductedCreditNotes: [],
     nextReminderOn: null,
     nextStatuses: NEXT_INVOICE_STATUSES[item.invoice.status],
     history: [

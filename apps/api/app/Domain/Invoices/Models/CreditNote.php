@@ -40,6 +40,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property DocumentLanguage $language
  * @property CarbonImmutable $issued_on
  * @property ?CarbonImmutable $settled_on
+ * @property ?int $deduction_invoice_id The later invoice that deducts it, once a draft claims it.
  * @property array<string, mixed> $seller_snapshot
  * @property array<string, mixed> $buyer_snapshot
  * @property string $currency
@@ -65,6 +66,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'language',
     'issued_on',
     'settled_on',
+    'deduction_invoice_id',
     'seller_snapshot',
     'buyer_snapshot',
     'currency',
@@ -103,6 +105,23 @@ class CreditNote extends Model
     public function invoice(): BelongsTo
     {
         return $this->belongsTo(Invoice::class);
+    }
+
+    /** @return BelongsTo<Invoice, $this> */
+    public function deductionInvoice(): BelongsTo
+    {
+        return $this->belongsTo(Invoice::class, 'deduction_invoice_id');
+    }
+
+    /**
+     * What the client is owed back under it: the overpayment on its invoice,
+     * which the credit note may exceed when part of the invoice was unpaid.
+     */
+    public function owedBack(): Money
+    {
+        $balance = $this->invoice->balanceDue();
+
+        return $balance->isNegative() ? $balance->absolute() : new Money(0, $this->currency);
     }
 
     /** @return BelongsTo<Client, $this> */

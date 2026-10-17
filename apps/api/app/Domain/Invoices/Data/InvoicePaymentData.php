@@ -21,6 +21,8 @@ class InvoicePaymentData extends Data
         public CarbonImmutable $paidOn,
         /** The bank movement an accepted match paid it with; null for a payment recorded by hand. */
         public ?int $bankMovementId,
+        /** The credit note a refund settles; null for money the client paid. */
+        public ?int $creditNoteId,
         public ?string $note,
     ) {}
 
@@ -31,6 +33,7 @@ class InvoicePaymentData extends Data
             amount: MoneyData::fromMoney($payment->amount_cents),
             paidOn: $payment->paid_on,
             bankMovementId: $payment->bank_movement_id,
+            creditNoteId: $payment->credit_note_id,
             note: $payment->note,
         );
     }

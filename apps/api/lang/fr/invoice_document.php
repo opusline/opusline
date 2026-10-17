@@ -51,6 +51,8 @@ return [
         'vat' => 'TVA',
         'ttc' => 'Total TTC',
         'deposit' => 'Acompte à l\'acceptation (:rate %)',
+        'deduction' => 'Déduction de l\'avoir n° :number',
+        'net_due' => 'Net à payer',
     ],
     'payment' => [
         'title' => 'Informations de paiement',

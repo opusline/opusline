@@ -152,6 +152,21 @@ final class PaperBuilder
             new PaperTotalData($this->text($format, 'totals.ttc'), $format->money($totals->ttc), emphasis: true),
         ];
 
+        if ($document->deductions !== []) {
+            $net = $totals->ttc;
+
+            foreach ($document->deductions as $deduction) {
+                $rows[] = new PaperTotalData(
+                    $this->text($format, 'totals.deduction', ['number' => $deduction['number']]),
+                    $format->money($deduction['amount']->negative()),
+                    emphasis: false,
+                );
+                $net = $net->subtract($deduction['amount']);
+            }
+
+            $rows[] = new PaperTotalData($this->text($format, 'totals.net_due'), $format->money($net), emphasis: false);
+        }
+
         if ($document->kind === DocumentKind::Quote && $document->depositRateBp !== null) {
             $rows[] = new PaperTotalData(
                 $this->text($format, 'totals.deposit', ['rate' => $this->plainRate($format, $document->depositRateBp)]),

@@ -73,6 +73,8 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
             Route::post('/invoicing/invoices/{invoice}/credit-notes', [CreditNoteController::class, 'store'])
                 ->whereNumber('invoice')
                 ->name('issueCreditNote');
+            Route::get('/invoicing/credit-notes/deductible', [CreditNoteController::class, 'deductible'])
+                ->name('listDeductibleCreditNotes');
             Route::get('/invoicing/credit-notes/{creditNote}', [CreditNoteController::class, 'show'])
                 ->whereNumber('creditNote')
                 ->name('showCreditNote');
@@ -82,6 +84,9 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
             Route::get('/invoicing/credit-notes/{creditNote}/pdf', [CreditNoteController::class, 'pdf'])
                 ->whereNumber('creditNote')
                 ->name('downloadCreditNotePdf');
+            Route::post('/invoicing/credit-notes/{creditNote}/refund', [CreditNoteController::class, 'refund'])
+                ->whereNumber('creditNote')
+                ->name('refundCreditNote');
 
             Route::get('/invoicing/quotes', [QuoteController::class, 'index'])
                 ->name('listQuotes');

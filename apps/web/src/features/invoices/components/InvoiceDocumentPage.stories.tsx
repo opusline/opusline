@@ -69,6 +69,7 @@ export const PartlyPaid: Story = {
           amount: eur(100_000),
           paidOn: "2026-08-10",
           bankMovementId: 55,
+          creditNoteId: null,
           note: null,
         },
       ],

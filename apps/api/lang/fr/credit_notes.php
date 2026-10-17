@@ -13,4 +13,11 @@ return [
     'line_not_on_invoice' => 'Cette ligne n\'appartient pas à la facture.',
     'settlement_required' => 'Le client a déjà payé : dites si le montant lui est remboursé ou déduit d\'une prochaine facture.',
     'number_taken' => 'Un autre avoir porte déjà ce numéro.',
+    'not_to_refund' => 'Cet avoir n\'appelle pas de remboursement, ou il a déjà été remboursé.',
+    'refund_before_issue' => 'Le remboursement ne peut pas précéder l\'avoir.',
+    'movement_not_a_free_debit' => 'Choisissez un débit du compte pro qui n\'est encore lié à rien.',
+    'movement_amount_mismatch' => 'Le débit n\'est pas le montant dû au client.',
+    'not_deductible' => 'Un avoir à déduire doit être du même client, en attente de déduction, et non retenu par une autre facture.',
+    'deduction_exceeds_invoice' => 'Les avoirs à déduire dépassent cette facture.',
+    'deduction_payment_fixed' => 'Une déduction appartient à la facture qui l\'a portée : elle ne se retire pas seule.',
 ];

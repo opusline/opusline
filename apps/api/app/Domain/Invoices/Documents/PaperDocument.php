@@ -55,5 +55,11 @@ final readonly class PaperDocument
         public ?CreditedInvoice $creditedInvoice = null,
         public ?CreditNoteReason $creditNoteReason = null,
         public ?CreditNoteSettlement $creditNoteSettlement = null,
+        /**
+         * Credit notes of earlier invoices this invoice deducts, printed under its total.
+         *
+         * @var list<array{number: string, amount: Money}>
+         */
+        public array $deductions = [],
     ) {}
 }

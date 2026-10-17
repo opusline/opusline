@@ -1007,6 +1007,22 @@ export type DeclarationsData = {
 };
 
 /**
+ * DeductibleCreditNoteData
+ */
+export type DeductibleCreditNoteData = {
+    creditNote: CreditNoteData;
+    invoiceNumber: string;
+    amount: MoneyData;
+};
+
+/**
+ * DeductibleCreditNotesData
+ */
+export type DeductibleCreditNotesData = {
+    creditNotes: Array<DeductibleCreditNoteData>;
+};
+
+/**
  * DismissRecurringDebitData
  */
 export type DismissRecurringDebitData = {
@@ -1659,6 +1675,7 @@ export type InvoiceDetailData = {
     emails: Array<DocumentEmailData>;
     payments: Array<InvoicePaymentData>;
     creditNotes: Array<CreditNoteData>;
+    deductedCreditNotes: Array<CreditNoteData>;
     nextReminderOn: string | null;
     nextStatuses: Array<InvoiceStatus>;
 };
@@ -1782,6 +1799,7 @@ export type InvoicePaymentData = {
     amount: MoneyData;
     paidOn: string;
     bankMovementId: number | null;
+    creditNoteId: number | null;
     note: string | null;
 };
 
@@ -2514,6 +2532,14 @@ export type RecurringDebitData = {
 };
 
 /**
+ * RefundCreditNoteData
+ */
+export type RefundCreditNoteData = {
+    refundedOn: string;
+    bankMovementId?: number | null;
+};
+
+/**
  * RegisterPasskeyData
  */
 export type RegisterPasskeyData = {
@@ -2704,6 +2730,7 @@ export type SaveInvoiceDraftData = {
     latePenaltyRateBp?: number | null;
     customMentions?: string | null;
     timeEntryIds?: Array<number>;
+    creditNoteIds?: Array<number>;
 };
 
 /**
@@ -6005,6 +6032,36 @@ export type IssueCreditNoteResponses = {
 
 export type IssueCreditNoteResponse = IssueCreditNoteResponses[keyof IssueCreditNoteResponses];
 
+export type ListDeductibleCreditNotesData = {
+    body?: never;
+    path?: never;
+    query: {
+        clientId: number;
+        invoiceId?: number | null;
+    };
+    url: '/invoicing/credit-notes/deductible';
+};
+
+export type ListDeductibleCreditNotesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListDeductibleCreditNotesError = ListDeductibleCreditNotesErrors[keyof ListDeductibleCreditNotesErrors];
+
+export type ListDeductibleCreditNotesResponses = {
+    200: DeductibleCreditNotesData;
+};
+
+export type ListDeductibleCreditNotesResponse = ListDeductibleCreditNotesResponses[keyof ListDeductibleCreditNotesResponses];
+
 export type ShowCreditNoteData = {
     body?: never;
     path: {
@@ -6131,6 +6188,71 @@ export type DownloadCreditNotePdfResponses = {
 };
 
 export type DownloadCreditNotePdfResponse = DownloadCreditNotePdfResponses[keyof DownloadCreditNotePdfResponses];
+
+export type RefundCreditNoteData2 = {
+    body: RefundCreditNoteData;
+    path: {
+        /**
+         * The credit note ID
+         */
+        creditNote: number;
+    };
+    query?: never;
+    url: '/invoicing/credit-notes/{creditNote}/refund';
+};
+
+export type RefundCreditNoteErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type RefundCreditNoteError = RefundCreditNoteErrors[keyof RefundCreditNoteErrors];
+
+export type RefundCreditNoteResponses = {
+    200: CreditNoteDetailData;
+};
+
+export type RefundCreditNoteResponse = RefundCreditNoteResponses[keyof RefundCreditNoteResponses];
 
 export type ListDeadlinesData = {
     body?: never;

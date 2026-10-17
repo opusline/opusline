@@ -14,6 +14,7 @@ use App\Domain\Invoices\Data\RevenueVatData;
 use App\Domain\Invoices\Data\SummarizeRevenueData;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Enums\RevenueBasis;
+use App\Domain\Invoices\Models\CreditNote;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Models\InvoicePayment;
 use App\Domain\Invoices\Revenue\CollectedInvoices;
@@ -55,7 +56,7 @@ class SummarizeRevenue
         $currency = $settings->currency->value;
         $total = $basis === RevenueBasis::Collected
             ? $this->collectedHtBetween($user, $period['start'], $period['end'], $currency)
-            : $this->totalOf($invoices, $currency);
+            : $this->totalOf($invoices, $currency)->subtract($this->creditedHtBetween($user, $period['start'], $period['end'], $currency));
 
         return new RevenueData(
             period: $period['key'],
@@ -106,8 +107,12 @@ class SummarizeRevenue
         };
     }
 
-    /** A draft is not a document yet, so it never counts as revenue; a partly paid invoice has collected something. */
-    private const array REVENUE_STATUSES = [InvoiceStatus::Sent, InvoiceStatus::Paid];
+    /**
+     * A draft is not a document yet, so it never counts as revenue; a partly paid
+     * invoice has collected something. A cancelled one was invoiced too: its credit
+     * note takes it back, in the month the credit note was issued.
+     */
+    private const array REVENUE_STATUSES = [InvoiceStatus::Sent, InvoiceStatus::Paid, InvoiceStatus::Cancelled];
 
     /** The column the rows are ordered on: the day the last payment landed, or the issue date. */
     private function dateColumn(RevenueBasis $basis): string
@@ -200,7 +205,16 @@ class SummarizeRevenue
 
         $invoices = $this->invoicesBetween($user, $basis, $period['start'], $period['end'])->get();
 
-        return $this->totalOf($invoices, $currency);
+        return $this->totalOf($invoices, $currency)->subtract($this->creditedHtBetween($user, $period['start'], $period['end'], $currency));
+    }
+
+    /** The HT the credit notes issued between the bounds took off what was invoiced. */
+    private function creditedHtBetween(User $user, CarbonImmutable $start, CarbonImmutable $end, string $currency): Money
+    {
+        return new Money(
+            (int) $user->creditNotes()->whereBetween('issued_on', [$start->toDateString(), $end->toDateString()])->sum('amount_ht_cents'),
+            $currency,
+        );
     }
 
     /** The HT the payments landed between the bounds collected: the cash-basis figure. */
@@ -326,18 +340,24 @@ class SummarizeRevenue
         if ($basis === RevenueBasis::Collected) {
             return array_values($user->invoicePayments()
                 ->whereBetween('paid_on', $bounds)
-                ->with('invoice:id,amount_ht_cents,amount_ttc_cents,currency')
+                ->with(['invoice:id,amount_ht_cents,amount_ttc_cents,currency', 'creditNote:id,amount_ht_cents,amount_ttc_cents,currency'])
                 ->get()
                 ->map(static fn (InvoicePayment $payment): array => [$payment->paid_on, $payment->htShare()])
                 ->all());
         }
 
-        return array_values($user->invoices()
+        $invoiced = $user->invoices()
             ->whereIn('status', self::REVENUE_STATUSES)
             ->whereBetween('issued_on', $bounds)
             ->get(['issued_on', 'amount_ht_cents', 'currency'])
-            ->map(static fn (Invoice $invoice): array => [$invoice->issued_on, $invoice->amount_ht_cents])
-            ->all());
+            ->map(static fn (Invoice $invoice): array => [$invoice->issued_on, $invoice->amount_ht_cents]);
+        // A credit note takes its HT off the month it was issued in.
+        $credited = $user->creditNotes()
+            ->whereBetween('issued_on', $bounds)
+            ->get(['issued_on', 'amount_ht_cents', 'currency'])
+            ->map(static fn (CreditNote $creditNote): array => [$creditNote->issued_on, $creditNote->amount_ht_cents->negative()]);
+
+        return [...array_values($invoiced->all()), ...array_values($credited->all())];
     }
 
     /**
