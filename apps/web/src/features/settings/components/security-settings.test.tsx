@@ -1,4 +1,7 @@
-import { showTwoFactorQueryKey } from "@opusline/api-client/react-query";
+import {
+  listAccessTokensQueryKey,
+  showTwoFactorQueryKey,
+} from "@opusline/api-client/react-query";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
@@ -6,6 +9,7 @@ import { afterEach, expect, it, vi } from "vitest";
 import { MoneyFormatProvider } from "@/components/money-format-provider";
 import { CURRENT_USER_FIXTURE, seedCurrentUser } from "@/test/current-user";
 import {
+  accessTokensFixture,
   recoveryCodesFixture,
   totpSetupFixture,
   twoFactorOffFixture,
@@ -72,6 +76,9 @@ function renderTab(
   });
 
   seedCurrentUser(queryClient);
+  queryClient.setQueryData(listAccessTokensQueryKey(), {
+    tokens: accessTokensFixture,
+  });
 
   if (status !== null) {
     queryClient.setQueryData(showTwoFactorQueryKey(), status);
@@ -737,4 +744,103 @@ it("reports a failed deletion on the card", async () => {
   );
 
   expect(await screen.findByRole("alert")).toHaveTextContent("Boom");
+});
+
+it("creates an API token through the password gate and shows it once", async () => {
+  const api = stubApi([
+    {
+      method: "POST",
+      path: "/user/tokens",
+      status: 201,
+      body: {
+        token: {
+          id: 3,
+          name: "Runway",
+          abilities: ["invoices:read"],
+          lastUsedAt: null,
+          createdAt: "2026-10-17T09:00:00+00:00",
+        },
+        plainTextToken: "3|fresh-secret",
+      },
+    },
+    {
+      method: "GET",
+      path: "/user/tokens",
+      status: 200,
+      body: { tokens: accessTokensFixture },
+    },
+  ]);
+  const guarded = vi.fn(async (action: () => Promise<unknown>) => ({
+    status: "done" as const,
+    value: await action(),
+  }));
+  renderTab(twoFactorOffFixture, {}, guarded as TabProps["guarded"]);
+
+  fireEvent.click(screen.getByTestId("api-token-create"));
+  fireEvent.change(await screen.findByLabelText("Nom"), {
+    target: { value: "Runway" },
+  });
+  fireEvent.submit(screen.getByRole("button", { name: "Créer" }));
+
+  expect(await screen.findByTestId("api-token-secret")).toHaveTextContent(
+    "3|fresh-secret",
+  );
+  expect(guarded).toHaveBeenCalledTimes(1);
+  expect(api.calls()).toEqual(
+    expect.arrayContaining(["POST /api/user/tokens", "GET /api/user/tokens"]),
+  );
+
+  fireEvent.click(screen.getByRole("button", { name: "Fermer" }));
+
+  await waitFor(() =>
+    expect(screen.queryByTestId("api-token-secret")).not.toBeInTheDocument(),
+  );
+});
+
+it("keeps the token dialog open when the password dialog is dismissed", async () => {
+  const api = stubApi([]);
+  renderTab(twoFactorOffFixture, {}, async () => ({ status: "cancelled" }));
+
+  fireEvent.click(screen.getByTestId("api-token-create"));
+  fireEvent.change(await screen.findByLabelText("Nom"), {
+    target: { value: "Runway" },
+  });
+  fireEvent.submit(screen.getByRole("button", { name: "Créer" }));
+
+  await waitFor(() =>
+    expect(screen.getByRole("button", { name: "Créer" })).toBeEnabled(),
+  );
+  expect(api.calls()).not.toContain("POST /api/user/tokens");
+  expect(screen.getByLabelText("Nom")).toBeInTheDocument();
+});
+
+it("revokes an API token and refreshes the list", async () => {
+  const api = stubApi([
+    { method: "DELETE", path: "/user/tokens/2", status: 204 },
+    {
+      method: "GET",
+      path: "/user/tokens",
+      status: 200,
+      body: { tokens: accessTokensFixture.slice(0, 1) },
+    },
+  ]);
+  renderTab(twoFactorOffFixture);
+
+  fireEvent.click(screen.getAllByTestId("api-token-revoke")[1]);
+  const dialog = await screen.findByRole("alertdialog");
+  fireEvent.click(
+    dialog.querySelector("[data-slot=alert-dialog-action]") as HTMLElement,
+  );
+
+  await waitFor(() =>
+    expect(api.calls()).toEqual(
+      expect.arrayContaining([
+        "DELETE /api/user/tokens/2",
+        "GET /api/user/tokens",
+      ]),
+    ),
+  );
+  await waitFor(() =>
+    expect(screen.getAllByTestId("api-token-row")).toHaveLength(1),
+  );
 });

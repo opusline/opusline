@@ -26,6 +26,14 @@ return [
         'device' => 'Browser: :device',
         'ip' => 'IP address: :ip',
         'kind' => [
+            'AccessTokenCreated' => [
+                'line' => 'A personal access token was created for your account. Another application can read your invoices with it until it is revoked.',
+                'subject' => 'An access token was created for your account',
+            ],
+            'AccessTokenRevoked' => [
+                'line' => 'A personal access token was revoked from your account. The application that used it can no longer read your invoices.',
+                'subject' => 'An access token was revoked from your account',
+            ],
             'AlertsTurnedOff' => [
                 'line' => 'Security alerts were turned off for your account. This is the last one you will receive until they are turned back on.',
                 'subject' => 'Security alerts were turned off',

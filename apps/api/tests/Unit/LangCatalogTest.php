@@ -81,6 +81,7 @@ function requestDataFields(): array
         'RecoveryCodesData', 'TotpSetupData', 'TwoFactorStatusData',
         'TrustedDeviceData', 'TwoFactorChallengeData', 'PasskeyData', 'PasskeyOptionsData',
         'PingData', 'SentryWebData',
+        'AccessTokenData', 'AccessTokenListData', 'NewAccessTokenData',
     ];
 
     $fields = [];
