@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Domain\Clients\Models\Client;
 use App\Domain\Invoices\Enums\EmailTemplateKind;
 use App\Domain\Invoices\Enums\InvoiceEventKind;
-use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Enums\ReminderFrequency;
 use App\Domain\Invoices\Mail\ClientDocumentMail;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Models\Quote;
 use App\Domain\Users\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
@@ -114,21 +115,26 @@ test('refuses to send a draft written in Opusline: validating is what issues it'
     Mail::assertNothingQueued();
 });
 
-test('an invoice recorded from another tool is sent by the e-mail, once its PDF is filed', function (): void {
+test('an invoice recorded from another tool is not sent from here: that tool sent it', function (): void {
     $user = issuableAccount();
-    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->state(['number' => '2026-037', 'status' => InvoiceStatus::Draft]));
-
-    sendInvoiceEmail($user, $invoice)->assertConflict()->assertJsonPath('message', __('client_mail.no_document'));
-
-    $this->actingAs($user)->postJson("/api/invoices/{$invoice->id}/send")->assertOk();
+    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state(['number' => '2026-037']));
     $this->actingAs($user)
         ->postJson("/api/invoices/{$invoice->id}/document", ['file' => UploadedFile::fake()->create('facture.pdf', 90, 'application/pdf')])
         ->assertCreated();
 
-    sendInvoiceEmail($user, $invoice)->assertCreated();
+    sendInvoiceEmail($user, $invoice)->assertConflict()->assertJsonPath('message', __('client_mail.written_elsewhere'));
 
-    expect($invoice->refresh()->status)->toBe(InvoiceStatus::Sent);
-    Mail::assertQueued(ClientDocumentMail::class);
+    Mail::assertNothingQueued();
+});
+
+test('a quote recorded from another tool is not sent from here either', function (): void {
+    $user = issuableAccount();
+    $quote = Quote::factory()->for($user)->for(Client::factory()->for($user)->create())->external()->create();
+
+    $this->actingAs($user)
+        ->postJson("/api/invoicing/quotes/{$quote->id}/email", ['recipients' => ['compta@nordlys.test']])
+        ->assertConflict()
+        ->assertJsonPath('message', __('client_mail.written_elsewhere'));
 });
 
 test('refuses recipients that are not plain addresses', function (array $recipients): void {

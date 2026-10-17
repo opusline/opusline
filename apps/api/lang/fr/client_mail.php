@@ -68,8 +68,7 @@ return [
     ],
     'unknown_variable' => 'Variable inconnue :name. Celles que cet e-mail connaît : :known.',
     'relay_failed' => 'Le relais de messagerie a refusé l\'e-mail : :reason',
-    'needs_number' => 'Renseignez la référence de la facture avant de l\'envoyer.',
     'validate_before_sending' => 'Validez d\'abord le document : un brouillon n\'a rien à envoyer.',
     'no_document' => 'Aucun PDF à joindre : classez d\'abord le document.',
-    'no_reminder_recipients' => 'Cette facture n\'a jamais été envoyée depuis Opusline, il n\'y a donc personne à relancer : envoyez-la d\'abord.',
+    'written_elsewhere' => 'Ce document a été émis dans un autre outil, qui l\'a envoyé : Opusline n\'envoie que ce qu\'il a rédigé.',
 ];

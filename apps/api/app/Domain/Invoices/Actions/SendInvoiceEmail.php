@@ -18,9 +18,9 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 /**
  * E-mails an issued invoice to the client, its PDF attached, and keeps the
  * trace: the e-mail as it left, an entry in the invoice's history, and the
- * reminder settings the invoice will live by. An invoice recorded from
- * another tool that was still a draft becomes sent by it, which is what
- * sending means for one.
+ * reminder settings the invoice will live by. Only an invoice written in
+ * Opusline goes out this way: one recorded from another tool was sent by
+ * that tool.
  */
 class SendInvoiceEmail
 {
@@ -33,8 +33,8 @@ class SendInvoiceEmail
     public function handle(User $user, Invoice $invoice, SendInvoiceEmailData $data): DocumentEmail
     {
         return $this->lockInvoice->handle($invoice, function (Invoice $locked) use ($user, $data): DocumentEmail {
-            abort_if($locked->status === InvoiceStatus::Draft && $locked->isWrittenInOpusline(), 409, __('client_mail.validate_before_sending'));
-            abort_if($locked->number === null, 409, __('client_mail.needs_number'));
+            abort_if(! $locked->isWrittenInOpusline(), 409, __('client_mail.written_elsewhere'));
+            abort_if($locked->status === InvoiceStatus::Draft, 409, __('client_mail.validate_before_sending'));
 
             $document = $locked->attachedDocument();
             abort_if(! $document instanceof Media, 409, __('client_mail.no_document'));
@@ -42,11 +42,6 @@ class SendInvoiceEmail
             $settings = $user->settingsOrFail();
             $content = $this->composeDocumentEmail->forInvoice($user, $locked, $data->subject, $data->body);
             $today = $settings->today();
-
-            if ($locked->status === InvoiceStatus::Draft) {
-                $locked->update(['status' => InvoiceStatus::Sent]);
-                $this->recordInvoiceEvent->handle($locked, InvoiceEventKind::Sent, $today);
-            }
 
             $locked->update([
                 'reminders_enabled' => $data->remindersEnabled ?? $settings->reminders_default_enabled,

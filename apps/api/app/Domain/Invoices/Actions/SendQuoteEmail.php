@@ -24,6 +24,7 @@ class SendQuoteEmail
     public function handle(User $user, Quote $quote, SendDocumentEmailData $data): DocumentEmail
     {
         return $this->lockQuote->handle($quote, function (Quote $locked) use ($user, $data): DocumentEmail {
+            abort_if(! $locked->isWrittenInOpusline(), 409, __('client_mail.written_elsewhere'));
             abort_if(! $locked->status->isIssued(), 409, __('client_mail.validate_before_sending'));
 
             $document = $locked->attachedDocument();

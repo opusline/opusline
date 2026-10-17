@@ -68,8 +68,7 @@ return [
     ],
     'unknown_variable' => 'Unknown variable :name. The ones this e-mail knows: :known.',
     'relay_failed' => 'The mail relay refused the e-mail: :reason',
-    'needs_number' => 'Set the invoice reference before e-mailing it.',
     'validate_before_sending' => 'Validate the document first: a draft has nothing to send.',
     'no_document' => 'No PDF to attach: file the document first.',
-    'no_reminder_recipients' => 'This invoice was never e-mailed from Opusline, so there is nobody to remind: send it first.',
+    'written_elsewhere' => 'This document was issued in another tool, which sent it: Opusline only e-mails what it wrote.',
 ];
