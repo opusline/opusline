@@ -26,17 +26,24 @@ enum EmailTemplateKind: int
     /**
      * The placeholders a template of this kind may use, written `{name}` in
      * the stored text. French names, as the users who edit them are: the
-     * document vocabulary (numéro, échéance, validité) is theirs.
+     * document vocabulary (numéro, échéance, validité) is theirs. `{contact}`
+     * is the client's contact, the person greeted; `{client}` the company.
      *
      * @return list<string>
      */
     public function variables(): array
     {
         return match ($this) {
-            self::NewInvoice => ['numero', 'titre', 'montant', 'echeance', 'client', 'contact'],
-            self::NewQuote => ['numero', 'titre', 'montant', 'validite', 'client', 'contact'],
-            self::CreditNote => ['numero', 'facture', 'montant', 'traitement', 'client', 'contact'],
-            self::PaymentReminder => ['numero', 'montant', 'echeance', 'retard', 'client', 'contact'],
+            self::NewInvoice => ['numero', 'titre', 'montant', 'echeance', 'contact', 'client'],
+            self::NewQuote => ['numero', 'titre', 'montant', 'validite', 'contact', 'client'],
+            self::CreditNote => ['numero', 'facture', 'montant', 'traitement', 'contact', 'client'],
+            self::PaymentReminder => ['numero', 'titre', 'montant', 'echeance', 'retard', 'penalites', 'contact', 'client'],
         };
+    }
+
+    /** Whether the e-mail asks for money, which is when it shows how to pay. */
+    public function asksForPayment(): bool
+    {
+        return $this === self::NewInvoice || $this === self::PaymentReminder;
     }
 }

@@ -50,10 +50,9 @@ class ClientDocumentMail extends Mailable
         return new Content(
             view: 'mail.client-document',
             with: [
-                'sender' => $this->sender,
                 'content' => $this->content,
                 'logo' => $this->sender->getFirstMedia('company_logo'),
-                'initials' => self::initials($this->sender->settingsOrFail()->trade_name ?? $this->sender->name),
+                'initials' => self::initials($this->content->senderName),
             ],
         );
     }

@@ -20,7 +20,7 @@ class PreviewEmailTemplate
 
         return new EmailPreviewData(
             subject: $content->subject,
-            text: $content->body,
+            text: implode("\n\n", array_values(array_filter([$content->greeting, ...$content->paragraphs], static fn (string $block): bool => $block !== ''))),
             html: new ClientDocumentMail($user, $content)->render(),
         );
     }
