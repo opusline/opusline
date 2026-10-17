@@ -20,7 +20,6 @@
       "release-type": "simple",
       "initial-version": "0.1.0",
       "bump-minor-pre-major": true,
-      "release-as": "0.33.6",
       "extra-files": [
         ".github/ISSUE_TEMPLATE/bug_report.yml",
         "apps/api/config/app.php",
