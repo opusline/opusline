@@ -27,5 +27,6 @@ require __DIR__.'/api/settings.php';
 require __DIR__.'/api/subscriptions.php';
 require __DIR__.'/api/time-entries.php';
 require __DIR__.'/api/timers.php';
+require __DIR__.'/api/tokens.php';
 require __DIR__.'/api/treasury.php';
 require __DIR__.'/api/two-factor.php';

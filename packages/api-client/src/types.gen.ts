@@ -5,6 +5,24 @@ export type ClientOptions = {
 };
 
 /**
+ * AccessTokenData
+ */
+export type AccessTokenData = {
+    id: number;
+    name: string;
+    abilities: Array<TokenAbility>;
+    lastUsedAt: string | null;
+    createdAt: string;
+};
+
+/**
+ * AccessTokenListData
+ */
+export type AccessTokenListData = {
+    tokens: Array<AccessTokenData>;
+};
+
+/**
  * AnnualDeclarationsData
  */
 export type AnnualDeclarationsData = {
@@ -588,6 +606,14 @@ export type CraListItemData = {
  * CraStatus
  */
 export type CraStatus = 0 | 1 | 2;
+
+/**
+ * CreateAccessTokenData
+ */
+export type CreateAccessTokenData = {
+    name: string;
+    abilities: Array<TokenAbility>;
+};
 
 /**
  * CreateClientData
@@ -1556,6 +1582,14 @@ export type MonthWorkloadData = {
 };
 
 /**
+ * NewAccessTokenData
+ */
+export type NewAccessTokenData = {
+    token: AccessTokenData;
+    plainTextToken: string;
+};
+
+/**
  * NextInvoiceNumberData
  */
 export type NextInvoiceNumberData = {
@@ -2198,6 +2232,14 @@ export type TimerStateData = {
 };
 
 /**
+ * TokenAbility
+ *
+ * What a personal access token may do. Sanctum stores the values on the token and its abilities middleware compares them by name, so the backing value is the ability itself rather than an integer.
+ *
+ */
+export type TokenAbility = 'invoices:read';
+
+/**
  * TotpSetupData
  */
 export type TotpSetupData = {
@@ -2634,6 +2676,104 @@ export type GetPingResponses = {
 };
 
 export type GetPingResponse = GetPingResponses[keyof GetPingResponses];
+
+export type ListAccessTokensData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/tokens';
+};
+
+export type ListAccessTokensErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListAccessTokensError = ListAccessTokensErrors[keyof ListAccessTokensErrors];
+
+export type ListAccessTokensResponses = {
+    200: AccessTokenListData;
+};
+
+export type ListAccessTokensResponse = ListAccessTokensResponses[keyof ListAccessTokensResponses];
+
+export type CreateAccessTokenData2 = {
+    body: CreateAccessTokenData;
+    path?: never;
+    query?: never;
+    url: '/user/tokens';
+};
+
+export type CreateAccessTokenErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type CreateAccessTokenError = CreateAccessTokenErrors[keyof CreateAccessTokenErrors];
+
+export type CreateAccessTokenResponses = {
+    201: NewAccessTokenData;
+};
+
+export type CreateAccessTokenResponse = CreateAccessTokenResponses[keyof CreateAccessTokenResponses];
+
+export type RevokeAccessTokenData = {
+    body?: never;
+    path: {
+        /**
+         * The token ID
+         */
+        token: number;
+    };
+    query?: never;
+    url: '/user/tokens/{token}';
+};
+
+export type RevokeAccessTokenErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type RevokeAccessTokenError = RevokeAccessTokenErrors[keyof RevokeAccessTokenErrors];
+
+export type RevokeAccessTokenResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type RevokeAccessTokenResponse = RevokeAccessTokenResponses[keyof RevokeAccessTokenResponses];
 
 export type RegisterData = {
     body: RegisterUserData;
@@ -5635,62 +5775,6 @@ export type CreateInvoiceResponses = {
 
 export type CreateInvoiceResponse = CreateInvoiceResponses[keyof CreateInvoiceResponses];
 
-export type ShowInvoiceSummaryData = {
-    body?: never;
-    path?: never;
-    query?: {
-        month?: string | null;
-    };
-    url: '/invoices/summary';
-};
-
-export type ShowInvoiceSummaryErrors = {
-    /**
-     * Unauthenticated
-     */
-    401: {
-        /**
-         * Error overview.
-         */
-        message: string;
-    };
-};
-
-export type ShowInvoiceSummaryError = ShowInvoiceSummaryErrors[keyof ShowInvoiceSummaryErrors];
-
-export type ShowInvoiceSummaryResponses = {
-    200: InvoiceSummaryData;
-};
-
-export type ShowInvoiceSummaryResponse = ShowInvoiceSummaryResponses[keyof ShowInvoiceSummaryResponses];
-
-export type ShowNextInvoiceNumberData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/invoices/next-number';
-};
-
-export type ShowNextInvoiceNumberErrors = {
-    /**
-     * Unauthenticated
-     */
-    401: {
-        /**
-         * Error overview.
-         */
-        message: string;
-    };
-};
-
-export type ShowNextInvoiceNumberError = ShowNextInvoiceNumberErrors[keyof ShowNextInvoiceNumberErrors];
-
-export type ShowNextInvoiceNumberResponses = {
-    200: NextInvoiceNumberData;
-};
-
-export type ShowNextInvoiceNumberResponse = ShowNextInvoiceNumberResponses[keyof ShowNextInvoiceNumberResponses];
-
 export type DeleteInvoiceData = {
     body?: never;
     path: {
@@ -5825,6 +5909,62 @@ export type UpdateInvoiceResponses = {
 };
 
 export type UpdateInvoiceResponse = UpdateInvoiceResponses[keyof UpdateInvoiceResponses];
+
+export type ShowInvoiceSummaryData = {
+    body?: never;
+    path?: never;
+    query?: {
+        month?: string | null;
+    };
+    url: '/invoices/summary';
+};
+
+export type ShowInvoiceSummaryErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowInvoiceSummaryError = ShowInvoiceSummaryErrors[keyof ShowInvoiceSummaryErrors];
+
+export type ShowInvoiceSummaryResponses = {
+    200: InvoiceSummaryData;
+};
+
+export type ShowInvoiceSummaryResponse = ShowInvoiceSummaryResponses[keyof ShowInvoiceSummaryResponses];
+
+export type ShowNextInvoiceNumberData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/invoices/next-number';
+};
+
+export type ShowNextInvoiceNumberErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowNextInvoiceNumberError = ShowNextInvoiceNumberErrors[keyof ShowNextInvoiceNumberErrors];
+
+export type ShowNextInvoiceNumberResponses = {
+    200: NextInvoiceNumberData;
+};
+
+export type ShowNextInvoiceNumberResponse = ShowNextInvoiceNumberResponses[keyof ShowNextInvoiceNumberResponses];
 
 export type SendInvoiceData2 = {
     body?: SendInvoiceData;

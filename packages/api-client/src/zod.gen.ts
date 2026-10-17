@@ -2280,6 +2280,48 @@ export const zTimerStateData = z.object({
 });
 
 /**
+ * TokenAbility
+ *
+ * What a personal access token may do. Sanctum stores the values on the token and its abilities middleware compares them by name, so the backing value is the ability itself rather than an integer.
+ *
+ */
+export const zTokenAbility = z.enum(['invoices:read']);
+
+/**
+ * AccessTokenData
+ */
+export const zAccessTokenData = z.object({
+    id: z.int(),
+    name: z.string(),
+    abilities: z.array(zTokenAbility),
+    lastUsedAt: z.nullable(z.string()),
+    createdAt: z.string()
+});
+
+/**
+ * AccessTokenListData
+ */
+export const zAccessTokenListData = z.object({
+    tokens: z.array(zAccessTokenData)
+});
+
+/**
+ * CreateAccessTokenData
+ */
+export const zCreateAccessTokenData = z.object({
+    name: z.string().check(z.minLength(1), z.maxLength(100)),
+    abilities: z.array(zTokenAbility).check(z.minLength(1))
+});
+
+/**
+ * NewAccessTokenData
+ */
+export const zNewAccessTokenData = z.object({
+    token: zAccessTokenData,
+    plainTextToken: z.string()
+});
+
+/**
  * TotpSetupData
  */
 export const zTotpSetupData = z.object({
@@ -2776,6 +2818,21 @@ export const zDeclarationsData = z.object({
 
 export const zGetPingResponse = zPingData;
 
+export const zListAccessTokensResponse = zAccessTokenListData;
+
+export const zCreateAccessTokenBody = zCreateAccessTokenData;
+
+export const zCreateAccessTokenResponse = zNewAccessTokenData;
+
+export const zRevokeAccessTokenPath = z.object({
+    token: z.int()
+});
+
+/**
+ * No content
+ */
+export const zRevokeAccessTokenResponse = z.void();
+
 export const zRegisterBody = zRegisterUserData;
 
 export const zRegisterResponse = zUserData;
@@ -3239,14 +3296,6 @@ export const zCreateInvoiceBody = zCreateInvoiceData;
 
 export const zCreateInvoiceResponse = zInvoiceDetailData;
 
-export const zShowInvoiceSummaryQuery = z.object({
-    month: z.nullish(z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/)))
-});
-
-export const zShowInvoiceSummaryResponse = zInvoiceSummaryData;
-
-export const zShowNextInvoiceNumberResponse = zNextInvoiceNumberData;
-
 export const zDeleteInvoicePath = z.object({
     invoice: z.int()
 });
@@ -3269,6 +3318,14 @@ export const zUpdateInvoicePath = z.object({
 });
 
 export const zUpdateInvoiceResponse = zInvoiceDetailData;
+
+export const zShowInvoiceSummaryQuery = z.object({
+    month: z.nullish(z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/)))
+});
+
+export const zShowInvoiceSummaryResponse = zInvoiceSummaryData;
+
+export const zShowNextInvoiceNumberResponse = zNextInvoiceNumberData;
 
 export const zSendInvoiceBody = zSendInvoiceData;
 

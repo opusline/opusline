@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Users\Models;
 
+use App\Domain\AccessTokens\Models\AccessToken;
 use App\Domain\Bank\Models\BankConnection;
 use App\Domain\Bank\Models\BankMatch;
 use App\Domain\Bank\Models\BankMovement;
@@ -38,6 +39,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Notifications\Notification;
+use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\TransientToken;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -56,11 +59,16 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property ?string $passkey_user_handle
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
+ *
+ * @method AccessToken|TransientToken|null currentAccessToken() A cookie session carries Sanctum's transient token, not a stored one, which the trait's own docblock hides.
  */
 #[Fillable(['name', 'email', 'password', 'release_notes_seen_version'])]
 #[Hidden(['password', 'remember_token', 'totp_secret', 'totp_confirmed_at', 'totp_last_used_step', 'two_factor_recovery_codes', 'passkey_user_handle'])]
 class User extends Authenticatable implements HasLocalePreference, HasMedia
 {
+    /** @use HasApiTokens<AccessToken> */
+    use HasApiTokens;
+
     /** @use HasFactory<UserFactory> */
     use HasFactory;
 

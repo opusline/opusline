@@ -1,4 +1,5 @@
 import type {
+  AccessTokenData,
   PasskeyData,
   TrustedDeviceData,
   TwoFactorStatusData,
@@ -80,3 +81,20 @@ export const totpSetupFixture = {
   otpauthUri:
     "otpauth://totp/Opusline:theo%40marchand.dev?secret=JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP&issuer=Opusline",
 };
+
+export const accessTokensFixture: AccessTokenData[] = [
+  {
+    id: 1,
+    name: "Runway",
+    abilities: ["invoices:read"],
+    lastUsedAt: "2026-10-17T06:02:00+00:00",
+    createdAt: "2026-09-30T09:12:00+00:00",
+  },
+  {
+    id: 2,
+    name: "Tableau de bord Nordlys",
+    abilities: ["invoices:read"],
+    lastUsedAt: null,
+    createdAt: "2026-10-16T18:40:00+00:00",
+  },
+];
