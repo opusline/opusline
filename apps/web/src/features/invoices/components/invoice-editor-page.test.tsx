@@ -135,6 +135,27 @@ it("releases the imported time when the mission changes", async () => {
   expect(screen.queryByTestId("editor-time-linked")).not.toBeInTheDocument();
 });
 
+it("fills the client, the lines and the term from the pasted sample", async () => {
+  renderEditor({
+    kind: "quote",
+    draft: newInvoiceDraft("fr-FR", invoicingSettingsFixture),
+  });
+
+  fireEvent.click(await screen.findByTestId("paste-fill-toggle"));
+  fireEvent.click(screen.getByTestId("paste-fill-sample"));
+  fireEvent.click(screen.getByTestId("paste-fill-apply"));
+
+  expect(screen.getByTestId("editor-client")).toHaveValue("1");
+  expect(screen.getAllByTestId("editor-line")).toHaveLength(2);
+  expect(screen.getAllByTestId("editor-line-quantity")[1]).toHaveValue("6");
+  expect(screen.getByTestId("editor-validity")).toHaveValue("30");
+  expect(screen.getByTestId("editor-deposit")).toHaveValue("3000");
+  expect(screen.getByTestId("paste-fill-filled")).toHaveAttribute(
+    "data-count",
+    "6",
+  );
+});
+
 it("asks a quote for its validity and deposit, nothing about payment or time", async () => {
   const { onValidate } = renderEditor({
     kind: "quote",
