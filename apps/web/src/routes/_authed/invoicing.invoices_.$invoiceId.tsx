@@ -3,6 +3,7 @@ import { client as apiClient } from "@opusline/api-client/client";
 import {
   deleteInvoiceMutation,
   payInvoiceMutation,
+  refundCreditNoteMutation,
   remindInvoiceMutation,
   removeInvoicePaymentMutation,
   sendPaymentReminderMutation,
@@ -77,6 +78,13 @@ function InvoiceDocumentRoute() {
     onSuccess: refresh,
     onError: (failure) =>
       setError(serverErrorMessage(failure, m.invoices_pay_failed())),
+  });
+  const refund = useMutation({
+    ...refundCreditNoteMutation(),
+    onMutate: () => setError(null),
+    onSuccess: refresh,
+    onError: (failure) =>
+      setError(serverErrorMessage(failure, m.credit_notes_refund_failed())),
   });
   const removePayment = useMutation({
     ...removeInvoicePaymentMutation(),
@@ -160,6 +168,7 @@ function InvoiceDocumentRoute() {
           remind.isPending ||
           remove.isPending ||
           removePayment.isPending ||
+          refund.isPending ||
           reminders.isPending ||
           remindNow.isPending
         }
@@ -181,6 +190,15 @@ function InvoiceDocumentRoute() {
                     },
             },
           })
+        }
+        creditNotePdfHref={(creditNote) =>
+          apiClient.buildUrl({
+            url: "/invoicing/credit-notes/{creditNote}/pdf",
+            path: { creditNote },
+          })
+        }
+        onRefund={(creditNote, refundedOn) =>
+          refund.mutate({ path: { creditNote }, body: { refundedOn } })
         }
         onRemovePayment={(payment) =>
           removePayment.mutate({ path: { invoice: invoiceId, payment } })

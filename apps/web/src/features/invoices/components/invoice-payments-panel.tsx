@@ -53,8 +53,15 @@ export function InvoicePaymentsPanel({
           >
             <span className="flex min-w-0 flex-wrap items-center gap-2 text-sm">
               <span className="text-foreground-2">
-                {m.payments_received_on({
-                  amount: formatAmountWithCents(format, payment.amount.amount),
+                {(payment.amount.amount < 0
+                  ? m.payments_refunded_on
+                  : payment.creditNoteId === null
+                    ? m.payments_received_on
+                    : m.payments_deducted_on)({
+                  amount: formatAmountWithCents(
+                    format,
+                    Math.abs(payment.amount.amount),
+                  ),
                   date: calendarDateNumericLabel(dateFormat, payment.paidOn),
                 })}
               </span>

@@ -9,6 +9,7 @@ import {
 import {
   listCatalogItemsOptions,
   listClientsOptions,
+  listDeductibleCreditNotesOptions,
   showInvoiceOptions,
   showInvoicingSettingsOptions,
   showInvoicingSettingsQueryKey,
@@ -133,6 +134,14 @@ export function useInvoiceEditor(
     placeholderData: keepPreviousData,
   });
 
+  const clientId = draft?.clientId ?? null;
+  const deductible = useQuery({
+    ...listDeductibleCreditNotesOptions({
+      query: { clientId: clientId ?? 0, invoiceId },
+    }),
+    enabled: clientId !== null,
+  });
+
   const missionId = draft?.missionId ?? null;
   const unbilled = useQuery({
     ...showUnbilledTimeOptions({
@@ -230,6 +239,7 @@ export function useInvoiceEditor(
       logoSrc: identity.data.hasLogo ? companyLogoHref() : undefined,
       paper: payload === null ? null : (preview.data ?? null),
       unbilledTime: missionId === null ? null : (unbilled.data ?? null),
+      deductibleCreditNotes: deductible.data?.creditNotes ?? [],
       isSaving,
       error,
       onSave: (complete) =>

@@ -60,6 +60,7 @@ function quoteDraftCopy(
     showEmail: content.showEmail,
     language: quote.language,
     timeEntryIds: [],
+    creditNoteIds: [],
     timeLineKey: null,
     validityDays: quote.validityDays,
     depositRateBp: quote.depositRateBp,
