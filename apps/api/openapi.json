@@ -14288,6 +14288,12 @@
                     },
                     "draft": {
                         "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "averagePaymentDelayDays": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
                     }
                 },
                 "required": [
@@ -14296,7 +14302,8 @@
                     "open",
                     "late",
                     "paid",
-                    "draft"
+                    "draft",
+                    "averagePaymentDelayDays"
                 ],
                 "title": "InvoiceClientTotalsData"
             },

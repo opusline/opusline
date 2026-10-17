@@ -1,4 +1,4 @@
-import type { DocumentLanguage } from "@opusline/api-client";
+import type { DocumentLanguage, InvoiceDetailData } from "@opusline/api-client";
 import {
   listClientRevenueQueryKey,
   listCrasQueryKey,
@@ -14,6 +14,7 @@ import {
   showCraQueryKey,
   showDeclarationsQueryKey,
   showInvoicePaperQueryKey,
+  showInvoiceQueryKey,
   showInvoiceSummaryQueryKey,
   showMissionRevenueQueryKey,
   showTreasuryQueryKey,
@@ -32,6 +33,7 @@ import {
   missionTimeEntriesFilter,
   operationFilter,
   revenueFilter,
+  settleInvoiceWrite,
   subscriptionsFilter,
   treasuryFilter,
 } from "./query-invalidation";
@@ -368,5 +370,34 @@ describe("invalidateInvoiceWrites", () => {
     for (const queryKey of keys) {
       expect(queryClient.getQueryState(queryKey)?.isInvalidated).toBe(true);
     }
+  });
+});
+
+describe("settleInvoiceWrite", () => {
+  it("caches the invoice the write answered with and refetches every other one", async () => {
+    const queryClient = new QueryClient();
+    // Only the id matters here: the cache stores whatever the write answered.
+    const answered = { invoice: { id: 7 } } as InvoiceDetailData;
+    const answeredKey = showInvoiceQueryKey({
+      path: { invoice: answered.invoice.id },
+    });
+    const movedKeys = [
+      showInvoiceQueryKey({ path: { invoice: answered.invoice.id + 1 } }),
+      listInvoicesQueryKey(),
+      showInvoiceSummaryQueryKey(),
+    ];
+    for (const queryKey of [answeredKey, ...movedKeys]) {
+      queryClient.setQueryData(queryKey, {});
+    }
+
+    await settleInvoiceWrite(queryClient, answered);
+
+    expect(queryClient.getQueryData(answeredKey)).toEqual(answered);
+    expect(queryClient.getQueryState(answeredKey)?.isInvalidated).toBe(false);
+    expect(
+      movedKeys.map(
+        (queryKey) => queryClient.getQueryState(queryKey)?.isInvalidated,
+      ),
+    ).toEqual([true, true, true]);
   });
 });

@@ -1,5 +1,4 @@
 import type {
-  ClientRevenueData,
   InvoiceClientTotalsData,
   InvoiceListItemData,
   InvoiceStatus,
@@ -93,21 +92,17 @@ export type InvoiceGroup = {
 /**
  * Totals come from the API's clientTotals verbatim — the frontend never does
  * money arithmetic — and are gross: what is owed, not what gets declared. The
- * payment delay comes from SummarizeClientRevenue for the same reason: it is a
- * property of the client, not of whichever chip is selected.
+ * payment delay rides along on them: it is a property of the client, not of
+ * whichever chip is selected.
  */
 export function groupByClient(
   locale: Locale,
   items: InvoiceListItemData[],
   clientTotals: InvoiceClientTotalsData[],
-  clientRevenue: ClientRevenueData[],
   scope: InvoiceScope,
 ): InvoiceGroup[] {
   const totalsByClient = new Map(
     clientTotals.map((totals) => [totals.clientId, totals]),
-  );
-  const revenueByClient = new Map(
-    clientRevenue.map((revenue) => [revenue.clientId, revenue]),
   );
   const groups = new Map<
     number,
@@ -129,7 +124,7 @@ export function groupByClient(
     .map((group) => ({
       ...group,
       averagePaymentDelayDays:
-        revenueByClient.get(group.client.id)?.averagePaymentDelayDays ?? null,
+        totalsByClient.get(group.client.id)?.averagePaymentDelayDays ?? null,
     }))
     .sort((a, b) => a.client.name.localeCompare(b.client.name, locale));
 }

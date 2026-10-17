@@ -1,6 +1,5 @@
 import type {
   ClientData,
-  ClientRevenueData,
   DocumentData,
   InvoiceClientTotalsData,
   InvoiceData,
@@ -68,21 +67,8 @@ export function clientTotals(
     late: ZERO_EUR,
     paid: ZERO_EUR,
     draft: ZERO_EUR,
+    averagePaymentDelayDays: null,
     ...overrides,
-  };
-}
-
-/** What SummarizeClientRevenue sends: the ledger only reads the payment delay. */
-export function clientRevenue(
-  clientId: number,
-  averagePaymentDelayDays: number | null = null,
-): ClientRevenueData {
-  return {
-    clientId,
-    yearToDate: ZERO_EUR,
-    pending: ZERO_EUR,
-    averagePaymentDelayDays,
-    missions: [],
   };
 }
 

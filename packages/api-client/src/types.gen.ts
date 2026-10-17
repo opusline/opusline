@@ -1598,6 +1598,7 @@ export type InvoiceClientTotalsData = {
     late: MoneyData;
     paid: MoneyData;
     draft: MoneyData;
+    averagePaymentDelayDays: number | null;
 };
 
 /**

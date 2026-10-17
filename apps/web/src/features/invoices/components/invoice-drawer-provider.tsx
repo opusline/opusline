@@ -27,7 +27,10 @@ import { formatAmountWithCents } from "@/lib/billing";
 import { accountTodayCalendarDate } from "@/lib/dates";
 import { invoiceDocumentDownloadHref } from "@/lib/documents";
 import { INVOICING, useFeature } from "@/lib/features";
-import { invalidateInvoiceWrites } from "@/lib/query-invalidation";
+import {
+  invalidateInvoiceWrites,
+  settleInvoiceWrite,
+} from "@/lib/query-invalidation";
 import { uploadWithProgress } from "@/lib/upload-with-progress";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
@@ -168,14 +171,14 @@ export function InvoiceDrawerProvider({
   const remind = useMutation({
     ...remindInvoiceMutation(),
     onMutate: () => setActionError(null),
-    onSuccess: refresh,
+    onSuccess: (answered) => settleInvoiceWrite(queryClient, answered),
     onError: reportFailure(m.invoices_remind_failed()),
   });
 
   const send = useMutation({
     ...sendInvoiceMutation(),
     onMutate: () => setActionError(null),
-    onSuccess: refresh,
+    onSuccess: (answered) => settleInvoiceWrite(queryClient, answered),
     onError: reportFailure(m.invoices_send_failed()),
   });
 
@@ -184,7 +187,7 @@ export function InvoiceDrawerProvider({
   // draft with no reference until a reload.
   const setReference = useMutation({
     ...updateInvoiceMutation(),
-    onSuccess: refresh,
+    onSuccess: (answered) => settleInvoiceWrite(queryClient, answered),
     onError: reportFailure(m.invoices_reference_failed()),
   });
 
@@ -224,7 +227,7 @@ export function InvoiceDrawerProvider({
             : () => undefined,
       };
     },
-    onSuccess: refresh,
+    onSuccess: (answered) => settleInvoiceWrite(queryClient, answered),
     onError: (error, _variables, context) => {
       context?.undo();
       reportFailure(m.invoices_pay_failed())(error);
@@ -234,7 +237,7 @@ export function InvoiceDrawerProvider({
   const correctDates = useMutation({
     ...correctInvoiceDatesMutation(),
     onMutate: () => setCorrectionError(null),
-    onSuccess: refresh,
+    onSuccess: (answered) => settleInvoiceWrite(queryClient, answered),
     onError: reportCorrectionFailure,
   });
 

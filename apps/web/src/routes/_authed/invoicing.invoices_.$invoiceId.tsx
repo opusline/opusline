@@ -27,7 +27,10 @@ import { formatAmountWithCents } from "@/lib/billing";
 import { accountTodayCalendarDate } from "@/lib/dates";
 import { requireInvoicing } from "@/lib/features";
 import { companyLogoHref } from "@/lib/logos";
-import { invalidateInvoiceWrites } from "@/lib/query-invalidation";
+import {
+  invalidateInvoiceWrites,
+  settleInvoiceWrite,
+} from "@/lib/query-invalidation";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -75,7 +78,7 @@ function InvoiceDocumentRoute() {
   const pay = useMutation({
     ...payInvoiceMutation(),
     onMutate: () => setError(null),
-    onSuccess: refresh,
+    onSuccess: (answered) => settleInvoiceWrite(queryClient, answered),
     onError: (failure) =>
       setError(serverErrorMessage(failure, m.invoices_pay_failed())),
   });
@@ -89,7 +92,7 @@ function InvoiceDocumentRoute() {
   const removePayment = useMutation({
     ...removeInvoicePaymentMutation(),
     onMutate: () => setError(null),
-    onSuccess: refresh,
+    onSuccess: (answered) => settleInvoiceWrite(queryClient, answered),
     onError: (failure) =>
       setError(serverErrorMessage(failure, m.payments_remove_failed())),
   });
@@ -121,7 +124,7 @@ function InvoiceDocumentRoute() {
   const remind = useMutation({
     ...remindInvoiceMutation(),
     onMutate: () => setError(null),
-    onSuccess: refresh,
+    onSuccess: (answered) => settleInvoiceWrite(queryClient, answered),
     onError: (failure) =>
       setError(serverErrorMessage(failure, m.invoices_remind_failed())),
   });

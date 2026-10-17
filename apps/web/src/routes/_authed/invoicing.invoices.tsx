@@ -4,7 +4,6 @@ import type {
 } from "@opusline/api-client";
 import {
   createInvoiceMutation,
-  listClientRevenueOptions,
   listClientsOptions,
   remindInvoiceMutation,
   showBankAccountOptions,
@@ -81,7 +80,6 @@ function FacturesPage() {
   const summary = useQuery(showInvoiceSummaryOptions());
   // How long each client takes to pay, as the API counts it — the ledger groups
   // by client and shows the figure beside the header.
-  const clientRevenue = useQuery(listClientRevenueOptions());
 
   // The Compte pro balance tile; the endpoint exists for every account, but the
   // screen it belongs to is gated, so ungated accounts keep the placeholder.
@@ -342,7 +340,6 @@ function FacturesPage() {
             <>
               <InvoicesTable
                 accountToday={accountTodayCalendarDate(user.timezone)}
-                clientRevenue={clientRevenue.data?.clients ?? []}
                 clientTotals={invoices.data.pages[0]?.clientTotals ?? []}
                 invoices={invoices.data.pages.flatMap((page) => page.invoices)}
                 onOpen={openInvoice}

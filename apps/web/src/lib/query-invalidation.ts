@@ -1,6 +1,8 @@
+import type { InvoiceDetailData } from "@opusline/api-client";
 import {
   listInvoicesQueryKey,
   listQuotesQueryKey,
+  showInvoiceQueryKey,
   showInvoiceSummaryQueryKey,
   showInvoicingSettingsQueryKey,
   showNextInvoiceNumberQueryKey,
@@ -190,6 +192,35 @@ export async function invalidateQuoteWrites(
 export async function invalidateInvoiceWrites(
   queryClient: QueryClient,
 ): Promise<void> {
+  await invalidateInvoiceFanOut(queryClient, operationFilter("showInvoice"));
+}
+
+/**
+ * An invoice write that answered with the invoice itself: the answer goes
+ * into the cache, and only the rest of the fan-out refetches. Invalidating
+ * the detail too would rebuild on the server what it just sent.
+ */
+export async function settleInvoiceWrite(
+  queryClient: QueryClient,
+  answered: InvoiceDetailData,
+): Promise<void> {
+  const answeredKey = showInvoiceQueryKey({
+    path: { invoice: answered.invoice.id },
+  });
+  const answeredHash = hashKey(answeredKey);
+  queryClient.setQueryData(answeredKey, answered);
+
+  await invalidateInvoiceFanOut(queryClient, {
+    predicate: (query) =>
+      operationFilter("showInvoice").predicate(query) &&
+      query.queryHash !== answeredHash,
+  });
+}
+
+async function invalidateInvoiceFanOut(
+  queryClient: QueryClient,
+  invoiceDetails: { predicate: (query: Query) => boolean },
+): Promise<void> {
   // Not awaited: the sidebar's treasury and deadlines observers are mounted on
   // every screen, so these are the filters here that always issue a request —
   // and the most expensive ones. Marking a background tile stale should not
@@ -199,7 +230,7 @@ export async function invalidateInvoiceWrites(
 
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: listInvoicesQueryKey() }),
-    queryClient.invalidateQueries(operationFilter("showInvoice")),
+    queryClient.invalidateQueries(invoiceDetails),
     queryClient.invalidateQueries(operationFilter("showInvoicePaper")),
     queryClient.invalidateQueries({ queryKey: showInvoiceSummaryQueryKey() }),
     queryClient.invalidateQueries({

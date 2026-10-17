@@ -84,7 +84,7 @@ class CreditNoteController extends Controller
                 $data->invoiceId !== null,
                 fn ($claimed) => $claimed->orWhere('deduction_invoice_id', $data->invoiceId),
             ))
-            ->with('invoice')
+            ->with(['invoice' => static fn ($invoice) => $invoice->withPaymentFigures()])
             ->orderBy('issued_on')
             ->get();
 
