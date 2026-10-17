@@ -10,9 +10,10 @@ use App\Http\Settings\Controllers\SettingsController;
 use App\Http\Settings\Controllers\SignatureController;
 use App\Http\Users\Support\EnsureMailIsEnabled;
 use App\Http\Users\Support\EnsureSessionIsUnlocked;
+use App\Http\Users\Support\RefuseAccessTokens;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(function (): void {
+Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class, RefuseAccessTokens::class])->group(function (): void {
     Route::get('/instance', [InstanceController::class, 'show'])->name('showInstance');
 
     Route::get('/settings', [SettingsController::class, 'show'])->name('showSettings');

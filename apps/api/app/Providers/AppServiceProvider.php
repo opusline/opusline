@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\AccessTokens\Models\AccessToken;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Expenses\Models\Expense;
 use App\Domain\Features\Enums\FeatureFlag;
@@ -31,6 +32,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Pennant\Feature;
+use Laravel\Sanctum\Sanctum;
 use Laravel\Telescope\TelescopeServiceProvider;
 use Sentry\Laravel\Integration;
 use Sentry\Laravel\Integration\ModelViolations\LazyLoadingModelViolationReporter;
@@ -98,6 +100,8 @@ class AppServiceProvider extends ServiceProvider
             'mission' => Mission::class,
             'user' => User::class,
         ]);
+
+        Sanctum::usePersonalAccessTokenModel(AccessToken::class);
 
         DB::prohibitDestructiveCommands($this->app->isProduction());
 

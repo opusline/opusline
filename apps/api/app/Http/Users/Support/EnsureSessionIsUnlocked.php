@@ -14,6 +14,9 @@ use Symfony\Component\HttpFoundation\Response;
  * answers 401 until the password is confirmed again. 401 rather than 423 so the
  * SPA treats a locked session exactly like a lost one — the lock screen on a
  * page that is open, the login screen on one that is not.
+ *
+ * A personal access token is not a session: a bearer request passes whatever
+ * state a session cookie riding along with it is in.
  */
 class EnsureSessionIsUnlocked
 {
@@ -24,6 +27,10 @@ class EnsureSessionIsUnlocked
      */
     public function handle(Request $request, Closure $next): Response
     {
+        if (RefuseAccessTokens::isTokenRequest($request)) {
+            return $next($request);
+        }
+
         abort_if($request->hasSession() && $request->session()->get(self::SESSION_KEY) === true, 401, __('two-factor.session_locked'));
 
         return $next($request);
