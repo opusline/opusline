@@ -8,8 +8,14 @@ use App\Domain\Bank\Models\PersonalTransfer;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Expenses\Models\Expense;
 use App\Domain\Expenses\Models\Subscription;
+use App\Domain\Invoices\Enums\CreditNoteKind;
+use App\Domain\Invoices\Enums\CreditNoteReason;
+use App\Domain\Invoices\Enums\CreditNoteSettlement;
+use App\Domain\Invoices\Enums\CreditNoteStatus;
+use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Enums\LineUnit;
 use App\Domain\Invoices\Models\CatalogItem;
+use App\Domain\Invoices\Models\CreditNote;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Models\Quote;
 use App\Domain\Missions\Models\Mission;
@@ -81,6 +87,8 @@ function currencyLockingArrangements(): array
             return $invoice;
         }],
         'invoice_payments' => [fn (User $user): Invoice => invoiceOwnedBy($user, configure: fn ($factory) => $factory->paid())],
+        'credit_notes' => [fn (User $user): CreditNote => creditNoteOn(invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()))],
+        'credit_note_lines' => [fn (User $user): CreditNote => creditNoteOn(invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()))],
         'quotes' => [fn (User $user): Quote => Quote::factory()->for($user)->for(Client::factory()->for($user)->create())->create()],
         'quote_lines' => [function (User $user): Quote {
             $quote = Quote::factory()->for($user)->for(Client::factory()->for($user)->create())->create();
@@ -158,3 +166,37 @@ test('an expense that exists only as a tombstone still locks the account currenc
     expect($user->expenses()->exists())->toBeFalse()
         ->and($user->hasLockedCurrency())->toBeTrue();
 });
+
+/** A stored credit note with one line, written straight to the tables: the rules are CreditNotesTest's. */
+function creditNoteOn(Invoice $invoice): CreditNote
+{
+    $creditNote = $invoice->user->creditNotes()->create([
+        'invoice_id' => $invoice->id,
+        'client_id' => $invoice->client_id,
+        'number' => 'A-2026-001',
+        'status' => CreditNoteStatus::Settled,
+        'kind' => CreditNoteKind::Partial,
+        'reason' => CreditNoteReason::CommercialGesture,
+        'settlement' => CreditNoteSettlement::ReducesBalance,
+        'language' => DocumentLanguage::French,
+        'issued_on' => '2026-08-10',
+        'seller_snapshot' => [],
+        'buyer_snapshot' => [],
+        'currency' => 'EUR',
+        'amount_ht_cents' => 10_000,
+        'amount_ttc_cents' => 12_000,
+        'vat_rate_bp' => 2000,
+    ]);
+    $creditNote->lines()->create([
+        'position' => 0,
+        'label' => 'Remise',
+        'quantity_milli' => 1000,
+        'unit' => LineUnit::Flat,
+        'currency' => 'EUR',
+        'unit_price_cents' => 10_000,
+        'vat_rate_bp' => 2000,
+        'total_ht_cents' => 10_000,
+    ]);
+
+    return $creditNote;
+}

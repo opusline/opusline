@@ -52,7 +52,8 @@ export function InvoiceLifecycleActions({
   onRemind,
   onDelete,
 }: InvoiceLifecycleActionsProps) {
-  if (invoice.status === 2) {
+  // Paid or cancelled: the money is in, or nothing is due under it any more.
+  if (invoice.status === 2 || invoice.status === 3) {
     return null;
   }
 

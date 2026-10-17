@@ -9,6 +9,7 @@ use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Enums\ReminderFrequency;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Shared\Data\MoneyData;
+use App\Domain\Shared\Data\SignedMoneyData;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Attributes\WithTransformer;
 use Spatie\LaravelData\Data;
@@ -40,8 +41,10 @@ class InvoiceData extends Data
         public MoneyData $amountTtc,
         /** What the client has paid so far: more than zero and less than the TTC is a partly paid invoice. */
         public MoneyData $amountPaid,
-        /** What the client still owes. */
-        public MoneyData $amountDue,
+        /** What credit notes took off it, incl. VAT. */
+        public MoneyData $amountCredited,
+        /** What the client still owes, net of the credit notes; below zero, the client is owed money back. */
+        public SignedMoneyData $amountDue,
         public bool $ttcOverridden,
         public int $vatRateBp,
         public ?string $notes,
@@ -70,7 +73,8 @@ class InvoiceData extends Data
             amountVat: MoneyData::fromMoney($invoice->vatAmount()),
             amountTtc: MoneyData::fromMoney($invoice->amount_ttc_cents),
             amountPaid: MoneyData::fromMoney($invoice->paidAmount()),
-            amountDue: MoneyData::fromMoney($invoice->balanceDue()),
+            amountCredited: MoneyData::fromMoney($invoice->creditedAmount()),
+            amountDue: SignedMoneyData::fromMoney($invoice->balanceDue()),
             ttcOverridden: $invoice->isTtcOverridden(),
             vatRateBp: $invoice->vat_rate_bp,
             notes: $invoice->notes,

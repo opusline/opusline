@@ -43,6 +43,9 @@ class InvoiceDetailData extends Data
         /** @var list<InvoicePaymentData> The money that landed on it, oldest first. */
         #[DataCollectionOf(InvoicePaymentData::class)]
         public array $payments,
+        /** @var list<CreditNoteData> The credit notes issued on it, oldest first. */
+        #[DataCollectionOf(CreditNoteData::class)]
+        public array $creditNotes,
         /** The day the next automatic reminder leaves; null when none is due any more, or none was asked. */
         #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
         public ?CarbonImmutable $nextReminderOn,
@@ -64,6 +67,7 @@ class InvoiceDetailData extends Data
             quote: InvoiceQuoteLinkData::fromInvoice($invoice),
             emails: array_values($invoice->emails->map(DocumentEmailData::fromModel(...))->all()),
             payments: array_values($invoice->payments->map(InvoicePaymentData::fromModel(...))->all()),
+            creditNotes: array_values($invoice->creditNotes->map(CreditNoteData::fromModel(...))->all()),
             nextReminderOn: self::nextReminderOn($invoice),
             nextStatuses: $invoice->lifecycle->nextStatuses(),
         );

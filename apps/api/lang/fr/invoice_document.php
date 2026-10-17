@@ -83,6 +83,27 @@ return [
         'deposit_title' => 'Acompte · :title',
         'balance_title' => 'Solde · :title',
     ],
+    'credit_note' => [
+        'title' => 'Avoir',
+        'issued_on' => 'Émis le',
+        'invoice' => 'Facture d\'origine',
+        'invoice_value' => 'n° :number du :date',
+        'reason' => 'Motif',
+        'reasons' => [
+            'BillingError' => 'Erreur de facturation',
+            'ServiceCancelled' => 'Prestation annulée',
+            'CommercialGesture' => 'Geste commercial',
+            'Other' => 'Autre',
+        ],
+        'relates' => 'Avoir se rapportant à la facture n° :number du :date.',
+        'treatments' => [
+            'CancelsInvoice' => 'Il annule cette facture en totalité : aucun paiement n\'est dû à son titre.',
+            'ReducesBalance' => 'Son montant vient en déduction du solde restant dû sur cette facture.',
+            'Refund' => 'Son montant est remboursé par virement.',
+            'DeductFromNextInvoice' => 'Son montant sera déduit d\'une prochaine facture.',
+        ],
+        'balance_line' => 'Annulation du solde de la facture n° :number',
+    ],
     'signature' => [
         'title' => 'Bon pour accord',
         'caption' => 'Date, signature et cachet, précédés de la mention « Bon pour accord ».',

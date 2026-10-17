@@ -37,9 +37,12 @@ class InvoicingSettingsData extends Data
         /** The quotes' own series, with the same tokens as the invoices' (AAAA, MM, NNN). */
         public string $quoteNumberFormat,
         public string $nextQuoteNumber,
+        /** The credit notes' own series (AAAA, MM, NNN), continuous like the others. */
+        public string $creditNoteNumberFormat,
+        public string $nextCreditNoteNumber,
     ) {}
 
-    public static function fromSettings(UserSettings $settings, string $nextInvoiceNumber, string $nextQuoteNumber): self
+    public static function fromSettings(UserSettings $settings, string $nextInvoiceNumber, string $nextQuoteNumber, string $nextCreditNoteNumber): self
     {
         return new self(
             mode: $settings->invoicing_mode,
@@ -58,6 +61,8 @@ class InvoicingSettingsData extends Data
             nextInvoiceNumber: $nextInvoiceNumber,
             quoteNumberFormat: $settings->quote_number_format,
             nextQuoteNumber: $nextQuoteNumber,
+            creditNoteNumberFormat: $settings->credit_note_number_format,
+            nextCreditNoteNumber: $nextCreditNoteNumber,
         );
     }
 }

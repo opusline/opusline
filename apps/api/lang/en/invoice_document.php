@@ -83,6 +83,27 @@ return [
         'deposit_title' => 'Deposit · :title',
         'balance_title' => 'Balance · :title',
     ],
+    'credit_note' => [
+        'title' => 'Credit note',
+        'issued_on' => 'Issued on',
+        'invoice' => 'Original invoice',
+        'invoice_value' => 'no. :number of :date',
+        'reason' => 'Reason',
+        'reasons' => [
+            'BillingError' => 'Billing error',
+            'ServiceCancelled' => 'Service cancelled',
+            'CommercialGesture' => 'Commercial gesture',
+            'Other' => 'Other',
+        ],
+        'relates' => 'Credit note relating to invoice no. :number of :date.',
+        'treatments' => [
+            'CancelsInvoice' => 'It cancels this invoice in full: no payment is due under it.',
+            'ReducesBalance' => 'Its amount is deducted from the balance still due on this invoice.',
+            'Refund' => 'Its amount is refunded by bank transfer.',
+            'DeductFromNextInvoice' => 'Its amount will be deducted from a later invoice.',
+        ],
+        'balance_line' => 'Cancellation of the balance of invoice no. :number',
+    ],
     'signature' => [
         'title' => 'Accepted and agreed',
         'caption' => 'Date, signature and company stamp, preceded by « Bon pour accord ».',

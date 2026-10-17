@@ -19,6 +19,7 @@ use App\Domain\Expenses\Models\Expense;
 use App\Domain\Expenses\Models\RecurringDebitDismissal;
 use App\Domain\Expenses\Models\Subscription;
 use App\Domain\Invoices\Models\CatalogItem;
+use App\Domain\Invoices\Models\CreditNote;
 use App\Domain\Invoices\Models\DocumentEmail;
 use App\Domain\Invoices\Models\EmailTemplate;
 use App\Domain\Invoices\Models\Invoice;
@@ -189,6 +190,12 @@ class User extends Authenticatable implements HasLocalePreference, HasMedia
         return $this->hasMany(InvoicePayment::class);
     }
 
+    /** @return HasMany<CreditNote, $this> */
+    public function creditNotes(): HasMany
+    {
+        return $this->hasMany(CreditNote::class);
+    }
+
     /** @return HasMany<Quote, $this> */
     public function quotes(): HasMany
     {
@@ -342,6 +349,9 @@ class User extends Authenticatable implements HasLocalePreference, HasMedia
         'invoice_lines' => ['unit_price_cents', 'total_ht_cents'],
         // A payment exists only on an invoice, which already locks the currency.
         'invoice_payments' => ['amount_cents'],
+        // So does a credit note, and its lines.
+        'credit_notes' => ['amount_ht_cents', 'amount_ttc_cents'],
+        'credit_note_lines' => ['unit_price_cents', 'total_ht_cents'],
         'quotes' => ['amount_ht_cents', 'amount_ttc_cents'],
         'quote_lines' => ['unit_price_cents', 'total_ht_cents'],
         'bank_statements' => ['closing_balance_cents'],

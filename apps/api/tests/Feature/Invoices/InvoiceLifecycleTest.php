@@ -228,7 +228,7 @@ test('tells which statuses an invoice can take next', function (callable $config
         ->assertJsonPath('nextStatuses', $next);
 })->with([
     'a draft goes out' => [fn ($factory) => $factory->state(['number' => '2026-030']), [InvoiceStatus::Sent->value]],
-    'a sent invoice gets paid' => [fn ($factory) => $factory->sent(), [InvoiceStatus::Paid->value]],
+    'a sent invoice gets paid, or cancelled by a credit note' => [fn ($factory) => $factory->sent(), [InvoiceStatus::Paid->value, InvoiceStatus::Cancelled->value]],
     'a paid invoice reopens when its payment is taken back' => [fn ($factory) => $factory->paid(), [InvoiceStatus::Sent->value]],
 ]);
 

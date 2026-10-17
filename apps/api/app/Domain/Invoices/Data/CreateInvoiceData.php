@@ -15,6 +15,7 @@ use Spatie\LaravelData\Attributes\Validation\Exists;
 use Spatie\LaravelData\Attributes\Validation\IntegerType;
 use Spatie\LaravelData\Attributes\Validation\Max;
 use Spatie\LaravelData\Attributes\Validation\Min;
+use Spatie\LaravelData\Attributes\Validation\NotIn;
 use Spatie\LaravelData\Attributes\Validation\Rule;
 use Spatie\LaravelData\Attributes\Validation\Unique;
 use Spatie\LaravelData\Data;
@@ -37,7 +38,8 @@ class CreateInvoiceData extends Data
         #[Min(1), Max(255)]
         #[Unique('invoices', 'number', where: new WhereConstraint('user_id', new AuthenticatedUserId))]
         public ?string $number = null,
-        #[Enum(InvoiceStatus::class)]
+        /** Cancelled is a credit note's to set, never a recorded invoice's. */
+        #[Enum(InvoiceStatus::class), NotIn([3])]
         public ?InvoiceStatus $status = null,
         #[DateFormat('Y-m-d')]
         public ?string $issuedOn = null,

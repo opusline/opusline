@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Documents;
 
+use App\Domain\Invoices\Enums\CreditNoteReason;
+use App\Domain\Invoices\Enums\CreditNoteSettlement;
 use App\Domain\Invoices\Enums\DocumentKind;
 use App\Domain\Invoices\Enums\LineUnit;
 use App\Domain\Invoices\Enums\OperationCategory;
@@ -49,5 +51,9 @@ final readonly class PaperDocument
         public bool $hasLogo,
         /** An invoice built from a quote says so, and a balance names the deposits it deducts. */
         public ?string $quoteMention = null,
+        /** A credit note: the invoice it relates to, why, and what becomes of its amount. */
+        public ?CreditedInvoice $creditedInvoice = null,
+        public ?CreditNoteReason $creditNoteReason = null,
+        public ?CreditNoteSettlement $creditNoteSettlement = null,
     ) {}
 }

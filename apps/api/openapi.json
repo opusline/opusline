@@ -2313,6 +2313,313 @@
                 }
             }
         },
+        "/invoicing/invoices/{invoice}/credit-notes/paper": {
+            "post": {
+                "operationId": "previewCreditNotePaper",
+                "summary": "The sheet the credit note editor previews, before anything is issued",
+                "tags": [
+                    "CreditNote"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IssueCreditNoteData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoicePaperData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/invoicing/invoices/{invoice}/credit-notes": {
+            "post": {
+                "operationId": "issueCreditNote",
+                "summary": "Issues a credit note on the invoice: numbered, dated today, filed. It cannot be deleted afterwards",
+                "tags": [
+                    "CreditNote"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IssueCreditNoteData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreditNoteDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/invoicing/credit-notes/{creditNote}": {
+            "get": {
+                "operationId": "showCreditNote",
+                "tags": [
+                    "CreditNote"
+                ],
+                "parameters": [
+                    {
+                        "name": "creditNote",
+                        "in": "path",
+                        "required": true,
+                        "description": "The credit note ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreditNoteDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/invoicing/credit-notes/{creditNote}/paper": {
+            "get": {
+                "operationId": "showCreditNotePaper",
+                "tags": [
+                    "CreditNote"
+                ],
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/DocumentLanguage"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "creditNote",
+                        "in": "path",
+                        "required": true,
+                        "description": "The credit note ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoicePaperData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/invoicing/credit-notes/{creditNote}/pdf": {
+            "get": {
+                "operationId": "downloadCreditNotePdf",
+                "summary": "The legal copy filed when it was issued; rendered again only when that file is gone",
+                "tags": [
+                    "CreditNote"
+                ],
+                "parameters": [
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/DocumentLanguage"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "creditNote",
+                        "in": "path",
+                        "required": true,
+                        "description": "The credit note ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Content-Disposition": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store"
+                                }
+                            },
+                            "Transfer-Encoding": {
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "chunked"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/deadlines": {
             "get": {
                 "operationId": "listDeadlines",
@@ -11487,6 +11794,213 @@
                 ],
                 "title": "CreatePersonalTransferData"
             },
+            "CreditNoteData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "invoiceId": {
+                        "type": "integer"
+                    },
+                    "number": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/CreditNoteStatus"
+                    },
+                    "kind": {
+                        "$ref": "#/components/schemas/CreditNoteKind"
+                    },
+                    "reason": {
+                        "$ref": "#/components/schemas/CreditNoteReason"
+                    },
+                    "detail": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "settlement": {
+                        "$ref": "#/components/schemas/CreditNoteSettlement"
+                    },
+                    "language": {
+                        "$ref": "#/components/schemas/DocumentLanguage"
+                    },
+                    "issuedOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "settledOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
+                    },
+                    "amountHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "amountVat": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "amountTtc": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "id",
+                    "invoiceId",
+                    "number",
+                    "status",
+                    "kind",
+                    "reason",
+                    "detail",
+                    "settlement",
+                    "language",
+                    "issuedOn",
+                    "settledOn",
+                    "amountHt",
+                    "amountVat",
+                    "amountTtc"
+                ],
+                "title": "CreditNoteData"
+            },
+            "CreditNoteDetailData": {
+                "type": "object",
+                "properties": {
+                    "creditNote": {
+                        "$ref": "#/components/schemas/CreditNoteData"
+                    },
+                    "invoice": {
+                        "$ref": "#/components/schemas/InvoiceData"
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CreditNoteLineData"
+                        }
+                    }
+                },
+                "required": [
+                    "creditNote",
+                    "invoice",
+                    "lines"
+                ],
+                "title": "CreditNoteDetailData"
+            },
+            "CreditNoteKind": {
+                "type": "integer",
+                "description": "| |\n|---|\n| `0` <br/> Cancels the whole invoice: its lines taken back as they were. |\n| `1` <br/> Corrects a part of it — a discount, a line too many, a wrong price; the invoice stays valid. |\n| `2` <br/> Cancels what is left to pay on it. |",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "Full",
+                    "Partial",
+                    "Balance"
+                ],
+                "title": "CreditNoteKind"
+            },
+            "CreditNoteLineData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "invoiceLineId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "detail": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "quantityMilli": {
+                        "type": "integer"
+                    },
+                    "unit": {
+                        "$ref": "#/components/schemas/LineUnit"
+                    },
+                    "unitPrice": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "vatRateBp": {
+                        "type": "integer"
+                    },
+                    "totalHt": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "id",
+                    "invoiceLineId",
+                    "label",
+                    "detail",
+                    "quantityMilli",
+                    "unit",
+                    "unitPrice",
+                    "vatRateBp",
+                    "totalHt"
+                ],
+                "title": "CreditNoteLineData"
+            },
+            "CreditNoteReason": {
+                "type": "integer",
+                "description": "Why the credit note exists; printed on it, with the optional detail.\n",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3
+                ],
+                "x-enum-varnames": [
+                    "BillingError",
+                    "ServiceCancelled",
+                    "CommercialGesture",
+                    "Other"
+                ],
+                "title": "CreditNoteReason"
+            },
+            "CreditNoteSettlement": {
+                "type": "integer",
+                "description": "What happens to the credit note's amount. An unpaid invoice simply owes less (or nothing); money the client already paid goes back to them, by transfer or off a later invoice.\n",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3
+                ],
+                "x-enum-varnames": [
+                    "CancelsInvoice",
+                    "ReducesBalance",
+                    "Refund",
+                    "DeductFromNextInvoice"
+                ],
+                "title": "CreditNoteSettlement"
+            },
+            "CreditNoteStatus": {
+                "type": "integer",
+                "description": "| |\n|---|\n| `0` <br/> Issued, with money still to go back to the client. |\n| `1` <br/> Nothing left to do: the invoice owes less, or the client has been paid back. |",
+                "enum": [
+                    0,
+                    1
+                ],
+                "x-enum-varnames": [
+                    "Issued",
+                    "Settled"
+                ],
+                "title": "CreditNoteStatus"
+            },
             "Currency": {
                 "type": "string",
                 "description": "The currencies an account can be denominated in. Backed by the ISO 4217 code rather than an int — unlike every other enum here — because the code *is* the identifier the rest of the stack speaks: moneyphp, `Intl.NumberFormat`, and the `char(3)` columns all round-trip it verbatim.  Every case must have an ISO minor unit of 2, because storage is `*_cents` columns and the whole codebase reads them as hundredths. CurrencyTest enforces it, so adding JPY (0 decimals) or TND (3) fails the suite rather than quietly mis-stating amounts by two orders of magnitude.\n",
@@ -13835,8 +14349,11 @@
                     "amountPaid": {
                         "$ref": "#/components/schemas/MoneyData"
                     },
-                    "amountDue": {
+                    "amountCredited": {
                         "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "amountDue": {
+                        "$ref": "#/components/schemas/SignedMoneyData"
                     },
                     "ttcOverridden": {
                         "type": "boolean"
@@ -13880,6 +14397,7 @@
                     "amountVat",
                     "amountTtc",
                     "amountPaid",
+                    "amountCredited",
                     "amountDue",
                     "ttcOverridden",
                     "vatRateBp",
@@ -13957,6 +14475,12 @@
                             "$ref": "#/components/schemas/InvoicePaymentData"
                         }
                     },
+                    "creditNotes": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CreditNoteData"
+                        }
+                    },
                     "nextReminderOn": {
                         "type": [
                             "string",
@@ -13981,6 +14505,7 @@
                     "quote",
                     "emails",
                     "payments",
+                    "creditNotes",
                     "nextReminderOn",
                     "nextStatuses"
                 ],
@@ -14016,7 +14541,7 @@
             },
             "InvoiceEventKind": {
                 "type": "integer",
-                "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/>  |\n| `3` <br/> The payment that completed the invoice landed. |\n| `4` <br/>  |\n| `5` <br/> E-mailed to the client from Opusline; the note names the recipients. |\n| `6` <br/> A payment landed that leaves a balance due; the note carries its amount. |",
+                "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/>  |\n| `3` <br/> The payment that completed the invoice landed. |\n| `4` <br/>  |\n| `5` <br/> E-mailed to the client from Opusline; the note names the recipients. |\n| `6` <br/> A payment landed that leaves a balance due; the note carries its amount. |\n| `7` <br/> A credit note was issued on it; the note carries its number. |",
                 "enum": [
                     0,
                     1,
@@ -14024,7 +14549,8 @@
                     3,
                     4,
                     5,
-                    6
+                    6,
+                    7
                 ],
                 "x-enum-varnames": [
                     "Created",
@@ -14033,7 +14559,8 @@
                     "Paid",
                     "Updated",
                     "Emailed",
-                    "PaymentRecorded"
+                    "PaymentRecorded",
+                    "CreditNoteIssued"
                 ],
                 "title": "InvoiceEventKind"
             },
@@ -14400,15 +14927,18 @@
             },
             "InvoiceStatus": {
                 "type": "integer",
+                "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/>  |\n| `3` <br/> Cancelled by a credit note before any money landed on it: nothing is due under it. |",
                 "enum": [
                     0,
                     1,
-                    2
+                    2,
+                    3
                 ],
                 "x-enum-varnames": [
                     "Draft",
                     "Sent",
-                    "Paid"
+                    "Paid",
+                    "Cancelled"
                 ],
                 "title": "InvoiceStatus"
             },
@@ -14733,6 +15263,12 @@
                     },
                     "nextQuoteNumber": {
                         "type": "string"
+                    },
+                    "creditNoteNumberFormat": {
+                        "type": "string"
+                    },
+                    "nextCreditNoteNumber": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -14751,9 +15287,118 @@
                     "legalReference",
                     "nextInvoiceNumber",
                     "quoteNumberFormat",
-                    "nextQuoteNumber"
+                    "nextQuoteNumber",
+                    "creditNoteNumberFormat",
+                    "nextCreditNoteNumber"
                 ],
                 "title": "InvoicingSettingsData"
+            },
+            "IssueCreditNoteData": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "$ref": "#/components/schemas/CreditNoteKind"
+                    },
+                    "reason": {
+                        "$ref": "#/components/schemas/CreditNoteReason"
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "label": {
+                                    "type": "string",
+                                    "maxLength": 255
+                                },
+                                "detail": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ],
+                                    "maxLength": 1000
+                                },
+                                "quantityMilli": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 100000000
+                                },
+                                "unit": {
+                                    "$ref": "#/components/schemas/LineUnit"
+                                },
+                                "unitPrice": {
+                                    "type": "object",
+                                    "properties": {
+                                        "amount": {
+                                            "type": "integer",
+                                            "minimum": 1,
+                                            "maximum": 100000000000
+                                        },
+                                        "currency": {
+                                            "$ref": "#/components/schemas/Currency"
+                                        }
+                                    },
+                                    "required": [
+                                        "amount",
+                                        "currency"
+                                    ]
+                                },
+                                "vatRateBp": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 10000
+                                },
+                                "invoiceLineId": {
+                                    "type": [
+                                        "integer",
+                                        "null"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "label",
+                                "quantityMilli",
+                                "unit",
+                                "unitPrice",
+                                "vatRateBp"
+                            ]
+                        },
+                        "maxItems": 200
+                    },
+                    "detail": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 500
+                    },
+                    "settlement": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "enum": [
+                            "2",
+                            "3",
+                            null
+                        ]
+                    },
+                    "language": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/DocumentLanguage"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "kind",
+                    "reason"
+                ],
+                "title": "IssueCreditNoteData"
             },
             "LegalReferenceData": {
                 "type": "object",
@@ -19006,6 +19651,13 @@
                         "maxLength": 2000
                     },
                     "quoteNumberFormat": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 64
+                    },
+                    "creditNoteNumberFormat": {
                         "type": [
                             "string",
                             "null"

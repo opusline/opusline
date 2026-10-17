@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\AccessTokens\Enums\TokenAbility;
 use App\Http\Features\Support\EnsureFeatureIsActive;
 use App\Http\Invoices\Controllers\CatalogItemController;
+use App\Http\Invoices\Controllers\CreditNoteController;
 use App\Http\Invoices\Controllers\EmailTemplateController;
 use App\Http\Invoices\Controllers\ExternalQuoteController;
 use App\Http\Invoices\Controllers\InvoiceController;
@@ -65,6 +66,22 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
             Route::post('/invoicing/invoices/{invoice}/issue', [InvoiceDraftController::class, 'issue'])
                 ->whereNumber('invoice')
                 ->name('issueInvoice');
+
+            Route::post('/invoicing/invoices/{invoice}/credit-notes/paper', [CreditNoteController::class, 'preview'])
+                ->whereNumber('invoice')
+                ->name('previewCreditNotePaper');
+            Route::post('/invoicing/invoices/{invoice}/credit-notes', [CreditNoteController::class, 'store'])
+                ->whereNumber('invoice')
+                ->name('issueCreditNote');
+            Route::get('/invoicing/credit-notes/{creditNote}', [CreditNoteController::class, 'show'])
+                ->whereNumber('creditNote')
+                ->name('showCreditNote');
+            Route::get('/invoicing/credit-notes/{creditNote}/paper', [CreditNoteController::class, 'paper'])
+                ->whereNumber('creditNote')
+                ->name('showCreditNotePaper');
+            Route::get('/invoicing/credit-notes/{creditNote}/pdf', [CreditNoteController::class, 'pdf'])
+                ->whereNumber('creditNote')
+                ->name('downloadCreditNotePdf');
 
             Route::get('/invoicing/quotes', [QuoteController::class, 'index'])
                 ->name('listQuotes');

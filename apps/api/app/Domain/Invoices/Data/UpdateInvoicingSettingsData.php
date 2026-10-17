@@ -37,6 +37,9 @@ class UpdateInvoicingSettingsData extends Data
         /** Omitted, the stored format stays. */
         #[Max(64), Rule(new InvoiceNumberFormat)]
         public ?string $quoteNumberFormat = null,
+        /** Omitted, the stored format stays. */
+        #[Max(64), Rule(new InvoiceNumberFormat)]
+        public ?string $creditNoteNumberFormat = null,
     ) {}
 
     /**

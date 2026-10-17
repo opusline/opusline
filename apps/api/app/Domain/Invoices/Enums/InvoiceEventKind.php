@@ -16,4 +16,6 @@ enum InvoiceEventKind: int
     case Emailed = 5;
     /** A payment landed that leaves a balance due; the note carries its amount. */
     case PaymentRecorded = 6;
+    /** A credit note was issued on it; the note carries its number. */
+    case CreditNoteIssued = 7;
 }

@@ -13,13 +13,15 @@ use Spatie\ModelStates\State;
 /**
  * Where an invoice can go from where it stands. Issuing and marking as sent
  * both move a draft to Sent: the source decides which action does it. Paid
- * goes back to Sent only when a payment is taken off it.
+ * goes back to Sent only when a payment is taken off it. A credit note that
+ * takes the whole of an unpaid invoice back cancels it, for good.
  *
  * @extends State<Model>
  */
 #[AllowTransition(InvoiceDraft::class, InvoiceSent::class)]
 #[AllowTransition(InvoiceSent::class, InvoicePaid::class)]
 #[AllowTransition(InvoicePaid::class, InvoiceSent::class)]
+#[AllowTransition(InvoiceSent::class, InvoiceCancelled::class)]
 abstract class InvoiceLifecycle extends State
 {
     abstract public static function status(): InvoiceStatus;

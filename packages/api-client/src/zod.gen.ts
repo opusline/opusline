@@ -402,6 +402,57 @@ export const zCreateCraData = z.object({
 });
 
 /**
+ * CreditNoteKind
+ *
+ * | |
+ * |---|
+ * | `0` <br/> Cancels the whole invoice: its lines taken back as they were. |
+ * | `1` <br/> Corrects a part of it — a discount, a line too many, a wrong price; the invoice stays valid. |
+ * | `2` <br/> Cancels what is left to pay on it. |
+ */
+export const zCreditNoteKind = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2)
+]);
+
+/**
+ * CreditNoteReason
+ *
+ * Why the credit note exists; printed on it, with the optional detail.
+ *
+ */
+export const zCreditNoteReason = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3)
+]);
+
+/**
+ * CreditNoteSettlement
+ *
+ * What happens to the credit note's amount. An unpaid invoice simply owes less (or nothing); money the client already paid goes back to them, by transfer or off a later invoice.
+ *
+ */
+export const zCreditNoteSettlement = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3)
+]);
+
+/**
+ * CreditNoteStatus
+ *
+ * | |
+ * |---|
+ * | `0` <br/> Issued, with money still to go back to the client. |
+ * | `1` <br/> Nothing left to do: the invoice owes less, or the client has been paid back. |
+ */
+export const zCreditNoteStatus = z.union([z.literal(0), z.literal(1)]);
+
+/**
  * Currency
  *
  * The currencies an account can be denominated in. Backed by the ISO 4217 code rather than an int — unlike every other enum here — because the code *is* the identifier the rest of the stack speaks: moneyphp, `Intl.NumberFormat`, and the `char(3)` columns all round-trip it verbatim.  Every case must have an ISO minor unit of 2, because storage is `*_cents` columns and the whole codebase reads them as hundredths. CurrencyTest enforces it, so adding JPY (0 decimals) or TND (3) fails the suite rather than quietly mis-stating amounts by two orders of magnitude.
@@ -985,6 +1036,7 @@ export const zInvoiceCountsData = z.object({
  * | `4` <br/>  |
  * | `5` <br/> E-mailed to the client from Opusline; the note names the recipients. |
  * | `6` <br/> A payment landed that leaves a balance due; the note carries its amount. |
+ * | `7` <br/> A credit note was issued on it; the note carries its number. |
  */
 export const zInvoiceEventKind = z.union([
     z.literal(0),
@@ -993,7 +1045,8 @@ export const zInvoiceEventKind = z.union([
     z.literal(3),
     z.literal(4),
     z.literal(5),
-    z.literal(6)
+    z.literal(6),
+    z.literal(7)
 ]);
 
 /**
@@ -1024,11 +1077,19 @@ export const zInvoiceSource = z.union([z.literal(0), z.literal(1)]);
 
 /**
  * InvoiceStatus
+ *
+ * | |
+ * |---|
+ * | `0` <br/>  |
+ * | `1` <br/>  |
+ * | `2` <br/>  |
+ * | `3` <br/> Cancelled by a credit note before any money landed on it: nothing is due under it. |
  */
 export const zInvoiceStatus = z.union([
     z.literal(0),
     z.literal(1),
-    z.literal(2)
+    z.literal(2),
+    z.literal(3)
 ]);
 
 /**
@@ -1185,6 +1246,29 @@ export const zCatalogItemInputData = z.object({
 });
 
 /**
+ * IssueCreditNoteData
+ */
+export const zIssueCreditNoteData = z.object({
+    kind: zCreditNoteKind,
+    reason: zCreditNoteReason,
+    lines: z.optional(z.array(z.object({
+        label: z.string().check(z.maxLength(255)),
+        detail: z.nullish(z.string().check(z.maxLength(1000))),
+        quantityMilli: z.int().check(z.gte(1), z.lte(100000000)),
+        unit: zLineUnit,
+        unitPrice: z.object({
+            amount: z.int().check(z.gte(1), z.lte(100000000000)),
+            currency: zCurrency
+        }),
+        vatRateBp: z.int().check(z.gte(0), z.lte(10000)),
+        invoiceLineId: z.nullish(z.int())
+    })).check(z.maxLength(200))),
+    detail: z.nullish(z.string().check(z.maxLength(500))),
+    settlement: z.nullish(z.enum(['2', '3'])),
+    language: z.nullish(zDocumentLanguage)
+});
+
+/**
  * LinkExpenseBankMovementData
  */
 export const zLinkExpenseBankMovementData = z.object({
@@ -1306,6 +1390,41 @@ export const zCraData = z.object({
     editable: z.boolean(),
     notes: z.nullable(z.string()),
     days: z.array(zCraDayData)
+});
+
+/**
+ * CreditNoteData
+ */
+export const zCreditNoteData = z.object({
+    id: z.int(),
+    invoiceId: z.int(),
+    number: z.string(),
+    status: zCreditNoteStatus,
+    kind: zCreditNoteKind,
+    reason: zCreditNoteReason,
+    detail: z.nullable(z.string()),
+    settlement: zCreditNoteSettlement,
+    language: zDocumentLanguage,
+    issuedOn: z.iso.date(),
+    settledOn: z.nullable(z.iso.date()),
+    amountHt: zMoneyData,
+    amountVat: zMoneyData,
+    amountTtc: zMoneyData
+});
+
+/**
+ * CreditNoteLineData
+ */
+export const zCreditNoteLineData = z.object({
+    id: z.int(),
+    invoiceLineId: z.nullable(z.int()),
+    label: z.string(),
+    detail: z.nullable(z.string()),
+    quantityMilli: z.int(),
+    unit: zLineUnit,
+    unitPrice: zMoneyData,
+    vatRateBp: z.int(),
+    totalHt: zMoneyData
 });
 
 /**
@@ -1696,7 +1815,9 @@ export const zInvoicingSettingsData = z.object({
     legalReference: zLegalReferenceData,
     nextInvoiceNumber: z.string(),
     quoteNumberFormat: z.string(),
-    nextQuoteNumber: z.string()
+    nextQuoteNumber: z.string(),
+    creditNoteNumberFormat: z.string(),
+    nextCreditNoteNumber: z.string()
 });
 
 /**
@@ -2177,53 +2298,6 @@ export const zReminderFrequency = z.union([
 ]);
 
 /**
- * InvoiceData
- */
-export const zInvoiceData = z.object({
-    id: z.int(),
-    clientId: z.int(),
-    missionId: z.nullable(z.int()),
-    number: z.nullable(z.string()),
-    status: zInvoiceStatus,
-    source: zInvoiceSource,
-    isLate: z.boolean(),
-    issuedOn: z.iso.date(),
-    dueOn: z.iso.date(),
-    paidOn: z.nullable(z.iso.date()),
-    periodStart: z.nullable(z.iso.date()),
-    periodEnd: z.nullable(z.iso.date()),
-    amountHt: zMoneyData,
-    amountVat: zMoneyData,
-    amountTtc: zMoneyData,
-    amountPaid: zMoneyData,
-    amountDue: zMoneyData,
-    ttcOverridden: z.boolean(),
-    vatRateBp: z.int(),
-    notes: z.nullable(z.string()),
-    remindersEnabled: z.boolean(),
-    remindersFrequency: zReminderFrequency,
-    reminderRecipients: z.array(z.string())
-});
-
-/**
- * InvoiceListItemData
- */
-export const zInvoiceListItemData = z.object({
-    invoice: zInvoiceData,
-    client: zClientData,
-    mission: z.nullable(zMissionData)
-});
-
-/**
- * InvoiceListData
- */
-export const zInvoiceListData = z.object({
-    invoices: z.array(zInvoiceListItemData),
-    clientTotals: z.array(zInvoiceClientTotalsData),
-    nextCursor: z.nullable(z.string())
-});
-
-/**
  * ReminderDefaultsData
  */
 export const zReminderDefaultsData = z.object({
@@ -2320,23 +2394,6 @@ export const zRevenueNetData = z.object({
 export const zRevenueVatData = z.object({
     amount: zMoneyData,
     rateBp: z.nullable(z.int())
-});
-
-/**
- * RevenueData
- */
-export const zRevenueData = z.object({
-    period: z.string(),
-    basis: zRevenueBasis,
-    fellBack: z.boolean(),
-    lastActivePeriod: z.nullable(z.string()),
-    total: zMoneyData,
-    previous: zRevenueComparisonData,
-    vat: z.nullable(zRevenueVatData),
-    net: z.nullable(zRevenueNetData),
-    months: z.array(zRevenueMonthData),
-    invoices: z.array(zInvoiceListItemData),
-    clients: z.array(zRevenueClientData)
 });
 
 /**
@@ -2594,6 +2651,45 @@ export const zFixedPriceBudgetData = z.object({
 });
 
 /**
+ * InvoiceData
+ */
+export const zInvoiceData = z.object({
+    id: z.int(),
+    clientId: z.int(),
+    missionId: z.nullable(z.int()),
+    number: z.nullable(z.string()),
+    status: zInvoiceStatus,
+    source: zInvoiceSource,
+    isLate: z.boolean(),
+    issuedOn: z.iso.date(),
+    dueOn: z.iso.date(),
+    paidOn: z.nullable(z.iso.date()),
+    periodStart: z.nullable(z.iso.date()),
+    periodEnd: z.nullable(z.iso.date()),
+    amountHt: zMoneyData,
+    amountVat: zMoneyData,
+    amountTtc: zMoneyData,
+    amountPaid: zMoneyData,
+    amountCredited: zMoneyData,
+    amountDue: zSignedMoneyData,
+    ttcOverridden: z.boolean(),
+    vatRateBp: z.int(),
+    notes: z.nullable(z.string()),
+    remindersEnabled: z.boolean(),
+    remindersFrequency: zReminderFrequency,
+    reminderRecipients: z.array(z.string())
+});
+
+/**
+ * CreditNoteDetailData
+ */
+export const zCreditNoteDetailData = z.object({
+    creditNote: zCreditNoteData,
+    invoice: zInvoiceData,
+    lines: z.array(zCreditNoteLineData)
+});
+
+/**
  * InvoiceLineData
  */
 export const zInvoiceLineData = z.object({
@@ -2605,6 +2701,24 @@ export const zInvoiceLineData = z.object({
     unitPrice: zSignedMoneyData,
     vatRateBp: z.int(),
     totalHt: zSignedMoneyData
+});
+
+/**
+ * InvoiceListItemData
+ */
+export const zInvoiceListItemData = z.object({
+    invoice: zInvoiceData,
+    client: zClientData,
+    mission: z.nullable(zMissionData)
+});
+
+/**
+ * InvoiceListData
+ */
+export const zInvoiceListData = z.object({
+    invoices: z.array(zInvoiceListItemData),
+    clientTotals: z.array(zInvoiceClientTotalsData),
+    nextCursor: z.nullable(z.string())
 });
 
 /**
@@ -2711,6 +2825,23 @@ export const zRevenueCeilingData = z.object({
     ceiling: zMoneyData,
     shareBp: z.int(),
     margin: zSignedMoneyData
+});
+
+/**
+ * RevenueData
+ */
+export const zRevenueData = z.object({
+    period: z.string(),
+    basis: zRevenueBasis,
+    fellBack: z.boolean(),
+    lastActivePeriod: z.nullable(z.string()),
+    total: zMoneyData,
+    previous: zRevenueComparisonData,
+    vat: z.nullable(zRevenueVatData),
+    net: z.nullable(zRevenueNetData),
+    months: z.array(zRevenueMonthData),
+    invoices: z.array(zInvoiceListItemData),
+    clients: z.array(zRevenueClientData)
 });
 
 /**
@@ -3272,7 +3403,8 @@ export const zUpdateInvoicingSettingsData = z.object({
     documentLanguage: zDocumentLanguage,
     latePenaltyRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
     customMentions: z.nullish(z.string().check(z.maxLength(2000))),
-    quoteNumberFormat: z.nullish(z.string().check(z.maxLength(64)))
+    quoteNumberFormat: z.nullish(z.string().check(z.maxLength(64))),
+    creditNoteNumberFormat: z.nullish(z.string().check(z.maxLength(64)))
 });
 
 /**
@@ -3496,6 +3628,7 @@ export const zInvoiceDetailData = z.object({
     quote: z.nullable(zInvoiceQuoteLinkData),
     emails: z.array(zDocumentEmailData),
     payments: z.array(zInvoicePaymentData),
+    creditNotes: z.array(zCreditNoteData),
     nextReminderOn: z.nullable(z.iso.date()),
     nextStatuses: z.array(zInvoiceStatus)
 });
@@ -4037,6 +4170,48 @@ export const zDownloadCraPdfQuery = z.object({
 });
 
 export const zDownloadCraPdfResponse = z.string();
+
+export const zPreviewCreditNotePaperBody = zIssueCreditNoteData;
+
+export const zPreviewCreditNotePaperPath = z.object({
+    invoice: z.int()
+});
+
+export const zPreviewCreditNotePaperResponse = zInvoicePaperData;
+
+export const zIssueCreditNoteBody = zIssueCreditNoteData;
+
+export const zIssueCreditNotePath = z.object({
+    invoice: z.int()
+});
+
+export const zIssueCreditNoteResponse = zCreditNoteDetailData;
+
+export const zShowCreditNotePath = z.object({
+    creditNote: z.int()
+});
+
+export const zShowCreditNoteResponse = zCreditNoteDetailData;
+
+export const zShowCreditNotePaperPath = z.object({
+    creditNote: z.int()
+});
+
+export const zShowCreditNotePaperQuery = z.object({
+    language: z.nullish(zDocumentLanguage)
+});
+
+export const zShowCreditNotePaperResponse = zInvoicePaperData;
+
+export const zDownloadCreditNotePdfPath = z.object({
+    creditNote: z.int()
+});
+
+export const zDownloadCreditNotePdfQuery = z.object({
+    language: z.nullish(zDocumentLanguage)
+});
+
+export const zDownloadCreditNotePdfResponse = z.string();
 
 export const zListDeadlinesResponse = zDeadlineBoardData;
 

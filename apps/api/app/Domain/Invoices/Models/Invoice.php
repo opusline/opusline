@@ -80,6 +80,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property-read Collection<int, InvoicePayment> $payments
  * @property-read ?int $paid_cents Sum of the payments, when loaded via withPaymentFigures.
  * @property-read ?string $last_paid_on Day of the last payment, when loaded via withPaymentFigures.
+ * @property-read ?int $credited_cents Sum of the credit notes' TTC, when loaded via withPaymentFigures.
+ * @property-read Collection<int, CreditNote> $creditNotes
  */
 #[Fillable([
     'client_id',
@@ -316,10 +318,16 @@ class Invoice extends Model
         return $this->hasMany(InvoicePayment::class)->orderBy('paid_on')->orderBy('id');
     }
 
+    /** @return HasMany<CreditNote, $this> */
+    public function creditNotes(): HasMany
+    {
+        return $this->hasMany(CreditNote::class)->orderBy('issued_on')->orderBy('id');
+    }
+
     /**
-     * The two payment figures a screen reads on every row, computed by the
-     * database once per query instead of once per invoice: what landed, and
-     * the day the last of it did.
+     * The payment figures a screen reads on every row, computed by the
+     * database once per query instead of once per invoice: what landed, the
+     * day the last of it did, and what credit notes took off.
      *
      * @param  Builder<Invoice>  $query
      */
@@ -327,7 +335,8 @@ class Invoice extends Model
     {
         $query
             ->withSum('payments as paid_cents', 'amount_cents')
-            ->withMax('payments as last_paid_on', 'paid_on');
+            ->withMax('payments as last_paid_on', 'paid_on')
+            ->withSum('creditNotes as credited_cents', 'amount_ttc_cents');
     }
 
     /** What the client has paid so far; reads the query's figure when it carries one. */
@@ -338,9 +347,27 @@ class Invoice extends Model
         return new Money((int) $cents, $this->currency);
     }
 
+    /** What the credit notes issued on it took off, incl. VAT. */
+    public function creditedAmount(): Money
+    {
+        $cents = $this->credited_cents ?? (int) $this->creditNotes()->sum('amount_ttc_cents');
+
+        return new Money((int) $cents, $this->currency);
+    }
+
+    /** What a credit note may still take off: the invoice less what earlier ones took. */
+    public function creditableAmount(): Money
+    {
+        return $this->amount_ttc_cents->subtract($this->creditedAmount());
+    }
+
+    /**
+     * What the client still owes, net of the credit notes. Below zero, the
+     * client is owed money back: a credit note took off more than was left to pay.
+     */
     public function balanceDue(): Money
     {
-        return $this->amount_ttc_cents->subtract($this->paidAmount());
+        return $this->creditableAmount()->subtract($this->paidAmount());
     }
 
     /** The day the payment that completed the invoice landed; null until it is paid. */
