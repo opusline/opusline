@@ -1,0 +1,27 @@
+# Override for the agent sandbox, whose Docker daemon injects a TLS-intercepting
+# proxy into every build step and container. Use it as a second file:
+#   COMPOSE_FILE=compose.yaml:compose.sandbox.yaml APP_PORT=8080
+#   EXTRA_CA_CERT="$(cat ~/.local/share/greyproxy/ca-cert.pem)" docker compose build laravel.test
+# APP_PORT must be 1024 or above: a rootless daemon cannot bind port 80.
+# Nothing here is meant for CI or production: the proxy's CA is trusted only in
+# the dev image, service-to-service calls are kept off the proxy, and PHP runs
+# as root because the rootless daemon shows the bind-mounted project as
+# nobody-owned, which only uid 0 can write.
+x-sandbox-environment: &sandbox-environment
+    NO_PROXY: 'localhost,127.0.0.1,laravel.test,horizon,scheduler,mysql,redis,minio,mailpit'
+    no_proxy: 'localhost,127.0.0.1,laravel.test,horizon,scheduler,mysql,redis,minio,mailpit'
+    SUPERVISOR_PHP_USER: root
+
+services:
+    laravel.test:
+        build:
+            context: './vendor/laravel/sail/runtimes/8.5'
+            dockerfile: '../../../../../docker/sandbox/Dockerfile'
+            args:
+                WWWGROUP: '${WWWGROUP}'
+                EXTRA_CA_CERT: '${EXTRA_CA_CERT:-}'
+        environment: *sandbox-environment
+    horizon:
+        environment: *sandbox-environment
+    scheduler:
+        environment: *sandbox-environment
