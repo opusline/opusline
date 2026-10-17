@@ -22,9 +22,9 @@ class ComposeDocumentEmail
 {
     public function __construct(private readonly ResolveEmailTemplate $resolveEmailTemplate) {}
 
-    public function forInvoice(User $user, Invoice $invoice, ?string $subject = null, ?string $body = null, bool $isTest = false): ClientEmailContent
+    /** As a new invoice, or as a payment reminder once past due. */
+    public function forInvoice(User $user, Invoice $invoice, ?string $subject = null, ?string $body = null, bool $isTest = false, EmailTemplateKind $kind = EmailTemplateKind::NewInvoice): ClientEmailContent
     {
-        $kind = EmailTemplateKind::NewInvoice;
         $invoice->loadMissing('client');
 
         return ClientEmailComposer::compose(

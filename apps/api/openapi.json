@@ -4949,6 +4949,138 @@
                 }
             }
         },
+        "/invoicing/invoices/{invoice}/reminders": {
+            "put": {
+                "operationId": "updateInvoiceReminders",
+                "tags": [
+                    "InvoiceReminder"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateInvoiceRemindersData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/invoicing/invoices/{invoice}/reminders/send": {
+            "post": {
+                "operationId": "sendPaymentReminder",
+                "summary": "« Relancer maintenant »: the payment-reminder e-mail, to the addresses the invoice went out to",
+                "tags": [
+                    "InvoiceReminder"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PreviewEmailTemplateData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentEmailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/invoicing/settings": {
             "get": {
                 "operationId": "showInvoicingSettings",
@@ -13561,8 +13693,15 @@
                     "emails": {
                         "type": "array",
                         "items": {
-                            "type": "string"
+                            "$ref": "#/components/schemas/DocumentEmailData"
                         }
+                    },
+                    "nextReminderOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date"
                     }
                 },
                 "required": [
@@ -13573,7 +13712,8 @@
                     "document",
                     "content",
                     "quote",
-                    "emails"
+                    "emails",
+                    "nextReminderOn"
                 ],
                 "title": "InvoiceDetailData"
             },
@@ -15446,7 +15586,7 @@
                     "emails": {
                         "type": "array",
                         "items": {
-                            "type": "string"
+                            "$ref": "#/components/schemas/DocumentEmailData"
                         }
                     }
                 },
@@ -18441,6 +18581,22 @@
                     "amountHt"
                 ],
                 "title": "UpdateInvoiceData"
+            },
+            "UpdateInvoiceRemindersData": {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "frequency": {
+                        "$ref": "#/components/schemas/ReminderFrequency"
+                    }
+                },
+                "required": [
+                    "enabled",
+                    "frequency"
+                ],
+                "title": "UpdateInvoiceRemindersData"
             },
             "UpdateInvoicingSettingsData": {
                 "type": "object",

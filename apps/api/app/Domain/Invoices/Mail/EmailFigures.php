@@ -89,7 +89,7 @@ final readonly class EmailFigures
             amountTtc: $invoice->amount_ttc_cents,
             dueOn: $invoice->due_on,
             validUntil: null,
-            lateDays: max(0, (int) $invoice->due_on->diffInDays($today, false)),
+            lateDays: $today->greaterThan($invoice->due_on) ? (int) abs($invoice->due_on->diffInDays($today)) : 0,
             penaltyRateBp: $invoice->late_penalty_rate_bp ?? self::penaltyRateBp($settings),
             contact: $invoice->client->billing_contact_name ?? $invoice->client->name,
             client: $invoice->client->name,

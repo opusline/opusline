@@ -4,9 +4,11 @@ import {
   deleteInvoiceMutation,
   payInvoiceMutation,
   remindInvoiceMutation,
+  sendPaymentReminderMutation,
   showInvoiceOptions,
   showInvoicePaperOptions,
   showSettingsOptions,
+  updateInvoiceRemindersMutation,
 } from "@opusline/api-client/react-query";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Skeleton } from "@opusline/ui/components/skeleton";
@@ -75,6 +77,31 @@ function InvoiceDocumentRoute() {
     onError: (failure) =>
       setError(serverErrorMessage(failure, m.invoices_pay_failed())),
   });
+  const reminders = useMutation({
+    ...updateInvoiceRemindersMutation(),
+    onMutate: () => setError(null),
+    onSuccess: (saved) =>
+      queryClient.setQueryData(
+        showInvoiceOptions({ path: { invoice: invoiceId } }).queryKey,
+        saved,
+      ),
+    onError: (failure) =>
+      setError(serverErrorMessage(failure, m.invoice_reminders_save_failed())),
+  });
+  const remindNow = useMutation({
+    ...sendPaymentReminderMutation(),
+    onMutate: () => setError(null),
+    onSuccess: async (sent) => {
+      toast.add({
+        title: m.invoice_reminded_toast({
+          recipients: sent.recipients.join(", "),
+        }),
+      });
+      await refresh();
+    },
+    onError: (failure) =>
+      setError(serverErrorMessage(failure, m.invoice_remind_now_failed())),
+  });
   const remind = useMutation({
     ...remindInvoiceMutation(),
     onMutate: () => setError(null),
@@ -120,13 +147,25 @@ function InvoiceDocumentRoute() {
         accountToday={accountToday}
         detail={detail.data}
         error={error}
-        isPending={pay.isPending || remind.isPending || remove.isPending}
+        isPending={
+          pay.isPending ||
+          remind.isPending ||
+          remove.isPending ||
+          reminders.isPending ||
+          remindNow.isPending
+        }
         language={language}
         logoSrc={identity.data?.hasLogo ? companyLogoHref() : undefined}
         onDelete={() => setIsConfirmingDelete(true)}
         onLanguageChange={setLanguage}
         onPay={(paidOn) =>
           pay.mutate({ path: { invoice: invoiceId }, body: { paidOn } })
+        }
+        onRemindNow={() =>
+          remindNow.mutate({ path: { invoice: invoiceId }, body: {} })
+        }
+        onRemindersChange={(next) =>
+          reminders.mutate({ path: { invoice: invoiceId }, body: next })
         }
         onRemind={() =>
           remind.mutate({

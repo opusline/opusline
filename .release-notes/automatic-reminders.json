@@ -1,0 +1,4 @@
+{
+  "kind": "new",
+  "text": "In beta (Réglages → Avant-première): automatic payment reminders. An invoice sent from Opusline carries its own reminder setting — off, the day after the due date, days 3 and 10, or every week — seeded from your E-mails defaults and adjustable on its page. Each morning Opusline e-mails the « Relance de paiement » template, PDF attached, to the addresses the invoice went to, stops as soon as the invoice is paid or a bank payment is matched, and writes every reminder into the history. « Relancer maintenant » sends one on the spot."
+}
