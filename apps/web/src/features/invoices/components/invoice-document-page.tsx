@@ -37,6 +37,7 @@ import { calendarDateNumericLabel, calendarRangeLabel } from "@/lib/dates";
 import { invoiceStatusBadge, invoiceStatusToken } from "@/lib/invoice-status";
 import { m } from "@/paraglide/messages.js";
 
+import { CreditNotesPanel } from "./credit-notes-panel";
 import { InvoiceHistory } from "./invoice-history";
 import { InvoiceLifecycleActions } from "./invoice-lifecycle-actions";
 import { InvoicePaper } from "./invoice-paper";
@@ -61,6 +62,9 @@ type InvoiceDocumentPageProps = {
   onDelete: () => void;
   /** Takes a payment back off the invoice; absent where the page cannot. */
   onRemovePayment?: (payment: number) => void;
+  /** Records the refund a credit note owes as made; absent where the page cannot. */
+  onRefund?: (creditNote: number, refundedOn: string) => void;
+  creditNotePdfHref?: (creditNote: number) => string;
   /** The automatic reminders of an unpaid invoice; absent where the page has nothing to wire them to. */
   onRemindersChange?: (reminders: ReminderDefaultsData) => void;
   onRemindNow?: () => void;
@@ -85,6 +89,8 @@ export function InvoiceDocumentPage({
   onRemind,
   onDelete,
   onRemovePayment,
+  onRefund,
+  creditNotePdfHref,
   onRemindersChange,
   onRemindNow,
 }: InvoiceDocumentPageProps) {
@@ -141,6 +147,9 @@ export function InvoiceDocumentPage({
         >
           {m.document_duplicate()}
         </Link>
+        {invoice.status === 1 || invoice.status === 2 ? (
+          <CreditNoteActions invoice={invoice} />
+        ) : null}
         {invoice.number !== null && invoice.status === 1 ? (
           <Link
             className={buttonVariants({ size: "xl", variant: "outline" })}
@@ -325,6 +334,18 @@ export function InvoiceDocumentPage({
             </Panel>
           ) : null}
 
+          {detail.creditNotes.length > 0 ? (
+            <CreditNotesPanel
+              accountToday={accountToday}
+              creditNotes={detail.creditNotes}
+              isPending={isPending}
+              onRefund={onRefund}
+              pdfHref={(creditNote) =>
+                creditNotePdfHref?.(creditNote.id) ?? "#"
+              }
+            />
+          ) : null}
+
           {detail.payments.length > 0 ? (
             <InvoicePaymentsPanel
               isPending={isPending}
@@ -372,5 +393,75 @@ export function InvoiceDocumentPage({
         </aside>
       </div>
     </div>
+  );
+}
+
+/** « Corriger la facture », « Avoir partiel », « Annuler par un avoir »: an issued invoice is only ever corrected this way. */
+function CreditNoteActions({
+  invoice,
+}: {
+  invoice: InvoiceDetailData["invoice"];
+}) {
+  const items = [
+    {
+      kind: 0 as const,
+      reissue: true,
+      label: m.document_correct(),
+      testKind: "correct",
+    },
+    {
+      kind: 1 as const,
+      reissue: false,
+      label: m.document_partial_credit_note(),
+      testKind: "partial",
+    },
+    ...(invoice.amountCredited.amount === 0
+      ? [
+          {
+            kind: 0 as const,
+            reissue: false,
+            label: m.document_cancel_by_credit_note(),
+            testKind: "cancel",
+          },
+        ]
+      : []),
+  ];
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            data-testid="document-credit-note"
+            size="xl"
+            variant="outline"
+          >
+            {m.document_credit_note()}
+            <ChevronDown data-icon="inline-end" />
+          </Button>
+        }
+      />
+      <DropdownMenuContent align="end" sideOffset={6}>
+        {items.map((item) => (
+          <DropdownMenuItem
+            data-action={item.testKind}
+            data-testid="document-credit-note-item"
+            key={item.testKind}
+            render={
+              <Link
+                params={{ invoiceId: String(invoice.id) }}
+                search={{
+                  kind: item.kind,
+                  ...(item.reissue ? { reissue: true } : {}),
+                }}
+                to="/invoicing/invoices/$invoiceId/credit-note"
+              />
+            }
+          >
+            {item.label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

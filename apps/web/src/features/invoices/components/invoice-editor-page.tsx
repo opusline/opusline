@@ -1,6 +1,7 @@
 import type {
   CatalogItemData,
   ClientWithMissionsData,
+  DeductibleCreditNoteData,
   DocumentLanguage,
   InvoicePaperData,
   InvoicingSettingsData,
@@ -125,6 +126,8 @@ export type InvoiceEditorPageProps = {
   paper: InvoicePaperData | null;
   /** The chosen mission's unbilled time; null without a mission or while it loads. */
   unbilledTime: UnbilledTimeData | null;
+  /** The chosen client's credit notes waiting to be deducted; empty for a quote. */
+  deductibleCreditNotes?: DeductibleCreditNoteData[];
   isSaving: boolean;
   error: string | null;
   /** Handed the draft once every line is complete; the route's hook builds the request. */
@@ -146,6 +149,7 @@ export function InvoiceEditorPage({
   logoSrc,
   paper,
   unbilledTime,
+  deductibleCreditNotes = [],
   isSaving,
   error,
   onSave,
@@ -327,6 +331,41 @@ export function InvoiceEditorPage({
                   />
                 </>
               )}
+            </Section>
+          )}
+          {isQuote || deductibleCreditNotes.length === 0 ? null : (
+            <Section title={m.editor_credit_notes()}>
+              <p className="mb-3 text-muted-foreground-3 text-xs">
+                {m.editor_credit_notes_hint()}
+              </p>
+              <div className="flex flex-col gap-2">
+                {deductibleCreditNotes.map((deductible) => (
+                  <SwitchRow
+                    checked={draft.creditNoteIds.includes(
+                      deductible.creditNote.id,
+                    )}
+                    key={deductible.creditNote.id}
+                    label={m.editor_deduct_credit_note({
+                      number: deductible.creditNote.number,
+                      amount: formatAmountWithCents(
+                        format,
+                        deductible.amount.amount,
+                      ),
+                      invoice: deductible.invoiceNumber,
+                    })}
+                    onChange={(deducts) =>
+                      update({
+                        creditNoteIds: deducts
+                          ? [...draft.creditNoteIds, deductible.creditNote.id]
+                          : draft.creditNoteIds.filter(
+                              (id) => id !== deductible.creditNote.id,
+                            ),
+                      })
+                    }
+                    testId="editor-deduct-credit-note"
+                  />
+                ))}
+              </div>
             </Section>
           )}
           <OptionsSection

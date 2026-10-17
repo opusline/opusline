@@ -1,4 +1,5 @@
 import type {
+  CreditNoteData,
   InvoiceContentData,
   InvoiceDetailData,
 } from "@opusline/api-client";
@@ -43,3 +44,21 @@ export function documentDetail(
     content: CONTENT,
   };
 }
+
+/** A credit note issued on the document above, still owing its refund. */
+export const creditNoteFixture: CreditNoteData = {
+  id: 7,
+  invoiceId: 1,
+  number: "A-2026-001",
+  status: 0,
+  kind: 1,
+  reason: 2,
+  detail: "1 h de maintenance comptée deux fois",
+  settlement: 2,
+  language: 0,
+  issuedOn: "2026-08-10",
+  settledOn: null,
+  amountHt: eur(10_000),
+  amountVat: eur(2000),
+  amountTtc: eur(12_000),
+};

@@ -55,6 +55,8 @@ export type InvoiceDraft = {
   language: DocumentLanguage;
   /** The mission's tracked time this draft bills, marked as billed when it is saved. */
   timeEntryIds: number[];
+  /** Credit notes of the client's earlier invoices this one deducts, settled when it is issued. */
+  creditNoteIds: number[];
   /**
    * The line the time was imported on in this session: removing it releases
    * the time. Which line holds it is not stored, so a reopened draft has none
@@ -108,6 +110,7 @@ export function newInvoiceDraft(
     showEmail: settings.showEmailOnDocuments,
     language: settings.documentLanguage,
     timeEntryIds: [],
+    creditNoteIds: [],
     timeLineKey: null,
     validityDays: settings.quoteValidityDays,
     depositRateBp: null,
@@ -154,6 +157,9 @@ export function draftFromDetail(
     showEmail: content.showEmail,
     language: content.language,
     timeEntryIds: content.timeEntryIds,
+    creditNoteIds: detail.deductedCreditNotes.map(
+      (creditNote) => creditNote.id,
+    ),
     timeLineKey: null,
     validityDays: DEFAULT_QUOTE_VALIDITY_DAYS,
     depositRateBp: null,
@@ -172,7 +178,13 @@ export function duplicateDraft(
 
   return copy === null
     ? null
-    : { ...copy, periodStart: "", periodEnd: "", timeEntryIds: [] };
+    : {
+        ...copy,
+        periodStart: "",
+        periodEnd: "",
+        timeEntryIds: [],
+        creditNoteIds: [],
+      };
 }
 
 export function freeLine(vatRateBp: number): LineDraft {
@@ -325,6 +337,7 @@ export function draftPayload(
     showEmail: draft.showEmail,
     language: draft.language,
     timeEntryIds: draft.timeEntryIds,
+    creditNoteIds: draft.creditNoteIds,
   };
 }
 
@@ -366,6 +379,8 @@ export function withClient(
     ...withMission(draft, keepsMission ? draft.missionId : null),
     clientId: client.id,
     paymentTerm: clientTerm,
+    // Credit notes are deducted from the same client only.
+    creditNoteIds: client.id === draft.clientId ? draft.creditNoteIds : [],
   };
 }
 
