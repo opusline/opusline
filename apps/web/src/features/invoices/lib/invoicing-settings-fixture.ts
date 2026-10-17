@@ -16,6 +16,8 @@ export const invoicingSettingsFixture: InvoicingSettingsData = {
   nextInvoiceNumber: "2026-044",
   quoteNumberFormat: "D-AAAA-NNN",
   nextQuoteNumber: "D-2026-001",
+  creditNoteNumberFormat: "A-AAAA-NNN",
+  nextCreditNoteNumber: "A-2026-001",
   legalReference: {
     semester: "2026-H2",
     checkedOn: "2026-10-14",

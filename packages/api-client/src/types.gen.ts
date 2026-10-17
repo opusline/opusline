@@ -780,6 +780,87 @@ export type CreatePersonalTransferData = {
 };
 
 /**
+ * CreditNoteData
+ */
+export type CreditNoteData = {
+    id: number;
+    invoiceId: number;
+    number: string;
+    status: CreditNoteStatus;
+    kind: CreditNoteKind;
+    reason: CreditNoteReason;
+    detail: string | null;
+    settlement: CreditNoteSettlement;
+    language: DocumentLanguage;
+    issuedOn: string;
+    settledOn: string | null;
+    amountHt: MoneyData;
+    amountVat: MoneyData;
+    amountTtc: MoneyData;
+};
+
+/**
+ * CreditNoteDetailData
+ */
+export type CreditNoteDetailData = {
+    creditNote: CreditNoteData;
+    invoice: InvoiceData;
+    lines: Array<CreditNoteLineData>;
+};
+
+/**
+ * CreditNoteKind
+ *
+ * | |
+ * |---|
+ * | `0` <br/> Cancels the whole invoice: its lines taken back as they were. |
+ * | `1` <br/> Corrects a part of it — a discount, a line too many, a wrong price; the invoice stays valid. |
+ * | `2` <br/> Cancels what is left to pay on it. |
+ */
+export type CreditNoteKind = 0 | 1 | 2;
+
+/**
+ * CreditNoteLineData
+ */
+export type CreditNoteLineData = {
+    id: number;
+    invoiceLineId: number | null;
+    label: string;
+    detail: string | null;
+    quantityMilli: number;
+    unit: LineUnit;
+    unitPrice: MoneyData;
+    vatRateBp: number;
+    totalHt: MoneyData;
+};
+
+/**
+ * CreditNoteReason
+ *
+ * Why the credit note exists; printed on it, with the optional detail.
+ *
+ */
+export type CreditNoteReason = 0 | 1 | 2 | 3;
+
+/**
+ * CreditNoteSettlement
+ *
+ * What happens to the credit note's amount. An unpaid invoice simply owes less (or nothing); money the client already paid goes back to them, by transfer or off a later invoice.
+ *
+ */
+export type CreditNoteSettlement = 0 | 1 | 2 | 3;
+
+/**
+ * CreditNoteStatus
+ *
+ * | |
+ * |---|
+ * | `0` <br/> Issued, with money still to go back to the client. |
+ * | `1` <br/> Nothing left to do: the invoice owes less, or the client has been paid back. |
+ */
+export type CreditNoteStatus = 0 | 1;
+
+/**
  * Currency
  *
  * The currencies an account can be denominated in. Backed by the ISO 4217 code rather than an int — unlike every other enum here — because the code *is* the identifier the rest of the stack speaks: moneyphp, `Intl.NumberFormat`, and the `char(3)` columns all round-trip it verbatim.  Every case must have an ISO minor unit of 2, because storage is `*_cents` columns and the whole codebase reads them as hundredths. CurrencyTest enforces it, so adding JPY (0 decimals) or TND (3) fails the suite rather than quietly mis-stating amounts by two orders of magnitude.
@@ -1554,7 +1635,8 @@ export type InvoiceData = {
     amountVat: MoneyData;
     amountTtc: MoneyData;
     amountPaid: MoneyData;
-    amountDue: MoneyData;
+    amountCredited: MoneyData;
+    amountDue: SignedMoneyData;
     ttcOverridden: boolean;
     vatRateBp: number;
     notes: string | null;
@@ -1576,6 +1658,7 @@ export type InvoiceDetailData = {
     quote: InvoiceQuoteLinkData | null;
     emails: Array<DocumentEmailData>;
     payments: Array<InvoicePaymentData>;
+    creditNotes: Array<CreditNoteData>;
     nextReminderOn: string | null;
     nextStatuses: Array<InvoiceStatus>;
 };
@@ -1602,8 +1685,9 @@ export type InvoiceEventData = {
  * | `4` <br/>  |
  * | `5` <br/> E-mailed to the client from Opusline; the note names the recipients. |
  * | `6` <br/> A payment landed that leaves a balance due; the note carries its amount. |
+ * | `7` <br/> A credit note was issued on it; the note carries its number. |
  */
-export type InvoiceEventKind = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+export type InvoiceEventKind = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 /**
  * InvoiceForecastBucket
@@ -1727,8 +1811,15 @@ export type InvoiceSource = 0 | 1;
 
 /**
  * InvoiceStatus
+ *
+ * | |
+ * |---|
+ * | `0` <br/>  |
+ * | `1` <br/>  |
+ * | `2` <br/>  |
+ * | `3` <br/> Cancelled by a credit note before any money landed on it: nothing is due under it. |
  */
-export type InvoiceStatus = 0 | 1 | 2;
+export type InvoiceStatus = 0 | 1 | 2 | 3;
 
 /**
  * InvoiceSummaryData
@@ -1842,6 +1933,31 @@ export type InvoicingSettingsData = {
     nextInvoiceNumber: string;
     quoteNumberFormat: string;
     nextQuoteNumber: string;
+    creditNoteNumberFormat: string;
+    nextCreditNoteNumber: string;
+};
+
+/**
+ * IssueCreditNoteData
+ */
+export type IssueCreditNoteData = {
+    kind: CreditNoteKind;
+    reason: CreditNoteReason;
+    lines?: Array<{
+        label: string;
+        detail?: string | null;
+        quantityMilli: number;
+        unit: LineUnit;
+        unitPrice: {
+            amount: number;
+            currency: Currency;
+        };
+        vatRateBp: number;
+        invoiceLineId?: number | null;
+    }>;
+    detail?: string | null;
+    settlement?: '2' | '3' | null;
+    language?: DocumentLanguage | null;
 };
 
 /**
@@ -3202,6 +3318,7 @@ export type UpdateInvoicingSettingsData = {
     latePenaltyRateBp?: number | null;
     customMentions?: string | null;
     quoteNumberFormat?: string | null;
+    creditNoteNumberFormat?: string | null;
 };
 
 /**
@@ -5757,6 +5874,263 @@ export type DownloadCraPdfResponses = {
 };
 
 export type DownloadCraPdfResponse = DownloadCraPdfResponses[keyof DownloadCraPdfResponses];
+
+export type PreviewCreditNotePaperData = {
+    body: IssueCreditNoteData;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoicing/invoices/{invoice}/credit-notes/paper';
+};
+
+export type PreviewCreditNotePaperErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type PreviewCreditNotePaperError = PreviewCreditNotePaperErrors[keyof PreviewCreditNotePaperErrors];
+
+export type PreviewCreditNotePaperResponses = {
+    200: InvoicePaperData;
+};
+
+export type PreviewCreditNotePaperResponse = PreviewCreditNotePaperResponses[keyof PreviewCreditNotePaperResponses];
+
+export type IssueCreditNoteData2 = {
+    body: IssueCreditNoteData;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoicing/invoices/{invoice}/credit-notes';
+};
+
+export type IssueCreditNoteErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Validation error
+     */
+    422: {
+        /**
+         * Errors overview.
+         */
+        message: string;
+        /**
+         * A detailed description of each field that failed validation.
+         */
+        errors: {
+            [key: string]: Array<string>;
+        };
+    };
+};
+
+export type IssueCreditNoteError = IssueCreditNoteErrors[keyof IssueCreditNoteErrors];
+
+export type IssueCreditNoteResponses = {
+    201: CreditNoteDetailData;
+};
+
+export type IssueCreditNoteResponse = IssueCreditNoteResponses[keyof IssueCreditNoteResponses];
+
+export type ShowCreditNoteData = {
+    body?: never;
+    path: {
+        /**
+         * The credit note ID
+         */
+        creditNote: number;
+    };
+    query?: never;
+    url: '/invoicing/credit-notes/{creditNote}';
+};
+
+export type ShowCreditNoteErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowCreditNoteError = ShowCreditNoteErrors[keyof ShowCreditNoteErrors];
+
+export type ShowCreditNoteResponses = {
+    200: CreditNoteDetailData;
+};
+
+export type ShowCreditNoteResponse = ShowCreditNoteResponses[keyof ShowCreditNoteResponses];
+
+export type ShowCreditNotePaperData = {
+    body?: never;
+    path: {
+        /**
+         * The credit note ID
+         */
+        creditNote: number;
+    };
+    query?: {
+        language?: DocumentLanguage | null;
+    };
+    url: '/invoicing/credit-notes/{creditNote}/paper';
+};
+
+export type ShowCreditNotePaperErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ShowCreditNotePaperError = ShowCreditNotePaperErrors[keyof ShowCreditNotePaperErrors];
+
+export type ShowCreditNotePaperResponses = {
+    200: InvoicePaperData;
+};
+
+export type ShowCreditNotePaperResponse = ShowCreditNotePaperResponses[keyof ShowCreditNotePaperResponses];
+
+export type DownloadCreditNotePdfData = {
+    body?: never;
+    path: {
+        /**
+         * The credit note ID
+         */
+        creditNote: number;
+    };
+    query?: {
+        language?: DocumentLanguage | null;
+    };
+    url: '/invoicing/credit-notes/{creditNote}/pdf';
+};
+
+export type DownloadCreditNotePdfErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type DownloadCreditNotePdfError = DownloadCreditNotePdfErrors[keyof DownloadCreditNotePdfErrors];
+
+export type DownloadCreditNotePdfResponses = {
+    200: Blob | File;
+};
+
+export type DownloadCreditNotePdfResponse = DownloadCreditNotePdfResponses[keyof DownloadCreditNotePdfResponses];
 
 export type ListDeadlinesData = {
     body?: never;

@@ -9,4 +9,5 @@ enum DocumentKind
 {
     case Invoice;
     case Quote;
+    case CreditNote;
 }

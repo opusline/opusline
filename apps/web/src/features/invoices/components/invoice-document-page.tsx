@@ -141,7 +141,7 @@ export function InvoiceDocumentPage({
         >
           {m.document_duplicate()}
         </Link>
-        {invoice.number !== null && invoice.status !== 2 ? (
+        {invoice.number !== null && invoice.status === 1 ? (
           <Link
             className={buttonVariants({ size: "xl", variant: "outline" })}
             data-testid="document-send"

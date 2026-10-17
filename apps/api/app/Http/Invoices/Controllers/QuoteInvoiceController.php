@@ -24,6 +24,6 @@ class QuoteInvoiceController extends Controller
     {
         $invoice = $invoiceQuote->handle($user, $quote, $data->billing);
 
-        return response()->json(InvoiceDetailData::fromModel($invoice->load(['client', 'mission', 'events', 'lines', 'quote', 'emails'])), 201);
+        return response()->json(InvoiceDetailData::fromModel($invoice->load(['client', 'mission', 'events', 'lines', 'quote', 'emails', 'payments', 'creditNotes'])), 201);
     }
 }

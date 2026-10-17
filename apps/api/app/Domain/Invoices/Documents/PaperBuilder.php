@@ -13,6 +13,8 @@ use App\Domain\Invoices\Data\PaperSignatureData;
 use App\Domain\Invoices\Data\PaperTotalData;
 use App\Domain\Invoices\Data\PaperVatHeadData;
 use App\Domain\Invoices\Data\PaperVatRowData;
+use App\Domain\Invoices\Enums\CreditNoteReason;
+use App\Domain\Invoices\Enums\CreditNoteSettlement;
 use App\Domain\Invoices\Enums\DocumentKind;
 use App\Domain\Invoices\Enums\OperationCategory;
 use App\Domain\Shared\Money\Rate;
@@ -36,7 +38,11 @@ final class PaperBuilder
             'vatRateBp' => $line['vatRateBp'],
         ], $document->lines), $document->currency);
         $vatExempt = $document->seller['vatExempt'];
-        $kindLabel = $this->text($format, $document->kind === DocumentKind::Quote ? 'quote' : 'invoice');
+        $kindLabel = $this->text($format, match ($document->kind) {
+            DocumentKind::Quote => 'quote',
+            DocumentKind::CreditNote => 'credit_note.title',
+            DocumentKind::Invoice => 'invoice',
+        });
         $showPayment = $document->kind === DocumentKind::Invoice && $document->showIban && $document->seller['iban'] !== null;
 
         return new InvoicePaperData(
@@ -85,9 +91,11 @@ final class PaperBuilder
                 ...($document->seller['bic'] === null ? [] : [new PaperRowData('BIC', $document->seller['bic'])]),
                 new PaperRowData($this->text($format, 'payment.reference'), $document->number ?? $this->text($format, 'payment.reference_later')),
             ] : [],
-            legal: $document->kind === DocumentKind::Quote
-                ? $this->quoteLegal($document, $format, $vatExempt)
-                : $this->invoiceLegal($document, $format, $vatExempt),
+            legal: match ($document->kind) {
+                DocumentKind::Quote => $this->quoteLegal($document, $format, $vatExempt),
+                DocumentKind::CreditNote => $this->creditNoteLegal($document, $format, $vatExempt),
+                DocumentKind::Invoice => $this->invoiceLegal($document, $format, $vatExempt),
+            },
             signature: $document->kind === DocumentKind::Quote
                 ? new PaperSignatureData($this->text($format, 'signature.title'), $this->text($format, 'signature.caption'))
                 : null,
@@ -101,6 +109,23 @@ final class PaperBuilder
     private function meta(PaperDocument $document, DocumentFormatter $format): array
     {
         $rows = [new PaperRowData($this->text($format, 'issued_on'), $format->date($document->issuedOn))];
+
+        if ($document->kind === DocumentKind::CreditNote) {
+            $rows = [new PaperRowData($this->text($format, 'credit_note.issued_on'), $format->date($document->issuedOn))];
+
+            if ($document->creditedInvoice instanceof CreditedInvoice) {
+                $rows[] = new PaperRowData($this->text($format, 'credit_note.invoice'), $this->text($format, 'credit_note.invoice_value', [
+                    'number' => $document->creditedInvoice->number,
+                    'date' => $format->date($document->creditedInvoice->issuedOn),
+                ]));
+            }
+
+            if ($document->creditNoteReason instanceof CreditNoteReason) {
+                $rows[] = new PaperRowData($this->text($format, 'credit_note.reason'), $this->text($format, 'credit_note.reasons.'.$document->creditNoteReason->name));
+            }
+
+            return $rows;
+        }
 
         if ($document->kind === DocumentKind::Quote) {
             $rows[] = new PaperRowData($this->text($format, 'valid_until'), $format->date($document->validUntil ?? $document->issuedOn));
@@ -244,6 +269,29 @@ final class PaperBuilder
 
         if (! blank($document->customMentions)) {
             $sentences[] = trim($document->customMentions);
+        }
+
+        return implode(' ', $sentences);
+    }
+
+    /** What a credit note must state: the invoice it relates to, and what becomes of its amount. */
+    private function creditNoteLegal(PaperDocument $document, DocumentFormatter $format, bool $vatExempt): string
+    {
+        $sentences = [];
+
+        if ($document->creditedInvoice instanceof CreditedInvoice) {
+            $sentences[] = $this->text($format, 'credit_note.relates', [
+                'number' => $document->creditedInvoice->number,
+                'date' => $format->date($document->creditedInvoice->issuedOn),
+            ]);
+        }
+
+        if ($document->creditNoteSettlement instanceof CreditNoteSettlement) {
+            $sentences[] = $this->text($format, 'credit_note.treatments.'.$document->creditNoteSettlement->name);
+        }
+
+        if ($vatExempt) {
+            $sentences[] = $this->text($format, 'legal.franchise');
         }
 
         return implode(' ', $sentences);

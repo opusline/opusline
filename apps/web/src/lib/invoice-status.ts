@@ -10,6 +10,7 @@ const INVOICE_STATUS_MESSAGES: Record<InvoiceStatus, () => string> = {
   0: m.invoice_status_draft,
   1: m.invoice_status_sent,
   2: m.invoice_status_paid,
+  3: m.invoice_status_cancelled,
 };
 
 /** What a test or a stylesheet can match on: the label moves with the locale. */
@@ -17,6 +18,7 @@ export const INVOICE_STATUS_TOKENS: Record<InvoiceStatus, string> = {
   0: "draft",
   1: "sent",
   2: "paid",
+  3: "cancelled",
 };
 
 export function invoiceStatusLabel(status: InvoiceStatus): string {
@@ -33,6 +35,7 @@ const STATUS_TONES: Record<InvoiceStatus, BadgeTone> = {
   0: "neutral",
   1: "brand",
   2: "success",
+  3: "neutral",
 };
 
 /**
@@ -78,6 +81,7 @@ const INVOICE_EVENT_MESSAGES: Record<InvoiceEventKind, () => string> = {
   4: m.invoice_event_corrected,
   5: m.invoice_event_emailed,
   6: m.invoice_event_payment_recorded,
+  7: m.invoice_event_credit_note,
 };
 
 export const INVOICE_EVENT_TOKENS: Record<InvoiceEventKind, string> = {
@@ -88,6 +92,7 @@ export const INVOICE_EVENT_TOKENS: Record<InvoiceEventKind, string> = {
   4: "corrected",
   5: "emailed",
   6: "payment",
+  7: "credit-note",
 };
 
 export function invoiceEventLabel(kind: InvoiceEventKind): string {

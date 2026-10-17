@@ -25,7 +25,7 @@ class InvoiceReminderController extends Controller
      */
     public function update(UpdateInvoiceRemindersData $data, Invoice $invoice, UpdateInvoiceReminders $updateInvoiceReminders): InvoiceDetailData
     {
-        return InvoiceDetailData::fromModel($updateInvoiceReminders->handle($invoice, $data)->load(['client', 'mission', 'events', 'lines', 'quote', 'emails']));
+        return InvoiceDetailData::fromModel($updateInvoiceReminders->handle($invoice, $data)->load(['client', 'mission', 'events', 'lines', 'quote', 'emails', 'payments', 'creditNotes']));
     }
 
     /**

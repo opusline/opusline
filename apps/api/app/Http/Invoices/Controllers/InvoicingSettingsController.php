@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Invoices\Controllers;
 
+use App\Domain\Invoices\Actions\SuggestCreditNoteNumber;
 use App\Domain\Invoices\Actions\SuggestInvoiceNumber;
 use App\Domain\Invoices\Actions\SuggestQuoteNumber;
 use App\Domain\Invoices\Actions\UpdateInvoicingSettings;
@@ -18,6 +19,7 @@ class InvoicingSettingsController extends Controller
     public function __construct(
         private readonly SuggestInvoiceNumber $suggestInvoiceNumber,
         private readonly SuggestQuoteNumber $suggestQuoteNumber,
+        private readonly SuggestCreditNoteNumber $suggestCreditNoteNumber,
     ) {}
 
     public function show(#[CurrentUser] User $user): InvoicingSettingsData
@@ -38,6 +40,7 @@ class InvoicingSettingsController extends Controller
             $user->settingsOrFail(),
             $this->suggestInvoiceNumber->handle($user)->number,
             $this->suggestQuoteNumber->handle($user),
+            $this->suggestCreditNoteNumber->handle($user),
         );
     }
 }

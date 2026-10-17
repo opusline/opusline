@@ -9,6 +9,8 @@ enum InvoiceStatus: int
     case Draft = 0;
     case Sent = 1;
     case Paid = 2;
+    /** Cancelled by a credit note before any money landed on it: nothing is due under it. */
+    case Cancelled = 3;
 
     /**
      * Whether the invoice exists outside Opusline. A draft is a note to self;
