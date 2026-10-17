@@ -191,6 +191,10 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
         Route::post('/invoices/{invoice}/pay', [InvoiceController::class, 'pay'])
             ->whereNumber('invoice')
             ->name('payInvoice');
+        Route::delete('/invoices/{invoice}/payments/{payment}', [InvoiceController::class, 'destroyPayment'])
+            ->whereNumber('invoice')
+            ->whereNumber('payment')
+            ->name('removeInvoicePayment');
         Route::post('/invoices/{invoice}/reminders', [InvoiceController::class, 'remind'])
             ->whereNumber('invoice')
             ->name('remindInvoice');

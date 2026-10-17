@@ -13,6 +13,7 @@ use App\Domain\Invoices\Actions\DetachInvoiceDocument;
 use App\Domain\Invoices\Actions\ListInvoices;
 use App\Domain\Invoices\Actions\PayInvoice;
 use App\Domain\Invoices\Actions\RemindInvoice;
+use App\Domain\Invoices\Actions\RemoveInvoicePayment;
 use App\Domain\Invoices\Actions\SendInvoice;
 use App\Domain\Invoices\Actions\SuggestInvoiceNumber;
 use App\Domain\Invoices\Actions\SummarizeInvoices;
@@ -32,6 +33,7 @@ use App\Domain\Invoices\Data\UploadInvoiceDocumentData;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
+use Carbon\CarbonImmutable;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -105,7 +107,17 @@ class InvoiceController extends Controller
      */
     public function pay(PayInvoiceData $data, Invoice $invoice, PayInvoice $payInvoice): JsonResponse
     {
-        $payInvoice->handle($invoice, $data);
+        $payInvoice->handle($invoice, CarbonImmutable::parse($data->paidOn), $data->amount?->toMoney());
+
+        return response()->json($this->detail($invoice));
+    }
+
+    /**
+     * @throws HttpException<409>
+     */
+    public function destroyPayment(Invoice $invoice, int $payment, RemoveInvoicePayment $removeInvoicePayment): JsonResponse
+    {
+        $removeInvoicePayment->handle($invoice, $invoice->payments()->findOrFail($payment));
 
         return response()->json($this->detail($invoice));
     }
@@ -179,6 +191,6 @@ class InvoiceController extends Controller
      */
     private function detail(Invoice $invoice): InvoiceDetailData
     {
-        return InvoiceDetailData::fromModel($invoice->load(['client', 'mission', 'events', 'lines', 'quote', 'emails']));
+        return InvoiceDetailData::fromModel($invoice->load(['client', 'mission', 'events', 'lines', 'quote', 'emails', 'payments']));
     }
 }

@@ -6,6 +6,7 @@ namespace App\Domain\Invoices\Actions;
 
 use App\Domain\Invoices\Data\UpdateInvoiceData;
 use App\Domain\Invoices\Enums\InvoiceEventKind;
+use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
@@ -23,7 +24,6 @@ class UpdateInvoice
         'amount_ttc_cents',
         'vat_rate_bp',
         'issued_on',
-        'paid_on',
     ];
 
     public function __construct(
@@ -57,7 +57,6 @@ class UpdateInvoice
                 'number' => $data->number,
                 'issued_on' => $issuedOn,
                 'due_on' => $data->dueOn ?? $issuedOn->addDays($client->payment_terms_days),
-                'paid_on' => $data->paidOn,
                 'period_start' => $data->periodStart,
                 'period_end' => $data->periodEnd,
                 'currency' => $data->amountHt->currency->value,
@@ -72,11 +71,47 @@ class UpdateInvoice
 
             $locked->save();
 
+            $corrected = $this->syncPayment($locked, $data->paidOn) || $corrected;
+
             if ($corrected) {
                 $this->recordInvoiceEvent->handle($locked, InvoiceEventKind::Updated);
             }
 
             return $locked;
         });
+    }
+
+    /**
+     * An invoice recorded from another tool is paid whole, on one day: its one
+     * payment follows the date and the amount of each edit. Returns whether it moved.
+     */
+    private function syncPayment(Invoice $invoice, ?string $paidOn): bool
+    {
+        if ($invoice->status !== InvoiceStatus::Paid || $paidOn === null) {
+            return false;
+        }
+
+        $payments = $invoice->payments()->get();
+
+        if ($payments->count() !== 1) {
+            abort_if(
+                $invoice->paidOn()?->toDateString() !== $paidOn || ! $invoice->balanceDue()->isZero(),
+                409,
+                __('invoices.paid_on_many_payments'),
+            );
+
+            return false;
+        }
+
+        $payment = $payments->sole();
+        $moved = $payment->paid_on->toDateString() !== $paidOn
+            || ! $payment->amount_cents->equals($invoice->amount_ttc_cents);
+
+        if ($moved) {
+            $payment->update(['paid_on' => CarbonImmutable::parse($paidOn), 'amount_cents' => $invoice->amount_ttc_cents]);
+            $invoice->events()->where('kind', InvoiceEventKind::Paid)->update(['occurred_on' => $paidOn]);
+        }
+
+        return $moved;
     }
 }

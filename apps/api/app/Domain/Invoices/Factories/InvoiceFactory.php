@@ -38,7 +38,6 @@ class InvoiceFactory extends Factory
             'status' => InvoiceStatus::Draft,
             'issued_on' => $issuedOn,
             'due_on' => $issuedOn->addDays(45),
-            'paid_on' => null,
             'period_start' => null,
             'period_end' => null,
             // Currency must precede the *_cents keys: MoneyIntegerCast reads the
@@ -63,14 +62,20 @@ class InvoiceFactory extends Factory
     }
 
     /**
-     * Indicate that the invoice has been paid.
+     * Indicate that the invoice has been paid whole, on $paidOn (today by default).
      */
-    public function paid(): static
+    public function paid(?string $paidOn = null): static
     {
-        return $this->sent()->state(fn (array $attributes): array => [
-            'status' => InvoiceStatus::Paid,
-            'paid_on' => CarbonImmutable::today(),
-        ]);
+        return $this->sent()
+            ->state(fn (array $attributes): array => ['status' => InvoiceStatus::Paid])
+            ->afterCreating(function (Invoice $invoice) use ($paidOn): void {
+                $invoice->payments()->create([
+                    'user_id' => $invoice->user_id,
+                    'currency' => $invoice->currency,
+                    'amount_cents' => $invoice->amount_ttc_cents,
+                    'paid_on' => $paidOn === null ? CarbonImmutable::today() : CarbonImmutable::parse($paidOn),
+                ]);
+            });
     }
 
     /**

@@ -564,10 +564,9 @@ function ebAccount(array $overrides = []): array
  */
 function paidInvoiceOn(User $user, string $paidOn, int $htCents = 165_000, int $ttcCents = 198_000): void
 {
-    invoiceOwnedBy($user, configure: fn (InvoiceFactory $factory): InvoiceFactory => $factory->paid()->state([
+    invoiceOwnedBy($user, configure: fn (InvoiceFactory $factory): InvoiceFactory => $factory->paid($paidOn)->state([
         'issued_on' => '2026-01-05',
         'due_on' => '2026-02-05',
-        'paid_on' => $paidOn,
         'currency' => 'EUR',
         'amount_ht_cents' => $htCents,
         'amount_ttc_cents' => $ttcCents,

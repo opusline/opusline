@@ -4,28 +4,29 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Revenue;
 
-use App\Domain\Invoices\Enums\InvoiceStatus;
-use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Models\InvoicePayment;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
 /**
- * The invoices an account collected over a span, loaded once and reduced up
- * front to the three numbers any caller asks for.
+ * What an account collected over a span, loaded once and reduced up front to
+ * the few numbers any caller asks for.
  *
  * The treasury provisions and the fiscal deadlines ask the same two questions
- * of overlapping windows — how much TVA the paid invoices carried, how much HT
+ * of overlapping windows — how much TVA the payments carried, how much HT
  * they collected — so the arithmetic that answers them lives here rather than
  * once per caller. Cash basis throughout: micro-régime TVA and URSSAF are both
- * due on what was actually paid, never on what was invoiced.
+ * due on what was actually paid, never on what was invoiced. A payment is the
+ * unit: an invoice paid in two transfers is collected twice, each on its own
+ * day, each carrying its share of the invoice's HT and VAT.
  *
  * Flattened to scalars in the constructor rather than kept as models, because
  * the deadlines screen asks about ~30 windows in one request: re-deriving a
- * date string and a Money per invoice per window is what would make that
+ * date string and a Money per payment per window is what would make that
  * quadratic.
  *
- * @phpstan-type CollectedRow array{date: string, ht: int, vat: int, rateBp: int}
+ * @phpstan-type CollectedRow array{date: string, invoiceId: int, ht: int, vat: int, rateBp: int}
  */
 final readonly class CollectedInvoices
 {
@@ -42,31 +43,37 @@ final readonly class CollectedInvoices
 
     public static function paidBetween(User $user, CarbonImmutable $from, CarbonImmutable $to): self
     {
+        return self::paidBetweenForUser($user->id, $from, $to);
+    }
+
+    public static function paidBetweenForUser(int $userId, CarbonImmutable $from, CarbonImmutable $to): self
+    {
         if ($from->greaterThan($to)) {
             return self::none();
         }
 
-        $invoices = $user->invoices()
-            ->where('status', InvoiceStatus::Paid)
+        $payments = InvoicePayment::query()
+            ->where('user_id', $userId)
             ->whereBetween('paid_on', [$from->toDateString(), $to->toDateString()])
-            ->get(['paid_on', 'amount_ht_cents', 'amount_ttc_cents', 'vat_rate_bp', 'currency']);
+            ->with('invoice:id,amount_ht_cents,amount_ttc_cents,vat_rate_bp,currency')
+            ->get(['id', 'invoice_id', 'amount_cents', 'currency', 'paid_on']);
 
-        return new self(self::rows($invoices));
+        return new self(self::rows($payments));
     }
 
     /**
-     * The TVA the invoices paid in the window actually carried — per-invoice
-     * actuals, not one rate applied to the total.
+     * The TVA the payments in the window actually carried — each payment's
+     * share of its invoice's TVA, not one rate applied to the total.
      */
     public function vatCents(CarbonImmutable $from, CarbonImmutable $to): int
     {
         return $this->sumBetween($from, $to, 'vat');
     }
 
-    /** How many invoices were collected in the window — the caption under the figure. */
+    /** How many invoices received money in the window — the caption under the figure. */
     public function countBetween(CarbonImmutable $from, CarbonImmutable $to): int
     {
-        return count($this->rowsBetween($from, $to));
+        return count(array_unique(array_column($this->rowsBetween($from, $to), 'invoiceId')));
     }
 
     /** The HT actually collected in the window — the URSSAF declaration's base. */
@@ -76,7 +83,7 @@ final readonly class CollectedInvoices
     }
 
     /**
-     * The one VAT rate every invoice collected in the window carries — caption
+     * The one VAT rate every payment collected in the window carries — caption
      * context, not an input to any sum.
      */
     public function uniqueRateBp(CarbonImmutable $from, CarbonImmutable $to, int $default): ?int
@@ -111,25 +118,20 @@ final readonly class CollectedInvoices
     }
 
     /**
-     * @param  Collection<int, Invoice>  $invoices
+     * @param  Collection<int, InvoicePayment>  $payments
      * @return list<CollectedRow>
      */
-    private static function rows(Collection $invoices): array
+    private static function rows(Collection $payments): array
     {
         $rows = [];
 
-        foreach ($invoices as $invoice) {
-            // The query cannot return a null paid_on; this narrows it for the
-            // type system rather than guessing a date for one.
-            if ($invoice->paid_on === null) {
-                continue;
-            }
-
+        foreach ($payments as $payment) {
             $rows[] = [
-                'date' => $invoice->paid_on->toDateString(),
-                'ht' => (int) $invoice->amount_ht_cents->getAmount(),
-                'vat' => (int) $invoice->vatAmount()->getAmount(),
-                'rateBp' => $invoice->vat_rate_bp,
+                'date' => $payment->paid_on->toDateString(),
+                'invoiceId' => $payment->invoice_id,
+                'ht' => (int) $payment->htShare()->getAmount(),
+                'vat' => (int) $payment->vatShare()->getAmount(),
+                'rateBp' => $payment->invoice->vat_rate_bp,
             ];
         }
 

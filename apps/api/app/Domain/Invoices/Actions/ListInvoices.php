@@ -8,6 +8,7 @@ use App\Domain\Invoices\Data\InvoiceClientTotalsData;
 use App\Domain\Invoices\Data\ListInvoicesData;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Models\InvoicePayment;
 use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Database\DatePageCursor;
 use App\Domain\Users\Models\User;
@@ -30,7 +31,7 @@ class ListInvoices
      */
     public function handle(User $user, ListInvoicesData $data): array
     {
-        $query = $user->invoices()->with(['client', 'mission']);
+        $query = $user->invoices()->withPaymentFigures()->with(['client', 'mission']);
 
         if ($data->status instanceof InvoiceStatus) {
             $query->where('status', $data->status);
@@ -91,16 +92,23 @@ class ListInvoices
         $settings = $user->settingsOrFail();
         $currency = $settings->currency;
 
+        // What is open or late is what is still due: a partly paid invoice
+        // counts for its balance, not its face value.
+        $paidByInvoice = InvoicePayment::query()
+            ->selectRaw('invoice_id, SUM(amount_cents) as paid_cents')
+            ->groupBy('invoice_id');
+
         /** @var Collection<int, object{client_id: int, all_cents: int|numeric-string, open_cents: int|numeric-string, late_cents: int|numeric-string, paid_cents: int|numeric-string, draft_cents: int|numeric-string}> $rows */
         $rows = $user->invoices()
             ->toBase()
+            ->leftJoinSub($paidByInvoice, 'paid', 'paid.invoice_id', '=', 'invoices.id')
             ->selectRaw(
-                'client_id,
-                SUM(amount_ttc_cents) as all_cents,
-                SUM(CASE WHEN status = ? THEN amount_ttc_cents ELSE 0 END) as open_cents,
-                SUM(CASE WHEN status = ? AND due_on < ? THEN amount_ttc_cents ELSE 0 END) as late_cents,
-                SUM(CASE WHEN status = ? THEN amount_ttc_cents ELSE 0 END) as paid_cents,
-                SUM(CASE WHEN status = ? THEN amount_ttc_cents ELSE 0 END) as draft_cents',
+                'invoices.client_id,
+                SUM(invoices.amount_ttc_cents) as all_cents,
+                SUM(CASE WHEN invoices.status = ? THEN invoices.amount_ttc_cents - COALESCE(paid.paid_cents, 0) ELSE 0 END) as open_cents,
+                SUM(CASE WHEN invoices.status = ? AND invoices.due_on < ? THEN invoices.amount_ttc_cents - COALESCE(paid.paid_cents, 0) ELSE 0 END) as late_cents,
+                SUM(CASE WHEN invoices.status = ? THEN invoices.amount_ttc_cents ELSE 0 END) as paid_cents,
+                SUM(CASE WHEN invoices.status = ? THEN invoices.amount_ttc_cents ELSE 0 END) as draft_cents',
                 [
                     InvoiceStatus::Sent->value,
                     InvoiceStatus::Sent->value,
@@ -109,8 +117,8 @@ class ListInvoices
                     InvoiceStatus::Draft->value,
                 ],
             )
-            ->groupBy('client_id')
-            ->orderBy('client_id')
+            ->groupBy('invoices.client_id')
+            ->orderBy('invoices.client_id')
             ->get();
 
         $totals = [];

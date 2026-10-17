@@ -4306,6 +4306,70 @@
                 }
             }
         },
+        "/invoices/{invoice}/payments/{payment}": {
+            "delete": {
+                "operationId": "removeInvoicePayment",
+                "tags": [
+                    "Invoice"
+                ],
+                "parameters": [
+                    {
+                        "name": "invoice",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invoice ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "payment",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/invoices/{invoice}/reminders": {
             "post": {
                 "operationId": "remindInvoice",
@@ -13768,6 +13832,12 @@
                     "amountTtc": {
                         "$ref": "#/components/schemas/MoneyData"
                     },
+                    "amountPaid": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "amountDue": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
                     "ttcOverridden": {
                         "type": "boolean"
                     },
@@ -13809,6 +13879,8 @@
                     "amountHt",
                     "amountVat",
                     "amountTtc",
+                    "amountPaid",
+                    "amountDue",
                     "ttcOverridden",
                     "vatRateBp",
                     "notes",
@@ -13879,6 +13951,12 @@
                             "$ref": "#/components/schemas/DocumentEmailData"
                         }
                     },
+                    "payments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoicePaymentData"
+                        }
+                    },
                     "nextReminderOn": {
                         "type": [
                             "string",
@@ -13902,6 +13980,7 @@
                     "content",
                     "quote",
                     "emails",
+                    "payments",
                     "nextReminderOn",
                     "nextStatuses"
                 ],
@@ -13937,14 +14016,15 @@
             },
             "InvoiceEventKind": {
                 "type": "integer",
-                "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/>  |\n| `3` <br/>  |\n| `4` <br/>  |\n| `5` <br/> E-mailed to the client from Opusline; the note names the recipients. |",
+                "description": "| |\n|---|\n| `0` <br/>  |\n| `1` <br/>  |\n| `2` <br/>  |\n| `3` <br/> The payment that completed the invoice landed. |\n| `4` <br/>  |\n| `5` <br/> E-mailed to the client from Opusline; the note names the recipients. |\n| `6` <br/> A payment landed that leaves a balance due; the note carries its amount. |",
                 "enum": [
                     0,
                     1,
                     2,
                     3,
                     4,
-                    5
+                    5,
+                    6
                 ],
                 "x-enum-varnames": [
                     "Created",
@@ -13952,7 +14032,8 @@
                     "Reminded",
                     "Paid",
                     "Updated",
-                    "Emailed"
+                    "Emailed",
+                    "PaymentRecorded"
                 ],
                 "title": "InvoiceEventKind"
             },
@@ -14233,6 +14314,41 @@
                     "footer"
                 ],
                 "title": "InvoicePaperData"
+            },
+            "InvoicePaymentData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "paidOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "bankMovementId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "note": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "amount",
+                    "paidOn",
+                    "bankMovementId",
+                    "note"
+                ],
+                "title": "InvoicePaymentData"
             },
             "InvoiceQuoteData": {
                 "type": "object",
@@ -15416,6 +15532,26 @@
                     "paidOn": {
                         "type": "string",
                         "format": "date"
+                    },
+                    "amount": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "properties": {
+                            "amount": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 100000000000
+                            },
+                            "currency": {
+                                "$ref": "#/components/schemas/Currency"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "currency"
+                        ]
                     }
                 },
                 "required": [

@@ -22,10 +22,7 @@ import {
   useMoneyFormat,
 } from "@/components/money-format-provider";
 import { formatWholeAmount } from "@/lib/billing";
-import {
-  INVOICE_STATUS_TOKENS,
-  invoiceStatusBadge,
-} from "@/lib/invoice-status";
+import { invoiceStatusBadge, invoiceStatusToken } from "@/lib/invoice-status";
 import { COLOR_CLASSES } from "@/lib/palette";
 import { m } from "@/paraglide/messages.js";
 
@@ -187,7 +184,7 @@ export function InvoicesTable({
                     className="cursor-pointer"
                     data-amount-cents={invoice.amountTtc.amount}
                     data-reference={invoice.number ?? ""}
-                    data-status={INVOICE_STATUS_TOKENS[invoice.status]}
+                    data-status={invoiceStatusToken(invoice)}
                     data-testid="invoice-row"
                     key={invoice.id}
                     onClick={() => onOpen?.(invoice.id, invoice.source)}

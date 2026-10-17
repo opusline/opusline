@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Clients\Models\Client;
 use App\Domain\Invoices\Enums\InvoiceEventKind;
 use App\Domain\Invoices\Enums\InvoiceStatus;
+use App\Domain\Invoices\Lifecycle\Invoice\InvoicePaid;
 use App\Domain\Invoices\Lifecycle\Invoice\InvoiceSent;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
@@ -228,7 +229,7 @@ test('tells which statuses an invoice can take next', function (callable $config
 })->with([
     'a draft goes out' => [fn ($factory) => $factory->state(['number' => '2026-030']), [InvoiceStatus::Sent->value]],
     'a sent invoice gets paid' => [fn ($factory) => $factory->sent(), [InvoiceStatus::Paid->value]],
-    'a paid invoice is settled' => [fn ($factory) => $factory->paid(), []],
+    'a paid invoice reopens when its payment is taken back' => [fn ($factory) => $factory->paid(), [InvoiceStatus::Sent->value]],
 ]);
 
 test('stores a transition as the status enum', function (): void {
@@ -242,8 +243,8 @@ test('stores a transition as the status enum', function (): void {
 
 test('refuses a move the lifecycle does not declare', function (): void {
     $user = User::factory()->create();
-    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->paid());
+    $invoice = invoiceOwnedBy($user);
 
-    expect(fn () => $invoice->lifecycle->transitionTo(InvoiceSent::class))->toThrow(CouldNotPerformTransition::class)
-        ->and($invoice->refresh()->status)->toBe(InvoiceStatus::Paid);
+    expect(fn () => $invoice->lifecycle->transitionTo(InvoicePaid::class))->toThrow(CouldNotPerformTransition::class)
+        ->and($invoice->refresh()->status)->toBe(InvoiceStatus::Draft);
 });

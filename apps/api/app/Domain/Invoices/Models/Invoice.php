@@ -24,6 +24,7 @@ use Carbon\CarbonImmutable;
 use Cknow\Money\Casts\MoneyIntegerCast;
 use Cknow\Money\Money;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -58,7 +59,6 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property ?array<string, mixed> $buyer_snapshot
  * @property CarbonImmutable $issued_on
  * @property CarbonImmutable $due_on
- * @property ?CarbonImmutable $paid_on
  * @property ?CarbonImmutable $period_start
  * @property ?CarbonImmutable $period_end
  * @property Money $amount_ht_cents
@@ -77,6 +77,9 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property-read ?Mission $mission
  * @property-read ?Quote $quote
  * @property-read Collection<int, InvoiceLine> $lines
+ * @property-read Collection<int, InvoicePayment> $payments
+ * @property-read ?int $paid_cents Sum of the payments, when loaded via withPaymentFigures.
+ * @property-read ?string $last_paid_on Day of the last payment, when loaded via withPaymentFigures.
  */
 #[Fillable([
     'client_id',
@@ -101,7 +104,6 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
     'buyer_snapshot',
     'issued_on',
     'due_on',
-    'paid_on',
     'period_start',
     'period_end',
     'currency',
@@ -192,7 +194,6 @@ class Invoice extends Model
             'buyer_snapshot' => 'array',
             'issued_on' => CalendarDate::class,
             'due_on' => CalendarDate::class,
-            'paid_on' => CalendarDate::class,
             'period_start' => CalendarDate::class,
             'period_end' => CalendarDate::class,
             'amount_ht_cents' => MoneyIntegerCast::class.':currency',
@@ -307,6 +308,51 @@ class Invoice extends Model
     public function timeEntries(): HasMany
     {
         return $this->hasMany(TimeEntry::class);
+    }
+
+    /** @return HasMany<InvoicePayment, $this> */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(InvoicePayment::class)->orderBy('paid_on')->orderBy('id');
+    }
+
+    /**
+     * The two payment figures a screen reads on every row, computed by the
+     * database once per query instead of once per invoice: what landed, and
+     * the day the last of it did.
+     *
+     * @param  Builder<Invoice>  $query
+     */
+    public function scopeWithPaymentFigures(Builder $query): void
+    {
+        $query
+            ->withSum('payments as paid_cents', 'amount_cents')
+            ->withMax('payments as last_paid_on', 'paid_on');
+    }
+
+    /** What the client has paid so far; reads the query's figure when it carries one. */
+    public function paidAmount(): Money
+    {
+        $cents = $this->paid_cents ?? (int) $this->payments()->sum('amount_cents');
+
+        return new Money((int) $cents, $this->currency);
+    }
+
+    public function balanceDue(): Money
+    {
+        return $this->amount_ttc_cents->subtract($this->paidAmount());
+    }
+
+    /** The day the payment that completed the invoice landed; null until it is paid. */
+    public function paidOn(): ?CarbonImmutable
+    {
+        if ($this->status !== InvoiceStatus::Paid) {
+            return null;
+        }
+
+        $lastPaidOn = $this->last_paid_on ?? $this->payments()->max('paid_on');
+
+        return is_string($lastPaidOn) ? CarbonImmutable::parse($lastPaidOn) : null;
     }
 
     public function vatAmount(): Money

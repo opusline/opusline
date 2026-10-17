@@ -25,7 +25,7 @@ test('validating a suggestion pays the invoice on the movement date and links th
 
     $invoice->refresh();
     expect($invoice->status)->toBe(InvoiceStatus::Paid)
-        ->and($invoice->paid_on?->toDateString())->toBe('2026-08-08')
+        ->and($invoice->paidOn()?->toDateString())->toBe('2026-08-08')
         ->and($movement->refresh()->invoice_id)->toBe($invoice->id)
         ->and($match->refresh()->status)->toBe(BankMatchStatus::Validated)
         ->and($invoice->events()->where('kind', InvoiceEventKind::Paid)->exists())->toBeTrue();

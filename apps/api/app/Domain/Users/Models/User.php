@@ -22,6 +22,7 @@ use App\Domain\Invoices\Models\CatalogItem;
 use App\Domain\Invoices\Models\DocumentEmail;
 use App\Domain\Invoices\Models\EmailTemplate;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Models\InvoicePayment;
 use App\Domain\Invoices\Models\Quote;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Passkeys\Models\Passkey;
@@ -182,6 +183,12 @@ class User extends Authenticatable implements HasLocalePreference, HasMedia
         return $this->hasMany(Invoice::class);
     }
 
+    /** @return HasMany<InvoicePayment, $this> */
+    public function invoicePayments(): HasMany
+    {
+        return $this->hasMany(InvoicePayment::class);
+    }
+
     /** @return HasMany<Quote, $this> */
     public function quotes(): HasMany
     {
@@ -333,6 +340,8 @@ class User extends Authenticatable implements HasLocalePreference, HasMedia
         'invoices' => ['amount_ht_cents', 'amount_ttc_cents'],
         // A line always belongs to an invoice, which locks the currency already.
         'invoice_lines' => ['unit_price_cents', 'total_ht_cents'],
+        // A payment exists only on an invoice, which already locks the currency.
+        'invoice_payments' => ['amount_cents'],
         'quotes' => ['amount_ht_cents', 'amount_ttc_cents'],
         'quote_lines' => ['unit_price_cents', 'total_ht_cents'],
         'bank_statements' => ['closing_balance_cents'],

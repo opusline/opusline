@@ -13,8 +13,7 @@ use App\Domain\Deadlines\Enums\FiscalDeadlineKind;
 use App\Domain\Deadlines\Models\FiscalDeadlineCompletion;
 use App\Domain\Expenses\Enums\ExpenseCategory;
 use App\Domain\Expenses\Enums\ExpenseVatTreatment;
-use App\Domain\Invoices\Enums\InvoiceStatus;
-use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Models\InvoicePayment;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Enums\Color;
 use App\Domain\TimeEntries\Models\TimeEntry;
@@ -237,9 +236,8 @@ final class VolumeSeeder extends DatabaseSeeder
     {
         $lines = [];
 
-        foreach ($this->paidIn($user, $month) as $invoice) {
-            assert($invoice->paid_on instanceof CarbonImmutable);
-            $lines[] = [$invoice->paid_on, 'VIR SEPA '.Str::upper(Str::ascii($invoice->client->name)), (int) $invoice->amount_ttc_cents->getAmount()];
+        foreach ($this->paidIn($user, $month) as $payment) {
+            $lines[] = [$payment->paid_on, 'VIR SEPA '.Str::upper(Str::ascii($payment->invoice->client->name)), (int) $payment->amount_cents->getAmount()];
         }
 
         return $lines;
@@ -254,9 +252,9 @@ final class VolumeSeeder extends DatabaseSeeder
         $htCents = 0;
         $vatCents = 0;
 
-        foreach ($this->paidIn($user, $returnMonth) as $invoice) {
-            $htCents += (int) $invoice->amount_ht_cents->getAmount();
-            $vatCents += (int) $invoice->amount_ttc_cents->getAmount() - (int) $invoice->amount_ht_cents->getAmount();
+        foreach ($this->paidIn($user, $returnMonth) as $payment) {
+            $htCents += (int) $payment->htShare()->getAmount();
+            $vatCents += (int) $payment->vatShare()->getAmount();
         }
 
         if ($htCents === 0) {
@@ -305,12 +303,11 @@ final class VolumeSeeder extends DatabaseSeeder
         return $lines;
     }
 
-    /** @return Collection<int, Invoice> */
+    /** @return Collection<int, InvoicePayment> */
     private function paidIn(User $user, CarbonImmutable $month): Collection
     {
-        return $user->invoices()
-            ->with('client')
-            ->where('status', InvoiceStatus::Paid)
+        return $user->invoicePayments()
+            ->with('invoice.client')
             ->whereBetween('paid_on', [$month->toDateString(), $month->endOfMonth()->toDateString()])
             ->get();
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Data;
 
+use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Validation\BeforeOrEqualAccountToday;
 use Spatie\LaravelData\Attributes\Validation\DateFormat;
 use Spatie\LaravelData\Attributes\Validation\Rule;
@@ -19,5 +20,7 @@ class PayInvoiceData extends Data
          */
         #[DateFormat('Y-m-d'), Rule(new BeforeOrEqualAccountToday)]
         public string $paidOn,
+        /** What landed; omitted, the whole balance still due. Never more than that balance. */
+        public ?MoneyData $amount = null,
     ) {}
 }

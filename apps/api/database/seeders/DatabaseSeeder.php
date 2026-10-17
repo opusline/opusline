@@ -504,7 +504,6 @@ class DatabaseSeeder extends Seeder
             'status' => $paidOn === null ? InvoiceStatus::Sent : InvoiceStatus::Paid,
             'issued_on' => $issuedOn,
             'due_on' => $issuedOn->addDays(45),
-            'paid_on' => $paidOn,
             'period_start' => $periodMonth,
             'period_end' => $periodMonth?->endOfMonth(),
             // Currency must precede the *_cents keys: MoneyIntegerCast reads the
@@ -519,6 +518,12 @@ class DatabaseSeeder extends Seeder
         $invoice->events()->create(['kind' => InvoiceEventKind::Sent, 'occurred_on' => $issuedOn]);
 
         if ($paidOn !== null) {
+            $invoice->payments()->create([
+                'user_id' => $user->id,
+                'currency' => 'EUR',
+                'amount_cents' => $invoice->amount_ttc_cents,
+                'paid_on' => $paidOn,
+            ]);
             $invoice->events()->create(['kind' => InvoiceEventKind::Paid, 'occurred_on' => $paidOn]);
         }
 

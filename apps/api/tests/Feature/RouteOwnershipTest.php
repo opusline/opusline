@@ -36,6 +36,10 @@ const SCALAR_ROUTE_PARAMETERS = [
     // An int-backed FiscalDeadlineKind, constrained by whereNumber: an enum
     // case, identical for every account and owned by none.
     'kind',
+    // A payment id, typed `int`: InvoiceController::destroyPayment resolves it
+    // through `$invoice->payments()`, a relation of the owner-scoped invoice
+    // bound beside it.
+    'payment',
     // The period a return covers — `2026-07`, `2026-Q3`, `2026` — constrained
     // by CompleteFiscalDeadlineData::PERIOD_KEY_EXPRESSION.
     'periodKey',

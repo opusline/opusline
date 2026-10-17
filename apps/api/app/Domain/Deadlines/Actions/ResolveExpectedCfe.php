@@ -8,9 +8,9 @@ use App\Domain\Bank\Actions\DetectFiscPayments;
 use App\Domain\Bank\Models\BankMovement;
 use App\Domain\Deadlines\Calendar\CfeBareme;
 use App\Domain\Deadlines\Calendar\ExpectedCfe;
-use App\Domain\Invoices\Enums\InvoiceStatus;
-use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Revenue\CollectedInvoices;
 use App\Domain\Settings\Models\UserSettings;
+use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
 use Illuminate\Support\Collection;
 
@@ -81,13 +81,9 @@ class ResolveExpectedCfe
 
     private function collectedHtCents(UserSettings $settings, int $year): int
     {
-        return (int) Invoice::query()
-            ->where('user_id', $settings->user_id)
-            ->where('status', InvoiceStatus::Paid)
-            ->whereBetween('paid_on', [
-                sprintf('%d-01-01', $year),
-                sprintf('%d-12-31', $year),
-            ])
-            ->sum('amount_ht_cents');
+        $from = CarbonImmutable::parse(sprintf('%d-01-01', $year));
+        $to = $from->endOfYear();
+
+        return CollectedInvoices::paidBetweenForUser($settings->user_id, $from, $to)->htCents($from, $to);
     }
 }

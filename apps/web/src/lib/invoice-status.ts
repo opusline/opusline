@@ -48,10 +48,26 @@ export function invoiceStatusBadge(invoice: InvoiceData): {
     return { variant: "warn", label: m.invoice_status_late() };
   }
 
+  if (isPartlyPaid(invoice)) {
+    return { variant: "brand", label: m.invoice_status_partial() };
+  }
+
   return {
     variant: STATUS_TONES[invoice.status],
     label: invoiceStatusLabel(invoice.status),
   };
+}
+
+/** Sent, with some of the money in: not a status of its own on the API, derived from the payments. */
+export function isPartlyPaid(invoice: InvoiceData): boolean {
+  return invoice.status === 1 && invoice.amountPaid.amount > 0;
+}
+
+/** The status token with the partly-paid case told apart, for `data-status`. */
+export function invoiceStatusToken(invoice: InvoiceData): string {
+  return isPartlyPaid(invoice)
+    ? "partial"
+    : INVOICE_STATUS_TOKENS[invoice.status];
 }
 
 const INVOICE_EVENT_MESSAGES: Record<InvoiceEventKind, () => string> = {
@@ -61,6 +77,7 @@ const INVOICE_EVENT_MESSAGES: Record<InvoiceEventKind, () => string> = {
   3: m.invoice_event_paid,
   4: m.invoice_event_corrected,
   5: m.invoice_event_emailed,
+  6: m.invoice_event_payment_recorded,
 };
 
 export const INVOICE_EVENT_TOKENS: Record<InvoiceEventKind, string> = {
@@ -70,6 +87,7 @@ export const INVOICE_EVENT_TOKENS: Record<InvoiceEventKind, string> = {
   3: "paid",
   4: "corrected",
   5: "emailed",
+  6: "payment",
 };
 
 export function invoiceEventLabel(kind: InvoiceEventKind): string {

@@ -1553,6 +1553,8 @@ export type InvoiceData = {
     amountHt: MoneyData;
     amountVat: MoneyData;
     amountTtc: MoneyData;
+    amountPaid: MoneyData;
+    amountDue: MoneyData;
     ttcOverridden: boolean;
     vatRateBp: number;
     notes: string | null;
@@ -1573,6 +1575,7 @@ export type InvoiceDetailData = {
     content: InvoiceContentData | null;
     quote: InvoiceQuoteLinkData | null;
     emails: Array<DocumentEmailData>;
+    payments: Array<InvoicePaymentData>;
     nextReminderOn: string | null;
     nextStatuses: Array<InvoiceStatus>;
 };
@@ -1595,11 +1598,12 @@ export type InvoiceEventData = {
  * | `0` <br/>  |
  * | `1` <br/>  |
  * | `2` <br/>  |
- * | `3` <br/>  |
+ * | `3` <br/> The payment that completed the invoice landed. |
  * | `4` <br/>  |
  * | `5` <br/> E-mailed to the client from Opusline; the note names the recipients. |
+ * | `6` <br/> A payment landed that leaves a balance due; the note carries its amount. |
  */
-export type InvoiceEventKind = 0 | 1 | 2 | 3 | 4 | 5;
+export type InvoiceEventKind = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 /**
  * InvoiceForecastBucket
@@ -1684,6 +1688,17 @@ export type InvoicePaperData = {
     legal: string;
     signature: PaperSignatureData | null;
     footer: string;
+};
+
+/**
+ * InvoicePaymentData
+ */
+export type InvoicePaymentData = {
+    id: number;
+    amount: MoneyData;
+    paidOn: string;
+    bankMovementId: number | null;
+    note: string | null;
 };
 
 /**
@@ -2125,6 +2140,10 @@ export type PasskeyOptionsData = {
  */
 export type PayInvoiceData = {
     paidOn: string;
+    amount?: {
+        amount: number;
+        currency: Currency;
+    } | null;
 };
 
 /**
@@ -7517,6 +7536,57 @@ export type PayInvoiceResponses = {
 };
 
 export type PayInvoiceResponse = PayInvoiceResponses[keyof PayInvoiceResponses];
+
+export type RemoveInvoicePaymentData = {
+    body?: never;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+        payment: number;
+    };
+    query?: never;
+    url: '/invoices/{invoice}/payments/{payment}';
+};
+
+export type RemoveInvoicePaymentErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type RemoveInvoicePaymentError = RemoveInvoicePaymentErrors[keyof RemoveInvoicePaymentErrors];
+
+export type RemoveInvoicePaymentResponses = {
+    200: InvoiceDetailData;
+};
+
+export type RemoveInvoicePaymentResponse = RemoveInvoicePaymentResponses[keyof RemoveInvoicePaymentResponses];
 
 export type RemindInvoiceData2 = {
     body?: RemindInvoiceData;

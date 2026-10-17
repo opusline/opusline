@@ -92,7 +92,7 @@ class CorrectInvoiceDates
     ): void {
         $effectiveIssuedOn = $issuedOn ?? $invoice->issued_on;
         $effectiveSentOn = $sentOn ?? $this->recordedSentOn($invoice);
-        $effectivePaidOn = $paidOn ?? $invoice->paid_on;
+        $effectivePaidOn = $paidOn ?? $invoice->paidOn();
 
         abort_if(
             $effectiveSentOn->isBefore($effectiveIssuedOn),
@@ -146,11 +146,16 @@ class CorrectInvoiceDates
 
     private function stampPaidOn(Invoice $invoice, CarbonImmutable $paidOn): void
     {
-        if ($invoice->paid_on instanceof CarbonImmutable && $paidOn->equalTo($invoice->paid_on)) {
+        $current = $invoice->paidOn();
+
+        if ($current instanceof CarbonImmutable && $paidOn->equalTo($current)) {
             return;
         }
 
-        $invoice->update(['paid_on' => $paidOn]);
+        // One payment carries the date; two or more each have their own day.
+        $payments = $invoice->payments()->get();
+        abort_if($payments->count() !== 1, 409, __('invoices.paid_on_many_payments'));
+        $payments->sole()->update(['paid_on' => $paidOn]);
 
         $invoice->events()->updateOrCreate(
             ['kind' => InvoiceEventKind::Paid],

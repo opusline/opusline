@@ -129,13 +129,11 @@ test('averages the days between issue and payment over settled invoices', functi
     $user = User::factory()->create();
     $client = Client::factory()->for($user)->create();
 
-    invoiceOwnedBy($user, $client, fn ($factory) => $factory->paid()->state([
+    invoiceOwnedBy($user, $client, fn ($factory) => $factory->paid('2026-01-11')->state([
         'issued_on' => '2026-01-01',
-        'paid_on' => '2026-01-11',
     ]));
-    invoiceOwnedBy($user, $client, fn ($factory) => $factory->paid()->state([
+    invoiceOwnedBy($user, $client, fn ($factory) => $factory->paid('2026-02-21')->state([
         'issued_on' => '2026-02-01',
-        'paid_on' => '2026-02-21',
     ]));
 
     $this->actingAs($user)

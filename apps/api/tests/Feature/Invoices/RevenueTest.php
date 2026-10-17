@@ -34,9 +34,8 @@ test('leaves drafts out of invoiced revenue', function (): void {
 test('totals collected revenue by payment date', function (): void {
     $user = User::factory()->create();
     // Issued in June, paid in August: cash lands in August.
-    invoiceOwnedBy($user, configure: fn ($factory) => $factory->paid()->state([
+    invoiceOwnedBy($user, configure: fn ($factory) => $factory->paid('2026-08-10')->state([
         'issued_on' => '2026-06-01',
-        'paid_on' => '2026-08-10',
         'amount_ht_cents' => 100_000,
     ]));
     // Sent but unpaid: invoiced revenue, not collected.
