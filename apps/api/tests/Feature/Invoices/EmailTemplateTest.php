@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Enums\EmailTemplateKind;
+use App\Domain\Invoices\Enums\ReminderFrequency;
 use App\Domain\Invoices\Mail\ClientDocumentMail;
 use App\Domain\Invoices\Mail\ClientEmailContent;
 use App\Domain\Invoices\Models\EmailTemplate;
@@ -110,7 +111,7 @@ test('knows no fifth kind of e-mail', function (): void {
     $user = invoicingUser();
 
     $this->actingAs($user)->putJson('/api/invoicing/emails/9', ['subject' => 'x', 'body' => 'y'])->assertNotFound();
-    $this->actingAs($user)->getJson('/api/invoicing/emails/9/preview')->assertNotFound();
+    $this->actingAs($user)->postJson('/api/invoicing/emails/9/preview')->assertNotFound();
 });
 
 test('resetting a template brings the built-in copy back', function (): void {
@@ -139,7 +140,7 @@ test('previews the e-mail with sample figures, dates counted from today', functi
     $user = invoicingUser(['document_language' => DocumentLanguage::French, 'trade_name' => 'Studio Lorem', 'siret' => '89300211800019', 'contact_email' => 'ines@studio-lorem.test']);
 
     $response = $this->actingAs($user)
-        ->getJson('/api/invoicing/emails/'.EmailTemplateKind::NewInvoice->value.'/preview')
+        ->postJson('/api/invoicing/emails/'.EmailTemplateKind::NewInvoice->value.'/preview')
         ->assertOk()
         ->assertJsonPath('subject', 'Facture F-2026-014 (Refonte du site)');
 
@@ -155,6 +156,18 @@ test('previews the e-mail with sample figures, dates counted from today', functi
         ->not->toContain('{numero}');
 });
 
+test('previews a wording before it is saved, falling back to the stored one field by field', function (): void {
+    $user = invoicingUser(['document_language' => DocumentLanguage::French]);
+
+    $this->actingAs($user)
+        ->postJson('/api/invoicing/emails/'.EmailTemplateKind::NewQuote->value.'/preview', ['body' => 'Bonjour {contact}, voici {numero} pour {montant}.'])
+        ->assertOk()
+        ->assertJsonPath('subject', 'Devis D-2026-003 (Refonte du site)')
+        ->assertJsonPath('text', "Bonjour Sophie, voici D-2026-003 pour 1\u{00A0}200,00\u{00A0}€.");
+
+    expect($user->emailTemplates()->count())->toBe(0);
+});
+
 test('the greeting stands on its own line and the rest in paragraphs', function (): void {
     expect(ClientEmailContent::splitGreeting("Bonjour Sophie,\n\nVoici la facture.\n\n\nBonne journée,"))
         ->toBe(['Bonjour Sophie,', ['Voici la facture.', 'Bonne journée,']])
@@ -165,8 +178,8 @@ test('the greeting stands on its own line and the rest in paragraphs', function 
 test('the reminder flags the days late and the e-mails that ask for money carry the IBAN', function (): void {
     $user = invoicingUser(['document_language' => DocumentLanguage::English, 'iban' => 'FR7630006000011234567890189', 'bic' => 'AGRIFRPP', 'show_iban_on_invoices' => true, 'late_penalty_rate_bp' => 1200]);
 
-    $reminder = $this->actingAs($user)->getJson('/api/invoicing/emails/'.EmailTemplateKind::PaymentReminder->value.'/preview')->assertOk();
-    $quote = $this->actingAs($user)->getJson('/api/invoicing/emails/'.EmailTemplateKind::NewQuote->value.'/preview')->assertOk();
+    $reminder = $this->actingAs($user)->postJson('/api/invoicing/emails/'.EmailTemplateKind::PaymentReminder->value.'/preview')->assertOk();
+    $quote = $this->actingAs($user)->postJson('/api/invoicing/emails/'.EmailTemplateKind::NewQuote->value.'/preview')->assertOk();
 
     expect($reminder->json('text'))->toContain('annual rate of 12 %')
         ->and($reminder->json('html'))->toContain('12 days late')->toContain('Left to pay · F-2026-014')->toContain('FR7630006000011234567890189')->toContain('Payment by bank transfer')
@@ -239,4 +252,38 @@ test('the test send does not exist on an instance that sends no mail', function 
     $this->actingAs($user)->postJson('/api/invoicing/emails/'.EmailTemplateKind::NewInvoice->value.'/test')->assertNotFound();
 
     Mail::assertNothingSent();
+});
+
+test('the list carries the reminder defaults, off until the account turns them on', function (): void {
+    $user = invoicingUser();
+
+    $this->actingAs($user)
+        ->getJson('/api/invoicing/emails')
+        ->assertOk()
+        ->assertJsonPath('reminderDefaults.enabled', false)
+        ->assertJsonPath('reminderDefaults.frequency', ReminderFrequency::OnceDayAfterDue->value);
+});
+
+test('sets what a new invoice starts with for its reminders', function (): void {
+    $user = invoicingUser();
+
+    $this->actingAs($user)
+        ->putJson('/api/invoicing/emails/reminders', ['enabled' => true, 'frequency' => ReminderFrequency::WeeklyUntilPaid->value])
+        ->assertOk()
+        ->assertJsonPath('enabled', true)
+        ->assertJsonPath('frequency', ReminderFrequency::WeeklyUntilPaid->value);
+
+    $settings = $user->settingsOrFail()->refresh();
+
+    expect($settings->reminders_default_enabled)->toBeTrue()
+        ->and($settings->reminders_default_frequency)->toBe(ReminderFrequency::WeeklyUntilPaid);
+});
+
+test('refuses a reminder frequency it does not know', function (): void {
+    $user = invoicingUser();
+
+    $this->actingAs($user)
+        ->putJson('/api/invoicing/emails/reminders', ['enabled' => true, 'frequency' => 9])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['frequency']);
 });

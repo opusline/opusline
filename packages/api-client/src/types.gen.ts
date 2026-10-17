@@ -1073,6 +1073,7 @@ export type EmailTemplateKind = 0 | 1 | 2 | 3;
  */
 export type EmailTemplatesData = {
     templates: Array<EmailTemplateData>;
+    reminderDefaults: ReminderDefaultsData;
 };
 
 /**
@@ -2095,6 +2096,14 @@ export type PingData = {
 export type PlatformEnvironment = 0 | 1;
 
 /**
+ * PreviewEmailTemplateData
+ */
+export type PreviewEmailTemplateData = {
+    subject?: string | null;
+    body?: string | null;
+};
+
+/**
  * QuoteBilling
  *
  * Which part of an accepted quote an invoice bills.
@@ -2331,6 +2340,22 @@ export type RemindInvoiceData = {
     occurredOn?: string | null;
     note?: string | null;
 };
+
+/**
+ * ReminderDefaultsData
+ */
+export type ReminderDefaultsData = {
+    enabled: boolean;
+    frequency: ReminderFrequency;
+};
+
+/**
+ * ReminderFrequency
+ *
+ * How often an unpaid invoice is reminded about once its due date has passed.
+ *
+ */
+export type ReminderFrequency = 0 | 1 | 2;
 
 /**
  * RenamePasskeyData
@@ -3096,6 +3121,14 @@ export type UpdateNotificationPreferencesData = {
  */
 export type UpdateReleaseNotesSeenData = {
     version: string;
+};
+
+/**
+ * UpdateReminderDefaultsData
+ */
+export type UpdateReminderDefaultsData = {
+    enabled: boolean;
+    frequency: ReminderFrequency;
 };
 
 /**
@@ -6070,6 +6103,33 @@ export type ListEmailTemplatesResponses = {
 
 export type ListEmailTemplatesResponse = ListEmailTemplatesResponses[keyof ListEmailTemplatesResponses];
 
+export type UpdateReminderDefaultsData2 = {
+    body: UpdateReminderDefaultsData;
+    path?: never;
+    query?: never;
+    url: '/invoicing/emails/reminders';
+};
+
+export type UpdateReminderDefaultsErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateReminderDefaultsError = UpdateReminderDefaultsErrors[keyof UpdateReminderDefaultsErrors];
+
+export type UpdateReminderDefaultsResponses = {
+    200: ReminderDefaultsData;
+};
+
+export type UpdateReminderDefaultsResponse = UpdateReminderDefaultsResponses[keyof UpdateReminderDefaultsResponses];
+
 export type ResetEmailTemplateData = {
     body?: never;
     path: {
@@ -6146,8 +6206,8 @@ export type UpdateEmailTemplateResponses = {
 
 export type UpdateEmailTemplateResponse = UpdateEmailTemplateResponses[keyof UpdateEmailTemplateResponses];
 
-export type PreviewEmailTemplateData = {
-    body?: never;
+export type PreviewEmailTemplateData2 = {
+    body?: PreviewEmailTemplateData;
     path: {
         kind: number;
     };

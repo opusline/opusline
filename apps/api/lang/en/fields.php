@@ -169,4 +169,6 @@ return [
     'clientSecret' => 'client secret',
     'subject' => 'subject',
     'body' => 'body',
+    'enabled' => 'enabled',
+    'frequency' => 'frequency',
 ];

@@ -95,13 +95,15 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
 
         Route::get('/invoicing/emails', [EmailTemplateController::class, 'index'])
             ->name('listEmailTemplates');
+        Route::put('/invoicing/emails/reminders', [EmailTemplateController::class, 'updateReminderDefaults'])
+            ->name('updateReminderDefaults');
         Route::put('/invoicing/emails/{kind}', [EmailTemplateController::class, 'update'])
             ->whereNumber('kind')
             ->name('updateEmailTemplate');
         Route::delete('/invoicing/emails/{kind}', [EmailTemplateController::class, 'destroy'])
             ->whereNumber('kind')
             ->name('resetEmailTemplate');
-        Route::get('/invoicing/emails/{kind}/preview', [EmailTemplateController::class, 'preview'])
+        Route::post('/invoicing/emails/{kind}/preview', [EmailTemplateController::class, 'preview'])
             ->whereNumber('kind')
             ->name('previewEmailTemplate');
         Route::post('/invoicing/emails/{kind}/test', [EmailTemplateController::class, 'test'])

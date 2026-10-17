@@ -2807,6 +2807,39 @@
                 }
             }
         },
+        "/invoicing/emails/reminders": {
+            "put": {
+                "operationId": "updateReminderDefaults",
+                "tags": [
+                    "EmailTemplate"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateReminderDefaultsData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReminderDefaultsData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/invoicing/emails/{kind}": {
             "put": {
                 "operationId": "updateEmailTemplate",
@@ -2921,9 +2954,9 @@
             }
         },
         "/invoicing/emails/{kind}/preview": {
-            "get": {
+            "post": {
                 "operationId": "previewEmailTemplate",
-                "summary": "The e-mail with sample figures, as the client would read it",
+                "summary": "The e-mail with sample figures, as the client would read it: the stored\nwording, or the draft sent along. A POST that creates nothing, so a 200",
                 "tags": [
                     "EmailTemplate"
                 ],
@@ -2937,6 +2970,15 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PreviewEmailTemplateData"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "",
@@ -11761,10 +11803,14 @@
                         "items": {
                             "$ref": "#/components/schemas/EmailTemplateData"
                         }
+                    },
+                    "reminderDefaults": {
+                        "$ref": "#/components/schemas/ReminderDefaultsData"
                     }
                 },
                 "required": [
-                    "templates"
+                    "templates",
+                    "reminderDefaults"
                 ],
                 "title": "EmailTemplatesData"
             },
@@ -14740,6 +14786,28 @@
                 ],
                 "title": "PlatformEnvironment"
             },
+            "PreviewEmailTemplateData": {
+                "type": "object",
+                "properties": {
+                    "subject": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "minLength": 1,
+                        "maxLength": 255
+                    },
+                    "body": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "minLength": 1,
+                        "maxLength": 5000
+                    }
+                },
+                "title": "PreviewEmailTemplateData"
+            },
             "QuoteBilling": {
                 "type": "integer",
                 "description": "Which part of an accepted quote an invoice bills.\n",
@@ -15463,6 +15531,37 @@
                     }
                 },
                 "title": "RemindInvoiceData"
+            },
+            "ReminderDefaultsData": {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "frequency": {
+                        "$ref": "#/components/schemas/ReminderFrequency"
+                    }
+                },
+                "required": [
+                    "enabled",
+                    "frequency"
+                ],
+                "title": "ReminderDefaultsData"
+            },
+            "ReminderFrequency": {
+                "type": "integer",
+                "description": "How often an unpaid invoice is reminded about once its due date has passed.\n",
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "x-enum-varnames": [
+                    "OnceDayAfterDue",
+                    "DayThreeAndTen",
+                    "WeeklyUntilPaid"
+                ],
+                "title": "ReminderFrequency"
             },
             "RenamePasskeyData": {
                 "type": "object",
@@ -18089,6 +18188,22 @@
                     "version"
                 ],
                 "title": "UpdateReleaseNotesSeenData"
+            },
+            "UpdateReminderDefaultsData": {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "frequency": {
+                        "$ref": "#/components/schemas/ReminderFrequency"
+                    }
+                },
+                "required": [
+                    "enabled",
+                    "frequency"
+                ],
+                "title": "UpdateReminderDefaultsData"
             },
             "UpdateSettingsCurrencyData": {
                 "type": "object",

@@ -33,6 +33,7 @@ import { Route as GuestRegisterRouteImport } from './routes/_guest/register'
 import { Route as AuthedClientsClientSlugRouteImport } from './routes/_authed/clients_.$clientSlug'
 import { Route as AuthedClientsNewRouteImport } from './routes/_authed/clients_.new'
 import { Route as AuthedInvoicingCatalogRouteImport } from './routes/_authed/invoicing.catalog'
+import { Route as AuthedInvoicingEmailsRouteImport } from './routes/_authed/invoicing.emails'
 import { Route as AuthedInvoicingInvoicesRouteImport } from './routes/_authed/invoicing.invoices'
 import { Route as AuthedInvoicingQuotesRouteImport } from './routes/_authed/invoicing.quotes'
 import { Route as AuthedInvoicingSettingsRouteImport } from './routes/_authed/invoicing.settings'
@@ -164,6 +165,11 @@ const AuthedInvoicingCatalogRoute = AuthedInvoicingCatalogRouteImport.update({
   path: '/invoicing/catalog',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedInvoicingEmailsRoute = AuthedInvoicingEmailsRouteImport.update({
+  id: '/invoicing/emails',
+  path: '/invoicing/emails',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedInvoicingInvoicesRoute = AuthedInvoicingInvoicesRouteImport.update({
   id: '/invoicing/invoices',
   path: '/invoicing/invoices',
@@ -256,6 +262,7 @@ export interface FileRoutesByFullPath {
   '/clients/$clientSlug': typeof AuthedClientsClientSlugRoute
   '/clients/new': typeof AuthedClientsNewRoute
   '/invoicing/catalog': typeof AuthedInvoicingCatalogRoute
+  '/invoicing/emails': typeof AuthedInvoicingEmailsRoute
   '/invoicing/invoices': typeof AuthedInvoicingInvoicesRoute
   '/invoicing/quotes': typeof AuthedInvoicingQuotesRoute
   '/invoicing/settings': typeof AuthedInvoicingSettingsRoute
@@ -292,6 +299,7 @@ export interface FileRoutesByTo {
   '/clients/$clientSlug': typeof AuthedClientsClientSlugRoute
   '/clients/new': typeof AuthedClientsNewRoute
   '/invoicing/catalog': typeof AuthedInvoicingCatalogRoute
+  '/invoicing/emails': typeof AuthedInvoicingEmailsRoute
   '/invoicing/invoices': typeof AuthedInvoicingInvoicesRoute
   '/invoicing/quotes': typeof AuthedInvoicingQuotesRoute
   '/invoicing/settings': typeof AuthedInvoicingSettingsRoute
@@ -331,6 +339,7 @@ export interface FileRoutesById {
   '/_authed/clients_/$clientSlug': typeof AuthedClientsClientSlugRoute
   '/_authed/clients_/new': typeof AuthedClientsNewRoute
   '/_authed/invoicing/catalog': typeof AuthedInvoicingCatalogRoute
+  '/_authed/invoicing/emails': typeof AuthedInvoicingEmailsRoute
   '/_authed/invoicing/invoices': typeof AuthedInvoicingInvoicesRoute
   '/_authed/invoicing/quotes': typeof AuthedInvoicingQuotesRoute
   '/_authed/invoicing/settings': typeof AuthedInvoicingSettingsRoute
@@ -369,6 +378,7 @@ export interface FileRouteTypes {
     | '/clients/$clientSlug'
     | '/clients/new'
     | '/invoicing/catalog'
+    | '/invoicing/emails'
     | '/invoicing/invoices'
     | '/invoicing/quotes'
     | '/invoicing/settings'
@@ -405,6 +415,7 @@ export interface FileRouteTypes {
     | '/clients/$clientSlug'
     | '/clients/new'
     | '/invoicing/catalog'
+    | '/invoicing/emails'
     | '/invoicing/invoices'
     | '/invoicing/quotes'
     | '/invoicing/settings'
@@ -443,6 +454,7 @@ export interface FileRouteTypes {
     | '/_authed/clients_/$clientSlug'
     | '/_authed/clients_/new'
     | '/_authed/invoicing/catalog'
+    | '/_authed/invoicing/emails'
     | '/_authed/invoicing/invoices'
     | '/_authed/invoicing/quotes'
     | '/_authed/invoicing/settings'
@@ -635,6 +647,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedInvoicingCatalogRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/invoicing/emails': {
+      id: '/_authed/invoicing/emails'
+      path: '/invoicing/emails'
+      fullPath: '/invoicing/emails'
+      preLoaderRoute: typeof AuthedInvoicingEmailsRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/invoicing/invoices': {
       id: '/_authed/invoicing/invoices'
       path: '/invoicing/invoices'
@@ -739,6 +758,7 @@ interface AuthedRouteChildren {
   AuthedClientsClientSlugRoute: typeof AuthedClientsClientSlugRoute
   AuthedClientsNewRoute: typeof AuthedClientsNewRoute
   AuthedInvoicingCatalogRoute: typeof AuthedInvoicingCatalogRoute
+  AuthedInvoicingEmailsRoute: typeof AuthedInvoicingEmailsRoute
   AuthedInvoicingInvoicesRoute: typeof AuthedInvoicingInvoicesRoute
   AuthedInvoicingQuotesRoute: typeof AuthedInvoicingQuotesRoute
   AuthedInvoicingSettingsRoute: typeof AuthedInvoicingSettingsRoute
@@ -770,6 +790,7 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedClientsClientSlugRoute: AuthedClientsClientSlugRoute,
   AuthedClientsNewRoute: AuthedClientsNewRoute,
   AuthedInvoicingCatalogRoute: AuthedInvoicingCatalogRoute,
+  AuthedInvoicingEmailsRoute: AuthedInvoicingEmailsRoute,
   AuthedInvoicingInvoicesRoute: AuthedInvoicingInvoicesRoute,
   AuthedInvoicingQuotesRoute: AuthedInvoicingQuotesRoute,
   AuthedInvoicingSettingsRoute: AuthedInvoicingSettingsRoute,
