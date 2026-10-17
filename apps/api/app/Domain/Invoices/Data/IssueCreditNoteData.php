@@ -13,7 +13,6 @@ use App\Domain\Shared\Data\MoneyData;
 use App\Domain\Shared\Enums\Currency;
 use App\Domain\Shared\Money\Rate;
 use App\Domain\Shared\Validation\AccountCurrency;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum as EnumRule;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Attributes\Validation\Enum;
@@ -68,7 +67,6 @@ class IssueCreditNoteData extends Data
             'lines.*.unitPrice.currency' => ['required', new EnumRule(Currency::class), new AccountCurrency],
             'lines.*.vatRateBp' => ['required', 'integer', 'between:0,'.Rate::BASIS_POINTS],
             'lines.*.invoiceLineId' => ['nullable', 'integer'],
-            'settlement' => ['nullable', Rule::in([CreditNoteSettlement::Refund->value, CreditNoteSettlement::DeductFromNextInvoice->value])],
         ];
     }
 }

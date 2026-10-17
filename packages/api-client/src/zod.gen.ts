@@ -1264,7 +1264,7 @@ export const zIssueCreditNoteData = z.object({
         invoiceLineId: z.nullish(z.int())
     })).check(z.maxLength(200))),
     detail: z.nullish(z.string().check(z.maxLength(500))),
-    settlement: z.nullish(z.enum(['2', '3'])),
+    settlement: z.nullish(zCreditNoteSettlement),
     language: z.nullish(zDocumentLanguage)
 });
 

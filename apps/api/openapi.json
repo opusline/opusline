@@ -15536,14 +15536,13 @@
                         "maxLength": 500
                     },
                     "settlement": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "enum": [
-                            "2",
-                            "3",
-                            null
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/CreditNoteSettlement"
+                            },
+                            {
+                                "type": "null"
+                            }
                         ]
                     },
                     "language": {

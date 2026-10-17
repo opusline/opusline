@@ -57,7 +57,7 @@ class RefundCreditNote
             }
 
             // A matched debit dates the refund itself: the money left that day.
-            $leftOn = $movement === null ? $refundedOn : $movement->booked_on;
+            $leftOn = $movement->booked_on ?? $refundedOn;
 
             $locked->payments()->create([
                 'user_id' => $locked->user_id,

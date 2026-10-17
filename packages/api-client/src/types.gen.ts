@@ -1974,7 +1974,7 @@ export type IssueCreditNoteData = {
         invoiceLineId?: number | null;
     }>;
     detail?: string | null;
-    settlement?: '2' | '3' | null;
+    settlement?: CreditNoteSettlement | null;
     language?: DocumentLanguage | null;
 };
 
