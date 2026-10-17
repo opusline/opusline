@@ -90,7 +90,14 @@ import {
   LINE_UNITS,
   vatRateOptions,
 } from "../lib/line-units";
+import {
+  fillDraft,
+  parsePastedDocument,
+  pasteFillPrompt,
+  pasteFillSample,
+} from "../lib/paste-fill";
 import { InvoicePaper } from "./invoice-paper";
+import { PasteFillPanel } from "./paste-fill-panel";
 import { SwitchRow } from "./switch-row";
 
 const LABEL = "text-muted-foreground-2 text-xs";
@@ -153,6 +160,24 @@ export function InvoiceEditorPage({
     (line) => !isLineComplete(format, line),
   );
   const total = paper?.totals.find((row) => row.emphasis)?.value ?? null;
+
+  const fillFromText = (text: string) => {
+    const pasted = parsePastedDocument(text);
+
+    if (pasted === null) {
+      return null;
+    }
+
+    const result = fillDraft(format, draft, pasted, {
+      kind,
+      clients,
+      settings,
+      defaultVatRateBp,
+    });
+    onChange(result.draft);
+
+    return result.filled;
+  };
 
   const submit = (action: (draft: InvoiceDraft) => void) => {
     if (draft.clientId === null || linesIncomplete) {
@@ -246,6 +271,17 @@ export function InvoiceEditorPage({
 
       <div className="grid items-start gap-6 xl:grid-cols-2">
         <div className="flex min-w-0 flex-col gap-4">
+          <PasteFillPanel
+            onFill={fillFromText}
+            prompt={pasteFillPrompt(
+              kind,
+              clients
+                .filter((client) => client.archivedAt === null)
+                .map((client) => client.name),
+              currencySymbol(format),
+            )}
+            sample={pasteFillSample(kind)}
+          />
           <GeneralSection
             clients={clients}
             draft={draft}
