@@ -80,6 +80,8 @@ export function InvoiceLifecycleActions({
         </>
       ) : (
         <CollectStep
+          // A payment changes the balance: the amount field opens on the new one.
+          key={invoice.amountDue.amount}
           accountToday={accountToday}
           invoice={invoice}
           isPending={isPending}

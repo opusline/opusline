@@ -1,32 +1,27 @@
-import { parisToday } from "../../support/dates";
 import {
-  addInvoice,
-  createClient,
-  INVOICE_STATUS_SENT,
+  createBillableClient,
+  fillInvoicingIdentity,
+  issueInvoice,
   joinInvoicingBeta,
 } from "../../support/provision";
 import { expect, test } from "../../support/test";
 
-// A fresh account is under the franchise: the TTC is the HT.
-const INVOICE_HT_CENTS = 100_000;
+// issueInvoice bills two days at 600 € with no VAT: the TTC is the HT.
+const INVOICE_TTC_CENTS = 120_000;
 const DEPOSIT_CENTS = 60_000;
 
-test("an invoice paid in two transfers, the first one taken back", async ({
+test("an invoice paid in two transfers, the second one taken back", async ({
   page,
   api,
   account: _registered,
 }) => {
   await joinInvoicingBeta(api);
-  const client = await createClient(api, { name: "Nordlys" });
-  const invoice = await addInvoice(api, {
-    clientId: client.id,
-    number: "2026-040",
-    status: INVOICE_STATUS_SENT,
-    issuedOn: parisToday(),
-    amountHt: { amount: INVOICE_HT_CENTS, currency: "EUR" },
-  });
+  await fillInvoicingIdentity(api);
+  const client = await createBillableClient(api, { name: "Nordlys" });
+  const issued = await issueInvoice(api, client);
 
-  await page.goto(`/invoicing/invoices/${invoice.id}`);
+  // The document page is the one an invoice written in Opusline opens on.
+  await page.goto(`/invoicing/invoices/${issued.invoice.id}`);
   await expect(page.getByTestId("document-status")).toHaveAttribute(
     "data-status",
     "sent",
@@ -41,7 +36,7 @@ test("an invoice paid in two transfers, the first one taken back", async ({
   );
   await expect(page.getByTestId("invoice-balance-due")).toHaveAttribute(
     "data-amount-cents",
-    String(INVOICE_HT_CENTS - DEPOSIT_CENTS),
+    String(INVOICE_TTC_CENTS - DEPOSIT_CENTS),
   );
   await expect(page.getByTestId("invoice-payment")).toHaveCount(1);
 
