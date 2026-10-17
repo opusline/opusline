@@ -27,6 +27,6 @@ class RenderQuotePdf
 
         return $quote->number === null
             ? ($english ? 'Draft-quote.pdf' : 'Brouillon-devis.pdf')
-            : sprintf('%s-%s.pdf', $english ? 'Quote' : 'Devis', preg_replace('/[^A-Za-z0-9._-]+/', '-', $quote->number));
+            : RenderPaperPdf::numberedFileName($english ? 'Quote' : 'Devis', $quote->number);
     }
 }

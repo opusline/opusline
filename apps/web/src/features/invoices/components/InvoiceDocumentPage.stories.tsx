@@ -22,7 +22,6 @@ const meta = {
     paper: invoicePaperFixture,
     language: 0,
     onLanguageChange: () => {},
-    pdfHref: () => "#",
     accountToday: "2026-10-14",
     isPending: false,
     error: null,

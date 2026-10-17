@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Data;
 
+use App\Domain\Invoices\Documents\PaperDocument;
 use App\Domain\Invoices\Enums\LineUnit;
 use App\Domain\Shared\Data\SignedMoneyData;
 use App\Domain\Shared\Money\Rate;
@@ -13,6 +14,7 @@ use Spatie\LaravelData\Attributes\Validation\IntegerType;
 use Spatie\LaravelData\Attributes\Validation\Max;
 use Spatie\LaravelData\Data;
 
+/** @phpstan-import-type PaperLine from PaperDocument */
 class InvoiceLineInputData extends Data
 {
     public function __construct(
@@ -30,4 +32,22 @@ class InvoiceLineInputData extends Data
         #[Max(1000)]
         public ?string $detail = null,
     ) {}
+
+    /**
+     * The line as the live preview prints it: under the franchise no line
+     * carries VAT, whatever the editor sent.
+     *
+     * @return PaperLine
+     */
+    public function toPaperLine(bool $vatApplies): array
+    {
+        return [
+            'label' => $this->label,
+            'detail' => $this->detail,
+            'quantityMilli' => $this->quantityMilli,
+            'unit' => $this->unit,
+            'unitPrice' => $this->unitPrice->toMoney(),
+            'vatRateBp' => $vatApplies ? $this->vatRateBp : 0,
+        ];
+    }
 }

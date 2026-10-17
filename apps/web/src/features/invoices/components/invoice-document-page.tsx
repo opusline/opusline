@@ -34,6 +34,7 @@ import {
 } from "@/components/money-format-provider";
 import { formatAmountWithCents } from "@/lib/billing";
 import { calendarDateNumericLabel, calendarRangeLabel } from "@/lib/dates";
+import { invoicePdfHref } from "@/lib/documents";
 import { invoiceStatusBadge, invoiceStatusToken } from "@/lib/invoice-status";
 import { m } from "@/paraglide/messages.js";
 
@@ -52,7 +53,6 @@ type InvoiceDocumentPageProps = {
   onRetryPaper?: () => void;
   language: DocumentLanguage;
   onLanguageChange: (language: DocumentLanguage) => void;
-  pdfHref: (language: DocumentLanguage) => string;
   logoSrc?: string;
   accountToday: string;
   isPending: boolean;
@@ -64,7 +64,6 @@ type InvoiceDocumentPageProps = {
   onRemovePayment?: (payment: number) => void;
   /** Records the refund a credit note owes as made; absent where the page cannot. */
   onRefund?: (creditNote: number, refundedOn: string) => void;
-  creditNotePdfHref?: (creditNote: number) => string;
   /** The automatic reminders of an unpaid invoice; absent where the page has nothing to wire them to. */
   onRemindersChange?: (reminders: ReminderDefaultsData) => void;
   onRemindNow?: () => void;
@@ -80,7 +79,6 @@ export function InvoiceDocumentPage({
   onRetryPaper,
   language,
   onLanguageChange,
-  pdfHref,
   logoSrc,
   accountToday,
   isPending,
@@ -90,7 +88,6 @@ export function InvoiceDocumentPage({
   onDelete,
   onRemovePayment,
   onRefund,
-  creditNotePdfHref,
   onRemindersChange,
   onRemindNow,
 }: InvoiceDocumentPageProps) {
@@ -179,14 +176,14 @@ export function InvoiceDocumentPage({
             <DropdownMenuItem
               data-language="fr"
               data-testid="document-download-item"
-              render={<a download href={pdfHref(0)} />}
+              render={<a download href={invoicePdfHref(invoice.id, 0)} />}
             >
               {m.document_download_fr()}
             </DropdownMenuItem>
             <DropdownMenuItem
               data-language="en"
               data-testid="document-download-item"
-              render={<a download href={pdfHref(1)} />}
+              render={<a download href={invoicePdfHref(invoice.id, 1)} />}
             >
               {m.document_download_en()}
             </DropdownMenuItem>
@@ -340,9 +337,6 @@ export function InvoiceDocumentPage({
               creditNotes={detail.creditNotes}
               isPending={isPending}
               onRefund={onRefund}
-              pdfHref={(creditNote) =>
-                creditNotePdfHref?.(creditNote.id) ?? "#"
-              }
             />
           ) : null}
 
@@ -383,7 +377,7 @@ export function InvoiceDocumentPage({
           )}
 
           {history.length === 0 ? null : (
-            <Panel className="px-5 py-5" padding="none">
+            <Panel padding="default">
               <PanelTitle className="mb-3.5">
                 {m.invoices_history_title()}
               </PanelTitle>

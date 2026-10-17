@@ -9,25 +9,12 @@ import {
   type UseQueryResult,
   useQuery,
 } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+
+import { useSettled } from "@/lib/use-settled";
 
 import type { SendRecipient } from "../components/send-document-page";
 import type { EmailTemplateDraft } from "./email-templates";
-
-/** The preview is a round trip to the API: typed text waits a beat before it goes. */
-const PREVIEW_DELAY_MS = 400;
-
-function useSettled<T>(value: T, delayMs: number): T {
-  const [settled, setSettled] = useState(value);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setSettled(value), delayMs);
-
-    return () => clearTimeout(timer);
-  }, [value, delayMs]);
-
-  return settled;
-}
 
 type SendDocumentOptions = {
   kind: EmailTemplateKind;
@@ -62,7 +49,7 @@ export function useSendDocument({
   const [copyToSender, setCopyToSender] = useState(false);
   const [reminders, setReminders] = useState<ReminderDefaultsData | null>(null);
 
-  const settledDraft = useSettled(draft, PREVIEW_DELAY_MS);
+  const settledDraft = useSettled(draft);
   const previewQuery: UseQueryResult<EmailPreviewData> = useQuery({
     queryKey: ["send-document-preview", previewKey, settledDraft],
     queryFn: () => preview(settledDraft as EmailTemplateDraft),

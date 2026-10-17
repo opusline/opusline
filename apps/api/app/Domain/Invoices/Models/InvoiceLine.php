@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Models;
 
+use App\Domain\Invoices\Documents\PaperDocument;
 use App\Domain\Invoices\Enums\LineUnit;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Casts\MoneyIntegerCast;
@@ -27,6 +28,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  * @property-read Invoice $invoice
+ *
+ * @phpstan-import-type PaperLine from PaperDocument
  */
 #[Fillable(['position', 'label', 'detail', 'quantity_milli', 'unit', 'currency', 'unit_price_cents', 'vat_rate_bp', 'total_ht_cents'])]
 class InvoiceLine extends Model
@@ -50,6 +53,23 @@ class InvoiceLine extends Model
             'unit_price_cents' => MoneyIntegerCast::class.':currency',
             'vat_rate_bp' => 'integer',
             'total_ht_cents' => MoneyIntegerCast::class.':currency',
+        ];
+    }
+
+    /**
+     * The line as a document sheet prints it.
+     *
+     * @return PaperLine
+     */
+    public function toPaperLine(): array
+    {
+        return [
+            'label' => $this->label,
+            'detail' => $this->detail,
+            'quantityMilli' => $this->quantity_milli,
+            'unit' => $this->unit,
+            'unitPrice' => $this->unit_price_cents,
+            'vatRateBp' => $this->vat_rate_bp,
         ];
     }
 }

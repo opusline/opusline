@@ -1,12 +1,11 @@
 import type { QuoteDetailData, SaveQuoteDraftData } from "@opusline/api-client";
 
-import { formatAmount, type MoneyFormat } from "@/lib/billing";
+import type { MoneyFormat } from "@/lib/billing";
 
 import {
   draftPayload,
-  formatQuantity,
   type InvoiceDraft,
-  lineKey,
+  lineDraftFrom,
 } from "./invoice-draft";
 import { paymentTermKey } from "./invoicing-settings";
 
@@ -41,15 +40,7 @@ function quoteDraftCopy(
     description: content.description ?? "",
     periodStart: "",
     periodEnd: "",
-    lines: content.lines.map((line) => ({
-      key: lineKey(),
-      label: line.label,
-      detail: line.detail ?? "",
-      quantity: formatQuantity(format.locale, line.quantityMilli),
-      unit: line.unit,
-      unitPrice: formatAmount(format, line.unitPrice.amount),
-      vatRateBp: line.vatRateBp,
-    })),
+    lines: content.lines.map((line) => lineDraftFrom(format, line)),
     paymentTerm: paymentTermKey({
       days: content.paymentTermsDays,
       endOfMonth: content.paymentTermsEndOfMonth,

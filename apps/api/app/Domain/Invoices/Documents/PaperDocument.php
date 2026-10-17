@@ -17,13 +17,15 @@ use Cknow\Money\Money;
  * quote, or from an editor draft that was never saved.
  *
  * @phpstan-import-type Party from DocumentParties
+ *
+ * @phpstan-type PaperLine array{label: string, detail: ?string, quantityMilli: int, unit: LineUnit, unitPrice: Money, vatRateBp: int}
  */
 final readonly class PaperDocument
 {
     /**
      * @param  Party  $seller
      * @param  Party  $buyer
-     * @param  list<array{label: string, detail: ?string, quantityMilli: int, unit: LineUnit, unitPrice: Money, vatRateBp: int}>  $lines
+     * @param  list<PaperLine>  $lines
      * @param  ?CarbonImmutable  $dueOn  An invoice's due date; a quote has none.
      * @param  ?CarbonImmutable  $validUntil  A quote's last day; an invoice has none.
      */

@@ -5,18 +5,17 @@ import type {
   InvoiceDetailData,
   InvoiceLineData,
   IssueCreditNoteData,
-  LineUnit,
 } from "@opusline/api-client";
 
-import {
-  formatAmount,
-  type MoneyFormat,
-  parseAmountToCents,
-  parseDecimal,
-} from "@/lib/billing";
+import type { MoneyFormat } from "@/lib/billing";
 import { m } from "@/paraglide/messages.js";
 
-import { formatQuantity, lineKey } from "./invoice-draft";
+import {
+  freeLine,
+  type LineDraft,
+  lineDraftFrom,
+  lineInput,
+} from "./invoice-draft";
 
 export const CREDIT_NOTE_KINDS: readonly CreditNoteKind[] = [0, 1, 2];
 
@@ -71,17 +70,8 @@ export const CREDIT_NOTE_SETTLEMENT_TOKENS: Record<
 /** What money already paid can become: the two choices the editor offers. */
 export const RETURN_SETTLEMENTS: readonly CreditNoteSettlement[] = [2, 3];
 
-export type CreditLineDraft = {
-  key: string;
-  /** The invoice line it takes back; null for a line typed freely. */
-  invoiceLineId: number | null;
-  label: string;
-  detail: string;
-  quantity: string;
-  unit: LineUnit;
-  unitPrice: string;
-  vatRateBp: number;
-};
+/** An invoice line taken back keeps its id; a line typed freely has none. */
+export type CreditLineDraft = LineDraft & { invoiceLineId: number | null };
 
 export type CreditNoteDraft = {
   kind: CreditNoteKind;
@@ -119,58 +109,32 @@ export function lineFromInvoice(
   format: MoneyFormat,
   line: InvoiceLineData,
 ): CreditLineDraft {
-  return {
-    key: lineKey(),
-    invoiceLineId: line.id,
-    label: line.label,
-    detail: line.detail ?? "",
-    quantity: formatQuantity(format.locale, line.quantityMilli),
-    unit: line.unit,
-    unitPrice: formatAmount(format, line.unitPrice.amount),
-    vatRateBp: line.vatRateBp,
-  };
+  return { ...lineDraftFrom(format, line), invoiceLineId: line.id };
 }
 
+/** A gesture or a correction rarely counts days: a free line starts flat. */
 export function freeCreditLine(vatRateBp: number): CreditLineDraft {
-  return {
-    key: lineKey(),
-    invoiceLineId: null,
-    label: "",
-    detail: "",
-    quantity: "1",
-    unit: 2,
-    unitPrice: "",
-    vatRateBp,
-  };
+  return { ...freeLine(vatRateBp), unit: 2, invoiceLineId: null };
 }
 
-type LineInput = IssueCreditNoteData["lines"] extends
+type CreditLineInput = IssueCreditNoteData["lines"] extends
   | Array<infer Line>
   | undefined
   ? Line
   : never;
 
-function lineInput(
+/** The API credits positive prices only: a discount is not taken back. */
+function creditLineInput(
   format: MoneyFormat,
   line: CreditLineDraft,
-): LineInput | null {
-  const quantity = parseDecimal(format.locale, line.quantity);
-  const cents = parseAmountToCents(format.locale, line.unitPrice);
-  const quantityMilli = quantity === null ? 0 : Math.round(quantity * 1000);
+): CreditLineInput | null {
+  const input = lineInput(format, line);
 
-  if (line.label.trim() === "" || quantityMilli < 1 || cents === null) {
+  if (input === null || input.unitPrice.amount < 1) {
     return null;
   }
 
-  return {
-    label: line.label.trim(),
-    detail: line.detail.trim() === "" ? null : line.detail.trim(),
-    quantityMilli,
-    unit: line.unit,
-    unitPrice: { amount: cents, currency: format.currency },
-    vatRateBp: line.vatRateBp,
-    invoiceLineId: line.invoiceLineId,
-  };
+  return { ...input, invoiceLineId: line.invoiceLineId };
 }
 
 /**
@@ -189,7 +153,7 @@ export function creditNotePayload(
   const lines =
     draft.kind === 1
       ? draft.lines.flatMap((line) => {
-          const input = lineInput(format, line);
+          const input = creditLineInput(format, line);
 
           return input === null ? [] : [input];
         })

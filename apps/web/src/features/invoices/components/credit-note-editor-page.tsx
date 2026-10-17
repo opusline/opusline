@@ -295,7 +295,7 @@ export function CreditNoteEditorPage({
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <Panel className="px-5 py-6 sm:px-7" padding="none">
+    <Panel padding="section">
       <PanelTitle className="mb-4">{title}</PanelTitle>
       {children}
     </Panel>
@@ -428,14 +428,14 @@ function PartialLines({
                   >
                     {vatRateOptions(line.vatRateBp).map((rate) => (
                       <option key={rate} value={rate}>
-                        {formatPercentFromBp(format.locale, rate)}
+                        {formatPercentFromBp(format.locale, rate)} %
                       </option>
                     ))}
                   </NativeSelect>
                 ) : (
                   <span className="self-center text-muted-foreground-3 text-xs">
                     {vatLiable
-                      ? formatPercentFromBp(format.locale, line.vatRateBp)
+                      ? `${formatPercentFromBp(format.locale, line.vatRateBp)} %`
                       : m.editor_franchise()}
                   </span>
                 )}

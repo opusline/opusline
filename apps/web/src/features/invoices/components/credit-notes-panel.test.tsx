@@ -16,7 +16,6 @@ function renderPanel(
         creditNotes={creditNotes}
         isPending={false}
         onRefund={onRefund}
-        pdfHref={(creditNote) => `/pdf/${creditNote.id}`}
       />
     </MoneyFormatProvider>,
   );
@@ -42,8 +41,7 @@ it("offers nothing more on a settled credit note", () => {
   );
 
   expect(screen.queryByTestId("credit-note-mark-refunded")).toBeNull();
-  expect(screen.getByTestId("credit-note-download")).toHaveAttribute(
-    "href",
-    "/pdf/7",
-  );
+  expect(
+    screen.getByTestId("credit-note-download").getAttribute("href"),
+  ).toContain("/invoicing/credit-notes/7/pdf");
 });

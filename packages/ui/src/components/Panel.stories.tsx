@@ -32,6 +32,18 @@ export const Default: Story = {
   ),
 };
 
+/** One section of a long form, as the document editors stack them. */
+export const Section: Story = {
+  render: () => (
+    <Panel className="max-w-xl" padding="section">
+      <PanelTitle>Lignes</PanelTitle>
+      <PanelDescription>
+        Reprenez une ligne de la facture ou ajoutez une ligne libre.
+      </PanelDescription>
+    </Panel>
+  ),
+};
+
 /**
  * A header rule over children that run edge to edge. `clip` is what rounds the
  * last row's corners off against the border.

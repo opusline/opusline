@@ -1,5 +1,4 @@
 import type { DocumentLanguage } from "@opusline/api-client";
-import { client as apiClient } from "@opusline/api-client/client";
 import {
   acceptQuoteMutation,
   createQuoteInvoiceMutation,
@@ -37,14 +36,6 @@ export const Route = createFileRoute("/_authed/invoicing/quotes_/$quoteId")({
   beforeLoad: ({ context }) => requireInvoicing(context.user),
   component: QuoteDocumentRoute,
 });
-
-function pdfHref(quoteId: number, language: DocumentLanguage): string {
-  return apiClient.buildUrl({
-    url: "/invoicing/quotes/{quote}/pdf",
-    path: { quote: quoteId },
-    query: { language },
-  });
-}
 
 function QuoteDocumentRoute() {
   const quoteId = Number(Route.useParams().quoteId);
@@ -212,7 +203,6 @@ function QuoteDocumentRoute() {
         onReopen={() => reopen.mutate(path)}
         onRetryPaper={paper.isError ? () => void paper.refetch() : undefined}
         paper={paper.data ?? null}
-        pdfHref={(chosen) => pdfHref(quoteId, chosen)}
       />
       <ConfirmDeleteDialog
         confirmLabel={m.quote_delete_draft()}

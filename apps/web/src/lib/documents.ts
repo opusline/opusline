@@ -1,6 +1,7 @@
 import type {
   DocumentCategory,
   DocumentData,
+  DocumentLanguage,
   DocumentListData,
   Locale,
 } from "@opusline/api-client";
@@ -256,11 +257,34 @@ export function invoiceDocumentDownloadHref(invoiceId: number): string {
   });
 }
 
-/** A quote recorded from another tool downloads as the PDF filed against it. */
-export function quoteDocumentDownloadHref(quoteId: number): string {
+/** The invoice's PDF: the filed one once issued, in the language asked for. */
+export function invoicePdfHref(
+  invoiceId: number,
+  language: DocumentLanguage,
+): string {
+  return apiClient.buildUrl({
+    url: "/invoices/{invoice}/pdf",
+    path: { invoice: invoiceId },
+    query: { language },
+  });
+}
+
+/** A quote recorded from another tool ignores the language: its PDF is the one filed. */
+export function quotePdfHref(
+  quoteId: number,
+  language: DocumentLanguage,
+): string {
   return apiClient.buildUrl({
     url: "/invoicing/quotes/{quote}/pdf",
     path: { quote: quoteId },
+    query: { language },
+  });
+}
+
+export function creditNotePdfHref(creditNoteId: number): string {
+  return apiClient.buildUrl({
+    url: "/invoicing/credit-notes/{creditNote}/pdf",
+    path: { creditNote: creditNoteId },
   });
 }
 

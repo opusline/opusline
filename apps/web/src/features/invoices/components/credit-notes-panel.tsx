@@ -13,6 +13,7 @@ import {
 } from "@/components/money-format-provider";
 import { formatAmountWithCents } from "@/lib/billing";
 import { calendarDateNumericLabel } from "@/lib/dates";
+import { creditNotePdfHref } from "@/lib/documents";
 import { m } from "@/paraglide/messages.js";
 
 import {
@@ -24,7 +25,6 @@ type CreditNotesPanelProps = {
   creditNotes: CreditNoteData[];
   accountToday: string;
   isPending: boolean;
-  pdfHref: (creditNote: CreditNoteData) => string;
   /** Records the refund a credit note owes as made; absent where the page cannot. */
   onRefund?: (creditNote: number, refundedOn: string) => void;
 };
@@ -34,7 +34,6 @@ export function CreditNotesPanel({
   creditNotes,
   accountToday,
   isPending,
-  pdfHref,
   onRefund,
 }: CreditNotesPanelProps) {
   const format = useMoneyFormat();
@@ -73,7 +72,7 @@ export function CreditNotesPanel({
                   className="text-muted-foreground-3 hover:text-foreground-hi"
                   data-testid="credit-note-download"
                   download
-                  href={pdfHref(creditNote)}
+                  href={creditNotePdfHref(creditNote.id)}
                 >
                   <Download aria-hidden className="size-4" />
                 </a>

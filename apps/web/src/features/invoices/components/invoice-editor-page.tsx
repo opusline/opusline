@@ -427,7 +427,7 @@ export function InvoiceEditorPage({
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <Panel className="px-5 py-6 sm:px-7" padding="none">
+    <Panel padding="section">
       <PanelTitle className="mb-4">{title}</PanelTitle>
       {children}
     </Panel>
