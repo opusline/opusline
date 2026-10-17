@@ -20,6 +20,7 @@ class QuoteInvoiceLinkData extends Data
         public bool $isLate,
         public QuoteBilling $billing,
         public MoneyData $amountTtc,
+        public MoneyData $amountPaid,
     ) {}
 
     public static function fromInvoice(Invoice $invoice): self
@@ -31,6 +32,7 @@ class QuoteInvoiceLinkData extends Data
             isLate: $invoice->isLate(),
             billing: $invoice->quote_billing ?? QuoteBilling::Full,
             amountTtc: MoneyData::fromMoney($invoice->amount_ttc_cents),
+            amountPaid: MoneyData::fromMoney($invoice->paidAmount()),
         );
     }
 }

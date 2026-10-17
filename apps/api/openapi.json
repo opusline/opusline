@@ -16780,6 +16780,9 @@
                     },
                     "amountTtc": {
                         "$ref": "#/components/schemas/MoneyData"
+                    },
+                    "amountPaid": {
+                        "$ref": "#/components/schemas/MoneyData"
                     }
                 },
                 "required": [
@@ -16788,7 +16791,8 @@
                     "status",
                     "isLate",
                     "billing",
-                    "amountTtc"
+                    "amountTtc",
+                    "amountPaid"
                 ],
                 "title": "QuoteInvoiceLinkData"
             },

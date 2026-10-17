@@ -96,6 +96,7 @@ export const DEPOSIT_BILLED: QuoteBillingData = {
       isLate: false,
       billing: 0,
       amountTtc: eur(1_144_800),
+      amountPaid: eur(0),
     },
   ],
   invoicedTtc: eur(1_144_800),

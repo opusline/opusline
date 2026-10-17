@@ -95,3 +95,23 @@ it("issues when the route can", async () => {
 
   expect(onIssue).toHaveBeenCalledTimes(1);
 });
+
+it("does not offer a discount line to take back", async () => {
+  const detail = documentDetail();
+  const content = detail.content;
+  if (content === null) {
+    throw new Error("The fixture invoice has no content");
+  }
+  const [line] = content.lines;
+  renderEditor({
+    detail: {
+      ...detail,
+      content: {
+        ...content,
+        lines: [line, { ...line, id: line.id + 1, unitPrice: eur(-5_000) }],
+      },
+    },
+  });
+
+  expect(await screen.findAllByTestId("credit-note-take-line")).toHaveLength(1);
+});

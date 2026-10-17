@@ -6,6 +6,7 @@ use App\Domain\Clients\Enums\ClientType;
 use App\Domain\Clients\Models\Client;
 use App\Domain\Invoices\Enums\InvoiceForecastBucket;
 use App\Domain\Invoices\Enums\InvoiceTodoKind;
+use App\Domain\Invoices\Models\InvoicePayment;
 use App\Domain\Missions\Enums\EntryRounding;
 use App\Domain\Missions\Enums\MissionStatus;
 use App\Domain\TimeEntries\Models\TimeEntry;
@@ -33,6 +34,22 @@ test('totals what is still owed, gross', function (): void {
         ->assertJsonPath('month', '2026-08')
         ->assertJsonPath('toCollect.amount.amount', 144_800)
         ->assertJsonPath('toCollect.count', 2);
+});
+
+test('counts a partly paid invoice for its balance, wherever it shows', function (): void {
+    $user = User::factory()->create();
+    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->sent()->state([
+        'due_on' => '2026-08-01',
+        'amount_ttc_cents' => 100_000,
+    ]));
+    InvoicePayment::factory()->for($invoice)->create(['amount_cents' => 40_000, 'paid_on' => '2026-08-05']);
+
+    $this->actingAs($user)
+        ->getJson('/api/invoices/summary')
+        ->assertOk()
+        ->assertJsonPath('toCollect.amount.amount', 60_000)
+        ->assertJsonPath('overdue.amount.amount', 60_000)
+        ->assertJsonPath('todo.0.amount.amount', 60_000);
 });
 
 test('leaves drafts and paid invoices out of what is still owed', function (callable $configure): void {

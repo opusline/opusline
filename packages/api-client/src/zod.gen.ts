@@ -2098,7 +2098,8 @@ export const zQuoteInvoiceLinkData = z.object({
     status: zInvoiceStatus,
     isLate: z.boolean(),
     billing: zQuoteBilling,
-    amountTtc: zMoneyData
+    amountTtc: zMoneyData,
+    amountPaid: zMoneyData
 });
 
 /**

@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Domain\Clients\Models\Client;
+use App\Domain\Invoices\Actions\SaveInvoiceDraft;
+use App\Domain\Invoices\Data\SaveInvoiceDraftData;
 use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Enums\InvoiceSource;
 use App\Domain\Invoices\Enums\InvoiceStatus;
@@ -11,6 +13,7 @@ use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Users\Models\User;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 function draftLine(array $overrides = []): array
 {
@@ -209,4 +212,22 @@ test('caps the payment term at the legal maximum', function (): void {
     $this->actingAs($user)
         ->postJson('/api/invoicing/invoices', draftPayload($client, ['paymentTermsDays' => 46, 'paymentTermsEndOfMonth' => true]))
         ->assertJsonValidationErrorFor('paymentTermsDays');
+});
+
+test('a save that loaded the draft before it was issued leaves the issued invoice alone', function (): void {
+    $user = issuableAccount();
+    $client = billableClient($user);
+    $id = draftFor($user, $client);
+    $loadedBeforeIssue = Invoice::query()->findOrFail($id);
+    $this->actingAs($user)->postJson("/api/invoicing/invoices/{$id}/issue")->assertOk();
+
+    expect(fn () => app(SaveInvoiceDraft::class)->handle(
+        $user,
+        SaveInvoiceDraftData::from(draftPayloadFor($client, ['lines' => [
+            ['label' => 'Rewritten', 'quantityMilli' => 1_000, 'unit' => LineUnit::Flat->value, 'unitPrice' => ['amount' => 1, 'currency' => 'EUR'], 'vatRateBp' => 0],
+        ]])),
+        $loadedBeforeIssue,
+    ))->toThrow(HttpException::class);
+
+    expect($loadedBeforeIssue->refresh()->lines->pluck('label')->all())->not->toContain('Rewritten');
 });

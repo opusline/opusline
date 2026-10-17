@@ -131,6 +131,9 @@ class AppServiceProvider extends ServiceProvider
         // `throttle:3,1` counts on the account alone and would share its
         // allowance with every other route limited that way.
         RateLimiter::for('mail-test', fn (Request $request): Limit => Limit::perMinute(3)->by('mail-test:'.$caller($request)));
+        // Sends reach addresses the account typed, from the instance's own
+        // sender: an open registration must not turn it into a spam relay.
+        RateLimiter::for('client-mail', fn (Request $request): Limit => Limit::perMinute(10)->by('client-mail:'.$caller($request)));
         RateLimiter::for('two-factor-setup', fn (Request $request): Limit => Limit::perMinute(6)->by('2fa-setup:'.$caller($request)));
 
         RateLimiter::for('passkey-login', fn (Request $request): Limit => Limit::perMinute(10)->by('passkey:'.($request->ip() ?? 'unknown')));

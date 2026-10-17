@@ -26,7 +26,7 @@ import {
   formatAmountWithCents,
   formatPercentFromBp,
   formatQuantityDraft,
-  formatSignedDraft,
+  formatRateDraft,
 } from "@/lib/billing";
 import { m } from "@/paraglide/messages.js";
 
@@ -406,7 +406,7 @@ function PartialLines({
                     inputMode="decimal"
                     onChange={(event) =>
                       updateLine(line.key, {
-                        unitPrice: formatSignedDraft(
+                        unitPrice: formatRateDraft(
                           format.locale,
                           event.target.value,
                         ),
@@ -448,27 +448,30 @@ function PartialLines({
         <span className="text-muted-foreground-2 text-xs">
           {m.credit_note_take_line()}
         </span>
-        {invoiceLines.map((line) => (
-          <div
-            className="flex items-center justify-between gap-3 rounded-md border border-dashed px-3 py-2"
-            key={line.id}
-          >
-            <span className="min-w-0 truncate text-foreground-2 text-sm">
-              {line.label}
-            </span>
-            <Button
-              data-line={line.id}
-              data-testid="credit-note-take-line"
-              onClick={() =>
-                setLines([...draft.lines, lineFromInvoice(format, line)])
-              }
-              size="sm"
-              variant="outline"
+        {/* A credit note takes back prices, not discounts: the API refuses a negative line. */}
+        {invoiceLines
+          .filter((line) => line.unitPrice.amount > 0)
+          .map((line) => (
+            <div
+              className="flex items-center justify-between gap-3 rounded-md border border-dashed px-3 py-2"
+              key={line.id}
             >
-              {m.credit_note_take()}
-            </Button>
-          </div>
-        ))}
+              <span className="min-w-0 truncate text-foreground-2 text-sm">
+                {line.label}
+              </span>
+              <Button
+                data-line={line.id}
+                data-testid="credit-note-take-line"
+                onClick={() =>
+                  setLines([...draft.lines, lineFromInvoice(format, line)])
+                }
+                size="sm"
+                variant="outline"
+              >
+                {m.credit_note_take()}
+              </Button>
+            </div>
+          ))}
         <Button
           className="self-start"
           data-testid="credit-note-free-line"
