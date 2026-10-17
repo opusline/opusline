@@ -43,7 +43,7 @@ test("a partial credit note lowers what an unpaid invoice asks", async ({
   );
   // Both days taken back at 100 € instead of 600 €, no VAT: 200 € off.
   const credited = await api.get<InvoiceDetailData>(
-    `/api/invoicing/invoices/${issued.invoice.id}`,
+    `/api/invoices/${issued.invoice.id}`,
   );
   expect(credited.invoice.amountDue.amount).toBe(due - 20_000);
 });
