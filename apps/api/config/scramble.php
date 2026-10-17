@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
+use App\OpenApi\SessionOrTokenSecurity;
 use App\OpenApi\SpatieDataToSchema;
-use Dedoc\Scramble\SecurityDocumentation\MiddlewareAuthSecurityStrategy;
-use Dedoc\Scramble\Support\Generator\SecurityScheme;
 
 return [
     'info' => [
@@ -17,13 +16,7 @@ return [
 
     'enum_cases_names_strategy' => 'varnames',
 
-    'security_strategy' => [
-        MiddlewareAuthSecurityStrategy::class,
-        [
-            'middleware' => ['auth', 'auth:*'],
-            'scheme' => SecurityScheme::apiKey('cookie', 'opusline-session'),
-        ],
-    ],
+    'security_strategy' => SessionOrTokenSecurity::class,
 
     'renderers' => [
         'elements' => [

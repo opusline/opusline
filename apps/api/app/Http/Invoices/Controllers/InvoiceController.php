@@ -41,6 +41,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class InvoiceController extends Controller
 {
+    /** Also open to a personal access token carrying `invoices:read`. */
     public function index(ListInvoicesData $data, #[CurrentUser] User $user, ListInvoices $listInvoices): JsonResponse
     {
         ['invoices' => $invoices, 'nextCursor' => $nextCursor] = $listInvoices->handle($user, $data);
@@ -66,6 +67,7 @@ class InvoiceController extends Controller
         return response()->json($this->detail($invoice), 201);
     }
 
+    /** Also open to a personal access token carrying `invoices:read`. */
     public function show(Invoice $invoice): JsonResponse
     {
         return response()->json($this->detail($invoice));

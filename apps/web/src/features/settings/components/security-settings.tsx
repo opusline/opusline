@@ -1,13 +1,17 @@
 import {
   confirmTotpMutation,
+  createAccessTokenMutation,
   currentUserOptions,
   currentUserQueryKey,
   deletePasskeyMutation,
   disableTotpMutation,
+  listAccessTokensOptions,
+  listAccessTokensQueryKey,
   passkeyRegistrationOptionsMutation,
   regenerateRecoveryCodesMutation,
   registerPasskeyMutation,
   renamePasskeyMutation,
+  revokeAccessTokenMutation,
   revokeAllTrustedDevicesMutation,
   revokeTrustedDeviceMutation,
   showTwoFactorOptions,
@@ -32,6 +36,7 @@ import type { FormSubmitResult } from "@/lib/form";
 import type { PasswordGuard } from "@/lib/password-confirmation";
 import { serverErrorMessage, serverFieldErrors } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
+import { ApiTokensCard } from "./api-tokens-card";
 import { AuthenticatorAppCard } from "./authenticator-app-card";
 import type { TotpSetupState } from "./authenticator-setup-dialog";
 import { EmailCard } from "./email-card";
@@ -62,14 +67,18 @@ export function SecuritySettings({ guarded, webAuthn }: SecuritySettingsProps) {
   const queryClient = useQueryClient();
   const { locale } = useMoneyFormat();
   const status = useQuery(showTwoFactorOptions());
+  const accessTokens = useQuery(listAccessTokensOptions());
   const { data: user } = useSuspenseQuery(currentUserOptions());
 
   const [setup, setSetup] = useState<TotpSetupState>({ step: "idle" });
   const [totpError, setTotpError] = useState<string | null>(null);
   const [devicesError, setDevicesError] = useState<string | null>(null);
   const [passkeysError, setPasskeysError] = useState<string | null>(null);
+  const [tokensError, setTokensError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
+  // The secret the API answered with, held until the owner has copied it.
+  const [createdToken, setCreatedToken] = useState<string | null>(null);
   // The browser has minted a credential and the API is waiting for its name.
   const [pendingCredential, setPendingCredential] = useState<string | null>(
     null,
@@ -87,9 +96,55 @@ export function SecuritySettings({ guarded, webAuthn }: SecuritySettingsProps) {
   const deletePasskey = useMutation(deletePasskeyMutation());
   const updatePassword = useMutation(updateUserPasswordMutation());
   const updateEmail = useMutation(updateUserEmailMutation());
+  const createAccessToken = useMutation(createAccessTokenMutation());
+  const revokeAccessToken = useMutation(revokeAccessTokenMutation());
 
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: showTwoFactorQueryKey() });
+  const refreshAccessTokens = () =>
+    queryClient.invalidateQueries({ queryKey: listAccessTokensQueryKey() });
+
+  const createToken = async (name: string): Promise<FormSubmitResult> => {
+    setTokensError(null);
+
+    try {
+      const outcome = await guarded(() =>
+        createAccessToken.mutateAsync({
+          body: { name, abilities: ["invoices:read"] },
+        }),
+      );
+
+      if (outcome.status === "cancelled") {
+        return { status: "failed" };
+      }
+
+      setCreatedToken(outcome.value.plainTextToken);
+      await refreshAccessTokens();
+
+      return { status: "success" };
+    } catch (error) {
+      const fieldErrors = serverFieldErrors(error);
+
+      if (fieldErrors !== null) {
+        return { status: "invalid", fieldErrors };
+      }
+
+      setTokensError(serverErrorMessage(error, m.common_action_failed()));
+
+      return { status: "failed" };
+    }
+  };
+
+  const revokeToken = async (id: number) => {
+    setTokensError(null);
+
+    try {
+      await revokeAccessToken.mutateAsync({ path: { token: id } });
+      await refreshAccessTokens();
+    } catch (error) {
+      setTokensError(serverErrorMessage(error, m.common_delete_failed()));
+    }
+  };
 
   const changePassword = async (body: {
     password: string;
@@ -394,6 +449,26 @@ export function SecuritySettings({ guarded, webAuthn }: SecuritySettingsProps) {
         onRevokeAll={() =>
           void runDevicesAction(() => revokeAllDevices.mutateAsync({}))
         }
+      />
+      <ApiTokensCard
+        createdToken={createdToken}
+        error={
+          tokensError ??
+          // A refetch that fails keeps the list it already has; only an empty
+          // card has to say why it is empty.
+          (accessTokens.data === undefined && accessTokens.isError
+            ? serverErrorMessage(
+                accessTokens.error,
+                m.security_token_load_failed(),
+              )
+            : null)
+        }
+        isPending={createAccessToken.isPending || revokeAccessToken.isPending}
+        locale={locale}
+        onCreate={createToken}
+        onDismissCreated={() => setCreatedToken(null)}
+        onRevoke={(id) => void revokeToken(id)}
+        tokens={accessTokens.data?.tokens ?? []}
       />
     </div>
   );

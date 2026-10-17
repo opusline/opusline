@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'abilities' => 'droits',
     'accountUid' => 'compte bancaire',
     'active' => 'activation',
     'acre' => 'ACRE',

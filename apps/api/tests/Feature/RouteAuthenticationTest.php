@@ -2,10 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Domain\AccessTokens\Enums\TokenAbility;
 use App\Http\Users\Support\EnsureSessionIsUnlocked;
+use App\Http\Users\Support\RefuseAccessTokens;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Facades\Route;
+use Laravel\Sanctum\Http\Middleware\CheckAbilities;
 
 /**
  * The API routes that answer without a session, and the reason each one has to.
@@ -91,4 +94,57 @@ test('every authenticated API route but the ways out refuses a locked session', 
         .'group with EnsureSessionIsUnlocked next to auth:sanctum, or — if a locked '
         .'session genuinely has to reach it — add it to LOCK_EXEMPT_API_ROUTES.',
     );
+});
+
+/** The reads a personal access token carrying invoices:read may make, and nothing else. */
+const TOKEN_API_ROUTES = [
+    'api/invoices',
+    'api/invoices/{invoice}',
+];
+
+test('every authenticated API route but the invoice reads refuses a personal access token', function (): void {
+    $open = collect(Route::getRoutes()->getRoutes())
+        ->filter(fn (RoutingRoute $route): bool => str_starts_with($route->uri(), 'api/'))
+        ->filter(fn (RoutingRoute $route): bool => in_array(
+            Authenticate::class.':sanctum',
+            Route::gatherRouteMiddleware($route),
+            true,
+        ))
+        ->reject(fn (RoutingRoute $route): bool => in_array(
+            RefuseAccessTokens::class,
+            Route::gatherRouteMiddleware($route),
+            true,
+        ))
+        ->map(fn (RoutingRoute $route): string => $route->uri())
+        ->unique()
+        ->sort()
+        ->values()
+        ->all();
+
+    expect($open)->toBe(
+        collect(TOKEN_API_ROUTES)->sort()->values()->all(),
+        'An authenticated API route takes a personal access token. Open its file\'s '
+        .'group with RefuseAccessTokens next to auth:sanctum, or — if a token genuinely '
+        .'may call it — put it behind CheckAbilities and add it to TOKEN_API_ROUTES.',
+    );
+});
+
+test('the routes open to a token are behind the invoices:read ability', function (): void {
+    $unguarded = collect(Route::getRoutes()->getRoutes())
+        ->filter(fn (RoutingRoute $route): bool => in_array($route->uri(), TOKEN_API_ROUTES, true))
+        ->reject(fn (RoutingRoute $route): bool => in_array(
+            RefuseAccessTokens::class,
+            Route::gatherRouteMiddleware($route),
+            true,
+        ))
+        ->reject(fn (RoutingRoute $route): bool => in_array(
+            CheckAbilities::class.':'.TokenAbility::ReadInvoices->value,
+            Route::gatherRouteMiddleware($route),
+            true,
+        ))
+        ->map(fn (RoutingRoute $route): string => implode('|', $route->methods()).' '.$route->uri())
+        ->values()
+        ->all();
+
+    expect($unguarded)->toBe([]);
 });

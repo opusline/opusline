@@ -7,6 +7,7 @@ use App\Http\Users\Controllers\PasswordResetController;
 use App\Http\Users\Support\EnsureMailIsEnabled;
 use App\Http\Users\Support\EnsureRegistrationIsOpen;
 use App\Http\Users\Support\EnsureSessionIsUnlocked;
+use App\Http\Users\Support\RefuseAccessTokens;
 use App\Http\Users\Support\RequirePasswordConfirmation;
 use Illuminate\Support\Facades\Route;
 
@@ -26,7 +27,7 @@ Route::post('/reset-password', [PasswordResetController::class, 'update'])
     ->middleware([EnsureMailIsEnabled::class, 'throttle:password-reset'])
     ->name('resetPassword');
 
-Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(function (): void {
+Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class, RefuseAccessTokens::class])->group(function (): void {
     // Logout and confirm-password are the two ways out of a locked session.
     Route::post('/logout', [AuthController::class, 'logout'])
         ->withoutMiddleware(EnsureSessionIsUnlocked::class)

@@ -11,7 +11,7 @@
     ],
     "security": [
         {
-            "apiKey": []
+            "session": []
         }
     ],
     "paths": {
@@ -30,6 +30,93 @@
                     }
                 },
                 "security": []
+            }
+        },
+        "/user/tokens": {
+            "get": {
+                "operationId": "listAccessTokens",
+                "summary": "The account's personal access tokens, oldest first. The secrets are not among what it lists",
+                "tags": [
+                    "AccessToken"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccessTokenListData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "createAccessToken",
+                "summary": "Creates a personal access token. The answer is the only time the plain\ntext token is shown; it is stored hashed",
+                "tags": [
+                    "AccessToken"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateAccessTokenData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NewAccessTokenData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/user/tokens/{token}": {
+            "delete": {
+                "operationId": "revokeAccessToken",
+                "summary": "Revokes a token: the application holding it is refused from the next request on",
+                "tags": [
+                    "AccessToken"
+                ],
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "required": true,
+                        "description": "The token ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
             }
         },
         "/register": {
@@ -3752,6 +3839,7 @@
         "/invoices": {
             "get": {
                 "operationId": "listInvoices",
+                "summary": "Also open to a personal access token carrying `invoices:read`",
                 "tags": [
                     "Invoice"
                 ],
@@ -3848,7 +3936,15 @@
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "session": []
+                    },
+                    {
+                        "bearer": []
+                    }
+                ]
             },
             "post": {
                 "operationId": "createInvoice",
@@ -3882,68 +3978,10 @@
                 }
             }
         },
-        "/invoices/summary": {
-            "get": {
-                "operationId": "showInvoiceSummary",
-                "tags": [
-                    "Invoice"
-                ],
-                "parameters": [
-                    {
-                        "name": "month",
-                        "in": "query",
-                        "schema": {
-                            "type": [
-                                "string",
-                                "null"
-                            ],
-                            "pattern": "^(19|20)\\d{2}-(0[1-9]|1[0-2])$"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/InvoiceSummaryData"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    }
-                }
-            }
-        },
-        "/invoices/next-number": {
-            "get": {
-                "operationId": "showNextInvoiceNumber",
-                "tags": [
-                    "Invoice"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/NextInvoiceNumberData"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    }
-                }
-            }
-        },
         "/invoices/{invoice}": {
             "get": {
                 "operationId": "showInvoice",
+                "summary": "Also open to a personal access token carrying `invoices:read`",
                 "tags": [
                     "Invoice"
                 ],
@@ -3975,7 +4013,15 @@
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "session": []
+                    },
+                    {
+                        "bearer": []
+                    }
+                ]
             },
             "put": {
                 "operationId": "updateInvoice",
@@ -4066,6 +4112,65 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/invoices/summary": {
+            "get": {
+                "operationId": "showInvoiceSummary",
+                "tags": [
+                    "Invoice"
+                ],
+                "parameters": [
+                    {
+                        "name": "month",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "pattern": "^(19|20)\\d{2}-(0[1-9]|1[0-2])$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceSummaryData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/invoices/next-number": {
+            "get": {
+                "operationId": "showNextInvoiceNumber",
+                "tags": [
+                    "Invoice"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NextInvoiceNumberData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -8848,13 +8953,68 @@
     },
     "components": {
         "securitySchemes": {
-            "apiKey": {
+            "session": {
                 "type": "apiKey",
+                "description": "The session cookie POST /api/login sets. Every operation takes it.",
                 "in": "cookie",
                 "name": "opusline-session"
+            },
+            "bearer": {
+                "type": "http",
+                "description": "A personal access token, created in Settings › Security and sent as `Authorization: Bearer <token>`. Only the operations that list this scheme take one, within the abilities the token carries (`invoices:read`).",
+                "scheme": "bearer"
             }
         },
         "schemas": {
+            "AccessTokenData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "abilities": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TokenAbility"
+                        }
+                    },
+                    "lastUsedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "createdAt": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "abilities",
+                    "lastUsedAt",
+                    "createdAt"
+                ],
+                "title": "AccessTokenData"
+            },
+            "AccessTokenListData": {
+                "type": "object",
+                "properties": {
+                    "tokens": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AccessTokenData"
+                        }
+                    }
+                },
+                "required": [
+                    "tokens"
+                ],
+                "title": "AccessTokenListData"
+            },
             "AnnualDeclarationsData": {
                 "type": "object",
                 "properties": {
@@ -10763,6 +10923,29 @@
                     "Signed"
                 ],
                 "title": "CraStatus"
+            },
+            "CreateAccessTokenData": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                    },
+                    "abilities": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TokenAbility"
+                        },
+                        "minItems": 1,
+                        "uniqueItems": true
+                    }
+                },
+                "required": [
+                    "name",
+                    "abilities"
+                ],
+                "title": "CreateAccessTokenData"
             },
             "CreateClientData": {
                 "type": "object",
@@ -14909,6 +15092,22 @@
                 ],
                 "title": "MonthWorkloadData"
             },
+            "NewAccessTokenData": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "$ref": "#/components/schemas/AccessTokenData"
+                    },
+                    "plainTextToken": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "token",
+                    "plainTextToken"
+                ],
+                "title": "NewAccessTokenData"
+            },
             "NextInvoiceNumberData": {
                 "type": "object",
                 "properties": {
@@ -17945,6 +18144,17 @@
                     "lastMissionId"
                 ],
                 "title": "TimerStateData"
+            },
+            "TokenAbility": {
+                "type": "string",
+                "description": "What a personal access token may do. Sanctum stores the values on the token and its abilities middleware compares them by name, so the backing value is the ability itself rather than an integer.\n",
+                "enum": [
+                    "invoices:read"
+                ],
+                "x-enum-varnames": [
+                    "ReadInvoices"
+                ],
+                "title": "TokenAbility"
             },
             "TotpSetupData": {
                 "type": "object",

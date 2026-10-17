@@ -7,9 +7,10 @@ use App\Http\Clients\Controllers\ClientDocumentController;
 use App\Http\Clients\Controllers\ClientLogoController;
 use App\Http\Invoices\Controllers\ClientRevenueController;
 use App\Http\Users\Support\EnsureSessionIsUnlocked;
+use App\Http\Users\Support\RefuseAccessTokens;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(function (): void {
+Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class, RefuseAccessTokens::class])->group(function (): void {
     Route::get('/clients', [ClientController::class, 'index'])->name('listClients');
     Route::get('/clients/{client}', [ClientController::class, 'show'])
         ->name('showClient');
