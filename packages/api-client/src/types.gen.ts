@@ -1041,6 +1041,41 @@ export type EInvoicingSettingsData = {
 };
 
 /**
+ * EmailPreviewData
+ */
+export type EmailPreviewData = {
+    subject: string;
+    text: string;
+    html: string;
+};
+
+/**
+ * EmailTemplateData
+ */
+export type EmailTemplateData = {
+    kind: EmailTemplateKind;
+    subject: string;
+    body: string;
+    isCustom: boolean;
+    variables: Array<string>;
+};
+
+/**
+ * EmailTemplateKind
+ *
+ * The e-mails Opusline writes to a client, each from a template the account may reword.
+ *
+ */
+export type EmailTemplateKind = 0 | 1 | 2 | 3;
+
+/**
+ * EmailTemplatesData
+ */
+export type EmailTemplatesData = {
+    templates: Array<EmailTemplateData>;
+};
+
+/**
  * EnableBankingSettingsData
  */
 export type EnableBankingSettingsData = {
@@ -2972,6 +3007,14 @@ export type UpdateCraDaysData = {
  */
 export type UpdateDocumentData = {
     category: DocumentCategory;
+};
+
+/**
+ * UpdateEmailTemplateData
+ */
+export type UpdateEmailTemplateData = {
+    subject: string;
+    body: string;
 };
 
 /**
@@ -5999,6 +6042,197 @@ export type SyncReceivedEInvoicesResponses = {
 };
 
 export type SyncReceivedEInvoicesResponse = SyncReceivedEInvoicesResponses[keyof SyncReceivedEInvoicesResponses];
+
+export type ListEmailTemplatesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/invoicing/emails';
+};
+
+export type ListEmailTemplatesErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ListEmailTemplatesError = ListEmailTemplatesErrors[keyof ListEmailTemplatesErrors];
+
+export type ListEmailTemplatesResponses = {
+    200: EmailTemplatesData;
+};
+
+export type ListEmailTemplatesResponse = ListEmailTemplatesResponses[keyof ListEmailTemplatesResponses];
+
+export type ResetEmailTemplateData = {
+    body?: never;
+    path: {
+        kind: number;
+    };
+    query?: never;
+    url: '/invoicing/emails/{kind}';
+};
+
+export type ResetEmailTemplateErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type ResetEmailTemplateError = ResetEmailTemplateErrors[keyof ResetEmailTemplateErrors];
+
+export type ResetEmailTemplateResponses = {
+    200: EmailTemplateData;
+};
+
+export type ResetEmailTemplateResponse = ResetEmailTemplateResponses[keyof ResetEmailTemplateResponses];
+
+export type UpdateEmailTemplateData2 = {
+    body: UpdateEmailTemplateData;
+    path: {
+        kind: number;
+    };
+    query?: never;
+    url: '/invoicing/emails/{kind}';
+};
+
+export type UpdateEmailTemplateErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateEmailTemplateError = UpdateEmailTemplateErrors[keyof UpdateEmailTemplateErrors];
+
+export type UpdateEmailTemplateResponses = {
+    200: EmailTemplateData;
+};
+
+export type UpdateEmailTemplateResponse = UpdateEmailTemplateResponses[keyof UpdateEmailTemplateResponses];
+
+export type PreviewEmailTemplateData = {
+    body?: never;
+    path: {
+        kind: number;
+    };
+    query?: never;
+    url: '/invoicing/emails/{kind}/preview';
+};
+
+export type PreviewEmailTemplateErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type PreviewEmailTemplateError = PreviewEmailTemplateErrors[keyof PreviewEmailTemplateErrors];
+
+export type PreviewEmailTemplateResponses = {
+    200: EmailPreviewData;
+};
+
+export type PreviewEmailTemplateResponse = PreviewEmailTemplateResponses[keyof PreviewEmailTemplateResponses];
+
+export type TestEmailTemplateData = {
+    body?: never;
+    path: {
+        kind: number;
+    };
+    query?: never;
+    url: '/invoicing/emails/{kind}/test';
+};
+
+export type TestEmailTemplateErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type TestEmailTemplateError = TestEmailTemplateErrors[keyof TestEmailTemplateErrors];
+
+export type TestEmailTemplateResponses = {
+    /**
+     * No content
+     */
+    204: void;
+};
+
+export type TestEmailTemplateResponse = TestEmailTemplateResponses[keyof TestEmailTemplateResponses];
 
 export type ListExpensesData = {
     body?: never;

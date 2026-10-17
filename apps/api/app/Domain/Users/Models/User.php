@@ -18,6 +18,7 @@ use App\Domain\Expenses\Models\Expense;
 use App\Domain\Expenses\Models\RecurringDebitDismissal;
 use App\Domain\Expenses\Models\Subscription;
 use App\Domain\Invoices\Models\CatalogItem;
+use App\Domain\Invoices\Models\EmailTemplate;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Models\Quote;
 use App\Domain\Missions\Models\Mission;
@@ -182,6 +183,12 @@ class User extends Authenticatable implements HasLocalePreference, HasMedia
     public function catalogItems(): HasMany
     {
         return $this->hasMany(CatalogItem::class);
+    }
+
+    /** @return HasMany<EmailTemplate, $this> */
+    public function emailTemplates(): HasMany
+    {
+        return $this->hasMany(EmailTemplate::class);
     }
 
     /** @return HasMany<Cra, $this> */

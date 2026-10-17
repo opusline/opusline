@@ -650,6 +650,46 @@ export const zEInvoicingError = z.union([
 ]);
 
 /**
+ * EmailPreviewData
+ */
+export const zEmailPreviewData = z.object({
+    subject: z.string(),
+    text: z.string(),
+    html: z.string()
+});
+
+/**
+ * EmailTemplateKind
+ *
+ * The e-mails Opusline writes to a client, each from a template the account may reword.
+ *
+ */
+export const zEmailTemplateKind = z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3)
+]);
+
+/**
+ * EmailTemplateData
+ */
+export const zEmailTemplateData = z.object({
+    kind: zEmailTemplateKind,
+    subject: z.string(),
+    body: z.string(),
+    isCustom: z.boolean(),
+    variables: z.array(z.string())
+});
+
+/**
+ * EmailTemplatesData
+ */
+export const zEmailTemplatesData = z.object({
+    templates: z.array(zEmailTemplateData)
+});
+
+/**
  * EnableBankingSettingsData
  */
 export const zEnableBankingSettingsData = z.object({
@@ -3041,6 +3081,14 @@ export const zUpdateDocumentData = z.object({
 });
 
 /**
+ * UpdateEmailTemplateData
+ */
+export const zUpdateEmailTemplateData = z.object({
+    subject: z.string().check(z.minLength(1), z.maxLength(255)),
+    body: z.string().check(z.minLength(1), z.maxLength(5000))
+});
+
+/**
  * UpdateInvoiceData
  */
 export const zUpdateInvoiceData = z.object({
@@ -3891,6 +3939,37 @@ export const zRecordDeclarationPaymentResponse = zDeclarationsData;
 export const zListDocumentLibraryResponse = zDocumentLibraryData;
 
 export const zSyncReceivedEInvoicesResponse = zEInvoiceSyncData;
+
+export const zListEmailTemplatesResponse = zEmailTemplatesData;
+
+export const zResetEmailTemplatePath = z.object({
+    kind: z.int()
+});
+
+export const zResetEmailTemplateResponse = zEmailTemplateData;
+
+export const zUpdateEmailTemplateBody = zUpdateEmailTemplateData;
+
+export const zUpdateEmailTemplatePath = z.object({
+    kind: z.int()
+});
+
+export const zUpdateEmailTemplateResponse = zEmailTemplateData;
+
+export const zPreviewEmailTemplatePath = z.object({
+    kind: z.int()
+});
+
+export const zPreviewEmailTemplateResponse = zEmailPreviewData;
+
+export const zTestEmailTemplatePath = z.object({
+    kind: z.int()
+});
+
+/**
+ * No content
+ */
+export const zTestEmailTemplateResponse = z.void();
 
 export const zListExpensesQuery = z.object({
     month: z.nullish(z.string().check(z.regex(/^(19|20)\d{2}-(0[1-9]|1[0-2])$/)))

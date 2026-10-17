@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Features\Support\EnsureFeatureIsActive;
 use App\Http\Invoices\Controllers\CatalogItemController;
+use App\Http\Invoices\Controllers\EmailTemplateController;
 use App\Http\Invoices\Controllers\ExternalQuoteController;
 use App\Http\Invoices\Controllers\InvoiceController;
 use App\Http\Invoices\Controllers\InvoiceDraftController;
@@ -14,6 +15,7 @@ use App\Http\Invoices\Controllers\QuoteDocumentController;
 use App\Http\Invoices\Controllers\QuoteDraftController;
 use App\Http\Invoices\Controllers\QuoteInvoiceController;
 use App\Http\Invoices\Controllers\QuotePaperController;
+use App\Http\Users\Support\EnsureMailIsEnabled;
 use App\Http\Users\Support\EnsureSessionIsUnlocked;
 use Illuminate\Support\Facades\Route;
 
@@ -91,6 +93,21 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
             ->whereNumber('quote')
             ->name('downloadQuotePdf');
 
+        Route::get('/invoicing/emails', [EmailTemplateController::class, 'index'])
+            ->name('listEmailTemplates');
+        Route::put('/invoicing/emails/{kind}', [EmailTemplateController::class, 'update'])
+            ->whereNumber('kind')
+            ->name('updateEmailTemplate');
+        Route::delete('/invoicing/emails/{kind}', [EmailTemplateController::class, 'destroy'])
+            ->whereNumber('kind')
+            ->name('resetEmailTemplate');
+        Route::get('/invoicing/emails/{kind}/preview', [EmailTemplateController::class, 'preview'])
+            ->whereNumber('kind')
+            ->name('previewEmailTemplate');
+        Route::post('/invoicing/emails/{kind}/test', [EmailTemplateController::class, 'test'])
+            ->whereNumber('kind')
+            ->middleware([EnsureMailIsEnabled::class, 'throttle:mail-test'])
+            ->name('testEmailTemplate');
         Route::get('/invoicing/catalog', [CatalogItemController::class, 'index'])
             ->name('listCatalogItems');
         Route::post('/invoicing/catalog', [CatalogItemController::class, 'store'])

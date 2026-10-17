@@ -167,4 +167,6 @@ return [
     'version' => 'version',
     'workdayMinutes' => 'durée de journée',
     'clientSecret' => 'secret client',
+    'subject' => 'objet',
+    'body' => 'corps',
 ];
