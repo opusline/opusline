@@ -7,6 +7,7 @@ namespace App\Domain\Invoices\Data;
 use App\Domain\Clients\Data\ClientData;
 use App\Domain\Documents\Data\DocumentData;
 use App\Domain\Invoices\Enums\EmailTemplateKind;
+use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\DocumentEmail;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Reminders\ReminderSchedule;
@@ -22,6 +23,7 @@ class InvoiceDetailData extends Data
 {
     /**
      * @param  list<InvoiceEventData>  $history
+     * @param  list<InvoiceStatus>  $nextStatuses
      */
     public function __construct(
         public InvoiceData $invoice,
@@ -41,6 +43,8 @@ class InvoiceDetailData extends Data
         /** The day the next automatic reminder leaves; null when none is due any more, or none was asked. */
         #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
         public ?CarbonImmutable $nextReminderOn,
+        /** The statuses it can move to from where it stands: what a screen may offer. */
+        public array $nextStatuses,
     ) {}
 
     public static function fromModel(Invoice $invoice): self
@@ -57,6 +61,7 @@ class InvoiceDetailData extends Data
             quote: InvoiceQuoteLinkData::fromInvoice($invoice),
             emails: array_values($invoice->emails->map(DocumentEmailData::fromModel(...))->all()),
             nextReminderOn: self::nextReminderOn($invoice),
+            nextStatuses: $invoice->lifecycle->nextStatuses(),
         );
     }
 

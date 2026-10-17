@@ -9,6 +9,7 @@ use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Enums\InvoiceSource;
 use App\Domain\Invoices\Enums\QuoteStatus;
 use App\Domain\Invoices\Factories\QuoteFactory;
+use App\Domain\Invoices\Lifecycle\Quote\QuoteLifecycle;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Casts\CalendarDate;
 use App\Domain\Shared\Concerns\ResolvesAccountSettings;
@@ -33,6 +34,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property ?int $mission_id
  * @property ?string $number
  * @property QuoteStatus $status
+ * @property-read QuoteLifecycle $lifecycle
  * @property InvoiceSource $source
  * @property ?string $title
  * @property ?string $description
@@ -133,6 +135,7 @@ class Quote extends Model
     {
         return [
             'status' => QuoteStatus::class,
+            'lifecycle' => QuoteLifecycle::class.':status',
             'source' => InvoiceSource::class,
             'language' => DocumentLanguage::class,
             'issued_on' => CalendarDate::class,

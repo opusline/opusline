@@ -3434,7 +3434,8 @@ export const zInvoiceDetailData = z.object({
     content: z.nullable(zInvoiceContentData),
     quote: z.nullable(zInvoiceQuoteLinkData),
     emails: z.array(zDocumentEmailData),
-    nextReminderOn: z.nullable(z.iso.date())
+    nextReminderOn: z.nullable(z.iso.date()),
+    nextStatuses: z.array(zInvoiceStatus)
 });
 
 /**
@@ -3462,7 +3463,8 @@ export const zQuoteDetailData = z.object({
     content: zQuoteContentData,
     document: z.nullable(zDocumentData),
     billing: zQuoteBillingData,
-    emails: z.array(zDocumentEmailData)
+    emails: z.array(zDocumentEmailData),
+    nextStatuses: z.array(zQuoteStatus)
 });
 
 /**
