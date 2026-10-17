@@ -56,3 +56,6 @@ yarn-error.log*
 # Claude Code (machine-written per-user permissions)
 .claude/settings.local.json
 *.tsbuildinfo
+
+# pnpm writes its content-addressable store here when run from the repo
+.pnpm-store/
