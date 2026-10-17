@@ -24,5 +24,7 @@ class InvoiceClientTotalsData extends Data
         public MoneyData $late,
         public MoneyData $paid,
         public MoneyData $draft,
+        /** Days from issue to payment, over its paid invoices; null while none is. */
+        public ?int $averagePaymentDelayDays,
     ) {}
 }

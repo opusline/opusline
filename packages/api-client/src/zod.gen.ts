@@ -1641,7 +1641,8 @@ export const zInvoiceClientTotalsData = z.object({
     open: zMoneyData,
     late: zMoneyData,
     paid: zMoneyData,
-    draft: zMoneyData
+    draft: zMoneyData,
+    averagePaymentDelayDays: z.nullable(z.int())
 });
 
 /**

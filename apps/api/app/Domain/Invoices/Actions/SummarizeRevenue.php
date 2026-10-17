@@ -203,9 +203,9 @@ class SummarizeRevenue
             return $this->collectedHtBetween($user, $period['start'], $period['end'], $currency);
         }
 
-        $invoices = $this->invoicesBetween($user, $basis, $period['start'], $period['end'])->get();
+        $invoiced = new Money((int) $this->invoicesBetween($user, $basis, $period['start'], $period['end'])->sum('amount_ht_cents'), $currency);
 
-        return $this->totalOf($invoices, $currency)->subtract($this->creditedHtBetween($user, $period['start'], $period['end'], $currency));
+        return $invoiced->subtract($this->creditedHtBetween($user, $period['start'], $period['end'], $currency));
     }
 
     /** The HT the credit notes issued between the bounds took off what was invoiced. */

@@ -1,5 +1,4 @@
 import type {
-  ClientRevenueData,
   InvoiceClientTotalsData,
   InvoiceListItemData,
   InvoiceSource,
@@ -41,8 +40,6 @@ import { InvoicesEmptyState } from "./invoices-empty-state";
 type InvoicesTableProps = {
   invoices: InvoiceListItemData[];
   clientTotals: InvoiceClientTotalsData[];
-  /** Carries each client's averagePaymentDelayDays; empty while it loads. */
-  clientRevenue: ClientRevenueData[];
   /** Today in the account's timezone — the date isLate was derived from. */
   accountToday: string;
   /** The account writes its invoices here: the others are marked as issued elsewhere. */
@@ -53,7 +50,6 @@ type InvoicesTableProps = {
 export function InvoicesTable({
   invoices,
   clientTotals,
-  clientRevenue,
   accountToday,
   writesInOpusline = false,
   onOpen,
@@ -71,10 +67,9 @@ export function InvoicesTable({
         format.locale,
         invoices.filter((item) => matchesScope(item, scope)),
         clientTotals,
-        clientRevenue,
         scope,
       ),
-    [format.locale, invoices, clientTotals, clientRevenue, scope],
+    [format.locale, invoices, clientTotals, scope],
   );
 
   return (

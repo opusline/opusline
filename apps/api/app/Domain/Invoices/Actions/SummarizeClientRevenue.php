@@ -12,6 +12,7 @@ use App\Domain\Invoices\Data\FixedPriceBudgetData;
 use App\Domain\Invoices\Data\MissionRevenueData;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Revenue\PaymentDelay;
 use App\Domain\Invoices\Revenue\RevenueWindow;
 use App\Domain\Missions\Enums\MissionStatus;
 use App\Domain\Missions\Models\Mission;
@@ -193,7 +194,7 @@ class SummarizeClientRevenue
             clientId: $client->id,
             yearToDate: MoneyData::fromMoney($this->issuedThisYear($invoices, $window)),
             pending: MoneyData::fromMoney($this->pending($invoices, $window)),
-            averagePaymentDelayDays: $this->averagePaymentDelayDays($invoices),
+            averagePaymentDelayDays: PaymentDelay::averageDays($invoices),
             missions: array_values($rows->all()),
         );
     }
@@ -400,31 +401,5 @@ class SummarizeClientRevenue
     {
         return $mission->status === MissionStatus::Done
             || ($mission->end_date !== null && $mission->end_date->lessThan($window->monthStart));
-    }
-
-    /**
-     * @param  Collection<int, Invoice>  $invoices
-     */
-    private function averagePaymentDelayDays(Collection $invoices): ?int
-    {
-        $delays = [];
-
-        foreach ($invoices as $invoice) {
-            if ($invoice->status !== InvoiceStatus::Paid) {
-                continue;
-            }
-            $paidOn = $invoice->paidOn();
-
-            if ($paidOn === null) {
-                continue;
-            }
-            $delays[] = (int) $invoice->issued_on->diffInDays($paidOn);
-        }
-
-        if ($delays === []) {
-            return null;
-        }
-
-        return (int) round(array_sum($delays) / count($delays));
     }
 }

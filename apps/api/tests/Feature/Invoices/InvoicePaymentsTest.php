@@ -210,3 +210,25 @@ test('the per-client open total is what is still due', function (): void {
         ->assertJsonPath('clientTotals.0.open.amount', 98_000)
         ->assertJsonPath('clientTotals.0.paid.amount', 0);
 });
+
+test('the per-client totals say how long the client takes to pay', function (): void {
+    $user = User::factory()->create();
+    $invoice = sentInvoiceFor($user);
+
+    $this->actingAs($user)->postJson("/api/invoices/{$invoice->id}/pay", ['paidOn' => '2026-08-11'])->assertOk();
+
+    $this->actingAs($user)
+        ->getJson('/api/invoices')
+        ->assertOk()
+        ->assertJsonPath('clientTotals.0.averagePaymentDelayDays', 10);
+});
+
+test('the per-client totals have no payment delay before anything is paid', function (): void {
+    $user = User::factory()->create();
+    sentInvoiceFor($user);
+
+    $this->actingAs($user)
+        ->getJson('/api/invoices')
+        ->assertOk()
+        ->assertJsonPath('clientTotals.0.averagePaymentDelayDays', null);
+});

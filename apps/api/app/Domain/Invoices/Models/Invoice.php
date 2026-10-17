@@ -359,20 +359,38 @@ class Invoice extends Model
         return array_key_exists($figure, $this->getAttributes());
     }
 
-    /** What the client has paid so far; reads the query's figure when it carries one. */
+    /** What the client has paid so far; reads the query's figure or the loaded payments when it can. */
     public function paidAmount(): Money
     {
-        $cents = $this->selected('paid_cents') ? $this->paid_cents : $this->payments()->sum('amount_cents');
+        if ($this->selected('paid_cents')) {
+            return new Money((int) $this->paid_cents, $this->currency);
+        }
 
-        return new Money((int) $cents, $this->currency);
+        if ($this->relationLoaded('payments')) {
+            return $this->payments->reduce(
+                static fn (Money $sum, InvoicePayment $payment): Money => $sum->add($payment->amount_cents),
+                new Money(0, $this->currency),
+            );
+        }
+
+        return new Money((int) $this->payments()->sum('amount_cents'), $this->currency);
     }
 
     /** What the credit notes issued on it took off, incl. VAT. */
     public function creditedAmount(): Money
     {
-        $cents = $this->selected('credited_cents') ? $this->credited_cents : $this->creditNotes()->sum('amount_ttc_cents');
+        if ($this->selected('credited_cents')) {
+            return new Money((int) $this->credited_cents, $this->currency);
+        }
 
-        return new Money((int) $cents, $this->currency);
+        if ($this->relationLoaded('creditNotes')) {
+            return $this->creditNotes->reduce(
+                static fn (Money $sum, CreditNote $creditNote): Money => $sum->add($creditNote->amount_ttc_cents),
+                new Money(0, $this->currency),
+            );
+        }
+
+        return new Money((int) $this->creditNotes()->sum('amount_ttc_cents'), $this->currency);
     }
 
     /** What a credit note may still take off: the invoice less what earlier ones took. */

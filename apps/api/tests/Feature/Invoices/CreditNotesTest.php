@@ -435,3 +435,20 @@ test('a credit note to deduct belongs to one draft of the same client', function
         ->assertUnprocessable()
         ->assertJsonValidationErrorFor('creditNoteIds');
 });
+
+test('the ledger counts a credited invoice for what is left due', function (): void {
+    $user = issuableAccount();
+    $invoice = issuedInvoiceOf($user);
+    $credited = $this->actingAs($user)
+        ->postJson("/api/invoicing/invoices/{$invoice->id}/credit-notes", creditNotePayload([
+            'kind' => CreditNoteKind::Partial->value,
+            'lines' => [creditLine()],
+        ]))
+        ->assertCreated()
+        ->json('creditNote.amountTtc.amount');
+
+    $this->actingAs($user)
+        ->getJson('/api/invoices')
+        ->assertOk()
+        ->assertJsonPath('clientTotals.0.open.amount', $invoice->amount_ttc_cents->getAmount() - $credited);
+});

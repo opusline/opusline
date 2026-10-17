@@ -1,11 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import {
-  clientRevenue,
-  clientTotals,
-  invoiceItem,
-  secondClient,
-} from "../lib/fixtures";
+import { clientTotals, invoiceItem, secondClient } from "../lib/fixtures";
 import { InvoicesTable } from "./invoices-table";
 
 const meta = {
@@ -20,7 +15,6 @@ type Story = StoryObj<typeof InvoicesTable>;
 export const Default: Story = {
   args: {
     accountToday: "2026-08-14",
-    clientRevenue: [clientRevenue(1, 34), clientRevenue(2, 12)],
     invoices: [
       invoiceItem(),
       invoiceItem({
@@ -54,10 +48,12 @@ export const Default: Story = {
         open: { amount: 294_000, currency: "EUR" },
         late: { amount: 96_000, currency: "EUR" },
         draft: { amount: 42_000, currency: "EUR" },
+        averagePaymentDelayDays: 34,
       }),
       clientTotals(2, {
         all: { amount: 300_000, currency: "EUR" },
         paid: { amount: 300_000, currency: "EUR" },
+        averagePaymentDelayDays: 12,
       }),
     ],
   },
@@ -66,7 +62,6 @@ export const Default: Story = {
 export const Empty: Story = {
   args: {
     accountToday: "2026-08-14",
-    clientRevenue: [],
     clientTotals: [],
     invoices: [],
   },

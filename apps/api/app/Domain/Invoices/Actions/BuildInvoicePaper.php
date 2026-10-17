@@ -94,7 +94,7 @@ class BuildInvoicePaper
      */
     private function deductions(Invoice $invoice): array
     {
-        $invoice->loadMissing(['deductedCreditNotes.invoice', 'payments']);
+        $invoice->loadMissing(['deductedCreditNotes.invoice' => static fn ($deducted) => $deducted->withPaymentFigures(), 'payments']);
 
         return array_values($invoice->deductedCreditNotes->map(static function (CreditNote $creditNote) use ($invoice): array {
             $settled = $invoice->payments->firstWhere('credit_note_id', $creditNote->id);
@@ -192,7 +192,7 @@ class BuildInvoicePaper
             deductions: array_values($user->creditNotes()
                 ->whereKey($data->creditNoteIds)
                 ->where('client_id', $client->id)
-                ->with('invoice')
+                ->with(['invoice' => static fn ($invoice) => $invoice->withPaymentFigures()])
                 ->get()
                 ->map(static fn (CreditNote $creditNote): array => ['number' => $creditNote->number, 'amount' => $creditNote->owedBack()])
                 ->all()),

@@ -62,12 +62,7 @@ function stubApi(
 
       requests.push({ method: request.method, path: url.pathname, body });
 
-      return (
-        refuse?.(request) ??
-        (request.method === "GET"
-          ? jsonResponse(200, detail)
-          : jsonResponse(200, detail.invoice))
-      );
+      return refuse?.(request) ?? jsonResponse(200, detail);
     }),
   );
 

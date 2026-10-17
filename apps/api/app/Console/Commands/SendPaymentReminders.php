@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Domain\Invoices\Actions\SendDueReminders;
+use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Users\Models\User;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
@@ -28,7 +29,7 @@ class SendPaymentReminders extends Command
         $crashed = 0;
 
         User::query()
-            ->whereHas('invoices', fn ($invoices) => $invoices->where('reminders_enabled', true))
+            ->whereHas('invoices', fn ($invoices) => $invoices->where('reminders_enabled', true)->where('status', InvoiceStatus::Sent))
             ->with('settings')
             ->chunkById(50, function (Collection $batch) use ($sendDueReminders, &$sent, &$crashed): void {
                 foreach ($batch as $user) {
