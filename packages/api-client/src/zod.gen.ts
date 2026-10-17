@@ -3189,6 +3189,14 @@ export const zUpdateInvoiceData = z.object({
 });
 
 /**
+ * UpdateInvoiceRemindersData
+ */
+export const zUpdateInvoiceRemindersData = z.object({
+    enabled: z.boolean(),
+    frequency: zReminderFrequency
+});
+
+/**
  * UpdateInvoicingSettingsData
  */
 export const zUpdateInvoicingSettingsData = z.object({
@@ -3425,7 +3433,8 @@ export const zInvoiceDetailData = z.object({
     document: z.nullable(zDocumentData),
     content: z.nullable(zInvoiceContentData),
     quote: z.nullable(zInvoiceQuoteLinkData),
-    emails: z.array(z.string())
+    emails: z.array(zDocumentEmailData),
+    nextReminderOn: z.nullable(z.iso.date())
 });
 
 /**
@@ -3453,7 +3462,7 @@ export const zQuoteDetailData = z.object({
     content: zQuoteContentData,
     document: z.nullable(zDocumentData),
     billing: zQuoteBillingData,
-    emails: z.array(z.string())
+    emails: z.array(zDocumentEmailData)
 });
 
 /**
@@ -4337,6 +4346,22 @@ export const zDownloadInvoicePdfQuery = z.object({
 });
 
 export const zDownloadInvoicePdfResponse = z.string();
+
+export const zUpdateInvoiceRemindersBody = zUpdateInvoiceRemindersData;
+
+export const zUpdateInvoiceRemindersPath = z.object({
+    invoice: z.int()
+});
+
+export const zUpdateInvoiceRemindersResponse = zInvoiceDetailData;
+
+export const zSendPaymentReminderBody = zPreviewEmailTemplateData;
+
+export const zSendPaymentReminderPath = z.object({
+    invoice: z.int()
+});
+
+export const zSendPaymentReminderResponse = zDocumentEmailData;
 
 export const zShowInvoicingSettingsResponse = zInvoicingSettingsData;
 

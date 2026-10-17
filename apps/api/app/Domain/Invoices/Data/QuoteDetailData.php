@@ -8,6 +8,7 @@ use App\Domain\Clients\Data\ClientData;
 use App\Domain\Documents\Data\DocumentData;
 use App\Domain\Invoices\Models\Quote;
 use App\Domain\Missions\Data\MissionData;
+use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
@@ -22,6 +23,7 @@ class QuoteDetailData extends Data
         public ?DocumentData $document,
         public QuoteBillingData $billing,
         /** @var list<DocumentEmailData> The e-mails it was sent in, oldest first. */
+        #[DataCollectionOf(DocumentEmailData::class)]
         public array $emails,
     ) {}
 

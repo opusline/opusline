@@ -2,6 +2,7 @@ import type {
   DocumentLanguage,
   InvoiceDetailData,
   InvoicePaperData,
+  ReminderDefaultsData,
 } from "@opusline/api-client";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Badge } from "@opusline/ui/components/badge";
@@ -42,6 +43,7 @@ import { m } from "@/paraglide/messages.js";
 import { InvoiceHistory } from "./invoice-history";
 import { InvoiceLifecycleActions } from "./invoice-lifecycle-actions";
 import { InvoicePaper } from "./invoice-paper";
+import { InvoiceRemindersPanel } from "./invoice-reminders-panel";
 
 type InvoiceDocumentPageProps = {
   detail: InvoiceDetailData;
@@ -59,6 +61,9 @@ type InvoiceDocumentPageProps = {
   onPay: (paidOn: string) => void;
   onRemind: () => void;
   onDelete: () => void;
+  /** The automatic reminders of an unpaid invoice; absent where the page has nothing to wire them to. */
+  onRemindersChange?: (reminders: ReminderDefaultsData) => void;
+  onRemindNow?: () => void;
 };
 
 /**
@@ -79,6 +84,8 @@ export function InvoiceDocumentPage({
   onPay,
   onRemind,
   onDelete,
+  onRemindersChange,
+  onRemindNow,
 }: InvoiceDocumentPageProps) {
   const format = useMoneyFormat();
   const dateFormat = useDateFormat();
@@ -315,6 +322,17 @@ export function InvoiceDocumentPage({
                 onSend={() => {}}
               />
             </Panel>
+          ) : null}
+
+          {invoice.status === 1 &&
+          onRemindersChange !== undefined &&
+          onRemindNow !== undefined ? (
+            <InvoiceRemindersPanel
+              detail={detail}
+              isPending={isPending}
+              onChange={onRemindersChange}
+              onRemindNow={onRemindNow}
+            />
           ) : null}
 
           {detail.quote === null ? null : (

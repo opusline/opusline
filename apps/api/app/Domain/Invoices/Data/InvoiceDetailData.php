@@ -6,10 +6,16 @@ namespace App\Domain\Invoices\Data;
 
 use App\Domain\Clients\Data\ClientData;
 use App\Domain\Documents\Data\DocumentData;
+use App\Domain\Invoices\Enums\EmailTemplateKind;
+use App\Domain\Invoices\Models\DocumentEmail;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Reminders\ReminderSchedule;
 use App\Domain\Missions\Data\MissionData;
+use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
+use Spatie\LaravelData\Attributes\WithTransformer;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class InvoiceDetailData extends Data
@@ -30,7 +36,11 @@ class InvoiceDetailData extends Data
         /** The quote it was built from, when it was. */
         public ?InvoiceQuoteLinkData $quote,
         /** @var list<DocumentEmailData> The e-mails it was sent in, oldest first. */
+        #[DataCollectionOf(DocumentEmailData::class)]
         public array $emails,
+        /** The day the next automatic reminder leaves; null when none is due any more, or none was asked. */
+        #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
+        public ?CarbonImmutable $nextReminderOn,
     ) {}
 
     public static function fromModel(Invoice $invoice): self
@@ -46,6 +56,18 @@ class InvoiceDetailData extends Data
             content: $invoice->isWrittenInOpusline() ? InvoiceContentData::fromInvoice($invoice) : null,
             quote: InvoiceQuoteLinkData::fromInvoice($invoice),
             emails: array_values($invoice->emails->map(DocumentEmailData::fromModel(...))->all()),
+            nextReminderOn: self::nextReminderOn($invoice),
         );
+    }
+
+    private static function nextReminderOn(Invoice $invoice): ?CarbonImmutable
+    {
+        if (! $invoice->reminders_enabled || ! $invoice->status->canBeReminded()) {
+            return null;
+        }
+
+        $sent = $invoice->emails->filter(static fn (DocumentEmail $email): bool => $email->kind === EmailTemplateKind::PaymentReminder)->count();
+
+        return ReminderSchedule::nextOn($invoice->reminders_frequency, $invoice->due_on, $sent);
     }
 }

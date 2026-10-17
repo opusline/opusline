@@ -1546,7 +1546,8 @@ export type InvoiceDetailData = {
     document: DocumentData | null;
     content: InvoiceContentData | null;
     quote: InvoiceQuoteLinkData | null;
-    emails: Array<string>;
+    emails: Array<DocumentEmailData>;
+    nextReminderOn: string | null;
 };
 
 /**
@@ -2198,7 +2199,7 @@ export type QuoteDetailData = {
     content: QuoteContentData;
     document: DocumentData | null;
     billing: QuoteBillingData;
-    emails: Array<string>;
+    emails: Array<DocumentEmailData>;
 };
 
 /**
@@ -3112,6 +3113,14 @@ export type UpdateInvoiceData = {
     } | null;
     vatRateBp?: number | null;
     notes?: string | null;
+};
+
+/**
+ * UpdateInvoiceRemindersData
+ */
+export type UpdateInvoiceRemindersData = {
+    enabled: boolean;
+    frequency: ReminderFrequency;
 };
 
 /**
@@ -7988,6 +7997,106 @@ export type DownloadInvoicePdfResponses = {
 };
 
 export type DownloadInvoicePdfResponse = DownloadInvoicePdfResponses[keyof DownloadInvoicePdfResponses];
+
+export type UpdateInvoiceRemindersData2 = {
+    body: UpdateInvoiceRemindersData;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoicing/invoices/{invoice}/reminders';
+};
+
+export type UpdateInvoiceRemindersErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type UpdateInvoiceRemindersError = UpdateInvoiceRemindersErrors[keyof UpdateInvoiceRemindersErrors];
+
+export type UpdateInvoiceRemindersResponses = {
+    200: InvoiceDetailData;
+};
+
+export type UpdateInvoiceRemindersResponse = UpdateInvoiceRemindersResponses[keyof UpdateInvoiceRemindersResponses];
+
+export type SendPaymentReminderData = {
+    body?: PreviewEmailTemplateData;
+    path: {
+        /**
+         * The invoice ID
+         */
+        invoice: number;
+    };
+    query?: never;
+    url: '/invoicing/invoices/{invoice}/reminders/send';
+};
+
+export type SendPaymentReminderErrors = {
+    /**
+     * Unauthenticated
+     */
+    401: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * Not found
+     */
+    404: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+    /**
+     * An error
+     */
+    409: {
+        /**
+         * Error overview.
+         */
+        message: string;
+    };
+};
+
+export type SendPaymentReminderError = SendPaymentReminderErrors[keyof SendPaymentReminderErrors];
+
+export type SendPaymentReminderResponses = {
+    201: DocumentEmailData;
+};
+
+export type SendPaymentReminderResponse = SendPaymentReminderResponses[keyof SendPaymentReminderResponses];
 
 export type ShowInvoicingSettingsData = {
     body?: never;

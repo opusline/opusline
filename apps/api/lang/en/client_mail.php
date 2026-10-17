@@ -71,4 +71,5 @@ return [
     'needs_number' => 'Set the invoice reference before e-mailing it.',
     'validate_before_sending' => 'Validate the document first: a draft has nothing to send.',
     'no_document' => 'No PDF to attach: file the document first.',
+    'no_reminder_recipients' => 'This invoice was never e-mailed from Opusline, so there is nobody to remind: send it first.',
 ];

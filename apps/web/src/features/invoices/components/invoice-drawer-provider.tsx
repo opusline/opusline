@@ -41,6 +41,7 @@ import type { InvoiceDateCorrection } from "./invoice-date-corrections";
 import { InvoiceDateCorrections } from "./invoice-date-corrections";
 import { InvoiceDrawer } from "./invoice-drawer";
 import { InvoiceLifecycleActions } from "./invoice-lifecycle-actions";
+import { InvoiceRemindersPanel } from "./invoice-reminders-panel";
 
 /** The source, when the caller knows it, spares an invoice written in Opusline the drawer. */
 type OpenInvoice = (invoiceId: number, source?: InvoiceSource) => void;
@@ -228,6 +229,24 @@ export function InvoiceDrawerProvider({
     },
   });
 
+  const reminders = useMutation({
+    ...updateInvoiceRemindersMutation(),
+    onSuccess: refresh,
+    onError: reportFailure(m.invoice_reminders_save_failed()),
+  });
+  const remindNow = useMutation({
+    ...sendPaymentReminderMutation(),
+    onSuccess: async (sent) => {
+      toast.add({
+        title: m.invoice_reminded_toast({
+          recipients: sent.recipients.join(", "),
+        }),
+      });
+      await refresh();
+    },
+    onError: reportFailure(m.invoice_remind_now_failed()),
+  });
+
   const correctDates = useMutation({
     ...correctInvoiceDatesMutation(),
     onMutate: () => setCorrectionError(null),
@@ -383,6 +402,26 @@ export function InvoiceDrawerProvider({
                     <Send data-icon="inline-start" />
                     {m.document_send()}
                   </Link>
+                </div>
+              ) : null}
+              {detail.data.invoice.status === 1 ? (
+                <div className="border-t px-4 py-4">
+                  <InvoiceRemindersPanel
+                    detail={detail.data}
+                    isPending={reminders.isPending || remindNow.isPending}
+                    onChange={(next) =>
+                      reminders.mutate({
+                        path: { invoice: detail.data.invoice.id },
+                        body: next,
+                      })
+                    }
+                    onRemindNow={() =>
+                      remindNow.mutate({
+                        path: { invoice: detail.data.invoice.id },
+                        body: {},
+                      })
+                    }
+                  />
                 </div>
               ) : null}
               {detail.data.invoice.status === 0 ? null : (

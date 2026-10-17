@@ -44,6 +44,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // expires before the next run: a reminder exists on its lead day alone,
         // so a lock orphaned by a killed container must not cost a whole day.
         $schedule->command('deadlines:send-reminders')->hourly()->withoutOverlapping(55);
+        // Same clock for the clients' payment reminders: each account's own morning, once a day per invoice.
+        $schedule->command('invoices:send-reminders')->hourly()->withoutOverlapping(55);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         Integration::handles($exceptions);

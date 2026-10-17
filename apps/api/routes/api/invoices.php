@@ -10,6 +10,7 @@ use App\Http\Invoices\Controllers\InvoiceController;
 use App\Http\Invoices\Controllers\InvoiceDraftController;
 use App\Http\Invoices\Controllers\InvoiceEmailController;
 use App\Http\Invoices\Controllers\InvoicePaperController;
+use App\Http\Invoices\Controllers\InvoiceReminderController;
 use App\Http\Invoices\Controllers\InvoicingSettingsController;
 use App\Http\Invoices\Controllers\QuoteController;
 use App\Http\Invoices\Controllers\QuoteDocumentController;
@@ -102,6 +103,13 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
             ->whereNumber('invoice')
             ->middleware(EnsureMailIsEnabled::class)
             ->name('sendInvoiceEmail');
+        Route::put('/invoicing/invoices/{invoice}/reminders', [InvoiceReminderController::class, 'update'])
+            ->whereNumber('invoice')
+            ->name('updateInvoiceReminders');
+        Route::post('/invoicing/invoices/{invoice}/reminders/send', [InvoiceReminderController::class, 'send'])
+            ->whereNumber('invoice')
+            ->middleware(EnsureMailIsEnabled::class)
+            ->name('sendPaymentReminder');
         Route::post('/invoicing/invoices/{invoice}/email/test', [InvoiceEmailController::class, 'test'])
             ->whereNumber('invoice')
             ->middleware([EnsureMailIsEnabled::class, 'throttle:mail-test'])
