@@ -2,7 +2,9 @@ name: Release Please
 
 on:
   push:
-    branches: [main]
+    # A maintenance line releases from its own branch: a fix for the version
+    # self-hosters run, cut before the next minor on main is ready to ship.
+    branches: [main, release/0.33.x]
 
 permissions:
   contents: read
@@ -34,6 +36,9 @@ jobs:
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5
         with:
           token: ${{ steps.app-token.outputs.token }}
+          # The branch that was pushed, not the repository's default: a push
+          # to a maintenance line gets its release PR opened against that line.
+          target-branch: ${{ github.ref_name }}
 
       # Read back from the API rather than from steps.release.outputs.pr, which
       # is empty on a push that left the release PR untouched. The notes below
