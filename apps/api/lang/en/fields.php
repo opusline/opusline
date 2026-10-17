@@ -167,4 +167,6 @@ return [
     'version' => 'version',
     'workdayMinutes' => 'workday length',
     'clientSecret' => 'client secret',
+    'subject' => 'subject',
+    'body' => 'body',
 ];
