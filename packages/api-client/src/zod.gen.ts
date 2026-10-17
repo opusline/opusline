@@ -1926,6 +1926,14 @@ export const zIntegrationsData = z.object({
 });
 
 /**
+ * PreviewEmailTemplateData
+ */
+export const zPreviewEmailTemplateData = z.object({
+    subject: z.nullish(z.string().check(z.minLength(1), z.maxLength(255))),
+    body: z.nullish(z.string().check(z.minLength(1), z.maxLength(5000)))
+});
+
+/**
  * QuoteBilling
  *
  * Which part of an accepted quote an invoice bills.
@@ -3955,6 +3963,8 @@ export const zUpdateEmailTemplatePath = z.object({
 });
 
 export const zUpdateEmailTemplateResponse = zEmailTemplateData;
+
+export const zPreviewEmailTemplateBody = zPreviewEmailTemplateData;
 
 export const zPreviewEmailTemplatePath = z.object({
     kind: z.int()

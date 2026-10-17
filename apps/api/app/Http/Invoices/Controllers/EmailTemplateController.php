@@ -9,14 +9,15 @@ use App\Domain\Invoices\Actions\ResetEmailTemplate;
 use App\Domain\Invoices\Actions\ResolveEmailTemplate;
 use App\Domain\Invoices\Actions\SaveEmailTemplate;
 use App\Domain\Invoices\Actions\SendEmailTemplateToMyself;
-use App\Domain\Invoices\Data\EmailPreviewData;
 use App\Domain\Invoices\Data\EmailTemplateData;
 use App\Domain\Invoices\Data\EmailTemplatesData;
+use App\Domain\Invoices\Data\PreviewEmailTemplateData;
 use App\Domain\Invoices\Data\UpdateEmailTemplateData;
 use App\Domain\Invoices\Enums\EmailTemplateKind;
 use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Container\Attributes\CurrentUser;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -39,10 +40,13 @@ class EmailTemplateController extends Controller
         return $resetEmailTemplate->handle($user, $this->kind($kind));
     }
 
-    /** The e-mail with sample figures, as the client would read it. */
-    public function preview(int $kind, #[CurrentUser] User $user, PreviewEmailTemplate $previewEmailTemplate): EmailPreviewData
+    /**
+     * The e-mail with sample figures, as the client would read it: the stored
+     * wording, or the draft sent along. A POST that creates nothing, so a 200.
+     */
+    public function preview(PreviewEmailTemplateData $draft, int $kind, #[CurrentUser] User $user, PreviewEmailTemplate $previewEmailTemplate): JsonResponse
     {
-        return $previewEmailTemplate->handle($user, $this->kind($kind));
+        return response()->json($previewEmailTemplate->handle($user, $this->kind($kind), $draft));
     }
 
     /**

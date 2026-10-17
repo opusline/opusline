@@ -2095,6 +2095,14 @@ export type PingData = {
 export type PlatformEnvironment = 0 | 1;
 
 /**
+ * PreviewEmailTemplateData
+ */
+export type PreviewEmailTemplateData = {
+    subject?: string | null;
+    body?: string | null;
+};
+
+/**
  * QuoteBilling
  *
  * Which part of an accepted quote an invoice bills.
@@ -6146,8 +6154,8 @@ export type UpdateEmailTemplateResponses = {
 
 export type UpdateEmailTemplateResponse = UpdateEmailTemplateResponses[keyof UpdateEmailTemplateResponses];
 
-export type PreviewEmailTemplateData = {
-    body?: never;
+export type PreviewEmailTemplateData2 = {
+    body?: PreviewEmailTemplateData;
     path: {
         kind: number;
     };

@@ -28,6 +28,7 @@ import {
   FilePen,
   FileSignature,
   FileUp,
+  Mail,
   PanelLeft,
   Plus,
   ReceiptText,
@@ -181,6 +182,18 @@ export function InvoicingSidebar({ toolbar }: { toolbar?: ReactNode }) {
                 >
                   <Tag />
                   <span>{m.invoicing_nav_catalog()}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  data-route="/invoicing/emails"
+                  data-testid="invoicing-nav-link"
+                  isActive={pathname.startsWith("/invoicing/emails")}
+                  render={<Link to="/invoicing/emails" />}
+                  tooltip={m.invoicing_nav_emails()}
+                >
+                  <Mail />
+                  <span>{m.invoicing_nav_emails()}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>

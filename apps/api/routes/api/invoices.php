@@ -101,7 +101,7 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
         Route::delete('/invoicing/emails/{kind}', [EmailTemplateController::class, 'destroy'])
             ->whereNumber('kind')
             ->name('resetEmailTemplate');
-        Route::get('/invoicing/emails/{kind}/preview', [EmailTemplateController::class, 'preview'])
+        Route::post('/invoicing/emails/{kind}/preview', [EmailTemplateController::class, 'preview'])
             ->whereNumber('kind')
             ->name('previewEmailTemplate');
         Route::post('/invoicing/emails/{kind}/test', [EmailTemplateController::class, 'test'])

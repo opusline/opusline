@@ -2921,9 +2921,9 @@
             }
         },
         "/invoicing/emails/{kind}/preview": {
-            "get": {
+            "post": {
                 "operationId": "previewEmailTemplate",
-                "summary": "The e-mail with sample figures, as the client would read it",
+                "summary": "The e-mail with sample figures, as the client would read it: the stored\nwording, or the draft sent along. A POST that creates nothing, so a 200",
                 "tags": [
                     "EmailTemplate"
                 ],
@@ -2937,6 +2937,15 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PreviewEmailTemplateData"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "",
@@ -14739,6 +14748,28 @@
                     "Production"
                 ],
                 "title": "PlatformEnvironment"
+            },
+            "PreviewEmailTemplateData": {
+                "type": "object",
+                "properties": {
+                    "subject": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "minLength": 1,
+                        "maxLength": 255
+                    },
+                    "body": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "minLength": 1,
+                        "maxLength": 5000
+                    }
+                },
+                "title": "PreviewEmailTemplateData"
             },
             "QuoteBilling": {
                 "type": "integer",
