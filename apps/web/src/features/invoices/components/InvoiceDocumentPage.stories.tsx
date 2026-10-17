@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
+import { eur } from "@/test/fixtures";
 import { StoryRouter } from "@/test/story-router";
 import { documentDetail } from "../lib/invoice-document-fixture";
 import { invoicePaperFixture } from "../lib/invoice-paper-fixture";
@@ -51,6 +52,29 @@ export const Draft: Story = {
 /** Paid: nothing left to do but read it. */
 export const Paid: Story = {
   args: { detail: documentDetail({ status: 2, paidOn: "2026-08-02" }) },
+};
+
+/** A deposit landed; the rest is still due and the bank may settle it. */
+export const PartlyPaid: Story = {
+  args: {
+    detail: {
+      ...documentDetail({
+        status: 1,
+        amountPaid: eur(100_000),
+        amountDue: eur(98_000),
+      }),
+      payments: [
+        {
+          id: 1,
+          amount: eur(100_000),
+          paidOn: "2026-08-10",
+          bankMovementId: 55,
+          note: null,
+        },
+      ],
+    },
+    onRemovePayment: () => {},
+  },
 };
 
 /** The sheet still loading in the other language. */

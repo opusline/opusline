@@ -77,11 +77,13 @@ class SuggestBankMatches
     }
 
     /**
-     * Candidate invoice ids bucketed by TTC cents. The exact amount is the
-     * first gate every pairing must pass, so only the same-amount bucket is
-     * ever worth scoring — O(movements + invoices) instead of a full cross
-     * product. Ids claimed later are forgotten from $candidates, not from
-     * these buckets; bestCandidate() skips them on lookup.
+     * Candidate invoice ids bucketed by the cents still due. The exact amount
+     * is the first gate every pairing must pass, so only the same-amount bucket
+     * is ever worth scoring — O(movements + invoices) instead of a full cross
+     * product. The balance rather than the face value: a second transfer that
+     * settles a partly paid invoice matches it. Ids claimed later are
+     * forgotten from $candidates, not from these buckets; bestCandidate()
+     * skips them on lookup.
      *
      * @param  Collection<int, array{invoice: Invoice, invoiceNeedle: ?string, clientNeedle: ?string}>  $candidates
      * @return array<int, list<int>>
@@ -91,7 +93,7 @@ class SuggestBankMatches
         $idsByAmount = [];
 
         foreach ($candidates as $invoiceId => $candidate) {
-            $idsByAmount[(int) $candidate['invoice']->amount_ttc_cents->getAmount()][] = $invoiceId;
+            $idsByAmount[(int) $candidate['invoice']->balanceDue()->getAmount()][] = $invoiceId;
         }
 
         return $idsByAmount;
@@ -112,6 +114,7 @@ class SuggestBankMatches
             ->pluck('invoice_id');
 
         return $user->invoices()
+            ->withPaymentFigures()
             ->where('status', InvoiceStatus::Sent)
             ->whereNotIn('id', $claimed)
             ->with('client')
@@ -125,20 +128,26 @@ class SuggestBankMatches
     }
 
     /**
-     * How many Sent invoices share each TTC amount — the uniqueness test behind
+     * How many Sent invoices share each balance due — the uniqueness test behind
      * the overdue reason, counted across all Sent invoices, claimed or not.
      *
      * @return array<int, int>
      */
     private function sentCountsByAmount(User $user): array
     {
-        /** @var array<int, int> */
-        return $user->invoices()
+        $counts = [];
+
+        $sent = $user->invoices()
+            ->withPaymentFigures()
             ->where('status', InvoiceStatus::Sent)
-            ->selectRaw('amount_ttc_cents, count(*) as occurrences')
-            ->groupBy('amount_ttc_cents')
-            ->pluck('occurrences', 'amount_ttc_cents')
-            ->all();
+            ->get(['id', 'currency', 'amount_ttc_cents']);
+
+        foreach ($sent as $invoice) {
+            $due = (int) $invoice->balanceDue()->getAmount();
+            $counts[$due] = ($counts[$due] ?? 0) + 1;
+        }
+
+        return $counts;
     }
 
     /**

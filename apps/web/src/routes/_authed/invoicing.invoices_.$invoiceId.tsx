@@ -4,6 +4,7 @@ import {
   deleteInvoiceMutation,
   payInvoiceMutation,
   remindInvoiceMutation,
+  removeInvoicePaymentMutation,
   sendPaymentReminderMutation,
   showInvoiceOptions,
   showInvoicePaperOptions,
@@ -76,6 +77,13 @@ function InvoiceDocumentRoute() {
     onSuccess: refresh,
     onError: (failure) =>
       setError(serverErrorMessage(failure, m.invoices_pay_failed())),
+  });
+  const removePayment = useMutation({
+    ...removeInvoicePaymentMutation(),
+    onMutate: () => setError(null),
+    onSuccess: refresh,
+    onError: (failure) =>
+      setError(serverErrorMessage(failure, m.payments_remove_failed())),
   });
   const reminders = useMutation({
     ...updateInvoiceRemindersMutation(),
@@ -151,6 +159,7 @@ function InvoiceDocumentRoute() {
           pay.isPending ||
           remind.isPending ||
           remove.isPending ||
+          removePayment.isPending ||
           reminders.isPending ||
           remindNow.isPending
         }
@@ -158,8 +167,23 @@ function InvoiceDocumentRoute() {
         logoSrc={identity.data?.hasLogo ? companyLogoHref() : undefined}
         onDelete={() => setIsConfirmingDelete(true)}
         onLanguageChange={setLanguage}
-        onPay={(paidOn) =>
-          pay.mutate({ path: { invoice: invoiceId }, body: { paidOn } })
+        onPay={(paidOn, amountCents) =>
+          pay.mutate({
+            path: { invoice: invoiceId },
+            body: {
+              paidOn,
+              amount:
+                amountCents === null
+                  ? undefined
+                  : {
+                      amount: amountCents,
+                      currency: detail.data.invoice.amountTtc.currency,
+                    },
+            },
+          })
+        }
+        onRemovePayment={(payment) =>
+          removePayment.mutate({ path: { invoice: invoiceId, payment } })
         }
         onRemindNow={() =>
           remindNow.mutate({ path: { invoice: invoiceId }, body: {} })

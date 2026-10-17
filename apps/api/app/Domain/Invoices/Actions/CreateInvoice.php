@@ -45,7 +45,6 @@ class CreateInvoice
             'status' => $status,
             'issued_on' => $issuedOn,
             'due_on' => $data->dueOn ?? $issuedOn->addDays($client->payment_terms_days),
-            'paid_on' => $data->paidOn,
             'period_start' => $data->periodStart,
             'period_end' => $data->periodEnd,
             'currency' => $data->amountHt->currency->value,
@@ -74,13 +73,14 @@ class CreateInvoice
             }
 
             $this->linkInvoiceTimeEntries->handle($invoice, $data->timeEntryIds);
-            $this->recordHistory($invoice, $status, $issuedOn);
+            $this->recordHistory($invoice, $status, $issuedOn, $data->paidOn);
 
             return $invoice;
         });
     }
 
-    private function recordHistory(Invoice $invoice, InvoiceStatus $status, CarbonImmutable $issuedOn): void
+    /** An invoice recorded as already paid was paid whole, on the day given: one payment. */
+    private function recordHistory(Invoice $invoice, InvoiceStatus $status, CarbonImmutable $issuedOn, ?string $paidOn): void
     {
         $this->recordInvoiceEvent->handle($invoice, InvoiceEventKind::Created, $issuedOn);
 
@@ -88,8 +88,15 @@ class CreateInvoice
             $this->recordInvoiceEvent->handle($invoice, InvoiceEventKind::Sent, $issuedOn);
         }
 
-        if ($status === InvoiceStatus::Paid) {
-            $this->recordInvoiceEvent->handle($invoice, InvoiceEventKind::Paid, $invoice->paid_on);
+        if ($status === InvoiceStatus::Paid && $paidOn !== null) {
+            $paidOnDate = CarbonImmutable::parse($paidOn);
+            $invoice->payments()->create([
+                'user_id' => $invoice->user_id,
+                'currency' => $invoice->currency,
+                'amount_cents' => $invoice->amount_ttc_cents,
+                'paid_on' => $paidOnDate,
+            ]);
+            $this->recordInvoiceEvent->handle($invoice, InvoiceEventKind::Paid, $paidOnDate);
         }
     }
 }

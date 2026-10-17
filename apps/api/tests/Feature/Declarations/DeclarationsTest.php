@@ -73,10 +73,9 @@ test('captions no single rate once the month mixes vat rates', function (): void
     vatLiable($user);
 
     paidInvoiceOn($user, '2026-07-10');
-    invoiceOwnedBy($user, configure: fn (InvoiceFactory $factory): InvoiceFactory => $factory->paid()->state([
+    invoiceOwnedBy($user, configure: fn (InvoiceFactory $factory): InvoiceFactory => $factory->paid('2026-07-22')->state([
         'issued_on' => '2026-06-20',
         'due_on' => '2026-07-20',
-        'paid_on' => '2026-07-22',
         'currency' => 'EUR',
         'amount_ht_cents' => 100_000,
         'amount_ttc_cents' => 105_500,

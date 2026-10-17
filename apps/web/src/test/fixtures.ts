@@ -217,6 +217,8 @@ export const INVOICE_FIXTURE = {
   amountHt: eur(165_000),
   amountVat: eur(33_000),
   amountTtc: eur(198_000),
+  amountPaid: eur(0),
+  amountDue: eur(198_000),
   ttcOverridden: false,
   vatRateBp: 2000,
   notes: null,

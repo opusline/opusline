@@ -34,15 +34,13 @@ import {
 } from "@/components/money-format-provider";
 import { formatAmountWithCents } from "@/lib/billing";
 import { calendarDateNumericLabel, calendarRangeLabel } from "@/lib/dates";
-import {
-  INVOICE_STATUS_TOKENS,
-  invoiceStatusBadge,
-} from "@/lib/invoice-status";
+import { invoiceStatusBadge, invoiceStatusToken } from "@/lib/invoice-status";
 import { m } from "@/paraglide/messages.js";
 
 import { InvoiceHistory } from "./invoice-history";
 import { InvoiceLifecycleActions } from "./invoice-lifecycle-actions";
 import { InvoicePaper } from "./invoice-paper";
+import { InvoicePaymentsPanel } from "./invoice-payments-panel";
 import { InvoiceRemindersPanel } from "./invoice-reminders-panel";
 
 type InvoiceDocumentPageProps = {
@@ -58,9 +56,11 @@ type InvoiceDocumentPageProps = {
   accountToday: string;
   isPending: boolean;
   error: string | null;
-  onPay: (paidOn: string) => void;
+  onPay: (paidOn: string, amountCents: number | null) => void;
   onRemind: () => void;
   onDelete: () => void;
+  /** Takes a payment back off the invoice; absent where the page cannot. */
+  onRemovePayment?: (payment: number) => void;
   /** The automatic reminders of an unpaid invoice; absent where the page has nothing to wire them to. */
   onRemindersChange?: (reminders: ReminderDefaultsData) => void;
   onRemindNow?: () => void;
@@ -84,6 +84,7 @@ export function InvoiceDocumentPage({
   onPay,
   onRemind,
   onDelete,
+  onRemovePayment,
   onRemindersChange,
   onRemindNow,
 }: InvoiceDocumentPageProps) {
@@ -195,7 +196,7 @@ export function InvoiceDocumentPage({
               {formatAmountWithCents(format, invoice.amountTtc.amount)}
             </span>
             <Badge
-              data-status={INVOICE_STATUS_TOKENS[invoice.status]}
+              data-status={invoiceStatusToken(invoice)}
               data-testid="document-status"
               variant={badge.variant}
             >
@@ -322,6 +323,14 @@ export function InvoiceDocumentPage({
                 onSend={() => {}}
               />
             </Panel>
+          ) : null}
+
+          {detail.payments.length > 0 ? (
+            <InvoicePaymentsPanel
+              isPending={isPending}
+              onRemove={onRemovePayment}
+              payments={detail.payments}
+            />
           ) : null}
 
           {invoice.status === 1 &&

@@ -981,9 +981,10 @@ export const zInvoiceCountsData = z.object({
  * | `0` <br/>  |
  * | `1` <br/>  |
  * | `2` <br/>  |
- * | `3` <br/>  |
+ * | `3` <br/> The payment that completed the invoice landed. |
  * | `4` <br/>  |
  * | `5` <br/> E-mailed to the client from Opusline; the note names the recipients. |
+ * | `6` <br/> A payment landed that leaves a balance due; the note carries its amount. |
  */
 export const zInvoiceEventKind = z.union([
     z.literal(0),
@@ -991,7 +992,8 @@ export const zInvoiceEventKind = z.union([
     z.literal(2),
     z.literal(3),
     z.literal(4),
-    z.literal(5)
+    z.literal(5),
+    z.literal(6)
 ]);
 
 /**
@@ -1526,6 +1528,17 @@ export const zInvoiceOverdueData = z.object({
 });
 
 /**
+ * InvoicePaymentData
+ */
+export const zInvoicePaymentData = z.object({
+    id: z.int(),
+    amount: zMoneyData,
+    paidOn: z.iso.date(),
+    bankMovementId: z.nullable(z.int()),
+    note: z.nullable(z.string())
+});
+
+/**
  * InvoiceTotalData
  */
 export const zInvoiceTotalData = z.object({
@@ -1853,7 +1866,11 @@ export const zPasskeyOptionsData = z.object({
  * PayInvoiceData
  */
 export const zPayInvoiceData = z.object({
-    paidOn: z.iso.date()
+    paidOn: z.iso.date(),
+    amount: z.nullish(z.object({
+        amount: z.int().check(z.gte(1), z.lte(100000000000)),
+        currency: zCurrency
+    }))
 });
 
 /**
@@ -2178,6 +2195,8 @@ export const zInvoiceData = z.object({
     amountHt: zMoneyData,
     amountVat: zMoneyData,
     amountTtc: zMoneyData,
+    amountPaid: zMoneyData,
+    amountDue: zMoneyData,
     ttcOverridden: z.boolean(),
     vatRateBp: z.int(),
     notes: z.nullable(z.string()),
@@ -3476,6 +3495,7 @@ export const zInvoiceDetailData = z.object({
     content: z.nullable(zInvoiceContentData),
     quote: z.nullable(zInvoiceQuoteLinkData),
     emails: z.array(zDocumentEmailData),
+    payments: z.array(zInvoicePaymentData),
     nextReminderOn: z.nullable(z.iso.date()),
     nextStatuses: z.array(zInvoiceStatus)
 });
@@ -4290,6 +4310,13 @@ export const zPayInvoicePath = z.object({
 });
 
 export const zPayInvoiceResponse = zInvoiceDetailData;
+
+export const zRemoveInvoicePaymentPath = z.object({
+    invoice: z.int(),
+    payment: z.int()
+});
+
+export const zRemoveInvoicePaymentResponse = zInvoiceDetailData;
 
 export const zRemindInvoiceBody = zRemindInvoiceData;
 

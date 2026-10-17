@@ -49,7 +49,6 @@ class SummarizeClientRevenue
         'mission_id',
         'status',
         'issued_on',
-        'paid_on',
         'amount_ht_cents',
         'amount_ttc_cents',
         'currency',
@@ -78,7 +77,7 @@ class SummarizeClientRevenue
     {
         $window = $this->windowFor($user);
 
-        $invoicesByClient = $this->billedInvoices($user)->get(self::INVOICE_COLUMNS)->groupBy('client_id');
+        $invoicesByClient = $this->billedInvoices($user)->get()->groupBy('client_id');
         $entriesByMission = $this->entriesThisMonth($user, $window, null);
 
         $clients = $user->clients()
@@ -115,7 +114,7 @@ class SummarizeClientRevenue
 
         $invoices = $this->billedInvoices($user)
             ->where('client_id', $client->id)
-            ->get(self::INVOICE_COLUMNS);
+            ->get();
 
         // load, not loadMissing: a caller handing in a Client whose missions were
         // already read with a narrower select would otherwise reach the fold
@@ -139,7 +138,7 @@ class SummarizeClientRevenue
     {
         $invoices = $this->billedInvoices($user)
             ->where('mission_id', $mission->id)
-            ->get(self::INVOICE_COLUMNS);
+            ->get();
 
         $window = $this->windowFor($user);
 
@@ -167,7 +166,10 @@ class SummarizeClientRevenue
      */
     private function billedInvoices(User $user): HasMany
     {
-        return $user->invoices()->whereIn('status', [InvoiceStatus::Sent, InvoiceStatus::Paid]);
+        return $user->invoices()
+            ->select(self::INVOICE_COLUMNS)
+            ->withMax('payments as last_paid_on', 'paid_on')
+            ->whereIn('status', [InvoiceStatus::Sent, InvoiceStatus::Paid]);
     }
 
     /**
@@ -411,10 +413,12 @@ class SummarizeClientRevenue
             if ($invoice->status !== InvoiceStatus::Paid) {
                 continue;
             }
-            if ($invoice->paid_on === null) {
+            $paidOn = $invoice->paidOn();
+
+            if ($paidOn === null) {
                 continue;
             }
-            $delays[] = (int) $invoice->issued_on->diffInDays($invoice->paid_on);
+            $delays[] = (int) $invoice->issued_on->diffInDays($paidOn);
         }
 
         if ($delays === []) {

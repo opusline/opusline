@@ -1,10 +1,22 @@
 import type { InvoiceData } from "@opusline/api-client";
 import { Button } from "@opusline/ui/components/button";
 import { Input } from "@opusline/ui/components/input";
+import {
+  InputGroup,
+  InputGroupInput,
+  InputGroupSuffix,
+} from "@opusline/ui/components/input-group";
 import { Label } from "@opusline/ui/components/label";
 import { useId, useState } from "react";
 
 import { DateField } from "@/components/date-field";
+import { useMoneyFormat } from "@/components/money-format-provider";
+import {
+  currencySymbol,
+  formatAmount,
+  formatAmountWithCents,
+  parseAmountToCents,
+} from "@/lib/billing";
 import { m } from "@/paraglide/messages.js";
 
 type InvoiceLifecycleActionsProps = {
@@ -15,7 +27,8 @@ type InvoiceLifecycleActionsProps = {
   accountToday: string;
   /** The reference is only supplied when the draft does not carry one yet. */
   onSend: (reference: string | null, sentOn: string) => void;
-  onPay: (paidOn: string) => void;
+  /** The amount is null for the whole balance, which the API takes as its default. */
+  onPay: (paidOn: string, amountCents: number | null) => void;
   onRemind: () => void;
   /** Drafts only: an issued invoice is part of the record and cannot be removed. */
   onDelete: () => void;
@@ -26,8 +39,8 @@ type InvoiceLifecycleActionsProps = {
  *
  * Each step is its own endpoint rather than a status field, so each one lands in the
  * invoice's history — which is the record that matters when a client asks when they
- * were chased. Paid is the end of the road here: once the money is in, the dates are
- * corrected in InvoiceDateCorrections rather than transitioned again.
+ * were chased. A payment short of the balance leaves the invoice here, partly paid,
+ * until the rest lands; once it is paid, the payments are the record to correct.
  */
 export function InvoiceLifecycleActions({
   invoice,
@@ -168,20 +181,74 @@ function CollectStep({
   accountToday: string;
   invoice: InvoiceData;
   isPending: boolean;
-  onPay: (paidOn: string) => void;
+  onPay: (paidOn: string, amountCents: number | null) => void;
   onRemind: () => void;
 }) {
+  const format = useMoneyFormat();
   const paidOnFieldId = useId();
+  const amountFieldId = useId();
   const [paidOn, setPaidOn] = useState(accountToday);
+  const due = invoice.amountDue.amount;
+  const [amount, setAmount] = useState(formatAmount(format, due));
+  const amountCents = parseAmountToCents(format.locale, amount);
+  const isAmountInvalid = amountCents === null || amountCents > due;
+  const isPartial = amountCents !== null && amountCents < due;
 
   return (
     <form
       className="flex flex-col gap-3"
       onSubmit={(event) => {
         event.preventDefault();
-        onPay(paidOn);
+
+        if (amountCents === null || amountCents > due) {
+          return;
+        }
+
+        // The whole balance is the API's default: sending it would only
+        // repeat what it already knows.
+        onPay(paidOn, amountCents === due ? null : amountCents);
       }}
     >
+      {invoice.amountPaid.amount > 0 ? (
+        <p
+          className="text-foreground-2 text-sm"
+          data-amount-cents={due}
+          data-testid="invoice-balance-due"
+        >
+          {m.invoices_balance_due({
+            amount: formatAmountWithCents(format, due),
+          })}
+        </p>
+      ) : null}
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor={amountFieldId}>{m.invoices_amount_label()}</Label>
+        <InputGroup className="max-w-56">
+          <InputGroupInput
+            aria-invalid={isAmountInvalid}
+            data-testid="invoice-amount-received"
+            id={amountFieldId}
+            inputMode="decimal"
+            onChange={(event) => setAmount(event.target.value)}
+            value={amount}
+          />
+          <InputGroupSuffix>{currencySymbol(format)}</InputGroupSuffix>
+        </InputGroup>
+        <p
+          className={
+            isAmountInvalid
+              ? "text-destructive text-xs"
+              : "text-muted-foreground-3 text-xs"
+          }
+        >
+          {isAmountInvalid
+            ? m.invoices_amount_invalid()
+            : m.invoices_amount_hint({
+                due: formatAmountWithCents(format, due),
+              })}
+        </p>
+      </div>
+
       <div className="flex flex-col gap-1.5">
         <Label htmlFor={paidOnFieldId}>{m.invoices_paid_on_label()}</Label>
         <DateField
@@ -199,11 +266,15 @@ function CollectStep({
       <div className="flex flex-wrap gap-2">
         <Button
           data-testid="invoice-mark-collected"
-          disabled={isPending || paidOn === ""}
+          disabled={isPending || paidOn === "" || isAmountInvalid}
           size="xl"
           type="submit"
         >
-          {isPending ? m.common_saving() : m.invoices_mark_paid()}
+          {isPending
+            ? m.common_saving()
+            : isPartial
+              ? m.invoices_record_payment()
+              : m.invoices_mark_paid()}
         </Button>
         <Button
           data-testid="invoice-remind"

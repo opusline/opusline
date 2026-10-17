@@ -28,6 +28,7 @@ class InvoiceData extends Data
         public CarbonImmutable $issuedOn,
         #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
         public CarbonImmutable $dueOn,
+        /** The day the payment that completed the invoice landed; null until it is paid. */
         #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
         public ?CarbonImmutable $paidOn,
         #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
@@ -37,6 +38,10 @@ class InvoiceData extends Data
         public MoneyData $amountHt,
         public MoneyData $amountVat,
         public MoneyData $amountTtc,
+        /** What the client has paid so far: more than zero and less than the TTC is a partly paid invoice. */
+        public MoneyData $amountPaid,
+        /** What the client still owes. */
+        public MoneyData $amountDue,
         public bool $ttcOverridden,
         public int $vatRateBp,
         public ?string $notes,
@@ -58,12 +63,14 @@ class InvoiceData extends Data
             isLate: $invoice->isLate(),
             issuedOn: $invoice->issued_on,
             dueOn: $invoice->due_on,
-            paidOn: $invoice->paid_on,
+            paidOn: $invoice->paidOn(),
             periodStart: $invoice->period_start,
             periodEnd: $invoice->period_end,
             amountHt: MoneyData::fromMoney($invoice->amount_ht_cents),
             amountVat: MoneyData::fromMoney($invoice->vatAmount()),
             amountTtc: MoneyData::fromMoney($invoice->amount_ttc_cents),
+            amountPaid: MoneyData::fromMoney($invoice->paidAmount()),
+            amountDue: MoneyData::fromMoney($invoice->balanceDue()),
             ttcOverridden: $invoice->isTtcOverridden(),
             vatRateBp: $invoice->vat_rate_bp,
             notes: $invoice->notes,

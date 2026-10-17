@@ -216,7 +216,13 @@ export function InvoiceDrawerProvider({
     onMutate: ({ path, body }) => {
       setActionError(null);
 
-      return { undo: paintPaid(path.invoice, body.paidOn) };
+      // A partial payment paints nothing: what it leaves due is the API's to say.
+      return {
+        undo:
+          body.amount === undefined
+            ? paintPaid(path.invoice, body.paidOn)
+            : () => undefined,
+      };
     },
     onSuccess: refresh,
     onError: (error, _variables, context) => {
@@ -332,10 +338,19 @@ export function InvoiceDrawerProvider({
                   deleteDraft.isPending
                 }
                 onDelete={() => setIsConfirmingDelete(true)}
-                onPay={(paidOn) =>
+                onPay={(paidOn, amountCents) =>
                   pay.mutate({
                     path: { invoice: detail.data.invoice.id },
-                    body: { paidOn },
+                    body: {
+                      paidOn,
+                      amount:
+                        amountCents === null
+                          ? undefined
+                          : {
+                              amount: amountCents,
+                              currency: detail.data.invoice.amountTtc.currency,
+                            },
+                    },
                   })
                 }
                 onRemind={() =>

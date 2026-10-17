@@ -15,6 +15,7 @@ use App\Domain\Invoices\Data\SummarizeRevenueData;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Enums\RevenueBasis;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Models\InvoicePayment;
 use App\Domain\Invoices\Revenue\CollectedInvoices;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Shared\Data\MoneyData;
@@ -22,6 +23,7 @@ use App\Domain\Shared\Money\Rate;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
 use Cknow\Money\Money;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 
@@ -51,7 +53,9 @@ class SummarizeRevenue
         }
 
         $currency = $settings->currency->value;
-        $total = $this->totalOf($invoices, $currency);
+        $total = $basis === RevenueBasis::Collected
+            ? $this->collectedHtBetween($user, $period['start'], $period['end'], $currency)
+            : $this->totalOf($invoices, $currency);
 
         return new RevenueData(
             period: $period['key'],
@@ -102,32 +106,39 @@ class SummarizeRevenue
         };
     }
 
-    /**
-     * @return list<InvoiceStatus>
-     */
-    private function statuses(RevenueBasis $basis): array
-    {
-        // A draft is not a document yet, so it never counts as revenue.
-        return $basis === RevenueBasis::Collected
-            ? [InvoiceStatus::Paid]
-            : [InvoiceStatus::Sent, InvoiceStatus::Paid];
-    }
+    /** A draft is not a document yet, so it never counts as revenue; a partly paid invoice has collected something. */
+    private const array REVENUE_STATUSES = [InvoiceStatus::Sent, InvoiceStatus::Paid];
 
+    /** The column the rows are ordered on: the day the last payment landed, or the issue date. */
     private function dateColumn(RevenueBasis $basis): string
     {
-        return $basis === RevenueBasis::Collected ? 'paid_on' : 'issued_on';
+        return $basis === RevenueBasis::Collected ? 'last_paid_on' : 'issued_on';
     }
 
     /**
-     * The basis's slice of the ledger: issued or paid inside the bounds.
+     * The basis's slice of the ledger: issued inside the bounds, or with money
+     * landed inside them. Collected rows are invoices, their amounts whole; the
+     * collected totals are the payments' shares (collectedHtBetween), so the two
+     * agree whenever an invoice is paid in one go.
      *
      * @return HasMany<Invoice, User>
      */
     private function invoicesBetween(User $user, RevenueBasis $basis, CarbonImmutable $start, CarbonImmutable $end): HasMany
     {
-        return $user->invoices()
-            ->whereIn('status', $this->statuses($basis))
-            ->whereBetween($this->dateColumn($basis), [$start->toDateString(), $end->toDateString()]);
+        $bounds = [$start->toDateString(), $end->toDateString()];
+        $invoices = $user->invoices()->withPaymentFigures()->whereIn('status', self::REVENUE_STATUSES);
+
+        if ($basis === RevenueBasis::Collected) {
+            return $invoices->whereHas(
+                'payments',
+                /** @param Builder<InvoicePayment> $payments */
+                static function (Builder $payments) use ($bounds): void {
+                    $payments->whereBetween('paid_on', $bounds);
+                },
+            );
+        }
+
+        return $invoices->whereBetween('issued_on', $bounds);
     }
 
     /**
@@ -148,9 +159,9 @@ class SummarizeRevenue
      */
     private function lastActivePeriod(User $user, RevenueBasis $basis, string $kind): ?string
     {
-        $latest = $user->invoices()
-            ->whereIn('status', $this->statuses($basis))
-            ->max($this->dateColumn($basis));
+        $latest = $basis === RevenueBasis::Collected
+            ? $user->invoicePayments()->max('paid_on')
+            : $user->invoices()->whereIn('status', self::REVENUE_STATUSES)->max('issued_on');
 
         return is_string($latest) ? $this->keyFor($kind, CarbonImmutable::parse($latest)) : null;
     }
@@ -183,10 +194,19 @@ class SummarizeRevenue
      */
     private function totalBetween(User $user, RevenueBasis $basis, array $period, string $currency): Money
     {
-        $invoices = $this->invoicesBetween($user, $basis, $period['start'], $period['end'])
-            ->get(['amount_ht_cents', 'currency']);
+        if ($basis === RevenueBasis::Collected) {
+            return $this->collectedHtBetween($user, $period['start'], $period['end'], $currency);
+        }
+
+        $invoices = $this->invoicesBetween($user, $basis, $period['start'], $period['end'])->get();
 
         return $this->totalOf($invoices, $currency);
+    }
+
+    /** The HT the payments landed between the bounds collected: the cash-basis figure. */
+    private function collectedHtBetween(User $user, CarbonImmutable $start, CarbonImmutable $end, string $currency): Money
+    {
+        return new Money(CollectedInvoices::paidBetween($user, $start, $end)->htCents($start, $end), $currency);
     }
 
     /**
@@ -264,15 +284,9 @@ class SummarizeRevenue
             $totals[$month->format('Y-m')] = new Money(0, $currency);
         }
 
-        $column = $this->dateColumn($basis);
-        $invoices = $this->invoicesBetween($user, $basis, $firstMonth, $period['end'])
-            ->get([$column, 'amount_ht_cents', 'currency']);
-
-        foreach ($invoices as $invoice) {
-            /** @var CarbonImmutable $date */
-            $date = $invoice->{$column};
+        foreach ($this->monthlyAmounts($user, $basis, $firstMonth, $period['end']) as [$date, $amount]) {
             $key = $date->format('Y-m');
-            $totals[$key] = $totals[$key]->add($invoice->amount_ht_cents);
+            $totals[$key] = $totals[$key]->add($amount);
         }
 
         $largest = 0;
@@ -297,6 +311,33 @@ class SummarizeRevenue
         }
 
         return $bars;
+    }
+
+    /**
+     * Each amount the chart buckets, with the day it belongs to: a payment's HT
+     * share on the day it landed, or an invoice's HT on the day it was issued.
+     *
+     * @return list<array{CarbonImmutable, Money}>
+     */
+    private function monthlyAmounts(User $user, RevenueBasis $basis, CarbonImmutable $start, CarbonImmutable $end): array
+    {
+        $bounds = [$start->toDateString(), $end->toDateString()];
+
+        if ($basis === RevenueBasis::Collected) {
+            return array_values($user->invoicePayments()
+                ->whereBetween('paid_on', $bounds)
+                ->with('invoice:id,amount_ht_cents,amount_ttc_cents,currency')
+                ->get()
+                ->map(static fn (InvoicePayment $payment): array => [$payment->paid_on, $payment->htShare()])
+                ->all());
+        }
+
+        return array_values($user->invoices()
+            ->whereIn('status', self::REVENUE_STATUSES)
+            ->whereBetween('issued_on', $bounds)
+            ->get(['issued_on', 'amount_ht_cents', 'currency'])
+            ->map(static fn (Invoice $invoice): array => [$invoice->issued_on, $invoice->amount_ht_cents])
+            ->all());
     }
 
     /**

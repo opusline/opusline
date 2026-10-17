@@ -9,6 +9,8 @@ import {
   showPreviousMonth,
 } from "@/test/date-picker";
 
+import { eur } from "@/test/fixtures";
+
 import { invoiceDetail } from "../lib/fixtures";
 import { InvoiceLifecycleActions } from "./invoice-lifecycle-actions";
 
@@ -126,7 +128,7 @@ it("banks a payment on the date the money landed", async () => {
   fireEvent.click(calendarDay("2026-07-24"));
   fireEvent.click(screen.getByRole("button", { name: "Marquer encaissée" }));
 
-  expect(onPay).toHaveBeenCalledWith("2026-07-24");
+  expect(onPay).toHaveBeenCalledWith("2026-07-24", null);
 });
 
 it("never books a payment before the invoice existed", async () => {
@@ -160,4 +162,43 @@ it("surfaces what the server refused", () => {
   expect(screen.getByRole("alert")).toHaveTextContent(
     "Seul un brouillon peut être marqué comme envoyé.",
   );
+});
+
+it("records a part of the balance as a partial payment", () => {
+  const { onPay } = renderActions();
+
+  fireEvent.change(screen.getByTestId("invoice-amount-received"), {
+    target: { value: "1 000" },
+  });
+  fireEvent.click(
+    screen.getByRole("button", { name: "Enregistrer le paiement" }),
+  );
+
+  expect(onPay).toHaveBeenCalledWith("2026-08-14", 100_000);
+});
+
+it("refuses more than what is still due", () => {
+  renderActions();
+
+  fireEvent.change(screen.getByTestId("invoice-amount-received"), {
+    target: { value: "5 000" },
+  });
+
+  expect(screen.getByTestId("invoice-mark-collected")).toBeDisabled();
+});
+
+it("shows what is still due on a partly paid invoice", () => {
+  renderActions({
+    invoice: invoiceDetail({
+      status: 1,
+      amountPaid: eur(100_000),
+      amountDue: eur(98_000),
+    }).invoice,
+  });
+
+  expect(screen.getByTestId("invoice-balance-due")).toHaveAttribute(
+    "data-amount-cents",
+    "98000",
+  );
+  expect(screen.getByTestId("invoice-amount-received")).toHaveValue("980");
 });

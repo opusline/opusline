@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Domain\Declarations\Vat;
 
 use App\Domain\Expenses\Vat\DeclaredCa3Months;
-use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Settings\Models\UserSettings;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
@@ -35,7 +34,7 @@ final class Ca3ChainStart
             $candidates[] = $settings->business_started_on->startOfMonth();
         }
 
-        $firstPaidOn = $user->invoices()->where('status', InvoiceStatus::Paid)->min('paid_on');
+        $firstPaidOn = $user->invoicePayments()->min('paid_on');
         $firstSpentOn = $user->expenses()->min('spent_on');
 
         foreach ([$firstPaidOn, $firstSpentOn] as $date) {

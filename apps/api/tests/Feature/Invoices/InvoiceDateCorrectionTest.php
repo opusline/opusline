@@ -42,9 +42,8 @@ test('writes the send date down even when the invoice never recorded one', funct
 
 test('moves a payment date backwards', function (): void {
     $user = User::factory()->create();
-    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->paid()->state([
+    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->paid('2026-08-12')->state([
         'issued_on' => '2026-08-01',
-        'paid_on' => '2026-08-12',
     ]));
 
     $this->actingAs($user)
@@ -52,14 +51,13 @@ test('moves a payment date backwards', function (): void {
         ->assertOk()
         ->assertJsonPath('invoice.paidOn', '2026-08-05');
 
-    expect($invoice->refresh()->paid_on->toDateString())->toBe('2026-08-05');
+    expect($invoice->refresh()->paidOn()?->toDateString())->toBe('2026-08-05');
 });
 
 test('keeps the paid event on the date the money landed', function (): void {
     $user = User::factory()->create();
-    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->paid()->state([
+    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->paid('2026-08-12')->state([
         'issued_on' => '2026-08-01',
-        'paid_on' => '2026-08-12',
     ]));
     $invoice->events()->create(['kind' => InvoiceEventKind::Paid, 'occurred_on' => '2026-08-12']);
 
@@ -74,9 +72,8 @@ test('keeps the paid event on the date the money landed', function (): void {
 
 test('records the correction of a payment date in the history', function (): void {
     $user = User::factory()->create();
-    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->paid()->state([
+    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->paid('2026-08-12')->state([
         'issued_on' => '2026-08-01',
-        'paid_on' => '2026-08-12',
     ]));
 
     $history = $this->actingAs($user)
@@ -135,9 +132,8 @@ test('refuses a send date before the invoice was issued', function (): void {
 
 test('refuses a send date later than the payment it already has', function (): void {
     $user = User::factory()->create();
-    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->paid()->state([
+    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->paid('2026-08-03')->state([
         'issued_on' => '2026-08-01',
-        'paid_on' => '2026-08-03',
     ]));
     $invoice->events()->create(['kind' => InvoiceEventKind::Sent, 'occurred_on' => '2026-08-01']);
 

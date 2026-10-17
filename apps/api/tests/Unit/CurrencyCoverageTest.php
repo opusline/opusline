@@ -80,6 +80,7 @@ function currencyLockingArrangements(): array
 
             return $invoice;
         }],
+        'invoice_payments' => [fn (User $user): Invoice => invoiceOwnedBy($user, configure: fn ($factory) => $factory->paid())],
         'quotes' => [fn (User $user): Quote => Quote::factory()->for($user)->for(Client::factory()->for($user)->create())->create()],
         'quote_lines' => [function (User $user): Quote {
             $quote = Quote::factory()->for($user)->for(Client::factory()->for($user)->create())->create();

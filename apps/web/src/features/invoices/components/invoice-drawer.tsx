@@ -16,10 +16,7 @@ import {
 } from "@/components/money-format-provider";
 import { formatAmountWithCents, formatPercentFromBp } from "@/lib/billing";
 import { calendarDateNumericLabel, calendarRangeLabel } from "@/lib/dates";
-import {
-  INVOICE_STATUS_TOKENS,
-  invoiceStatusBadge,
-} from "@/lib/invoice-status";
+import { invoiceStatusBadge, invoiceStatusToken } from "@/lib/invoice-status";
 import { m } from "@/paraglide/messages.js";
 
 import { Fact } from "./invoice-fact";
@@ -116,7 +113,7 @@ function InvoiceDrawerBody({
         <SheetTitle
           className="flex items-center gap-2.5 font-mono text-base"
           data-reference={invoice.number ?? ""}
-          data-status={INVOICE_STATUS_TOKENS[invoice.status]}
+          data-status={invoiceStatusToken(invoice)}
           data-testid="invoice-drawer-title"
         >
           {invoice.number ?? m.invoice_status_draft()}

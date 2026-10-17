@@ -90,7 +90,7 @@ export function clientRevenue(
 const NEXT_INVOICE_STATUSES: Record<InvoiceStatus, InvoiceStatus[]> = {
   0: [1],
   1: [2],
-  2: [],
+  2: [1],
 };
 
 export function invoiceDetail(
@@ -107,6 +107,7 @@ export function invoiceDetail(
     content: null,
     quote: null,
     emails: [],
+    payments: [],
     nextReminderOn: null,
     nextStatuses: NEXT_INVOICE_STATUSES[item.invoice.status],
     history: [
