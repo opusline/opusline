@@ -6,16 +6,12 @@ import {
   payInvoiceMutation,
   remindInvoiceMutation,
   sendInvoiceMutation,
-  sendPaymentReminderMutation,
   showInvoiceOptions,
   updateInvoiceMutation,
-  updateInvoiceRemindersMutation,
 } from "@opusline/api-client/react-query";
-import { buttonVariants } from "@opusline/ui/components/button";
 import { useToast } from "@opusline/ui/components/toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, useNavigate, useRouter } from "@tanstack/react-router";
-import { Send } from "lucide-react";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import {
   createContext,
   type ReactNode,
@@ -24,6 +20,7 @@ import {
   useEffect,
   useState,
 } from "react";
+
 import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { formatAmountWithCents } from "@/lib/billing";
@@ -366,25 +363,6 @@ export function InvoiceDrawerProvider({
                 }
                 sentOn={sentOnFrom(detail.data)}
               />
-              {detail.data.invoice.number !== null &&
-              detail.data.invoice.status === 1 &&
-              detail.data.document !== null ? (
-                <div className="border-t px-4 py-4">
-                  <Link
-                    className={buttonVariants({
-                      size: "xl",
-                      variant: "outline",
-                    })}
-                    data-testid="document-send"
-                    onClick={closeInvoice}
-                    params={{ invoiceId: String(detail.data.invoice.id) }}
-                    to="/invoicing/invoices/$invoiceId/send"
-                  >
-                    <Send data-icon="inline-start" />
-                    {m.document_send()}
-                  </Link>
-                </div>
-              ) : null}
               {detail.data.invoice.status === 0 ? null : (
                 <FiledDocumentPanel
                   document={detail.data.document}

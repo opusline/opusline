@@ -1,17 +1,16 @@
-import { pdfFile } from "../../support/files";
 import { byTestId } from "../../support/locators";
 import { emailCountFor } from "../../support/mailbox";
 import {
-  addInvoice,
-  createClient,
-  createMission,
-  INVOICE_STATUS_SENT,
+  createBillableClient,
+  fillInvoicingIdentity,
+  issueInvoice,
   joinInvoicingBeta,
 } from "../../support/provision";
 import { expect, test } from "../../support/test";
 
 test.beforeEach(async ({ api, account: _registered }) => {
   await joinInvoicingBeta(api);
+  await fillInvoicingIdentity(api);
 });
 
 test("an invoice is e-mailed to the client with its PDF, and the history says so", async ({
@@ -20,29 +19,16 @@ test("an invoice is e-mailed to the client with its PDF, and the history says so
   request,
   account,
 }) => {
-  const client = await createClient(api, {
+  const client = await createBillableClient(api, {
     name: "Nordlys",
     billingEmail: "compta@nordlys.test",
   });
-  const mission = await createMission(api, client, { name: "Refonte du site" });
-  const invoice = await addInvoice(api, {
-    clientId: client.id,
-    missionId: mission.id,
-    number: "2026-041",
-    status: INVOICE_STATUS_SENT,
-    issuedOn: "2026-08-01",
-    amountHt: { amount: 120_000, currency: "EUR" },
-  });
+  const issued = await issueInvoice(api, client);
 
-  // Recorded from another tool: its fiche is the drawer on the list.
-  await page.goto(`/invoicing/invoices?invoice=${invoice.id}`);
-  await page
-    .getByTestId("filed-document-picker")
-    .setInputFiles(pdfFile("facture-2026-041.pdf"));
-  await expect(page.getByTestId("document-download")).toBeVisible();
-
+  await page.goto(`/invoicing/invoices/${issued.invoice.id}`);
   const before = await emailCountFor(request, "compta@nordlys.test");
   const copies = await emailCountFor(request, account.email);
+
   await page.getByTestId("document-send").click();
   await expect(page).toHaveURL(/\/invoicing\/invoices\/\d+\/send$/);
   await expect(
@@ -56,12 +42,14 @@ test("an invoice is e-mailed to the client with its PDF, and the history says so
 
   const sent = page.waitForResponse(
     (response) =>
-      response.url().endsWith(`/api/invoicing/invoices/${invoice.id}/email`) &&
+      response
+        .url()
+        .endsWith(`/api/invoicing/invoices/${issued.invoice.id}/email`) &&
       response.request().method() === "POST",
   );
   await page.getByTestId("send-submit").click();
   expect((await sent).status()).toBe(201);
-  await expect(page).toHaveURL(/\/invoicing\/invoices\?invoice=\d+$/);
+  await expect(page).toHaveURL(/\/invoicing\/invoices\/\d+$/);
   await expect(
     byTestId(page, "invoice-history-item", { event: "emailed" }),
   ).toBeVisible();
