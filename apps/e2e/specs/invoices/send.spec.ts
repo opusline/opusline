@@ -78,6 +78,7 @@ test("an invoice sent from Opusline can be reminded at once, and its reminders s
 
   await page.goto(`/invoicing/invoices/${issued.invoice.id}`);
   await expect(page.getByTestId("invoice-remind-now")).toBeDisabled();
+  const before = await emailCountFor(request, "compta@callisto.test");
 
   await page.getByTestId("document-send").click();
   const sent = page.waitForResponse(
@@ -90,8 +91,14 @@ test("an invoice sent from Opusline can be reminded at once, and its reminders s
   await page.getByTestId("send-submit").click();
   expect((await sent).status()).toBe(201);
   await expect(page).toHaveURL(/\/invoicing\/invoices\/\d+$/);
+  // The e-mail leaves through the queue: count it once it has landed, or the
+  // reminder's arrival would be mistaken for it.
+  await expect
+    .poll(() => emailCountFor(request, "compta@callisto.test"), {
+      timeout: 30_000,
+    })
+    .toBe(before + 1);
 
-  const before = await emailCountFor(request, "compta@callisto.test");
   await page.getByTestId("invoice-reminders-toggle").click();
   await expect(page.getByTestId("invoice-reminders")).toHaveAttribute(
     "data-enabled",
@@ -117,7 +124,7 @@ test("an invoice sent from Opusline can be reminded at once, and its reminders s
     .poll(() => emailCountFor(request, "compta@callisto.test"), {
       timeout: 30_000,
     })
-    .toBe(before + 1);
+    .toBe(before + 2);
 
   await page.reload();
   await expect(page.getByTestId("invoice-reminders-frequency")).toHaveValue(

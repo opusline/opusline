@@ -13,6 +13,7 @@ use App\Domain\Invoices\Enums\OperationCategory;
 use App\Domain\Invoices\Enums\QuoteBilling;
 use App\Domain\Invoices\Enums\ReminderFrequency;
 use App\Domain\Invoices\Factories\InvoiceFactory;
+use App\Domain\Invoices\Lifecycle\Invoice\InvoiceLifecycle;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Shared\Casts\CalendarDate;
 use App\Domain\Shared\Concerns\ResolvesAccountSettings;
@@ -40,6 +41,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property ?QuoteBilling $quote_billing
  * @property ?string $number
  * @property InvoiceStatus $status
+ * @property-read InvoiceLifecycle $lifecycle
  * @property InvoiceSource $source
  * @property ?string $title
  * @property ?string $description
@@ -175,6 +177,7 @@ class Invoice extends Model
     {
         return [
             'status' => InvoiceStatus::class,
+            'lifecycle' => InvoiceLifecycle::class.':status',
             'source' => InvoiceSource::class,
             'quote_billing' => QuoteBilling::class,
             'language' => DocumentLanguage::class,

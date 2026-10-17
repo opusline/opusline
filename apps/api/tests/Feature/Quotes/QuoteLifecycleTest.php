@@ -62,9 +62,9 @@ test('takes no answer on a draft, a decided or an expired quote', function (call
         ->assertConflict()
         ->assertJsonPath('message', __($message));
 })->with([
-    'a draft' => [fn (User $user) => Quote::factory()->for($user)->for(Client::factory()->for($user)->create())->create(), 'quotes.cannot_decide_unless_sent'],
-    'an accepted quote' => [fn (User $user): Quote => sentQuote($user, ['status' => QuoteStatus::Accepted, 'accepted_on' => '2026-08-05']), 'quotes.cannot_decide_unless_sent'],
-    'an expired quote' => [fn (User $user): Quote => sentQuote($user, ['valid_until' => '2026-08-09']), 'quotes.expired'],
+    'a draft' => [fn (User $user) => Quote::factory()->for($user)->for(Client::factory()->for($user)->create())->create(), 'quotes.cannot_decide'],
+    'an accepted quote' => [fn (User $user): Quote => sentQuote($user, ['status' => QuoteStatus::Accepted, 'accepted_on' => '2026-08-05']), 'quotes.cannot_decide'],
+    'an expired quote' => [fn (User $user): Quote => sentQuote($user, ['valid_until' => '2026-08-09']), 'quotes.cannot_decide'],
 ]);
 
 test('reopens a refused quote with a fresh validity', function (): void {
@@ -141,3 +141,19 @@ test('refuses a filter on another account\'s client', function (): void {
 
     $this->actingAs($user)->getJson("/api/invoicing/quotes?clientId={$foreign->id}")->assertUnprocessable();
 });
+
+test('tells which statuses a quote can take next', function (callable $arrange, array $next): void {
+    $user = User::factory()->create();
+    $quote = $arrange($user);
+
+    $this->actingAs($user)
+        ->getJson("/api/invoicing/quotes/{$quote->id}")
+        ->assertOk()
+        ->assertJsonPath('nextStatuses', $next);
+})->with([
+    'a draft goes out' => [fn (User $user) => Quote::factory()->for($user)->for(Client::factory()->for($user)->create())->create(), [QuoteStatus::Sent->value]],
+    'an open quote awaits its answer' => [fn (User $user): Quote => sentQuote($user), [QuoteStatus::Accepted->value, QuoteStatus::Refused->value]],
+    'an expired quote only reopens' => [fn (User $user): Quote => sentQuote($user, ['valid_until' => '2026-08-09']), [QuoteStatus::Sent->value]],
+    'an accepted quote is a contract' => [fn (User $user): Quote => sentQuote($user, ['status' => QuoteStatus::Accepted, 'accepted_on' => '2026-08-05']), []],
+    'a refused quote reopens' => [fn (User $user): Quote => sentQuote($user, ['status' => QuoteStatus::Refused, 'refused_on' => '2026-08-05']), [QuoteStatus::Sent->value]],
+]);

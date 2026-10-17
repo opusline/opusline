@@ -5,8 +5,10 @@ declare(strict_types=1);
 use App\Domain\Clients\Models\Client;
 use App\Domain\Invoices\Enums\InvoiceEventKind;
 use App\Domain\Invoices\Enums\InvoiceStatus;
+use App\Domain\Invoices\Lifecycle\Invoice\InvoiceSent;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
+use Spatie\ModelStates\Exceptions\CouldNotPerformTransition;
 
 beforeEach(fn () => freezeTodayAtUtcNoon());
 test('marks a draft as sent', function (): void {
@@ -213,4 +215,35 @@ test('returns the history in chronological order', function (): void {
         ->json('history');
 
     expect(array_column($history, 'occurredOn'))->toBe(['2026-06-05', '2026-07-20', '2026-08-10']);
+});
+
+test('tells which statuses an invoice can take next', function (callable $configure, array $next): void {
+    $user = User::factory()->create();
+    $invoice = invoiceOwnedBy($user, configure: $configure);
+
+    $this->actingAs($user)
+        ->getJson("/api/invoices/{$invoice->id}")
+        ->assertOk()
+        ->assertJsonPath('nextStatuses', $next);
+})->with([
+    'a draft goes out' => [fn ($factory) => $factory->state(['number' => '2026-030']), [InvoiceStatus::Sent->value]],
+    'a sent invoice gets paid' => [fn ($factory) => $factory->sent(), [InvoiceStatus::Paid->value]],
+    'a paid invoice is settled' => [fn ($factory) => $factory->paid(), []],
+]);
+
+test('stores a transition as the status enum', function (): void {
+    $user = User::factory()->create();
+    $invoice = invoiceOwnedBy($user);
+
+    $invoice->lifecycle->transitionTo(InvoiceSent::class);
+
+    expect($invoice->refresh()->status)->toBe(InvoiceStatus::Sent);
+});
+
+test('refuses a move the lifecycle does not declare', function (): void {
+    $user = User::factory()->create();
+    $invoice = invoiceOwnedBy($user, configure: fn ($factory) => $factory->paid());
+
+    expect(fn () => $invoice->lifecycle->transitionTo(InvoiceSent::class))->toThrow(CouldNotPerformTransition::class)
+        ->and($invoice->refresh()->status)->toBe(InvoiceStatus::Paid);
 });

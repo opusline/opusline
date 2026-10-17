@@ -1548,6 +1548,7 @@ export type InvoiceDetailData = {
     quote: InvoiceQuoteLinkData | null;
     emails: Array<DocumentEmailData>;
     nextReminderOn: string | null;
+    nextStatuses: Array<InvoiceStatus>;
 };
 
 /**
@@ -2200,6 +2201,7 @@ export type QuoteDetailData = {
     document: DocumentData | null;
     billing: QuoteBillingData;
     emails: Array<DocumentEmailData>;
+    nextStatuses: Array<QuoteStatus>;
 };
 
 /**

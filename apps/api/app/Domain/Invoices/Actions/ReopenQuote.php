@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Actions;
 
-use App\Domain\Invoices\Enums\QuoteStatus;
+use App\Domain\Invoices\Lifecycle\Quote\QuoteSent;
 use App\Domain\Invoices\Models\Quote;
 
 /**
@@ -19,10 +19,12 @@ class ReopenQuote
     public function handle(Quote $quote): Quote
     {
         return $this->lockQuote->handle($quote, function (Quote $locked): Quote {
-            abort_if($locked->status !== QuoteStatus::Refused && ! $locked->isExpired(), 409, __('quotes.cannot_reopen'));
+            // A draft also goes to Sent, by being issued: reopening is for a quote that already went out.
+            abort_unless($locked->status->isIssued() && $locked->lifecycle->canTransitionTo(QuoteSent::class), 409, __('quotes.cannot_reopen'));
 
+            // The move first: its condition reads the validity, which the fresh one would end.
+            $locked->lifecycle->transitionTo(QuoteSent::class);
             $locked->update([
-                'status' => QuoteStatus::Sent,
                 'refused_on' => null,
                 'valid_until' => $locked->user->settingsOrFail()->today()->addDays($locked->validity_days),
             ]);
