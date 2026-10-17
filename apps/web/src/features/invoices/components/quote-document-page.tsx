@@ -3,7 +3,6 @@ import type {
   InvoicePaperData,
   QuoteBilling,
   QuoteDetailData,
-  QuoteInvoiceLinkData,
 } from "@opusline/api-client";
 import { Alert, AlertDescription } from "@opusline/ui/components/alert";
 import { Badge } from "@opusline/ui/components/badge";
@@ -42,10 +41,7 @@ import {
 } from "@/lib/billing";
 import { calendarDateNumericLabel } from "@/lib/dates";
 import { quoteDocumentDownloadHref } from "@/lib/documents";
-import {
-  INVOICE_STATUS_TOKENS,
-  invoiceStatusLabel,
-} from "@/lib/invoice-status";
+import { invoiceStatusBadge, invoiceStatusToken } from "@/lib/invoice-status";
 import { m } from "@/paraglide/messages.js";
 import { quoteStatusBadge, quoteStatusToken } from "../lib/quote-status";
 import { FiledDocumentPanel } from "./filed-document-panel";
@@ -502,21 +498,6 @@ const BILLING_KIND_MESSAGES: Record<QuoteBilling, () => string> = {
   2: m.quote_billing_kind_full,
 };
 
-function linkBadge(link: QuoteInvoiceLinkData): {
-  variant: "brand" | "neutral" | "success" | "warn";
-  label: string;
-} {
-  if (link.isLate) {
-    return { variant: "warn", label: m.invoice_status_late() };
-  }
-
-  return {
-    variant:
-      link.status === 0 ? "neutral" : link.status === 1 ? "brand" : "success",
-    label: invoiceStatusLabel(link.status),
-  };
-}
-
 /** What the quote has billed, and what it can bill next, as the design's « Factures liées ». */
 function QuoteBillingPanel({
   detail,
@@ -559,14 +540,14 @@ function QuoteBillingPanel({
       {billing.invoices.length === 0 ? null : (
         <ul className="flex flex-col gap-2">
           {billing.invoices.map((link) => {
-            const badge = linkBadge(link);
+            const badge = invoiceStatusBadge(link);
 
             return (
               <li key={link.id}>
                 <button
                   className="flex w-full items-center justify-between gap-3 rounded-md border px-3 py-2 text-left transition-colors hover:bg-accent"
                   data-billing={link.billing}
-                  data-status={INVOICE_STATUS_TOKENS[link.status]}
+                  data-status={invoiceStatusToken(link)}
                   data-testid="quote-linked-invoice"
                   onClick={() => onOpenInvoice(link.id)}
                   type="button"

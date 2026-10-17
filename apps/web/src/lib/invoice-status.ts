@@ -27,6 +27,9 @@ export function invoiceStatusLabel(status: InvoiceStatus): string {
 
 type BadgeTone = "brand" | "neutral" | "success" | "warn";
 
+/** What the badge reads: a full invoice, or a quote's link to one. */
+type BadgedInvoice = Pick<InvoiceData, "status" | "isLate" | "amountPaid">;
+
 /**
  * Tones follow the design's badge spec: brand is reserved for "active, unpaid",
  * success for money that has landed, neutral for a draft that is not a document yet.
@@ -43,7 +46,7 @@ const STATUS_TONES: Record<InvoiceStatus, BadgeTone> = {
  * as `isLate` on a sent invoice. It gets its own badge because it is the one state
  * that asks something of you.
  */
-export function invoiceStatusBadge(invoice: InvoiceData): {
+export function invoiceStatusBadge(invoice: BadgedInvoice): {
   variant: BadgeTone;
   label: string;
 } {
@@ -62,12 +65,12 @@ export function invoiceStatusBadge(invoice: InvoiceData): {
 }
 
 /** Sent, with some of the money in: not a status of its own on the API, derived from the payments. */
-export function isPartlyPaid(invoice: InvoiceData): boolean {
+export function isPartlyPaid(invoice: BadgedInvoice): boolean {
   return invoice.status === 1 && invoice.amountPaid.amount > 0;
 }
 
 /** The status token with the partly-paid case told apart, for `data-status`. */
-export function invoiceStatusToken(invoice: InvoiceData): string {
+export function invoiceStatusToken(invoice: BadgedInvoice): string {
   return isPartlyPaid(invoice)
     ? "partial"
     : INVOICE_STATUS_TOKENS[invoice.status];

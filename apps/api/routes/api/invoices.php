@@ -139,14 +139,14 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
                 ->name('previewInvoiceEmail');
             Route::post('/invoicing/invoices/{invoice}/email', [InvoiceEmailController::class, 'send'])
                 ->whereNumber('invoice')
-                ->middleware(EnsureMailIsEnabled::class)
+                ->middleware([EnsureMailIsEnabled::class, 'throttle:client-mail'])
                 ->name('sendInvoiceEmail');
             Route::put('/invoicing/invoices/{invoice}/reminders', [InvoiceReminderController::class, 'update'])
                 ->whereNumber('invoice')
                 ->name('updateInvoiceReminders');
             Route::post('/invoicing/invoices/{invoice}/reminders/send', [InvoiceReminderController::class, 'send'])
                 ->whereNumber('invoice')
-                ->middleware(EnsureMailIsEnabled::class)
+                ->middleware([EnsureMailIsEnabled::class, 'throttle:client-mail'])
                 ->name('sendPaymentReminder');
             Route::post('/invoicing/invoices/{invoice}/email/test', [InvoiceEmailController::class, 'test'])
                 ->whereNumber('invoice')
@@ -157,7 +157,7 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
                 ->name('previewQuoteEmail');
             Route::post('/invoicing/quotes/{quote}/email', [QuoteEmailController::class, 'send'])
                 ->whereNumber('quote')
-                ->middleware(EnsureMailIsEnabled::class)
+                ->middleware([EnsureMailIsEnabled::class, 'throttle:client-mail'])
                 ->name('sendQuoteEmail');
             Route::post('/invoicing/quotes/{quote}/email/test', [QuoteEmailController::class, 'test'])
                 ->whereNumber('quote')

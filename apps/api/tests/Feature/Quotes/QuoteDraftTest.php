@@ -3,12 +3,15 @@
 declare(strict_types=1);
 
 use App\Domain\Clients\Models\Client;
+use App\Domain\Invoices\Actions\SaveQuoteDraft;
+use App\Domain\Invoices\Data\SaveQuoteDraftData;
 use App\Domain\Invoices\Enums\LineUnit;
 use App\Domain\Invoices\Enums\QuoteStatus;
 use App\Domain\Invoices\Models\Quote;
 use App\Domain\Missions\Models\Mission;
 use App\Domain\Settings\Enums\VatRegime;
 use App\Domain\Users\Models\User;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 beforeEach(function (): void {
     $this->travelTo('2026-08-10 12:00:00');
@@ -167,4 +170,22 @@ test('hides behind the invoicing flag', function (): void {
 
     $this->actingAs($user)->getJson('/api/invoicing/quotes')->assertNotFound();
     $this->actingAs($user)->postJson('/api/invoicing/quotes', quotePayloadFor($client))->assertNotFound();
+});
+
+test('a save that loaded the draft before it was validated leaves the issued quote alone', function (): void {
+    $user = issuableAccount();
+    $client = billableClient($user);
+    $id = quoteDraftFor($user, $client);
+    $loadedBeforeIssue = Quote::query()->findOrFail($id);
+    $this->actingAs($user)->postJson("/api/invoicing/quotes/{$id}/issue")->assertOk();
+
+    expect(fn () => app(SaveQuoteDraft::class)->handle(
+        $user,
+        SaveQuoteDraftData::from(quotePayloadFor($client, ['lines' => [
+            ['label' => 'Rewritten', 'quantityMilli' => 1_000, 'unit' => LineUnit::Flat->value, 'unitPrice' => ['amount' => 1, 'currency' => 'EUR'], 'vatRateBp' => 0],
+        ]])),
+        $loadedBeforeIssue,
+    ))->toThrow(HttpException::class);
+
+    expect($loadedBeforeIssue->refresh()->lines->pluck('label')->all())->not->toContain('Rewritten');
 });

@@ -36,11 +36,9 @@ class SaveInvoiceDraft
 
     public function handle(User $user, SaveInvoiceDraftData $data, ?Invoice $invoice = null): Invoice
     {
-        abort_if(
-            $invoice instanceof Invoice && (! $invoice->isWrittenInOpusline() || $invoice->status !== InvoiceStatus::Draft),
-            409,
-            __('invoices.not_an_opusline_draft'),
-        );
+        if ($invoice instanceof Invoice) {
+            $this->assertOpuslineDraft($invoice);
+        }
 
         $this->validateInvoice->forDraft($user, $data);
 
@@ -82,6 +80,13 @@ class SaveInvoiceDraft
         ];
 
         return DB::transaction(function () use ($user, $data, $invoice, $attributes, $lines, $totals, $issuedOn, $currency): Invoice {
+            // Issuing takes the same lock: a save that waited behind it must
+            // find the invoice numbered and stop, not rewrite the filed PDF's lines.
+            if ($invoice instanceof Invoice) {
+                User::lockRow($user->id);
+                $this->assertOpuslineDraft($invoice->refresh());
+            }
+
             AccountCurrency::assertAllMatchAccountUnderLock(
                 $user->id,
                 ...array_map(static fn (InvoiceLineInputData $line): SignedMoneyData => $line->unitPrice, $data->lines),
@@ -121,6 +126,15 @@ class SaveInvoiceDraft
 
             return $invoice->load('lines');
         });
+    }
+
+    private function assertOpuslineDraft(Invoice $invoice): void
+    {
+        abort_if(
+            ! $invoice->isWrittenInOpusline() || $invoice->status !== InvoiceStatus::Draft,
+            409,
+            __('invoices.not_an_opusline_draft'),
+        );
     }
 
     /**

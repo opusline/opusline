@@ -350,10 +350,19 @@ class Invoice extends Model
             ->withSum('creditNotes as credited_cents', 'amount_ttc_cents');
     }
 
+    /**
+     * Whether the query selected this figure. Its sum is NULL for an invoice
+     * with no payment or credit note, so a null figure is still an answer.
+     */
+    private function selected(string $figure): bool
+    {
+        return array_key_exists($figure, $this->getAttributes());
+    }
+
     /** What the client has paid so far; reads the query's figure when it carries one. */
     public function paidAmount(): Money
     {
-        $cents = $this->paid_cents ?? (int) $this->payments()->sum('amount_cents');
+        $cents = $this->selected('paid_cents') ? $this->paid_cents : $this->payments()->sum('amount_cents');
 
         return new Money((int) $cents, $this->currency);
     }
@@ -361,7 +370,7 @@ class Invoice extends Model
     /** What the credit notes issued on it took off, incl. VAT. */
     public function creditedAmount(): Money
     {
-        $cents = $this->credited_cents ?? (int) $this->creditNotes()->sum('amount_ttc_cents');
+        $cents = $this->selected('credited_cents') ? $this->credited_cents : $this->creditNotes()->sum('amount_ttc_cents');
 
         return new Money((int) $cents, $this->currency);
     }
@@ -388,7 +397,7 @@ class Invoice extends Model
             return null;
         }
 
-        $lastPaidOn = $this->last_paid_on ?? $this->payments()->max('paid_on');
+        $lastPaidOn = $this->selected('last_paid_on') ? $this->last_paid_on : $this->payments()->max('paid_on');
 
         return is_string($lastPaidOn) ? CarbonImmutable::parse($lastPaidOn) : null;
     }

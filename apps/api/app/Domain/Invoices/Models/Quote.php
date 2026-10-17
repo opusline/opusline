@@ -192,7 +192,7 @@ class Quote extends Model
      */
     public function invoices(): HasMany
     {
-        return $this->hasMany(Invoice::class)->orderBy('id');
+        return $this->hasMany(Invoice::class)->withPaymentFigures()->orderBy('id');
     }
 
     /**

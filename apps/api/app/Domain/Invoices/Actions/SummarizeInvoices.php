@@ -75,7 +75,8 @@ class SummarizeInvoices
     }
 
     /**
-     * Issued, unpaid invoices — what is still owed, whatever its due date.
+     * Issued, unpaid invoices — what is still owed, whatever its due date. Each
+     * counts for its balance: a payment or a credit note already took off the rest.
      *
      * @return Collection<int, Invoice>
      */
@@ -83,6 +84,7 @@ class SummarizeInvoices
     {
         return $user->invoices()
             ->with('client')
+            ->withPaymentFigures()
             ->where('status', InvoiceStatus::Sent)
             ->orderBy('due_on')
             ->get();
@@ -253,7 +255,7 @@ class SummarizeInvoices
             $bucket = $this->bucketFor($invoice->due_on, $today);
 
             if ($bucket instanceof InvoiceForecastBucket) {
-                $totals[$bucket->value] = $totals[$bucket->value]->add($invoice->amount_ttc_cents);
+                $totals[$bucket->value] = $totals[$bucket->value]->add($invoice->balanceDue());
             }
         }
 
@@ -454,7 +456,7 @@ class SummarizeInvoices
         foreach ($overdue->take($overdueTake) as $invoice) {
             $items[] = new InvoiceTodoData(
                 kind: InvoiceTodoKind::Overdue,
-                amount: MoneyData::fromMoney($invoice->amount_ttc_cents),
+                amount: MoneyData::fromMoney($invoice->balanceDue()),
                 clientId: $invoice->client_id,
                 clientName: $invoice->client->name,
                 overdue: new InvoiceTodoOverdueData(
@@ -529,7 +531,7 @@ class SummarizeInvoices
         $total = new Money(0, $currency->value);
 
         foreach ($invoices as $invoice) {
-            $total = $total->add($invoice->amount_ttc_cents);
+            $total = $total->add($invoice->balanceDue());
         }
 
         return new InvoiceTotalData(

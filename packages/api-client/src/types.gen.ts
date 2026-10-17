@@ -2401,6 +2401,7 @@ export type QuoteInvoiceLinkData = {
     isLate: boolean;
     billing: QuoteBilling;
     amountTtc: MoneyData;
+    amountPaid: MoneyData;
 };
 
 /**

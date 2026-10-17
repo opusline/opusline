@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
+import { m } from "@/paraglide/messages.js";
 import { StoryRouter } from "@/test/story-router";
 import { INVOICE_DOCUMENT } from "../lib/fixtures";
 import {
@@ -144,6 +145,42 @@ it("lists the invoices built from the quote and opens one", async () => {
   fireEvent.click(linked);
 
   expect(onOpenInvoice).toHaveBeenCalledWith(41);
+});
+
+it("badges a linked invoice the way the invoice ledger does", async () => {
+  const [deposit] = DEPOSIT_BILLED.invoices;
+  renderPage(
+    quoteDetail(
+      { status: 2, acceptedOn: "2026-10-12" },
+      {
+        ...DEPOSIT_BILLED,
+        invoices: [
+          {
+            ...deposit,
+            amountPaid: { ...deposit.amountTtc, amount: 100_000 },
+          },
+        ],
+      },
+    ),
+  );
+
+  const linked = await screen.findByTestId("quote-linked-invoice");
+  expect(linked).toHaveAttribute("data-status", "partial");
+  expect(linked).toHaveTextContent(m.invoice_status_partial());
+});
+
+it("does not badge a cancelled linked invoice as paid", async () => {
+  const [deposit] = DEPOSIT_BILLED.invoices;
+  renderPage(
+    quoteDetail(
+      { status: 2, acceptedOn: "2026-10-12" },
+      { ...DEPOSIT_BILLED, invoices: [{ ...deposit, status: 3 }] },
+    ),
+  );
+
+  const linked = await screen.findByTestId("quote-linked-invoice");
+  expect(linked).toHaveAttribute("data-status", "cancelled");
+  expect(linked).toHaveTextContent(m.invoice_status_cancelled());
 });
 
 it("asks for the PDF of a quote issued elsewhere instead of printing a sheet", async () => {

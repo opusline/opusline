@@ -70,6 +70,13 @@ class SaveQuoteDraft
         ];
 
         return DB::transaction(function () use ($user, $data, $quote, $attributes, $lines, $totals, $currency): Quote {
+            // Validating takes the same lock: a save that waited behind it must
+            // find the quote numbered and stop, not rewrite the filed PDF's lines.
+            if ($quote instanceof Quote) {
+                User::lockRow($user->id);
+                abort_if($quote->refresh()->status !== QuoteStatus::Draft, 409, __('quotes.not_a_draft'));
+            }
+
             AccountCurrency::assertAllMatchAccountUnderLock(
                 $user->id,
                 ...array_map(static fn (InvoiceLineInputData $line): SignedMoneyData => $line->unitPrice, $data->lines),
