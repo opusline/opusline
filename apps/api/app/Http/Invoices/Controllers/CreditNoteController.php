@@ -7,16 +7,24 @@ namespace App\Http\Invoices\Controllers;
 use App\Domain\Invoices\Actions\BuildCreditNotePaper;
 use App\Domain\Invoices\Actions\ComposeCreditNote;
 use App\Domain\Invoices\Actions\IssueCreditNote;
+use App\Domain\Invoices\Actions\RefundCreditNote;
 use App\Domain\Invoices\Actions\RenderCreditNotePdf;
 use App\Domain\Invoices\Data\CreditNoteDetailData;
+use App\Domain\Invoices\Data\DeductibleCreditNoteData;
+use App\Domain\Invoices\Data\DeductibleCreditNotesData;
 use App\Domain\Invoices\Data\InvoicePaperData;
 use App\Domain\Invoices\Data\InvoicePaperQueryData;
 use App\Domain\Invoices\Data\IssueCreditNoteData;
+use App\Domain\Invoices\Data\ListDeductibleCreditNotesData;
+use App\Domain\Invoices\Data\RefundCreditNoteData;
+use App\Domain\Invoices\Enums\CreditNoteSettlement;
+use App\Domain\Invoices\Enums\CreditNoteStatus;
 use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Models\CreditNote;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Users\Models\User;
 use App\Http\Controllers\Controller;
+use Carbon\CarbonImmutable;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -50,6 +58,39 @@ class CreditNoteController extends Controller
         $creditNote = $issueCreditNote->handle($user, $invoice, $data);
 
         return response()->json($this->detail($creditNote), 201);
+    }
+
+    /**
+     * The refund a credit note owes went back by transfer: recorded as a negative payment of the invoice.
+     *
+     * @throws ValidationException
+     * @throws HttpException<409>
+     */
+    public function refund(RefundCreditNoteData $data, CreditNote $creditNote, #[CurrentUser] User $user, RefundCreditNote $refundCreditNote): JsonResponse
+    {
+        $refundCreditNote->handle($user, $creditNote, CarbonImmutable::parse($data->refundedOn), $data->bankMovementId);
+
+        return response()->json($this->detail($creditNote));
+    }
+
+    /** The credit notes of a client still waiting to be deducted from one of its invoices: what the editor offers. */
+    public function deductible(ListDeductibleCreditNotesData $data, #[CurrentUser] User $user): JsonResponse
+    {
+        $creditNotes = $user->creditNotes()
+            ->where('client_id', $data->clientId)
+            ->where('status', CreditNoteStatus::Issued)
+            ->where('settlement', CreditNoteSettlement::DeductFromNextInvoice)
+            ->where(fn ($query) => $query->whereNull('deduction_invoice_id')->when(
+                $data->invoiceId !== null,
+                fn ($claimed) => $claimed->orWhere('deduction_invoice_id', $data->invoiceId),
+            ))
+            ->with('invoice')
+            ->orderBy('issued_on')
+            ->get();
+
+        return response()->json(new DeductibleCreditNotesData(
+            creditNotes: array_values($creditNotes->map(DeductibleCreditNoteData::fromModel(...))->all()),
+        ));
     }
 
     public function show(CreditNote $creditNote): JsonResponse

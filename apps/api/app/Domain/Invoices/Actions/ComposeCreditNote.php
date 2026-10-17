@@ -87,7 +87,8 @@ class ComposeCreditNote
                 : CreditNoteSettlement::ReducesBalance;
         }
 
-        if ($asked instanceof CreditNoteSettlement) {
+        // Beyond what is owed, the invoice cannot simply owe less: money goes back.
+        if ($asked instanceof CreditNoteSettlement && $asked->returnsMoney()) {
             return $asked;
         }
 

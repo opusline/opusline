@@ -55,8 +55,8 @@ final readonly class CollectedInvoices
         $payments = InvoicePayment::query()
             ->where('user_id', $userId)
             ->whereBetween('paid_on', [$from->toDateString(), $to->toDateString()])
-            ->with('invoice:id,amount_ht_cents,amount_ttc_cents,vat_rate_bp,currency')
-            ->get(['id', 'invoice_id', 'amount_cents', 'currency', 'paid_on']);
+            ->with(['invoice:id,amount_ht_cents,amount_ttc_cents,vat_rate_bp,currency', 'creditNote:id,amount_ht_cents,amount_ttc_cents,currency'])
+            ->get(['id', 'invoice_id', 'credit_note_id', 'amount_cents', 'currency', 'paid_on']);
 
         return new self(self::rows($payments));
     }

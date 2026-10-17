@@ -24,6 +24,7 @@ const meta = {
         amount: eur(100_000),
         paidOn: "2026-08-10",
         bankMovementId: null,
+        creditNoteId: null,
         note: null,
       },
       {
@@ -31,6 +32,7 @@ const meta = {
         amount: eur(98_000),
         paidOn: "2026-09-02",
         bankMovementId: 55,
+        creditNoteId: null,
         note: null,
       },
     ],

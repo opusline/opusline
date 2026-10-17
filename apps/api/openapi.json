@@ -2453,6 +2453,50 @@
                 }
             }
         },
+        "/invoicing/credit-notes/deductible": {
+            "get": {
+                "operationId": "listDeductibleCreditNotes",
+                "summary": "The credit notes of a client still waiting to be deducted from one of its invoices: what the editor offers",
+                "tags": [
+                    "CreditNote"
+                ],
+                "parameters": [
+                    {
+                        "name": "clientId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "invoiceId",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeductibleCreditNotesData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/invoicing/credit-notes/{creditNote}": {
             "get": {
                 "operationId": "showCreditNote",
@@ -2616,6 +2660,76 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/invoicing/credit-notes/{creditNote}/refund": {
+            "post": {
+                "operationId": "refundCreditNote",
+                "summary": "The refund a credit note owes went back by transfer: recorded as a negative payment of the invoice",
+                "tags": [
+                    "CreditNote"
+                ],
+                "parameters": [
+                    {
+                        "name": "creditNote",
+                        "in": "path",
+                        "required": true,
+                        "description": "The credit note ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RefundCreditNoteData"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreditNoteDetailData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     }
                 }
             }
@@ -12521,6 +12635,41 @@
                 ],
                 "title": "DeclarationsData"
             },
+            "DeductibleCreditNoteData": {
+                "type": "object",
+                "properties": {
+                    "creditNote": {
+                        "$ref": "#/components/schemas/CreditNoteData"
+                    },
+                    "invoiceNumber": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "$ref": "#/components/schemas/MoneyData"
+                    }
+                },
+                "required": [
+                    "creditNote",
+                    "invoiceNumber",
+                    "amount"
+                ],
+                "title": "DeductibleCreditNoteData"
+            },
+            "DeductibleCreditNotesData": {
+                "type": "object",
+                "properties": {
+                    "creditNotes": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DeductibleCreditNoteData"
+                        }
+                    }
+                },
+                "required": [
+                    "creditNotes"
+                ],
+                "title": "DeductibleCreditNotesData"
+            },
             "DismissRecurringDebitData": {
                 "type": "object",
                 "properties": {
@@ -14481,6 +14630,12 @@
                             "$ref": "#/components/schemas/CreditNoteData"
                         }
                     },
+                    "deductedCreditNotes": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CreditNoteData"
+                        }
+                    },
                     "nextReminderOn": {
                         "type": [
                             "string",
@@ -14506,6 +14661,7 @@
                     "emails",
                     "payments",
                     "creditNotes",
+                    "deductedCreditNotes",
                     "nextReminderOn",
                     "nextStatuses"
                 ],
@@ -14861,6 +15017,12 @@
                             "null"
                         ]
                     },
+                    "creditNoteId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
                     "note": {
                         "type": [
                             "string",
@@ -14873,6 +15035,7 @@
                     "amount",
                     "paidOn",
                     "bankMovementId",
+                    "creditNoteId",
                     "note"
                 ],
                 "title": "InvoicePaymentData"
@@ -15373,14 +15536,13 @@
                         "maxLength": 500
                     },
                     "settlement": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "enum": [
-                            "2",
-                            "3",
-                            null
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/CreditNoteSettlement"
+                            },
+                            {
+                                "type": "null"
+                            }
                         ]
                     },
                     "language": {
@@ -16971,6 +17133,25 @@
                 ],
                 "title": "RecurringDebitData"
             },
+            "RefundCreditNoteData": {
+                "type": "object",
+                "properties": {
+                    "refundedOn": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "bankMovementId": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "refundedOn"
+                ],
+                "title": "RefundCreditNoteData"
+            },
             "RegisterPasskeyData": {
                 "type": "object",
                 "properties": {
@@ -17522,6 +17703,14 @@
                             "type": "integer"
                         },
                         "maxItems": 5000
+                    },
+                    "creditNoteIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "maxItems": 20,
+                        "uniqueItems": true
                     }
                 },
                 "required": [

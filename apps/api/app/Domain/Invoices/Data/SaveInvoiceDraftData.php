@@ -27,6 +27,7 @@ class SaveInvoiceDraftData extends Data
     /**
      * @param  list<InvoiceLineInputData>  $lines
      * @param  list<int>  $timeEntryIds
+     * @param  list<int>  $creditNoteIds
      */
     public function __construct(
         #[IntegerType]
@@ -59,6 +60,8 @@ class SaveInvoiceDraftData extends Data
         public ?string $customMentions = null,
         /** Tracked time the draft covers (imported from its mission), marked as billed by it. */
         public array $timeEntryIds = [],
+        /** Credit notes of the same client's earlier invoices, deducted from this one when it is issued. */
+        public array $creditNoteIds = [],
     ) {}
 
     /**
@@ -82,6 +85,8 @@ class SaveInvoiceDraftData extends Data
             'lines.*.vatRateBp' => ['required', 'integer', 'between:0,'.Rate::BASIS_POINTS],
             'timeEntryIds' => ['array', 'max:5000'],
             'timeEntryIds.*' => ['integer'],
+            'creditNoteIds' => ['array', 'max:20'],
+            'creditNoteIds.*' => ['integer', 'distinct'],
         ];
     }
 }

@@ -15,10 +15,13 @@ use App\Domain\Invoices\Enums\DocumentKind;
 use App\Domain\Invoices\Enums\DocumentLanguage;
 use App\Domain\Invoices\Enums\OperationCategory;
 use App\Domain\Invoices\Enums\QuoteBilling;
+use App\Domain\Invoices\Models\CreditNote;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Models\InvoiceLine;
+use App\Domain\Invoices\Models\InvoicePayment;
 use App\Domain\Users\Models\User;
 use Carbon\CarbonImmutable;
+use Cknow\Money\Money;
 
 /**
  * Resolves an invoice into its printed sheet (InvoicePaperData), in the
@@ -79,7 +82,28 @@ class BuildInvoicePaper
             customMentions: $invoice->custom_mentions,
             hasLogo: $user->hasMedia('company_logo'),
             quoteMention: $this->quoteMention($invoice, $format),
+            deductions: $this->deductions($invoice),
         ), $format, $isIssued ? null : 'draft');
+    }
+
+    /**
+     * What it deducts: on an issued invoice, the amounts it settled; on a
+     * draft, what each claimed credit note still owes back.
+     *
+     * @return list<array{number: string, amount: Money}>
+     */
+    private function deductions(Invoice $invoice): array
+    {
+        $invoice->loadMissing(['deductedCreditNotes.invoice', 'payments']);
+
+        return array_values($invoice->deductedCreditNotes->map(static function (CreditNote $creditNote) use ($invoice): array {
+            $settled = $invoice->payments->firstWhere('credit_note_id', $creditNote->id);
+
+            return [
+                'number' => $creditNote->number,
+                'amount' => $settled instanceof InvoicePayment ? $settled->amount_cents : $creditNote->owedBack(),
+            ];
+        })->all());
     }
 
     /** « Établie au titre du devis n° … », and for a balance the deposits it deducts. */
@@ -165,6 +189,13 @@ class BuildInvoicePaper
             vatOnDebits: $vatApplies && $settings->vat_on_debits,
             customMentions: $data->customMentions,
             hasLogo: $user->hasMedia('company_logo'),
+            deductions: array_values($user->creditNotes()
+                ->whereKey($data->creditNoteIds)
+                ->where('client_id', $client->id)
+                ->with('invoice')
+                ->get()
+                ->map(static fn (CreditNote $creditNote): array => ['number' => $creditNote->number, 'amount' => $creditNote->owedBack()])
+                ->all()),
         ), new DocumentFormatter($data->language, $settings->date_format), 'draft');
     }
 }

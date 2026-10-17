@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Bank\Factories\BankMovementFactory;
 use App\Domain\Invoices\Enums\CreditNoteKind;
 use App\Domain\Invoices\Enums\CreditNoteReason;
 use App\Domain\Invoices\Enums\CreditNoteSettlement;
@@ -10,7 +11,9 @@ use App\Domain\Invoices\Enums\InvoiceEventKind;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Enums\LineUnit;
 use App\Domain\Invoices\Models\Invoice;
+use App\Domain\Invoices\Revenue\CollectedInvoices;
 use App\Domain\Users\Models\User;
+use Carbon\CarbonImmutable;
 
 // The default draft: 19 days at 550 € HT, 20 % VAT.
 const INVOICE_HT = 1_045_000;
@@ -284,4 +287,151 @@ test('an invoice recorded from another tool cannot be created cancelled', functi
         ])
         ->assertUnprocessable()
         ->assertJsonValidationErrorFor('status');
+});
+
+test('a refund by transfer settles the credit note and takes its HT off the day it left', function (): void {
+    $user = issuableAccount();
+    $invoice = issuedInvoiceOf($user);
+    $this->actingAs($user)->postJson("/api/invoices/{$invoice->id}/pay", ['paidOn' => '2026-08-10'])->assertOk();
+    $id = $this->actingAs($user)->postJson("/api/invoicing/invoices/{$invoice->id}/credit-notes", creditNotePayload([
+        'kind' => CreditNoteKind::Partial->value,
+        'lines' => [creditLine()],
+        'settlement' => CreditNoteSettlement::Refund->value,
+    ]))->json('creditNote.id');
+
+    $this->actingAs($user)
+        ->postJson("/api/invoicing/credit-notes/{$id}/refund", ['refundedOn' => '2026-08-10'])
+        ->assertOk()
+        ->assertJsonPath('creditNote.status', CreditNoteStatus::Settled->value)
+        ->assertJsonPath('creditNote.settledOn', '2026-08-10')
+        ->assertJsonPath('invoice.amountDue.amount', 0)
+        ->assertJsonPath('invoice.status', InvoiceStatus::Paid->value);
+
+    $refundDay = [CarbonImmutable::parse('2026-08-10'), CarbonImmutable::parse('2026-08-10')];
+    $collected = CollectedInvoices::paidBetween($user, ...$refundDay);
+    // The payment of the whole invoice, less the refund, both that day.
+    expect($collected->htCents(...$refundDay))->toBe(INVOICE_HT - 10_000)
+        ->and($collected->vatCents(...$refundDay))->toBe(INVOICE_TTC - INVOICE_HT - 2_000);
+
+    $this->actingAs($user)
+        ->postJson("/api/invoicing/credit-notes/{$id}/refund", ['refundedOn' => '2026-08-10'])
+        ->assertStatus(409);
+});
+
+test('a refund carried by a debit of the pro account links that debit', function (): void {
+    $user = issuableAccount();
+    $invoice = issuedInvoiceOf($user);
+    $this->actingAs($user)->postJson("/api/invoices/{$invoice->id}/pay", ['paidOn' => '2026-08-10'])->assertOk();
+    $id = $this->actingAs($user)->postJson("/api/invoicing/invoices/{$invoice->id}/credit-notes", creditNotePayload([
+        'kind' => CreditNoteKind::Partial->value,
+        'lines' => [creditLine()],
+        'settlement' => CreditNoteSettlement::Refund->value,
+    ]))->json('creditNote.id');
+    $wrong = bankMovementFor($user, configure: fn (BankMovementFactory $factory): BankMovementFactory => $factory->debit(5_000)->on('2026-08-10'));
+    $debit = bankMovementFor($user, configure: fn (BankMovementFactory $factory): BankMovementFactory => $factory->debit(12_000)->on('2026-08-10'));
+
+    $this->actingAs($user)
+        ->postJson("/api/invoicing/credit-notes/{$id}/refund", ['refundedOn' => '2026-08-10', 'bankMovementId' => $wrong->id])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrorFor('bankMovementId');
+
+    $this->actingAs($user)
+        ->postJson("/api/invoicing/credit-notes/{$id}/refund", ['refundedOn' => '2026-08-10', 'bankMovementId' => $debit->id])
+        ->assertOk();
+
+    expect($debit->refresh()->invoice_id)->toBe($invoice->id)
+        ->and($invoice->payments()->where('credit_note_id', $id)->value('bank_movement_id'))->toBe($debit->id);
+});
+
+test('taking a refund back owes the money to the client again', function (): void {
+    $user = issuableAccount();
+    $invoice = issuedInvoiceOf($user);
+    $this->actingAs($user)->postJson("/api/invoices/{$invoice->id}/pay", ['paidOn' => '2026-08-10'])->assertOk();
+    $id = $this->actingAs($user)->postJson("/api/invoicing/invoices/{$invoice->id}/credit-notes", creditNotePayload([
+        'kind' => CreditNoteKind::Partial->value,
+        'lines' => [creditLine()],
+        'settlement' => CreditNoteSettlement::Refund->value,
+    ]))->json('creditNote.id');
+    $this->actingAs($user)->postJson("/api/invoicing/credit-notes/{$id}/refund", ['refundedOn' => '2026-08-10'])->assertOk();
+    $refund = $invoice->payments()->where('credit_note_id', $id)->sole();
+
+    $this->actingAs($user)
+        ->deleteJson("/api/invoices/{$invoice->id}/payments/{$refund->id}")
+        ->assertOk()
+        ->assertJsonPath('invoice.status', InvoiceStatus::Paid->value)
+        ->assertJsonPath('invoice.amountDue.amount', -12_000);
+
+    $this->actingAs($user)->getJson("/api/invoicing/credit-notes/{$id}")->assertJsonPath('creditNote.status', CreditNoteStatus::Issued->value);
+});
+
+test('the invoiced revenue nets the credit notes in the month they were issued', function (): void {
+    $user = issuableAccount();
+    $invoice = issuedInvoiceOf($user);
+    $this->actingAs($user)->postJson("/api/invoicing/invoices/{$invoice->id}/credit-notes", creditNotePayload())->assertCreated();
+
+    $this->actingAs($user)
+        ->getJson('/api/revenue?period=2026-08&basis=0')
+        ->assertOk()
+        ->assertJsonPath('total.amount', 0);
+});
+
+test('a credit note deducted from the next invoice is settled when that invoice is issued', function (): void {
+    $user = issuableAccount();
+    $first = issuedInvoiceOf($user);
+    $this->actingAs($user)->postJson("/api/invoices/{$first->id}/pay", ['paidOn' => '2026-08-10'])->assertOk();
+    $creditNoteId = $this->actingAs($user)->postJson("/api/invoicing/invoices/{$first->id}/credit-notes", creditNotePayload([
+        'kind' => CreditNoteKind::Partial->value,
+        'lines' => [creditLine()],
+        'settlement' => CreditNoteSettlement::DeductFromNextInvoice->value,
+    ]))->json('creditNote.id');
+
+    $this->actingAs($user)
+        ->getJson("/api/invoicing/credit-notes/deductible?clientId={$first->client_id}")
+        ->assertOk()
+        ->assertJsonPath('creditNotes.0.creditNote.id', $creditNoteId)
+        ->assertJsonPath('creditNotes.0.amount.amount', 12_000);
+
+    $draft = draftFor($user, $first->client, ['creditNoteIds' => [$creditNoteId]]);
+
+    $this->actingAs($user)
+        ->getJson("/api/invoices/{$draft}/paper")
+        ->assertOk()
+        ->assertJsonPath('totals.3.label', 'Déduction de l\'avoir n° A-2026-001')
+        ->assertJsonPath('totals.4.label', 'Net à payer');
+
+    $this->actingAs($user)
+        ->postJson("/api/invoicing/invoices/{$draft}/issue")
+        ->assertOk()
+        ->assertJsonPath('invoice.amountPaid.amount', 12_000)
+        ->assertJsonPath('invoice.amountDue.amount', INVOICE_TTC - 12_000)
+        ->assertJsonPath('deductedCreditNotes.0.status', CreditNoteStatus::Settled->value);
+
+    $this->actingAs($user)->getJson("/api/invoices/{$first->id}")->assertJsonPath('invoice.amountDue.amount', 0);
+
+    // The two sides cancel out that day: only real money is collected.
+    $day = [CarbonImmutable::parse('2026-08-10'), CarbonImmutable::parse('2026-08-10')];
+    expect(CollectedInvoices::paidBetween($user, ...$day)->htCents(...$day))->toBe(INVOICE_HT);
+
+    $this->actingAs($user)->getJson("/api/invoicing/credit-notes/deductible?clientId={$first->client_id}")->assertJsonCount(0, 'creditNotes');
+});
+
+test('a credit note to deduct belongs to one draft of the same client', function (): void {
+    $user = issuableAccount();
+    $first = issuedInvoiceOf($user);
+    $this->actingAs($user)->postJson("/api/invoices/{$first->id}/pay", ['paidOn' => '2026-08-10'])->assertOk();
+    $creditNoteId = $this->actingAs($user)->postJson("/api/invoicing/invoices/{$first->id}/credit-notes", creditNotePayload([
+        'kind' => CreditNoteKind::Partial->value,
+        'lines' => [creditLine()],
+        'settlement' => CreditNoteSettlement::DeductFromNextInvoice->value,
+    ]))->json('creditNote.id');
+    draftFor($user, $first->client, ['creditNoteIds' => [$creditNoteId]]);
+
+    $this->actingAs($user)
+        ->postJson('/api/invoicing/invoices', draftPayloadFor($first->client, ['creditNoteIds' => [$creditNoteId]]))
+        ->assertUnprocessable()
+        ->assertJsonValidationErrorFor('creditNoteIds');
+    $this->actingAs($user)
+        ->postJson('/api/invoicing/invoices', draftPayloadFor(billableClient($user, ['name' => 'Callisto']), ['creditNoteIds' => [$creditNoteId]]))
+        ->assertUnprocessable()
+        ->assertJsonValidationErrorFor('creditNoteIds');
 });

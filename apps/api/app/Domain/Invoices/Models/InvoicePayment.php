@@ -28,12 +28,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $currency
  * @property CarbonImmutable $paid_on
  * @property ?int $bank_movement_id
+ * @property ?int $credit_note_id
  * @property ?string $note
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  * @property-read Invoice $invoice
  * @property-read User $user
  * @property-read ?BankMovement $bankMovement
+ * @property-read ?CreditNote $creditNote
  */
 #[Fillable([
     'user_id',
@@ -41,6 +43,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'amount_cents',
     'paid_on',
     'bank_movement_id',
+    'credit_note_id',
     'note',
 ])]
 class InvoicePayment extends Model
@@ -78,14 +81,18 @@ class InvoicePayment extends Model
      */
     public function htShare(): Money
     {
-        $ttc = (int) $this->invoice->amount_ttc_cents->getAmount();
+        // A refund carries the VAT mix of the credit note it settles, not the invoice's.
+        $document = $this->credit_note_id === null ? $this->invoice : $this->creditNote;
+        assert($document instanceof Invoice || $document instanceof CreditNote);
+        $ttc = (int) $document->amount_ttc_cents->getAmount();
+        $ht = (int) $document->amount_ht_cents->getAmount();
         $amount = (int) $this->amount_cents->getAmount();
 
-        if ($ttc === 0 || $amount === $ttc) {
-            return new Money((int) $this->invoice->amount_ht_cents->getAmount(), $this->currency);
+        if ($ttc === 0 || abs($amount) === $ttc) {
+            return new Money($amount < 0 ? -$ht : $ht, $this->currency);
         }
 
-        return new Money((int) round($amount * (int) $this->invoice->amount_ht_cents->getAmount() / $ttc), $this->currency);
+        return new Money((int) round($amount * $ht / $ttc), $this->currency);
     }
 
     /** The VAT this payment collected: what is left of it once its HT share is taken. */
@@ -104,5 +111,15 @@ class InvoicePayment extends Model
     public function bankMovement(): BelongsTo
     {
         return $this->belongsTo(BankMovement::class);
+    }
+
+    /**
+     * The credit note a refund settles; null for money the client paid.
+     *
+     * @return BelongsTo<CreditNote, $this>
+     */
+    public function creditNote(): BelongsTo
+    {
+        return $this->belongsTo(CreditNote::class);
     }
 }

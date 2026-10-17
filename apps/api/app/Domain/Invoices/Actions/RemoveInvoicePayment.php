@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Domain\Invoices\Actions;
 
 use App\Domain\Bank\Enums\BankMatchStatus;
+use App\Domain\Invoices\Enums\CreditNoteSettlement;
+use App\Domain\Invoices\Enums\CreditNoteStatus;
 use App\Domain\Invoices\Enums\InvoiceEventKind;
 use App\Domain\Invoices\Enums\InvoiceStatus;
 use App\Domain\Invoices\Lifecycle\Invoice\InvoiceSent;
+use App\Domain\Invoices\Models\CreditNote;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Invoices\Models\InvoicePayment;
 
@@ -28,11 +31,19 @@ class RemoveInvoicePayment
     {
         return $this->lockInvoice->handle($invoice, function (Invoice $locked) use ($payment): Invoice {
             abort_unless($payment->invoice_id === $locked->id, 404);
+            // A deduction moved money between two invoices at once: one side alone cannot go.
+            abort_if(
+                $payment->credit_note_id !== null && CreditNote::query()->whereKey($payment->credit_note_id)->value('settlement') === CreditNoteSettlement::DeductFromNextInvoice->value,
+                409,
+                __('credit_notes.deduction_payment_fixed'),
+            );
 
             $this->unlinkMovement($locked, $payment);
+            $this->reopenCreditNote($payment);
             $payment->delete();
 
-            if ($locked->status === InvoiceStatus::Paid) {
+            // A refund taken back leaves the client owed again, the invoice still paid.
+            if ($locked->status === InvoiceStatus::Paid && $locked->balanceDue()->isPositive()) {
                 $locked->lifecycle->transitionTo(InvoiceSent::class);
                 $locked->events()->where('kind', InvoiceEventKind::Paid)->delete();
             }
@@ -42,6 +53,19 @@ class RemoveInvoicePayment
 
             return $locked;
         });
+    }
+
+    /** A refund taken back means the money is owed to the client again. */
+    private function reopenCreditNote(InvoicePayment $payment): void
+    {
+        if ($payment->credit_note_id === null) {
+            return;
+        }
+
+        CreditNote::query()->whereKey($payment->credit_note_id)->update([
+            'status' => CreditNoteStatus::Issued,
+            'settled_on' => null,
+        ]);
     }
 
     /** The match that paid it is dismissed rather than deleted: its row says the pair was looked at. */

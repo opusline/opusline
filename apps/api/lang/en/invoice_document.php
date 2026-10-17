@@ -51,6 +51,8 @@ return [
         'vat' => 'VAT',
         'ttc' => 'Total incl. VAT',
         'deposit' => 'Deposit on acceptance (:rate %)',
+        'deduction' => 'Deduction of credit note no. :number',
+        'net_due' => 'Net amount due',
     ],
     'payment' => [
         'title' => 'Payment information',

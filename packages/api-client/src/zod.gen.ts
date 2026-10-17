@@ -1264,7 +1264,7 @@ export const zIssueCreditNoteData = z.object({
         invoiceLineId: z.nullish(z.int())
     })).check(z.maxLength(200))),
     detail: z.nullish(z.string().check(z.maxLength(500))),
-    settlement: z.nullish(z.enum(['2', '3'])),
+    settlement: z.nullish(zCreditNoteSettlement),
     language: z.nullish(zDocumentLanguage)
 });
 
@@ -1470,6 +1470,22 @@ export const zDeclarationHistoryRowData = z.object({
 });
 
 /**
+ * DeductibleCreditNoteData
+ */
+export const zDeductibleCreditNoteData = z.object({
+    creditNote: zCreditNoteData,
+    invoiceNumber: z.string(),
+    amount: zMoneyData
+});
+
+/**
+ * DeductibleCreditNotesData
+ */
+export const zDeductibleCreditNotesData = z.object({
+    creditNotes: z.array(zDeductibleCreditNoteData)
+});
+
+/**
  * ExpenseCategoryTotalData
  */
 export const zExpenseCategoryTotalData = z.object({
@@ -1654,6 +1670,7 @@ export const zInvoicePaymentData = z.object({
     amount: zMoneyData,
     paidOn: z.iso.date(),
     bankMovementId: z.nullable(z.int()),
+    creditNoteId: z.nullable(z.int()),
     note: z.nullable(z.string())
 });
 
@@ -2260,6 +2277,14 @@ export const zRecurringDebitData = z.object({
 });
 
 /**
+ * RefundCreditNoteData
+ */
+export const zRefundCreditNoteData = z.object({
+    refundedOn: z.iso.date(),
+    bankMovementId: z.nullish(z.int())
+});
+
+/**
  * RegisterPasskeyData
  */
 export const zRegisterPasskeyData = z.object({
@@ -2433,7 +2458,8 @@ export const zSaveInvoiceDraftData = z.object({
     periodEnd: z.nullish(z.iso.date()),
     latePenaltyRateBp: z.nullish(z.int().check(z.gte(0), z.lte(10000))),
     customMentions: z.nullish(z.string().check(z.maxLength(2000))),
-    timeEntryIds: z.optional(z.array(z.int()).check(z.maxLength(5000)))
+    timeEntryIds: z.optional(z.array(z.int()).check(z.maxLength(5000))),
+    creditNoteIds: z.optional(z.array(z.int()).check(z.maxLength(20)))
 });
 
 /**
@@ -3629,6 +3655,7 @@ export const zInvoiceDetailData = z.object({
     emails: z.array(zDocumentEmailData),
     payments: z.array(zInvoicePaymentData),
     creditNotes: z.array(zCreditNoteData),
+    deductedCreditNotes: z.array(zCreditNoteData),
     nextReminderOn: z.nullable(z.iso.date()),
     nextStatuses: z.array(zInvoiceStatus)
 });
@@ -4187,6 +4214,13 @@ export const zIssueCreditNotePath = z.object({
 
 export const zIssueCreditNoteResponse = zCreditNoteDetailData;
 
+export const zListDeductibleCreditNotesQuery = z.object({
+    clientId: z.int(),
+    invoiceId: z.nullish(z.int())
+});
+
+export const zListDeductibleCreditNotesResponse = zDeductibleCreditNotesData;
+
 export const zShowCreditNotePath = z.object({
     creditNote: z.int()
 });
@@ -4212,6 +4246,14 @@ export const zDownloadCreditNotePdfQuery = z.object({
 });
 
 export const zDownloadCreditNotePdfResponse = z.string();
+
+export const zRefundCreditNoteBody = zRefundCreditNoteData;
+
+export const zRefundCreditNotePath = z.object({
+    creditNote: z.int()
+});
+
+export const zRefundCreditNoteResponse = zCreditNoteDetailData;
 
 export const zListDeadlinesResponse = zDeadlineBoardData;
 
