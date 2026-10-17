@@ -60,6 +60,7 @@ const INVOICE_EVENT_MESSAGES: Record<InvoiceEventKind, () => string> = {
   2: m.invoice_event_reminded,
   3: m.invoice_event_paid,
   4: m.invoice_event_corrected,
+  5: m.invoice_event_emailed,
 };
 
 export const INVOICE_EVENT_TOKENS: Record<InvoiceEventKind, string> = {
@@ -68,6 +69,7 @@ export const INVOICE_EVENT_TOKENS: Record<InvoiceEventKind, string> = {
   2: "reminded",
   3: "paid",
   4: "corrected",
+  5: "emailed",
 };
 
 export function invoiceEventLabel(kind: InvoiceEventKind): string {

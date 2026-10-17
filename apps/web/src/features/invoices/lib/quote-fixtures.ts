@@ -115,6 +115,7 @@ export function quoteDetail(
     content: CONTENT,
     document: null,
     billing,
+    emails: [],
   };
 }
 

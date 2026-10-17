@@ -19,7 +19,13 @@ import {
 } from "@opusline/ui/components/segmented-control";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { Link } from "@tanstack/react-router";
-import { ChevronDown, ChevronLeft, CircleAlert, Download } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  CircleAlert,
+  Download,
+  Send,
+} from "lucide-react";
 
 import {
   useDateFormat,
@@ -127,6 +133,17 @@ export function InvoiceDocumentPage({
         >
           {m.document_duplicate()}
         </Link>
+        {invoice.number !== null && invoice.status !== 2 ? (
+          <Link
+            className={buttonVariants({ size: "xl", variant: "outline" })}
+            data-testid="document-send"
+            params={{ invoiceId: String(invoice.id) }}
+            to="/invoicing/invoices/$invoiceId/send"
+          >
+            <Send data-icon="inline-start" />
+            {m.document_send()}
+          </Link>
+        ) : null}
         <DropdownMenu>
           <DropdownMenuTrigger
             render={

@@ -9,7 +9,8 @@ use App\Domain\Invoices\Data\EmailTemplateData;
 use App\Domain\Invoices\Data\PreviewEmailTemplateData;
 use App\Domain\Invoices\Enums\EmailTemplateKind;
 use App\Domain\Invoices\Mail\ClientDocumentMail;
-use App\Domain\Invoices\Mail\SampleEmailContent;
+use App\Domain\Invoices\Mail\ClientEmailComposer;
+use App\Domain\Invoices\Mail\EmailFigures;
 use App\Domain\Users\Models\User;
 
 class PreviewEmailTemplate
@@ -31,7 +32,7 @@ class PreviewEmailTemplate
             );
         }
 
-        $content = SampleEmailContent::for($user, $template);
+        $content = ClientEmailComposer::compose($user, $template, EmailFigures::sample($kind, $user->settingsOrFail()));
 
         return new EmailPreviewData(
             subject: $content->subject,

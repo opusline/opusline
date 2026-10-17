@@ -6,6 +6,7 @@ namespace App\Domain\Invoices\Data;
 
 use App\Domain\Invoices\Enums\InvoiceSource;
 use App\Domain\Invoices\Enums\InvoiceStatus;
+use App\Domain\Invoices\Enums\ReminderFrequency;
 use App\Domain\Invoices\Models\Invoice;
 use App\Domain\Shared\Data\MoneyData;
 use Carbon\CarbonImmutable;
@@ -39,6 +40,10 @@ class InvoiceData extends Data
         public bool $ttcOverridden,
         public int $vatRateBp,
         public ?string $notes,
+        public bool $remindersEnabled,
+        public ReminderFrequency $remindersFrequency,
+        /** @var list<string> */
+        public array $reminderRecipients,
     ) {}
 
     public static function fromModel(Invoice $invoice): self
@@ -62,6 +67,9 @@ class InvoiceData extends Data
             ttcOverridden: $invoice->isTtcOverridden(),
             vatRateBp: $invoice->vat_rate_bp,
             notes: $invoice->notes,
+            remindersEnabled: $invoice->reminders_enabled,
+            remindersFrequency: $invoice->reminders_frequency,
+            reminderRecipients: $invoice->reminder_recipients ?? [],
         );
     }
 }

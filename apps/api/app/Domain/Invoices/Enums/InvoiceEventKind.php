@@ -11,4 +11,6 @@ enum InvoiceEventKind: int
     case Reminded = 2;
     case Paid = 3;
     case Updated = 4;
+    /** E-mailed to the client from Opusline; the note names the recipients. */
+    case Emailed = 5;
 }

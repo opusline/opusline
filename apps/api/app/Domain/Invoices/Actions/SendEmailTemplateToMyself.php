@@ -6,7 +6,8 @@ namespace App\Domain\Invoices\Actions;
 
 use App\Domain\Invoices\Enums\EmailTemplateKind;
 use App\Domain\Invoices\Mail\ClientDocumentMail;
-use App\Domain\Invoices\Mail\SampleEmailContent;
+use App\Domain\Invoices\Mail\ClientEmailComposer;
+use App\Domain\Invoices\Mail\EmailFigures;
 use App\Domain\Users\Models\User;
 use Illuminate\Support\Facades\Mail;
 use InvalidArgumentException;
@@ -28,7 +29,7 @@ class SendEmailTemplateToMyself
      */
     public function handle(User $user, EmailTemplateKind $kind): void
     {
-        $content = SampleEmailContent::for($user, $this->resolveEmailTemplate->handle($user, $kind), isTest: true);
+        $content = ClientEmailComposer::compose($user, $this->resolveEmailTemplate->handle($user, $kind), EmailFigures::sample($kind, $user->settingsOrFail()), isTest: true);
 
         try {
             Mail::to($user->email)->send(new ClientDocumentMail($user, $content));

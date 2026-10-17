@@ -24,7 +24,7 @@ class QuoteDocumentController extends Controller
     {
         $attachQuoteDocument->handle($quote, $data);
 
-        return response()->json(QuoteDetailData::fromModel($quote->load(['client', 'mission', 'lines', 'invoices'])), 201);
+        return response()->json(QuoteDetailData::fromModel($quote->load(['client', 'mission', 'lines', 'invoices', 'emails'])), 201);
     }
 
     /**

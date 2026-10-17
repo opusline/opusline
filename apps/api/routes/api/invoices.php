@@ -8,11 +8,13 @@ use App\Http\Invoices\Controllers\EmailTemplateController;
 use App\Http\Invoices\Controllers\ExternalQuoteController;
 use App\Http\Invoices\Controllers\InvoiceController;
 use App\Http\Invoices\Controllers\InvoiceDraftController;
+use App\Http\Invoices\Controllers\InvoiceEmailController;
 use App\Http\Invoices\Controllers\InvoicePaperController;
 use App\Http\Invoices\Controllers\InvoicingSettingsController;
 use App\Http\Invoices\Controllers\QuoteController;
 use App\Http\Invoices\Controllers\QuoteDocumentController;
 use App\Http\Invoices\Controllers\QuoteDraftController;
+use App\Http\Invoices\Controllers\QuoteEmailController;
 use App\Http\Invoices\Controllers\QuoteInvoiceController;
 use App\Http\Invoices\Controllers\QuotePaperController;
 use App\Http\Users\Support\EnsureMailIsEnabled;
@@ -93,6 +95,28 @@ Route::middleware(['auth:sanctum', EnsureSessionIsUnlocked::class])->group(funct
             ->whereNumber('quote')
             ->name('downloadQuotePdf');
 
+        Route::post('/invoicing/invoices/{invoice}/email/preview', [InvoiceEmailController::class, 'preview'])
+            ->whereNumber('invoice')
+            ->name('previewInvoiceEmail');
+        Route::post('/invoicing/invoices/{invoice}/email', [InvoiceEmailController::class, 'send'])
+            ->whereNumber('invoice')
+            ->middleware(EnsureMailIsEnabled::class)
+            ->name('sendInvoiceEmail');
+        Route::post('/invoicing/invoices/{invoice}/email/test', [InvoiceEmailController::class, 'test'])
+            ->whereNumber('invoice')
+            ->middleware([EnsureMailIsEnabled::class, 'throttle:mail-test'])
+            ->name('testInvoiceEmail');
+        Route::post('/invoicing/quotes/{quote}/email/preview', [QuoteEmailController::class, 'preview'])
+            ->whereNumber('quote')
+            ->name('previewQuoteEmail');
+        Route::post('/invoicing/quotes/{quote}/email', [QuoteEmailController::class, 'send'])
+            ->whereNumber('quote')
+            ->middleware(EnsureMailIsEnabled::class)
+            ->name('sendQuoteEmail');
+        Route::post('/invoicing/quotes/{quote}/email/test', [QuoteEmailController::class, 'test'])
+            ->whereNumber('quote')
+            ->middleware([EnsureMailIsEnabled::class, 'throttle:mail-test'])
+            ->name('testQuoteEmail');
         Route::get('/invoicing/emails', [EmailTemplateController::class, 'index'])
             ->name('listEmailTemplates');
         Route::put('/invoicing/emails/reminders', [EmailTemplateController::class, 'updateReminderDefaults'])

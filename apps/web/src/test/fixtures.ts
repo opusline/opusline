@@ -220,6 +220,9 @@ export const INVOICE_FIXTURE = {
   ttcOverridden: false,
   vatRateBp: 2000,
   notes: null,
+  remindersEnabled: false,
+  remindersFrequency: 0,
+  reminderRecipients: [],
 } satisfies InvoiceData;
 
 /**

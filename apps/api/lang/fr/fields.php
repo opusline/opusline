@@ -171,4 +171,8 @@ return [
     'body' => 'corps',
     'enabled' => 'activation',
     'frequency' => 'fréquence',
+    'recipients' => 'destinataires',
+    'copyToSender' => 'copie pour moi',
+    'remindersEnabled' => 'relances automatiques',
+    'remindersFrequency' => 'fréquence des relances',
 ];

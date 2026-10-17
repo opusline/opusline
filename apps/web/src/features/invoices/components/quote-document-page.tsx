@@ -22,7 +22,13 @@ import {
 } from "@opusline/ui/components/segmented-control";
 import { Skeleton } from "@opusline/ui/components/skeleton";
 import { Link } from "@tanstack/react-router";
-import { ChevronDown, ChevronLeft, CircleAlert, Download } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  CircleAlert,
+  Download,
+  Send,
+} from "lucide-react";
 import { useId } from "react";
 
 import {
@@ -138,6 +144,17 @@ export function QuoteDocumentPage({
               : `${client.name} · ${quote.title}`}
           </span>
         </div>
+        {quote.number !== null && quote.status === 1 ? (
+          <Link
+            className={buttonVariants({ size: "xl", variant: "outline" })}
+            data-testid="document-send"
+            params={{ quoteId: String(quote.id) }}
+            to="/invoicing/quotes/$quoteId/send"
+          >
+            <Send data-icon="inline-start" />
+            {m.document_send()}
+          </Link>
+        ) : null}
         {isExternal ? null : (
           <Link
             className={buttonVariants({ size: "xl", variant: "ghost" })}
