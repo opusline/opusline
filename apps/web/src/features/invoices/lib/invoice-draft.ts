@@ -3,6 +3,7 @@ import type {
   ClientWithMissionsData,
   DocumentLanguage,
   InvoiceDetailData,
+  InvoiceLineData,
   InvoicingSettingsData,
   LineUnit,
   Locale,
@@ -135,15 +136,7 @@ export function draftFromDetail(
     description: content.description ?? "",
     periodStart: invoice.periodStart ?? "",
     periodEnd: invoice.periodEnd ?? "",
-    lines: content.lines.map((line) => ({
-      key: lineKey(),
-      label: line.label,
-      detail: line.detail ?? "",
-      quantity: formatQuantity(format.locale, line.quantityMilli),
-      unit: line.unit,
-      unitPrice: formatAmount(format, line.unitPrice.amount),
-      vatRateBp: line.vatRateBp,
-    })),
+    lines: content.lines.map((line) => lineDraftFrom(format, line)),
     paymentTerm: paymentTermKey({
       days: content.paymentTermsDays,
       endOfMonth: content.paymentTermsEndOfMonth,
@@ -187,6 +180,25 @@ export function duplicateDraft(
       };
 }
 
+/** A line of a saved document, back in the editor's typed form. */
+export function lineDraftFrom(
+  format: MoneyFormat,
+  line: Pick<
+    InvoiceLineData,
+    "label" | "detail" | "quantityMilli" | "unit" | "unitPrice" | "vatRateBp"
+  >,
+): LineDraft {
+  return {
+    key: lineKey(),
+    label: line.label,
+    detail: line.detail ?? "",
+    quantity: formatQuantity(format.locale, line.quantityMilli),
+    unit: line.unit,
+    unitPrice: formatAmount(format, line.unitPrice.amount),
+    vatRateBp: line.vatRateBp,
+  };
+}
+
 export function freeLine(vatRateBp: number): LineDraft {
   return {
     key: lineKey(),
@@ -204,15 +216,7 @@ export function catalogLine(
   format: MoneyFormat,
   item: CatalogItemData,
 ): LineDraft {
-  return {
-    key: lineKey(),
-    label: item.label,
-    detail: item.detail ?? "",
-    quantity: "1",
-    unit: item.unit,
-    unitPrice: formatAmount(format, item.unitPrice.amount),
-    vatRateBp: item.vatRateBp,
-  };
+  return lineDraftFrom(format, { ...item, quantityMilli: 1000 });
 }
 
 /**
@@ -270,7 +274,11 @@ export function withTimeReleased(draft: InvoiceDraft): InvoiceDraft {
 
 type LineInput = SaveInvoiceDraftData["lines"][number];
 
-function lineInput(format: MoneyFormat, line: LineDraft): LineInput | null {
+/** The line as the API takes it, or null while it is incomplete. */
+export function lineInput(
+  format: MoneyFormat,
+  line: LineDraft,
+): LineInput | null {
   const quantity = parseDecimal(format.locale, line.quantity);
   const cents = parseSignedAmountToCents(format.locale, line.unitPrice);
   const quantityMilli = quantity === null ? 0 : Math.round(quantity * 1000);

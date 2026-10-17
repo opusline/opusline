@@ -23,6 +23,8 @@ const panelVariants = cva("rounded-md border bg-card", {
       compact: "px-4 py-3",
       default: "p-5",
       loose: "p-6",
+      /** A form section: taller than wide on a phone, wider gutters from `sm`. */
+      section: "px-5 py-6 sm:px-7",
     },
   },
   defaultVariants: {

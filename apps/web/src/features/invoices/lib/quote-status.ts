@@ -10,7 +10,7 @@ const QUOTE_STATUS_MESSAGES: Record<QuoteStatus, () => string> = {
 };
 
 /** What a test or a stylesheet can match on: the label moves with the locale. */
-export const QUOTE_STATUS_TOKENS: Record<QuoteStatus, string> = {
+const QUOTE_STATUS_TOKENS: Record<QuoteStatus, string> = {
   0: "draft",
   1: "sent",
   2: "accepted",

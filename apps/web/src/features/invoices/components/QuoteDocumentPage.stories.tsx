@@ -26,7 +26,6 @@ const meta = {
     paper: quotePaperFixture,
     language: 0,
     onLanguageChange: () => {},
-    pdfHref: () => "#",
     isPending: false,
     error: null,
     onAccept: () => {},

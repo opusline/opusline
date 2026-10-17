@@ -27,9 +27,9 @@ import { useMoneyFormat } from "@/components/money-format-provider";
 import { accountTodayCalendarDate } from "@/lib/dates";
 import { companyLogoHref } from "@/lib/logos";
 import { invalidateQuoteWrites } from "@/lib/query-invalidation";
+import { useSettled } from "@/lib/use-settled";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
-
 import type { InvoiceEditorPageProps } from "../components/invoice-editor-page";
 import { type InvoiceDraft, newInvoiceDraft } from "./invoice-draft";
 import {
@@ -37,7 +37,6 @@ import {
   quoteDraftFromDetail,
   quoteDraftPayload,
 } from "./quote-draft";
-import { useSettled } from "./use-invoice-editor";
 
 type QuoteEditor =
   | { status: "pending" }

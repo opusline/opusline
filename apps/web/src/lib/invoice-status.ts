@@ -65,7 +65,7 @@ export function invoiceStatusBadge(invoice: BadgedInvoice): {
 }
 
 /** Sent, with some of the money in: not a status of its own on the API, derived from the payments. */
-export function isPartlyPaid(invoice: BadgedInvoice): boolean {
+function isPartlyPaid(invoice: BadgedInvoice): boolean {
   return invoice.status === 1 && invoice.amountPaid.amount > 0;
 }
 

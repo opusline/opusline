@@ -23,10 +23,6 @@ class RenderCreditNotePdf
     /** « Avoir-A-2026-001.pdf ». */
     public function fileName(CreditNote $creditNote, DocumentLanguage $language): string
     {
-        return sprintf(
-            '%s-%s.pdf',
-            $language === DocumentLanguage::English ? 'Credit-note' : 'Avoir',
-            preg_replace('/[^A-Za-z0-9._-]+/', '-', $creditNote->number),
-        );
+        return RenderPaperPdf::numberedFileName($language === DocumentLanguage::English ? 'Credit-note' : 'Avoir', $creditNote->number);
     }
 }

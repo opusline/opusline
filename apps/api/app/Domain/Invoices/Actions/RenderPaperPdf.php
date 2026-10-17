@@ -27,6 +27,12 @@ class RenderPaperPdf
         ])->render());
     }
 
+    /** « Facture-2026-014.pdf »: the number kept to what every file system takes. */
+    public static function numberedFileName(string $kind, string $number): string
+    {
+        return sprintf('%s-%s.pdf', $kind, preg_replace('/[^A-Za-z0-9._-]+/', '-', $number));
+    }
+
     /**
      * The logo is embedded as a data URI: dompdf reads nothing over the
      * network, and the media disk may be object storage.

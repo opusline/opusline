@@ -27,6 +27,6 @@ class RenderInvoicePdf
 
         return $invoice->number === null
             ? ($english ? 'Draft-invoice.pdf' : 'Brouillon-facture.pdf')
-            : sprintf('%s-%s.pdf', $english ? 'Invoice' : 'Facture', preg_replace('/[^A-Za-z0-9._-]+/', '-', $invoice->number));
+            : RenderPaperPdf::numberedFileName($english ? 'Invoice' : 'Facture', $invoice->number);
     }
 }

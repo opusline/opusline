@@ -24,7 +24,6 @@ function renderPage(
         onPay={vi.fn()}
         onRemind={vi.fn()}
         paper={invoicePaperFixture}
-        pdfHref={(language) => `/api/invoices/1/pdf?language=${language}`}
         {...overrides}
       />
     </StoryRouter>,

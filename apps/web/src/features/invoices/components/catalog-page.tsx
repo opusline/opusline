@@ -283,7 +283,7 @@ function CatalogItemForm({
   };
 
   return (
-    <Panel className="mb-4 px-5 py-6 sm:px-7" data-testid="catalog-form">
+    <Panel className="mb-4" data-testid="catalog-form" padding="section">
       <PanelTitle className="mb-4">
         {draft.id === null ? m.catalog_form_new() : m.catalog_form_edit()}
       </PanelTitle>

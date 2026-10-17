@@ -1,5 +1,4 @@
 import type { DocumentLanguage } from "@opusline/api-client";
-import { client as apiClient } from "@opusline/api-client/client";
 import {
   deleteInvoiceMutation,
   payInvoiceMutation,
@@ -40,14 +39,6 @@ export const Route = createFileRoute("/_authed/invoicing/invoices_/$invoiceId")(
     component: InvoiceDocumentRoute,
   },
 );
-
-function pdfHref(invoiceId: number, language: DocumentLanguage): string {
-  return apiClient.buildUrl({
-    url: "/invoices/{invoice}/pdf",
-    path: { invoice: invoiceId },
-    query: { language },
-  });
-}
 
 function InvoiceDocumentRoute() {
   const { user } = Route.useRouteContext();
@@ -194,12 +185,6 @@ function InvoiceDocumentRoute() {
             },
           })
         }
-        creditNotePdfHref={(creditNote) =>
-          apiClient.buildUrl({
-            url: "/invoicing/credit-notes/{creditNote}/pdf",
-            path: { creditNote },
-          })
-        }
         onRefund={(creditNote, refundedOn) =>
           refund.mutate({ path: { creditNote }, body: { refundedOn } })
         }
@@ -220,7 +205,6 @@ function InvoiceDocumentRoute() {
         }
         onRetryPaper={paper.isError ? () => void paper.refetch() : undefined}
         paper={paper.data ?? null}
-        pdfHref={(chosen) => pdfHref(invoiceId, chosen)}
       />
       <ConfirmDeleteDialog
         confirmLabel={m.invoices_delete_draft()}

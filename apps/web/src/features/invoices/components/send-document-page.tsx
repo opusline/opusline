@@ -209,7 +209,7 @@ export function SendDocumentPage({
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_19.375rem]">
         <div className="flex min-w-0 flex-col gap-4">
-          <Panel className="flex flex-col gap-3.5 px-5 py-5" padding="none">
+          <Panel className="flex flex-col gap-3.5" padding="default">
             <PanelTitle>{m.send_recipients_title()}</PanelTitle>
             {recipients.length === 0 ? (
               <p
@@ -293,7 +293,7 @@ export function SendDocumentPage({
             </label>
           </Panel>
 
-          <Panel className="flex flex-col gap-3.5 px-5 py-5" padding="none">
+          <Panel className="flex flex-col gap-3.5" padding="default">
             <div className="flex flex-wrap items-baseline justify-between gap-3">
               <PanelTitle>{m.send_message_title()}</PanelTitle>
               {isEdited ? (

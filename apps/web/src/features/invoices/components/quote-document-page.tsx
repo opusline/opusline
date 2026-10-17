@@ -40,7 +40,7 @@ import {
   formatPercentFromBp,
 } from "@/lib/billing";
 import { calendarDateNumericLabel } from "@/lib/dates";
-import { quoteDocumentDownloadHref } from "@/lib/documents";
+import { quotePdfHref } from "@/lib/documents";
 import { invoiceStatusBadge, invoiceStatusToken } from "@/lib/invoice-status";
 import { m } from "@/paraglide/messages.js";
 import { quoteStatusBadge, quoteStatusToken } from "../lib/quote-status";
@@ -64,7 +64,6 @@ type QuoteDocumentPageProps = {
   onRetryPaper?: () => void;
   language: DocumentLanguage;
   onLanguageChange: (language: DocumentLanguage) => void;
-  pdfHref: (language: DocumentLanguage) => string;
   logoSrc?: string;
   isPending: boolean;
   error: string | null;
@@ -86,7 +85,6 @@ export function QuoteDocumentPage({
   onRetryPaper,
   language,
   onLanguageChange,
-  pdfHref,
   logoSrc,
   isPending,
   error,
@@ -167,7 +165,7 @@ export function QuoteDocumentPage({
               className={buttonVariants({ size: "xl", variant: "outline" })}
               data-testid="quote-document-download"
               download
-              href={quoteDocumentDownloadHref(quote.id)}
+              href={quotePdfHref(quote.id, language)}
             >
               <Download data-icon="inline-start" />
               {m.document_download()}
@@ -192,14 +190,14 @@ export function QuoteDocumentPage({
               <DropdownMenuItem
                 data-language="fr"
                 data-testid="document-download-item"
-                render={<a download href={pdfHref(0)} />}
+                render={<a download href={quotePdfHref(quote.id, 0)} />}
               >
                 {m.document_download_fr()}
               </DropdownMenuItem>
               <DropdownMenuItem
                 data-language="en"
                 data-testid="document-download-item"
-                render={<a download href={pdfHref(1)} />}
+                render={<a download href={quotePdfHref(quote.id, 1)} />}
               >
                 {m.document_download_en()}
               </DropdownMenuItem>
@@ -240,7 +238,7 @@ export function QuoteDocumentPage({
               <Panel data-testid="quote-document" padding="none">
                 <FiledDocumentPanel
                   document={detail.document}
-                  downloadHref={quoteDocumentDownloadHref(quote.id)}
+                  downloadHref={quotePdfHref(quote.id, language)}
                   error={filing.error}
                   isPending={filing.isPending}
                   isUploading={filing.isUploading}

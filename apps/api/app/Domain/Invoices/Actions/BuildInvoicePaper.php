@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Actions;
 
+use App\Domain\Invoices\Data\InvoiceLineInputData;
 use App\Domain\Invoices\Data\InvoicePaperData;
 use App\Domain\Invoices\Data\SaveInvoiceDraftData;
 use App\Domain\Invoices\Documents\DocumentFormatter;
@@ -65,14 +66,7 @@ class BuildInvoicePaper
             operationCategory: $isIssued ? ($invoice->operation_category ?? OperationCategory::Services) : $settings->operation_category,
             seller: $seller,
             buyer: $buyer,
-            lines: array_values($invoice->lines->map(static fn (InvoiceLine $line): array => [
-                'label' => $line->label,
-                'detail' => $line->detail,
-                'quantityMilli' => $line->quantity_milli,
-                'unit' => $line->unit,
-                'unitPrice' => $line->unit_price_cents,
-                'vatRateBp' => $line->vat_rate_bp,
-            ])->all()),
+            lines: array_values($invoice->lines->map(static fn (InvoiceLine $line): array => $line->toPaperLine())->all()),
             currency: $invoice->currency,
             term: new PaymentTerm($invoice->payment_terms_days ?? 0, $invoice->payment_terms_end_of_month),
             latePenaltyRateBp: $invoice->late_penalty_rate_bp,
@@ -154,18 +148,7 @@ class BuildInvoicePaper
         $vatApplies = $settings->vat_regime->isLiable();
         $issuedOn = $data->issuedOn === null ? $settings->today() : CarbonImmutable::parse($data->issuedOn);
         $term = new PaymentTerm($data->paymentTermsDays, $data->paymentTermsEndOfMonth);
-        $lines = [];
-
-        foreach ($data->lines as $line) {
-            $lines[] = [
-                'label' => $line->label,
-                'detail' => $line->detail,
-                'quantityMilli' => $line->quantityMilli,
-                'unit' => $line->unit,
-                'unitPrice' => $line->unitPrice->toMoney(),
-                'vatRateBp' => $vatApplies ? $line->vatRateBp : 0,
-            ];
-        }
+        $lines = array_map(static fn (InvoiceLineInputData $line): array => $line->toPaperLine($vatApplies), $data->lines);
 
         return $this->paperBuilder->build(new PaperDocument(
             kind: DocumentKind::Invoice,

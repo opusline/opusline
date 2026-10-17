@@ -25,11 +25,12 @@ import {
 } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { CircleAlert } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { EmailTemplatesPage } from "@/features/invoices/components/email-templates-page";
 import type { EmailTemplateDraft } from "@/features/invoices/lib/email-templates";
 import { requireInvoicing } from "@/lib/features";
+import { useSettled } from "@/lib/use-settled";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 
@@ -37,21 +38,6 @@ export const Route = createFileRoute("/_authed/invoicing/emails")({
   beforeLoad: ({ context }) => requireInvoicing(context.user),
   component: EmailTemplatesRoute,
 });
-
-/** The preview is a round trip to the API: typed text waits a beat before it goes. */
-const PREVIEW_DELAY_MS = 400;
-
-function useSettled<T>(value: T, delayMs: number): T {
-  const [settled, setSettled] = useState(value);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setSettled(value), delayMs);
-
-    return () => clearTimeout(timer);
-  }, [value, delayMs]);
-
-  return settled;
-}
 
 function draftOf(template: EmailTemplateData): EmailTemplateDraft {
   return { subject: template.subject, body: template.body };
@@ -71,7 +57,7 @@ function EmailTemplatesRoute() {
     (template) => template.kind === selected,
   );
   const draft = edited ?? (stored === undefined ? null : draftOf(stored));
-  const settledDraft = useSettled(draft, PREVIEW_DELAY_MS);
+  const settledDraft = useSettled(draft);
   const previewKey = JSON.stringify([selected, settledDraft]);
   const preview = useQuery({
     queryKey: ["email-template-preview", previewKey],

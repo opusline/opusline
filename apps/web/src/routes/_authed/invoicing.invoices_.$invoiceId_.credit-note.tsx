@@ -29,10 +29,10 @@ import {
   hasReceivedMoney,
   newCreditNoteDraft,
 } from "@/features/invoices/lib/credit-note-draft";
-import { useSettled } from "@/features/invoices/lib/use-invoice-editor";
 import { requireInvoicing } from "@/lib/features";
 import { companyLogoHref } from "@/lib/logos";
 import { invalidateInvoiceWrites } from "@/lib/query-invalidation";
+import { useSettled } from "@/lib/use-settled";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
 

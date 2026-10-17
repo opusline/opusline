@@ -23,7 +23,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 
 import { useMoneyFormat } from "@/components/money-format-provider";
 import { accountTodayCalendarDate } from "@/lib/dates";
@@ -32,9 +32,9 @@ import {
   invalidateInvoiceWrites,
   operationFilter,
 } from "@/lib/query-invalidation";
+import { useSettled } from "@/lib/use-settled";
 import { serverErrorMessage } from "@/lib/validation";
 import { m } from "@/paraglide/messages.js";
-
 import type { InvoiceEditorPageProps } from "../components/invoice-editor-page";
 import {
   draftFromDetail,
@@ -44,25 +44,10 @@ import {
   newInvoiceDraft,
 } from "./invoice-draft";
 
-const PREVIEW_DELAY_MS = 400;
-
 type InvoiceEditor =
   | { status: "pending" }
   | { status: "error" }
   | { status: "ready"; page: InvoiceEditorPageProps };
-
-/** Waits for typing to settle, so the preview is not re-rendered on every key. */
-export function useSettled<T>(value: T): T {
-  const [settled, setSettled] = useState(value);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setSettled(value), PREVIEW_DELAY_MS);
-
-    return () => clearTimeout(timer);
-  }, [value]);
-
-  return settled;
-}
 
 /**
  * Everything the invoice editor reads and writes, for a new invoice (null) or

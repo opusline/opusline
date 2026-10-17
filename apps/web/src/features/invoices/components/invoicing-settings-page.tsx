@@ -174,7 +174,7 @@ function Section({
   children: ReactNode;
 }) {
   return (
-    <Panel className="px-5 py-6 sm:px-7" padding="none">
+    <Panel padding="section">
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
         <PanelTitle>{title}</PanelTitle>
         {aside}

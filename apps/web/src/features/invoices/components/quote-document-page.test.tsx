@@ -39,7 +39,6 @@ function renderPage(
         onRefuse={onRefuse}
         onReopen={onReopen}
         paper={quotePaperFixture}
-        pdfHref={() => "#"}
       />
     </StoryRouter>,
   );

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Invoices\Actions;
 
+use App\Domain\Invoices\Data\InvoiceLineInputData;
 use App\Domain\Invoices\Data\InvoicePaperData;
 use App\Domain\Invoices\Data\SaveQuoteDraftData;
 use App\Domain\Invoices\Documents\DocumentFormatter;
@@ -58,14 +59,7 @@ class BuildQuotePaper
             operationCategory: $settings->operation_category,
             seller: $seller,
             buyer: $buyer,
-            lines: array_values($quote->lines->map(static fn (QuoteLine $line): array => [
-                'label' => $line->label,
-                'detail' => $line->detail,
-                'quantityMilli' => $line->quantity_milli,
-                'unit' => $line->unit,
-                'unitPrice' => $line->unit_price_cents,
-                'vatRateBp' => $line->vat_rate_bp,
-            ])->all()),
+            lines: array_values($quote->lines->map(static fn (QuoteLine $line): array => $line->toPaperLine())->all()),
             currency: $quote->currency,
             term: new PaymentTerm($quote->payment_terms_days, $quote->payment_terms_end_of_month),
             latePenaltyRateBp: null,
@@ -84,18 +78,7 @@ class BuildQuotePaper
         $client = $user->clients()->whereKey($data->clientId)->firstOrFail();
         $vatApplies = $settings->vat_regime->isLiable();
         $issuedOn = $data->issuedOn === null ? $settings->today() : CarbonImmutable::parse($data->issuedOn);
-        $lines = [];
-
-        foreach ($data->lines as $line) {
-            $lines[] = [
-                'label' => $line->label,
-                'detail' => $line->detail,
-                'quantityMilli' => $line->quantityMilli,
-                'unit' => $line->unit,
-                'unitPrice' => $line->unitPrice->toMoney(),
-                'vatRateBp' => $vatApplies ? $line->vatRateBp : 0,
-            ];
-        }
+        $lines = array_map(static fn (InvoiceLineInputData $line): array => $line->toPaperLine($vatApplies), $data->lines);
 
         return $this->paperBuilder->build(new PaperDocument(
             kind: DocumentKind::Quote,

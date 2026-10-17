@@ -21,7 +21,6 @@ const meta = {
     creditNotes: [creditNoteFixture],
     accountToday: "2026-08-14",
     isPending: false,
-    pdfHref: () => "#",
     onRefund: () => {},
   },
 } satisfies Meta<typeof CreditNotesPanel>;
